@@ -6,15 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>456</width>
-    <height>393</height>
+    <width>430</width>
+    <height>443</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>ANTS3</string>
   </property>
   <property name="windowIcon">
-   <iconset>
+   <iconset resource="../resources.qrc">
     <normaloff>:/images/gui/images/ant.png</normaloff>:/images/gui/images/ant.png</iconset>
   </property>
   <widget class="QWidget" name="centralWidget">
@@ -77,6 +77,13 @@
              </property>
              <property name="text">
               <string>Materials</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="lSpaceHolder1">
+             <property name="text">
+              <string>SH1</string>
              </property>
             </widget>
            </item>
@@ -180,6 +187,16 @@
              </property>
             </widget>
            </item>
+           <item>
+            <widget class="QPushButton" name="pbFunctionalModels">
+             <property name="contextMenuPolicy">
+              <enum>Qt::CustomContextMenu</enum>
+             </property>
+             <property name="text">
+              <string>Functional</string>
+             </property>
+            </widget>
+           </item>
           </layout>
          </widget>
         </item>
@@ -280,6 +297,13 @@
              </property>
             </widget>
            </item>
+           <item>
+            <widget class="QLabel" name="lSpaceHolder2">
+             <property name="text">
+              <string>SH2</string>
+             </property>
+            </widget>
+           </item>
           </layout>
          </widget>
         </item>
@@ -377,6 +401,13 @@
              </property>
              <property name="text">
               <string>XYZ/Energy</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="lSpaceHolder3">
+             <property name="text">
+              <string>SH3</string>
              </property>
             </widget>
            </item>
@@ -504,6 +535,12 @@
          </item>
          <item>
           <widget class="QPushButton" name="pbLoadConfig">
+           <property name="contextMenuPolicy">
+            <enum>Qt::CustomContextMenu</enum>
+           </property>
+           <property name="toolTip">
+            <string>Right-click to load last</string>
+           </property>
            <property name="text">
             <string>Load</string>
            </property>
@@ -542,7 +579,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>456</width>
+     <width>430</width>
      <height>21</height>
     </rect>
    </property>
@@ -643,6 +680,8 @@
   </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
- <resources/>
+ <resources>
+  <include location="../resources.qrc"/>
+ </resources>
  <connections/>
 </ui>

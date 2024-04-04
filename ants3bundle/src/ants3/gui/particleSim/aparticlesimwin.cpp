@@ -97,9 +97,85 @@ void AParticleSimWin::writeToJson(QJsonObject & json) const
     // Seed
     {
         QJsonObject js;
-        js["Random"] = ui->cbRandomSeed->isChecked();
-        js["FixedSeed"] = ui->sbSeed->value();
+            js["Random"] = ui->cbRandomSeed->isChecked();
+            js["FixedSeed"] = ui->sbSeed->value();
         json["Seed"] = js;
+    }
+
+    // Analyser
+    {
+        QJsonObject jsAn;
+        // Tracks
+        // Event viewer
+        // Statistics
+        {
+            QJsonObject js;
+
+                // Particle selector
+                js["EnableLimitToParticle"] = ui->cbPTHistParticle->isChecked();
+                js["LimitParticle"] = ui->lePTHistParticle->text();
+                js["OnlyPrimary"] = ui->cbPTHistOnlyPrim->isChecked();
+                js["LimitToFirstInteractionOfPrimary"] = ui->cbPTHistLimitToFirst->isChecked();
+                js["OnlySecondary"] = ui->cbPTHistOnlySec->isChecked();
+                js["LimitTime"] = ui->cbPTHistTime->isChecked();
+                js["TimeFrom"] = ui->lePTHistTimeFrom->text();
+                js["TimeTo"] = ui->lePTHistTimeTo->text();
+
+                js["BulkOrTransition"] = ui->twPTHistType->currentIndex();
+
+                // Volume-specific
+                js["RequestWhat"] = ui->cobPTHistVolRequestWhat->currentIndex();
+                js["RequestWhatPlus"] = ui->cobPTHistVolPlus->currentIndex();
+                js["RequestWhatVsTime"] = ui->cbPTHistVolVsTime->isChecked();
+                js["LimitToHadronic"] = ui->cbLimitToHadronic->isChecked();
+                js["HadronicTarget"] = ui->leLimitHadronicTarget->text();
+
+                js["EnableLimitToMat"] = ui->cbPTHistVolMat->isChecked();
+                js["LimitToMat"] = ui->cobPTHistVolMat->currentIndex();
+                js["EnableLimitToVolume"] = ui->cbPTHistVolVolume->isChecked();
+                js["LimitToVolume"] = ui->lePTHistVolVolume->text();
+                js["EnableLimitToIndex"] = ui->cbPTHistVolIndex->isChecked();
+                js["LimitToIndex"] = ui->sbPTHistVolIndex->value();
+
+                // Transition-specific
+                js["What1"] = ui->lePTHistBordWhat->text();
+                js["EnableWhat2"] = ui->cbPTHistBordVs->isChecked();
+                js["What2"] = ui->lePTHistBordVsWhat->text();
+                js["EnableWhat3"] = ui->cbPTHistBordAndVs->isChecked();
+                js["What3"] = ui->lePTHistBordAndVsWhat->text();
+                js["AveragePerBins"] = ui->cbPTHistBordAsStat->isChecked();
+                js["Cuts"] = ui->lePTHistBordCuts->text();
+
+                js["EnableLimitToMatFrom"] = ui->cbPTHistVolMatFrom->isChecked();
+                js["LimitToMatFrom"] = ui->cobPTHistVolMatFrom->currentIndex();
+                js["EnableLimitToVolumeFrom"] = ui->cbPTHistVolVolumeFrom->isChecked();
+                js["LimitToVolumeFrom"] = ui->lePTHistVolVolumeFrom->text();
+                js["EnableLimitToIndexFrom"] = ui->cbPTHistVolIndexFrom->isChecked();
+                js["LimitToIndexFrom"] = ui->sbPTHistVolIndexFrom->value();
+                js["EnableLimitToEscaping"] = ui->cbPTHistEscaping->isChecked();
+
+                js["EnableLimitToMatTo"] = ui->cbPTHistVolMatTo->isChecked();
+                js["LimitToMatTo"] = ui->cobPTHistVolMatTo->currentIndex();
+                js["EnableLimitToVolumeTo"] = ui->cbPTHistVolVolumeTo->isChecked();
+                js["LimitToVolumeTo"] = ui->lePTHistVolVolumeTo->text();
+                js["EnableLimitToIndexTo"] = ui->cbPTHistVolIndexTo->isChecked();
+                js["LimitToIndexTo"] = ui->sbPTHistVolIndexTo->value();
+                js["EnableLimitToCreated"] = ui->cbPTHistCreated->isChecked();
+
+                // Common
+                js["BinsX"] = ui->sbPTHistBinsX->value();
+                js["FromX"] = ui->ledPTHistFromX->text();
+                js["ToX"] = ui->ledPTHistToX->text();
+                js["BinsY"] = ui->sbPTHistBinsY->value();
+                js["FromY"] = ui->ledPTHistFromY->text();
+                js["ToY"] = ui->ledPTHistToY->text();
+
+                js["Threads"] = ui->sbNumThreadsStatistics->value();
+                js["EventsPerThread"] = ui->ledEventsPerThread->text();
+
+            jsAn["Statistics"] = js;
+        }
+        json["Analyser"] = jsAn;
     }
 }
 
@@ -119,6 +195,86 @@ void AParticleSimWin::readFromJson(const QJsonObject &json)
         {
             jstools::parseJson(js, "Random", flag); ui->cbRandomSeed->setChecked(flag);
             jstools::parseJson(js, "FixedSeed", i); ui->sbSeed->setValue(i);
+        }
+    }
+
+    // Analyser
+    {
+        QJsonObject jsAn;
+        ok = jstools::parseJson(json, "Analyser", jsAn);
+        if (ok)
+        {
+            // Tracks
+
+            // Event viewer
+
+            // Statistics
+            {
+                QJsonObject js;
+                jstools::parseJson(jsAn, "Statistics", js);
+
+                    // Particle selector
+                    guitools::parseJsonToQCheckBox(js, "EnableLimitToParticle", ui->cbPTHistParticle);
+                    guitools::parseJsonToQLineEdit(js, "LimitParticle", ui->lePTHistParticle);
+                    guitools::parseJsonToQCheckBox(js, "OnlyPrimary", ui->cbPTHistOnlyPrim);
+                    guitools::parseJsonToQCheckBox(js, "LimitToFirstInteractionOfPrimary", ui->cbPTHistLimitToFirst);
+                    guitools::parseJsonToQCheckBox(js, "OnlySecondary", ui->cbPTHistOnlySec);
+                    guitools::parseJsonToQCheckBox(js, "LimitTime", ui->cbPTHistTime);
+                    guitools::parseJsonToQLineEdit(js, "TimeFrom", ui->lePTHistTimeFrom);
+                    guitools::parseJsonToQLineEdit(js, "TimeTo", ui->lePTHistTimeTo);
+
+                    guitools::parseJsonToQTabWidget(js, "BulkOrTransition", ui->twPTHistType);
+
+                    // Volume-specific
+                    guitools::parseJsonToQComboBox(js, "RequestWhat", ui->cobPTHistVolRequestWhat);
+                    guitools::parseJsonToQComboBox(js, "RequestWhatPlus", ui->cobPTHistVolPlus);
+                    guitools::parseJsonToQCheckBox(js, "RequestWhatVsTime", ui->cbPTHistVolVsTime);
+                    guitools::parseJsonToQCheckBox(js, "LimitToHadronic", ui->cbLimitToHadronic);
+                    guitools::parseJsonToQLineEdit(js, "HadronicTarget", ui->leLimitHadronicTarget);
+
+                    guitools::parseJsonToQCheckBox(js, "EnableLimitToMat", ui->cbPTHistVolMat);
+                    guitools::parseJsonToQComboBox(js, "LimitToMat", ui->cobPTHistVolMat);
+                    guitools::parseJsonToQCheckBox(js, "EnableLimitToVolume", ui->cbPTHistVolVolume);
+                    guitools::parseJsonToQLineEdit(js, "LimitToVolume", ui->lePTHistVolVolume);
+                    guitools::parseJsonToQCheckBox(js, "EnableLimitToIndex", ui->cbPTHistVolIndex);
+                    guitools::parseJsonToQSpinBox(js, "LimitToIndex", ui->sbPTHistVolIndex);
+
+                    // Transition-specific
+                    guitools::parseJsonToQLineEdit(js, "What1", ui->lePTHistBordWhat);
+                    guitools::parseJsonToQCheckBox(js, "EnableWhat2", ui->cbPTHistBordVs);
+                    guitools::parseJsonToQLineEdit(js, "What2", ui->lePTHistBordVsWhat);
+                    guitools::parseJsonToQCheckBox(js, "EnableWhat3", ui->cbPTHistBordAndVs);
+                    guitools::parseJsonToQLineEdit(js, "What3", ui->lePTHistBordAndVsWhat);
+                    guitools::parseJsonToQCheckBox(js, "AveragePerBins", ui->cbPTHistBordAsStat);
+                    guitools::parseJsonToQLineEdit(js, "Cuts", ui->lePTHistBordCuts);
+
+                    guitools::parseJsonToQCheckBox(js, "EnableLimitToMatFrom", ui->cbPTHistVolMatFrom);
+                    guitools::parseJsonToQComboBox(js, "LimitToMatFrom", ui->cobPTHistVolMatFrom);
+                    guitools::parseJsonToQCheckBox(js, "EnableLimitToVolumeFrom", ui->cbPTHistVolVolumeFrom);
+                    guitools::parseJsonToQLineEdit(js, "LimitToVolumeFrom", ui->lePTHistVolVolumeFrom);
+                    guitools::parseJsonToQCheckBox(js, "EnableLimitToIndexFrom", ui->cbPTHistVolIndexFrom);
+                    guitools::parseJsonToQSpinBox(js, "LimitToIndexFrom", ui->sbPTHistVolIndexFrom);
+                    guitools::parseJsonToQCheckBox(js, "EnableLimitToEscaping", ui->cbPTHistEscaping);
+
+                    guitools::parseJsonToQCheckBox(js, "EnableLimitToMatTo", ui->cbPTHistVolMatTo);
+                    guitools::parseJsonToQComboBox(js, "LimitToMatTo", ui->cobPTHistVolMatTo);
+                    guitools::parseJsonToQCheckBox(js, "EnableLimitToVolumeTo", ui->cbPTHistVolVolumeTo);
+                    guitools::parseJsonToQLineEdit(js, "LimitToVolumeTo", ui->lePTHistVolVolumeTo);
+                    guitools::parseJsonToQCheckBox(js, "EnableLimitToIndexTo", ui->cbPTHistVolIndexTo);
+                    guitools::parseJsonToQSpinBox(js, "LimitToIndexTo", ui->sbPTHistVolIndexTo);
+                    guitools::parseJsonToQCheckBox(js, "EnableLimitToCreated", ui->cbPTHistCreated);
+
+                    // Common
+                    guitools::parseJsonToQSpinBox(js, "BinsX", ui->sbPTHistBinsX);
+                    guitools::parseJsonToQLineEdit(js, "FromX", ui->ledPTHistFromX);
+                    guitools::parseJsonToQLineEdit(js, "ToX", ui->ledPTHistToX);
+                    guitools::parseJsonToQSpinBox(js, "BinsY", ui->sbPTHistBinsY);
+                    guitools::parseJsonToQLineEdit(js, "FromY", ui->ledPTHistFromY);
+                    guitools::parseJsonToQLineEdit(js, "ToY", ui->ledPTHistToY);
+
+                    guitools::parseJsonToQSpinBox(js, "Threads", ui->sbNumThreadsStatistics);
+                    guitools::parseJsonToQLineEdit(js, "EventsPerThread", ui->ledEventsPerThread);
+            }
         }
     }
 }
@@ -859,18 +1015,24 @@ void AParticleSimWin::on_pbLoadAllResults_clicked()
         on_pbLoadCalorimetersData_clicked();
 }
 
+void updateMatComboBox(QComboBox * cob, const QStringList & mats)
+{
+    int oldIndex = cob->currentIndex();
+
+    cob->clear();
+    cob->addItems(mats);
+
+    if (oldIndex > -1 && oldIndex < mats.size())
+        cob->setCurrentIndex(oldIndex);
+}
+
 void AParticleSimWin::onMaterialsChanged()
 {
-    QStringList mats = AMaterialHub::getInstance().getListOfMaterialNames();
+    const QStringList mats = AMaterialHub::getInstance().getListOfMaterialNames();
 
-    ui->cobPTHistVolMatFrom->clear();
-    ui->cobPTHistVolMatFrom->addItems(mats);
-
-    ui->cobPTHistVolMatTo->clear();
-    ui->cobPTHistVolMatTo->addItems(mats);
-
-    ui->cobPTHistVolMat->clear();
-    ui->cobPTHistVolMat->addItems(mats);
+    updateMatComboBox(ui->cobPTHistVolMatFrom, mats);
+    updateMatComboBox(ui->cobPTHistVolMatTo, mats);
+    updateMatComboBox(ui->cobPTHistVolMat, mats);
 }
 
 void AParticleSimWin::onRequestShowSource()
@@ -1443,9 +1605,9 @@ void AParticleSimWin::findInBulk(ATrackingHistoryCrawler & crawler, AFindRecordS
     case 4:
      {
         AHistorySearchProcessor_getDepositionStats * p = nullptr;
-        if (ui->cbLimitTimeWindow->isChecked())
+        if (ui->cbPTHistTime->isChecked())
         {
-            p = new AHistorySearchProcessor_getDepositionStatsTimeAware(ui->ledTimeFrom->text().toDouble(), ui->ledTimeTo->text().toDouble());
+            p = new AHistorySearchProcessor_getDepositionStatsTimeAware(ui->lePTHistTimeFrom->text().toDouble(), ui->lePTHistTimeTo->text().toDouble());
             crawler.find(options, *p, numThreads, numEventsPerThread);
         }
         else
@@ -1653,7 +1815,6 @@ void AParticleSimWin::on_cobPTHistVolRequestWhat_currentIndexChanged(int index)
     ui->cobPTHistVolPlus->setVisible(index == 1 || index == 3);
 
     ui->frLimitHadronicTarget->setVisible(index == 1);
-    ui->frTimeAware->setVisible(index == 4);
 
     ui->cbPTHistVolVsTime->setVisible(index == 3);
 }

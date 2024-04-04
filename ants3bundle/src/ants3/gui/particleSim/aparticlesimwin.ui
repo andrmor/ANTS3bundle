@@ -2798,6 +2798,9 @@ sources</string>
                       </property>
                       <item>
                        <widget class="QCheckBox" name="cbPTHistTime">
+                        <property name="toolTip">
+                         <string>Particle is ignored if it was generated outside of the defined time window</string>
+                        </property>
                         <property name="text">
                          <string>Time from</string>
                         </property>
@@ -3072,131 +3075,6 @@ sources</string>
                          <property name="sizeHint" stdset="0">
                           <size>
                            <width>36</width>
-                           <height>20</height>
-                          </size>
-                         </property>
-                        </spacer>
-                       </item>
-                      </layout>
-                     </widget>
-                    </item>
-                    <item>
-                     <widget class="QFrame" name="frTimeAware">
-                      <property name="sizePolicy">
-                       <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-                        <horstretch>0</horstretch>
-                        <verstretch>0</verstretch>
-                       </sizepolicy>
-                      </property>
-                      <property name="minimumSize">
-                       <size>
-                        <width>0</width>
-                        <height>30</height>
-                       </size>
-                      </property>
-                      <property name="frameShape">
-                       <enum>QFrame::NoFrame</enum>
-                      </property>
-                      <property name="frameShadow">
-                       <enum>QFrame::Raised</enum>
-                      </property>
-                      <layout class="QHBoxLayout" name="horizontalLayout_33">
-                       <property name="spacing">
-                        <number>3</number>
-                       </property>
-                       <property name="leftMargin">
-                        <number>1</number>
-                       </property>
-                       <property name="topMargin">
-                        <number>0</number>
-                       </property>
-                       <property name="rightMargin">
-                        <number>1</number>
-                       </property>
-                       <property name="bottomMargin">
-                        <number>0</number>
-                       </property>
-                       <item>
-                        <spacer name="horizontalSpacer_43">
-                         <property name="orientation">
-                          <enum>Qt::Horizontal</enum>
-                         </property>
-                         <property name="sizeHint" stdset="0">
-                          <size>
-                           <width>83</width>
-                           <height>20</height>
-                          </size>
-                         </property>
-                        </spacer>
-                       </item>
-                       <item>
-                        <widget class="QCheckBox" name="cbLimitTimeWindow">
-                         <property name="text">
-                          <string>Limit time window</string>
-                         </property>
-                        </widget>
-                       </item>
-                       <item>
-                        <widget class="QLabel" name="label_11">
-                         <property name="text">
-                          <string>From:</string>
-                         </property>
-                        </widget>
-                       </item>
-                       <item>
-                        <widget class="QLineEdit" name="ledTimeFrom">
-                         <property name="enabled">
-                          <bool>false</bool>
-                         </property>
-                         <property name="maximumSize">
-                          <size>
-                           <width>100</width>
-                           <height>16777215</height>
-                          </size>
-                         </property>
-                         <property name="text">
-                          <string>0</string>
-                         </property>
-                        </widget>
-                       </item>
-                       <item>
-                        <widget class="QLabel" name="label_31">
-                         <property name="text">
-                          <string>ns  To:</string>
-                         </property>
-                        </widget>
-                       </item>
-                       <item>
-                        <widget class="QLineEdit" name="ledTimeTo">
-                         <property name="enabled">
-                          <bool>false</bool>
-                         </property>
-                         <property name="maximumSize">
-                          <size>
-                           <width>100</width>
-                           <height>16777215</height>
-                          </size>
-                         </property>
-                         <property name="text">
-                          <string>100</string>
-                         </property>
-                        </widget>
-                       </item>
-                       <item>
-                        <widget class="QLabel" name="label_34">
-                         <property name="text">
-                          <string>ns </string>
-                         </property>
-                        </widget>
-                       </item>
-                       <item>
-                        <spacer name="horizontalSpacer_44">
-                         <property name="orientation">
-                          <enum>Qt::Horizontal</enum>
-                         </property>
-                         <property name="sizeHint" stdset="0">
-                          <size>
-                           <width>82</width>
                            <height>20</height>
                           </size>
                          </property>
@@ -5248,12 +5126,12 @@ Please specify a valid range</string>
    <slot>setVisible(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>541</x>
-     <y>563</y>
+     <x>111</x>
+     <y>200</y>
     </hint>
     <hint type="destinationlabel">
-     <x>126</x>
-     <y>718</y>
+     <x>117</x>
+     <y>208</y>
     </hint>
    </hints>
   </connection>
@@ -5264,12 +5142,12 @@ Please specify a valid range</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>549</x>
-     <y>441</y>
+     <x>177</x>
+     <y>192</y>
     </hint>
     <hint type="destinationlabel">
-     <x>460</x>
-     <y>523</y>
+     <x>89</x>
+     <y>191</y>
     </hint>
    </hints>
   </connection>
@@ -5280,12 +5158,12 @@ Please specify a valid range</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>78</x>
-     <y>487</y>
+     <x>50</x>
+     <y>191</y>
     </hint>
     <hint type="destinationlabel">
-     <x>460</x>
-     <y>523</y>
+     <x>89</x>
+     <y>191</y>
     </hint>
    </hints>
   </connection>
@@ -5296,12 +5174,12 @@ Please specify a valid range</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>546</x>
-     <y>372</y>
+     <x>106</x>
+     <y>191</y>
     </hint>
     <hint type="destinationlabel">
-     <x>460</x>
-     <y>523</y>
+     <x>89</x>
+     <y>191</y>
     </hint>
    </hints>
   </connection>
@@ -5312,12 +5190,12 @@ Please specify a valid range</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>78</x>
-     <y>463</y>
+     <x>50</x>
+     <y>191</y>
     </hint>
     <hint type="destinationlabel">
-     <x>460</x>
-     <y>523</y>
+     <x>89</x>
+     <y>191</y>
     </hint>
    </hints>
   </connection>
@@ -5328,12 +5206,12 @@ Please specify a valid range</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>416</x>
-     <y>440</y>
+     <x>97</x>
+     <y>192</y>
     </hint>
     <hint type="destinationlabel">
-     <x>460</x>
-     <y>523</y>
+     <x>89</x>
+     <y>191</y>
     </hint>
    </hints>
   </connection>
@@ -5344,12 +5222,12 @@ Please specify a valid range</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>549</x>
-     <y>468</y>
+     <x>177</x>
+     <y>192</y>
     </hint>
     <hint type="destinationlabel">
-     <x>460</x>
-     <y>523</y>
+     <x>89</x>
+     <y>191</y>
     </hint>
    </hints>
   </connection>
@@ -5360,12 +5238,12 @@ Please specify a valid range</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>416</x>
-     <y>467</y>
+     <x>97</x>
+     <y>192</y>
     </hint>
     <hint type="destinationlabel">
-     <x>460</x>
-     <y>523</y>
+     <x>89</x>
+     <y>191</y>
     </hint>
    </hints>
   </connection>
@@ -5376,12 +5254,12 @@ Please specify a valid range</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>238</x>
-     <y>438</y>
+     <x>79</x>
+     <y>191</y>
     </hint>
     <hint type="destinationlabel">
-     <x>460</x>
-     <y>523</y>
+     <x>89</x>
+     <y>191</y>
     </hint>
    </hints>
   </connection>
@@ -5392,12 +5270,12 @@ Please specify a valid range</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>78</x>
-     <y>439</y>
+     <x>50</x>
+     <y>191</y>
     </hint>
     <hint type="destinationlabel">
-     <x>460</x>
-     <y>523</y>
+     <x>89</x>
+     <y>191</y>
     </hint>
    </hints>
   </connection>
@@ -5408,12 +5286,12 @@ Please specify a valid range</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>228</x>
-     <y>486</y>
+     <x>68</x>
+     <y>192</y>
     </hint>
     <hint type="destinationlabel">
-     <x>460</x>
-     <y>523</y>
+     <x>89</x>
+     <y>191</y>
     </hint>
    </hints>
   </connection>
@@ -5424,12 +5302,12 @@ Please specify a valid range</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>309</x>
-     <y>487</y>
+     <x>148</x>
+     <y>192</y>
     </hint>
     <hint type="destinationlabel">
-     <x>460</x>
-     <y>523</y>
+     <x>89</x>
+     <y>191</y>
     </hint>
    </hints>
   </connection>
@@ -5440,12 +5318,12 @@ Please specify a valid range</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>238</x>
-     <y>461</y>
+     <x>79</x>
+     <y>191</y>
     </hint>
     <hint type="destinationlabel">
-     <x>460</x>
-     <y>523</y>
+     <x>89</x>
+     <y>191</y>
     </hint>
    </hints>
   </connection>
@@ -5456,12 +5334,12 @@ Please specify a valid range</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>66</x>
-     <y>187</y>
+     <x>133</x>
+     <y>210</y>
     </hint>
     <hint type="destinationlabel">
-     <x>110</x>
-     <y>186</y>
+     <x>316</x>
+     <y>210</y>
     </hint>
    </hints>
   </connection>
@@ -5472,12 +5350,12 @@ Please specify a valid range</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>69</x>
-     <y>214</y>
+     <x>201</x>
+     <y>447</y>
     </hint>
     <hint type="destinationlabel">
-     <x>113</x>
-     <y>214</y>
+     <x>416</x>
+     <y>448</y>
     </hint>
    </hints>
   </connection>
@@ -5488,12 +5366,12 @@ Please specify a valid range</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>69</x>
-     <y>215</y>
+     <x>201</x>
+     <y>473</y>
     </hint>
     <hint type="destinationlabel">
-     <x>113</x>
-     <y>215</y>
+     <x>416</x>
+     <y>475</y>
     </hint>
    </hints>
   </connection>
@@ -5504,12 +5382,12 @@ Please specify a valid range</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>69</x>
-     <y>216</y>
+     <x>201</x>
+     <y>499</y>
     </hint>
     <hint type="destinationlabel">
-     <x>113</x>
-     <y>216</y>
+     <x>416</x>
+     <y>501</y>
     </hint>
    </hints>
   </connection>
@@ -5520,12 +5398,12 @@ Please specify a valid range</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>48</x>
-     <y>214</y>
+     <x>50</x>
+     <y>322</y>
     </hint>
     <hint type="destinationlabel">
-     <x>67</x>
-     <y>214</y>
+     <x>69</x>
+     <y>322</y>
     </hint>
    </hints>
   </connection>
@@ -5536,12 +5414,12 @@ Please specify a valid range</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>48</x>
-     <y>216</y>
+     <x>50</x>
+     <y>324</y>
     </hint>
     <hint type="destinationlabel">
-     <x>67</x>
-     <y>216</y>
+     <x>69</x>
+     <y>324</y>
     </hint>
    </hints>
   </connection>
@@ -5552,12 +5430,12 @@ Please specify a valid range</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>48</x>
-     <y>218</y>
+     <x>50</x>
+     <y>326</y>
     </hint>
     <hint type="destinationlabel">
-     <x>67</x>
-     <y>218</y>
+     <x>69</x>
+     <y>326</y>
     </hint>
    </hints>
   </connection>
@@ -5568,12 +5446,12 @@ Please specify a valid range</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>94</x>
-     <y>214</y>
+     <x>96</x>
+     <y>322</y>
     </hint>
     <hint type="destinationlabel">
-     <x>113</x>
-     <y>214</y>
+     <x>115</x>
+     <y>322</y>
     </hint>
    </hints>
   </connection>
@@ -5584,12 +5462,12 @@ Please specify a valid range</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>94</x>
-     <y>216</y>
+     <x>96</x>
+     <y>324</y>
     </hint>
     <hint type="destinationlabel">
-     <x>113</x>
-     <y>216</y>
+     <x>115</x>
+     <y>324</y>
     </hint>
    </hints>
   </connection>
@@ -5600,44 +5478,12 @@ Please specify a valid range</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>94</x>
-     <y>218</y>
+     <x>96</x>
+     <y>326</y>
     </hint>
     <hint type="destinationlabel">
-     <x>113</x>
-     <y>218</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>cbLimitTimeWindow</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>ledTimeTo</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>42</x>
-     <y>231</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>101</x>
-     <y>232</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>cbLimitTimeWindow</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>ledTimeFrom</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>42</x>
-     <y>231</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>72</x>
-     <y>232</y>
+     <x>115</x>
+     <y>326</y>
     </hint>
    </hints>
   </connection>
@@ -5648,12 +5494,12 @@ Please specify a valid range</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>71</x>
-     <y>202</y>
+     <x>122</x>
+     <y>371</y>
     </hint>
     <hint type="destinationlabel">
-     <x>116</x>
-     <y>202</y>
+     <x>499</x>
+     <y>372</y>
     </hint>
    </hints>
   </connection>
@@ -5664,12 +5510,12 @@ Please specify a valid range</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>67</x>
-     <y>616</y>
+     <x>52</x>
+     <y>211</y>
     </hint>
     <hint type="destinationlabel">
-     <x>180</x>
-     <y>617</y>
+     <x>82</x>
+     <y>211</y>
     </hint>
    </hints>
   </connection>
@@ -5680,12 +5526,12 @@ Please specify a valid range</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>67</x>
-     <y>616</y>
+     <x>52</x>
+     <y>211</y>
     </hint>
     <hint type="destinationlabel">
-     <x>555</x>
-     <y>616</y>
+     <x>111</x>
+     <y>211</y>
     </hint>
    </hints>
   </connection>
@@ -5696,12 +5542,12 @@ Please specify a valid range</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>67</x>
-     <y>640</y>
+     <x>52</x>
+     <y>211</y>
     </hint>
     <hint type="destinationlabel">
-     <x>180</x>
-     <y>642</y>
+     <x>82</x>
+     <y>211</y>
     </hint>
    </hints>
   </connection>
@@ -5712,12 +5558,12 @@ Please specify a valid range</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>67</x>
-     <y>640</y>
+     <x>52</x>
+     <y>211</y>
     </hint>
     <hint type="destinationlabel">
-     <x>555</x>
-     <y>640</y>
+     <x>111</x>
+     <y>211</y>
     </hint>
    </hints>
   </connection>
@@ -5728,12 +5574,12 @@ Please specify a valid range</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>67</x>
-     <y>690</y>
+     <x>53</x>
+     <y>211</y>
     </hint>
     <hint type="destinationlabel">
-     <x>178</x>
-     <y>691</y>
+     <x>83</x>
+     <y>211</y>
     </hint>
    </hints>
   </connection>
@@ -5744,12 +5590,12 @@ Please specify a valid range</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>60</x>
-     <y>738</y>
+     <x>46</x>
+     <y>212</y>
     </hint>
     <hint type="destinationlabel">
-     <x>163</x>
-     <y>739</y>
+     <x>68</x>
+     <y>212</y>
     </hint>
    </hints>
   </connection>
@@ -5760,12 +5606,12 @@ Please specify a valid range</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>375</x>
-     <y>738</y>
+     <x>90</x>
+     <y>212</y>
     </hint>
     <hint type="destinationlabel">
-     <x>478</x>
-     <y>739</y>
+     <x>112</x>
+     <y>212</y>
     </hint>
    </hints>
   </connection>
@@ -5776,12 +5622,12 @@ Please specify a valid range</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>67</x>
-     <y>616</y>
+     <x>52</x>
+     <y>211</y>
     </hint>
     <hint type="destinationlabel">
-     <x>564</x>
-     <y>690</y>
+     <x>112</x>
+     <y>211</y>
     </hint>
    </hints>
   </connection>
@@ -5792,12 +5638,12 @@ Please specify a valid range</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>67</x>
-     <y>640</y>
+     <x>52</x>
+     <y>211</y>
     </hint>
     <hint type="destinationlabel">
-     <x>564</x>
-     <y>690</y>
+     <x>112</x>
+     <y>211</y>
     </hint>
    </hints>
   </connection>
@@ -5808,12 +5654,12 @@ Please specify a valid range</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>67</x>
-     <y>690</y>
+     <x>53</x>
+     <y>211</y>
     </hint>
     <hint type="destinationlabel">
-     <x>564</x>
-     <y>690</y>
+     <x>112</x>
+     <y>211</y>
     </hint>
    </hints>
   </connection>
@@ -5824,12 +5670,12 @@ Please specify a valid range</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>60</x>
-     <y>738</y>
+     <x>46</x>
+     <y>212</y>
     </hint>
     <hint type="destinationlabel">
-     <x>564</x>
-     <y>690</y>
+     <x>112</x>
+     <y>211</y>
     </hint>
    </hints>
   </connection>
@@ -5840,12 +5686,12 @@ Please specify a valid range</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>375</x>
-     <y>738</y>
+     <x>90</x>
+     <y>212</y>
     </hint>
     <hint type="destinationlabel">
-     <x>564</x>
-     <y>690</y>
+     <x>112</x>
+     <y>211</y>
     </hint>
    </hints>
   </connection>
@@ -5856,12 +5702,12 @@ Please specify a valid range</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>79</x>
-     <y>189</y>
+     <x>286</x>
+     <y>262</y>
     </hint>
     <hint type="destinationlabel">
-     <x>87</x>
-     <y>189</y>
+     <x>386</x>
+     <y>263</y>
     </hint>
    </hints>
   </connection>
@@ -5872,12 +5718,12 @@ Please specify a valid range</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>79</x>
-     <y>189</y>
+     <x>286</x>
+     <y>262</y>
     </hint>
     <hint type="destinationlabel">
-     <x>102</x>
-     <y>189</y>
+     <x>494</x>
+     <y>263</y>
     </hint>
    </hints>
   </connection>

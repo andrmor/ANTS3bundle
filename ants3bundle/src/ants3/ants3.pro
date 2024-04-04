@@ -104,6 +104,7 @@ INCLUDEPATH += tools
 INCLUDEPATH += particleSim
 INCLUDEPATH += photonSim
 INCLUDEPATH += photonSim/interfaceRules
+INCLUDEPATH += photonSim/photonFunctional
 INCLUDEPATH += dispatch
 INCLUDEPATH += farm
 INCLUDEPATH += config
@@ -129,6 +130,7 @@ SOURCES += \
     gui/aguiwindow.cpp \
     gui/alineedit.cpp \
     gui/alineeditwithescape.cpp \
+    gui/atreedatabaseselectordialog.cpp \
     gui/geom/ageoconstexpressiondialog.cpp \
     gui/geom/ageotreewin.cpp \
     gui/geom/ashownumbersdialog.cpp \
@@ -140,7 +142,9 @@ SOURCES += \
     gui/particleSim/atrackdrawdialog.cpp \
     gui/particleSim/atrackingdataexplorer.cpp \
     gui/particleSim/aworldsizewarningdialog.cpp \
+    gui/photsim/afunctionalmodelwidget.cpp \
     gui/photsim/ainterfaceruletester.cpp \
+    gui/photsim/aphotontunnelwindow.cpp \
     gui/photsim/aphotsimwin.cpp \
     gui/photsim/asensordrawwidget.cpp \
     config/aconfig.cpp \
@@ -202,6 +206,8 @@ SOURCES += \
     photonSim/interfaceRules/asurfaceinterfacerule.cpp \
     photonSim/interfaceRules/asurfacesettings.cpp \
     photonSim/interfaceRules/aunifiedrule.cpp \
+    photonSim/photonFunctional/aphotonfunctionalhub.cpp \
+    photonSim/photonFunctional/aphotonfunctionalmodel.cpp \
     script/ScriptInterfaces/ageo_si.cpp \
     script/ScriptInterfaces/ageowin_si.cpp \
     script/ScriptInterfaces/agraphwin_si.cpp \
@@ -331,7 +337,12 @@ HEADERS += \
     ../dispatcher/a3processhandler.h \
     ../lsim/anoderecord.h \
     ademomanager.h \
+    gui/atreedatabaseselectordialog.h \
+    gui/photsim/afunctionalmodelwidget.h \
+    gui/photsim/aphotontunnelwindow.h \
     gui/script/ascriptexampleexplorer.h \
+    photonSim/photonFunctional/aphotonfunctionalhub.h \
+    photonSim/photonFunctional/aphotonfunctionalmodel.h \
     rec/PET/apetcoincidencefinderconfig.h \
     farm/afarmnoderecord.h \
     geo/acalorimeter.h \
@@ -554,6 +565,7 @@ FORMS += \
         gui/particleSim/atrackdrawdialog.ui \
         gui/particleSim/aworldsizewarningdialog.ui \
         gui/photsim/ainterfaceruletester.ui \
+        gui/photsim/aphotontunnelwindow.ui \
         gui/photsim/aphotsimwin.ui \
         gui/photsim/asensordrawwidget.ui \
         gui/ademowindow.ui \

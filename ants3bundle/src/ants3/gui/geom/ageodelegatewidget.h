@@ -13,6 +13,7 @@ class AGeoBaseDelegate;
 class QVBoxLayout;
 class QFrame;
 class QPushButton;
+class TObject;
 
 class AGeoDelegateWidget : public QWidget
 {
@@ -69,6 +70,7 @@ signals:
   void showMonitor(const AGeoObject* mon);
   void requestBuildScript(AGeoObject * obj, QString & script, int ident, bool bExpandMaterial, bool bRecursive, bool usePython);
   void requestEnableGeoConstWidget(bool);
+  void requestDraw(TObject * obj, const QString & options, bool transferOwnership, bool focusWindow);
 };
 
 #endif // AGEODELEGATEWIDGET_H

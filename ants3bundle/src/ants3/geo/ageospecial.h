@@ -17,7 +17,7 @@ public:
     AGeoSpecial(){}
     virtual ~AGeoSpecial(){}
 
-    virtual QString getType() const = 0;
+    virtual QString getType() const = 0; // !!!*** convert to enum
 
     virtual void introduceGeoConstValues(QString & /*errorStr*/) {}
 
@@ -82,6 +82,22 @@ public:
     AGeoScint(){}
 
     QString getType() const override {return QStringLiteral("Scint");}
+};
+
+class APhotonFunctionalModel;
+class AGeoPhotonFunctional : public AGeoSpecial
+{
+public:
+    AGeoPhotonFunctional();
+    AGeoPhotonFunctional(const APhotonFunctionalModel & model);
+
+    QString getType() const override {return QStringLiteral("PhotonFunctional");}
+
+    APhotonFunctionalModel * DefaultModel = nullptr;
+
+    void readFromJson(const QJsonObject & json) override;
+protected:
+    void doWriteToJson(QJsonObject & json) const override;
 };
 
 #endif // AGEOSPECIAL_H

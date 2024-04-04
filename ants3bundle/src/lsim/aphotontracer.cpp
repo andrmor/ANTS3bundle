@@ -15,6 +15,7 @@
 #include "aphoton.h"
 #include "amonitor.h"
 #include "amonitorhub.h"
+#include "aphotonfunctionalhub.h"
 
 #include <QDebug>
 #include <QTextStream>
@@ -201,13 +202,15 @@ void APhotonTracer::tracePhoton(const APhoton & phot)
 
         if (bGridShiftOn && Step > 0.001) exitGrid();
 
-        bool returnEndTracingFlag;
+        /*  Moved after refraction: some functional model objects can require new local direction to be already assigned
+        bool returnEndTracingFlag = false;
         checkSpecialVolume(NodeAfter, returnEndTracingFlag);
         if (returnEndTracingFlag)
         {
             endTracing();
             return;
         }
+        */
 
         if (bDoFresnel)
         {
@@ -216,6 +219,15 @@ void APhotonTracer::tracePhoton(const APhoton & phot)
             if (!ok) qWarning()<<"Error in photon tracker: problem with transmission!";
             if (SimSet.RunSet.SavePhotonLog) PhLog.push_back( APhotonHistoryLog(Navigator->GetCurrentPoint(), NameTo, Photon.time, Photon.waveIndex, APhotonHistoryLog::Fresnel_Transmition, MatIndexFrom, MatIndexTo) );
         }
+
+        bool returnEndTracingFlag = false;
+        checkSpecialVolume(NodeAfter, returnEndTracingFlag);
+        if (returnEndTracingFlag)
+        {
+            endTracing();
+            return;
+        }
+
 
     } //if below max number of transitions, process next (or reflect back to stay in the same) volume
 
@@ -348,17 +360,16 @@ void APhotonTracer::exitGrid()
     bGridShiftOn = false;
 }
 
+#include "aphotonfunctionalmodel.h"
 void APhotonTracer::checkSpecialVolume(TGeoNode * NodeAfterInterface, bool & returnEndTracingFlag)
 {
     //const char* VolName = ThisVolume->GetName();
     //qDebug()<<"Photon entered new volume:" << VolName;
     const char* VolTitle = VolumeTo->GetTitle();
     //qDebug() << "Title:"<<VolTitle;
-
-    // volumes without special role have titles statring with '-'
     const char Selector = VolTitle[0];
 
-    if (Selector == '-') return; // Not a special volume
+    if (Selector == '-') return; // Volume has no special role
 
     if (Selector == 'S') // Sensor
     {
@@ -373,17 +384,6 @@ void APhotonTracer::checkSpecialVolume(TGeoNode * NodeAfterInterface, bool & ret
         processSensorHit(iSensor);
         SimStat.HitSensor++;
         returnEndTracingFlag = true;
-        return;
-    }
-
-    if (Selector == 'G') // Optical grid
-    {
-        //qDebug() << "Grid hit!" << ThisVolume->GetName() << ThisVolume->GetTitle()<< "Number:"<<NodeAfterInterface->GetNumber();
-        if (SimSet.RunSet.SavePhotonLog) PhLog.push_back( APhotonHistoryLog(Navigator->GetCurrentPoint(), NameTo, Photon.time, Photon.waveIndex, APhotonHistoryLog::Grid_Enter) );
-        enterGrid(NodeAfterInterface->GetNumber()); // it is assumed that "empty part" of the grid element will have the same refractive index as the material from which photon enters it
-        GridVolume = VolumeTo;
-        if (SimSet.RunSet.SavePhotonLog) PhLog.push_back( APhotonHistoryLog(Navigator->GetCurrentPoint(), NameTo, Photon.time, Photon.waveIndex, APhotonHistoryLog::Grid_ShiftIn) );
-        returnEndTracingFlag = false;
         return;
     }
 
@@ -417,7 +417,88 @@ void APhotonTracer::checkSpecialVolume(TGeoNode * NodeAfterInterface, bool & ret
         return;
     }
 
-    returnEndTracingFlag = false;
+    if (Selector == 'F') // Photon functional object
+    {
+        const int inNum = NodeAfterInterface->GetNumber();
+        //qDebug() << "Enter trigger functional volume with index" << inNum;
+        const APhotonFunctionalHub & PhTunHub = APhotonFunctionalHub::getConstInstance();
+        const ATunnelRuntimeData & runtimeData = PhTunHub.RuntimeData[inNum];
+        if (!runtimeData.isTrigger) return;
+
+        const size_t outNum = runtimeData.LinkedIndex;
+        //qDebug() << "Associated target index" << outNum;
+        //const std::tuple<AGeoObject*,TGeoNode*, AVector3> & in  = AGeometryHub::getConstInstance().PhotonFunctionals[inNum];
+        const std::tuple<AGeoObject*,TGeoNode*, AVector3> & out = AGeometryHub::getConstInstance().PhotonFunctionals[outNum];
+
+        // get "In" local position
+        double localPos[3];
+        const double * global = Navigator->GetCurrentPoint();
+        Navigator->MasterToLocal(global, localPos);
+          // set center Z in tunnel out
+        //localPos[2] = 0;
+
+        // get "In" local vector
+        const double * globalDir = Navigator->GetCurrentDirection();
+        double localDir[3];
+        Navigator->MasterToLocalVect(globalDir, localDir);
+
+        //qDebug() << "local coordinates" << localPos[0] << localPos[1] << localPos[2];
+        //qDebug() << "local vector" << localDir[0] << localDir[1] << localDir[2];
+
+        if (inNum != outNum)
+        {
+            // enter target node
+            const AVector3 & globPosNodeCenter = std::get<2>(out);
+            Navigator->FindNode(globPosNodeCenter[0], globPosNodeCenter[1], globPosNodeCenter[2]);
+        }
+
+        // fill exchange record
+        APhotonExchangeData photonData;
+        for (size_t i = 0; i < 3; i++)
+        {
+            photonData.LocalPosition[i]  = localPos[i]; // !!!*** use photonData.LocalPosition directly instead of localPos
+            photonData.LocalDirection[i] = localDir[i]; // !!!*** use photonData.LocalDirection directly instead of localDir
+        }
+        photonData.Time = Photon.time;
+        photonData.WaveIndex = Photon.waveIndex;
+
+        // call model
+        bool photonTrackingContinues = runtimeData.Model->applyModel(photonData, inNum, outNum);
+
+        // !!!*** photon log, tracking
+
+        if (!photonTrackingContinues)
+        {
+            returnEndTracingFlag = true;
+            return;
+        }
+
+        Photon.time = photonData.Time;
+        Photon.waveIndex = photonData.WaveIndex;
+
+        // set new position
+        //Navigator->LocalToMaster(localPos, Photon.r);
+        Navigator->LocalToMaster(photonData.LocalPosition, Photon.r);
+        Navigator->SetCurrentPoint(Photon.r);
+
+        // set new vector
+        //Navigator->LocalToMasterVect(localDir, Photon.v);
+        Navigator->LocalToMasterVect(photonData.LocalDirection, Photon.v);
+        Navigator->SetCurrentDirection(Photon.v);
+
+        Track.Positions.push_back(AVector3(Navigator->GetCurrentPoint()));
+    }
+
+    if (Selector == 'G') // Optical grid
+    {
+        //qDebug() << "Grid hit!" << ThisVolume->GetName() << ThisVolume->GetTitle()<< "Number:"<<NodeAfterInterface->GetNumber();
+        if (SimSet.RunSet.SavePhotonLog) PhLog.push_back( APhotonHistoryLog(Navigator->GetCurrentPoint(), NameTo, Photon.time, Photon.waveIndex, APhotonHistoryLog::Grid_Enter) );
+        enterGrid(NodeAfterInterface->GetNumber()); // it is assumed that "empty part" of the grid element will have the same refractive index as the material from which photon enters it
+        GridVolume = VolumeTo;
+        if (SimSet.RunSet.SavePhotonLog) PhLog.push_back( APhotonHistoryLog(Navigator->GetCurrentPoint(), NameTo, Photon.time, Photon.waveIndex, APhotonHistoryLog::Grid_ShiftIn) );
+        returnEndTracingFlag = false;
+        return;
+    }
 }
 
 bool APhotonTracer::isPhotonEscaped()

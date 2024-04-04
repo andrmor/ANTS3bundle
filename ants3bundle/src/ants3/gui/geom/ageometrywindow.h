@@ -78,6 +78,7 @@ public slots:
     void showSensorIndexes();  // !!!***
     void showCalorimeterIndexes();  // !!!***
     void showSensorModelIndexes(int iModel = -1);  // !!!***
+    void showPhotonFunctionalIndexes();  // !!!***
 
     void showText(const std::vector<QString> & textVec, int color, AGeoWriter::EDraw onWhat, bool bFullCycle = true);
 
@@ -92,6 +93,9 @@ public slots:
     void addPhotonNodeGeoMarker(const ANodeRecord & record);
 
     void addGeoMarkers(const std::vector<std::array<double, 3>> & XYZs, int color, int style, double size);
+
+    void onRequestShowConnection(int from, int to);
+    void onRequestShowAllConnections();
 
 private slots:
     void onDownloadPngRequested(QWebEngineDownloadItem *item); // !!!*** temprary commented away
@@ -171,6 +175,8 @@ private:
     void copyGeoMarksToGeoManager();
 
     void onWebPageReplyViewPort(const QVariant & reply);
+
+    void showPhotonTunnel(int from, int to);
 
 signals:
     void requestChangeGeoViewer(bool useJSRoot);

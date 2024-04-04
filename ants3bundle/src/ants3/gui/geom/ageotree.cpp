@@ -52,6 +52,7 @@ AGeoTree::AGeoTree() :
     // widget for delegates
     EditWidget = new AGeoDelegateWidget(this);
     connect(EditWidget,   &AGeoDelegateWidget::showMonitor,                this,       &AGeoTree::RequestShowMonitor);
+    connect(EditWidget,   &AGeoDelegateWidget::requestDraw,                this,       &AGeoTree::requestDraw);
     connect(this,         &AGeoTree::ObjectSelectionChanged,               EditWidget, &AGeoDelegateWidget::onObjectSelectionChanged);
 
     // tree for prototypes

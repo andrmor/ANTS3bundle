@@ -439,6 +439,12 @@ void ATextEdit::keyPressEvent(QKeyEvent * e)
     bool hasModifier = (e->modifiers() != Qt::NoModifier) && !ctrlOrShift;
     QString completionPrefix = textUnderCursor();
 
+    if (completionPrefix == "else")
+    {
+        c->popup()->hide();
+        return;
+    }
+
     //qDebug() <<completionPrefix<< e->text().right(1)<< "hasModifier:"<<hasModifier << (e->modifiers() != Qt::NoModifier) << !ctrlOrShift;
     if (e->text().right(1) == "." || e->text().right(1) == "_") hasModifier = false; //my fix for dot
 

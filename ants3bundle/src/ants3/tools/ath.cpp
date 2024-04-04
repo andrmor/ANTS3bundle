@@ -80,23 +80,25 @@ void ATH1D::merge(TH1D* & to, TH1D* const & from)
     }
 
     if (to->GetXaxis()->GetXmin() < to->GetXaxis()->GetXmax())
+    {
+        ATH1D * ahist = new ATH1D(*to);
+        bool ok = ahist->mergeIdentical(*from);
+        if (ok)
         {
-            ATH1D * ahist = new ATH1D(*to);
-            bool ok = ahist->mergeIdentical(*from);
-            if (ok)
-            {
-                delete to;
-                to = ahist;
-                return;
-            }
-
-            delete ahist;
-            // then using the general case below
+            delete to;
+            to = ahist;
+            return;
         }
 
+        delete ahist;
+        // then using the general case below
+    }
+
     // general case: not fully compatible histograms
+    int numEv = to->GetEntries();
     for (int i = 1; i <= from->GetNbinsX(); i++)
         to->Fill(from->GetBinCenter(i), from->GetBinContent(i));
+    to->SetEntries(numEv + from->GetEntries());
 }
 
 void ATH1D::SetStatistic(const std::vector<double> & stats)
@@ -211,12 +213,14 @@ void ATH2D::merge(TH2D* & to, TH2D* const & from)
         }
 
     // general case: not fully compatible histograms
+    int numEv = to->GetEntries();
     for (int ix = 1; ix <= from->GetNbinsX(); ix++)
     {
         const double X = from->GetXaxis()->GetBinCenter(ix);
         for (int iy = 1; iy <= from->GetNbinsY(); iy++)
                 to->Fill(X, from->GetYaxis()->GetBinCenter(iy), from->GetBinContent(from->GetBin(ix, iy)));
     }
+    to->SetEntries(numEv + from->GetEntries());
 }
 
 void ATH2D::SetStatistic(const std::vector<double> &stats)

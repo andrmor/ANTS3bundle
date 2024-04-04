@@ -11,6 +11,7 @@ class AGeoTreeWin;
 class AGeometryWindow;
 class AMatWin;
 class ASensorWindow;
+class APhotonTunnelWindow;
 class APhotSimWin;
 class AInterfaceRuleWin;
 class GraphWindowClass;
@@ -44,6 +45,7 @@ private:
     AGeometryWindow   * GeoWin     = nullptr;
     AMatWin           * MatWin     = nullptr;
     ASensorWindow     * SensWin    = nullptr;
+    APhotonTunnelWindow  * PhotFunWin = nullptr;
     APhotSimWin       * PhotSimWin = nullptr;
     AInterfaceRuleWin * RuleWin    = nullptr;
     GraphWindowClass  * GraphWin   = nullptr;
@@ -93,6 +95,8 @@ private slots:
     void on_pbInterfaceRules_customContextMenuRequested(const QPoint & pos);
     void on_pbSensors_clicked();
     void on_pbSensors_customContextMenuRequested(const QPoint & pos);
+    void on_pbFunctionalModels_clicked();
+    void on_pbFunctionalModels_customContextMenuRequested(const QPoint & pos);
     void on_pbGraphWin_clicked();
     void on_pbGraphWin_customContextMenuRequested(const QPoint & pos);
     void on_pbFarm_clicked();
@@ -128,6 +132,8 @@ private slots:
     void on_pbExamples_clicked();
 
     void on_actionVersions_triggered();
+
+    void on_pbLoadConfig_customContextMenuRequested(const QPoint &pos);
 
 protected:
     void closeEvent(QCloseEvent * event);

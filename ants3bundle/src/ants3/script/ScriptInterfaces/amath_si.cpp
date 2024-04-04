@@ -21,6 +21,10 @@ AMath_SI::AMath_SI() :
                   "Optional startParValues arguments can hold array of initial parameter values.\n"
                   "Returned value depends on the extendedOutput argument (false by default),\n"
                   "false: array of parameter values; true: array of [value, error] for each parameter";
+
+    Help["getAnglesBetween3DVectors"] = "Caluculates angles in radians between two or three 3D vectors.\n"
+                                        "For the case of two vectors, the method returns an array containing one element: the angle between the vectors;\n"
+                                        "For the case of three vectors, the method returns an array of three angles: between 1-2, 2-3, and 3-1.";
 }
 
 double AMath_SI::abs(double val)
@@ -163,6 +167,71 @@ double AMath_SI::maxwell(double a)
 double AMath_SI::exponential(double tau)
 {
     return RandomHub.exp(tau);
+}
+
+#include "avector.h"
+QVariantList AMath_SI::getAnglesBetween3DVectors(QVariantList arrayOfVectors)
+{
+    QVariantList res;
+    if (arrayOfVectors.length() == 2)
+    {
+        QVariantList vl1 = arrayOfVectors[0].toList();
+        QVariantList vl2 = arrayOfVectors[1].toList();
+        if (vl1.length() != 3 || vl2.length() != 3)
+        {
+            abort("math.getAnglesBetween3DVectors() argument must be an array of two or three 3D vectors");
+            return res;
+        }
+        AVector3 v1, v2;
+        for (int i = 0; i < 3; i++)
+        {
+            v1[i] = vl1[i].toDouble();
+            v2[i] = vl2[i].toDouble();
+        }
+        res.push_back(v1.angle(v2));
+    }
+    else if (arrayOfVectors.length() == 3)
+    {
+        QVariantList vl1 = arrayOfVectors[0].toList();
+        QVariantList vl2 = arrayOfVectors[1].toList();
+        QVariantList vl3 = arrayOfVectors[2].toList();
+        if (vl1.length() != 3 || vl2.length() != 3  || vl3.length() != 3)
+        {
+            abort("math.getAnglesBetween3DVectors() argument must be an array of two or three 3D vectors");
+            return res;
+        }
+        AVector3 v1, v2, v3;
+        for (int i = 0; i < 3; i++)
+        {
+            v1[i] = vl1[i].toDouble();
+            v2[i] = vl2[i].toDouble();
+            v3[i] = vl3[i].toDouble();
+        }
+        res.push_back(v1.angle(v2));
+        res.push_back(v2.angle(v3));
+        res.push_back(v3.angle(v1));
+    }
+    else abort("math.getAnglesBetween3DVectors() argument must be an array of two or three 3D vectors");
+    return res;
+}
+
+QVariantList AMath_SI::generateDirectionIsotropic()
+{
+    //Sphere function of CERN ROOT
+    double a = 0, b = 0, r2 = 1.0;
+    while (r2 > 0.25)
+    {
+        a  = RandomHub.uniform() - 0.5;
+        b  = RandomHub.uniform() - 0.5;
+        r2 = a*a + b*b;
+    }
+    double scale = 8.0 * sqrt(0.25 - r2);
+
+    QVariantList v;
+    v.push_back(a * scale);
+    v.push_back(b * scale);
+    v.push_back(-1.0 + 8.0 * r2);
+    return v;
 }
 
 #include "TFormula.h"

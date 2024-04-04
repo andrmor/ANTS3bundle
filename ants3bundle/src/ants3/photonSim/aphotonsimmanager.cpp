@@ -48,6 +48,9 @@ bool APhotonSimManager::simulate(int numLocalProc)
     bool ok = checkDirectories();
     if (!ok) return false;
 
+    ok = updateRuntimeForFunctionalModels();
+    if (!ok) return false;
+
     removeOutputFiles();  // note that output files in exchange dir will be deleted in adispatcherinterface
     int numEvents = 0;
     switch (SimSet.SimType)
@@ -160,6 +163,13 @@ bool APhotonSimManager::checkDirectories()
     A3Global::getInstance().checkExchangeDir();
 
     return !AErrorHub::isError();
+}
+
+#include "aphotonfunctionalhub.h"
+bool APhotonSimManager::updateRuntimeForFunctionalModels()
+{
+    APhotonFunctionalHub & PhTunHub = APhotonFunctionalHub::getInstance();
+    return PhTunHub.updateRuntimeProperties();
 }
 
 void APhotonSimManager::processReply(const QJsonObject & json)

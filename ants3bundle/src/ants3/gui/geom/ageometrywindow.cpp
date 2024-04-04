@@ -633,6 +633,43 @@ void AGeometryWindow::addGeoMarkers(const std::vector<std::array<double, 3>> & X
     GeoMarkers.push_back(M);
 }
 
+void AGeometryWindow::showPhotonTunnel(int from, int to)
+{
+    if (from < 0 || from >= Geometry.PhotonFunctionals.size()) return;
+    if (to   < 0 ||   to >= Geometry.PhotonFunctionals.size()) return;
+
+    int track_index = Geometry.GeoManager->AddTrack(2, 22);
+    TVirtualGeoTrack * track = Geometry.GeoManager->GetTrack(track_index);
+    track->SetLineColor(kBlue);
+    track->SetLineWidth(2);
+    //track->SetLineStyle(1);
+
+    const AVector3 & fromPos = std::get<2>(Geometry.PhotonFunctionals[from]);
+    track->AddPoint(fromPos[0], fromPos[1], fromPos[2], 0);
+
+    const AVector3 & toPos = std::get<2>(Geometry.PhotonFunctionals[to]);
+    track->AddPoint(toPos[0], toPos[1], toPos[2], 0);
+}
+
+void AGeometryWindow::onRequestShowConnection(int from, int to)
+{
+    ClearTracks();
+    showPhotonTunnel(from, to);
+    ShowTracks();
+}
+
+#include "aphotonfunctionalhub.h"
+void AGeometryWindow::onRequestShowAllConnections()
+{
+    ClearTracks();
+
+    const APhotonFunctionalHub & hub = APhotonFunctionalHub::getConstInstance();
+    for (const APhotonFunctionalRecord & rec : hub.OverritenRecords)
+        showPhotonTunnel(rec.Index, rec.LinkedTo);
+
+    ShowTracks();
+}
+
 void AGeometryWindow::ShowTracksAndMarkers()
 {
     int Mode = ui->cobViewer->currentIndex(); // 0 - standard, 1 - jsroot
@@ -1242,6 +1279,21 @@ void AGeometryWindow::showSensorModelIndexes(int iModel)
             tmp.push_back( QString::number(index) );
     }
     showText(tmp, kRed, AGeoWriter::Sensors, true);
+
+    /*
+    emit requestUpdateRegisteredGeoManager();
+    */
+}
+
+void AGeometryWindow::showPhotonFunctionalIndexes()
+{
+    Geometry.GeoManager->ClearTracks();
+
+    //const APhotonFunctionalHub & PhFunHub = APhotonFunctionalHub::getConstInstance();
+    const size_t num = Geometry.PhotonFunctionals.size();
+    std::vector<QString> tmp;
+    for (size_t i = 0; i < num; i++) tmp.push_back( QString::number(i) );
+    showText(tmp, kRed, AGeoWriter::PhotonFunctional, true);
 
     /*
     emit requestUpdateRegisteredGeoManager();

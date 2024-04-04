@@ -32,3 +32,8 @@ const QString &ARootObjBase::getType() const // !!!*** to enum!
 {
     return Type;
 }
+
+const QString &ARootObjBase::getTitle() const
+{
+    return Title;
+}

@@ -1,9 +1,12 @@
 #ifndef AGEOMETRYHUB_H
 #define AGEOMETRYHUB_H
 
+#include "avector.h"
+
 #include <QString>
 
 #include <vector>
+#include <tuple>
 #include <string>
 
 class AGeoObject;
@@ -125,11 +128,15 @@ private:
     void setVolumeTitle(AGeoObject * obj, TGeoVolume * vol);
     QString readGDMLtoTGeo(const QString & fileName);
 
+    void registerPhotonFunctional(AGeoObject * obj, TGeoVolume * parentVol);
+
 private:
     bool   DoScaling = false;
     double ScalingFactor = 1.0;
 
     std::vector<std::pair<AGeoObject*,TGeoNode*>> Scintillators;
+public:
+    std::vector<std::tuple<AGeoObject*,TGeoNode*,AVector3>> PhotonFunctionals;  // last is global position
 };
 
 #endif // AGEOMETRYHUB_H

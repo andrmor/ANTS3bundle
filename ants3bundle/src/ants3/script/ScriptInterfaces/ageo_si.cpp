@@ -1647,6 +1647,78 @@ void AGeo_SI::setSecondaryScintillator(QString Object)
     delete obj->Role; obj->Role = new AGeoSecScint();
 }
 
+void AGeo_SI::setPhotonFunctional(QString Object)
+{
+    AGeoObject * obj = findObject(Object);
+    if (!obj) return;
+    delete obj->Role; obj->Role = new AGeoPhotonFunctional();
+}
+
+#include "aphotonfunctionalhub.h"
+#include "aphotonfunctionalmodel.h"
+#include <QJsonObject>
+QVariantMap AGeo_SI::getDefaultConfigObjectForPhotonFunctionalModel(QString modelName)
+{
+    APhotonFunctionalModel * model = APhotonFunctionalModel::factory(modelName);
+    if ( dynamic_cast<APFM_Dummy*>(model))
+    {
+        abort("Bad photon functional model type: " + modelName);
+        return QVariantMap();
+    }
+
+    QJsonObject js;
+    model->writeSettingsToJson(js);
+    return js.toVariantMap();
+}
+
+QVariantMap AGeo_SI::getConfigObjectForPhotonFunctional(int index)
+{
+    APhotonFunctionalModel * model = APhotonFunctionalHub::getInstance().findModel(index);
+    if (!model) return QVariantMap();
+
+    QJsonObject js;
+    model->writeSettingsToJson(js);
+    QVariantMap res = js.toVariantMap();
+    return res;
+}
+
+int AGeo_SI::countPhotonFunctionals()
+{
+    return GeoHub.PhotonFunctionals.size();
+}
+
+void AGeo_SI::clearPhotonFunctionalAttribution()
+{
+    APhotonFunctionalHub::getInstance().clearAllRecords();
+}
+
+void AGeo_SI::configurePhotonFunctional(QString modelName, QVariantMap configObject, int index, int linkedIndex)
+{
+    APhotonFunctionalModel * model = APhotonFunctionalModel::factory(modelName);
+    if ( dynamic_cast<APFM_Dummy*>(model))
+    {
+        abort("Bad photon functional model type: " + modelName);
+        return;
+    }
+
+    QJsonObject js = QJsonObject::fromVariantMap(configObject);
+    qDebug() << configObject << js;
+    model->readSettingsFromJson(js);
+
+    QString err = APhotonFunctionalHub::getInstance().modifyOrAddRecord(index, linkedIndex, model);
+    if (!err.isEmpty()) abort(err);
+}
+
+void AGeo_SI::configurePhotonFunctional(QString modelName, QVariantMap configObject, int index)
+{
+    configurePhotonFunctional(modelName, configObject, index, index);
+}
+
+int AGeo_SI::overrideUnconnectedLinkFunctionals()
+{
+    return APhotonFunctionalHub::getInstance().overrideUnconnectedLinkFunctionals();
+}
+
 void AGeo_SI::setEnabled(QString ObjectOrWildcard, bool flag)
 {
     if (ObjectOrWildcard.endsWith('*'))

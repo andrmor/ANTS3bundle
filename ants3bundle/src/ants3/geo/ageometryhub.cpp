@@ -260,6 +260,7 @@ void AGeometryHub::populateGeoManager(bool notifyRootServer)
     ACalorimeterHub::getInstance().clear();
     AGridHub::getInstance().clear();
     Scintillators.clear();
+    PhotonFunctionals.clear();
     World->clearTrueRotationRecursive();
 
     AGeoConsts::getInstance().updateFromExpressions();
@@ -576,6 +577,8 @@ void AGeometryHub::addTGeoVolumeRecursively(AGeoObject * obj, TGeoVolume * paren
         for (AGeoObject * el : obj->HostedObjects)
             addTGeoVolumeRecursively(el, vol, forcedNodeNumber);
 
+    if (obj->Role && obj->Role->getType() == "PhotonFunctional") registerPhotonFunctional(obj, parent);
+
     setVolumeTitle(obj, vol);
 }
 
@@ -591,16 +594,17 @@ void AGeometryHub::setVolumeTitle(AGeoObject * obj, TGeoVolume * vol)
 
     if      (obj->Role)
     {
-        if      (obj->Role->getType() == "Sensor")      title[0] = 'S';
-        else if (obj->Role->getType() == "SecScint")    title[0] = '2';
-        else if (obj->Role->getType() == "Calorimeter") title[0] = 'C'; // not used with photons, but needed to update name for interface rules
+        if      (obj->Role->getType() == "Sensor")           title[0] = 'S';
+        else if (obj->Role->getType() == "SecScint")         title[0] = '2';
+        else if (obj->Role->getType() == "Calorimeter")      title[0] = 'C'; // not used with photons, but needed to update name for interface rules
+        else if (obj->Role->getType() == "PhotonFunctional") title[0] = 'F';
     }
     else if (obj->Type->isMonitor())
     {
         ATypeMonitorObject * monTobj = static_cast<ATypeMonitorObject*>(obj->Type);
-        if (monTobj->config.PhotonOrParticle == 0) title[0] = 'M';
+        if (monTobj->config.PhotonOrParticle == 0)           title[0] = 'M';
     }
-    else if (obj->Type->isGrid())                  title[0] = 'G';
+    else if (obj->Type->isGrid())                            title[0] = 'G';
 
     const bool bInstance = (!obj->NameWithoutSuffix.isEmpty());
     TString BaseName;
@@ -619,6 +623,15 @@ void AGeometryHub::setVolumeTitle(AGeoObject * obj, TGeoVolume * vol)
     // !!!*** consider setting titles only for volumes with named overrides from/to
 
     vol->SetTitle(title);
+}
+
+void AGeometryHub::registerPhotonFunctional(AGeoObject * obj, TGeoVolume * parentVol)
+{
+    TGeoNode * node = parentVol->GetNode(parentVol->GetNdaughters()-1);
+    node->SetNumber(PhotonFunctionals.size());
+    AVector3 globalPosition;
+    getGlobalPosition(node, globalPosition);
+    PhotonFunctionals.push_back({obj, node, globalPosition});
 }
 
 void AGeometryHub::positionArray(AGeoObject * obj, TGeoVolume * vol, int parentNodeIndex)

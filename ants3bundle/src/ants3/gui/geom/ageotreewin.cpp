@@ -67,6 +67,7 @@ AGeoTreeWin::AGeoTreeWin(QWidget * parent) :
     connect(twGeo, &AGeoTree::RequestHighlightObject, this, &AGeoTreeWin::ShowObject);
     connect(twGeo, &AGeoTree::RequestShowObjectRecursive, this, &AGeoTreeWin::ShowObjectRecursive);
     connect(twGeo, &AGeoTree::RequestShowAllInstances, this, &AGeoTreeWin::showAllInstances);
+    connect(twGeo, &AGeoTree::requestDraw,             this, &AGeoTreeWin::requestDraw);
     connect(twGeo->GetEditWidget(), &AGeoDelegateWidget::requestEnableGeoConstWidget, this, &AGeoTreeWin::onRequestEnableGeoConstWidget);
     // !!!***
     //  connect(twGeo, &AGeoTree::RequestNormalDetectorDraw, MW, &MainWindow::ShowGeometrySlot);

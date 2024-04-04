@@ -35,6 +35,9 @@ private slots:
     void on_pbCalTotals_clicked();
     void on_ledSizeCalorimeter_editingFinished();
 
+    void on_pbPhFunIndex_clicked();
+    void on_pbPhFunLinks_clicked();
+    void on_ledSizePhFun_editingFinished();
 
 private:
     AGeometryWindow & GW;
