@@ -57,6 +57,8 @@ protected:
     QTextStream * StreamSensorHits    = nullptr;
     QFile       * FileSensorLog       = nullptr;
     QTextStream * StreamSensorLog     = nullptr;
+    QFile       * FilePhotonLog       = nullptr;
+    QTextStream * StreamPhotonLog     = nullptr;
     QFile       * FilePhotonBombs     = nullptr;
     QTextStream * StreamPhotonBombs   = nullptr;
     QFile       * FileTracks          = nullptr;

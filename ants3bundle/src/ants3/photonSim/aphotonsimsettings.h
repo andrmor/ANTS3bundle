@@ -201,16 +201,21 @@ public:
     void    clear();
 };
 
-class APhotonLogSettings   // !!!*** to RunSettings?
+class APhotonLogSettings
 {
 public:
-    bool    Save     = false;
+    bool    Save     = false;  // !!!*** rename!
     QString FileName = "PhotonLog.txt";
+
+    // !!!*** add max number of log records
 
     std::set<int>        MustNotInclude_Processes; // v.fast
     std::vector<int>     MustInclude_Processes;    // slow
     std::set<TString>    MustNotInclude_Volumes;   // fast
     std::vector<TString> MustInclude_Volumes;      // v.slow
+
+    void writeToJson(QJsonObject & json) const;
+    void readFromJson(const QJsonObject & json);
 
     void clear();
 };
@@ -249,13 +254,10 @@ public:
     QString FileNameStatistics    = "PhotonStatistics.json";
     double  UpperTimeLimit        = 100;
 
-    bool    SavePhotonLog         = true;
-    QString FileNamePhotonLog     = "PhotonLog.txt";
-
     bool    SaveMonitors          = true;
     QString FileNameMonitors      = "PhotonMonitors.txt";
 
-    APhotonLogSettings LogSet;
+    APhotonLogSettings PhotonLogSet;
 
     void writeToJson(QJsonObject & json, bool addRuntimeExport) const;
     void readFromJson(const QJsonObject & json);

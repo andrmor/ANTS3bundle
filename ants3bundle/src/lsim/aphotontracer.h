@@ -32,7 +32,7 @@ enum class EInterRuleResult   {NotTriggered, DelegateLocalNormal, Absorbed, Refl
 class APhotonTracer
 {
 public:
-    APhotonTracer(AOneEvent & event, QTextStream* & streamTracks, QTextStream* & StreamSensorLog);
+    APhotonTracer(AOneEvent & event, QTextStream* & streamTracks, QTextStream* & streamSensorLog, QTextStream* & streamPhotonLog);
 
     void configureTracer();
 
@@ -55,6 +55,7 @@ private:
     AOneEvent                & Event;
     QTextStream*             & StreamTracks;
     QTextStream*             & StreamSensorLog;
+    QTextStream*             & StreamPhotonLog;
     TGeoManager              * GeoManager   = nullptr;
     TGeoNavigator            * Navigator    = nullptr;
 
@@ -103,8 +104,8 @@ private:
     bool enterGrid(int GridNumber);
     bool isOutsideGridBulk();
     void exitGrid();
-    void appendHistoryRecord();    // !!!*** why save photon tracks only those which are not filtered by the log?
-    void savePhotonLogRecord(){}   // !!!***
+    void appendHistoryRecord();
+    void savePhotonLogRecord();
     void saveTrack();
     AInterfaceRule * getInterfaceRule() const; // can return nullptr
     EFresnelResult tryReflection();

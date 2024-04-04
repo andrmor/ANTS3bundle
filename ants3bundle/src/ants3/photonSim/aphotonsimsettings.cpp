@@ -596,11 +596,11 @@ void APhotSimRunSettings::writeToJson(QJsonObject & json, bool addRuntimeExport)
     json["SaveMonitors"]          = SaveMonitors;
     json["FileNameMonitors"]      = FileNameMonitors;
 
-    /*
-    json["SavePhotonLog"]         = SavePhotonLog;
-    json["FileNamePhotonLog"]     = FileNamePhotonLog;
-    json["UpperTimeLimit"]        = UpperTimeLimit;
-    */
+    {
+        QJsonObject js;
+        PhotonLogSet.writeToJson(js);
+        json["PhotonLog"] = js;
+    }
 }
 
 void APhotSimRunSettings::readFromJson(const QJsonObject & json)
@@ -638,6 +638,12 @@ void APhotSimRunSettings::readFromJson(const QJsonObject & json)
 
     jstools::parseJson(json, "SaveMonitors",          SaveMonitors);
     jstools::parseJson(json, "FileNameMonitors",      FileNameMonitors);
+
+    {
+        QJsonObject js;
+        jstools::parseJson(json, "PhotonLog", js);
+        PhotonLogSet.readFromJson(js);
+    }
 }
 
 void APhotSimRunSettings::clear()
@@ -671,13 +677,10 @@ void APhotSimRunSettings::clear()
     FileNameStatistics    = "PhotonStatistics.json";
     UpperTimeLimit        = 100;
 
-    SavePhotonLog         = true;
-    FileNamePhotonLog     = "PhotonLog.txt";
-
     SaveMonitors          = true;
     FileNameMonitors      = "PhotonMonitors.txt";
 
-    LogSet.clear();
+    PhotonLogSet.clear();
 }
 
 // ---
@@ -1023,6 +1026,22 @@ void APhotonAdvancedSettings::readFromJson(const QJsonObject &json)
         jstools::parseJson(js, "Material",        Material);
         jstools::parseJson(js, "MaxNodeAttempts", MaxNodeAttempts);
     }
+}
+
+void APhotonLogSettings::writeToJson(QJsonObject & json) const
+{
+    json["Enabled"]  = Save;
+    json["FileName"] = FileName;
+
+    // !!!*** conditions
+}
+
+void APhotonLogSettings::readFromJson(const QJsonObject & json)
+{
+    jstools::parseJson(json, "Enabled", Save);
+    jstools::parseJson(json, "FileName", FileName);
+
+    // !!!*** conditions
 }
 
 void APhotonLogSettings::clear()

@@ -4,6 +4,8 @@
 #include <QString>
 #include "TString.h"
 
+class QTextStream;
+
 class APhotonHistoryLog
 {
 public:
@@ -32,6 +34,8 @@ public:
     int      iWave;          //photon wave index
 
     QString print() const;
+
+    void sendToStream(QTextStream * s) const;
 
     static QString GetProcessName(int nodeType);
     static QString PrintAllProcessTypes();

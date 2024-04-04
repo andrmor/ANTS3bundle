@@ -36,6 +36,21 @@ QString APhotonHistoryLog::print() const
     return s;
 }
 
+#include <QTextStream>
+void APhotonHistoryLog::sendToStream(QTextStream * s) const
+{
+    *s << process << " ";
+    for (size_t i = 0; i < 3; i++)
+        *s << r[i] << " ";
+    *s << volumeName.Data() << " ";
+    *s << VolumeIndex << " ";
+    *s << time << " ";
+    *s << matIndex << " ";
+    *s << matIndexAfter << " ";
+    *s << number << " ";
+    *s << iWave << "\n";
+}
+
 QString APhotonHistoryLog::GetProcessName(int nodeType)
 {
     switch (nodeType)

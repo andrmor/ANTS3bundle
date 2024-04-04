@@ -45,7 +45,7 @@ APhotonSimulator::APhotonSimulator(const QString & dir, const QString & fileName
     LOG << "Config file: " << ConfigFN   << "\n";
 
     Event = new AOneEvent();
-    Tracer = new APhotonTracer(*Event, StreamTracks, StreamSensorLog);
+    Tracer = new APhotonTracer(*Event, StreamTracks, StreamSensorLog, StreamPhotonLog);
 }
 
 APhotonSimulator::~APhotonSimulator()
@@ -63,6 +63,10 @@ APhotonSimulator::~APhotonSimulator()
     if (FileSensorLog) FileSensorLog->close();
     delete StreamSensorLog;
     delete FileSensorLog;
+
+    if (FilePhotonLog) FilePhotonLog->close();
+    delete StreamPhotonLog;
+    delete FilePhotonLog;
 
     if (FilePhotonBombs) FilePhotonBombs->close();
     delete StreamPhotonBombs;
@@ -147,6 +151,13 @@ QString APhotonSimulator::openOutput()
         StreamSensorLog = new QTextStream(FileSensorLog);
     }
 
+    if (SimSet.RunSet.PhotonLogSet.Save)
+    {
+        FilePhotonLog = new QFile(WorkingDir + '/' + SimSet.RunSet.PhotonLogSet.FileName, this);
+        if (!FilePhotonLog->open(QIODevice::WriteOnly | QFile::Text)) return "Cannot open file to save photon log: " + SimSet.RunSet.PhotonLogSet.FileName;
+        StreamPhotonLog = new QTextStream(FilePhotonLog);
+    }
+//
     if (SimSet.RunSet.SavePhotonBombs)
     {
         FilePhotonBombs = new QFile(WorkingDir + '/' + SimSet.RunSet.FileNamePhotonBombs, this);
