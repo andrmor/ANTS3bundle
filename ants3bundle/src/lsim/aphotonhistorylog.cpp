@@ -1,13 +1,13 @@
 #include "aphotonhistorylog.h"
 #include "amaterialhub.h"
 
-APhotonHistoryLog::APhotonHistoryLog(const double * Position, const TString &volumeName,
+APhotonHistoryLog::APhotonHistoryLog(const double * Position, const TString & volumeName, int volumeIndex,
                                      double Time,
                                      int iWave,
                                      APhotonHistoryLog::NodeType node,
                                      int MatIndex, int MatIndexAfter,
                                      int number) :
-    process(node), volumeName(volumeName), time(Time),
+    process(node), volumeName(volumeName), VolumeIndex(volumeIndex), time(Time),
     matIndex(MatIndex), matIndexAfter(MatIndexAfter), number(number), iWave(iWave)
 {
     r[0] = Position[0];
@@ -29,7 +29,7 @@ QString APhotonHistoryLog::print() const
     }
 
     s += QString(" at ( ") + QString::number(r[0])+", "+ QString::number(r[1]) + ", "+QString::number(r[2])+" )";
-    if (volumeName.Length() != 0) s += " in " + QString(volumeName);
+    if (volumeName.Length() != 0) s += " in " + QString(volumeName) + " with index " + QString::number(VolumeIndex);
     if (iWave != -1) s += " iWave="+QString::number(iWave);
     s += ", " + QString::number(time)+" ns";
 

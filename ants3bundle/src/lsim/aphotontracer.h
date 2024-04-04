@@ -70,7 +70,9 @@ private:
     int      MatIndexTo;            // material index of the medium after interface
     bool     bDoFresnel;            // flag - to perform or not the fresnel calculation on the interface
     TString  NameFrom;
+    int      VolumeIndexFrom;
     TString  NameTo;
+    int      VolumeIndexTo;
     double   SpeedOfLight;          // photon speed in current material (MatIndexFrom) in mm/ns
 
     const TGeoVolume * VolumeFrom   = nullptr;
