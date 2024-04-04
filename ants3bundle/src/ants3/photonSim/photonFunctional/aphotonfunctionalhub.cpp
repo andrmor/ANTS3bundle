@@ -292,6 +292,27 @@ bool APhotonFunctionalHub::updateRuntimeProperties()
     return true;
 }
 
+#include "ageoobject.h"
+int APhotonFunctionalHub::overrideUnconnectedLinkFunctionals()
+{
+    AGeometryHub & GeoHub = AGeometryHub::getInstance();
+    size_t num = GeoHub.PhotonFunctionals.size();
+
+    int counter = 0;
+    for (size_t iR = 0; iR < num; iR++)
+    {
+        APhotonFunctionalRecord * rec = findOverritenRecord(iR);
+        if (rec) continue;
+
+        APhotonFunctionalModel * model = std::get<0>(GeoHub.PhotonFunctionals[iR])->getDefaultPhotonFunctionalModel();
+        if (!model->isLink()) continue;
+
+        modifyOrAddRecord(iR, iR, APhotonFunctionalModel::factory("OpticalFiber"));
+        counter++;
+    }
+    return counter;
+}
+
 void APhotonFunctionalRecord::writeToJson(QJsonObject & json) const
 {
     json["Index"]    = Index;

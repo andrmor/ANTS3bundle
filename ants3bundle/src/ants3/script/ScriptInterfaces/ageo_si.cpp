@@ -1714,6 +1714,11 @@ void AGeo_SI::configurePhotonFunctional(QString modelName, QVariantMap configObj
     configurePhotonFunctional(modelName, configObject, index, index);
 }
 
+int AGeo_SI::overrideUnconnectedLinkFunctionals()
+{
+    return APhotonFunctionalHub::getInstance().overrideUnconnectedLinkFunctionals();
+}
+
 void AGeo_SI::setEnabled(QString ObjectOrWildcard, bool flag)
 {
     if (ObjectOrWildcard.endsWith('*'))

@@ -56,6 +56,8 @@ public:
     QString checkRecordsReadyForRun(); // returns error string
     bool updateRuntimeProperties(); // !!!***  // generate AErrorHub error if there are problems
 
+    int overrideUnconnectedLinkFunctionals();
+
     std::vector<APhotonFunctionalRecord> OverritenRecords;
 
     std::vector<ATunnelRuntimeData> RuntimeData; // does not own the models: do not delete!

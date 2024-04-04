@@ -119,6 +119,7 @@ public slots:
     void clearPhotonFunctionalAttribution();
     void configurePhotonFunctional(QString modelName, QVariantMap configObject, int index, int linkedIndex);
     void configurePhotonFunctional(QString modelName, QVariantMap configObject, int index);
+    int overrideUnconnectedLinkFunctionals();
 
     QVariantList getScintillatorProperties();
 
