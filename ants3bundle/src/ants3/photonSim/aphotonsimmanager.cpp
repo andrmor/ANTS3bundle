@@ -266,6 +266,7 @@ void APhotonSimManager::mergeOutput()
     const QString & OutputDir = SimSet.RunSet.OutputDirectory;
     if (SimSet.RunSet.SaveSensorSignals) SignalFileMerger   .mergeToFile(OutputDir + '/' + SimSet.RunSet.FileNameSensorSignals);
     if (SimSet.RunSet.SaveSensorLog)     SensorLogFileMerger.mergeToFile(OutputDir + '/' + SimSet.RunSet.FileNameSensorLog);
+    if (SimSet.RunSet.PhotonLogSet.Save) PhotonLogFileMerger.mergeToFile(OutputDir + '/' + SimSet.RunSet.PhotonLogSet.FileName);
     if (SimSet.RunSet.SaveTracks)        TrackFileMerger    .mergeToFile(OutputDir + '/' + SimSet.RunSet.FileNameTracks);
     if (SimSet.RunSet.SavePhotonBombs)   BombFileMerger     .mergeToFile(OutputDir + '/' + SimSet.RunSet.FileNamePhotonBombs);
 
@@ -301,6 +302,7 @@ void  APhotonSimManager::clearFileMergers()
 {
     SignalFileMerger.clear();
     SensorLogFileMerger.clear();
+    PhotonLogFileMerger.clear();
     TrackFileMerger.clear();
     BombFileMerger.clear();
     StatisticsFiles.clear();
@@ -441,6 +443,12 @@ void APhotonSimManager::configureOutputFiles(A3NodeWorkerConfig & Worker, APhoto
         WorkSet.RunSet.FileNameSensorLog = QString("sensorlog-%0").arg(iProcess);
         Worker.OutputFiles.push_back(WorkSet.RunSet.FileNameSensorLog);
         SensorLogFileMerger.add(ExchangeDir + '/' + WorkSet.RunSet.FileNameSensorLog);
+    }
+    if (SimSet.RunSet.PhotonLogSet.Save)
+    {
+        WorkSet.RunSet.PhotonLogSet.FileName = QString("photonlog-%0").arg(iProcess);
+        Worker.OutputFiles.push_back(WorkSet.RunSet.PhotonLogSet.FileName);
+        PhotonLogFileMerger.add(ExchangeDir + '/' + WorkSet.RunSet.PhotonLogSet.FileName);
     }
     if (SimSet.RunSet.SaveTracks)
     {

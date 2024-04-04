@@ -45,10 +45,10 @@ void APhotonHistoryLog::sendToStream(QTextStream * s) const
     *s << volumeName.Data() << " ";
     *s << VolumeIndex << " ";
     *s << time << " ";
+    *s << iWave << " ";
     *s << matIndex << " ";
     *s << matIndexAfter << " ";
-    *s << number << " ";
-    *s << iWave << "\n";
+    *s << number << "\n";
 }
 
 QString APhotonHistoryLog::GetProcessName(int nodeType)

@@ -41,6 +41,9 @@ APhotonSimOutputDialog::APhotonSimOutputDialog(QWidget *parent) :
     ui->cbStatistics->setChecked(RunSet.SaveStatistics);
     ui->labStatistics->setText(RunSet.FileNameStatistics);
     ui->ledTimeLimit->setText(QString::number(RunSet.UpperTimeLimit));
+
+    ui->cbPhotonLog->setChecked(RunSet.PhotonLogSet.Save);
+    ui->labPhotonLog->setText(RunSet.PhotonLogSet.FileName);
 }
 
 APhotonSimOutputDialog::~APhotonSimOutputDialog()
@@ -79,6 +82,8 @@ void APhotonSimOutputDialog::on_pbAccept_clicked()
 
     RunSet.SaveStatistics    = ui->cbStatistics->isChecked();
     RunSet.UpperTimeLimit    = ui->ledTimeLimit->text().toDouble();
+
+    RunSet.PhotonLogSet.Save = ui->cbPhotonLog->isChecked();
 
     accept();
 }

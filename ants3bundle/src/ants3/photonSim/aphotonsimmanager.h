@@ -56,6 +56,7 @@ private:
 
     AFileMerger          SignalFileMerger;
     AFileMerger          SensorLogFileMerger;
+    AFileMerger          PhotonLogFileMerger;
     AFileMerger          TrackFileMerger;
     AFileMerger          BombFileMerger;
 
