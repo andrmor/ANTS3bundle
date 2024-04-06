@@ -201,6 +201,16 @@ public:
     void    clear();
 };
 
+class AVolumeIndexPair
+{
+public:
+    AVolumeIndexPair(TString volume, int index) : Volume(volume), Index(index) {}
+    AVolumeIndexPair() = default;
+
+    TString Volume;
+    int Index;
+};
+
 class APhotonLogSettings
 {
 public:
@@ -209,10 +219,10 @@ public:
 
     int MaxNumber = 1000;
 
-    std::set<int>        MustNotInclude_Processes; // v.fast
-    std::vector<int>     MustInclude_Processes;    // slow
-    std::set<TString>    MustNotInclude_Volumes;   // fast
-    std::vector<TString> MustInclude_Volumes;      // v.slow
+    std::set<int>                 MustNotInclude_Processes; // v.fast
+    std::vector<int>              MustInclude_Processes;    // slow
+    std::set<TString>             MustNotInclude_Volumes;   // fast
+    std::vector<AVolumeIndexPair> MustInclude_Volumes;      // v.slow
 
     void writeToJson(QJsonObject & json) const;
     void readFromJson(const QJsonObject & json);

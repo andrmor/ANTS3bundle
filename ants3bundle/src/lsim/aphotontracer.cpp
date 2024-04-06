@@ -646,10 +646,14 @@ void APhotonTracer::appendHistoryRecord()
             {
                 bool bFoundThis = false;
                 for (int i=PhLog.size()-1; i>-1; i--)
-                    if ( LogSet.MustInclude_Volumes[im] == PhLog[i].volumeName)
+                    if ( LogSet.MustInclude_Volumes[im].Volume == PhLog[i].volumeName)
                     {
-                        bFoundThis = true;
-                        break;
+                        if (LogSet.MustInclude_Volumes[im].Index == -1 ||
+                            LogSet.MustInclude_Volumes[im].Index == PhLog[i].VolumeIndex)
+                        {
+                            bFoundThis = true;
+                            break;
+                        }
                     }
                 if (!bFoundThis)
                 {

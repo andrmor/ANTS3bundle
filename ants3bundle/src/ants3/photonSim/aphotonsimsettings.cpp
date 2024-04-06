@@ -1035,7 +1035,35 @@ void APhotonLogSettings::writeToJson(QJsonObject & json) const
 
     json["MaxNumber"] = MaxNumber;
 
-    // !!!*** conditions
+    {
+        QJsonArray ar;
+        for (int pr : MustNotInclude_Processes) ar.push_back(pr);
+        json["MustNotInclude_Processes"] = ar;
+    }
+
+    {
+        QJsonArray ar;
+        for (int pr : MustInclude_Processes) ar.push_back(pr);
+        json["MustInclude_Processes"] = ar;
+    }
+
+    {
+        QJsonArray ar;
+        for (const TString & vol : MustNotInclude_Volumes) ar.push_back(QString(vol.Data()));
+        json["MustNotInclude_Volumes"] = ar;
+    }
+
+    {
+        QJsonArray ar;
+        for (const AVolumeIndexPair & pair : MustInclude_Volumes)
+        {
+            QJsonArray el;
+                el.push_back(QString(pair.Volume.Data()));
+                el.push_back(pair.Index);
+            ar.push_back(el);
+        }
+        json["MustInclude_Volumes"] = ar;
+    }
 }
 
 void APhotonLogSettings::readFromJson(const QJsonObject & json)
@@ -1045,7 +1073,41 @@ void APhotonLogSettings::readFromJson(const QJsonObject & json)
 
     jstools::parseJson(json, "MaxNumber", MaxNumber);
 
-    // !!!*** conditions
+    {
+        QJsonArray ar;
+        jstools::parseJson(json, "MustNotInclude_Processes", ar);
+        for (int i = 0; i < ar.size(); i++)
+            MustNotInclude_Processes.emplace(ar[i].toInt());
+    }
+
+    {
+        QJsonArray ar;
+        jstools::parseJson(json, "MustInclude_Processes", ar);
+        for (int i = 0; i < ar.size(); i++)
+            MustInclude_Processes.push_back(ar[i].toInt());
+    }
+
+    {
+        QJsonArray ar;
+        jstools::parseJson(json, "MustNotInclude_Volumes", ar);
+        for (int i = 0; i < ar.size(); i++)
+            MustNotInclude_Volumes.emplace(ar[i].toString().toLatin1().data());
+    }
+
+    {
+        QJsonArray ar;
+        jstools::parseJson(json, "MustInclude_Volumes", ar);
+        for (int i = 0; i < ar.size(); i++)
+        {
+            QJsonArray el = ar[i].toArray();
+            if (el.size() == 2) // !!!*** error handling
+            {
+                TString vol = el[0].toString().toLatin1().data();
+                int index = el[1].toInt();
+                MustInclude_Volumes.push_back({vol, index});
+            }
+        }
+    }
 }
 
 void APhotonLogSettings::clear()
