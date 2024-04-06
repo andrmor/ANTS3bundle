@@ -1768,3 +1768,65 @@ void APhotSimWin::on_sbEvent_editingFinished()
     ui->sbEvent->blockSignals(false);
     //ui->sbEvent->setFocus();
 }
+
+void APhotSimWin::on_pbSelectLogFile_clicked()
+{
+    QString fileName = QFileDialog::getOpenFileName(this, "Select file with photon log data", SimSet.RunSet.OutputDirectory);
+    if (!fileName.isEmpty()) ui->leLogFile->setText(fileName);
+}
+
+#include "aphotonhistorylog.h"
+#include "aphotonloghandler.h"
+void APhotSimWin::on_pbPhotonLog_first_clicked()
+{
+    QString fileName = ui->leLogFile->text();
+    if (!fileName.contains('/')) fileName = ui->leResultsWorkingDir->text() + '/' + fileName;
+
+    delete LogHandler; LogHandler = new APhotonLogHandler();
+    bool ok = LogHandler->init(fileName);
+
+    if (!ok)
+    {
+        delete LogHandler; LogHandler = nullptr;
+        guitools::message(LogHandler->ErrorString, this);
+        return;
+    }
+
+    showLogRecord();
+}
+
+void APhotSimWin::showLogRecord()
+{
+    bool ok = LogHandler->readNextPhotonLog();
+    if (!ok)
+    {
+        delete LogHandler; LogHandler = nullptr;
+        guitools::message(LogHandler->ErrorString, this);
+        return;
+    }
+
+    QString txt;
+    LogHandler->logToText(txt);
+    ui->pteLog->clear();
+    ui->pteLog->appendPlainText(txt);
+
+    TGeoManager * GeoManager = AGeometryHub::getInstance().GeoManager;
+    GeoManager->ClearTracks();
+
+    LogHandler->populateTrack();
+
+    emit requestShowGeometry();
+    emit requestShowTracks();
+}
+
+void APhotSimWin::on_pbPhotonLog_next_clicked()
+{
+    if (!LogHandler)
+    {
+        on_pbPhotonLog_first_clicked();
+        return;
+    }
+
+    showLogRecord();
+}
+

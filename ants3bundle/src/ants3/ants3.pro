@@ -121,6 +121,7 @@ SOURCES += \
     ../dispatcher/a3dispatcher.cpp \
     ../dispatcher/a3processhandler.cpp \
     ../lsim/anoderecord.cpp \
+    ../lsim/aphotonhistorylog.cpp \
     farm/afarmnoderecord.cpp \
     geo/acalorimeter.cpp \
     geo/acalorimeterhub.cpp \
@@ -203,6 +204,7 @@ SOURCES += \
     gui/script/atextoutputwindow.cpp \
     materials/amatcomposition.cpp \
     particleSim/ageant4inspectormanager.cpp \
+    photonSim/aphotonloghandler.cpp \
     photonSim/interfaceRules/asurfaceinterfacerule.cpp \
     photonSim/interfaceRules/asurfacesettings.cpp \
     photonSim/interfaceRules/aunifiedrule.cpp \
@@ -336,11 +338,13 @@ HEADERS += \
     ../dispatcher/a3dispatcher.h \
     ../dispatcher/a3processhandler.h \
     ../lsim/anoderecord.h \
+    ../lsim/aphotonhistorylog.h \
     ademomanager.h \
     gui/atreedatabaseselectordialog.h \
     gui/photsim/afunctionalmodelwidget.h \
     gui/photsim/aphotontunnelwindow.h \
     gui/script/ascriptexampleexplorer.h \
+    photonSim/aphotonloghandler.h \
     photonSim/photonFunctional/aphotonfunctionalhub.h \
     photonSim/photonFunctional/aphotonfunctionalmodel.h \
     rec/PET/apetcoincidencefinderconfig.h \

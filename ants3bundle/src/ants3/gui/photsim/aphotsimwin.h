@@ -16,6 +16,7 @@ class APhotonBombFileHandler; // tmp ?
 class ANodeRecord; // tmp ?
 class ASensorDrawWidget;
 class AFileHandlerBase;
+class APhotonLogHandler;
 
 class APhotSimWin : public AGuiWindow
 {
@@ -149,6 +150,12 @@ private slots:
     void on_pbUpdateSensorIndication_clicked();
 
 
+    void on_pbSelectLogFile_clicked();
+
+    void on_pbPhotonLog_first_clicked();
+
+    void on_pbPhotonLog_next_clicked();
+
 private:
     APhotonSimSettings & SimSet;
     const AMonitorHub  & MonitorHub;
@@ -161,6 +168,8 @@ private:
 
     AFileSettingsBase * SignalsFileSettings = nullptr;
     AFileHandlerBase  * SignalsFileHandler  = nullptr;
+
+    APhotonLogHandler * LogHandler = nullptr;
 
     QPixmap YellowCircle;
 
@@ -195,6 +204,8 @@ private:
     void loadMonitorsData(bool suppressMessage);
     void loadTracks(bool suppressMessage);
     void showTracksSingleEvent();
+
+    void showLogRecord();
 
 signals:
     void requestShowGeometry(bool ActivateWindow = true, bool SAME = true, bool ColorUpdateAllowed = true);

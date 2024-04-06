@@ -1,6 +1,9 @@
 #include "aphotonhistorylog.h"
 #include "amaterialhub.h"
 
+#include <QTextStream>
+#include <QDebug>
+
 APhotonHistoryLog::APhotonHistoryLog(const double * Position, const TString & volumeName, int volumeIndex,
                                      double Time,
                                      int iWave,
@@ -28,27 +31,65 @@ QString APhotonHistoryLog::print() const
         s += " [" + MatHub.getMaterialName(matIndex) +"/"+ MatHub.getMaterialName(matIndexAfter)+"]";
     }
 
-    s += QString(" at ( ") + QString::number(r[0])+", "+ QString::number(r[1]) + ", "+QString::number(r[2])+" )";
-    if (volumeName.Length() != 0) s += " in " + QString(volumeName) + " with index " + QString::number(VolumeIndex);
+    s += QString(" at (") + QString::number(r[0])+","+ QString::number(r[1]) + ","+QString::number(r[2])+")";
+    if (volumeName.Length() != 0) s += " in " + QString(volumeName) + "#" + QString::number(VolumeIndex);
     if (iWave != -1) s += " iWave="+QString::number(iWave);
-    s += ", " + QString::number(time)+" ns";
+    s += " " + QString::number(time)+" ns";
 
     return s;
 }
 
-#include <QTextStream>
 void APhotonHistoryLog::sendToStream(QTextStream * s) const
 {
-    *s << process << " ";
+    *s << process << " ";           // 0
     for (size_t i = 0; i < 3; i++)
-        *s << r[i] << " ";
-    *s << volumeName.Data() << " ";
-    *s << VolumeIndex << " ";
-    *s << time << " ";
-    *s << iWave << " ";
-    *s << matIndex << " ";
-    *s << matIndexAfter << " ";
-    *s << number << "\n";
+        *s << r[i] << " ";          // 1 2 3
+    *s << volumeName.Data() << " "; // 4
+    *s << VolumeIndex << " ";       // 5
+    *s << time << " ";              // 6
+    *s << iWave << " ";             // 7
+    *s << matIndex << " ";          // 8
+    *s << matIndexAfter << " ";     // 9
+    *s << number << "\n";           // 10
+}
+
+QString APhotonHistoryLog::parseFromString(const QString & str)
+{
+    const QStringList sl = str.split(' ', Qt::SkipEmptyParts);
+    if (sl.size() != 11) return "Wrong size of photon log record";
+
+    bool ok;
+    int iPr = sl[0].toInt(&ok);
+    if (!ok || iPr < 0 || iPr >= __SizeOfNodeTypes__) return "Invalid process index";
+    process = static_cast<NodeType>(iPr);
+
+    for (int i = 0; i < 3; i++)
+    {
+        r[i] = sl[1+i].toDouble(&ok);
+        if (!ok) return "Invalid position";
+    }
+
+    volumeName = TString(sl[4].toLatin1().data());
+
+    VolumeIndex = sl[5].toInt(&ok);
+    if (!ok) return "Invalid volume index";
+
+    time = sl[6].toDouble(&ok);
+    if (!ok) return "Invalid time";
+
+    iWave = sl[7].toInt(&ok);
+    if (!ok) return "Invalid wave index";
+
+    matIndex = sl[8].toInt(&ok);
+    if (!ok) return "Invalid materail index";
+
+    matIndexAfter = sl[9].toInt(&ok);
+    if (!ok) return "Invalid second materail index";
+
+    number = sl[10].toInt(&ok);
+    if (!ok) return "Invalid numeric parameter";
+
+    return "";
 }
 
 QString APhotonHistoryLog::GetProcessName(int nodeType)
