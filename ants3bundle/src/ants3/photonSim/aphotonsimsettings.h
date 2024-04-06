@@ -207,7 +207,7 @@ public:
     bool    Save     = false;  // !!!*** rename!
     QString FileName = "PhotonLog.txt";
 
-    // !!!*** add max number of log records
+    int MaxNumber = 1000;
 
     std::set<int>        MustNotInclude_Processes; // v.fast
     std::vector<int>     MustInclude_Processes;    // slow

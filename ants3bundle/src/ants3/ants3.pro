@@ -145,6 +145,7 @@ SOURCES += \
     gui/particleSim/aworldsizewarningdialog.cpp \
     gui/photsim/afunctionalmodelwidget.cpp \
     gui/photsim/ainterfaceruletester.cpp \
+    gui/photsim/aphotonlogsettingsform.cpp \
     gui/photsim/aphotontunnelwindow.cpp \
     gui/photsim/aphotsimwin.cpp \
     gui/photsim/asensordrawwidget.cpp \
@@ -342,6 +343,7 @@ HEADERS += \
     ademomanager.h \
     gui/atreedatabaseselectordialog.h \
     gui/photsim/afunctionalmodelwidget.h \
+    gui/photsim/aphotonlogsettingsform.h \
     gui/photsim/aphotontunnelwindow.h \
     gui/script/ascriptexampleexplorer.h \
     photonSim/aphotonloghandler.h \
@@ -569,6 +571,7 @@ FORMS += \
         gui/particleSim/atrackdrawdialog.ui \
         gui/particleSim/aworldsizewarningdialog.ui \
         gui/photsim/ainterfaceruletester.ui \
+        gui/photsim/aphotonlogsettingsform.ui \
         gui/photsim/aphotontunnelwindow.ui \
         gui/photsim/aphotsimwin.ui \
         gui/photsim/asensordrawwidget.ui \

@@ -2,6 +2,7 @@
 #include "ui_aphotonsimoutputdialog.h"
 #include "aphotonsimhub.h"
 #include "aphotonsimsettings.h"
+#include "aphotonlogsettingsform.h"
 #include "guitools.h"
 
 #include <QFileDialog>
@@ -11,6 +12,12 @@ APhotonSimOutputDialog::APhotonSimOutputDialog(QWidget *parent) :
     ui(new Ui::APhotonSimOutputDialog)
 {
     ui->setupUi(this);
+
+    PhotonLog = new APhotonLogSettingsForm(this);
+    QHBoxLayout * layLog = new QHBoxLayout();
+    layLog->setContentsMargins(130,0,0,0);
+    layLog->addWidget(PhotonLog);
+    ui->verticalLayout->insertLayout(18, layLog);
 
     const APhotSimRunSettings & RunSet = APhotonSimHub::getConstInstance().Settings.RunSet;
 
@@ -44,6 +51,8 @@ APhotonSimOutputDialog::APhotonSimOutputDialog(QWidget *parent) :
 
     ui->cbPhotonLog->setChecked(RunSet.PhotonLogSet.Save);
     ui->labPhotonLog->setText(RunSet.PhotonLogSet.FileName);
+
+    PhotonLog->updateGui(RunSet.PhotonLogSet);
 }
 
 APhotonSimOutputDialog::~APhotonSimOutputDialog()
@@ -61,6 +70,13 @@ void APhotonSimOutputDialog::on_pbAccept_clicked()
         }
 
     APhotSimRunSettings & RunSet = APhotonSimHub::getInstance().Settings.RunSet;
+
+    QString err = PhotonLog->updateSettings(RunSet.PhotonLogSet);
+    if (!err.isEmpty())
+    {
+        guitools::message(err, this);
+        return;
+    }
 
     RunSet.OutputDirectory   = ui->leOutputDirectory->text();
     RunSet.BinaryFormat      = (ui->cobFileFormat->currentIndex() == 1);

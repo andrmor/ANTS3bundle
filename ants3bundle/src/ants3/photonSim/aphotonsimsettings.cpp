@@ -1033,6 +1033,8 @@ void APhotonLogSettings::writeToJson(QJsonObject & json) const
     json["Enabled"]  = Save;
     json["FileName"] = FileName;
 
+    json["MaxNumber"] = MaxNumber;
+
     // !!!*** conditions
 }
 
@@ -1040,6 +1042,8 @@ void APhotonLogSettings::readFromJson(const QJsonObject & json)
 {
     jstools::parseJson(json, "Enabled", Save);
     jstools::parseJson(json, "FileName", FileName);
+
+    jstools::parseJson(json, "MaxNumber", MaxNumber);
 
     // !!!*** conditions
 }
