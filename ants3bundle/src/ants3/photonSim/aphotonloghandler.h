@@ -23,6 +23,7 @@ public:
     bool readNextPhotonLog();
     void logToText(QString & text);
     void populateTrack();
+    void populateAllTracks();
 
 private:
     QFile       * File = nullptr;

@@ -156,6 +156,8 @@ private slots:
 
     void on_pbPhotonLog_next_clicked();
 
+    void on_pbPhotonLog_ShowAll_clicked();
+
 private:
     APhotonSimSettings & SimSet;
     const AMonitorHub  & MonitorHub;
@@ -205,6 +207,7 @@ private:
     void loadTracks(bool suppressMessage);
     void showTracksSingleEvent();
 
+    QString initPhotonLogHandler(); // returns error if any
     void showLogRecord();
 
 signals:

@@ -104,4 +104,17 @@ void APhotonLogHandler::populateTrack()
     if (track->GetNpoints() > 1) GeoManager->AddTrack(track);
 }
 
+void APhotonLogHandler::populateAllTracks()
+{
+    if (!Stream) return;
+
+    while (!Stream->atEnd())
+    {
+        bool ok = readNextPhotonLog();
+        if (!ok) return;
+
+        populateTrack();
+    }
+}
+
 

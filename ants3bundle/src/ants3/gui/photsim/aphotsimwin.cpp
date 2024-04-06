@@ -1444,7 +1444,7 @@ void APhotSimWin::on_pbChangeWorkingDir_clicked()
 
 void APhotSimWin::on_tbwResults_currentChanged(int index)
 {
-    ui->frEventNumber->setVisible(index > 1);
+    ui->frEventNumber->setVisible(index > 1 && index < 5);
 }
 
 void APhotSimWin::on_pbShowEvent_clicked()
@@ -1777,9 +1777,10 @@ void APhotSimWin::on_pbSelectLogFile_clicked()
 
 #include "aphotonhistorylog.h"
 #include "aphotonloghandler.h"
-void APhotSimWin::on_pbPhotonLog_first_clicked()
+QString APhotSimWin::initPhotonLogHandler()
 {
     QString fileName = ui->leLogFile->text();
+    if (fileName.isEmpty()) return "File name not selected";
     if (!fileName.contains('/')) fileName = ui->leResultsWorkingDir->text() + '/' + fileName;
 
     delete LogHandler; LogHandler = new APhotonLogHandler();
@@ -1787,16 +1788,28 @@ void APhotSimWin::on_pbPhotonLog_first_clicked()
 
     if (!ok)
     {
+        QString err = LogHandler->ErrorString;
         delete LogHandler; LogHandler = nullptr;
+        return err;
+    }
+    return "";
+}
+
+void APhotSimWin::on_pbPhotonLog_first_clicked()
+{
+    QString err = initPhotonLogHandler();
+    if (!err.isEmpty())
+    {
+        ui->pteLog->clear();
         guitools::message(LogHandler->ErrorString, this);
         return;
     }
-
     showLogRecord();
 }
 
 void APhotSimWin::showLogRecord()
 {
+    ui->pteLog->clear();
     bool ok = LogHandler->readNextPhotonLog();
     if (!ok)
     {
@@ -1807,7 +1820,6 @@ void APhotSimWin::showLogRecord()
 
     QString txt;
     LogHandler->logToText(txt);
-    ui->pteLog->clear();
     ui->pteLog->appendPlainText(txt);
 
     TGeoManager * GeoManager = AGeometryHub::getInstance().GeoManager;
@@ -1830,3 +1842,21 @@ void APhotSimWin::on_pbPhotonLog_next_clicked()
     showLogRecord();
 }
 
+void APhotSimWin::on_pbPhotonLog_ShowAll_clicked()
+{
+    ui->pteLog->clear();
+    QString err = initPhotonLogHandler();
+    if (!err.isEmpty())
+    {
+        guitools::message(LogHandler->ErrorString, this);
+        return;
+    }
+
+    TGeoManager * GeoManager = AGeometryHub::getInstance().GeoManager;
+    GeoManager->ClearTracks();
+
+    LogHandler->populateAllTracks();
+
+    emit requestShowGeometry();
+    emit requestShowTracks();
+}
