@@ -8,6 +8,11 @@ APhotonLogSettingsForm::APhotonLogSettingsForm(QWidget *parent)
     , ui(new Ui::APhotonLogSettingsForm)
 {
     ui->setupUi(this);
+
+    ui->labProcess->setText("\u2208");
+    ui->labVolume->setText("\u2208");
+    ui->labNotProcess->setText("\u2209");
+    ui->labNotVolume->setText("\u2209");
 }
 
 APhotonLogSettingsForm::~APhotonLogSettingsForm()
@@ -83,4 +88,9 @@ QString APhotonLogSettingsForm::updateSettings(APhotonLogSettings & settings) co
         settings.MustNotInclude_Volumes.emplace(strVol.toLatin1().data());
 
     return "";
+}
+
+void APhotonLogSettingsForm::setNumber(int num)
+{
+    ui->sbMaxNumber->setValue(num);
 }

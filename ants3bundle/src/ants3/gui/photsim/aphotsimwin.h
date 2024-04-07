@@ -17,6 +17,7 @@ class ANodeRecord; // tmp ?
 class ASensorDrawWidget;
 class AFileHandlerBase;
 class APhotonLogHandler;
+class APhotonLogSettingsForm;
 
 class APhotSimWin : public AGuiWindow
 {
@@ -172,6 +173,8 @@ private:
     AFileHandlerBase  * SignalsFileHandler  = nullptr;
 
     APhotonLogHandler * LogHandler = nullptr;
+
+    APhotonLogSettingsForm * LogForm = nullptr;
 
     QPixmap YellowCircle;
 

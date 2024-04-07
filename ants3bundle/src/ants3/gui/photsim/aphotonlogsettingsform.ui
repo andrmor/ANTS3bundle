@@ -34,7 +34,7 @@
      <item>
       <widget class="QLabel" name="label">
        <property name="text">
-        <string>Max number of photons:</string>
+        <string>    Max number of photons:</string>
        </property>
       </widget>
      </item>
@@ -68,41 +68,55 @@
      <item row="0" column="0">
       <widget class="QLabel" name="label_2">
        <property name="text">
-        <string>Processes, yes:</string>
+        <string>    Processes:</string>
        </property>
       </widget>
      </item>
      <item row="0" column="1">
-      <widget class="QLineEdit" name="leProcessesMust"/>
-     </item>
-     <item row="0" column="2">
-      <widget class="QLabel" name="label_6">
+      <widget class="QLabel" name="labProcess">
        <property name="text">
-        <string>no:</string>
+        <string>--</string>
        </property>
       </widget>
      </item>
+     <item row="0" column="2">
+      <widget class="QLineEdit" name="leProcessesMust"/>
+     </item>
      <item row="0" column="3">
+      <widget class="QLabel" name="labNotProcess">
+       <property name="text">
+        <string>--</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="4">
       <widget class="QLineEdit" name="leProcessesMustNot"/>
      </item>
      <item row="1" column="0">
       <widget class="QLabel" name="label_3">
        <property name="text">
-        <string>Volumes, yes:</string>
+        <string>    Volumes:</string>
        </property>
       </widget>
      </item>
      <item row="1" column="1">
-      <widget class="QLineEdit" name="leVolumesMust"/>
-     </item>
-     <item row="1" column="2">
-      <widget class="QLabel" name="label_7">
+      <widget class="QLabel" name="labVolume">
        <property name="text">
-        <string>no:</string>
+        <string>--</string>
        </property>
       </widget>
      </item>
+     <item row="1" column="2">
+      <widget class="QLineEdit" name="leVolumesMust"/>
+     </item>
      <item row="1" column="3">
+      <widget class="QLabel" name="labNotVolume">
+       <property name="text">
+        <string>--</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="4">
       <widget class="QLineEdit" name="leVolumesMustNot"/>
      </item>
     </layout>

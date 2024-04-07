@@ -30,7 +30,7 @@
     <item>
      <widget class="QTabWidget" name="twSignals">
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
@@ -3616,7 +3616,7 @@
         <item>
          <widget class="QTabWidget" name="tbwResults">
           <property name="currentIndex">
-           <number>0</number>
+           <number>5</number>
           </property>
           <widget class="QWidget" name="tab_6">
            <attribute name="title">
@@ -4623,7 +4623,7 @@
            <attribute name="title">
             <string>Log</string>
            </attribute>
-           <layout class="QVBoxLayout" name="verticalLayout_26">
+           <layout class="QVBoxLayout" name="verticalLayout_Log">
             <item>
              <widget class="QLabel" name="label_45">
               <property name="text">
@@ -4657,9 +4657,9 @@
              </widget>
             </item>
             <item>
-             <widget class="QLabel" name="label_47">
+             <widget class="QCheckBox" name="cbLogAdditionalFilters">
               <property name="text">
-               <string>Additional filters (still to do)</string>
+               <string>Additional filters</string>
               </property>
              </widget>
             </item>

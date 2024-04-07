@@ -20,6 +20,7 @@
 #include "anoderecord.h"
 #include "aphotonhistorylog.h"
 #include "aphotonloghandler.h"
+#include "aphotonlogsettingsform.h"
 
 #include <QDebug>
 #include <QLabel>
@@ -76,6 +77,12 @@ APhotSimWin::APhotSimWin(QWidget * parent) :
     QVBoxLayout * lV = new QVBoxLayout(ui->frSensorDraw);
     lV->setContentsMargins(2,2,2,2);
     lV->addWidget(gvSensors);
+
+    LogForm = new APhotonLogSettingsForm();
+    ui->verticalLayout_Log->insertWidget(4, LogForm);
+    connect(ui->cbLogAdditionalFilters, &QCheckBox::toggled, LogForm, &APhotonLogSettingsForm::setVisible);
+    LogForm->setVisible(ui->cbLogAdditionalFilters->isChecked());
+    LogForm->setNumber(100);
 
     updateGui();
 }

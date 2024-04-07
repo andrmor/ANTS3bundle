@@ -22,6 +22,8 @@ public:
     void updateGui(const APhotonLogSettings & settings);
     QString updateSettings(APhotonLogSettings & settings) const; // returns error string if any
 
+    void setNumber(int num);
+
 private:
     Ui::APhotonLogSettingsForm *ui;
 };
