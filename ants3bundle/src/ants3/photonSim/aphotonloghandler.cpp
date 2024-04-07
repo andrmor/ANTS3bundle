@@ -20,6 +20,13 @@ bool APhotonLogHandler::init(const QString & fileName)
         return false;
     }
 
+    if (File->size() == 0)
+    {
+        delete File; File = nullptr;
+        ErrorString = "File is empty!";
+        return false;
+    }
+
     Stream = new QTextStream(File);
     QString line = Stream->readLine();
     if (line != "#")

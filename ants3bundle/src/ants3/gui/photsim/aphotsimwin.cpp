@@ -1851,7 +1851,7 @@ void APhotSimWin::on_pbPhotonLog_ShowAll_clicked()
     QString err = initPhotonLogHandler();
     if (!err.isEmpty())
     {
-        guitools::message(LogHandler->ErrorString, this);
+        guitools::message(err, this);
         return;
     }
 
