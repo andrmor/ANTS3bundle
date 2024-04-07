@@ -94,6 +94,9 @@ QString APhotonHistoryLog::parseFromString(const QString & str)
 
 QString APhotonHistoryLog::GetProcessName(int nodeType)
 {
+    if (nodeType < 0 || nodeType >= __SizeOfNodeTypes__) return "Error: unknown index!";
+    return AllProcessNames[nodeType];
+/*
     switch (nodeType)
     {
     case Undefined: return "Undefined";
@@ -119,6 +122,14 @@ QString APhotonHistoryLog::GetProcessName(int nodeType)
     case KilledByMonitor: return "StoppedByMonitor";
     default: return "Error: unknown index!";
     }
+*/
+}
+
+int APhotonHistoryLog::GetProcessIndex(const QString & name)
+{
+    for (int i = 0; i < AllProcessNames.size(); i++)
+        if (name == AllProcessNames[i]) return i;
+    return -1;
 }
 
 QString APhotonHistoryLog::PrintAllProcessTypes()
