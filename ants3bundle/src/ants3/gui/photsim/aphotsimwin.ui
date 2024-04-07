@@ -30,7 +30,7 @@
     <item>
      <widget class="QTabWidget" name="twSignals">
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
@@ -3616,7 +3616,7 @@
         <item>
          <widget class="QTabWidget" name="tbwResults">
           <property name="currentIndex">
-           <number>5</number>
+           <number>0</number>
           </property>
           <widget class="QWidget" name="tab_6">
            <attribute name="title">

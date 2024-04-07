@@ -18,6 +18,8 @@
 #include "asensorhub.h"
 #include "aphotonbombfilehandler.h"
 #include "anoderecord.h"
+#include "aphotonhistorylog.h"
+#include "aphotonloghandler.h"
 
 #include <QDebug>
 #include <QLabel>
@@ -537,6 +539,9 @@ void APhotSimWin::on_pbLoadAllResults_clicked()
 
     ui->leTracksFile->setText(Set.FileNameTracks);
     loadTracks(true);
+
+    ui->leLogFile->setText(Set.PhotonLogSet.FileName);
+    delete LogHandler; LogHandler = nullptr;
 }
 
 void APhotSimWin::reshapeSensorSignalTable()
@@ -1775,8 +1780,6 @@ void APhotSimWin::on_pbSelectLogFile_clicked()
     if (!fileName.isEmpty()) ui->leLogFile->setText(fileName);
 }
 
-#include "aphotonhistorylog.h"
-#include "aphotonloghandler.h"
 QString APhotSimWin::initPhotonLogHandler()
 {
     QString fileName = ui->leLogFile->text();
@@ -1801,7 +1804,7 @@ void APhotSimWin::on_pbPhotonLog_first_clicked()
     if (!err.isEmpty())
     {
         ui->pteLog->clear();
-        guitools::message(LogHandler->ErrorString, this);
+        guitools::message(err, this);
         return;
     }
     showLogRecord();

@@ -24,6 +24,8 @@ bool APhotonLogHandler::init(const QString & fileName)
     QString line = Stream->readLine();
     if (line != "#")
     {
+        delete Stream; Stream = nullptr;
+        delete File;   File = nullptr;
         ErrorString = "Unexpexted photon log file format: photon start char is missing";
         return false;
     }
@@ -93,7 +95,7 @@ void APhotonLogHandler::populateTrack()
     TGeoTrack * track = new TGeoTrack(1, 22);
     int Color = 7;
     //if (bSec) Color = kMagenta;
-    //if (bHit) Color = 2;
+    if (PhotonLog.back().process == APhotonHistoryLog::Detected) Color = 2;
     track->SetLineColor(Color);
     //track->SetLineWidth(th->Width);
     //track->SetLineStyle(th->Style);
