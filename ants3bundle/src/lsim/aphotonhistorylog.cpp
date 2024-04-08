@@ -10,7 +10,7 @@ APhotonHistoryLog::APhotonHistoryLog(const double * Position, const TString & vo
                                      APhotonHistoryLog::NodeType node,
                                      int MatIndex, int MatIndexAfter,
                                      int number) :
-    process(node), volumeName(volumeName), VolumeIndex(volumeIndex), time(Time),
+    process(node), volumeName(volumeName), volumeIndex(volumeIndex), time(Time),
     matIndex(MatIndex), matIndexAfter(MatIndexAfter), number(number), iWave(iWave)
 {
     r[0] = Position[0];
@@ -22,19 +22,24 @@ QString APhotonHistoryLog::print() const
 {
     QString s;
 
-    s += GetProcessName(process);
+    s += getProcessName(process);
 
-    if      (process == HitSensor || process == Detected || process == NotDetected) s += " PM# " + QString::number(number);
-    else if (process == Fresnel_Reflection || process == Override_Loss || process == Override_Back || process == Fresnel_Transmition || process == Override_Forward)
+    //if (process == HitSensor || process == Detected || process == NotDetected) s += " (#" + QString::number(number) + ")";
+    if (process == Fresnel_Reflection || process == Override_Loss || process == Override_Back || process == Fresnel_Transmition || process == Override_Forward)
     {
         const AMaterialHub & MatHub = AMaterialHub::getConstInstance();
-        s += " [" + MatHub.getMaterialName(matIndex) +"/"+ MatHub.getMaterialName(matIndexAfter)+"]";
+        s += " [" + MatHub.getMaterialName(matIndex) +"->"+ MatHub.getMaterialName(matIndexAfter)+"]";
     }
 
+    QString inat = "in";
+    if (process == Fresnel_Transmition || process == Override_Forward) inat = "to";
+    else if (process == Escaped) inat = "from";
+    if (volumeName.Length() != 0) s += " " + inat + " " + QString(volumeName) + "#" + QString::number(volumeIndex);
+
     s += QString(" at (") + QString::number(r[0])+","+ QString::number(r[1]) + ","+QString::number(r[2])+")";
-    if (volumeName.Length() != 0) s += " in " + QString(volumeName) + "#" + QString::number(VolumeIndex);
+
     if (iWave != -1) s += " iWave="+QString::number(iWave);
-    s += " " + QString::number(time)+" ns";
+    s += " at " + QString::number(time)+" ns";
 
     return s;
 }
@@ -45,7 +50,7 @@ void APhotonHistoryLog::sendToStream(QTextStream * s) const
     for (size_t i = 0; i < 3; i++)
         *s << r[i] << " ";          // 1 2 3
     *s << volumeName.Data() << " "; // 4
-    *s << VolumeIndex << " ";       // 5
+    *s << volumeIndex << " ";       // 5
     *s << time << " ";              // 6
     *s << iWave << " ";             // 7
     *s << matIndex << " ";          // 8
@@ -71,7 +76,7 @@ QString APhotonHistoryLog::parseFromString(const QString & str)
 
     volumeName = TString(sl[4].toLatin1().data());
 
-    VolumeIndex = sl[5].toInt(&ok);
+    volumeIndex = sl[5].toInt(&ok);
     if (!ok) return "Invalid volume index";
 
     time = sl[6].toDouble(&ok);
@@ -92,7 +97,7 @@ QString APhotonHistoryLog::parseFromString(const QString & str)
     return "";
 }
 
-QString APhotonHistoryLog::GetProcessName(int nodeType)
+QString APhotonHistoryLog::getProcessName(int nodeType)
 {
     if (nodeType < 0 || nodeType >= __SizeOfNodeTypes__) return "Error: unknown index!";
     return AllProcessNames[nodeType];
@@ -125,31 +130,23 @@ QString APhotonHistoryLog::GetProcessName(int nodeType)
 */
 }
 
-int APhotonHistoryLog::GetProcessIndex(const QString & name)
+int APhotonHistoryLog::getProcessIndex(const QString & name)
 {
     for (int i = 0; i < AllProcessNames.size(); i++)
         if (name == AllProcessNames[i]) return i;
     return -1;
 }
 
-QString APhotonHistoryLog::PrintAllProcessTypes()
-{
-    QString s = "<br>Defined types:<br>";
-    for (int i=0; i<__SizeOfNodeTypes__; i++)
-        s += QString::number(i) + " -> " + GetProcessName(i) + "<br>";
-    return s;
-}
-
 QStringList APhotonHistoryLog::getAllProcessNames()
 {
     QStringList sl;
     for (int i= 0; i < __SizeOfNodeTypes__; i++)
-        sl << GetProcessName(i);
+        sl << getProcessName(i);
     return sl;
 }
 
 #include "aphotonsimsettings.h"
-bool APhotonHistoryLog::CheckComplyWithFilters(const std::vector<APhotonHistoryLog> &PhLog, const APhotonLogSettings & LogSettings)
+bool APhotonHistoryLog::checkComplyWithFilters(const std::vector<APhotonHistoryLog> &PhLog, const APhotonLogSettings & LogSettings)
 {
     if (!LogSettings.MustNotInclude_Processes.empty())
     {
@@ -184,7 +181,7 @@ bool APhotonHistoryLog::CheckComplyWithFilters(const std::vector<APhotonHistoryL
             if ( LogSettings.MustInclude_Volumes[im].Volume == PhLog[i].volumeName)
             {
                 if (LogSettings.MustInclude_Volumes[im].Index == -1 ||
-                    LogSettings.MustInclude_Volumes[im].Index == PhLog[i].VolumeIndex)
+                    LogSettings.MustInclude_Volumes[im].Index == PhLog[i].volumeIndex)
                 {
                     bFoundThis = true;
                     break;

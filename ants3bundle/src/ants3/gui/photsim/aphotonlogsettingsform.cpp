@@ -26,12 +26,12 @@ void APhotonLogSettingsForm::updateGui(const APhotonLogSettings & settings)
 
     QString txt;
     for (int iPr : settings.MustInclude_Processes)
-        txt += APhotonHistoryLog::GetProcessName(iPr) + " ";
+        txt += APhotonHistoryLog::getProcessName(iPr) + " ";
     ui->leProcessesMust->setText(txt);
 
     txt.clear();
     for (int iPr : settings.MustNotInclude_Processes)
-        txt += APhotonHistoryLog::GetProcessName(iPr) + " ";
+        txt += APhotonHistoryLog::getProcessName(iPr) + " ";
     ui->leProcessesMustNot->setText(txt);
 
     txt.clear();
@@ -60,7 +60,7 @@ QString APhotonLogSettingsForm::updateSettings(APhotonLogSettings & settings) co
     const QStringList slMIP = ui->leProcessesMust->text().split(rx, Qt::SkipEmptyParts);
     for (const QString & strPr : slMIP)
     {
-        int res = APhotonHistoryLog::GetProcessIndex(strPr);
+        int res = APhotonHistoryLog::getProcessIndex(strPr);
         if (res == -1) return "Not valid process name: " + strPr;
         settings.MustInclude_Processes.push_back(res);
     }
@@ -69,7 +69,7 @@ QString APhotonLogSettingsForm::updateSettings(APhotonLogSettings & settings) co
     const QStringList slMnIP = ui->leProcessesMustNot->text().split(rx, Qt::SkipEmptyParts);
     for (const QString & strPr : slMnIP)
     {
-        int res = APhotonHistoryLog::GetProcessIndex(strPr);
+        int res = APhotonHistoryLog::getProcessIndex(strPr);
         if (res == -1) return "Not valid process name: " + strPr;
         settings.MustNotInclude_Processes.emplace(res);
     }

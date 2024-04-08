@@ -88,7 +88,7 @@ bool APhotonLogHandler::readNextPhotonLogFiltered(const APhotonLogSettings & Pho
         bool res = readNextPhotonLog();
         if (!res) return false;
 
-        bool ok = APhotonHistoryLog::CheckComplyWithFilters(PhotonLog, PhotonLogSet);
+        bool ok = APhotonHistoryLog::checkComplyWithFilters(PhotonLog, PhotonLogSet);
         if (ok) return true;
     }
 
@@ -141,7 +141,7 @@ void APhotonLogHandler::populateAllTracks(bool doFiltering, const APhotonLogSett
         bool ok = readNextPhotonLog();
         if (!ok) return;
 
-        if (doFiltering && !APhotonHistoryLog::CheckComplyWithFilters(PhotonLog, PhotonLogSet)) continue;
+        if (doFiltering && !APhotonHistoryLog::checkComplyWithFilters(PhotonLog, PhotonLogSet)) continue;
 
         populateTrack();
         numPhots++;

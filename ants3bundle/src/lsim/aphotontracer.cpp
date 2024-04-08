@@ -649,7 +649,7 @@ void APhotonTracer::appendHistoryRecord()
                     if ( LogSet.MustInclude_Volumes[im].Volume == PhLog[i].volumeName)
                     {
                         if (LogSet.MustInclude_Volumes[im].Index == -1 ||
-                            LogSet.MustInclude_Volumes[im].Index == PhLog[i].VolumeIndex)
+                            LogSet.MustInclude_Volumes[im].Index == PhLog[i].volumeIndex)
                         {
                             bFoundThis = true;
                             break;
