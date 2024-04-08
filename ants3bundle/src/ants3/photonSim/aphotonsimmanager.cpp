@@ -239,6 +239,7 @@ void removePhotonOutputFiles(const APhotSimRunSettings & settings)
     std::vector<QString> fileNames;
     fileNames.push_back(OutputDir + '/' + settings.FileNameSensorSignals);
     fileNames.push_back(OutputDir + '/' + settings.FileNameTracks);
+    fileNames.push_back(OutputDir + '/' + settings.PhotonLogSet.FileName);
     fileNames.push_back(OutputDir + '/' + settings.FileNamePhotonBombs);
     fileNames.push_back(OutputDir + '/' + settings.FileNameStatistics);
     fileNames.push_back(OutputDir + '/' + settings.FileNameMonitors);
@@ -310,6 +311,25 @@ void  APhotonSimManager::clearFileMergers()
     ReceiptFiles.clear();
 }
 
+std::vector<int> computeNumberSplit(int numberToSplit, size_t nodes)
+{
+    std::vector<int> res(nodes, 0);
+
+    int perOne = std::ceil(1.0 * numberToSplit / nodes);
+    if (perOne < 1) perOne = 1;
+    if (perOne > numberToSplit) perOne = numberToSplit;
+
+    int added = 0;
+    for (size_t i = 0; i < nodes; i++)
+    {
+        res[i] = perOne;
+        added += perOne;
+        if (added >= numberToSplit) break;
+    }
+
+    return res;
+}
+
 bool APhotonSimManager::configureSimulation(const std::vector<AFarmNodeRecord> & RunPlan, A3WorkDistrConfig & Request)
 {
     qDebug() << "Configuring simulation...";
@@ -332,6 +352,11 @@ bool APhotonSimManager::configureSimulation(const std::vector<AFarmNodeRecord> &
 
     int iEvent = 0;
     int iProcess = 0;
+
+    size_t numProcesses = 0;
+    for (const AFarmNodeRecord & r : RunPlan) numProcesses += r.Split.size();
+    std::vector<int> tracksToAdd = computeNumberSplit(SimSet.RunSet.MaxTracks, numProcesses);
+    std::vector<int> logsToAdd   = computeNumberSplit(SimSet.RunSet.PhotonLogSet.MaxNumber, numProcesses);
 
     for (const AFarmNodeRecord & r : RunPlan)   // per node server
     {
@@ -402,6 +427,10 @@ bool APhotonSimManager::configureSimulation(const std::vector<AFarmNodeRecord> &
                 AErrorHub::addError("\"From LRFs\" sim mode is not handled this way!");
                 return false;
             }
+
+            // max tracks and logs per node
+            WorkSet.RunSet.MaxTracks = tracksToAdd[iProcess];
+            WorkSet.RunSet.PhotonLogSet.MaxNumber = logsToAdd[iProcess];
 
             configureOutputFiles(Worker, WorkSet, iProcess);
             makeWorkerConfigFile(Worker, WorkSet, iProcess);

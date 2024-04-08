@@ -42,6 +42,7 @@ void APhotonTracer::configureTracer()
 {
     Track.Positions.reserve(SimSet.OptSet.MaxPhotonTransitions + 1);
     AddedTracks = 0;
+    AddedLogs = 0;
 
     _MaxQE = SensorHub.getMaxQE(SimSet.WaveSet.Enabled);
 }
@@ -60,10 +61,17 @@ void APhotonTracer::initTracks()
 
 void APhotonTracer::initPhotonLog()
 {
-    // protected agains been outside of geometry
     PhLog.clear();
-    PhLog.reserve(SimSet.OptSet.MaxPhotonTransitions);
-    PhLog.push_back( APhotonHistoryLog(Photon.r, Navigator->GetCurrentVolume()->GetName(), Navigator->GetCurrentNode()->GetIndex(), Photon.time, Photon.waveIndex, APhotonHistoryLog::Created, MatIndexFrom) );
+    if (AddedLogs >= SimSet.RunSet.PhotonLogSet.MaxNumber)
+    {
+        APhotonSimHub::getInstance().Settings.RunSet.PhotonLogSet.Save = false;
+    }
+    else
+    {
+        // protected agains been outside of geometry
+        PhLog.reserve(SimSet.OptSet.MaxPhotonTransitions);
+        PhLog.push_back( APhotonHistoryLog(Photon.r, Navigator->GetCurrentVolume()->GetName(), Navigator->GetCurrentNode()->GetIndex(), Photon.time, Photon.waveIndex, APhotonHistoryLog::Created, MatIndexFrom) );
+    }
 }
 
 bool APhotonTracer::initBeforeTracing(const APhoton & phot)
@@ -387,7 +395,7 @@ void APhotonTracer::checkSpecialVolume(TGeoNode * NodeAfterInterface, bool & ret
         //qDebug()<< "Sensor hit! (" << ThisVolume->GetTitle() <<") Sensor name:"<< ThisVolume->GetName() << "Sensor index" << iSensor;
         if (SimSet.RunSet.PhotonLogSet.Save)
         {
-            PhLog.push_back( APhotonHistoryLog(Navigator->GetCurrentPoint(), NameTo, VolumeIndexTo, Photon.time, Photon.waveIndex, APhotonHistoryLog::Fresnel_Transmition, MatIndexFrom, MatIndexTo) );
+            //PhLog.push_back( APhotonHistoryLog(Navigator->GetCurrentPoint(), NameTo, VolumeIndexTo, Photon.time, Photon.waveIndex, APhotonHistoryLog::Fresnel_Transmition, MatIndexFrom, MatIndexTo) );
             PhLog.push_back( APhotonHistoryLog(Navigator->GetCurrentPoint(), NameTo, VolumeIndexTo, Photon.time, Photon.waveIndex, APhotonHistoryLog::HitSensor, -1, -1, iSensor) );
         }
         Track.HitSensor = true;
@@ -672,6 +680,7 @@ void APhotonTracer::savePhotonLogRecord()
     *StreamPhotonLog << "#\n";
     for (const APhotonHistoryLog & log : PhLog)
         log.sendToStream(StreamPhotonLog);
+    AddedLogs++;
 }
 
 EBulkProcessResult APhotonTracer::checkBulkProcesses()

@@ -61,6 +61,7 @@ private:
 
     APhoton  Photon;                // the photon which is traced
     int      AddedTracks = 0;
+    int      AddedLogs = 0;
     int      TransitionCounter = 0; // number of photon transitions
     double   Rnd;                   // pre-generated random number for accelerated mode
     double   Step;
