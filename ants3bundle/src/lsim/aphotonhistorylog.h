@@ -55,6 +55,7 @@ public:
     static QString GetProcessName(int nodeType);
     static int     GetProcessIndex(const QString & name); // returns -1 if not found
     static QString PrintAllProcessTypes();
+    static QStringList getAllProcessNames();
     static bool    CheckComplyWithFilters(const std::vector<APhotonHistoryLog> & PhLog, const APhotonLogSettings & LogSettings);
 
 /*

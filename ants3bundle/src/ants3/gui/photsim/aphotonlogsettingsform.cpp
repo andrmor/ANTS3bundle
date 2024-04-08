@@ -50,12 +50,14 @@ void APhotonLogSettingsForm::updateGui(const APhotonLogSettings & settings)
     ui->leVolumesMustNot->setText(txt);
 }
 
+#include <QRegularExpression>
 QString APhotonLogSettingsForm::updateSettings(APhotonLogSettings & settings) const
 {
     settings.MaxNumber = ui->sbMaxNumber->value();
 
+    const QRegularExpression rx("(\\ |\\,|\\t)"); //separators: ' ' or ',' or '\t'
     settings.MustInclude_Processes.clear();
-    const QStringList slMIP = ui->leProcessesMust->text().split(" ", Qt::SkipEmptyParts);
+    const QStringList slMIP = ui->leProcessesMust->text().split(rx, Qt::SkipEmptyParts);
     for (const QString & strPr : slMIP)
     {
         int res = APhotonHistoryLog::GetProcessIndex(strPr);
@@ -64,7 +66,7 @@ QString APhotonLogSettingsForm::updateSettings(APhotonLogSettings & settings) co
     }
 
     settings.MustNotInclude_Processes.clear();
-    const QStringList slMnIP = ui->leProcessesMustNot->text().split(" ", Qt::SkipEmptyParts);
+    const QStringList slMnIP = ui->leProcessesMustNot->text().split(rx, Qt::SkipEmptyParts);
     for (const QString & strPr : slMnIP)
     {
         int res = APhotonHistoryLog::GetProcessIndex(strPr);
@@ -73,7 +75,7 @@ QString APhotonLogSettingsForm::updateSettings(APhotonLogSettings & settings) co
     }
 
     settings.MustInclude_Volumes.clear();
-    const QStringList slMIV = ui->leVolumesMust->text().split(" ", Qt::SkipEmptyParts);
+    const QStringList slMIV = ui->leVolumesMust->text().split(rx, Qt::SkipEmptyParts);
     for (const QString & strPair : slMIV)
     {
         const QStringList sl = strPair.split('#', Qt::SkipEmptyParts);
@@ -83,7 +85,7 @@ QString APhotonLogSettingsForm::updateSettings(APhotonLogSettings & settings) co
     }
 
     settings.MustNotInclude_Volumes.clear();
-    const QStringList slMnIV = ui->leVolumesMustNot->text().split(" ", Qt::SkipEmptyParts);
+    const QStringList slMnIV = ui->leVolumesMustNot->text().split(rx, Qt::SkipEmptyParts);
     for (const QString & strVol : slMnIV)
         settings.MustNotInclude_Volumes.emplace(strVol.toLatin1().data());
 
@@ -93,4 +95,39 @@ QString APhotonLogSettingsForm::updateSettings(APhotonLogSettings & settings) co
 void APhotonLogSettingsForm::setNumber(int num)
 {
     ui->sbMaxNumber->setValue(num);
+}
+
+void APhotonLogSettingsForm::on_leProcessesMust_customContextMenuRequested(const QPoint &)
+{
+    addProcess(ui->leProcessesMust);
+}
+
+void APhotonLogSettingsForm::on_leProcessesMustNot_customContextMenuRequested(const QPoint &)
+{
+    addProcess(ui->leProcessesMustNot);
+}
+
+#include <QDialog>
+#include <QComboBox>
+#include <QPushButton>
+void APhotonLogSettingsForm::addProcess(QLineEdit * le)
+{
+    QDialog dia(this);
+    dia.setWindowTitle("Select process");
+
+    QVBoxLayout * lay = new QVBoxLayout(&dia);
+    QComboBox * cob = new QComboBox(&dia);
+    cob->addItems(APhotonHistoryLog::getAllProcessNames());
+    lay->addWidget(cob);
+    //QPushButton * pb = new QPushButton("Select", this);
+    //lay->addWidget(pb);
+    //connect(pb, &QPushButton::clicked, &dia, &QDialog::accept);
+    connect(cob, &QComboBox::currentTextChanged, &dia, &QDialog::accept);
+
+    int res = dia.exec();
+    if (res == QDialog::Rejected) return;
+
+    QString txt = le->text().simplified();
+    txt += " " + cob->currentText();
+    le->setText(txt);
 }

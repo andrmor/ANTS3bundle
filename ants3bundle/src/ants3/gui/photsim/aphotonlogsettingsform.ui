@@ -80,7 +80,11 @@
       </widget>
      </item>
      <item row="0" column="2">
-      <widget class="QLineEdit" name="leProcessesMust"/>
+      <widget class="QLineEdit" name="leProcessesMust">
+       <property name="contextMenuPolicy">
+        <enum>Qt::CustomContextMenu</enum>
+       </property>
+      </widget>
      </item>
      <item row="0" column="3">
       <widget class="QLabel" name="labNotProcess">
@@ -90,7 +94,11 @@
       </widget>
      </item>
      <item row="0" column="4">
-      <widget class="QLineEdit" name="leProcessesMustNot"/>
+      <widget class="QLineEdit" name="leProcessesMustNot">
+       <property name="contextMenuPolicy">
+        <enum>Qt::CustomContextMenu</enum>
+       </property>
+      </widget>
      </item>
      <item row="1" column="0">
       <widget class="QLabel" name="label_3">

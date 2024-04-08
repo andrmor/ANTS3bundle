@@ -10,6 +10,7 @@ class APhotonLogSettingsForm;
 }
 
 class APhotonLogSettings;
+class QLineEdit;
 
 class APhotonLogSettingsForm : public QWidget
 {
@@ -24,8 +25,15 @@ public:
 
     void setNumber(int num);
 
+private slots:
+    void on_leProcessesMust_customContextMenuRequested(const QPoint &pos);
+
+    void on_leProcessesMustNot_customContextMenuRequested(const QPoint &pos);
+
 private:
-    Ui::APhotonLogSettingsForm *ui;
+    Ui::APhotonLogSettingsForm * ui = nullptr;
+
+    void addProcess(QLineEdit * le);
 };
 
 #endif // APHOTONLOGSETTINGSFORM_H

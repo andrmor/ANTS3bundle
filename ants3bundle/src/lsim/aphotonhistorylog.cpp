@@ -140,6 +140,14 @@ QString APhotonHistoryLog::PrintAllProcessTypes()
     return s;
 }
 
+QStringList APhotonHistoryLog::getAllProcessNames()
+{
+    QStringList sl;
+    for (int i= 0; i < __SizeOfNodeTypes__; i++)
+        sl << GetProcessName(i);
+    return sl;
+}
+
 #include "aphotonsimsettings.h"
 bool APhotonHistoryLog::CheckComplyWithFilters(const std::vector<APhotonHistoryLog> &PhLog, const APhotonLogSettings & LogSettings)
 {

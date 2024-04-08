@@ -1073,6 +1073,7 @@ void APhotonLogSettings::readFromJson(const QJsonObject & json)
 
     jstools::parseJson(json, "MaxNumber", MaxNumber);
 
+    MustNotInclude_Processes.clear();
     {
         QJsonArray ar;
         jstools::parseJson(json, "MustNotInclude_Processes", ar);
@@ -1080,6 +1081,7 @@ void APhotonLogSettings::readFromJson(const QJsonObject & json)
             MustNotInclude_Processes.emplace(ar[i].toInt());
     }
 
+    MustInclude_Processes.clear();
     {
         QJsonArray ar;
         jstools::parseJson(json, "MustInclude_Processes", ar);
@@ -1087,6 +1089,7 @@ void APhotonLogSettings::readFromJson(const QJsonObject & json)
             MustInclude_Processes.push_back(ar[i].toInt());
     }
 
+    MustNotInclude_Volumes.clear();
     {
         QJsonArray ar;
         jstools::parseJson(json, "MustNotInclude_Volumes", ar);
@@ -1094,6 +1097,7 @@ void APhotonLogSettings::readFromJson(const QJsonObject & json)
             MustNotInclude_Volumes.emplace(ar[i].toString().toLatin1().data());
     }
 
+    MustInclude_Volumes.clear();
     {
         QJsonArray ar;
         jstools::parseJson(json, "MustInclude_Volumes", ar);
