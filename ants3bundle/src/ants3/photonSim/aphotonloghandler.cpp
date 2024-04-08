@@ -83,6 +83,7 @@ bool APhotonLogHandler::readNextPhotonLog()
 
 bool APhotonLogHandler::readNextPhotonLogFiltered(const APhotonLogSettings & PhotonLogSet)
 {
+    while (!Stream->atEnd())
     {
         bool res = readNextPhotonLog();
         if (!res) return false;
@@ -90,7 +91,6 @@ bool APhotonLogHandler::readNextPhotonLogFiltered(const APhotonLogSettings & Pho
         bool ok = APhotonHistoryLog::CheckComplyWithFilters(PhotonLog, PhotonLogSet);
         if (ok) return true;
     }
-    while (!Stream->atEnd());
 
     PhotonLog.clear(); // else shows the last one checked in the file
     return true;
@@ -128,11 +128,15 @@ void APhotonLogHandler::populateTrack()
     if (track->GetNpoints() > 1) GeoManager->AddTrack(track);
 }
 
+#include "aphotonsimsettings.h"
 void APhotonLogHandler::populateAllTracks(bool doFiltering, const APhotonLogSettings & PhotonLogSet)
 {
     if (!Stream) return;
 
-    while (!Stream->atEnd())
+    int numPhots = 0;
+    int maxNumPhots = (doFiltering ? PhotonLogSet.MaxNumber : 10000); // fixed number!
+
+    while (!Stream->atEnd() && numPhots < maxNumPhots)
     {
         bool ok = readNextPhotonLog();
         if (!ok) return;
@@ -140,6 +144,7 @@ void APhotonLogHandler::populateAllTracks(bool doFiltering, const APhotonLogSett
         if (doFiltering && !APhotonHistoryLog::CheckComplyWithFilters(PhotonLog, PhotonLogSet)) continue;
 
         populateTrack();
+        numPhots++;
     }
 }
 
