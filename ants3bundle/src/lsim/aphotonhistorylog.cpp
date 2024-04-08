@@ -139,3 +139,53 @@ QString APhotonHistoryLog::PrintAllProcessTypes()
         s += QString::number(i) + " -> " + GetProcessName(i) + "<br>";
     return s;
 }
+
+#include "aphotonsimsettings.h"
+bool APhotonHistoryLog::CheckComplyWithFilters(const std::vector<APhotonHistoryLog> &PhLog, const APhotonLogSettings & LogSettings)
+{
+    if (!LogSettings.MustNotInclude_Processes.empty())
+    {
+        for (const APhotonHistoryLog & log : PhLog)
+            if ( LogSettings.MustNotInclude_Processes.find(log.process) != LogSettings.MustNotInclude_Processes.end() )
+                return false;
+    }
+
+    if (!LogSettings.MustNotInclude_Volumes.empty())
+    {
+        for (const APhotonHistoryLog & log : PhLog)
+            if ( LogSettings.MustNotInclude_Volumes.find(log.volumeName) != LogSettings.MustNotInclude_Volumes.end() )
+                return false;
+    }
+
+    for (size_t im = 0; im < LogSettings.MustInclude_Processes.size(); im++)
+    {
+        bool bFoundThis = false;
+        for (int i = PhLog.size()-1; i > -1; i--)
+            if (LogSettings.MustInclude_Processes[im] == PhLog[i].process)
+            {
+                bFoundThis = true;
+                break;
+            }
+        if (!bFoundThis) return false;
+    }
+
+    for (size_t im = 0; im < LogSettings.MustInclude_Volumes.size(); im++)
+    {
+        bool bFoundThis = false;
+        for (int i = PhLog.size()-1; i > -1; i--)
+            if ( LogSettings.MustInclude_Volumes[im].Volume == PhLog[i].volumeName)
+            {
+                if (LogSettings.MustInclude_Volumes[im].Index == -1 ||
+                    LogSettings.MustInclude_Volumes[im].Index == PhLog[i].VolumeIndex)
+                {
+                    bFoundThis = true;
+                    break;
+                }
+            }
+        if (!bFoundThis) return false;
+    }
+
+    return true;
+}
+
+

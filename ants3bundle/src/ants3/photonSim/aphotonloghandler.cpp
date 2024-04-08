@@ -81,6 +81,21 @@ bool APhotonLogHandler::readNextPhotonLog()
     return true;
 }
 
+bool APhotonLogHandler::readNextPhotonLogFiltered(const APhotonLogSettings & PhotonLogSet)
+{
+    {
+        bool res = readNextPhotonLog();
+        if (!res) return false;
+
+        bool ok = APhotonHistoryLog::CheckComplyWithFilters(PhotonLog, PhotonLogSet);
+        if (ok) return true;
+    }
+    while (!Stream->atEnd());
+
+    PhotonLog.clear(); // else shows the last one checked in the file
+    return true;
+}
+
 void APhotonLogHandler::logToText(QString & text)
 {
     for (const APhotonHistoryLog & rec : PhotonLog)
@@ -113,7 +128,7 @@ void APhotonLogHandler::populateTrack()
     if (track->GetNpoints() > 1) GeoManager->AddTrack(track);
 }
 
-void APhotonLogHandler::populateAllTracks()
+void APhotonLogHandler::populateAllTracks(bool doFiltering, const APhotonLogSettings & PhotonLogSet)
 {
     if (!Stream) return;
 
@@ -121,6 +136,8 @@ void APhotonLogHandler::populateAllTracks()
     {
         bool ok = readNextPhotonLog();
         if (!ok) return;
+
+        if (doFiltering && !APhotonHistoryLog::CheckComplyWithFilters(PhotonLog, PhotonLogSet)) continue;
 
         populateTrack();
     }

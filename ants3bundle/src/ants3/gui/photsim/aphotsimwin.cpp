@@ -1820,7 +1820,21 @@ void APhotSimWin::on_pbPhotonLog_first_clicked()
 void APhotSimWin::showLogRecord()
 {
     ui->pteLog->clear();
-    bool ok = LogHandler->readNextPhotonLog();
+
+    bool ok;
+    if (ui->cbLogAdditionalFilters->isChecked())
+    {
+        APhotonLogSettings sets;
+        QString err = LogForm->updateSettings(sets);
+        if (!err.isEmpty())
+        {
+            guitools::message(err, this);
+            return;
+        }
+        ok = LogHandler->readNextPhotonLogFiltered(sets);
+    }
+    else ok = LogHandler->readNextPhotonLog();
+
     if (!ok)
     {
         delete LogHandler; LogHandler = nullptr;
@@ -1862,10 +1876,22 @@ void APhotSimWin::on_pbPhotonLog_ShowAll_clicked()
         return;
     }
 
+    bool doFiltering = ui->cbLogAdditionalFilters->isChecked();
+    APhotonLogSettings sets;
+    if (doFiltering)
+    {
+        QString err = LogForm->updateSettings(sets);
+        if (!err.isEmpty())
+        {
+            guitools::message(err, this);
+            return;
+        }
+    }
+
     TGeoManager * GeoManager = AGeometryHub::getInstance().GeoManager;
     GeoManager->ClearTracks();
 
-    LogHandler->populateAllTracks();
+    LogHandler->populateAllTracks(doFiltering, sets);
 
     emit requestShowGeometry();
     emit requestShowTracks();

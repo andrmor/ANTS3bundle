@@ -21,9 +21,10 @@ public:
     bool init(const QString & fileName);
 
     bool readNextPhotonLog();
+    bool readNextPhotonLogFiltered(const APhotonLogSettings & PhotonLogSet);
     void logToText(QString & text);
     void populateTrack();
-    void populateAllTracks();
+    void populateAllTracks(bool doFiltering, const APhotonLogSettings & PhotonLogSet);
 
 private:
     QFile       * File = nullptr;

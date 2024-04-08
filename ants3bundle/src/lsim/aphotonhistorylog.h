@@ -4,10 +4,12 @@
 #include <QString>
 
 #include <array>
+#include <vector>
 
 #include "TString.h"
 
 class QTextStream;
+class APhotonLogSettings;
 
 class APhotonHistoryLog
 {
@@ -47,12 +49,13 @@ public:
 
     QString print() const;
 
-    void sendToStream(QTextStream * s) const;
+    void    sendToStream(QTextStream * s) const;
     QString parseFromString(const QString & str); // returns empty string if no error, otherwise the error string
 
     static QString GetProcessName(int nodeType);
-    static int GetProcessIndex(const QString & name); // returns -1 if not found
+    static int     GetProcessIndex(const QString & name); // returns -1 if not found
     static QString PrintAllProcessTypes();
+    static bool    CheckComplyWithFilters(const std::vector<APhotonHistoryLog> & PhLog, const APhotonLogSettings & LogSettings);
 
 /*
     class ANamePair
