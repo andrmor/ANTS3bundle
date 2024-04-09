@@ -235,6 +235,7 @@ void AMaterial::clear()
     Name = "Undefined";
     RefIndex = 1.0;
     AbsCoeff = RayleighMFP = ReemissionProb = 0;
+    IgnoreEnergyConservationInReemission = false;
     ElDriftVelocity = W = SecScintPhotonYield = SecScintDecayTime = ElDiffusionL = ElDiffusionT = 0;
     RayleighWave = 500.0;
     Comments = "";
@@ -301,6 +302,7 @@ void AMaterial::writeToJson(QJsonObject & json) const
     json["RayleighWave"] = RayleighWave;
 
     json["ReemissionProb"] = ReemissionProb;
+    json["IgnoreEnergyConservationInReemission"] = IgnoreEnergyConservationInReemission;
 
     json["Dielectric"] = Dielectric;
     {
@@ -407,6 +409,7 @@ bool AMaterial::readFromJson(const QJsonObject & json)
     jstools::parseJson(json, "RayleighMFP", RayleighMFP);
     jstools::parseJson(json, "RayleighWave", RayleighWave);
     jstools::parseJson(json, "ReemissionProb", ReemissionProb);
+    jstools::parseJson(json, "IgnoreEnergyConservationInReemission", IgnoreEnergyConservationInReemission);
 
     jstools::parseJson(json, "PhotonYield",   PhotonYield);
     jstools::parseJson(json, "IntrEnergyRes", IntrEnergyRes);

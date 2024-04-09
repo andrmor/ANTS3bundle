@@ -40,6 +40,7 @@ public:
     double  RayleighWave;         // in nm
 
     double  ReemissionProb;       // probability that absorbed photon is reemitted (to implement waveshifters, uses PrimaryScint data)
+    bool    IgnoreEnergyConservationInReemission = false; // if true, sample wavelength from entire spectrum, otherwise only longer wavelengths
     std::vector<std::pair<double,double>> ReemissionProb_Wave;
 
     // primary scintillation

@@ -426,6 +426,8 @@ void AMatWin::updateTmpMaterialGui()
 
     ui->ledReemissionProbability->setText( QString::number(tmpMaterial.ReemissionProb) );
 
+    ui->cbIgnoreEnergyConservation->setChecked(tmpMaterial.IgnoreEnergyConservationInReemission);
+
     QString s = ( tmpMaterial.RayleighMFP > 0 ? QString::number(tmpMaterial.RayleighMFP)
                                               : "" );
     ui->ledRayleigh->setText(s);
@@ -552,6 +554,7 @@ void AMatWin::on_pbUpdateTmpMaterial_clicked()
     tmpMaterial.RefIndex = ui->ledN->text().toDouble();
     tmpMaterial.AbsCoeff = ui->ledAbs->text().toDouble();
     tmpMaterial.ReemissionProb = ui->ledReemissionProbability->text().toDouble();
+    tmpMaterial.IgnoreEnergyConservationInReemission = ui->cbIgnoreEnergyConservation->isChecked();
 
     tmpMaterial.Dielectric = (ui->cobNAbsOrComplex->currentIndex() == 0);
     tmpMaterial.RefIndexComplex = { ui->ledReN->text().toDouble(), ui->ledImN->text().toDouble() };

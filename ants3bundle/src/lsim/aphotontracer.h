@@ -94,6 +94,8 @@ private:
 
     double _MaxQE = 1.0;
 
+    const int MaxNumberAttemptsGenerateReemissionWavelength = 10; // if failed within this number, photon is forced to absorption
+
     bool initBeforeTracing(const APhoton & phot);
     void initTracks();
     void initPhotonLog();

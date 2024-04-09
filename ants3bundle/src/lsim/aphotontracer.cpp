@@ -752,21 +752,29 @@ EBulkProcessResult APhotonTracer::checkBulkProcesses()
                 if (RandomHub.uniform() < reemissionProb)
                 {
                     //qDebug() << "Waveshifting! Original index:"<<p.waveIndex;
-                    if (Photon.waveIndex!=-1 && MatHub[MatIndexFrom]->_PrimarySpectrumHist)
+                    if (Photon.waveIndex !=-1 && MatHub[MatIndexFrom]->_PrimarySpectrumHist)
                     {
                         double wavelength;
                         int waveIndex;
-                        int attempts = -1;
-                        do
+
+                        if (MatHub[MatIndexFrom]->IgnoreEnergyConservationInReemission)
                         {
-                            attempts++;
-                            if (attempts > 9) return EBulkProcessResult::Absorbed;  // ***!!! absolute number
                             wavelength = MatHub[MatIndexFrom]->_PrimarySpectrumHist->GetRandom();
-                            //qDebug() << "   "<<wavelength << " MatIndexFrom:"<< MatIndexFrom;
-                            waveIndex = SimSet.WaveSet.toIndexFast(wavelength); // !!!*** before was round here:
-                            //waveIndex = round( (wavelength - SimSet->WaveFrom)/SimSet->WaveStep );
+                            waveIndex = SimSet.WaveSet.toIndexFast(wavelength);
                         }
-                        while (waveIndex < Photon.waveIndex); //conserving energy
+                        else
+                        {
+                            int attempts = -1;
+                            do
+                            {
+                                attempts++;
+                                if (attempts > MaxNumberAttemptsGenerateReemissionWavelength) return EBulkProcessResult::Absorbed;
+                                wavelength = MatHub[MatIndexFrom]->_PrimarySpectrumHist->GetRandom();
+                                //qDebug() << "   "<<wavelength << " MatIndexFrom:"<< MatIndexFrom;
+                                waveIndex = SimSet.WaveSet.toIndexFast(wavelength);
+                            }
+                            while (waveIndex < Photon.waveIndex); //conserving energy
+                        }
 
                         //qDebug() << "NewIndex:"<<waveIndex;
                         Photon.waveIndex = waveIndex;
