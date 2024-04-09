@@ -70,7 +70,7 @@ void APhotonTracer::initPhotonLog()
     {
         // protected agains been outside of geometry
         PhLog.reserve(SimSet.OptSet.MaxPhotonTransitions);
-        PhLog.push_back( APhotonHistoryLog(Photon.r, Navigator->GetCurrentVolume()->GetName(), Navigator->GetCurrentNode()->GetIndex(), Photon.time, Photon.waveIndex, APhotonHistoryLog::Created, MatIndexFrom) );
+        PhLog.push_back( APhotonHistoryLog(Photon.r, Navigator->GetCurrentVolume()->GetName(), Navigator->GetCurrentNode()->GetNumber(), Photon.time, Photon.waveIndex, APhotonHistoryLog::Created, MatIndexFrom) );
     }
 }
 
@@ -137,7 +137,7 @@ void APhotonTracer::tracePhoton(const APhoton & phot)
         if (SimSet.RunSet.PhotonLogSet.Save)
         {
             NameFrom = Navigator->GetCurrentVolume()->GetName();
-            VolumeIndexFrom = Navigator->GetCurrentNode()->GetIndex();
+            VolumeIndexFrom = Navigator->GetCurrentNode()->GetNumber();
         }
         SpeedOfLight = MaterialFrom->getSpeedOfLight(Photon.waveIndex);  // [mm/ns]
 
@@ -187,7 +187,7 @@ void APhotonTracer::tracePhoton(const APhoton & phot)
         if (SimSet.RunSet.PhotonLogSet.Save)
         {
             NameTo = Navigator->GetCurrentVolume()->GetName();
-            VolumeIndexTo = Navigator->GetCurrentNode()->GetIndex();
+            VolumeIndexTo = Navigator->GetCurrentNode()->GetNumber();
         }
         MatIndexTo = VolumeTo->GetMaterial()->GetIndex();
         MaterialTo = MatHub[MatIndexTo];
@@ -452,13 +452,14 @@ void APhotonTracer::checkSpecialVolume(TGeoNode * NodeAfterInterface, bool & ret
         double localPos[3];
         const double * global = Navigator->GetCurrentPoint();
         Navigator->MasterToLocal(global, localPos);
-          // set center Z in tunnel out
-        //localPos[2] = 0;
 
         // get "In" local vector
         const double * globalDir = Navigator->GetCurrentDirection();
         double localDir[3];
         Navigator->MasterToLocalVect(globalDir, localDir);
+
+        if (SimSet.RunSet.PhotonLogSet.Save)
+            PhLog.push_back( APhotonHistoryLog(Navigator->GetCurrentPoint(), NameTo, VolumeIndexTo, Photon.time, Photon.waveIndex, APhotonHistoryLog::Functional_In) );
 
         //qDebug() << "local coordinates" << localPos[0] << localPos[1] << localPos[2];
         //qDebug() << "local vector" << localDir[0] << localDir[1] << localDir[2];
@@ -483,11 +484,10 @@ void APhotonTracer::checkSpecialVolume(TGeoNode * NodeAfterInterface, bool & ret
         // call model
         bool photonTrackingContinues = runtimeData.Model->applyModel(photonData, inNum, outNum);
 
-        // !!!*** photon log, tracking
-
         if (!photonTrackingContinues)
         {
             returnEndTracingFlag = true;
+            if (SimSet.RunSet.PhotonLogSet.Save) PhLog.push_back( APhotonHistoryLog(Navigator->GetCurrentPoint(), NameTo, VolumeIndexTo, Photon.time, Photon.waveIndex, APhotonHistoryLog::Functional_Kill) );
             return;
         }
 
@@ -504,6 +504,7 @@ void APhotonTracer::checkSpecialVolume(TGeoNode * NodeAfterInterface, bool & ret
         Navigator->LocalToMasterVect(photonData.LocalDirection, Photon.v);
         Navigator->SetCurrentDirection(Photon.v);
 
+        if (SimSet.RunSet.PhotonLogSet.Save) PhLog.push_back( APhotonHistoryLog(Navigator->GetCurrentPoint(), Navigator->GetCurrentVolume()->GetName(), Navigator->GetCurrentNode()->GetNumber(), Photon.time, Photon.waveIndex, APhotonHistoryLog::Functional_Out) );
         Track.Positions.push_back(AVector3(Navigator->GetCurrentPoint()));
     }
 
@@ -610,7 +611,7 @@ void APhotonTracer::appendHistoryRecord()
     if (!LogSet.MustNotInclude_Processes.empty())
     {
         for (const APhotonHistoryLog & log : PhLog)
-            if ( LogSet.MustNotInclude_Processes.find(log.process) != LogSet.MustNotInclude_Processes.end() )
+            if ( LogSet.MustNotInclude_Processes.find(log.Process) != LogSet.MustNotInclude_Processes.end() )
             {
                 bVeto = true;
                 break;
@@ -620,7 +621,7 @@ void APhotonTracer::appendHistoryRecord()
     if (!bVeto && !LogSet.MustNotInclude_Volumes.empty())
     {
         for (const APhotonHistoryLog & log : PhLog)
-            if ( LogSet.MustNotInclude_Volumes.find(log.volumeName) != LogSet.MustNotInclude_Volumes.end() )
+            if ( LogSet.MustNotInclude_Volumes.find(log.VolumeName) != LogSet.MustNotInclude_Volumes.end() )
             {
                 bVeto = true;
                 break;
@@ -635,7 +636,7 @@ void APhotonTracer::appendHistoryRecord()
         {
             bool bFoundThis = false;
             for (int i=PhLog.size()-1; i>-1; i--)
-                if ( LogSet.MustInclude_Processes[im] == PhLog[i].process)
+                if ( LogSet.MustInclude_Processes[im] == PhLog[i].Process)
                 {
                     bFoundThis = true;
                     break;
@@ -654,10 +655,10 @@ void APhotonTracer::appendHistoryRecord()
             {
                 bool bFoundThis = false;
                 for (int i=PhLog.size()-1; i>-1; i--)
-                    if ( LogSet.MustInclude_Volumes[im].Volume == PhLog[i].volumeName)
+                    if ( LogSet.MustInclude_Volumes[im].Volume == PhLog[i].VolumeName)
                     {
                         if (LogSet.MustInclude_Volumes[im].Index == -1 ||
-                            LogSet.MustInclude_Volumes[im].Index == PhLog[i].volumeIndex)
+                            LogSet.MustInclude_Volumes[im].Index == PhLog[i].VolumeIndex)
                         {
                             bFoundThis = true;
                             break;
@@ -941,7 +942,7 @@ void APhotonTracer::processSensorHit(int iSensor)
         appendToSensorLog(iSensor, Photon.time, local[0], local[1], angle, Photon.waveIndex);
 
     if (SimSet.RunSet.PhotonLogSet.Save)
-        PhLog.push_back( APhotonHistoryLog(Navigator->GetCurrentPoint(), Navigator->GetCurrentVolume()->GetName(), Navigator->GetCurrentNode()->GetIndex(), Photon.time, Photon.waveIndex, (bDetected ? APhotonHistoryLog::Detected : APhotonHistoryLog::NotDetected), -1, -1, iSensor) );
+        PhLog.push_back( APhotonHistoryLog(Navigator->GetCurrentPoint(), Navigator->GetCurrentVolume()->GetName(), Navigator->GetCurrentNode()->GetNumber(), Photon.time, Photon.waveIndex, (bDetected ? APhotonHistoryLog::Detected : APhotonHistoryLog::NotDetected), -1, -1, iSensor) );
 }
 
 void APhotonTracer::appendToSensorLog(int ipm, double time, double x, double y, double angle, int waveIndex)

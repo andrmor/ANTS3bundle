@@ -99,7 +99,7 @@ bool APhotonLogHandler::readNextPhotonLogFiltered(const APhotonLogSettings & Pho
 void APhotonLogHandler::logToText(QString & text)
 {
     for (const APhotonHistoryLog & rec : PhotonLog)
-        text += rec.print() + "\n";
+        text += rec.printToString() + "\n";
 }
 
 #include "ageometryhub.h"
@@ -117,13 +117,13 @@ void APhotonLogHandler::populateTrack()
     TGeoTrack * track = new TGeoTrack(1, 22);
     int Color = 7;
     //if (bSec) Color = kMagenta;
-    if (PhotonLog.back().process == APhotonHistoryLog::Detected) Color = 2;
+    if (PhotonLog.back().Process == APhotonHistoryLog::Detected) Color = 2;
     track->SetLineColor(Color);
     //track->SetLineWidth(th->Width);
     //track->SetLineStyle(th->Style);
 
     for (const APhotonHistoryLog & rec : PhotonLog)
-        track->AddPoint(rec.r[0], rec.r[1], rec.r[2], rec.time); // skip if the same position? !!!***
+        track->AddPoint(rec.Position[0], rec.Position[1], rec.Position[2], rec.Time); // skip if the same position? !!!***
 
     if (track->GetNpoints() > 1) GeoManager->AddTrack(track);
 }

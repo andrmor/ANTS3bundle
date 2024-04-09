@@ -4,58 +4,57 @@
 #include <QTextStream>
 #include <QDebug>
 
-APhotonHistoryLog::APhotonHistoryLog(const double * Position, const TString & volumeName, int volumeIndex,
-                                     double Time,
-                                     int iWave,
-                                     APhotonHistoryLog::NodeType node,
-                                     int MatIndex, int MatIndexAfter,
+APhotonHistoryLog::APhotonHistoryLog(const double * position, const TString & volumeName, int volumeIndex,
+                                     double time, int iWave,
+                                     APhotonHistoryLog::EProcessType process,
+                                     int iMatIndex, int iMatIndexAfter,
                                      int number) :
-    process(node), volumeName(volumeName), volumeIndex(volumeIndex), time(Time),
-    matIndex(MatIndex), matIndexAfter(MatIndexAfter), number(number), iWave(iWave)
+    Process(process), VolumeName(volumeName), VolumeIndex(volumeIndex), Time(time),
+    MatIndex(iMatIndex), MatIndexAfter(iMatIndexAfter), Number(number), Wave(iWave)
 {
-    r[0] = Position[0];
-    r[1] = Position[1];
-    r[2] = Position[2];
+    Position[0] = position[0];
+    Position[1] = position[1];
+    Position[2] = position[2];
 }
 
-QString APhotonHistoryLog::print() const
+QString APhotonHistoryLog::printToString() const
 {
     QString s;
 
-    s += getProcessName(process);
+    s += getProcessName(Process);
 
-    //if (process == HitSensor || process == Detected || process == NotDetected) s += " (#" + QString::number(number) + ")";
-    if (process == Fresnel_Reflection || process == Override_Loss || process == Override_Back || process == Fresnel_Transmition || process == Override_Forward)
+    //if (Process == HitSensor || Process == Detected || Process == NotDetected) s += " (#" + QString::number(Number) + ")";
+    if (Process == Fresnel_Reflection || Process == Override_Loss || Process == Override_Back || Process == Fresnel_Transmition || Process == Override_Forward)
     {
         const AMaterialHub & MatHub = AMaterialHub::getConstInstance();
-        s += " [" + MatHub.getMaterialName(matIndex) +"->"+ MatHub.getMaterialName(matIndexAfter)+"]";
+        s += " [" + MatHub.getMaterialName(MatIndex) +"->"+ MatHub.getMaterialName(MatIndexAfter)+"]";
     }
 
     QString inat = "in";
-    if (process == Fresnel_Transmition || process == Override_Forward) inat = "to";
-    else if (process == Escaped) inat = "from";
-    if (volumeName.Length() != 0) s += " " + inat + " " + QString(volumeName) + "#" + QString::number(volumeIndex);
+    if (Process == Fresnel_Transmition || Process == Override_Forward) inat = "to";
+    else if (Process == Escaped) inat = "from";
+    if (VolumeName.Length() != 0) s += " " + inat + " " + QString(VolumeName) + "#" + QString::number(VolumeIndex);
 
-    s += QString(" at (") + QString::number(r[0])+","+ QString::number(r[1]) + ","+QString::number(r[2])+")";
+    s += QString(" at (") + QString::number(Position[0])+","+ QString::number(Position[1]) + ","+QString::number(Position[2])+")";
 
-    if (iWave != -1) s += " iWave="+QString::number(iWave);
-    s += " at " + QString::number(time)+" ns";
+    if (Wave != -1) s += " iWave="+QString::number(Wave);
+    s += " at " + QString::number(Time)+" ns";
 
     return s;
 }
 
 void APhotonHistoryLog::sendToStream(QTextStream * s) const
 {
-    *s << process << " ";           // 0
+    *s << Process << " ";           // 0
     for (size_t i = 0; i < 3; i++)
-        *s << r[i] << " ";          // 1 2 3
-    *s << volumeName.Data() << " "; // 4
-    *s << volumeIndex << " ";       // 5
-    *s << time << " ";              // 6
-    *s << iWave << " ";             // 7
-    *s << matIndex << " ";          // 8
-    *s << matIndexAfter << " ";     // 9
-    *s << number << "\n";           // 10
+        *s << Position[i] << " ";          // 1 2 3
+    *s << VolumeName.Data() << " "; // 4
+    *s << VolumeIndex << " ";       // 5
+    *s << Time << " ";              // 6
+    *s << Wave << " ";              // 7
+    *s << MatIndex << " ";          // 8
+    *s << MatIndexAfter << " ";     // 9
+    *s << Number << "\n";           // 10
 }
 
 QString APhotonHistoryLog::parseFromString(const QString & str)
@@ -66,32 +65,32 @@ QString APhotonHistoryLog::parseFromString(const QString & str)
     bool ok;
     int iPr = sl[0].toInt(&ok);
     if (!ok || iPr < 0 || iPr >= __SizeOfNodeTypes__) return "Invalid process index";
-    process = static_cast<NodeType>(iPr);
+    Process = static_cast<EProcessType>(iPr);
 
     for (int i = 0; i < 3; i++)
     {
-        r[i] = sl[1+i].toDouble(&ok);
+        Position[i] = sl[1+i].toDouble(&ok);
         if (!ok) return "Invalid position";
     }
 
-    volumeName = TString(sl[4].toLatin1().data());
+    VolumeName = TString(sl[4].toLatin1().data());
 
-    volumeIndex = sl[5].toInt(&ok);
+    VolumeIndex = sl[5].toInt(&ok);
     if (!ok) return "Invalid volume index";
 
-    time = sl[6].toDouble(&ok);
+    Time = sl[6].toDouble(&ok);
     if (!ok) return "Invalid time";
 
-    iWave = sl[7].toInt(&ok);
+    Wave = sl[7].toInt(&ok);
     if (!ok) return "Invalid wave index";
 
-    matIndex = sl[8].toInt(&ok);
+    MatIndex = sl[8].toInt(&ok);
     if (!ok) return "Invalid materail index";
 
-    matIndexAfter = sl[9].toInt(&ok);
+    MatIndexAfter = sl[9].toInt(&ok);
     if (!ok) return "Invalid second materail index";
 
-    number = sl[10].toInt(&ok);
+    Number = sl[10].toInt(&ok);
     if (!ok) return "Invalid numeric parameter";
 
     return "";
@@ -151,14 +150,14 @@ bool APhotonHistoryLog::checkComplyWithFilters(const std::vector<APhotonHistoryL
     if (!LogSettings.MustNotInclude_Processes.empty())
     {
         for (const APhotonHistoryLog & log : PhLog)
-            if ( LogSettings.MustNotInclude_Processes.find(log.process) != LogSettings.MustNotInclude_Processes.end() )
+            if ( LogSettings.MustNotInclude_Processes.find(log.Process) != LogSettings.MustNotInclude_Processes.end() )
                 return false;
     }
 
     if (!LogSettings.MustNotInclude_Volumes.empty())
     {
         for (const APhotonHistoryLog & log : PhLog)
-            if ( LogSettings.MustNotInclude_Volumes.find(log.volumeName) != LogSettings.MustNotInclude_Volumes.end() )
+            if ( LogSettings.MustNotInclude_Volumes.find(log.VolumeName) != LogSettings.MustNotInclude_Volumes.end() )
                 return false;
     }
 
@@ -166,7 +165,7 @@ bool APhotonHistoryLog::checkComplyWithFilters(const std::vector<APhotonHistoryL
     {
         bool bFoundThis = false;
         for (int i = PhLog.size()-1; i > -1; i--)
-            if (LogSettings.MustInclude_Processes[im] == PhLog[i].process)
+            if (LogSettings.MustInclude_Processes[im] == PhLog[i].Process)
             {
                 bFoundThis = true;
                 break;
@@ -178,10 +177,10 @@ bool APhotonHistoryLog::checkComplyWithFilters(const std::vector<APhotonHistoryL
     {
         bool bFoundThis = false;
         for (int i = PhLog.size()-1; i > -1; i--)
-            if ( LogSettings.MustInclude_Volumes[im].Volume == PhLog[i].volumeName)
+            if ( LogSettings.MustInclude_Volumes[im].Volume == PhLog[i].VolumeName)
             {
                 if (LogSettings.MustInclude_Volumes[im].Index == -1 ||
-                    LogSettings.MustInclude_Volumes[im].Index == PhLog[i].volumeIndex)
+                    LogSettings.MustInclude_Volumes[im].Index == PhLog[i].VolumeIndex)
                 {
                     bFoundThis = true;
                     break;
