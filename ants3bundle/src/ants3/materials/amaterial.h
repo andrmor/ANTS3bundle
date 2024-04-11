@@ -36,8 +36,10 @@ public:
     double                                AbsCoeff;       // in mm-1 (I = I0*exp(-AbsCoeff*length[mm]))
     std::vector<std::pair<double,double>> AbsCoeff_Wave;
 
-    double  RayleighMFP = 0;      // in mm    if =0 => no Rayleigh scattering
+    double  RayleighMFP = 0;      // in mm    if=0 => no Rayleigh scattering
     double  RayleighWave;         // in nm
+
+    double CustomScatterMFP = 0;  // in mm    if=0 => Custom scattering is disabled
 
     double  ReemissionProb;       // probability that absorbed photon is reemitted (to implement waveshifters, uses PrimaryScint data)
     bool    IgnoreEnergyConservationInReemission = false; // if true, sample wavelength from entire spectrum, otherwise only longer wavelengths

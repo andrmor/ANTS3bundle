@@ -32,7 +32,7 @@ public:
     long Absorbed, InterfaceRuleLoss, HitSensor, Escaped, LossOnGrid, TracingSkipped, MaxTransitions, GeneratedOutside, MonitorKill;
 
     //statistics for optical processes
-    long FresnelTransmitted, FresnelReflected, BulkAbsorption, Rayleigh, Reemission;
+    long FresnelTransmitted, FresnelReflected, BulkAbsorption, Rayleigh, Reemission, CustomScatter;
     long InterfaceRuleBack, InterfaceRuleForward;
 
     //only for optical override tester!

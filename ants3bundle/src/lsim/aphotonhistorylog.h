@@ -20,6 +20,7 @@ public:
             Created, HitSensor, Detected, NotDetected, Escaped, Absorbed, MaxNumberCyclesReached, Rayleigh,
             Reemission, Fresnel_Reflection, Fresnel_Transmition, Override_Loss, Override_Forward, Override_Back, GeneratedOutsideGeometry,
             Grid_Enter, Grid_Exit, Grid_ShiftIn, Grid_ShiftOut, KilledByMonitor, Functional_In, Functional_Out, Functional_Kill,
+            CustomScatter,
 
             __SizeOfNodeTypes__//keep it last!!!
         };
@@ -31,6 +32,7 @@ public:
             "Created", "HitSensor", "Detected", "NotDetected", "Escaped", "Absorbed", "MaxNumberCyclesReached", "Rayleigh",
             "Reemission", "Fresnel_Reflection", "Fresnel_Transmition", "Override_Loss", "Override_Forward", "Override_Back", "GeneratedOutsideGeometry",
             "Grid_Enter", "Grid_Exit", "Grid_ShiftIn", "Grid_ShiftOut", "KilledByMonitor", "Functional_In", "Functional_Out", "Functional_Kill",
+            "CustomScatter"
         };
 
 public:

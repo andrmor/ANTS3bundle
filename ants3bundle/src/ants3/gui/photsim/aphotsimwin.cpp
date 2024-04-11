@@ -809,6 +809,7 @@ void APhotSimWin::loadStatistics(bool suppressMessage)
         "InterfaceRule, back: "    + QString::number(Stat.InterfaceRuleBack)    + "\n" +
         "InterfaceRule, forward: " + QString::number(Stat.InterfaceRuleForward) + "\n" +
         "Rayleigh: "               + QString::number(Stat.Rayleigh)             + "\n" +
+        "Custom scatter: "         + QString::number(Stat.CustomScatter)        + "\n" +
         "Reemission: "             + QString::number(Stat.Reemission)           + "\n";
 
     ui->ptePhotonProcesses->clear();

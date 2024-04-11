@@ -92,6 +92,8 @@ private slots:
 
     void on_ledT_editingFinished();
 
+    void on_ledCustoimScatterMFP_editingFinished();
+
 private:
     AGeometryHub & Geometry;
     AMaterialHub & MatHub;

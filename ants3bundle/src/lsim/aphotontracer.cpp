@@ -686,26 +686,18 @@ void APhotonTracer::savePhotonLogRecord()
 
 EBulkProcessResult APhotonTracer::checkBulkProcesses()
 {
-    //Optimized assuming rare use of Rayleigh and very rare use when both abs and Rayleigh are defined!
-    //if both active, extract distances at which the processes would trigger, then select the process with the shortest path
-    //qDebug() << "Abs and Ray tests";
-
-    //prepare abs
-    bool DoAbsorption;
-    double AbsPath;
+    bool DoAbsorption = false;
+    double AbsPath = 1e99;
     const double AbsCoeff = MatHub[MatIndexFrom]->getAbsorptionCoefficient(Photon.waveIndex);
     if (AbsCoeff > 0)
     {
         AbsPath = -log(RandomHub.uniform()) / AbsCoeff;
         if (AbsPath < Step) DoAbsorption = true;
-        else DoAbsorption = false;
     }
-    else DoAbsorption = false;
 
-    //prepare Rayleigh
-    bool DoRayleigh;
-    double RayleighPath;
-    if (MaterialFrom->RayleighMFP == 0) DoRayleigh = false;      // == 0 - means undefined
+    bool DoRayleigh = false;
+    double RayleighPath = 1e99;
+    if (MaterialFrom->RayleighMFP == 0) DoRayleigh = false;      // == 0 means disabled
     else
     {
         double RayleighMFP;
@@ -714,18 +706,30 @@ EBulkProcessResult APhotonTracer::checkBulkProcesses()
 
         RayleighPath = -RayleighMFP * log(RandomHub.uniform());
         if (RayleighPath < Step) DoRayleigh = true;
-        else DoRayleigh = false;
     }
 
-    //checking abs and rayleigh
-    //qDebug() << "Abs, Ray, AbsPath, RayPath"<<DoAbsorption<<DoRayleigh<<AbsPath<<RayleighPath;
-    if (DoAbsorption || DoRayleigh)
+    bool DoCustomScat = false;
+    double CustomScatPath = 1e99;
+    if (MaterialFrom->CustomScatterMFP == 0) DoCustomScat = false;      // == 0 means disabled
+    else
     {
-        if (DoAbsorption && DoRayleigh)
+        CustomScatPath = -MaterialFrom->CustomScatterMFP * log(RandomHub.uniform());
+        if (CustomScatPath < Step) DoCustomScat = true;
+    }
+
+    // selecting triggered process
+    if (DoAbsorption || DoRayleigh || DoCustomScat)
+    {
+        // if (DoAbsorption && DoRayleigh)
+        // {
+        //     if (AbsPath < RayleighPath) DoRayleigh = false;
+        //     else DoAbsorption = false;
+        // }
+        if ((int)DoAbsorption + (int)DoRayleigh + (int)DoCustomScat > 1) // rarely two together, even so for three
         {
-            //slecting the one having the shortest path
-            if (AbsPath < RayleighPath) DoRayleigh = false;
-            else DoAbsorption = false;
+            if      (DoAbsorption && AbsPath        < RayleighPath && AbsPath        < CustomScatPath) {DoRayleigh   = false; DoCustomScat = false;}
+            else if (DoRayleigh   && RayleighPath   < AbsPath      && RayleighPath   < CustomScatPath) {DoAbsorption = false; DoCustomScat = false;}
+            else if (DoCustomScat && CustomScatPath < AbsPath      && CustomScatPath < RayleighPath)   {DoAbsorption = false; DoRayleigh   = false;}
         }
 
         if (DoAbsorption)
@@ -805,7 +809,7 @@ EBulkProcessResult APhotonTracer::checkBulkProcesses()
 
         if (DoRayleigh)
         {
-            //qDebug()<<"Scattering was triggered";
+            //qDebug()<<"Rayleigh scattering was triggered";
             //interaction position
             double R[3];
             R[0] = Navigator->GetCurrentPoint()[0] + Photon.v[0]*RayleighPath;
@@ -831,6 +835,26 @@ EBulkProcessResult APhotonTracer::checkBulkProcesses()
 
             if (SimSet.RunSet.SaveTracks)    Track.Positions.push_back(AVector3(R));
             if (SimSet.RunSet.PhotonLogSet.Save) PhLog.push_back( APhotonHistoryLog(R, NameFrom, VolumeIndexFrom, Photon.time, Photon.waveIndex, APhotonHistoryLog::Rayleigh, MatIndexFrom) );
+
+            return EBulkProcessResult::Scattered;
+        }
+
+        if (DoCustomScat)
+        {
+            double R[3];
+            R[0] = Navigator->GetCurrentPoint()[0] + Photon.v[0] * CustomScatPath;
+            R[1] = Navigator->GetCurrentPoint()[1] + Photon.v[1] * CustomScatPath;
+            R[2] = Navigator->GetCurrentPoint()[2] + Photon.v[2] * CustomScatPath;
+            Navigator->SetCurrentPoint(R);
+
+            Photon.generateRandomDir(); // currently assumin isotropic scattering, maybe add more models later
+            Navigator->SetCurrentDirection(Photon.v);
+
+            Photon.time += CustomScatPath / SpeedOfLight;
+            SimStat.CustomScatter++;
+
+            if (SimSet.RunSet.SaveTracks)    Track.Positions.push_back(AVector3(R));
+            if (SimSet.RunSet.PhotonLogSet.Save) PhLog.push_back( APhotonHistoryLog(R, NameFrom, VolumeIndexFrom, Photon.time, Photon.waveIndex, APhotonHistoryLog::CustomScatter, MatIndexFrom) );
 
             return EBulkProcessResult::Scattered;
         }

@@ -428,10 +428,12 @@ void AMatWin::updateTmpMaterialGui()
 
     ui->cbIgnoreEnergyConservation->setChecked(tmpMaterial.IgnoreEnergyConservationInReemission);
 
-    QString s = ( tmpMaterial.RayleighMFP > 0 ? QString::number(tmpMaterial.RayleighMFP)
-                                              : "" );
+    QString s = ( tmpMaterial.RayleighMFP > 0 ? QString::number(tmpMaterial.RayleighMFP) : "" );
     ui->ledRayleigh->setText(s);
     ui->ledRayleighWave->setText( QString::number(tmpMaterial.RayleighWave) );
+
+    s = ( tmpMaterial.CustomScatterMFP > 0 ? QString::number(tmpMaterial.CustomScatterMFP) : "" );
+    ui->ledCustoimScatterMFP->setText(s);
 
     //decay time
     if ( tmpMaterial.PriScint_Decay.empty() )
@@ -856,6 +858,14 @@ void AMatWin::on_ledRayleigh_editingFinished()
     if (ui->ledRayleigh->text() == "") ray = 0;
     else ray = ui->ledRayleigh->text().toDouble();
     tmpMaterial.RayleighMFP = ray;
+}
+
+void AMatWin::on_ledCustoimScatterMFP_editingFinished()
+{
+    double mfp;
+    if (ui->ledCustoimScatterMFP->text() == "") mfp = 0;
+    else mfp = ui->ledCustoimScatterMFP->text().toDouble();
+    tmpMaterial.CustomScatterMFP = mfp;
 }
 
 void AMatWin::on_pbRemoveRayleigh_clicked()
@@ -1404,4 +1414,3 @@ void AMatWin::on_ledT_editingFinished()
     if (ui->cbGas->isChecked()) on_ledPressure_editingFinished();
     else on_pbUpdateTmpMaterial_clicked();
 }
-
