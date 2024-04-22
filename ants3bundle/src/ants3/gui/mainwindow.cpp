@@ -413,7 +413,8 @@ void MainWindow::updateAllGuiFromConfig()
     updateGui();
 
     GeoTreeWin->updateGui();
-    MatWin->initWindow();
+    //MatWin->initWindow();
+    MatWin->updateGui();
     SensWin->updateGui();
     RuleWin->updateGui();
     PhotFunWin->updateGui();

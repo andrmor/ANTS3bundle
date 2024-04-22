@@ -1641,7 +1641,7 @@ Wavelengths shoul be given in increasing order</string>
            <item>
             <widget class="QLabel" name="label_43">
              <property name="text">
-              <string>  </string>
+              <string/>
              </property>
             </widget>
            </item>
@@ -1669,7 +1669,7 @@ Wavelengths shoul be given in increasing order</string>
                 <string>Intended for simplisitc modeling of opaque materials:Assumes isotropic distribution of scattering</string>
                </property>
                <property name="text">
-                <string>Isotropic scattering:</string>
+                <string>Isotropic scattering MFP:</string>
                </property>
               </widget>
              </item>
@@ -3093,7 +3093,7 @@ Wavelengths shoul be given in increasing order</string>
   </connection>
   <connection>
    <sender>ledRayleigh</sender>
-   <signal>editingFinished()</signal>
+   <signal>textChanged(QString)</signal>
    <receiver>pbWasModified</receiver>
    <slot>click()</slot>
    <hints>
@@ -3413,7 +3413,7 @@ Wavelengths shoul be given in increasing order</string>
   </connection>
   <connection>
    <sender>ledReN</sender>
-   <signal>editingFinished()</signal>
+   <signal>textChanged(QString)</signal>
    <receiver>pbWasModified</receiver>
    <slot>click()</slot>
    <hints>
@@ -3429,7 +3429,7 @@ Wavelengths shoul be given in increasing order</string>
   </connection>
   <connection>
    <sender>ledImN</sender>
-   <signal>editingFinished()</signal>
+   <signal>textChanged(QString)</signal>
    <receiver>pbWasModified</receiver>
    <slot>click()</slot>
    <hints>
@@ -3605,7 +3605,7 @@ Wavelengths shoul be given in increasing order</string>
   </connection>
   <connection>
    <sender>ledMeanExcitationEnergy</sender>
-   <signal>editingFinished()</signal>
+   <signal>textChanged(QString)</signal>
    <receiver>pbWasModified</receiver>
    <slot>click()</slot>
    <hints>
@@ -3797,7 +3797,7 @@ Wavelengths shoul be given in increasing order</string>
   </connection>
   <connection>
    <sender>ledCustoimScatterMFP</sender>
-   <signal>editingFinished()</signal>
+   <signal>textChanged(QString)</signal>
    <receiver>pbWasModified</receiver>
    <slot>click()</slot>
    <hints>
