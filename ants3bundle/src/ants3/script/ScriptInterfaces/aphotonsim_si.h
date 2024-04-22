@@ -3,6 +3,9 @@
 
 #include "ascriptinterface.h"
 
+#include <QVariantList>
+#include <QString>
+
 class APhotonSimManager;
 
 class APhotonSim_SI : public AScriptInterface
@@ -19,6 +22,16 @@ public slots:
     QString simulate(bool updateGui);
 
     void setSeed(double seed);
+
+    int countMonitors();
+    void loadMonitorData(QString fileName);
+    QVariantList getMonitorGlobalPositionsAll();
+    QVariantList getMonitorHitsAll();
+    QVariantList getMonitorWaveIndex(int monitorIndex);
+    QVariantList getMonitorWavelength(int monitorIndex);
+    QVariantList getMonitorTime(int monitorIndex, QString units);
+    QVariantList getMonitorAngle(int monitorIndex);
+    QVariantList getMonitorXY(int monitorIndex);
 
 private:
     APhotonSimManager & SimMan;
