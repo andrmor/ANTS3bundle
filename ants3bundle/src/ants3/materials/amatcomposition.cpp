@@ -126,7 +126,10 @@ QString AMatComposition::printComposition() const
                 const int    & isoN        = pair.first;
                 const double & isoFraction = pair.second;
                 QString name = QString::number(isoN) + baseSymbol;
-                isoStr += name + ":" + QString::number(isoFraction) + "+";
+                if (ele.Isotopes.size() == 1)
+                    isoStr += name + "+"; // "+" is killed by chop
+                else
+                    isoStr += name + ":" + QString::number(isoFraction) + "+";
             }
             isoStr.chop(1);
             modSymbol += "*";
