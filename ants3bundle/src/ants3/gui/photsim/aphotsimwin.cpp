@@ -836,7 +836,23 @@ void APhotSimWin::on_pbShowTransitionDistr_clicked()
     if (Stat.TransitionDistr)
         emit requestDraw(Stat.TransitionDistr, "hist", false, true);
 }
+#include "ajsontoolsroot.h"
+#include "agraphbuilder.h"
 void APhotSimWin::on_pbShowWaveDistr_clicked()
+{
+    APhotonStatistics & Stat = AStatisticsHub::getInstance().SimStat;
+    const AWaveResSettings & WaveSet = APhotonSimHub::getConstInstance().Settings.WaveSet;
+    if (Stat.WaveDistr)
+    {
+        std::vector<std::pair<double,double>> content;
+        jstools::histToArray_lowerEdge(Stat.WaveDistr, content);
+        WaveSet.toWavelength(content);
+        TGraph * g = AGraphBuilder::graph(content);
+        AGraphBuilder::configure(g, "Spectrum", "Wavelength, nm", "");
+        emit requestDraw(g, "apl", true, true);
+    }
+}
+void APhotSimWin::on_pbShowWaveDistr_customContextMenuRequested(const QPoint &)
 {
     APhotonStatistics & Stat = AStatisticsHub::getInstance().SimStat;
     if (Stat.WaveDistr)

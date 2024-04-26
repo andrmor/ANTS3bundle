@@ -1014,6 +1014,12 @@ To use Al with termal scattering, use G4_Al_TS</string>
                          <bold>false</bold>
                         </font>
                        </property>
+                       <property name="contextMenuPolicy">
+                        <enum>Qt::CustomContextMenu</enum>
+                       </property>
+                       <property name="toolTip">
+                        <string>Right click to show binned values for currently configured simulation wavelength range</string>
+                       </property>
                        <property name="text">
                         <string>Show</string>
                        </property>
@@ -1164,6 +1170,12 @@ Wavelengths shoul be given in increasing order</string>
                         <font>
                          <bold>false</bold>
                         </font>
+                       </property>
+                       <property name="contextMenuPolicy">
+                        <enum>Qt::CustomContextMenu</enum>
+                       </property>
+                       <property name="toolTip">
+                        <string>Right click to show binned values for currently configured simulation wavelength range</string>
                        </property>
                        <property name="text">
                         <string>Show</string>
@@ -1826,6 +1838,12 @@ Wavelengths shoul be given in increasing order</string>
                  <bold>false</bold>
                 </font>
                </property>
+               <property name="contextMenuPolicy">
+                <enum>Qt::CustomContextMenu</enum>
+               </property>
+               <property name="toolTip">
+                <string>Right click to show binned values for currently configured simulation wavelength range</string>
+               </property>
                <property name="text">
                 <string>Show</string>
                </property>
@@ -2082,6 +2100,12 @@ Wavelengths shoul be given in increasing order</string>
                     <font>
                      <bold>false</bold>
                     </font>
+                   </property>
+                   <property name="contextMenuPolicy">
+                    <enum>Qt::CustomContextMenu</enum>
+                   </property>
+                   <property name="toolTip">
+                    <string>Right click to show binned values for currently configured simulation wavelength range</string>
                    </property>
                    <property name="text">
                     <string>Show</string>
@@ -2615,6 +2639,12 @@ Wavelengths shoul be given in increasing order</string>
                   <widget class="QPushButton" name="pbShowSecSpectrum">
                    <property name="enabled">
                     <bool>false</bool>
+                   </property>
+                   <property name="contextMenuPolicy">
+                    <enum>Qt::CustomContextMenu</enum>
+                   </property>
+                   <property name="toolTip">
+                    <string>Right click to show binned values for currently configured simulation wavelength range</string>
                    </property>
                    <property name="text">
                     <string>Show</string>

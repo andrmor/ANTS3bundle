@@ -159,6 +159,8 @@ private slots:
 
     void on_pbPhotonLog_ShowAll_clicked();
 
+    void on_pbShowWaveDistr_customContextMenuRequested(const QPoint &pos);
+
 private:
     APhotonSimSettings & SimSet;
     const AMonitorHub  & MonitorHub;

@@ -11,6 +11,7 @@
 #include "ageometrywindow.h"
 #include "agraphbuilder.h"
 #include "ageant4inspectormanager.h"
+#include "aphotonsimhub.h"
 
 #include <QDebug>
 #include <QFileDialog>
@@ -628,6 +629,16 @@ void AMatWin::on_pbShowPrimSpectrum_clicked()
     emit requestDraw(g, "APL", true, true);
 }
 
+void AMatWin::on_pbShowPrimSpectrum_customContextMenuRequested(const QPoint &)
+{
+    tmpMaterial.updateRuntimeProperties();
+    if (!tmpMaterial._PrimarySpectrumHist) return;
+    tmpMaterial._PrimarySpectrumHist->GetXaxis()->SetTitle("Wavelength, nm");
+    tmpMaterial._PrimarySpectrumHist->SetLineColor(2);
+    tmpMaterial._PrimarySpectrumHist->SetLineWidth(2);
+    emit requestDraw(tmpMaterial._PrimarySpectrumHist, "hist", false, true);
+}
+
 void AMatWin::on_pbDeletePrimSpectrum_clicked()
 {
     tmpMaterial.PrimarySpectrum.clear();
@@ -666,6 +677,16 @@ void AMatWin::on_pbShowSecSpectrum_clicked()
     emit requestDraw(g, "APL", true, true);
 }
 
+void AMatWin::on_pbShowSecSpectrum_customContextMenuRequested(const QPoint &)
+{
+    tmpMaterial.updateRuntimeProperties();
+    if (!tmpMaterial._SecondarySpectrumHist) return;
+    tmpMaterial._SecondarySpectrumHist->GetXaxis()->SetTitle("Wavelength, nm");
+    tmpMaterial._SecondarySpectrumHist->SetLineColor(2);
+    tmpMaterial._SecondarySpectrumHist->SetLineWidth(2);
+    emit requestDraw(tmpMaterial._SecondarySpectrumHist, "hist", false, true);
+}
+
 void AMatWin::on_pbDeleteSecSpectrum_clicked()
 {
     tmpMaterial.SecondarySpectrum.clear();
@@ -701,6 +722,19 @@ void AMatWin::on_pbShowNlambda_clicked()
                                 "Wavelength, nm", "Refractive index",
                                 2, 20, 1,
                                 2, 1,  1);
+    emit requestDraw(g, "APL", true, true);
+}
+
+void AMatWin::on_pbShowNlambda_customContextMenuRequested(const QPoint &)
+{
+    tmpMaterial.updateRuntimeProperties();
+    const AWaveResSettings & WaveSet = APhotonSimHub::getInstance().Settings.WaveSet;
+    std::vector<double> indexes = WaveSet.getVectorOfIndexes();
+    TGraph * g = AGraphBuilder::graph(indexes, tmpMaterial._RefIndex_WaveBinned);
+    AGraphBuilder::configure(g, "Refractive index",
+                             "WaveIndex", "Refractive index",
+                             2, 21, 1,
+                             2, 1,  1);
     emit requestDraw(g, "APL", true, true);
 }
 
@@ -743,6 +777,19 @@ void AMatWin::on_pbShowABSlambda_clicked()
     emit requestDraw(g, "APL", true, true);
 }
 
+void AMatWin::on_pbShowABSlambda_customContextMenuRequested(const QPoint &)
+{
+    tmpMaterial.updateRuntimeProperties();
+    const AWaveResSettings & WaveSet = APhotonSimHub::getInstance().Settings.WaveSet;
+    std::vector<double> indexes = WaveSet.getVectorOfIndexes();
+    TGraph * g = AGraphBuilder::graph(indexes, tmpMaterial._AbsCoeff_WaveBinned);
+    AGraphBuilder::configure(g, "Attenuation coefficient",
+                             "WaveIndex", "Attenuation coefficient, mm^{-1}",
+                             2, 21, 1,
+                             2, 1,  1);
+    emit requestDraw(g, "APL", true, true);
+}
+
 void AMatWin::on_pbDeleteABSlambda_clicked()
 {
     tmpMaterial.AbsCoeff_Wave.clear();
@@ -759,6 +806,19 @@ void AMatWin::on_pbShowReemProbLambda_clicked()
                                 "Wavelength, nm", "Reemission probability",
                                 2, 20, 1,
                                 2, 1,  1);
+    emit requestDraw(g, "APL", true, true);
+}
+
+void AMatWin::on_pbShowReemProbLambda_customContextMenuRequested(const QPoint &)
+{
+    tmpMaterial.updateRuntimeProperties();
+    const AWaveResSettings & WaveSet = APhotonSimHub::getInstance().Settings.WaveSet;
+    std::vector<double> indexes = WaveSet.getVectorOfIndexes();
+    TGraph * g = AGraphBuilder::graph(indexes, tmpMaterial._ReemissionProb_WaveBinned);
+    AGraphBuilder::configure(g, "Reemission probability",
+                             "WaveIndex", "Reemission probability",
+                             2, 21, 1,
+                             2, 1,  1);
     emit requestDraw(g, "APL", true, true);
 }
 

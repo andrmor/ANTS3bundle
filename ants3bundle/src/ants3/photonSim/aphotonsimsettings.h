@@ -35,6 +35,7 @@ public:
 
     int    countNodes() const;
     double toWavelength(int index) const;
+    void   toWavelength(std::vector<std::pair<double, double>> & waveIndex_I_pairs) const;
     int    toIndex(double wavelength) const;   // TODO: compare with fast method!
     int    toIndexFast(double wavelength) const; //not safe
     // TODO: refactor:
@@ -44,6 +45,7 @@ public:
     void   toStandardBins(const std::vector<std::pair<double,std::complex<double>>> & waveReIm, std::vector<std::complex<double>> & reIm) const;
 
     void   getWavelengthBins(std::vector<double> & wavelength) const;
+    std::vector<double> getVectorOfIndexes() const;
 
 private:
     double getInterpolatedValue(double val, const QVector<double> *X, const QVector<double> *F) const;

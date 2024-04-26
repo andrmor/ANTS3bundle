@@ -40,6 +40,12 @@ double AWaveResSettings::toWavelength(int index) const
     return From + Step * index;
 }
 
+void AWaveResSettings::toWavelength(std::vector<std::pair<double, double>> & waveIndex_I_pairs) const
+{
+    for (auto & pair : waveIndex_I_pairs)
+        pair.first = toWavelength(pair.first);
+}
+
 int AWaveResSettings::toIndex(double wavelength) const
 {
     if (!Enabled) return -1;
@@ -137,6 +143,14 @@ void AWaveResSettings::getWavelengthBins(std::vector<double> & wavelength) const
     const int points = countNodes();
     for (int iP = 0; iP < points; iP++)
         wavelength.push_back(From + Step * iP);
+}
+
+std::vector<double> AWaveResSettings::getVectorOfIndexes() const
+{
+    const int nodes = countNodes();
+    std::vector<double> indexes(nodes);
+    for (int i = 0; i < nodes; i++) indexes[i] = i;
+    return indexes;
 }
 
 double AWaveResSettings::getInterpolatedValue(double val, const QVector<double> *X, const QVector<double> *F) const

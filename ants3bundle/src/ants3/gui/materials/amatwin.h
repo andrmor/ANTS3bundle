@@ -94,6 +94,16 @@ private slots:
 
     void on_ledCustoimScatterMFP_editingFinished();
 
+    void on_pbShowNlambda_customContextMenuRequested(const QPoint &pos);
+
+    void on_pbShowABSlambda_customContextMenuRequested(const QPoint &pos);
+
+    void on_pbShowReemProbLambda_customContextMenuRequested(const QPoint &pos);
+
+    void on_pbShowPrimSpectrum_customContextMenuRequested(const QPoint &pos);
+
+    void on_pbShowSecSpectrum_customContextMenuRequested(const QPoint &pos);
+
 private:
     AGeometryHub & Geometry;
     AMaterialHub & MatHub;

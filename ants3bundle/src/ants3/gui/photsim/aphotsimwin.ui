@@ -3721,8 +3721,14 @@
               </item>
               <item>
                <widget class="QPushButton" name="pbShowWaveDistr">
+                <property name="contextMenuPolicy">
+                 <enum>Qt::CustomContextMenu</enum>
+                </property>
+                <property name="toolTip">
+                 <string>Left click: wavelength; right click: wave index</string>
+                </property>
                 <property name="text">
-                 <string>Wavelength</string>
+                 <string>Wavelength/index</string>
                 </property>
                </widget>
               </item>
