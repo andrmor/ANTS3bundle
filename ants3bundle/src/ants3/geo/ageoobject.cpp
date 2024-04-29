@@ -1458,7 +1458,7 @@ bool AGeoObject::checkCompatibleWithGeant4() const
 {
     if (!fActive) return true;
 
-    if (Shape && !Shape->isCompatibleWithGeant4())
+    if (Shape && !Shape->   isCompatibleWithGeant4())
     {
         AErrorHub::addQError(Name + ": shape is incopatible with Geant4");
         return false;
