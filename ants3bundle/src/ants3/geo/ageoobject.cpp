@@ -1087,10 +1087,11 @@ void AGeoObject::updateWorldSize(double & XYm, double & Zm)
 
 bool AGeoObject::isMaterialInUse(int imat, QString & volName) const
 {
-    if (Type->isMonitor())    return false; //monitors are always made of Container's material and cannot host objects
+    if (Type->isMonitor())             return false; //monitors are always made of Container's material and cannot host objects
+    if (Type->isHandlingArray())       return false;
+    if (Type->isHandlingSet())         return false;
+    if (Type->isInstance())            return false;
     if (Type->isPrototypeCollection()) return false;
-    if (Type->isPrototype())  return false;
-    if (Type->isInstance())   return false;
 
     if (Material == imat)
     {
