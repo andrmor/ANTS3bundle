@@ -33,14 +33,15 @@ struct EventRecord
     double energy;
 };
 
-// !!!*** std::endl --> '\n'
 class APetEventBuilder
 {
 public:
-    APetEventBuilder(size_t numScint, const std::string & fileName, bool binaryInput);
+    APetEventBuilder(size_t numScint);
     ~APetEventBuilder();
 
-    bool makeEvents(const std::string & outputFileName, bool binaryOutput);
+    void addInputFile(const std::string & fileName, bool binary);
+
+    double makeEvents(const std::string & outputFileName, bool binaryOutput); // retuns number of generated pet events (clustered hits)
 
     void configure(const APetEventBuilderConfig & config) {Config = config;}
 
@@ -59,7 +60,7 @@ private:
     bool read(const std::pair<double,double> & timeRange, std::vector<std::vector<DepositionNodeRecord>> & nodes);
     void build(std::vector<std::vector<DepositionNodeRecord>> & clusters, std::vector<std::vector<EventRecord>> & events, double integrationTime, double deadTime);
     void applyBlur(std::vector<std::vector<EventRecord>> & events) const;
-    void write(std::vector<std::vector<EventRecord>> & events, bool binary); // only for energy above threshold, and simulates CTR blur
+    size_t write(std::vector<std::vector<EventRecord>> & events, bool binary); // only for energy above threshold, and simulates CTR blur
     void blurTime(double & time);
 };
 

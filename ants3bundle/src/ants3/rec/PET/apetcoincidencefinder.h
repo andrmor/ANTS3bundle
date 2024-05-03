@@ -46,7 +46,7 @@ public:
 
     void configure(const APetCoincidenceFinderConfig & config) {Config = config;}
 
-    bool findCoincidences(const QString & coincFileName, bool writeToF);
+    double findCoincidences(const QString & coincFileName, bool writeToF); // return number of found coincidences; filld ErrorString is there are errors
 
     QString ErrorString;
 
@@ -64,7 +64,7 @@ private:
     bool   read(std::vector<APetEventRecord> & events, bool bEnforceEnergyRange);
     void   find(std::vector<APetEventRecord> & events, std::vector<APetCoincidencePair> & pairs);
     size_t findNextEventOutsideCoinsidenceWindow(std::vector<APetEventRecord> & events, size_t iCurrentEvent);
-    bool   write(std::vector<APetCoincidencePair> & pairs, bool writeToF, const QString & dir, const QString & headerFileName, const QString & binFileName);
+    double write(std::vector<APetCoincidencePair> & pairs, bool writeToF, const QString & dir, const QString & headerFileName, const QString & binFileName);
 };
 
 #endif // APETCOINCIDENCEFINDER_H

@@ -10,7 +10,7 @@ public:
     double TimeFrom          = 0;
     double TimeTo            = 1e20;
 
-    // consider events only in this energy range [MeV]
+    // consider events only in this energy range [keV]
     double EnergyFrom     = 0.95 * 511.0;
     double EnergyTo       = 1.05 * 511.0;
 
