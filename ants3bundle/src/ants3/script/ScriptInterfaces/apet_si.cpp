@@ -262,10 +262,10 @@ void APet_si::configureCoincidenceEnergyWindow(double energyFrom_keV, double ene
     CoincidenceConfig.EnergyTo   = energyTo_keV;
 }
 
-double APet_si::findCoincidences(QString scannerName, QString eventsFileName, QString coincFileName, bool writeToF)
+double APet_si::findCoincidences(QString scannerName, QString eventsFileName, bool binary, QString coincFileName, bool writeToF)
 {
     size_t numScint = AGeometryHub::getConstInstance().countScintillators();
-    APetCoincidenceFinder cf(scannerName, numScint, eventsFileName, false);
+    APetCoincidenceFinder cf(scannerName, numScint, eventsFileName, binary);
     cf.configure(CoincidenceConfig);
     double numCoinc = cf.findCoincidences(coincFileName, writeToF);
     if (!cf.ErrorString.isEmpty()) abort(cf.ErrorString);

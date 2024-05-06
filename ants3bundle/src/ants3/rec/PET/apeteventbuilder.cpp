@@ -131,9 +131,9 @@ bool APetEventBuilder::read(const std::pair<double,double> & timeRange, std::vec
     qDebug() << "Reading input files...";
 
     std::string particle;
-    size_t iMat;
+    int iMat;
     double depo_keV, x,y,z, time;
-    size_t iScint;
+    int iScint;
 
     // format: particle imat depo_keV x y z time iScint
 
@@ -155,34 +155,52 @@ bool APetEventBuilder::read(const std::pair<double,double> & timeRange, std::vec
 
         if (binary)
         {
-            // !!!*** TODO
-            /*
             char ch;
-            double time, energy;
+            int iEvent;
             while (inStream.get(ch))
             {
                 if (inStream.eof()) break;
 
                 if (ch == (char)0xEE)
                 {
-                    inStream.read((char*)&iScint, sizeof(int));
-                    if (iScint < 0 || iScint >= nodes.size())
-                    {
-                        qDebug() << "Bad scintillator index:" << iScint;
-                        return false;
-                    }
+                    inStream.read((char*)&iEvent, sizeof(int));
+                    continue;
                 }
                 else if (ch == (char)0xFF)
                 {
-                    inStream.read((char*)&time,   sizeof(double));
-                    inStream.read((char*)&energy, sizeof(double));
-                    qDebug() << "Extracted values:" << time << energy;
+                    //std::string pn;
+                    particle.clear();
+
+                    while (inStream >> ch)
+                    {
+                        if (ch == (char)0x00) break;
+                        particle += ch;
+                    }
+
+                    //particle = pn.data();
+                    inStream.read((char*)&iMat,     sizeof(int));
+                    inStream.read((char*)&depo_keV, sizeof(double));
+                    inStream.read((char*)&x,        sizeof(double));
+                    inStream.read((char*)&y,        sizeof(double));
+                    inStream.read((char*)&z,        sizeof(double));
+                    inStream.read((char*)&time,     sizeof(double));
+                    inStream.read((char*)&iScint,   sizeof(int));
+                    //if (stream.fail())
+                    //{
+                    //    AErrorHub::addError("ADepoRecord::readBinary: Unexpected format of a line in the binary file with the deposition data");
+                    //    return false;
+                    //}
 
                     if (time > timeRange.first && time < timeRange.second)
-                        nodes[iScint].emplace_back(DepositionNodeRecord(time, energy));
+                    {
+                        DepositionNodeRecord tmp{time, depo_keV};
+                        if (!nodes[iScint].empty() && nodes[iScint].back().isCluster(tmp, Config.MaxTimeDeltaCluster))
+                            nodes[iScint].back().merge(tmp);
+                        else
+                            nodes[iScint].push_back(std::move(tmp));
+                    }
                 }
             }
-            */
         }
         else
         {

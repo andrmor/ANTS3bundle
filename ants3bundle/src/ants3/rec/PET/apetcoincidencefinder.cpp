@@ -176,8 +176,10 @@ void APetCoincidenceFinder::find(std::vector<APetEventRecord> & events, std::vec
     size_t numSingles    = 0;
     size_t numBadAngular = 0;
 
+    qDebug() << "Events to process:" << events.size();
     for (size_t iCurrentEvent = 0; iCurrentEvent < events.size() - 1; iCurrentEvent++)
     {
+        //if (iCurrentEvent % 1000 == 0) qDebug() << iCurrentEvent;
         const APetEventRecord & thisEvent = events[iCurrentEvent];
         //qDebug() << iCurrentEvent<< "-->"<< thisEvent.iScint<< thisEvent.Time;
 
@@ -196,7 +198,7 @@ void APetCoincidenceFinder::find(std::vector<APetEventRecord> & events, std::vec
         if (nextEvent.iScint == thisEvent.iScint) // should not happen with reasonably long integration / dead times
         {
             // same scint, not ineterested in this hit
-            iCurrentEvent = findNextEventOutsideCoinsidenceWindow(events, iCurrentEvent) - 1; //cycle will auto-increment the index // number of events should be 2 or larger!
+            iCurrentEvent = findNextEventOutsideCoinsidenceWindow(events, iNextEvent) - 1; //cycle will auto-increment the index // number of events should be 2 or larger!
             continue;
         }
 

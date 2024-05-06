@@ -33,7 +33,7 @@ public slots:
     void configureCoincidenceWindow(double coincidenceWindow_ns);
     void configureCoincidenceGlobalTimeRange(double from_ns, double to_ns);
     void configureCoincidenceEnergyWindow(double energyFrom_keV, double energyTo_keV);
-    double findCoincidences(QString scannerName, QString eventsFileName, QString coincFileName, bool writeToF);
+    double findCoincidences(QString scannerName, QString eventsFileName, bool binary, QString coincFileName, bool writeToF);
 
     void configureReconstructionVoxels(int numX, int numY, int numZ, double sizeX, double sizeY, double sizeZ);
     void configureReconstructionAlgorithm(QString algorithmName);
