@@ -1640,6 +1640,22 @@ void AGeo_SI::setScintillator(QString Object)
     delete obj->Role; obj->Role = new AGeoScint();
 }
 
+void AGeo_SI::setScintillatorByName(QString ObjectNameStartsWith)
+{
+    for (AGeoObject * obj : GeoObjects)
+        if (obj->Name.startsWith(ObjectNameStartsWith))
+        {
+            delete obj->Role; obj->Role = new AGeoScint();
+        }
+
+    std::vector<AGeoObject*> objAr;
+    AGeometryHub::getInstance().World->findObjectsByWildcard(ObjectNameStartsWith, objAr);
+    for (AGeoObject * obj : objAr)
+    {
+        delete obj->Role; obj->Role = new AGeoScint();
+    }
+}
+
 void AGeo_SI::setSecondaryScintillator(QString Object)
 {
     AGeoObject * obj = findObject(Object);
