@@ -2906,13 +2906,28 @@ void GraphWindowClass::on_actionOpen_MultiGraphDesigner_triggered()
 
 void GraphWindowClass::show3D(QString castorFileName)
 {
-    qDebug() << "Showing Castor image...";
-    //if (!Viewer3D) Viewer3D = new AViewer3D(this);
-    if (Viewer3D) delete Viewer3D;
+    // Intended for showing Castor images
+    bool doRestore = (bool)Viewer3D;
+    QJsonObject js1, js2;
+    if (Viewer3D)
+    {
+        Viewer3D->writeToJson(js1);
+        Viewer3D->writeViewerToJson(js2);
+        delete Viewer3D;
+    }
     Viewer3D = new AViewer3D(this);
     connect(Viewer3D, &AViewer3D::requestMakeCopy, this, &GraphWindowClass::onRequestMakeCopyViewer3D);
     bool ok = Viewer3D->loadCastorImage(castorFileName);
-    if (ok) Viewer3D->showNormal();
+    if (ok)
+    {
+        if (doRestore)
+        {
+            Viewer3D->readFromJson(js1);
+            Viewer3D->initViewers();
+            Viewer3D->readViewersFromJson(js2);
+        }
+        Viewer3D->showNormal();
+    }
 }
 
 void GraphWindowClass::onRequestMakeCopyViewer3D(AViewer3D * ptr)
