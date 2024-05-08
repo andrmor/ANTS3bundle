@@ -264,6 +264,7 @@ private:
     AToolboxScene          * scene        = nullptr;
     AMultiGraphDesigner    * MGDesigner   = nullptr;
     AViewer3D              * Viewer3D     = nullptr;
+    //std::vector<AViewer3D*>  Viewers3D; // standalone copies
 
     QVector<ADrawObject>     DrawObjects;  //always local objects -> can have a copy from the Basket
     QVector<ADrawObject>     PreviousDrawObjects; //last draw made from outside of the graph window
@@ -305,6 +306,9 @@ private:
     void updateLogScaleFlags(QVector<ADrawObject> & drawObjects) const;
     void createMGDesigner();
     void connectScriptUnitDrawRequests(const std::vector<AScriptInterface *> interfaces);
+
+private slots:
+    void onRequestMakeCopyViewer3D(AViewer3D * ptr);
 
 signals:
     void requestLocalDrawObject(TObject *obj, QString options, bool fFocus);

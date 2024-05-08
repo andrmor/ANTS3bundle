@@ -85,6 +85,20 @@ bool AViewer3DWidget::init()
     return true;
 }
 
+#include "ajsontools.h"
+void AViewer3DWidget::writeToJson(QJsonObject & json) const
+{
+    json["Position"] = ui->sbPosition->value();
+    // zoom of histo?
+}
+
+void AViewer3DWidget::readFromJson(const QJsonObject & json)
+{
+    int pos = 0;
+    jstools::parseJson(json, "Position", pos);
+    ui->sbPosition->setValue(pos);
+}
+
 void AViewer3DWidget::redraw()
 {
     if (!Hist) return;

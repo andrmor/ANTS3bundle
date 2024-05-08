@@ -322,7 +322,28 @@
      <height>21</height>
     </rect>
    </property>
+   <widget class="QMenu" name="menuShow">
+    <property name="title">
+     <string>Show</string>
+    </property>
+    <addaction name="actionShow_title"/>
+    <addaction name="actionMake_a_copy"/>
+   </widget>
+   <addaction name="menuShow"/>
   </widget>
+  <action name="actionShow_title">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Show title</string>
+   </property>
+  </action>
+  <action name="actionMake_a_copy">
+   <property name="text">
+    <string>Make a copy</string>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections>
@@ -333,12 +354,12 @@
    <slot>setCurrentIndex(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>91</x>
-     <y>297</y>
+     <x>111</x>
+     <y>89</y>
     </hint>
     <hint type="destinationlabel">
-     <x>243</x>
-     <y>207</y>
+     <x>291</x>
+     <y>92</y>
     </hint>
    </hints>
   </connection>

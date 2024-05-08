@@ -11,6 +11,7 @@ class AViewer3D;
 }
 
 class AViewer3DWidget;
+class QJsonObject;
 
 class AViewer3D : public QMainWindow
 {
@@ -22,9 +23,12 @@ public:
 
     bool loadCastorImage(const QString & castorFileName);
 
+    void initViewers();
+    void updateGui();
+
     QString ErrorString;
 
-    size_t NumBinsX, NumBinsY, NumBinsZ;
+    int NumBinsX, NumBinsY, NumBinsZ;
     double mmPerPixelX, mmPerPixelY, mmPerPixelZ;
     double OffsetX, OffsetY, OffsetZ;
 
@@ -47,18 +51,21 @@ public:
     double binToEdgePosition(EAxis axis, size_t iBin) const;
     double binToCenterPosition(EAxis axis, size_t iBin) const;
 
+    void writeToJson(QJsonObject & json) const;
+    void readFromJson(const QJsonObject & json);
+
+    void writeViewerToJson(QJsonObject & json) const;
+    void readViewersFromJson(const QJsonObject & json);
+
 private slots:
     void on_cobPalette_currentTextChanged(const QString &arg1);
-
     void on_cobMaximum_activated(int index);
-
     void on_ledMaximum_editingFinished();
-
     void on_ledScaling_editingFinished();
-
     void on_sbMaxInFractionFoV_editingFinished();
-
     void on_cbSuppressZero_clicked();
+    void on_actionShow_title_toggled(bool arg1);
+    void on_actionMake_a_copy_triggered();
 
 private:
     Ui::AViewer3D * ui = nullptr;
@@ -71,9 +78,11 @@ private:
 
     bool doLoadCastorImage(const QString & fileName);
     void createViewWidgets();
-    void updateGui();
     void calculateGlobalMaximum();
     void configureConnections(AViewer3DWidget * from, AViewer3DWidget * to1, AViewer3DWidget * to2);
+
+signals:
+    void requestMakeCopy(AViewer3D * ptr);
 };
 
 #endif // AVIEWER3D_H

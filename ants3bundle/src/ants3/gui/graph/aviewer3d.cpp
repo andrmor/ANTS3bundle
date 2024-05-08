@@ -34,6 +34,7 @@ AViewer3D::AViewer3D(QWidget *parent) :
     on_cobMaximum_activated(0);
 
     PercentFieldOfView = ui->sbMaxInFractionFoV->value();
+    ui->leTitle->setVisible(false);
 
     StartUp = false;
 }
@@ -102,13 +103,17 @@ bool AViewer3D::loadCastorImage(const QString & castorFileName)
         return false;
     }
 
+    initViewers();
+    return true;
+}
+
+void AViewer3D::initViewers()
+{
     View1->init();
     View2->init();
     View3->init();
 
     updateGui();
-
-    return true;
 }
 
 double AViewer3D::binToEdgePosition(EAxis axis, size_t iBin) const
@@ -135,6 +140,134 @@ double AViewer3D::binToCenterPosition(EAxis axis, size_t iBin) const
     case Zaxis: return StartZeroBinZ + (0.5 + iBin) * mmPerPixelZ;
     }
     return 0; // just to avoid the warning
+}
+
+#include "ajsontools.h"
+void AViewer3D::writeToJson(QJsonObject & json) const
+{
+    json["NumBinsX"] = NumBinsX;
+    json["NumBinsY"] = NumBinsY;
+    json["NumBinsZ"] = NumBinsZ;
+
+    json["mmPerPixelX"] = mmPerPixelX;
+    json["mmPerPixelY"] = mmPerPixelY;
+    json["mmPerPixelZ"] = mmPerPixelZ;
+
+    json["OffsetX"] = OffsetX;
+    json["OffsetY"] = OffsetY;
+    json["OffsetZ"] = OffsetZ;
+
+    json["StartZeroBinX"] = StartZeroBinX;
+    json["StartZeroBinY"] = StartZeroBinY;
+    json["StartZeroBinZ"] = StartZeroBinZ;
+
+    //std::vector<std::vector<std::vector<double>>> Data[ix][iy][iz]
+    QJsonArray ar;
+    for (int ix = 0; ix < NumBinsX; ix++)
+        for (int iy = 0; iy < NumBinsY; iy++)
+            for (int iz = 0; iz < NumBinsZ; iz++)
+                ar.push_back(Data[ix][iy][iz]);
+    json["Data"] = ar;
+
+    json["MaximumMode"] = (int)MaximumMode;
+
+    json["FixedMaximum"] = FixedMaximum;
+    json["GlobalMaximum"] = GlobalMaximum;
+    json["PercentFieldOfView"] = PercentFieldOfView;
+
+    json["ScalingFactor"] = ScalingFactor;
+
+    json["PaletteIndex"] = ui->cobPalette->currentIndex();
+    json["SuppressZero"] = SuppressZero;
+
+    json["Title"] = ui->leTitle->text();
+    json["TitleVisible"] = ui->actionShow_title->isChecked();
+}
+
+void AViewer3D::readFromJson(const QJsonObject & json)
+{
+    jstools::parseJson(json, "NumBinsX", NumBinsX);
+    jstools::parseJson(json, "NumBinsY", NumBinsY);
+    jstools::parseJson(json, "NumBinsZ", NumBinsZ);
+
+    jstools::parseJson(json, "mmPerPixelX", mmPerPixelX);
+    jstools::parseJson(json, "mmPerPixelY", mmPerPixelY);
+    jstools::parseJson(json, "mmPerPixelZ", mmPerPixelZ);
+
+    jstools::parseJson(json, "OffsetX", OffsetX);
+    jstools::parseJson(json, "OffsetY", OffsetY);
+    jstools::parseJson(json, "OffsetZ", OffsetZ);
+
+    jstools::parseJson(json, "StartZeroBinX", StartZeroBinX);
+    jstools::parseJson(json, "StartZeroBinY", StartZeroBinY);
+    jstools::parseJson(json, "StartZeroBinZ", StartZeroBinZ);
+
+    Data.resize(NumBinsX);
+    for (int ix = 0; ix < NumBinsX; ix++)
+    {
+        Data[ix].resize(NumBinsY);
+        for (int iy = 0; iy < NumBinsX; iy++)
+            Data[ix][iy].resize(NumBinsZ);
+    }
+    QJsonArray ar;
+    jstools::parseJson(json, "Data", ar);
+    size_t index = 0;
+    //std::vector<std::vector<std::vector<double>>> Data[ix][iy][iz]
+    for (int ix = 0; ix < NumBinsX; ix++)
+        for (int iy = 0; iy < NumBinsY; iy++)
+            for (int iz = 0; iz < NumBinsZ; iz++)
+            {
+                Data[ix][iy][iz] = ar[index].toDouble();
+                index++;
+            }
+
+    // GUI
+    int iMode = 0;
+    jstools::parseJson(json, "MaximumMode", iMode);
+    MaximumMode = static_cast<EMaximumMode>(iMode);
+    ui->cobMaximum->setCurrentIndex(iMode);
+
+    jstools::parseJson(json, "FixedMaximum", FixedMaximum);
+    ui->ledMaximum->setText(QString::number(FixedMaximum));
+
+    jstools::parseJson(json, "GlobalMaximum", GlobalMaximum);
+
+    jstools::parseJson(json, "PercentFieldOfView", PercentFieldOfView);
+    ui->sbMaxInFractionFoV->setValue(PercentFieldOfView);
+
+    jstools::parseJson(json, "ScalingFactor", ScalingFactor);
+    ui->ledScaling->setText(QString::number(1/ScalingFactor)); // ScalingFactor = 1 / ui->ledScaling->text().toDouble();
+
+    int iPalette = 0;
+    jstools::parseJson(json, "PaletteIndex", iPalette);
+    ui->cobPalette->setCurrentIndex(iPalette);
+
+    jstools::parseJson(json, "SuppressZero", SuppressZero);
+    ui->cbSuppressZero->setChecked(SuppressZero);
+
+    QString title;
+    jstools::parseJson(json, "Title", title);
+    ui->leTitle->setText(title);
+
+    bool flag = false;
+    jstools::parseJson(json, "TitleVisible", flag);
+    ui->actionShow_title->setChecked(flag);
+}
+
+void AViewer3D::writeViewerToJson(QJsonObject & json) const
+{
+    QJsonObject js;
+    View1->writeToJson(js); json["Viewer1"] = js;
+    View2->writeToJson(js); json["Viewer2"] = js;
+    View3->writeToJson(js); json["Viewer3"] = js;
+}
+
+void AViewer3D::readViewersFromJson(const QJsonObject & json)
+{
+    QJsonObject js;
+    jstools::parseJson(json, "Viewer1", js); View1->readFromJson(js);
+    jstools::parseJson(json, "Viewer2", js); View2->readFromJson(js);
+    jstools::parseJson(json, "Viewer3", js); View3->readFromJson(js);
 }
 
 bool AViewer3D::doLoadCastorImage(const QString & fileName)
@@ -234,10 +367,10 @@ bool AViewer3D::doLoadCastorImage(const QString & fileName)
     StartZeroBinZ = OffsetZ - 0.5 * NumBinsZ * mmPerPixelZ;
 
     Data.resize(NumBinsX);
-    for (size_t ix = 0; ix < NumBinsX; ix++)
+    for (int ix = 0; ix < NumBinsX; ix++)
     {
         Data[ix].resize(NumBinsY);
-        for (size_t iy = 0; iy < NumBinsY; iy++)
+        for (int iy = 0; iy < NumBinsY; iy++)
             Data[ix][iy].resize(NumBinsZ, 0);
     }
 
@@ -254,9 +387,9 @@ bool AViewer3D::doLoadCastorImage(const QString & fileName)
     }
 
     float buffer;
-    for (size_t iz = 0; iz < NumBinsZ; iz++)
-        for (size_t iy = 0; iy < NumBinsY; iy++)
-            for (size_t ix = 0; ix < NumBinsX; ix++)
+    for (int iz = 0; iz < NumBinsZ; iz++)
+        for (int iy = 0; iy < NumBinsY; iy++)
+            for (int ix = 0; ix < NumBinsX; ix++)
             {
                 inStream.read((char*)&buffer, sizeof(float));
                 Data[ix][iy][iz] = buffer;
@@ -283,7 +416,6 @@ void AViewer3D::on_cobPalette_currentTextChanged(const QString & arg1)
     updateGui();
 }
 
-
 void AViewer3D::on_cobMaximum_activated(int index)
 {
     switch (index)
@@ -292,6 +424,7 @@ void AViewer3D::on_cobMaximum_activated(int index)
         case 1 : MaximumMode = GlobalMax;     break;
         case 2 : MaximumMode = FixedMax;      break;
     }
+    updateGui();
 }
 
 void AViewer3D::on_ledMaximum_editingFinished()
@@ -317,5 +450,15 @@ void AViewer3D::on_cbSuppressZero_clicked()
 {
     SuppressZero = ui->cbSuppressZero->isChecked();
     updateGui();
+}
+
+void AViewer3D::on_actionShow_title_toggled(bool arg1)
+{
+    ui->leTitle->setVisible(arg1);
+}
+
+void AViewer3D::on_actionMake_a_copy_triggered()
+{
+    emit requestMakeCopy(this);
 }
 

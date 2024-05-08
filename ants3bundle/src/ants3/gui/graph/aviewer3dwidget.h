@@ -25,6 +25,9 @@ public:
 
     bool init();
 
+    void writeToJson(QJsonObject & json) const;
+    void readFromJson(const QJsonObject & json);
+
 public slots:
     void redraw();
     void requestShowCrossHair(double x, double y, double z);

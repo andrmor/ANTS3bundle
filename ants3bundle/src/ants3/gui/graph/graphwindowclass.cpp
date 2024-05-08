@@ -173,6 +173,7 @@ GraphWindowClass::GraphWindowClass(QWidget * parent) :
 
 GraphWindowClass::~GraphWindowClass()
 {
+    //for (auto * v : Viewers3D) delete v; Viewers3D.clear();
     delete Viewer3D; Viewer3D = nullptr;
 
     ClearBasket();
@@ -2909,6 +2910,23 @@ void GraphWindowClass::show3D(QString castorFileName)
     //if (!Viewer3D) Viewer3D = new AViewer3D(this);
     if (Viewer3D) delete Viewer3D;
     Viewer3D = new AViewer3D(this);
+    connect(Viewer3D, &AViewer3D::requestMakeCopy, this, &GraphWindowClass::onRequestMakeCopyViewer3D);
     bool ok = Viewer3D->loadCastorImage(castorFileName);
     if (ok) Viewer3D->showNormal();
+}
+
+void GraphWindowClass::onRequestMakeCopyViewer3D(AViewer3D * ptr)
+{
+    AViewer3D * view = new AViewer3D(this);
+
+    QJsonObject json;
+    ptr->writeToJson(json);
+    view->readFromJson(json);
+    view->initViewers();
+
+    QJsonObject js;
+    ptr->writeViewerToJson(js);
+    view->readViewersFromJson(js);
+
+    view->showNormal();
 }
