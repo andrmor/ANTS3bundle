@@ -151,6 +151,8 @@ void AViewer3DWidget::redraw()
     default: break;
     }
 
+    if (Viewer->SuppressZero) Hist->SetMinimum(-1e-10);
+
     RasterWindow->fCanvas->cd();
     Hist->Draw("colz");
     RasterWindow->fCanvas->Update();

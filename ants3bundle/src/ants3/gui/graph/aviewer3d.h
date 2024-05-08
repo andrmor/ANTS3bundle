@@ -39,6 +39,7 @@ public:
     int    PercentFieldOfView = 90;
 
     double ScalingFactor = 1.0;
+    bool SuppressZero = false;
 
     std::vector<std::pair<QString,int>> Palettes;
 
@@ -56,6 +57,8 @@ private slots:
     void on_ledScaling_editingFinished();
 
     void on_sbMaxInFractionFoV_editingFinished();
+
+    void on_cbSuppressZero_clicked();
 
 private:
     Ui::AViewer3D * ui = nullptr;

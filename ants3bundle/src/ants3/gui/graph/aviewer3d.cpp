@@ -313,3 +313,9 @@ void AViewer3D::on_sbMaxInFractionFoV_editingFinished()
     updateGui();
 }
 
+void AViewer3D::on_cbSuppressZero_clicked()
+{
+    SuppressZero = ui->cbSuppressZero->isChecked();
+    updateGui();
+}
+

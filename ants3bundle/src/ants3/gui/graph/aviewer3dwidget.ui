@@ -42,35 +42,35 @@
      <item>
       <widget class="QLabel" name="lLabHorAxisName">
        <property name="text">
-        <string>HorName</string>
+        <string>HName</string>
        </property>
       </widget>
      </item>
      <item>
       <widget class="QLabel" name="lLabHorAxisPos">
        <property name="text">
-        <string>HorPos</string>
+        <string>HPos</string>
        </property>
       </widget>
      </item>
      <item>
       <widget class="QLabel" name="lLabVertAxisName">
        <property name="text">
-        <string>VertName</string>
+        <string>VName</string>
        </property>
       </widget>
      </item>
      <item>
       <widget class="QLabel" name="lLabVertAxisPos">
        <property name="text">
-        <string>VertPos</string>
+        <string>VPos</string>
        </property>
       </widget>
      </item>
      <item>
       <widget class="QLabel" name="label_8">
        <property name="text">
-        <string>at</string>
+        <string>at </string>
        </property>
       </widget>
      </item>
@@ -83,8 +83,17 @@
      </item>
      <item>
       <widget class="QLabel" name="lLabOffAxisPos">
+       <property name="minimumSize">
+        <size>
+         <width>50</width>
+         <height>0</height>
+        </size>
+       </property>
        <property name="text">
-        <string>OffViewPos</string>
+        <string>p</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
        </property>
       </widget>
      </item>
@@ -151,6 +160,12 @@
      </item>
      <item>
       <widget class="QLabel" name="lPosition">
+       <property name="minimumSize">
+        <size>
+         <width>50</width>
+         <height>0</height>
+        </size>
+       </property>
        <property name="text">
         <string>0</string>
        </property>
