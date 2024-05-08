@@ -2917,17 +2917,10 @@ void GraphWindowClass::show3D(QString castorFileName)
     }
     Viewer3D = new AViewer3D(this);
     connect(Viewer3D, &AViewer3D::requestMakeCopy, this, &GraphWindowClass::onRequestMakeCopyViewer3D);
+
+    if (doRestore) Viewer3D->readFromJson(js1);
     bool ok = Viewer3D->loadCastorImage(castorFileName);
-    if (ok)
-    {
-        if (doRestore)
-        {
-            Viewer3D->readFromJson(js1);
-            Viewer3D->initViewers();
-            Viewer3D->readViewersFromJson(js2);
-        }
-        Viewer3D->showNormal();
-    }
+    if (ok) Viewer3D->showNormal();
 }
 
 void GraphWindowClass::onRequestMakeCopyViewer3D(AViewer3D * ptr)
