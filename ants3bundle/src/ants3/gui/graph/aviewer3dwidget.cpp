@@ -21,6 +21,8 @@ AViewer3DWidget::AViewer3DWidget(AViewer3D * viewer, EViewType viewType) :
     RasterWindow->ForceResize();
     RasterWindow->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
+    RasterWindow->fCanvas->SetRightMargin(0.15);
+
     connect(RasterWindow, &RasterWindowGraphClass::reportCursorPosition, this, &AViewer3DWidget::onRasterCursorPositionChanged);
     connect(RasterWindow, &RasterWindowGraphClass::cursorLeftBoundaries, this, &AViewer3DWidget::onCursorLeftRaster);
 }
@@ -118,9 +120,9 @@ void AViewer3DWidget::redraw()
         int iz = ui->sbPosition->value();
         offPos = Viewer->binToCenterPosition(AViewer3D::Zaxis, iz);
         //title = QString("Transverse (XY at Z = %0 mm)").arg(z);
-        for (size_t iy = 0; iy < Viewer->NumBinsY; iy++)
-            for (size_t ix = 0; ix < Viewer->NumBinsX; ix++)
-                Hist->SetBinContent(ix, iy, Viewer->Data[ix][iy][iz] * Viewer->ScalingFactor);
+        for (int iy = 0; iy < Viewer->NumBinsY; iy++)
+            for (int ix = 0; ix < Viewer->NumBinsX; ix++)
+                Hist->SetBinContent(ix, iy, Viewer->Data[ix][iy][iz] / Viewer->Settings.ScalingFactor);
         break;
       }
     case XZ:
@@ -130,9 +132,9 @@ void AViewer3DWidget::redraw()
         int iy = ui->sbPosition->value();
         offPos = Viewer->binToCenterPosition(AViewer3D::Yaxis, iy);
         //title = QString("Coronal (XZ at Y = %0 mm)").arg(y);
-        for (size_t iz = 0; iz < Viewer->NumBinsZ; iz++)
-            for (size_t ix = 0; ix < Viewer->NumBinsX; ix++)
-                Hist->SetBinContent(ix, iz, Viewer->Data[ix][iy][iz] * Viewer->ScalingFactor);
+        for (int iz = 0; iz < Viewer->NumBinsZ; iz++)
+            for (int ix = 0; ix < Viewer->NumBinsX; ix++)
+                Hist->SetBinContent(ix, iz, Viewer->Data[ix][iy][iz] / Viewer->Settings.ScalingFactor);
         break;
       }
     case YZ:
@@ -142,9 +144,9 @@ void AViewer3DWidget::redraw()
         int ix = ui->sbPosition->value();
         offPos = Viewer->binToCenterPosition(AViewer3D::Xaxis, ix);
         //title = QString("Sagittal (YZ at X = %0 mm)").arg(x);
-        for (size_t iz = 0; iz < Viewer->NumBinsZ; iz++)
-            for (size_t iy = 0; iy < Viewer->NumBinsY; iy++)
-                Hist->SetBinContent(iy, iz, Viewer->Data[ix][iy][iz] * Viewer->ScalingFactor);
+        for (int iz = 0; iz < Viewer->NumBinsZ; iz++)
+            for (int iy = 0; iy < Viewer->NumBinsY; iy++)
+                Hist->SetBinContent(iy, iz, Viewer->Data[ix][iy][iz] / Viewer->Settings.ScalingFactor);
         break;
       }
     }
@@ -158,14 +160,14 @@ void AViewer3DWidget::redraw()
     ui->lLabOffAxisPos->setText(QString::number(offPos, 'g', 4));
     ui->lPosition->setText( QString::number(offPos) );
 
-    switch (Viewer->MaximumMode)
+    switch (Viewer->Settings.MaximumMode)
     {
-    case AViewer3D::GlobalMax : Hist->SetMaximum(Viewer->GlobalMaximum * Viewer->ScalingFactor); break;
-    case AViewer3D::FixedMax  : Hist->SetMaximum(Viewer->FixedMaximum  * Viewer->ScalingFactor); break;
+    case AViewer3DSettings::GlobalMax : Hist->SetMaximum(Viewer->GlobalMaximum         / Viewer->Settings.ScalingFactor); break;
+    case AViewer3DSettings::FixedMax  : Hist->SetMaximum(Viewer->Settings.FixedMaximum / Viewer->Settings.ScalingFactor); break;
     default: break;
     }
 
-    if (Viewer->SuppressZero) Hist->SetMinimum(-1e-10);
+    if (Viewer->Settings.SuppressZero) Hist->SetMinimum(-1e-300);
 
     RasterWindow->fCanvas->cd();
     Hist->Draw("colz");

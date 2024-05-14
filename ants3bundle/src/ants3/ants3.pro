@@ -122,6 +122,7 @@ SOURCES += \
     ../dispatcher/a3processhandler.cpp \
     ../lsim/anoderecord.cpp \
     ../lsim/aphotonhistorylog.cpp \
+    aviewer3dsettings.cpp \
     farm/afarmnoderecord.cpp \
     geo/acalorimeter.cpp \
     geo/acalorimeterhub.cpp \
@@ -136,6 +137,7 @@ SOURCES += \
     gui/geom/ageotreewin.cpp \
     gui/geom/ashownumbersdialog.cpp \
     gui/graph/aviewer3d.cpp \
+    gui/graph/aviewer3dsettingsdialog.cpp \
     gui/graph/aviewer3dwidget.cpp \
     gui/materials/amatwin.cpp \
     gui/particleSim/aeventsdonedialog.cpp \
@@ -341,7 +343,9 @@ HEADERS += \
     ../lsim/anoderecord.h \
     ../lsim/aphotonhistorylog.h \
     ademomanager.h \
+    aviewer3dsettings.h \
     gui/atreedatabaseselectordialog.h \
+    gui/graph/aviewer3dsettingsdialog.h \
     gui/photsim/afunctionalmodelwidget.h \
     gui/photsim/aphotonlogsettingsform.h \
     gui/photsim/aphotontunnelwindow.h \
@@ -566,6 +570,7 @@ FORMS += \
         gui/geom/ashownumbersdialog.ui \
         gui/aglobsetwindow.ui \
         gui/graph/aviewer3d.ui \
+        gui/graph/aviewer3dsettingsdialog.ui \
         gui/graph/aviewer3dwidget.ui \
         gui/particleSim/aeventsdonedialog.ui \
         gui/particleSim/atrackdrawdialog.ui \

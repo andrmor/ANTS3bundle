@@ -1,12 +1,13 @@
 #include "aviewer3d.h"
 #include "ui_aviewer3d.h"
 #include "aviewer3dwidget.h"
+#include "aviewer3dsettingsdialog.h"
 #include "afiletools.h"
 #include "guitools.h"
 
 #include <QFileInfo>
 #include <QComboBox>
-#include <QDoubleValidator>
+#include <QJsonObject>
 #include <QDebug>
 
 #include <iostream>
@@ -18,25 +19,22 @@ AViewer3D::AViewer3D(QWidget *parent) :
     QMainWindow(parent), ui(new Ui::AViewer3D)
 {
     ui->setupUi(this);
-
-    blockSignals(true);
-    Palettes = { {"Default ROOT",57}, {"Deep sea",51}, {"Grey scale",52}, {"Dark body radiator",53}, {"Two color hue",54}, {"Rainbow",55}, {"Inverted dark body",56} };
-    for (const auto & p : Palettes)
-        ui->cobPalette->addItem(p.first);
-    blockSignals(false);
+    ui->leTitle->setVisible(false);
 
     createViewWidgets();
 
-    QDoubleValidator * dval = new QDoubleValidator(this);
-    ui->ledMaximum->setValidator(dval);
-    ui->ledScaling->setValidator(dval);
+    QAction * aSettings = ui->menubar->addAction("Settings");
+    connect(aSettings, &QAction::triggered, this, &AViewer3D::showSettings);
+}
 
-    on_cobMaximum_activated(0);
+void AViewer3D::showSettings()
+{
+    AViewer3DSettingsDialog D(Settings, this);
+    int res = D.exec();
+    if (res == QDialog::Rejected) return;
 
-    PercentFieldOfView = ui->sbMaxInFractionFoV->value();
-    ui->leTitle->setVisible(false);
-
-    StartUp = false;
+    if (D.isRecalcMaxRequired()) calculateGlobalMaximum();
+    updateGui();
 }
 
 void AViewer3D::configureConnections(AViewer3DWidget * from, AViewer3DWidget * to1, AViewer3DWidget * to2)
@@ -67,11 +65,23 @@ void AViewer3D::updateGui()
     View1->redraw();
     View2->redraw();
     View3->redraw();
+
+    ui->leTitle->setVisible(Settings.TitleVisible);
+}
+
+QString AViewer3D::getTitle()
+{
+    return ui->leTitle->text();
+}
+
+void AViewer3D::setTitle(const QString & title)
+{
+    ui->leTitle->setText(title);
 }
 
 void AViewer3D::calculateGlobalMaximum()
 {
-    const double removedFraction = 1.0 - ui->sbMaxInFractionFoV->value() / 100.0;
+    const double removedFraction = 1.0 - Settings.PercentFieldOfView / 100.0;
 
     const size_t minX = 0.5 * removedFraction * NumBinsX;
     const size_t maxX = NumBinsX - minX;
@@ -143,7 +153,7 @@ double AViewer3D::binToCenterPosition(EAxis axis, size_t iBin) const
 }
 
 #include "ajsontools.h"
-void AViewer3D::writeToJson(QJsonObject & json) const
+void AViewer3D::writeDataToJson(QJsonObject & json) const
 {
     json["NumBinsX"] = NumBinsX;
     json["NumBinsY"] = NumBinsY;
@@ -168,23 +178,9 @@ void AViewer3D::writeToJson(QJsonObject & json) const
             for (int iz = 0; iz < NumBinsZ; iz++)
                 ar.push_back(Data[ix][iy][iz]);
     json["Data"] = ar;
-
-    json["MaximumMode"] = (int)MaximumMode;
-
-    json["FixedMaximum"] = FixedMaximum;
-    json["GlobalMaximum"] = GlobalMaximum;
-    json["PercentFieldOfView"] = PercentFieldOfView;
-
-    json["ScalingFactor"] = ScalingFactor;
-
-    json["PaletteIndex"] = ui->cobPalette->currentIndex();
-    json["SuppressZero"] = SuppressZero;
-
-    json["Title"] = ui->leTitle->text();
-    json["TitleVisible"] = ui->actionShow_title->isChecked();
 }
 
-void AViewer3D::readFromJson(const QJsonObject & json)
+void AViewer3D::readDataFromJson(const QJsonObject & json)
 {
     jstools::parseJson(json, "NumBinsX", NumBinsX);
     jstools::parseJson(json, "NumBinsY", NumBinsY);
@@ -220,41 +216,9 @@ void AViewer3D::readFromJson(const QJsonObject & json)
                 Data[ix][iy][iz] = ar[index].toDouble();
                 index++;
             }
-
-    // GUI
-    int iMode = 0;
-    jstools::parseJson(json, "MaximumMode", iMode);
-    MaximumMode = static_cast<EMaximumMode>(iMode);
-    ui->cobMaximum->setCurrentIndex(iMode);
-
-    jstools::parseJson(json, "FixedMaximum", FixedMaximum);
-    ui->ledMaximum->setText(QString::number(FixedMaximum));
-
-    jstools::parseJson(json, "GlobalMaximum", GlobalMaximum);
-
-    jstools::parseJson(json, "PercentFieldOfView", PercentFieldOfView);
-    ui->sbMaxInFractionFoV->setValue(PercentFieldOfView);
-
-    jstools::parseJson(json, "ScalingFactor", ScalingFactor);
-    ui->ledScaling->setText(QString::number(1/ScalingFactor)); // ScalingFactor = 1 / ui->ledScaling->text().toDouble();
-
-    int iPalette = 0;
-    jstools::parseJson(json, "PaletteIndex", iPalette);
-    ui->cobPalette->setCurrentIndex(iPalette);
-
-    jstools::parseJson(json, "SuppressZero", SuppressZero);
-    ui->cbSuppressZero->setChecked(SuppressZero);
-
-    QString title;
-    jstools::parseJson(json, "Title", title);
-    ui->leTitle->setText(title);
-
-    bool flag = false;
-    jstools::parseJson(json, "TitleVisible", flag);
-    ui->actionShow_title->setChecked(flag);
 }
 
-void AViewer3D::writeViewerToJson(QJsonObject & json) const
+void AViewer3D::writeViewersToJson(QJsonObject & json) const
 {
     QJsonObject js;
     View1->writeToJson(js); json["Viewer1"] = js;
@@ -398,62 +362,16 @@ bool AViewer3D::doLoadCastorImage(const QString & fileName)
     calculateGlobalMaximum();
     qDebug() << "Global max in the defined filed of view fraction:" << GlobalMaximum;
 
-    ui->ledMaximum->setText(QString::number(GlobalMaximum));
+    ui->statusBar->showMessage("Max in defined FoV: " + QString::number(GlobalMaximum));
 
     // !!!*** error control
 
     return true;
 }
 
-#include "TStyle.h"
-void AViewer3D::on_cobPalette_currentTextChanged(const QString & arg1)
-{
-    if (StartUp) return;
-
-    for (const auto & p : Palettes)
-        if (arg1 == p.first) gStyle->SetPalette(p.second);
-
-    updateGui();
-}
-
-void AViewer3D::on_cobMaximum_activated(int index)
-{
-    switch (index)
-    {
-        case 0 : MaximumMode = IndividualMax; break;
-        case 1 : MaximumMode = GlobalMax;     break;
-        case 2 : MaximumMode = FixedMax;      break;
-    }
-    updateGui();
-}
-
-void AViewer3D::on_ledMaximum_editingFinished()
-{
-    FixedMaximum = ui->ledMaximum->text().toDouble();
-    updateGui();
-}
-
-void AViewer3D::on_ledScaling_editingFinished()
-{
-    ScalingFactor = 1 / ui->ledScaling->text().toDouble();
-    updateGui();
-}
-
-void AViewer3D::on_sbMaxInFractionFoV_editingFinished()
-{
-    PercentFieldOfView = ui->sbMaxInFractionFoV->value();
-    calculateGlobalMaximum();
-    updateGui();
-}
-
-void AViewer3D::on_cbSuppressZero_clicked()
-{
-    SuppressZero = ui->cbSuppressZero->isChecked();
-    updateGui();
-}
-
 void AViewer3D::on_actionShow_title_toggled(bool arg1)
 {
+    Settings.TitleVisible = arg1;
     ui->leTitle->setVisible(arg1);
 }
 

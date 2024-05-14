@@ -2904,37 +2904,52 @@ void GraphWindowClass::on_actionOpen_MultiGraphDesigner_triggered()
     //MGDesigner->updateGUI();
 }
 
-void GraphWindowClass::show3D(QString castorFileName)
+void GraphWindowClass::show3D(QString castorFileName, bool keepSettings)
 {
     // Intended for showing Castor images
-    bool doRestore = (bool)Viewer3D;
-    QJsonObject js1, js2;
+    bool doRestore = keepSettings && (bool)Viewer3D;
+    QJsonObject js1;
     if (Viewer3D)
     {
-        Viewer3D->writeToJson(js1);
-        Viewer3D->writeViewerToJson(js2);
+        Viewer3D->Settings.writeToJson(js1);
         delete Viewer3D;
     }
     Viewer3D = new AViewer3D(this);
     connect(Viewer3D, &AViewer3D::requestMakeCopy, this, &GraphWindowClass::onRequestMakeCopyViewer3D);
 
-    if (doRestore) Viewer3D->readFromJson(js1);
+    if (doRestore) Viewer3D->Settings.readFromJson(js1);
     bool ok = Viewer3D->loadCastorImage(castorFileName);
     if (ok) Viewer3D->showNormal();
 }
 
+#include "aviewer3dsettings.h"
 void GraphWindowClass::onRequestMakeCopyViewer3D(AViewer3D * ptr)
 {
     AViewer3D * view = new AViewer3D(this);
 
-    QJsonObject json;
-    ptr->writeToJson(json);
-    view->readFromJson(json);
-    view->initViewers();
+    // Data
+    {
+        QJsonObject json;
+        ptr->writeDataToJson(json);
+        view->readDataFromJson(json);
+        view->initViewers();
+    }
 
-    QJsonObject js;
-    ptr->writeViewerToJson(js);
-    view->readViewersFromJson(js);
+    // Settings
+    {
+        QJsonObject json;
+        ptr->Settings.writeToJson(json);
+        view->Settings.readFromJson(json);
+    }
 
+    // Plane viewers
+    {
+        QJsonObject json;
+        ptr->writeViewersToJson(json);
+        view->readViewersFromJson(json);
+    }
+
+    view->setTitle(ptr->getTitle());
+    view->updateGui();
     view->showNormal();
 }

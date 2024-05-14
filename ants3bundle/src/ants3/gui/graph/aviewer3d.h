@@ -1,6 +1,8 @@
 #ifndef AVIEWER3D_H
 #define AVIEWER3D_H
 
+#include "aviewer3dsettings.h"
+
 #include <QMainWindow>
 
 #include <array>
@@ -26,6 +28,11 @@ public:
     void initViewers();
     void updateGui();
 
+    QString getTitle();
+    void setTitle(const QString & title);
+
+    AViewer3DSettings Settings;
+
     QString ErrorString;
 
     int NumBinsX, NumBinsY, NumBinsZ;
@@ -35,42 +42,26 @@ public:
     double StartZeroBinX, StartZeroBinY, StartZeroBinZ;
 
     std::vector<std::vector<std::vector<double>>> Data; // Data[ix][iy][iz]
-
-    enum EMaximumMode {IndividualMax, GlobalMax, FixedMax};
-    EMaximumMode MaximumMode = IndividualMax;
-    double FixedMaximum = 0;
-    double GlobalMaximum = 0;
-    int    PercentFieldOfView = 90;
-
-    double ScalingFactor = 1.0;
-    bool SuppressZero = false;
-
-    std::vector<std::pair<QString,int>> Palettes;
+    double GlobalMaximum = 0; // calculated by calculateGlobalMaximum()
 
     enum EAxis {Xaxis, Yaxis, Zaxis};
     double binToEdgePosition(EAxis axis, size_t iBin) const;
     double binToCenterPosition(EAxis axis, size_t iBin) const;
 
-    void writeToJson(QJsonObject & json) const;
-    void readFromJson(const QJsonObject & json);
+    void writeDataToJson(QJsonObject & json) const;
+    void readDataFromJson(const QJsonObject & json);
 
-    void writeViewerToJson(QJsonObject & json) const;
+    void writeViewersToJson(QJsonObject & json) const;
     void readViewersFromJson(const QJsonObject & json);
 
 private slots:
-    void on_cobPalette_currentTextChanged(const QString &arg1);
-    void on_cobMaximum_activated(int index);
-    void on_ledMaximum_editingFinished();
-    void on_ledScaling_editingFinished();
-    void on_sbMaxInFractionFoV_editingFinished();
-    void on_cbSuppressZero_clicked();
     void on_actionShow_title_toggled(bool arg1);
     void on_actionMake_a_copy_triggered();
 
+    void showSettings();
+
 private:
     Ui::AViewer3D * ui = nullptr;
-
-    bool StartUp = true;
 
     AViewer3DWidget * View1 = nullptr;
     AViewer3DWidget * View2 = nullptr;
