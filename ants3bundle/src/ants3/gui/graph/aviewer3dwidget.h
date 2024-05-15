@@ -46,6 +46,8 @@ private slots:
 
     void on_ledPosition_editingFinished();
 
+    void on_pbZoom_clicked();
+
 private:
     AViewer3D * Viewer = nullptr;
     EViewType ViewType;

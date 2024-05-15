@@ -365,3 +365,63 @@ void AViewer3DWidget::on_ledPosition_editingFinished()
     ui->sbPosition->setValue(bin);
     redraw();
 }
+
+#include <QDialog>
+#include "TMath.h"
+void AViewer3DWidget::on_pbZoom_clicked()
+{
+    double xfrom, yfrom, xto, yto;
+    RasterWindow->fCanvas->GetRangeAxis(xfrom, yfrom, xto, yto);
+    if (RasterWindow->fCanvas->GetLogx())
+    {
+        xfrom = TMath::Power(10.0, xfrom);
+        xto = TMath::Power(10.0, xto);
+    }
+    if (RasterWindow->fCanvas->GetLogy())
+    {
+        yfrom = TMath::Power(10.0, yfrom);
+        yto = TMath::Power(10.0, yto);
+    }
+
+    QDialog d(this);
+    d.setWindowTitle("Apply zoom");
+    QGridLayout * gl = new QGridLayout(&d);
+    gl->addWidget(new QLabel("From"), 0, 1);
+    gl->addWidget(new QLabel("To"),   0, 2);
+    gl->addWidget(new QLabel("X:"),   1, 0);
+    gl->addWidget(new QLabel("Y:"),   2, 0);
+
+    QLineEdit * ledXfrom = new QLineEdit(QString::number(xfrom)); gl->addWidget(ledXfrom, 1,1);
+    QLineEdit * ledXto   = new QLineEdit(QString::number(xto));   gl->addWidget(ledXto,   1,2);
+
+    QLineEdit * ledYfrom = new QLineEdit(QString::number(yfrom)); gl->addWidget(ledYfrom, 2,1);
+    QLineEdit * ledYto   = new QLineEdit(QString::number(yto));   gl->addWidget(ledYto,   2,2);
+
+    QHBoxLayout * hl = new QHBoxLayout();
+    QPushButton * pbAccept = new QPushButton("Accept"); hl->addWidget(pbAccept);
+    QPushButton * pbCancel = new QPushButton("Cancel"); hl->addWidget(pbCancel);
+    gl->addLayout(hl, 3, 0, 1, 3);
+
+    connect(pbAccept, &QPushButton::clicked, &d, &QDialog::accept);
+    connect(pbCancel, &QPushButton::clicked, &d, &QDialog::reject);
+
+    QDoubleValidator * dv = new QDoubleValidator(&d);
+    ledXfrom->setValidator(dv);
+    ledXto->setValidator(dv);
+    ledYfrom->setValidator(dv);
+    ledYto->setValidator(dv);
+
+    int res = d.exec();
+    if (res == QDialog::Rejected) return;
+
+    xfrom = ledXfrom->text().toDouble();
+    xto   = ledXto  ->text().toDouble();
+    yfrom = ledYfrom->text().toDouble();
+    yto   = ledYto  ->text().toDouble();
+
+    Hist->GetXaxis()->SetRangeUser(xfrom, xto);
+    Hist->GetYaxis()->SetRangeUser(yfrom, yto);
+
+    redraw();
+}
+
