@@ -17,6 +17,7 @@ void AViewer3DSettings::writeToJson(QJsonObject & json) const
     json["MaximumMode"] = (int)MaximumMode;
     json["FixedMaximum"] = FixedMaximum;
     json["PercentFieldOfView"] = PercentFieldOfView;
+    json["ApplyScaling"] = ApplyScaling;
     json["ScalingFactor"] = ScalingFactor;
     json["Palette"] = Palette;
     json["SuppressZero"] = SuppressZero;
@@ -34,6 +35,7 @@ void AViewer3DSettings::readFromJson(const QJsonObject & json)
 
     jstools::parseJson(json, "FixedMaximum", FixedMaximum);
     jstools::parseJson(json, "PercentFieldOfView", PercentFieldOfView);
+    jstools::parseJson(json, "ApplyScaling", ApplyScaling);
     jstools::parseJson(json, "ScalingFactor", ScalingFactor);
     jstools::parseJson(json, "Palette", Palette);
     jstools::parseJson(json, "SuppressZero", SuppressZero);

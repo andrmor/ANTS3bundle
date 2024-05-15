@@ -392,9 +392,7 @@ bool AViewer3D::doLoadCastorImage(const QString & fileName)
             }
 
     calculateGlobalMaximum();
-    qDebug() << "Global max in the defined filed of view fraction:" << GlobalMaximum;
-
-    ui->statusBar->showMessage("Max in defined FoV: " + QString::number(GlobalMaximum));
+    //qDebug() << "Global max in the defined filed of view fraction:" << GlobalMaximum;
 
     // !!!*** error control
 

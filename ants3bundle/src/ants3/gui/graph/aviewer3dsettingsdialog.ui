@@ -266,14 +266,17 @@
        <number>0</number>
       </property>
       <item>
-       <widget class="QCheckBox" name="checkBox">
+       <widget class="QCheckBox" name="cbApplyScaling">
         <property name="text">
-         <string>Apply scaling factor, unity should correspond to </string>
+         <string>Apply scaling, unity corresponds to</string>
         </property>
        </widget>
       </item>
       <item>
        <widget class="QLineEdit" name="ledColorScaleUnity">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="maximumSize">
          <size>
           <width>100</width>
@@ -438,6 +441,22 @@
     <hint type="destinationlabel">
      <x>329</x>
      <y>43</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cbApplyScaling</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>ledColorScaleUnity</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>151</x>
+     <y>87</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>328</x>
+     <y>81</y>
     </hint>
    </hints>
   </connection>

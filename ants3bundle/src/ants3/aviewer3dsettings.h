@@ -18,6 +18,7 @@ public:
     double       FixedMaximum = 0;
     int          PercentFieldOfView = 90;
 
+    bool         ApplyScaling = false;
     double       ScalingFactor = 1.0;
     bool         SuppressZero = false;
 

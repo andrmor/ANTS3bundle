@@ -22,6 +22,8 @@ AViewer3DWidget::AViewer3DWidget(AViewer3D * viewer, EViewType viewType) :
     RasterWindow->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
     RasterWindow->fCanvas->SetRightMargin(0.15);
+    RasterWindow->fCanvas->SetTopMargin(0.05);
+    //RasterWindow->fCanvas->SetBottomMargin(0.1);
 
     connect(RasterWindow, &RasterWindowGraphClass::reportCursorPosition, this, &AViewer3DWidget::onRasterCursorPositionChanged);
     connect(RasterWindow, &RasterWindowGraphClass::cursorLeftBoundaries, this, &AViewer3DWidget::onCursorLeftRaster);
@@ -108,6 +110,8 @@ void AViewer3DWidget::redraw()
     Hist->Reset("ICESM");
     double offPos = 0;
 
+    double factor = (Viewer->Settings.ApplyScaling ? 1.0/Viewer->Settings.ScalingFactor : 1.0);
+
     switch (ViewType)
     {
     case XY:
@@ -119,7 +123,7 @@ void AViewer3DWidget::redraw()
         //title = QString("Transverse (XY at Z = %0 mm)").arg(z);
         for (int iy = 0; iy < Viewer->NumBinsY; iy++)
             for (int ix = 0; ix < Viewer->NumBinsX; ix++)
-                Hist->SetBinContent(ix, iy, Viewer->Data[ix][iy][iz] / Viewer->Settings.ScalingFactor);
+                Hist->SetBinContent(ix, iy, Viewer->Data[ix][iy][iz] * factor);
         break;
       }
     case XZ:
@@ -131,7 +135,7 @@ void AViewer3DWidget::redraw()
         //title = QString("Coronal (XZ at Y = %0 mm)").arg(y);
         for (int iz = 0; iz < Viewer->NumBinsZ; iz++)
             for (int ix = 0; ix < Viewer->NumBinsX; ix++)
-                Hist->SetBinContent(ix, iz, Viewer->Data[ix][iy][iz] / Viewer->Settings.ScalingFactor);
+                Hist->SetBinContent(ix, iz, Viewer->Data[ix][iy][iz] * factor);
         break;
       }
     case YZ:
@@ -143,7 +147,7 @@ void AViewer3DWidget::redraw()
         //title = QString("Sagittal (YZ at X = %0 mm)").arg(x);
         for (int iz = 0; iz < Viewer->NumBinsZ; iz++)
             for (int iy = 0; iy < Viewer->NumBinsY; iy++)
-                Hist->SetBinContent(iy, iz, Viewer->Data[ix][iy][iz] / Viewer->Settings.ScalingFactor);
+                Hist->SetBinContent(iy, iz, Viewer->Data[ix][iy][iz] * factor);
         break;
       }
     }
@@ -151,8 +155,8 @@ void AViewer3DWidget::redraw()
 
     switch (Viewer->Settings.MaximumMode)
     {
-    case AViewer3DSettings::GlobalMax : Hist->SetMaximum(Viewer->GlobalMaximum         / Viewer->Settings.ScalingFactor); break;
-    case AViewer3DSettings::FixedMax  : Hist->SetMaximum(Viewer->Settings.FixedMaximum / Viewer->Settings.ScalingFactor); break;
+    case AViewer3DSettings::GlobalMax : Hist->SetMaximum(Viewer->GlobalMaximum         * factor); break;
+    case AViewer3DSettings::FixedMax  : Hist->SetMaximum(Viewer->Settings.FixedMaximum * factor); break;
     default: break;
     }
 

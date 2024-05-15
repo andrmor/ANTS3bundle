@@ -21,6 +21,7 @@ AViewer3DSettingsDialog::AViewer3DSettingsDialog(AViewer3DSettings & settings, Q
     ui->cobMaximumMode->setCurrentIndex((int)Settings.MaximumMode);
     ui->ledFixedMaximum->setText(QString::number(Settings.FixedMaximum));
     ui->sbMaxInFractionFoV->setValue(Settings.PercentFieldOfView);
+    ui->cbApplyScaling->setChecked(Settings.ApplyScaling);
     ui->ledColorScaleUnity->setText(QString::number(Settings.ScalingFactor));
     ui->cbSuppressZero->setChecked(Settings.SuppressZero);
 
@@ -46,6 +47,7 @@ void AViewer3DSettingsDialog::on_pbAccept_clicked()
     Settings.MaximumMode = static_cast<AViewer3DSettings::EMaximumMode>(ui->cobMaximumMode->currentIndex());
     Settings.FixedMaximum = ui->ledFixedMaximum->text().toDouble();
     Settings.PercentFieldOfView = ui->sbMaxInFractionFoV->value();
+    Settings.ApplyScaling = ui->cbApplyScaling->isChecked();
     Settings.ScalingFactor = ui->ledColorScaleUnity->text().toDouble();
     Settings.SuppressZero = ui->cbSuppressZero->isChecked();
 
