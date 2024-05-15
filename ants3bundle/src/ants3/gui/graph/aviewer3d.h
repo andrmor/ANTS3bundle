@@ -47,6 +47,7 @@ public:
     enum EAxis {Xaxis, Yaxis, Zaxis};
     double binToEdgePosition(EAxis axis, size_t iBin) const;
     double binToCenterPosition(EAxis axis, size_t iBin) const;
+    size_t positionToBin(EAxis axis, double pos) const;
 
     void writeDataToJson(QJsonObject & json) const;
     void readDataFromJson(const QJsonObject & json);
@@ -59,7 +60,7 @@ private slots:
     void on_actionMake_a_copy_triggered();
 
     void showSettings();
-    void onCursorPositionChangedOnRasterWindow(double x, double y, double z);
+    void onCursorPositionChangedOnRasterWindow(double x, double y, double z, double val);
     void onCursorLeftRasterWindow();
 
 private:

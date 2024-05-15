@@ -106,17 +106,14 @@ void AViewer3DWidget::redraw()
     if (!Hist) return;
 
     Hist->Reset("ICESM");
-    //QString title = "Aaaaaaaa";
-    QString labName;
-    QString horName, vertName, offName;
     double offPos = 0;
 
     switch (ViewType)
     {
     case XY:
       {
-        labName = "Transverse";
-        horName = "X"; vertName = "Y"; offName = "Z=";
+        //labName = "Transverse";
+        //horName = "X"; vertName = "Y"; offName = "Z=";
         int iz = ui->sbPosition->value();
         offPos = Viewer->binToCenterPosition(AViewer3D::Zaxis, iz);
         //title = QString("Transverse (XY at Z = %0 mm)").arg(z);
@@ -127,8 +124,8 @@ void AViewer3DWidget::redraw()
       }
     case XZ:
       {
-        labName = "Coronal";
-        horName = "X"; vertName = "Z"; offName = "Y=";
+        //labName = "Coronal";
+        //horName = "X"; vertName = "Z"; offName = "Y=";
         int iy = ui->sbPosition->value();
         offPos = Viewer->binToCenterPosition(AViewer3D::Yaxis, iy);
         //title = QString("Coronal (XZ at Y = %0 mm)").arg(y);
@@ -139,8 +136,8 @@ void AViewer3DWidget::redraw()
       }
     case YZ:
       {
-        labName = "Sagittal";
-        horName = "Y"; vertName = "Z"; offName = "X=";
+        //labName = "Sagittal";
+        //horName = "Y"; vertName = "Z"; offName = "X=";
         int ix = ui->sbPosition->value();
         offPos = Viewer->binToCenterPosition(AViewer3D::Xaxis, ix);
         //title = QString("Sagittal (YZ at X = %0 mm)").arg(x);
@@ -150,14 +147,6 @@ void AViewer3DWidget::redraw()
         break;
       }
     }
-    //ui->lView->setText(title);
-    ui->lLabName->setText(labName + ": ");
-    ui->lLabHorAxisName->setText(horName);
-    ui->lLabVertAxisName->setText(vertName);
-    ui->lLabOffAxisName->setText(offName);
-    ui->lLabHorAxisPos->setText("");
-    ui->lLabVertAxisPos->setText("");
-    ui->lLabOffAxisPos->setText(QString::number(offPos, 'g', 4));
     ui->lPosition->setText( QString::number(offPos) );
 
     switch (Viewer->Settings.MaximumMode)
@@ -211,44 +200,68 @@ void AViewer3DWidget::requestShowCrossHair(double x, double y, double z)
 void AViewer3DWidget::onRasterCursorPositionChanged(double x, double y, bool)
 {
     //qDebug() << x << y << bOn;
-    ui->lLabHorAxisPos->setText("=" + QString::number(x, 'g', 4));
-    ui->lLabVertAxisPos->setText("=" + QString::number(y, 'g', 4));
-    ui->lLabHorAxisPos->setVisible(true);
-    ui->lLabVertAxisPos->setVisible(true);
+    //ui->lLabHorAxisPos->setText("=" + QString::number(x, 'g', 4));
+    //ui->lLabVertAxisPos->setText("=" + QString::number(y, 'g', 4));
+    //ui->lLabHorAxisPos->setVisible(true);
+    //ui->lLabVertAxisPos->setVisible(true);
 
     bool ok;
     double X, Y, Z; // absolute coordinates
+    int horBin, verBin;
+    double val = 0; // hist value in the bin under cursor
     switch (ViewType)
     {
-    case XY:
-    {
+     case XY:
+      {
         //qDebug() << "Emitting from XY";
         Z = ui->lPosition->text().toDouble(&ok);
         if (!ok) Z = 0;
         X = x;
         Y = y;
+
+        horBin = 1 + Viewer->positionToBin(AViewer3D::Xaxis, x);
+        verBin = 1 + Viewer->positionToBin(AViewer3D::Yaxis, y);
+
         break;
-    }
-    case XZ:
-    {
+      }
+     case XZ:
+      {
         //qDebug() << "Emitting from XZ";
         Y = ui->lPosition->text().toDouble(&ok);
         if (!ok) Y = 0;
         X = x;
         Z = y;
+
+        horBin = 1 + Viewer->positionToBin(AViewer3D::Xaxis, x);
+        verBin = 1 + Viewer->positionToBin(AViewer3D::Zaxis, y);
+
         break;
-    }
-    case YZ:
-    {
+      }
+     case YZ:
+     {
         //qDebug() << "Emitting from YZ";
         X = ui->lPosition->text().toDouble(&ok);
         if (!ok) X = 0;
         Y = x;
         Z = y;
+
+        horBin = 1 + Viewer->positionToBin(AViewer3D::Yaxis, x);
+        verBin = 1 + Viewer->positionToBin(AViewer3D::Zaxis, y);
+
         break;
+     }
     }
+
+    if (Hist)
+    {
+        if (horBin > 0 && horBin <= Hist->GetNbinsX() && verBin > 0 && verBin <= Hist->GetNbinsY())
+        {
+            int bin = Hist->GetBin(horBin, verBin);
+            val = Hist->GetBinContent(bin);
+        }
     }
-    emit cursorPositionChanged(X, Y, Z);
+
+    emit cursorPositionChanged(X, Y, Z, val);
 }
 
 void AViewer3DWidget::onCursorLeftRaster()
@@ -259,8 +272,8 @@ void AViewer3DWidget::onCursorLeftRaster()
     //ui->lLabHorAxisPos->setText("");  // Bug in Qt: leaves ghost marks on the label, need to use vis/invisble switch to fix
     //ui->lLabVertAxisPos->setText("");
     //ui->hlLabel->update();            // does not help
-    ui->lLabHorAxisPos->setVisible(false);
-    ui->lLabVertAxisPos->setVisible(false);
+    //ui->lLabHorAxisPos->setVisible(false);
+    //ui->lLabVertAxisPos->setVisible(false);
 
     emit cursorLeftVisibleArea();
 }

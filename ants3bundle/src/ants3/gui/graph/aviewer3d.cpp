@@ -49,15 +49,16 @@ void AViewer3D::configureConnections(AViewer3DWidget * from, AViewer3DWidget * t
     connect(from, &AViewer3DWidget::cursorLeftVisibleArea, this, &AViewer3D::onCursorLeftRasterWindow);
 }
 
-void AViewer3D::onCursorPositionChangedOnRasterWindow(double x, double y, double z)
+void AViewer3D::onCursorPositionChangedOnRasterWindow(double x, double y, double z, double val)
 {
     int  fieldWidth = 7;
     char format = 'f';
     int  precision = 2;
-    ui->statusBar->showMessage(QString("X: %0  Y: %1  Z: %2")
+    ui->statusBar->showMessage(QString("X: %0  Y: %1  Z: %2  Value: %3")
                                    .arg(x, fieldWidth, format, precision, ' ')
                                    .arg(y, fieldWidth, format, precision, ' ')
-                                   .arg(z, fieldWidth, format, precision, ' ') );
+                                   .arg(z, fieldWidth, format, precision, ' ')
+                                   .arg(val, 0, 'g', 4) );
 }
 
 void AViewer3D::onCursorLeftRasterWindow()
@@ -170,6 +171,17 @@ double AViewer3D::binToCenterPosition(EAxis axis, size_t iBin) const
     case Zaxis: return StartZeroBinZ + (0.5 + iBin) * mmPerPixelZ;
     }
     return 0; // just to avoid the warning
+}
+
+size_t AViewer3D::positionToBin(EAxis axis, double pos) const
+{
+    switch (axis)
+    {
+    case Xaxis: return (pos - StartZeroBinX) / mmPerPixelX;
+    case Yaxis: return (pos - StartZeroBinY) / mmPerPixelY;
+    case Zaxis: return (pos - StartZeroBinZ) / mmPerPixelZ;
+    }
+    return 0;
 }
 
 #include "ajsontools.h"

@@ -58,7 +58,7 @@ private:
     void showCrossHair(double hor, double vert);
 
 signals:
-    void cursorPositionChanged(double x, double y, double z);
+    void cursorPositionChanged(double x, double y, double z, double val);
     void cursorLeftVisibleArea();
 
 };
