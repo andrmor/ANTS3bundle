@@ -411,8 +411,19 @@ void AViewer3D::on_actionShow_title_toggled(bool arg1)
     ui->leTitle->setVisible(arg1);
 }
 
+#include <QDialog>
+#include <QLabel>
 void AViewer3D::on_actionMake_a_copy_triggered()
 {
+    QDialog d(this);
+    d.setWindowTitle("");
+    //mb.setWindowFlags(mb.windowFlags() | Qt::WindowStaysOnTopHint);
+    QHBoxLayout * l = new QHBoxLayout(&d);
+    l->addWidget(new QLabel("Creating a copy..."));
+
+    d.show();
+    qApp->processEvents();
+
     emit requestMakeCopy(this);
 }
 

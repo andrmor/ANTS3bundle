@@ -60,6 +60,8 @@ private:
     TH2D * Hist = nullptr;
 
     void showCrossHair(double hor, double vert);
+    void getShownHistRange(double & xfrom, double & yfrom, double & xto, double & yto) const;
+    void applyShownHistRange(double & xfrom, double & yfrom, double & xto, double & yto);
 
 signals:
     void cursorPositionChanged(double x, double y, double z, double val);

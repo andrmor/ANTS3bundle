@@ -96,7 +96,14 @@ bool AViewer3DWidget::init()
 void AViewer3DWidget::writeToJson(QJsonObject & json) const
 {
     json["Position"] = ui->sbPosition->value();
-    // zoom of histo?
+
+    double xfrom, yfrom, xto, yto;
+    getShownHistRange(xfrom, yfrom, xto, yto);
+
+    json["Xfrom"] = xfrom;
+    json["Yfrom"] = yfrom;
+    json["Xto"] = xto;
+    json["Yto"] = yto;
 }
 
 void AViewer3DWidget::readFromJson(const QJsonObject & json)
@@ -104,6 +111,13 @@ void AViewer3DWidget::readFromJson(const QJsonObject & json)
     int pos = 0;
     jstools::parseJson(json, "Position", pos);
     ui->sbPosition->setValue(pos);
+
+    double xfrom, yfrom, xto, yto;
+    jstools::parseJson(json, "Xfrom", xfrom);
+    jstools::parseJson(json, "Yfrom", yfrom);
+    jstools::parseJson(json, "Xto", xto);
+    jstools::parseJson(json, "Yto", yto);
+    applyShownHistRange(xfrom, yfrom, xto, yto);
 }
 
 void AViewer3DWidget::redraw()
@@ -368,9 +382,8 @@ void AViewer3DWidget::on_ledPosition_editingFinished()
 
 #include <QDialog>
 #include "TMath.h"
-void AViewer3DWidget::on_pbZoom_clicked()
+void AViewer3DWidget::getShownHistRange(double & xfrom, double & yfrom, double & xto, double & yto) const
 {
-    double xfrom, yfrom, xto, yto;
     RasterWindow->fCanvas->GetRangeAxis(xfrom, yfrom, xto, yto);
     if (RasterWindow->fCanvas->GetLogx())
     {
@@ -382,6 +395,18 @@ void AViewer3DWidget::on_pbZoom_clicked()
         yfrom = TMath::Power(10.0, yfrom);
         yto = TMath::Power(10.0, yto);
     }
+}
+
+void AViewer3DWidget::applyShownHistRange(double & xfrom, double & yfrom, double & xto, double & yto)
+{
+    Hist->GetXaxis()->SetRangeUser(xfrom, xto);
+    Hist->GetYaxis()->SetRangeUser(yfrom, yto);
+}
+
+void AViewer3DWidget::on_pbZoom_clicked()
+{
+    double xfrom, yfrom, xto, yto;
+    getShownHistRange(xfrom, yfrom, xto, yto);
 
     QDialog d(this);
     d.setWindowTitle("Apply zoom");
@@ -419,9 +444,7 @@ void AViewer3DWidget::on_pbZoom_clicked()
     yfrom = ledYfrom->text().toDouble();
     yto   = ledYto  ->text().toDouble();
 
-    Hist->GetXaxis()->SetRangeUser(xfrom, xto);
-    Hist->GetYaxis()->SetRangeUser(yfrom, yto);
-
+    applyShownHistRange(xfrom, yfrom, xto, yto);
     redraw();
 }
 

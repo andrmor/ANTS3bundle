@@ -2927,6 +2927,8 @@ void GraphWindowClass::onRequestMakeCopyViewer3D(AViewer3D * ptr)
 {
     AViewer3D * view = new AViewer3D(this);
 
+    qApp->processEvents();
+
     // Data
     {
         QJsonObject json;
