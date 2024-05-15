@@ -38,7 +38,7 @@ AViewer3DSettingsDialog::~AViewer3DSettingsDialog()
 
 bool AViewer3DSettingsDialog::isRecalcMaxRequired() const
 {
-    return (oldFoV != Settings.PercentFieldOfView);
+    return (Settings.MaximumMode == AViewer3DSettings::GlobalMax && oldFoV != Settings.PercentFieldOfView);
 }
 
 #include "TStyle.h"
@@ -70,3 +70,7 @@ void AViewer3DSettingsDialog::on_pbCancel_clicked()
     reject();
 }
 
+void AViewer3DSettingsDialog::on_pbCopyToScaling_clicked()
+{
+    ui->ledColorScaleUnity->setText(ui->ledFixedMaximum->text());
+}

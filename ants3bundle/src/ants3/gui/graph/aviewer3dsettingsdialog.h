@@ -26,11 +26,13 @@ private slots:
     void on_pbAccept_clicked();
     void on_pbCancel_clicked();
 
+    void on_pbCopyToScaling_clicked();
+
 private:
     AViewer3DSettings & Settings;
     Ui::AViewer3DSettingsDialog * ui = nullptr;
 
-    double oldFoV;
+    double oldFoV = -1e10;
 };
 
 #endif // AVIEWER3DSETTINGSDIALOG_H

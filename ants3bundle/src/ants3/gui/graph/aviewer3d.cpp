@@ -173,7 +173,7 @@ double AViewer3D::binToCenterPosition(EAxis axis, size_t iBin) const
     return 0; // just to avoid the warning
 }
 
-size_t AViewer3D::positionToBin(EAxis axis, double pos) const
+int AViewer3D::positionToBin(EAxis axis, double pos) const
 {
     switch (axis)
     {
@@ -210,6 +210,8 @@ void AViewer3D::writeDataToJson(QJsonObject & json) const
             for (int iz = 0; iz < NumBinsZ; iz++)
                 ar.push_back(Data[ix][iy][iz]);
     json["Data"] = ar;
+
+    json["GlobalMaximum"] = GlobalMaximum;
 }
 
 void AViewer3D::readDataFromJson(const QJsonObject & json)
@@ -248,6 +250,8 @@ void AViewer3D::readDataFromJson(const QJsonObject & json)
                 Data[ix][iy][iz] = ar[index].toDouble();
                 index++;
             }
+
+    jstools::parseJson(json, "GlobalMaximum", GlobalMaximum);
 }
 
 void AViewer3D::writeViewersToJson(QJsonObject & json) const
@@ -392,6 +396,8 @@ bool AViewer3D::doLoadCastorImage(const QString & fileName)
             }
 
     calculateGlobalMaximum();
+    if (Settings.FixedMaximum == 0) Settings.FixedMaximum = GlobalMaximum;
+    if (!Settings.ApplyScaling) Settings.ScalingFactor = GlobalMaximum;
     //qDebug() << "Global max in the defined filed of view fraction:" << GlobalMaximum;
 
     // !!!*** error control

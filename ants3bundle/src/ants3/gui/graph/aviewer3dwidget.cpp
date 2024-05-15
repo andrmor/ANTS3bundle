@@ -45,6 +45,7 @@ bool AViewer3DWidget::init()
     {
     case XY:
         ui->lAxis->setText("Z:");
+        ui->lAxis2->setText("Z");
 
         ui->sbPosition->setMaximum(Viewer->NumBinsZ-1);
         ui->hsPosition->setMaximum(Viewer->NumBinsZ-1);
@@ -58,6 +59,7 @@ bool AViewer3DWidget::init()
         break;
     case XZ:
         ui->lAxis->setText("Y:");
+        ui->lAxis2->setText("Y");
 
         ui->sbPosition->setMaximum(Viewer->NumBinsY-1);
         ui->hsPosition->setMaximum(Viewer->NumBinsY-1);
@@ -71,6 +73,7 @@ bool AViewer3DWidget::init()
         break;
     case YZ:
         ui->lAxis->setText("X:");
+        ui->lAxis2->setText("X");
 
         ui->sbPosition->setMaximum(Viewer->NumBinsX-1);
         ui->hsPosition->setMaximum(Viewer->NumBinsX-1);
@@ -151,7 +154,7 @@ void AViewer3DWidget::redraw()
         break;
       }
     }
-    ui->lPosition->setText( QString::number(offPos) );
+    ui->ledPosition->setText( QString::number(offPos) );
 
     switch (Viewer->Settings.MaximumMode)
     {
@@ -160,7 +163,11 @@ void AViewer3DWidget::redraw()
     default: break;
     }
 
-    if (Viewer->Settings.SuppressZero) Hist->SetMinimum(-1e-300);
+    if (Viewer->Settings.SuppressZero)
+    {
+        Hist->SetMinimum(-1e-300);
+        if (Hist->GetMaximum() == 0) Hist->SetMaximum(1e-99);
+    }
 
     RasterWindow->fCanvas->cd();
     Hist->Draw("colz");
@@ -218,7 +225,7 @@ void AViewer3DWidget::onRasterCursorPositionChanged(double x, double y, bool)
      case XY:
       {
         //qDebug() << "Emitting from XY";
-        Z = ui->lPosition->text().toDouble(&ok);
+        Z = ui->ledPosition->text().toDouble(&ok);
         if (!ok) Z = 0;
         X = x;
         Y = y;
@@ -231,7 +238,7 @@ void AViewer3DWidget::onRasterCursorPositionChanged(double x, double y, bool)
      case XZ:
       {
         //qDebug() << "Emitting from XZ";
-        Y = ui->lPosition->text().toDouble(&ok);
+        Y = ui->ledPosition->text().toDouble(&ok);
         if (!ok) Y = 0;
         X = x;
         Z = y;
@@ -244,7 +251,7 @@ void AViewer3DWidget::onRasterCursorPositionChanged(double x, double y, bool)
      case YZ:
      {
         //qDebug() << "Emitting from YZ";
-        X = ui->lPosition->text().toDouble(&ok);
+        X = ui->ledPosition->text().toDouble(&ok);
         if (!ok) X = 0;
         Y = x;
         Z = y;
@@ -339,6 +346,22 @@ void AViewer3DWidget::on_sbPosition_valueChanged(int arg1)
     case YZ: val = Viewer->binToCenterPosition(AViewer3D::Xaxis, arg1); break;
     }
 
-    ui->lPosition->setText( QString::number(val) );
+    ui->ledPosition->setText( QString::number(val) );
 }
 
+void AViewer3DWidget::on_ledPosition_editingFinished()
+{
+    double pos = ui->ledPosition->text().toDouble();
+    AViewer3D::EAxis axis;
+
+    switch (ViewType)
+    {
+      case XY: axis = AViewer3D::Zaxis; break;
+      case XZ: axis = AViewer3D::Yaxis; break;
+      case YZ: axis = AViewer3D::Xaxis; break;
+    }
+
+    int bin = Viewer->positionToBin(axis, pos);
+    ui->sbPosition->setValue(bin);
+    redraw();
+}

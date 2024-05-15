@@ -44,6 +44,8 @@ private slots:
     void on_hsPosition_sliderMoved(int position);
     void on_pbUnzoom_clicked();
 
+    void on_ledPosition_editingFinished();
+
 private:
     AViewer3D * Viewer = nullptr;
     EViewType ViewType;

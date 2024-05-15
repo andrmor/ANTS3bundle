@@ -47,7 +47,7 @@ public:
     enum EAxis {Xaxis, Yaxis, Zaxis};
     double binToEdgePosition(EAxis axis, size_t iBin) const;
     double binToCenterPosition(EAxis axis, size_t iBin) const;
-    size_t positionToBin(EAxis axis, double pos) const;
+    int positionToBin(EAxis axis, double pos) const;
 
     void writeDataToJson(QJsonObject & json) const;
     void readDataFromJson(const QJsonObject & json);
