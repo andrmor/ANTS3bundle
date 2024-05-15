@@ -85,7 +85,7 @@
       <widget class="QLabel" name="lLabOffAxisPos">
        <property name="minimumSize">
         <size>
-         <width>50</width>
+         <width>0</width>
          <height>0</height>
         </size>
        </property>

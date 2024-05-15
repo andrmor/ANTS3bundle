@@ -30,6 +30,7 @@ AViewer3D::AViewer3D(QWidget *parent) :
 void AViewer3D::showSettings()
 {
     AViewer3DSettingsDialog D(Settings, this);
+    D.move(this->x()+25, this->y()+25);
     int res = D.exec();
     if (res == QDialog::Rejected) return;
 
@@ -43,6 +44,25 @@ void AViewer3D::configureConnections(AViewer3DWidget * from, AViewer3DWidget * t
     connect(from, &AViewer3DWidget::cursorPositionChanged, to2, &AViewer3DWidget::requestShowCrossHair);
     connect(from, &AViewer3DWidget::cursorLeftVisibleArea, to1, &AViewer3DWidget::redraw);
     connect(from, &AViewer3DWidget::cursorLeftVisibleArea, to2, &AViewer3DWidget::redraw);
+
+    connect(from, &AViewer3DWidget::cursorPositionChanged, this, &AViewer3D::onCursorPositionChangedOnRasterWindow);
+    connect(from, &AViewer3DWidget::cursorLeftVisibleArea, this, &AViewer3D::onCursorLeftRasterWindow);
+}
+
+void AViewer3D::onCursorPositionChangedOnRasterWindow(double x, double y, double z)
+{
+    int  fieldWidth = 7;
+    char format = 'f';
+    int  precision = 2;
+    ui->statusBar->showMessage(QString("X: %0  Y: %1  Z: %2")
+                                   .arg(x, fieldWidth, format, precision, ' ')
+                                   .arg(y, fieldWidth, format, precision, ' ')
+                                   .arg(z, fieldWidth, format, precision, ' ') );
+}
+
+void AViewer3D::onCursorLeftRasterWindow()
+{
+    ui->statusBar->clearMessage();
 }
 
 void AViewer3D::createViewWidgets()

@@ -24,6 +24,7 @@ public:
     QString      Palette = "Default ROOT";
 
     bool         TitleVisible = false;
+    bool         ShowPositionLines = false;
 
     std::vector<std::pair<QString,int>> DefinedPalettes;
 

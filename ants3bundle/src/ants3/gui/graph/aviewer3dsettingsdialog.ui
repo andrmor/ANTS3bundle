@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>509</width>
-    <height>276</height>
+    <height>305</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -364,6 +364,13 @@
     <widget class="QCheckBox" name="cbTitleVisible">
      <property name="text">
       <string>Title is visible</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="cbShowPositionLines">
+     <property name="text">
+      <string>Show position lines</string>
      </property>
     </widget>
    </item>

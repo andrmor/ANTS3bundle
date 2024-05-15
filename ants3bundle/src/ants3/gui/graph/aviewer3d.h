@@ -59,6 +59,8 @@ private slots:
     void on_actionMake_a_copy_triggered();
 
     void showSettings();
+    void onCursorPositionChangedOnRasterWindow(double x, double y, double z);
+    void onCursorLeftRasterWindow();
 
 private:
     Ui::AViewer3D * ui = nullptr;

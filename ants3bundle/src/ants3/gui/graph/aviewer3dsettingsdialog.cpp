@@ -10,12 +10,13 @@ AViewer3DSettingsDialog::AViewer3DSettingsDialog(AViewer3DSettings & settings, Q
 {
     ui->setupUi(this);
 
-    for (const auto & p : Settings.DefinedPalettes)
-        ui->cobPalette->addItem(p.first);
-
     QDoubleValidator * dval = new QDoubleValidator(this);
     ui->ledFixedMaximum->setValidator(dval);
     ui->ledColorScaleUnity->setValidator(dval);
+
+    for (const auto & p : Settings.DefinedPalettes)
+        ui->cobPalette->addItem(p.first);
+    ui->cobPalette->setCurrentText(Settings.Palette);
 
     ui->cobMaximumMode->setCurrentIndex((int)Settings.MaximumMode);
     ui->ledFixedMaximum->setText(QString::number(Settings.FixedMaximum));
@@ -24,6 +25,7 @@ AViewer3DSettingsDialog::AViewer3DSettingsDialog(AViewer3DSettings & settings, Q
     ui->cbSuppressZero->setChecked(Settings.SuppressZero);
 
     ui->cbTitleVisible->setChecked(Settings.TitleVisible);
+    ui->cbShowPositionLines->setChecked(Settings.ShowPositionLines);
 
     oldFoV = Settings.PercentFieldOfView;
 }
@@ -48,10 +50,12 @@ void AViewer3DSettingsDialog::on_pbAccept_clicked()
     Settings.SuppressZero = ui->cbSuppressZero->isChecked();
 
     Settings.TitleVisible = ui->cbTitleVisible->isChecked();
+    Settings.ShowPositionLines = ui->cbShowPositionLines->isChecked();
 
     for (const auto & p : Settings.DefinedPalettes)
         if (ui->cobPalette->currentText() == p.first)
         {
+            Settings.Palette = p.first;
             gStyle->SetPalette(p.second);
             break;
         }

@@ -22,6 +22,7 @@ void AViewer3DSettings::writeToJson(QJsonObject & json) const
     json["SuppressZero"] = SuppressZero;
 
     json["TitleVisible"] = TitleVisible;
+    json["ShowPositionLines"] = ShowPositionLines;
 }
 
 void AViewer3DSettings::readFromJson(const QJsonObject & json)
@@ -38,4 +39,5 @@ void AViewer3DSettings::readFromJson(const QJsonObject & json)
     jstools::parseJson(json, "SuppressZero", SuppressZero);
 
     jstools::parseJson(json, "TitleVisible", TitleVisible);
+    jstools::parseJson(json, "ShowPositionLines", ShowPositionLines);
 }

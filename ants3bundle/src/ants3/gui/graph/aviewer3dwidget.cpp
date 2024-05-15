@@ -106,7 +106,7 @@ void AViewer3DWidget::redraw()
     if (!Hist) return;
 
     Hist->Reset("ICESM");
-    //QString title;
+    //QString title = "Aaaaaaaa";
     QString labName;
     QString horName, vertName, offName;
     double offPos = 0;
@@ -183,6 +183,8 @@ void AViewer3DWidget::showCrossHair(double hor, double vert)
 
 void AViewer3DWidget::requestShowCrossHair(double x, double y, double z)
 {
+    if (!Viewer->Settings.ShowPositionLines) return;
+
     switch (ViewType)
     {
     case XY:
