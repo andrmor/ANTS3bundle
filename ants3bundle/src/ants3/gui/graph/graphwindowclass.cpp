@@ -2926,6 +2926,8 @@ void GraphWindowClass::show3D(QString castorFileName, bool keepSettings)
 void GraphWindowClass::onRequestMakeCopyViewer3D(AViewer3D * ptr)
 {
     AViewer3D * view = new AViewer3D(this);
+    view->setWindowTitle("3D viewer (copy)");
+    connect(view, &AViewer3D::requestMakeCopy, this, &GraphWindowClass::onRequestMakeCopyViewer3D);
 
     qApp->processEvents();
 
@@ -2951,7 +2953,15 @@ void GraphWindowClass::onRequestMakeCopyViewer3D(AViewer3D * ptr)
         view->readViewersFromJson(json);
     }
 
-    view->setTitle(ptr->getTitle());
+    QString title = ptr->getTitle();
+    if (title.isEmpty()) title = "Copy";
+    else title = "Copy of " + title;
+    view->setTitle(title);
+
     view->updateGui();
     view->showNormal();
+    view->move(ptr->x() + 50, ptr->y() + 50);
+    view->activateWindow();
+
+    view->resize(ptr->width(), ptr->height());
 }

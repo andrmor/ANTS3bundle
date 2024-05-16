@@ -415,14 +415,21 @@
      <item>
       <widget class="QPushButton" name="pbAccept">
        <property name="text">
-        <string>Accept</string>
+        <string>Apply and close</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pbApply">
+       <property name="text">
+        <string>Apply</string>
        </property>
       </widget>
      </item>
      <item>
       <widget class="QPushButton" name="pbCancel">
        <property name="text">
-        <string>Cancel</string>
+        <string>Close</string>
        </property>
       </widget>
      </item>

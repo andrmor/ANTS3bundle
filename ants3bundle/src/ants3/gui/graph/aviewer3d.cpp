@@ -31,6 +31,14 @@ void AViewer3D::showSettings()
 {
     AViewer3DSettingsDialog D(Settings, this);
     D.move(this->x()+25, this->y()+25);
+
+    auto applySettings = [this](bool needRecalc)
+    {
+        if (needRecalc) calculateGlobalMaximum();
+        updateGui();
+    };
+    connect(&D, &AViewer3DSettingsDialog::requestUpdate, this, applySettings);
+
     int res = D.exec();
     if (res == QDialog::Rejected) return;
 

@@ -38,11 +38,11 @@ AViewer3DSettingsDialog::~AViewer3DSettingsDialog()
 
 bool AViewer3DSettingsDialog::isRecalcMaxRequired() const
 {
-    return (Settings.MaximumMode == AViewer3DSettings::GlobalMax && oldFoV != Settings.PercentFieldOfView);
+    return (Settings.MaximumMode == AViewer3DSettings::FixedMax && Settings.PercentFieldOfView != oldFoV);
 }
 
 #include "TStyle.h"
-void AViewer3DSettingsDialog::on_pbAccept_clicked()
+void AViewer3DSettingsDialog::updateSettings()
 {
     Settings.MaximumMode = static_cast<AViewer3DSettings::EMaximumMode>(ui->cobMaximumMode->currentIndex());
     Settings.FixedMaximum = ui->ledFixedMaximum->text().toDouble();
@@ -61,7 +61,11 @@ void AViewer3DSettingsDialog::on_pbAccept_clicked()
             gStyle->SetPalette(p.second);
             break;
         }
+}
 
+void AViewer3DSettingsDialog::on_pbAccept_clicked()
+{
+    updateSettings();
     accept();
 }
 
@@ -74,3 +78,10 @@ void AViewer3DSettingsDialog::on_pbCopyToScaling_clicked()
 {
     ui->ledColorScaleUnity->setText(ui->ledFixedMaximum->text());
 }
+
+void AViewer3DSettingsDialog::on_pbApply_clicked()
+{
+    updateSettings();
+    emit requestUpdate(isRecalcMaxRequired());
+}
+
