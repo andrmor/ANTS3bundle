@@ -14,6 +14,8 @@ AViewer3DSettingsDialog::AViewer3DSettingsDialog(AViewer3DSettings & settings, Q
     ui->ledFixedMaximum->setValidator(dval);
     ui->ledColorScaleUnity->setValidator(dval);
 
+    ui->frAdjacent->setEnabled(false);
+
     for (const auto & p : Settings.DefinedPalettes)
         ui->cobPalette->addItem(p.first);
     ui->cobPalette->setCurrentText(Settings.Palette);
@@ -27,6 +29,14 @@ AViewer3DSettingsDialog::AViewer3DSettingsDialog(AViewer3DSettings & settings, Q
 
     ui->cbTitleVisible->setChecked(Settings.TitleVisible);
     ui->cbShowPositionLines->setChecked(Settings.ShowPositionLines);
+
+    ui->cbApplyAdjacentAveraging->setChecked(Settings.ApplyAdjacentAveraging);
+    ui->sbXleft->setValue(Settings.AdjacentBeforeAfter[0].first);
+    ui->sbXright->setValue(Settings.AdjacentBeforeAfter[0].second);
+    ui->sbYleft->setValue(Settings.AdjacentBeforeAfter[1].first);
+    ui->sbYright->setValue(Settings.AdjacentBeforeAfter[1].second);
+    ui->sbZleft->setValue(Settings.AdjacentBeforeAfter[2].first);
+    ui->sbZright->setValue(Settings.AdjacentBeforeAfter[2].second);
 
     oldFoV = Settings.PercentFieldOfView;
 }
@@ -61,6 +71,14 @@ void AViewer3DSettingsDialog::updateSettings()
             gStyle->SetPalette(p.second);
             break;
         }
+
+    Settings.ApplyAdjacentAveraging = ui->cbApplyAdjacentAveraging->isChecked();
+    Settings.AdjacentBeforeAfter[0].first  = ui->sbXleft->value();
+    Settings.AdjacentBeforeAfter[0].second = ui->sbXright->value();
+    Settings.AdjacentBeforeAfter[1].first  = ui->sbYleft->value();
+    Settings.AdjacentBeforeAfter[1].second = ui->sbYright->value();
+    Settings.AdjacentBeforeAfter[2].first  = ui->sbZleft->value();
+    Settings.AdjacentBeforeAfter[2].second = ui->sbZright->value();
 }
 
 void AViewer3DSettingsDialog::on_pbAccept_clicked()

@@ -140,7 +140,20 @@ void AViewer3DWidget::redraw()
         //title = QString("Transverse (XY at Z = %0 mm)").arg(z);
         for (int iy = 0; iy < Viewer->NumBinsY; iy++)
             for (int ix = 0; ix < Viewer->NumBinsX; ix++)
-                Hist->SetBinContent(ix, iy, Viewer->Data[ix][iy][iz] * factor);
+            {
+                double val = 0;
+                if (!Viewer->Settings.ApplyAdjacentAveraging)
+                    val = Viewer->Data[ix][iy][iz];
+                else
+                {
+                    int num = 0;
+                    // first calculate range in x y and z
+                    // 3d cycle
+                    // check inside global range for every voxel
+                    // calculate average: val /= num
+                }
+                Hist->SetBinContent(ix, iy, val * factor);
+            }
         break;
       }
     case XZ:

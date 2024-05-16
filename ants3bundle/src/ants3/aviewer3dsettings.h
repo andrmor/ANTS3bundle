@@ -2,6 +2,7 @@
 #define AVIEWER3DSETTINGS_H
 
 #include <vector>
+#include <array>
 
 #include <QString>
 
@@ -26,6 +27,9 @@ public:
 
     bool         TitleVisible = false;
     bool         ShowPositionLines = false;
+
+    bool         ApplyAdjacentAveraging = false;
+    std::array<std::pair<int,int>, 3> AdjacentBeforeAfter;
 
     std::vector<std::pair<QString,int>> DefinedPalettes;
 
