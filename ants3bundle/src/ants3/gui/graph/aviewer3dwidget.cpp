@@ -7,7 +7,7 @@
 #include "TCanvas.h"
 
 AViewer3DWidget::AViewer3DWidget(AViewer3D * viewer, EViewType viewType) :
-    QWidget(viewer), Viewer(viewer), ViewType(viewType),
+    QWidget(viewer), Viewer(viewer), Settings(viewer->Settings), ViewType(viewType),
     ui(new Ui::AViewer3DWidget)
 {
     ui->setupUi(this);
@@ -120,6 +120,34 @@ void AViewer3DWidget::readFromJson(const QJsonObject & json)
     applyShownHistRange(xfrom, yfrom, xto, yto);
 }
 
+double AViewer3DWidget::getAveragedValue(int ixCenter, int iyCenter, int izCenter)
+{
+    const int ixFrom = ixCenter - Settings.AdjacentBeforeAfter[0].first;
+    const int ixTo   = ixCenter + Settings.AdjacentBeforeAfter[0].second;
+    const int iyFrom = iyCenter - Settings.AdjacentBeforeAfter[1].first;
+    const int iyTo   = iyCenter + Settings.AdjacentBeforeAfter[1].second;
+    const int izFrom = izCenter - Settings.AdjacentBeforeAfter[2].first;
+    const int izTo   = izCenter + Settings.AdjacentBeforeAfter[2].second;
+
+    double val = 0;
+    int num = 0;
+    for (int ix = ixFrom; ix <= ixTo; ix++)
+    {
+        if (ix < 0 || ix >= Viewer->NumBinsX) continue;
+        for (int iy = iyFrom; iy < iyTo+1; iy++)
+        {
+            if (iy < 0 || iy >= Viewer->NumBinsY) continue;
+            for (int iz = izFrom; iz < izTo+1; iz++)
+            {
+                if (iz < 0 || iz >= Viewer->NumBinsZ) continue;
+                val += Viewer->Data[ix][iy][iz];
+                num++;
+            }
+        }
+    }
+    return val / num; // there will be always at least one (in the center)
+}
+
 void AViewer3DWidget::redraw()
 {
     if (!Hist) return;
@@ -127,7 +155,7 @@ void AViewer3DWidget::redraw()
     Hist->Reset("ICESM");
     double offPos = 0;
 
-    double factor = (Viewer->Settings.ApplyScaling ? 1.0/Viewer->Settings.ScalingFactor : 1.0);
+    double factor = (Settings.ApplyScaling ? 1.0/Settings.ScalingFactor : 1.0);
 
     switch (ViewType)
     {
@@ -141,17 +169,11 @@ void AViewer3DWidget::redraw()
         for (int iy = 0; iy < Viewer->NumBinsY; iy++)
             for (int ix = 0; ix < Viewer->NumBinsX; ix++)
             {
-                double val = 0;
-                if (!Viewer->Settings.ApplyAdjacentAveraging)
+                double val;
+                if (!Settings.ApplyAdjacentAveraging)
                     val = Viewer->Data[ix][iy][iz];
                 else
-                {
-                    int num = 0;
-                    // first calculate range in x y and z
-                    // 3d cycle
-                    // check inside global range for every voxel
-                    // calculate average: val /= num
-                }
+                    val = getAveragedValue(ix, iy, iz);
                 Hist->SetBinContent(ix, iy, val * factor);
             }
         break;
@@ -165,7 +187,14 @@ void AViewer3DWidget::redraw()
         //title = QString("Coronal (XZ at Y = %0 mm)").arg(y);
         for (int iz = 0; iz < Viewer->NumBinsZ; iz++)
             for (int ix = 0; ix < Viewer->NumBinsX; ix++)
-                Hist->SetBinContent(ix, iz, Viewer->Data[ix][iy][iz] * factor);
+            {
+                double val;
+                if (!Settings.ApplyAdjacentAveraging)
+                    val = Viewer->Data[ix][iy][iz];
+                else
+                    val = getAveragedValue(ix, iy, iz);
+                Hist->SetBinContent(ix, iz, val * factor);
+            }
         break;
       }
     case YZ:
@@ -177,20 +206,27 @@ void AViewer3DWidget::redraw()
         //title = QString("Sagittal (YZ at X = %0 mm)").arg(x);
         for (int iz = 0; iz < Viewer->NumBinsZ; iz++)
             for (int iy = 0; iy < Viewer->NumBinsY; iy++)
-                Hist->SetBinContent(iy, iz, Viewer->Data[ix][iy][iz] * factor);
+            {
+                double val;
+                if (!Settings.ApplyAdjacentAveraging)
+                    val = Viewer->Data[ix][iy][iz];
+                else
+                    val = getAveragedValue(ix, iy, iz);
+                Hist->SetBinContent(iy, iz, val * factor);
+            }
         break;
       }
     }
     ui->ledPosition->setText( QString::number(offPos) );
 
-    switch (Viewer->Settings.MaximumMode)
+    switch (Settings.MaximumMode)
     {
-    case AViewer3DSettings::GlobalMax : Hist->SetMaximum(Viewer->GlobalMaximum         * factor); break;
-    case AViewer3DSettings::FixedMax  : Hist->SetMaximum(Viewer->Settings.FixedMaximum * factor); break;
+    case AViewer3DSettings::GlobalMax : Hist->SetMaximum(Viewer->GlobalMaximum * factor); break;
+    case AViewer3DSettings::FixedMax  : Hist->SetMaximum(Settings.FixedMaximum * factor); break;
     default: break;
     }
 
-    if (Viewer->Settings.SuppressZero)
+    if (Settings.SuppressZero)
     {
         Hist->SetMinimum(-1e-300);
         if (Hist->GetMaximum() == 0) Hist->SetMaximum(1e-99);
@@ -210,7 +246,7 @@ void AViewer3DWidget::showCrossHair(double hor, double vert)
 
 void AViewer3DWidget::requestShowCrossHair(double x, double y, double z)
 {
-    if (!Viewer->Settings.ShowPositionLines) return;
+    if (!Settings.ShowPositionLines) return;
 
     switch (ViewType)
     {

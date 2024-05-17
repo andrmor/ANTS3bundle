@@ -20,7 +20,7 @@ class AViewer3DWidget : public QWidget
 public:
     enum EViewType {XY, XZ, YZ};
 
-    explicit AViewer3DWidget(AViewer3D * viewer, EViewType viewType);
+    AViewer3DWidget(AViewer3D * viewer, EViewType viewType);
     ~AViewer3DWidget();
 
     bool init();
@@ -50,6 +50,7 @@ private slots:
 
 private:
     AViewer3D * Viewer = nullptr;
+    const AViewer3DSettings & Settings;
     EViewType ViewType;
 
     Ui::AViewer3DWidget * ui = nullptr;
@@ -62,6 +63,7 @@ private:
     void showCrossHair(double hor, double vert);
     void getShownHistRange(double & xfrom, double & yfrom, double & xto, double & yto) const;
     void applyShownHistRange(double & xfrom, double & yfrom, double & xto, double & yto);
+    double getAveragedValue(int ixCenter, int iyCenter, int izCenter);
 
 signals:
     void cursorPositionChanged(double x, double y, double z, double val);
