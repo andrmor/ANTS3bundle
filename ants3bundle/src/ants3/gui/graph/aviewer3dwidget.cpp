@@ -120,6 +120,16 @@ void AViewer3DWidget::readFromJson(const QJsonObject & json)
     applyShownHistRange(xfrom, yfrom, xto, yto);
 }
 
+void AViewer3DWidget::saveImage(const QString & fileName)
+{
+    RasterWindow->SaveAs(fileName);
+}
+
+void AViewer3DWidget::saveRoot(const QString & fileName)
+{
+    Hist->SaveAs(fileName.toLatin1().data());
+}
+
 double AViewer3DWidget::getAveragedValue(int ixCenter, int iyCenter, int izCenter)
 {
     const int ixFrom = ixCenter - Settings.AdjacentBeforeAfter[0].first;

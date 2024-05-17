@@ -413,12 +413,6 @@ bool AViewer3D::doLoadCastorImage(const QString & fileName)
     return true;
 }
 
-void AViewer3D::on_actionShow_title_toggled(bool arg1)
-{
-    Settings.TitleVisible = arg1;
-    ui->leTitle->setVisible(arg1);
-}
-
 #include <QDialog>
 #include <QLabel>
 void AViewer3D::on_actionMake_a_copy_triggered()
@@ -433,5 +427,37 @@ void AViewer3D::on_actionMake_a_copy_triggered()
     qApp->processEvents();
 
     emit requestMakeCopy(this);
+}
+
+#include <QFileInfo>
+void AViewer3D::on_actionSave_as_png_images_triggered()
+{
+    QString fn = guitools::dialogSaveFile(this, "Select file name template for png image files.", "All files (*.*)");
+    if (fn.isEmpty()) return;
+
+    QFileInfo fi(fn);
+    View1->saveImage(fi.path() + "/" + fi.baseName() + "_XY.png");
+    View2->saveImage(fi.path() + "/" + fi.baseName() + "_XZ.png");
+    View3->saveImage(fi.path() + "/" + fi.baseName() + "_YZ.png");
+}
+
+void AViewer3D::on_actionSave_as_TH2D_histograms_triggered()
+{
+    QString fn = guitools::dialogSaveFile(this, "Select file name template for png image files.", "All files (*.*)");
+    if (fn.isEmpty()) return;
+
+    QFileInfo fi(fn);
+    QString suffix = fi.suffix();
+    if (suffix.isEmpty()) suffix = "root";
+    else if (suffix != "c" && suffix != "root") suffix = "root";
+
+    View1->saveRoot(fi.path() + "/" + fi.baseName() + "_XY." + suffix);
+    View2->saveRoot(fi.path() + "/" + fi.baseName() + "_XZ." + suffix);
+    View3->saveRoot(fi.path() + "/" + fi.baseName() + "_YZ." + suffix);
+}
+
+void AViewer3D::on_actionExport_to_basket_of_graph_window_triggered()
+{
+
 }
 

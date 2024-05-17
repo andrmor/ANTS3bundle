@@ -56,8 +56,10 @@ public:
     void readViewersFromJson(const QJsonObject & json);
 
 private slots:
-    void on_actionShow_title_toggled(bool arg1);
     void on_actionMake_a_copy_triggered();
+    void on_actionSave_as_png_images_triggered();
+    void on_actionSave_as_TH2D_histograms_triggered();
+    void on_actionExport_to_basket_of_graph_window_triggered();
 
     void showSettings();
     void onCursorPositionChangedOnRasterWindow(double x, double y, double z, double val);

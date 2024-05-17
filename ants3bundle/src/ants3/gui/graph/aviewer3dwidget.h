@@ -28,6 +28,9 @@ public:
     void writeToJson(QJsonObject & json) const;
     void readFromJson(const QJsonObject & json);
 
+    void saveImage(const QString & fileName);
+    void saveRoot(const QString & fileName);
+
 public slots:
     void redraw();
     void requestShowCrossHair(double x, double y, double z);
@@ -37,16 +40,13 @@ private slots:
     void onCursorLeftRaster();
 
     void on_sbPosition_valueChanged(int arg1);
-
     void on_pbRedraw_clicked();
     void on_pbMinus_clicked();
     void on_pbPlus_clicked();
     void on_hsPosition_sliderMoved(int position);
-    void on_pbUnzoom_clicked();
-
-    void on_ledPosition_editingFinished();
-
     void on_pbZoom_clicked();
+    void on_pbUnzoom_clicked();
+    void on_ledPosition_editingFinished();
 
 private:
     AViewer3D * Viewer = nullptr;

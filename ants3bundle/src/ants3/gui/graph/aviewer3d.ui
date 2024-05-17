@@ -56,21 +56,32 @@
      <string>Do</string>
     </property>
     <addaction name="actionMake_a_copy"/>
+    <addaction name="separator"/>
+    <addaction name="actionSave_as_png_images"/>
+    <addaction name="actionSave_as_TH2D_histograms"/>
+    <addaction name="actionExport_to_basket_of_graph_window"/>
    </widget>
    <addaction name="menuShow"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
-  <action name="actionShow_title">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Show title</string>
-   </property>
-  </action>
   <action name="actionMake_a_copy">
    <property name="text">
     <string>Make a copy of the window</string>
+   </property>
+  </action>
+  <action name="actionSave_as_png_images">
+   <property name="text">
+    <string>Save as png images</string>
+   </property>
+  </action>
+  <action name="actionSave_as_TH2D_histograms">
+   <property name="text">
+    <string>Save as TH2D histograms</string>
+   </property>
+  </action>
+  <action name="actionExport_to_basket_of_graph_window">
+   <property name="text">
+    <string>Export to basket of graph window</string>
    </property>
   </action>
  </widget>
