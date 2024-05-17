@@ -2916,10 +2916,23 @@ void GraphWindowClass::show3D(QString castorFileName, bool keepSettings)
     }
     Viewer3D = new AViewer3D(this);
     connect(Viewer3D, &AViewer3D::requestMakeCopy, this, &GraphWindowClass::onRequestMakeCopyViewer3D);
+    connect(Viewer3D, &AViewer3D::requestExportToBasket, this, &GraphWindowClass::addObjectToBasket);
 
     if (doRestore) Viewer3D->Settings.readFromJson(js1);
     bool ok = Viewer3D->loadCastorImage(castorFileName);
     if (ok) Viewer3D->showNormal();
+}
+
+void GraphWindowClass::addObjectToBasket(TObject * obj, QString options, QString name)
+{
+    qDebug() << "Requested to add object" << obj << "with options" << options << "as" << name;
+
+    QVector<ADrawObject> tmp;
+    tmp.push_back(ADrawObject(obj, options.toLatin1().data()));
+    updateLogScaleFlags(tmp);
+    Basket->add(name.simplified(), tmp);
+    ui->actionToggle_Explorer_Basket->setChecked(true);
+    UpdateBasketGUI();
 }
 
 #include "aviewer3dsettings.h"
@@ -2927,6 +2940,7 @@ void GraphWindowClass::onRequestMakeCopyViewer3D(AViewer3D * ptr)
 {
     AViewer3D * view = new AViewer3D(this);
     view->setWindowTitle("3D viewer (copy)");
+    connect(view, &AViewer3D::requestMakeCopy, this, &GraphWindowClass::onRequestMakeCopyViewer3D);
     connect(view, &AViewer3D::requestMakeCopy, this, &GraphWindowClass::onRequestMakeCopyViewer3D);
 
     qApp->processEvents();

@@ -130,6 +130,11 @@ void AViewer3DWidget::saveRoot(const QString & fileName)
     Hist->SaveAs(fileName.toLatin1().data());
 }
 
+void AViewer3DWidget::exportToBasket(const QString & name)
+{
+    emit requestExportToBasket(Hist, "colz", name);
+}
+
 double AViewer3DWidget::getAveragedValue(int ixCenter, int iyCenter, int izCenter)
 {
     const int ixFrom = ixCenter - Settings.AdjacentBeforeAfter[0].first;

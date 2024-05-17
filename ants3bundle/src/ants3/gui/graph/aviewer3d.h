@@ -14,6 +14,7 @@ class AViewer3D;
 
 class AViewer3DWidget;
 class QJsonObject;
+class TObject;
 
 class AViewer3D : public QMainWindow
 {
@@ -79,6 +80,7 @@ private:
 
 signals:
     void requestMakeCopy(AViewer3D * ptr);
+    void requestExportToBasket(TObject * obj, QString opt, QString name);
 };
 
 #endif // AVIEWER3D_H

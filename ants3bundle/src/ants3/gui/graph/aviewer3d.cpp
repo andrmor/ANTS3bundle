@@ -55,6 +55,8 @@ void AViewer3D::configureConnections(AViewer3DWidget * from, AViewer3DWidget * t
 
     connect(from, &AViewer3DWidget::cursorPositionChanged, this, &AViewer3D::onCursorPositionChangedOnRasterWindow);
     connect(from, &AViewer3DWidget::cursorLeftVisibleArea, this, &AViewer3D::onCursorLeftRasterWindow);
+
+    connect(from, &AViewer3DWidget::requestExportToBasket, this, &AViewer3D::requestExportToBasket);
 }
 
 void AViewer3D::onCursorPositionChangedOnRasterWindow(double x, double y, double z, double val)
@@ -458,6 +460,8 @@ void AViewer3D::on_actionSave_as_TH2D_histograms_triggered()
 
 void AViewer3D::on_actionExport_to_basket_of_graph_window_triggered()
 {
-
+    View1->exportToBasket("XY.png");
+    View2->exportToBasket("XZ.png");
+    View3->exportToBasket("YZ.png");
 }
 

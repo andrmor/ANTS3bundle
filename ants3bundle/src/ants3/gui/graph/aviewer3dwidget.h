@@ -30,6 +30,7 @@ public:
 
     void saveImage(const QString & fileName);
     void saveRoot(const QString & fileName);
+    void exportToBasket(const QString & name);
 
 public slots:
     void redraw();
@@ -68,6 +69,7 @@ private:
 signals:
     void cursorPositionChanged(double x, double y, double z, double val);
     void cursorLeftVisibleArea();
+    void requestExportToBasket(TObject * obj, QString opt, QString name);
 
 };
 

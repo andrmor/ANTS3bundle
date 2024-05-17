@@ -160,6 +160,8 @@ public slots:
 
     void show3D(QString castorFileName, bool keepSettings);
 
+    void addObjectToBasket(TObject * obj, QString options, QString name);
+
 private slots:
     void onScriptDrawRequest(TObject * obj, QString options, bool fFocus);
     void processScriptDrawRequest(TObject * obj, QString options, bool fFocus);
