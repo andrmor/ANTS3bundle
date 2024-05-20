@@ -25,6 +25,8 @@ AViewer3D::AViewer3D(QWidget *parent) :
 
     QAction * aSettings = ui->menubar->addAction("Settings");
     connect(aSettings, &QAction::triggered, this, &AViewer3D::showSettings);
+
+    restoreGeomStatus();
 }
 
 void AViewer3D::showSettings()
@@ -132,6 +134,7 @@ void AViewer3D::calculateGlobalMaximum()
 
 AViewer3D::~AViewer3D()
 {
+    storeGeomStatus();
     delete ui;
 }
 
@@ -465,3 +468,28 @@ void AViewer3D::on_actionExport_to_basket_of_graph_window_triggered()
     View3->exportToBasket("YZ");
 }
 
+#include <QSettings>
+void AViewer3D::storeGeomStatus()
+{
+    QSettings settings;
+    settings.beginGroup("Viewer3D");
+    settings.setValue("geometry", saveGeometry());
+    settings.setValue("visible", isVisible());
+    settings.setValue("maximized", isMaximized());
+    settings.endGroup();
+}
+
+void AViewer3D::restoreGeomStatus()
+{
+    QSettings settings;
+    settings.beginGroup("Viewer3D");
+    restoreGeometry(settings.value("geometry").toByteArray());
+    bool bVisible = settings.value("visible", false).toBool();
+    bool bmax = settings.value("maximized", false).toBool();
+    if (bVisible)
+    {
+        if (bmax) showMaximized();
+        else      showNormal();
+    }
+    settings.endGroup();
+}

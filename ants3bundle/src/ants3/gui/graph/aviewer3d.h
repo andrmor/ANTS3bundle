@@ -77,6 +77,8 @@ private:
     void createViewWidgets();
     void calculateGlobalMaximum();
     void configureConnections(AViewer3DWidget * from, AViewer3DWidget * to1, AViewer3DWidget * to2);
+    void storeGeomStatus();
+    void restoreGeomStatus();
 
 signals:
     void requestMakeCopy(AViewer3D * ptr);
