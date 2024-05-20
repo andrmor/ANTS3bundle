@@ -477,8 +477,15 @@ void AViewer3DWidget::on_pbZoom_clicked()
     QGridLayout * gl = new QGridLayout(&d);
     gl->addWidget(new QLabel("From"), 0, 1);
     gl->addWidget(new QLabel("To"),   0, 2);
-    gl->addWidget(new QLabel("X:"),   1, 0);
-    gl->addWidget(new QLabel("Y:"),   2, 0);
+    QString XLabel, YLabel;
+    switch (ViewType)
+    {
+    case XY: XLabel = "X"; YLabel = "Y"; break;
+    case XZ: XLabel = "X"; YLabel = "Z"; break;
+    case YZ: XLabel = "Y"; YLabel = "Z"; break;
+    }
+    gl->addWidget(new QLabel(XLabel+":"), 1, 0);
+    gl->addWidget(new QLabel(YLabel+":"), 2, 0);
 
     QLineEdit * ledXfrom = new QLineEdit(QString::number(xfrom)); gl->addWidget(ledXfrom, 1,1);
     QLineEdit * ledXto   = new QLineEdit(QString::number(xto));   gl->addWidget(ledXto,   1,2);
@@ -499,6 +506,10 @@ void AViewer3DWidget::on_pbZoom_clicked()
     ledXto->setValidator(dv);
     ledYfrom->setValidator(dv);
     ledYto->setValidator(dv);
+
+    QPoint pos = mapToGlobal( QPoint(ui->pbZoom->x(), ui->pbZoom->y()) );
+    pos -= QPoint{50, 30};
+    d.move(pos);
 
     int res = d.exec();
     if (res == QDialog::Rejected) return;
