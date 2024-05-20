@@ -460,8 +460,8 @@ void AViewer3D::on_actionSave_as_TH2D_histograms_triggered()
 
 void AViewer3D::on_actionExport_to_basket_of_graph_window_triggered()
 {
-    View1->exportToBasket("XY.png");
-    View2->exportToBasket("XZ.png");
-    View3->exportToBasket("YZ.png");
+    View1->exportToBasket("XY");
+    View2->exportToBasket("XZ");
+    View3->exportToBasket("YZ");
 }
 
