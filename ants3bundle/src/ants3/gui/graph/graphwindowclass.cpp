@@ -140,6 +140,9 @@ GraphWindowClass::GraphWindowClass(QWidget * parent) :
     connect(RasterWindow, &RasterWindowGraphClass::LeftMouseButtonReleased, this, &GraphWindowClass::UpdateControls);
     connect(RasterWindow, &RasterWindowGraphClass::reportCursorPosition, this, &GraphWindowClass::onCursorPositionReceived);
 
+    //RasterWindow->fCanvas->SetRightMargin(0.15);
+    RasterWindow->fCanvas->SetTopMargin(0.05);
+
     setShowCursorPosition(false);
 
     QHBoxLayout* l = dynamic_cast<QHBoxLayout*>(centralWidget()->layout());
