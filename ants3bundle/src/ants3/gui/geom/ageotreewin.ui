@@ -798,10 +798,17 @@
     </property>
     <addaction name="actionFind_object"/>
    </widget>
+   <widget class="QMenu" name="menuPhotonTunnels">
+    <property name="title">
+     <string>FunctionalModels</string>
+    </property>
+    <addaction name="actionOpen_window"/>
+   </widget>
    <addaction name="menuUndo_redo"/>
    <addaction name="menuFind"/>
    <addaction name="menuGeometryToScript"/>
    <addaction name="menuHelp"/>
+   <addaction name="menuPhotonTunnels"/>
   </widget>
   <action name="actionUndo">
    <property name="text">
@@ -851,6 +858,11 @@
   <action name="actionFind_object">
    <property name="text">
     <string>Find object</string>
+   </property>
+  </action>
+  <action name="actionOpen_window">
+   <property name="text">
+    <string>Open window</string>
    </property>
   </action>
  </widget>

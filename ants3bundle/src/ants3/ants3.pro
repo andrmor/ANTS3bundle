@@ -104,6 +104,7 @@ INCLUDEPATH += tools
 INCLUDEPATH += particleSim
 INCLUDEPATH += photonSim
 INCLUDEPATH += photonSim/interfaceRules
+INCLUDEPATH += photonSim/photonFunctional
 INCLUDEPATH += dispatch
 INCLUDEPATH += farm
 INCLUDEPATH += config
@@ -120,6 +121,8 @@ SOURCES += \
     ../dispatcher/a3dispatcher.cpp \
     ../dispatcher/a3processhandler.cpp \
     ../lsim/anoderecord.cpp \
+    ../lsim/aphotonhistorylog.cpp \
+    aviewer3dsettings.cpp \
     farm/afarmnoderecord.cpp \
     geo/acalorimeter.cpp \
     geo/acalorimeterhub.cpp \
@@ -129,10 +132,14 @@ SOURCES += \
     gui/aguiwindow.cpp \
     gui/alineedit.cpp \
     gui/alineeditwithescape.cpp \
+    gui/atreedatabaseselectordialog.cpp \
     gui/geom/ageoconstexpressiondialog.cpp \
     gui/geom/ageotreewin.cpp \
     gui/geom/ashownumbersdialog.cpp \
+    gui/graph/adrawmarginsrecord.cpp \
+    gui/graph/asetmarginsdialog.cpp \
     gui/graph/aviewer3d.cpp \
+    gui/graph/aviewer3dsettingsdialog.cpp \
     gui/graph/aviewer3dwidget.cpp \
     gui/materials/amatwin.cpp \
     gui/particleSim/aeventsdonedialog.cpp \
@@ -140,7 +147,10 @@ SOURCES += \
     gui/particleSim/atrackdrawdialog.cpp \
     gui/particleSim/atrackingdataexplorer.cpp \
     gui/particleSim/aworldsizewarningdialog.cpp \
+    gui/photsim/afunctionalmodelwidget.cpp \
     gui/photsim/ainterfaceruletester.cpp \
+    gui/photsim/aphotonlogsettingsform.cpp \
+    gui/photsim/aphotontunnelwindow.cpp \
     gui/photsim/aphotsimwin.cpp \
     gui/photsim/asensordrawwidget.cpp \
     config/aconfig.cpp \
@@ -199,9 +209,12 @@ SOURCES += \
     gui/script/atextoutputwindow.cpp \
     materials/amatcomposition.cpp \
     particleSim/ageant4inspectormanager.cpp \
+    photonSim/aphotonloghandler.cpp \
     photonSim/interfaceRules/asurfaceinterfacerule.cpp \
     photonSim/interfaceRules/asurfacesettings.cpp \
     photonSim/interfaceRules/aunifiedrule.cpp \
+    photonSim/photonFunctional/aphotonfunctionalhub.cpp \
+    photonSim/photonFunctional/aphotonfunctionalmodel.cpp \
     script/ScriptInterfaces/ageo_si.cpp \
     script/ScriptInterfaces/ageowin_si.cpp \
     script/ScriptInterfaces/agraphwin_si.cpp \
@@ -330,8 +343,20 @@ HEADERS += \
     ../dispatcher/a3dispatcher.h \
     ../dispatcher/a3processhandler.h \
     ../lsim/anoderecord.h \
+    ../lsim/aphotonhistorylog.h \
     ademomanager.h \
+    aviewer3dsettings.h \
+    gui/atreedatabaseselectordialog.h \
+    gui/graph/adrawmarginsrecord.h \
+    gui/graph/asetmarginsdialog.h \
+    gui/graph/aviewer3dsettingsdialog.h \
+    gui/photsim/afunctionalmodelwidget.h \
+    gui/photsim/aphotonlogsettingsform.h \
+    gui/photsim/aphotontunnelwindow.h \
     gui/script/ascriptexampleexplorer.h \
+    photonSim/aphotonloghandler.h \
+    photonSim/photonFunctional/aphotonfunctionalhub.h \
+    photonSim/photonFunctional/aphotonfunctionalmodel.h \
     rec/PET/apetcoincidencefinderconfig.h \
     farm/afarmnoderecord.h \
     geo/acalorimeter.h \
@@ -548,12 +573,16 @@ FORMS += \
         gui/aconfigexamplebrowser.ui \
         gui/geom/ashownumbersdialog.ui \
         gui/aglobsetwindow.ui \
+        gui/graph/asetmarginsdialog.ui \
         gui/graph/aviewer3d.ui \
+        gui/graph/aviewer3dsettingsdialog.ui \
         gui/graph/aviewer3dwidget.ui \
         gui/particleSim/aeventsdonedialog.ui \
         gui/particleSim/atrackdrawdialog.ui \
         gui/particleSim/aworldsizewarningdialog.ui \
         gui/photsim/ainterfaceruletester.ui \
+        gui/photsim/aphotonlogsettingsform.ui \
+        gui/photsim/aphotontunnelwindow.ui \
         gui/photsim/aphotsimwin.ui \
         gui/photsim/asensordrawwidget.ui \
         gui/ademowindow.ui \

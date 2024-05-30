@@ -8,6 +8,7 @@
 #include "aparticlesimhub.h"
 #include "aerrorhub.h"
 #include "a3global.h"
+#include "aphotonfunctionalhub.h"
 
 #include <QDebug>
 #include <QFile>
@@ -74,6 +75,7 @@ void AConfig::writeToJson(QJsonObject & json, bool addRuntimeExport) const
     AGeometryHub::getInstance().writeToJson(json);
     AInterfaceRuleHub::getInstance().writeToJson(json);
     ASensorHub::getConstInstance().writeToJson(json);
+    APhotonFunctionalHub::getConstInstance().writeToJson(json);
 
     AParticleSimHub::getConstInstance().writeToJson(json, addRuntimeExport);
     APhotonSimHub::getConstInstance().writeToJson(json, addRuntimeExport);
@@ -123,6 +125,9 @@ QString AConfig::tryReadFromJson(const QJsonObject & json)
     if (!Error.isEmpty()) return Error;
 
     AParticleSimHub::getInstance().readFromJson(json);
+    // error handling! !!!***
+
+    APhotonFunctionalHub::getInstance().readFromJson(json);
     // error handling! !!!***
 
     // Reconstruction

@@ -35,6 +35,7 @@ public:
 
     int    countNodes() const;
     double toWavelength(int index) const;
+    void   toWavelength(std::vector<std::pair<double, double>> & waveIndex_I_pairs) const;
     int    toIndex(double wavelength) const;   // TODO: compare with fast method!
     int    toIndexFast(double wavelength) const; //not safe
     // TODO: refactor:
@@ -44,6 +45,7 @@ public:
     void   toStandardBins(const std::vector<std::pair<double,std::complex<double>>> & waveReIm, std::vector<std::complex<double>> & reIm) const;
 
     void   getWavelengthBins(std::vector<double> & wavelength) const;
+    std::vector<double> getVectorOfIndexes() const;
 
 private:
     double getInterpolatedValue(double val, const QVector<double> *X, const QVector<double> *F) const;
@@ -201,16 +203,31 @@ public:
     void    clear();
 };
 
-class APhotonLogSettings   // !!!*** to RunSettings?
+class AVolumeIndexPair
 {
 public:
-    bool    Save     = false;
+    AVolumeIndexPair(TString volume, int index) : Volume(volume), Index(index) {}
+    AVolumeIndexPair() = default;
+
+    TString Volume;
+    int Index;
+};
+
+class APhotonLogSettings
+{
+public:
+    bool    Save     = false;  // !!!*** rename!
     QString FileName = "PhotonLog.txt";
 
-    std::set<int>        MustNotInclude_Processes; // v.fast
-    std::vector<int>     MustInclude_Processes;    // slow
-    std::set<TString>    MustNotInclude_Volumes;   // fast
-    std::vector<TString> MustInclude_Volumes;      // v.slow
+    int MaxNumber = 1000;
+
+    std::set<int>                 MustNotInclude_Processes; // v.fast
+    std::vector<int>              MustInclude_Processes;    // slow
+    std::set<TString>             MustNotInclude_Volumes;   // fast
+    std::vector<AVolumeIndexPair> MustInclude_Volumes;      // v.slow
+
+    void writeToJson(QJsonObject & json) const;
+    void readFromJson(const QJsonObject & json);
 
     void clear();
 };
@@ -249,13 +266,10 @@ public:
     QString FileNameStatistics    = "PhotonStatistics.json";
     double  UpperTimeLimit        = 100;
 
-    bool    SavePhotonLog         = true;
-    QString FileNamePhotonLog     = "PhotonLog.txt";
-
     bool    SaveMonitors          = true;
     QString FileNameMonitors      = "PhotonMonitors.txt";
 
-    APhotonLogSettings LogSet;
+    APhotonLogSettings PhotonLogSet;
 
     void writeToJson(QJsonObject & json, bool addRuntimeExport) const;
     void readFromJson(const QJsonObject & json);

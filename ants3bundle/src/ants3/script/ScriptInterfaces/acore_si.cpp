@@ -529,7 +529,7 @@ bool ACore_SI::readFormat(const QVariantList & format, std::vector<EArrayFormat>
 
 void ACore_SI::readFormattedLine(const QStringList & fields, const std::vector<EArrayFormat> &FormatSelector, QVariantList & el)
 {
-    for (int i = 0; i < (int)FormatSelector.size(); i++)
+    for (int i = 0; i < (int)FormatSelector.size() && i < fields.length(); i++)
     {
         const QString & txt = fields.at(i);
 
@@ -608,7 +608,7 @@ QVariantList ACore_SI::loadArray(const QString & fileName, const QVariantList & 
     return vl;
 }
 
-QVariantList ACore_SI::load3DArray(const QString &fileName, const QString &topSeparator, const QVariantList &format, int recordsFrom, int recordsUntil, bool skipEmpty)
+QVariantList ACore_SI::load3DArray(const QString &fileName, const QString &topSeparator, const QVariantList &format, int recordsFrom, int recordsUntil, bool skipEmpty, bool allowIncomplete)
 {
     QVariantList vl1;
 
@@ -674,7 +674,7 @@ QVariantList ACore_SI::load3DArray(const QString &fileName, const QString &topSe
 
         if (bSkippingRecords) continue;
 
-        if (fields.size() < numEl) continue;
+        if (fields.size() < numEl && !allowIncomplete) continue;
 
         QVariantList el3;
         readFormattedLine(fields, FormatSelector, el3);

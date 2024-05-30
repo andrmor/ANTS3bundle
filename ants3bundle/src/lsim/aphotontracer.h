@@ -32,7 +32,7 @@ enum class EInterRuleResult   {NotTriggered, DelegateLocalNormal, Absorbed, Refl
 class APhotonTracer
 {
 public:
-    APhotonTracer(AOneEvent & event, QTextStream* & streamTracks, QTextStream* & StreamSensorLog);
+    APhotonTracer(AOneEvent & event, QTextStream* & streamTracks, QTextStream* & streamSensorLog, QTextStream* & streamPhotonLog);
 
     void configureTracer();
 
@@ -55,11 +55,13 @@ private:
     AOneEvent                & Event;
     QTextStream*             & StreamTracks;
     QTextStream*             & StreamSensorLog;
+    QTextStream*             & StreamPhotonLog;
     TGeoManager              * GeoManager   = nullptr;
     TGeoNavigator            * Navigator    = nullptr;
 
     APhoton  Photon;                // the photon which is traced
     int      AddedTracks = 0;
+    int      AddedLogs = 0;
     int      TransitionCounter = 0; // number of photon transitions
     double   Rnd;                   // pre-generated random number for accelerated mode
     double   Step;
@@ -70,7 +72,9 @@ private:
     int      MatIndexTo;            // material index of the medium after interface
     bool     bDoFresnel;            // flag - to perform or not the fresnel calculation on the interface
     TString  NameFrom;
+    int      VolumeIndexFrom;
     TString  NameTo;
+    int      VolumeIndexTo;
     double   SpeedOfLight;          // photon speed in current material (MatIndexFrom) in mm/ns
 
     const TGeoVolume * VolumeFrom   = nullptr;
@@ -90,6 +94,8 @@ private:
 
     double _MaxQE = 1.0;
 
+    const int MaxNumberAttemptsGenerateReemissionWavelength = 10; // if failed within this number, photon is forced to absorption
+
     bool initBeforeTracing(const APhoton & phot);
     void initTracks();
     void initPhotonLog();
@@ -101,8 +107,8 @@ private:
     bool enterGrid(int GridNumber);
     bool isOutsideGridBulk();
     void exitGrid();
-    void appendHistoryRecord();    // !!!*** why save photon tracks only those which are not filtered by the log?
-    void savePhotonLogRecord(){}   // !!!***
+    void appendHistoryRecord();
+    void savePhotonLogRecord();
     void saveTrack();
     AInterfaceRule * getInterfaceRule() const; // can return nullptr
     EFresnelResult tryReflection();

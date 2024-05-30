@@ -25,10 +25,11 @@ public:
     double SizeForSensors      = 10.0;
     double SizeForMonitors     = 10.0;
     double SizeForCalorimeters = 10.0;
+    double SizeForPhotFuncts   = 10.0;
 
     void setOrientationRoot(double latitude, double longitude) {Latitude = latitude; Longitude = longitude;}
 
-    enum EDraw {Sensors, PhotMons, PartMons, Calorimeters};
+    enum EDraw {Sensors, PhotMons, PartMons, Calorimeters, PhotonFunctional};
     void drawText(const std::vector<QString> & textVector, int color, EDraw onWhat);
 
     void writeToJson(QJsonObject & json) const;

@@ -42,6 +42,7 @@ signals:
 private:
     bool configureSimulation(const std::vector<AFarmNodeRecord> &RunPlan, A3WorkDistrConfig & Request);
     bool checkDirectories();
+    bool updateRuntimeForFunctionalModels();
     void processReply(const QJsonObject & json);
     void removeOutputFiles();  // !!!*** also remove files in exchange
     void clearFileMergers();
@@ -55,6 +56,7 @@ private:
 
     AFileMerger          SignalFileMerger;
     AFileMerger          SensorLogFileMerger;
+    AFileMerger          PhotonLogFileMerger;
     AFileMerger          TrackFileMerger;
     AFileMerger          BombFileMerger;
 

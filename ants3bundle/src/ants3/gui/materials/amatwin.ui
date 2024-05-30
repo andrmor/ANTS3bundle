@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>569</width>
-    <height>595</height>
+    <height>642</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -1014,6 +1014,12 @@ To use Al with termal scattering, use G4_Al_TS</string>
                          <bold>false</bold>
                         </font>
                        </property>
+                       <property name="contextMenuPolicy">
+                        <enum>Qt::CustomContextMenu</enum>
+                       </property>
+                       <property name="toolTip">
+                        <string>Right click to show binned values for currently configured simulation wavelength range</string>
+                       </property>
                        <property name="text">
                         <string>Show</string>
                        </property>
@@ -1164,6 +1170,12 @@ Wavelengths shoul be given in increasing order</string>
                         <font>
                          <bold>false</bold>
                         </font>
+                       </property>
+                       <property name="contextMenuPolicy">
+                        <enum>Qt::CustomContextMenu</enum>
+                       </property>
+                       <property name="toolTip">
+                        <string>Right click to show binned values for currently configured simulation wavelength range</string>
                        </property>
                        <property name="text">
                         <string>Show</string>
@@ -1639,6 +1651,82 @@ Wavelengths shoul be given in increasing order</string>
             </layout>
            </item>
            <item>
+            <widget class="QLabel" name="label_43">
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="Line" name="line_4">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_19">
+             <property name="topMargin">
+              <number>0</number>
+             </property>
+             <item>
+              <widget class="QLabel" name="label_41">
+               <property name="minimumSize">
+                <size>
+                 <width>200</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="toolTip">
+                <string>Intended for simplisitc modeling of opaque materials:Assumes isotropic distribution of scattering</string>
+               </property>
+               <property name="text">
+                <string>Isotropic scattering MFP:</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="ledCustoimScatterMFP">
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>21</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>85</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="toolTip">
+                <string>Keep empty to disable custom scattering</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLabel" name="label_42">
+               <property name="text">
+                <string>mm</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer name="horizontalSpacer_34">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+            </layout>
+           </item>
+           <item>
             <widget class="QLabel" name="label_35">
              <property name="text">
               <string/>
@@ -1750,6 +1838,12 @@ Wavelengths shoul be given in increasing order</string>
                  <bold>false</bold>
                 </font>
                </property>
+               <property name="contextMenuPolicy">
+                <enum>Qt::CustomContextMenu</enum>
+               </property>
+               <property name="toolTip">
+                <string>Right click to show binned values for currently configured simulation wavelength range</string>
+               </property>
                <property name="text">
                 <string>Show</string>
                </property>
@@ -1807,6 +1901,46 @@ Wavelengths shoul be given in increasing order</string>
              </item>
              <item>
               <spacer name="horizontalSpacer_26">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_18">
+             <property name="leftMargin">
+              <number>0</number>
+             </property>
+             <property name="topMargin">
+              <number>0</number>
+             </property>
+             <item>
+              <widget class="QLabel" name="label_21">
+               <property name="text">
+                <string/>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QCheckBox" name="cbIgnoreEnergyConservation">
+               <property name="toolTip">
+                <string>Reemitted photon's wavelength will be sampled from the entire emission spectrum, disreguarding energy conservation</string>
+               </property>
+               <property name="text">
+                <string>Ignore energy conservation</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer name="horizontalSpacer_15">
                <property name="orientation">
                 <enum>Qt::Horizontal</enum>
                </property>
@@ -1966,6 +2100,12 @@ Wavelengths shoul be given in increasing order</string>
                     <font>
                      <bold>false</bold>
                     </font>
+                   </property>
+                   <property name="contextMenuPolicy">
+                    <enum>Qt::CustomContextMenu</enum>
+                   </property>
+                   <property name="toolTip">
+                    <string>Right click to show binned values for currently configured simulation wavelength range</string>
                    </property>
                    <property name="text">
                     <string>Show</string>
@@ -2500,6 +2640,12 @@ Wavelengths shoul be given in increasing order</string>
                    <property name="enabled">
                     <bool>false</bool>
                    </property>
+                   <property name="contextMenuPolicy">
+                    <enum>Qt::CustomContextMenu</enum>
+                   </property>
+                   <property name="toolTip">
+                    <string>Right click to show binned values for currently configured simulation wavelength range</string>
+                   </property>
                    <property name="text">
                     <string>Show</string>
                    </property>
@@ -2935,7 +3081,7 @@ Wavelengths shoul be given in increasing order</string>
    <hints>
     <hint type="sourcelabel">
      <x>318</x>
-     <y>469</y>
+     <y>505</y>
     </hint>
     <hint type="destinationlabel">
      <x>559</x>
@@ -2967,7 +3113,7 @@ Wavelengths shoul be given in increasing order</string>
    <hints>
     <hint type="sourcelabel">
      <x>318</x>
-     <y>469</y>
+     <y>505</y>
     </hint>
     <hint type="destinationlabel">
      <x>438</x>
@@ -2977,13 +3123,13 @@ Wavelengths shoul be given in increasing order</string>
   </connection>
   <connection>
    <sender>ledRayleigh</sender>
-   <signal>editingFinished()</signal>
+   <signal>textChanged(QString)</signal>
    <receiver>pbWasModified</receiver>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>311</x>
-     <y>412</y>
+     <y>411</y>
     </hint>
     <hint type="destinationlabel">
      <x>438</x>
@@ -3014,8 +3160,8 @@ Wavelengths shoul be given in increasing order</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>111</x>
-     <y>508</y>
+     <x>131</x>
+     <y>578</y>
     </hint>
     <hint type="destinationlabel">
      <x>438</x>
@@ -3110,8 +3256,8 @@ Wavelengths shoul be given in increasing order</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>111</x>
-     <y>508</y>
+     <x>131</x>
+     <y>578</y>
     </hint>
     <hint type="destinationlabel">
      <x>559</x>
@@ -3143,7 +3289,7 @@ Wavelengths shoul be given in increasing order</string>
    <hints>
     <hint type="sourcelabel">
      <x>440</x>
-     <y>412</y>
+     <y>411</y>
     </hint>
     <hint type="destinationlabel">
      <x>559</x>
@@ -3175,7 +3321,7 @@ Wavelengths shoul be given in increasing order</string>
    <hints>
     <hint type="sourcelabel">
      <x>311</x>
-     <y>412</y>
+     <y>411</y>
     </hint>
     <hint type="destinationlabel">
      <x>559</x>
@@ -3297,7 +3443,7 @@ Wavelengths shoul be given in increasing order</string>
   </connection>
   <connection>
    <sender>ledReN</sender>
-   <signal>editingFinished()</signal>
+   <signal>textChanged(QString)</signal>
    <receiver>pbWasModified</receiver>
    <slot>click()</slot>
    <hints>
@@ -3313,13 +3459,13 @@ Wavelengths shoul be given in increasing order</string>
   </connection>
   <connection>
    <sender>ledImN</sender>
-   <signal>editingFinished()</signal>
+   <signal>textChanged(QString)</signal>
    <receiver>pbWasModified</receiver>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>117</x>
-     <y>267</y>
+     <x>112</x>
+     <y>271</y>
     </hint>
     <hint type="destinationlabel">
      <x>418</x>
@@ -3350,8 +3496,8 @@ Wavelengths shoul be given in increasing order</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>117</x>
-     <y>267</y>
+     <x>112</x>
+     <y>271</y>
     </hint>
     <hint type="destinationlabel">
      <x>559</x>
@@ -3489,7 +3635,7 @@ Wavelengths shoul be given in increasing order</string>
   </connection>
   <connection>
    <sender>ledMeanExcitationEnergy</sender>
-   <signal>editingFinished()</signal>
+   <signal>textChanged(QString)</signal>
    <receiver>pbWasModified</receiver>
    <slot>click()</slot>
    <hints>
@@ -3644,6 +3790,54 @@ Wavelengths shoul be given in increasing order</string>
     <hint type="destinationlabel">
      <x>546</x>
      <y>38</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cbIgnoreEnergyConservation</sender>
+   <signal>clicked()</signal>
+   <receiver>pbWasModified</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>238</x>
+     <y>562</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>402</x>
+     <y>38</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cbIgnoreEnergyConservation</sender>
+   <signal>clicked()</signal>
+   <receiver>pbUpdateTmpMaterial</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>238</x>
+     <y>562</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>520</x>
+     <y>42</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ledCustoimScatterMFP</sender>
+   <signal>textChanged(QString)</signal>
+   <receiver>pbWasModified</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>287</x>
+     <y>435</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>374</x>
+     <y>35</y>
     </hint>
    </hints>
   </connection>

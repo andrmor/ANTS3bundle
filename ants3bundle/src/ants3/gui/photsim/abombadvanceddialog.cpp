@@ -1,12 +1,15 @@
 #include "abombadvanceddialog.h"
 #include "ui_abombadvanceddialog.h"
 #include "aphotonsimhub.h"
+#include "guitools.h"
 
 ABombAdvancedDialog::ABombAdvancedDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::ABombAdvancedDialog)
 {
     ui->setupUi(this);
+
+    YellowCircle = guitools::createColorCirclePixmap({15,15}, Qt::yellow);
 
     QDoubleValidator* dv = new QDoubleValidator(this);
     dv->setNotation(QDoubleValidator::ScientificNotation);
@@ -88,5 +91,29 @@ void ABombAdvancedDialog::on_cobDirectionMode_currentIndexChanged(int index)
 {
     ui->frNonIsotropic->setEnabled(index != 0);
     ui->fConeForPhotonGen->setEnabled(index == 2);
+
+    ui->twAdvSimOpt->setTabIcon(0, (index == 0 ? QIcon() : YellowCircle));
+}
+
+void ABombAdvancedDialog::on_cbFixWave_toggled(bool checked)
+{
+    ui->twAdvSimOpt->setTabIcon(1, (checked ? YellowCircle : QIcon()));
+}
+
+void ABombAdvancedDialog::on_cbFixedDecay_toggled(bool checked)
+{
+    ui->twAdvSimOpt->setTabIcon(2, (checked ? YellowCircle : QIcon()));
+}
+
+void ABombAdvancedDialog::on_cbSkipByVolume_toggled(bool)
+{
+    bool flag = ui->cbSkipByVolume->isChecked() || ui->cbSkipByMaterial->isChecked();
+    ui->twAdvSimOpt->setTabIcon(3, (flag ? YellowCircle : QIcon()));
+}
+
+void ABombAdvancedDialog::on_cbSkipByMaterial_toggled(bool)
+{
+    bool flag = ui->cbSkipByVolume->isChecked() || ui->cbSkipByMaterial->isChecked();
+    ui->twAdvSimOpt->setTabIcon(3, (flag ? YellowCircle : QIcon()));
 }
 

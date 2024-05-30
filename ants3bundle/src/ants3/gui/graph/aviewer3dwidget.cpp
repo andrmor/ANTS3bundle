@@ -7,7 +7,7 @@
 #include "TCanvas.h"
 
 AViewer3DWidget::AViewer3DWidget(AViewer3D * viewer, EViewType viewType) :
-    QWidget(viewer), Viewer(viewer), ViewType(viewType),
+    QWidget(viewer), Viewer(viewer), Settings(viewer->Settings), ViewType(viewType),
     ui(new Ui::AViewer3DWidget)
 {
     ui->setupUi(this);
@@ -20,6 +20,10 @@ AViewer3DWidget::AViewer3DWidget(AViewer3D * viewer, EViewType viewType) :
     ui->horizontalLayout->insertWidget(0, RasterWindow);
     RasterWindow->ForceResize();
     RasterWindow->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+
+    RasterWindow->fCanvas->SetRightMargin(0.15);
+    RasterWindow->fCanvas->SetTopMargin(0.05);
+    //RasterWindow->fCanvas->SetBottomMargin(0.1);
 
     connect(RasterWindow, &RasterWindowGraphClass::reportCursorPosition, this, &AViewer3DWidget::onRasterCursorPositionChanged);
     connect(RasterWindow, &RasterWindowGraphClass::cursorLeftBoundaries, this, &AViewer3DWidget::onCursorLeftRaster);
@@ -41,6 +45,7 @@ bool AViewer3DWidget::init()
     {
     case XY:
         ui->lAxis->setText("Z:");
+        ui->lAxis2->setText("Z");
 
         ui->sbPosition->setMaximum(Viewer->NumBinsZ-1);
         ui->hsPosition->setMaximum(Viewer->NumBinsZ-1);
@@ -54,6 +59,7 @@ bool AViewer3DWidget::init()
         break;
     case XZ:
         ui->lAxis->setText("Y:");
+        ui->lAxis2->setText("Y");
 
         ui->sbPosition->setMaximum(Viewer->NumBinsY-1);
         ui->hsPosition->setMaximum(Viewer->NumBinsY-1);
@@ -67,6 +73,7 @@ bool AViewer3DWidget::init()
         break;
     case YZ:
         ui->lAxis->setText("X:");
+        ui->lAxis2->setText("X");
 
         ui->sbPosition->setMaximum(Viewer->NumBinsX-1);
         ui->hsPosition->setMaximum(Viewer->NumBinsX-1);
@@ -85,70 +92,159 @@ bool AViewer3DWidget::init()
     return true;
 }
 
+#include "ajsontools.h"
+void AViewer3DWidget::writeToJson(QJsonObject & json) const
+{
+    json["Position"] = ui->sbPosition->value();
+
+    double xfrom, yfrom, xto, yto;
+    getShownHistRange(xfrom, yfrom, xto, yto);
+
+    json["Xfrom"] = xfrom;
+    json["Yfrom"] = yfrom;
+    json["Xto"] = xto;
+    json["Yto"] = yto;
+}
+
+void AViewer3DWidget::readFromJson(const QJsonObject & json)
+{
+    int pos = 0;
+    jstools::parseJson(json, "Position", pos);
+    ui->sbPosition->setValue(pos);
+
+    double xfrom, yfrom, xto, yto;
+    jstools::parseJson(json, "Xfrom", xfrom);
+    jstools::parseJson(json, "Yfrom", yfrom);
+    jstools::parseJson(json, "Xto", xto);
+    jstools::parseJson(json, "Yto", yto);
+    applyShownHistRange(xfrom, yfrom, xto, yto);
+}
+
+void AViewer3DWidget::saveImage(const QString & fileName)
+{
+    RasterWindow->SaveAs(fileName);
+}
+
+void AViewer3DWidget::saveRoot(const QString & fileName)
+{
+    Hist->SaveAs(fileName.toLatin1().data());
+}
+
+void AViewer3DWidget::exportToBasket(const QString & name)
+{
+    emit requestExportToBasket(Hist, "colz", name);
+}
+
+double AViewer3DWidget::getAveragedValue(int ixCenter, int iyCenter, int izCenter)
+{
+    const int ixFrom = ixCenter - Settings.AdjacentBeforeAfter[0].first;
+    const int ixTo   = ixCenter + Settings.AdjacentBeforeAfter[0].second;
+    const int iyFrom = iyCenter - Settings.AdjacentBeforeAfter[1].first;
+    const int iyTo   = iyCenter + Settings.AdjacentBeforeAfter[1].second;
+    const int izFrom = izCenter - Settings.AdjacentBeforeAfter[2].first;
+    const int izTo   = izCenter + Settings.AdjacentBeforeAfter[2].second;
+
+    double val = 0;
+    int num = 0;
+    for (int ix = ixFrom; ix <= ixTo; ix++)
+    {
+        if (ix < 0 || ix >= Viewer->NumBinsX) continue;
+        for (int iy = iyFrom; iy < iyTo+1; iy++)
+        {
+            if (iy < 0 || iy >= Viewer->NumBinsY) continue;
+            for (int iz = izFrom; iz < izTo+1; iz++)
+            {
+                if (iz < 0 || iz >= Viewer->NumBinsZ) continue;
+                val += Viewer->Data[ix][iy][iz];
+                num++;
+            }
+        }
+    }
+    return val / num; // there will be always at least one (in the center)
+}
+
 void AViewer3DWidget::redraw()
 {
     if (!Hist) return;
 
     Hist->Reset("ICESM");
-    //QString title;
-    QString labName;
-    QString horName, vertName, offName;
     double offPos = 0;
+
+    double factor = (Settings.ApplyScaling ? 1.0/Settings.ScalingFactor : 1.0);
 
     switch (ViewType)
     {
     case XY:
       {
-        labName = "Transverse";
-        horName = "X"; vertName = "Y"; offName = "Z=";
+        //labName = "Transverse";
+        //horName = "X"; vertName = "Y"; offName = "Z=";
         int iz = ui->sbPosition->value();
         offPos = Viewer->binToCenterPosition(AViewer3D::Zaxis, iz);
         //title = QString("Transverse (XY at Z = %0 mm)").arg(z);
-        for (size_t iy = 0; iy < Viewer->NumBinsY; iy++)
-            for (size_t ix = 0; ix < Viewer->NumBinsX; ix++)
-                Hist->SetBinContent(ix, iy, Viewer->Data[ix][iy][iz] * Viewer->ScalingFactor);
+        for (int iy = 0; iy < Viewer->NumBinsY; iy++)
+            for (int ix = 0; ix < Viewer->NumBinsX; ix++)
+            {
+                double val;
+                if (!Settings.ApplyAdjacentAveraging)
+                    val = Viewer->Data[ix][iy][iz];
+                else
+                    val = getAveragedValue(ix, iy, iz);
+                Hist->SetBinContent(ix, iy, val * factor);
+            }
         break;
       }
     case XZ:
       {
-        labName = "Coronal";
-        horName = "X"; vertName = "Z"; offName = "Y=";
+        //labName = "Coronal";
+        //horName = "X"; vertName = "Z"; offName = "Y=";
         int iy = ui->sbPosition->value();
         offPos = Viewer->binToCenterPosition(AViewer3D::Yaxis, iy);
         //title = QString("Coronal (XZ at Y = %0 mm)").arg(y);
-        for (size_t iz = 0; iz < Viewer->NumBinsZ; iz++)
-            for (size_t ix = 0; ix < Viewer->NumBinsX; ix++)
-                Hist->SetBinContent(ix, iz, Viewer->Data[ix][iy][iz] * Viewer->ScalingFactor);
+        for (int iz = 0; iz < Viewer->NumBinsZ; iz++)
+            for (int ix = 0; ix < Viewer->NumBinsX; ix++)
+            {
+                double val;
+                if (!Settings.ApplyAdjacentAveraging)
+                    val = Viewer->Data[ix][iy][iz];
+                else
+                    val = getAveragedValue(ix, iy, iz);
+                Hist->SetBinContent(ix, iz, val * factor);
+            }
         break;
       }
     case YZ:
       {
-        labName = "Sagittal";
-        horName = "Y"; vertName = "Z"; offName = "X=";
+        //labName = "Sagittal";
+        //horName = "Y"; vertName = "Z"; offName = "X=";
         int ix = ui->sbPosition->value();
         offPos = Viewer->binToCenterPosition(AViewer3D::Xaxis, ix);
         //title = QString("Sagittal (YZ at X = %0 mm)").arg(x);
-        for (size_t iz = 0; iz < Viewer->NumBinsZ; iz++)
-            for (size_t iy = 0; iy < Viewer->NumBinsY; iy++)
-                Hist->SetBinContent(iy, iz, Viewer->Data[ix][iy][iz] * Viewer->ScalingFactor);
+        for (int iz = 0; iz < Viewer->NumBinsZ; iz++)
+            for (int iy = 0; iy < Viewer->NumBinsY; iy++)
+            {
+                double val;
+                if (!Settings.ApplyAdjacentAveraging)
+                    val = Viewer->Data[ix][iy][iz];
+                else
+                    val = getAveragedValue(ix, iy, iz);
+                Hist->SetBinContent(iy, iz, val * factor);
+            }
         break;
       }
     }
-    //ui->lView->setText(title);
-    ui->lLabName->setText(labName + ": ");
-    ui->lLabHorAxisName->setText(horName);
-    ui->lLabVertAxisName->setText(vertName);
-    ui->lLabOffAxisName->setText(offName);
-    ui->lLabHorAxisPos->setText("");
-    ui->lLabVertAxisPos->setText("");
-    ui->lLabOffAxisPos->setText(QString::number(offPos, 'g', 4));
-    ui->lPosition->setText( QString::number(offPos) );
+    ui->ledPosition->setText( QString::number(offPos) );
 
-    switch (Viewer->MaximumMode)
+    switch (Settings.MaximumMode)
     {
-    case AViewer3D::GlobalMax : Hist->SetMaximum(Viewer->GlobalMaximum * Viewer->ScalingFactor); break;
-    case AViewer3D::FixedMax  : Hist->SetMaximum(Viewer->FixedMaximum  * Viewer->ScalingFactor); break;
+    case AViewer3DSettings::GlobalMax : Hist->SetMaximum(Viewer->GlobalMaximum * factor); break;
+    case AViewer3DSettings::FixedMax  : Hist->SetMaximum(Settings.FixedMaximum * factor); break;
     default: break;
+    }
+
+    if (Settings.SuppressZero)
+    {
+        Hist->SetMinimum(-1e-300);
+        if (Hist->GetMaximum() == 0) Hist->SetMaximum(1e-99);
     }
 
     RasterWindow->fCanvas->cd();
@@ -165,6 +261,8 @@ void AViewer3DWidget::showCrossHair(double hor, double vert)
 
 void AViewer3DWidget::requestShowCrossHair(double x, double y, double z)
 {
+    if (!Settings.ShowPositionLines) return;
+
     switch (ViewType)
     {
     case XY:
@@ -191,44 +289,68 @@ void AViewer3DWidget::requestShowCrossHair(double x, double y, double z)
 void AViewer3DWidget::onRasterCursorPositionChanged(double x, double y, bool)
 {
     //qDebug() << x << y << bOn;
-    ui->lLabHorAxisPos->setText("=" + QString::number(x, 'g', 4));
-    ui->lLabVertAxisPos->setText("=" + QString::number(y, 'g', 4));
-    ui->lLabHorAxisPos->setVisible(true);
-    ui->lLabVertAxisPos->setVisible(true);
+    //ui->lLabHorAxisPos->setText("=" + QString::number(x, 'g', 4));
+    //ui->lLabVertAxisPos->setText("=" + QString::number(y, 'g', 4));
+    //ui->lLabHorAxisPos->setVisible(true);
+    //ui->lLabVertAxisPos->setVisible(true);
 
     bool ok;
     double X, Y, Z; // absolute coordinates
+    int horBin, verBin;
+    double val = 0; // hist value in the bin under cursor
     switch (ViewType)
     {
-    case XY:
-    {
+     case XY:
+      {
         //qDebug() << "Emitting from XY";
-        Z = ui->lPosition->text().toDouble(&ok);
+        Z = ui->ledPosition->text().toDouble(&ok);
         if (!ok) Z = 0;
         X = x;
         Y = y;
+
+        horBin = 1 + Viewer->positionToBin(AViewer3D::Xaxis, x);
+        verBin = 1 + Viewer->positionToBin(AViewer3D::Yaxis, y);
+
         break;
-    }
-    case XZ:
-    {
+      }
+     case XZ:
+      {
         //qDebug() << "Emitting from XZ";
-        Y = ui->lPosition->text().toDouble(&ok);
+        Y = ui->ledPosition->text().toDouble(&ok);
         if (!ok) Y = 0;
         X = x;
         Z = y;
+
+        horBin = 1 + Viewer->positionToBin(AViewer3D::Xaxis, x);
+        verBin = 1 + Viewer->positionToBin(AViewer3D::Zaxis, y);
+
         break;
-    }
-    case YZ:
-    {
+      }
+     case YZ:
+     {
         //qDebug() << "Emitting from YZ";
-        X = ui->lPosition->text().toDouble(&ok);
+        X = ui->ledPosition->text().toDouble(&ok);
         if (!ok) X = 0;
         Y = x;
         Z = y;
+
+        horBin = 1 + Viewer->positionToBin(AViewer3D::Yaxis, x);
+        verBin = 1 + Viewer->positionToBin(AViewer3D::Zaxis, y);
+
         break;
+     }
     }
+
+    if (Hist)
+    {
+        if (horBin > 0 && horBin <= Hist->GetNbinsX() && verBin > 0 && verBin <= Hist->GetNbinsY())
+        {
+            int bin = Hist->GetBin(horBin, verBin);
+            val = Hist->GetBinContent(bin);
+        }
     }
-    emit cursorPositionChanged(X, Y, Z);
+
+    emit cursorPositionChanged(X, Y, Z, val);
 }
 
 void AViewer3DWidget::onCursorLeftRaster()
@@ -239,8 +361,8 @@ void AViewer3DWidget::onCursorLeftRaster()
     //ui->lLabHorAxisPos->setText("");  // Bug in Qt: leaves ghost marks on the label, need to use vis/invisble switch to fix
     //ui->lLabVertAxisPos->setText("");
     //ui->hlLabel->update();            // does not help
-    ui->lLabHorAxisPos->setVisible(false);
-    ui->lLabVertAxisPos->setVisible(false);
+    //ui->lLabHorAxisPos->setVisible(false);
+    //ui->lLabVertAxisPos->setVisible(false);
 
     emit cursorLeftVisibleArea();
 }
@@ -302,6 +424,102 @@ void AViewer3DWidget::on_sbPosition_valueChanged(int arg1)
     case YZ: val = Viewer->binToCenterPosition(AViewer3D::Xaxis, arg1); break;
     }
 
-    ui->lPosition->setText( QString::number(val) );
+    ui->ledPosition->setText( QString::number(val) );
+}
+
+void AViewer3DWidget::on_ledPosition_editingFinished()
+{
+    double pos = ui->ledPosition->text().toDouble();
+    AViewer3D::EAxis axis;
+
+    switch (ViewType)
+    {
+      case XY: axis = AViewer3D::Zaxis; break;
+      case XZ: axis = AViewer3D::Yaxis; break;
+      case YZ: axis = AViewer3D::Xaxis; break;
+    }
+
+    int bin = Viewer->positionToBin(axis, pos);
+    ui->sbPosition->setValue(bin);
+    redraw();
+}
+
+#include <QDialog>
+#include "TMath.h"
+void AViewer3DWidget::getShownHistRange(double & xfrom, double & yfrom, double & xto, double & yto) const
+{
+    RasterWindow->fCanvas->GetRangeAxis(xfrom, yfrom, xto, yto);
+    if (RasterWindow->fCanvas->GetLogx())
+    {
+        xfrom = TMath::Power(10.0, xfrom);
+        xto = TMath::Power(10.0, xto);
+    }
+    if (RasterWindow->fCanvas->GetLogy())
+    {
+        yfrom = TMath::Power(10.0, yfrom);
+        yto = TMath::Power(10.0, yto);
+    }
+}
+
+void AViewer3DWidget::applyShownHistRange(double & xfrom, double & yfrom, double & xto, double & yto)
+{
+    Hist->GetXaxis()->SetRangeUser(xfrom, xto);
+    Hist->GetYaxis()->SetRangeUser(yfrom, yto);
+}
+
+void AViewer3DWidget::on_pbZoom_clicked()
+{
+    double xfrom, yfrom, xto, yto;
+    getShownHistRange(xfrom, yfrom, xto, yto);
+
+    QDialog d(this);
+    d.setWindowTitle("Apply zoom");
+    QGridLayout * gl = new QGridLayout(&d);
+    gl->addWidget(new QLabel("From"), 0, 1);
+    gl->addWidget(new QLabel("To"),   0, 2);
+    QString XLabel, YLabel;
+    switch (ViewType)
+    {
+    case XY: XLabel = "X"; YLabel = "Y"; break;
+    case XZ: XLabel = "X"; YLabel = "Z"; break;
+    case YZ: XLabel = "Y"; YLabel = "Z"; break;
+    }
+    gl->addWidget(new QLabel(XLabel+":"), 1, 0);
+    gl->addWidget(new QLabel(YLabel+":"), 2, 0);
+
+    QLineEdit * ledXfrom = new QLineEdit(QString::number(xfrom)); gl->addWidget(ledXfrom, 1,1);
+    QLineEdit * ledXto   = new QLineEdit(QString::number(xto));   gl->addWidget(ledXto,   1,2);
+
+    QLineEdit * ledYfrom = new QLineEdit(QString::number(yfrom)); gl->addWidget(ledYfrom, 2,1);
+    QLineEdit * ledYto   = new QLineEdit(QString::number(yto));   gl->addWidget(ledYto,   2,2);
+
+    QHBoxLayout * hl = new QHBoxLayout();
+    QPushButton * pbAccept = new QPushButton("Accept"); hl->addWidget(pbAccept);
+    QPushButton * pbCancel = new QPushButton("Cancel"); hl->addWidget(pbCancel);
+    gl->addLayout(hl, 3, 0, 1, 3);
+
+    connect(pbAccept, &QPushButton::clicked, &d, &QDialog::accept);
+    connect(pbCancel, &QPushButton::clicked, &d, &QDialog::reject);
+
+    QDoubleValidator * dv = new QDoubleValidator(&d);
+    ledXfrom->setValidator(dv);
+    ledXto->setValidator(dv);
+    ledYfrom->setValidator(dv);
+    ledYto->setValidator(dv);
+
+    QPoint pos = mapToGlobal( QPoint(ui->pbZoom->x(), ui->pbZoom->y()) );
+    pos -= QPoint{50, 30};
+    d.move(pos);
+
+    int res = d.exec();
+    if (res == QDialog::Rejected) return;
+
+    xfrom = ledXfrom->text().toDouble();
+    xto   = ledXto  ->text().toDouble();
+    yfrom = ledYfrom->text().toDouble();
+    yto   = ledYto  ->text().toDouble();
+
+    applyShownHistRange(xfrom, yfrom, xto, yto);
+    redraw();
 }
 

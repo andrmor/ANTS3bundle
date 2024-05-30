@@ -18,6 +18,9 @@
 #include "asensorhub.h"
 #include "aphotonbombfilehandler.h"
 #include "anoderecord.h"
+#include "aphotonhistorylog.h"
+#include "aphotonloghandler.h"
+#include "aphotonlogsettingsform.h"
 
 #include <QDebug>
 #include <QLabel>
@@ -68,12 +71,18 @@ APhotSimWin::APhotSimWin(QWidget * parent) :
     YellowCircle = guitools::createColorCirclePixmap({15,15}, Qt::yellow);
     ui->labAdvancedBombOn->setPixmap(YellowCircle);
     ui->labSkipTracingON->setPixmap(YellowCircle);
-    ui->labPhotonsPerBombWarning->setPixmap(YellowCircle);
+    ui->labPhotonsPerBombWarning->setPixmap(YellowCircle); ui->labPhotonsPerBombWarning->setVisible(false);
 
     gvSensors = new ASensorDrawWidget(this);
     QVBoxLayout * lV = new QVBoxLayout(ui->frSensorDraw);
     lV->setContentsMargins(2,2,2,2);
     lV->addWidget(gvSensors);
+
+    LogForm = new APhotonLogSettingsForm();
+    ui->verticalLayout_Log->insertWidget(4, LogForm);
+    connect(ui->cbLogAdditionalFilters, &QCheckBox::toggled, LogForm, &APhotonLogSettingsForm::setVisible);
+    LogForm->setVisible(ui->cbLogAdditionalFilters->isChecked());
+    LogForm->setNumber(100);
 
     updateGui();
 }
@@ -166,6 +175,8 @@ void APhotSimWin::updateGui()
     updateDepoGui();
     updateBombFileGui();
     updatePhotonFileGui();
+
+    updateMonitorGui();
 
     updateGeneralSettingsGui();
 }
@@ -437,11 +448,15 @@ void APhotSimWin::on_ledSingleZ_editingFinished()
     SimSet.BombSet.SingleSettings.Position[2] = ui->ledSingleZ->text().toDouble();
 }
 
+#include "a3global.h"
 void APhotSimWin::on_pbSimulate_clicked()
 {
     double seed = 0; // INT_MAX * ARandomHub::getInstance().uniform()
     if (!ui->cbRandomSeed->isChecked()) seed = ui->sbSeed->value();
     SimSet.RunSet.Seed = seed;
+
+    A3Global::getInstance().saveConfig();
+    AConfig::getInstance().save(A3Global::getInstance().QuicksaveDir + "/QuickSave0.json");
 
     ui->progbSim->setValue(0);
     disableInterface(true);
@@ -531,6 +546,9 @@ void APhotSimWin::on_pbLoadAllResults_clicked()
 
     ui->leTracksFile->setText(Set.FileNameTracks);
     loadTracks(true);
+
+    ui->leLogFile->setText(Set.PhotonLogSet.FileName);
+    delete LogHandler; LogHandler = nullptr;
 }
 
 void APhotSimWin::reshapeSensorSignalTable()
@@ -791,6 +809,7 @@ void APhotSimWin::loadStatistics(bool suppressMessage)
         "InterfaceRule, back: "    + QString::number(Stat.InterfaceRuleBack)    + "\n" +
         "InterfaceRule, forward: " + QString::number(Stat.InterfaceRuleForward) + "\n" +
         "Rayleigh: "               + QString::number(Stat.Rayleigh)             + "\n" +
+        "Custom scatter: "         + QString::number(Stat.CustomScatter)        + "\n" +
         "Reemission: "             + QString::number(Stat.Reemission)           + "\n";
 
     ui->ptePhotonProcesses->clear();
@@ -817,7 +836,23 @@ void APhotSimWin::on_pbShowTransitionDistr_clicked()
     if (Stat.TransitionDistr)
         emit requestDraw(Stat.TransitionDistr, "hist", false, true);
 }
+#include "ajsontoolsroot.h"
+#include "agraphbuilder.h"
 void APhotSimWin::on_pbShowWaveDistr_clicked()
+{
+    APhotonStatistics & Stat = AStatisticsHub::getInstance().SimStat;
+    const AWaveResSettings & WaveSet = APhotonSimHub::getConstInstance().Settings.WaveSet;
+    if (Stat.WaveDistr)
+    {
+        std::vector<std::pair<double,double>> content;
+        jstools::histToArray_lowerEdge(Stat.WaveDistr, content);
+        WaveSet.toWavelength(content);
+        TGraph * g = AGraphBuilder::graph(content);
+        AGraphBuilder::configure(g, "Spectrum", "Wavelength, nm", "");
+        emit requestDraw(g, "apl", true, true);
+    }
+}
+void APhotSimWin::on_pbShowWaveDistr_customContextMenuRequested(const QPoint &)
 {
     APhotonStatistics & Stat = AStatisticsHub::getInstance().SimStat;
     if (Stat.WaveDistr)
@@ -896,7 +931,11 @@ void APhotSimWin::updateMonitorGui()
             ui->cobMonitor->setCurrentIndex(oldNum);
             ui->sbMonitorIndex->setValue(oldNum);
         }
-        else ui->sbMonitorIndex->setValue(0);
+        else
+        {
+            ui->cobMonitor->setCurrentIndex(0);
+            ui->sbMonitorIndex->setValue(0);
+        }
 
         const int imon = ui->cobMonitor->currentIndex();
         const AMonitor & Mon = *MonitorHub.PhotonMonitors[imon].Monitor;
@@ -929,13 +968,17 @@ void APhotSimWin::on_pbNextMonitor_clicked()
     int numMon = MonitorHub.countMonitors(AMonitorHub::Photon);
     if (numMon == 0) return;
 
-    int iMon = ui->cobMonitor->currentIndex();
+    int iMon = ui->cobMonitor->currentIndex(); // can be -1 on start!
     int iMonStart = iMon;
-    int hits;
+    int hits = 0;
     do
     {
         iMon++;
-        if (iMon >= numMon) iMon = 0;
+        if (iMon >= numMon)
+        {
+            if (iMonStart == -1) return;
+            iMon = 0;
+        }
         if (iMon == iMonStart) return;
         hits = MonitorHub.PhotonMonitors[iMon].Monitor->getHits();
     }
@@ -1430,7 +1473,7 @@ void APhotSimWin::on_pbChangeWorkingDir_clicked()
 
 void APhotSimWin::on_tbwResults_currentChanged(int index)
 {
-    ui->frEventNumber->setVisible(index > 1);
+    ui->frEventNumber->setVisible(index > 1 && index < 5);
 }
 
 void APhotSimWin::on_pbShowEvent_clicked()
@@ -1753,4 +1796,120 @@ void APhotSimWin::on_sbEvent_editingFinished()
     on_pbShowEvent_clicked();
     ui->sbEvent->blockSignals(false);
     //ui->sbEvent->setFocus();
+}
+
+void APhotSimWin::on_pbSelectLogFile_clicked()
+{
+    QString fileName = QFileDialog::getOpenFileName(this, "Select file with photon log data", SimSet.RunSet.OutputDirectory);
+    if (!fileName.isEmpty()) ui->leLogFile->setText(fileName);
+}
+
+QString APhotSimWin::initPhotonLogHandler()
+{
+    QString fileName = ui->leLogFile->text();
+    if (fileName.isEmpty()) return "File name not selected";
+    if (!fileName.contains('/')) fileName = ui->leResultsWorkingDir->text() + '/' + fileName;
+
+    delete LogHandler; LogHandler = new APhotonLogHandler();
+    bool ok = LogHandler->init(fileName);
+
+    if (!ok)
+    {
+        QString err = LogHandler->ErrorString;
+        delete LogHandler; LogHandler = nullptr;
+        return err;
+    }
+    return "";
+}
+
+void APhotSimWin::on_pbPhotonLog_first_clicked()
+{
+    QString err = initPhotonLogHandler();
+    if (!err.isEmpty())
+    {
+        ui->pteLog->clear();
+        guitools::message(err, this);
+        return;
+    }
+    showLogRecord();
+}
+
+void APhotSimWin::showLogRecord()
+{
+    ui->pteLog->clear();
+
+    bool ok;
+    if (ui->cbLogAdditionalFilters->isChecked())
+    {
+        APhotonLogSettings sets;
+        QString err = LogForm->updateSettings(sets);
+        if (!err.isEmpty())
+        {
+            guitools::message(err, this);
+            return;
+        }
+        ok = LogHandler->readNextPhotonLogFiltered(sets);
+    }
+    else ok = LogHandler->readNextPhotonLog();
+
+    if (!ok)
+    {
+        delete LogHandler; LogHandler = nullptr;
+        guitools::message(LogHandler->ErrorString, this);
+        return;
+    }
+
+    QString txt;
+    LogHandler->logToText(txt);
+    ui->pteLog->appendPlainText(txt);
+
+    TGeoManager * GeoManager = AGeometryHub::getInstance().GeoManager;
+    GeoManager->ClearTracks();
+
+    LogHandler->populateTrack();
+
+    emit requestShowGeometry();
+    emit requestShowTracks();
+}
+
+void APhotSimWin::on_pbPhotonLog_next_clicked()
+{
+    if (!LogHandler)
+    {
+        on_pbPhotonLog_first_clicked();
+        return;
+    }
+
+    showLogRecord();
+}
+
+void APhotSimWin::on_pbPhotonLog_ShowAll_clicked()
+{
+    ui->pteLog->clear();
+    QString err = initPhotonLogHandler();
+    if (!err.isEmpty())
+    {
+        guitools::message(err, this);
+        return;
+    }
+
+    bool doFiltering = ui->cbLogAdditionalFilters->isChecked();
+    APhotonLogSettings sets;
+    if (doFiltering)
+    {
+        QString err = LogForm->updateSettings(sets);
+        if (!err.isEmpty())
+        {
+            guitools::message(err, this);
+            return;
+        }
+    }
+
+    TGeoManager * GeoManager = AGeometryHub::getInstance().GeoManager;
+    GeoManager->ClearTracks();
+
+    LogHandler->populateAllTracks(doFiltering, sets);
+
+    emit requestShowGeometry();
+    emit requestShowTracks();
 }

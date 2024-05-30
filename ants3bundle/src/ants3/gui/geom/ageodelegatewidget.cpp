@@ -133,6 +133,7 @@ void AGeoDelegateWidget::UpdateGui()
     connect(GeoDelegate, &AGeoBaseDelegate::RequestShow,                this, &AGeoDelegateWidget::onRequestShowCurrentObject);
     connect(GeoDelegate, &AGeoBaseDelegate::RequestScriptToClipboard,   this, &AGeoDelegateWidget::onRequestScriptLineToClipboard);
     connect(GeoDelegate, &AGeoBaseDelegate::RequestScriptRecursiveToClipboard,   this, &AGeoDelegateWidget::onRequestScriptRecursiveToClipboard);
+    connect(GeoDelegate, &AGeoBaseDelegate::requestDraw,                this, &AGeoDelegateWidget::requestDraw);
 
     ObjectLayout->addStretch();
     ObjectLayout->addWidget(GeoDelegate->Widget);

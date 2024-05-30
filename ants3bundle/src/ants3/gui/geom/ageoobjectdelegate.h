@@ -25,6 +25,8 @@ class QTableWidget;
 class AOneLineTextEdit;
 class QFrame;
 class ACalorimeterProperties;
+class APhotonFunctionalModel;
+class AFunctionalModelWidget;
 
 class AGeoObjectDelegate : public AGeoBaseDelegate
 {
@@ -82,6 +84,12 @@ protected:
     QCheckBox * cbCalEventStat;
     AOneLineTextEdit * leiCalEventDepoBins, *ledCalEventDepoFrom, *ledCalEventDepoTo;
 
+    QLineEdit * lePhFunModelName = nullptr;
+    QPushButton * pbSelectPhFunModel = nullptr;
+    APhotonFunctionalModel * LocalPhFunModel = nullptr;
+    AFunctionalModelWidget * PhFunModelWidget = nullptr;
+    QVBoxLayout * vblPhFun = nullptr;
+
 private slots:
     void onContentChanged();          // only to enter the editing mode! Object update is performed only on confirm button click!
     void onHelpRequested();           // dialog with AGeoShape list can be accessed here
@@ -96,9 +104,15 @@ protected:
     void updateControlUI();
     void crateSpecialRoleWidget();
     void updateCalorimeterGui(const ACalorimeterProperties & p);
+    void updatePhFunModelGui();
 
 private:
     void onShapeDialogActivated(QDialog * d, QListWidget * w);
+    void onSelectPhFunModelClicked();
+
+    QFrame * createSensorGui();
+    QFrame * createCalorimeterGui();
+    QFrame * createFunctionalModelGui();
 
 signals:
     void RequestChangeShape(AGeoShape * newShape);

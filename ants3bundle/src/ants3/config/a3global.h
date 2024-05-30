@@ -1,6 +1,8 @@
 #ifndef A3GLOBAL_H
 #define A3GLOBAL_H
 
+#include "adrawmarginsrecord.h"
+
 #include <QString>
 #include <QJsonObject>
 
@@ -46,6 +48,9 @@ public:
     int     SW_FontWeight = false;
     bool    SW_Italic     = false;
     int     TabInSpaces = 7;
+
+    // Margins
+    ADrawMarginsRecord DefaultDrawMargins;
 
     /*
     bool RecTreeSave_IncludePMsignals = true;

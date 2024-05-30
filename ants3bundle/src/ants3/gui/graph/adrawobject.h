@@ -1,6 +1,8 @@
 #ifndef ADRAWOBJECT_H
 #define ADRAWOBJECT_H
 
+#include "adrawmarginsrecord.h"
+
 #include <QString>
 
 class TObject;
@@ -20,6 +22,8 @@ public:
     bool    bEnabled  = true;
     bool    bLogScaleX = false;
     bool    bLogScaleY = false;
+
+    ADrawMarginsRecord CustomMargins;
 
 private:
     void extractName();

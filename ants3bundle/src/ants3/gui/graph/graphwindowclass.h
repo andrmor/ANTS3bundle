@@ -136,6 +136,7 @@ public:
     void    ConfigureProjectionTool(double x0, double y0, double dx, double dy, double angle);
 
     void close3DviewWindow();
+    void doRedrawOnUpdateMargins();
 
 protected:
     void mouseMoveEvent(QMouseEvent * event);
@@ -158,7 +159,9 @@ public slots:
     void DrawStrOpt(TObject* obj, QString options = "", bool DoUpdate = true);
     void onDrawRequest(TObject* obj, QString options, bool transferOwnership, bool focusWindow);
 
-    void show3D(QString castorFileName);
+    void show3D(QString castorFileName, bool keepSettings);
+
+    void addObjectToBasket(TObject * obj, QString options, QString name);
 
 private slots:
     void onScriptDrawRequest(TObject * obj, QString options, bool fFocus);
@@ -264,6 +267,7 @@ private:
     AToolboxScene          * scene        = nullptr;
     AMultiGraphDesigner    * MGDesigner   = nullptr;
     AViewer3D              * Viewer3D     = nullptr;
+    //std::vector<AViewer3D*>  Viewers3D; // standalone copies
 
     QVector<ADrawObject>     DrawObjects;  //always local objects -> can have a copy from the Basket
     QVector<ADrawObject>     PreviousDrawObjects; //last draw made from outside of the graph window
@@ -305,6 +309,12 @@ private:
     void updateLogScaleFlags(QVector<ADrawObject> & drawObjects) const;
     void createMGDesigner();
     void connectScriptUnitDrawRequests(const std::vector<AScriptInterface *> interfaces);
+    void updateMargins(ADrawObject * obj = nullptr);
+
+private slots:
+    void onRequestMakeCopyViewer3D(AViewer3D * ptr);
+
+    void on_actionSet_default_margins_triggered();
 
 signals:
     void requestLocalDrawObject(TObject *obj, QString options, bool fFocus);

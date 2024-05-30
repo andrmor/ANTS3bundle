@@ -40,6 +40,12 @@ double AWaveResSettings::toWavelength(int index) const
     return From + Step * index;
 }
 
+void AWaveResSettings::toWavelength(std::vector<std::pair<double, double>> & waveIndex_I_pairs) const
+{
+    for (auto & pair : waveIndex_I_pairs)
+        pair.first = toWavelength(pair.first);
+}
+
 int AWaveResSettings::toIndex(double wavelength) const
 {
     if (!Enabled) return -1;
@@ -137,6 +143,14 @@ void AWaveResSettings::getWavelengthBins(std::vector<double> & wavelength) const
     const int points = countNodes();
     for (int iP = 0; iP < points; iP++)
         wavelength.push_back(From + Step * iP);
+}
+
+std::vector<double> AWaveResSettings::getVectorOfIndexes() const
+{
+    const int nodes = countNodes();
+    std::vector<double> indexes(nodes);
+    for (int i = 0; i < nodes; i++) indexes[i] = i;
+    return indexes;
 }
 
 double AWaveResSettings::getInterpolatedValue(double val, const QVector<double> *X, const QVector<double> *F) const
@@ -596,11 +610,11 @@ void APhotSimRunSettings::writeToJson(QJsonObject & json, bool addRuntimeExport)
     json["SaveMonitors"]          = SaveMonitors;
     json["FileNameMonitors"]      = FileNameMonitors;
 
-    /*
-    json["SavePhotonLog"]         = SavePhotonLog;
-    json["FileNamePhotonLog"]     = FileNamePhotonLog;
-    json["UpperTimeLimit"]        = UpperTimeLimit;
-    */
+    {
+        QJsonObject js;
+        PhotonLogSet.writeToJson(js);
+        json["PhotonLog"] = js;
+    }
 }
 
 void APhotSimRunSettings::readFromJson(const QJsonObject & json)
@@ -638,6 +652,12 @@ void APhotSimRunSettings::readFromJson(const QJsonObject & json)
 
     jstools::parseJson(json, "SaveMonitors",          SaveMonitors);
     jstools::parseJson(json, "FileNameMonitors",      FileNameMonitors);
+
+    {
+        QJsonObject js;
+        jstools::parseJson(json, "PhotonLog", js);
+        PhotonLogSet.readFromJson(js);
+    }
 }
 
 void APhotSimRunSettings::clear()
@@ -671,13 +691,10 @@ void APhotSimRunSettings::clear()
     FileNameStatistics    = "PhotonStatistics.json";
     UpperTimeLimit        = 100;
 
-    SavePhotonLog         = true;
-    FileNamePhotonLog     = "PhotonLog.txt";
-
     SaveMonitors          = true;
     FileNameMonitors      = "PhotonMonitors.txt";
 
-    LogSet.clear();
+    PhotonLogSet.clear();
 }
 
 // ---
@@ -1022,6 +1039,92 @@ void APhotonAdvancedSettings::readFromJson(const QJsonObject &json)
         jstools::parseJson(js, "EnableOnlyMat",   bOnlyMaterial);
         jstools::parseJson(js, "Material",        Material);
         jstools::parseJson(js, "MaxNodeAttempts", MaxNodeAttempts);
+    }
+}
+
+void APhotonLogSettings::writeToJson(QJsonObject & json) const
+{
+    json["Enabled"]  = Save;
+    json["FileName"] = FileName;
+
+    json["MaxNumber"] = MaxNumber;
+
+    {
+        QJsonArray ar;
+        for (int pr : MustNotInclude_Processes) ar.push_back(pr);
+        json["MustNotInclude_Processes"] = ar;
+    }
+
+    {
+        QJsonArray ar;
+        for (int pr : MustInclude_Processes) ar.push_back(pr);
+        json["MustInclude_Processes"] = ar;
+    }
+
+    {
+        QJsonArray ar;
+        for (const TString & vol : MustNotInclude_Volumes) ar.push_back(QString(vol.Data()));
+        json["MustNotInclude_Volumes"] = ar;
+    }
+
+    {
+        QJsonArray ar;
+        for (const AVolumeIndexPair & pair : MustInclude_Volumes)
+        {
+            QJsonArray el;
+                el.push_back(QString(pair.Volume.Data()));
+                el.push_back(pair.Index);
+            ar.push_back(el);
+        }
+        json["MustInclude_Volumes"] = ar;
+    }
+}
+
+void APhotonLogSettings::readFromJson(const QJsonObject & json)
+{
+    jstools::parseJson(json, "Enabled", Save);
+    jstools::parseJson(json, "FileName", FileName);
+
+    jstools::parseJson(json, "MaxNumber", MaxNumber);
+
+    MustNotInclude_Processes.clear();
+    {
+        QJsonArray ar;
+        jstools::parseJson(json, "MustNotInclude_Processes", ar);
+        for (int i = 0; i < ar.size(); i++)
+            MustNotInclude_Processes.emplace(ar[i].toInt());
+    }
+
+    MustInclude_Processes.clear();
+    {
+        QJsonArray ar;
+        jstools::parseJson(json, "MustInclude_Processes", ar);
+        for (int i = 0; i < ar.size(); i++)
+            MustInclude_Processes.push_back(ar[i].toInt());
+    }
+
+    MustNotInclude_Volumes.clear();
+    {
+        QJsonArray ar;
+        jstools::parseJson(json, "MustNotInclude_Volumes", ar);
+        for (int i = 0; i < ar.size(); i++)
+            MustNotInclude_Volumes.emplace(ar[i].toString().toLatin1().data());
+    }
+
+    MustInclude_Volumes.clear();
+    {
+        QJsonArray ar;
+        jstools::parseJson(json, "MustInclude_Volumes", ar);
+        for (int i = 0; i < ar.size(); i++)
+        {
+            QJsonArray el = ar[i].toArray();
+            if (el.size() == 2) // !!!*** error handling
+            {
+                TString vol = el[0].toString().toLatin1().data();
+                int index = el[1].toInt();
+                MustInclude_Volumes.push_back({vol, index});
+            }
+        }
     }
 }
 

@@ -20,10 +20,17 @@ class AViewer3DWidget : public QWidget
 public:
     enum EViewType {XY, XZ, YZ};
 
-    explicit AViewer3DWidget(AViewer3D * viewer, EViewType viewType);
+    AViewer3DWidget(AViewer3D * viewer, EViewType viewType);
     ~AViewer3DWidget();
 
     bool init();
+
+    void writeToJson(QJsonObject & json) const;
+    void readFromJson(const QJsonObject & json);
+
+    void saveImage(const QString & fileName);
+    void saveRoot(const QString & fileName);
+    void exportToBasket(const QString & name);
 
 public slots:
     void redraw();
@@ -34,15 +41,17 @@ private slots:
     void onCursorLeftRaster();
 
     void on_sbPosition_valueChanged(int arg1);
-
     void on_pbRedraw_clicked();
     void on_pbMinus_clicked();
     void on_pbPlus_clicked();
     void on_hsPosition_sliderMoved(int position);
+    void on_pbZoom_clicked();
     void on_pbUnzoom_clicked();
+    void on_ledPosition_editingFinished();
 
 private:
     AViewer3D * Viewer = nullptr;
+    const AViewer3DSettings & Settings;
     EViewType ViewType;
 
     Ui::AViewer3DWidget * ui = nullptr;
@@ -53,10 +62,14 @@ private:
     TH2D * Hist = nullptr;
 
     void showCrossHair(double hor, double vert);
+    void getShownHistRange(double & xfrom, double & yfrom, double & xto, double & yto) const;
+    void applyShownHistRange(double & xfrom, double & yfrom, double & xto, double & yto);
+    double getAveragedValue(int ixCenter, int iyCenter, int izCenter);
 
 signals:
-    void cursorPositionChanged(double x, double y, double z);
+    void cursorPositionChanged(double x, double y, double z, double val);
     void cursorLeftVisibleArea();
+    void requestExportToBasket(TObject * obj, QString opt, QString name);
 
 };
 

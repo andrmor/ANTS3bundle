@@ -48,6 +48,9 @@ bool APhotonSimManager::simulate(int numLocalProc)
     bool ok = checkDirectories();
     if (!ok) return false;
 
+    ok = updateRuntimeForFunctionalModels();
+    if (!ok) return false;
+
     removeOutputFiles();  // note that output files in exchange dir will be deleted in adispatcherinterface
     int numEvents = 0;
     switch (SimSet.SimType)
@@ -162,6 +165,13 @@ bool APhotonSimManager::checkDirectories()
     return !AErrorHub::isError();
 }
 
+#include "aphotonfunctionalhub.h"
+bool APhotonSimManager::updateRuntimeForFunctionalModels()
+{
+    APhotonFunctionalHub & PhTunHub = APhotonFunctionalHub::getInstance();
+    return PhTunHub.updateRuntimeProperties();
+}
+
 void APhotonSimManager::processReply(const QJsonObject & json)
 {
     QString LastError;
@@ -229,6 +239,7 @@ void removePhotonOutputFiles(const APhotSimRunSettings & settings)
     std::vector<QString> fileNames;
     fileNames.push_back(OutputDir + '/' + settings.FileNameSensorSignals);
     fileNames.push_back(OutputDir + '/' + settings.FileNameTracks);
+    fileNames.push_back(OutputDir + '/' + settings.PhotonLogSet.FileName);
     fileNames.push_back(OutputDir + '/' + settings.FileNamePhotonBombs);
     fileNames.push_back(OutputDir + '/' + settings.FileNameStatistics);
     fileNames.push_back(OutputDir + '/' + settings.FileNameMonitors);
@@ -256,6 +267,7 @@ void APhotonSimManager::mergeOutput()
     const QString & OutputDir = SimSet.RunSet.OutputDirectory;
     if (SimSet.RunSet.SaveSensorSignals) SignalFileMerger   .mergeToFile(OutputDir + '/' + SimSet.RunSet.FileNameSensorSignals);
     if (SimSet.RunSet.SaveSensorLog)     SensorLogFileMerger.mergeToFile(OutputDir + '/' + SimSet.RunSet.FileNameSensorLog);
+    if (SimSet.RunSet.PhotonLogSet.Save) PhotonLogFileMerger.mergeToFile(OutputDir + '/' + SimSet.RunSet.PhotonLogSet.FileName);
     if (SimSet.RunSet.SaveTracks)        TrackFileMerger    .mergeToFile(OutputDir + '/' + SimSet.RunSet.FileNameTracks);
     if (SimSet.RunSet.SavePhotonBombs)   BombFileMerger     .mergeToFile(OutputDir + '/' + SimSet.RunSet.FileNamePhotonBombs);
 
@@ -291,11 +303,31 @@ void  APhotonSimManager::clearFileMergers()
 {
     SignalFileMerger.clear();
     SensorLogFileMerger.clear();
+    PhotonLogFileMerger.clear();
     TrackFileMerger.clear();
     BombFileMerger.clear();
     StatisticsFiles.clear();
     MonitorFiles.clear();
     ReceiptFiles.clear();
+}
+
+std::vector<int> computeNumberSplit(int numberToSplit, size_t nodes)
+{
+    std::vector<int> res(nodes, 0);
+
+    int perOne = std::ceil(1.0 * numberToSplit / nodes);
+    if (perOne < 1) perOne = 1;
+    if (perOne > numberToSplit) perOne = numberToSplit;
+
+    int added = 0;
+    for (size_t i = 0; i < nodes; i++)
+    {
+        res[i] = perOne;
+        added += perOne;
+        if (added >= numberToSplit) break;
+    }
+
+    return res;
 }
 
 bool APhotonSimManager::configureSimulation(const std::vector<AFarmNodeRecord> & RunPlan, A3WorkDistrConfig & Request)
@@ -320,6 +352,11 @@ bool APhotonSimManager::configureSimulation(const std::vector<AFarmNodeRecord> &
 
     int iEvent = 0;
     int iProcess = 0;
+
+    size_t numProcesses = 0;
+    for (const AFarmNodeRecord & r : RunPlan) numProcesses += r.Split.size();
+    std::vector<int> tracksToAdd = computeNumberSplit(SimSet.RunSet.MaxTracks, numProcesses);
+    std::vector<int> logsToAdd   = computeNumberSplit(SimSet.RunSet.PhotonLogSet.MaxNumber, numProcesses);
 
     for (const AFarmNodeRecord & r : RunPlan)   // per node server
     {
@@ -391,6 +428,10 @@ bool APhotonSimManager::configureSimulation(const std::vector<AFarmNodeRecord> &
                 return false;
             }
 
+            // max tracks and logs per node
+            WorkSet.RunSet.MaxTracks = tracksToAdd[iProcess];
+            WorkSet.RunSet.PhotonLogSet.MaxNumber = logsToAdd[iProcess];
+
             configureOutputFiles(Worker, WorkSet, iProcess);
             makeWorkerConfigFile(Worker, WorkSet, iProcess);
             nc.Workers.push_back(Worker);
@@ -431,6 +472,12 @@ void APhotonSimManager::configureOutputFiles(A3NodeWorkerConfig & Worker, APhoto
         WorkSet.RunSet.FileNameSensorLog = QString("sensorlog-%0").arg(iProcess);
         Worker.OutputFiles.push_back(WorkSet.RunSet.FileNameSensorLog);
         SensorLogFileMerger.add(ExchangeDir + '/' + WorkSet.RunSet.FileNameSensorLog);
+    }
+    if (SimSet.RunSet.PhotonLogSet.Save)
+    {
+        WorkSet.RunSet.PhotonLogSet.FileName = QString("photonlog-%0").arg(iProcess);
+        Worker.OutputFiles.push_back(WorkSet.RunSet.PhotonLogSet.FileName);
+        PhotonLogFileMerger.add(ExchangeDir + '/' + WorkSet.RunSet.PhotonLogSet.FileName);
     }
     if (SimSet.RunSet.SaveTracks)
     {

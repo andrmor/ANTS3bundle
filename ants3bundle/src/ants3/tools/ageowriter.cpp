@@ -58,20 +58,24 @@ void AGeoWriter::generateSymbolMap()
 }
 
 #include "TVector3.h"
+#include "aphotonfunctionalhub.h"
 void AGeoWriter::drawText(const std::vector<QString> & textVector, int color, EDraw onWhat)
 {
     const ASensorHub      & SensorHub  = ASensorHub ::getConstInstance();
     const AMonitorHub     & MonitorHub = AMonitorHub::getConstInstance();
     const ACalorimeterHub & CalHub     = ACalorimeterHub::getConstInstance();
+    const AGeometryHub    & GeoHub     = AGeometryHub::getConstInstance();
+
     TGeoManager * GeoManager = AGeometryHub::getInstance().GeoManager;
 
     size_t numObj = 0;
     switch (onWhat)
     {
-    case Sensors      : numObj = SensorHub.countSensors();                        break;
-    case PhotMons     : numObj = MonitorHub.countMonitors(AMonitorHub::Photon);   break;
-    case PartMons     : numObj = MonitorHub.countMonitors(AMonitorHub::Particle); break;
-    case Calorimeters : numObj = CalHub.countCalorimeters();                      break;
+    case Sensors          : numObj = SensorHub.countSensors();                        break;
+    case PhotMons         : numObj = MonitorHub.countMonitors(AMonitorHub::Photon);   break;
+    case PartMons         : numObj = MonitorHub.countMonitors(AMonitorHub::Particle); break;
+    case Calorimeters     : numObj = CalHub.countCalorimeters();                      break;
+    case PhotonFunctional : numObj = GeoHub.PhotonFunctionals.size();                 break;
     }
 
     if (textVector.size() != numObj)
@@ -121,6 +125,10 @@ void AGeoWriter::drawText(const std::vector<QString> & textVector, int color, ED
             centerPos = CalHub.Calorimeters[iObj].Position;
             size = SizeForCalorimeters;
             break;
+        case PhotonFunctional :
+            centerPos = std::get<2>(GeoHub.PhotonFunctionals[iObj]);
+            size = SizeForPhotFuncts;
+            break;
         }
 
         //size = size / 3.0 / (0.5 + 0.5*MaxSymbols);
@@ -162,6 +170,7 @@ void AGeoWriter::writeToJson(QJsonObject & json) const
     json["SizeForSensors"]      = SizeForSensors;
     json["SizeForMonitors"]     = SizeForMonitors;
     json["SizeForCalorimeters"] = SizeForCalorimeters;
+    json["SizeForPhotFuncts"]   = SizeForPhotFuncts;
 }
 
 void AGeoWriter::readFromJson(const QJsonObject & json)
@@ -169,4 +178,5 @@ void AGeoWriter::readFromJson(const QJsonObject & json)
     jstools::parseJson(json, "SizeForSensors",      SizeForSensors);
     jstools::parseJson(json, "SizeForMonitors",     SizeForMonitors);
     jstools::parseJson(json, "SizeForCalorimeters", SizeForCalorimeters);
+    jstools::parseJson(json, "SizeForPhotFuncts",   SizeForPhotFuncts);
 }

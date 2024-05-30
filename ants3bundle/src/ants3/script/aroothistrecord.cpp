@@ -336,6 +336,40 @@ bool ARootHistRecord::medianFilter(int span, int spanRight)
     }
     //qDebug() << "Delta left:"<< deltaLeft <<" Delta right:"<< deltaRight;
 
+    TH2 * h2 = dynamic_cast<TH2*>(Object);
+    if (h2)
+    {
+        int numX = h2->GetNbinsX();
+        int numY = h2->GetNbinsY();
+        QVector<QVector<double>> Filtered(numX+1, QVector<double>(numY+1));
+
+        for (int iThisBinX = 1; iThisBinX <= numX; iThisBinX++)  // 0-> underflow; num+1 -> overflow
+            for (int iThisBinY = 1; iThisBinY <= numY; iThisBinY++)  // 0-> underflow; num+1 -> overflow
+            {
+                QVector<double> content;
+                for (int iX = iThisBinX - deltaLeft; iX <= iThisBinX + deltaRight; iX++)
+                    for (int iY = iThisBinY - deltaLeft; iY <= iThisBinY + deltaRight; iY++)
+                    {
+                        if (iX < 1 || iX > numX || iY < 1 || iY > numY) continue;
+                        content << h2->GetBinContent(iX, iY);
+                    }
+
+                std::sort(content.begin(), content.end());
+                int size = content.size();
+                double val;
+                if (size == 0) val = 0;
+                else val = ( size % 2 == 0 ? (content[size / 2 - 1] + content[size / 2]) / 2 : content[size / 2] );
+
+                Filtered[iThisBinX][iThisBinY] = val;
+            }
+
+        for (int iThisBinX = 1; iThisBinX <= numX; iThisBinX++)  // 0-> underflow; num+1 -> overflow
+            for (int iThisBinY = 1; iThisBinY <= numY; iThisBinY++)
+                h2->SetBinContent(iThisBinX, iThisBinY, Filtered[iThisBinX][iThisBinY]);
+
+        return true;
+    }
+
     TH1* h = dynamic_cast<TH1*>(Object);
     if (!h) return false;
 

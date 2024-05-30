@@ -322,10 +322,12 @@ PyObject* APythonInterface::variantToPyObject(const QVariant & var) // returns n
     const int mtype = var.type();
 #else
     const int mtype = var.metaType().id(); // const QMetaType mtype = var.metaType();
+    //qDebug() << var.typeName();
 #endif
     if      (mtype == QMetaType::Void)         Py_RETURN_NONE; // return Py_NewRef(Py_None);
     else if (mtype == QMetaType::Bool)         return PyBool_FromLong(var.toBool()); // else if (mtype == QMetaType(QMetaType::Bool))
     else if (mtype == QMetaType::Int)          return PyLong_FromLong(var.toInt());
+    else if (mtype == QMetaType::LongLong)     return PyLong_FromLong(var.toInt());
     else if (mtype == QMetaType::Double)       return PyFloat_FromDouble(var.toDouble());
     else if (mtype == QMetaType::QString)      return PyUnicode_FromString(var.toString().toLatin1().data());
     else if (mtype == QMetaType::QVariantList) return listToTuple(var.toList());

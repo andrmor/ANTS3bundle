@@ -31,6 +31,12 @@ AGeoSpecial * GeoRoleFactory::make(const QJsonObject & json)
         scint->readFromJson(json);
         return scint;
     }
+    if (Type == "PhotonFunctional")
+    {
+        AGeoPhotonFunctional * th = new AGeoPhotonFunctional();
+        th->readFromJson(json);
+        return th;
+    }
 
     return nullptr;
 }
@@ -127,6 +133,35 @@ void AGeoCalorimeter::readFromJson(const QJsonObject & json)
 void AGeoCalorimeter::doWriteToJson(QJsonObject & json) const
 {
     Properties.writeToJson(json);
+}
+
+// ---
+
+#include "aphotonfunctionalmodel.h"
+
+AGeoPhotonFunctional::AGeoPhotonFunctional() :
+    AGeoSpecial(), DefaultModel(new APFM_Dummy()) {}
+
+AGeoPhotonFunctional::AGeoPhotonFunctional(const APhotonFunctionalModel & model) :
+    AGeoSpecial()
+{
+    QJsonObject js;
+    model.writeToJson(js);
+    DefaultModel = APhotonFunctionalModel::factory(js);
+}
+
+void AGeoPhotonFunctional::readFromJson(const QJsonObject & json)
+{
+    QJsonObject js;
+    jstools::parseJson(json, "Model", js);
+    DefaultModel = APhotonFunctionalModel::factory(js);
+}
+
+void AGeoPhotonFunctional::doWriteToJson(QJsonObject & json) const
+{
+    QJsonObject js;
+    DefaultModel->writeToJson(js);
+    json["Model"] = js;
 }
 
 // ---

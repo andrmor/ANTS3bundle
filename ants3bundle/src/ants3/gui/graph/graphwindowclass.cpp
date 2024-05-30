@@ -140,6 +140,8 @@ GraphWindowClass::GraphWindowClass(QWidget * parent) :
     connect(RasterWindow, &RasterWindowGraphClass::LeftMouseButtonReleased, this, &GraphWindowClass::UpdateControls);
     connect(RasterWindow, &RasterWindowGraphClass::reportCursorPosition, this, &GraphWindowClass::onCursorPositionReceived);
 
+    updateMargins();
+
     setShowCursorPosition(false);
 
     QHBoxLayout* l = dynamic_cast<QHBoxLayout*>(centralWidget()->layout());
@@ -173,6 +175,7 @@ GraphWindowClass::GraphWindowClass(QWidget * parent) :
 
 GraphWindowClass::~GraphWindowClass()
 {
+    //for (auto * v : Viewers3D) delete v; Viewers3D.clear();
     delete Viewer3D; Viewer3D = nullptr;
 
     ClearBasket();
@@ -503,6 +506,8 @@ void GraphWindowClass::DrawWithoutFocus(TObject *obj, const char *options, bool 
         DrawObjects.clear();
     }
     DrawObjects.append(ADrawObject(obj, opt));
+
+    if (DrawObjects.size() == 1) updateMargins(&DrawObjects.front());
 
     doDraw(obj, opt.toLatin1().data(), DoUpdate);
 
@@ -926,6 +931,8 @@ void GraphWindowClass::RedrawAll()
         QString opt = obj.Options;
         QByteArray ba = opt.toLocal8Bit();
         const char* options = ba.data();
+
+        if (!obj.Options.contains("same", Qt::CaseInsensitive)) updateMargins(&obj);
 
         if (obj.bEnabled) doDraw(obj.Pointer, options, false);
     }
@@ -2903,12 +2910,135 @@ void GraphWindowClass::on_actionOpen_MultiGraphDesigner_triggered()
     //MGDesigner->updateGUI();
 }
 
-void GraphWindowClass::show3D(QString castorFileName)
+void GraphWindowClass::show3D(QString castorFileName, bool keepSettings)
 {
-    qDebug() << "Showing Castor image...";
-    //if (!Viewer3D) Viewer3D = new AViewer3D(this);
-    if (Viewer3D) delete Viewer3D;
+    // Intended for showing Castor images
+    bool doRestore = keepSettings && (bool)Viewer3D;
+    QJsonObject js1;
+    if (Viewer3D)
+    {
+        Viewer3D->Settings.writeToJson(js1);
+        delete Viewer3D;
+    }
     Viewer3D = new AViewer3D(this);
+    connect(Viewer3D, &AViewer3D::requestMakeCopy, this, &GraphWindowClass::onRequestMakeCopyViewer3D);
+    connect(Viewer3D, &AViewer3D::requestExportToBasket, this, &GraphWindowClass::addObjectToBasket);
+
+    if (doRestore) Viewer3D->Settings.readFromJson(js1);
     bool ok = Viewer3D->loadCastorImage(castorFileName);
     if (ok) Viewer3D->showNormal();
+}
+
+void GraphWindowClass::addObjectToBasket(TObject * obj, QString options, QString name)
+{
+    qDebug() << "Requested to add object" << obj << "with options" << options << "as" << name;
+
+    QVector<ADrawObject> tmp;
+    tmp.push_back(ADrawObject(obj, options.toLatin1().data()));
+    updateLogScaleFlags(tmp);
+    Basket->add(name.simplified(), tmp);
+    ui->actionToggle_Explorer_Basket->setChecked(true);
+    UpdateBasketGUI();
+}
+
+#include "aviewer3dsettings.h"
+void GraphWindowClass::onRequestMakeCopyViewer3D(AViewer3D * ptr)
+{
+    AViewer3D * view = new AViewer3D(this);
+    view->setWindowTitle("3D viewer (copy)");
+    connect(view, &AViewer3D::requestMakeCopy, this, &GraphWindowClass::onRequestMakeCopyViewer3D);
+    connect(view, &AViewer3D::requestMakeCopy, this, &GraphWindowClass::onRequestMakeCopyViewer3D);
+
+    qApp->processEvents();
+
+    // Data
+    {
+        QJsonObject json;
+        ptr->writeDataToJson(json);
+        view->readDataFromJson(json);
+        view->initViewers();
+    }
+
+    // Settings
+    {
+        QJsonObject json;
+        ptr->Settings.writeToJson(json);
+        view->Settings.readFromJson(json);
+    }
+
+    // Plane viewers
+    {
+        QJsonObject json;
+        ptr->writeViewersToJson(json);
+        view->readViewersFromJson(json);
+    }
+
+    QString title = ptr->getTitle();
+    if (title.isEmpty()) title = "Copy";
+    else title = "Copy of " + title;
+    view->setTitle(title);
+
+    view->updateGui();
+    view->showNormal();
+    view->move(ptr->x() + 50, ptr->y() + 50);
+    view->activateWindow();
+
+    view->resize(ptr->width(), ptr->height());
+}
+
+#include "asetmarginsdialog.h"
+void GraphWindowClass::on_actionSet_default_margins_triggered()
+{
+    A3Global & GlobSet = A3Global::getInstance();
+
+    ASetMarginsDialog d(GlobSet.DefaultDrawMargins, ADrawMarginsRecord(), this);
+    int res = d.exec();
+    if (res == QDialog::Accepted)
+    {
+        GlobSet.DefaultDrawMargins = d.getResult();
+        updateMargins();
+        doRedrawOnUpdateMargins();
+    }
+}
+
+void GraphWindowClass::doRedrawOnUpdateMargins()
+{
+    //ClearRootCanvas();
+    //UpdateRootCanvas();
+    // bug in this toot version: Z axis is not moved after plain redraw!
+
+    if (!DrawObjects.empty())
+    {
+        QString oldOpt = DrawObjects.front().Options;
+        QString opt = oldOpt;
+        if (opt.contains("z", Qt::CaseInsensitive))
+        {
+            opt.remove("z", Qt::CaseInsensitive);
+            DrawObjects.front().Options = opt;
+            RedrawAll();
+            DrawObjects.front().Options = oldOpt;
+        }
+    }
+    RedrawAll();
+}
+
+void GraphWindowClass::updateMargins(ADrawObject * obj)
+{
+    ADrawMarginsRecord rec;
+
+    if (!obj || !obj->CustomMargins.Override)
+        rec = A3Global::getConstInstance().DefaultDrawMargins;
+    else rec = obj->CustomMargins;
+
+    RasterWindow->fCanvas->SetTopMargin(rec.Top);
+    RasterWindow->fCanvas->SetBottomMargin(rec.Bottom);
+    RasterWindow->fCanvas->SetLeftMargin(rec.Left);
+
+    bool hitWithZ = false;
+    QString opt = "";
+    if (obj) opt = obj->Options;
+    if (opt.contains("z", Qt::CaseInsensitive)) hitWithZ = true;
+
+    double right = (hitWithZ ? rec.RightForZ : rec.Right);
+    RasterWindow->fCanvas->SetRightMargin(right);
 }

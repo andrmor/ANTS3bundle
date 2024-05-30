@@ -11,6 +11,7 @@ class QPushButton;
 class QHBoxLayout;
 class AOneLineTextEdit;
 class QFrame;
+class TObject;
 
 class AGeoBaseDelegate : public QObject
 {
@@ -51,6 +52,7 @@ signals:
     void RequestChangeVisAttributes();
     void RequestScriptToClipboard();
     void RequestScriptRecursiveToClipboard();
+    void requestDraw(TObject * obj, const QString & options, bool transferOwnership, bool focusWindow);
 
 public slots:
     void onContentChangedBase();

@@ -125,7 +125,9 @@ void ABasketManager::add(const QString & name, const QVector<ADrawObject> & draw
         }
         OldToNew[drObj.Pointer] = clone;
 
-        item.DrawObjects.append( ADrawObject(clone, options, drObj.bEnabled, drObj.bLogScaleX, drObj.bLogScaleY) );
+        ADrawObject newObj = ADrawObject(clone, options, drObj.bEnabled, drObj.bLogScaleX, drObj.bLogScaleY);
+        newObj.CustomMargins = drObj.CustomMargins;
+        item.DrawObjects.append(newObj);
     }
 
     if (Legend)
@@ -197,7 +199,9 @@ const QVector<ADrawObject> ABasketManager::getCopy(int index) const
                 //qDebug() << "From basket, old-->cloned" << obj.Pointer << "-->" << clone;
             }
 
-            res << ADrawObject(clone, obj.Options, obj.bEnabled, obj.bLogScaleX, obj.bLogScaleY);
+            ADrawObject newObj(clone, obj.Options, obj.bEnabled, obj.bLogScaleX, obj.bLogScaleY);
+            newObj.CustomMargins = obj.CustomMargins;
+            res << newObj;
         }
 
         if (Legend)

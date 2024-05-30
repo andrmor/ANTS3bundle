@@ -229,12 +229,18 @@ void APet_si::configureBuilderEnergies(double energyResolution_fraction, double 
     BuilderConfig.EnergyThreshold  = energyThreshold_keV;
 }
 
-void APet_si::buildEventsFromDeposition(QString depositionFileName, QString eventsFileName)
+void APet_si::addDepositionFile(QString depositionFileName, bool binary)
+{
+    DepoFiles.push_back( {depositionFileName.toLatin1().data(), binary} );
+}
+
+double APet_si::buildEventsFromDeposition(QString eventsFileName, bool binary)
 {
     size_t numScint = AGeometryHub::getConstInstance().countScintillators();
-    APetEventBuilder eb(numScint, depositionFileName.toLatin1().data(), false);
+    APetEventBuilder eb(numScint);
+    for (const auto & pair : DepoFiles) eb.addInputFile(pair.first, pair.second);
     eb.configure(BuilderConfig);
-    eb.makeEvents(eventsFileName.toLatin1().data(), false);
+    return eb.makeEvents(eventsFileName.toLatin1().data(), binary);
 }
 
 // --------------
@@ -256,14 +262,14 @@ void APet_si::configureCoincidenceEnergyWindow(double energyFrom_keV, double ene
     CoincidenceConfig.EnergyTo   = energyTo_keV;
 }
 
-void APet_si::findCoincidences(QString scannerName, QString eventsFileName, QString coincFileName, bool writeToF)
+double APet_si::findCoincidences(QString scannerName, QString eventsFileName, bool binary, QString coincFileName, bool writeToF)
 {
     size_t numScint = AGeometryHub::getConstInstance().countScintillators();
-    APetCoincidenceFinder cf(scannerName, numScint, eventsFileName, false);
+    APetCoincidenceFinder cf(scannerName, numScint, eventsFileName, binary);
     cf.configure(CoincidenceConfig);
-    bool ok = cf.findCoincidences(coincFileName, writeToF);
-    if (!ok)
-        abort(cf.ErrorString);
+    double numCoinc = cf.findCoincidences(coincFileName, writeToF);
+    if (!cf.ErrorString.isEmpty()) abort(cf.ErrorString);
+    return numCoinc;
 }
 
 // ----------------

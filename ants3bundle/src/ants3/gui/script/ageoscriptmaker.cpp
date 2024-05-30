@@ -584,6 +584,14 @@ void AGeoScriptMaker::addRoleIfApplicable(QString & script, AGeoObject *obj, int
         script += "\n" + QString(" ").repeated(ident) + str;
         return;
     }
+
+    AGeoPhotonFunctional * tunIn = dynamic_cast<AGeoPhotonFunctional*>(obj->Role);
+    if (tunIn)
+    {
+        QString str = QString("geo.setPhotonFunctional( '%1' )").arg(obj->Name);
+        script += "\n" + QString(" ").repeated(ident) + str;
+        return;
+    }
 }
 
 QString AGeoScriptMaker::getPythonGenerationString(const QString & javaGenString) const

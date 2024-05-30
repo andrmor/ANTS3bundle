@@ -46,11 +46,9 @@ bool EventRecord::operator<(const EventRecord & other) const
     return (time < other.time);
 }
 
-APetEventBuilder::APetEventBuilder(size_t numScint, const std::string & fileName, bool binaryInput) :
+APetEventBuilder::APetEventBuilder(size_t numScint) :
     NumScint(numScint)
 {
-    Files.push_back({fileName, binaryInput});
-
     RandEngine = new std::mt19937_64(Config.Seed + 1);
 }
 
@@ -65,8 +63,19 @@ APetEventBuilder::~APetEventBuilder()
     }
 }
 
-bool APetEventBuilder::makeEvents(const std::string & outputFileName, bool binaryOutput)
+void APetEventBuilder::addInputFile(const std::string & fileName, bool binary)
 {
+    Files.push_back({fileName, binary});
+}
+
+double APetEventBuilder::makeEvents(const std::string & outputFileName, bool binaryOutput)
+{
+    if (Files.empty())
+    {
+        ErrorString = "No input files were provided!";
+        return 0;
+    }
+
     outStream = new std::ofstream();
     if (binaryOutput) outStream->open(outputFileName, std::ios::out | std::ios::binary);
     else              outStream->open(outputFileName);
@@ -79,6 +88,7 @@ bool APetEventBuilder::makeEvents(const std::string & outputFileName, bool binar
 
     gauss = new std::normal_distribution<double>(0, Config.CTR / 2.355 / sqrt(2.0));
 
+    double numEv = 0;
     for (const std::pair<double,double> & timeRange : Config.TimeRanges)
     {
         qDebug() << "==> Processing time range from" << timeRange.first << " ns to" << timeRange.second << " ns";
@@ -109,11 +119,11 @@ bool APetEventBuilder::makeEvents(const std::string & outputFileName, bool binar
 //            for (const EventRecord & e : Events[iScint])
 //                qDebug() << iScint << e.time << e.energy;
 
-        write(Events, binaryOutput);
-        qDebug() << "  -->Events saved";
+        numEv += write(Events, binaryOutput);
+        qDebug() << "  -->Events saved:" << numEv;
     }
 
-    return true;
+    return numEv;
 }
 
 bool APetEventBuilder::read(const std::pair<double,double> & timeRange, std::vector<std::vector<DepositionNodeRecord>> & nodes)
@@ -121,9 +131,9 @@ bool APetEventBuilder::read(const std::pair<double,double> & timeRange, std::vec
     qDebug() << "Reading input files...";
 
     std::string particle;
-    size_t iMat;
+    int iMat;
     double depo_keV, x,y,z, time;
-    size_t iScint;
+    int iScint;
 
     // format: particle imat depo_keV x y z time iScint
 
@@ -145,34 +155,52 @@ bool APetEventBuilder::read(const std::pair<double,double> & timeRange, std::vec
 
         if (binary)
         {
-            // !!!*** TODO
-            /*
             char ch;
-            double time, energy;
+            int iEvent;
             while (inStream.get(ch))
             {
                 if (inStream.eof()) break;
 
                 if (ch == (char)0xEE)
                 {
-                    inStream.read((char*)&iScint, sizeof(int));
-                    if (iScint < 0 || iScint >= nodes.size())
-                    {
-                        qDebug() << "Bad scintillator index:" << iScint;
-                        return false;
-                    }
+                    inStream.read((char*)&iEvent, sizeof(int));
+                    continue;
                 }
                 else if (ch == (char)0xFF)
                 {
-                    inStream.read((char*)&time,   sizeof(double));
-                    inStream.read((char*)&energy, sizeof(double));
-                    qDebug() << "Extracted values:" << time << energy;
+                    //std::string pn;
+                    particle.clear();
+
+                    while (inStream >> ch)
+                    {
+                        if (ch == (char)0x00) break;
+                        particle += ch;
+                    }
+
+                    //particle = pn.data();
+                    inStream.read((char*)&iMat,     sizeof(int));
+                    inStream.read((char*)&depo_keV, sizeof(double));
+                    inStream.read((char*)&x,        sizeof(double));
+                    inStream.read((char*)&y,        sizeof(double));
+                    inStream.read((char*)&z,        sizeof(double));
+                    inStream.read((char*)&time,     sizeof(double));
+                    inStream.read((char*)&iScint,   sizeof(int));
+                    //if (stream.fail())
+                    //{
+                    //    AErrorHub::addError("ADepoRecord::readBinary: Unexpected format of a line in the binary file with the deposition data");
+                    //    return false;
+                    //}
 
                     if (time > timeRange.first && time < timeRange.second)
-                        nodes[iScint].emplace_back(DepositionNodeRecord(time, energy));
+                    {
+                        DepositionNodeRecord tmp{time, depo_keV};
+                        if (!nodes[iScint].empty() && nodes[iScint].back().isCluster(tmp, Config.MaxTimeDeltaCluster))
+                            nodes[iScint].back().merge(tmp);
+                        else
+                            nodes[iScint].push_back(std::move(tmp));
+                    }
                 }
             }
-            */
         }
         else
         {
@@ -348,7 +376,7 @@ void APetEventBuilder::applyBlur(std::vector<std::vector<EventRecord>> & events)
         }
 }
 
-void APetEventBuilder::write(std::vector<std::vector<EventRecord>> & events, bool binary)
+size_t APetEventBuilder::write(std::vector<std::vector<EventRecord>> & events, bool binary)
 {
     if (!outStream)
     {
@@ -358,6 +386,7 @@ void APetEventBuilder::write(std::vector<std::vector<EventRecord>> & events, boo
 
     qDebug() << "->Writing events to file...";
 
+    size_t numEventsWritten = 0;
     for (size_t iScint = 0; iScint < events.size(); iScint++)
     {
         std::vector<EventRecord> & evec = events[iScint];
@@ -370,7 +399,7 @@ void APetEventBuilder::write(std::vector<std::vector<EventRecord>> & events, boo
             outStream->write((char*)&iScint, sizeof(int));
         }
         else
-            *outStream << "# " << iScint << std::endl;
+            *outStream << "# " << iScint << '\n';
 
         // events
         for (EventRecord & ev : evec)
@@ -387,10 +416,13 @@ void APetEventBuilder::write(std::vector<std::vector<EventRecord>> & events, boo
             }
             else
                 *outStream << ev.time << " " << ev.energy << '\n';
+
         }
+        numEventsWritten += evec.size();
     }
 
     qDebug() << "\n<-Write completed\n";
+    return numEventsWritten;
 }
 
 void APetEventBuilder::blurTime(double & time)

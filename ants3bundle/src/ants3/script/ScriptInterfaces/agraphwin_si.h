@@ -53,7 +53,7 @@ public slots:
     QVariantList getContent();
 
 signals:
-    void requestShow3D(QString fileName);
+    void requestShow3D(QString fileName, bool keepSettings = false);
 
 private:
     GraphWindowClass * GraphWindow = nullptr;

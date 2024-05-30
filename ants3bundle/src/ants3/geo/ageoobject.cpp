@@ -641,6 +641,15 @@ const ACalorimeterProperties * AGeoObject::getCalorimeterProperties() const
     return & gc->Properties;
 }
 
+#include "aphotonfunctionalmodel.h"
+APhotonFunctionalModel * AGeoObject::getDefaultPhotonFunctionalModel()
+{
+    if (!Role) return nullptr;
+    AGeoPhotonFunctional * pf = dynamic_cast<AGeoPhotonFunctional*>(Role);
+    if (!pf) return nullptr;
+    return pf->DefaultModel;
+}
+
 bool AGeoObject::isStackMember() const
 {
     if (!Container || !Container->Type) return false;
@@ -1078,10 +1087,11 @@ void AGeoObject::updateWorldSize(double & XYm, double & Zm)
 
 bool AGeoObject::isMaterialInUse(int imat, QString & volName) const
 {
-    if (Type->isMonitor())    return false; //monitors are always made of Container's material and cannot host objects
+    if (Type->isMonitor())             return false; //monitors are always made of Container's material and cannot host objects
+    if (Type->isHandlingArray())       return false;
+    if (Type->isHandlingSet())         return false;
+    if (Type->isInstance())            return false;
     if (Type->isPrototypeCollection()) return false;
-    if (Type->isPrototype())  return false;
-    if (Type->isInstance())   return false;
 
     if (Material == imat)
     {
@@ -1449,7 +1459,7 @@ bool AGeoObject::checkCompatibleWithGeant4() const
 {
     if (!fActive) return true;
 
-    if (Shape && !Shape->isCompatibleWithGeant4())
+    if (Shape && !Shape->   isCompatibleWithGeant4())
     {
         AErrorHub::addQError(Name + ": shape is incopatible with Geant4");
         return false;

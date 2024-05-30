@@ -381,6 +381,42 @@ void AGraph_SI::addPoints(QString graphName, QVariantList array)
     else abort("Graph " + graphName + " not found!");
 }
 
+void AGraph_SI::addPoints(QString graphName, QVariantList array, int indexX, int indexY)
+{
+    ARootGraphRecord * r = dynamic_cast<ARootGraphRecord*>(Graphs.getRecord(graphName));
+    if (!r)
+    {
+        abort("Graph " + graphName + " not found!");
+        return;
+    }
+
+    const int num = array.size();
+    if (num == 0) return;
+
+    const int minSize = std::max(indexX, indexY) + 1;
+    bool bAutoX = (indexX == -1);
+
+    std::vector<double> xArr(num), yArr(num);
+    bool ok1, ok2;
+    for (int i = 0; i < num; i++)
+    {
+        const QVariantList vl = array[i].toList();
+        if (vl.size() < minSize)
+        {
+            abort("Graph " + graphName + " cannot be filled using the provided array and column indexes for X and Y");
+            return;
+        }
+        xArr[i] = ( bAutoX ? i : vl[indexX].toDouble(&ok1) );
+        yArr[i] = vl[indexY].toDouble(&ok2);
+        if (!ok1 || !ok2)
+        {
+            abort("Graph " + graphName + ": converion to double problem!");
+            return;
+        }
+    }
+    r->addPoints(xArr, yArr);
+}
+
 void AGraph_SI::setYRange(QString graphName, double min, double max)
 {
     ARootGraphRecord * r = dynamic_cast<ARootGraphRecord*>(Graphs.getRecord(graphName));

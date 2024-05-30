@@ -17,7 +17,7 @@ void APhotonStatistics::clear()
 {
     Absorbed = InterfaceRuleLoss = HitSensor = Escaped = LossOnGrid = TracingSkipped = MaxTransitions = GeneratedOutside = MonitorKill = 0;
 
-    FresnelTransmitted = FresnelReflected = BulkAbsorption = Rayleigh = Reemission = 0;
+    FresnelTransmitted = FresnelReflected = BulkAbsorption = Rayleigh = Reemission = CustomScatter = 0;
     InterfaceRuleForward = InterfaceRuleBack = 0;
 
     delete WaveDistr;       WaveDistr       = nullptr;
@@ -94,6 +94,7 @@ void APhotonStatistics::append(const APhotonStatistics & from)
     FresnelReflected     += from.FresnelReflected;
     BulkAbsorption       += from.BulkAbsorption;
     Rayleigh             += from.Rayleigh;
+    CustomScatter        += from.CustomScatter;
     Reemission           += from.Reemission;
 
     InterfaceRuleBack    += from.InterfaceRuleBack;
@@ -116,6 +117,7 @@ void APhotonStatistics::writeToJson(QJsonObject & json) const
     json["FresnelReflected"]     = (double)FresnelReflected;
     json["BulkAbsorption"]       = (double)BulkAbsorption;
     json["Rayleigh"]             = (double)Rayleigh;
+    json["CustomScatter"]        = (double)CustomScatter;
     json["Reemission"]           = (double)Reemission;
 
     json["InterfaceRuleBack"]    = (double)InterfaceRuleBack;
@@ -143,6 +145,7 @@ void APhotonStatistics::readFromJson(const QJsonObject & json)
     jstools::parseJson(json, "FresnelReflected"    , FresnelReflected);
     jstools::parseJson(json, "BulkAbsorption"      , BulkAbsorption);
     jstools::parseJson(json, "Rayleigh"            , Rayleigh);
+    jstools::parseJson(json, "CustomScatter"       , CustomScatter);
     jstools::parseJson(json, "Reemission"          , Reemission);
 
     jstools::parseJson(json, "InterfaceRuleBack"   , InterfaceRuleBack);

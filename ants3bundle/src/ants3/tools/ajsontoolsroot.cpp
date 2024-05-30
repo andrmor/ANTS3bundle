@@ -137,3 +137,15 @@ TH2D * jstools::jsonToRegularTh2D(const QJsonObject & json)
     hist->SetEntries(Entries);
     return hist;
 }
+
+void jstools::histToArray_lowerEdge(const TH1D * hist, std::vector<std::pair<double, double>> & content)
+{
+    content.clear();
+    if (!hist) return;
+
+    const int numBins = hist->GetNbinsX();
+    content.reserve(numBins);
+
+    for (int i = 1; i < numBins+1; i++)
+        content.push_back({hist->GetBinLowEdge(i), hist->GetBinContent(i)});
+}

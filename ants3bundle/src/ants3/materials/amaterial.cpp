@@ -235,8 +235,10 @@ void AMaterial::clear()
     Name = "Undefined";
     RefIndex = 1.0;
     AbsCoeff = RayleighMFP = ReemissionProb = 0;
+    IgnoreEnergyConservationInReemission = false;
     ElDriftVelocity = W = SecScintPhotonYield = SecScintDecayTime = ElDiffusionL = ElDiffusionT = 0;
     RayleighWave = 500.0;
+    CustomScatterMFP = 0;
     Comments = "";
     Tags.clear();
 
@@ -287,20 +289,22 @@ QString AMaterial::convertPressureToDensity()
 
 void AMaterial::writeToJson(QJsonObject & json) const
 {
-    json["*Name"]           = Name;
+    json["*Name"] = Name;
 
     QJsonObject jsComp;
         Composition.writeToJson(jsComp);
         jsComp["UseGeant4Material"] = UseG4Material;
-        jsComp["Geant4Material"]    = G4MaterialName;
+        jsComp["Geant4Material"] = G4MaterialName;
     json["Composition"] = jsComp;
 
-    json["RefIndex"]    = RefIndex;
-    json["AbsCoeff"]    = AbsCoeff;
+    json["RefIndex"] = RefIndex;
+    json["AbsCoeff"] = AbsCoeff;
     json["RayleighMFP"] = RayleighMFP;
     json["RayleighWave"] = RayleighWave;
+    json["CustomScatterMFP"] = CustomScatterMFP;
 
     json["ReemissionProb"] = ReemissionProb;
+    json["IgnoreEnergyConservationInReemission"] = IgnoreEnergyConservationInReemission;
 
     json["Dielectric"] = Dielectric;
     {
@@ -406,7 +410,9 @@ bool AMaterial::readFromJson(const QJsonObject & json)
     jstools::parseJson(json, "AbsCoeff", AbsCoeff);
     jstools::parseJson(json, "RayleighMFP", RayleighMFP);
     jstools::parseJson(json, "RayleighWave", RayleighWave);
+    jstools::parseJson(json, "CustomScatterMFP", CustomScatterMFP);
     jstools::parseJson(json, "ReemissionProb", ReemissionProb);
+    jstools::parseJson(json, "IgnoreEnergyConservationInReemission", IgnoreEnergyConservationInReemission);
 
     jstools::parseJson(json, "PhotonYield",   PhotonYield);
     jstools::parseJson(json, "IntrEnergyRes", IntrEnergyRes);

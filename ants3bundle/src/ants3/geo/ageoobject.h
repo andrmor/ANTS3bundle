@@ -18,6 +18,7 @@ class AGridElementRecord;
 class TGeoRotation;
 class QRegularExpression;
 class ACalorimeterProperties;
+class APhotonFunctionalModel;
 
 // !!!*** avoid dynamic_cast, refactor to use e.g. isMonitor()
 
@@ -101,6 +102,9 @@ public:
 
   // calorimeters
   const ACalorimeterProperties * getCalorimeterProperties() const;
+
+  // photon functional
+  APhotonFunctionalModel * getDefaultPhotonFunctionalModel(); // can operate with const / const ?
 
   // stacks
   bool isStackMember() const;

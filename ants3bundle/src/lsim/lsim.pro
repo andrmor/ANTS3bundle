@@ -20,6 +20,7 @@ INCLUDEPATH += ../ants3/materials
 INCLUDEPATH += ../ants3/geo
 INCLUDEPATH += ../ants3/photonSim
 INCLUDEPATH += ../ants3/photonSim/interfaceRules
+INCLUDEPATH += ../ants3/photonSim/photonFunctional
 INCLUDEPATH += ../ants3/tools
 INCLUDEPATH += ../ants3/particleSim # see comments below, needed only for calorimeters
 
@@ -40,6 +41,8 @@ SOURCES += \
         ../ants3/photonSim/aphotonbombfilehandler.cpp \
         ../ants3/photonSim/aphotonfilehandler.cpp \
         ../ants3/photonSim/asensormodel.cpp \
+        ../ants3/photonSim/photonFunctional/aphotonfunctionalhub.cpp \
+        ../ants3/photonSim/photonFunctional/aphotonfunctionalmodel.cpp \
         ../ants3/tools/aerrorhub.cpp \
         ../ants3/tools/ajsontools.cpp \
         ../ants3/tools/afiletools.cpp \
@@ -105,6 +108,8 @@ HEADERS += \
     ../ants3/photonSim/aphotonbombfilehandler.h \
     ../ants3/photonSim/aphotonfilehandler.h \
     ../ants3/photonSim/asensormodel.h \
+    ../ants3/photonSim/photonFunctional/aphotonfunctionalhub.h \
+    ../ants3/photonSim/photonFunctional/aphotonfunctionalmodel.h \
     ../ants3/tools/aerrorhub.h \
     ../ants3/tools/ajsontools.h \
     ../ants3/tools/afiletools.h \

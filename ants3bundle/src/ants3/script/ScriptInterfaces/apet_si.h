@@ -27,12 +27,13 @@ public slots:
     void configureBuilderSeed(int seed);
     void configureBuilderCTR(double CTR_ns);
     void configureBuilderEnergies(double energyResolution_fraction, double energyThreshold_keV);
-    void buildEventsFromDeposition(QString depositionFileName, QString eventsFileName);
+    void addDepositionFile(QString depositionFileName, bool binary);
+    double buildEventsFromDeposition(QString eventsFileName, bool binary);
 
     void configureCoincidenceWindow(double coincidenceWindow_ns);
     void configureCoincidenceGlobalTimeRange(double from_ns, double to_ns);
     void configureCoincidenceEnergyWindow(double energyFrom_keV, double energyTo_keV);
-    void findCoincidences(QString scannerName, QString eventsFileName, QString coincFileName, bool writeToF);
+    double findCoincidences(QString scannerName, QString eventsFileName, bool binary, QString coincFileName, bool writeToF);
 
     void configureReconstructionVoxels(int numX, int numY, int numZ, double sizeX, double sizeY, double sizeZ);
     void configureReconstructionAlgorithm(QString algorithmName);
@@ -53,6 +54,8 @@ private:
 
     APetEventBuilderConfig      BuilderConfig;
     APetCoincidenceFinderConfig CoincidenceConfig;
+
+    std::vector<std::pair<std::string,bool>> DepoFiles;
 
     std::array<size_t, 3> NumVoxels  = {128, 128, 128};
     std::array<double, 3> SizeVoxels = {3.0, 3.0, 3.0};

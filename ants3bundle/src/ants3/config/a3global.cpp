@@ -84,6 +84,10 @@ void A3Global::saveConfig()
     json["BinsZ"] = BinsZ;
     json["OpenImageExternalEditor"] = OpenImageExternalEditor;
 
+    QJsonObject jsMa;
+    DefaultDrawMargins.writeToJson(jsMa);
+    json["DefaultDrawMargins"] = jsMa;
+
 /*
     js["RecTreeSave_IncludePMsignals"] = RecTreeSave_IncludePMsignals;
     js["RecTreeSave_IncludeRho"] = RecTreeSave_IncludeRho;
@@ -154,6 +158,10 @@ void A3Global::loadConfig()
     jstools::parseJson(json, "BinsY", BinsY);
     jstools::parseJson(json, "BinsZ", BinsZ);
     jstools::parseJson(json, "OpenImageExternalEditor", OpenImageExternalEditor);
+
+    QJsonObject jsMa;
+    jstools::parseJson(json, "DefaultDrawMargins", jsMa);
+    DefaultDrawMargins.readFromJson(jsMa);
 
     jstools::parseJson(json, "JavaScriptJson", JavaScriptJson);
     jstools::parseJson(json, "PythonJson", PythonJson);

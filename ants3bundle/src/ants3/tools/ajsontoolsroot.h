@@ -17,6 +17,8 @@ namespace jstools
 
     TH1D      * jsonToRegularTh1D(const QJsonObject & json);
     TH2D      * jsonToRegularTh2D(const QJsonObject & json);
+
+    void histToArray_lowerEdge(const TH1D * hist, std::vector<std::pair<double,double>> & content);
 }
 
 #endif // AJSONTOOLSROOT_H

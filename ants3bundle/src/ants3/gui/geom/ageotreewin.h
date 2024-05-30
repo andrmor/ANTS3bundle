@@ -12,6 +12,7 @@ class AGeometryHub;
 class AMaterialHub;
 class AGeoTree;
 class AGeoObject;
+class TObject;
 
 namespace Ui {
   class AGeoTreeWin;
@@ -55,7 +56,6 @@ private slots:
 
   void on_actionFind_object_triggered();
 
-
   private:
   AGeometryHub       & Geometry;
   const AMaterialHub & MaterialHub;
@@ -95,6 +95,7 @@ signals:
   void requestClearGeoMarkers(int All_Rec_True);
   void requestAddJavaScript(const QString & script);
   void requestAddPythonScript(const QString & script);
+  void requestDraw(TObject * obj, const QString & options, bool transferOwnership, bool focusWindow);
 
   void requestDelayedRebuildAndRestoreDelegate();  //local
 

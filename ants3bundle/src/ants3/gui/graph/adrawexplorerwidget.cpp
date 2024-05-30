@@ -141,6 +141,9 @@ void ADrawExplorerWidget::showObjectContextMenu(const QPoint &pos, int index)
     QAction* axesZ        = Menu.addAction("Z axis");
 
     Menu.addSeparator();
+    QAction* marginsA     = Menu.addAction("Change margins");
+
+    Menu.addSeparator();
     QAction* addAxisRight = Menu.addAction("Add axis on RHS");
     QAction* addAxisTop   = Menu.addAction("Add axis on Top");
 
@@ -231,6 +234,7 @@ void ADrawExplorerWidget::showObjectContextMenu(const QPoint &pos, int index)
     else if (si == axesX)        editAxis(obj, 0);
     else if (si == axesY)        editAxis(obj, 1);
     else if (si == axesZ)        editAxis(obj, 2);
+    else if (si == marginsA)     setCustomMargins(obj);
     else if (si == addAxisTop)   addAxis(0);
     else if (si == addAxisRight) addAxis(1);
     else if (si == shiftA)       shift(obj);
@@ -270,6 +274,9 @@ void ADrawExplorerWidget::manipulateTriggered()
         QAction * axesZ        = Menu.addAction("Z axis");
 
         Menu.addSeparator();
+        QAction * marginsA     = Menu.addAction("Set custom margins");
+
+        Menu.addSeparator();
         QAction * addAxisRight = Menu.addAction("Add axis on RHS");
         QAction * addAxisTop   = Menu.addAction("Add axis on Top");
 
@@ -300,6 +307,7 @@ void ADrawExplorerWidget::manipulateTriggered()
         if      (si == axesX)        editAxis(obj, 0);
         else if (si == axesY)        editAxis(obj, 1);
         else if (si == axesZ)        editAxis(obj, 2);
+        else if (si == marginsA)     setCustomMargins(obj);
         else if (si == addAxisTop)   addAxis(0);
         else if (si == addAxisRight) addAxis(1);
         else if (si == scale)        scaleAllSameMax();
@@ -1522,10 +1530,12 @@ void ADrawExplorerWidget::splineFit(int index)
 }
 
 #include "aaxesdialog.h"
+#include "TGraph2D.h"
 void ADrawExplorerWidget::editAxis(ADrawObject &obj, int axisIndex)
 {
     QVector<TAxis*> axes;
 
+    // !!!*** refactor
     if (dynamic_cast<TGraph*>(obj.Pointer))
     {
         TGraph * g = dynamic_cast<TGraph*>(obj.Pointer);
@@ -1535,6 +1545,11 @@ void ADrawExplorerWidget::editAxis(ADrawObject &obj, int axisIndex)
     {
         TH1* h = dynamic_cast<TH1*>(obj.Pointer);
         axes << h->GetXaxis() << h->GetYaxis() << h->GetZaxis();
+    }
+    else if (dynamic_cast<TGraph2D*>(obj.Pointer))
+    {
+        TGraph2D * g = dynamic_cast<TGraph2D*>(obj.Pointer);
+        axes << g->GetXaxis() << g->GetYaxis() << g->GetZaxis();
     }
     else
     {
@@ -1547,6 +1562,29 @@ void ADrawExplorerWidget::editAxis(ADrawObject &obj, int axisIndex)
     D.exec();
 
     GraphWindow.RedrawAll();
+    GraphWindow.HighlightUpdateBasketButton(true);
+}
+
+#include "asetmarginsdialog.h"
+#include "a3global.h"
+void ADrawExplorerWidget::setCustomMargins(ADrawObject & obj)
+{
+    const A3Global & GlobSet = A3Global::getConstInstance();
+
+    ADrawMarginsRecord rec = ( obj.CustomMargins.Override ? obj.CustomMargins : GlobSet.DefaultDrawMargins );
+
+    ASetMarginsDialog d(rec, GlobSet.DefaultDrawMargins, this);
+    int res = d.exec();
+
+    if (res == QDialog::Rejected) return;
+
+    obj.CustomMargins = d.getResult();
+
+    if (d.isDefaultSelected()) obj.CustomMargins.Override = false;
+    else obj.CustomMargins.Override = true;
+
+    GraphWindow.updateMargins(&obj);
+    GraphWindow.doRedrawOnUpdateMargins();
     GraphWindow.HighlightUpdateBasketButton(true);
 }
 

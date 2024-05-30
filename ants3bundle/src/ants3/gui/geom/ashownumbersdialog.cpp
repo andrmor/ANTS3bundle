@@ -95,3 +95,24 @@ void AShowNumbersDialog::on_ledSizeCalorimeter_editingFinished()
     const double size = ui->ledSizeCalorimeter->text().toDouble();
     GW.GeoWriter.SizeForCalorimeters = size;
 }
+
+// --- Photon functional models ---
+
+void AShowNumbersDialog::on_pbPhFunIndex_clicked()
+{
+    GW.showPhotonFunctionalIndexes();
+    accept();
+}
+
+void AShowNumbersDialog::on_pbPhFunLinks_clicked()
+{
+    GW.onRequestShowAllConnections();
+    accept();
+}
+
+void AShowNumbersDialog::on_ledSizePhFun_editingFinished()
+{
+    const double size = ui->ledSizePhFun->text().toDouble();
+    GW.GeoWriter.SizeForPhotFuncts = size;
+}
+
