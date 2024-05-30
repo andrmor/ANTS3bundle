@@ -1912,7 +1912,7 @@ in basket</string>
      <x>0</x>
      <y>0</y>
      <width>987</width>
-     <height>21</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuExport">
@@ -1979,9 +1979,16 @@ in basket</string>
     </property>
     <addaction name="actionShow_first_drawn_object_context_menu"/>
    </widget>
+   <widget class="QMenu" name="menuMargins">
+    <property name="title">
+     <string>Margins</string>
+    </property>
+    <addaction name="actionSet_default_margins"/>
+   </widget>
    <addaction name="menuMainObject"/>
    <addaction name="menuExport"/>
    <addaction name="menuView"/>
+   <addaction name="menuMargins"/>
    <addaction name="menuPalette"/>
    <addaction name="menuSize"/>
    <addaction name="menuTemplate"/>
@@ -2112,6 +2119,11 @@ in basket</string>
   <action name="actionOpen_MultiGraphDesigner">
    <property name="text">
     <string>Open MultiGraphDesigner</string>
+   </property>
+  </action>
+  <action name="actionSet_default_margins">
+   <property name="text">
+    <string>Set default margins</string>
    </property>
   </action>
  </widget>

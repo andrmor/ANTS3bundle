@@ -47,6 +47,13 @@ public:
     bool    SW_Italic     = false;
     int     TabInSpaces = 7;
 
+    // Margins
+    double  MarginTop = 0.05;
+    double  MarginBottom = 0.1;
+    double  MarginLeft = 0.1;
+    double  MarginRight = 0.1;
+    double  MarginRightColz = 0.15;
+
     /*
     bool RecTreeSave_IncludePMsignals = true;
     bool RecTreeSave_IncludeRho = true;

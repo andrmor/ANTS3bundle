@@ -136,6 +136,7 @@ SOURCES += \
     gui/geom/ageoconstexpressiondialog.cpp \
     gui/geom/ageotreewin.cpp \
     gui/geom/ashownumbersdialog.cpp \
+    gui/graph/asetmarginsdialog.cpp \
     gui/graph/aviewer3d.cpp \
     gui/graph/aviewer3dsettingsdialog.cpp \
     gui/graph/aviewer3dwidget.cpp \
@@ -345,6 +346,7 @@ HEADERS += \
     ademomanager.h \
     aviewer3dsettings.h \
     gui/atreedatabaseselectordialog.h \
+    gui/graph/asetmarginsdialog.h \
     gui/graph/aviewer3dsettingsdialog.h \
     gui/photsim/afunctionalmodelwidget.h \
     gui/photsim/aphotonlogsettingsform.h \
@@ -569,6 +571,7 @@ FORMS += \
         gui/aconfigexamplebrowser.ui \
         gui/geom/ashownumbersdialog.ui \
         gui/aglobsetwindow.ui \
+        gui/graph/asetmarginsdialog.ui \
         gui/graph/aviewer3d.ui \
         gui/graph/aviewer3dsettingsdialog.ui \
         gui/graph/aviewer3dwidget.ui \

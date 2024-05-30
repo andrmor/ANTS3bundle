@@ -308,9 +308,12 @@ private:
     void updateLogScaleFlags(QVector<ADrawObject> & drawObjects) const;
     void createMGDesigner();
     void connectScriptUnitDrawRequests(const std::vector<AScriptInterface *> interfaces);
+    void updateMargins(const QString & options);
 
 private slots:
     void onRequestMakeCopyViewer3D(AViewer3D * ptr);
+
+    void on_actionSet_default_margins_triggered();
 
 signals:
     void requestLocalDrawObject(TObject *obj, QString options, bool fFocus);
