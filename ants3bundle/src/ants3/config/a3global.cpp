@@ -84,11 +84,9 @@ void A3Global::saveConfig()
     json["BinsZ"] = BinsZ;
     json["OpenImageExternalEditor"] = OpenImageExternalEditor;
 
-    json["MarginTop"]       = MarginTop;
-    json["MarginBottom"]    = MarginBottom;
-    json["MarginLeft"]      = MarginLeft;
-    json["MarginRight"]     = MarginRight;
-    json["MarginRightColz"] = MarginRightColz;
+    QJsonObject jsMa;
+    DefaultDrawMargins.writeToJson(jsMa);
+    json["DefaultDrawMargins"] = jsMa;
 
 /*
     js["RecTreeSave_IncludePMsignals"] = RecTreeSave_IncludePMsignals;
@@ -161,11 +159,9 @@ void A3Global::loadConfig()
     jstools::parseJson(json, "BinsZ", BinsZ);
     jstools::parseJson(json, "OpenImageExternalEditor", OpenImageExternalEditor);
 
-    jstools::parseJson(json, "MarginTop",       MarginTop);
-    jstools::parseJson(json, "MarginBottom",    MarginBottom);
-    jstools::parseJson(json, "MarginLeft",      MarginLeft);
-    jstools::parseJson(json, "MarginRight",     MarginRight);
-    jstools::parseJson(json, "MarginRightColz", MarginRightColz);
+    QJsonObject jsMa;
+    jstools::parseJson(json, "DefaultDrawMargins", jsMa);
+    DefaultDrawMargins.readFromJson(jsMa);
 
     jstools::parseJson(json, "JavaScriptJson", JavaScriptJson);
     jstools::parseJson(json, "PythonJson", PythonJson);

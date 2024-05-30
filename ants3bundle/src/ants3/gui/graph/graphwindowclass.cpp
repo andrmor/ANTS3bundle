@@ -140,7 +140,7 @@ GraphWindowClass::GraphWindowClass(QWidget * parent) :
     connect(RasterWindow, &RasterWindowGraphClass::LeftMouseButtonReleased, this, &GraphWindowClass::UpdateControls);
     connect(RasterWindow, &RasterWindowGraphClass::reportCursorPosition, this, &GraphWindowClass::onCursorPositionReceived);
 
-    updateMargins("");
+    updateMargins();
 
     setShowCursorPosition(false);
 
@@ -504,10 +504,10 @@ void GraphWindowClass::DrawWithoutFocus(TObject *obj, const char *options, bool 
         UpdateBasketGUI();
 
         DrawObjects.clear();
-
-        updateMargins(opt);
     }
     DrawObjects.append(ADrawObject(obj, opt));
+
+    if (DrawObjects.size() == 1) updateMargins(&DrawObjects.front());
 
     doDraw(obj, opt.toLatin1().data(), DoUpdate);
 
@@ -932,7 +932,7 @@ void GraphWindowClass::RedrawAll()
         QByteArray ba = opt.toLocal8Bit();
         const char* options = ba.data();
 
-        if (!obj.Options.contains("same", Qt::CaseInsensitive)) updateMargins(obj.Options);
+        if (!obj.Options.contains("same", Qt::CaseInsensitive)) updateMargins(&obj);
 
         if (obj.bEnabled) doDraw(obj.Pointer, options, false);
     }
@@ -2989,46 +2989,56 @@ void GraphWindowClass::onRequestMakeCopyViewer3D(AViewer3D * ptr)
 #include "asetmarginsdialog.h"
 void GraphWindowClass::on_actionSet_default_margins_triggered()
 {
-    ASetMarginsDialog d(this);
+    A3Global & GlobSet = A3Global::getInstance();
+
+    ASetMarginsDialog d(GlobSet.DefaultDrawMargins, ADrawMarginsRecord(), this);
     int res = d.exec();
     if (res == QDialog::Accepted)
     {
-        //ClearRootCanvas();
-        updateMargins("");
-        //UpdateRootCanvas();
-
-        // bug in this toot version: Z axis is not moved after plain redraw!
-        if (!DrawObjects.empty())
-        {
-            QString oldOpt = DrawObjects.front().Options;
-            QString opt = oldOpt;
-            if (opt.contains("z", Qt::CaseInsensitive))
-            {
-                opt.remove("z", Qt::CaseInsensitive);
-                DrawObjects.front().Options = opt;
-                RedrawAll();
-                DrawObjects.front().Options = oldOpt;
-            }
-        }
-        RedrawAll();
+        GlobSet.DefaultDrawMargins = d.getResult();
+        updateMargins();
+        doRedrawOnUpdateMargins();
     }
 }
 
-void GraphWindowClass::updateMargins(const QString & options = "")
+void GraphWindowClass::doRedrawOnUpdateMargins()
 {
-    const A3Global & GlobSet = A3Global::getConstInstance();
+    //ClearRootCanvas();
+    //UpdateRootCanvas();
+    // bug in this toot version: Z axis is not moved after plain redraw!
 
-    RasterWindow->fCanvas->SetTopMargin(GlobSet.MarginTop);
-    RasterWindow->fCanvas->SetBottomMargin(GlobSet.MarginBottom);
-    RasterWindow->fCanvas->SetLeftMargin(GlobSet.MarginLeft);
+    if (!DrawObjects.empty())
+    {
+        QString oldOpt = DrawObjects.front().Options;
+        QString opt = oldOpt;
+        if (opt.contains("z", Qt::CaseInsensitive))
+        {
+            opt.remove("z", Qt::CaseInsensitive);
+            DrawObjects.front().Options = opt;
+            RedrawAll();
+            DrawObjects.front().Options = oldOpt;
+        }
+    }
+    RedrawAll();
+}
+
+void GraphWindowClass::updateMargins(ADrawObject * obj)
+{
+    ADrawMarginsRecord rec;
+
+    if (!obj || !obj->CustomMargins.Override)
+        rec = A3Global::getConstInstance().DefaultDrawMargins;
+    else rec = obj->CustomMargins;
+
+    RasterWindow->fCanvas->SetTopMargin(rec.Top);
+    RasterWindow->fCanvas->SetBottomMargin(rec.Bottom);
+    RasterWindow->fCanvas->SetLeftMargin(rec.Left);
 
     bool hitWithZ = false;
-    QString useOpt = options;
-    if (options.isEmpty())
-        if (!DrawObjects.empty())
-            useOpt = DrawObjects.front().Options;
-    if (useOpt.contains("z", Qt::CaseInsensitive)) hitWithZ = true;
+    QString opt = "";
+    if (obj) opt = obj->Options;
+    if (opt.contains("z", Qt::CaseInsensitive)) hitWithZ = true;
 
-    double right = (hitWithZ ? GlobSet.MarginRightColz : GlobSet.MarginRight);
+    double right = (hitWithZ ? rec.RightForZ : rec.Right);
     RasterWindow->fCanvas->SetRightMargin(right);
 }

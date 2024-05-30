@@ -1,6 +1,8 @@
 #ifndef A3GLOBAL_H
 #define A3GLOBAL_H
 
+#include "adrawmarginsrecord.h"
+
 #include <QString>
 #include <QJsonObject>
 
@@ -48,11 +50,7 @@ public:
     int     TabInSpaces = 7;
 
     // Margins
-    double  MarginTop = 0.05;
-    double  MarginBottom = 0.1;
-    double  MarginLeft = 0.1;
-    double  MarginRight = 0.1;
-    double  MarginRightColz = 0.15;
+    ADrawMarginsRecord DefaultDrawMargins;
 
     /*
     bool RecTreeSave_IncludePMsignals = true;

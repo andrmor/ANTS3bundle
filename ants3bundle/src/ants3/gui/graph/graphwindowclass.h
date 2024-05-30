@@ -136,6 +136,7 @@ public:
     void    ConfigureProjectionTool(double x0, double y0, double dx, double dy, double angle);
 
     void close3DviewWindow();
+    void doRedrawOnUpdateMargins();
 
 protected:
     void mouseMoveEvent(QMouseEvent * event);
@@ -308,7 +309,7 @@ private:
     void updateLogScaleFlags(QVector<ADrawObject> & drawObjects) const;
     void createMGDesigner();
     void connectScriptUnitDrawRequests(const std::vector<AScriptInterface *> interfaces);
-    void updateMargins(const QString & options);
+    void updateMargins(ADrawObject * obj = nullptr);
 
 private slots:
     void onRequestMakeCopyViewer3D(AViewer3D * ptr);
