@@ -2921,7 +2921,7 @@ void GraphWindowClass::show3D(QString castorFileName, bool keepSettings)
         delete Viewer3D;
     }
     Viewer3D = new AViewer3D(this);
-    connect(Viewer3D, &AViewer3D::requestMakeCopy, this, &GraphWindowClass::onRequestMakeCopyViewer3D);
+    connect(Viewer3D, &AViewer3D::requestMakeCopy,       this, &GraphWindowClass::onRequestMakeCopyViewer3D);
     connect(Viewer3D, &AViewer3D::requestExportToBasket, this, &GraphWindowClass::addObjectToBasket);
 
     if (doRestore) Viewer3D->Settings.readFromJson(js1);
@@ -2946,8 +2946,8 @@ void GraphWindowClass::onRequestMakeCopyViewer3D(AViewer3D * ptr)
 {
     AViewer3D * view = new AViewer3D(this);
     view->setWindowTitle("3D viewer (copy)");
-    connect(view, &AViewer3D::requestMakeCopy, this, &GraphWindowClass::onRequestMakeCopyViewer3D);
-    connect(view, &AViewer3D::requestMakeCopy, this, &GraphWindowClass::onRequestMakeCopyViewer3D);
+    connect(view, &AViewer3D::requestMakeCopy,       this, &GraphWindowClass::onRequestMakeCopyViewer3D);
+    connect(view, &AViewer3D::requestExportToBasket, this, &GraphWindowClass::addObjectToBasket);
 
     qApp->processEvents();
 
