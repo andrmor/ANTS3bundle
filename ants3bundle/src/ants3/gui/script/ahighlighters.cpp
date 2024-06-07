@@ -6,7 +6,7 @@
 AHighlighter::AHighlighter(QTextDocument *parent)
     : QSyntaxHighlighter(parent){}
 
-void AHighlighter::setExternalRules(const QStringList & units, const QStringList & functions, const QStringList & deprecatedOrRemoved, const QStringList & constants)
+void AHighlighter::setExternalRules(const QStringList & units, const QStringList & functions, const QStringList & deprecatedOrRemoved)
 {
     if (HighlightingRulesInEffect.size() > HighlightingRulesPermanent.size()) return;
 
@@ -47,15 +47,6 @@ void AHighlighter::setExternalRules(const QStringList & units, const QStringList
         rule.Format = unitFormat;
         hr.push_back(rule);
     }
-
-    /*
-    for (const QString &pattern : constants)
-    {
-        rule.pattern = QRegularExpression("\\b"+pattern+"\\b(?![\\(\\{\\[])");
-        rule.format = customKeywordFormat;
-        hr.push_back(rule);
-    }
-    */
 
     //HighlightingRulesInEffect = hr + HighlightingRulesPermanent; //so e.g. comments and quatation rule have higher priority
     HighlightingRulesInEffect.clear();

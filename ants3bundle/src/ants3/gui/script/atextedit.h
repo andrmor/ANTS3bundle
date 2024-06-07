@@ -15,24 +15,23 @@ class ATextEdit : public QPlainTextEdit
 {
     Q_OBJECT
 public:
-    ATextEdit(QWidget *parent = 0);
+    ATextEdit(QWidget * parent = nullptr);
     ~ATextEdit() {}
 
-    void setCompleter(QCompleter *completer);
-    QCompleter *completer() const {return c; }
+    void setCompleter(QCompleter * completer);
 
     void setScriptLanguage(EScriptLanguage lang) {ScriptLanguage = lang;}
 
     void SetFontSize(int size);
     void RefreshExtraHighlight();
-    void setTextCursorSilently(const QTextCursor& tc);
+    void setTextCursorSilently(const QTextCursor & tc);
 
     void setDeprecatedOrRemovedMethods(const QHash<QString, QString>* DepRem) {DeprecatedOrRemovedMethods = DepRem;}
 
     int & TabInSpaces;
     QStringList functionList;
     QString FindString;
-    const QHash<QString, QString>* DeprecatedOrRemovedMethods = 0;
+    const QHash<QString, QString> * DeprecatedOrRemovedMethods = nullptr;
 
 public slots:
     void paste();
@@ -56,15 +55,15 @@ private slots:
 
 private:
     friend class ALeftField;
-    int  previousLineNumber = 0;
+    int  previousLineNumber = 0; // !!!*** checked by not set
     bool bMonitorLineChange = true;
     EScriptLanguage ScriptLanguage = EScriptLanguage::JavaScript;
-    QCompleter * c = nullptr;
+    QCompleter * Completer = nullptr;
     ALeftField * LeftField  = nullptr;
     bool Pressed_2 = false;
 
     QString textUnderCursor() const;
-    QString SelectObjFunctUnderCursor(QTextCursor* cursor = 0) const;
+    QString SelectObjFunctUnderCursor(QTextCursor * cursor = nullptr) const;
     QString SelectTextToLeft(QTextCursor cursor, int num) const;
     bool InsertClosingBracket() const;
     bool findInList(QString text, QString &tmp) const;

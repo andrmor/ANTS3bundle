@@ -1037,7 +1037,7 @@ void AScriptWindow::onProgressChanged(int percent)
     qApp->processEvents();
 }
 
-QStringList AScriptWindow::getListOfMethods(const QObject *obj, QString ObjName, bool fWithArguments)
+QStringList AScriptWindow::getListOfMethods(const QObject * obj, QString ObjName, bool fWithArguments)
 {
     QStringList methods;
     if (!obj) return methods;
@@ -1195,7 +1195,7 @@ void AScriptWindow::onScriptTabMoved(int from, int to)
 
 void AScriptWindow::updateTab(ATabRecord* tab)
 {
-    tab->Highlighter->setExternalRules(UnitNames, Methods, ListOfDeprecatedOrRemovedMethods, ListOfConstants);
+    tab->Highlighter->setExternalRules(UnitNames, Methods, ListOfDeprecatedOrRemovedMethods);
     tab->updateHighlight();
     tab->TextEdit->functionList = functionList;
     tab->TextEdit->DeprecatedOrRemovedMethods = &DeprecatedOrRemovedMethods;

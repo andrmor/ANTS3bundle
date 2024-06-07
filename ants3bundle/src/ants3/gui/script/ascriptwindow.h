@@ -90,7 +90,7 @@ private:
     QHash<QString, QString> DeprecatedOrRemovedMethods;
     QStringList         UnitNames;
     QStringList         ListOfDeprecatedOrRemovedMethods;
-    QStringList         ListOfConstants;
+    //QStringList         ListOfConstants;
 
     AScriptExampleExplorer * ExampleExplorer = nullptr;
 

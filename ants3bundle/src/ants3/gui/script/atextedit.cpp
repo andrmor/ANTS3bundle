@@ -20,7 +20,7 @@
 #include <QRegularExpression>
 
 ATextEdit::ATextEdit(QWidget *parent) :
-    QPlainTextEdit(parent), TabInSpaces(A3Global::getInstance().TabInSpaces), c(0)
+    QPlainTextEdit(parent), TabInSpaces(A3Global::getInstance().TabInSpaces), Completer(0)
 {
     LeftField = new ALeftField(*this);
     connect(this, &ATextEdit::blockCountChanged, this, &ATextEdit::updateLineNumberAreaWidth);
@@ -34,14 +34,14 @@ ATextEdit::ATextEdit(QWidget *parent) :
 
 void ATextEdit::setCompleter(QCompleter *completer)
 {
-    if (c) QObject::disconnect(c, 0, this, 0);
-    c = completer;
-    if (!c) return;
+    if (Completer) QObject::disconnect(Completer, 0, this, 0);
+    Completer = completer;
+    if (!Completer) return;
 
-    c->setWidget(this);
-    c->setCompletionMode(QCompleter::PopupCompletion);
-    c->setCaseSensitivity(Qt::CaseInsensitive);
-    QObject::connect(c, SIGNAL(activated(QString)), this, SLOT(insertCompletion(QString)));
+    Completer->setWidget(this);
+    Completer->setCompletionMode(QCompleter::PopupCompletion);
+    Completer->setCaseSensitivity(Qt::CaseInsensitive);
+    QObject::connect(Completer, SIGNAL(activated(QString)), this, SLOT(insertCompletion(QString)));
 }
 
 static int counter = 0;
@@ -73,7 +73,7 @@ void ATextEdit::keyPressEvent(QKeyEvent * e)
       }
     case Qt::Key_Tab :
       {
-        if (e->modifiers() == 0 && !(c && c->popup()->isVisible()) )
+        if (e->modifiers() == 0 && !(Completer && Completer->popup()->isVisible()) )
         {
             int posInBlock = tc.positionInBlock();
             int timesInsert = TabInSpaces - posInBlock % TabInSpaces;
@@ -271,7 +271,7 @@ void ATextEdit::keyPressEvent(QKeyEvent * e)
     }
     */
 
-    if (key == Qt::Key_Return  && !(c && c->popup()->isVisible()))
+    if (key == Qt::Key_Return  && !(Completer && Completer->popup()->isVisible()))
     { //enter is pressed but completer popup is not visible
         tc.movePosition(QTextCursor::EndOfLine, QTextCursor::KeepAnchor);
         QString onRight = tc.selectedText();
@@ -370,7 +370,7 @@ void ATextEdit::keyPressEvent(QKeyEvent * e)
     }
 
     // ----- completer -----
-    if (c && c->popup()->isVisible())
+    if (Completer && Completer->popup()->isVisible())
     {
         // The following keys are forwarded by the completer to the widget
         switch (key)
@@ -380,7 +380,7 @@ void ATextEdit::keyPressEvent(QKeyEvent * e)
             //qDebug() << "Tab pressed when completer is active";
             //QString startsWith = c->completionPrefix();
             int i = 0;
-            QAbstractItemModel * m = c->completionModel();
+            QAbstractItemModel * m = Completer->completionModel();
             QStringList sl;
             while (m->hasIndex(i, 0)) sl << m->data(m->index(i++, 0)).toString();
             if (sl.size() < 2)
@@ -411,7 +411,7 @@ void ATextEdit::keyPressEvent(QKeyEvent * e)
             else
             {
                 insertCompletion(root);
-                c->popup()->setCurrentIndex(c->completionModel()->index(0, 0));
+                Completer->popup()->setCurrentIndex(Completer->completionModel()->index(0, 0));
             }
             return;
           }
@@ -427,11 +427,11 @@ void ATextEdit::keyPressEvent(QKeyEvent * e)
     }
 
     bool isShortcut = ((e->modifiers() & Qt::ControlModifier) && key == Qt::Key_E); // CTRL+E
-    if (!c || !isShortcut) // do not process the shortcut when we have a completer
+    if (!Completer || !isShortcut) // do not process the shortcut when we have a completer
         QPlainTextEdit::keyPressEvent(e);
 
     const bool ctrlOrShift = e->modifiers() & (Qt::ControlModifier | Qt::ShiftModifier);
-    if (!c || (ctrlOrShift && e->text().isEmpty()))
+    if (!Completer || (ctrlOrShift && e->text().isEmpty()))
         return;
 
     //static QString eow("~!@#$%^&*()_+{}|:\"<>?,./;'[]\\-="); // end of word
@@ -441,7 +441,7 @@ void ATextEdit::keyPressEvent(QKeyEvent * e)
 
     if (completionPrefix == "else")
     {
-        c->popup()->hide();
+        Completer->popup()->hide();
         return;
     }
 
@@ -451,19 +451,19 @@ void ATextEdit::keyPressEvent(QKeyEvent * e)
     if (!isShortcut && (hasModifier || e->text().isEmpty()|| completionPrefix.length() < 3 || eow.contains(e->text().right(1))))
     {
         //qDebug() << "Hiding!";
-        c->popup()->hide();
+        Completer->popup()->hide();
         return;
     }
 
-    if (completionPrefix != c->completionPrefix())
+    if (completionPrefix != Completer->completionPrefix())
     {
-        c->setCompletionPrefix(completionPrefix);
-        c->popup()->setCurrentIndex(c->completionModel()->index(0, 0));
+        Completer->setCompletionPrefix(completionPrefix);
+        Completer->popup()->setCurrentIndex(Completer->completionModel()->index(0, 0));
     }
     QRect cr = cursorRect();
-    cr.setWidth(c->popup()->sizeHintForColumn(0)
-                + c->popup()->verticalScrollBar()->sizeHint().width());
-    c->complete(cr); // popup it up!
+    cr.setWidth(Completer->popup()->sizeHintForColumn(0)
+                + Completer->popup()->verticalScrollBar()->sizeHint().width());
+    Completer->complete(cr); // popup it up!
 }
 
 bool ATextEdit::onKeyPressed_interceptShortcut(int key, bool shift)
@@ -668,7 +668,7 @@ void ATextEdit::resizeEvent(QResizeEvent *e)
 
 void ATextEdit::insertCompletion(const QString &completion)
 {
-    if (c->widget() != this) return;
+    if (Completer->widget() != this) return;
 
     QTextCursor tc = textCursor();
     //tc.select(QTextCursor::WordUnderCursor);
@@ -1240,37 +1240,37 @@ QString ATextEdit::textUnderCursor() const
     return selected;
 }
 
-QString ATextEdit::SelectObjFunctUnderCursor(QTextCursor *cursor) const
+QString ATextEdit::SelectObjFunctUnderCursor(QTextCursor * cursor) const
 {
-  QString sel;
-  QTextCursor tc = (cursor == 0) ? textCursor() : *cursor;
-  while (tc.position() != 0)
+    QString sel;
+    QTextCursor tc = (cursor == 0) ? textCursor() : *cursor;
+    while (tc.position() != 0)
     {
-     tc.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
-     QString selected = tc.selectedText();
-     //qDebug() << "<-" <<selected << selected.left(1).contains(QRegExp("[A-Za-z0-9.]"));
-     if ( !selected.left(1).contains(QRegularExpression("[A-Za-z0-9._]")) )
-       {
-         tc.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor);
-         break;
-       }
-    }
-  sel = tc.selectedText();
-
-  while (tc.position() != document()->characterCount()-1)
-    {
-      tc.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor);
-      QString selected = tc.selectedText();
-      if (selected.isEmpty()) continue;
-      //qDebug() << "->"<< selected << selected.right(1).contains(QRegExp("[A-Za-z0-9.]"));
-      if ( !selected.right(1).contains(QRegularExpression("[A-Za-z0-9._]")) )
+        tc.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
+        QString selected = tc.selectedText();
+        //qDebug() << "<-" <<selected << selected.left(1).contains(QRegExp("[A-Za-z0-9.]"));
+        if ( !selected.left(1).contains(QRegularExpression("[A-Za-z0-9._]")) )
         {
-          tc.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
-          break;
+            tc.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor);
+            break;
         }
     }
-  sel += tc.selectedText();
-  return sel;
+    sel = tc.selectedText();
+
+    while (tc.position() != document()->characterCount()-1)
+    {
+        tc.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor);
+        QString selected = tc.selectedText();
+        if (selected.isEmpty()) continue;
+        //qDebug() << "->"<< selected << selected.right(1).contains(QRegExp("[A-Za-z0-9.]"));
+        if ( !selected.right(1).contains(QRegularExpression("[A-Za-z0-9._]")) )
+        {
+            tc.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
+            break;
+        }
+    }
+    sel += tc.selectedText();
+    return sel;
 }
 
 QString ATextEdit::SelectTextToLeft(QTextCursor cursor, int num) const
