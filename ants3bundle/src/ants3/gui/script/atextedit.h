@@ -3,6 +3,8 @@
 
 #include "escriptlanguage.h"
 
+#include <vector>
+
 #include <QPlainTextEdit>
 #include <QObject>
 #include <QWidget>
@@ -29,7 +31,7 @@ public:
     void setDeprecatedOrRemovedMethods(const QHash<QString, QString>* DepRem) {DeprecatedOrRemovedMethods = DepRem;}
 
     int & TabInSpaces;
-    QStringList functionList;
+    std::vector<std::pair<QString,int>> ListOfMethods;
     QString FindString;
     const QHash<QString, QString> * DeprecatedOrRemovedMethods = nullptr;
 
@@ -63,10 +65,10 @@ private:
     bool Pressed_2 = false;
 
     QString textUnderCursor() const;
-    QString SelectObjFunctUnderCursor(QTextCursor * cursor = nullptr) const;
+    QString selectObjFunctUnderCursor(QTextCursor * cursor = nullptr) const;
     QString SelectTextToLeft(QTextCursor cursor, int num) const;
     bool InsertClosingBracket() const;
-    bool findInList(QString text, QString &tmp) const;
+    bool findInList(QString text, QString &tmp) const;  // !!!*** rename
     void setFontSizeAndEmitSignal(int size);
 
     void paintLeftField(QPaintEvent *event); // !!!*** make compatible with dark theme
@@ -75,7 +77,7 @@ private:
     void checkBracketsOnLeft(QList<QTextEdit::ExtraSelection> &extraSelections, const QColor &color);
     void checkBracketsOnRight(QList<QTextEdit::ExtraSelection> &extraSelections, const QColor &color);
 
-    bool TryShowFunctionTooltip(QTextCursor *cursor);
+    bool tryShowFunctionTooltip(QTextCursor *cursor);
 
     int getIndent(const QString &line) const;
     void setIndent(QString &line, int indent);

@@ -88,7 +88,8 @@ private:
     bool                bShutDown      = false;
 
     QSet<QString>       ExpandedItemsInJsonTW;
-    QStringList         functionList; //functions to populate tooltip helper
+    //QStringList         functionList; //functions to populate tooltip helper
+    std::vector<std::pair<QString,int>> ListOfMethods; //used to populate tooltip
     QHash<QString, QString> DeprecatedOrRemovedMethods;
     QStringList         UnitNames;
     QStringList         ListOfDeprecatedOrRemovedMethods;
@@ -107,8 +108,11 @@ private:
     QString getDesc(const QJsonValue &ref);
     void fillHelper(const AScriptInterface * io);  // !!!*** optimize --> do not add unit name, transfer to interface base class
     QString getKeyPath(QTreeWidgetItem *item);
+
+    // !!!*** refactor:
     QStringList getListOfMethods(const QObject *obj, QString ObjName, bool fWithArguments = false);  // !!!*** no need name, convert to AScriptInterface
     std::vector<std::pair<QString,int>> getListOfMethodsWithNumArgs(const AScriptInterface * interface);
+
     void appendDeprecatedAndRemovedMethods(const AScriptInterface *obj); // !!!***
 
     void addNewBook();

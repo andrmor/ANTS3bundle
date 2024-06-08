@@ -288,7 +288,7 @@ void AScriptWindow::registerInterfaces()
 
 void AScriptWindow::updateMethodHelp()
 {
-    functionList.clear();
+    ListOfMethods.clear();
     trwHelp->clear();
     for (const AScriptInterface * inter : ScriptManager->getInterfaces())
         fillHelper(inter);
@@ -722,7 +722,7 @@ void AScriptWindow::fillHelper(const AScriptInterface * io)
         QStringList sl = methods[iMet].first.split("_:_");
         QString Fshort = sl.first();
         QString Flong  = sl.last();
-        functionList << Flong;
+        ListOfMethods.push_back( {Flong, methods[iMet].second} );
 
         QString methodName = QString(Fshort).remove(QRegularExpression("\\((.*)\\)"));
         methodName.remove(0, module.length() + 1); //remove module name and '.'
@@ -1290,7 +1290,7 @@ void AScriptWindow::updateTab(ATabRecord* tab)
 {
     tab->Highlighter->setExternalRules(UnitNames, Methods, ListOfDeprecatedOrRemovedMethods);
     tab->updateHighlight();
-    tab->TextEdit->functionList = functionList;
+    tab->TextEdit->ListOfMethods = ListOfMethods;
     tab->TextEdit->DeprecatedOrRemovedMethods = &DeprecatedOrRemovedMethods;
 }
 

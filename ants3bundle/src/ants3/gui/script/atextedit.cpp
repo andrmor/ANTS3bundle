@@ -107,7 +107,7 @@ void ATextEdit::keyPressEvent(QKeyEvent * e)
       }
     case Qt::Key_F1 :
       {
-        QString text = SelectObjFunctUnderCursor();
+        QString text = selectObjFunctUnderCursor();
         emit requestHelp(text);
         return;
       }
@@ -716,7 +716,7 @@ void ATextEdit::insertCompletion(const QString &completion)
     }
 }
 
-bool ATextEdit::findInList(QString text, QString& tmp) const
+bool ATextEdit::findInList(QString text, QString & tmp) const
 {
     if (DeprecatedOrRemovedMethods && DeprecatedOrRemovedMethods->contains(text))
     {
@@ -724,18 +724,19 @@ bool ATextEdit::findInList(QString text, QString& tmp) const
         return true;
     }
 
-  for (int i=0; i<functionList.size(); i++)
+    for (const auto & pair : ListOfMethods)
     {
-      tmp = functionList.at(i);
-      QString returnArgument = tmp.section(' ', 0, 0) + " ";
-      tmp.remove(returnArgument);
-      if (tmp.remove(text).startsWith("("))
+        tmp = pair.first;
+        QString returnArgument = tmp.section(' ', 0, 0) + " ";
+        tmp.remove(returnArgument);
+        if (tmp.remove(text).startsWith("("))
         {
-          tmp = functionList[i];
-          return true;
+            tmp = pair.first;
+            qDebug() << tmp << pair.second;
+            return true;
         }
     }
-  return false;
+    return false;
 }
 
 void ATextEdit::onCursorPositionChanged()
@@ -851,7 +852,7 @@ void ATextEdit::onCursorPositionChanged()
 
   // tooltip for known functions
   QTextCursor tcc = textCursor();
-  TryShowFunctionTooltip(&tcc);
+  tryShowFunctionTooltip(&tcc);
 
   if (bMonitorLineChange)
   {
@@ -860,30 +861,30 @@ void ATextEdit::onCursorPositionChanged()
   }
 }
 
-bool ATextEdit::TryShowFunctionTooltip(QTextCursor* cursor)
+bool ATextEdit::tryShowFunctionTooltip(QTextCursor * cursor)
 {
     QTextCursor tc = *cursor;
-    QString functionCandidateText = SelectObjFunctUnderCursor(cursor);
+    QString functionCandidateText = selectObjFunctUnderCursor(cursor);
     QString tmp;
-    bool fFound = findInList(functionCandidateText, tmp); // cursor is on one of defined functions
+    bool fFound = findInList(functionCandidateText, tmp); // cursor is on one of the defined methods
     if (!fFound)
-      {
+    {
         while (tc.position() != 0)
-          {
+        {
             tc.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
             QString selected = tc.selectedText();
             //qDebug() << selected << selected.left(1).contains(QRegExp("[A-Za-z0-9.]"));
             if ( selected.left(1) == ")" ) break;
             if ( selected.left(1) == "\n" ) break;
             if ( selected.left(1) == "(")
-              {
+            {
                 tc.setPosition(tc.position(), QTextCursor::MoveAnchor);
                 //qDebug() << SelectObjFunctUnderCursor(&tc);
-                fFound = findInList(SelectObjFunctUnderCursor(&tc), tmp); //is cursor is in the arguments of a defined function
+                fFound = findInList(selectObjFunctUnderCursor(&tc), tmp); // cursor is in the bracket section with the arguments
                 break;
-              }
-          }
-      }
+            }
+        }
+    }
     int fh = fontMetrics().height();
 
     if (fFound)
@@ -909,7 +910,7 @@ bool ATextEdit::event(QEvent *event)
         QHelpEvent* helpEvent = static_cast<QHelpEvent*>(event);
         QTextCursor cursor = cursorForPosition(helpEvent->pos());
 
-        return TryShowFunctionTooltip(&cursor);
+        return tryShowFunctionTooltip(&cursor);
     }
     return QPlainTextEdit::event(event);
 }
@@ -917,7 +918,7 @@ bool ATextEdit::event(QEvent *event)
 void ATextEdit::mouseReleaseEvent(QMouseEvent *e)
 {
     QTextCursor cursor = cursorForPosition(e->pos());
-    TryShowFunctionTooltip(&cursor);
+    tryShowFunctionTooltip(&cursor);
     QPlainTextEdit::mouseReleaseEvent(e);
 }
 
@@ -1240,7 +1241,7 @@ QString ATextEdit::textUnderCursor() const
     return selected;
 }
 
-QString ATextEdit::SelectObjFunctUnderCursor(QTextCursor * cursor) const
+QString ATextEdit::selectObjFunctUnderCursor(QTextCursor * cursor) const
 {
     QString sel;
     QTextCursor tc = (cursor == 0) ? textCursor() : *cursor;
