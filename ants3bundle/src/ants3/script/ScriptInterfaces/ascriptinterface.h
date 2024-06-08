@@ -2,10 +2,13 @@
 #define ASCRIPTINTERFACE_H
 
 #include "escriptlanguage.h"
+#include "ascripthelpentry.h"
+
+#include <vector>
+#include <map>
 
 #include <QObject>
 #include <QString>
-#include <map>
 
 class AScriptInterface : public QObject
 {
@@ -23,11 +26,14 @@ public:
 
 //    virtual bool isMultithreadCapable() const {return false;}
 
-    const QString & getMethodHelp(const QString & method) const;
+    const QString & getMethodHelp(const QString & method, int numArguments) const;
 
     QString                    Name;
     QString                    Description;
-    std::map<QString, QString> Help;
+
+    //std::map<QString, QString> Help;
+    std::map<QString, AScriptHelpEntry> Help;
+
     std::map<QString, QString> DeprecatedMethods;
     std::map<QString, QString> RemovedMethods;
 

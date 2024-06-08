@@ -27,7 +27,11 @@ AGraph_SI::AGraph_SI()
     Help["setLineProperties"] = "Default line properties are 1, 1, 2";
     Help["draw"] = "Draws the graph. Refer to https://root.cern.ch/doc/master/classTGraphPainter.html for draw options";
 
-    Help["addPoint"] = "Add a point to 1D or 1DErr graph: (X, Y) or (X, Y, errY) or (X, Y, errX, errY)";
+    //Help["addPoint"] = "Add a point to 1D or 1DErr graph: (X, Y) or (X, Y, errY) or (X, Y, errX, errY)";
+    Help["addPoint"] = {{3, "Add a point to 1D graph by providing X and Y coordinates"},
+                        {4, "Add a point to 2D graph by providing X, Y and Z coordinates"},
+                        {5, "Add a point to 1D graph with error bars by providing X, Y, errorX and errorY"}};
+
     Help["addPoint2D"] = "Add a point to 2D graph: (X, Y, Z)";
 
     Help["addPoints"] = "Add array(s) of point using the following argument options:\n"

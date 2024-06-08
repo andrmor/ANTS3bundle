@@ -1,13 +1,15 @@
 #include "ascriptinterface.h"
 #include "ascripthub.h"
+#include "ascripthelpentry.h"
 
 #include <QDebug>
 
-const QString &AScriptInterface::getMethodHelp(const QString & method) const
+const QString &AScriptInterface::getMethodHelp(const QString & method, int numArguments) const
 {
     auto it = Help.find(method);
     if (it == Help.end()) return NoHelp;
-    return it->second;
+
+    return it->second.getHelpText(numArguments);
 }
 
 #include <QMetaObject>
@@ -32,7 +34,7 @@ QString AScriptInterface::help() const
             lastName = name;
 
             auto it = Help.find(name);
-            QString helpText = (it == Help.end() ? "" : it->second);
+            QString helpText = (it == Help.end() ? "" : it->second.getHelpText(m.parameterCount()));
             if (!helpText.isEmpty()) helpText.replace("\n", "\\n\"\n   \"");
             output += QString("Help[\"%0\"] = \"%1\";\n").arg(name, helpText);
         }

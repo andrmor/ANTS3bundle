@@ -57,9 +57,11 @@ public:
 private:
     AScriptHub        & ScriptHub;
     A3Global          & GlobSet;
+
+    EScriptLanguage     ScriptLanguage = EScriptLanguage::JavaScript;
+
     Ui::AScriptWindow * ui = nullptr;
 
-    EScriptLanguage ScriptLanguage = EScriptLanguage::JavaScript;
     AVirtualScriptManager * ScriptManager = nullptr;
 
     QStringList         Methods;
@@ -103,9 +105,10 @@ private:
     void fillSubObject(QTreeWidgetItem* parent, const QJsonObject& obj);
     void fillSubArray(QTreeWidgetItem* parent, const QJsonArray& arr);
     QString getDesc(const QJsonValue &ref);
-    void fillHelper(const AScriptInterface * io);
+    void fillHelper(const AScriptInterface * io);  // !!!*** optimize --> do not add unit name, transfer to interface base class
     QString getKeyPath(QTreeWidgetItem *item);
-    QStringList getListOfMethods(const QObject *obj, QString ObjName, bool fWithArguments = false);  // !!!*** no need name, cponvert to AScriptInterface
+    QStringList getListOfMethods(const QObject *obj, QString ObjName, bool fWithArguments = false);  // !!!*** no need name, convert to AScriptInterface
+    std::vector<std::pair<QString,int>> getListOfMethodsWithNumArgs(const AScriptInterface * interface);
     void appendDeprecatedAndRemovedMethods(const AScriptInterface *obj); // !!!***
 
     void addNewBook();

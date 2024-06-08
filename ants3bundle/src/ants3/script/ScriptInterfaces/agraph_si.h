@@ -29,8 +29,8 @@ public slots:
     void new2D(QString graphName);
 
     void addPoint(QString graphName, double x, double y);
-    void addPoint(QString graphName, double x, double y, double errorX, double errorY);
     void addPoint(QString graphName, double x, double y, double z);
+    void addPoint(QString graphName, double x, double y, double errorX, double errorY);
 
     void addPoints(QString graphName, QVariantList array);
     void addPoints(QString graphName, QVariantList array, int indexX, int indexY);

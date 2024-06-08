@@ -45,10 +45,8 @@
 
 AScriptWindow::AScriptWindow(EScriptLanguage lang, QWidget * parent) :
     AGuiWindow( (lang == EScriptLanguage::JavaScript ? "JScript" : "Python"), parent),
-    ScriptHub(AScriptHub::getInstance()),
-    GlobSet(A3Global::getInstance()),
-    ui(new Ui::AScriptWindow),
-    ScriptLanguage(lang)
+    ScriptHub(AScriptHub::getInstance()), ScriptLanguage(lang), GlobSet(A3Global::getInstance()),
+    ui(new Ui::AScriptWindow)
 {
     ui->setupUi(this);
 
@@ -202,7 +200,7 @@ void AScriptWindow::createGuiElements()
     pteHelp->setMinimumHeight(20);
     sh->addWidget(pteHelp);
     QList<int> sizes;
-    sizes << 800 << 175;
+    sizes << 800 << 250;
     sh->setSizes(sizes);
 
     vb1->addWidget(sh);
@@ -661,6 +659,7 @@ void AScriptWindow::on_pbExample_clicked()
     if (ExampleExplorer) ExampleExplorer->showNormal();
 }
 
+/*
 void AScriptWindow::fillHelper(const AScriptInterface * io)
 {
     const QString module = io->Name;
@@ -698,7 +697,50 @@ void AScriptWindow::fillHelper(const AScriptInterface * io)
         fItem->setText(0, Fshort);
         fItem->setText(1, Flong);
 
-        const QString & str = io->getMethodHelp(methodName);
+        const QString & str = io->getMethodHelp(methodName, -1);
+        fItem->setToolTip(0, str);
+    }
+}
+*/
+
+void AScriptWindow::fillHelper(const AScriptInterface * io)
+{
+    const QString module = io->Name;
+
+    std::vector<std::pair<QString,int>> methods = getListOfMethodsWithNumArgs(io);
+//    if (ui->aAlphabeticOrder->isChecked()) functions.sort();
+
+    QTreeWidgetItem * objItem = new QTreeWidgetItem(trwHelp);
+    objItem->setText(0, module);
+    QFont f = objItem->font(0);
+    f.setBold(true);
+    objItem->setFont(0, f);
+    objItem->setToolTip(0, io->Description);
+    bool bAlreadyAdded = false; // TMP!!!
+    for (int i = 0; i < methods.size(); i++)
+    {
+        QStringList sl = methods[i].first.split("_:_");
+        QString Fshort = sl.first();
+        QString Flong  = sl.last();
+        functionList << Flong;
+
+        QString methodName = QString(Fshort).remove(QRegularExpression("\\((.*)\\)"));
+        methodName.remove(0, module.length() + 1); //remove module name and '.'
+
+        // TMP!!! !!!***
+        if (methodName == "print")
+        {
+            if (bAlreadyAdded) continue;
+            Fshort = "core.print( m1, ... )";
+            Flong  = "void core.print( QVariant m1, ... )";
+            bAlreadyAdded = true;
+        }
+
+        QTreeWidgetItem * fItem = new QTreeWidgetItem(objItem);
+        fItem->setText(0, Fshort);
+        fItem->setText(1, Flong);
+
+        const QString & str = io->getMethodHelp(methodName, methods[i].second);
         fItem->setToolTip(0, str);
     }
 }
@@ -1087,6 +1129,58 @@ QStringList AScriptWindow::getListOfMethods(const QObject * obj, QString ObjName
         }
     }
     return methods;
+}
+
+std::vector<std::pair<QString, int>> AScriptWindow::getListOfMethodsWithNumArgs(const AScriptInterface * interface)
+{
+    std::vector<std::pair<QString, int>> vec;
+    if (!interface) return vec;
+
+    const int numMethods = interface->metaObject()->methodCount();
+    for (int iMet = 0; iMet < numMethods; iMet++)
+    {
+        const QMetaMethod & m = interface->metaObject()->method(iMet);
+        bool bSlot   = (m.methodType() == QMetaMethod::Slot);
+        bool bPublic = (m.access() == QMetaMethod::Public);
+
+        if (bSlot && bPublic)
+        {
+            if (m.name() == "deleteLater") continue;
+            if (m.name() == "help") continue;
+
+            QString candidate = interface->Name + "." + m.name();
+            int args = m.parameterCount();
+
+            if (true) // fWithArguments)
+            {
+                candidate += "(";
+                QString extra = candidate;
+
+                for (int i = 0; i < args; i++)
+                {
+                    QString typ = m.parameterTypes().at(i);
+                    if (typ == "QString") typ = "string";
+                    extra += " " + typ + " " + m.parameterNames().at(i);
+                    candidate     += " " + m.parameterNames().at(i);
+                    if (i != args-1)
+                    {
+                        candidate += ", ";
+                        extra += ", ";
+                    }
+                }
+                candidate += " )";
+                extra += " )";
+                extra = QString() + m.typeName() + " " + extra;
+
+                candidate += "_:_" + extra;
+            }
+
+            if (vec.empty() || vec.back().first != candidate)
+                vec.push_back( {candidate, args} );
+        }
+    }
+
+    return vec;
 }
 
 void AScriptWindow::appendDeprecatedAndRemovedMethods(const AScriptInterface * obj)
