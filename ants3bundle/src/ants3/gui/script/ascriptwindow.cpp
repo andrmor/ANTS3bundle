@@ -708,7 +708,7 @@ void AScriptWindow::fillHelper(const AScriptInterface * io)
     const QString module = io->Name;
 
     std::vector<std::pair<QString,int>> methods = getListOfMethodsWithNumArgs(io);
-//    if (ui->aAlphabeticOrder->isChecked()) functions.sort();
+    if (ui->aAlphabeticOrder->isChecked()) std::sort(methods.begin(), methods.end(), [](const auto & lhs, const auto & rhs){return (lhs.first < rhs.first);});
 
     QTreeWidgetItem * objItem = new QTreeWidgetItem(trwHelp);
     objItem->setText(0, module);
