@@ -191,8 +191,8 @@ void AScriptWindow::createGuiElements()
     trwHelp->setContextMenuPolicy(Qt::CustomContextMenu);
     trwHelp->setColumnCount(1);
     trwHelp->setHeaderLabel("Unit.Function");
-    QObject::connect(trwHelp, SIGNAL(itemClicked(QTreeWidgetItem*,int)), this, SLOT(onFunctionClicked(QTreeWidgetItem*,int)));
-    QObject::connect(trwHelp, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onContextMenuRequestedByHelp(QPoint)));
+    QObject::connect(trwHelp, &QTreeWidget::itemClicked,                this, &AScriptWindow::onFunctionClicked);
+    QObject::connect(trwHelp, &QTreeWidget::customContextMenuRequested, this, &AScriptWindow::onContextMenuRequestedByHelp);
     sh->addWidget(trwHelp);
 
     pteHelp = new QPlainTextEdit();
@@ -717,9 +717,9 @@ void AScriptWindow::fillHelper(const AScriptInterface * io)
     objItem->setFont(0, f);
     objItem->setToolTip(0, io->Description);
     bool bAlreadyAdded = false; // TMP!!!
-    for (int i = 0; i < methods.size(); i++)
+    for (size_t iMet = 0; iMet < methods.size(); iMet++)
     {
-        QStringList sl = methods[i].first.split("_:_");
+        QStringList sl = methods[iMet].first.split("_:_");
         QString Fshort = sl.first();
         QString Flong  = sl.last();
         functionList << Flong;
@@ -727,7 +727,6 @@ void AScriptWindow::fillHelper(const AScriptInterface * io)
         QString methodName = QString(Fshort).remove(QRegularExpression("\\((.*)\\)"));
         methodName.remove(0, module.length() + 1); //remove module name and '.'
 
-        // TMP!!! !!!***
         if (methodName == "print")
         {
             if (bAlreadyAdded) continue;
@@ -738,9 +737,9 @@ void AScriptWindow::fillHelper(const AScriptInterface * io)
 
         QTreeWidgetItem * fItem = new QTreeWidgetItem(objItem);
         fItem->setText(0, Fshort);
-        fItem->setText(1, Flong);
+        fItem->setText(1, Flong);  // long is used when a method is clicked in GUI to show complete signature
 
-        const QString & str = io->getMethodHelp(methodName, methods[i].second);
+        const QString & str = io->getMethodHelp(methodName, methods[iMet].second);
         fItem->setToolTip(0, str);
     }
 }
