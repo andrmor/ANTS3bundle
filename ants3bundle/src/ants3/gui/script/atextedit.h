@@ -65,6 +65,7 @@ private:
     bool Pressed_2 = false;
 
     bool   MethodTooltipVisible = false;
+    bool   ForcedMethodTooltipSelection = false;
     size_t SelectedMethodInTooltip  = 0;
     size_t NumberOfMethodsInTooltip = 1;
 
@@ -90,6 +91,8 @@ private:
     void pasteText(const QString &text);
 
     bool onKeyPressed_interceptShortcut(int key, bool shift);
+
+    int computeCurrentNumberOfParameters(QTextCursor & tc, bool cursorInArguments);
 
 signals:
     void requestHelp(QString);
