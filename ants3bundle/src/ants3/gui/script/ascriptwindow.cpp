@@ -45,7 +45,8 @@
 
 AScriptWindow::AScriptWindow(EScriptLanguage lang, QWidget * parent) :
     AGuiWindow( (lang == EScriptLanguage::JavaScript ? "JScript" : "Python"), parent),
-    ScriptHub(AScriptHub::getInstance()), ScriptLanguage(lang), GlobSet(A3Global::getInstance()),
+    ScriptLanguage(lang),
+    ScriptHub(AScriptHub::getInstance()), GlobSet(A3Global::getInstance()),
     ui(new Ui::AScriptWindow)
 {
     ui->setupUi(this);
@@ -1290,7 +1291,7 @@ void AScriptWindow::updateTab(ATabRecord* tab)
 {
     tab->Highlighter->setExternalRules(UnitNames, Methods, ListOfDeprecatedOrRemovedMethods);
     tab->updateHighlight();
-    tab->TextEdit->ListOfMethods = ListOfMethods;
+    tab->TextEdit->ListOfMethods = &ListOfMethods;
     tab->TextEdit->DeprecatedOrRemovedMethods = &DeprecatedOrRemovedMethods;
 }
 

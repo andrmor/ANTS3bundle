@@ -55,10 +55,10 @@ public:
     AGuiWindow * ScriptMsgWin = nullptr;
 
 private:
+    EScriptLanguage     ScriptLanguage = EScriptLanguage::JavaScript;
+
     AScriptHub        & ScriptHub;
     A3Global          & GlobSet;
-
-    EScriptLanguage     ScriptLanguage = EScriptLanguage::JavaScript;
 
     Ui::AScriptWindow * ui = nullptr;
 

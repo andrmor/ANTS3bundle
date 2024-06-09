@@ -49,6 +49,7 @@ void ATextEdit::keyPressEvent(QKeyEvent * e)
 {
     const int key = e->key();
     if (key == Qt::Key_Shift) return;
+    const bool completerPopupVisible = (Completer && Completer->popup()->isVisible());
 
     if ( (e->modifiers() & Qt::ControlModifier) && (e->modifiers() & Qt::AltModifier) )
     {
@@ -127,6 +128,15 @@ void ATextEdit::keyPressEvent(QKeyEvent * e)
       }
     case Qt::Key_Down :
       {
+        if ( MethodTooltipVisible && (e->modifiers() & Qt::ShiftModifier))
+        {
+            if (SelectedMethodInTooltip == 0) SelectedMethodInTooltip = NumberOfMethodsInTooltip - 1;
+            else SelectedMethodInTooltip--;
+            QTextCursor tcc = textCursor();
+            tryShowFunctionTooltip(&tcc);
+            return;
+        }
+
         if ( (e->modifiers() & Qt::ControlModifier) && (e->modifiers() & Qt::AltModifier) )
         {   //Copy line
             tc.select(QTextCursor::LineUnderCursor);
@@ -158,6 +168,15 @@ void ATextEdit::keyPressEvent(QKeyEvent * e)
       }
     case Qt::Key_Up :
       {
+        if ( MethodTooltipVisible && (e->modifiers() & Qt::ShiftModifier))
+        {
+            SelectedMethodInTooltip++;
+            if (SelectedMethodInTooltip >= NumberOfMethodsInTooltip) SelectedMethodInTooltip = 0;
+            QTextCursor tcc = textCursor();
+            tryShowFunctionTooltip(&tcc);
+            return;
+        }
+
         if ( (e->modifiers() & Qt::ControlModifier) && (e->modifiers() & Qt::ShiftModifier) )
         {   //Shift line up
             tc.select(QTextCursor::LineUnderCursor);
@@ -716,27 +735,28 @@ void ATextEdit::insertCompletion(const QString &completion)
     }
 }
 
-bool ATextEdit::findInList(QString text, QString & tmp) const
+void ATextEdit::findMatchingMethods(const QString & text, std::vector<std::pair<QString,int>> & pairs) const
 {
+    /*
     if (DeprecatedOrRemovedMethods && DeprecatedOrRemovedMethods->contains(text))
     {
-        tmp = DeprecatedOrRemovedMethods->value(text);
+        pairs = DeprecatedOrRemovedMethods->value(text);
         return true;
     }
+    */
 
-    for (const auto & pair : ListOfMethods)
+    for (const auto & p : *ListOfMethods)
     {
-        tmp = pair.first;
+        QString tmp = p.first;
         QString returnArgument = tmp.section(' ', 0, 0) + " ";
         tmp.remove(returnArgument);
         if (tmp.remove(text).startsWith("("))
         {
-            tmp = pair.first;
-            qDebug() << tmp << pair.second;
-            return true;
+            pairs.push_back(p);
+
+            // !!!*** optimize by not looking at the other units once one is foundcontrol
         }
     }
-    return false;
 }
 
 void ATextEdit::onCursorPositionChanged()
@@ -864,10 +884,12 @@ void ATextEdit::onCursorPositionChanged()
 bool ATextEdit::tryShowFunctionTooltip(QTextCursor * cursor)
 {
     QTextCursor tc = *cursor;
-    QString functionCandidateText = selectObjFunctUnderCursor(cursor);
-    QString tmp;
-    bool fFound = findInList(functionCandidateText, tmp); // cursor is on one of the defined methods
-    if (!fFound)
+    const QString functionCandidateText = selectObjFunctUnderCursor(cursor);
+    std::vector<std::pair<QString,int>> matchingMethods;
+
+    // start with th ecase when the cursor is on one of the defined methods directly
+    findMatchingMethods(functionCandidateText, matchingMethods);
+    if (matchingMethods.empty())
     {
         while (tc.position() != 0)
         {
@@ -878,26 +900,44 @@ bool ATextEdit::tryShowFunctionTooltip(QTextCursor * cursor)
             if ( selected.left(1) == "\n" ) break;
             if ( selected.left(1) == "(")
             {
+                // second case: the cursor is in the bracket section with the arguments
                 tc.setPosition(tc.position(), QTextCursor::MoveAnchor);
                 //qDebug() << SelectObjFunctUnderCursor(&tc);
-                fFound = findInList(selectObjFunctUnderCursor(&tc), tmp); // cursor is in the bracket section with the arguments
+                findMatchingMethods(selectObjFunctUnderCursor(&tc), matchingMethods);
                 break;
             }
         }
     }
-    int fh = fontMetrics().height();
 
-    if (fFound)
+    if (!matchingMethods.empty())
     {
+        MethodTooltipVisible = true;
+        NumberOfMethodsInTooltip = matchingMethods.size();
+        QString tooltipText;
+        if (matchingMethods.size() == 1)
+            tooltipText = matchingMethods.front().first;
+        else
+        {
+            std::sort(matchingMethods.begin(), matchingMethods.end(), [](const auto & lhs, const auto & rhs){return (lhs.second < rhs.second);});
+            if (SelectedMethodInTooltip >= matchingMethods.size()) SelectedMethodInTooltip = 0;
+            tooltipText = QString("%0 of %1 (shift+\u2195):    %2")
+                              .arg(SelectedMethodInTooltip + 1)
+                              .arg(NumberOfMethodsInTooltip)
+                              .arg(matchingMethods[SelectedMethodInTooltip].first);
+        }
+
+        const int fh = fontMetrics().height();
         QToolTip::showText( mapToGlobal( QPoint(cursorRect(*cursor).topRight().x(), cursorRect(*cursor).topRight().y() -3.0*fh )),
-                                    tmp,
+                                    tooltipText,
                                     this,
                                     QRect(),
-                                    100000);
+                                    1000000);
         return true;
     }
     else
     {
+        MethodTooltipVisible = false;
+        SelectedMethodInTooltip = 0;
         QToolTip::hideText();
         return false;
     }
@@ -918,7 +958,7 @@ bool ATextEdit::event(QEvent *event)
 void ATextEdit::mouseReleaseEvent(QMouseEvent *e)
 {
     QTextCursor cursor = cursorForPosition(e->pos());
-    tryShowFunctionTooltip(&cursor);
+   tryShowFunctionTooltip(&cursor);
     QPlainTextEdit::mouseReleaseEvent(e);
 }
 

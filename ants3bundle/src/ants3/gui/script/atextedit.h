@@ -31,7 +31,7 @@ public:
     void setDeprecatedOrRemovedMethods(const QHash<QString, QString>* DepRem) {DeprecatedOrRemovedMethods = DepRem;}
 
     int & TabInSpaces;
-    std::vector<std::pair<QString,int>> ListOfMethods;
+    std::vector<std::pair<QString,int>> * ListOfMethods = nullptr;
     QString FindString;
     const QHash<QString, QString> * DeprecatedOrRemovedMethods = nullptr;
 
@@ -64,11 +64,15 @@ private:
     ALeftField * LeftField  = nullptr;
     bool Pressed_2 = false;
 
+    bool   MethodTooltipVisible = false;
+    size_t SelectedMethodInTooltip  = 0;
+    size_t NumberOfMethodsInTooltip = 1;
+
     QString textUnderCursor() const;
     QString selectObjFunctUnderCursor(QTextCursor * cursor = nullptr) const;
     QString SelectTextToLeft(QTextCursor cursor, int num) const;
     bool InsertClosingBracket() const;
-    bool findInList(QString text, QString &tmp) const;  // !!!*** rename
+    void findMatchingMethods(const QString & text, std::vector<std::pair<QString,int>> & pairs) const;  // !!!*** add to search in deprecated & removed !!!*** optimize
     void setFontSizeAndEmitSignal(int size);
 
     void paintLeftField(QPaintEvent *event); // !!!*** make compatible with dark theme
