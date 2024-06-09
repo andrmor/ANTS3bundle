@@ -920,7 +920,7 @@ bool ATextEdit::tryShowFunctionTooltip(QTextCursor * cursor)
         {
             std::sort(matchingMethods.begin(), matchingMethods.end(), [](const auto & lhs, const auto & rhs){return (lhs.second < rhs.second);});
             if (SelectedMethodInTooltip >= matchingMethods.size()) SelectedMethodInTooltip = 0;
-            tooltipText = QString("%0 of %1 (shift+\u2195):    %2")
+            tooltipText = QString("<p style='white-space:pre'><b>%0</b> of %1 (shift+\u2195):    %2</p>")
                               .arg(SelectedMethodInTooltip + 1)
                               .arg(NumberOfMethodsInTooltip)
                               .arg(matchingMethods[SelectedMethodInTooltip].first);
