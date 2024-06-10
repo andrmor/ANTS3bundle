@@ -93,6 +93,7 @@ private:
     bool onKeyPressed_interceptShortcut(int key, bool shift);
 
     int computeCurrentNumberOfParameters(QTextCursor & tc, bool cursorInArguments);
+    int computeCurrentArgument(QTextCursor & tc);
 
 signals:
     void requestHelp(QString);

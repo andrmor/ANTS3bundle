@@ -48,12 +48,18 @@ static int counter = 0;
 void ATextEdit::keyPressEvent(QKeyEvent * e)
 {
     const int key = e->key();
-    if (key == Qt::Key_Shift) return;
-    const bool completerPopupVisible = (Completer && Completer->popup()->isVisible());
 
-    if ( (e->modifiers() & Qt::ControlModifier) && (e->modifiers() & Qt::AltModifier) )
+    if (key == Qt::Key_Shift) return;
+
+    const bool controlPressed        = ( (e->modifiers() & Qt::ControlModifier) );
+    const bool altPressed            = ( (e->modifiers() & Qt::AltModifier) );
+    const bool shiftPressed          = ( (e->modifiers() & Qt::ShiftModifier) );
+    const bool completerPopupVisible = (Completer && Completer->popup()->isVisible());
+    // !!!*** introduce these flags below
+
+    if (controlPressed && altPressed)
     {
-        bool ok = onKeyPressed_interceptShortcut(key, ((e->modifiers() & Qt::ShiftModifier)));
+        bool ok = onKeyPressed_interceptShortcut(key, shiftPressed);
         if (ok) return;
     }
 
@@ -885,8 +891,10 @@ void ATextEdit::onCursorPositionChanged()
 
 bool ATextEdit::tryShowFunctionTooltip(QTextCursor * cursor)
 {
+    // !!!*** use copy of the cursor in the methods?
     QTextCursor tc = *cursor;
     QTextCursor tc1 = tc;
+    QTextCursor tc2 = tc;
     const QString functionCandidateText = selectObjFunctUnderCursor(cursor);
     std::vector<std::pair<QString,int>> matchingMethods;
 
@@ -938,15 +946,65 @@ bool ATextEdit::tryShowFunctionTooltip(QTextCursor * cursor)
         }
 
         QString tooltipText;
+        int numArguments;
         if (matchingMethods.size() == 1)
-            tooltipText = matchingMethods.front().first;
+        {
+            tooltipText = "<p style='white-space:pre'>" + matchingMethods.front().first + "</p>";
+            numArguments = matchingMethods.front().second;
+        }
         else
         {
             if (selectedMethod >= matchingMethods.size()) selectedMethod = 0;
-            tooltipText = QString("<p style='white-space:pre'><b>%0</b> of %1 (shift+\u2195):    %2</p>")
+            tooltipText = QString("<p style='white-space:pre'><b>%0</b> of %1 [shift+\u2195]:    %2</p>")
                               .arg(selectedMethod + 1)
                               .arg(NumberOfMethodsInTooltip)
                               .arg(matchingMethods[selectedMethod].first);
+            numArguments = matchingMethods[selectedMethod].second;
+        }
+
+        if (numArguments > 1 && cursorIsInArguments)
+        {
+            int currentArgument = computeCurrentArgument(tc2);
+            //qDebug() << ">>>>>>>>>>" << currentArgument;
+            if (currentArgument != -1)
+            {
+                size_t iPos = 0;
+                for (; iPos < tooltipText.size(); iPos++)
+                    if (tooltipText[iPos] == '(') break;
+                iPos++;
+                size_t start = -1;
+                if (currentArgument == 0) start = iPos;
+                else
+                {
+                    for (; iPos < tooltipText.size(); iPos++)
+                        if (tooltipText[iPos] == ',')
+                        {
+                            currentArgument--;
+                            if (currentArgument == 0)
+                            {
+                                iPos++;
+                                start = iPos;
+                                break;
+                            }
+                        }
+                }
+                size_t stop  = -1;
+                for (; iPos < tooltipText.size(); iPos++)
+                    if (tooltipText[iPos] == ',' || tooltipText[iPos] == ')')
+                    {
+                        stop = iPos - 1;
+                        break;
+                    }
+
+                if (start > 0 && start < tooltipText.size() && stop > 0 && stop < tooltipText.size())
+                {
+                    //qDebug() << start << " - " << stop;
+                    QString toBold = tooltipText.mid(start, stop - start);
+                    //qDebug() << "--->" << toBold;
+                    toBold = "<b>" + toBold + "</b>";
+                    tooltipText.replace(start, stop - start, toBold);
+                }
+            }
         }
 
         const int fh = fontMetrics().height();
@@ -1033,6 +1091,21 @@ int ATextEdit::computeCurrentNumberOfParameters(QTextCursor & tc, bool cursorInA
     if (argLine.isEmpty()) return 0;
     //qDebug() << argLine.split(',', Qt::SkipEmptyParts);
     return argLine.split(',', Qt::SkipEmptyParts).size();
+}
+
+int ATextEdit::computeCurrentArgument(QTextCursor & tc)
+{
+    int numCommas = 0;
+    while (tc.position() != 0)
+    {
+        tc.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
+        QString selected = tc.selectedText();
+        if (selected.startsWith(')')) return -1;
+        if (selected.startsWith('\n')) return -1;
+        if (selected.startsWith(',')) numCommas++;
+        if (selected.startsWith('(')) return numCommas;
+    }
+    return -1;
 }
 
 bool ATextEdit::event(QEvent *event)
