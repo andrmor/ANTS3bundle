@@ -51,10 +51,10 @@ void ATextEdit::keyPressEvent(QKeyEvent * e)
 
     if (key == Qt::Key_Shift) return;
 
-    const bool controlPressed        = ( (e->modifiers() & Qt::ControlModifier) );
-    const bool altPressed            = ( (e->modifiers() & Qt::AltModifier) );
-    const bool shiftPressed          = ( (e->modifiers() & Qt::ShiftModifier) );
-    const bool completerPopupVisible = (Completer && Completer->popup()->isVisible());
+    const bool controlPressed   = ( (e->modifiers() & Qt::ControlModifier) );
+    const bool altPressed       = ( (e->modifiers() & Qt::AltModifier) );
+    const bool shiftPressed     = ( (e->modifiers() & Qt::ShiftModifier) );
+    const bool completerVisible = (Completer && Completer->popup()->isVisible());
     // !!!*** introduce these flags below
 
     if (controlPressed && altPressed)
@@ -71,7 +71,7 @@ void ATextEdit::keyPressEvent(QKeyEvent * e)
     {
     case Qt::Key_V :
       {
-        if (e->modifiers() & Qt::ControlModifier)
+        if (controlPressed)
         {
             paste();
             return;
@@ -80,7 +80,7 @@ void ATextEdit::keyPressEvent(QKeyEvent * e)
       }
     case Qt::Key_Tab :
       {
-        if (e->modifiers() == 0 && !(Completer && Completer->popup()->isVisible()) )
+        if (e->modifiers() == 0 && !completerVisible)
         {
             int posInBlock = tc.positionInBlock();
             int timesInsert = TabInSpaces - posInBlock % TabInSpaces;
@@ -92,7 +92,7 @@ void ATextEdit::keyPressEvent(QKeyEvent * e)
       }
     case Qt::Key_Backspace :
       {
-        if (e->modifiers() & Qt::ShiftModifier)
+        if (shiftPressed)
         {
             int posInBlock = tc.positionInBlock();
             int timesDelete = posInBlock % TabInSpaces;
@@ -120,7 +120,7 @@ void ATextEdit::keyPressEvent(QKeyEvent * e)
       }
     case Qt::Key_Delete :
       {
-        if ( e->modifiers() & Qt::ShiftModifier )  //Delete line
+        if (shiftPressed)  //Delete line
         {
             tc.select(QTextCursor::LineUnderCursor);
             tc.removeSelectedText();
@@ -762,7 +762,7 @@ void ATextEdit::findMatchingMethods(const QString & text, std::vector<std::pair<
         {
             pairs.push_back(p);
 
-            // !!!*** optimize by not looking at the other units once one is foundcontrol
+            // !!!*** optimize by not looking at the other units once one is found
         }
     }
 }
