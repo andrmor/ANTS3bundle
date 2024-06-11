@@ -19,8 +19,8 @@
 #include <QClipboard>
 #include <QRegularExpression>
 
-ATextEdit::ATextEdit(QWidget *parent) :
-    QPlainTextEdit(parent), TabInSpaces(A3Global::getInstance().TabInSpaces), Completer(0)
+ATextEdit::ATextEdit(QWidget * parent) :
+    QPlainTextEdit(parent), TabInSpaces(A3Global::getInstance().TabInSpaces)
 {
     LeftField = new ALeftField(*this);
     connect(this, &ATextEdit::blockCountChanged, this, &ATextEdit::updateLineNumberAreaWidth);
@@ -30,6 +30,13 @@ ATextEdit::ATextEdit(QWidget *parent) :
     connect(this, &ATextEdit::cursorPositionChanged, this, &ATextEdit::onCursorPositionChanged);
 
     setMouseTracking(true);
+
+    lHelp = new QLabel();
+    lHelp->setWindowFlag(Qt::ToolTip);
+    lHelp->setContentsMargins(3,3,3,3);
+    lHelp->setFrameShape(QFrame::Box);
+    lHelp->setStyleSheet("background: rgb(237, 230, 197); color: black");
+    //lHelp->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
 }
 
 void ATextEdit::setCompleter(QCompleter *completer)
@@ -109,7 +116,8 @@ void ATextEdit::keyPressEvent(QKeyEvent * e)
       }
     case Qt::Key_Escape :
       {
-        QToolTip::hideText();
+        //QToolTip::hideText();
+        lHelp->hide();
         break;
       }
     case Qt::Key_F1 :
@@ -682,6 +690,7 @@ void ATextEdit::mouseDoubleClickEvent(QMouseEvent* /*e*/)
 void ATextEdit::focusOutEvent(QFocusEvent *e)
 {
     emit editingFinished();
+    lHelp->hide();
     QPlainTextEdit::focusOutEvent(e);
 }
 
@@ -1008,11 +1017,20 @@ bool ATextEdit::tryShowFunctionTooltip(QTextCursor * cursor)
         }
 
         const int fh = fontMetrics().height();
+        /*
         QToolTip::showText( mapToGlobal( QPoint(cursorRect(*cursor).topRight().x(), cursorRect(*cursor).topRight().y() -3.0*fh )),
                                     tooltipText,
                                     this,
                                     QRect(),
                                     1000000);
+        */
+
+        //lHelp->move(mapToGlobal( QPoint(cursorRect(*cursor).topRight().x(), cursorRect(*cursor).topRight().y() -3.0*fh)));
+        lHelp->move(mapToGlobal( QPoint( int(0.01*cursorRect(*cursor).topRight().x())*100, cursorRect(*cursor).topRight().y() -2.0*fh)));
+        lHelp->setText(tooltipText);
+        lHelp->showNormal();
+        lHelp->adjustSize();
+
         return true;
     }
     else
@@ -1020,7 +1038,8 @@ bool ATextEdit::tryShowFunctionTooltip(QTextCursor * cursor)
         ForcedMethodTooltipSelection = false;
         MethodTooltipVisible = false;
         SelectedMethodInTooltip = 0;
-        QToolTip::hideText();
+        //QToolTip::hideText();
+        lHelp->hide();
         return false;
     }
 }

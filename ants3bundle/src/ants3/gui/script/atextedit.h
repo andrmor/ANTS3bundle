@@ -9,6 +9,7 @@
 #include <QObject>
 #include <QWidget>
 #include <QSet>
+#include <QLabel>
 
 class QCompleter;
 class ALeftField;
@@ -34,6 +35,8 @@ public:
     std::vector<std::pair<QString,int>> * ListOfMethods = nullptr;
     QString FindString;
     const QHash<QString, QString> * DeprecatedOrRemovedMethods = nullptr;
+
+    QLabel * lHelp = nullptr;
 
 public slots:
     void paste();
