@@ -17,32 +17,41 @@ AGraph_SI::AGraph_SI()
 {
     Description = "CERN ROOT graphs";
 
-    Help["new1D"] = "Creates a new 1D graph (Root TGraph object)";
-    Help["new1DErr"] = "Creates a new 1D graph with errors (Root TGraphErrors object)";
-    Help["new2D"] = "Creates a new 2D graph (Root TGraph2D object)";
+    Help["new1D"] = "Create a new 1D graph (TGraph object of CERN Root)";
+    Help["new1DErr"] = "Create a new 1D graph with errors (TGraphErrors object of CERN Root)";
+    Help["new2D"] = "Create a new 2D graph (TGraph2D object of CERN Root)";
 
-    //Help["configureAbortIfAlreadyExists"] = "If set to true, an attempt to create a graph with already existent name will casuse abort. Default is false";
-
-    Help["setMarkerProperties"] = "Default marker properties are 1, 20, 1";
-    Help["setLineProperties"] = "Default line properties are 1, 1, 2";
-    Help["draw"] = "Draws the graph. Refer to https://root.cern.ch/doc/master/classTGraphPainter.html for draw options";
-
-    //Help["addPoint"] = "Add a point to 1D or 1DErr graph: (X, Y) or (X, Y, errY) or (X, Y, errX, errY)";
     Help["addPoint"] = {{3, "Add a point to 1D graph by providing X and Y coordinates"},
                         {4, "Add a point to 2D graph by providing X, Y and Z coordinates"},
                         {5, "Add a point to 1D graph with error bars by providing X, Y, errorX and errorY"}};
 
-    Help["addPoint2D"] = "Add a point to 2D graph: (X, Y, Z)";
+    Help["addPoints"] = {{2, "Add array of points to the selected graph. The elements of the array should be also arrays and can be the following:\n"
+                             "[X,Y] for 1D graph;\n[X,Y,Xerr,Yerr] for 1D graph with errors;\n[X,Y,Z] for 2D graph"},
+                         {4, "Add array of points to the selected graph. The provided 'array' argument should be a 2d array,\n"
+                             "and indexX and indexY should identify the column indexes to be used for X and Y coordinates"},
+                         {3, "Add array of points to the 1D graph;\n xArray and yArray are 1D arrays of X and Y coordinates"},
+                         {5, "Add array of points to the 1DError graph;\n xArray and yArray are 1D arrays of X and Y coordinates\n"
+                             "and xErrArray and yErrArray are the corresponding errors"}};
 
-    Help["addPoints"] = "Add array(s) of point using the following argument options:\n"
-                        "1. (xArray, yArray), (xArray, yArray, yErrorArray) or (xArray, yArray, xErrorArray, yErrorArray);\n"
-                        "2. A single array of Y coordinates. In this case X scale will be 0, 1, 2, etc;\n"
-                        "3. An arrays of [x,y] arrays of points;";
+    Help["draw"] = {{1, "Draw the graph using the default 'APL' options string.\n"
+                        "Refer to https://root.cern.ch/doc/master/classTGraphPainter.html for the list of the available options"},
+                    {2, "Draw the graph using the provided options string;\n"
+                        "Refer to https://root.cern.ch/doc/master/classTGraphPainter.html for the list of the available options"}};
+
+    Help["setMarkerProperties"] = "Configures color, style, and size of the markers for the selected graph. Default values are 1, 20, 1.0";
+    Help["setLineProperties"] = "Configures color, style and width of the line for the selected graph. Default line properties are 1, 1, 2";
+
+    Help["setTitle"] = "Sets title of the slected graph";
+    Help["setAxisTitles"] = "Sets X and Y axis titles for the selected graph";
+
+    // ---
 
     Help["saveRoot"] = "Save graph as a Root object";
 
     Help["remove"] = "Removes the graph";
     Help["removeAllGraph"] = "Removes all graphs";
+
+    //Help["configureAbortIfAlreadyExists"] = "If set to true, an attempt to create a graph with already existent name will casuse abort. Default is false";
 }
 
 //AGraph_SI::AGraph_SI(const AGraph_SI &other) :
@@ -248,6 +257,7 @@ void AGraph_SI::addPoints(QString graphName, QVariantList xArray, QVariantList y
         abort("addPoints with four array arguments is applicable only to graphs with errors");
 }
 
+/*
 void AGraph_SI::addPoints(QString graphName, QVariantList xArray, QVariantList yArray, QVariantList zArray)
 {
     ARootGraphRecord * r = dynamic_cast<ARootGraphRecord*>(Graphs.getRecord(graphName));
@@ -285,6 +295,7 @@ void AGraph_SI::addPoints(QString graphName, QVariantList xArray, QVariantList y
     if (res != ARootObjBase::OK)
         abort("addPoints with three array arguments is applicable only to 2D graphs");
 }
+*/
 
 void AGraph_SI::addPoints(QString graphName, QVariantList array)
 {

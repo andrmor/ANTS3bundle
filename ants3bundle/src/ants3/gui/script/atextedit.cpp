@@ -51,7 +51,7 @@ void ATextEdit::setCompleter(QCompleter *completer)
     QObject::connect(Completer, SIGNAL(activated(QString)), this, SLOT(insertCompletion(QString)));
 }
 
-static int counter = 0;
+//static int counter = 0;
 void ATextEdit::keyPressEvent(QKeyEvent * e)
 {
     const int key = e->key();
@@ -128,7 +128,7 @@ void ATextEdit::keyPressEvent(QKeyEvent * e)
       }
     case Qt::Key_Delete :
       {
-        if (shiftPressed)  //Delete line
+        if (shiftPressed)                               // Delete line
         {
             tc.select(QTextCursor::LineUnderCursor);
             tc.removeSelectedText();
@@ -142,18 +142,8 @@ void ATextEdit::keyPressEvent(QKeyEvent * e)
       }
     case Qt::Key_Down :
       {
-        if ( MethodTooltipVisible && (e->modifiers() & Qt::ShiftModifier))
+        if (controlPressed && altPressed)               // Copy line
         {
-            if (SelectedMethodInTooltip == 0) SelectedMethodInTooltip = NumberOfMethodsInTooltip - 1;
-            else SelectedMethodInTooltip--;
-            ForcedMethodTooltipSelection = true;
-            QTextCursor tcc = textCursor();
-            tryShowFunctionTooltip(&tcc);
-            return;
-        }
-
-        if ( (e->modifiers() & Qt::ControlModifier) && (e->modifiers() & Qt::AltModifier) )
-        {   //Copy line
             tc.select(QTextCursor::LineUnderCursor);
             QString line = tc.selectedText();
             tc.movePosition(QTextCursor::EndOfLine);
@@ -163,8 +153,8 @@ void ATextEdit::keyPressEvent(QKeyEvent * e)
             return;
         }
 
-        if ( (e->modifiers() & Qt::ControlModifier) && (e->modifiers() & Qt::ShiftModifier) )
-        {   //Shift line down
+        if ( controlPressed && shiftPressed)            // Shift line down
+        {
             tc.select(QTextCursor::LineUnderCursor);
             QString line = tc.selectedText();
             tc.removeSelectedText();
@@ -179,22 +169,22 @@ void ATextEdit::keyPressEvent(QKeyEvent * e)
             onCursorPositionChanged();
             return;
         }
-        break;
-      }
-    case Qt::Key_Up :
-      {
-        if ( MethodTooltipVisible && (e->modifiers() & Qt::ShiftModifier))
+
+        if ( MethodTooltipVisible && shiftPressed)      // Choose another signarure in help tooltip
         {
-            SelectedMethodInTooltip++;
-            if (SelectedMethodInTooltip >= NumberOfMethodsInTooltip) SelectedMethodInTooltip = 0;
+            if (SelectedMethodInTooltip == 0) SelectedMethodInTooltip = NumberOfMethodsInTooltip - 1;
+            else SelectedMethodInTooltip--;
             ForcedMethodTooltipSelection = true;
             QTextCursor tcc = textCursor();
             tryShowFunctionTooltip(&tcc);
             return;
         }
-
-        if ( (e->modifiers() & Qt::ControlModifier) && (e->modifiers() & Qt::ShiftModifier) )
-        {   //Shift line up
+        break;
+      }
+    case Qt::Key_Up :
+      {
+        if (controlPressed && shiftPressed)             // Shift line up
+        {
             tc.select(QTextCursor::LineUnderCursor);
             QString line = tc.selectedText();
             tc.removeSelectedText();
@@ -209,11 +199,21 @@ void ATextEdit::keyPressEvent(QKeyEvent * e)
             onCursorPositionChanged();
             return;
         }
+
+        if (MethodTooltipVisible && shiftPressed)       // Choose another signarure in help tooltip
+        {
+            SelectedMethodInTooltip++;
+            if (SelectedMethodInTooltip >= NumberOfMethodsInTooltip) SelectedMethodInTooltip = 0;
+            ForcedMethodTooltipSelection = true;
+            QTextCursor tcc = textCursor();
+            tryShowFunctionTooltip(&tcc);
+            return;
+        }
         break;
       }
     case Qt::Key_Plus :
       {
-        if ( e->modifiers() & Qt::ControlModifier ) //font size +
+        if (controlPressed)                             // font size +
         {
             int size = font().pointSize();
             setFontSizeAndEmitSignal(++size);
@@ -223,7 +223,7 @@ void ATextEdit::keyPressEvent(QKeyEvent * e)
       }
     case Qt::Key_Minus :
       {
-        if ( e->modifiers() & Qt::ControlModifier )  //font size -
+        if (controlPressed)                             // font size -
         {
             int size = font().pointSize();
             setFontSizeAndEmitSignal(--size); //check is there: cannot go < 1
