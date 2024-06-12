@@ -19,8 +19,9 @@
 #include <QClipboard>
 #include <QRegularExpression>
 
-ATextEdit::ATextEdit(QWidget * parent) :
-    QPlainTextEdit(parent), TabInSpaces(A3Global::getInstance().TabInSpaces)
+ATextEdit::ATextEdit(EScriptLanguage lang, QWidget * parent) :
+    QPlainTextEdit(parent), TabInSpaces(A3Global::getInstance().TabInSpaces),
+    ScriptLanguage(lang)
 {
     LeftField = new ALeftField(*this);
     connect(this, &ATextEdit::blockCountChanged, this, &ATextEdit::updateLineNumberAreaWidth);
@@ -1012,10 +1013,10 @@ bool ATextEdit::tryShowFunctionTooltip(QTextCursor * cursor)
                 if (start > 0 && start < tooltipText.size() && stop > 0 && stop < tooltipText.size())
                 {
                     //qDebug() << start << " - " << stop;
-                    QString toBold = tooltipText.mid(start, stop - start);
+                    QString toBold = tooltipText.mid(start, stop - start + 1);
                     //qDebug() << "--->" << toBold;
                     toBold = "<b>" + toBold + "</b>";
-                    tooltipText.replace(start, stop - start, toBold);
+                    tooltipText.replace(start, stop - start + 1, toBold);
                 }
             }
         }
@@ -1270,7 +1271,7 @@ void ATextEdit::updateLineNumberArea(const QRect &rect, int dy)
     if (rect.contains(viewport()->rect())) updateLineNumberAreaWidth();
 }
 
-void ATextEdit::SetFontSize(int size)
+void ATextEdit::setFontSize(int size)
 {
     if (size<1) size = 1;
     QFont f = font();
@@ -1278,7 +1279,7 @@ void ATextEdit::SetFontSize(int size)
     setFont(f);
 }
 
-void ATextEdit::RefreshExtraHighlight()
+void ATextEdit::refreshExtraHighlight()
 {
     onCursorPositionChanged();
 }

@@ -376,11 +376,13 @@ void AScriptWindow::highlightErrorLine(int line)
 
 void AScriptWindow::WriteToJson()
 {
-    if (ScriptLanguage == EScriptLanguage::JavaScript) writeToJson(GlobSet.JavaScriptJson);
-    else                                                   writeToJson(GlobSet.PythonJson);
+    if (ScriptLanguage == EScriptLanguage::JavaScript)
+        writeToJson(GlobSet.JavaScriptJson);
+    else
+        writeToJson(GlobSet.PythonJson);
 }
 
-void AScriptWindow::writeToJson(QJsonObject & json)
+void AScriptWindow::writeToJson(QJsonObject & json) const
 {
     json = QJsonObject(); //clear
 
@@ -411,7 +413,7 @@ void AScriptWindow::removeAllBooksExceptFirst()
     ScriptBooks[0].removeAllTabs();
 }
 
-void AScriptWindow::readFromJson(QJsonObject & json)
+void AScriptWindow::readFromJson(const QJsonObject &json)
 {
     if (json.isEmpty()) return;
 
@@ -1069,7 +1071,7 @@ void AScriptWindow::onDefaulFontSizeChanged(int size)
 {
     GlobSet.SW_FontSize = size;
     for (ATabRecord* tab : getScriptTabs())
-        tab->TextEdit->SetFontSize(size);
+        tab->TextEdit->setFontSize(size);
 }
 
 void AScriptWindow::onProgressChanged(int percent)
@@ -1321,7 +1323,7 @@ void AScriptWindow::formatTab(ATabRecord * tab)
     updateTab(tab);
 
     if (GlobSet.SW_FontFamily.isEmpty())
-        tab->TextEdit->SetFontSize(GlobSet.SW_FontSize);
+        tab->TextEdit->setFontSize(GlobSet.SW_FontSize);
     else
     {
         QFont font(GlobSet.SW_FontFamily, GlobSet.SW_FontSize, GlobSet.SW_FontWeight, GlobSet.SW_Italic);
@@ -1819,7 +1821,7 @@ void AScriptWindow::applyTextFindState()
 
     ATextEdit * te = getTab()->TextEdit;
     te->FindString = Text;
-    te->RefreshExtraHighlight();
+    te->refreshExtraHighlight();
 }
 
 void AScriptWindow::on_pbReplaceOne_clicked()

@@ -97,12 +97,12 @@ private:
 
     AScriptExampleExplorer * ExampleExplorer = nullptr;
 
-    void readFromJson(QJsonObject & json);
-    void writeToJson(QJsonObject  & json);
+    void readFromJson(const QJsonObject & json);
+    void writeToJson(QJsonObject & json) const;
 
     void createGuiElements();
     void findText(bool bForward);
-    void applyTextFindState();
+    void applyTextFindState();  // !!!*** refactor
     void fillSubObject(QTreeWidgetItem* parent, const QJsonObject& obj);
     void fillSubArray(QTreeWidgetItem* parent, const QJsonArray& arr);
     QString getDesc(const QJsonValue &ref);
@@ -150,7 +150,7 @@ private:
     void pasteMarkedTab();
     void copyTab(int iBook);
     void moveTab(int iBook);
-    void updateTab(ATabRecord *tab); // !!!*** move to tab
+    void updateTab(ATabRecord *tab); // !!!*** move to tab, use references for everything
     void formatTab(ATabRecord *tab); // !!!*** partially move to tab
 
 public slots:

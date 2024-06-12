@@ -4,6 +4,7 @@
 #include "ajsontools.h"
 
 #include <QCompleter>
+#include <QStringList>
 #include <QStringListModel>
 #include <QMenu>
 #include <QAction>
@@ -12,7 +13,7 @@
 ATabRecord::ATabRecord(const QStringList & functions, EScriptLanguage language) :
     Functions(functions)
 {
-    TextEdit = new ATextEdit();
+    TextEdit = new ATextEdit(language);
     TextEdit->setLineWrapMode(QPlainTextEdit::NoWrap);
 
     Completer = new QCompleter(this);
@@ -26,7 +27,6 @@ ATabRecord::ATabRecord(const QStringList & functions, EScriptLanguage language) 
     Completer->setCaseSensitivity(Qt::CaseSensitive);
     Completer->setWrapAround(false);
     TextEdit->setCompleter(Completer);
-    TextEdit->setScriptLanguage(language);
 
     if (language == EScriptLanguage::JavaScript)
         Highlighter = new AHighlighterJS(TextEdit->document());
@@ -63,26 +63,16 @@ void ATabRecord::readFromJson(const QJsonObject & json)
 {
     if (!TextEdit) return;
 
+    jstools::parseJson(json, "FileName", FileName);
+    jstools::parseJson(json, "TabName", TabName);
+    jstools::parseJson(json, "bExplicitlyNamed", bExplicitlyNamed);
+
     QString Script = json["Script"].toString();
     TextEdit->clear();
     TextEdit->appendPlainText(Script);
     TextEdit->document()->clearUndoRedoStacks();
-    FileName.clear();
-    FileName = json["FileName"].toString();
 
-    bExplicitlyNamed = false;
-    jstools::parseJson(json, "bExplicitlyNamed", bExplicitlyNamed);
-
-    if (json.contains("TabName")) TabName = json["TabName"].toString();
-    else //compatibility
-    {
-        if (FileName.isEmpty()) TabName.clear();
-        else
-        {
-            QFileInfo fi(FileName);
-            TabName = fi.baseName();
-        }
-    }
+    bExplicitlyNamed = false; // !!!*** why it is forced here?
 }
 
 /*
