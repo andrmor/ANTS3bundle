@@ -943,7 +943,7 @@ bool ATextEdit::tryShowFunctionTooltip(QTextCursor * cursor)
             selectedMethod = SelectedMethodInTooltip;
         else
         {
-            int numNow = computeCurrentNumberOfParameters(tc1, cursorIsInArguments);
+            int numNow = computeIntroducedNumberOfArguments(tc1, cursorIsInArguments);
             //qDebug() << "Computed number of arguments:" << numNow;
 
             selectedMethod = 0;
@@ -1044,7 +1044,7 @@ bool ATextEdit::tryShowFunctionTooltip(QTextCursor * cursor)
     }
 }
 
-int ATextEdit::computeCurrentNumberOfParameters(QTextCursor & tc, bool cursorInArguments)
+int ATextEdit::computeIntroducedNumberOfArguments(QTextCursor & tc, bool cursorInArguments)
 {
     QString argLine;
 
@@ -1103,8 +1103,8 @@ int ATextEdit::computeCurrentNumberOfParameters(QTextCursor & tc, bool cursorInA
     }
 
     //qDebug() << "->" << argLine;
-    argLine.remove(0,1);
-    argLine.chop(1);
+    //argLine.remove(0,1);
+    //argLine.chop(1);
     argLine = argLine.simplified();
     //qDebug() << "--" << argLine;
     if (argLine.isEmpty()) return 0;
