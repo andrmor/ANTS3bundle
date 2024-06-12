@@ -60,7 +60,7 @@ private slots:
 
 private:
     friend class ALeftField;
-    int  previousLineNumber = 0; // !!!*** checked by not set
+    int  previousLineNumber = 0;
     bool bMonitorLineChange = true;
     EScriptLanguage ScriptLanguage = EScriptLanguage::JavaScript;
     QCompleter * Completer = nullptr;

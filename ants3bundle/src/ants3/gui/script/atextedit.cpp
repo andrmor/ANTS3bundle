@@ -884,18 +884,22 @@ void ATextEdit::onCursorPositionChanged()
       }
   }
 
-  //all extra selections defined, applying now
-  setExtraSelections(extraSelections);
+    //all extra selections defined, applying now
+    setExtraSelections(extraSelections);
 
-  // tooltip for known functions
-  QTextCursor tcc = textCursor();
-  tryShowFunctionTooltip(&tcc);
+    // tooltip for known functions
+    QTextCursor tcc = textCursor();
+    tryShowFunctionTooltip(&tcc);
 
-  if (bMonitorLineChange)
-  {
-      int currentLine = textCursor().blockNumber();
-      if ( currentLine != previousLineNumber) emit lineNumberChanged(currentLine);
-  }
+    if (bMonitorLineChange)
+    {
+        int currentLine = textCursor().blockNumber();
+        if ( currentLine != previousLineNumber)
+        {
+            previousLineNumber = currentLine;
+            emit lineNumberChanged(currentLine);
+        }
+    }
 }
 
 bool ATextEdit::tryShowFunctionTooltip(QTextCursor * cursor)
