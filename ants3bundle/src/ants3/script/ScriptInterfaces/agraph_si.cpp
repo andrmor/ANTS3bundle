@@ -44,14 +44,29 @@ AGraph_SI::AGraph_SI()
     Help["setTitle"] = "Sets title of the slected graph";
     Help["setAxisTitles"] = "Sets X and Y axis titles for the selected graph";
 
-    // ---
+    Help["setXRange"] = "Set shown range for X axis";
+    Help["setYRange"] = "Set shown range for Y axis";
+    Help["setMinimum"] = "Set shown minimum for Y axis";
+    Help["setMaximum"] = "Set shown maximum for X axis";
 
-    Help["saveRoot"] = "Save graph as a Root object";
+    QString divHelp = "Argument is: ndiv = N1 + 100*N2 + 10000*N3, where\n"
+                      "N1 = number of 1st divisions, N2 = number of 2nd divisions and N3 = number of 3rd divisions.\n"
+                      "e.g.: ndiv = 0 --> no tick marks; ndiv = 2 --> 2 divisions, one tick mark in the middle of the axis.";
 
-    Help["remove"] = "Removes the graph";
-    Help["removeAllGraph"] = "Removes all graphs";
+    Help["setXDivisions"] = "Configures ticks for X axis\n" + divHelp;
+    Help["setYDivisions"] = "Configures ticks for Y axis\n" + divHelp;
 
-    //Help["configureAbortIfAlreadyExists"] = "If set to true, an attempt to create a graph with already existent name will casuse abort. Default is false";
+    Help["sort"] = "Sorts points of 1D graph to have continuously increasing X";
+
+    Help["getData"] = "Get an array with the data points of the graph";
+
+    Help["save"] = "Save graph as a Root object file (.root or .c)";
+    Help["load"] = "Load graph from a file containing Root objects. If there are several graphs in the file, provide the graph name as third argument";
+
+    Help["remove"] = "Remove this graph";
+    Help["removeAll"] = "Remove all graphs";
+
+    Help["configureAbortIfAlreadyExists"] = "If set to true, an attempt to create a graph with already existent name will cause abort. Default is false";
 }
 
 //AGraph_SI::AGraph_SI(const AGraph_SI &other) :
