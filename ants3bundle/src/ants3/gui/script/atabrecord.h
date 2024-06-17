@@ -5,7 +5,6 @@
 
 #include <QObject>
 #include <QVector>
-#include <QStringList>
 
 class ATextEdit;
 class QCompleter;
@@ -21,26 +20,26 @@ public:
     ATabRecord(const QStringList & functions, EScriptLanguage language);
     ~ATabRecord();
 
-    ATextEdit *     TextEdit            = nullptr;
+    ATextEdit         * TextEdit = nullptr;
 
-    QString         FileName;
-    QString         TabName;
-    bool            bExplicitlyNamed    = false;   //if true save will not auto-rename
+    QString             FileName;
+    QString             TabName;
+    bool                bExplicitlyNamed = false;   //if true save will not auto-rename
 
     const QStringList & Functions;
 
-    QCompleter *    Completer           = nullptr;
-    QStringListModel * CompletitionModel;
-    AHighlighter *  Highlighter = nullptr;
+    QCompleter        * Completer = nullptr;
+    QStringListModel  * CompletitionModel;
+    AHighlighter      * Highlighter = nullptr;
 
-    QVector<int>    VisitedLines;   // !!!*** to std::vector
-    int             IndexVisitedLines   = 0;
-    int             MaxLineNumbers      = 20;
+    QVector<int>        VisitedLines;   // !!!*** to std::vector
+    int                 IndexVisitedLines = 0;
+    int                 MaxLineNumbers    = 20;
 
     void updateHighlight();
 
     void writeToJson(QJsonObject & json) const;
-    void readFromJson(const QJsonObject &json);
+    void readFromJson(const QJsonObject & json);
 
     bool wasModified() const;
     void setModifiedStatus(bool flag);
@@ -51,7 +50,7 @@ public:
 private slots:
     void onCustomContextMenuRequested(const QPoint & pos);
     void onLineNumberChanged(int lineNumber);
-    void onTextChanged(); // !!!*** let const     how about language-sensitivity?
+    void onTextChanged(); // !!!*** add "let" "const", also nod valid approach for Python
 
 signals:
     void requestFindText();

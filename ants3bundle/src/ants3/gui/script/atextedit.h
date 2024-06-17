@@ -3,10 +3,12 @@
 
 #include "escriptlanguage.h"
 
+#include <vector>
+
 #include <QPlainTextEdit>
 #include <QObject>
 #include <QWidget>
-#include <QSet>
+#include <QLabel>
 
 class QCompleter;
 class ALeftField;
@@ -15,24 +17,20 @@ class ATextEdit : public QPlainTextEdit
 {
     Q_OBJECT
 public:
-    ATextEdit(QWidget *parent = 0);
+    ATextEdit(EScriptLanguage lang, QWidget * parent = nullptr);
     ~ATextEdit() {}
 
-    void setCompleter(QCompleter *completer);
-    QCompleter *completer() const {return c; }
+    void setCompleter(QCompleter * completer);
 
-    void setScriptLanguage(EScriptLanguage lang) {ScriptLanguage = lang;}
-
-    void SetFontSize(int size);
-    void RefreshExtraHighlight();
-    void setTextCursorSilently(const QTextCursor& tc);
+    void setFontSize(int size);
+    void refreshExtraHighlight();
+    void setTextCursorSilently(const QTextCursor & tc);
 
     void setDeprecatedOrRemovedMethods(const QHash<QString, QString>* DepRem) {DeprecatedOrRemovedMethods = DepRem;}
 
-    int & TabInSpaces;
-    QStringList functionList;
+    std::vector<std::pair<QString,int>> * ListOfMethods = nullptr;
     QString FindString;
-    const QHash<QString, QString>* DeprecatedOrRemovedMethods = 0;
+    const QHash<QString, QString> * DeprecatedOrRemovedMethods = nullptr;
 
 public slots:
     void paste();
@@ -49,25 +47,35 @@ protected:
     void resizeEvent(QResizeEvent *e) override;
 
 private slots:
-    void insertCompletion(const QString &completion);    
+    void insertCompletion(const QString &completion);
     void onCursorPositionChanged(); // !!!***
     void updateLineNumberAreaWidth();
     void updateLineNumberArea(const QRect &rect, int dy);
 
 private:
     friend class ALeftField;
+
+    EScriptLanguage ScriptLanguage = EScriptLanguage::JavaScript;
+    int & TabInSpaces;
+
     int  previousLineNumber = 0;
     bool bMonitorLineChange = true;
-    EScriptLanguage ScriptLanguage = EScriptLanguage::JavaScript;
-    QCompleter * c = nullptr;
+    QCompleter * Completer = nullptr;
     ALeftField * LeftField  = nullptr;
     bool Pressed_2 = false;
 
+    bool   MethodTooltipVisible = false;
+    bool   ForcedMethodTooltipSelection = false;
+    size_t SelectedMethodInTooltip  = 0;
+    size_t NumberOfMethodsInTooltip = 1;
+
+    QLabel * lHelp = nullptr;
+
     QString textUnderCursor() const;
-    QString SelectObjFunctUnderCursor(QTextCursor* cursor = 0) const;
+    QString selectObjFunctUnderCursor(QTextCursor * cursor = nullptr) const;
     QString SelectTextToLeft(QTextCursor cursor, int num) const;
     bool InsertClosingBracket() const;
-    bool findInList(QString text, QString &tmp) const;
+    void findMatchingMethods(const QString & text, std::vector<std::pair<QString,int>> & pairs) const;  // !!!*** add to search in deprecated & removed !!!*** optimize
     void setFontSizeAndEmitSignal(int size);
 
     void paintLeftField(QPaintEvent *event); // !!!*** make compatible with dark theme
@@ -76,7 +84,7 @@ private:
     void checkBracketsOnLeft(QList<QTextEdit::ExtraSelection> &extraSelections, const QColor &color);
     void checkBracketsOnRight(QList<QTextEdit::ExtraSelection> &extraSelections, const QColor &color);
 
-    bool TryShowFunctionTooltip(QTextCursor *cursor);
+    bool tryShowFunctionTooltip(QTextCursor *cursor);
 
     int getIndent(const QString &line) const;
     void setIndent(QString &line, int indent);
@@ -85,6 +93,9 @@ private:
     void pasteText(const QString &text);
 
     bool onKeyPressed_interceptShortcut(int key, bool shift);
+
+    int computeIntroducedNumberOfArguments(QTextCursor & tc, bool cursorInArguments);
+    int computeCurrentArgument(QTextCursor & tc);
 
 signals:
     void requestHelp(QString);

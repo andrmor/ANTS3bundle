@@ -45,10 +45,9 @@
 
 AScriptWindow::AScriptWindow(EScriptLanguage lang, QWidget * parent) :
     AGuiWindow( (lang == EScriptLanguage::JavaScript ? "JScript" : "Python"), parent),
-    ScriptHub(AScriptHub::getInstance()),
-    GlobSet(A3Global::getInstance()),
-    ui(new Ui::AScriptWindow),
-    ScriptLanguage(lang)
+    ScriptLanguage(lang),
+    ScriptHub(AScriptHub::getInstance()), GlobSet(A3Global::getInstance()),
+    ui(new Ui::AScriptWindow)
 {
     ui->setupUi(this);
 
@@ -193,8 +192,8 @@ void AScriptWindow::createGuiElements()
     trwHelp->setContextMenuPolicy(Qt::CustomContextMenu);
     trwHelp->setColumnCount(1);
     trwHelp->setHeaderLabel("Unit.Function");
-    QObject::connect(trwHelp, SIGNAL(itemClicked(QTreeWidgetItem*,int)), this, SLOT(onFunctionClicked(QTreeWidgetItem*,int)));
-    QObject::connect(trwHelp, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(onContextMenuRequestedByHelp(QPoint)));
+    QObject::connect(trwHelp, &QTreeWidget::itemClicked,                this, &AScriptWindow::onFunctionClicked);
+    QObject::connect(trwHelp, &QTreeWidget::customContextMenuRequested, this, &AScriptWindow::onContextMenuRequestedByHelp);
     sh->addWidget(trwHelp);
 
     pteHelp = new QPlainTextEdit();
@@ -202,7 +201,7 @@ void AScriptWindow::createGuiElements()
     pteHelp->setMinimumHeight(20);
     sh->addWidget(pteHelp);
     QList<int> sizes;
-    sizes << 800 << 175;
+    sizes << 800 << 250;
     sh->setSizes(sizes);
 
     vb1->addWidget(sh);
@@ -290,7 +289,7 @@ void AScriptWindow::registerInterfaces()
 
 void AScriptWindow::updateMethodHelp()
 {
-    functionList.clear();
+    ListOfMethods.clear();
     trwHelp->clear();
     for (const AScriptInterface * inter : ScriptManager->getInterfaces())
         fillHelper(inter);
@@ -377,11 +376,13 @@ void AScriptWindow::highlightErrorLine(int line)
 
 void AScriptWindow::WriteToJson()
 {
-    if (ScriptLanguage == EScriptLanguage::JavaScript) writeToJson(GlobSet.JavaScriptJson);
-    else                                                   writeToJson(GlobSet.PythonJson);
+    if (ScriptLanguage == EScriptLanguage::JavaScript)
+        writeToJson(GlobSet.JavaScriptJson);
+    else
+        writeToJson(GlobSet.PythonJson);
 }
 
-void AScriptWindow::writeToJson(QJsonObject & json)
+void AScriptWindow::writeToJson(QJsonObject & json) const
 {
     json = QJsonObject(); //clear
 
@@ -412,7 +413,7 @@ void AScriptWindow::removeAllBooksExceptFirst()
     ScriptBooks[0].removeAllTabs();
 }
 
-void AScriptWindow::readFromJson(QJsonObject & json)
+void AScriptWindow::readFromJson(const QJsonObject &json)
 {
     if (json.isEmpty()) return;
 
@@ -661,6 +662,7 @@ void AScriptWindow::on_pbExample_clicked()
     if (ExampleExplorer) ExampleExplorer->showNormal();
 }
 
+/*
 void AScriptWindow::fillHelper(const AScriptInterface * io)
 {
     const QString module = io->Name;
@@ -698,7 +700,49 @@ void AScriptWindow::fillHelper(const AScriptInterface * io)
         fItem->setText(0, Fshort);
         fItem->setText(1, Flong);
 
-        const QString & str = io->getMethodHelp(methodName);
+        const QString & str = io->getMethodHelp(methodName, -1);
+        fItem->setToolTip(0, str);
+    }
+}
+*/
+
+void AScriptWindow::fillHelper(const AScriptInterface * io)
+{
+    const QString module = io->Name;
+
+    std::vector<std::pair<QString,int>> methods = getListOfMethodsWithNumArgs(io);
+    if (ui->aAlphabeticOrder->isChecked()) std::sort(methods.begin(), methods.end(), [](const auto & lhs, const auto & rhs){return (lhs.first < rhs.first);});
+
+    QTreeWidgetItem * objItem = new QTreeWidgetItem(trwHelp);
+    objItem->setText(0, module);
+    QFont f = objItem->font(0);
+    f.setBold(true);
+    objItem->setFont(0, f);
+    objItem->setToolTip(0, io->Description);
+    bool bAlreadyAdded = false; // TMP!!!
+    for (size_t iMet = 0; iMet < methods.size(); iMet++)
+    {
+        QStringList sl = methods[iMet].first.split("_:_");
+        QString Fshort = sl.first();
+        QString Flong  = sl.last();
+        ListOfMethods.push_back( {Flong, methods[iMet].second} );
+
+        QString methodName = QString(Fshort).remove(QRegularExpression("\\((.*)\\)"));
+        methodName.remove(0, module.length() + 1); //remove module name and '.'
+
+        if (methodName == "print")
+        {
+            if (bAlreadyAdded) continue;
+            Fshort = "core.print( m1, ... )";
+            Flong  = "void core.print( QVariant m1, ... )";
+            bAlreadyAdded = true;
+        }
+
+        QTreeWidgetItem * fItem = new QTreeWidgetItem(objItem);
+        fItem->setText(0, Fshort);
+        fItem->setText(1, Flong);  // long is used when a method is clicked in GUI to show complete signature
+
+        const QString & str = io->getMethodHelp(methodName, methods[iMet].second);
         fItem->setToolTip(0, str);
     }
 }
@@ -1027,7 +1071,7 @@ void AScriptWindow::onDefaulFontSizeChanged(int size)
 {
     GlobSet.SW_FontSize = size;
     for (ATabRecord* tab : getScriptTabs())
-        tab->TextEdit->SetFontSize(size);
+        tab->TextEdit->setFontSize(size);
 }
 
 void AScriptWindow::onProgressChanged(int percent)
@@ -1037,7 +1081,7 @@ void AScriptWindow::onProgressChanged(int percent)
     qApp->processEvents();
 }
 
-QStringList AScriptWindow::getListOfMethods(const QObject *obj, QString ObjName, bool fWithArguments)
+QStringList AScriptWindow::getListOfMethods(const QObject * obj, QString ObjName, bool fWithArguments)
 {
     QStringList methods;
     if (!obj) return methods;
@@ -1087,6 +1131,58 @@ QStringList AScriptWindow::getListOfMethods(const QObject *obj, QString ObjName,
         }
     }
     return methods;
+}
+
+std::vector<std::pair<QString, int>> AScriptWindow::getListOfMethodsWithNumArgs(const AScriptInterface * interface)
+{
+    std::vector<std::pair<QString, int>> vec;
+    if (!interface) return vec;
+
+    const int numMethods = interface->metaObject()->methodCount();
+    for (int iMet = 0; iMet < numMethods; iMet++)
+    {
+        const QMetaMethod & m = interface->metaObject()->method(iMet);
+        bool bSlot   = (m.methodType() == QMetaMethod::Slot);
+        bool bPublic = (m.access() == QMetaMethod::Public);
+
+        if (bSlot && bPublic)
+        {
+            if (m.name() == "deleteLater") continue;
+            if (m.name() == "help") continue;
+
+            QString candidate = interface->Name + "." + m.name();
+            int args = m.parameterCount();
+
+            if (true) // fWithArguments)
+            {
+                candidate += "(";
+                QString extra = candidate;
+
+                for (int i = 0; i < args; i++)
+                {
+                    QString typ = m.parameterTypes().at(i);
+                    if (typ == "QString") typ = "string";
+                    extra += " " + typ + " " + m.parameterNames().at(i);
+                    candidate     += " " + m.parameterNames().at(i);
+                    if (i != args-1)
+                    {
+                        candidate += ", ";
+                        extra += ", ";
+                    }
+                }
+                candidate += " )";
+                extra += " )";
+                extra = QString() + m.typeName() + " " + extra;
+
+                candidate += "_:_" + extra;
+            }
+
+            if (vec.empty() || vec.back().first != candidate)
+                vec.push_back( {candidate, args} );
+        }
+    }
+
+    return vec;
 }
 
 void AScriptWindow::appendDeprecatedAndRemovedMethods(const AScriptInterface * obj)
@@ -1195,9 +1291,9 @@ void AScriptWindow::onScriptTabMoved(int from, int to)
 
 void AScriptWindow::updateTab(ATabRecord* tab)
 {
-    tab->Highlighter->setExternalRules(UnitNames, Methods, ListOfDeprecatedOrRemovedMethods, ListOfConstants);
+    tab->Highlighter->setExternalRules(UnitNames, Methods, ListOfDeprecatedOrRemovedMethods);
     tab->updateHighlight();
-    tab->TextEdit->functionList = functionList;
+    tab->TextEdit->ListOfMethods = &ListOfMethods;
     tab->TextEdit->DeprecatedOrRemovedMethods = &DeprecatedOrRemovedMethods;
 }
 
@@ -1227,7 +1323,7 @@ void AScriptWindow::formatTab(ATabRecord * tab)
     updateTab(tab);
 
     if (GlobSet.SW_FontFamily.isEmpty())
-        tab->TextEdit->SetFontSize(GlobSet.SW_FontSize);
+        tab->TextEdit->setFontSize(GlobSet.SW_FontSize);
     else
     {
         QFont font(GlobSet.SW_FontFamily, GlobSet.SW_FontSize, GlobSet.SW_FontWeight, GlobSet.SW_Italic);
@@ -1725,7 +1821,7 @@ void AScriptWindow::applyTextFindState()
 
     ATextEdit * te = getTab()->TextEdit;
     te->FindString = Text;
-    te->RefreshExtraHighlight();
+    te->refreshExtraHighlight();
 }
 
 void AScriptWindow::on_pbReplaceOne_clicked()

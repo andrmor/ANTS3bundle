@@ -55,11 +55,13 @@ public:
     AGuiWindow * ScriptMsgWin = nullptr;
 
 private:
+    EScriptLanguage     ScriptLanguage = EScriptLanguage::JavaScript;
+
     AScriptHub        & ScriptHub;
     A3Global          & GlobSet;
+
     Ui::AScriptWindow * ui = nullptr;
 
-    EScriptLanguage ScriptLanguage = EScriptLanguage::JavaScript;
     AVirtualScriptManager * ScriptManager = nullptr;
 
     QStringList         Methods;
@@ -86,26 +88,31 @@ private:
     bool                bShutDown      = false;
 
     QSet<QString>       ExpandedItemsInJsonTW;
-    QStringList         functionList; //functions to populate tooltip helper
+    //QStringList         functionList; //functions to populate tooltip helper
+    std::vector<std::pair<QString,int>> ListOfMethods; //used to populate tooltip
     QHash<QString, QString> DeprecatedOrRemovedMethods;
     QStringList         UnitNames;
     QStringList         ListOfDeprecatedOrRemovedMethods;
-    QStringList         ListOfConstants;
+    //QStringList         ListOfConstants;
 
     AScriptExampleExplorer * ExampleExplorer = nullptr;
 
-    void readFromJson(QJsonObject & json);
-    void writeToJson(QJsonObject  & json);
+    void readFromJson(const QJsonObject & json);
+    void writeToJson(QJsonObject & json) const;
 
     void createGuiElements();
     void findText(bool bForward);
-    void applyTextFindState();
+    void applyTextFindState();  // !!!*** refactor
     void fillSubObject(QTreeWidgetItem* parent, const QJsonObject& obj);
     void fillSubArray(QTreeWidgetItem* parent, const QJsonArray& arr);
     QString getDesc(const QJsonValue &ref);
-    void fillHelper(const AScriptInterface * io);
+    void fillHelper(const AScriptInterface * io);  // !!!*** optimize --> do not add unit name, transfer to interface base class
     QString getKeyPath(QTreeWidgetItem *item);
-    QStringList getListOfMethods(const QObject *obj, QString ObjName, bool fWithArguments = false);  // !!!*** no need name, cponvert to AScriptInterface
+
+    // !!!*** refactor:
+    QStringList getListOfMethods(const QObject *obj, QString ObjName, bool fWithArguments = false);  // !!!*** no need name, convert to AScriptInterface
+    std::vector<std::pair<QString,int>> getListOfMethodsWithNumArgs(const AScriptInterface * interface);
+
     void appendDeprecatedAndRemovedMethods(const AScriptInterface *obj); // !!!***
 
     void addNewBook();
@@ -143,7 +150,7 @@ private:
     void pasteMarkedTab();
     void copyTab(int iBook);
     void moveTab(int iBook);
-    void updateTab(ATabRecord *tab); // !!!*** move to tab
+    void updateTab(ATabRecord *tab); // !!!*** move to tab, use references for everything
     void formatTab(ATabRecord *tab); // !!!*** partially move to tab
 
 public slots:

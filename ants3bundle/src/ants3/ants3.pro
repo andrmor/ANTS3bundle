@@ -236,6 +236,7 @@ SOURCES += \
     script/aroottreerecord.cpp \
     script/ascriptexample.cpp \
     script/ascriptexampledatabase.cpp \
+    script/ascripthelpentry.cpp \
     script/ascripthub.cpp \
     script/ascriptobjstore.cpp \
     script/avarrecordbase.cpp \
@@ -463,6 +464,7 @@ HEADERS += \
     script/apeakfinder.h \
     script/ascriptexample.h \
     script/ascriptexampledatabase.h \
+    script/ascripthelpentry.h \
     script/ascripthub.h \
     script/ascriptobjstore.h \
     script/avarrecordbase.h \

@@ -19,7 +19,7 @@ class AHighlighter : public QSyntaxHighlighter
 public:
     AHighlighter(QTextDocument * parent);
 
-    void setExternalRules(const QStringList & units, const QStringList & functions, const QStringList & deprecatedOrRemoved, const QStringList & constants);
+    void setExternalRules(const QStringList & units, const QStringList & functions, const QStringList & deprecatedOrRemoved);
 
 protected:
     void highlightBlock(const QString & text);
