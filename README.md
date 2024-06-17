@@ -126,43 +126,22 @@ sudo update-locale LC_NUMERIC="en_GB.UTF-8"
 
 ### Setting up the environment
 
-## If you do NOT use a virtual machine:
-
-* Adjuct the paths according to the root and geant4 versions!
-
-echo ". /opt/root6.28.04/root/bin/thisroot.sh" >> ~/.bashrc
-
-echo ". /opt/geant4-11.1.1-install/bin/geant4.sh" >> ~/.bashrc
-                
-* Adjust the path for the QtCreator
-
-echo "alias qt="/home/andr/Qt/Tools/QtCreator/bin/qtcreator"" >> ~/.bashrc
-
-echo "export LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:/usr/local/lib" >>  ~/.bashrc
-
-echo "export PATH=\$PATH:/usr/include" >>  ~/.bashrc
-
+* Exit the sudo mode or start a new terminal
+* Open .bashrc file in the home directory (it is invisible by default)
+* Adjuct the paths according to the root and geant4 versions in the following lines!
+   * export /opt/root63006/bin/thisroot.sh
+   * export /opt/geant4-11.1.1-install/bin/geant4.sh
+* Adjust the path for the alias to start the QtCreator
+   * alias qt="/pathToQt/Qt/Tools/QtCreator/bin/qtcreator"
+* Add the following two lines (seems to be optional now):
+   * export LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:/usr/local/lib
+   * export PATH=\$PATH:/usr/include
 * Only if you also installed Qt5 (not needed for Qt6!), adjust the path for the Qt directory and run:
-
-echo "export LD_LIBRARY_PATH=/home/andr/Qt/5.15.2/gcc_64/lib:\$LD_LIBRARY_PATH" >>  ~/.bashrc
-
-## If you use a virtual machine:
-
-* Adjuct the paths according to the root and geant4 versions, and the path for the QtCreator:
-
-echo "alias qt=\\". /opt/root6.28.04/root/bin/thisroot.sh;. /opt/geant4-11.1.1-install/bin/geant4.sh;/home/andr/Qt/Tools/QtCreator/bin/qtcreator\\"" >> ~/.bashrc
-              
-echo "export LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:/usr/local/lib" >>  ~/.bashrc
-
-echo "export PATH=\$PATH:/usr/include" >>  ~/.bashrc
-
-* Only if you also installed Qt5 (not needed for Qt6!), adjust the path for the Qt directory and run:
-
-echo "export LD_LIBRARY_PATH=/home/andr/Qt/5.15.2/gcc_64/lib:\$LD_LIBRARY_PATH" >>  ~/.bashrc
+   export LD_LIBRARY_PATH=/pathToQt/Qt/5.15.2/gcc_64/lib:\$LD_LIBRARY_PATH
 
 ### Next?
 
-* Start a new terminal and type qt to start QtCreator IDE (only in this way the environmental variables will be configured properly!)
+* Start a new terminal and type qt to start QtCreator (only in this way the environmental variables will be configured properly!)
 * Click "Open project..." and select meta.pro file in the ANTS3 source directory (ANTS3bundle/ants3bundle/meta.pro)
 * Click "Configure project" button
-* To start ANTS3 compilation click the green triangular button in the lower-left corner of the QtCeator window
+* To begin the compilation (and start ANTS3 when it is done), click the green triangular button in the lower-left corner of the QtCeator window
