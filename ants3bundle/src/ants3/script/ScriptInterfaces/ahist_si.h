@@ -35,6 +35,7 @@ public slots:
 
     void           clone(QString histName, QString cloneName);
 
+    void           fill(QString histName, double val);
     void           fill(QString histName, double val, double weight);
     void           fill(QString histName, double x, double y, double weight);
     void           fill(QString histName, double x, double y, double z, double weight);
@@ -44,7 +45,8 @@ public slots:
     void           fillArr(QString histName, QVariantList array1, QVariantList array2, QVariantList array3);
     void           fillArr(QString histName, QVariantList array1, QVariantList array2, QVariantList array3, QVariantList array4);
 
-    void           draw(QString HistName, QString options = "");
+    void           draw(QString HistName);
+    void           draw(QString HistName, QString options);
 
     void           setTitle(QString histName, QString title);
     void           setAxisTitles(QString histName, QString x_Title, QString y_Title, QString z_Title = "");

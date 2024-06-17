@@ -1,7 +1,6 @@
 #include "ahist_si.h"
 #include "ascriptobjstore.h"
 #include "arootobjcollection.h"
-#include "arootgraphrecord.h"
 #include "aroothistrecord.h"
 
 #include <QJsonArray>
@@ -9,32 +8,37 @@
 #include <QDebug>
 
 #include "TObject.h"
-#include "TH1D.h"
 #include "TH1.h"
+#include "TH1D.h"
 #include "TH2D.h"
 #include "TH3D.h"
-#include "TH2.h"
-#include "TF2.h"
-#include "TGraph.h"
-#include "TGraphErrors.h"
-#include "TGraph2D.h"
-#include "TF1.h"
 #include "TFile.h"
 #include "TKey.h"
 
 //----------------- HIST  -----------------
-AHist_SI::AHist_SI()
-    : Hists(AScriptObjStore::getInstance().Hists)
+AHist_SI::AHist_SI() : Hists(AScriptObjStore::getInstance().Hists)
 {
     Description = "CERN ROOT histograms";
 
-    Help["new1D"] = "Creates a new 1D histogram.\n"
-                    "For a regular bin histogram provide 3 parameters: number of bins, beginning of the range and end of the range;\n"
-                    "For a variable bin size histogram, provide array of bin low edges. The last number in the array should give the upper range for the last bin.";
+    Help["new1D"] = {{4, "Create a new 1D histogram from CERN ROOT library with regulare bins.\n"
+                         "The arguments are the number of bins, beginning of the range and end of the range."},
+                     {2, "Create a new 1D histogram from CERN ROOT library with variable bin sizes.\n"
+                         "The second argument is an array of bin low edges. The last element in the array gives the upper limit for the last bin."}};
 
-    Help["new2D"] = "Creates a new 2D histogram.\n"
-                    "For a regular bin histogram provide 6 parameters: number of bins in X, beginning of the range in X, end of the range in X, number of bins in Y, beginning of the range in Y and end of the range in Y;\n"
-                    "For a variable bin size histogram, provide two arrays of bin low edges (one for X and one for Y). The last number in the arrays should give the upper range for the last bin.";
+    Help["new2D"] = {{7, "Create a new 2D histogram from CERN ROOT library with regular bins.\n"
+                          "The arguments are the  number of bins in X, beginning of the range in X, end of the range in X, number of bins in Y, beginning of the range in Y and end of the range in Y"},
+                     {3, "Create a new 2D histogram from CERN ROOT library with variable bin sizes.\n"
+                         "The arguments are two arrays of bin low edges (one for X and one for Y). The last element in each array gives the upper limit for the last bin."}};
+
+    Help["new3D"] = "Create a new 3D histogram from CERN ROOT library with regulare bins.\n"
+                    "The arguments are the number of bins and low/upper limits for each axis";
+
+    Help["clone"] = "Make a copy of the histogram";
+
+    Help["fill"] = {{2, "Fill 1D histogram with a value (assumes weight = 1)."},
+                    {3, "Fill 1D histogram with a value and the weight."},
+                    {4, "Fill 2D histogram with the (x,y) value and the given weight."},
+                    {5, "Fill 3D histogram with the (x,y,z) value and the given weight."}};
 
     Help["FitGauss"] = "Fit histogram with a Gaussian. The returned result (is successful) contains an array [Constant,Mean,Sigma,ErrConstant,ErrMean,ErrSigma]"
                     "\nOptional 'options' parameter is directly forwarded to TH1::Fit()";
@@ -394,6 +398,15 @@ void AHist_SI::setYLabelProperties(QString histName, double size, double offset)
     ARootHistRecord * r = dynamic_cast<ARootHistRecord*>(Hists.getRecord(histName));
     if (!r) abort("Histogram " + histName + " not found!");
     else    r->setYLabelProperties(size, offset);
+}
+
+void AHist_SI::fill(QString histName, double val)
+{
+    ARootHistRecord * r = dynamic_cast<ARootHistRecord*>(Hists.getRecord(histName));
+    if (!r || r->getType() != "TH1D")
+        abort("1D histogram " + histName + " not found!");
+    else
+        r->fill1D(val, 1.0);
 }
 
 void AHist_SI::fill(QString histName, double val, double weight)
@@ -1073,6 +1086,11 @@ void AHist_SI::removeAll()
 {
     if (!bGuiThread) abort("Threads cannot create/delete/draw histograms!");
     else             Hists.clear();
+}
+
+void AHist_SI::draw(QString HistName)
+{
+    draw(HistName, "");
 }
 
 void AHist_SI::draw(QString HistName, QString options)
