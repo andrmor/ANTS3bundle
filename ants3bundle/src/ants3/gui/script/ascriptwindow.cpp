@@ -192,7 +192,8 @@ void AScriptWindow::createGuiElements()
     trwHelp->setContextMenuPolicy(Qt::CustomContextMenu);
     trwHelp->setColumnCount(1);
     trwHelp->setHeaderLabel("Unit.Function");
-    QObject::connect(trwHelp, &QTreeWidget::itemClicked,                this, &AScriptWindow::onFunctionClicked);
+    //QObject::connect(trwHelp, &QTreeWidget::itemClicked,                this, &AScriptWindow::onFunctionClicked);
+    QObject::connect(trwHelp, &QTreeWidget::currentItemChanged,                this, &AScriptWindow::onCurrentItemChanged);
     QObject::connect(trwHelp, &QTreeWidget::customContextMenuRequested, this, &AScriptWindow::onContextMenuRequestedByHelp);
     sh->addWidget(trwHelp);
 
@@ -871,6 +872,11 @@ void AScriptWindow::onFunctionClicked(QTreeWidgetItem *item, int /*column*/)
     //pteHelp->appendHtml("<p style=\"color:blue;\"> " + item->text(1) + "</p>");
     pteHelp->appendPlainText(item->text(1)+"\n");
     pteHelp->appendPlainText(item->toolTip(0));
+}
+
+void AScriptWindow::onCurrentItemChanged(QTreeWidgetItem * current, QTreeWidgetItem *)
+{
+    onFunctionClicked(current, 1);
 }
 
 void AScriptWindow::onKeyDoubleClicked(QTreeWidgetItem *item, int /*column*/)

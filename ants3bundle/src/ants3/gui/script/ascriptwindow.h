@@ -244,7 +244,7 @@ private slots:
     void receivedOnSuccess(QString eval);
 
     void on_aAlphabeticOrder_changed();
-
+    void onCurrentItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *);
 protected:
 //    void closeEvent(QCloseEvent * e) override;  // !!!*** does nothing with the script?
     bool event(QEvent * e) override; // !!!***
