@@ -89,6 +89,8 @@ rm -rf /opt/geant4-$VERSION-build
 
 rm -rf /opt/geant4-$VERSION
 
+* For some Geant4 version, due to a bug (?) it cannot find its own datasets (there will be a compaint during execution about enviromental variables). To fix this problem, in the following file (modify the path according to the version!) /opt/geant4-11.1.1-install/bin/geant4.sh  uncomment all the lines with the enviromental variables for the data packs, for example "export G4NEUTRONHPDATA=$GEANT4_DATA_DIR/G4NDL4.7" 
+
 exit
 
 ---
