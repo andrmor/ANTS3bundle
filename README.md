@@ -1,8 +1,14 @@
 # ANTS3bundle
 
-* GUI and scripting components are ready, collecting user suggestion for tweaking
-* Particle simulation part is in beta
-* Optical simulation part is in alpha
+* Particle simulation part is mostly ready
+* Optical simulation part is in beta
+* GUI is mostly ready
+* Currently the effort is on refactoring the scripting methods and the help system
+
+---
+
+Latest tested configuration: 
+* 18 June 2024 --> Ubuntu 22.04 Mate, Qt 6.7.1, Root 6.32.02 and Geant4 11.2.1
 
 ---
 
