@@ -95,13 +95,14 @@ rm -rf /opt/geant4-$VERSION-build
 
 rm -rf /opt/geant4-$VERSION
 
-* For some Geant4 version, due to a bug (?) it cannot find its own datasets (there will be a compaint during execution about enviromental variables). To fix this problem, in the following file (modify the path according to the version!) /opt/geant4-11.1.1-install/bin/geant4.sh  uncomment all the lines with the enviromental variables for the data packs, for example "export G4NEUTRONHPDATA=$GEANT4_DATA_DIR/G4NDL4.7" 
-
-exit
+* For some Geant4 version, there seems to be a bug which prevents Geant4 from finding its own datasets (there will be a compaint during execution about enviromental variables).
+   * To fix this problem, open the file (modify the path according to the version) /opt/geant4-11.1.1-install/bin/geant4.sh and uncomment all the lines with the enviromental variables for the datasets, for example "export G4NEUTRONHPDATA=$GEANT4_DATA_DIR/G4NDL4.7".
 
 ---
 ### THE NEXT INSTRUCTIONS TO BE EXECUTED NOT WITH SUPERUSER!!!
 ---
+Start a new terminal
+
 ### QtCreator
 
 Download online Install qtcreator: see https://www.qt.io/download
@@ -134,7 +135,7 @@ sudo update-locale LC_NUMERIC="en_GB.UTF-8"
 
 ### Setting up the environment
 
-* Exit the sudo mode or start a new terminal
+* If still not done so, exit the sudo mode or start a new terminal
 * Open .bashrc file in the home directory (it is invisible by default)
 * Adjuct the paths according to the root and geant4 versions in the following lines!
    * export /opt/root63006/bin/thisroot.sh
@@ -147,7 +148,7 @@ sudo update-locale LC_NUMERIC="en_GB.UTF-8"
 * Only if you also installed Qt5 (not needed for Qt6!), adjust the path for the Qt directory and run:
    export LD_LIBRARY_PATH=/pathToQt/Qt/5.15.2/gcc_64/lib:\$LD_LIBRARY_PATH
 
-### Next?
+### Next steps
 
 * Start a new terminal and type qt to start QtCreator (only in this way the environmental variables will be configured properly!)
 * Click "Open project..." and select meta.pro file in the ANTS3 source directory (ANTS3bundle/ants3bundle/meta.pro)
