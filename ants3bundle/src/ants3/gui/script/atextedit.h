@@ -84,7 +84,7 @@ private:
     void checkBracketsOnLeft(QList<QTextEdit::ExtraSelection> &extraSelections, const QColor &color);
     void checkBracketsOnRight(QList<QTextEdit::ExtraSelection> &extraSelections, const QColor &color);
 
-    bool tryShowFunctionTooltip(QTextCursor *cursor);
+    bool tryShowFunctionTooltip(const QTextCursor & cursor);
 
     int getIndent(const QString &line) const;
     void setIndent(QString &line, int indent);
@@ -97,8 +97,11 @@ private:
     int computeIntroducedNumberOfArguments(QTextCursor & tc, bool cursorInArguments);
     int computeCurrentArgument(QTextCursor & tc);
 
+    void findMathcingMethodsForCursor(const QTextCursor & cursor, std::vector<std::pair<QString, int>> & matchingMethods, bool & cursorIsInArguments);
+
 signals:
-    void requestHelp(QString);
+    void requestHelp(QString); // !!!*** to be removed
+    void requestHelpWithArgs(std::pair<QString,int> methodNumArgsPair);
     void editingFinished();
     void fontSizeChanged(int size);
     void lineNumberChanged(int lineNumber);
