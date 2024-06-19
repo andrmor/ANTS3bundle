@@ -229,6 +229,7 @@ private slots:
     void onFindTextChanged(const QString &arg1);
     void onFindTextJsonChanged(const QString &arg1);
     void onF1pressed(QString text);
+    void onF1pressedExtended(std::pair<QString,int> methodNumArgspair);
     void onJsonTWExpanded(QTreeWidgetItem* item);
     void onJsonTWCollapsed(QTreeWidgetItem* item);
     void onDefaulFontSizeChanged(int size);
@@ -244,7 +245,7 @@ private slots:
     void receivedOnSuccess(QString eval);
 
     void on_aAlphabeticOrder_changed();
-
+    void onCurrentItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *);
 protected:
 //    void closeEvent(QCloseEvent * e) override;  // !!!*** does nothing with the script?
     bool event(QEvent * e) override; // !!!***

@@ -192,7 +192,8 @@ void AScriptWindow::createGuiElements()
     trwHelp->setContextMenuPolicy(Qt::CustomContextMenu);
     trwHelp->setColumnCount(1);
     trwHelp->setHeaderLabel("Unit.Function");
-    QObject::connect(trwHelp, &QTreeWidget::itemClicked,                this, &AScriptWindow::onFunctionClicked);
+    //QObject::connect(trwHelp, &QTreeWidget::itemClicked,                this, &AScriptWindow::onFunctionClicked);
+    QObject::connect(trwHelp, &QTreeWidget::currentItemChanged,                this, &AScriptWindow::onCurrentItemChanged);
     QObject::connect(trwHelp, &QTreeWidget::customContextMenuRequested, this, &AScriptWindow::onContextMenuRequestedByHelp);
     sh->addWidget(trwHelp);
 
@@ -574,6 +575,54 @@ void AScriptWindow::onF1pressed(QString text)
         emit trwHelp->itemClicked(list.first(), 0);
 }
 
+void AScriptWindow::onF1pressedExtended(std::pair<QString, int> methodNumArgspair)
+{
+    qDebug() << "F1 requested for:" << methodNumArgspair;
+    return;
+    ui->pbHelp->setChecked(true);
+
+    trwHelp->collapseAll();
+    trwHelp->clearSelection();
+
+    //int indexOfBracket = methodNumArgspair.first.indexOf('(');
+    QString pattern = methodNumArgspair.first;//methodNumArgspair.first.left(indexOfBracket);
+    qDebug() << pattern;
+
+
+    QList<QTreeWidgetItem*> list = trwHelp->findItems(pattern, Qt::MatchStartsWith | Qt::MatchRecursive, 1);
+    if (!list.empty())
+    {
+        trwHelp->expandItem(list.first());
+        trwHelp->setCurrentItem(list.first(), 0, QItemSelectionModel::Select);
+        trwHelp->setCurrentItem(list.first(), 1, QItemSelectionModel::Select);
+        //emit trwHelp->itemClicked(list.first(), 0);
+    }
+    qDebug() << list.size();
+
+    //qDebug() << trwHelp->takeTopLevelItem(0)->text(0);
+
+    /*
+    QList<QTreeWidgetItem*> list;
+    list = trwHelp->findItems(text, Qt::MatchContains | Qt::MatchRecursive, 0);
+
+    for (int i=0; i<list.size(); i++)
+    {
+        QTreeWidgetItem* item = list[i];
+        do
+        {
+            trwHelp->expandItem(item);
+            item = item->parent();
+        }
+        while (item);
+        trwHelp->setCurrentItem(list[i], 0, QItemSelectionModel::Select);
+        trwHelp->setCurrentItem(list[i], 1, QItemSelectionModel::Select);
+    }
+
+    if (list.size() == 1)
+        emit trwHelp->itemClicked(list.first(), 0);
+    */
+}
+
 void AScriptWindow::on_pbStop_clicked()
 {
     if (ScriptManager->isRunning())
@@ -871,6 +920,11 @@ void AScriptWindow::onFunctionClicked(QTreeWidgetItem *item, int /*column*/)
     //pteHelp->appendHtml("<p style=\"color:blue;\"> " + item->text(1) + "</p>");
     pteHelp->appendPlainText(item->text(1)+"\n");
     pteHelp->appendPlainText(item->toolTip(0));
+}
+
+void AScriptWindow::onCurrentItemChanged(QTreeWidgetItem * current, QTreeWidgetItem *)
+{
+    onFunctionClicked(current, 1);
 }
 
 void AScriptWindow::onKeyDoubleClicked(QTreeWidgetItem *item, int /*column*/)
@@ -1332,6 +1386,7 @@ void AScriptWindow::formatTab(ATabRecord * tab)
 
     connect(tab->TextEdit, &ATextEdit::fontSizeChanged, this, &AScriptWindow::onDefaulFontSizeChanged);
     connect(tab->TextEdit, &ATextEdit::requestHelp, this, &AScriptWindow::onF1pressed);
+    //connect(tab->TextEdit, &ATextEdit::requestHelpWithArgs, this, &AScriptWindow::onF1pressedExtended);
     connect(tab->TextEdit->document(), &QTextDocument::modificationChanged, this, &AScriptWindow::updateFileStatusIndication);
     connect(tab, &ATabRecord::requestFindText, this, &AScriptWindow::onFindSelected);
     connect(tab, &ATabRecord::requestReplaceText, this, &AScriptWindow::onReplaceSelected);

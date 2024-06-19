@@ -125,6 +125,31 @@ void ATextEdit::keyPressEvent(QKeyEvent * e)
       {
         QString text = selectObjFunctUnderCursor();
         emit requestHelp(text);
+
+        /*
+        QTextCursor tc = textCursor();
+        std::vector<std::pair<QString,int>> matchingMethods;
+        bool cursorIsInArguments = false;
+        findMathcingMethodsForCursor(tc, matchingMethods, cursorIsInArguments);
+        if (matchingMethods.empty()) return;
+
+        std::sort(matchingMethods.begin(), matchingMethods.end(), [](const auto & lhs, const auto & rhs){return (lhs.second < rhs.second);});
+        int selectedMethod = 0;
+        if (ForcedMethodTooltipSelection)
+            selectedMethod = SelectedMethodInTooltip;
+        else
+        {
+            QTextCursor tc1 = textCursor(); // !!!*** refactor
+            int numNow = computeIntroducedNumberOfArguments(tc1, cursorIsInArguments);
+            selectedMethod = 0;
+            for (const auto & pair : matchingMethods)
+            {
+                if (numNow == pair.second) break;
+                selectedMethod++;
+            }
+        }
+        emit requestHelpWithArgs(matchingMethods[selectedMethod]);
+        */
         return;
       }
     case Qt::Key_Delete :
@@ -176,8 +201,7 @@ void ATextEdit::keyPressEvent(QKeyEvent * e)
             if (SelectedMethodInTooltip == 0) SelectedMethodInTooltip = NumberOfMethodsInTooltip - 1;
             else SelectedMethodInTooltip--;
             ForcedMethodTooltipSelection = true;
-            QTextCursor tcc = textCursor();
-            tryShowFunctionTooltip(&tcc);
+            tryShowFunctionTooltip(tc);
             return;
         }
         break;
@@ -206,8 +230,7 @@ void ATextEdit::keyPressEvent(QKeyEvent * e)
             SelectedMethodInTooltip++;
             if (SelectedMethodInTooltip >= NumberOfMethodsInTooltip) SelectedMethodInTooltip = 0;
             ForcedMethodTooltipSelection = true;
-            QTextCursor tcc = textCursor();
-            tryShowFunctionTooltip(&tcc);
+            tryShowFunctionTooltip(tc);
             return;
         }
         break;
@@ -889,8 +912,7 @@ void ATextEdit::onCursorPositionChanged()
     setExtraSelections(extraSelections);
 
     // tooltip for known functions
-    QTextCursor tcc = textCursor();
-    tryShowFunctionTooltip(&tcc);
+    tryShowFunctionTooltip(textCursor());
 
     if (bMonitorLineChange)
     {
@@ -903,17 +925,13 @@ void ATextEdit::onCursorPositionChanged()
     }
 }
 
-bool ATextEdit::tryShowFunctionTooltip(QTextCursor * cursor)
+void ATextEdit::findMathcingMethodsForCursor(const QTextCursor & cursor, std::vector<std::pair<QString,int>> & matchingMethods, bool & cursorIsInArguments)
 {
-    // !!!*** use copy of the cursor in the methods?
-    QTextCursor tc = *cursor;
-    QTextCursor tc1 = tc;
-    QTextCursor tc2 = tc;
-    const QString functionCandidateText = selectObjFunctUnderCursor(cursor);
-    std::vector<std::pair<QString,int>> matchingMethods;
+    QTextCursor tc = cursor; // !!!***refactor, including selectObjFunctUnderCursor to make cursor copy
+    QTextCursor tc1 = cursor;
+    const QString functionCandidateText = selectObjFunctUnderCursor(&tc1);
 
-    bool cursorIsInArguments = false;
-    // start with th ecase when the cursor is on one of the defined methods directly
+    // start with the case when the cursor is on one of the defined methods directly
     findMatchingMethods(functionCandidateText, matchingMethods);
     if (matchingMethods.empty())
     {
@@ -935,110 +953,20 @@ bool ATextEdit::tryShowFunctionTooltip(QTextCursor * cursor)
             }
         }
     }
+}
 
-    if (!matchingMethods.empty())
-    {
-        std::sort(matchingMethods.begin(), matchingMethods.end(), [](const auto & lhs, const auto & rhs){return (lhs.second < rhs.second);});
+bool ATextEdit::tryShowFunctionTooltip(const QTextCursor & cursor)
+{
+    // !!!*** use copy of the cursor in the methods?
+    QTextCursor tc = cursor;
+    QTextCursor tc1 = tc;
+    QTextCursor tc2 = tc;
 
-        MethodTooltipVisible = true;
-        NumberOfMethodsInTooltip = matchingMethods.size();
+    std::vector<std::pair<QString,int>> matchingMethods;
+    bool cursorIsInArguments = false;
 
-        int selectedMethod = 0;
-        if (ForcedMethodTooltipSelection)
-            selectedMethod = SelectedMethodInTooltip;
-        else
-        {
-            int numNow = computeIntroducedNumberOfArguments(tc1, cursorIsInArguments);
-            //qDebug() << "Computed number of arguments:" << numNow;
-
-            selectedMethod = 0;
-            for (const auto & pair : matchingMethods)
-            {
-                if (numNow == pair.second) break;
-                selectedMethod++;
-            }
-        }
-
-        QString tooltipText;
-        int numArguments;
-        if (matchingMethods.size() == 1)
-        {
-            tooltipText = "<p style='white-space:pre'>" + matchingMethods.front().first + "</p>";
-            numArguments = matchingMethods.front().second;
-        }
-        else
-        {
-            if (selectedMethod >= matchingMethods.size()) selectedMethod = 0;
-            tooltipText = QString("<p style='white-space:pre'><b>%0</b> of %1 [shift+\u2195]:    %2</p>")
-                              .arg(selectedMethod + 1)
-                              .arg(NumberOfMethodsInTooltip)
-                              .arg(matchingMethods[selectedMethod].first);
-            numArguments = matchingMethods[selectedMethod].second;
-        }
-
-        if (numArguments > 1 && cursorIsInArguments)
-        {
-            int currentArgument = computeCurrentArgument(tc2);
-            //qDebug() << ">>>>>>>>>>" << currentArgument;
-            if (currentArgument != -1)
-            {
-                size_t iPos = 0;
-                for (; iPos < tooltipText.size(); iPos++)
-                    if (tooltipText[iPos] == '(') break;
-                iPos++;
-                size_t start = -1;
-                if (currentArgument == 0) start = iPos;
-                else
-                {
-                    for (; iPos < tooltipText.size(); iPos++)
-                        if (tooltipText[iPos] == ',')
-                        {
-                            currentArgument--;
-                            if (currentArgument == 0)
-                            {
-                                iPos++;
-                                start = iPos;
-                                break;
-                            }
-                        }
-                }
-                size_t stop  = -1;
-                for (; iPos < tooltipText.size(); iPos++)
-                    if (tooltipText[iPos] == ',' || tooltipText[iPos] == ')')
-                    {
-                        stop = iPos - 1;
-                        break;
-                    }
-
-                if (start > 0 && start < tooltipText.size() && stop > 0 && stop < tooltipText.size())
-                {
-                    //qDebug() << start << " - " << stop;
-                    QString toBold = tooltipText.mid(start, stop - start + 1);
-                    //qDebug() << "--->" << toBold;
-                    toBold = "<b>" + toBold + "</b>";
-                    tooltipText.replace(start, stop - start + 1, toBold);
-                }
-            }
-        }
-
-        const int fh = fontMetrics().height();
-        /*
-        QToolTip::showText( mapToGlobal( QPoint(cursorRect(*cursor).topRight().x(), cursorRect(*cursor).topRight().y() -3.0*fh )),
-                                    tooltipText,
-                                    this,
-                                    QRect(),
-                                    1000000);
-        */
-
-        //lHelp->move(mapToGlobal( QPoint(cursorRect(*cursor).topRight().x(), cursorRect(*cursor).topRight().y() -3.0*fh)));
-        lHelp->move(mapToGlobal( QPoint( int(0.01*cursorRect(*cursor).topRight().x())*100, cursorRect(*cursor).topRight().y() -2.0*fh)));
-        lHelp->setText(tooltipText);
-        lHelp->showNormal();
-        lHelp->adjustSize();
-
-        return true;
-    }
-    else
+    findMathcingMethodsForCursor(cursor, matchingMethods, cursorIsInArguments);
+    if (matchingMethods.empty())
     {
         ForcedMethodTooltipSelection = false;
         MethodTooltipVisible = false;
@@ -1047,6 +975,106 @@ bool ATextEdit::tryShowFunctionTooltip(QTextCursor * cursor)
         lHelp->hide();
         return false;
     }
+
+    std::sort(matchingMethods.begin(), matchingMethods.end(), [](const auto & lhs, const auto & rhs){return (lhs.second < rhs.second);});
+
+    MethodTooltipVisible = true;
+    NumberOfMethodsInTooltip = matchingMethods.size();
+
+    int selectedMethod = 0;
+    if (ForcedMethodTooltipSelection)
+        selectedMethod = SelectedMethodInTooltip;
+    else
+    {
+        int numNow = computeIntroducedNumberOfArguments(tc1, cursorIsInArguments);
+        //qDebug() << "Computed number of arguments:" << numNow;
+
+        selectedMethod = 0;
+        for (const auto & pair : matchingMethods)
+        {
+            if (numNow == pair.second) break;
+            selectedMethod++;
+        }
+    }
+
+    QString tooltipText;
+    int numArguments;
+    if (matchingMethods.size() == 1)
+    {
+        tooltipText = "<p style='white-space:pre'>" + matchingMethods.front().first + "</p>";
+        numArguments = matchingMethods.front().second;
+    }
+    else
+    {
+        if (selectedMethod >= matchingMethods.size()) selectedMethod = 0;
+        tooltipText = QString("<p style='white-space:pre'><b>%0</b> of %1 [shift+\u2195]:    %2</p>")
+                          .arg(selectedMethod + 1)
+                          .arg(NumberOfMethodsInTooltip)
+                          .arg(matchingMethods[selectedMethod].first);
+        numArguments = matchingMethods[selectedMethod].second;
+    }
+
+    if (numArguments > 1 && cursorIsInArguments)
+    {
+        int currentArgument = computeCurrentArgument(tc2);
+        //qDebug() << ">>>>>>>>>>" << currentArgument;
+        if (currentArgument != -1)
+        {
+            size_t iPos = 0;
+            for (; iPos < tooltipText.size(); iPos++)
+                if (tooltipText[iPos] == '(') break;
+            iPos++;
+            size_t start = -1;
+            if (currentArgument == 0) start = iPos;
+            else
+            {
+                for (; iPos < tooltipText.size(); iPos++)
+                    if (tooltipText[iPos] == ',')
+                    {
+                        currentArgument--;
+                        if (currentArgument == 0)
+                        {
+                            iPos++;
+                            start = iPos;
+                            break;
+                        }
+                    }
+            }
+            size_t stop  = -1;
+            for (; iPos < tooltipText.size(); iPos++)
+                if (tooltipText[iPos] == ',' || tooltipText[iPos] == ')')
+                {
+                    stop = iPos - 1;
+                    break;
+                }
+
+            if (start > 0 && start < tooltipText.size() && stop > 0 && stop < tooltipText.size())
+            {
+                //qDebug() << start << " - " << stop;
+                QString toBold = tooltipText.mid(start, stop - start + 1);
+                //qDebug() << "--->" << toBold;
+                toBold = "<b>" + toBold + "</b>";
+                tooltipText.replace(start, stop - start + 1, toBold);
+            }
+        }
+    }
+
+    const int fh = fontMetrics().height();
+    /*
+        QToolTip::showText( mapToGlobal( QPoint(cursorRect(*cursor).topRight().x(), cursorRect(*cursor).topRight().y() -3.0*fh )),
+                                    tooltipText,
+                                    this,
+                                    QRect(),
+                                    1000000);
+        */
+
+    //lHelp->move(mapToGlobal( QPoint(cursorRect(*cursor).topRight().x(), cursorRect(*cursor).topRight().y() -3.0*fh)));
+    lHelp->move(mapToGlobal( QPoint( int(0.01*cursorRect(cursor).topRight().x())*100, cursorRect(cursor).topRight().y() -2.0*fh)));
+    lHelp->setText(tooltipText);
+    lHelp->showNormal();
+    lHelp->adjustSize();
+
+    return true;
 }
 
 int ATextEdit::computeIntroducedNumberOfArguments(QTextCursor & tc, bool cursorInArguments)
@@ -1139,7 +1167,7 @@ bool ATextEdit::event(QEvent *event)
         QHelpEvent* helpEvent = static_cast<QHelpEvent*>(event);
         QTextCursor cursor = cursorForPosition(helpEvent->pos());
 
-        return tryShowFunctionTooltip(&cursor);
+        return tryShowFunctionTooltip(cursor);
     }
     return QPlainTextEdit::event(event);
 }
@@ -1147,7 +1175,7 @@ bool ATextEdit::event(QEvent *event)
 void ATextEdit::mouseReleaseEvent(QMouseEvent *e)
 {
     QTextCursor cursor = cursorForPosition(e->pos());
-   tryShowFunctionTooltip(&cursor);
+    tryShowFunctionTooltip(cursor);
     QPlainTextEdit::mouseReleaseEvent(e);
 }
 
