@@ -400,6 +400,8 @@ void AScriptWindow::writeToJson(QJsonObject & json) const
     QJsonArray sar;
     for (int & i : splMain->sizes()) sar << i;
     json["Sizes"] = sar;
+
+    json["SaveAllBeforeRun"] = ui->cbSaveAllBeforeRun->isChecked();
 }
 
 void AScriptWindow::ReadFromJson()
@@ -446,6 +448,10 @@ void AScriptWindow::readFromJson(const QJsonObject &json)
             splMain->setSizes(sizes);
         }
     }
+
+    bool bSaveAll = false;
+    jstools::parseJson(json, "SaveAllBeforeRun", bSaveAll);
+    ui->cbSaveAllBeforeRun->setChecked(bSaveAll);
 }
 
 void AScriptWindow::onBusyOn()
@@ -506,6 +512,20 @@ void AScriptWindow::on_pbRunScript_clicked()
     // save all tabs -> GlobSet
     WriteToJson();
     A3Global::getInstance().saveConfig();
+
+    if (ui->cbSaveAllBeforeRun->isChecked())
+    {
+        QString err;
+        for (AScriptBook & book : ScriptBooks)
+            err += book.saveAllModifiedFiles();
+        if (!err.isEmpty())
+        {
+            QMessageBox::StandardButton reply = QMessageBox::question(this, "Could not save all modified files", err,
+                                                                      QMessageBox::Abort|QMessageBox::Ignore, QMessageBox::Abort);
+            if (reply == QMessageBox::Abort) return;
+        }
+    }
+
     emit requestUpdateConfig();
 
     const QString Script = getTab()->TextEdit->document()->toPlainText();

@@ -125,6 +125,11 @@ void ATabRecord::goForward()
     }
 }
 
+bool ATabRecord::saveTextToFile(const QString & fileName) const
+{
+    return TextEdit->saveTextToFile(fileName);
+}
+
 void ATabRecord::onCustomContextMenuRequested(const QPoint& pos)
 {
     QMenu menu;

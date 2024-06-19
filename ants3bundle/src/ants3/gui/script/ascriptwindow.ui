@@ -283,6 +283,13 @@
          </property>
         </spacer>
        </item>
+       <item>
+        <widget class="QCheckBox" name="cbSaveAllBeforeRun">
+         <property name="text">
+          <string>Save all modified files before run</string>
+         </property>
+        </widget>
+       </item>
       </layout>
      </widget>
     </item>

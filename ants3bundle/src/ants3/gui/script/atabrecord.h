@@ -47,6 +47,8 @@ public:
     void goBack();
     void goForward();
 
+    bool saveTextToFile(const QString & fileName) const;
+
 private slots:
     void onCustomContextMenuRequested(const QPoint & pos);
     void onLineNumberChanged(int lineNumber);

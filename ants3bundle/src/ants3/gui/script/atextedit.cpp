@@ -20,8 +20,8 @@
 #include <QRegularExpression>
 
 ATextEdit::ATextEdit(EScriptLanguage lang, QWidget * parent) :
-    QPlainTextEdit(parent), TabInSpaces(A3Global::getInstance().TabInSpaces),
-    ScriptLanguage(lang)
+    QPlainTextEdit(parent),
+    ScriptLanguage(lang), TabInSpaces(A3Global::getInstance().TabInSpaces)
 {
     LeftField = new ALeftField(*this);
     connect(this, &ATextEdit::blockCountChanged, this, &ATextEdit::updateLineNumberAreaWidth);
@@ -83,6 +83,12 @@ void ATextEdit::showMethodHelpForCursor()
         selectedMethod = 0;
     }
     emit requestHelpWithArgs(matchingMethods[selectedMethod]);
+}
+
+#include "afiletools.h"
+bool ATextEdit::saveTextToFile(const QString & fileName) const
+{
+     return ftools::saveTextToFile(document()->toPlainText(), fileName);
 }
 
 void ATextEdit::keyPressEvent(QKeyEvent * e)
