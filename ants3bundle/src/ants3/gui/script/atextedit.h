@@ -32,6 +32,8 @@ public:
 
     bool saveTextToFile(const QString & fileName) const;
 
+    void hideHelpLabel();
+
     std::vector<std::pair<QString,int>> * ListOfMethods = nullptr;
     QString FindString;
     const QHash<QString, QString> * DeprecatedOrRemovedMethods = nullptr;

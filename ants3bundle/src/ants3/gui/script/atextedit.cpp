@@ -93,6 +93,11 @@ bool ATextEdit::saveTextToFile(const QString & fileName) const
      return ftools::saveTextToFile(document()->toPlainText(), fileName);
 }
 
+void ATextEdit::hideHelpLabel()
+{
+    lHelp->hide();
+}
+
 void ATextEdit::keyPressEvent(QKeyEvent * e)
 {
     const int key = e->key();
@@ -1184,6 +1189,7 @@ int ATextEdit::computeCurrentArgument(QTextCursor & tc)
     return -1;
 }
 
+#include <QTimer>
 bool ATextEdit::event(QEvent *event)
 {
     if (event->type() == QEvent::ToolTip)
@@ -1193,6 +1199,12 @@ bool ATextEdit::event(QEvent *event)
 
         return tryShowFunctionTooltip(cursor);
     }
+    if (event->type() == QEvent::FocusIn)
+    {
+        QTimer::singleShot(0, this, [=](){lHelp->hide();});
+        //lHelp->hide();
+    }
+    //qDebug() << event->type();
     return QPlainTextEdit::event(event);
 }
 

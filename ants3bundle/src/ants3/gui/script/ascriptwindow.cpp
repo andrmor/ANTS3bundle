@@ -1362,12 +1362,13 @@ void AScriptWindow::onScriptTabMoved(int from, int to)
     iMarkedTab = -1;
 }
 
-void AScriptWindow::updateTab(ATabRecord* tab)
+void AScriptWindow::updateTab(ATabRecord * tab)
 {
     tab->Highlighter->setExternalRules(UnitNames, Methods, ListOfDeprecatedOrRemovedMethods);
     tab->updateHighlight();
     tab->TextEdit->ListOfMethods = &ListOfMethods;
     tab->TextEdit->DeprecatedOrRemovedMethods = &DeprecatedOrRemovedMethods;
+    tab->TextEdit->hideHelpLabel();
 }
 
 ATabRecord & AScriptWindow::addNewTab(int iBook)
