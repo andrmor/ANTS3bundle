@@ -1074,7 +1074,7 @@ bool ATextEdit::tryShowFunctionTooltip(const QTextCursor & cursor)
         }
     }
 
-    const int fh = fontMetrics().height();
+    const int fontHeight = fontMetrics().height();
     /*
         QToolTip::showText( mapToGlobal( QPoint(cursorRect(*cursor).topRight().x(), cursorRect(*cursor).topRight().y() -3.0*fh )),
                                     tooltipText,
@@ -1084,7 +1084,15 @@ bool ATextEdit::tryShowFunctionTooltip(const QTextCursor & cursor)
         */
 
     //lHelp->move(mapToGlobal( QPoint(cursorRect(*cursor).topRight().x(), cursorRect(*cursor).topRight().y() -3.0*fh)));
-    lHelp->move(mapToGlobal( QPoint( int(0.01*cursorRect(cursor).topRight().x())*100, cursorRect(cursor).topRight().y() -2.0*fh)));
+
+    int yPosition = cursorRect(cursor).topRight().y();
+    //qDebug() << yPosition << fh;
+    if (yPosition < 2*fontHeight)
+        yPosition += 2 * fontHeight;
+    else
+        yPosition -= 2 * fontHeight;
+
+    lHelp->move(mapToGlobal( QPoint( int(0.01*cursorRect(cursor).topRight().x())*100, yPosition)));
     lHelp->setText(tooltipText);
     lHelp->showNormal();
     lHelp->adjustSize();
