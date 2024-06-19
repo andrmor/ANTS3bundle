@@ -130,6 +130,12 @@ void AScriptHub::clearOutput(EScriptLanguage lang)
     else                                     emit clearOutput_P();
 }
 
+void AScriptHub::reportProgress(int percents, EScriptLanguage lang)
+{
+    if (lang == EScriptLanguage::JavaScript) emit reportProgress_JS(percents);
+    else                                     emit reportProgress_P(percents);
+}
+
 QString AScriptHub::getPythonVersion()
 {
 #ifdef ANTS3_PYTHON

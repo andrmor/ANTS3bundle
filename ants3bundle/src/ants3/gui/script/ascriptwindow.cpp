@@ -560,6 +560,8 @@ void AScriptWindow::on_pbRunScript_clicked()
         if (!s.simplified().isEmpty() && s != "undefined") outputText(s);
     }
 
+    ui->prbProgress->setValue(0);
+    ui->prbProgress->setVisible(false);
     ScriptManager->collectGarbage();
 
     updateJsonTree();

@@ -1179,13 +1179,11 @@ void ACore_SI::requestGuiUpdate()
     emit AScriptHub::getInstance().requestUpdateGui();
 }
 
-/*
 void ACore_SI::reportProgress(int percents)
 {
-    emit ScriptManager->reportProgress(percents);
+    AScriptHub::getInstance().reportProgress(percents, Lang);
     qApp->processEvents();
 }
-*/
 
 void ACore_SI::createFile(QString fileName)
 {

@@ -43,6 +43,8 @@ public:
     void outputFromBuffer(const std::vector<std::pair<bool,QString>> & buffer, EScriptLanguage lang);
     void clearOutput(EScriptLanguage lang);
 
+    void reportProgress(int percents, EScriptLanguage lang);
+
     QString getPythonVersion();
 
 private:
@@ -67,6 +69,8 @@ signals:
     void clearOutput_JS();
     void clearOutput_P();
     void requestUpdateGui();
+    void reportProgress_JS(int percent);
+    void reportProgress_P(int percent);
 
 private:
     AJScriptManager      * JavaScriptM = nullptr;

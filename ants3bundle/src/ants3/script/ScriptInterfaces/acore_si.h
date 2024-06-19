@@ -85,16 +85,13 @@ public slots:
 
 //    QVariant loadArrayFromWeb(QString url, int msTimeout = 3000);
 
-
-
-
     //misc
     QString str(double value, int precision);
     QString toStr(QVariant var);
     double  arraySum(QVariantList array);
     QString getExamplesDir();
     void    processEvents();
-//  void    reportProgress(int percents);
+    void    reportProgress(int percents);
 
     void requestGuiUpdate();
 
