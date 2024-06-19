@@ -60,20 +60,18 @@ ACore_SI::ACore_SI() : AScriptInterface()
     Help["appendText"] = "Apend text to the existing file. Abort if not successful";
     Help["loadText"] = "Load text from the file. Abort if not successful";
 
+    Help["saveArray"] = {{2,"Save 1D or 2D numeric array to the file. If the file exists, it will be reset"},
+                         {3,"Save 1D or 2D numeric array to the file. If 'append' argument is true, the data are added to the end of the file. "
+                            "In this case if the file does not exists, abort is triggered"}};
+    Help["loadNumericArray"] = "Load an array of numerics (or an array of numeric arrays). One row corresponds to one line in the file. Separators can be space, tab, comma or colon. Lines starting with # or // are ignored.";
+    Help["loadArray"] = {{2, "Load array of arrays from file, with inner array read according to the array with format options:\n"
+                              "'d'-double, 'i'-integer, 's'-string, ''-skip field: e.g. loadArray('fn.txt', ['i', 'd', 'd']) for sub-arrays of 1 int and 2 doubles"},
+                         {4, "Load array of arrays from file, with inner array read according to the array with format options:\n"
+                              "'d'-double, 'i'-integer, 's'-string, ''-skip field: e.g. loadArray('fn.txt', ['i', 'd', 'd']) for sub-arrays of 1 int and 2 doubles\n"
+                              "The last two parameters specify the limiting 'from' and 'to' line numbers in the file"}};
+
     // ***
 
-    Help["saveArray"] = "Appends an array (or array of arrays) with numeric data to the file.\n"
-                   "Save is not performed (and false is returned) if the file does not exist.\n"
-                   "For Windows users: pathes have to use \"/\" character, e.g. c:/tmp/file.txt\n";
-    Help["loadColumn"] = "Load a column with ascii numeric data from the file.\nSecond argument is the column number starting from 0.";
-//    Help["loadArray"] = "Load an array of numerics (or an array of numeric arrays).\nSecond argument is used to limit the number of columns to read";
-    Help["evaluate"] = "Evaluate script during another script evaluation. See example ScriptInsideScript.txt";
-
-
-    Help["loadArrayExtended"] = "Load array of arrays from file, with inner array read according to format options:\n"
-          "'d'-double, 'i'-integer, 's'-string, ''-skip field: e.g. loadArrayExtended('fn.txt', ['d', 'd'])\n"
-          "bSkipComments parameters signals to skip lines starting with '#' or '//'"
-          "you can specify lin numbers to start from and to: by default it is set to 0 and 1e6";
     Help["loadArrayBinary"] = "Load array of arrays (binary data), with second argument providing the format\n"
           "This parameter should be an array of 's', 'i', 'd', 'f' or 'c' markers (zero-terminating string, int, double, float and char, respectively)";
 
@@ -356,7 +354,7 @@ QString ACore_SI::loadText(QString fileName)
 }
 
 
-void ACore_SI::saveArray(QVariantList array, QString fileName, bool append, int precision)
+void ACore_SI::saveArray(QVariantList array, QString fileName, bool append)
 {
     if (append && !QFileInfo::exists(fileName))
     {
@@ -371,7 +369,7 @@ void ACore_SI::saveArray(QVariantList array, QString fileName, bool append, int 
     }
 
     QTextStream s(&file);
-    if (precision != 6) s.setRealNumberPrecision(precision);
+    //if (precision != 6) s.setRealNumberPrecision(precision);
 
     for (int i = 0; i < array.size(); i++)
     {
@@ -505,8 +503,12 @@ QVariantList ACore_SI::loadNumericArray(QString fileName)
         if (fields.isEmpty()) continue;
 
         bool bOK;
-        double first = fields.at(0).toDouble(&bOK); // non-regular comments? !!!*** keep it?
-        if (!bOK) continue;
+        double first = fields.first().toDouble(&bOK);
+        if (!bOK)
+        {
+            abort("Bad format of the file: numeric values are expected");
+            return vl;
+        }
 
         if (fields.size() == 1)
             vl.append(first);
@@ -514,8 +516,15 @@ QVariantList ACore_SI::loadNumericArray(QString fileName)
         {
             QVariantList el;
             el << first;
-            for (int i=1; i<fields.size(); i++)
-                el << fields.at(i).toDouble();
+            for (int i = 1; i < fields.size(); i++)
+            {
+                el << fields[i].toDouble(&bOK);
+                if (!bOK)
+                {
+                    abort("Bad format of the file: numeric values are expected");
+                    return vl;
+                }
+            }
             vl.push_back(el);
         }
     }
@@ -629,6 +638,11 @@ QVariantList ACore_SI::loadArray(const QString & fileName, const QVariantList & 
 
     file.close();
     return vl;
+}
+
+QVariantList ACore_SI::loadArray(const QString & fileName, const QVariantList & format)
+{
+    return loadArray(fileName, format, 0, 2147483647);
 }
 
 QVariantList ACore_SI::load3DArray(const QString &fileName, const QString &topSeparator, const QVariantList &format, int recordsFrom, int recordsUntil, bool skipEmpty, bool allowIncomplete)

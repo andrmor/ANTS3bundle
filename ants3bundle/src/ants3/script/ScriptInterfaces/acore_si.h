@@ -66,8 +66,9 @@ public slots:
     // !!!*** read line from file
 
     // Ascii array
-    void         saveArray(QVariantList array, QString fileName, bool append, int precision = 6);
+    void         saveArray(QVariantList array, QString fileName, bool append = false);
     QVariantList loadNumericArray(QString fileName);
+    QVariantList loadArray(const QString & fileName, const QVariantList & format);
     QVariantList loadArray(const QString & fileName, const QVariantList & format, int fromLine, int untilLine);
 
     // Binary array
