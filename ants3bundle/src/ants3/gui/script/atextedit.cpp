@@ -123,11 +123,9 @@ void ATextEdit::keyPressEvent(QKeyEvent * e)
       }
     case Qt::Key_F1 :
       {
-        QString text = selectObjFunctUnderCursor();
-        emit requestHelp(text);
+        //QString text = selectObjFunctUnderCursor();
+        //emit requestHelp(text);
 
-        /*
-        QTextCursor tc = textCursor();
         std::vector<std::pair<QString,int>> matchingMethods;
         bool cursorIsInArguments = false;
         findMathcingMethodsForCursor(tc, matchingMethods, cursorIsInArguments);
@@ -148,8 +146,14 @@ void ATextEdit::keyPressEvent(QKeyEvent * e)
                 selectedMethod++;
             }
         }
+
+        if (selectedMethod >= matchingMethods.size())
+        {
+            qDebug() << "On F1 pressed: Bad method index!";
+            selectedMethod = 0;
+        }
         emit requestHelpWithArgs(matchingMethods[selectedMethod]);
-        */
+
         return;
       }
     case Qt::Key_Delete :

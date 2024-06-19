@@ -100,7 +100,7 @@ private:
     void findMathcingMethodsForCursor(const QTextCursor & cursor, std::vector<std::pair<QString, int>> & matchingMethods, bool & cursorIsInArguments);
 
 signals:
-    void requestHelp(QString); // !!!*** to be removed
+    //void requestHelp(QString); // !!!*** to be removed
     void requestHelpWithArgs(std::pair<QString,int> methodNumArgsPair);
     void editingFinished();
     void fontSizeChanged(int size);

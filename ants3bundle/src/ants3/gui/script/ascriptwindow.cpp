@@ -547,16 +547,18 @@ void AScriptWindow::on_pbRunScript_clicked()
     emit requestUpdateGui();
 }
 
+/*
 void AScriptWindow::onF1pressed(QString text)
 {
-    //qDebug() << "F1 requested for:"<<text;
+    return;
+
+    qDebug() << "F1 requested for:"<<text;
     ui->pbHelp->setChecked(true);
 
     trwHelp->collapseAll();
     trwHelp->clearSelection();
 
-    QList<QTreeWidgetItem*> list;
-    list = trwHelp->findItems(text, Qt::MatchContains | Qt::MatchRecursive, 0);
+    QList<QTreeWidgetItem*> list = trwHelp->findItems(text, Qt::MatchContains | Qt::MatchRecursive, 0);
 
     for (int i=0; i<list.size(); i++)
     {
@@ -569,58 +571,50 @@ void AScriptWindow::onF1pressed(QString text)
         while (item);
         trwHelp->setCurrentItem(list[i], 0, QItemSelectionModel::Select);
         trwHelp->setCurrentItem(list[i], 1, QItemSelectionModel::Select);
+        qDebug() << list[i]->text(0) << list[i]->text(1);
     }
 
     if (list.size() == 1)
         emit trwHelp->itemClicked(list.first(), 0);
 }
+*/
 
 void AScriptWindow::onF1pressedExtended(std::pair<QString, int> methodNumArgspair)
 {
-    qDebug() << "F1 requested for:" << methodNumArgspair;
-    return;
+    // It seems Qt has a bug and QTreeWidget::findItem() method does not work with non-zero column
+    // have to make a detour...
+
+    //qDebug() << "F1 requested for:" << methodNumArgspair;
     ui->pbHelp->setChecked(true);
 
     trwHelp->collapseAll();
     trwHelp->clearSelection();
 
-    //int indexOfBracket = methodNumArgspair.first.indexOf('(');
-    QString pattern = methodNumArgspair.first;//methodNumArgspair.first.left(indexOfBracket);
-    qDebug() << pattern;
+    QStringList sl = methodNumArgspair.first.split(' ');
+    if (sl.size() < 2) return;
+    QString pattern = sl[1];
+    //qDebug() << "Looking for pattern:" << pattern;
 
+    QList<QTreeWidgetItem*> list = trwHelp->findItems(pattern, Qt::MatchContains | Qt::MatchRecursive, 0);
+    if (list.empty()) return;
 
-    QList<QTreeWidgetItem*> list = trwHelp->findItems(pattern, Qt::MatchStartsWith | Qt::MatchRecursive, 1);
-    if (!list.empty())
+    QTreeWidgetItem * itemToFocus = nullptr;
+    for (QTreeWidgetItem * item : list)
     {
-        trwHelp->expandItem(list.first());
-        trwHelp->setCurrentItem(list.first(), 0, QItemSelectionModel::Select);
-        trwHelp->setCurrentItem(list.first(), 1, QItemSelectionModel::Select);
-        //emit trwHelp->itemClicked(list.first(), 0);
-    }
-    qDebug() << list.size();
-
-    //qDebug() << trwHelp->takeTopLevelItem(0)->text(0);
-
-    /*
-    QList<QTreeWidgetItem*> list;
-    list = trwHelp->findItems(text, Qt::MatchContains | Qt::MatchRecursive, 0);
-
-    for (int i=0; i<list.size(); i++)
-    {
-        QTreeWidgetItem* item = list[i];
-        do
+        if (item->text(1) == methodNumArgspair.first)
         {
-            trwHelp->expandItem(item);
-            item = item->parent();
+            itemToFocus = item;
+            break;
         }
-        while (item);
-        trwHelp->setCurrentItem(list[i], 0, QItemSelectionModel::Select);
-        trwHelp->setCurrentItem(list[i], 1, QItemSelectionModel::Select);
     }
 
-    if (list.size() == 1)
-        emit trwHelp->itemClicked(list.first(), 0);
-    */
+    if (!itemToFocus) return;
+
+    trwHelp->expandItem(itemToFocus);
+    trwHelp->setCurrentItem(itemToFocus, 0, QItemSelectionModel::Select);
+    trwHelp->setCurrentItem(itemToFocus, 1, QItemSelectionModel::Select);
+
+    emit trwHelp->itemClicked(itemToFocus, 0);
 }
 
 void AScriptWindow::on_pbStop_clicked()
@@ -1385,8 +1379,8 @@ void AScriptWindow::formatTab(ATabRecord * tab)
     }
 
     connect(tab->TextEdit, &ATextEdit::fontSizeChanged, this, &AScriptWindow::onDefaulFontSizeChanged);
-    connect(tab->TextEdit, &ATextEdit::requestHelp, this, &AScriptWindow::onF1pressed);
-    //connect(tab->TextEdit, &ATextEdit::requestHelpWithArgs, this, &AScriptWindow::onF1pressedExtended);
+    //connect(tab->TextEdit, &ATextEdit::requestHelp, this, &AScriptWindow::onF1pressed);
+    connect(tab->TextEdit, &ATextEdit::requestHelpWithArgs, this, &AScriptWindow::onF1pressedExtended);
     connect(tab->TextEdit->document(), &QTextDocument::modificationChanged, this, &AScriptWindow::updateFileStatusIndication);
     connect(tab, &ATabRecord::requestFindText, this, &AScriptWindow::onFindSelected);
     connect(tab, &ATabRecord::requestReplaceText, this, &AScriptWindow::onReplaceSelected);
