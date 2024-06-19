@@ -609,11 +609,15 @@ void AScriptWindow::onF1pressedExtended(std::pair<QString, int> methodNumArgspai
 
     trwHelp->collapseAll();
     trwHelp->clearSelection();
+    pteHelp->clear();
 
-    QStringList sl = methodNumArgspair.first.split(' ');
+    QString signature = methodNumArgspair.first;
+    QStringList sl = signature.split(' ');
     if (sl.size() < 2) return;
     QString pattern = sl[1];
     //qDebug() << "Looking for pattern:" << pattern;
+
+    if (pattern == "core.print(") signature = "void core.print( QVariant m1, ... )";
 
     QList<QTreeWidgetItem*> list = trwHelp->findItems(pattern, Qt::MatchContains | Qt::MatchRecursive, 0);
     if (list.empty()) return;
@@ -621,7 +625,8 @@ void AScriptWindow::onF1pressedExtended(std::pair<QString, int> methodNumArgspai
     QTreeWidgetItem * itemToFocus = nullptr;
     for (QTreeWidgetItem * item : list)
     {
-        if (item->text(1) == methodNumArgspair.first)
+        //qDebug() << item->text(1);
+        if (item->text(1) == signature)
         {
             itemToFocus = item;
             break;

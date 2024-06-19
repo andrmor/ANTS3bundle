@@ -77,6 +77,8 @@ void ATextEdit::showMethodHelpForCursor()
         }
     }
 
+    if (matchingMethods.front().first.startsWith("void core.print(")) selectedMethod = 0;
+
     if (selectedMethod >= matchingMethods.size())
     {
         qDebug() << "On F1 pressed: Bad method index!";
@@ -634,22 +636,24 @@ void ATextEdit::focusInEvent(QFocusEvent *e)
 
 void ATextEdit::wheelEvent(QWheelEvent *e)
 {
-  if (e->modifiers().testFlag(Qt::ControlModifier))
+    lHelp->hide();
+
+    if (e->modifiers().testFlag(Qt::ControlModifier))
     {
-      int size = font().pointSize();
-      if (e->angleDelta().y() > 0) setFontSizeAndEmitSignal(++size);
-      else setFontSizeAndEmitSignal(--size); //check is there: cannot go < 1
+        int size = font().pointSize();
+        if (e->angleDelta().y() > 0) setFontSizeAndEmitSignal(++size);
+        else setFontSizeAndEmitSignal(--size); //check is there: cannot go < 1
     }
-  else
+    else
     {
-      //scroll
-      int delta = e->angleDelta().y();
-      if (delta != 0) //paranoic :)
-      {
-          int was = this->verticalScrollBar()->value();
-          delta /= abs(delta);
-          this->verticalScrollBar()->setValue(was - 2*delta);
-      }
+        //scroll
+        int delta = e->angleDelta().y();
+        if (delta != 0) //paranoic :)
+        {
+            int was = this->verticalScrollBar()->value();
+            delta /= abs(delta);
+            this->verticalScrollBar()->setValue(was - 2*delta);
+        }
     }
 }
 
