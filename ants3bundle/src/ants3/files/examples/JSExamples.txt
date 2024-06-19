@@ -30,4 +30,11 @@ Output:Print:Colors
 Print objects/arrays etc in colors
 #end
 
+#file
+FillAndDrawRootTree.txt
+#tags
+Tree:Draw
+#info
+Create, fill and draw ROOT tree
+#end
 

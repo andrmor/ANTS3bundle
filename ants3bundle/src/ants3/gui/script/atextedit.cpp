@@ -32,7 +32,7 @@ ATextEdit::ATextEdit(EScriptLanguage lang, QWidget * parent) :
 
     setMouseTracking(true);
 
-    lHelp = new QLabel();
+    lHelp = new QLabel(this);
     lHelp->setWindowFlag(Qt::ToolTip);
     lHelp->setContentsMargins(3,3,3,3);
     lHelp->setFrameShape(QFrame::Box);
