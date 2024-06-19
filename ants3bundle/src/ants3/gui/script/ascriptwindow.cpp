@@ -1926,6 +1926,7 @@ void AScriptWindow::on_pbReplaceAll_clicked()
 void AScriptWindow::on_actionShortcuts_triggered()
 {
     QString s = "For the current line:\n"
+                "F1\t\tShow method help\n"
                 "Ctrl + Alt + Del\tDelete line\n"
                 "Ctrl + Alt + Down\tDublicate line\n"
                 "Ctrl + Shift + Up\tShift line up\n"

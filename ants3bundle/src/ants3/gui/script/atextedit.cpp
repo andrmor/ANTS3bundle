@@ -52,7 +52,39 @@ void ATextEdit::setCompleter(QCompleter *completer)
     QObject::connect(Completer, SIGNAL(activated(QString)), this, SLOT(insertCompletion(QString)));
 }
 
-//static int counter = 0;
+void ATextEdit::showMethodHelpForCursor()
+{
+    //QString text = selectObjFunctUnderCursor();
+    //emit requestHelp(text);
+
+    std::vector<std::pair<QString,int>> matchingMethods;
+    bool cursorIsInArguments = false;
+    findMathcingMethodsForCursor(textCursor(), matchingMethods, cursorIsInArguments);
+    if (matchingMethods.empty()) return;
+
+    std::sort(matchingMethods.begin(), matchingMethods.end(), [](const auto & lhs, const auto & rhs){return (lhs.second < rhs.second);});
+    int selectedMethod = 0;
+    if (ForcedMethodTooltipSelection)
+        selectedMethod = SelectedMethodInTooltip;
+    else
+    {
+        int numNow = computeIntroducedNumberOfArguments(textCursor(), cursorIsInArguments);
+        selectedMethod = 0;
+        for (const auto & pair : matchingMethods)
+        {
+            if (numNow == pair.second) break;
+            selectedMethod++;
+        }
+    }
+
+    if (selectedMethod >= matchingMethods.size())
+    {
+        qDebug() << "On F1 pressed: Bad method index!";
+        selectedMethod = 0;
+    }
+    emit requestHelpWithArgs(matchingMethods[selectedMethod]);
+}
+
 void ATextEdit::keyPressEvent(QKeyEvent * e)
 {
     const int key = e->key();
@@ -123,37 +155,7 @@ void ATextEdit::keyPressEvent(QKeyEvent * e)
       }
     case Qt::Key_F1 :
       {
-        //QString text = selectObjFunctUnderCursor();
-        //emit requestHelp(text);
-
-        std::vector<std::pair<QString,int>> matchingMethods;
-        bool cursorIsInArguments = false;
-        findMathcingMethodsForCursor(tc, matchingMethods, cursorIsInArguments);
-        if (matchingMethods.empty()) return;
-
-        std::sort(matchingMethods.begin(), matchingMethods.end(), [](const auto & lhs, const auto & rhs){return (lhs.second < rhs.second);});
-        int selectedMethod = 0;
-        if (ForcedMethodTooltipSelection)
-            selectedMethod = SelectedMethodInTooltip;
-        else
-        {
-            QTextCursor tc1 = textCursor(); // !!!*** refactor
-            int numNow = computeIntroducedNumberOfArguments(tc1, cursorIsInArguments);
-            selectedMethod = 0;
-            for (const auto & pair : matchingMethods)
-            {
-                if (numNow == pair.second) break;
-                selectedMethod++;
-            }
-        }
-
-        if (selectedMethod >= matchingMethods.size())
-        {
-            qDebug() << "On F1 pressed: Bad method index!";
-            selectedMethod = 0;
-        }
-        emit requestHelpWithArgs(matchingMethods[selectedMethod]);
-
+        showMethodHelpForCursor();
         return;
       }
     case Qt::Key_Delete :
@@ -963,7 +965,6 @@ bool ATextEdit::tryShowFunctionTooltip(const QTextCursor & cursor)
 {
     // !!!*** use copy of the cursor in the methods?
     QTextCursor tc = cursor;
-    QTextCursor tc1 = tc;
     QTextCursor tc2 = tc;
 
     std::vector<std::pair<QString,int>> matchingMethods;
@@ -990,7 +991,7 @@ bool ATextEdit::tryShowFunctionTooltip(const QTextCursor & cursor)
         selectedMethod = SelectedMethodInTooltip;
     else
     {
-        int numNow = computeIntroducedNumberOfArguments(tc1, cursorIsInArguments);
+        int numNow = computeIntroducedNumberOfArguments(textCursor(), cursorIsInArguments);
         //qDebug() << "Computed number of arguments:" << numNow;
 
         selectedMethod = 0;
@@ -1081,13 +1082,13 @@ bool ATextEdit::tryShowFunctionTooltip(const QTextCursor & cursor)
     return true;
 }
 
-int ATextEdit::computeIntroducedNumberOfArguments(QTextCursor & tc, bool cursorInArguments)
+int ATextEdit::computeIntroducedNumberOfArguments(const QTextCursor & cursor, bool cursorInArguments)
 {
     QString argLine;
 
+    QTextCursor tc = cursor;
     if (cursorInArguments)
     {
-        QTextCursor tc1 = tc;
         QString onLeft;
         while (tc.position() != 0)
         {
@@ -1098,6 +1099,7 @@ int ATextEdit::computeIntroducedNumberOfArguments(QTextCursor & tc, bool cursorI
             if (selected.startsWith('('))
             {
                 onLeft = selected;
+                QTextCursor tc1 = cursor;
                 while (tc1.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor))
                 {
                     selected = tc1.selectedText();
@@ -1178,6 +1180,8 @@ bool ATextEdit::event(QEvent *event)
 
 void ATextEdit::mouseReleaseEvent(QMouseEvent *e)
 {
+    ForcedMethodTooltipSelection = false;
+
     QTextCursor cursor = cursorForPosition(e->pos());
     tryShowFunctionTooltip(cursor);
     QPlainTextEdit::mouseReleaseEvent(e);

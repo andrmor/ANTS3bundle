@@ -28,6 +28,8 @@ public:
 
     void setDeprecatedOrRemovedMethods(const QHash<QString, QString>* DepRem) {DeprecatedOrRemovedMethods = DepRem;}
 
+    void showMethodHelpForCursor();
+
     std::vector<std::pair<QString,int>> * ListOfMethods = nullptr;
     QString FindString;
     const QHash<QString, QString> * DeprecatedOrRemovedMethods = nullptr;
@@ -94,7 +96,7 @@ private:
 
     bool onKeyPressed_interceptShortcut(int key, bool shift);
 
-    int computeIntroducedNumberOfArguments(QTextCursor & tc, bool cursorInArguments);
+    int computeIntroducedNumberOfArguments(const QTextCursor & cursor, bool cursorInArguments);
     int computeCurrentArgument(QTextCursor & tc);
 
     void findMathcingMethodsForCursor(const QTextCursor & cursor, std::vector<std::pair<QString, int>> & matchingMethods, bool & cursorIsInArguments);
