@@ -34,32 +34,41 @@ ACore_SI::ACore_SI() : AScriptInterface()
 {
     Description = "General-purpose opeartions: abort script, basic text output and file save/load";
 
-    Help["abort"] = "Abort script execution and show text (1st argument) in the output";
+    Help["abort"] = "Abort script execution and show given text in the output";
 
-    Help["clearOutput"] = "Clear the output text";
-    Help["print"] = "Append up to 10 arguments to the output";
-    Help["printHtml"] = "Append the provided string to the output assuming HTML format";
+    Help["print"] = "Print up to 10 arguments in the output area. Arrays and objects are convetred to strings, a space is added between the arguments";
+    Help["printHtml"] = "Print the html-formatted text in the output area. Can be used, for example, to set text color or use bold font";
+    Help["clearOutput"] = "Clear the output area";
 
-    Help["getTimeMark"] = "Return the number of milliseconds since 1970-01-01T00:00:00 Universal Coordinated Time";
+    Help["sleep"] = "Pause the script thread for the given number of milliseconds";
+    Help["getTimeMarkMilliseconds"] = "Current time in milliseconds since the start, in UTC, of the year 1970";
+    Help["getDateTimeStamp"] = "Return text with the current date and time, in the format: hours:minutes:seconds Day Month Year";
 
-    Help["save"] = "Add string (second argument) to the file with the name given by the first argument.\n"
-              "Save is not performed (and false is returned) if the file does not exist\n"
-              "It is a very slow method!\n"
-              "Use \"<br>\" or \"\\n\" to add a line break.\n"
-              "For Windows users: pathes have to use \"/\" character, e.g. c:/tmp/file.txt\n";
+    Help["createDir"] = "Create a new directory. Abort if not successful";
+    Help["createFile"] = "Create an empty file. Abort if not successful or file already exists";
+    Help["deleteFile"] = "Delete the file. Abort if not successful";
+    Help["isFileExist"] = "Return true if the file exists, false otherwise";
+
+    Help["getDirectories"] = "Return list of directories matching the provided pattern for the given path";
+    Help["setNewFileFinder"] = "Configurer for getNewFiles() method. dir is the search directory, fileNamePattern: e.g. *.dat for all dat files. Return all filenames mathcing the pattern";
+    Help["getNewFiles"] = "Get array of names of the new files appeared in the directory configured with setNewFileFinder() method";
+
+    Help["setCurrentDir"] = "Set default output directory. Abort if not successful";
+    Help["getCurrentDir"] = "Get default output directory";
+
+    Help["saveText"] = "Save text to the file (create new if does not exist; override if not empty). Abort if not successful";
+    Help["appendText"] = "Apend text to the existing file. Abort if not successful";
+    Help["loadText"] = "Load text from the file. Abort if not successful";
+
+    // ***
+
     Help["saveArray"] = "Appends an array (or array of arrays) with numeric data to the file.\n"
                    "Save is not performed (and false is returned) if the file does not exist.\n"
                    "For Windows users: pathes have to use \"/\" character, e.g. c:/tmp/file.txt\n";
-    Help["createFile"] = "Create new or clear an existent file.\n"
-                    "The file is NOT rewritten if the second argument is true (or absent) and the file already exists\n"
-                    "For Windows users: pathes have to use \"/\" character, e.g. c:/tmp/file.txt\n";
-    Help["isFileExists"] = "Return true if file exists";
     Help["loadColumn"] = "Load a column with ascii numeric data from the file.\nSecond argument is the column number starting from 0.";
 //    Help["loadArray"] = "Load an array of numerics (or an array of numeric arrays).\nSecond argument is used to limit the number of columns to read";
     Help["evaluate"] = "Evaluate script during another script evaluation. See example ScriptInsideScript.txt";
 
-    Help["setNewFileFinder"] = "Configurer for GetNewFiles() function. dir is the search directory, fileNamePattern: *.* for all files. Function return all filenames found.";
-    Help["getNewFiles"] = "Get list (array) of names of new files appeared in the directory configured with SetNewFileFinder()";
 
     Help["loadArrayExtended"] = "Load array of arrays from file, with inner array read according to format options:\n"
           "'d'-double, 'i'-integer, 's'-string, ''-skip field: e.g. loadArrayExtended('fn.txt', ['d', 'd'])\n"
@@ -104,6 +113,7 @@ QVariant ACore_SI::test(QVariant in)
 }
 */
 
+/*
 #include "vformula.h"
 double ACore_SI::testVFormula(QString formula, QVariantList varNames, QVariantList varValues)
 {
@@ -147,22 +157,22 @@ double ACore_SI::testVFormula(QString formula, QVariantList varNames, QVariantLi
 
     /*
 // timed run
-    std::cout << "Timed run\n";
-    auto start = std::chrono::high_resolution_clock::now();
+    //std::cout << "Timed run\n";
+    //auto start = std::chrono::high_resolution_clock::now();
 
 //  Code to be timed
-    double sum =  0.;
-    for (int i=0; i<10000000; i++) {
-        sum += p.Eval(6);
-    }
-    std::cout << sum << std::endl;
+    //double sum =  0.;
+    //for (int i=0; i<10000000; i++) {
+    //    sum += p.Eval(6);
+    //}
+    //std::cout << sum << std::endl;
 
-    auto end = std::chrono::high_resolution_clock::now();
-    auto diff = end - start;
-    std::cout << std::chrono::duration <double, std::nano> (diff).count()/10000000 << " ns/eval" << std::endl;
-    */
+    //auto end = std::chrono::high_resolution_clock::now();
+    //auto diff = end - start;
+    //std::cout << std::chrono::duration <double, std::nano> (diff).count()/10000000 << " ns/eval" << std::endl;
     return res;
 }
+*/
 
 double ACore_SI::arraySum(QVariantList array)
 {
@@ -296,21 +306,34 @@ void ACore_SI::clearOutput()
 
 QString ACore_SI::getDateTimeStamp()
 {
-    return QDateTime::currentDateTime().toString("dd.MMM.yyyy H:m:s");
+    return QDateTime::currentDateTime().toString("HH:mm:ss dd MMM yyyy");
 }
 
-void ACore_SI::saveText(QString text, QString fileName, bool append)
+void ACore_SI::saveText(QString text, QString fileName)
 {
-    if (append && !QFileInfo::exists(fileName))
+    QFile file(fileName);
+    if ( !file.open(QIODevice::WriteOnly) )
+    {
+        abort("Cannot open file: " + fileName);
+        return;
+    }
+
+    QTextStream outstream(&file);
+    outstream << text;
+}
+
+void ACore_SI::appendText(QString text, QString fileName)
+{
+    if (!QFileInfo::exists(fileName))
     {
         abort("File does not exist: " + fileName);
         return;
     }
 
     QFile file(fileName);
-    if ( !file.open(append ? QIODevice::Append : QIODevice::WriteOnly) )
+    if ( !file.open(QIODevice::Append) )
     {
-        abort("Cannot open file: " + fileName);
+        abort("Cannot open file for append: " + fileName);
         return;
     }
 
@@ -1087,7 +1110,7 @@ QString ACore_SI::getExamplesDir()
     return A3Global::getConstInstance().ExamplesDir;
 }
 
-QVariantList ACore_SI::setNewFileFinder(const QString dir, const QString fileNamePattern)
+QVariantList ACore_SI::setNewFileFinder(QString dir, QString fileNamePattern)
 {
     Finder_Dir = dir;
     Finder_NamePattern = fileNamePattern;
@@ -1119,13 +1142,18 @@ QVariantList ACore_SI::getNewFiles()
     return newFiles;
 }
 
-QVariantList ACore_SI::getDirectories(const QString dir, const QString dirNamePattern)
+QVariantList ACore_SI::getDirectories(QString dir, QString dirNamePattern)
 {
     QDir d(dir);
     QStringList dl = d.entryList( QStringList(dirNamePattern), QDir::Dirs);
 
     QVariantList Dirs;
-    for (const QString & s : dl) Dirs << s;
+    for (const QString & s : dl)
+    {
+        if (s == ".") continue;
+        if (s == "..") continue;
+        Dirs << s;
+    }
     return Dirs;
 }
 
@@ -1162,6 +1190,12 @@ void ACore_SI::reportProgress(int percents)
 void ACore_SI::createFile(QString fileName)
 {
     QFile file(fileName);
+    if (file.exists())
+    {
+        abort("File already exists: " + fileName);
+        return;
+    }
+
     if ( !file.open(QIODevice::WriteOnly) )
         abort("Cannot open file: " + fileName);
 }
@@ -1171,21 +1205,30 @@ bool ACore_SI::isFileExist(QString fileName)
     return QFileInfo(fileName).exists();
 }
 
-bool ACore_SI::deleteFile(QString fileName)
+void ACore_SI::deleteFile(QString fileName)
 {
-    return QFile(fileName).remove();
+    bool ok = QFile(fileName).remove();
+    if (!ok) abort("Cannot delete file: " + fileName);
 }
 
-bool ACore_SI::createDir(QString path)
+void ACore_SI::createDir(QString path)
 {
     QDir dir("");
-    return dir.mkpath(path);
+    if (!dir.mkpath(path))
+        abort("Cannot create directory: " + path);
 }
 
 QString ACore_SI::getCurrentDir()
 {
     return QDir::currentPath();
 }
+
+void ACore_SI::setCurrentDir(QString path)
+{
+    bool ok = QDir::setCurrent(path);
+    if (!ok) abort("cannot set current directory to " + path);
+}
+
 
 #include <QProcess>
 QString ACore_SI::startExternalProcess(QString command, QVariant argumentArray, bool waitToFinish, int milliseconds)
