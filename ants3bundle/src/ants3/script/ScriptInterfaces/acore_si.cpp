@@ -120,6 +120,28 @@ ACore_SI::ACore_SI() : AScriptInterface()
         Help["load3DArray"] = se;
     }
 
+    // !!!*** todo
+    //Help["save3DBinaryArray"] = ;
+    //Help["load3DBinaryArray"] = ;
+
+    Help["saveObject"] = "Save object (dictionaly in Python) to file using json format";
+    Help["loadObject"] = "Load object (dictionaly in Python) from a file with json format";
+
+    Help["str"] = "Converts numeric value to string using the given precision (number of digits after the decimal separator)";
+    Help["toStr"] = "Converts argument to the string and returns it";
+    Help["arraySum"] = "Return sum of all elements of 1D numeric array. If the argument is 2D array, return sum of the last column";
+    Help["getExamplesDir"] = "Get ANTS3 directory with script/config examples";
+    Help["processEvents"] = "Experimental: put this method inside computationaly-heavy code to improve reaction to user abort";
+    Help["reportProgress"] = "Show progress bar on the script window. The argument is progress value in percent";
+    Help["requestGuiUpdate"] = "Update all GUI windows during script execution";
+
+    Help["startExternalProcess"] = "Start external process (command and arguments(s)).\n"
+                                   "ANTS3 should be compiled with the following line uncommented in ants3.pro: DEFINES += _ALLOW_LAUNCH_EXTERNAL_PROCESS_";
+    Help["startExternalProcessAndWait"] = "Start external process (command and arguments(s)) and wait until it is finished or waiting time exceed the provided value. "
+                                          "Return error string if there were errors\n"
+                                          "ANTS3 should be compiled with the following line uncommented in ants3.pro: DEFINES += _ALLOW_LAUNCH_EXTERNAL_PROCESS_";
+
+
 }
 
 bool ACore_SI::beforeRun()
@@ -1294,7 +1316,7 @@ void ACore_SI::setCurrentDir(QString path)
 
 
 #include <QProcess>
-QString ACore_SI::startExternalProcess(QString command, QVariant argumentArray, bool waitToFinish, int milliseconds)
+QString ACore_SI::startExternalProcessAndWait(QString command, QVariant argumentArray, int maxWaitMilliseconds)
 {
 #ifndef _ALLOW_LAUNCH_EXTERNAL_PROCESS_
     abort("Launch of external process is not allowed.\nEnable \"_ALLOW_LAUNCH_EXTERNAL_PROCESS_\" in ants3.pro");
@@ -1324,10 +1346,10 @@ QString ACore_SI::startExternalProcess(QString command, QVariant argumentArray, 
     QProcess * process = new QProcess(this);
     QString errorString;
 
-    if (waitToFinish)
+    if (maxWaitMilliseconds > 0)
     {
         process->start(command, arg);
-        process->waitForFinished(milliseconds);
+        process->waitForFinished(maxWaitMilliseconds);
         errorString = process->errorString();
         delete process;
     }
@@ -1339,4 +1361,9 @@ QString ACore_SI::startExternalProcess(QString command, QVariant argumentArray, 
 
     return errorString;
 #endif // ANTS2_ALLOW_EXTERNAL_PROCESS
+}
+
+void ACore_SI::startExternalProcess(QString command, QVariant arguments)
+{
+    startExternalProcessAndWait(command, arguments, 0);
 }

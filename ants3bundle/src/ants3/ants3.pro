@@ -55,6 +55,10 @@ ants3_jsroot{
 }
 #----------
 
+# Permission to script to start external processes
+# DEFINES += _ALLOW_LAUNCH_EXTERNAL_PROCESS_
+#----------
+
 QT += core
 ants3_GUI {
     QT += gui

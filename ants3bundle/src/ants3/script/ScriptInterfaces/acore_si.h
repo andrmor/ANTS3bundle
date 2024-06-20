@@ -80,7 +80,7 @@ public slots:
     QVariantList load3DArray(QString fileName, QString topSeparator, QVariantList format,
                              bool skipEmpty = true, bool allowIncomplete = false, int recordsFrom = 0, int recordsUntil = 2147483647);
 
-    // !!!*** add load3DBinaryArray
+    // !!!*** add save3DBinaryArray
     QVariantList load3DBinaryArray(const QString &fileName, char dataId, const QVariantList &dataFormat, char separatorId, const QVariantList &separatorFormat, int recordsFrom = 0, int recordsUntil = 1e6, bool skipEmpty = false);
 
     // Object
@@ -99,7 +99,8 @@ public slots:
 
     void requestGuiUpdate();
 
-    QString startExternalProcess(QString command, QVariant arguments, bool waitToFinish, int milliseconds);
+    void startExternalProcess(QString command, QVariant arguments);
+    QString startExternalProcessAndWait(QString command, QVariant arguments, int maxWaitMilliseconds);
 
 private:
     enum EArrayFormat {StringFormat, IntFormat, UI32Format, DoubleFormat, FloatFormat, CharFormat, SkipFormat};
