@@ -140,8 +140,6 @@ ACore_SI::ACore_SI() : AScriptInterface()
     Help["startExternalProcessAndWait"] = "Start external process (command and arguments(s)) and wait until it is finished or waiting time exceed the provided value. "
                                           "Return error string if there were errors\n"
                                           "ANTS3 should be compiled with the following line uncommented in ants3.pro: DEFINES += _ALLOW_LAUNCH_EXTERNAL_PROCESS_";
-
-
 }
 
 bool ACore_SI::beforeRun()
