@@ -64,16 +64,61 @@ ACore_SI::ACore_SI() : AScriptInterface()
                          {3,"Save 1D or 2D numeric array to the file. If 'append' argument is true, the data are added to the end of the file. "
                             "In this case if the file does not exists, abort is triggered"}};
     Help["loadNumericArray"] = "Load an array of numerics (or an array of numeric arrays). One row corresponds to one line in the file. Separators can be space, tab, comma or colon. Lines starting with # or // are ignored.";
-    Help["loadArray"] = {{2, "Load array of arrays from file, with inner array read according to the array with format options:\n"
-                              "'d'-double, 'i'-integer, 's'-string, ''-skip field: e.g. loadArray('fn.txt', ['i', 'd', 'd']) for sub-arrays of 1 int and 2 doubles"},
-                         {4, "Load array of arrays from file, with inner array read according to the array with format options:\n"
-                              "'d'-double, 'i'-integer, 's'-string, ''-skip field: e.g. loadArray('fn.txt', ['i', 'd', 'd']) for sub-arrays of 1 int and 2 doubles\n"
-                              "The last two parameters specify the limiting 'from' and 'to' line numbers in the file"}};
 
-    // ***
+    {
+        AScriptHelpEntry se;
+        QString txt = "Load array of mixed-type arrays from file, with inner array read according to the array with format options:\n"
+                      "'d'-double, 'i'-integer, 's'-string, ''-skip field: e.g. loadArray('fn.txt', ['s', 'd', 'd']) for sub-arrays of 1 string and 2 doubles";
+        se.addRecord(2, txt);
+        txt += ". The last two arguments specify the limiting 'from' and 'to' line numbers in the file";
+        se.addRecord(4, txt);
+        Help["loadArray"] = se;
+    }
 
-    Help["loadArrayBinary"] = "Load array of arrays (binary data), with second argument providing the format\n"
-          "This parameter should be an array of 's', 'i', 'd', 'f' or 'c' markers (zero-terminating string, int, double, float and char, respectively)";
+    {
+        AScriptHelpEntry se;
+        QString txt = "Save array of mixed-type arrays (binary data), with second argument providing the format array. "
+                      "This available options are 's', 'i', 'd', 'f' or 'c' markers (zero-terminating string, int, double, float and char, respectively), "
+                      "e.g. ['s', 'd', 'd'] for arrays of string and two doubles";
+        se.addRecord(3, txt);
+        txt += ". if 'apend' is true, data are appended to the end of the exisiting file (abort if file does not exist)";
+        se.addRecord(4, txt);
+        Help["saveBinaryArray"] = se;
+    }
+
+    Help["loadArrayBinary"] = "Load array of mixed-type arrays from a binary file. The second argument defines the format of sub-arrays. "
+          "This argument should be an array of type indicators including 's', 'i', 'd', 'f' or 'c' for zero-terminating string, int, double, float and char, respectively. "
+          "e.g. ['s', 'd', 'd'] configures reading of sub-arryas of string and two doubles";
+
+    {
+        AScriptHelpEntry se;
+        QString txt = "Save 3D array to text file. The inner-most array can be of a mixed type. "
+                      "The top-level records are separated by inserting in the file the string given by the topLevelSeparator parameter";
+        se.addRecord(3, txt);
+        txt += ". Optional topLevelLabels argument is an array (or array of mixed-type arrays) with data to be added in the same 'event header' line after topLevelSeparator. "
+               "Its size should be equal to the size of the main array";
+        se.addRecord(4, txt);
+        txt += ". if 'apend' is true, data are appended to the end of the exisiting file (abort if file does not exist)";
+        se.addRecord(5, txt);
+        Help["save3DArray"] = se;
+    }
+
+    {
+        AScriptHelpEntry se;
+        QString txt = "Load 3D array from text file. The top level records in the file are separated by the string defined by 'topSeparator' argument. "
+                      "The inner-most array can be of mixed type, format is defined by an array given by the 'format' argument. The available options:\n"
+                      "'d'-double, 'i'-integer, 's'-string, ''-skip field: e.g. ['s', 'd', 'd']) configure sub-arrays of 1 string and 2 doubles";
+        se.addRecord(3, txt);
+        txt += ".\nIf 'skipEmpty' is true, empty lines are ignored";
+        se.addRecord(4, txt);
+        txt += ".\nIf 'allowIncomplete' is true, read will not abort if any sub-array contains less elements than defined by the 'format' array";
+        se.addRecord(5, txt);
+        txt += ".\n'recordsFrom' defines the top level index from which to start";
+        se.addRecord(6, txt);
+        txt += ". 'recordsUntil' defines the top level index until which to read (exclusive)";
+        se.addRecord(7, txt);
+        Help["load3DArray"] = se;
+    }
 
 }
 
@@ -388,7 +433,7 @@ void ACore_SI::saveArray(QVariantList array, QString fileName, bool append)
     }
 }
 
-void ACore_SI::saveBinaryArray(const QVariantList & array, const QVariantList & format, const QString & fileName, bool append)
+void ACore_SI::saveBinaryArray(QVariantList array, QString fileName, QVariantList format, bool append)
 {
     std::vector<EArrayFormat> FormatSelector;
     bool bFormatOK = readFormat(format, FormatSelector, true);
@@ -588,7 +633,7 @@ void ACore_SI::readFormattedLine(const QStringList & fields, const std::vector<E
     }
 }
 
-QVariantList ACore_SI::loadArray(const QString & fileName, const QVariantList & format, int fromLine, int untilLine)
+QVariantList ACore_SI::loadArray(QString fileName, QVariantList format, int fromLine, int untilLine)
 {
     QVariantList vl;
 
@@ -640,12 +685,12 @@ QVariantList ACore_SI::loadArray(const QString & fileName, const QVariantList & 
     return vl;
 }
 
-QVariantList ACore_SI::loadArray(const QString & fileName, const QVariantList & format)
+QVariantList ACore_SI::loadArray(QString fileName, QVariantList format)
 {
     return loadArray(fileName, format, 0, 2147483647);
 }
 
-QVariantList ACore_SI::load3DArray(const QString &fileName, const QString &topSeparator, const QVariantList &format, int recordsFrom, int recordsUntil, bool skipEmpty, bool allowIncomplete)
+QVariantList ACore_SI::load3DArray(QString fileName, QString topSeparator, QVariantList format, bool skipEmpty, bool allowIncomplete, int recordsFrom, int recordsUntil)
 {
     QVariantList vl1;
 
@@ -910,9 +955,10 @@ QVariantList ACore_SI::loadArrayBinary(const QString &fileName, const QVariantLi
     return vl1;
 }
 
-void ACore_SI::save3DArray(QVariantList array, QString topLevelSeparator, QVariantList topLevelLabels, QString fileName, bool append)
+void ACore_SI::save3DArray(QVariantList array, QString fileName, QString topLevelSeparator, QVariantList topLevelLabels, bool append)
 {
-    if (array.size() != topLevelLabels.size())
+    bool useTopLevelLabels = !topLevelLabels.empty();
+    if (useTopLevelLabels && array.size() != topLevelLabels.size())
     {
         abort("Mismatch in the sizes of the array and topLevelLabels");
         return;
@@ -935,17 +981,22 @@ void ACore_SI::save3DArray(QVariantList array, QString topLevelSeparator, QVaria
     {
         //header of the event
         stream << topLevelSeparator;
-        const QVariant & var = topLevelLabels[i1];
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-        if (var.type() == QVariant::List)
-#else
-        if (var.userType() == QMetaType::QVariantList)
-#endif
+
+        if (useTopLevelLabels)
         {
-            const QStringList sl = var.toStringList();
-            stream << sl.join(' ');
+            const QVariant & var = topLevelLabels[i1];
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+            if (var.type() == QVariant::List)
+#else
+            if (var.userType() == QMetaType::QVariantList)
+#endif
+            {
+                const QStringList sl = var.toStringList();
+                stream << sl.join(' ');
+            }
+            else stream << var.toString();
         }
-        else stream << var.toString();
+
         stream << '\n';
 
         //data

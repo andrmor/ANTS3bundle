@@ -68,16 +68,19 @@ public slots:
     // Ascii array
     void         saveArray(QVariantList array, QString fileName, bool append = false);
     QVariantList loadNumericArray(QString fileName);
-    QVariantList loadArray(const QString & fileName, const QVariantList & format);
-    QVariantList loadArray(const QString & fileName, const QVariantList & format, int fromLine, int untilLine);
+    QVariantList loadArray(QString fileName, QVariantList format);
+    QVariantList loadArray(QString fileName, QVariantList format, int fromLine, int untilLine);
 
     // Binary array
-    void         saveBinaryArray(const QVariantList & array, const QVariantList & format, const QString & fileName, bool append);
+    void         saveBinaryArray(QVariantList array, QString fileName, QVariantList format, bool append = false);
     QVariantList loadArrayBinary(const QString & fileName, const QVariantList & format);
 
     // 3D arrays
-    void         save3DArray(QVariantList array, QString topLevelSeparator, QVariantList topLevelLabels, QString fileName, bool append);
-    QVariantList load3DArray(const QString & fileName, const QString & topSeparator, const QVariantList & format, int recordsFrom, int recordsUntil, bool skipEmpty, bool allowIncomplete);
+    void         save3DArray(QVariantList array, QString fileName, QString topLevelSeparator, QVariantList topLevelLabels = QVariantList(),  bool append = false);
+    QVariantList load3DArray(QString fileName, QString topSeparator, QVariantList format,
+                             bool skipEmpty = true, bool allowIncomplete = false, int recordsFrom = 0, int recordsUntil = 2147483647);
+
+    // !!!*** add load3DBinaryArray
     QVariantList load3DBinaryArray(const QString &fileName, char dataId, const QVariantList &dataFormat, char separatorId, const QVariantList &separatorFormat, int recordsFrom = 0, int recordsUntil = 1e6, bool skipEmpty = false);
 
     // Object
