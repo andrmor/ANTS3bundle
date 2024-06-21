@@ -946,16 +946,16 @@ void ATextEdit::onCursorPositionChanged()
     }
 }
 
-void ATextEdit::findMathcingMethodsForCursor(const QTextCursor & cursor, std::vector<std::pair<QString,int>> & matchingMethods, bool & cursorIsInArguments)
+int ATextEdit::findMathcingMethodsForCursor(const QTextCursor & cursor, std::vector<std::pair<QString,int>> & matchingMethods, bool & cursorIsInArguments)
 {
-    QTextCursor tc = cursor; // !!!***refactor, including selectObjFunctUnderCursor to make cursor copy
-    QTextCursor tc1 = cursor;
-    const QString functionCandidateText = selectObjFunctUnderCursor(&tc1);
+    int functionEndPosition = -1;
+    const QString functionCandidateText = selectObjFunctUnderCursor(cursor, functionEndPosition);
 
     // start with the case when the cursor is on one of the defined methods directly
     findMatchingMethods(functionCandidateText, matchingMethods);
     if (matchingMethods.empty())
     {
+        QTextCursor tc = cursor;
         while (tc.position() != 0)
         {
             tc.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
@@ -968,24 +968,21 @@ void ATextEdit::findMathcingMethodsForCursor(const QTextCursor & cursor, std::ve
                 // second case: the cursor is in the bracket section with the arguments
                 tc.setPosition(tc.position(), QTextCursor::MoveAnchor);
                 //qDebug() << SelectObjFunctUnderCursor(&tc);
-                findMatchingMethods(selectObjFunctUnderCursor(&tc), matchingMethods);
+                findMatchingMethods(selectObjFunctUnderCursor(tc, functionEndPosition), matchingMethods);
                 cursorIsInArguments = true;
                 break;
             }
         }
     }
+    return functionEndPosition;
 }
 
 bool ATextEdit::tryShowFunctionTooltip(const QTextCursor & cursor)
 {
-    // !!!*** use copy of the cursor in the methods?
-    QTextCursor tc = cursor;
-    QTextCursor tc2 = tc;
-
     std::vector<std::pair<QString,int>> matchingMethods;
     bool cursorIsInArguments = false;
 
-    findMathcingMethodsForCursor(cursor, matchingMethods, cursorIsInArguments);
+    int functionEndPosition = findMathcingMethodsForCursor(cursor, matchingMethods, cursorIsInArguments);
     if (matchingMethods.empty())
     {
         ForcedMethodTooltipSelection = false;
@@ -1006,7 +1003,7 @@ bool ATextEdit::tryShowFunctionTooltip(const QTextCursor & cursor)
         selectedMethod = SelectedMethodInTooltip;
     else
     {
-        int numNow = computeIntroducedNumberOfArguments(textCursor(), cursorIsInArguments);
+        int numNow = computeIntroducedNumberOfArguments(cursor, cursorIsInArguments);
         //qDebug() << "Computed number of arguments:" << numNow;
 
         selectedMethod = 0;
@@ -1036,7 +1033,7 @@ bool ATextEdit::tryShowFunctionTooltip(const QTextCursor & cursor)
 
     if (numArguments > 1 && cursorIsInArguments)
     {
-        int currentArgument = computeCurrentArgument(tc2);
+        int currentArgument = computeCurrentArgument(cursor, functionEndPosition);
         //qDebug() << ">>>>>>>>>>" << currentArgument;
         if (currentArgument != -1)
         {
@@ -1174,9 +1171,17 @@ int ATextEdit::computeIntroducedNumberOfArguments(const QTextCursor & cursor, bo
     return argLine.split(',', Qt::SkipEmptyParts).size();
 }
 
-int ATextEdit::computeCurrentArgument(QTextCursor & tc)
+#include "aargumentcounter.h"
+int ATextEdit::computeCurrentArgument(const QTextCursor & cursor, int functionEndPosition)
 {
+    qDebug() << cursor.position() << functionEndPosition;
+
+    AArgumentCounter counter(cursor, functionEndPosition, ScriptLanguage);
+    return counter.getCurrentArgument();
+
+    /*
     int numCommas = 0;
+    QTextCursor tc = cursor;
     while (tc.position() != 0)
     {
         tc.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
@@ -1187,6 +1192,7 @@ int ATextEdit::computeCurrentArgument(QTextCursor & tc)
         if (selected.startsWith('(')) return numCommas;
     }
     return -1;
+    */
 }
 
 #include <QTimer>
@@ -1540,10 +1546,10 @@ QString ATextEdit::textUnderCursor() const
     return selected;
 }
 
-QString ATextEdit::selectObjFunctUnderCursor(QTextCursor * cursor) const
+QString ATextEdit::selectObjFunctUnderCursor(const QTextCursor & cursor, int & functEndPosition) const
 {
     QString sel;
-    QTextCursor tc = (cursor == 0) ? textCursor() : *cursor;
+    QTextCursor tc = cursor;
     while (tc.position() != 0)
     {
         tc.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
@@ -1570,6 +1576,7 @@ QString ATextEdit::selectObjFunctUnderCursor(QTextCursor * cursor) const
         }
     }
     sel += tc.selectedText();
+    functEndPosition = tc.position();
     return sel;
 }
 

@@ -200,6 +200,7 @@ SOURCES += \
     ademomanager.cpp \
     gui/photsim/asensorgview.cpp \
     gui/photsim/asensorwindow.cpp \
+    gui/script/aargumentcounter.cpp \
     gui/script/ageoscriptmaker.cpp \
     gui/script/aguifromscrwin.cpp \
     gui/script/ahighlighters.cpp \
@@ -358,6 +359,7 @@ HEADERS += \
     gui/photsim/afunctionalmodelwidget.h \
     gui/photsim/aphotonlogsettingsform.h \
     gui/photsim/aphotontunnelwindow.h \
+    gui/script/aargumentcounter.h \
     gui/script/ascriptexampleexplorer.h \
     photonSim/aphotonloghandler.h \
     photonSim/photonFunctional/aphotonfunctionalhub.h \

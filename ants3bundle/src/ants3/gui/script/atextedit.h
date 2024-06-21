@@ -78,7 +78,7 @@ private:
     QLabel * lHelp = nullptr;
 
     QString textUnderCursor() const;
-    QString selectObjFunctUnderCursor(QTextCursor * cursor = nullptr) const;
+    QString selectObjFunctUnderCursor(const QTextCursor & cursor, int & functEndPosition) const;
     QString SelectTextToLeft(QTextCursor cursor, int num) const;
     bool InsertClosingBracket() const;
     void findMatchingMethods(const QString & text, std::vector<std::pair<QString,int>> & pairs) const;  // !!!*** add to search in deprecated & removed !!!*** optimize
@@ -101,9 +101,9 @@ private:
     bool onKeyPressed_interceptShortcut(int key, bool shift);
 
     int computeIntroducedNumberOfArguments(const QTextCursor & cursor, bool cursorInArguments);
-    int computeCurrentArgument(QTextCursor & tc);
+    int computeCurrentArgument(const QTextCursor & cursor, int functionEndPosition);
 
-    void findMathcingMethodsForCursor(const QTextCursor & cursor, std::vector<std::pair<QString, int>> & matchingMethods, bool & cursorIsInArguments);
+    int findMathcingMethodsForCursor(const QTextCursor & cursor, std::vector<std::pair<QString, int>> & matchingMethods, bool & cursorIsInArguments);
 
 signals:
     //void requestHelp(QString); // !!!*** to be removed
