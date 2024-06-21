@@ -131,7 +131,7 @@ ACore_SI::ACore_SI() : AScriptInterface()
     Help["toStr"] = "Converts argument to the string and returns it";
     Help["arraySum"] = "Return sum of all elements of 1D numeric array. If the argument is 2D array, return sum of the last column";
     Help["getExamplesDir"] = "Get ANTS3 directory with script/config examples";
-    Help["processEvents"] = "Experimental: put this method inside computationaly-heavy code to improve reaction to user abort";
+    Help["processEvents"] = "Put this method sparsely inside computationaly-heavy code to improve reaction to user abort. Note that 'print' and 'reportProgress' have the same effect";
     Help["reportProgress"] = "Show progress bar on the script window. The argument is progress value in percent";
     Help["requestGuiUpdate"] = "Update all GUI windows during script execution";
 
