@@ -70,7 +70,7 @@ void ATextEdit::showMethodHelpForCursor()
     else
     {
         int numNow = computeIntroducedNumberOfArguments(textCursor(), functionEndPosition);
-        qDebug() << "Detected num arguments:" << numNow;
+        //qDebug() << "Detected num arguments:" << numNow;
         selectedMethod = 0;
         for (const auto & pair : matchingMethods)
         {
@@ -957,6 +957,16 @@ int ATextEdit::findMathcingMethodsForCursor(const QTextCursor & cursor, std::vec
     findMatchingMethods(functionCandidateText, matchingMethods);
     if (matchingMethods.empty())
     {
+        AArgumentCounter counter(cursor, 0, ScriptLanguage);
+        QTextCursor tc = cursor;
+        bool ok = counter.moveCursorBeforeArguments(tc);
+        if (!ok) return -1;
+        tc.setPosition(tc.position(), QTextCursor::MoveAnchor);
+        //qDebug() << SelectObjFunctUnderCursor(&tc);
+        findMatchingMethods(selectObjFunctUnderCursor(tc, functionEndPosition), matchingMethods);
+        cursorIsInArguments = true;
+
+        /*
         QTextCursor tc = cursor;
         while (tc.position() != 0)
         {
@@ -975,6 +985,7 @@ int ATextEdit::findMathcingMethodsForCursor(const QTextCursor & cursor, std::vec
                 break;
             }
         }
+        */
     }
     return functionEndPosition;
 }
@@ -1006,7 +1017,7 @@ bool ATextEdit::tryShowFunctionTooltip(const QTextCursor & cursor)
     else
     {
         int numNow = computeIntroducedNumberOfArguments(cursor, functionEndPosition);
-        qDebug() << "Computed number of arguments:" << numNow;
+        //qDebug() << "Computed number of arguments:" << numNow;
 
         selectedMethod = 0;
         for (const auto & pair : matchingMethods)

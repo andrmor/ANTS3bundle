@@ -10,8 +10,9 @@ class AArgumentCounter
 public:
     AArgumentCounter(const QTextCursor & tc, int functionEndPosition, EScriptLanguage scriptLanguage);
 
-    int getCurrentArgument();
-    int countArguments();
+    int  getCurrentArgument();
+    int  countArguments();
+    bool moveCursorBeforeArguments(QTextCursor & tc);
 
     const QTextCursor Cursor;
     int FunctionEndPosition = 0;

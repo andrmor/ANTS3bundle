@@ -134,3 +134,33 @@ int AArgumentCounter::countArguments()
 
     return -1;
 }
+
+bool AArgumentCounter::moveCursorBeforeArguments(QTextCursor & tc)
+{
+    //int maxLines = 10;
+    while (tc.position() != 0)
+    {
+        tc.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
+        QChar ch = tc.selectedText().front();
+        //qDebug() << ch;
+
+        if (ch == '\n' || ch == QChar(0x2029) )
+        {
+            return false;
+            //if (ScriptLanguage == EScriptLanguage::Python) return false;
+            // too many side cases in JS with multiline...
+            //maxLines--;
+            //if (maxLines == 0) return false;
+        }
+
+        if (ch == '(')
+        {
+            bool ok = tc.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
+            if (!ok) return false;
+            QChar chBefore = tc.selectedText().front();
+            if (chBefore.isLetterOrNumber()) return true;
+            tc.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor); // back, it could be methodeName((
+        }
+    }
+    return false;
+}
