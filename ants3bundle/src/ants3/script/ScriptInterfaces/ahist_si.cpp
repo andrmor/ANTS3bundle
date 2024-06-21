@@ -40,6 +40,22 @@ AHist_SI::AHist_SI() : Hists(AScriptObjStore::getInstance().Hists)
                     {4, "Fill 2D histogram with the (x,y) value and the given weight."},
                     {5, "Fill 3D histogram with the (x,y,z) value and the given weight."}};
 
+    Help["fillArr"] = {{2, "Fill the histogram taking data from the array of arrays. The inner array should be:\n"
+                           "For 1D histogram --> x(note: not an array in this case!) or [x,weight]\n"
+                           "For 2D histogram --> [x,y] or [x,y,weight]\n"
+                           "For 3D histogram --> [x,y,z] or  [x,y,z,weight]"},
+                       {3, "Fill the histogram taking data from two arrays:\n"
+                           "For 1D histogram --> an array of x and an array of weights\n"
+                           "For 2D histogram --> an array of x and an array of y"},
+                       {4, "Fill the histogram taking data from three arrays:\n"
+                           "For 2D histogram --> an array of x, an array of y and an array of weights\n"
+                           "For 3D histogram --> an array of x, an array of y and an array of z"},
+                       {5, "Fill the 3D histogram taking data from four arrays:\n"
+                           "an array of x, an array of y, and array of z and an array of weights\n"}};
+
+    Help["draw"] =  {{1,"Draw the histogram using the default option string ('hist' for 1D and 'colz' for 2D)"},
+                     {2,"Draw the histogram using the specified option string. For available options see online help for THistPainter class of CERN ROOT:\nhttps://root.cern/doc/master/classTHistPainter.html"}};
+
     Help["FitGauss"] = "Fit histogram with a Gaussian. The returned result (is successful) contains an array [Constant,Mean,Sigma,ErrConstant,ErrMean,ErrSigma]"
                     "\nOptional 'options' parameter is directly forwarded to TH1::Fit()";
     Help["FitGaussWithInit"] = "Fit histogram with a Gaussian. The returned result (is successful) contains an array [Constant,Mean,Sigma,ErrConstant,ErrMean,ErrSigma]"

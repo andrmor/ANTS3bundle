@@ -1,0 +1,41 @@
+var numEvents = 100000
+
+function withResize()
+{
+   var DATA = []
+   var iIndex = 0
+   for (var ii = 0; ii < numEvents; ii++)
+   {
+      if (ii % 1000 == 0) core.print(ii)
+      for (var iii = 0; iii < 10; iii++) 
+      {
+         if (iIndex >= DATA.length)
+         {  
+            //core.print("expanding for index", iIndex, "  size from", DATA.length, "to size:", 2*DATA.length)
+            DATA.length = 2 * DATA.length
+         }
+         DATA[iIndex] = math.gauss(10,2)
+         iIndex++
+      }
+   }
+   core.print("Done!")
+}
+
+function withConcat()
+{
+   var DATA = []
+   for (var ii = 0; ii < numEvents; ii++)
+   {
+      if (ii % 1000 == 0) core.print(ii)
+      
+      data = []
+      for (var iii = 0; iii < 10; iii++) data.push(math.gauss(10,2))
+      DATA = DATA.concat(data)
+   }
+   core.print("Done!")
+}
+
+var start = core.getTimeMarkMilliseconds()
+withResize()
+//withConcat()
+core.print("Elapsed time:", core.getTimeMarkMilliseconds() - start, "ms")

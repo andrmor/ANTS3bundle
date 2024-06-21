@@ -38,3 +38,19 @@ Tree:Draw
 Create, fill and draw ROOT tree
 #end
 
+#file
+ArrayConcatVsResize.txt
+#tags
+Array:Optimisation
+#info
+Show the optimization potential of using resize and indexing for arrays instead of concat method
+#end
+
+#file
+FillHistogram.txt
+#tags
+Histogram:Optimisation
+#info
+Comparison of run time for filling a histogram by one point at a time or with an array
+#end
+
