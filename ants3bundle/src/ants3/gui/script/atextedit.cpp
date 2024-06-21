@@ -1,6 +1,7 @@
 #include "atextedit.h"
 #include "guitools.h"
 #include "a3global.h"
+#include "aargumentcounter.h"
 
 #include <QCompleter>
 #include <QKeyEvent>
@@ -59,7 +60,7 @@ void ATextEdit::showMethodHelpForCursor()
 
     std::vector<std::pair<QString,int>> matchingMethods;
     bool cursorIsInArguments = false;
-    findMathcingMethodsForCursor(textCursor(), matchingMethods, cursorIsInArguments);
+    int functionEndPosition = findMathcingMethodsForCursor(textCursor(), matchingMethods, cursorIsInArguments);
     if (matchingMethods.empty()) return;
 
     std::sort(matchingMethods.begin(), matchingMethods.end(), [](const auto & lhs, const auto & rhs){return (lhs.second < rhs.second);});
@@ -68,7 +69,8 @@ void ATextEdit::showMethodHelpForCursor()
         selectedMethod = SelectedMethodInTooltip;
     else
     {
-        int numNow = computeIntroducedNumberOfArguments(textCursor(), cursorIsInArguments);
+        int numNow = computeIntroducedNumberOfArguments(textCursor(), functionEndPosition);
+        qDebug() << "Detected num arguments:" << numNow;
         selectedMethod = 0;
         for (const auto & pair : matchingMethods)
         {
@@ -1003,8 +1005,8 @@ bool ATextEdit::tryShowFunctionTooltip(const QTextCursor & cursor)
         selectedMethod = SelectedMethodInTooltip;
     else
     {
-        int numNow = computeIntroducedNumberOfArguments(cursor, cursorIsInArguments);
-        //qDebug() << "Computed number of arguments:" << numNow;
+        int numNow = computeIntroducedNumberOfArguments(cursor, functionEndPosition);
+        qDebug() << "Computed number of arguments:" << numNow;
 
         selectedMethod = 0;
         for (const auto & pair : matchingMethods)
@@ -1102,97 +1104,17 @@ bool ATextEdit::tryShowFunctionTooltip(const QTextCursor & cursor)
     return true;
 }
 
-int ATextEdit::computeIntroducedNumberOfArguments(const QTextCursor & cursor, bool cursorInArguments)
+int ATextEdit::computeIntroducedNumberOfArguments(const QTextCursor & cursor, int functionEndPosition)
 {
-    QString argLine;
-
-    QTextCursor tc = cursor;
-    if (cursorInArguments)
-    {
-        QString onLeft;
-        while (tc.position() != 0)
-        {
-            tc.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
-            QString selected = tc.selectedText();
-            if (selected.startsWith(')')) return -1;
-            if (selected.startsWith('\n')) return -1;
-            if (selected.startsWith('('))
-            {
-                onLeft = selected;
-                QTextCursor tc1 = cursor;
-                while (tc1.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor))
-                {
-                    selected = tc1.selectedText();
-                    if (selected.endsWith('\n')) return -1;
-                    if (selected.endsWith('(')) return -1;
-                    if (selected.endsWith(')'))
-                    {
-                        argLine = onLeft + selected;
-                        break;
-                    }
-                }
-                break;
-            }
-        }
-    }
-    else
-    {
-        while (tc.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor))
-        {
-            QString selected = tc.selectedText();
-            if (selected.endsWith('\n')) return -1;
-            if (selected.endsWith(')')) return -1;
-            if (selected.endsWith('('))
-            {
-                tc.setPosition(tc.position(), QTextCursor::MoveAnchor);
-                while (tc.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor))
-                {
-                    selected = tc.selectedText();
-                    if (selected.endsWith('\n')) return -1;
-                    if (selected.endsWith('(')) return -1;
-                    if (selected.endsWith(')'))
-                    {
-                        argLine = "(" + selected;
-                        break;
-                    }
-                }
-                break;
-            }
-        }
-    }
-
-    //qDebug() << "->" << argLine;
-    //argLine.remove(0,1);
-    //argLine.chop(1);
-    argLine = argLine.simplified();
-    //qDebug() << "--" << argLine;
-    if (argLine.isEmpty()) return 0;
-    //qDebug() << argLine.split(',', Qt::SkipEmptyParts);
-    return argLine.split(',', Qt::SkipEmptyParts).size();
+    //qDebug() << cursor.position() << functionEndPosition;
+    AArgumentCounter counter(cursor, functionEndPosition, ScriptLanguage);
+    return counter.countArguments();
 }
 
-#include "aargumentcounter.h"
 int ATextEdit::computeCurrentArgument(const QTextCursor & cursor, int functionEndPosition)
 {
-    qDebug() << cursor.position() << functionEndPosition;
-
     AArgumentCounter counter(cursor, functionEndPosition, ScriptLanguage);
     return counter.getCurrentArgument();
-
-    /*
-    int numCommas = 0;
-    QTextCursor tc = cursor;
-    while (tc.position() != 0)
-    {
-        tc.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
-        QString selected = tc.selectedText();
-        if (selected.startsWith(')')) return -1;
-        if (selected.startsWith('\n')) return -1;
-        if (selected.startsWith(',')) numCommas++;
-        if (selected.startsWith('(')) return numCommas;
-    }
-    return -1;
-    */
 }
 
 #include <QTimer>

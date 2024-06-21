@@ -11,6 +11,7 @@ public:
     AArgumentCounter(const QTextCursor & tc, int functionEndPosition, EScriptLanguage scriptLanguage);
 
     int getCurrentArgument();
+    int countArguments();
 
     const QTextCursor Cursor;
     int FunctionEndPosition = 0;

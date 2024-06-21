@@ -57,9 +57,7 @@ int AArgumentCounter::getCurrentArgument()
         {
             if (InBracketsLevel == 0 &&
                 InSquareBracketsLevel == 0 &&
-                InFigureBracketsLevel == 0 &&
-                !InApostrophe &&
-                !InQuatation)
+                InFigureBracketsLevel == 0)
             {
                 numArgs++;
             }
@@ -67,4 +65,72 @@ int AArgumentCounter::getCurrentArgument()
     }
 
     return numArgs;
+}
+
+int AArgumentCounter::countArguments()
+{
+    QTextCursor tc = Cursor;
+    tc.setPosition(FunctionEndPosition + 1, QTextCursor::MoveAnchor);
+
+    int numArgs = 1;
+    while (tc.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor))
+    {
+        const QString selected = tc.selectedText();
+        const QChar ch = selected.back();
+
+        if (InApostrophe)
+        {
+            if (ch == '\'') InApostrophe = false;
+            continue;
+        }
+        if (InQuatation)
+        {
+            if (ch == '\"') InQuatation  = false;
+            continue;
+        }
+
+        if      (ch == '\'') InApostrophe = true;
+        else if (ch == '\"') InQuatation  = true;
+        else if (ch == '(')
+            InBracketsLevel++;
+        else if (ch == ')')
+        {
+            InBracketsLevel--;
+            if (InBracketsLevel < 0)
+            {
+                // normal exit as the opening bracket was removed on start
+                QString txt = tc.selectedText();
+                txt.chop(1);
+                txt = txt.simplified();
+                //qDebug() << "------>" << txt;
+                if (txt.isEmpty()) return 0;
+                else return numArgs;
+            }
+        }
+        else if (ch == '[')
+            InSquareBracketsLevel++;
+        else if (ch == ']')
+        {
+            InSquareBracketsLevel--;
+            if (InSquareBracketsLevel < 0) return -1;
+        }
+        else if (ch == '{')
+            InFigureBracketsLevel++;
+        else if (ch == '}')
+        {
+            InFigureBracketsLevel--;
+            if (InFigureBracketsLevel < 0) return -1;
+        }
+        else if (ch == ',')
+        {
+            if (InBracketsLevel == 0 &&
+                InSquareBracketsLevel == 0 &&
+                InFigureBracketsLevel == 0)
+            {
+                numArgs++;
+            }
+        }
+    }
+
+    return -1;
 }

@@ -100,7 +100,7 @@ private:
 
     bool onKeyPressed_interceptShortcut(int key, bool shift);
 
-    int computeIntroducedNumberOfArguments(const QTextCursor & cursor, bool cursorInArguments);
+    int computeIntroducedNumberOfArguments(const QTextCursor & cursor, int functionEndPosition);
     int computeCurrentArgument(const QTextCursor & cursor, int functionEndPosition);
 
     int findMathcingMethodsForCursor(const QTextCursor & cursor, std::vector<std::pair<QString, int>> & matchingMethods, bool & cursorIsInArguments);
