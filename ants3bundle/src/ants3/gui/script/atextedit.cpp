@@ -1204,6 +1204,10 @@ bool ATextEdit::event(QEvent *event)
         QTimer::singleShot(0, this, [=](){lHelp->hide();});
         //lHelp->hide();
     }
+    if (event->type() == QEvent::FocusOut)
+    {
+        lHelp->hide();
+    }
     //qDebug() << event->type();
     return QPlainTextEdit::event(event);
 }
