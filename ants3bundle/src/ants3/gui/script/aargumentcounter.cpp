@@ -141,7 +141,9 @@ bool AArgumentCounter::moveCursorBeforeArguments(QTextCursor & tc)
     while (tc.position() != 0)
     {
         tc.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
-        QChar ch = tc.selectedText().front();
+        const QString sel = tc.selectedText();
+        if (sel.isEmpty()) continue;
+        const QChar ch = sel.front();
         //qDebug() << ch;
 
         if (ch == '\n' || ch == QChar(0x2029) )
