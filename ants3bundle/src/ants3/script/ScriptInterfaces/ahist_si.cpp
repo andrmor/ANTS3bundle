@@ -56,11 +56,71 @@ AHist_SI::AHist_SI() : Hists(AScriptObjStore::getInstance().Hists)
     Help["draw"] =  {{1,"Draw the histogram using the default option string ('hist' for 1D and 'colz' for 2D)"},
                      {2,"Draw the histogram using the specified option string. For available options see online help for THistPainter class of CERN ROOT:\nhttps://root.cern/doc/master/classTHistPainter.html"}};
 
+    Help["setTitle"] = "Set title of the selected histogram.";
+    Help["setAxisTitles"] = {{3, "Sets X and Y axis titles for the selected histogram"},
+                             {4, "Sets X, Y and Z axis titles for the selected histogram"}};
+
+    Help["setMarkerProperties"] = "Configure color, style, and size of the markers for the selected histogram. Default values are 1, 20, 1.0";
+    Help["setLineProperties"] = "Configure color, style and width of the line for the selected histogram. Default line properties are 1, 1, 2";
+
+    Help["setFillColor"] = "Configure fill color for the selected histogram";
+
+    Help["setMinimum"] = "Set maximum displayed value for the Y axis for 1D histogram or for Z axis in case of 2D histogram";
+    Help["setMaximum"] = "Set minimum dispalyed value for the Y axis for 1D histogram or for Z axis in case of 2D histogram";
+    Help["getMinimum"] = "Get maximum displayed value for the Y axis for 1D histogram or for Z axis in case of 2D histogram";
+    Help["getMaximum"] = "Get minimum dispalyed value for the Y axis for 1D histogram or for Z axis in case of 2D histogram";
+
+    QString divHelp = "Argument is: ndiv = N1 + 100*N2 + 10000*N3, where\n"
+                      "N1 = number of 1st divisions, N2 = number of 2nd divisions and N3 = number of 3rd divisions.\n"
+                      "e.g.: ndiv = 0 --> no tick marks; ndiv = 2 --> 2 divisions, one tick mark in the middle of the axis.";
+    Help["setXDivisions"] = "Configures ticks for X axis\n" + divHelp;
+    Help["setYDivisions"] = "Configures ticks for Y axis\n" + divHelp;
+
+    Help["setXLabelProperties"] = "Set size of the letters and the offset from the axis for the X axis label";
+    Help["setYLabelProperties"] = "Set size of the letters and the offset from the axis for the Y axis label";
+
+    Help["setXCustomLabels"] = "Set custom labels to replace default ones for the X axis. (e.g. names of materials in material distribution histogram).\n"
+                               "The array with the labels should have the size equal to the number of histogram bins";
+
+    Help["getData"] = "Get content of the histogram. The returned array has the following format:\n"
+                      "For 1D histogram --> array of arrays of [x,weight]\n"
+                      "For 2D histogram --> array of arrays of [x,y,weight]\n"
+                      "For 3D histogram --> array of arrays of [x,y,z,weight]\n";
+
+    Help["getNumberEntries"] = "Return number of entries";
+    Help["getNumberUnderflows"] = "Return number of underflows (entries which had value less than the lower edge)";
+    Help["getNumberOverflows"] = "Return number of overflows (entries which had value larger than the upper edge)";
+
+    Help["getIntegral"] = "Return sum of the histogram bin values";
+    Help["getIntegral_multiplyByBinWidth"] = "Return sum of the histogram bin values multiplied by the size of the corresponding bin";
+
+    Help["getRandom"] = {{1, "Get a random value distriburted acording to the histogram:\n"
+                              "The bin is selected using the histogram as the probabilty density function, and the value is uniformly sampled over the bin range"},
+                         {2, "Get a random value distriburted acording to the histogram:\n"
+                             "The bin is selected using the histogram as the probabilty density function, and the value is uniformly sampled over the bin range\n"
+                             "The second argument defines how many random numbers will be returned as an array"}};
+
+
+
+
     Help["FitGauss"] = "Fit histogram with a Gaussian. The returned result (is successful) contains an array [Constant,Mean,Sigma,ErrConstant,ErrMean,ErrSigma]"
-                    "\nOptional 'options' parameter is directly forwarded to TH1::Fit()";
+                    "\nOptional 'options' parameter is directly forwarded to TH1::Fit(): see an outdated but still useful document:\n"
+                    "https://root.cern.ch/root/htmldoc/guides/users-guide/FittingHistograms.html";
     Help["FitGaussWithInit"] = "Fit histogram with a Gaussian. The returned result (is successful) contains an array [Constant,Mean,Sigma,ErrConstant,ErrMean,ErrSigma]"
                             "\nInitialParValues is an array of initial parameters of the values [Constant,Mean,Sigma]"
-                            "\nOptional 'options' parameter is directly forwarded to TH1::Fit()";
+                            "\nOptional 'options' parameter is directly forwarded to TH1::Fit()"
+                            "https://root.cern.ch/root/htmldoc/guides/users-guide/FittingHistograms.html";
+
+    Help["findPeaks"] = "Find peaks in the histogram providing the sigma for the width and the detection threshold.\n"
+                        "The threshold is given as a fraction of the absolute maximum and thus 0 < threshold < 1";
+
+    Help["save"] = "Save histogram as a Root object file (.root or .c)";
+    Help["load"] = "Load histogram from a file containing Root objects. If there are several histograms in the file, provide the histgram name as third argument";
+
+    Help["remove"] = "Remove this histogram";
+    Help["removeAll"] = "Remove all histograms";
+
+    Help["configureAbortIfAlreadyExists"] = "If set to true, an attempt to create a histogram with already existent name will cause abort. Default is false";
 }
 
 //AHist_SI::AHist_SI(const AHist_SI &other) :
@@ -930,7 +990,7 @@ void AHist_SI::setNumberEntries(QString histName, int numEntries)
     else r->setEntries(numEntries);
 }
 
-double AHist_SI::getIntegral(QString histName, bool multiplyByBinWidth)
+double AHist_SI::getIntegral(QString histName)
 {
     ARootHistRecord* r = dynamic_cast<ARootHistRecord*>(Hists.getRecord(histName));
     if (!r)
@@ -938,7 +998,18 @@ double AHist_SI::getIntegral(QString histName, bool multiplyByBinWidth)
         abort("Histogram " + histName + " not found!");
         return 1.0;
     }
-    else return r->getIntegral(multiplyByBinWidth);
+    else return r->getIntegral(false);
+}
+
+double AHist_SI::getIntegral_multiplyByBinWidth(QString histName)
+{
+    ARootHistRecord* r = dynamic_cast<ARootHistRecord*>(Hists.getRecord(histName));
+    if (!r)
+    {
+        abort("Histogram " + histName + " not found!");
+        return 1.0;
+    }
+    else return r->getIntegral(true);
 }
 
 double AHist_SI::getRandom(QString histName)
@@ -952,7 +1023,7 @@ double AHist_SI::getRandom(QString histName)
     return r->GetRandom();
 }
 
-QVariantList AHist_SI::getRandomArray(QString histName, int numRandoms)
+QVariantList AHist_SI::getRandom(QString histName, int numRandoms)
 {
     QVariantList vl;
 

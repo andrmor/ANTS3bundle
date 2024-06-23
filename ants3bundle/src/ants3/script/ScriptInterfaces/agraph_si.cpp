@@ -38,8 +38,8 @@ AGraph_SI::AGraph_SI()
                     {2, "Draw the graph using the provided options string;\n"
                         "Refer to https://root.cern.ch/doc/master/classTGraphPainter.html for the list of the available options"}};
 
-    Help["setMarkerProperties"] = "Configures color, style, and size of the markers for the selected graph. Default values are 1, 20, 1.0";
-    Help["setLineProperties"] = "Configures color, style and width of the line for the selected graph. Default line properties are 1, 1, 2";
+    Help["setMarkerProperties"] = "Configure color, style, and size of the markers for the selected graph. Default values are 1, 20, 1.0";
+    Help["setLineProperties"] = "Configure color, style and width of the line for the selected graph. Default line properties are 1, 1, 2";
 
     Help["setTitle"] = "Sets title of the slected graph";
     Help["setAxisTitles"] = "Sets X and Y axis titles for the selected graph";
@@ -52,7 +52,6 @@ AGraph_SI::AGraph_SI()
     QString divHelp = "Argument is: ndiv = N1 + 100*N2 + 10000*N3, where\n"
                       "N1 = number of 1st divisions, N2 = number of 2nd divisions and N3 = number of 3rd divisions.\n"
                       "e.g.: ndiv = 0 --> no tick marks; ndiv = 2 --> 2 divisions, one tick mark in the middle of the axis.";
-
     Help["setXDivisions"] = "Configures ticks for X axis\n" + divHelp;
     Help["setYDivisions"] = "Configures ticks for Y axis\n" + divHelp;
 

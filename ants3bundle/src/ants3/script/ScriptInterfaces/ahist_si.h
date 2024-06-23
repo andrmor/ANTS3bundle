@@ -70,10 +70,11 @@ public slots:
     int            getNumberEntries(QString histName);
     double         getNumberUnderflows(QString histName); // !!!*** 2D
     double         getNumberOverflows(QString histName);  // !!!*** 2D
-    double         getIntegral(QString histName, bool multiplyByBinWidth = false);
+    double         getIntegral(QString histName);
+    double         getIntegral_multiplyByBinWidth(QString histName);
 
     double         getRandom(QString histName);
-    QVariantList   getRandomArray(QString histName, int numRandoms);
+    QVariantList   getRandom(QString histName, int numRandoms);
 
     QVariantList   getStatistics(QString histName); // num mean std, for 2D mean and std are vectors of [x,y]
     void           setNumberEntries(QString histName, int numEntries);
