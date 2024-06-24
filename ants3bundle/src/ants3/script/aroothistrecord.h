@@ -46,7 +46,8 @@ public:
 
     void   smooth(int times);
     void   smear(double sigma);
-    void   Scale(double ScaleIntegralTo, bool bDividedByBinWidth = false);
+    void   scaleInegralTo(double ScaleIntegralTo, bool bDividedByBinWidth = false);
+    void   scaleMaxTo(double scaleMaxTo);
     bool   medianFilter(int span, int spanRight = -1);
 
     double getIntegral(bool bMultipliedByBinWidth = false);

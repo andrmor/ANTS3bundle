@@ -67,7 +67,9 @@ public slots:
     void           setXCustomLabels(QString histName, QVariantList textLabels);
 
     QVariantList   getData(QString histName);
+    QVariantList   getStatistics(QString histName); // num mean std, for 2D mean and std are vectors of [x,y]
     int            getNumberEntries(QString histName);
+    void           setNumberEntries(QString histName, int numEntries);
     double         getNumberUnderflows(QString histName); // !!!*** 2D
     double         getNumberOverflows(QString histName);  // !!!*** 2D
     double         getIntegral(QString histName);
@@ -76,10 +78,9 @@ public slots:
     double         getRandom(QString histName);
     QVariantList   getRandom(QString histName, int numRandoms);
 
-    QVariantList   getStatistics(QString histName); // num mean std, for 2D mean and std are vectors of [x,y]
-    void           setNumberEntries(QString histName, int numEntries);
+    void           scaleIntegralTo(QString histName, double scaleIntegralTo, bool dividedByBinWidth = false);
+    void           scaleMaxTo(QString histName, double max);
 
-    void           scaleIntegral(QString histName, double scaleIntegralTo, bool dividedByBinWidth = false);
     void           divideByHistogram(QString histName, QString histToDivideWith);
 
     void           applyMedianFilter(QString histName, int span);

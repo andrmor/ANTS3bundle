@@ -87,7 +87,9 @@ AHist_SI::AHist_SI() : Hists(AScriptObjStore::getInstance().Hists)
                       "For 2D histogram --> array of arrays of [x,y,weight]\n"
                       "For 3D histogram --> array of arrays of [x,y,z,weight]\n";
 
+    Help["getStatistics"] = "Return vector with number of entries, mean and standard deviation. In the case of 2D histogram, mean and std are vectors of two values (for x and y axes)";
     Help["getNumberEntries"] = "Return number of entries";
+    Help["setNumberEntries"] = "Set number of entries (this number is shown in statistics, it is wrong if bin content was set directly)";
     Help["getNumberUnderflows"] = "Return number of underflows (entries which had value less than the lower edge)";
     Help["getNumberOverflows"] = "Return number of overflows (entries which had value larger than the upper edge)";
 
@@ -100,8 +102,18 @@ AHist_SI::AHist_SI() : Hists(AScriptObjStore::getInstance().Hists)
                              "The bin is selected using the histogram as the probabilty density function, and the value is uniformly sampled over the bin range\n"
                              "The second argument defines how many random numbers will be returned as an array"}};
 
+    Help["scaleIntegralTo"] = {{2, "Scale 1D histogram to have integral of all bins eqaul to the second argument"},
+                               {3, "Scale 1D histogram to have integral of all bins eqaul to the second argument\n"
+                                   "If optional third paramater is true, also divide by bin width when calculating integral"}};
+    Help["scaleMaxTo"] = "Scale 1D histogram to have maximum equal to the value of the second argument";
 
+    Help["divideByHistogram"] = "Divide histogram by another one: content of every bin will be divided by the content of the corresponding bin of the second histogram). Both histograms must have the same number of bins";
 
+    Help["applyMedianFilter"] = {{2, "Apply median filter to the content of the histogram. The kernel span is the same for both directions"},
+                                 {3, "Apply median filter to the content of the histogram. The kernel span is provided for both directions independently. Can be zero"}};
+
+    Help["smooth"] = "Smooth 1D histogram the provided number of times. Every time each bin is averaged taking the previous and the next bin content";
+    Help["smear"] = "Experimental! Still to be refined!\nConvolute the histogram with a gaussian of the provided sigma";
 
     Help["FitGauss"] = "Fit histogram with a Gaussian. The returned result (is successful) contains an array [Constant,Mean,Sigma,ErrConstant,ErrMean,ErrSigma]"
                     "\nOptional 'options' parameter is directly forwarded to TH1::Fit(): see an outdated but still useful document:\n"
@@ -1063,11 +1075,18 @@ QVariantList AHist_SI::getStatistics(QString histName)
     return vl;
 }
 
-void AHist_SI::scaleIntegral(QString histName, double scaleIntegralTo, bool dividedByBinWidth)
+void AHist_SI::scaleIntegralTo(QString histName, double scaleIntegralTo, bool dividedByBinWidth)
 {
     ARootHistRecord* r = dynamic_cast<ARootHistRecord*>(Hists.getRecord(histName));
     if (!r) abort("Histogram " + histName + " not found!");
-    else    r->Scale(scaleIntegralTo, dividedByBinWidth);
+    else    r->scaleInegralTo(scaleIntegralTo, dividedByBinWidth);
+}
+
+void AHist_SI::scaleMaxTo(QString histName, double max)
+{
+    ARootHistRecord* r = dynamic_cast<ARootHistRecord*>(Hists.getRecord(histName));
+    if (!r) abort("Histogram " + histName + " not found!");
+    else    r->scaleMaxTo(max);
 }
 
 void AHist_SI::save(QString histName, QString fileName)
