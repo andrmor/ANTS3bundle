@@ -23,7 +23,7 @@ public slots:
 
     void setStatPanelVisible(bool flag);
 
-    void addLegend(double x1, double y1, double x2, double y2, QString title);
+    void addLegend(double x1, double y1, double x2, double y2, QString title = "");
     void setLegendBorder(int color, int style, int size);
 
     void addText(QString text, bool Showframe, int Alignment_0Left1Center2Right);
@@ -38,7 +38,7 @@ public slots:
 
     void saveImage(QString fileName);
 
-    void exportTH2AsText(QString fileName); // !!!*** need?
+    //void exportTH2AsText(QString fileName); obsolete?
 
     void show3D(QString castorFileName);
 

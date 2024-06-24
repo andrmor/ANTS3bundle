@@ -8,9 +8,26 @@ AGraphWin_SI::AGraphWin_SI(GraphWindowClass * graphWin) :
 {
     Description = "Access to the Graph window of GUI";
 
+    Help["setLog"] = "Switch between log and linear scale for X and Y scales";
+
+    Help["setStatPanelVisible"] = "Toggles visibility of the panel with statistical information of the shown histograms";
+
+    {
+        AScriptHelpEntry se;
+        QString txt = "Add legend box for the currently drawn graphs/histograms. The arguments define the box position:\n"
+                      "the 1st and 2nd give x,y of the lower left corner of the box and the 3rd and 4th give x,y of the upper right corner. "
+                      "The values should be in the range from 0.0 to 1.0: 0 corresponds to the left(lower) border of the canvas, and 1 is the right(upper) one";
+        se.addRecord(4, txt);
+        txt += ".\nThe fifth optional argument defines the text shown in the top line of the legend box";
+        se.addRecord(5, txt);
+        Help["addLegend"] = se;
+    }
+    Help["setLegendBorder"] = "Define the color, size and style of the border line of the legend box";
+
+    Help["addToBasket"] = "Add the currently drawn graphs/histograms as an entry in the basket with the provided name.";
+    Help["clearBasket"] = "Completely clears the basket. Cannot be undone!";
+
     Help["saveImage"] = "Save image currently shown on the graph window to an image file.\nTip: use .png extension";
-    Help["addLegend"] = "Adds a temporary (not savable yet!) legend to the graph.\n"
-                        "x1,y1 and x2,y2 are the bottom-left and top-right corner coordinates (0..1)";
 
     connect(this, &AGraphWin_SI::requestShow3D, GraphWindow, &GraphWindowClass::show3D, Qt::QueuedConnection);
 }
@@ -75,10 +92,12 @@ void AGraphWin_SI::saveImage(QString fileName)
     GraphWindow->SaveGraph(fileName);
 }
 
+/*
 void AGraphWin_SI::exportTH2AsText(QString fileName)
 {
     GraphWindow->ExportTH2AsText(fileName);
 }
+*/
 
 #include <QTimer>
 void AGraphWin_SI::show3D(QString castorFileName)

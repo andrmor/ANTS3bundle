@@ -24,7 +24,7 @@ AConfig_SI::AConfig_SI() :
                       "Use rebuildDetector() method to take changes in effect!";
     Help["getKeyValue"] = "Get the value of the Key: it can be basic types (bool, double, string) as well as arrays and objects.";
 
-    Help["rebuildDetector"]  = "Force to rebuild detector."; //\nNot anymore required after calling config.Replace - it is called automatically if Detector settings were modified.";
+    Help["rebuildDetector"]  = "Force to rebuild detector. It is necessary to take into account any changes introduced in the configuration!"; //\nNot anymore required after calling config.Replace - it is called automatically if Detector settings were modified.";
     Help["updateGui"] = "Update GUI during script execution according to current settings in config.";
 
 }
