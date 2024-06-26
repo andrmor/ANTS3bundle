@@ -509,6 +509,8 @@ void AScriptWindow::clearOutput()
 #include "acore_si.h"
 void AScriptWindow::on_pbRunScript_clicked()
 {
+    getTab()->TextEdit->hideHelpLabel();
+
     // save all tabs -> GlobSet
     WriteToJson();
     A3Global::getInstance().saveConfig();

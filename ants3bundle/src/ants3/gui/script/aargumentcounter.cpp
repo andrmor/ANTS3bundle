@@ -76,6 +76,7 @@ int AArgumentCounter::countArguments()
     while (tc.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor))
     {
         const QString selected = tc.selectedText();
+        if (selected.isEmpty()) continue;
         const QChar ch = selected.back();
 
         if (InApostrophe)
@@ -159,7 +160,9 @@ bool AArgumentCounter::moveCursorBeforeArguments(QTextCursor & tc)
         {
             bool ok = tc.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
             if (!ok) return false;
-            QChar chBefore = tc.selectedText().front();
+            QString selection = tc.selectedText();
+            if (selection.isEmpty()) return false;
+            QChar chBefore = selection.front();
             if (chBefore.isLetterOrNumber()) return true;
             tc.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor); // back, it could be methodeName((
         }

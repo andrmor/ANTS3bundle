@@ -44,6 +44,7 @@ public slots:
 
 protected:
     bool event(QEvent *event) override;
+    void leaveEvent(QEvent *event);
     void mouseReleaseEvent(QMouseEvent *e) override;
     void keyPressEvent(QKeyEvent *e) override;
     void focusInEvent(QFocusEvent *e) override;

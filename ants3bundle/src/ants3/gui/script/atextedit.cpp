@@ -1151,6 +1151,11 @@ bool ATextEdit::event(QEvent *event)
     return QPlainTextEdit::event(event);
 }
 
+void ATextEdit::leaveEvent(QEvent *)
+{
+    if (!rect().contains(mapFromGlobal(QCursor::pos()))) lHelp->hide();
+}
+
 void ATextEdit::mouseReleaseEvent(QMouseEvent *e)
 {
     ForcedMethodTooltipSelection = false;
