@@ -1,9 +1,36 @@
-# ANTS3bundle
+# ANTS3 mission
 
-* Particle simulation part is mostly ready
-* Optical simulation part is in beta
+* The toolkit was created to greatly facilitate particle and optical photon simulations for the students
+   * Interactive graphical interface and scrpting interface (Python and Javascript) for Geant4
+ * Quick (and not so dirty) simulations during initial stahges of the development of position-sensitive detectors
+ * Many features which are missing in "vanilla" Geant4 are added to make life simpler
+
+# ANTS3 highlights
+
+* Monte Carlo particle simulations: an adavanced frontend for Geant4 toolkit
+   * Multi-process simulation
+   * Interactive GUI for configuration and visualisation of the results
+   * Custom scoring infrastructure
+   * Flexible options for generation of primary particles
+   * Direct Interface from energy deposition to optical photon generation
+ * Custom optical tracer based on CERN ROOT 3D navigation
+   * Fresnel-based tracing combined with
+   * Custom rules for optical interfaces
+   * Possibility to add "functional objects" in photon tracing, allowing to easlily connect Monte Carlo tracing and formula-driven transport (e.g. thin lense, optical fiber)
+   * Flexible scoring and history recording
+ * Detector configuration, simulations and processing of results (integrated CERN ROOT) are possible  to conduct either in GUI or using scripts
+   * Python interface
+   * JavaScript interface
+   * 
+# Status of the development
+
+* Particle simulation part is ready  
+* Optical simulation part is in late beta
 * GUI is mostly ready
-* Currently the effort is on refactoring the scripting methods and the help system
+* Scripting system is ready, slight tweaking is ongoing
+* Computer farm support is in early alpha
+* Infrastructure for help system for scripting method is ready, help text is in the process of filling
+* Warning: ANTS3 documentation is not ready!
 
 ---
 
