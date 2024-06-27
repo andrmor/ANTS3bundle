@@ -161,6 +161,11 @@ MainWindow::MainWindow() :
     ScriptHub->finalizeInit();
 
     if (!bShown) GeoWin->hide(); // has to be last, if before updateAllGuiFromConfig() and window is hidden --> dark on open
+
+    int size = ui->pbFunctionalModels->size().height();
+    ui->lSpaceHolder1->setMinimumHeight(size);
+    ui->lSpaceHolder2->setMinimumHeight(size);
+    ui->lSpaceHolder3->setMinimumHeight(size);
 }
 
 MainWindow::~MainWindow()
