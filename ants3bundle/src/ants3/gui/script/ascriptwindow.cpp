@@ -66,6 +66,12 @@ AScriptWindow::AScriptWindow(EScriptLanguage lang, QWidget * parent) :
     }
 #endif
 
+    lHelp = new QLabel(this);
+    lHelp->setWindowFlag(Qt::ToolTip);
+    lHelp->setContentsMargins(3,3,3,3);
+    lHelp->setFrameShape(QFrame::Box);
+    lHelp->setStyleSheet("background: rgb(237, 230, 197); color: black");
+
     ui->pbStop->setVisible(false);
     ui->prbProgress->setValue(0);
     ui->prbProgress->setVisible(false);
@@ -509,7 +515,7 @@ void AScriptWindow::clearOutput()
 #include "acore_si.h"
 void AScriptWindow::on_pbRunScript_clicked()
 {
-    getTab()->TextEdit->hideHelpLabel();
+    lHelp->hide();
 
     // save all tabs -> GlobSet
     WriteToJson();
@@ -1288,6 +1294,7 @@ void AScriptWindow::onCurrentTabChanged(int tab)
     //qDebug() << "Current changed for visible!" << tab;
     updateFileStatusIndication();
     applyTextFindState();
+    lHelp->hide();
 }
 
 QIcon makeIcon(int h)
@@ -1372,12 +1379,12 @@ void AScriptWindow::updateTab(ATabRecord * tab)
     tab->updateHighlight();
     tab->TextEdit->ListOfMethods = &ListOfMethods;
     tab->TextEdit->DeprecatedOrRemovedMethods = &DeprecatedOrRemovedMethods;
-    tab->TextEdit->hideHelpLabel();
+    lHelp->hide();
 }
 
 ATabRecord & AScriptWindow::addNewTab(int iBook)
 {
-    ATabRecord * tab = new ATabRecord(Methods, ScriptLanguage);
+    ATabRecord * tab = new ATabRecord(Methods, ScriptLanguage, lHelp);
     tab->TabName = createNewTabName(iBook);
 
     formatTab(tab);
@@ -2243,6 +2250,7 @@ void AScriptWindow::twBooks_currentChanged(int index)
     if (ScriptBooks[index].Tabs.empty()) addNewTab();
 
     updateFileStatusIndication();
+    lHelp->hide();
 }
 
 void AScriptWindow::onBookTabMoved(int from, int to)
@@ -2250,6 +2258,7 @@ void AScriptWindow::onBookTabMoved(int from, int to)
     //qDebug() << "Book from->to:"<<from<<to;
     std::swap(ScriptBooks[from], ScriptBooks[to]);
     iMarkedTab = -1;
+    lHelp->hide();
 }
 
 void AScriptWindow::on_actionAdd_new_book_triggered()

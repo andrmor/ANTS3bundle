@@ -20,9 +20,9 @@
 #include <QClipboard>
 #include <QRegularExpression>
 
-ATextEdit::ATextEdit(EScriptLanguage lang, QWidget * parent) :
+ATextEdit::ATextEdit(EScriptLanguage lang, QLabel * labelHelpTooltip, QWidget * parent) :
     QPlainTextEdit(parent),
-    ScriptLanguage(lang), TabInSpaces(A3Global::getInstance().TabInSpaces)
+    ScriptLanguage(lang), lHelp(labelHelpTooltip), TabInSpaces(A3Global::getInstance().TabInSpaces)
 {
     LeftField = new ALeftField(*this);
     connect(this, &ATextEdit::blockCountChanged, this, &ATextEdit::updateLineNumberAreaWidth);
@@ -32,13 +32,6 @@ ATextEdit::ATextEdit(EScriptLanguage lang, QWidget * parent) :
     connect(this, &ATextEdit::cursorPositionChanged, this, &ATextEdit::onCursorPositionChanged);
 
     setMouseTracking(true);
-
-    lHelp = new QLabel(this);
-    lHelp->setWindowFlag(Qt::ToolTip);
-    lHelp->setContentsMargins(3,3,3,3);
-    lHelp->setFrameShape(QFrame::Box);
-    lHelp->setStyleSheet("background: rgb(237, 230, 197); color: black");
-    //lHelp->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
 }
 
 void ATextEdit::setCompleter(QCompleter *completer)
@@ -93,11 +86,6 @@ void ATextEdit::showMethodHelpForCursor()
 bool ATextEdit::saveTextToFile(const QString & fileName) const
 {
      return ftools::saveTextToFile(document()->toPlainText(), fileName);
-}
-
-void ATextEdit::hideHelpLabel()
-{
-    lHelp->hide();
 }
 
 void ATextEdit::keyPressEvent(QKeyEvent * e)
@@ -165,7 +153,7 @@ void ATextEdit::keyPressEvent(QKeyEvent * e)
     case Qt::Key_Escape :
       {
         //QToolTip::hideText();
-        lHelp->hide();
+        if (lHelp) lHelp->hide();
         break;
       }
     case Qt::Key_F1 :
@@ -643,7 +631,7 @@ void ATextEdit::focusInEvent(QFocusEvent *e)
 
 void ATextEdit::wheelEvent(QWheelEvent *e)
 {
-    lHelp->hide();
+    if (lHelp) lHelp->hide();
 
     if (e->modifiers().testFlag(Qt::ControlModifier))
     {
@@ -737,7 +725,7 @@ void ATextEdit::mouseDoubleClickEvent(QMouseEvent* /*e*/)
 void ATextEdit::focusOutEvent(QFocusEvent *e)
 {
     emit editingFinished();
-    lHelp->hide();
+    if (lHelp) lHelp->hide();
     QPlainTextEdit::focusOutEvent(e);
 }
 
@@ -1002,7 +990,7 @@ bool ATextEdit::tryShowFunctionTooltip(const QTextCursor & cursor)
         MethodTooltipVisible = false;
         SelectedMethodInTooltip = 0;
         //QToolTip::hideText();
-        lHelp->hide();
+        if (lHelp) lHelp->hide();
         return false;
     }
 
@@ -1107,10 +1095,13 @@ bool ATextEdit::tryShowFunctionTooltip(const QTextCursor & cursor)
     else
         yPosition -= 2 * fontHeight;
 
-    lHelp->move(mapToGlobal( QPoint( int(0.01*cursorRect(cursor).topRight().x())*100, yPosition)));
-    lHelp->setText(tooltipText);
-    lHelp->showNormal();
-    lHelp->adjustSize();
+    if (lHelp)
+    {
+        lHelp->move(mapToGlobal( QPoint( int(0.01*cursorRect(cursor).topRight().x())*100, yPosition)));
+        lHelp->setText(tooltipText);
+        lHelp->showNormal();
+        lHelp->adjustSize();
+    }
 
     return true;
 }
@@ -1138,14 +1129,14 @@ bool ATextEdit::event(QEvent *event)
 
         return tryShowFunctionTooltip(cursor);
     }
-    if (event->type() == QEvent::FocusIn)
+    if (event->type() == QEvent::FocusIn && lHelp)
     {
         QTimer::singleShot(0, this, [=](){lHelp->hide();});
         //lHelp->hide();
     }
     if (event->type() == QEvent::FocusOut)
     {
-        lHelp->hide();
+        if (lHelp) lHelp->hide();
     }
     //qDebug() << event->type();
     return QPlainTextEdit::event(event);
@@ -1153,7 +1144,8 @@ bool ATextEdit::event(QEvent *event)
 
 void ATextEdit::leaveEvent(QEvent *)
 {
-    if (!rect().contains(mapFromGlobal(QCursor::pos()))) lHelp->hide();
+    if (!rect().contains(mapFromGlobal(QCursor::pos())))
+        if (lHelp) lHelp->hide();
 }
 
 void ATextEdit::mouseReleaseEvent(QMouseEvent *e)

@@ -27,6 +27,7 @@ class QTabWidget;
 class A3Global;
 class AVirtualScriptManager;
 class AScriptExampleExplorer;
+class QLabel;
 
 namespace Ui {
 class AScriptWindow;
@@ -56,6 +57,8 @@ public:
 
 private:
     EScriptLanguage     ScriptLanguage = EScriptLanguage::JavaScript;
+
+    QLabel            * lHelp = nullptr;
 
     AScriptHub        & ScriptHub;
     A3Global          & GlobSet;

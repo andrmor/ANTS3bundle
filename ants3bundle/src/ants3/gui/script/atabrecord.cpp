@@ -10,10 +10,10 @@
 #include <QAction>
 #include <QFileInfo>
 
-ATabRecord::ATabRecord(const QStringList & functions, EScriptLanguage language) :
+ATabRecord::ATabRecord(const QStringList & functions, EScriptLanguage language, QLabel * labelHelpTooltip) :
     Functions(functions)
 {
-    TextEdit = new ATextEdit(language);
+    TextEdit = new ATextEdit(language, labelHelpTooltip);
     TextEdit->setLineWrapMode(QPlainTextEdit::NoWrap);
 
     Completer = new QCompleter(this);
