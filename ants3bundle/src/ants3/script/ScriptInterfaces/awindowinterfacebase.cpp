@@ -6,15 +6,19 @@
 AWindowInterfaceBase::AWindowInterfaceBase(AGuiWindow * window) :
     BaseWindow(window)
 {
-    Help["getGeometry"] = "Returns array of X Y Width Height isMaximized";
+    Help["showWindow"] = "Show window. If 'activateFlag' is true, also bring the window to the front and make it active";
+    Help["showWindowMaximized"] = "Show window maximized. If 'activateFlag' is true, also bring the window to the front and make it active";
+    Help["hide"] = "Hide the window";
+    Help["getGeometry"] = "Return array with the window's position and size: [X-position, Y-position, Width, Height, isMaximizedFlag]";
+    Help["setGeometry"] = "Configure position and size of the window. The argument is an array of [X-position, Y-position, Width, Height, isMaximizedFlag]";
 }
 
-void AWindowInterfaceBase::showWindow(bool activate)
+void AWindowInterfaceBase::showWindow(bool activateFlag)
 {
-    QTimer::singleShot(0, BaseWindow, [this, activate]()
+    QTimer::singleShot(0, BaseWindow, [this, activateFlag]()
     {
         BaseWindow->showNormal();
-        if (activate) BaseWindow->activateWindow();
+        if (activateFlag) BaseWindow->activateWindow();
     } );
 }
 

@@ -19,38 +19,35 @@ public:
     AScriptInterface * cloneBase() const {return new AGraphWin_SI(GraphWindow);}
 
 public slots:
-    void setLog(bool Xaxis, bool Yaxis);
+    void addToBasket(QString Title);
+    void clearBasket();
 
+    void setLog(bool Xaxis, bool Yaxis);
     void setStatPanelVisible(bool flag);
 
     void addLegend(double x1, double y1, double x2, double y2, QString title = "");
     void setLegendBorder(int color, int style, int size);
 
-    void addText(QString text, bool Showframe, int Alignment_0Left1Center2Right);
-    void addTextScreenXY(QString text, bool Showframe, int Alignment_0Left1Center2Right, double x1, double y1, double x2, double y2);
-    void addTextTrueXY(QString text, bool Showframe, int Alignment_0Left1Center2Right, double x1, double y1, double x2, double y2);
+    void addText(QString text, bool showframe, int alignment_0Left1Center2Right);
+    void addTextAtXY(QString text, bool Showframe, int Alignment_0Left1Center2Right, double x1, double y1, double x2, double y2);
+    void addTextAtScreenXY(QString text, bool Showframe, int Alignment_0Left1Center2Right, double x1, double y1, double x2, double y2);
 
     void addLine(double x1, double y1, double x2, double y2, int color, int width, int style);
     void addArrow(double x1, double y1, double x2, double y2, int color, int width, int style);
 
-    void addToBasket(QString Title);
-    void clearBasket();
+    QVariantList getAxisRanges();
+    QVariantList getContent();
 
     void saveImage(QString fileName);
 
-    //void exportTH2AsText(QString fileName); obsolete?
-
     void show3D(QString castorFileName);
 
+    //void exportTH2AsText(QString fileName); obsolete?
     /*
     QVariant GetProjection();
     void ConfigureProjectionTool(double x0, double y0, double dx, double dy, double angle);
     void UseProjectionTool(QString option);
     */
-
-    QVariantList getAxes();
-
-    QVariantList getContent();
 
 signals:
     void requestShow3D(QString fileName, bool keepSettings = false);
