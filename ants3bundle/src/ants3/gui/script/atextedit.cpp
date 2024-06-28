@@ -1131,8 +1131,8 @@ bool ATextEdit::event(QEvent *event)
     }
     if (event->type() == QEvent::FocusIn && lHelp)
     {
-        QTimer::singleShot(0, this, [=](){lHelp->hide();});
-        //lHelp->hide();
+        //QTimer::singleShot(0, this, [=](){lHelp->hide();});
+        lHelp->hide();
     }
     if (event->type() == QEvent::FocusOut)
     {
