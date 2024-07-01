@@ -39,6 +39,7 @@ public slots:
     double sqrt(double val);
     double tan(double val);
     double round(double val);
+
     double random();
     double gauss(double mean, double sigma);
     double poisson(double mean);
