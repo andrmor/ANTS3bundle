@@ -49,6 +49,8 @@ public slots:
 
     QVariantList generateDirectionIsotropic();
 
+    QVariantList interpolateToRegulareArray(QVariantList arrayOfPairs, int numBins, double from, double to);
+
     // NOT multi-thread friendly!
     //QVariantList fit1D(QVariantList array, QString tformula, QVariantList range = QVariantList(), QVariantList startParValues = QVariantList(), bool extendedOutput = false);
     QVariantList fit1D(QVariantList array, QString tformula, QVariantList startParValues = QVariantList(), bool extendedOutput = false);

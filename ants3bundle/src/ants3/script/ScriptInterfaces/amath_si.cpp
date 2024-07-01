@@ -234,6 +234,68 @@ QVariantList AMath_SI::generateDirectionIsotropic()
     return v;
 }
 
+#include "ahistogram.h"
+QVariantList AMath_SI::interpolateToRegulareArray(QVariantList arrayOfPairs, int numBins, double from, double to)
+{
+    QVariantList res;
+    if (numBins < 2)
+    {
+        abort("interpolateToRegulareArray(): minimum numBins is 2");
+        return res;
+    }
+    if (to <= from)
+    {
+        abort("interpolateToRegulareArray(): the value of 'to' should be larger than the value of 'from'");
+        return res;
+    }
+    const size_t arraySize = arrayOfPairs.size();
+    if (arraySize < 1)
+    {
+        abort("interpolateToRegulareArray(): input array cannot be empty");
+        return res;
+    }
+
+    std::vector<std::pair<double,double>> dist;
+    dist.resize(arraySize);
+    for (size_t iBin = 0; iBin < arraySize; iBin++)
+    {
+        const QVariantList el = arrayOfPairs[iBin].toList();
+        if (el.size() != 2)
+        {
+            abort("interpolateToRegulareArray(): input array should contain pairs of doubles");
+            return res;
+        }
+        dist[iBin] = {el[0].toDouble(), el[1].toDouble()};
+    }
+
+    std::sort(dist.begin(), dist.end(), [](const auto & lhs, const auto & rhs){return (lhs.first < rhs.first);});
+    //qDebug() << dist;
+
+    const double step = (to - from) / numBins;
+    size_t positionInDist = 0;
+    for (int iBin = 0; iBin < numBins; iBin++)
+    {
+        const double pos = from + iBin * step;
+        while (dist[positionInDist].first < pos)
+            positionInDist++;
+
+        double val;
+        if (dist[positionInDist].first == pos) val = dist[positionInDist].second; // exact match
+        else
+        {
+            // need to interpolate
+
+            const double interpolationFactor = (pos - dist[positionInDist-1].first) / (dist[positionInDist].first - dist[positionInDist-1].first);
+            val = AHistogram1D::interpolateHere(dist[positionInDist-1].second, dist[positionInDist].second, interpolationFactor);
+        }
+
+        QVariantList thisPair;
+        thisPair << pos + 0.5*step << val;
+        res.push_back(thisPair);
+    }
+    return res;
+}
+
 #include "TFormula.h"
 #include "TF1.h"
 #include "TGraph.h"
