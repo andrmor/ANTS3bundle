@@ -17,6 +17,11 @@ AMath_SI::AMath_SI() :
     Help["maxwell"] = "Returns a random value sampled from maxwell distribution with Sqrt(kT/M) given by the user";
     Help["exponential"] = "Returns a random value sampled from exponential decay with decay time given by the user";
 
+    Help["interpolateToRegulareArray"] = "Converts an arbitrary array (can be unsorted) of double [x,y] pairs to a constant bin_size array. "
+                                         "The input arguments defines the number of bins and the range (lower and upper boundaries) of the output array. "
+                                         "The result is an array of [Xbin, Ybin] pairs, where Xbin is the middle of the bin and Ybin is linear-interpolated value. "
+                                         "The array is sorted (increasing values of Xbin)";
+
     Help["fit1D"] = "Fits the array of [x,y] points using the provided TFormula of Cern ROOT.\n"
                   "Optional startParValues arguments can hold array of initial parameter values.\n"
                   "Returned value depends on the extendedOutput argument (false by default),\n"
