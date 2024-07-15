@@ -15,6 +15,8 @@
 #include <ostream>
 #include <ios>
 
+#include "TObject.h"
+
 AViewer3D::AViewer3D(QWidget *parent) :
     QMainWindow(parent), ui(new Ui::AViewer3D)
 {

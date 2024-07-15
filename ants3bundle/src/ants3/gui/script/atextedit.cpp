@@ -1038,11 +1038,11 @@ bool ATextEdit::tryShowFunctionTooltip(const QTextCursor & cursor)
         //qDebug() << ">>>>>>>>>>" << currentArgument;
         if (currentArgument != -1)
         {
-            size_t iPos = 0;
+            int iPos = 0;
             for (; iPos < tooltipText.size(); iPos++)
                 if (tooltipText[iPos] == '(') break;
             iPos++;
-            size_t start = -1;
+            int start = -1;
             if (currentArgument == 0) start = iPos;
             else
             {
@@ -1058,7 +1058,7 @@ bool ATextEdit::tryShowFunctionTooltip(const QTextCursor & cursor)
                         }
                     }
             }
-            size_t stop  = -1;
+            int stop  = -1;
             for (; iPos < tooltipText.size(); iPos++)
                 if (tooltipText[iPos] == ',' || tooltipText[iPos] == ')')
                 {

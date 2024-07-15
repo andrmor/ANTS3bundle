@@ -6,6 +6,10 @@
 #include "ageometryhub.h"
 #include "guitools.h"
 
+#include <QDebug>
+
+#include "TObject.h"
+
 APhotonTunnelWindow::APhotonTunnelWindow(QWidget * parent) :
     AGuiWindow("PhotFun", parent),
     PhFunHub(APhotonFunctionalHub::getInstance()),
