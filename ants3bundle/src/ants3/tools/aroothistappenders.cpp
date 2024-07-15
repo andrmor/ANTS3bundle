@@ -31,16 +31,23 @@ void appendTH1D(TH1D* & toHist, const TH1D * fromHist)
     toHist->TH1::SetEntries(numEntries + fromHist->GetEntries());
 }
 
-/*
-#include "ahistogram.h"
-void appendTH1DwithStat(TH1D * & toHist, TH1D *fromHist)
+//#include "ahistogram.h"
+#include "ath.h"
+void appendTH1DwithStat(TH1D* & toHist, const TH1D * fromHist)
 {
-    if (!toHist || !fromHist) return;
+    if (!toHist && !fromHist) return;
 
-    double numEntries = toHist->GetEntries();
+    if (!toHist)
+    {
+        toHist = static_cast<TH1D*>(fromHist->Clone());
+        return;
+    }
+
+    const double numEntries = toHist->GetEntries();
     if (numEntries < 1)
     {
-        *toHist = *fromHist;
+        toHist = static_cast<TH1D*>(fromHist->Clone());
+        return;
     }
     else
     {
@@ -57,15 +64,14 @@ void appendTH1DwithStat(TH1D * & toHist, TH1D *fromHist)
             toHist->Fill(fromHist->GetBinCenter(i), fromHist->GetBinContent(i));
 
         toHist->BufferEmpty(1); //otherwise set entries will not have effect for histograms with small number of entries (i.e. when buffer is not full)
-        //toHist->TH1::SetEntries(numEntries + fromHist->GetEntries());
 
         ATH1D * toHistMy = new ATH1D(*toHist);
         toHistMy->setStats(statsTo);
 
         delete toHist; toHist = toHistMy;
+        toHist->TH1::SetEntries(numEntries + fromHist->GetEntries());
     }
 }
-*/
 
 void appendTH2D(TH2D* & toHist, const TH2D * fromHist)
 {

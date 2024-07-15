@@ -39,6 +39,8 @@ public:
 
     void                reorder(const QVector<int> &indexes, int to);
 
+    QString             mergeHistograms(const std::vector<int> & indexes);
+
 private:
     QVector<ABasketItem> Basket;
     //QVector<ADrawObject> NotValidItem; // to return on wrong index

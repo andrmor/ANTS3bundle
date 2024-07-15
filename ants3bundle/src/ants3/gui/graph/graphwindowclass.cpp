@@ -2312,6 +2312,7 @@ void GraphWindowClass::contextMenuForBasketMultipleSelection(const QPoint & pos)
 {
     QMenu Menu;
     QAction * multidrawA = Menu.addAction("Make multidraw");
+    QAction * mergeA = Menu.addAction("Merge histograms");
     QAction * removeAllSelected = Menu.addAction("Remove all selected");
     removeAllSelected->setShortcut(Qt::Key_Delete);
 
@@ -2320,6 +2321,7 @@ void GraphWindowClass::contextMenuForBasketMultipleSelection(const QPoint & pos)
 
     if      (selectedItem == removeAllSelected) removeAllSelectedBasketItems();
     else if (selectedItem == multidrawA)        requestMultidraw();
+    else if (selectedItem == mergeA)            requestMergeHistograms();
 }
 
 void GraphWindowClass::removeAllSelectedBasketItems()
@@ -2373,6 +2375,27 @@ void GraphWindowClass::requestMultidraw()
     MGDesigner->showNormal();
     MGDesigner->activateWindow();
     MGDesigner->requestAutoconfigureAndDraw(indexes);
+}
+
+void GraphWindowClass::requestMergeHistograms()
+{
+    QList<QListWidgetItem*> selection = lwBasket->selectedItems();
+
+    std::vector<int> indexes;
+    for (const QListWidgetItem * const item : qAsConst(selection))
+        indexes.push_back(lwBasket->row(item));
+
+    if (indexes.size() < 2) return;
+
+    QString err = Basket->mergeHistograms(indexes);//std::vector<int> indexes;
+
+    if (!err.isEmpty())
+        guitools::message(err, this);
+    else
+        switchToBasket(Basket->size() - 1);
+    //ActiveBasketItem = -1;
+    //ClearCopyOfActiveBasketId();
+    //UpdateBasketGUI();
 }
 
 void GraphWindowClass::ClearBasket()
