@@ -733,11 +733,7 @@ QString ABasketManager::mergeHistograms(const std::vector<int> & indexes)
         foundHistos++;
     }
 
-    // !!!*** to do if the histo is still collecting buffer
-
     if (foundHistos < 2) return "Select at least two 1D histograms";
-
-    // check completed, all selected items are valid 1D histograms with the same binning
 
     TH1D * hist = nullptr;
     QString name;
@@ -749,7 +745,6 @@ QString ABasketManager::mergeHistograms(const std::vector<int> & indexes)
         const ADrawObject & obj = item.DrawObjects.front();
         const TH1D * h = dynamic_cast<const TH1D*>(obj.Pointer);
 
-        //appendTH1D(hist, h);
         appendTH1DwithStat(hist, h);
         name += item.Name + "+";
     }
@@ -758,6 +753,8 @@ QString ABasketManager::mergeHistograms(const std::vector<int> & indexes)
     QVector<ADrawObject> drawObjects;
     drawObjects << ADrawObject(hist, "hist");
     add(name, drawObjects);
+
+    delete hist;
 
     return "";
 }
