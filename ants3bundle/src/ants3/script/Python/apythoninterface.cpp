@@ -723,11 +723,11 @@ void APythonInterface::handleError()
     PyObject * pvalue;
     PyObject * ptraceback;
     //PyErr_GetExcInfo(&ptype, &pvalue, &ptraceback);
-    PyErr_Fetch(&ptype, &pvalue, &ptraceback);
+    PyErr_Fetch(&ptype, &pvalue, &ptraceback); // !!!*** Deprecated since version 3.12: Use PyErr_GetRaisedException() instead.
 
     if (PyErr_GivenExceptionMatches(pyErr, PyExc_SyntaxError))
     {
-        qDebug() << "...syntax-related error";  //e.g. exception SyntaxError(message, details)
+        //qDebug() << "...syntax-related error";  //e.g. exception SyntaxError(message, details)
 
         PyObject * first = PyTuple_GetItem(pvalue, 0); // borrowed
         //qDebug() << "SyntRel:" << PyUnicode_AsUTF8(PyObject_Str(first));
@@ -740,53 +740,22 @@ void APythonInterface::handleError()
         return;
     }
 
-    // Not (yet) specifically implemented errors types (npo need?)
+    // --------- experimental ------
+    if (ptraceback)
+    {
+        PyTracebackObject *tb_o = (PyTracebackObject *)ptraceback;
+        ErrorLineNumber = tb_o->tb_lineno;
+    }
+    // ---------
+
+    // Not (yet) specifically implemented errors types (no need?)
     PyObject* repr = PyObject_Repr(pvalue);
     PyObject* str = PyUnicode_AsEncodedString(repr, "utf-8", "~E~");
     const char * bytes = PyBytes_AS_STRING(str);
 
     ErrorDescription = QString(bytes);
-    //qDebug() << ">>>>>>>" << ErrorDescription;
+    //qDebug() << ">>>>>>>" << ErrorDescription << ErrorLineNumber;
 
     Py_XDECREF(repr);
     Py_XDECREF(str);
-
-/*
-    {
-        PyObject* repr = PyObject_Repr(ptype);
-        PyObject* str = PyUnicode_AsEncodedString(repr, "utf-8", "~E~");
-        const char *bytes = PyBytes_AS_STRING(str);
-
-        //printf("REPR: %s\n", bytes);
-        qDebug() << ">>>>>>>" << bytes;
-
-        Py_XDECREF(repr);
-        Py_XDECREF(str);
-    }
-    {
-        PyObject* repr = PyObject_Repr(pvalue);
-        PyObject* str = PyUnicode_AsEncodedString(repr, "utf-8", "~E~");
-        const char *bytes = PyBytes_AS_STRING(str);
-
-        //printf("REPR: %s\n", bytes);
-        qDebug() << ">>>>>>>" << bytes;
-
-        Py_XDECREF(repr);
-        Py_XDECREF(str);
-    }
-    {
-        PyObject* repr = PyObject_Repr(ptraceback);
-        PyObject* str = PyUnicode_AsEncodedString(repr, "utf-8", "~E~");
-        const char *bytes = PyBytes_AS_STRING(str);
-
-        //printf("REPR: %s\n", bytes);
-        qDebug() << ">>>>>>>" << bytes;
-
-        Py_XDECREF(repr);
-        Py_XDECREF(str);
-    }
-*/
-    //const char *errMsg = PyUnicode_AsUTF8(PyObject_Str(pvalue));
-    //qDebug() << "\n\n" << errMsg;
-
 }
