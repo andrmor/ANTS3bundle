@@ -109,7 +109,7 @@ MainWindow::MainWindow() :
     connect(ScriptHub,  &AScriptHub::outputText_P,        PythonWin, &AScriptWindow::outputText);
     connect(ScriptHub,  &AScriptHub::outputHtml_P,        PythonWin, &AScriptWindow::outputHtml);
     connect(ScriptHub,  &AScriptHub::outputFromBuffer_P,  PythonWin, &AScriptWindow::outputFromBuffer);
-    connect(ScriptHub,  &AScriptHub::reportProgress_P,    JScriptWin, &AScriptWindow::onProgressChanged);
+    connect(ScriptHub,  &AScriptHub::reportProgress_P,    PythonWin, &AScriptWindow::onProgressChanged);
     connect(ScriptHub,  &AScriptHub::showAbortMessage_P,  PythonWin, &AScriptWindow::outputAbortMessage);
     connect(PythonWin,  &AScriptWindow::requestUpdateGui, this,      &MainWindow::updateAllGuiFromConfig);
     connect(GeoTreeWin, &AGeoTreeWin::requestAddPythonScript,   PythonWin, &AScriptWindow::onRequestAddScript);

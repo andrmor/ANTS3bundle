@@ -28,6 +28,7 @@ public:
     static void              abort(const QString & message, EScriptLanguage lang);
     static bool              isAborted(EScriptLanguage lang);
 
+
     AJScriptManager        & getJScriptManager() {return *JavaScriptM;}
 #ifdef ANTS3_PYTHON
     APythonScriptManager   & getPythonManager()  {return *PythonM;}
@@ -43,6 +44,7 @@ public:
     void outputFromBuffer(const std::vector<std::pair<bool,QString>> & buffer, EScriptLanguage lang);
     void clearOutput(EScriptLanguage lang);
 
+    void processEvents(EScriptLanguage lang);
     void reportProgress(int percents, EScriptLanguage lang);
 
     QString getPythonVersion();

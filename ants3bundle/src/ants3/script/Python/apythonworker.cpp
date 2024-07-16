@@ -138,6 +138,11 @@ bool APythonWorker::callFunctionNoArguments(const QString &name)
     return false;
 }
 
+void APythonWorker::checkSignals()
+{
+    PyErr_CheckSignals();
+}
+
 void APythonWorker::initialize()
 {
     PyInterface = new APythonInterface();

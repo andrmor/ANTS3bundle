@@ -1159,6 +1159,7 @@ void AScriptWindow::onDefaulFontSizeChanged(int size)
 
 void AScriptWindow::onProgressChanged(int percent)
 {
+    qDebug() << percent;
     ui->prbProgress->setValue(percent);
     ui->prbProgress->setVisible(true);
     qApp->processEvents();

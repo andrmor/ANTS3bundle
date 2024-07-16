@@ -1256,7 +1256,7 @@ QString ACore_SI::toStr(QVariant var)
 
 void ACore_SI::processEvents()
 {
-    qApp->processEvents();
+    AScriptHub::getInstance().processEvents(Lang);
 }
 
 void ACore_SI::requestGuiUpdate()

@@ -29,6 +29,8 @@ public:
     bool     isCallable(const QString & name) const;
     bool     callFunctionNoArguments(const QString & name);
 
+    void     checkSignals();
+
 public slots:
     void initialize();
     void onRegisterInterface(AScriptInterface * interface, QString name);
