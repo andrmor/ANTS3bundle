@@ -144,6 +144,7 @@ void AScriptHub::reportProgress(int percents, EScriptLanguage lang)
 {
     if (lang == EScriptLanguage::JavaScript) emit reportProgress_JS(percents);
     else                                     emit reportProgress_P(percents);
+    processEvents(lang);
 }
 
 QString AScriptHub::getPythonVersion()

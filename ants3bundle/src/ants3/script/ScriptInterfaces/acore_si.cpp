@@ -17,7 +17,7 @@
 #include <QFileInfo>
 #include <QFile>
 #include <QDebug>
-#include <QtWidgets/QApplication>
+//#include <QtWidgets/QApplication>
 #include <QDir>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -310,7 +310,8 @@ void ACore_SI::sleep(int ms)
     do
     {
         QThread::usleep(100);
-        qApp->processEvents();
+        //qApp->processEvents();
+        SH.processEvents(Lang);
         if (!SM->isRunning()) break;
     }
     while (t.elapsed() < ms);
@@ -1267,7 +1268,6 @@ void ACore_SI::requestGuiUpdate()
 void ACore_SI::reportProgress(int percents)
 {
     AScriptHub::getInstance().reportProgress(percents, Lang);
-    qApp->processEvents();
 }
 
 void ACore_SI::createFile(QString fileName)
