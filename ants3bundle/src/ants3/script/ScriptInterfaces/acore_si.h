@@ -32,9 +32,9 @@ public slots:
     //QString testComposition(QString comp);
     //int fun(int i, int j, int k);
     //int fun(int i);
-    void fun0();
-    void fun1(int i);
-    void fun2(int i, double d);
+    //void fun0();
+    //void fun1(int i);
+    //void fun2(int i, double d);
 
     void         abort(QString message);
 
