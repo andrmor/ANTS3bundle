@@ -148,6 +148,21 @@ bool ACore_SI::beforeRun()
     return true;
 }
 
+void ACore_SI::fun0()
+{
+    qDebug() << "noooooo argsssss";
+}
+
+void ACore_SI::fun1(int i)
+{
+    qDebug() << "oooooonnnneeee"  << i;
+}
+
+void ACore_SI::fun2(int i, double d)
+{
+    qDebug() << "ttttwwwwooooo"  << i << d;
+}
+
 /*
 ACore_SI::ACore_SI(const ACore_SI &other) :
     AScriptInterface(other)
