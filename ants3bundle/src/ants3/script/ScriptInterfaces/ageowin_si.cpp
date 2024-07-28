@@ -1,9 +1,11 @@
 #include "ageowin_si.h"
 #include "ageometrywindow.h"
+#include "ascripthub.h"
 #include "ageomarkerclass.h"
 #include "anoderecord.h"
 
 #include <QTimer>
+#include <QThread>
 
 #include "TGeoManager.h"
 #include "TVirtualGeoTrack.h"
@@ -14,9 +16,53 @@ AGeoWin_SI::AGeoWin_SI(AGeometryWindow * geoWin) :
 {
     Description = "Access to the Geometry window of GUI";
 
-    Help["saveImage"] = "Save image currently shown on the geometry window to an image file.\nTip: use .png extension";
+    Help["redraw"] = "Redraw detector geometry";
+
+    //Help["saveImage"] = "Save image currently shown on the geometry window to an image file.\nTip: use .png extension";
+
+    connect(this, &AGeoWin_SI::requestRedraw,     geoWin, &AGeometryWindow::onRequestRedrawFromScript,     Qt::QueuedConnection);
+    connect(this, &AGeoWin_SI::requestShowTracks, geoWin, &AGeometryWindow::onRequestShowTracksFromScript, Qt::QueuedConnection);
+
+    connect(geoWin, &AGeometryWindow::taskRequestedFromScriptCompleted, this, &AGeoWin_SI::onWindowReportTaskCompleted, Qt::DirectConnection);
 }
 
+void AGeoWin_SI::updateGeoWin(AGeometryWindow * newGeoWin)
+{
+    GeometryWindow = newGeoWin;
+    BaseWindow = newGeoWin;
+}
+
+void AGeoWin_SI::onWindowReportTaskCompleted()
+{
+    WaitingForTaskCompleted = false;
+}
+
+void AGeoWin_SI::redraw()
+{
+    WaitingForTaskCompleted = true;
+    emit requestRedraw();
+
+    while (WaitingForTaskCompleted)
+    {
+        AScriptHub::getInstance().processEvents(Lang);
+        QThread::usleep(100);
+    }
+}
+
+void AGeoWin_SI::showTracks()
+{
+    WaitingForTaskCompleted = true;
+    emit requestShowTracks();
+
+    while (WaitingForTaskCompleted)
+    {
+        AScriptHub::getInstance().processEvents(Lang);
+        QThread::usleep(100);
+    }
+    //GeometryWindow->ShowTracks();
+}
+
+/*
 void AGeoWin_SI::setZoom(int level)
 {
     QTimer::singleShot(0, GeometryWindow, [this, level]()
@@ -48,50 +94,24 @@ void AGeoWin_SI::BlockUpdates(bool on)
     GeometryWindow->bDisableDraw = on;
 }
 
-void AGeoWin_SI::showGeometry()
-{
-    QTimer::singleShot(0, GeometryWindow, [this]()
-    {
-        GeometryWindow->readRasterWindowProperties();
-        GeometryWindow->ShowGeometry(false);
-    } );
-}
+// int AGeoWin_SI::AddTrack()
+// {
+//     SimManager->Tracks.push_back(new TrackHolderClass());
+//     return SimManager->Tracks.size() - 1;
+// }
 
-/*
-void AGeoWin_SI::showPMnumbers()
-{
-    QTimer::singleShot(0, GeometryWindow, [this]()
-    {
-        GeometryWindow->showPMnumbers();
-    } );
-}
-*/
+// void AGeoWin_SI::AddNodeToTrack(int trk, float x, float y, float z)  // change to doubles!!!
+// {
+//     TrackHolderClass* th = SimManager->Tracks.at(trk);
+//     th->Nodes.push_back(TrackNodeStruct(x, y, z));
+//     th->Width = 1;
+//     th->Color = kBlue;
+// }
 
-void AGeoWin_SI::showTracks()
-{
-    GeometryWindow->ShowTracks();
-}
-
-/*
-int AGeoWin_SI::AddTrack()
-{
-    SimManager->Tracks.push_back(new TrackHolderClass());
-    return SimManager->Tracks.size() - 1;
-}
-
-void AGeoWin_SI::AddNodeToTrack(int trk, float x, float y, float z)  // change to doubles!!!
-{
-    TrackHolderClass* th = SimManager->Tracks.at(trk);
-    th->Nodes.push_back(TrackNodeStruct(x, y, z));
-    th->Width = 1;
-    th->Color = kBlue;
-}
-
-void AGeoWin_SI::DeleteAllTracks()
-{
-    SimManager->Tracks.erase(SimManager->Tracks.begin(), SimManager->Tracks.end());
-}
-*/
+// void AGeoWin_SI::DeleteAllTracks()
+// {
+//     SimManager->Tracks.erase(SimManager->Tracks.begin(), SimManager->Tracks.end());
+// }
 
 void AGeoWin_SI::addMarkers(QVariantList XYZs, int color, int style, double size)
 {
@@ -116,12 +136,6 @@ void AGeoWin_SI::addMarkers(QVariantList XYZs, int color, int style, double size
     GeometryWindow->GeoMarkers.push_back(M);
 }
 
-void AGeoWin_SI::updateGeoWin(AGeometryWindow * newGeoWin)
-{
-    GeometryWindow = newGeoWin;
-    BaseWindow = newGeoWin;
-}
-
 void AGeoWin_SI::clearTracks()
 {
     GeometryWindow->on_pbClearTracks_clicked();
@@ -136,3 +150,4 @@ void AGeoWin_SI::saveImage(QString fileName)
 {
     GeometryWindow->SaveAs(fileName);
 }
+*/

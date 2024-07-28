@@ -35,7 +35,7 @@ public slots:
     QVariant    getKeyValue(QString Key);
 
     void        updateConfig();
-    void        updateGui();
+    //void        updateGui(); // use geowin.redraw() to update the geoemtry draw
 
 private:
     AConfig & Config;

@@ -212,6 +212,16 @@ void AGeometryWindow::ShowGeometry(bool activateWindow, bool same, bool colorUpd
     else showGeometryRasterWindow(same);
 }
 
+#include <QThread>
+void AGeometryWindow::onRequestRedrawFromScript()
+{
+    qDebug() << "<<<>>>---- Thread id in win:" << QThread::currentThreadId();
+    readRasterWindowProperties();
+    ShowGeometry(false);
+    qApp->processEvents();
+    emit taskRequestedFromScriptCompleted();
+}
+
 void AGeometryWindow::showGeometryRasterWindow(bool same)
 {
     SetAsActiveRootWindow();
@@ -752,6 +762,13 @@ void AGeometryWindow::ShowTracks()
         UpdateRootCanvas();
     }
     else ShowGeometry(false);
+}
+
+void AGeometryWindow::onRequestShowTracksFromScript()
+{
+    ShowTracks();
+    qApp->processEvents();
+    emit taskRequestedFromScriptCompleted();
 }
 
 void AGeometryWindow::ShowPoint(double * r, bool keepTracks)

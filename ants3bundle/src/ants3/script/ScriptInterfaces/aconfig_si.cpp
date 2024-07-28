@@ -258,12 +258,14 @@ void AConfig_SI::updateConfig()
     if (!err.isEmpty()) abort("Error in configuration JSON:\n" + err);
 }
 
+/*
 void AConfig_SI::updateGui()
 {
     if (!bGuiThread) return;
 
     emit Config.configLoaded();
 }
+*/
 
 bool AConfig_SI::keyToNameAndIndex(QString Key, QString & Name, std::vector<int> & Indexes)
 {

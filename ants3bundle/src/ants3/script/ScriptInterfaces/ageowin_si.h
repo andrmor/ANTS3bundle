@@ -17,16 +17,19 @@ public:
 
     AScriptInterface * cloneBase() const {return new AGeoWin_SI(GeometryWindow);}
 
+    void updateGeoWin(AGeometryWindow * newGeoWin);
+
 public slots:
+    void redraw();
+    void showTracks(); // !!!*** update to new sync system TODO
+
+    /*
     void BlockUpdates(bool on);
 
     void setZoom(int level);
     void setParallel(bool on);
     void updateView(); // !!!*** case of JSROOT
 
-    void showGeometry();
-//    void showPMnumbers(); // need?
-    void showTracks();
 
     void clearTracks();
     void clearMarkers();
@@ -38,11 +41,20 @@ public slots:
 //    void DeleteAllTracks();
 
     void addMarkers(QVariantList XYZs, int color, int style, double size);
+*/
 
-    void updateGeoWin(AGeometryWindow * newGeoWin);
+private slots:
+    void onWindowReportTaskCompleted();
 
 private:
     AGeometryWindow * GeometryWindow = nullptr;
+    bool WaitingForTaskCompleted = false;
+
+
+signals:
+    void requestRedraw();
+    void requestShowTracks();
+
 };
 
 #endif // AGEOWIN_SI_H
