@@ -23,21 +23,14 @@ AParticleSim_SI::AParticleSim_SI() :
     Help["getCalorimeterBinning"] = "Returns array of 3 arrays, [Bins, Origin, Step], each one is for x,y and z axis";
 }
 
-void AParticleSim_SI::simulate(bool updateGui)
+void AParticleSim_SI::simulate()
 {
     AErrorHub::clear();
 
     SimMan.simulate();
 
     QString err = AErrorHub::getQError();
-    if (err.isEmpty())
-    {
-        if (updateGui) SimMan.requestUpdateResultsGUI();
-    }
-    else
-    {
-        abort(err);
-    }
+    if (!err.isEmpty()) abort(err);
 }
 
 #include "aparticlesimsettings.h"

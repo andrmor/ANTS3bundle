@@ -20,7 +20,7 @@ public:
     AScriptInterface * cloneBase() const {return new AParticleSim_SI();}
 
 public slots:
-    void simulate(bool updateGui);
+    void simulate();
 
     void setSeed(double seed);
 
