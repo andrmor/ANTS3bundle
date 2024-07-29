@@ -458,6 +458,7 @@ void MainWindow::updateAllGuiFromConfig()
 
     GeoWin->fRecallWindow = false;
     GeoWin->ShowGeometry(false, false, true);
+    GeoWin->ShowTracks();
 }
 
 void MainWindow::onRequestSaveGuiSettings()
