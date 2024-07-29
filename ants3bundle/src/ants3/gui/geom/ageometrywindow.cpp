@@ -771,6 +771,27 @@ void AGeometryWindow::onRequestShowTracksFromScript()
     emit taskRequestedFromScriptCompleted();
 }
 
+void AGeometryWindow::onRequestClearTracksFromScript()
+{
+    Geometry.GeoManager->ClearTracks();
+    qApp->processEvents();
+    emit taskRequestedFromScriptCompleted();
+}
+
+void AGeometryWindow::onRequestClearMarkersFromScript()
+{
+    clearGeoMarkers();
+    qApp->processEvents();
+    emit taskRequestedFromScriptCompleted();
+}
+
+void AGeometryWindow::onRequestSaveImageFromScript(QString fileName)
+{
+    SaveAs(fileName);
+    qApp->processEvents();
+    emit taskRequestedFromScriptCompleted();
+}
+
 void AGeometryWindow::ShowPoint(double * r, bool keepTracks)
 {
     clearGeoMarkers();

@@ -23,18 +23,15 @@ public slots:
     void redraw();
     void showTracks(); // !!!*** update to new sync system TODO
 
-    /*
-    void BlockUpdates(bool on);
-
-    void setZoom(int level);
-    void setParallel(bool on);
-    void updateView(); // !!!*** case of JSROOT
-
-
     void clearTracks();
     void clearMarkers();
 
     void saveImage(QString fileName);
+
+    /*
+    void setZoom(int level);
+    void setParallel(bool on);
+    void updateView(); // !!!*** case of JSROOT
 
 //    int  AddTrack();
 //    void AddNodeToTrack(int trk, float x, float y, float z);  // change to doubles
@@ -54,6 +51,9 @@ private:
 signals:
     void requestRedraw();
     void requestShowTracks();
+    void requestClearTracks();
+    void requestClearMarkers();
+    void requestSaveImage(QString fileName);
 
 };
 

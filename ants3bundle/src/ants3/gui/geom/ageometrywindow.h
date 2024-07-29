@@ -71,6 +71,9 @@ public slots:
     void UpdateRootCanvas();
     void ShowTracks();
     void onRequestShowTracksFromScript();
+    void onRequestClearTracksFromScript();
+    void onRequestClearMarkersFromScript();
+    void onRequestSaveImageFromScript(QString fileName);
     void ShowPoint(double * r, bool keepTracks = false);
     void addGenerationMarker(const double * Pos);
     void FocusVolume(QString name);

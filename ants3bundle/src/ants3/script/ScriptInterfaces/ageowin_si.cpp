@@ -20,8 +20,11 @@ AGeoWin_SI::AGeoWin_SI(AGeometryWindow * geoWin) :
 
     //Help["saveImage"] = "Save image currently shown on the geometry window to an image file.\nTip: use .png extension";
 
-    connect(this, &AGeoWin_SI::requestRedraw,     geoWin, &AGeometryWindow::onRequestRedrawFromScript,     Qt::QueuedConnection);
-    connect(this, &AGeoWin_SI::requestShowTracks, geoWin, &AGeometryWindow::onRequestShowTracksFromScript, Qt::QueuedConnection);
+    connect(this, &AGeoWin_SI::requestRedraw,       geoWin, &AGeometryWindow::onRequestRedrawFromScript,       Qt::QueuedConnection);
+    connect(this, &AGeoWin_SI::requestShowTracks,   geoWin, &AGeometryWindow::onRequestShowTracksFromScript,   Qt::QueuedConnection);
+    connect(this, &AGeoWin_SI::requestClearTracks,  geoWin, &AGeometryWindow::onRequestClearTracksFromScript,  Qt::QueuedConnection);
+    connect(this, &AGeoWin_SI::requestClearMarkers, geoWin, &AGeometryWindow::onRequestClearMarkersFromScript, Qt::QueuedConnection);
+    connect(this, &AGeoWin_SI::requestSaveImage,    geoWin, &AGeometryWindow::onRequestSaveImageFromScript,    Qt::QueuedConnection);
 
     connect(geoWin, &AGeometryWindow::taskRequestedFromScriptCompleted, this, &AGeoWin_SI::onWindowReportTaskCompleted, Qt::DirectConnection);
 }
@@ -59,7 +62,42 @@ void AGeoWin_SI::showTracks()
         AScriptHub::getInstance().processEvents(Lang);
         QThread::usleep(100);
     }
-    //GeometryWindow->ShowTracks();
+}
+
+void AGeoWin_SI::clearTracks()
+{
+    WaitingForTaskCompleted = true;
+    emit requestClearTracks();
+
+    while (WaitingForTaskCompleted)
+    {
+        AScriptHub::getInstance().processEvents(Lang);
+        QThread::usleep(100);
+    }
+}
+
+void AGeoWin_SI::clearMarkers()
+{
+    WaitingForTaskCompleted = true;
+    emit requestClearMarkers();
+
+    while (WaitingForTaskCompleted)
+    {
+        AScriptHub::getInstance().processEvents(Lang);
+        QThread::usleep(100);
+    }
+}
+
+void AGeoWin_SI::saveImage(QString fileName)
+{
+    WaitingForTaskCompleted = true;
+    emit requestSaveImage(fileName);
+
+    while (WaitingForTaskCompleted)
+    {
+        AScriptHub::getInstance().processEvents(Lang);
+        QThread::usleep(100);
+    }
 }
 
 /*
@@ -87,11 +125,6 @@ void AGeoWin_SI::updateView()
 void AGeoWin_SI::setParallel(bool on)
 {
     GeometryWindow->ModePerspective = !on;
-}
-
-void AGeoWin_SI::BlockUpdates(bool on)
-{
-    GeometryWindow->bDisableDraw = on;
 }
 
 // int AGeoWin_SI::AddTrack()
@@ -134,20 +167,5 @@ void AGeoWin_SI::addMarkers(QVariantList XYZs, int color, int style, double size
         M->SetNextPoint(el[0].toDouble(), el[1].toDouble(), el[2].toDouble());
     }
     GeometryWindow->GeoMarkers.push_back(M);
-}
-
-void AGeoWin_SI::clearTracks()
-{
-    GeometryWindow->on_pbClearTracks_clicked();
-}
-
-void AGeoWin_SI::clearMarkers()
-{
-    GeometryWindow->clearGeoMarkers();
-}
-
-void AGeoWin_SI::saveImage(QString fileName)
-{
-    GeometryWindow->SaveAs(fileName);
 }
 */
