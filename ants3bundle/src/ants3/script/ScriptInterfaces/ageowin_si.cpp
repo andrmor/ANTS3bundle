@@ -14,11 +14,20 @@
 AGeoWin_SI::AGeoWin_SI(AGeometryWindow * geoWin) :
     AWindowInterfaceBase(geoWin), GeometryWindow(geoWin)
 {
-    Description = "Access to the Geometry window of GUI";
+    Description = "Access to the window showing detector's geometry";
 
     Help["redraw"] = "Redraw detector geometry";
+    Help["showTracksAndMarkers"] = "Shows currently configured tracks and markers";
+    Help["clearTracks"] = "Clear all tracks";
+    Help["clearMarkers"] = "Clear all markers";
+    Help["saveImage"] = "Save image currently shown on the geometry window to an image file.\nTip: use .png file suffix";
+    Help["addMarkers"] = "Add markers (points) to the geometry.\n"
+                         "XYZs argument is an array of arrays with marker coordinats [x,y,z],\n"
+                         "color, size and style are the properties of the TMarker class of CERN ROOT (google TMarker)";
+    Help["addTrack"] = "Add new track to the geometry.\n"
+                       "XYZs argument is an array of arrays with the track node coordinats [x,y,z],\n"
+                       "color, size and width are the properties of the TAttLine class of CERN ROOT (google TAttLine)";;
 
-    //Help["saveImage"] = "Save image currently shown on the geometry window to an image file.\nTip: use .png extension";
 
     connect(this, &AGeoWin_SI::requestRedraw,       geoWin, &AGeometryWindow::onRequestRedrawFromScript,       Qt::QueuedConnection);
     connect(this, &AGeoWin_SI::requestShowTracks,   geoWin, &AGeometryWindow::onRequestShowTracksFromScript,   Qt::QueuedConnection);
