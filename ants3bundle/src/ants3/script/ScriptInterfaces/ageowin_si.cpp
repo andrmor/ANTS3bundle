@@ -24,7 +24,8 @@ AGeoWin_SI::AGeoWin_SI(AGeometryWindow * geoWin) :
     connect(this, &AGeoWin_SI::requestShowTracks,   geoWin, &AGeometryWindow::onRequestShowTracksFromScript,   Qt::QueuedConnection);
     connect(this, &AGeoWin_SI::requestClearTracks,  geoWin, &AGeometryWindow::onRequestClearTracksFromScript,  Qt::QueuedConnection);
     connect(this, &AGeoWin_SI::requestClearMarkers, geoWin, &AGeometryWindow::onRequestClearMarkersFromScript, Qt::QueuedConnection);
-    connect(this, &AGeoWin_SI::requestSaveImage,    geoWin, &AGeometryWindow::onRequestSaveImageFromScript,    Qt::QueuedConnection);
+    connect(this, &AGeoWin_SI::requestAddMarkers,   geoWin, &AGeometryWindow::onRequestAddMarkersFromScript,   Qt::QueuedConnection);
+    connect(this, &AGeoWin_SI::requestAddTrack,     geoWin, &AGeometryWindow::onRequestAddTrackFromScript,     Qt::QueuedConnection);
 
     connect(geoWin, &AGeometryWindow::taskRequestedFromScriptCompleted, this, &AGeoWin_SI::onWindowReportTaskCompleted, Qt::DirectConnection);
 }
@@ -52,7 +53,7 @@ void AGeoWin_SI::redraw()
     }
 }
 
-void AGeoWin_SI::showTracks()
+void AGeoWin_SI::showTracksAndMarkers()
 {
     WaitingForTaskCompleted = true;
     emit requestShowTracks();
@@ -100,6 +101,67 @@ void AGeoWin_SI::saveImage(QString fileName)
     }
 }
 
+void AGeoWin_SI::addMarkers(QVariantList XYZs, int color, int style, double size)
+{
+    if (XYZs.isEmpty())
+    {
+        abort("XYZs should contain non-empty array of coordinates: [[x0,y0,z0], [x1,y1,z1], ... ]");
+        return;
+    }
+
+    AGeoMarkerClass * markers = new AGeoMarkerClass(AGeoMarkerClass::Undefined, style, size, color);
+    for (int i = 0; i < XYZs.size(); i++)
+    {
+        QVariantList el = XYZs[i].toList();
+        if (el.size() < 3)
+        {
+            abort("addMarkers: bad format for coordinates in XYZs");
+            delete markers;
+            return;
+        }
+        markers->SetNextPoint(el[0].toDouble(), el[1].toDouble(), el[2].toDouble());
+    }
+
+    WaitingForTaskCompleted = true;
+    emit requestAddMarkers(markers);
+
+    while (WaitingForTaskCompleted)
+    {
+        AScriptHub::getInstance().processEvents(Lang);
+        QThread::usleep(100);
+    }
+}
+
+void AGeoWin_SI::addTrack(QVariantList XYZs, int color, int style, int width)
+{
+    TGeoTrack * track = new TGeoTrack(1, 22);
+
+    track->SetLineColor(color);
+    track->SetLineStyle(style);
+    track->SetLineWidth(width);
+
+    for (int i = 0; i < XYZs.size(); i++)
+    {
+        QVariantList el = XYZs[i].toList();
+        if (el.size() < 3)
+        {
+            abort("addTrack: bad format for coordinates in XYZs");
+            delete track;
+            return;
+        }
+        track->AddPoint(el[0].toDouble(), el[1].toDouble(), el[2].toDouble(), 0);
+    }
+
+    WaitingForTaskCompleted = true;
+    emit requestAddTrack(track);
+
+    while (WaitingForTaskCompleted)
+    {
+        AScriptHub::getInstance().processEvents(Lang);
+        QThread::usleep(100);
+    }
+}
+
 /*
 void AGeoWin_SI::setZoom(int level)
 {
@@ -125,47 +187,5 @@ void AGeoWin_SI::updateView()
 void AGeoWin_SI::setParallel(bool on)
 {
     GeometryWindow->ModePerspective = !on;
-}
-
-// int AGeoWin_SI::AddTrack()
-// {
-//     SimManager->Tracks.push_back(new TrackHolderClass());
-//     return SimManager->Tracks.size() - 1;
-// }
-
-// void AGeoWin_SI::AddNodeToTrack(int trk, float x, float y, float z)  // change to doubles!!!
-// {
-//     TrackHolderClass* th = SimManager->Tracks.at(trk);
-//     th->Nodes.push_back(TrackNodeStruct(x, y, z));
-//     th->Width = 1;
-//     th->Color = kBlue;
-// }
-
-// void AGeoWin_SI::DeleteAllTracks()
-// {
-//     SimManager->Tracks.erase(SimManager->Tracks.begin(), SimManager->Tracks.end());
-// }
-
-void AGeoWin_SI::addMarkers(QVariantList XYZs, int color, int style, double size)
-{
-    if (XYZs.isEmpty())
-    {
-        abort("XYZs should contain non-empty array of coordinates: [[x0,y0,z0], [x1,y1,z1], ... ]");
-        return;
-    }
-
-    GeoMarkerClass * M = new GeoMarkerClass(GeoMarkerClass::Undefined, style, size, color);
-    for (int i = 0; i < XYZs.size(); i++)
-    {
-        QVariantList el = XYZs[i].toList();
-        if (el.size() < 3)
-        {
-            abort("Bad format for coordinates in XYZs");
-            delete M;
-            return;
-        }
-        M->SetNextPoint(el[0].toDouble(), el[1].toDouble(), el[2].toDouble());
-    }
-    GeometryWindow->GeoMarkers.push_back(M);
 }
 */

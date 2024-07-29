@@ -305,9 +305,9 @@ void AGeometryWindow::copyGeoMarksToGeoManager()
     {
         for (size_t i = 0; i < GeoMarkers.size(); i++)
         {
-            GeoMarkerClass * gm = GeoMarkers[i];
+            AGeoMarkerClass * gm = GeoMarkers[i];
             //overrides
-            if (gm->Type == GeoMarkerClass::Recon || gm->Type == GeoMarkerClass::Source)
+            if (gm->Type == AGeoMarkerClass::Recon || gm->Type == AGeoMarkerClass::Source)
             {
                 gm->SetMarkerStyle(GeoMarkerStyle);
                 gm->SetMarkerSize(GeoMarkerSize);
@@ -609,9 +609,9 @@ void AGeometryWindow::showGeoMarkers()
     if (Mode == 0)
     {
         SetAsActiveRootWindow();
-        for (GeoMarkerClass * gm : GeoMarkers)
+        for (AGeoMarkerClass * gm : GeoMarkers)
         {
-            if (gm->Type == GeoMarkerClass::Recon || gm->Type == GeoMarkerClass::True) // Source has its own styling
+            if (gm->Type == AGeoMarkerClass::Recon || gm->Type == AGeoMarkerClass::True) // Source has its own styling
             {
                 gm->SetMarkerStyle(GeoMarkerStyle);
                 gm->SetMarkerSize(GeoMarkerSize);
@@ -627,9 +627,9 @@ void AGeometryWindow::showGeoMarkers()
 #include "anoderecord.h"
 void AGeometryWindow::addPhotonNodeGeoMarker(const ANodeRecord & record)
 {
-    if (GeoMarkers.empty() || GeoMarkers.back()->Type != GeoMarkerClass::True)
+    if (GeoMarkers.empty() || GeoMarkers.back()->Type != AGeoMarkerClass::True)
     {
-        GeoMarkerClass * gm = new GeoMarkerClass(GeoMarkerClass::True, 21, 10, kBlue);
+        AGeoMarkerClass * gm = new AGeoMarkerClass(AGeoMarkerClass::True, 21, 10, kBlue);
         GeoMarkers.push_back(gm);
     }
     GeoMarkers.back()->SetNextPoint(record.R[0], record.R[1], record.R[2]);
@@ -637,7 +637,7 @@ void AGeometryWindow::addPhotonNodeGeoMarker(const ANodeRecord & record)
 
 void AGeometryWindow::addGeoMarkers(const std::vector<std::array<double, 3>> & XYZs, int color, int style, double size)
 {
-    GeoMarkerClass * M = new GeoMarkerClass(GeoMarkerClass::Undefined, style, size, color);
+    AGeoMarkerClass * M = new AGeoMarkerClass(AGeoMarkerClass::Undefined, style, size, color);
     for (const auto & pos : XYZs)
         M->SetNextPoint(pos[0], pos[1], pos[2]);
     GeoMarkers.push_back(M);
@@ -716,14 +716,14 @@ void AGeometryWindow::clearGeoMarkers(int All_Rec_True)
         switch (All_Rec_True)
         {
         case 1:
-            if (GeoMarkers[i]->Type == GeoMarkerClass::Recon)
+            if (GeoMarkers[i]->Type == AGeoMarkerClass::Recon)
             {
                 delete GeoMarkers[i];
                 GeoMarkers.erase(GeoMarkers.begin() + i);
             }
             break;
         case 2:
-            if (GeoMarkers[i]->Type == GeoMarkerClass::True)
+            if (GeoMarkers[i]->Type == AGeoMarkerClass::True)
             {
                 delete GeoMarkers[i];
                 GeoMarkers.erase(GeoMarkers.begin() + i);
@@ -792,14 +792,28 @@ void AGeometryWindow::onRequestSaveImageFromScript(QString fileName)
     emit taskRequestedFromScriptCompleted();
 }
 
+void AGeometryWindow::onRequestAddMarkersFromScript(AGeoMarkerClass * markers)
+{
+    GeoMarkers.push_back(markers);
+    qApp->processEvents();
+    emit taskRequestedFromScriptCompleted();
+}
+
+void AGeometryWindow::onRequestAddTrackFromScript(TVirtualGeoTrack * track)
+{
+    Geometry.GeoManager->AddTrack(track);
+    qApp->processEvents();
+    emit taskRequestedFromScriptCompleted();
+}
+
 void AGeometryWindow::ShowPoint(double * r, bool keepTracks)
 {
     clearGeoMarkers();
 
-    GeoMarkerClass * marks = new GeoMarkerClass(GeoMarkerClass::Source, 3, 10, kBlack);
+    AGeoMarkerClass * marks = new AGeoMarkerClass(AGeoMarkerClass::Source, 3, 10, kBlack);
     marks->SetNextPoint(r[0], r[1], r[2]);
     GeoMarkers.push_back(marks);
-    GeoMarkerClass* marks1 = new GeoMarkerClass(GeoMarkerClass::Source, 4, 3, kRed);
+    AGeoMarkerClass* marks1 = new AGeoMarkerClass(AGeoMarkerClass::Source, 4, 3, kRed);
     marks1->SetNextPoint(r[0], r[1], r[2]);
     GeoMarkers.push_back(marks1);
 
@@ -809,11 +823,11 @@ void AGeometryWindow::ShowPoint(double * r, bool keepTracks)
 
 void AGeometryWindow::addGenerationMarker(const double * Pos)
 {
-    GeoMarkerClass * marks = nullptr;
-    if (!GeoMarkers.empty() && GeoMarkers.back()->Type == GeoMarkerClass::Source) marks = GeoMarkers.back();
+    AGeoMarkerClass * marks = nullptr;
+    if (!GeoMarkers.empty() && GeoMarkers.back()->Type == AGeoMarkerClass::Source) marks = GeoMarkers.back();
     else
     {
-        marks = new GeoMarkerClass(GeoMarkerClass::Source, 7, 1, 1);
+        marks = new AGeoMarkerClass(AGeoMarkerClass::Source, 7, 1, 1);
         GeoMarkers.push_back(marks);
     }
 
