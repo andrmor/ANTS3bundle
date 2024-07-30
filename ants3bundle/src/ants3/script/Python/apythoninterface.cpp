@@ -871,43 +871,44 @@ void APythonInterface::handleError()
         return;
     }
 
-    PyObject * ptype;
-    PyObject * pvalue;
-    PyObject * ptraceback;
-    //PyErr_GetExcInfo(&ptype, &pvalue, &ptraceback);
-    PyErr_Fetch(&ptype, &pvalue, &ptraceback); // !!!*** Deprecated since version 3.12: Use PyErr_GetRaisedException() instead.
-
     if (PyErr_GivenExceptionMatches(pyErr, PyExc_SyntaxError))
     {
         //qDebug() << "...syntax-related error";  //e.g. exception SyntaxError(message, details)
 
-        PyObject * first = PyTuple_GetItem(pvalue, 0); // borrowed
-        //qDebug() << "SyntRel:" << PyUnicode_AsUTF8(PyObject_Str(first));
-        ErrorDescription = PyUnicode_AsUTF8(PyObject_Str(first));
+        //  old style, does not work in Python3.12
+        // PyObject * first = PyTuple_GetItem(pvalue, 0); // borrowed
+        // ErrorDescription = PyUnicode_AsUTF8(PyObject_Str(first));
+        // PyObject * second = PyTuple_GetItem(pvalue, 1); // borrowed
+        // ErrorLineNumber = PyLong_AsLong( PyTuple_GetItem(second, 1) );
 
-        PyObject * second = PyTuple_GetItem(pvalue, 1); // borrowed
-        //qDebug() << PyLong_AsLong( PyTuple_GetItem(second, 1) );
-        ErrorLineNumber = PyLong_AsLong( PyTuple_GetItem(second, 1) );
-        //qDebug() << "...Storing info:" << ErrorDescription << ErrorLineNumber;
+        PyObject * exc = PyErr_GetRaisedException();
+        PyObject* linePy = PyObject_GetAttrString(exc,"lineno");
+        if (linePy) ErrorLineNumber = PyLong_AsLong(linePy);
+        PyObject* descPy = PyObject_GetAttrString(exc,"msg");
+        if (descPy) ErrorDescription = PyUnicode_AsUTF8(PyObject_Str(descPy));
+        //ErrorDescription = PyUnicode_AsUTF8(PyObject_Str(exc));
+
         return;
     }
 
-    // --------- experimental ------
+    PyObject * ptype;
+    PyObject * pvalue;
+    PyObject * ptraceback;
+    PyErr_Fetch(&ptype, &pvalue, &ptraceback); // Deprecated since version 3.12: Use PyErr_GetRaisedException() instead.
+    //PyErr_GetExcInfo(&ptype, &pvalue, &ptraceback); // no info in traceback
+
     if (ptraceback)
     {
         PyTracebackObject *tb_o = (PyTracebackObject *)ptraceback;
         ErrorLineNumber = tb_o->tb_lineno;
     }
-    // ---------
 
-    // Not (yet) specifically implemented errors types (no need?)
-    PyObject* repr = PyObject_Repr(pvalue);
-    PyObject* str = PyUnicode_AsEncodedString(repr, "utf-8", "~E~");
+    PyObject * repr = PyObject_Repr(pvalue);
+    PyObject * str = PyUnicode_AsEncodedString(repr, "utf-8", "~E~");
     const char * bytes = PyBytes_AS_STRING(str);
-
     ErrorDescription = QString(bytes);
-    //qDebug() << ">>>>>>>" << ErrorDescription << ErrorLineNumber;
-
     Py_XDECREF(repr);
     Py_XDECREF(str);
+
+    //qDebug() << ">>>>>>>" << ErrorDescription << ErrorLineNumber;
 }
