@@ -872,7 +872,9 @@ void APythonInterface::handleError()
         return;
     }
 
-#if PY_VERSION_HEX < 0x03120000
+    //qDebug() << QString::number(PY_VERSION_HEX, 16);
+
+#if PY_VERSION_HEX < 0x030C0000
     PyObject * ptype;
     PyObject * pvalue;
     PyObject * ptraceback;
@@ -906,14 +908,7 @@ void APythonInterface::handleError()
 #else
     if (PyErr_GivenExceptionMatches(pyErr, PyExc_SyntaxError))
     {
-        //qDebug() << "...syntax-related error";  //e.g. exception SyntaxError(message, details)
-
-        //  old style, does not work in Python3.12
-        // PyObject * first = PyTuple_GetItem(pvalue, 0); // borrowed
-        // ErrorDescription = PyUnicode_AsUTF8(PyObject_Str(first));
-        // PyObject * second = PyTuple_GetItem(pvalue, 1); // borrowed
-        // ErrorLineNumber = PyLong_AsLong( PyTuple_GetItem(second, 1) );
-
+        //qDebug() << "...syntax-related error";
         PyObject * exc = PyErr_GetRaisedException();
         PyObject* linePy = PyObject_GetAttrString(exc,"lineno");
         if (linePy) ErrorLineNumber = PyLong_AsLong(linePy);
@@ -921,6 +916,9 @@ void APythonInterface::handleError()
         if (descPy) ErrorDescription = PyUnicode_AsUTF8(PyObject_Str(descPy));
         //ErrorDescription = PyUnicode_AsUTF8(PyObject_Str(exc));
 
+        Py_XDECREF(descPy);
+        Py_XDECREF(linePy);
+        Py_XDECREF(exc);
         return;
     }
 
