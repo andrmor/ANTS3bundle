@@ -13,8 +13,6 @@ class AConfig;
 class QJsonObject;
 class QJsonValue;
 
-// !!!*** implement use of ErrorHub
-
 class AConfig_SI : public AScriptInterface
 {
     Q_OBJECT
@@ -28,14 +26,13 @@ public slots:
     bool        load(QString FileName);
     bool        save(QString FileName);
 
-    QVariantMap getConfig() const;
+    QVariantMap getConfig();
     bool        setConfig(QVariantMap ConfigObject);
 
     bool        replace(QString Key, QVariant Value);
     QVariant    getKeyValue(QString Key);
 
     void        updateConfig();
-    //void        updateGui(); // use geowin.redraw() to update the geoemtry draw
 
 private:
     AConfig & Config;

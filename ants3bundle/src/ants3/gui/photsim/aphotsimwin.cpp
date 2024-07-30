@@ -3,7 +3,7 @@
 #include "aphotonsimhub.h"
 #include "amonitorhub.h"
 #include "amonitor.h"
-#include "arandomhub.h"
+#include "a3global.h"
 #include "aphotonsimmanager.h"
 #include "aphotonsimsettings.h"
 #include "ui_aphotsimwin.h"
@@ -448,7 +448,6 @@ void APhotSimWin::on_ledSingleZ_editingFinished()
     SimSet.BombSet.SingleSettings.Position[2] = ui->ledSingleZ->text().toDouble();
 }
 
-#include "a3global.h"
 void APhotSimWin::on_pbSimulate_clicked()
 {
     double seed = 0; // INT_MAX * ARandomHub::getInstance().uniform()

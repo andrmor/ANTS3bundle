@@ -348,7 +348,7 @@ void AScriptWindow::reportError(QString error, int line)
     //error = "<font color=\"red\">Error:</font><br>" + error;
     error = "<font color=\"red\">" + error + "</font>";
     pteOut->appendHtml(error);
-    qDebug() << "ln:" << line;
+    //qDebug() << "ln:" << line;
     highlightErrorLine(line);
 }
 

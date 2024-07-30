@@ -33,6 +33,8 @@ public slots:
     QVariantList getMonitorAngle(int monitorIndex);
     QVariantList getMonitorXY(int monitorIndex);
 
+
+
 private:
     APhotonSimManager & SimMan;
 

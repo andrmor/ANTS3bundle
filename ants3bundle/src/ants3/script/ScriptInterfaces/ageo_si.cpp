@@ -43,7 +43,8 @@ AGeo_SI::AGeo_SI() :
     Help["clearHosted"] = "Removes all objects hosted inside the given Object.\nRequires updateGeometry().";
     Help["removeWithHosted"] = "Removes the Object and all objects hosted inside.\nRequires updateGeometry().";
 
-    Help["updateGeometry"] = "Updates geometry and optionally check it for errors.\n";
+    Help["updateGeometry"] = "Updates geometry and optionally check it for errors.\n"
+                             "To update the view at the geometry window use geowin.redraw()";
 
     Help["stack"] = "Adds empty stack object. Volumes can be added normally to this object, stating its name as the container.\n"
                     "After the last element is added, call InitializeStack(StackName, Origin) function. "
