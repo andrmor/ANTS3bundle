@@ -1,0 +1,68 @@
+{
+    "Material": {
+        "*Name": "Vacuum",
+        "AbsCoeff": 0,
+        "BulkAbsorptionWave": [
+        ],
+        "Comments": "",
+        "Composition": {
+            "CustomComposition": {
+                "CompositionString": "H",
+                "Density": 1e-24,
+                "GasProperties": {
+                    "Gas": false,
+                    "PressureUnitsInGui": "bar",
+                    "Pressure_bar": 1
+                },
+                "MeanExcitationEnergy_eV": 0,
+                "Temperature": 298,
+                "UseMeanExcitationEnergy": false
+            },
+            "Geant4Material": "",
+            "UseGeant4Material": false
+        },
+        "CustomScatterMFP": 0,
+        "Dielectric": true,
+        "ElDiffusionL": 0,
+        "ElDiffusionT": 0,
+        "ElDriftVelo": 0,
+        "IgnoreEnergyConservationInReemission": false,
+        "IntrEnergyRes": 0,
+        "PhotonYield": 0,
+        "PrimScintDecay": [
+            [
+                0,
+                1
+            ]
+        ],
+        "PrimScintRaise": [
+            [
+                0,
+                1
+            ]
+        ],
+        "PrimScintSpectrum": [
+        ],
+        "RayleighMFP": 0,
+        "RayleighWave": 500,
+        "ReemissionProb": 0,
+        "ReemissionProbabilityWave": [
+        ],
+        "RefIndex": 1,
+        "RefIndexComplex": [
+            1,
+            0
+        ],
+        "RefIndexComplex_Wave": [
+        ],
+        "RefIndexWave": [
+        ],
+        "SecScintSpectrum": [
+        ],
+        "SecScint_PhYield": 0,
+        "SecScint_Tau": 0,
+        "Tags": [
+        ],
+        "W": 0
+    }
+}

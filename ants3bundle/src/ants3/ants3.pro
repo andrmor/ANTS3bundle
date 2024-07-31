@@ -134,6 +134,7 @@ SOURCES += \
     gui/aconfigexamplebrowser.cpp \
     gui/aglobsetwindow.cpp \
     gui/aguiwindow.cpp \
+    gui/aitemselectiondialog.cpp \
     gui/alineedit.cpp \
     gui/alineeditwithescape.cpp \
     gui/atreedatabaseselectordialog.cpp \
@@ -352,6 +353,7 @@ HEADERS += \
     ../lsim/aphotonhistorylog.h \
     ademomanager.h \
     aviewer3dsettings.h \
+    gui/aitemselectiondialog.h \
     gui/atreedatabaseselectordialog.h \
     gui/graph/adrawmarginsrecord.h \
     gui/graph/asetmarginsdialog.h \
@@ -579,6 +581,7 @@ HEADERS += \
 
 FORMS += \
         gui/aconfigexamplebrowser.ui \
+        gui/aitemselectiondialog.ui \
         gui/geom/ashownumbersdialog.ui \
         gui/aglobsetwindow.ui \
         gui/graph/asetmarginsdialog.ui \
