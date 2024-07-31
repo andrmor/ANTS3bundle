@@ -101,7 +101,7 @@ QString AMatComposition::printComposition() const
     double totAtFraction = 0;
     for (const auto & kv : ElementMap_AtomNumberFractions)
     {
-        double  atFraction = kv.second;
+        double atFraction = kv.second;
         totAtFraction += atFraction;
         if (atFraction != std::floor(atFraction)) bAllInt = false;
     }
@@ -111,7 +111,11 @@ QString AMatComposition::printComposition() const
     {
         const AElementRecord & ele = kv.first;
         QString baseSymbol = ele.Symbol;
-        baseSymbol.resize(2); if (baseSymbol[1] == '_') baseSymbol.chop(1);
+        if (baseSymbol.size() > 1)
+        {
+            baseSymbol.resize(2);
+            if (baseSymbol[1] == '_') baseSymbol.chop(1);
+        }
         double  atFraction = kv.second / totAtFraction;
         double  maFraction = ElementMap_MassFractions.at(ele);
 
