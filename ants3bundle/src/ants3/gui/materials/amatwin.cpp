@@ -114,6 +114,8 @@ bool AMatWin::checkCurrentMaterial()
     QString error = tmpMaterial.convertPressureToDensity();
     if (!error.isEmpty())
     {
+        tmpMaterial.Composition.Gas = false;
+        ui->cbGas->setChecked(false);
         guitools::message(error, this);
         return false;
     }
@@ -1490,7 +1492,12 @@ void AMatWin::on_ledPressure_editingFinished()
 {
     on_pbUpdateTmpMaterial_clicked();
     QString err = tmpMaterial.convertPressureToDensity();
-    if (!err.isEmpty()) guitools::message(err, this);
+    if (!err.isEmpty())
+    {
+        tmpMaterial.Composition.Gas = false;
+        ui->cbGas->setChecked(false);
+        guitools::message(err, this);
+    }
     ui->ledDensity->setText(QString::number(tmpMaterial.Composition.Density));
 }
 
