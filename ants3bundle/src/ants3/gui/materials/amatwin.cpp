@@ -1270,8 +1270,8 @@ void AMatWin::on_pbLoadFromLibrary_clicked()
         guitools::message("File format error: Json with material settings not found", this);
         return;
     }
-    QJsonObject js = json["Material"].toObject();
 
+    QJsonObject js = json["Material"].toObject();
     tmpMaterial.readFromJson(js);
 
     setWasModified(true);

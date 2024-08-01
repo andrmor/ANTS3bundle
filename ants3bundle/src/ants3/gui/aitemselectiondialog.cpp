@@ -1,9 +1,8 @@
 #include "aitemselectiondialog.h"
 #include "ui_aitemselectiondialog.h"
+#include "ajsontools.h"
 
 #include <QDebug>
-#include <QFileInfo>
-#include <QFile>
 #include <QTimer>
 #include <QListWidgetItem>
 
@@ -139,7 +138,7 @@ void AItemSelectionDialog::on_lwTags_itemDoubleClicked(QListWidgetItem * item)
 }
 
 // --------------------------
-#include "ajsontools.h"
+
 void AItemRecord::readFromJson(const QJsonObject & json)
 {
     jstools::parseJson(json, "Name", Name);
@@ -154,7 +153,7 @@ void AItemRecord::readFromJson(const QJsonObject & json)
 }
 
 // -----------------------
-#include "ajsontools.h"
+
 bool AItemRecordDatabase::readFromFile(const QString &fileName)
 {
     QJsonObject json;

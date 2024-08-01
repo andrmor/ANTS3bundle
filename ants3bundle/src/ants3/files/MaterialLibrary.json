@@ -2,10 +2,27 @@
     "Materials": [
         {
             "Name": "Vacuum",
-            "File": "vacuum.json",
+            "File": "Vacuum.json",
             "Tags": ["World"],
             "Description": "To be compatible with Geant4, it is defined as hidrogen at extremely low density (similar to G4_galactic). Can be considered to be completely transparent for all particles."
+        },
+        {
+            "Name": "B4C",
+            "File": "B4C_ess.json",
+            "Tags": ["Neutron converter", "RPC"],
+            "Description": "Composition and enrichment is provided by the ESS Detector Coatings Workshop for the samples ordered by LIP-Coimbra"
+        },
+        {
+            "Name": "Soda-lime glass",
+            "File": "SodaLimeGlass.json",
+            "Tags": ["Glass", "RPC"],
+            "Description": "This type of glass does not contain boron. It is commonly used for production of window panes is often called 'float glass'"
+        },
+        {
+            "Name": "Freon",
+            "File": "Freon.json",
+            "Tags": ["Gas", "RPC"],
+            "Description": "Freon at atmospheric pressure"
         }
-    
     ]
 }
