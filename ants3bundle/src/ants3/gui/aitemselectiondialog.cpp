@@ -8,7 +8,7 @@
 #include <QListWidgetItem>
 
 AItemSelectionDialog::AItemSelectionDialog(const QString & databaseFileName, const QString & pathToItemFiles, const QString & title, QWidget * parent) :
-    QWidget(parent), Path(pathToItemFiles),
+    QDialog(parent), Path(pathToItemFiles),
     ui(new Ui::AItemSelectionDialog)
 {
     ui->setupUi(this);
@@ -86,6 +86,7 @@ void AItemSelectionDialog::onExampleSelected(int row)
     }
 
     const AItemRecord & ex = Data->Items[index];
+    FileNameSelected = ex.File;
     ui->leSelected->setText(ex.Name);
     ui->teDescription->setText(ex.Description);
 }
@@ -94,7 +95,7 @@ void AItemSelectionDialog::on_pbLoad_clicked()
 {
     QString fn = ui->leSelected->text();
     if (fn.isEmpty()) return;
-    close();
+    accept();
 }
 
 void AItemSelectionDialog::on_pbSelectAllTags_clicked()
@@ -138,86 +139,51 @@ void AItemSelectionDialog::on_lwTags_itemDoubleClicked(QListWidgetItem * item)
 }
 
 // --------------------------
-
-bool AItemRecord::readFromRecord(const QString & text)
+#include "ajsontools.h"
+void AItemRecord::readFromJson(const QJsonObject & json)
 {
-    ErrorString.clear();
+    jstools::parseJson(json, "Name", Name);
+    jstools::parseJson(json, "File", File);
+    QJsonArray ar;
+    jstools::parseJson(json, "Tags", ar);
+    jstools::parseJson(json, "Description", Description);
 
-    QStringList list = text.split('#');
-
-    for (int i = 0; i < list.size(); i++)
-    {
-        QString & r = list[i];
-        if (r.startsWith("name"))
-        {
-            QStringList fi = r.split('\n');
-            if (fi.size() < 2)
-            {
-                ErrorString = "Bad format in name record";
-                qWarning() << ErrorString;
-                return false;
-            }
-            Name = fi[1];
-        }
-        else if (r.startsWith("file"))
-        {
-            QStringList fi = r.split('\n');
-            if (fi.size() < 2)
-            {
-                ErrorString = "Bad format in file name record";
-                qWarning() << ErrorString;
-                return false;
-            }
-            Name = fi[1];
-        }
-        else if (r.startsWith("tags"))
-        {
-            QStringList t1 = r.split('\n');
-            if (t1.size() > 0)
-            {
-                QStringList t2 = t1[1].split(':');
-                for (int j = 0; j < t2.size(); j++)
-                    Tags.push_back(t2[j]);
-            }
-        }
-        else if (r.startsWith("info"))
-        {
-            r.remove("info\n");
-            Description = r;
-        }
-    }
-
-    return (!Name.isEmpty());
+    Tags.clear();
+    for (int i = 0; i < ar.size(); i++)
+        Tags << ar[i].toString();
 }
 
 // -----------------------
-
+#include "ajsontools.h"
 bool AItemRecordDatabase::readFromFile(const QString &fileName)
 {
-    QFile file(fileName);
-    if (!file.open(QIODevice::ReadOnly))
+    QJsonObject json;
+    bool ok = jstools::loadJsonFromFile(json, fileName);
+    if (!ok)
     {
         qWarning() << "Failed to open database file:" << fileName;
         return false;
     }
 
-    QTextStream in(&file);
-    QString records = in.readAll();
-
-    const QStringList list = records.split("#end");
-
-    for (size_t i = 0; i < list.size(); i++)
+    QJsonArray ar;
+    jstools::parseJson(json, "Materials", ar);
+    if (ar.empty())
     {
-        AItemRecord item;
-        if (item.readFromRecord(list[i]))
-        {
-            Items.push_back(item);
-            for (size_t j = 0; j < item.Tags.size(); j++)
-                if (!Tags.contains(item.Tags[j])) Tags.append(item.Tags[j]);
-        }
+        qWarning() << "Database is empty after reading from file:" << fileName;
+        return false;
     }
 
-    //qDebug() << "Extracted"<<Examples.size()<<"examples";
+    for (int i = 0; i < ar.size(); i++)
+    {
+        QJsonObject js = ar[i].toObject();
+
+        AItemRecord item;
+        item.readFromJson(js);
+        Items.push_back(item);
+        for (const QString & tag : item.Tags)
+            if (!Tags.contains(tag)) Tags.append(tag);
+    }
+
     Tags.sort();
     return true;
 }

@@ -1,0 +1,11 @@
+{
+    "Materials": [
+        {
+            "Name": "Vacuum",
+            "File": "vacuum.json",
+            "Tags": ["World"],
+            "Description": "To be compatible with Geant4, it is defined as hidrogen at extremely low density (similar to G4_galactic). Can be considered to be completely transparent for all particles."
+        }
+    
+    ]
+}

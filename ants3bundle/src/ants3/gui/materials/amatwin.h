@@ -104,6 +104,8 @@ private slots:
 
     void on_pbShowSecSpectrum_customContextMenuRequested(const QPoint &pos);
 
+    void on_pbLoadFromLibrary_clicked();
+
 private:
     AGeometryHub & Geometry;
     AMaterialHub & MatHub;
