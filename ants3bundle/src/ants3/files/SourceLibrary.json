@@ -1,0 +1,10 @@
+{
+    "Materials": [
+        {
+            "Name": "Na22_gammas",
+            "File": "Na22_gammas.json",
+            "Tags": ["Beta+"],
+            "Description": "100%: de-excitation gamma + 90%: two back-to-back annihilation gammas"
+        }
+    ]
+}

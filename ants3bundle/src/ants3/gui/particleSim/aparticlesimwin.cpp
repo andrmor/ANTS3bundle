@@ -2732,6 +2732,45 @@ void AParticleSimWin::on_pbLoadParticleSource_clicked()
     ui->lwDefinedParticleSources->setCurrentRow(SimSet.SourceGenSettings.getNumSources() - 1);
 }
 
+#include "aitemselectiondialog.h"
+void AParticleSimWin::on_pbLoadFromLibrary_clicked()
+{
+    const A3Global & GlobSet = A3Global::getConstInstance();
+    QString dir = GlobSet.ResourcesDir;
+    QString matDir = dir + "/sources";
+    AItemSelectionDialog dialog(dir + "/SourceLibrary.json", matDir, "Library of particle sources", this);
+    int res = dialog.exec();
+    if (res == QDialog::Rejected) return;
+
+    QString fileName = dialog.FileNameSelected;
+    QJsonObject json;
+    bool ok = jstools::loadJsonFromFile(json, matDir + "/" + fileName);
+    if (!ok)
+    {
+        guitools::message("Cannot open source library file: "+fileName, this);
+        return;
+    }
+
+    AParticleSourceRecord s;
+    ok = s.readFromJson(json);
+    if (!ok)
+    {
+        guitools::message("Error in loaded source", this);
+        return;
+    }
+
+    QString err(s.check().data());
+    if (!err.isEmpty())
+    {
+        guitools::message(err, this);
+        return;
+    }
+
+    SimSet.SourceGenSettings.SourceData.push_back(s);
+    updateSourceList();
+    ui->lwDefinedParticleSources->setCurrentRow(SimSet.SourceGenSettings.getNumSources() - 1);
+}
+
 void AParticleSimWin::on_pbAbort_clicked()
 {
     SimManager.Generator_Sources->AbortRequested = true;
@@ -3325,4 +3364,3 @@ void AParticleSimWin::on_cbRandomSeed_toggled(bool checked)
 {
     ui->sbSeed->setVisible(!checked);
 }
-
