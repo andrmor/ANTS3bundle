@@ -41,7 +41,7 @@ struct AGunParticle
     std::string  configureEnergySampler();
     double       generateEnergy() const;
 
-    bool         isDirectDeposition() const;
+    bool         isDirectDeposition() const; // !!!*** will return true on "special" particles too!
 
 #ifdef JSON11
     bool         readFromJson(const json11::Json::object & json);  // !!!***
