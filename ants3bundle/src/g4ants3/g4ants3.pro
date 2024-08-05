@@ -43,6 +43,7 @@ SOURCES += \
         ../ants3/particleSim/afileparticlegenerator.cpp \
         ../ants3/particleSim/ag4simulationsettings.cpp \
         ../ants3/particleSim/amonitorsettings.cpp \
+        ../ants3/particleSim/aorthopositroniumgammagenerator.cpp \
         ../ants3/particleSim/aparticlerunsettings.cpp \
         ../ants3/particleSim/aparticlesimsettings.cpp \
         ../ants3/tools/aerrorhub.cpp \
@@ -79,6 +80,7 @@ HEADERS += \
     ../ants3/particleSim/afileparticlegenerator.h \
     ../ants3/particleSim/ag4simulationsettings.h \
     ../ants3/particleSim/amonitorsettings.h \
+    ../ants3/particleSim/aorthopositroniumgammagenerator.h \
     ../ants3/particleSim/aparticlegun.h \
     ../ants3/particleSim/aparticlerunsettings.h \
     ../ants3/particleSim/aparticlesimsettings.h \

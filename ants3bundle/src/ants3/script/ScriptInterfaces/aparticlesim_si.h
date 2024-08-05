@@ -47,6 +47,7 @@ public slots:
     void buildTracks(bool skipPrimaries, bool skipPrimNoInter, bool skipSecondaries, QVariantList limitToParticleList, QVariantList excludeParticles, int maxTracks);
     void buildTracksSingleEvent(int eventIndex);
 
+    // reformat to use aorthopositroniumgammagenerator.h
     QVariantList getThreeGammasForPositronium(); // [ [dx1,dy1,dz1,e1], [dx2,dy2,dz2,e2], [dx3,dy3,dz1,e3] ]
 
 private:

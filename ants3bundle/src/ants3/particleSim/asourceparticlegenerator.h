@@ -14,6 +14,7 @@ struct AParticleSourceRecord;
 class  ARandomHub;
 class  G4Navigator;
 class  G4Material;
+class AGunParticle;
 
 class ALinkedParticle
 {
@@ -70,7 +71,7 @@ private:
     void   doGeneratePosition(const AParticleSourceRecord & rec, double * R) const;
     double selectTime(const AParticleSourceRecord & Source, int iEvent);
     void   addGeneratedParticle(int iSource, int iParticle, double * position, double time, bool forceIsotropic, std::function<void(const AParticleRecord&)> handler);
-
+    void   processSpecialParticle(const AGunParticle & particle, int iSource, double * position, double time, bool forceIsotropic, std::function<void (const AParticleRecord &)> handler);
 };
 
 #endif // ASOURCEPARTICLEGENERATOR_H

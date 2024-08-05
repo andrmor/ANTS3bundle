@@ -855,6 +855,7 @@ void SessionManager::storeCalorimeterData()
 G4ParticleDefinition * SessionManager::findGeant4Particle(const std::string & particleName)
 {
     if (particleName == "-") return nullptr;
+    if (!particleName.empty() && particleName[0] == '_') return nullptr;
 
     G4ParticleDefinition * Particle = G4ParticleTable::GetParticleTable()->FindParticle(particleName);
 
