@@ -165,7 +165,7 @@ bool AItemRecordDatabase::readFromFile(const QString &fileName)
     }
 
     QJsonArray ar;
-    jstools::parseJson(json, "Materials", ar);
+    jstools::parseJson(json, "Items", ar);
     if (ar.empty())
     {
         qWarning() << "Database is empty after reading from file:" << fileName;

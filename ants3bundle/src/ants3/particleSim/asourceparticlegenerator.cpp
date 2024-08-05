@@ -328,7 +328,17 @@ bool ASourceParticleGenerator::generateEvent(std::function<void(const AParticleR
             const int thisParticle = ThisLP[ip].iParticle;
             const int linkedTo     = ThisLP[ip].LinkedTo;
 
-            if (ThisLP[linkedTo].bWasGenerated) // parent was generated
+            bool parentWasGenerated = false;
+            for (int index = ip-1; index > -1; index--)
+            {
+                if (ThisLP[index].iParticle == linkedTo)
+                {
+                    parentWasGenerated = ThisLP[index].bWasGenerated;
+                    break;
+                }
+            }
+
+            if (parentWasGenerated) // parent was generated
             {
                 if (Source.Particles[thisParticle].GenerationType == AGunParticle::Linked_IfNotGenerated)
                 {
@@ -566,7 +576,6 @@ void ASourceParticleGenerator::addGeneratedParticle(int iSource, int iParticle, 
 
 #ifdef GEANT4
 #include "G4Gamma.hh"
-#include "G4SystemOfUnits.hh"
 #endif
 #include "aorthopositroniumgammagenerator.h"
 void ASourceParticleGenerator::processSpecialParticle(const AGunParticle & particle, int iSource, double * position, double time, bool forceIsotropic, std::function<void (const AParticleRecord &)> handler)
