@@ -669,8 +669,7 @@ void AParticleSourceDialog::on_pbHelpParticle_clicked()
                        "   Advanced users can add their generation code to ants3 (search for \"_oPs\" string)\n"
                        "   The names of such particles must start from \"_\" character.\n"
                        "   Currently implemented:\n"
-                       "   _oPs   --> Ortho-Positronium decaying into 3 gammas (energy settings are ignored)"
-                       , "Particle name help", this);
+                       "   _oPs   --> Ortho-Positronium decaying into 3 gammas (energy settings are ignored)", "Particle name help", this);
 }
 
 void AParticleSourceDialog::on_pbShowAngular_clicked()
