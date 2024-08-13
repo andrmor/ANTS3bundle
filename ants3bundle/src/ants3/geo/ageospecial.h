@@ -100,4 +100,32 @@ protected:
     void doWriteToJson(QJsonObject & json) const override;
 };
 
+class AGeoParticleAnalyzer : public AGeoSpecial
+{
+public:
+    AGeoParticleAnalyzer(){}
+
+    QString getType() const override {return QStringLiteral("ParticleAnalyzer");}
+
+    void readFromJson(const QJsonObject & json) override;
+protected:
+    void doWriteToJson(QJsonObject & json) const override;
+
+public:
+    int     EnergyBins  = 100;
+    double  EnergyFrom  = 0;
+    double  EnergyTo    = 1.0;
+    QString EnergyUnits = "keV";
+
+    bool    UseTimeWindow  = false;
+    double  TimeWindowFrom = 0;
+    double  TimeWindowTo   = 100.0; // ns
+
+    bool    StopTracking = false;
+
+    bool    SingleInstanceForAllCopies = false;
+
+    static bool isAllowedEnergyUnit(const QString & str);
+};
+
 #endif // AGEOSPECIAL_H

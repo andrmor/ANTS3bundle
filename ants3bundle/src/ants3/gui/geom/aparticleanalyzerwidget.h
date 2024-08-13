@@ -7,16 +7,29 @@ namespace Ui {
 class AParticleAnalyzerWidget;
 }
 
+class AGeoParticleAnalyzer;
+
 class AParticleAnalyzerWidget : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit AParticleAnalyzerWidget(QWidget *parent = nullptr);
+    explicit AParticleAnalyzerWidget(QWidget * parent = nullptr);
     ~AParticleAnalyzerWidget();
 
+    void updateGui(const AGeoParticleAnalyzer & pa);
+    void updateObject(AGeoParticleAnalyzer & pa) const;
+
+    QString check() const;
+
 private:
-    Ui::AParticleAnalyzerWidget *ui;
+    Ui::AParticleAnalyzerWidget * ui = nullptr;
+
+private slots:
+    void on_pbChanged_clicked();
+
+signals:
+    void contentChanged();
 };
 
 #endif // APARTICLEANALYZERWIDGET_H

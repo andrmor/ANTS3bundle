@@ -432,6 +432,7 @@ QFrame * AGeoObjectDelegate::createFunctionalModelGui()
     return frFun;
 }
 
+#include "aparticleanalyzerwidget.h"
 QFrame * AGeoObjectDelegate::createParticleAnlyzerGui()
 {
 

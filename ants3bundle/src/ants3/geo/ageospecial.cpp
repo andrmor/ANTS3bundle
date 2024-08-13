@@ -37,6 +37,12 @@ AGeoSpecial * GeoRoleFactory::make(const QJsonObject & json)
         th->readFromJson(json);
         return th;
     }
+    if (Type == "ParticleAnalyzer")
+    {
+        AGeoParticleAnalyzer * pa = new AGeoParticleAnalyzer();
+        pa->readFromJson(json);
+        return pa;
+    }
 
     return nullptr;
 }
@@ -162,6 +168,53 @@ void AGeoPhotonFunctional::doWriteToJson(QJsonObject & json) const
     QJsonObject js;
     DefaultModel->writeToJson(js);
     json["Model"] = js;
+}
+
+// ---
+
+void AGeoParticleAnalyzer::readFromJson(const QJsonObject & json)
+{
+    jstools::parseJson(json, "EnergyBins", EnergyBins);
+    jstools::parseJson(json, "EnergyFrom", EnergyFrom);
+    jstools::parseJson(json, "EnergyTo", EnergyTo);
+    jstools::parseJson(json, "EnergyUnits", EnergyUnits);
+    if (!isAllowedEnergyUnit(EnergyUnits))
+    {
+        qWarning() << "Unknown energy unit in AGeoParticleAnalyzer::readFromJson (" << EnergyUnits << "), setting to keV";
+        EnergyUnits = "keV";
+    }
+
+    jstools::parseJson(json, "UseTimeWindow", UseTimeWindow);
+    jstools::parseJson(json, "TimeWindowFrom", TimeWindowFrom);
+    jstools::parseJson(json, "TimeWindowTo", TimeWindowTo);
+
+    jstools::parseJson(json, "StopTracking", StopTracking);
+
+    jstools::parseJson(json, "SingleInstanceForAllCopies", SingleInstanceForAllCopies);
+}
+
+void AGeoParticleAnalyzer::doWriteToJson(QJsonObject & json) const
+{
+    json["EergyBins"] = EnergyBins;
+    json["EnergyFrom"] = EnergyFrom;
+    json["EnergyTo"] = EnergyTo;
+    json["EnergyUnits"] = EnergyUnits;
+
+    json["UseTimeWindow"] = UseTimeWindow;
+    json["TimeWindowFrom"] = TimeWindowFrom;
+    json["TimeWindowTo"] = TimeWindowTo;
+
+    json["StopTracking"] = StopTracking;
+
+    json["SingleInstanceForAllCopies"] = SingleInstanceForAllCopies;
+}
+
+bool AGeoParticleAnalyzer::isAllowedEnergyUnit(const QString & str)
+{
+    if (str == "MeV") return true;
+    if (str == "keV") return true;
+    if (str == "eV")  return true;
+    return false;
 }
 
 // ---
