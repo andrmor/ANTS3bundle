@@ -6,6 +6,7 @@
 #include "ageoconsts.h"
 #include "guitools.h"
 #include "aonelinetextedit.h"
+#include "aparticleanalyzerwidget.h"
 
 #include <QDebug>
 #include <QWidget>
@@ -188,6 +189,8 @@ AGeoObjectDelegate::~AGeoObjectDelegate()
     //qDebug() << "deleted---------------";
     blockSignals(true);
     delete ShapeCopy; ShapeCopy = nullptr;
+
+    delete PartAnWidget; PartAnWidget = nullptr;
 }
 
 #include "QStackedWidget"
@@ -199,7 +202,7 @@ void AGeoObjectDelegate::crateSpecialRoleWidget()
     QVBoxLayout * rl = new QVBoxLayout(RoleWidget);
     rl->setContentsMargins(2,0,2,0);
         cobRole = new QComboBox();
-        cobRole->addItems({"No special role", "Light sensor", "Calorimeter", "Secondary scintillator", "Scintillator", "Photon transport: functional model"});
+        cobRole->addItems({"No special role", "Light sensor", "Calorimeter", "Secondary scintillator", "Scintillator", "Photon transport: functional model", "Particle analyzer"});
     rl->addWidget(cobRole);
     rl->setAlignment(cobRole, Qt::AlignHCenter);
 
@@ -432,10 +435,18 @@ QFrame * AGeoObjectDelegate::createFunctionalModelGui()
     return frFun;
 }
 
-#include "aparticleanalyzerwidget.h"
 QFrame * AGeoObjectDelegate::createParticleAnlyzerGui()
 {
+    QFrame * frame = new QFrame();
+    {
+        QVBoxLayout * vbl = new QVBoxLayout(frame); vbl->setContentsMargins(0,0,0,0);
+        PartAnWidget = new AParticleAnalyzerWidget();
+        vbl->addWidget(PartAnWidget);
+    }
 
+    frame->setVisible(false);
+
+    return frame;
 }
 
 #include "atreedatabaseselectordialog.h"
@@ -615,6 +626,16 @@ bool AGeoObjectDelegate::updateObject(AGeoObject * obj) const  //react to false 
             }
         }
 
+        if (cobRole->currentIndex() == 6)
+        {
+            QString err = PartAnWidget->check();
+            if (!err.isEmpty())
+            {
+                QMessageBox::warning(ParentWidget, "Warning", err);
+                return false;
+            }
+        }
+
         // ---- all checks are ok, can assign new values to the object ----
 
         obj->Name = newName;
@@ -697,6 +718,13 @@ bool AGeoObjectDelegate::updateObject(AGeoObject * obj) const  //react to false 
                 break;
             case 5:
                 obj->Role = new AGeoPhotonFunctional(*LocalPhFunModel); // cloned, no transfer!
+                break;
+            case 6:
+                {
+                    AGeoParticleAnalyzer * pa = new AGeoParticleAnalyzer();
+                    PartAnWidget->updateObject(*pa);
+                    obj->Role = pa;
+                }
                 break;
             default:;
             }
@@ -1046,6 +1074,15 @@ void AGeoObjectDelegate::Update(const AGeoObject *obj)
                             delete LocalPhFunModel; LocalPhFunModel = nullptr;
                             LocalPhFunModel = APhotonFunctionalModel::factory(js);
                             updatePhFunModelGui();
+                        }
+                        else
+                        {
+                            AGeoParticleAnalyzer * partAn = dynamic_cast<AGeoParticleAnalyzer*>(obj->Role);
+                            if (partAn)
+                            {
+                                cobRole->setCurrentIndex(6);
+                                PartAnWidget->updateGui(*partAn);
+                            }
                         }
                     }
                 }

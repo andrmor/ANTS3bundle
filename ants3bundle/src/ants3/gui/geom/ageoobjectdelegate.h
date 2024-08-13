@@ -27,6 +27,7 @@ class QFrame;
 class ACalorimeterProperties;
 class APhotonFunctionalModel;
 class AFunctionalModelWidget;
+class AParticleAnalyzerWidget;
 
 class AGeoObjectDelegate : public AGeoBaseDelegate
 {
@@ -40,7 +41,7 @@ public:
 
     bool updateObject(AGeoObject * obj) const override;
 
-    void Update(const AGeoObject * obj) override;
+    void Update(const AGeoObject * obj) override;  // !!!*** need to refactor!
 
 protected:
     QVBoxLayout * lMF = nullptr;      //main layout
@@ -86,9 +87,11 @@ protected:
 
     QLineEdit * lePhFunModelName = nullptr;
     QPushButton * pbSelectPhFunModel = nullptr;
-    APhotonFunctionalModel * LocalPhFunModel = nullptr;
-    AFunctionalModelWidget * PhFunModelWidget = nullptr;
+    APhotonFunctionalModel * LocalPhFunModel = nullptr;  // !!!*** add to destructor?
+    AFunctionalModelWidget * PhFunModelWidget = nullptr; // !!!*** add to destructor?
     QVBoxLayout * vblPhFun = nullptr;
+
+    AParticleAnalyzerWidget * PartAnWidget = nullptr;
 
 private slots:
     void onContentChanged();          // only to enter the editing mode! Object update is performed only on confirm button click!
