@@ -220,6 +220,10 @@ void AGeoObjectDelegate::crateSpecialRoleWidget()
     rl->addWidget(frFun);
     connect(cobRole, &QComboBox::currentIndexChanged, frFun, [frFun](int index){frFun->setVisible(index == 5);} );
 
+    QFrame * frPartAn = createParticleAnlyzerGui();
+    rl->addWidget(frPartAn);
+    connect(cobRole, &QComboBox::currentIndexChanged, frPartAn, [frPartAn](int index){frPartAn->setVisible(index == 6);} );
+
     rl->addStretch();
 
     connect(cobRole, &QComboBox::currentIndexChanged, this, &AGeoObjectDelegate::onContentChanged);
@@ -426,6 +430,11 @@ QFrame * AGeoObjectDelegate::createFunctionalModelGui()
     frFun->setVisible(false);
 
     return frFun;
+}
+
+QFrame * AGeoObjectDelegate::createParticleAnlyzerGui()
+{
+
 }
 
 #include "atreedatabaseselectordialog.h"
