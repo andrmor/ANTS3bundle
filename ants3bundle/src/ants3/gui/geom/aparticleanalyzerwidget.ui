@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>488</width>
-    <height>123</height>
+    <height>124</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -94,7 +94,11 @@
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="ledTimeWindowFrom"/>
+      <widget class="QLineEdit" name="ledTimeWindowFrom">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+      </widget>
      </item>
      <item>
       <widget class="QLabel" name="label_6">
@@ -104,7 +108,11 @@
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="ledTimeWindowTo"/>
+      <widget class="QLineEdit" name="ledTimeWindowTo">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+      </widget>
      </item>
      <item>
       <widget class="QLabel" name="label_7">
@@ -298,6 +306,38 @@
     <hint type="destinationlabel">
      <x>449</x>
      <y>103</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cbTimeWindow</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>ledTimeWindowFrom</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>111</x>
+     <y>73</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>220</x>
+     <y>78</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cbTimeWindow</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>ledTimeWindowTo</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>33</x>
+     <y>70</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>360</x>
+     <y>77</y>
     </hint>
    </hints>
   </connection>

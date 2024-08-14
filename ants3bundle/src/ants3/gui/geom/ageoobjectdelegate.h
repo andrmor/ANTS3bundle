@@ -116,7 +116,7 @@ private:
     QFrame * createSensorGui();
     QFrame * createCalorimeterGui();
     QFrame * createFunctionalModelGui();
-    QFrame * createParticleAnlyzerGui();
+    QFrame * createParticleAnalyzerGui();
 
 signals:
     void RequestChangeShape(AGeoShape * newShape);

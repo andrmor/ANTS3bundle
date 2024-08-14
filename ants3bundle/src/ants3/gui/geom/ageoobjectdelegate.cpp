@@ -190,7 +190,7 @@ AGeoObjectDelegate::~AGeoObjectDelegate()
     blockSignals(true);
     delete ShapeCopy; ShapeCopy = nullptr;
 
-    delete PartAnWidget; PartAnWidget = nullptr;
+    //delete PartAnWidget; PartAnWidget = nullptr; // removed by the layout!
 }
 
 #include "QStackedWidget"
@@ -223,7 +223,7 @@ void AGeoObjectDelegate::crateSpecialRoleWidget()
     rl->addWidget(frFun);
     connect(cobRole, &QComboBox::currentIndexChanged, frFun, [frFun](int index){frFun->setVisible(index == 5);} );
 
-    QFrame * frPartAn = createParticleAnlyzerGui();
+    QFrame * frPartAn = createParticleAnalyzerGui();
     rl->addWidget(frPartAn);
     connect(cobRole, &QComboBox::currentIndexChanged, frPartAn, [frPartAn](int index){frPartAn->setVisible(index == 6);} );
 
@@ -435,12 +435,14 @@ QFrame * AGeoObjectDelegate::createFunctionalModelGui()
     return frFun;
 }
 
-QFrame * AGeoObjectDelegate::createParticleAnlyzerGui()
+QFrame * AGeoObjectDelegate::createParticleAnalyzerGui()
 {
     QFrame * frame = new QFrame();
     {
         QVBoxLayout * vbl = new QVBoxLayout(frame); vbl->setContentsMargins(0,0,0,0);
         PartAnWidget = new AParticleAnalyzerWidget();
+        AGeoParticleAnalyzer tmp;
+        PartAnWidget->updateGui(tmp);
         vbl->addWidget(PartAnWidget);
     }
 

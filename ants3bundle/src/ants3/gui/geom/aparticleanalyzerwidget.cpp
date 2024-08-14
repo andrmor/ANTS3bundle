@@ -23,6 +23,8 @@ AParticleAnalyzerWidget::~AParticleAnalyzerWidget()
 
 void AParticleAnalyzerWidget::updateGui(const AGeoParticleAnalyzer & pa)
 {
+    const QSignalBlocker blocker(this);
+
     ui->sbEnergyBins->setValue(pa.EnergyBins);
     ui->ledEnergyFrom->setText(QString::number(pa.EnergyFrom));
     ui->ledEnergyTo->setText(QString::number(pa.EnergyTo));
