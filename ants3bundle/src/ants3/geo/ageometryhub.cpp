@@ -260,6 +260,7 @@ void AGeometryHub::populateGeoManager(bool notifyRootServer)
     ACalorimeterHub::getInstance().clear();
     AGridHub::getInstance().clear();
     Scintillators.clear();
+    ParticleAnalyzers.clear();
     PhotonFunctionals.clear();
     World->clearTrueRotationRecursive();
 
@@ -552,18 +553,20 @@ void AGeometryHub::addTGeoVolumeRecursively(AGeoObject * obj, TGeoVolume * paren
             addCalorimeterNode(obj, vol, parent, lTrans);
         else if (obj->isSensor())
             addSensorNode(obj, vol, parent, lTrans);
-        else
+        else if (obj->isScintillator())
         {
-            if (obj->isScintillator())
-            {
-                //TGeoNode * node = parent->AddNode(vol, Scintillators.size(), lTrans);  // not compatible with old ROOT versions
-                parent->AddNode(vol, Scintillators.size(), lTrans);
-                TGeoNode * node = parent->GetNode(parent->GetNdaughters()-1);
-                Scintillators.push_back({obj, node});
-            }
-            else
-                parent->AddNode(vol, forcedNodeNumber, lTrans);
+            parent->AddNode(vol, Scintillators.size(), lTrans);
+            TGeoNode * node = parent->GetNode(parent->GetNdaughters()-1);
+            Scintillators.push_back({obj, node});
         }
+        else if (obj->isParticleAnalyzer())
+        {
+            parent->AddNode(vol, ParticleAnalyzers.size(), lTrans);
+            TGeoNode * node = parent->GetNode(parent->GetNdaughters()-1);
+            ParticleAnalyzers.push_back({obj, node});
+        }
+        else
+            parent->AddNode(vol, forcedNodeNumber, lTrans);
     }
 
     // Position hosted objects

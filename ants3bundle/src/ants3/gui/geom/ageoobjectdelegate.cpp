@@ -444,6 +444,7 @@ QFrame * AGeoObjectDelegate::createParticleAnalyzerGui()
         AGeoParticleAnalyzer tmp;
         PartAnWidget->updateGui(tmp);
         vbl->addWidget(PartAnWidget);
+        connect(PartAnWidget, &AParticleAnalyzerWidget::contentChanged, this, &AGeoObjectDelegate::onContentChanged);
     }
 
     frame->setVisible(false);

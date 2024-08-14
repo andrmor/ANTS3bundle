@@ -63,6 +63,7 @@ public:
   bool isSensor() const; // !!!*** use enum
   bool isCalorimeter() const; // !!!*** use enum
   bool isScintillator() const; // !!!*** consider using enum (might be not possible though)
+  bool isParticleAnalyzer() const; // !!!*** consider using enum (might be not possible though)
 
   int  getMaterial() const;
 

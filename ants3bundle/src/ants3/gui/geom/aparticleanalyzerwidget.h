@@ -17,7 +17,7 @@ public:
     explicit AParticleAnalyzerWidget(QWidget * parent = nullptr);
     ~AParticleAnalyzerWidget();
 
-    void updateGui(const AGeoParticleAnalyzer & pa);
+    void updateGui(const AGeoParticleAnalyzer & pap);
     void updateObject(AGeoParticleAnalyzer & pa) const;
 
     QString check() const;

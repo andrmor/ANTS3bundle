@@ -100,6 +100,7 @@ protected:
     void doWriteToJson(QJsonObject & json) const override;
 };
 
+#include "aparticleanalyzersettings.h"
 class AGeoParticleAnalyzer : public AGeoSpecial
 {
 public:
@@ -112,20 +113,7 @@ protected:
     void doWriteToJson(QJsonObject & json) const override;
 
 public:
-    int     EnergyBins  = 100;
-    double  EnergyFrom  = 0;
-    double  EnergyTo    = 1.0;
-    QString EnergyUnits = "keV";
-
-    bool    UseTimeWindow  = false;
-    double  TimeWindowFrom = 0;
-    double  TimeWindowTo   = 100.0; // ns
-
-    bool    StopTracking = false;
-
-    bool    SingleInstanceForAllCopies = false;
-
-    static bool isAllowedEnergyUnit(const QString & str);
+    AParticleAnalyzerRecord Properties;
 };
 
 #endif // AGEOSPECIAL_H
