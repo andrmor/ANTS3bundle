@@ -205,6 +205,7 @@ bool AParticleSimManager::configureSimulation(const std::vector<AFarmNodeRecord>
     configureMaterials();
     configureMonitors();
     configureCalorimeters();
+    configureAnalyzers();
     configureScintillators();
 
     HistoryFileMerger.clear();
@@ -212,6 +213,7 @@ bool AParticleSimManager::configureSimulation(const std::vector<AFarmNodeRecord>
     ParticlesFileMerger.clear();
     MonitorFiles.clear();
     CalorimeterFiles.clear();
+    AnalyzerFiles.clear();
     ReceiptFiles.clear();
 
     ARandomHub & RandomHub = ARandomHub::getInstance();
@@ -297,6 +299,14 @@ bool AParticleSimManager::configureSimulation(const std::vector<AFarmNodeRecord>
                 WorkSet.RunSet.CalorimeterSettings.FileName = fileName.toLatin1().data();
                 Worker.OutputFiles.push_back(fileName);
                 CalorimeterFiles.push_back(ExchangeDir + '/' + fileName);
+            }
+
+            if (SimSet.RunSet.AnalyzerSettings.Enabled)
+            {
+                const QString fileName = QString("particleAnalyzers-%0").arg(iProcess);
+                WorkSet.RunSet.AnalyzerSettings.FileName = fileName.toLatin1().data();
+                Worker.OutputFiles.push_back(fileName);
+                AnalyzerFiles.push_back(ExchangeDir + '/' + fileName);
             }
 
             {
@@ -386,6 +396,11 @@ void AParticleSimManager::configureMonitors()
 void AParticleSimManager::configureCalorimeters()
 {
     SimSet.RunSet.CalorimeterSettings.initFromHub();
+}
+
+void AParticleSimManager::configureAnalyzers()
+{
+    SimSet.RunSet.AnalyzerSettings.initFromHub();
 }
 
 void AParticleSimManager::configureScintillators()

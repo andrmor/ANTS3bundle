@@ -22,7 +22,7 @@ bool AParticleAnalyzerRecord::isAllowedEnergyUnit(const std::string & str)
 #ifndef JSON11
 void AParticleAnalyzerRecord::writeToJson(QJsonObject & json) const
 {
-    json["EergyBins"]   = EnergyBins;
+    json["EnergyBins"]  = EnergyBins;
     json["EnergyFrom"]  = EnergyFrom;
     json["EnergyTo"]    = EnergyTo;
     json["EnergyUnits"] = QString(EnergyUnits.data());
