@@ -34,7 +34,7 @@ SOURCES += \
         ../ants3/geo/agridhub.cpp \
         ../ants3/particleSim/acalsettings.cpp \ # not needed for functionality, can be removed using a new DEFINE
         ../ants3/geo/amonitorhub.cpp \
-        ../ants3/particleSim/aparticleanalyzersettings.cpp \
+        ../ants3/particleSim/aparticleanalyzersettings.cpp \ # not needed for functionality, can be removed using a new DEFINE
         ../ants3/photonSim/adeporecord.cpp \
         ../ants3/photonSim/adepositionfilehandler.cpp \
         ../ants3/photonSim/afilehandlerbase.cpp \

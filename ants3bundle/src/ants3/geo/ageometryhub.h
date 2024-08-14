@@ -19,6 +19,7 @@ class QJsonObject;
 class AVector3;
 class QStringLists;
 class AGeoShape;
+class AParticleAnalyzerSettings;
 
 #include "TString.h"
 
@@ -99,6 +100,8 @@ public:
     void         getScintillatorVolumeUniqueNames(std::vector<QString> & vol) const;
 
     void         checkGeometryCompatibleWithGeant4() const;
+
+    void         fillParticleAnalyzerRecords(AParticleAnalyzerSettings * settings) const;
 
 private:
     void addTGeoVolumeRecursively(AGeoObject * obj, TGeoVolume * parent, int forcedNodeNumber = 0);

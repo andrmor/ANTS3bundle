@@ -637,6 +637,19 @@ void AGeometryHub::registerPhotonFunctional(AGeoObject * obj, TGeoVolume * paren
     PhotonFunctionals.push_back({obj, node, globalPosition});
 }
 
+void AGeometryHub::fillParticleAnalyzerRecords(AParticleAnalyzerSettings * settings) const
+{
+    settings->Analyzers.clear();
+
+    for (const auto & pair : ParticleAnalyzers)
+    {
+        const AGeoSpecial * role = pair.first->Role;
+        const AGeoParticleAnalyzer * pa = static_cast<const AGeoParticleAnalyzer*>(role);
+
+        settings->Analyzers.push_back(pa->Properties);
+    }
+}
+
 void AGeometryHub::positionArray(AGeoObject * obj, TGeoVolume * vol, int parentNodeIndex)
 {
     ATypeArrayObject * array = static_cast<ATypeArrayObject*>(obj->Type);
