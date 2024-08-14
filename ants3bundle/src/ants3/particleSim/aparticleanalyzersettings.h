@@ -13,6 +13,8 @@ class QJsonObject;
 class AParticleAnalyzerRecord
 {
 public:
+    std::string VolumeName; // only initialized from geometry hub and read on Geant4 side
+
     int         EnergyBins  = 100;
     double      EnergyFrom  = 0;
     double      EnergyTo    = 1000.0;

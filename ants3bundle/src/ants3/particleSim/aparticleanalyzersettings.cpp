@@ -22,6 +22,8 @@ bool AParticleAnalyzerRecord::isAllowedEnergyUnit(const std::string & str)
 #ifndef JSON11
 void AParticleAnalyzerRecord::writeToJson(QJsonObject & json) const
 {
+    json["VolumeName"]  = QString(VolumeName.data()); // only for sim setting exported to G4Ants3
+
     json["EnergyBins"]  = EnergyBins;
     json["EnergyFrom"]  = EnergyFrom;
     json["EnergyTo"]    = EnergyTo;
@@ -43,6 +45,8 @@ void AParticleAnalyzerRecord::readFromJson(const json11::Json::object & json)
 void AParticleAnalyzerRecord::readFromJson(const QJsonObject & json)
 #endif
 {
+    jstools::parseJson(json, "VolumeName", VolumeName);
+
     jstools::parseJson(json, "EnergyBins", EnergyBins);
     jstools::parseJson(json, "EnergyFrom", EnergyFrom);
     jstools::parseJson(json, "EnergyTo", EnergyTo);
