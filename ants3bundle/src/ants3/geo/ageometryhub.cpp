@@ -647,7 +647,7 @@ void AGeometryHub::fillParticleAnalyzerRecords(AParticleAnalyzerSettings * setti
         const AGeoParticleAnalyzer * pa = static_cast<const AGeoParticleAnalyzer*>(role);
 
         AParticleAnalyzerRecord rec = pa->Properties; // copy!
-        rec.VolumeName = pair.first->Name.toLatin1().data();
+        rec.VolumeNames.push_back( pair.first->Name.toLatin1().data() );
 
         settings->Analyzers.push_back(rec);
     }

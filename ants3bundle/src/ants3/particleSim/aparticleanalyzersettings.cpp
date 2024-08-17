@@ -20,10 +20,8 @@ bool AParticleAnalyzerRecord::isAllowedEnergyUnit(const std::string & str)
 }
 
 #ifndef JSON11
-void AParticleAnalyzerRecord::writeToJson(QJsonObject & json) const
+void AParticleAnalyzerRecord::writeToJson(QJsonObject & json, bool includeGeant4Features) const
 {
-    json["VolumeName"]  = QString(VolumeName.data()); // only for sim setting exported to G4Ants3
-
     json["EnergyBins"]  = EnergyBins;
     json["EnergyFrom"]  = EnergyFrom;
     json["EnergyTo"]    = EnergyTo;
@@ -36,6 +34,15 @@ void AParticleAnalyzerRecord::writeToJson(QJsonObject & json) const
     json["StopTracking"] = StopTracking;
 
     json["SingleInstanceForAllCopies"] = SingleInstanceForAllCopies;
+
+    if (includeGeant4Features)
+    {
+        json["UniqueIndex"] = UniqueIndex;
+
+        QJsonArray ar;
+        for (const auto & n : VolumeNames) ar.push_back( QString(n.data()) );
+        json["VolumeNames"] = ar;
+    }
 }
 #endif
 
@@ -45,8 +52,6 @@ void AParticleAnalyzerRecord::readFromJson(const json11::Json::object & json)
 void AParticleAnalyzerRecord::readFromJson(const QJsonObject & json)
 #endif
 {
-    jstools::parseJson(json, "VolumeName", VolumeName);
-
     jstools::parseJson(json, "EnergyBins", EnergyBins);
     jstools::parseJson(json, "EnergyFrom", EnergyFrom);
     jstools::parseJson(json, "EnergyTo", EnergyTo);
@@ -66,6 +71,15 @@ void AParticleAnalyzerRecord::readFromJson(const QJsonObject & json)
     jstools::parseJson(json, "StopTracking", StopTracking);
 
     jstools::parseJson(json, "SingleInstanceForAllCopies", SingleInstanceForAllCopies);
+
+#ifdef JSON11
+    jstools::parseJson(json, "UniqueIndex", UniqueIndex);
+    json11::Json::array ar;
+    jstools::parseJson(json, "VolumeNames", ar);
+    VolumeNames.resize(ar.size());
+    for (size_t i = 0; i < ar.size(); i++)
+        VolumeNames[i] = ar[i].string_value();
+#endif
 }
 
 // -------------
@@ -82,7 +96,7 @@ void AParticleAnalyzerSettings::writeToJson(QJsonObject & json, bool includeG4an
         for (const AParticleAnalyzerRecord & ana : Analyzers)
         {
             QJsonObject js;
-            ana.writeToJson(js);
+            ana.writeToJson(js, includeG4ants3Set);
             ar.append(js);
         }
         json["Analyzers"] = ar;

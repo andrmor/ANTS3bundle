@@ -179,7 +179,7 @@ void AGeoParticleAnalyzer::readFromJson(const QJsonObject & json)
 
 void AGeoParticleAnalyzer::doWriteToJson(QJsonObject & json) const
 {
-    Properties.writeToJson(json);
+    Properties.writeToJson(json, false);
 }
 
 // ---

@@ -13,8 +13,6 @@ class QJsonObject;
 class AParticleAnalyzerRecord
 {
 public:
-    std::string VolumeName; // only initialized from geometry hub and read on Geant4 side
-
     int         EnergyBins  = 100;
     double      EnergyFrom  = 0;
     double      EnergyTo    = 1000.0;
@@ -30,10 +28,14 @@ public:
 
     static bool isAllowedEnergyUnit(const std::string & str);
 
+    // Geant4-related properties, runtime
+    std::vector<std::string> VolumeNames;
+    int                      UniqueIndex;
+
 #ifdef JSON11
     void readFromJson(const json11::Json::object & json);
 #else
-    void writeToJson(QJsonObject & json) const;
+    void writeToJson(QJsonObject & json, bool includeGeant4Features) const;
     void readFromJson(const QJsonObject & json);  // !!!*** error for Geant4 side
 #endif
 };
