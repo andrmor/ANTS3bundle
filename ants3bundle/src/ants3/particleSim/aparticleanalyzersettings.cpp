@@ -75,6 +75,7 @@ void AParticleAnalyzerRecord::readFromJson(const QJsonObject & json)
 
 #ifdef JSON11
     jstools::parseJson(json, "UniqueIndex", UniqueIndex);
+    jstools::parseJson(json, "VolumeBaseName", VolumeBaseName);
     json11::Json::array ar;
     jstools::parseJson(json, "VolumeNames", ar);
     VolumeNames.resize(ar.size());

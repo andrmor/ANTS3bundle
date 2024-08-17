@@ -18,6 +18,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
     return fWorld;
 }
 
+#include "aparticleanalyzersettings.h"
 void DetectorConstruction::ConstructSDandField()
 {
     // ---- Energy depositions in sensitive volumes -----
@@ -68,7 +69,10 @@ void DetectorConstruction::ConstructSDandField()
 
     // ---- Analyzers ----
     for (AnalyzerSensitiveDetector * an : SM.Analyzers)
-        SetSensitiveDetector(an->GetName(), an);
+    {
+        for (const std::string & name : an->Properties.VolumeNames)
+            SetSensitiveDetector(name, an);
+    }
 }
 
 bool DetectorConstruction::isAccordingTo(const std::string &name, const std::string & wildcard) const

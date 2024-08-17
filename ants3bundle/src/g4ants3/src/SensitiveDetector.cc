@@ -393,8 +393,8 @@ G4bool AnalyzerSensitiveDetector::ProcessHits(G4Step * step, G4TouchableHistory 
     G4StepPoint * preStepPoint = step->GetPreStepPoint();
     const G4VProcess * proc = preStepPoint->GetProcessDefinedStep();
     if (!proc) return true;
-    std::cout << step->GetPreStepPoint()->GetProcessDefinedStep()->GetProcessName() << std::endl;
-    std::cout << step->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName() << std::endl;
+    //std::cout << step->GetPreStepPoint()->GetProcessDefinedStep()->GetProcessName() << std::endl;
+    //std::cout << step->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName() << std::endl;
     if (proc->GetProcessType() != fTransportation || preStepPoint->GetStepStatus() != fGeomBoundary) return true;
 
     const double time = preStepPoint->GetGlobalTime() / ns;
