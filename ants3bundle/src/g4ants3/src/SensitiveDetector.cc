@@ -53,9 +53,10 @@ MonitorSensitiveDetector::~MonitorSensitiveDetector()
 
 G4bool MonitorSensitiveDetector::ProcessHits(G4Step *step, G4TouchableHistory *)
 {
-    const G4VProcess * proc = step->GetPostStepPoint()->GetProcessDefinedStep();
+    G4StepPoint * preStepPoint = step->GetPreStepPoint();
+    const G4VProcess * proc = preStepPoint->GetProcessDefinedStep();
     if (proc && proc->GetProcessType() == fTransportation)
-        if (step->GetPostStepPoint()->GetStepStatus() == fGeomBoundary)
+        if (preStepPoint->GetStepStatus() == fGeomBoundary)
         {
             if ( pParticleDefinition && (step->GetTrack()->GetParticleDefinition() != pParticleDefinition) ) // for "all particles" pParticleDefinition == nullptr
                 return true;
@@ -69,9 +70,8 @@ G4bool MonitorSensitiveDetector::ProcessHits(G4Step *step, G4TouchableHistory *)
             if ( !bIsDirect && !bAcceptIndirect) return true;
 
             //position info
-            G4StepPoint* p1 = step->GetPreStepPoint();
-            const G4ThreeVector & coord1 = p1->GetPosition();
-            const G4AffineTransform & transformation = p1->GetTouchable()->GetHistory()->GetTopTransform();
+            const G4ThreeVector & coord1 = preStepPoint->GetPosition();
+            const G4AffineTransform & transformation = preStepPoint->GetTouchable()->GetHistory()->GetTopTransform();
             const G4ThreeVector localPosition = transformation.TransformPoint(coord1);
             //std::cout << "Local position: " << localPosition[0] << " " << localPosition[1] << " " << localPosition[2] << " " << std::endl;
             if ( localPosition[2] > 0  && !bAcceptUpper ) return true;
@@ -81,7 +81,7 @@ G4bool MonitorSensitiveDetector::ProcessHits(G4Step *step, G4TouchableHistory *)
             hPosition->fill(x, y);
 
             // time info
-            const double time = step->GetPostStepPoint()->GetGlobalTime() / TimeFactor;
+            const double time = preStepPoint->GetGlobalTime() / TimeFactor;
             hTime->fill(time);
 
             // angle info
@@ -94,7 +94,7 @@ G4bool MonitorSensitiveDetector::ProcessHits(G4Step *step, G4TouchableHistory *)
             hAngle->fill(angle);
 
             //energy
-            const double energy = step->GetPostStepPoint()->GetKineticEnergy() / EnergyFactor;
+            const double energy = preStepPoint->GetKineticEnergy() / EnergyFactor;
             hEnergy->fill(energy);
 
             //stop tracking?
@@ -105,8 +105,8 @@ G4bool MonitorSensitiveDetector::ProcessHits(G4Step *step, G4TouchableHistory *)
                 SessionManager & SM = SessionManager::getInstance();
                 if (SM.Settings.RunSet.SaveTrackingHistory)
                 {
-                    const G4ThreeVector & pos = step->GetPostStepPoint()->GetPosition();
-                    const double kinE = step->GetPostStepPoint()->GetKineticEnergy()/keV;
+                    const G4ThreeVector & pos = preStepPoint->GetPosition();
+                    const double kinE = preStepPoint->GetKineticEnergy()/keV;
                     const double depoE = step->GetTotalEnergyDeposit()/keV;
                     SM.saveTrackRecord("MonitorStop",
                                        pos, time,
@@ -390,15 +390,18 @@ AnalyzerSensitiveDetector::~AnalyzerSensitiveDetector() {}
 
 G4bool AnalyzerSensitiveDetector::ProcessHits(G4Step * step, G4TouchableHistory *)
 {
-    const G4VProcess * proc = step->GetPostStepPoint()->GetProcessDefinedStep();
+    G4StepPoint * preStepPoint = step->GetPreStepPoint();
+    const G4VProcess * proc = preStepPoint->GetProcessDefinedStep();
     if (!proc) return true;
-    if (proc->GetProcessType() != fTransportation || step->GetPostStepPoint()->GetStepStatus() != fGeomBoundary) return true;
+    std::cout << step->GetPreStepPoint()->GetProcessDefinedStep()->GetProcessName() << std::endl;
+    std::cout << step->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName() << std::endl;
+    if (proc->GetProcessType() != fTransportation || preStepPoint->GetStepStatus() != fGeomBoundary) return true;
 
-    const double time = step->GetPostStepPoint()->GetGlobalTime() / ns;
+    const double time = preStepPoint->GetGlobalTime() / ns;
     if (Properties.UseTimeWindow)
         if (time < Properties.TimeWindowFrom || time > Properties.TimeWindowTo) return true;
 
-    const double energy = step->GetPostStepPoint()->GetKineticEnergy() * EnergyFactor;
+    const double energy = preStepPoint->GetKineticEnergy() * EnergyFactor;
     const std::string & particleName = step->GetTrack()->GetParticleDefinition()->GetParticleName();
     const auto it = ParticleMap.find(particleName);
     if (it != ParticleMap.end())
@@ -410,10 +413,28 @@ G4bool AnalyzerSensitiveDetector::ProcessHits(G4Step * step, G4TouchableHistory 
     {
         AnalyzerParticleEntry rec;
         rec.Energy = new AHistogram1D(Properties.EnergyBins, Properties.EnergyFrom, Properties.EnergyTo);
-        ParticleMap[particleName] = rec;
+        rec.Number = 1;
+        rec.Energy->fill(energy);
+        ParticleMap[particleName] = rec; // !!!*** optimize to avoid second lookup
     }
 
-    if (Properties.StopTracking) step->GetTrack()->SetTrackStatus(fStopAndKill);
+    if (Properties.StopTracking)
+    {
+        step->GetTrack()->SetTrackStatus(fStopAndKill);
+        SessionManager & SM = SessionManager::getInstance();
+        if (SM.Settings.RunSet.SaveTrackingHistory)
+        {
+            const G4ThreeVector & pos = preStepPoint->GetPosition();
+            const double kinE = preStepPoint->GetKineticEnergy()/keV;
+            //const double depoE = step->GetTotalEnergyDeposit()/keV;
+            SM.saveTrackRecord("AnalyzerStop",
+                               pos, time,
+                               kinE, 0);
+            // bug in Geant4.10.5.1? Tracking reports one more step - transportation from the monitor to the next volume
+            //the next is the fix:
+            SM.bStoppedOnMonitor = true;
+        }
+    }
 
     return true;
 }
@@ -421,9 +442,9 @@ G4bool AnalyzerSensitiveDetector::ProcessHits(G4Step * step, G4TouchableHistory 
 void AnalyzerSensitiveDetector::writeToJson(json11::Json::object & json)
 {
     json["UniqueIndex"] = Properties.UniqueIndex;
-    json["VolumeBaseName"] = GetName(); // it will be the base name for non-unique objects
+    json["VolumeBaseName"] = (Properties.VolumeBaseName.empty() ? Properties.VolumeNames.front() : Properties.VolumeBaseName ); // it will be the base name for non-unique objects
 
-    json11::Json::array ar;
+    json11::Json::array arAllParticles;
     for (const auto & pair : ParticleMap)
     {
         json11::Json::object js;
@@ -451,6 +472,8 @@ void AnalyzerSensitiveDetector::writeToJson(json11::Json::object & json)
         for (const double & d : vec)
             sjs.push_back(d);
         js["EnergyStats"] = sjs;
+
+        arAllParticles.push_back(js);
     }
-    json["ParticleData"] = ar;
+    json["ParticleData"] = arAllParticles;
 }
