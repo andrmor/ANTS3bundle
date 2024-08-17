@@ -24,13 +24,14 @@ public:
 
     bool        StopTracking = false;
 
-    bool        SingleInstanceForAllCopies = false;
+    bool        SingleInstanceForAllCopies = true;
 
     static bool isAllowedEnergyUnit(const std::string & str);
 
     // Geant4-related properties, runtime
-    std::vector<std::string> VolumeNames;
     int                      UniqueIndex;
+    std::string              VolumeBaseName; // Note that instances modify the object name, so here the original name is stored
+    std::vector<std::string> VolumeNames;
 
 #ifdef JSON11
     void readFromJson(const json11::Json::object & json);

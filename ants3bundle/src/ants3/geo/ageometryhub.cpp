@@ -641,15 +641,53 @@ void AGeometryHub::fillParticleAnalyzerRecords(AParticleAnalyzerSettings * setti
 {
     settings->Analyzers.clear();
 
+    int uniqueIndex = 0;
     for (const auto & pair : ParticleAnalyzers)
     {
         const AGeoSpecial * role = pair.first->Role;
         const AGeoParticleAnalyzer * pa = static_cast<const AGeoParticleAnalyzer*>(role);
+        const AParticleAnalyzerRecord & rec = pa->Properties;
 
-        AParticleAnalyzerRecord rec = pa->Properties; // copy!
-        rec.VolumeNames.push_back( pair.first->Name.toLatin1().data() );
+        const std::string baseName = pair.first->NameWithoutSuffix.toLatin1().data();
 
-        settings->Analyzers.push_back(rec);
+        // note that all unique AGeoObjects, e.g. not belonging to an instance, have baseName empty
+        if (baseName.empty() || !rec.SingleInstanceForAllCopies)
+        {
+            AParticleAnalyzerRecord recordCopy = rec;
+
+            recordCopy.UniqueIndex = uniqueIndex++;
+            recordCopy.VolumeBaseName = baseName;
+            recordCopy.VolumeNames.push_back( pair.first->Name.toLatin1().data() );
+
+            settings->Analyzers.push_back(recordCopy);
+        }
+        else
+        {
+            // not a unique object and SingleInstanceForAllCopies is set
+
+            // first check we already processed one of the "copies"
+            bool found = false;
+            for (AParticleAnalyzerRecord & filledRecord : settings->Analyzers) // expect small number of unique analyzers? !!!*** consider map
+            {
+                if (baseName == filledRecord.VolumeBaseName)
+                {
+                    filledRecord.VolumeNames.push_back( pair.first->Name.toLatin1().data() );
+                    // shares the same UniqueIndex and VolumeBaseName
+                    found = true;
+                    break;
+                }
+            }
+            if (!found)
+            {
+                AParticleAnalyzerRecord recordCopy = rec;
+
+                recordCopy.UniqueIndex = uniqueIndex++;
+                recordCopy.VolumeBaseName = baseName;
+                recordCopy.VolumeNames.push_back( pair.first->Name.toLatin1().data() );
+
+                settings->Analyzers.push_back(recordCopy);
+            }
+        }
     }
 }
 

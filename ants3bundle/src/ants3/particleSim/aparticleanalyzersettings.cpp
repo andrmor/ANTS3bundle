@@ -38,6 +38,7 @@ void AParticleAnalyzerRecord::writeToJson(QJsonObject & json, bool includeGeant4
     if (includeGeant4Features)
     {
         json["UniqueIndex"] = UniqueIndex;
+        json["VolumeBaseName"] = QString(VolumeBaseName.data());
 
         QJsonArray ar;
         for (const auto & n : VolumeNames) ar.push_back( QString(n.data()) );
