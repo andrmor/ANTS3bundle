@@ -104,8 +104,9 @@ void SessionManager::endSession()
     bError = false;
     ErrorMessage.clear();
 
-    if (Settings.RunSet.MonitorSettings.Enabled) storeMonitorsData();
+    if (Settings.RunSet.MonitorSettings.Enabled)     storeMonitorsData();
     if (Settings.RunSet.CalorimeterSettings.Enabled) storeCalorimeterData();
+    if (Settings.RunSet.AnalyzerSettings.Enabled)    storeAnalyzerData();
 
     generateReceipt();
 }
@@ -743,6 +744,15 @@ void SessionManager::readConfig(const std::string & workingDir, const std::strin
         }
     }
 
+    if (Settings.RunSet.AnalyzerSettings.Enabled)
+    {
+        for (AParticleAnalyzerRecord & r : Settings.RunSet.AnalyzerSettings.Analyzers)
+        {
+            AnalyzerSensitiveDetector * sd = new AnalyzerSensitiveDetector(r);
+            Analyzers.push_back(sd);
+        }
+    }
+
     std::cout << "Config read completed" << std::endl;
 }
 
@@ -844,6 +854,27 @@ void SessionManager::storeCalorimeterData()
 
     std::ofstream outStream;
     outStream.open(WorkingDir + "/" + Settings.RunSet.CalorimeterSettings.FileName);
+    if (outStream.is_open())
+    {
+        std::string json_str = json11::Json(Arr).dump();
+        outStream << json_str << '\n';
+    }
+    outStream.close();
+}
+
+void SessionManager::storeAnalyzerData()
+{
+    json11::Json::array Arr;
+
+    for (AnalyzerSensitiveDetector * an : Analyzers)
+    {
+        json11::Json::object json;
+        an->writeToJson(json);
+        Arr.push_back(json);
+    }
+
+    std::ofstream outStream;
+    outStream.open(WorkingDir + "/" + Settings.RunSet.AnalyzerSettings.FileName);
     if (outStream.is_open())
     {
         std::string json_str = json11::Json(Arr).dump();

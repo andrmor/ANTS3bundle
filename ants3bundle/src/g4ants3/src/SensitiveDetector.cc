@@ -374,3 +374,83 @@ void CalorimeterSensitiveDetector::writeToJson(json11::Json::object & json)
     Properties.writeToJson(jsProps);
     json["Properties"] = jsProps;
 }
+
+// -------------------------
+
+AnalyzerSensitiveDetector::AnalyzerSensitiveDetector(const AParticleAnalyzerRecord & properties) :
+    G4VSensitiveDetector(properties.VolumeBaseName.empty() ? properties.VolumeNames.front() : properties.VolumeBaseName),
+    Properties(properties)
+{
+    if      (properties.EnergyUnits == "MeV") EnergyFactor = 1 / MeV;
+    else if (properties.EnergyUnits == "keV") EnergyFactor = 1 / keV;
+    else if (properties.EnergyUnits == "eV")  EnergyFactor = 1 / eV;
+}
+
+AnalyzerSensitiveDetector::~AnalyzerSensitiveDetector() {}
+
+G4bool AnalyzerSensitiveDetector::ProcessHits(G4Step * step, G4TouchableHistory *)
+{
+    const G4VProcess * proc = step->GetPostStepPoint()->GetProcessDefinedStep();
+    if (!proc) return true;
+    if (proc->GetProcessType() != fTransportation || step->GetPostStepPoint()->GetStepStatus() != fGeomBoundary) return true;
+
+    const double time = step->GetPostStepPoint()->GetGlobalTime() / ns;
+    if (Properties.UseTimeWindow)
+        if (time < Properties.TimeWindowFrom || time > Properties.TimeWindowTo) return true;
+
+    const double energy = step->GetPostStepPoint()->GetKineticEnergy() * EnergyFactor;
+    const std::string & particleName = step->GetTrack()->GetParticleDefinition()->GetParticleName();
+    const auto it = ParticleMap.find(particleName);
+    if (it != ParticleMap.end())
+    {
+        it->second.Number++;
+        it->second.Energy->fill(energy);
+    }
+    else
+    {
+        AnalyzerParticleEntry rec;
+        rec.Energy = new AHistogram1D(Properties.EnergyBins, Properties.EnergyFrom, Properties.EnergyTo);
+        ParticleMap[particleName] = rec;
+    }
+
+    if (Properties.StopTracking) step->GetTrack()->SetTrackStatus(fStopAndKill);
+
+    return true;
+}
+
+void AnalyzerSensitiveDetector::writeToJson(json11::Json::object & json)
+{
+    json["UniqueIndex"] = Properties.UniqueIndex;
+    json["VolumeBaseName"] = GetName(); // it will be the base name for non-unique objects
+
+    json11::Json::array ar;
+    for (const auto & pair : ParticleMap)
+    {
+        json11::Json::object js;
+        js["Particle"] = pair.first;
+
+        AHistogram1D * Hist = pair.second.Energy;
+        const std::vector<double> & data = Hist->getContent();
+        double from, to;
+        Hist->getLimits(from, to);
+        js["EnergyFrom"] = from;
+        js["EnergyTo"] = to;
+        double delta = (to - from) / Properties.EnergyBins;
+        json11::Json::array ar;
+        for (size_t i = 0; i < data.size(); i++)  // 0=underflow and last=overflow
+        {
+            json11::Json::array el;
+            el.push_back(from + (i - 0.5)*delta); // i - 1 + 0.5
+            el.push_back(data[i]);
+            ar.push_back(el);
+        }
+        js["EnergyData"] = ar;
+
+        const std::vector<double> vec = Hist->getStat();
+        json11::Json::array sjs;
+        for (const double & d : vec)
+            sjs.push_back(d);
+        js["EnergyStats"] = sjs;
+    }
+    json["ParticleData"] = ar;
+}

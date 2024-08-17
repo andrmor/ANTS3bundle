@@ -82,7 +82,7 @@ class CalorimeterSensitiveDetector : public G4VSensitiveDetector
 {
 public:
     CalorimeterSensitiveDetector(const std::string & name, ACalorimeterProperties & properties, int index);
-    ~CalorimeterSensitiveDetector();
+    ~CalorimeterSensitiveDetector(); // !!!***
 
     G4bool ProcessHits(G4Step * step, G4TouchableHistory * history) override;
 
@@ -99,6 +99,38 @@ public:
     AHistogram1D * EventDepoData = nullptr;
     double SumDepoOverEvent = 0;
 
+};
+
+#include "aparticleanalyzersettings.h"
+class AnalyzerParticleEntry
+{
+public:
+    size_t Number = 0;
+    AHistogram1D * Energy = nullptr;
+};
+
+class AnalyzerSensitiveDetector : public G4VSensitiveDetector
+{
+public:
+    AnalyzerSensitiveDetector(const AParticleAnalyzerRecord & properties);
+    ~AnalyzerSensitiveDetector();
+
+    G4bool ProcessHits(G4Step * step, G4TouchableHistory * history) override;
+
+    void writeToJson(json11::Json::object & json);
+
+    const AParticleAnalyzerRecord & Properties;
+    double EnergyFactor = 1.0;
+
+    std::map<std::string, AnalyzerParticleEntry> ParticleMap;
+
+    //run-time
+    /*
+    AHistogram3Dfixed * Data = nullptr;
+    double VoxelVolume_mm3 = 0;
+
+    double SumDepoOverEvent = 0;
+    */
 };
 
 #endif // SensitiveDetector_h
