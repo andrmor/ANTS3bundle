@@ -101,6 +101,19 @@ void ATH1D::merge(TH1D* & to, TH1D* const & from)
     to->SetEntries(numEv + from->GetEntries());
 }
 
+void ATH1D::mergeFrom(const ATH1D * other)
+{
+    bool ok = mergeIdentical(*other);
+    if (ok) return;
+
+    // the histograms are no identical, e.g. they have auto-range
+    int numEv = GetEntries();
+    for (int i = 1; i <= other->GetNbinsX(); i++)
+        Fill(other->GetBinCenter(i), other->GetBinContent(i));
+
+    SetEntries(numEv + other->GetEntries());
+}
+
 void ATH1D::SetStatistic(const std::vector<double> & stats)
 {
     fTsumw   = stats[0];

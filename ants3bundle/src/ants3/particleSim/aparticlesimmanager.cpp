@@ -457,5 +457,8 @@ void AParticleSimManager::mergeOutput(bool binary)
 
     AParticleAnalyzerHub & AnHub = AParticleAnalyzerHub::getInstance();
     if (SimSet.RunSet.AnalyzerSettings.Enabled)
-        AnHub.mergeAnalyzerFiles(AnalyzerFiles, OutputDir + '/' + SimSet.RunSet.AnalyzerSettings.FileName.data());
+    {
+        AnHub.loadAnalyzerFiles(AnalyzerFiles);
+        AnHub.saveAnalyzerData(OutputDir + '/' + SimSet.RunSet.AnalyzerSettings.FileName.data());
+    }
 }

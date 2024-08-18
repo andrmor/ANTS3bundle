@@ -24,6 +24,8 @@ public:
 
     static void merge(TH1D* & to, TH1D* const & from);
 
+    void mergeFrom(const ATH1D * other);
+
 private:
     void SetStatistic(const std::vector<double> & stats);
 };

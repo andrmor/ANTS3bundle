@@ -22,7 +22,9 @@ public:
     size_t  getNumber() const {return EnergyHistStats[4];}
 
     QString readFromJson(const QJsonObject & json); // returns the name of the particle
-    void releaseDynamicResources();
+    void    writeToJson(QJsonObject & json) const;
+    void    mergeFrom(const AAnalyzerParticle & other);
+    void    releaseDynamicResources();
 };
 
 class AAnalyzerData
@@ -34,6 +36,9 @@ public:
     std::map<QString, AAnalyzerParticle> ParticleMap;
 
     bool readFromJson(const QJsonObject & json);
+    void writeToJson(QJsonObject & json) const;
+
+    bool mergeFrom(const AAnalyzerData & other);
 
     void clear();
 };
@@ -44,7 +49,7 @@ public:
     static AParticleAnalyzerHub & getInstance();
     static const AParticleAnalyzerHub & getConstInstance();
 
-    AAnalyzerData Data;
+    std::vector<AAnalyzerData> UniqueAnalyzers;
 
 private:
     AParticleAnalyzerHub(){}
@@ -56,8 +61,8 @@ private:
     AParticleAnalyzerHub& operator=(AParticleAnalyzerHub&&)      = delete;
 
 public:
-    //bool load(const QString & fileName);
-    void mergeAnalyzerFiles(const std::vector<QString> & inFiles, const QString & outFile);
+    void loadAnalyzerFiles(const std::vector<QString> & inFiles);
+    bool saveAnalyzerData(const QString & fileName);
 
 private:
     void clear();

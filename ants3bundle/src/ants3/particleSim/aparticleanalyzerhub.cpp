@@ -28,8 +28,9 @@ QString AAnalyzerParticle::readFromJson(const QJsonObject & json)
             qWarning() << err;
             return "";
         }
-        EnergyHist->SetBinContent(i, el[2].toDouble());
+        EnergyHist->SetBinContent(i, el[1].toDouble());
     }
+    EnergyHist->BufferEmpty();
 
     QJsonArray energyStats;
     bool ok = jstools::parseJson(json, "EnergyStats", energyStats);
@@ -53,6 +54,36 @@ QString AAnalyzerParticle::readFromJson(const QJsonObject & json)
     EnergyHist->setStats(EnergyHistStats);
 
     return name;
+}
+
+void AAnalyzerParticle::writeToJson(QJsonObject & json) const
+{
+    json["EnergyFrom"] = EnergyFrom;
+    json["EnergyTo"]   = EnergyTo;
+
+    QJsonArray ar;
+    for (size_t i = 0; i < EnergyBins+2; i++)
+    {
+        QJsonArray el;
+        el.append(EnergyHist->GetBinCenter(i));
+        el.append(EnergyHist->GetBinContent(i));
+        ar.append(el);
+    }
+    json["EnergyData"] = ar;
+
+    double stats[20];
+    EnergyHist->GetStats(stats);
+    stats[4] = EnergyHist->GetEntries();
+    QJsonArray statsAr;
+    for (size_t i = 0; i < 5; i++)
+        statsAr.push_back(stats[i]);
+
+    json["EnergyStats"] = statsAr;
+}
+
+void AAnalyzerParticle::mergeFrom(const AAnalyzerParticle & other)
+{
+    EnergyHist->mergeFrom(other.EnergyHist);
 }
 
 void AAnalyzerParticle::releaseDynamicResources()
@@ -85,6 +116,37 @@ bool AAnalyzerData::readFromJson(const QJsonObject & json)
     return true;
 }
 
+void AAnalyzerData::writeToJson(QJsonObject & json) const
+{
+    json["UniqueIndex"]    = UniqueIndex;
+    json["VolumeBaseName"] = Name;
+
+    QJsonArray ar;
+    for (const auto & pair : ParticleMap)
+    {
+        QJsonObject js;
+            js["Particle"] = pair.first;
+            pair.second.writeToJson(js);
+        ar.push_back(js);
+    }
+    json["ParticleData"] = ar;
+}
+
+bool AAnalyzerData::mergeFrom(const AAnalyzerData & other)
+{
+    for (const auto & pair : other.ParticleMap)
+    {
+        const QString           & particleName = pair.first;
+        const AAnalyzerParticle & particleData = pair.second;
+
+        auto it = ParticleMap.find(particleName);
+        if (it != ParticleMap.end())
+            it->second.mergeFrom(particleData);
+        else
+            ParticleMap[particleName] = particleData;
+    }
+}
+
 void AAnalyzerData::clear()
 {
     for (auto & pair : ParticleMap)
@@ -107,74 +169,75 @@ const AParticleAnalyzerHub &AParticleAnalyzerHub::getConstInstance()
 
 AParticleAnalyzerHub::~AParticleAnalyzerHub()
 {
-    Data.clear();
+    UniqueAnalyzers.clear();
 }
 
 void AParticleAnalyzerHub::clear()
 {
-    Data.clear();
+    UniqueAnalyzers.clear();
 }
 
-void AParticleAnalyzerHub::mergeAnalyzerFiles(const std::vector<QString> & inFiles, const QString & outFile)
+void AParticleAnalyzerHub::loadAnalyzerFiles(const std::vector<QString> & inFiles)
 {
     clear();
 
-    if (inFiles.empty()) return;
-
-    QJsonArray ar;
-    QString fileName = inFiles.front();
-    bool ok = jstools::loadJsonArrayFromFile(ar, fileName);
-    if (!ok)
+    size_t numAnalyzersInFirstFile = 0;
+    for (size_t iFile = 0; iFile < inFiles.size(); iFile++)
     {
-        QString err = "Cannot load particle analyzer file " + fileName;
-        AErrorHub::addQError(err);
-        qWarning() << err;
-        return;
-    }
-
-    Data.readFromJson(ar[0].toObject());
-
-    /*
-    for (const QString & FN : inFiles)
-    {
-        QJsonArray ar;
-        bool ok = jstools::loadJsonArrayFromFile(ar, FN);
+        const QString fileName = inFiles[iFile];
+        QJsonArray arAllAnalyzers;
+        bool ok = jstools::loadJsonArrayFromFile(arAllAnalyzers, fileName);
         if (!ok)
         {
-            QString err = "Failed to read particle analyzer file: " + FN;
+            QString err = "Cannot load particle analyzer file " + fileName;
             AErrorHub::addQError(err);
             qWarning() << err;
             return;
         }
 
-        for (int i = 0; i < ar.size(); i++)
+        if (iFile == 0)
         {
-            QJsonObject json = ar[i].toObject();
-            int iCalo;
-            bool bOK = jstools::parseJson(json, "CalorimeterIndex", iCalo);
-            if (!bOK)
+            numAnalyzersInFirstFile = arAllAnalyzers.size();
+            UniqueAnalyzers.resize(numAnalyzersInFirstFile);
+            for (size_t i = 0; i < numAnalyzersInFirstFile; i++)
             {
-                QString err = "Failed to read calorimeter data: invalid format of Calorimeter index in file\n" + FN;
-                AErrorHub::addQError(err);
-                qWarning() << err;
-                continue;
+                ok = UniqueAnalyzers[i].readFromJson(arAllAnalyzers[i].toObject());
+                if (!ok) return;
             }
-            if (iCalo < 0 || iCalo >= (int)numCalorimeters)
+        }
+        else
+        {
+            if (arAllAnalyzers.size() != numAnalyzersInFirstFile)
             {
-                QString err = "Failed to read calorimter data: Bad calorimeter index in file:\n" + FN;
+                QString err = "Mismatch in the number of particle analyzers in different files";
                 AErrorHub::addQError(err);
                 qWarning() << err;
-                return false;
+                return;
             }
 
-            Calorimeters[iCalo].Calorimeter->appendDataFromJson(json);
+            for (size_t i = 0; i < numAnalyzersInFirstFile; i++)
+            {
+                AAnalyzerData thisAnalyzer;
+                ok = thisAnalyzer.readFromJson(arAllAnalyzers[i].toObject());
+                if (!ok) return;
+
+                UniqueAnalyzers[i].mergeFrom(thisAnalyzer);
+            }
         }
     }
-    */
+}
 
-    //QJsonArray jsCAr;
-    //writeDataToJson(jsCAr);
-    //return jstools::saveJsonArrayToFile(jsCAr, outFile);
+bool AParticleAnalyzerHub::saveAnalyzerData(const QString & fileName)
+{
+    QJsonArray ar;
+    for (const AAnalyzerData & analyzer : UniqueAnalyzers)
+    {
+        QJsonObject json;
+        analyzer.writeToJson(json);
+        ar.push_back(json);
+    }
+
+    return jstools::saveJsonArrayToFile(ar, fileName);
 }
 
 
