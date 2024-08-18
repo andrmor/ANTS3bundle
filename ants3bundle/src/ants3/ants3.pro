@@ -217,6 +217,7 @@ SOURCES += \
     materials/amatcomposition.cpp \
     particleSim/ageant4inspectormanager.cpp \
     particleSim/aorthopositroniumgammagenerator.cpp \
+    particleSim/aparticleanalyzerhub.cpp \
     particleSim/aparticleanalyzersettings.cpp \
     photonSim/aphotonloghandler.cpp \
     photonSim/interfaceRules/asurfaceinterfacerule.cpp \
@@ -368,6 +369,7 @@ HEADERS += \
     gui/script/aargumentcounter.h \
     gui/script/ascriptexampleexplorer.h \
     particleSim/aorthopositroniumgammagenerator.h \
+    particleSim/aparticleanalyzerhub.h \
     particleSim/aparticleanalyzersettings.h \
     photonSim/aphotonloghandler.h \
     photonSim/photonFunctional/aphotonfunctionalhub.h \

@@ -430,6 +430,7 @@ void AParticleSimManager::checkDirectories()
 
 #include "amonitorhub.h"
 #include "acalorimeterhub.h"
+#include "aparticleanalyzerhub.h"
 void AParticleSimManager::mergeOutput(bool binary)
 {
     qDebug() << "Merging output files...";
@@ -453,4 +454,8 @@ void AParticleSimManager::mergeOutput(bool binary)
     ACalorimeterHub & CalHub = ACalorimeterHub::getInstance();
     if (SimSet.RunSet.CalorimeterSettings.Enabled)
         CalHub.mergeCalorimeterFiles(CalorimeterFiles, OutputDir + '/' + SimSet.RunSet.CalorimeterSettings.FileName.data());
+
+    AParticleAnalyzerHub & AnHub = AParticleAnalyzerHub::getInstance();
+    if (SimSet.RunSet.AnalyzerSettings.Enabled)
+        AnHub.mergeAnalyzerFiles(AnalyzerFiles, OutputDir + '/' + SimSet.RunSet.AnalyzerSettings.FileName.data());
 }
