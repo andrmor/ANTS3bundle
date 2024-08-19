@@ -145,6 +145,7 @@ bool AAnalyzerData::mergeFrom(const AAnalyzerData & other)
         else
             ParticleMap[particleName] = particleData;
     }
+    return true;
 }
 
 void AAnalyzerData::clear()
