@@ -101,6 +101,7 @@ public:
 
     void         checkGeometryCompatibleWithGeant4() const;
 
+    size_t       countParticleAnalyzers() const;
     void         fillParticleAnalyzerRecords(AParticleAnalyzerSettings * settings) const;
 
 private:

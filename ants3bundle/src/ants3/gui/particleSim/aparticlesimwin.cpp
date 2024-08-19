@@ -3364,3 +3364,90 @@ void AParticleSimWin::on_cbRandomSeed_toggled(bool checked)
 {
     ui->sbSeed->setVisible(!checked);
 }
+
+// --------------------------
+
+void AParticleSimWin::on_pbChooseAnalyzersFile_clicked()
+{
+    QString fileName = QFileDialog::getOpenFileName(this, "Select a file with particle analyzers' data", SimSet.RunSet.OutputDirectory.data());
+    if (fileName.isEmpty()) return;
+
+    ui->leAnalyzersFileName->setText(fileName);
+}
+
+#include "aparticleanalyzerhub.h"
+void AParticleSimWin::on_pbLoadAnalyzersData_clicked()
+{
+    QString fileName = ui->leAnalyzersFileName->text();
+    if (!fileName.contains('/'))
+        fileName = ui->leWorkingDirectory->text() + '/' + fileName;
+
+    AParticleAnalyzerHub & AnHub = AParticleAnalyzerHub::getInstance();
+
+    AErrorHub::clear();
+    AnHub.loadAnalyzerFiles( {fileName} );
+    if (AErrorHub::isError())
+    {
+        guitools::message(AErrorHub::getQError(), this);
+        return;
+    }
+
+    size_t numTotAnalyzers = AGeometryHub::getInstance().countParticleAnalyzers();
+    ui->labNumTotalAnalyzers->setText( QString::number(numTotAnalyzers) );
+
+    size_t numUniqueAnalyzers = AnHub.UniqueAnalyzers.size();
+    ui->labNumUniqueAnalyzers->setText( QString::number(numUniqueAnalyzers) );
+
+    ui->sbAnalyzerUnqiueIndex->setValue(0);
+    updateAnalyzerGui(true);
+}
+
+void AParticleSimWin::updateAnalyzerGui(bool suppressMessages)
+{
+    int uniqueIndex = ui->sbAnalyzerUnqiueIndex->value();
+
+    AParticleAnalyzerHub & AnHub = AParticleAnalyzerHub::getInstance();
+    const size_t numUniqueAnalyzers = AnHub.UniqueAnalyzers.size();
+    if (uniqueIndex >= numUniqueAnalyzers)
+    {
+        if (!suppressMessages) guitools::message("Invalid unique index", this);
+        return;
+    }
+
+    const AAnalyzerData & data = AnHub.UniqueAnalyzers[uniqueIndex];
+    ui->cobAnalyzerParticle->clear();
+    QStringList particles;
+    particles.reserve(data.ParticleMap.size());
+    for (const auto & pair : data.ParticleMap)
+        particles << pair.first;
+    particles.sort();
+    ui->cobAnalyzerParticle->addItems(particles);
+}
+
+void AParticleSimWin::on_pbAnalyzerShowEnergySpectrum_clicked()
+{
+    const QString particle = ui->cobAnalyzerParticle->currentText();
+    int uniqueIndex = ui->sbAnalyzerUnqiueIndex->value();
+
+    AParticleAnalyzerHub & AnHub = AParticleAnalyzerHub::getInstance();
+    const size_t numUniqueAnalyzers = AnHub.UniqueAnalyzers.size();
+    if (uniqueIndex >= numUniqueAnalyzers)
+    {
+        guitools::message("Invalid unique index", this);
+        return;
+    }
+
+    const AAnalyzerData & data = AnHub.UniqueAnalyzers[uniqueIndex];
+    const auto & it = data.ParticleMap.find(particle);
+    if (it == data.ParticleMap.end())
+    {
+        guitools::message("No data was found for this particle (unexpected, report it please)", this);
+        return;
+    }
+
+    TH1D * hist = it->second.EnergyHist;
+    if (!hist) return;
+
+    emit requestDraw(hist, "hist", false, true);
+}
+
