@@ -421,9 +421,41 @@ G4bool AnalyzerSensitiveDetector::ProcessHits(G4Step * step, G4TouchableHistory 
     if (Properties.StopTracking)
     {
         step->GetTrack()->SetTrackStatus(fStopAndKill);
+        // Found cases when secondaries were generated inside the analyzer -> error in processing on ants3 side
+        // !!! cannot use fKillTrackAndSecondaries --> there could be secondaries generated before entrance to the analyzer
+        //   unfortunately, there is long standing bug in Geant4, the followin gapproach does not work:
+        //auto secondaries = step->GetSecondaryInCurrentStep();
+        //for (auto sec : *secondaries){
+        //    std::cout << "!!!" << sec->GetTrackID() << G4endl;
+        //}  // it returns nullptrs -> track ids are not yet assigned
+        //
+        // Using time info to kill the secondaries, created later than time of entrance
+        G4TrackVector * vec = step->GetfSecondary();
+        //std::cout << "Total secondaries " << vec->size() << G4endl;
+        //std::cout << "Step pre-time:" << time << G4endl;
+        if (!vec->empty())
+        {
+            //tr->SetTrackStatus(fStopAndKill); // ignored if set on a track in vec :(
+
+            size_t iTr = vec->size();
+            do
+            {
+                iTr--;
+                G4Track * tr = vec->at(iTr);
+                //std::cout << "->" << tr->GetGlobalTime() << G4endl;
+                if (tr->GetGlobalTime() > preStepPoint->GetGlobalTime())
+                {
+                    //std::cout << "->kill" << G4endl;
+                    vec->erase(vec->begin() + iTr);
+                }
+            }
+            while (iTr != 0);
+        }
+
         SessionManager & SM = SessionManager::getInstance();
         if (SM.Settings.RunSet.SaveTrackingHistory)
         {
+
             const G4ThreeVector & pos = preStepPoint->GetPosition();
             const double kinE = preStepPoint->GetKineticEnergy()/keV;
             //const double depoE = step->GetTotalEnergyDeposit()/keV;
@@ -434,6 +466,7 @@ G4bool AnalyzerSensitiveDetector::ProcessHits(G4Step * step, G4TouchableHistory 
             //the next is the fix:
             SM.bStoppedOnMonitor = true;
         }
+        return false;
     }
 
     return true;
