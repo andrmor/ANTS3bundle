@@ -3402,6 +3402,13 @@ void AParticleSimWin::on_pbLoadAnalyzersData_clicked()
     updateAnalyzerGui(true);
 }
 
+struct AAnalyzerParticleTmpRecord
+{
+    QString Particle;
+    size_t  Number;
+    double  MeanEnergy;
+};
+
 void AParticleSimWin::updateAnalyzerGui(bool suppressMessages)
 {
     int uniqueIndex = ui->sbAnalyzerUnqiueIndex->value();
@@ -3415,6 +3422,28 @@ void AParticleSimWin::updateAnalyzerGui(bool suppressMessages)
     }
 
     const AAnalyzerData & data = AnHub.UniqueAnalyzers[uniqueIndex];
+
+    // statistics
+    ui->pteAnalyzer->clear();
+    std::vector<AAnalyzerParticleTmpRecord> vec;
+    vec.reserve(20);
+    for (const auto & pair : data.ParticleMap)
+    {
+        AAnalyzerParticleTmpRecord rec;
+        rec.Particle = pair.first;
+        const AAnalyzerParticle & pa = pair.second;
+        rec.Number = pa.getNumber();
+        rec.MeanEnergy = pa.getMean();
+        vec.push_back(rec);
+    }
+
+    ui->pteAnalyzer->appendPlainText("Particle\t\tNumber\t\tMeanEnergy[keV]");
+    for (const AAnalyzerParticleTmpRecord & rec : vec)
+    {
+        ui->pteAnalyzer->appendPlainText( QString("%0\t\t%1\t\t%2").arg(rec.Particle).arg(rec.Number).arg(rec.MeanEnergy) );
+    }
+
+    // energy spectra
     ui->cobAnalyzerParticle->clear();
     QStringList particles;
     particles.reserve(data.ParticleMap.size());

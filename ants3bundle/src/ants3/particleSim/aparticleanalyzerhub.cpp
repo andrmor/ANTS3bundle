@@ -4,6 +4,18 @@
 
 #include <QDebug>
 
+size_t AAnalyzerParticle::getNumber() const
+{
+    return EnergyHistStats[4];
+}
+
+double AAnalyzerParticle::getMean() const
+{
+    //qDebug() << EnergyHistStats[0] << EnergyHistStats[1] << EnergyHistStats[2] << EnergyHistStats[3];
+    if (EnergyHistStats[0] == 0) return 0;
+    return EnergyHistStats[2] / EnergyHistStats[0];
+}
+
 QString AAnalyzerParticle::readFromJson(const QJsonObject & json)
 {
     QString name;

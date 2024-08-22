@@ -19,7 +19,8 @@ public:
     double                 EnergyFrom = 0;
     double                 EnergyTo = 0;
 
-    size_t  getNumber() const {return EnergyHistStats[4];}
+    size_t  getNumber() const;
+    double  getMean() const;
 
     QString readFromJson(const QJsonObject & json); // returns the name of the particle
     void    writeToJson(QJsonObject & json) const;

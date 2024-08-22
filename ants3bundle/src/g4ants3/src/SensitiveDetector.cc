@@ -433,24 +433,26 @@ G4bool AnalyzerSensitiveDetector::ProcessHits(G4Step * step, G4TouchableHistory 
     if (proc->GetProcessType() != fTransportation || preStepPoint->GetStepStatus() != fGeomBoundary) return true;
 
     const double time = preStepPoint->GetGlobalTime() / ns;
-    if (Properties.UseTimeWindow)
-        if (time < Properties.TimeWindowFrom || time > Properties.TimeWindowTo) return true;
+    if ( !Properties.UseTimeWindow ||
+         (time >= Properties.TimeWindowFrom && time <= Properties.TimeWindowTo) )
+    {
 
-    const double energy = preStepPoint->GetKineticEnergy() * EnergyFactor;
-    const std::string & particleName = step->GetTrack()->GetParticleDefinition()->GetParticleName();
-    const auto it = ParticleMap.find(particleName);
-    if (it != ParticleMap.end())
-    {
-        it->second.Number++;
-        it->second.Energy->fill(energy);
-    }
-    else
-    {
-        AnalyzerParticleEntry rec;
-        rec.Energy = new AHistogram1D(Properties.EnergyBins, Properties.EnergyFrom, Properties.EnergyTo);
-        rec.Number = 1;
-        rec.Energy->fill(energy);
-        ParticleMap[particleName] = rec; // !!!*** optimize to avoid second lookup
+        const double energy = preStepPoint->GetKineticEnergy() * EnergyFactor;
+        const std::string & particleName = step->GetTrack()->GetParticleDefinition()->GetParticleName();
+        const auto it = ParticleMap.find(particleName);
+        if (it != ParticleMap.end())
+        {
+            it->second.Number++;
+            it->second.Energy->fill(energy);
+        }
+        else
+        {
+            AnalyzerParticleEntry rec;
+            rec.Energy = new AHistogram1D(Properties.EnergyBins, Properties.EnergyFrom, Properties.EnergyTo);
+            rec.Number = 1;
+            rec.Energy->fill(energy);
+            ParticleMap[particleName] = rec; // !!!*** optimize to avoid second lookup
+        }
     }
 
     if (Properties.StopTracking)
