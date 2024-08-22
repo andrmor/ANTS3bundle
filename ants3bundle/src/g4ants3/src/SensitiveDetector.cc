@@ -10,12 +10,46 @@
 #include "G4ThreeVector.hh"
 #include "G4SystemOfUnits.hh"
 
-SensitiveDetector::SensitiveDetector(const G4String& name)
+void SensitiveDetectorTools::stopAndKill(G4Step * step)
+{
+    step->GetTrack()->SetTrackStatus(fStopAndKill);
+
+    // Found cases when secondaries were generated inside the analyzer -> error in processing on ants3 side
+    // !!! cannot use fKillTrackAndSecondaries --> there could be secondaries generated before entrance to the analyzer
+    //  Beacuse of the bug in Geant4, the approach based on step->GetSecondaryInCurrentStep() does not work:
+    //auto secondaries = step->GetSecondaryInCurrentStep();
+    //for (auto sec : *secondaries){
+    //    std::cout << "!!!" << sec->GetTrackID() << G4endl;
+    //}  // it returns nullptrs -> track ids are not yet assigned
+
+    // Using time info to kill the secondaries, created later than time of entrance
+    G4TrackVector * vec = step->GetfSecondary();
+    if (vec->empty()) return;
+
+    size_t iTr = vec->size();
+    do
+    {
+        iTr--;
+        G4Track * tr = vec->at(iTr);
+        //tr->SetTrackStatus(fStopAndKill); // ignored if set on a track in fSecondary container :(
+        //std::cout << "->" << tr->GetGlobalTime() << G4endl;
+        if (tr->GetGlobalTime() > step->GetPreStepPoint()->GetGlobalTime())
+        {
+            //std::cout << "->kill secondary created after particle tracking was aborted" << G4endl;
+            vec->erase(vec->begin() + iTr);
+            delete tr;
+        }
+        else break; // tracks created in the last step are at the end
+    }
+    while (iTr != 0);
+}
+
+DepositionSensitiveDetector::DepositionSensitiveDetector(const G4String& name)
     : G4VSensitiveDetector(name) {}
 
-SensitiveDetector::~SensitiveDetector() {}
+DepositionSensitiveDetector::~DepositionSensitiveDetector() {}
 
-G4bool SensitiveDetector::ProcessHits(G4Step* aStep, G4TouchableHistory*)
+G4bool DepositionSensitiveDetector::ProcessHits(G4Step* aStep, G4TouchableHistory*)
 {  
     G4double edep = aStep->GetTotalEnergyDeposit()/keV;
     if (edep == 0.0) return false;
@@ -100,7 +134,8 @@ G4bool MonitorSensitiveDetector::ProcessHits(G4Step *step, G4TouchableHistory *)
             //stop tracking?
             if (bStopTracking)
             {
-                step->GetTrack()->SetTrackStatus(fStopAndKill);
+                //step->GetTrack()->SetTrackStatus(fStopAndKill);
+                SensitiveDetectorTools::stopAndKill(step);
 
                 SessionManager & SM = SessionManager::getInstance();
                 if (SM.Settings.RunSet.SaveTrackingHistory)
@@ -420,42 +455,11 @@ G4bool AnalyzerSensitiveDetector::ProcessHits(G4Step * step, G4TouchableHistory 
 
     if (Properties.StopTracking)
     {
-        step->GetTrack()->SetTrackStatus(fStopAndKill);
-        // Found cases when secondaries were generated inside the analyzer -> error in processing on ants3 side
-        // !!! cannot use fKillTrackAndSecondaries --> there could be secondaries generated before entrance to the analyzer
-        //   unfortunately, there is long standing bug in Geant4, the followin gapproach does not work:
-        //auto secondaries = step->GetSecondaryInCurrentStep();
-        //for (auto sec : *secondaries){
-        //    std::cout << "!!!" << sec->GetTrackID() << G4endl;
-        //}  // it returns nullptrs -> track ids are not yet assigned
-        //
-        // Using time info to kill the secondaries, created later than time of entrance
-        G4TrackVector * vec = step->GetfSecondary();
-        //std::cout << "Total secondaries " << vec->size() << G4endl;
-        //std::cout << "Step pre-time:" << time << G4endl;
-        if (!vec->empty())
-        {
-            //tr->SetTrackStatus(fStopAndKill); // ignored if set on a track in vec :(
-
-            size_t iTr = vec->size();
-            do
-            {
-                iTr--;
-                G4Track * tr = vec->at(iTr);
-                //std::cout << "->" << tr->GetGlobalTime() << G4endl;
-                if (tr->GetGlobalTime() > preStepPoint->GetGlobalTime())
-                {
-                    //std::cout << "->kill" << G4endl;
-                    vec->erase(vec->begin() + iTr);
-                }
-            }
-            while (iTr != 0);
-        }
+        SensitiveDetectorTools::stopAndKill(step);
 
         SessionManager & SM = SessionManager::getInstance();
         if (SM.Settings.RunSet.SaveTrackingHistory)
         {
-
             const G4ThreeVector & pos = preStepPoint->GetPosition();
             const double kinE = preStepPoint->GetKineticEnergy()/keV;
             //const double depoE = step->GetTotalEnergyDeposit()/keV;

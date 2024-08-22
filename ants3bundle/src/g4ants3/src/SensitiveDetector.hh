@@ -8,11 +8,16 @@ class G4Step;
 class G4HCofThisEvent;
 class AHistogram3Dfixed;
 
-class SensitiveDetector : public G4VSensitiveDetector
+namespace SensitiveDetectorTools
+{
+    void stopAndKill(G4Step * step);
+};
+
+class DepositionSensitiveDetector : public G4VSensitiveDetector
 {
 public:
-    SensitiveDetector(const G4String & name);
-    ~SensitiveDetector();
+    DepositionSensitiveDetector(const G4String & name);
+    ~DepositionSensitiveDetector();
 
     G4bool ProcessHits(G4Step* step, G4TouchableHistory* history) override;
 };
@@ -123,14 +128,6 @@ public:
     double EnergyFactor = 1.0;
 
     std::map<std::string, AnalyzerParticleEntry> ParticleMap;
-
-    //run-time
-    /*
-    AHistogram3Dfixed * Data = nullptr;
-    double VoxelVolume_mm3 = 0;
-
-    double SumDepoOverEvent = 0;
-    */
 };
 
 #endif // SensitiveDetector_h

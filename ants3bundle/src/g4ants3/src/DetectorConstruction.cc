@@ -24,7 +24,7 @@ void DetectorConstruction::ConstructSDandField()
     // ---- Energy depositions in sensitive volumes -----
     SessionManager & SM = SessionManager::getInstance();
 
-    SensitiveDetector* pSD = new SensitiveDetector(SM.DepoLoggerSDName);
+    DepositionSensitiveDetector* pSD = new DepositionSensitiveDetector(SM.DepoLoggerSDName);
     G4SDManager::GetSDMpointer()->AddNewDetector(pSD);
 
     G4LogicalVolumeStore* store = G4LogicalVolumeStore::GetInstance();
