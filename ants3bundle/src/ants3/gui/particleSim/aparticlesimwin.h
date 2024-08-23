@@ -184,6 +184,7 @@ private:
     QString LastFile_Tracking;
     QString LastFile_Monitors;
     QString LastFile_Calorimeters;
+    QString LastFile_Analyzers;
 
     TH1D * histEnergy = nullptr;
     TH1D * histAngle = nullptr;
@@ -289,6 +290,7 @@ private slots:
     void on_pbLoadAnalyzersData_clicked();
     void on_pbChooseAnalyzersFile_clicked();
     void on_pbAnalyzerShowEnergySpectrum_clicked();
+    void on_pbNextAnalyzer_clicked();
 };
 
 #endif // APARTICLESIMWIN_H

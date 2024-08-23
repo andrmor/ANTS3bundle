@@ -965,6 +965,13 @@ void AParticleSimWin::updateResultsGui()
 
         if (SimSet.RunSet.SaveDeposition)
             ui->leDepositionFileName->setText(SimSet.RunSet.FileNameDeposition.data());
+
+        if (SimSet.RunSet.AnalyzerSettings.Enabled)
+        {
+            ui->leAnalyzersFileName->setText(SimSet.RunSet.AnalyzerSettings.FileName.data());
+            LastFile_Analyzers = ui->leAnalyzersFileName->text();
+            updateAnalyzerGui(true); // data will be already loaded for merging
+        }
     }
 }
 
@@ -1013,6 +1020,12 @@ void AParticleSimWin::on_pbLoadAllResults_clicked()
     ui->leCalorimetersFileName->setText(fileName);
     if (QFile(dir + '/' + fileName).exists())
         on_pbLoadCalorimetersData_clicked();
+
+    //analyzers
+    fileName = QString(defaultSettings.AnalyzerSettings.FileName.data());
+    ui->leAnalyzersFileName->setText(fileName);
+    if (QFile(dir + '/' + fileName).exists())
+        on_pbLoadAnalyzersData_clicked();
 }
 
 void updateMatComboBox(QComboBox * cob, const QStringList & mats)
@@ -3378,7 +3391,14 @@ void AParticleSimWin::on_pbChooseAnalyzersFile_clicked()
 #include "aparticleanalyzerhub.h"
 void AParticleSimWin::on_pbLoadAnalyzersData_clicked()
 {
-    QString fileName = ui->leAnalyzersFileName->text();
+    const QString str = ui->leCalorimetersFileName->text();
+    if (str == LastFile_Analyzers) return;
+    LastFile_Analyzers = str;
+
+    //clearResultsAnalyzers(); !!!***
+    //clearResultsGuiAnalyzers(); !!!***
+
+    QString fileName = LastFile_Analyzers;
     if (!fileName.contains('/'))
         fileName = ui->leWorkingDirectory->text() + '/' + fileName;
 
@@ -3489,5 +3509,13 @@ void AParticleSimWin::on_pbAnalyzerShowEnergySpectrum_clicked()
     if (!hist) return;
 
     emit requestDraw(hist, "hist", false, true);
+}
+
+
+void AParticleSimWin::on_pbNextAnalyzer_clicked()
+{
+    int index = ui->sbAnalyzerUnqiueIndex->value();
+    index++;
+    updateAnalyzerGui(false);
 }
 
