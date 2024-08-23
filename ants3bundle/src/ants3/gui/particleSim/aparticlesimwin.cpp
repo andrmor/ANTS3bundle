@@ -3427,6 +3427,7 @@ void AParticleSimWin::updateAnalyzerGui(bool suppressMessages)
     ui->pteAnalyzer->clear();
     std::vector<AAnalyzerParticleTmpRecord> vec;
     vec.reserve(20);
+    size_t sum = 0;
     for (const auto & pair : data.ParticleMap)
     {
         AAnalyzerParticleTmpRecord rec;
@@ -3435,13 +3436,23 @@ void AParticleSimWin::updateAnalyzerGui(bool suppressMessages)
         rec.Number = pa.getNumber();
         rec.MeanEnergy = pa.getMean();
         vec.push_back(rec);
+        sum += rec.Number;
     }
 
+    std::sort(vec.begin(), vec.end(), [](const AAnalyzerParticleTmpRecord & lhs, const AAnalyzerParticleTmpRecord & rhs)
+            {
+                return (lhs.Number > rhs.Number);
+            });
+
     ui->pteAnalyzer->appendPlainText("Particle\t\tNumber\t\tMeanEnergy[keV]");
+    ui->pteAnalyzer->appendPlainText("");
     for (const AAnalyzerParticleTmpRecord & rec : vec)
     {
         ui->pteAnalyzer->appendPlainText( QString("%0\t\t%1\t\t%2").arg(rec.Particle).arg(rec.Number).arg(rec.MeanEnergy) );
     }
+    ui->pteAnalyzer->appendPlainText("");
+    ui->pteAnalyzer->appendPlainText( QString("In total: %0 particles").arg(sum) );
+
 
     // energy spectra
     ui->cobAnalyzerParticle->clear();
