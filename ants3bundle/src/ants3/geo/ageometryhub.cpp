@@ -640,6 +640,7 @@ void AGeometryHub::registerPhotonFunctional(AGeoObject * obj, TGeoVolume * paren
 void AGeometryHub::fillParticleAnalyzerRecords(AParticleAnalyzerSettings * settings) const
 {
     settings->Analyzers.clear();
+    settings->GlobalToUniqueLUT.clear();
 
     int uniqueIndex = 0;
     for (const auto & pair : ParticleAnalyzers)
@@ -648,18 +649,62 @@ void AGeometryHub::fillParticleAnalyzerRecords(AParticleAnalyzerSettings * setti
         const AGeoParticleAnalyzer * pa = static_cast<const AGeoParticleAnalyzer*>(role);
         const AParticleAnalyzerRecord & rec = pa->Properties;
 
-        const std::string baseName = pair.first->NameWithoutSuffix.toLatin1().data();
+        const std::string volumeName = pair.first->Name.toLatin1().data();
 
-        // note that all unique AGeoObjects, e.g. not belonging to an instance, have baseName empty
+        std::string baseName = pair.first->NameWithoutSuffix.toLatin1().data();
+        // all AGeoObjects not belonging to an instance have baseName empty
+        if (baseName.empty()) baseName = volumeName;
+
+        bool found = false;
+        for (AParticleAnalyzerRecord & filledRecord : settings->Analyzers) // expect small number of unique analyzers? !!!*** consider map
+        {
+            if (baseName == filledRecord.VolumeBaseName)
+            {
+                if (rec.SingleInstanceForAllCopies)
+                    settings->GlobalToUniqueLUT.push_back(filledRecord.UniqueIndex);
+                else
+                    settings->GlobalToUniqueLUT.push_back(uniqueIndex++);
+
+                filledRecord.addVolumeNameIfNew(volumeName);
+
+                if (rec.SingleInstanceForAllCopies)
+                    filledRecord.GlobalIndexIfNoMerge = -1;
+
+                found = true;
+                break;
+            }
+        }
+
+        if (!found)
+        {
+            AParticleAnalyzerRecord recordCopy = rec;
+
+            recordCopy.UniqueIndex = uniqueIndex;
+            recordCopy.VolumeBaseName = baseName;
+            recordCopy.addVolumeNameIfNew(volumeName);
+            recordCopy.GlobalIndexIfNoMerge = settings->GlobalToUniqueLUT.size();
+
+            settings->Analyzers.push_back(recordCopy);
+
+            settings->GlobalToUniqueLUT.push_back(uniqueIndex);
+
+            uniqueIndex++;
+        }
+
+        /*
         if (baseName.empty() || !rec.SingleInstanceForAllCopies)
         {
             AParticleAnalyzerRecord recordCopy = rec;
 
-            recordCopy.UniqueIndex = uniqueIndex++;
+            recordCopy.UniqueIndex = uniqueIndex;
             recordCopy.VolumeBaseName = baseName;
             recordCopy.VolumeNames.push_back( pair.first->Name.toLatin1().data() );
 
             settings->Analyzers.push_back(recordCopy);
+
+            settings->GlobalToUniqueLUT.push_back(uniqueIndex);
+
+            uniqueIndex++;
         }
         else
         {
@@ -673,21 +718,30 @@ void AGeometryHub::fillParticleAnalyzerRecords(AParticleAnalyzerSettings * setti
                 {
                     filledRecord.VolumeNames.push_back( pair.first->Name.toLatin1().data() );
                     // shares the same UniqueIndex and VolumeBaseName
+
+                    settings->GlobalToUniqueLUT.push_back(filledRecord.UniqueIndex);
+
                     found = true;
                     break;
                 }
             }
+
             if (!found)
             {
                 AParticleAnalyzerRecord recordCopy = rec;
 
-                recordCopy.UniqueIndex = uniqueIndex++;
+                recordCopy.UniqueIndex = uniqueIndex;
                 recordCopy.VolumeBaseName = baseName;
                 recordCopy.VolumeNames.push_back( pair.first->Name.toLatin1().data() );
 
                 settings->Analyzers.push_back(recordCopy);
+
+                settings->GlobalToUniqueLUT.push_back(uniqueIndex);
+
+                uniqueIndex++;
             }
         }
+        */
     }
 }
 

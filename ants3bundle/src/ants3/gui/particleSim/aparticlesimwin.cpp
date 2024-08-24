@@ -3391,7 +3391,7 @@ void AParticleSimWin::on_pbChooseAnalyzersFile_clicked()
 #include "aparticleanalyzerhub.h"
 void AParticleSimWin::on_pbLoadAnalyzersData_clicked()
 {
-    const QString str = ui->leCalorimetersFileName->text();
+    const QString str = ui->leAnalyzersFileName->text();
     if (str == LastFile_Analyzers) return;
     LastFile_Analyzers = str;
 
@@ -3511,11 +3511,11 @@ void AParticleSimWin::on_pbAnalyzerShowEnergySpectrum_clicked()
     emit requestDraw(hist, "hist", false, true);
 }
 
-
 void AParticleSimWin::on_pbNextAnalyzer_clicked()
 {
     int index = ui->sbAnalyzerUnqiueIndex->value();
     index++;
+    ui->sbAnalyzerUnqiueIndex->setValue(index);
     updateAnalyzerGui(false);
 }
 

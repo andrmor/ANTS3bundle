@@ -39,6 +39,7 @@ void AParticleAnalyzerRecord::writeToJson(QJsonObject & json, bool includeGeant4
     {
         json["UniqueIndex"] = UniqueIndex;
         json["VolumeBaseName"] = QString(VolumeBaseName.data());
+        json["GlobalIndexIfNoMerge"] = GlobalIndexIfNoMerge;
 
         QJsonArray ar;
         for (const auto & n : VolumeNames) ar.push_back( QString(n.data()) );
@@ -76,12 +77,21 @@ void AParticleAnalyzerRecord::readFromJson(const QJsonObject & json)
 #ifdef JSON11
     jstools::parseJson(json, "UniqueIndex", UniqueIndex);
     jstools::parseJson(json, "VolumeBaseName", VolumeBaseName);
+    jstools::parseJson(json, "GlobalIndexIfNoMerge", GlobalIndexIfNoMerge);
     json11::Json::array ar;
     jstools::parseJson(json, "VolumeNames", ar);
     VolumeNames.resize(ar.size());
     for (size_t i = 0; i < ar.size(); i++)
         VolumeNames[i] = ar[i].string_value();
 #endif
+}
+
+void AParticleAnalyzerRecord::addVolumeNameIfNew(const std::string & name)
+{
+    for (const auto & n : VolumeNames)
+        if (n == name) return;
+
+    VolumeNames.push_back(name);
 }
 
 // -------------
@@ -102,6 +112,11 @@ void AParticleAnalyzerSettings::writeToJson(QJsonObject & json, bool includeG4an
             ar.append(js);
         }
         json["Analyzers"] = ar;
+
+        QJsonArray arLUT;
+        for (size_t index : GlobalToUniqueLUT)
+            arLUT.append( (int)index );
+        json["GlobalToUniqueLUT"] = arLUT;
     }
 }
 #endif
@@ -116,6 +131,8 @@ void AParticleAnalyzerSettings::readFromJson(const QJsonObject & json)
     jstools::parseJson(json, "FileName", FileName);
 
     Analyzers.clear();
+    GlobalToUniqueLUT.clear();
+
 #ifdef JSON11
     json11::Json::array anaArray;
     jstools::parseJson(json, "Analyzers", anaArray);
@@ -126,6 +143,14 @@ void AParticleAnalyzerSettings::readFromJson(const QJsonObject & json)
         AParticleAnalyzerRecord r;
         r.readFromJson(mjs);
         Analyzers.push_back(r);
+    }
+
+    json11::Json::array lutArray;
+    jstools::parseJson(json, "GlobalToUniqueLUT", lutArray);
+    for (size_t i = 0; i < lutArray.size(); i++)
+    {
+        int index = lutArray[i].int_value();
+        GlobalToUniqueLUT.push_back(index);
     }
 #endif
     // no need to read configs on ANTS3 side
@@ -145,4 +170,5 @@ void AParticleAnalyzerSettings::clear()
     FileName = "ParticleAnalyzers.json";
 
     Analyzers.clear();
+    GlobalToUniqueLUT.clear();
 }

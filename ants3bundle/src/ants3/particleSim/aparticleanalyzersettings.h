@@ -31,7 +31,8 @@ public:
     // Geant4-related properties, runtime
     int                      UniqueIndex;
     std::string              VolumeBaseName; // Note that instances modify the object name, so here the original name is stored
-    std::vector<std::string> VolumeNames;
+    std::vector<std::string> VolumeNames;    // Will be very short (most typical value is just one), no need to optimize
+    int                      GlobalIndexIfNoMerge = -1;
 
 #ifdef JSON11
     void readFromJson(const json11::Json::object & json);
@@ -39,6 +40,8 @@ public:
     void writeToJson(QJsonObject & json, bool includeGeant4Features) const;
     void readFromJson(const QJsonObject & json);  // !!!*** error for Geant4 side
 #endif
+
+    void addVolumeNameIfNew(const std::string & name);
 };
 
 class AParticleAnalyzerSettings
@@ -58,6 +61,7 @@ public:
 #endif
 
     std::vector<AParticleAnalyzerRecord> Analyzers;
+    std::vector<size_t> GlobalToUniqueLUT; // global index -to-> unique index    (another definition: UniqueIndex[GlobalIndex])
 
     void clear();
 };
