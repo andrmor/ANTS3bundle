@@ -2,6 +2,7 @@
 #define SESSIONMANAGER_H
 
 #include "aparticlesimsettings.h"
+#include "aanalyzeruniqueinstance.h"
 
 #include "json11.hh" //https://github.com/dropbox/json11
 
@@ -98,9 +99,9 @@ public:
 
         int CurrentEvent = 0;
 
-        std::vector<MonitorSensitiveDetector*>     Monitors;     // can contain nullptr!
-        std::vector<CalorimeterSensitiveDetector*> Calorimeters; // can contain nullptr!
-        std::vector<AnalyzerSensitiveDetector*>    Analyzers;
+        std::vector<MonitorSensitiveDetector*>     Monitors;      // can contain nullptr!
+        std::vector<CalorimeterSensitiveDetector*> Calorimeters;  // can contain nullptr!
+        std::vector<AAnalyzerUniqueInstance>       Analyzers;
 
         const G4String DepoLoggerSDName = "SD";
 

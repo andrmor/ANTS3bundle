@@ -68,10 +68,14 @@ void DetectorConstruction::ConstructSDandField()
         SetSensitiveDetector(cal->Name, cal);
 
     // ---- Analyzers ----
-    for (AnalyzerSensitiveDetector * an : SM.Analyzers)
+    if (SM.Settings.RunSet.AnalyzerSettings.Enabled)
     {
-        for (const std::string & name : an->Properties.VolumeNames)
-            SetSensitiveDetector(name, an);
+        AnalyzerSensitiveDetector * asd = new AnalyzerSensitiveDetector("AnSensDet");
+        for (const AParticleAnalyzerRecord & rec : SM.Settings.RunSet.AnalyzerSettings.AnalyzerTypes)
+        {
+            for (const std::string & name : rec.VolumeNames)
+                SetSensitiveDetector(name, asd);
+        }
     }
 }
 

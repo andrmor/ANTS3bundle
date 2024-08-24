@@ -639,9 +639,10 @@ void AGeometryHub::registerPhotonFunctional(AGeoObject * obj, TGeoVolume * paren
 
 void AGeometryHub::fillParticleAnalyzerRecords(AParticleAnalyzerSettings * settings) const
 {
-    settings->Analyzers.clear();
+    settings->AnalyzerTypes.clear();
     settings->GlobalToUniqueLUT.clear();
 
+    int typeIndex = 0;
     int uniqueIndex = 0;
     for (const auto & pair : ParticleAnalyzers)
     {
@@ -656,18 +657,25 @@ void AGeometryHub::fillParticleAnalyzerRecords(AParticleAnalyzerSettings * setti
         if (baseName.empty()) baseName = volumeName;
 
         bool found = false;
-        for (AParticleAnalyzerRecord & filledRecord : settings->Analyzers) // expect small number of unique analyzers? !!!*** consider map
+        for (AParticleAnalyzerRecord & filledRecord : settings->AnalyzerTypes) // !!!*** consider map
         {
-            if (baseName == filledRecord.VolumeBaseName)
+            if (baseName == filledRecord.VolumeBaseName)  // record for this base type already exists
             {
                 if (rec.SingleInstanceForAllCopies)
-                    settings->GlobalToUniqueLUT.push_back(filledRecord.UniqueIndex);
+                {
+                    settings->GlobalToUniqueLUT.push_back(filledRecord.UniqueIndex); // reuse unique
+                    // UniqueToTypeLUT already filled
+                }
                 else
-                    settings->GlobalToUniqueLUT.push_back(uniqueIndex++);
+                {
+                    settings->GlobalToUniqueLUT.push_back(uniqueIndex);
+                    settings->UniqueToTypeLUT.push_back(filledRecord.TypeIndex);
+                    uniqueIndex++;
+                }
 
                 filledRecord.addVolumeNameIfNew(volumeName);
 
-                if (rec.SingleInstanceForAllCopies)
+                if (rec.SingleInstanceForAllCopies)   // a standalone object also can have SingleInstanceForAllCopies flag, thats why we have to set -1 on seeing it second time
                     filledRecord.GlobalIndexIfNoMerge = -1;
 
                 found = true;
@@ -679,70 +687,24 @@ void AGeometryHub::fillParticleAnalyzerRecords(AParticleAnalyzerSettings * setti
         {
             AParticleAnalyzerRecord recordCopy = rec;
 
+            recordCopy.TypeIndex = typeIndex;
             recordCopy.UniqueIndex = uniqueIndex;
             recordCopy.VolumeBaseName = baseName;
             recordCopy.addVolumeNameIfNew(volumeName);
-            recordCopy.GlobalIndexIfNoMerge = settings->GlobalToUniqueLUT.size();
 
-            settings->Analyzers.push_back(recordCopy);
+            recordCopy.GlobalIndexIfNoMerge = settings->GlobalToUniqueLUT.size(); // can be set to -1 if another copy is found later
 
+            settings->AnalyzerTypes.push_back(recordCopy);
+
+            settings->UniqueToTypeLUT.push_back(typeIndex);
             settings->GlobalToUniqueLUT.push_back(uniqueIndex);
 
+            typeIndex++;
             uniqueIndex++;
         }
-
-        /*
-        if (baseName.empty() || !rec.SingleInstanceForAllCopies)
-        {
-            AParticleAnalyzerRecord recordCopy = rec;
-
-            recordCopy.UniqueIndex = uniqueIndex;
-            recordCopy.VolumeBaseName = baseName;
-            recordCopy.VolumeNames.push_back( pair.first->Name.toLatin1().data() );
-
-            settings->Analyzers.push_back(recordCopy);
-
-            settings->GlobalToUniqueLUT.push_back(uniqueIndex);
-
-            uniqueIndex++;
-        }
-        else
-        {
-            // not a unique object and SingleInstanceForAllCopies is set
-
-            // first check we already processed one of the "copies"
-            bool found = false;
-            for (AParticleAnalyzerRecord & filledRecord : settings->Analyzers) // expect small number of unique analyzers? !!!*** consider map
-            {
-                if (baseName == filledRecord.VolumeBaseName)
-                {
-                    filledRecord.VolumeNames.push_back( pair.first->Name.toLatin1().data() );
-                    // shares the same UniqueIndex and VolumeBaseName
-
-                    settings->GlobalToUniqueLUT.push_back(filledRecord.UniqueIndex);
-
-                    found = true;
-                    break;
-                }
-            }
-
-            if (!found)
-            {
-                AParticleAnalyzerRecord recordCopy = rec;
-
-                recordCopy.UniqueIndex = uniqueIndex;
-                recordCopy.VolumeBaseName = baseName;
-                recordCopy.VolumeNames.push_back( pair.first->Name.toLatin1().data() );
-
-                settings->Analyzers.push_back(recordCopy);
-
-                settings->GlobalToUniqueLUT.push_back(uniqueIndex);
-
-                uniqueIndex++;
-            }
-        }
-        */
     }
+
+    settings->NumberOfUniqueAnalyzers = uniqueIndex;
 }
 
 void AGeometryHub::positionArray(AGeoObject * obj, TGeoVolume * vol, int parentNodeIndex)

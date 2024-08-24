@@ -65,6 +65,7 @@ SOURCES += \
         src/SteppingAction.cc \
         src/TrackingAction.cc \
         #src/ahistogram.cc \
+        src/aanalyzeruniqueinstance.cpp \
         src/arandomg4hub.cpp \
         src/exceptionhandler.cpp \
         src/json11.cc \
@@ -103,6 +104,7 @@ HEADERS += \
     src/SteppingAction.hh \
     src/TrackingAction.hh \
     #src/ahistogram.hh \
+    src/aanalyzeruniqueinstance.h \
     src/arandomg4hub.h \
     src/exceptionhandler.h \
     src/json11.hh \

@@ -29,10 +29,12 @@ public:
     static bool isAllowedEnergyUnit(const std::string & str);
 
     // Geant4-related properties, runtime
-    int                      UniqueIndex;
     std::string              VolumeBaseName; // Note that instances modify the object name, so here the original name is stored
     std::vector<std::string> VolumeNames;    // Will be very short (most typical value is just one), no need to optimize
     int                      GlobalIndexIfNoMerge = -1;
+
+    int                      TypeIndex;   // tmp, not saved
+    int                      UniqueIndex; // tmp, not saved
 
 #ifdef JSON11
     void readFromJson(const json11::Json::object & json);
@@ -60,8 +62,15 @@ public:
     void initFromHub();
 #endif
 
-    std::vector<AParticleAnalyzerRecord> Analyzers;
-    std::vector<size_t> GlobalToUniqueLUT; // global index -to-> unique index    (another definition: UniqueIndex[GlobalIndex])
+    // --> Geant4 interface
+    std::vector<AParticleAnalyzerRecord> AnalyzerTypes; // can be shared by many unique analyzers
+
+    std::vector<size_t> UniqueToTypeLUT;   // unique index -to-> type index      ( TypeIndex[UniqueIndex] )    used by configurator in G4Ants3
+    std::vector<size_t> GlobalToUniqueLUT; // global index -to-> unique index    ( UniqueIndex[GlobalIndex] )  used by SensitiveDetector in G4Ants3
+
+    size_t NumberOfUniqueAnalyzers = 0;
+    // number of types can be deduced from the size of AnalyzerTypes
+    // <--
 
     void clear();
 };

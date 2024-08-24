@@ -106,28 +106,12 @@ public:
 
 };
 
-#include "aparticleanalyzersettings.h"
-class AnalyzerParticleEntry
-{
-public:
-    size_t Number = 0;
-    AHistogram1D * Energy = nullptr;
-};
-
 class AnalyzerSensitiveDetector : public G4VSensitiveDetector
 {
 public:
-    AnalyzerSensitiveDetector(const AParticleAnalyzerRecord & properties);
-    ~AnalyzerSensitiveDetector();
+    AnalyzerSensitiveDetector(const std::string & name);
 
     G4bool ProcessHits(G4Step * step, G4TouchableHistory * history) override;
-
-    void writeToJson(json11::Json::object & json);
-
-    const AParticleAnalyzerRecord & Properties;
-    double EnergyFactor = 1.0;
-
-    std::map<std::string, AnalyzerParticleEntry> ParticleMap;
 };
 
 #endif // SensitiveDetector_h

@@ -37,7 +37,8 @@ void AParticleAnalyzerRecord::writeToJson(QJsonObject & json, bool includeGeant4
 
     if (includeGeant4Features)
     {
-        json["UniqueIndex"] = UniqueIndex;
+        //json["TypeIndex"] = TypeIndex;
+        //json["UniqueIndex"] = UniqueIndex;
         json["VolumeBaseName"] = QString(VolumeBaseName.data());
         json["GlobalIndexIfNoMerge"] = GlobalIndexIfNoMerge;
 
@@ -105,18 +106,31 @@ void AParticleAnalyzerSettings::writeToJson(QJsonObject & json, bool includeG4an
     if (includeG4ants3Set)
     {
         QJsonArray ar;
-        for (const AParticleAnalyzerRecord & ana : Analyzers)
+        for (const AParticleAnalyzerRecord & ana : AnalyzerTypes)
         {
             QJsonObject js;
             ana.writeToJson(js, includeG4ants3Set);
             ar.append(js);
         }
-        json["Analyzers"] = ar;
+        json["AnalyzerTypes"] = ar;
 
-        QJsonArray arLUT;
-        for (size_t index : GlobalToUniqueLUT)
-            arLUT.append( (int)index );
-        json["GlobalToUniqueLUT"] = arLUT;
+        // UniqueToTypeLUT
+        {
+            QJsonArray arLUT;
+            for (size_t index : UniqueToTypeLUT)
+                arLUT.append( (int)index );
+            json["UniqueToTypeLUT"] = arLUT;
+        }
+
+        // GlobalToUniqueLUT
+        {
+            QJsonArray arLUT;
+            for (size_t index : GlobalToUniqueLUT)
+                arLUT.append( (int)index );
+            json["GlobalToUniqueLUT"] = arLUT;
+        }
+
+        json["NumberOfUniqueAnalyzers"] = (int)NumberOfUniqueAnalyzers;
     }
 }
 #endif
@@ -130,28 +144,47 @@ void AParticleAnalyzerSettings::readFromJson(const QJsonObject & json)
     jstools::parseJson(json, "Enabled",  Enabled);
     jstools::parseJson(json, "FileName", FileName);
 
-    Analyzers.clear();
+    AnalyzerTypes.clear();
     GlobalToUniqueLUT.clear();
 
 #ifdef JSON11
     json11::Json::array anaArray;
-    jstools::parseJson(json, "Analyzers", anaArray);
+    jstools::parseJson(json, "AnalyzerTypes", anaArray);
     for (size_t i = 0; i < anaArray.size(); i++)
     {
         json11::Json::object mjs = anaArray[i].object_items();
 
         AParticleAnalyzerRecord r;
         r.readFromJson(mjs);
-        Analyzers.push_back(r);
+        AnalyzerTypes.push_back(r);
     }
 
-    json11::Json::array lutArray;
-    jstools::parseJson(json, "GlobalToUniqueLUT", lutArray);
-    for (size_t i = 0; i < lutArray.size(); i++)
+    // UniqueToTypeLUT
     {
-        int index = lutArray[i].int_value();
-        GlobalToUniqueLUT.push_back(index);
+        json11::Json::array lutArray;
+        jstools::parseJson(json, "UniqueToTypeLUT", lutArray);
+        for (size_t i = 0; i < lutArray.size(); i++)
+        {
+            int index = lutArray[i].int_value();
+            UniqueToTypeLUT.push_back(index);
+        }
     }
+
+    // GlobalToUniqueLUT
+    {
+        json11::Json::array lutArray;
+        jstools::parseJson(json, "GlobalToUniqueLUT", lutArray);
+        for (size_t i = 0; i < lutArray.size(); i++)
+        {
+            int index = lutArray[i].int_value();
+            GlobalToUniqueLUT.push_back(index);
+        }
+    }
+
+    int num;
+    jstools::parseJson(json, "NumberOfUniqueAnalyzers", num);
+    if (num < 0) num = 0; // !!!*** error reporting
+
 #endif
     // no need to read configs on ANTS3 side
 }
@@ -169,6 +202,9 @@ void AParticleAnalyzerSettings::clear()
     Enabled  = false;
     FileName = "ParticleAnalyzers.json";
 
-    Analyzers.clear();
+    AnalyzerTypes.clear();
     GlobalToUniqueLUT.clear();
+    UniqueToTypeLUT.clear();
+
+    NumberOfUniqueAnalyzers = 0;
 }

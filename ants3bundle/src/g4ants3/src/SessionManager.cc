@@ -746,10 +746,16 @@ void SessionManager::readConfig(const std::string & workingDir, const std::strin
 
     if (Settings.RunSet.AnalyzerSettings.Enabled)
     {
-        for (AParticleAnalyzerRecord & r : Settings.RunSet.AnalyzerSettings.Analyzers)
+        const size_t num = Settings.RunSet.AnalyzerSettings.NumberOfUniqueAnalyzers;
+        Analyzers.reserve(num);
+
+        for (size_t iUnique = 0; iUnique < num; iUnique++)
         {
-            AnalyzerSensitiveDetector * sd = new AnalyzerSensitiveDetector(r);
-            Analyzers.push_back(sd);
+            size_t iType = Settings.RunSet.AnalyzerSettings.UniqueToTypeLUT[iUnique]; // !!!*** error handling!
+
+            const AParticleAnalyzerRecord & properties = Settings.RunSet.AnalyzerSettings.AnalyzerTypes[iType];
+
+            Analyzers.push_back( AAnalyzerUniqueInstance(properties) );
         }
     }
 
@@ -866,10 +872,10 @@ void SessionManager::storeAnalyzerData()
 {
     json11::Json::array Arr;
 
-    for (AnalyzerSensitiveDetector * an : Analyzers)
+    for (const AAnalyzerUniqueInstance & an : Analyzers)
     {
         json11::Json::object json;
-        an->writeToJson(json);
+        an.writeToJson(json);
         Arr.push_back(json);
     }
 

@@ -412,16 +412,8 @@ void CalorimeterSensitiveDetector::writeToJson(json11::Json::object & json)
 
 // -------------------------
 
-AnalyzerSensitiveDetector::AnalyzerSensitiveDetector(const AParticleAnalyzerRecord & properties) :
-    G4VSensitiveDetector(properties.VolumeBaseName.empty() ? properties.VolumeNames.front() : properties.VolumeBaseName),
-    Properties(properties)
-{
-    if      (properties.EnergyUnits == "MeV") EnergyFactor = 1 / MeV;
-    else if (properties.EnergyUnits == "keV") EnergyFactor = 1 / keV;
-    else if (properties.EnergyUnits == "eV")  EnergyFactor = 1 / eV;
-}
-
-AnalyzerSensitiveDetector::~AnalyzerSensitiveDetector() {}
+AnalyzerSensitiveDetector::AnalyzerSensitiveDetector(const std::string & name) :
+    G4VSensitiveDetector(name) {}
 
 G4bool AnalyzerSensitiveDetector::ProcessHits(G4Step * step, G4TouchableHistory *)
 {
@@ -432,30 +424,14 @@ G4bool AnalyzerSensitiveDetector::ProcessHits(G4Step * step, G4TouchableHistory 
     //std::cout << step->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName() << std::endl;
     if (proc->GetProcessType() != fTransportation || preStepPoint->GetStepStatus() != fGeomBoundary) return true;
 
-    const double time = preStepPoint->GetGlobalTime() / ns;
-    if ( !Properties.UseTimeWindow ||
-         (time >= Properties.TimeWindowFrom && time <= Properties.TimeWindowTo) )
-    {
+    int index = preStepPoint->GetPhysicalVolume()->GetCopyNo();
+    // !!!*** error processing
 
-        const double energy = preStepPoint->GetKineticEnergy() * EnergyFactor;
-        const std::string & particleName = step->GetTrack()->GetParticleDefinition()->GetParticleName();
-        const auto it = ParticleMap.find(particleName);
-        if (it != ParticleMap.end())
-        {
-            it->second.Number++;
-            it->second.Energy->fill(energy);
-        }
-        else
-        {
-            AnalyzerParticleEntry rec;
-            rec.Energy = new AHistogram1D(Properties.EnergyBins, Properties.EnergyFrom, Properties.EnergyTo);
-            rec.Number = 1;
-            rec.Energy->fill(energy);
-            ParticleMap[particleName] = rec; // !!!*** optimize to avoid second lookup
-        }
-    }
+    SessionManager & SM = SessionManager::getInstance();
+    size_t iUnique = SM.Settings.RunSet.AnalyzerSettings.GlobalToUniqueLUT[index]; // !!!*** error processing
 
-    if (Properties.StopTracking)
+    bool isStopped = SM.Analyzers[iUnique].processParticle(step);
+    if (isStopped)
     {
         SensitiveDetectorTools::stopAndKill(step);
 
@@ -466,7 +442,7 @@ G4bool AnalyzerSensitiveDetector::ProcessHits(G4Step * step, G4TouchableHistory 
             const double kinE = preStepPoint->GetKineticEnergy()/keV;
             //const double depoE = step->GetTotalEnergyDeposit()/keV;
             SM.saveTrackRecord("AnalyzerStop",
-                               pos, time,
+                               pos, preStepPoint->GetGlobalTime()/ns,
                                kinE, 0);
             // bug in Geant4.10.5.1? Tracking reports one more step - transportation from the monitor to the next volume
             //the next is the fix:
@@ -476,43 +452,4 @@ G4bool AnalyzerSensitiveDetector::ProcessHits(G4Step * step, G4TouchableHistory 
     }
 
     return true;
-}
-
-void AnalyzerSensitiveDetector::writeToJson(json11::Json::object & json)
-{
-    json["UniqueIndex"] = Properties.UniqueIndex;
-    json["VolumeBaseName"] = (Properties.VolumeBaseName.empty() ? Properties.VolumeNames.front() : Properties.VolumeBaseName ); // it will be the base name for non-unique objects
-
-    json11::Json::array arAllParticles;
-    for (const auto & pair : ParticleMap)
-    {
-        json11::Json::object js;
-        js["Particle"] = pair.first;
-
-        AHistogram1D * Hist = pair.second.Energy;
-        const std::vector<double> & data = Hist->getContent();
-        double from, to;
-        Hist->getLimits(from, to);
-        js["EnergyFrom"] = from;
-        js["EnergyTo"] = to;
-        double delta = (to - from) / Properties.EnergyBins;
-        json11::Json::array ar;
-        for (size_t i = 0; i < data.size(); i++)  // 0=underflow and last=overflow
-        {
-            json11::Json::array el;
-            el.push_back(from + (i - 0.5)*delta); // i - 1 + 0.5
-            el.push_back(data[i]);
-            ar.push_back(el);
-        }
-        js["EnergyData"] = ar;
-
-        const std::vector<double> vec = Hist->getStat();
-        json11::Json::array sjs;
-        for (const double & d : vec)
-            sjs.push_back(d);
-        js["EnergyStats"] = sjs;
-
-        arAllParticles.push_back(js);
-    }
-    json["ParticleData"] = arAllParticles;
 }
