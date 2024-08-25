@@ -184,6 +184,7 @@ void AParticleAnalyzerSettings::readFromJson(const QJsonObject & json)
     int num;
     jstools::parseJson(json, "NumberOfUniqueAnalyzers", num);
     if (num < 0) num = 0; // !!!*** error reporting
+    NumberOfUniqueAnalyzers = num;
 
 #endif
     // no need to read configs on ANTS3 side
