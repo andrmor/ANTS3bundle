@@ -970,7 +970,7 @@ void AParticleSimWin::updateResultsGui()
         {
             ui->leAnalyzersFileName->setText(SimSet.RunSet.AnalyzerSettings.FileName.data());
             LastFile_Analyzers = ui->leAnalyzersFileName->text();
-            updateAnalyzerGui(true); // data will be already loaded for merging
+            updateAnalyzerGui(); // data will be already loaded for merging
         }
     }
 }
@@ -3395,9 +3395,6 @@ void AParticleSimWin::on_pbLoadAnalyzersData_clicked()
     if (str == LastFile_Analyzers) return;
     LastFile_Analyzers = str;
 
-    //clearResultsAnalyzers(); !!!***
-    //clearResultsGuiAnalyzers(); !!!***
-
     QString fileName = LastFile_Analyzers;
     if (!fileName.contains('/'))
         fileName = ui->leWorkingDirectory->text() + '/' + fileName;
@@ -3412,14 +3409,41 @@ void AParticleSimWin::on_pbLoadAnalyzersData_clicked()
         return;
     }
 
+    updateAnalyzerGui();
+}
+
+void AParticleSimWin::updateAnalyzerGui()
+{
+    AParticleAnalyzerHub & AnHub = AParticleAnalyzerHub::getInstance();
+
     size_t numTotAnalyzers = AGeometryHub::getInstance().countParticleAnalyzers();
     ui->labNumTotalAnalyzers->setText( QString::number(numTotAnalyzers) );
 
     size_t numUniqueAnalyzers = AnHub.UniqueAnalyzers.size();
     ui->labNumUniqueAnalyzers->setText( QString::number(numUniqueAnalyzers) );
 
+    ui->cobAnalyzer->clear();
+    ui->pteAnalyzer->clear();
+    ui->cobAnalyzerParticle->clear();
+
+    ui->frAnalayzerData->setEnabled(numTotAnalyzers != 0);
+    if (numTotAnalyzers == 0) return;
+
+    // cob with analyzers
+    QStringList sl;
+    for (const AAnalyzerData & ana : AnHub.UniqueAnalyzers)
+    {
+        QString str = ana.Name;
+        int ind = ana.GlobalIndexIfNoMerge;
+        if (ind == -1) str += "(combined)";
+        else           str += QString(" (#%0)").arg(ind);
+        sl << str;
+    }
+    ui->cobAnalyzer->addItems(sl);
+    ui->cobAnalyzer->setCurrentIndex(0);
     ui->sbAnalyzerUnqiueIndex->setValue(0);
-    updateAnalyzerGui(true);
+
+    updateAnalyzerDataGui(true);
 }
 
 struct AAnalyzerParticleTmpRecord
@@ -3429,7 +3453,7 @@ struct AAnalyzerParticleTmpRecord
     double  MeanEnergy;
 };
 
-void AParticleSimWin::updateAnalyzerGui(bool suppressMessages)
+void AParticleSimWin::updateAnalyzerDataGui(bool suppressMessages)
 {
     int uniqueIndex = ui->sbAnalyzerUnqiueIndex->value();
 
@@ -3437,14 +3461,13 @@ void AParticleSimWin::updateAnalyzerGui(bool suppressMessages)
     const size_t numUniqueAnalyzers = AnHub.UniqueAnalyzers.size();
     if (uniqueIndex >= numUniqueAnalyzers)
     {
-        if (!suppressMessages) guitools::message("Invalid unique index", this);
+        if (!suppressMessages) guitools::message("Invalid analyzer index", this);
         return;
     }
 
     const AAnalyzerData & data = AnHub.UniqueAnalyzers[uniqueIndex];
 
     // statistics
-    ui->pteAnalyzer->clear();
     std::vector<AAnalyzerParticleTmpRecord> vec;
     vec.reserve(20);
     size_t sum = 0;
@@ -3464,6 +3487,7 @@ void AParticleSimWin::updateAnalyzerGui(bool suppressMessages)
                 return (lhs.Number > rhs.Number);
             });
 
+    ui->pteAnalyzer->clear();
     ui->pteAnalyzer->appendPlainText("Particle\t\tNumber\t\tMeanEnergy[keV]");
     ui->pteAnalyzer->appendPlainText("");
     for (const AAnalyzerParticleTmpRecord & rec : vec)
@@ -3472,7 +3496,6 @@ void AParticleSimWin::updateAnalyzerGui(bool suppressMessages)
     }
     ui->pteAnalyzer->appendPlainText("");
     ui->pteAnalyzer->appendPlainText( QString("In total: %0 particles").arg(sum) );
-
 
     // energy spectra
     ui->cobAnalyzerParticle->clear();
@@ -3515,7 +3538,40 @@ void AParticleSimWin::on_pbNextAnalyzer_clicked()
 {
     int index = ui->sbAnalyzerUnqiueIndex->value();
     index++;
+
+    AParticleAnalyzerHub & AnHub = AParticleAnalyzerHub::getInstance();
+    const size_t numUniqueAnalyzers = AnHub.UniqueAnalyzers.size();
+    if (index >= numUniqueAnalyzers) return;
+
     ui->sbAnalyzerUnqiueIndex->setValue(index);
-    updateAnalyzerGui(false);
+    onUserChangedAnalyzerIndex();
 }
 
+void AParticleSimWin::on_cobAnalyzer_activated(int index)
+{
+    ui->sbAnalyzerUnqiueIndex->setValue(index);
+    onUserChangedAnalyzerIndex();
+}
+
+void AParticleSimWin::on_sbAnalyzerUnqiueIndex_editingFinished()
+{
+    onUserChangedAnalyzerIndex();
+}
+
+void AParticleSimWin::onUserChangedAnalyzerIndex()
+{
+    int index = ui->sbAnalyzerUnqiueIndex->value();
+    // !!!*** add LastAnalyzerIndex property and return if the same
+    if (index == -1) return;
+
+    AParticleAnalyzerHub & AnHub = AParticleAnalyzerHub::getInstance();
+    const size_t numUniqueAnalyzers = AnHub.UniqueAnalyzers.size();
+    if (index >= numUniqueAnalyzers)
+    {
+        index = numUniqueAnalyzers - 1;
+        ui->sbAnalyzerUnqiueIndex->setValue(index);
+    }
+
+    ui->cobAnalyzer->setCurrentIndex(index);
+    updateAnalyzerDataGui(false);
+}

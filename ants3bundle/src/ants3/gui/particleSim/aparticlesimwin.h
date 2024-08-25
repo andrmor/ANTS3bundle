@@ -240,7 +240,9 @@ private:
     void findInTransitions(ATrackingHistoryCrawler & crawler, AFindRecordSelector & options, int numThreads, int numEventsPerThread);
     void updateCaloRange();
     void updateRangeWarning();
-    void updateAnalyzerGui(bool suppressMessages);
+    void updateAnalyzerGui();
+    void updateAnalyzerDataGui(bool suppressMessages);
+    void onUserChangedAnalyzerIndex();
 
 private slots:
     void testParticleGun(AParticleGun * gun, int numParticles, bool fillStatistics);
@@ -291,6 +293,8 @@ private slots:
     void on_pbChooseAnalyzersFile_clicked();
     void on_pbAnalyzerShowEnergySpectrum_clicked();
     void on_pbNextAnalyzer_clicked();
+    void on_cobAnalyzer_activated(int index);
+    void on_sbAnalyzerUnqiueIndex_editingFinished();
 };
 
 #endif // APARTICLESIMWIN_H

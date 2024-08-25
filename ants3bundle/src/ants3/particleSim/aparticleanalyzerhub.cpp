@@ -125,13 +125,16 @@ bool AAnalyzerData::readFromJson(const QJsonObject & json)
         ParticleMap[particleName] = rec;
     }
 
+    jstools::parseJson(json, "GlobalIndexIfNoMerge", GlobalIndexIfNoMerge);
+
     return true;
 }
 
 void AAnalyzerData::writeToJson(QJsonObject & json) const
 {
-    json["UniqueIndex"]    = UniqueIndex;
-    json["VolumeBaseName"] = Name;
+    json["UniqueIndex"]          = UniqueIndex;
+    json["VolumeBaseName"]       = Name;
+    json["GlobalIndexIfNoMerge"] = GlobalIndexIfNoMerge;
 
     QJsonArray ar;
     for (const auto & pair : ParticleMap)

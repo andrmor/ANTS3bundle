@@ -78,4 +78,6 @@ void AAnalyzerUniqueInstance::writeToJson(json11::Json::object & json) const
         arAllParticles.push_back(js);
     }
     json["ParticleData"] = arAllParticles;
+
+    json["GlobalIndexIfNoMerge"] = Properties.GlobalIndexIfNoMerge;
 }
