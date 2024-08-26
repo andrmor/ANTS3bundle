@@ -676,8 +676,6 @@ void AGeometryHub::fillParticleAnalyzerRecords(AParticleAnalyzerSettings * setti
 
                 filledRecord.addVolumeNameIfNew(volumeName);
 
-                filledRecord.GlobalIndexIfNoMerge = -1;  // now we know there are copies (array or instances)
-
                 found = true;
                 break;
             }
@@ -692,8 +690,6 @@ void AGeometryHub::fillParticleAnalyzerRecords(AParticleAnalyzerSettings * setti
 
                 recordCopy.VolumeBaseName = baseName;
                 recordCopy.addVolumeNameIfNew(volumeName);
-
-            recordCopy.GlobalIndexIfNoMerge = settings->GlobalToUniqueLUT.size(); // can be set to -1 if another copy is found later
 
             settings->AnalyzerTypes.push_back(recordCopy);
 

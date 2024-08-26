@@ -4,8 +4,8 @@
 #include "G4SystemOfUnits.hh"
 #include "G4Step.hh"
 
-AAnalyzerUniqueInstance::AAnalyzerUniqueInstance(const AParticleAnalyzerRecord & properties) :
-    Properties(properties)
+AAnalyzerUniqueInstance::AAnalyzerUniqueInstance(const AParticleAnalyzerRecord & properties, int globalIndexIfNoMerge) :
+    Properties(properties), GlobalIndexIfNoMerge(globalIndexIfNoMerge)
 {
     if      (properties.EnergyUnits == "MeV") EnergyFactor = 1 / MeV;
     else if (properties.EnergyUnits == "keV") EnergyFactor = 1 / keV;
@@ -79,5 +79,5 @@ void AAnalyzerUniqueInstance::writeToJson(json11::Json::object & json) const
     }
     json["ParticleData"] = arAllParticles;
 
-    json["GlobalIndexIfNoMerge"] = Properties.GlobalIndexIfNoMerge;
+    json["GlobalIndexIfNoMerge"] = GlobalIndexIfNoMerge;
 }

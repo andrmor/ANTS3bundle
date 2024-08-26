@@ -108,6 +108,7 @@ public:
 private:
         void prepareParticleGun();
         void prepareMonitors();
+        void prepareAnalyzers();
         void prepareOutputDepoStream();
         void prepareOutputHistoryStream();
         void prepareOutputExitStream();

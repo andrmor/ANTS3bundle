@@ -31,7 +31,6 @@ public:
     // Geant4-related properties, runtime
     std::string              VolumeBaseName; // Note that instances modify the object name, so here the original name is stored
     std::vector<std::string> VolumeNames;    // Will be very short (most typical value is just one), no need to optimize
-    int                      GlobalIndexIfNoMerge = -1;
 
     int                      TypeIndex;   // tmp, not saved
     int                      UniqueIndex; // tmp, not saved

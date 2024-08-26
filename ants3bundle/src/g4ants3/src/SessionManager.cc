@@ -45,8 +45,8 @@ void SessionManager::startSession()
 {
     prepareParticleGun();
 
-    //prepare monitors: populate particle pointers
-    prepareMonitors();
+    prepareMonitors(); // populating particle pointers
+    prepareAnalyzers();
 
     // preparing ouptut for deposition data
     if (Settings.RunSet.SaveDeposition) prepareOutputDepoStream();
@@ -744,6 +744,11 @@ void SessionManager::readConfig(const std::string & workingDir, const std::strin
         }
     }
 
+    std::cout << "Config read completed" << std::endl;
+}
+
+void SessionManager::prepareAnalyzers()
+{
     if (Settings.RunSet.AnalyzerSettings.Enabled)
     {
         const size_t num = Settings.RunSet.AnalyzerSettings.NumberOfUniqueAnalyzers;
@@ -751,15 +756,28 @@ void SessionManager::readConfig(const std::string & workingDir, const std::strin
 
         for (size_t iUnique = 0; iUnique < num; iUnique++)
         {
-            size_t iType = Settings.RunSet.AnalyzerSettings.UniqueToTypeLUT[iUnique]; // !!!*** error handling!
+            const AParticleAnalyzerSettings & settings = Settings.RunSet.AnalyzerSettings;
+            size_t iType = settings.UniqueToTypeLUT[iUnique]; // !!!*** error handling!
 
-            const AParticleAnalyzerRecord & properties = Settings.RunSet.AnalyzerSettings.AnalyzerTypes[iType];
+            const AParticleAnalyzerRecord & properties = settings.AnalyzerTypes[iType];
 
-            Analyzers.push_back( AAnalyzerUniqueInstance(properties) );
+            int seenCopies = 0;
+            int seenGlobal = -1;
+            for (size_t iGlob = 0; iGlob < settings.GlobalToUniqueLUT.size(); iGlob++)
+            {
+                size_t iUn = settings.GlobalToUniqueLUT[iGlob];
+                if (iUn == iUnique)
+                {
+                    seenCopies++;
+                    if (seenCopies > 1) break;
+                    seenGlobal = iGlob;
+                }
+            }
+            if (seenCopies > 1) seenGlobal = -1;
+
+            Analyzers.push_back( AAnalyzerUniqueInstance(properties, seenGlobal) );
         }
     }
-
-    std::cout << "Config read completed" << std::endl;
 }
 
 void SessionManager::prepareOutputDepoStream()

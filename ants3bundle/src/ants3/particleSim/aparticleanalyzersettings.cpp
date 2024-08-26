@@ -40,7 +40,6 @@ void AParticleAnalyzerRecord::writeToJson(QJsonObject & json, bool includeGeant4
         //json["TypeIndex"] = TypeIndex;
         //json["UniqueIndex"] = UniqueIndex;
         json["VolumeBaseName"] = QString(VolumeBaseName.data());
-        json["GlobalIndexIfNoMerge"] = GlobalIndexIfNoMerge;
 
         QJsonArray ar;
         for (const auto & n : VolumeNames) ar.push_back( QString(n.data()) );
@@ -78,7 +77,6 @@ void AParticleAnalyzerRecord::readFromJson(const QJsonObject & json)
 #ifdef JSON11
     jstools::parseJson(json, "UniqueIndex", UniqueIndex);
     jstools::parseJson(json, "VolumeBaseName", VolumeBaseName);
-    jstools::parseJson(json, "GlobalIndexIfNoMerge", GlobalIndexIfNoMerge);
     json11::Json::array ar;
     jstools::parseJson(json, "VolumeNames", ar);
     VolumeNames.resize(ar.size());

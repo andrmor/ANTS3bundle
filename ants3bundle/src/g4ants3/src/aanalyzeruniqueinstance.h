@@ -17,7 +17,7 @@ public:
 class AAnalyzerUniqueInstance
 {
 public:
-    AAnalyzerUniqueInstance(const AParticleAnalyzerRecord & properties);
+    AAnalyzerUniqueInstance(const AParticleAnalyzerRecord & properties, int globalIndexIfNoMerge = -1);
 
     bool processParticle(G4Step * step); // return stop tracking flag
 
@@ -27,6 +27,8 @@ public:
     double EnergyFactor = 1.0;
 
     std::map<std::string, AnalyzerParticleEntry> ParticleMap;
+
+    int GlobalIndexIfNoMerge = -1;
 };
 
 #endif // AANALYZERUNIQUEINSTANCE_H
