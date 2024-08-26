@@ -640,6 +640,7 @@ void AGeometryHub::registerPhotonFunctional(AGeoObject * obj, TGeoVolume * paren
 void AGeometryHub::fillParticleAnalyzerRecords(AParticleAnalyzerSettings * settings) const
 {
     settings->AnalyzerTypes.clear();
+    settings->UniqueToTypeLUT.clear();
     settings->GlobalToUniqueLUT.clear();
 
     int typeIndex = 0;
@@ -675,8 +676,7 @@ void AGeometryHub::fillParticleAnalyzerRecords(AParticleAnalyzerSettings * setti
 
                 filledRecord.addVolumeNameIfNew(volumeName);
 
-                if (rec.SingleInstanceForAllCopies)   // a standalone object also can have SingleInstanceForAllCopies flag, thats why we have to set -1 on seeing it second time
-                    filledRecord.GlobalIndexIfNoMerge = -1;
+                filledRecord.GlobalIndexIfNoMerge = -1;  // now we know there are copies (array or instances)
 
                 found = true;
                 break;
@@ -687,10 +687,11 @@ void AGeometryHub::fillParticleAnalyzerRecords(AParticleAnalyzerSettings * setti
         {
             AParticleAnalyzerRecord recordCopy = rec;
 
-            recordCopy.TypeIndex = typeIndex;
-            recordCopy.UniqueIndex = uniqueIndex;
-            recordCopy.VolumeBaseName = baseName;
-            recordCopy.addVolumeNameIfNew(volumeName);
+                recordCopy.TypeIndex      = typeIndex;   // just tmp
+                recordCopy.UniqueIndex    = uniqueIndex; // just tmp
+
+                recordCopy.VolumeBaseName = baseName;
+                recordCopy.addVolumeNameIfNew(volumeName);
 
             recordCopy.GlobalIndexIfNoMerge = settings->GlobalToUniqueLUT.size(); // can be set to -1 if another copy is found later
 

@@ -74,7 +74,7 @@ void DetectorConstruction::ConstructSDandField()
         for (const AParticleAnalyzerRecord & rec : SM.Settings.RunSet.AnalyzerSettings.AnalyzerTypes)
         {
             for (const std::string & name : rec.VolumeNames)
-                SetSensitiveDetector(name, asd);
+                SetSensitiveDetector(name, asd, true);
         }
     }
 }
