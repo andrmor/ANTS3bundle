@@ -43,7 +43,7 @@ bool AAnalyzerUniqueInstance::processParticle(G4Step * step)
 
 void AAnalyzerUniqueInstance::writeToJson(json11::Json::object & json) const
 {
-    json["UniqueIndex"] = Properties.UniqueIndex;
+    //json["UniqueIndex"] = Properties.UniqueIndex;
     json["VolumeBaseName"] = (Properties.VolumeBaseName.empty() ? Properties.VolumeNames.front() : Properties.VolumeBaseName ); // it will be the base name for non-unique objects
 
     json11::Json::array arAllParticles;

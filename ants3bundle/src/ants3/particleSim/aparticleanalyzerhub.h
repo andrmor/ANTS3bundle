@@ -31,7 +31,7 @@ public:
 class AAnalyzerData
 {
 public:
-    int     UniqueIndex;
+    //int     UniqueIndex;
     QString Name;
     int     GlobalIndexIfNoMerge;
 

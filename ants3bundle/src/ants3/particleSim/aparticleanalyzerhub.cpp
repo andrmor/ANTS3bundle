@@ -83,12 +83,9 @@ void AAnalyzerParticle::writeToJson(QJsonObject & json) const
     }
     json["EnergyData"] = ar;
 
-    double stats[20];
-    EnergyHist->GetStats(stats);
-    stats[4] = EnergyHist->GetEntries();
     QJsonArray statsAr;
     for (size_t i = 0; i < 5; i++)
-        statsAr.push_back(stats[i]);
+        statsAr.push_back(EnergyHistStats[i]);
 
     json["EnergyStats"] = statsAr;
 }
@@ -96,6 +93,9 @@ void AAnalyzerParticle::writeToJson(QJsonObject & json) const
 void AAnalyzerParticle::mergeFrom(const AAnalyzerParticle & other)
 {
     EnergyHist->mergeFrom(other.EnergyHist);
+
+    for (size_t i = 0; i < 5; i++)
+        EnergyHistStats[i] += other.EnergyHistStats[i];
 }
 
 void AAnalyzerParticle::releaseDynamicResources()
@@ -109,7 +109,7 @@ bool AAnalyzerData::readFromJson(const QJsonObject & json)
 {
     clear();
 
-    jstools::parseJson(json, "UniqueIndex",    UniqueIndex);
+    //jstools::parseJson(json, "UniqueIndex",    UniqueIndex);
     jstools::parseJson(json, "VolumeBaseName", Name);
 
     QJsonArray ar;
@@ -132,7 +132,7 @@ bool AAnalyzerData::readFromJson(const QJsonObject & json)
 
 void AAnalyzerData::writeToJson(QJsonObject & json) const
 {
-    json["UniqueIndex"]          = UniqueIndex;
+    //json["UniqueIndex"]          = UniqueIndex;
     json["VolumeBaseName"]       = Name;
     json["GlobalIndexIfNoMerge"] = GlobalIndexIfNoMerge;
 
@@ -149,16 +149,16 @@ void AAnalyzerData::writeToJson(QJsonObject & json) const
 
 bool AAnalyzerData::mergeFrom(const AAnalyzerData & other)
 {
-    for (const auto & pair : other.ParticleMap)
+    for (const auto & pairInOther : other.ParticleMap)
     {
-        const QString           & particleName = pair.first;
-        const AAnalyzerParticle & particleData = pair.second;
+        const QString           & particleNameInOther = pairInOther.first;
+        const AAnalyzerParticle & particleDataInOther = pairInOther.second;
 
-        auto it = ParticleMap.find(particleName);
+        auto it = ParticleMap.find(particleNameInOther);
         if (it != ParticleMap.end())
-            it->second.mergeFrom(particleData);
+            it->second.mergeFrom(particleDataInOther);
         else
-            ParticleMap[particleName] = particleData;
+            ParticleMap[particleNameInOther] = particleDataInOther;
     }
     return true;
 }
