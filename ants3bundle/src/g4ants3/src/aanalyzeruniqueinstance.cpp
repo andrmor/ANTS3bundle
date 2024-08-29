@@ -21,7 +21,13 @@ bool AAnalyzerUniqueInstance::processParticle(G4Step * step)
         (time >= Properties.TimeWindowFrom && time <= Properties.TimeWindowTo) )
     {
         const double energy = preStepPoint->GetKineticEnergy() * EnergyFactor;
-        const std::string & particleName = step->GetTrack()->GetParticleDefinition()->GetParticleName();
+
+        std::string particleName = step->GetTrack()->GetParticleDefinition()->GetParticleName(); // usually the names are short, string optimization will kick in
+        const std::size_t squareBracketPosition = particleName.find('[');
+        if (squareBracketPosition == std::string::npos)
+            ; // most common case it is not an excited ion
+        else particleName = particleName.substr(0, squareBracketPosition);
+
         const auto it = ParticleMap.find(particleName);
         if (it != ParticleMap.end())
         {
