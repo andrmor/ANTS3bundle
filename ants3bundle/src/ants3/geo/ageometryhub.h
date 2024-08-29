@@ -139,8 +139,8 @@ private:
     double ScalingFactor = 1.0;
 
     std::vector<std::pair<AGeoObject*,TGeoNode*>> Scintillators;
-    std::vector<std::pair<AGeoObject*,TGeoNode*>> ParticleAnalyzers;
 public:
+    std::vector<std::tuple<AGeoObject*,TGeoNode*,AVector3>> ParticleAnalyzers;  // last is global position
     std::vector<std::tuple<AGeoObject*,TGeoNode*,AVector3>> PhotonFunctionals;  // last is global position
 };
 

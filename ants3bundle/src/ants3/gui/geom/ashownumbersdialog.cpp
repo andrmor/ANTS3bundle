@@ -116,3 +116,17 @@ void AShowNumbersDialog::on_ledSizePhFun_editingFinished()
     GW.GeoWriter.SizeForPhotFuncts = size;
 }
 
+// --- Particle analyzers ---
+
+void AShowNumbersDialog::on_pbAnIndex_clicked()
+{
+    GW.showAnalyzerIndexes();
+    accept();
+}
+
+void AShowNumbersDialog::on_ledSizeAnalyzer_editingFinished()
+{
+    const double size = ui->ledSizeAnalyzer->text().toDouble();
+    GW.GeoWriter.SizeForPhotFuncts = size;
+}
+

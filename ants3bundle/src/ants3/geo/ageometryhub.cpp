@@ -563,7 +563,9 @@ void AGeometryHub::addTGeoVolumeRecursively(AGeoObject * obj, TGeoVolume * paren
         {
             parent->AddNode(vol, ParticleAnalyzers.size(), lTrans);
             TGeoNode * node = parent->GetNode(parent->GetNdaughters()-1);
-            ParticleAnalyzers.push_back({obj, node});
+            AVector3 globalPosition;
+            getGlobalPosition(node, globalPosition);
+            ParticleAnalyzers.push_back({obj, node, globalPosition});
         }
         else
             parent->AddNode(vol, forcedNodeNumber, lTrans);
@@ -645,15 +647,15 @@ void AGeometryHub::fillParticleAnalyzerRecords(AParticleAnalyzerSettings * setti
 
     int typeIndex = 0;
     int uniqueIndex = 0;
-    for (const auto & pair : ParticleAnalyzers)
+    for (const auto & tup : ParticleAnalyzers)
     {
-        const AGeoSpecial * role = pair.first->Role;
+        const AGeoSpecial * role = std::get<0>(tup)->Role;
         const AGeoParticleAnalyzer * pa = static_cast<const AGeoParticleAnalyzer*>(role);
         const AParticleAnalyzerRecord & rec = pa->Properties;
 
-        const std::string volumeName = pair.first->Name.toLatin1().data();
+        const std::string volumeName = std::get<0>(tup)->Name.toLatin1().data();
 
-        std::string baseName = pair.first->NameWithoutSuffix.toLatin1().data();
+        std::string baseName = std::get<0>(tup)->NameWithoutSuffix.toLatin1().data();
         // all AGeoObjects not belonging to an instance have baseName empty
         if (baseName.empty()) baseName = volumeName;
 

@@ -1352,6 +1352,20 @@ void AGeometryWindow::showPhotonFunctionalIndexes()
     */
 }
 
+void AGeometryWindow::showAnalyzerIndexes()
+{
+    Geometry.GeoManager->ClearTracks();
+
+    const size_t num = Geometry.countParticleAnalyzers();
+    std::vector<QString> tmp;
+    for (size_t i = 0; i < num; i++) tmp.push_back( QString::number(i) );
+    showText(tmp, kRed, AGeoWriter::Analyzers, true);
+
+    /*
+    emit requestUpdateRegisteredGeoManager();
+    */
+}
+
 #include "ashownumbersdialog.h"
 void AGeometryWindow::on_pbShowNumbers_clicked()
 {

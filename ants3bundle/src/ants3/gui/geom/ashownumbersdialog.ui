@@ -7,14 +7,14 @@
     <x>0</x>
     <y>0</y>
     <width>148</width>
-    <height>565</height>
+    <height>653</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
-   <item alignment="Qt::AlignHCenter">
+   <item alignment="Qt::AlignmentFlag::AlignHCenter">
     <widget class="QLabel" name="label">
      <property name="font">
       <font>
@@ -68,11 +68,11 @@
    <item>
     <widget class="Line" name="line">
      <property name="orientation">
-      <enum>Qt::Horizontal</enum>
+      <enum>Qt::Orientation::Horizontal</enum>
      </property>
     </widget>
    </item>
-   <item alignment="Qt::AlignHCenter">
+   <item alignment="Qt::AlignmentFlag::AlignHCenter">
     <widget class="QLabel" name="label_6">
      <property name="font">
       <font>
@@ -84,7 +84,7 @@
      </property>
     </widget>
    </item>
-   <item alignment="Qt::AlignHCenter">
+   <item alignment="Qt::AlignmentFlag::AlignHCenter">
     <widget class="QLabel" name="label_11">
      <property name="text">
       <string>Optical photons</string>
@@ -105,7 +105,7 @@
      </property>
     </widget>
    </item>
-   <item alignment="Qt::AlignHCenter">
+   <item alignment="Qt::AlignmentFlag::AlignHCenter">
     <widget class="QLabel" name="label_10">
      <property name="text">
       <string>Particles</string>
@@ -154,11 +154,11 @@
    <item>
     <widget class="Line" name="line_2">
      <property name="orientation">
-      <enum>Qt::Horizontal</enum>
+      <enum>Qt::Orientation::Horizontal</enum>
      </property>
     </widget>
    </item>
-   <item alignment="Qt::AlignHCenter">
+   <item alignment="Qt::AlignmentFlag::AlignHCenter">
     <widget class="QLabel" name="label_9">
      <property name="font">
       <font>
@@ -212,7 +212,61 @@
    <item>
     <widget class="Line" name="line_3">
      <property name="orientation">
-      <enum>Qt::Horizontal</enum>
+      <enum>Qt::Orientation::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="label_15">
+     <property name="font">
+      <font>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>Part. analyzers</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignmentFlag::AlignCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QPushButton" name="pbAnIndex">
+     <property name="text">
+      <string>Indexes</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_5">
+     <item>
+      <widget class="QLabel" name="label_16">
+       <property name="text">
+        <string>Size:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="ledSizeAnalyzer">
+       <property name="text">
+        <string>10</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="label_17">
+       <property name="text">
+        <string>mm</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="Line" name="line_4">
+     <property name="orientation">
+      <enum>Qt::Orientation::Horizontal</enum>
      </property>
     </widget>
    </item>
@@ -227,7 +281,7 @@
       <string>Photon functional</string>
      </property>
      <property name="alignment">
-      <set>Qt::AlignCenter</set>
+      <set>Qt::AlignmentFlag::AlignCenter</set>
      </property>
     </widget>
    </item>

@@ -75,6 +75,7 @@ void AGeoWriter::drawText(const std::vector<QString> & textVector, int color, ED
     case PhotMons         : numObj = MonitorHub.countMonitors(AMonitorHub::Photon);   break;
     case PartMons         : numObj = MonitorHub.countMonitors(AMonitorHub::Particle); break;
     case Calorimeters     : numObj = CalHub.countCalorimeters();                      break;
+    case Analyzers        : numObj = GeoHub.countParticleAnalyzers();                 break;
     case PhotonFunctional : numObj = GeoHub.PhotonFunctionals.size();                 break;
     }
 
@@ -125,6 +126,10 @@ void AGeoWriter::drawText(const std::vector<QString> & textVector, int color, ED
             centerPos = CalHub.Calorimeters[iObj].Position;
             size = SizeForCalorimeters;
             break;
+        case Analyzers :
+            centerPos = std::get<2>(GeoHub.ParticleAnalyzers[iObj]);
+            size = SizeForAnalyzers;
+            break;
         case PhotonFunctional :
             centerPos = std::get<2>(GeoHub.PhotonFunctionals[iObj]);
             size = SizeForPhotFuncts;
@@ -170,6 +175,7 @@ void AGeoWriter::writeToJson(QJsonObject & json) const
     json["SizeForSensors"]      = SizeForSensors;
     json["SizeForMonitors"]     = SizeForMonitors;
     json["SizeForCalorimeters"] = SizeForCalorimeters;
+    json["SizeForAnalyzers"]    = SizeForAnalyzers;
     json["SizeForPhotFuncts"]   = SizeForPhotFuncts;
 }
 
@@ -178,5 +184,6 @@ void AGeoWriter::readFromJson(const QJsonObject & json)
     jstools::parseJson(json, "SizeForSensors",      SizeForSensors);
     jstools::parseJson(json, "SizeForMonitors",     SizeForMonitors);
     jstools::parseJson(json, "SizeForCalorimeters", SizeForCalorimeters);
+    jstools::parseJson(json, "SizeForAnalyzers",    SizeForAnalyzers);
     jstools::parseJson(json, "SizeForPhotFuncts",   SizeForPhotFuncts);
 }
