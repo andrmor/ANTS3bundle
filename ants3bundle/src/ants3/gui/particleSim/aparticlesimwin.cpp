@@ -3449,7 +3449,7 @@ void AParticleSimWin::updateAnalyzerGui()
 struct AAnalyzerParticleTmpRecord
 {
     QString Particle;
-    size_t  Number;
+    double  Number;
     double  MeanEnergy;
 };
 
@@ -3467,19 +3467,45 @@ void AParticleSimWin::updateAnalyzerDataGui(bool suppressMessages)
 
     const AAnalyzerData & data = AnHub.UniqueAnalyzers[uniqueIndex];
 
+    const QString & strDataEnergyUnits = data.EnergyDataUnits;
+    double factorTo_keV = 1.0;
+    if      (strDataEnergyUnits == "MeV") factorTo_keV = 1e3;
+    else if (strDataEnergyUnits == "eV")  factorTo_keV = 1e-3;
+    else if (strDataEnergyUnits == "meV") factorTo_keV = 1e-6;
+
+    int guiEnergyUnits = ui->cobAnalyzerEnergyUnits->currentIndex();
+    double guiEnergyFactor = 1.0;
+    switch (guiEnergyUnits)
+    {
+        case 0 : guiEnergyFactor = 0.001; break; // MeV
+        case 2 : guiEnergyFactor = 1e3;   break; // eV
+        case 3 : guiEnergyFactor = 1e6;   break; // meV
+        default: guiEnergyFactor = 1.0;
+    }
+
+    double energyFactor = factorTo_keV * guiEnergyFactor;
+
+    bool useNumberFractions = ( ui->cobAnalyzerNumberOption->currentIndex() != 0 );
+    size_t sum = 0;
+    for (const auto & pair : data.ParticleMap)
+    {
+        const AAnalyzerParticle & pa = pair.second;
+        sum += pa.getNumber();
+    }
+    if (sum == 0) sum = 1.0;
+
     // statistics
     std::vector<AAnalyzerParticleTmpRecord> vec;
     vec.reserve(20);
-    size_t sum = 0;
     for (const auto & pair : data.ParticleMap)
     {
         AAnalyzerParticleTmpRecord rec;
         rec.Particle = pair.first;
         const AAnalyzerParticle & pa = pair.second;
         rec.Number = pa.getNumber();
-        rec.MeanEnergy = pa.getMean();
+        if (useNumberFractions) rec.Number *= (100.0 / sum);
+        rec.MeanEnergy = pa.getMean() * energyFactor;
         vec.push_back(rec);
-        sum += rec.Number;
     }
 
     std::sort(vec.begin(), vec.end(), [](const AAnalyzerParticleTmpRecord & lhs, const AAnalyzerParticleTmpRecord & rhs)
@@ -3488,16 +3514,22 @@ void AParticleSimWin::updateAnalyzerDataGui(bool suppressMessages)
             });
 
     ui->pteAnalyzer->clear();
-    ui->pteAnalyzer->appendPlainText("Particle\t\tNumber\t\tMeanEnergy[keV]");
+    ui->pteAnalyzer->appendPlainText( QString("Particle\t\t%0\t\tMeanEnergy[%1]").arg(useNumberFractions ? "Number[%]" : "Number").arg(ui->cobAnalyzerEnergyUnits->currentText()) );
     ui->pteAnalyzer->appendPlainText("");
     for (const AAnalyzerParticleTmpRecord & rec : vec)
     {
-        ui->pteAnalyzer->appendPlainText( QString("%0\t\t%1\t\t%2").arg(rec.Particle).arg(rec.Number).arg(rec.MeanEnergy) );
+        QString numStr = QString::number(rec.Number, 'g', 4);
+        ui->pteAnalyzer->appendPlainText( QString("%0\t\t%1%2\t\t%3")
+                                             .arg(rec.Particle)
+                                             .arg(numStr)
+                                             .arg(useNumberFractions ? "%" : "")
+                                             .arg( QString::number(rec.MeanEnergy, 'g', 4)) );
     }
     ui->pteAnalyzer->appendPlainText("");
-    ui->pteAnalyzer->appendPlainText( QString("In total: %0 particles").arg(sum) );
+    ui->pteAnalyzer->appendPlainText( QString("In total: %0 particles").arg( QString::number(sum, 'g', 4) ) );
 
     // energy spectra
+    int tmp = ui->cobAnalyzerParticle->currentIndex();
     ui->cobAnalyzerParticle->clear();
     QStringList particles;
     particles.reserve(data.ParticleMap.size());
@@ -3505,6 +3537,7 @@ void AParticleSimWin::updateAnalyzerDataGui(bool suppressMessages)
         particles << pair.first;
     particles.sort();
     ui->cobAnalyzerParticle->addItems(particles);
+    if (tmp >= 0 && tmp < particles.size()) ui->cobAnalyzerParticle->setCurrentIndex(tmp);
 }
 
 void AParticleSimWin::on_pbAnalyzerShowEnergySpectrum_clicked()
@@ -3530,6 +3563,9 @@ void AParticleSimWin::on_pbAnalyzerShowEnergySpectrum_clicked()
 
     TH1D * hist = it->second.EnergyHist;
     if (!hist) return;
+
+    QString str = "Particle energy, " + data.EnergyDataUnits;
+    hist->GetXaxis()->SetTitle(str.toLatin1().data());
 
     emit requestDraw(hist, "hist", false, true);
 }
@@ -3575,3 +3611,14 @@ void AParticleSimWin::onUserChangedAnalyzerIndex()
     ui->cobAnalyzer->setCurrentIndex(index);
     updateAnalyzerDataGui(false);
 }
+
+void AParticleSimWin::on_cobAnalyzerNumberOption_activated(int)
+{
+    updateAnalyzerDataGui(false);
+}
+
+void AParticleSimWin::on_cobAnalyzerEnergyUnits_activated(int)
+{
+    updateAnalyzerDataGui(false);
+}
+

@@ -85,5 +85,7 @@ void AAnalyzerUniqueInstance::writeToJson(json11::Json::object & json) const
     }
     json["ParticleData"] = arAllParticles;
 
+    json["EnergyDataUnits"] = Properties.EnergyUnits;
+
     json["GlobalIndexIfNoMerge"] = GlobalIndexIfNoMerge;
 }

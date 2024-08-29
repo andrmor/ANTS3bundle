@@ -228,6 +228,8 @@ void AParticleRunSettings::clear()
 
     CalorimeterSettings.clear();
 
+    AnalyzerSettings.clear();
+
     AsciiOutput    = true;
     AsciiPrecision = 6;
 

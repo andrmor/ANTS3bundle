@@ -125,6 +125,7 @@ bool AAnalyzerData::readFromJson(const QJsonObject & json)
         ParticleMap[particleName] = rec;
     }
 
+    jstools::parseJson(json, "EnergyDataUnits",      EnergyDataUnits);
     jstools::parseJson(json, "GlobalIndexIfNoMerge", GlobalIndexIfNoMerge);
 
     return true;

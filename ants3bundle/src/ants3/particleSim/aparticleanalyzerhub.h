@@ -33,6 +33,7 @@ class AAnalyzerData
 public:
     //int     UniqueIndex;
     QString Name;
+    QString EnergyDataUnits;
     int     GlobalIndexIfNoMerge;
 
     std::map<QString, AAnalyzerParticle> ParticleMap;

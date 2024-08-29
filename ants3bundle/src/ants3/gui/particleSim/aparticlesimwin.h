@@ -295,6 +295,8 @@ private slots:
     void on_pbNextAnalyzer_clicked();
     void on_cobAnalyzer_activated(int index);
     void on_sbAnalyzerUnqiueIndex_editingFinished();
+    void on_cobAnalyzerNumberOption_activated(int index);
+    void on_cobAnalyzerEnergyUnits_activated(int index);
 };
 
 #endif // APARTICLESIMWIN_H
