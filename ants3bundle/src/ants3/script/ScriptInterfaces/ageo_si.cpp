@@ -1736,6 +1736,102 @@ int AGeo_SI::overrideUnconnectedLinkFunctionals()
     return APhotonFunctionalHub::getInstance().overrideUnconnectedLinkFunctionals();
 }
 
+void AGeo_SI::setParticleAnalyzer(QString object)
+{
+    AGeoObject * obj = findObject(object);
+    if (!obj) return;
+    delete obj->Role; obj->Role = new AGeoParticleAnalyzer();
+}
+
+QVariantMap AGeo_SI::getDefaultParticleAnalyzerProperties()
+{
+    AGeoParticleAnalyzer an;
+
+    QJsonObject js;
+    an.Properties.writeToJson(js, false);
+    return js.toVariantMap();
+}
+
+QVariantMap AGeo_SI::getParticleAnalyzerProperties(QString object)
+{
+    AGeoObject * paObj = nullptr;
+
+    for (AGeoObject * obj : GeoObjects)
+        if (obj->Name == object)
+        {
+            paObj = obj;
+            break;
+        }
+
+    if (!paObj)
+        paObj = AGeometryHub::getInstance().World->findObjectByName(object);
+
+    if (!paObj)
+    {
+        abort("Cannot find particle analyzer \"" + object + "\"");
+        return QVariantMap();
+    }
+
+    if (!paObj->Role)
+    {
+        abort(object + " is not a particle analyzer!");
+        return QVariantMap();
+    }
+    AGeoParticleAnalyzer * pa = dynamic_cast<AGeoParticleAnalyzer*>(paObj->Role);
+    if (!pa)
+    {
+        abort(object + " is not a particle analyzer!");
+        return QVariantMap();
+    }
+
+    QJsonObject js;
+    pa->Properties.writeToJson(js, false);
+    return js.toVariantMap();
+}
+
+#include "aerrorhub.h"
+void AGeo_SI::configureParticleAnalyzer(QString object, QVariantMap configObject)
+{
+    AGeoObject * paObj = nullptr;
+
+    for (AGeoObject * obj : GeoObjects)
+        if (obj->Name == object)
+        {
+            paObj = obj;
+            break;
+        }
+
+    if (!paObj)
+        paObj = AGeometryHub::getInstance().World->findObjectByName(object);
+
+    if (!paObj)
+    {
+        abort("Cannot find particle analyzer \"" + object + "\"");
+        return;
+    }
+
+    if (!paObj->Role)
+    {
+        abort(object + " is not a particle analyzer!");
+        return;
+    }
+    AGeoParticleAnalyzer * pa = dynamic_cast<AGeoParticleAnalyzer*>(paObj->Role);
+    if (!pa)
+    {
+        abort(object + " is not a particle analyzer!");
+        return;
+    }
+
+    QJsonObject js = QJsonObject::fromVariantMap(configObject);
+    AErrorHub::clear();
+    pa->Properties.readFromJson(js);
+    if (AErrorHub::isError())
+    {
+        abort("Error while attempting to configure particle analyzer " + object + ":\n" + AErrorHub::getQError());
+        return;
+    }
+}
+
 void AGeo_SI::setEnabled(QString ObjectOrWildcard, bool flag)
 {
     if (ObjectOrWildcard.endsWith('*'))
