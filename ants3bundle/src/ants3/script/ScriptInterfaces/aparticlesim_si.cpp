@@ -22,6 +22,13 @@ AParticleSim_SI::AParticleSim_SI() :
                                  "'xy' or 'xz' or 'yx' or 'yz' or 'zx' or 'zy' for 2D,\n"
                                  "'xyz' or empty for 3D";
     Help["getCalorimeterBinning"] = "Returns array of 3 arrays, [Bins, Origin, Step], each one is for x,y and z axis";
+
+    Help["loadAnalyzerData"] = "Load file with particle analyzer data";
+    Help["countAnalyzers"] = "Count unique analyzers ('global' number of analyzers can be different fro 'unique' if merging of copies was selected at least for one analyzer)";
+    Help["getAnalyzerDataAll"] = "Return array with the data for all unique analyzers. The array element is an array of [particleName, number, EnergyData], "
+                                 "where EnergyData is an array of bins [Energy_centerOfBin_keV, Number], excluding under- and overflow";
+    Help["getAnalyzerUniqueToGlobalIndex"] = "Get global analyzer indexes (returns -1 for all non-unique ones). "
+                                             "Use getAnalyzerPositionsByGlobalIndex() to get positions of analyzers by the global index";
 }
 
 void AParticleSim_SI::simulate()
@@ -466,6 +473,112 @@ QVariantList AParticleSim_SI::getMonitorXY(int monitorIndex)
 
     return vl;
 }
+
+// ----------
+#include "ageometryhub.h"
+#include "aparticleanalyzerhub.h"
+void AParticleSim_SI::loadAnalyzerData(QString fileName)
+{
+    const AGeometryHub & GeoHub = AGeometryHub::getInstance();
+    if (GeoHub.countParticleAnalyzers() == 0)
+    {
+        abort("There are no particle analyzers in the loaded config!");
+        return;
+    }
+
+    AErrorHub::clear();
+    AParticleAnalyzerHub & AnHub = AParticleAnalyzerHub::getInstance();
+    AnHub.loadAnalyzerFiles({fileName});
+    if (AErrorHub::isError())
+    {
+        abort(AErrorHub::getQError());
+        return;
+    }
+}
+
+int AParticleSim_SI::countAnalyzers()
+{
+    return AParticleAnalyzerHub::getConstInstance().UniqueAnalyzers.size();
+}
+
+QVariantList AParticleSim_SI::getAnalyzerDataAll()
+{
+    const AParticleAnalyzerHub & AnHub = AParticleAnalyzerHub::getInstance();
+    QVariantList allAnalayzersList;
+
+    for (const AAnalyzerData & an : AnHub.UniqueAnalyzers)
+    {
+        const QString enUnits = an.EnergyDataUnits;
+        double energyFactor = 1.0;
+        if      (enUnits == "MeV") energyFactor = 1e3;
+        else if (enUnits == "eV")  energyFactor = 1e-3;
+        else if (enUnits == "meV")  energyFactor = 1e-6;
+
+        QVariantList oneAnalyzerList;
+        for (const auto & pair : an.ParticleMap)
+        {
+            QVariantList particleList;
+
+            const AAnalyzerParticle & particleRec = pair.second;
+            QVariantList histVL;
+            for (size_t i = 1; i < particleRec.EnergyBins+1; i++)
+            {
+                QVariantList el;
+                    el.push_back(particleRec.EnergyHist->GetBinCenter(i));
+                    el.push_back(particleRec.EnergyHist->GetBinContent(i) * energyFactor);
+                histVL.push_back(el);
+            }
+
+            // [name, number, [energyDataExcludingUnderOver:[E_center,Number]]]
+            particleList.push_back(pair.first);
+            particleList.push_back( (int)particleRec.getNumber() );
+            particleList.push_back(histVL);
+
+            oneAnalyzerList.push_back(particleList);
+        }
+
+        allAnalayzersList.push_back(oneAnalyzerList);
+    }
+
+    return allAnalayzersList;
+}
+
+QVariantList AParticleSim_SI::getAnalyzerUniqueToGlobalIndex()
+{
+    const AParticleAnalyzerHub & AnHub = AParticleAnalyzerHub::getInstance();
+    const std::vector<AAnalyzerData> UniqueAnalyzers = AnHub.UniqueAnalyzers;
+
+    QVariantList vl;
+
+    for (const AAnalyzerData & ad : UniqueAnalyzers)
+        vl << ad.GlobalIndexIfNoMerge;
+
+    return vl;
+}
+
+QVariantList AParticleSim_SI::getAnalyzerPositionsByGlobalIndex()
+{
+    const AGeometryHub & GeoHub = AGeometryHub::getInstance();
+
+    QVariantList vl;
+
+    for (const auto & ad : GeoHub.ParticleAnalyzers)
+    {
+        QVariantList el;
+            const AVector3 & pos = std::get<2>(ad);
+            for (size_t i = 0; i < 3; i++)
+            {
+                double res = pos[i];
+                if (abs(res) < 1e-300) res = 0;
+                el << res;
+            }
+        vl.push_back(el);
+    }
+
+    return vl;
+}
+
+// ----------
 
 void AParticleSim_SI::setTrackingHistoryFileName(QString fileName)
 {

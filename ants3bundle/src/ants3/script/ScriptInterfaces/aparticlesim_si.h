@@ -24,8 +24,8 @@ public slots:
 
     void setSeed(double seed);
 
-    int countCalorimeters();
     void loadCalorimeterData(QString fileName);
+    int countCalorimeters();
     QVariantList getCalorimeterGlobalPositionsAll();
     //QVariantList getCalorimeterData(int calorimeterIndex, QString mode); // !!!*** update!
     QVariantList getCalorimeterData(int calorimeterIndex);
@@ -33,14 +33,20 @@ public slots:
     QVariantList getCalorimeterBinning(int calorimeterIndex);
     void clearCalorimeterData();
 
-    int countMonitors();
     void loadMonitorData(QString fileName);
+    int countMonitors();
     QVariantList getMonitorGlobalPositionsAll();
     QVariantList getMonitorHitsAll();
     QVariantList getMonitorEnergy(int monitorIndex, QString units);
     QVariantList getMonitorTime(int monitorIndex, QString units);
     QVariantList getMonitorAngle(int monitorIndex);
     QVariantList getMonitorXY(int monitorIndex);
+
+    void loadAnalyzerData(QString fileName);
+    int countAnalyzers();
+    QVariantList getAnalyzerDataAll();
+    QVariantList getAnalyzerUniqueToGlobalIndex();
+    QVariantList getAnalyzerPositionsByGlobalIndex();
 
     void setTrackingHistoryFileName(QString fileName);
     void buildTracks(int maxTracks);
