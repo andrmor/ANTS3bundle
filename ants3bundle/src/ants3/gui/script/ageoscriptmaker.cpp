@@ -605,6 +605,11 @@ void AGeoScriptMaker::addRoleIfApplicable(QString & script, AGeoObject *obj, int
         an->Properties.writeToJson(js, false);
         QJsonDocument doc(js);
         QString confStr(doc.toJson(QJsonDocument::Compact));
+        if (Language == Python)
+        {
+            confStr.replace(":true", ":True");
+            confStr.replace(":false", ":False");
+        }
         str = QString("geo.configureParticleAnalyzer( '%1', %2 )").arg(obj->Name).arg(confStr);
         script += "\n" + QString(" ").repeated(ident) + str;
 

@@ -3492,7 +3492,6 @@ void AParticleSimWin::updateAnalyzerDataGui(bool suppressMessages)
         const AAnalyzerParticle & pa = pair.second;
         sum += pa.getNumber();
     }
-    if (sum == 0) sum = 1.0;
 
     // statistics
     std::vector<AAnalyzerParticleTmpRecord> vec;
@@ -3503,7 +3502,8 @@ void AParticleSimWin::updateAnalyzerDataGui(bool suppressMessages)
         rec.Particle = pair.first;
         const AAnalyzerParticle & pa = pair.second;
         rec.Number = pa.getNumber();
-        if (useNumberFractions) rec.Number *= (100.0 / sum);
+        if (useNumberFractions && sum != 0)
+            rec.Number *= (100.0 / sum );
         rec.MeanEnergy = pa.getMean() * energyFactor;
         vec.push_back(rec);
     }
@@ -3543,6 +3543,8 @@ void AParticleSimWin::updateAnalyzerDataGui(bool suppressMessages)
 void AParticleSimWin::on_pbAnalyzerShowEnergySpectrum_clicked()
 {
     const QString particle = ui->cobAnalyzerParticle->currentText();
+    if (particle.isEmpty()) return;
+
     int uniqueIndex = ui->sbAnalyzerUnqiueIndex->value();
 
     AParticleAnalyzerHub & AnHub = AParticleAnalyzerHub::getInstance();
