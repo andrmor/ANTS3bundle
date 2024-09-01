@@ -260,6 +260,7 @@ void AGeometryHub::populateGeoManager(bool notifyRootServer)
     ACalorimeterHub::getInstance().clear();
     AGridHub::getInstance().clear();
     Scintillators.clear();
+    ParticleAnalyzers.clear();
     PhotonFunctionals.clear();
     World->clearTrueRotationRecursive();
 
@@ -552,18 +553,22 @@ void AGeometryHub::addTGeoVolumeRecursively(AGeoObject * obj, TGeoVolume * paren
             addCalorimeterNode(obj, vol, parent, lTrans);
         else if (obj->isSensor())
             addSensorNode(obj, vol, parent, lTrans);
-        else
+        else if (obj->isScintillator())
         {
-            if (obj->isScintillator())
-            {
-                //TGeoNode * node = parent->AddNode(vol, Scintillators.size(), lTrans);  // not compatible with old ROOT versions
-                parent->AddNode(vol, Scintillators.size(), lTrans);
-                TGeoNode * node = parent->GetNode(parent->GetNdaughters()-1);
-                Scintillators.push_back({obj, node});
-            }
-            else
-                parent->AddNode(vol, forcedNodeNumber, lTrans);
+            parent->AddNode(vol, Scintillators.size(), lTrans);
+            TGeoNode * node = parent->GetNode(parent->GetNdaughters()-1);
+            Scintillators.push_back({obj, node});
         }
+        else if (obj->isParticleAnalyzer())
+        {
+            parent->AddNode(vol, ParticleAnalyzers.size(), lTrans);
+            TGeoNode * node = parent->GetNode(parent->GetNdaughters()-1);
+            AVector3 globalPosition;
+            getGlobalPosition(node, globalPosition);
+            ParticleAnalyzers.push_back({obj, node, globalPosition});
+        }
+        else
+            parent->AddNode(vol, forcedNodeNumber, lTrans);
     }
 
     // Position hosted objects
@@ -632,6 +637,73 @@ void AGeometryHub::registerPhotonFunctional(AGeoObject * obj, TGeoVolume * paren
     AVector3 globalPosition;
     getGlobalPosition(node, globalPosition);
     PhotonFunctionals.push_back({obj, node, globalPosition});
+}
+
+void AGeometryHub::fillParticleAnalyzerRecords(AParticleAnalyzerSettings * settings) const
+{
+    settings->AnalyzerTypes.clear();
+    settings->UniqueToTypeLUT.clear();
+    settings->GlobalToUniqueLUT.clear();
+
+    int typeIndex = 0;
+    int uniqueIndex = 0;
+    for (const auto & tup : ParticleAnalyzers)
+    {
+        const AGeoSpecial * role = std::get<0>(tup)->Role;
+        const AGeoParticleAnalyzer * pa = static_cast<const AGeoParticleAnalyzer*>(role);
+        const AParticleAnalyzerRecord & rec = pa->Properties;
+
+        const std::string volumeName = std::get<0>(tup)->Name.toLatin1().data();
+
+        std::string baseName = std::get<0>(tup)->NameWithoutSuffix.toLatin1().data();
+        // all AGeoObjects not belonging to an instance have baseName empty
+        if (baseName.empty()) baseName = volumeName;
+
+        bool found = false;
+        for (AParticleAnalyzerRecord & filledRecord : settings->AnalyzerTypes) // !!!*** consider map
+        {
+            if (baseName == filledRecord.VolumeBaseName)  // record for this base type already exists
+            {
+                if (rec.SingleInstanceForAllCopies)
+                {
+                    settings->GlobalToUniqueLUT.push_back(filledRecord.UniqueIndex); // reuse unique
+                    // UniqueToTypeLUT already filled
+                }
+                else
+                {
+                    settings->GlobalToUniqueLUT.push_back(uniqueIndex);
+                    settings->UniqueToTypeLUT.push_back(filledRecord.TypeIndex);
+                    uniqueIndex++;
+                }
+
+                filledRecord.addVolumeNameIfNew(volumeName);
+
+                found = true;
+                break;
+            }
+        }
+
+        if (!found)
+        {
+            AParticleAnalyzerRecord recordCopy = rec;
+
+                recordCopy.TypeIndex      = typeIndex;   // just tmp
+                recordCopy.UniqueIndex    = uniqueIndex; // just tmp
+
+                recordCopy.VolumeBaseName = baseName;
+                recordCopy.addVolumeNameIfNew(volumeName);
+
+            settings->AnalyzerTypes.push_back(recordCopy);
+
+            settings->UniqueToTypeLUT.push_back(typeIndex);
+            settings->GlobalToUniqueLUT.push_back(uniqueIndex);
+
+            typeIndex++;
+            uniqueIndex++;
+        }
+    }
+
+    settings->NumberOfUniqueAnalyzers = uniqueIndex;
 }
 
 void AGeometryHub::positionArray(AGeoObject * obj, TGeoVolume * vol, int parentNodeIndex)
@@ -1651,6 +1723,11 @@ void AGeometryHub::getScintillatorVolumeUniqueNames(std::vector<QString> & vol) 
 void AGeometryHub::checkGeometryCompatibleWithGeant4() const
 {
     World->checkCompatibleWithGeant4();
+}
+
+size_t AGeometryHub::countParticleAnalyzers() const
+{
+    return ParticleAnalyzers.size();
 }
 
 QString AGeometryHub::checkVolumesExist(const std::vector<std::string> & VolumesAndWildcards) const

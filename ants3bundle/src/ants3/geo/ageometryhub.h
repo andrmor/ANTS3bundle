@@ -19,6 +19,7 @@ class QJsonObject;
 class AVector3;
 class QStringLists;
 class AGeoShape;
+class AParticleAnalyzerSettings;
 
 #include "TString.h"
 
@@ -100,6 +101,9 @@ public:
 
     void         checkGeometryCompatibleWithGeant4() const;
 
+    size_t       countParticleAnalyzers() const;
+    void         fillParticleAnalyzerRecords(AParticleAnalyzerSettings * settings) const;
+
 private:
     void addTGeoVolumeRecursively(AGeoObject * obj, TGeoVolume * parent, int forcedNodeNumber = 0);
 
@@ -136,6 +140,7 @@ private:
 
     std::vector<std::pair<AGeoObject*,TGeoNode*>> Scintillators;
 public:
+    std::vector<std::tuple<AGeoObject*,TGeoNode*,AVector3>> ParticleAnalyzers;  // last is global position
     std::vector<std::tuple<AGeoObject*,TGeoNode*,AVector3>> PhotonFunctionals;  // last is global position
 };
 

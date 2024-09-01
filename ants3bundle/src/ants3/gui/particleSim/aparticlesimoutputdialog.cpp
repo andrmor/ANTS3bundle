@@ -35,6 +35,9 @@ AParticleSimOutputDialog::AParticleSimOutputDialog(QWidget *parent) :
 
     ui->cbCalorimeters->setChecked(RunSet.CalorimeterSettings.Enabled);
     ui->labCalorimeters->setText(RunSet.CalorimeterSettings.FileName.data());
+
+    ui->cbParticleAnalyzers->setChecked(RunSet.AnalyzerSettings.Enabled);
+    ui->labParticleAnalyzers->setText(RunSet.AnalyzerSettings.FileName.data());
 }
 
 AParticleSimOutputDialog::~AParticleSimOutputDialog()
@@ -68,6 +71,9 @@ void AParticleSimOutputDialog::on_pbAccept_clicked()
 
     RunSet.CalorimeterSettings.Enabled = ui->cbCalorimeters->isChecked();
     //RunSet.CalorimeterSettings.FileName = ui->leCalorimeters->text().toLatin1().data();
+
+    RunSet.AnalyzerSettings.Enabled = ui->cbParticleAnalyzers->isChecked();
+    //RunSet.AnalyzerSettings.FileName = ui->labParticleAnalyzers->text().toLatin1().data();
 
     accept();
 }

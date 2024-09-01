@@ -39,6 +39,10 @@ private slots:
     void on_pbPhFunLinks_clicked();
     void on_ledSizePhFun_editingFinished();
 
+    void on_pbAnIndex_clicked();
+
+    void on_ledSizeAnalyzer_editingFinished();
+
 private:
     AGeometryWindow & GW;
     Ui::AShowNumbersDialog *ui;

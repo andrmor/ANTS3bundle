@@ -203,6 +203,12 @@ bool AGeoObject::isScintillator() const
     return dynamic_cast<AGeoScint*>(Role);
 }
 
+bool AGeoObject::isParticleAnalyzer() const
+{
+    if (!Role) return false;
+    return dynamic_cast<AGeoParticleAnalyzer*>(Role);
+}
+
 int AGeoObject::getMaterial() const
 {
     if (Type->isHandlingArray() || Type->isHandlingSet())

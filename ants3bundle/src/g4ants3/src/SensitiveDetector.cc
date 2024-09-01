@@ -10,12 +10,46 @@
 #include "G4ThreeVector.hh"
 #include "G4SystemOfUnits.hh"
 
-SensitiveDetector::SensitiveDetector(const G4String& name)
+void SensitiveDetectorTools::stopAndKill(G4Step * step)
+{
+    step->GetTrack()->SetTrackStatus(fStopAndKill);
+
+    // Found cases when secondaries were generated inside the analyzer -> error in processing on ants3 side
+    // !!! cannot use fKillTrackAndSecondaries --> there could be secondaries generated before entrance to the analyzer
+    //  Beacuse of the bug in Geant4, the approach based on step->GetSecondaryInCurrentStep() does not work:
+    //auto secondaries = step->GetSecondaryInCurrentStep();
+    //for (auto sec : *secondaries){
+    //    std::cout << "!!!" << sec->GetTrackID() << G4endl;
+    //}  // it returns nullptrs -> track ids are not yet assigned
+
+    // Using time info to kill the secondaries, created later than time of entrance
+    G4TrackVector * vec = step->GetfSecondary();
+    if (vec->empty()) return;
+
+    size_t iTr = vec->size();
+    do
+    {
+        iTr--;
+        G4Track * tr = vec->at(iTr);
+        //tr->SetTrackStatus(fStopAndKill); // ignored if set on a track in fSecondary container :(
+        //std::cout << "->" << tr->GetGlobalTime() << G4endl;
+        if (tr->GetGlobalTime() > step->GetPreStepPoint()->GetGlobalTime())
+        {
+            //std::cout << "->kill secondary created after particle tracking was aborted" << G4endl;
+            vec->erase(vec->begin() + iTr);
+            delete tr;
+        }
+        else break; // tracks created in the last step are at the end
+    }
+    while (iTr != 0);
+}
+
+DepositionSensitiveDetector::DepositionSensitiveDetector(const G4String& name)
     : G4VSensitiveDetector(name) {}
 
-SensitiveDetector::~SensitiveDetector() {}
+DepositionSensitiveDetector::~DepositionSensitiveDetector() {}
 
-G4bool SensitiveDetector::ProcessHits(G4Step* aStep, G4TouchableHistory*)
+G4bool DepositionSensitiveDetector::ProcessHits(G4Step* aStep, G4TouchableHistory*)
 {  
     G4double edep = aStep->GetTotalEnergyDeposit()/keV;
     if (edep == 0.0) return false;
@@ -53,9 +87,10 @@ MonitorSensitiveDetector::~MonitorSensitiveDetector()
 
 G4bool MonitorSensitiveDetector::ProcessHits(G4Step *step, G4TouchableHistory *)
 {
-    const G4VProcess * proc = step->GetPostStepPoint()->GetProcessDefinedStep();
+    G4StepPoint * preStepPoint = step->GetPreStepPoint();
+    const G4VProcess * proc = preStepPoint->GetProcessDefinedStep();
     if (proc && proc->GetProcessType() == fTransportation)
-        if (step->GetPostStepPoint()->GetStepStatus() == fGeomBoundary)
+        if (preStepPoint->GetStepStatus() == fGeomBoundary)
         {
             if ( pParticleDefinition && (step->GetTrack()->GetParticleDefinition() != pParticleDefinition) ) // for "all particles" pParticleDefinition == nullptr
                 return true;
@@ -69,9 +104,8 @@ G4bool MonitorSensitiveDetector::ProcessHits(G4Step *step, G4TouchableHistory *)
             if ( !bIsDirect && !bAcceptIndirect) return true;
 
             //position info
-            G4StepPoint* p1 = step->GetPreStepPoint();
-            const G4ThreeVector & coord1 = p1->GetPosition();
-            const G4AffineTransform & transformation = p1->GetTouchable()->GetHistory()->GetTopTransform();
+            const G4ThreeVector & coord1 = preStepPoint->GetPosition();
+            const G4AffineTransform & transformation = preStepPoint->GetTouchable()->GetHistory()->GetTopTransform();
             const G4ThreeVector localPosition = transformation.TransformPoint(coord1);
             //std::cout << "Local position: " << localPosition[0] << " " << localPosition[1] << " " << localPosition[2] << " " << std::endl;
             if ( localPosition[2] > 0  && !bAcceptUpper ) return true;
@@ -81,7 +115,7 @@ G4bool MonitorSensitiveDetector::ProcessHits(G4Step *step, G4TouchableHistory *)
             hPosition->fill(x, y);
 
             // time info
-            const double time = step->GetPostStepPoint()->GetGlobalTime() / TimeFactor;
+            const double time = preStepPoint->GetGlobalTime() / TimeFactor;
             hTime->fill(time);
 
             // angle info
@@ -94,19 +128,20 @@ G4bool MonitorSensitiveDetector::ProcessHits(G4Step *step, G4TouchableHistory *)
             hAngle->fill(angle);
 
             //energy
-            const double energy = step->GetPostStepPoint()->GetKineticEnergy() / EnergyFactor;
+            const double energy = preStepPoint->GetKineticEnergy() / EnergyFactor;
             hEnergy->fill(energy);
 
             //stop tracking?
             if (bStopTracking)
             {
-                step->GetTrack()->SetTrackStatus(fStopAndKill);
+                //step->GetTrack()->SetTrackStatus(fStopAndKill);
+                SensitiveDetectorTools::stopAndKill(step);
 
                 SessionManager & SM = SessionManager::getInstance();
                 if (SM.Settings.RunSet.SaveTrackingHistory)
                 {
-                    const G4ThreeVector & pos = step->GetPostStepPoint()->GetPosition();
-                    const double kinE = step->GetPostStepPoint()->GetKineticEnergy()/keV;
+                    const G4ThreeVector & pos = preStepPoint->GetPosition();
+                    const double kinE = preStepPoint->GetKineticEnergy()/keV;
                     const double depoE = step->GetTotalEnergyDeposit()/keV;
                     SM.saveTrackRecord("MonitorStop",
                                        pos, time,
@@ -373,4 +408,48 @@ void CalorimeterSensitiveDetector::writeToJson(json11::Json::object & json)
     json11::Json::object jsProps;
     Properties.writeToJson(jsProps);
     json["Properties"] = jsProps;
+}
+
+// -------------------------
+
+AnalyzerSensitiveDetector::AnalyzerSensitiveDetector(const std::string & name) :
+    G4VSensitiveDetector(name) {}
+
+G4bool AnalyzerSensitiveDetector::ProcessHits(G4Step * step, G4TouchableHistory *)
+{
+    G4StepPoint * preStepPoint = step->GetPreStepPoint();
+    const G4VProcess * proc = preStepPoint->GetProcessDefinedStep();
+    if (!proc) return true;
+    //std::cout << step->GetPreStepPoint()->GetProcessDefinedStep()->GetProcessName() << std::endl;
+    //std::cout << step->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName() << std::endl;
+    if (proc->GetProcessType() != fTransportation || preStepPoint->GetStepStatus() != fGeomBoundary) return true;
+
+    int index = preStepPoint->GetPhysicalVolume()->GetCopyNo();
+    // !!!*** error processing
+
+    SessionManager & SM = SessionManager::getInstance();
+    size_t iUnique = SM.Settings.RunSet.AnalyzerSettings.GlobalToUniqueLUT[index]; // !!!*** error processing
+
+    bool isStopped = SM.Analyzers[iUnique].processParticle(step);
+    if (isStopped)
+    {
+        SensitiveDetectorTools::stopAndKill(step);
+
+        SessionManager & SM = SessionManager::getInstance();
+        if (SM.Settings.RunSet.SaveTrackingHistory)
+        {
+            const G4ThreeVector & pos = preStepPoint->GetPosition();
+            const double kinE = preStepPoint->GetKineticEnergy()/keV;
+            //const double depoE = step->GetTotalEnergyDeposit()/keV;
+            SM.saveTrackRecord("AnalyzerStop",
+                               pos, preStepPoint->GetGlobalTime()/ns,
+                               kinE, 0);
+            // bug in Geant4.10.5.1? Tracking reports one more step - transportation from the monitor to the next volume
+            //the next is the fix:
+            SM.bStoppedOnMonitor = true;
+        }
+        return false;
+    }
+
+    return true;
 }

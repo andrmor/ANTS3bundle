@@ -2,6 +2,7 @@
 #define SESSIONMANAGER_H
 
 #include "aparticlesimsettings.h"
+#include "aanalyzeruniqueinstance.h"
 
 #include "json11.hh" //https://github.com/dropbox/json11
 
@@ -16,6 +17,7 @@ class G4ParticleDefinition;
 class G4StepPoint;
 class MonitorSensitiveDetector;
 class CalorimeterSensitiveDetector;
+class AnalyzerSensitiveDetector;
 class G4LogicalVolume;
 class G4VPhysicalVolume;
 class AParticleGun;
@@ -97,14 +99,16 @@ public:
 
         int CurrentEvent = 0;
 
-        std::vector<MonitorSensitiveDetector*> Monitors; //can contain nullptr!
-        std::vector<CalorimeterSensitiveDetector*> Calorimeters; //can contain nullptr!
+        std::vector<MonitorSensitiveDetector*>     Monitors;      // can contain nullptr!
+        std::vector<CalorimeterSensitiveDetector*> Calorimeters;  // can contain nullptr!
+        std::vector<AAnalyzerUniqueInstance>       Analyzers;
 
         const G4String DepoLoggerSDName = "SD";
 
 private:
         void prepareParticleGun();
         void prepareMonitors();
+        void prepareAnalyzers();
         void prepareOutputDepoStream();
         void prepareOutputHistoryStream();
         void prepareOutputExitStream();
@@ -112,6 +116,7 @@ private:
         void generateReceipt();
         void storeMonitorsData();
         void storeCalorimeterData();
+        void storeAnalyzerData();
         bool extractIonInfo(const std::string & text, int & Z, int & A, double & E);
         void replaceMatNameInMatLimitedSources(const G4String & name, const G4String & G4Name);
 

@@ -184,6 +184,7 @@ private:
     QString LastFile_Tracking;
     QString LastFile_Monitors;
     QString LastFile_Calorimeters;
+    QString LastFile_Analyzers;
 
     TH1D * histEnergy = nullptr;
     TH1D * histAngle = nullptr;
@@ -239,6 +240,9 @@ private:
     void findInTransitions(ATrackingHistoryCrawler & crawler, AFindRecordSelector & options, int numThreads, int numEventsPerThread);
     void updateCaloRange();
     void updateRangeWarning();
+    void updateAnalyzerGui();
+    void updateAnalyzerDataGui(bool suppressMessages);
+    void onUserChangedAnalyzerIndex();
 
 private slots:
     void testParticleGun(AParticleGun * gun, int numParticles, bool fillStatistics);
@@ -281,8 +285,18 @@ private slots:
     void on_pbChooseDepositionFile_clicked();
     void on_pbHelpOnDepositionDataFormat_clicked();
     void on_pbAnalyzeDepositionFile_clicked();
+
     void on_cbRandomSeed_toggled(bool checked);
     void on_pbLoadFromLibrary_clicked();
+
+    void on_pbLoadAnalyzersData_clicked();
+    void on_pbChooseAnalyzersFile_clicked();
+    void on_pbAnalyzerShowEnergySpectrum_clicked();
+    void on_pbNextAnalyzer_clicked();
+    void on_cobAnalyzer_activated(int index);
+    void on_sbAnalyzerUnqiueIndex_editingFinished();
+    void on_cobAnalyzerNumberOption_activated(int index);
+    void on_cobAnalyzerEnergyUnits_activated(int index);
 };
 
 #endif // APARTICLESIMWIN_H

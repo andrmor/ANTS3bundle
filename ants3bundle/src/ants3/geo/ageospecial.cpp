@@ -37,6 +37,12 @@ AGeoSpecial * GeoRoleFactory::make(const QJsonObject & json)
         th->readFromJson(json);
         return th;
     }
+    if (Type == "ParticleAnalyzer")
+    {
+        AGeoParticleAnalyzer * pa = new AGeoParticleAnalyzer();
+        pa->readFromJson(json);
+        return pa;
+    }
 
     return nullptr;
 }
@@ -162,6 +168,18 @@ void AGeoPhotonFunctional::doWriteToJson(QJsonObject & json) const
     QJsonObject js;
     DefaultModel->writeToJson(js);
     json["Model"] = js;
+}
+
+// ---
+
+void AGeoParticleAnalyzer::readFromJson(const QJsonObject & json)
+{
+    Properties.readFromJson(json);
+}
+
+void AGeoParticleAnalyzer::doWriteToJson(QJsonObject & json) const
+{
+    Properties.writeToJson(json, false);
 }
 
 // ---

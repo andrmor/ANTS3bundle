@@ -1,0 +1,345 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>AParticleAnalyzerWidget</class>
+ <widget class="QWidget" name="AParticleAnalyzerWidget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>488</width>
+    <height>124</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>Energy distribution histogram</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_3">
+     <item>
+      <widget class="QLabel" name="label_2">
+       <property name="text">
+        <string>    Bins</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QSpinBox" name="sbEnergyBins">
+       <property name="minimum">
+        <number>1</number>
+       </property>
+       <property name="maximum">
+        <number>999999</number>
+       </property>
+       <property name="value">
+        <number>100</number>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="label_3">
+       <property name="text">
+        <string>from</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="ledEnergyFrom"/>
+     </item>
+     <item>
+      <widget class="QLabel" name="label_4">
+       <property name="text">
+        <string>to</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="ledEnergyTo"/>
+     </item>
+     <item>
+      <widget class="QComboBox" name="cobEnergyUnits">
+       <item>
+        <property name="text">
+         <string>MeV</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>keV</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>eV</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QCheckBox" name="cbTimeWindow">
+       <property name="text">
+        <string>Time window from</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="ledTimeWindowFrom">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="label_6">
+       <property name="text">
+        <string>to</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="ledTimeWindowTo">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="label_7">
+       <property name="text">
+        <string>ns</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <item>
+      <widget class="QCheckBox" name="cbStopTracking">
+       <property name="text">
+        <string>Stop particle tracking</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_3">
+       <property name="orientation">
+        <enum>Qt::Orientation::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="cbSingleInstance">
+       <property name="text">
+        <string>Single instance for all copies</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pbChanged">
+       <property name="text">
+        <string>...changed</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>sbEnergyBins</sender>
+   <signal>textChanged(QString)</signal>
+   <receiver>pbChanged</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>103</x>
+     <y>48</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>440</x>
+     <y>97</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ledEnergyFrom</sender>
+   <signal>textChanged(QString)</signal>
+   <receiver>pbChanged</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>227</x>
+     <y>35</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>463</x>
+     <y>97</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ledEnergyTo</sender>
+   <signal>textChanged(QString)</signal>
+   <receiver>pbChanged</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>374</x>
+     <y>43</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>423</x>
+     <y>107</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cobEnergyUnits</sender>
+   <signal>currentIndexChanged(int)</signal>
+   <receiver>pbChanged</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>454</x>
+     <y>50</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>453</x>
+     <y>107</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cbTimeWindow</sender>
+   <signal>clicked()</signal>
+   <receiver>pbChanged</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>55</x>
+     <y>73</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>419</x>
+     <y>99</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ledTimeWindowFrom</sender>
+   <signal>textChanged(QString)</signal>
+   <receiver>pbChanged</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>262</x>
+     <y>70</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>419</x>
+     <y>96</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ledTimeWindowTo</sender>
+   <signal>textChanged(QString)</signal>
+   <receiver>pbChanged</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>433</x>
+     <y>70</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>437</x>
+     <y>103</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cbStopTracking</sender>
+   <signal>clicked()</signal>
+   <receiver>pbChanged</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>67</x>
+     <y>104</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>422</x>
+     <y>109</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cbSingleInstance</sender>
+   <signal>clicked()</signal>
+   <receiver>pbChanged</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>296</x>
+     <y>101</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>449</x>
+     <y>103</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cbTimeWindow</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>ledTimeWindowFrom</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>111</x>
+     <y>73</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>220</x>
+     <y>78</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cbTimeWindow</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>ledTimeWindowTo</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>33</x>
+     <y>70</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>360</x>
+     <y>77</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

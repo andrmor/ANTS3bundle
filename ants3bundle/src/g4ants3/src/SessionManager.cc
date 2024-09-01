@@ -45,8 +45,8 @@ void SessionManager::startSession()
 {
     prepareParticleGun();
 
-    //prepare monitors: populate particle pointers
-    prepareMonitors();
+    prepareMonitors(); // populating particle pointers
+    prepareAnalyzers();
 
     // preparing ouptut for deposition data
     if (Settings.RunSet.SaveDeposition) prepareOutputDepoStream();
@@ -104,8 +104,9 @@ void SessionManager::endSession()
     bError = false;
     ErrorMessage.clear();
 
-    if (Settings.RunSet.MonitorSettings.Enabled) storeMonitorsData();
+    if (Settings.RunSet.MonitorSettings.Enabled)     storeMonitorsData();
     if (Settings.RunSet.CalorimeterSettings.Enabled) storeCalorimeterData();
+    if (Settings.RunSet.AnalyzerSettings.Enabled)    storeAnalyzerData();
 
     generateReceipt();
 }
@@ -746,6 +747,39 @@ void SessionManager::readConfig(const std::string & workingDir, const std::strin
     std::cout << "Config read completed" << std::endl;
 }
 
+void SessionManager::prepareAnalyzers()
+{
+    if (Settings.RunSet.AnalyzerSettings.Enabled)
+    {
+        const size_t num = Settings.RunSet.AnalyzerSettings.NumberOfUniqueAnalyzers;
+        Analyzers.reserve(num);
+
+        for (size_t iUnique = 0; iUnique < num; iUnique++)
+        {
+            const AParticleAnalyzerSettings & settings = Settings.RunSet.AnalyzerSettings;
+            size_t iType = settings.UniqueToTypeLUT[iUnique]; // !!!*** error handling!
+
+            const AParticleAnalyzerRecord & properties = settings.AnalyzerTypes[iType];
+
+            int seenCopies = 0;
+            int seenGlobal = -1;
+            for (size_t iGlob = 0; iGlob < settings.GlobalToUniqueLUT.size(); iGlob++)
+            {
+                size_t iUn = settings.GlobalToUniqueLUT[iGlob];
+                if (iUn == iUnique)
+                {
+                    seenCopies++;
+                    if (seenCopies > 1) break;
+                    seenGlobal = iGlob;
+                }
+            }
+            if (seenCopies > 1) seenGlobal = -1;
+
+            Analyzers.push_back( AAnalyzerUniqueInstance(properties, seenGlobal) );
+        }
+    }
+}
+
 void SessionManager::prepareOutputDepoStream()
 {
     outStreamDeposition = new std::ofstream();
@@ -844,6 +878,27 @@ void SessionManager::storeCalorimeterData()
 
     std::ofstream outStream;
     outStream.open(WorkingDir + "/" + Settings.RunSet.CalorimeterSettings.FileName);
+    if (outStream.is_open())
+    {
+        std::string json_str = json11::Json(Arr).dump();
+        outStream << json_str << '\n';
+    }
+    outStream.close();
+}
+
+void SessionManager::storeAnalyzerData()
+{
+    json11::Json::array Arr;
+
+    for (const AAnalyzerUniqueInstance & an : Analyzers)
+    {
+        json11::Json::object json;
+        an.writeToJson(json);
+        Arr.push_back(json);
+    }
+
+    std::ofstream outStream;
+    outStream.open(WorkingDir + "/" + Settings.RunSet.AnalyzerSettings.FileName);
     if (outStream.is_open())
     {
         std::string json_str = json11::Json(Arr).dump();

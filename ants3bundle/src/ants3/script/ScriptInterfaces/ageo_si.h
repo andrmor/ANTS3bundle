@@ -122,6 +122,11 @@ public slots:
     void configurePhotonFunctional(QString modelName, QVariantMap configObject, int index);
     int overrideUnconnectedLinkFunctionals();
 
+    void setParticleAnalyzer(QString object);
+    QVariantMap getDefaultParticleAnalyzerProperties();
+    QVariantMap getParticleAnalyzerProperties(QString object);
+    void configureParticleAnalyzer(QString object, QVariantMap configObject);
+
     QVariantList getScintillatorProperties();
 
     void clearHosted(QString Object);

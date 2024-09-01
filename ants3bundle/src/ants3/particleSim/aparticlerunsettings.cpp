@@ -76,6 +76,13 @@ void AParticleRunSettings::writeToJson(QJsonObject & json, bool includeG4ants3Se
         CalorimeterSettings.writeToJson(cjs, includeG4ants3Set);
     json["CalorimeterSettings"] = cjs;
 
+    // Particle analyzers
+    {
+        QJsonObject js;
+        AnalyzerSettings.writeToJson(js, includeG4ants3Set);
+        json["AnalyzerSettings"] = js;
+    }
+
     if (includeG4ants3Set)
     {
         json["EventFrom"]            = EventFrom;
@@ -155,6 +162,17 @@ void AParticleRunSettings::readFromJson(const QJsonObject & json)
     jstools::parseJson(json, "CalorimeterSettings", cjs);
     CalorimeterSettings.readFromJson(cjs);
 
+    // Particle analyzers
+    {
+#ifdef JSON11
+        json11::Json::object js;
+#else
+        QJsonObject js;
+#endif
+        jstools::parseJson(json, "AnalyzerSettings", js);
+        AnalyzerSettings.readFromJson(js);
+    }
+
     jstools::parseJson(json, "AsciiOutput",          AsciiOutput);
     jstools::parseJson(json, "AsciiPrecision",       AsciiPrecision);
 
@@ -209,6 +227,8 @@ void AParticleRunSettings::clear()
     MonitorSettings.clear();
 
     CalorimeterSettings.clear();
+
+    AnalyzerSettings.clear();
 
     AsciiOutput    = true;
     AsciiPrecision = 6;

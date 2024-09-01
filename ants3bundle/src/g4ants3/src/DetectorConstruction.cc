@@ -18,12 +18,13 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
     return fWorld;
 }
 
+#include "aparticleanalyzersettings.h"
 void DetectorConstruction::ConstructSDandField()
 {
     // ---- Energy depositions in sensitive volumes -----
     SessionManager & SM = SessionManager::getInstance();
 
-    SensitiveDetector* pSD = new SensitiveDetector(SM.DepoLoggerSDName);
+    DepositionSensitiveDetector* pSD = new DepositionSensitiveDetector(SM.DepoLoggerSDName);
     G4SDManager::GetSDMpointer()->AddNewDetector(pSD);
 
     G4LogicalVolumeStore* store = G4LogicalVolumeStore::GetInstance();
@@ -65,6 +66,17 @@ void DetectorConstruction::ConstructSDandField()
     // ---- Calorimeters ----
     for (CalorimeterSensitiveDetector * cal : SM.Calorimeters)
         SetSensitiveDetector(cal->Name, cal);
+
+    // ---- Analyzers ----
+    if (SM.Settings.RunSet.AnalyzerSettings.Enabled)
+    {
+        AnalyzerSensitiveDetector * asd = new AnalyzerSensitiveDetector("AnSensDet");
+        for (const AParticleAnalyzerRecord & rec : SM.Settings.RunSet.AnalyzerSettings.AnalyzerTypes)
+        {
+            for (const std::string & name : rec.VolumeNames)
+                SetSensitiveDetector(name, asd, true);
+        }
+    }
 }
 
 bool DetectorConstruction::isAccordingTo(const std::string &name, const std::string & wildcard) const

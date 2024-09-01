@@ -8,11 +8,16 @@ class G4Step;
 class G4HCofThisEvent;
 class AHistogram3Dfixed;
 
-class SensitiveDetector : public G4VSensitiveDetector
+namespace SensitiveDetectorTools
+{
+    void stopAndKill(G4Step * step);
+};
+
+class DepositionSensitiveDetector : public G4VSensitiveDetector
 {
 public:
-    SensitiveDetector(const G4String & name);
-    ~SensitiveDetector();
+    DepositionSensitiveDetector(const G4String & name);
+    ~DepositionSensitiveDetector();
 
     G4bool ProcessHits(G4Step* step, G4TouchableHistory* history) override;
 };
@@ -82,7 +87,7 @@ class CalorimeterSensitiveDetector : public G4VSensitiveDetector
 {
 public:
     CalorimeterSensitiveDetector(const std::string & name, ACalorimeterProperties & properties, int index);
-    ~CalorimeterSensitiveDetector();
+    ~CalorimeterSensitiveDetector(); // !!!***
 
     G4bool ProcessHits(G4Step * step, G4TouchableHistory * history) override;
 
@@ -99,6 +104,14 @@ public:
     AHistogram1D * EventDepoData = nullptr;
     double SumDepoOverEvent = 0;
 
+};
+
+class AnalyzerSensitiveDetector : public G4VSensitiveDetector
+{
+public:
+    AnalyzerSensitiveDetector(const std::string & name);
+
+    G4bool ProcessHits(G4Step * step, G4TouchableHistory * history) override;
 };
 
 #endif // SensitiveDetector_h
