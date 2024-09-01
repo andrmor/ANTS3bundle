@@ -8,6 +8,8 @@
 #include "ageotype.h"
 #include "ageospecial.h"
 
+#include <QJsonObject>
+#include <QJsonDocument>
 #include <QDebug>
 
 AGeoScriptMaker::AGeoScriptMaker(ELanguage lang) : Language(lang)
@@ -590,6 +592,22 @@ void AGeoScriptMaker::addRoleIfApplicable(QString & script, AGeoObject *obj, int
     {
         QString str = QString("geo.setPhotonFunctional( '%1' )").arg(obj->Name);
         script += "\n" + QString(" ").repeated(ident) + str;
+        return;
+    }
+
+    AGeoParticleAnalyzer * an = dynamic_cast<AGeoParticleAnalyzer*>(obj->Role);
+    if (an)
+    {
+        QString str = QString("geo.setParticleAnalyzer( '%1' )").arg(obj->Name);
+        script += "\n" + QString(" ").repeated(ident) + str;
+
+        QJsonObject js;
+        an->Properties.writeToJson(js, false);
+        QJsonDocument doc(js);
+        QString confStr(doc.toJson(QJsonDocument::Compact));
+        str = QString("geo.configureParticleAnalyzer( '%1', %2 )").arg(obj->Name).arg(confStr);
+        script += "\n" + QString(" ").repeated(ident) + str;
+
         return;
     }
 }
