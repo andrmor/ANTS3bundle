@@ -10,7 +10,8 @@
 #include <QLineEdit>
 #include <QDoubleValidator>
 #include <QPushButton>
-#include "QCheckBox"
+#include <QCheckBox>
+#include <QDebug>
 
 #include "TGraph.h"
 

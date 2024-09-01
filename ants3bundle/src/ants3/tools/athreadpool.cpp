@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <functional>
+#include <stdexcept>
 
 AThreadPool::AThreadPool(size_t numThreads) : NumThreads(numThreads)
 {

@@ -7,6 +7,7 @@
 #include "amonitor.h"
 #include "ath.h"
 #include "ajsontools.h"
+#include "arandomhub.h"
 
 #include <QDebug>
 #include <QVariant>
@@ -23,21 +24,14 @@ AParticleSim_SI::AParticleSim_SI() :
     Help["getCalorimeterBinning"] = "Returns array of 3 arrays, [Bins, Origin, Step], each one is for x,y and z axis";
 }
 
-void AParticleSim_SI::simulate(bool updateGui)
+void AParticleSim_SI::simulate()
 {
     AErrorHub::clear();
 
     SimMan.simulate();
 
     QString err = AErrorHub::getQError();
-    if (err.isEmpty())
-    {
-        if (updateGui) SimMan.requestUpdateResultsGUI();
-    }
-    else
-    {
-        abort(err);
-    }
+    if (!err.isEmpty()) abort(err);
 }
 
 #include "aparticlesimsettings.h"
@@ -473,7 +467,61 @@ QVariantList AParticleSim_SI::getMonitorXY(int monitorIndex)
     return vl;
 }
 
-#include "arandomhub.h"
+void AParticleSim_SI::setTrackingHistoryFileName(QString fileName)
+{
+    TrackingHistoryFileName = fileName;
+}
+
+void AParticleSim_SI::buildTracks(int maxTracks)
+{
+    buildTracks(false, false, false, QVariantList(), QVariantList(), maxTracks);
+}
+
+#include "atrackingdataexplorer.h"
+void AParticleSim_SI::buildTracks(bool skipPrimaries, bool skipPrimNoInter, bool skipSecondaries, QVariantList limitToParticleList, QVariantList excludeParticles, int maxTracks)
+{
+    if (TrackingHistoryFileName.isEmpty())
+    {
+        abort("File name for track import is not set. Configure it using psim.setTrackingHistoryFileName");
+        return;
+    }
+
+    QStringList LimitTo;
+    for (int i = 0; i < limitToParticleList.size(); i++) LimitTo << limitToParticleList[i].toString();
+    QStringList Exclude;
+    for (int i = 0; i < excludeParticles.size(); i++)    Exclude << excludeParticles[i].toString();
+
+    ATrackingDataExplorer explorer;
+    QString err = explorer.buildTracks(TrackingHistoryFileName, LimitTo, Exclude,
+                                       skipPrimaries, skipPrimNoInter, skipSecondaries,
+                                       maxTracks, -1);
+
+    if (!err.isEmpty())
+    {
+        abort("Error whil ebuilding tracks:\n" + err);
+        return;
+    }
+}
+
+void AParticleSim_SI::buildTracksSingleEvent(int eventIndex)
+{
+    if (TrackingHistoryFileName.isEmpty())
+    {
+        abort("File name for track import is not set. Configure it using psim.setTrackingHistoryFileName");
+        return;
+    }
+
+    ATrackingDataExplorer explorer;
+    QString err = explorer.buildTracks(TrackingHistoryFileName, QStringList(), QStringList(),
+                                       false, false, false,
+                                       10000, eventIndex);
+
+    if (!err.isEmpty())
+    {
+        abort("Error whil ebuilding tracks:\n" + err);
+        return;
+    }
+}
 
 double getOrthoPsM(double w1, double w2, double w3)
 {

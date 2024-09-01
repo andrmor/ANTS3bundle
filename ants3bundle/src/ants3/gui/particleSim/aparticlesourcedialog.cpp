@@ -658,11 +658,18 @@ void AParticleSourceDialog::on_pbShowSource_clicked(bool checked)
 void AParticleSourceDialog::on_pbHelpParticle_clicked()
 {
     guitools::message1("For particle simulations, the particle name should be one of those defined in Geant4, e.g.\n"
-                       "  e-, proton, neutron, gamma, He3, etc.\n\n"
+                       "   e-, proton, neutron, gamma, He3, etc."
+                       "\n\n"
                        "For combined particle/optical simulations, the name can also be \"-\", \n"
-                       "  which indicates direct energy deposition (a particle is NOT generated).\n"
-                       "  Note that the direct energy deposition is only saved if the position is inside\n"
-                       "  one of the sensitive volumes (See \"Settings\" tab)", "Particle name help", this);
+                       "   which indicates direct energy deposition (a particle is NOT generated).\n"
+                       "   Note that the direct energy deposition is only saved if the position is inside\n"
+                       "   one of the sensitive volumes (See \"Settings\" tab)."
+                       "\n\n"
+                       "As an experimental feature, we are testing \"custom\" particle generation\n"
+                       "   Advanced users can add their generation code to ants3 (search for \"_oPs\" string)\n"
+                       "   The names of such particles must start from \"_\" character.\n"
+                       "   Currently implemented:\n"
+                       "   _oPs   --> Ortho-Positronium decaying into 3 gammas (energy settings are ignored)", "Particle name help", this);
 }
 
 void AParticleSourceDialog::on_pbShowAngular_clicked()

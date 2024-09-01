@@ -269,7 +269,7 @@ double ASourceParticleGenerator::selectTime(const AParticleSourceRecord & Source
         time += Source.TimeSpreadWidth * ARandomHub::getInstance().uniform();
         break;
     case AParticleSourceRecord::ExponentialSpread :
-        constexpr double ln2 = std::log(2.0);
+        const double ln2 = std::log(2.0);
         time += ARandomHub::getInstance().exp(Source.TimeSpreadHalfLife / ln2);
         break;
     }
@@ -328,7 +328,17 @@ bool ASourceParticleGenerator::generateEvent(std::function<void(const AParticleR
             const int thisParticle = ThisLP[ip].iParticle;
             const int linkedTo     = ThisLP[ip].LinkedTo;
 
-            if (ThisLP[linkedTo].bWasGenerated) // parent was generated
+            bool parentWasGenerated = false;
+            for (int index = ip-1; index > -1; index--)
+            {
+                if (ThisLP[index].iParticle == linkedTo)
+                {
+                    parentWasGenerated = ThisLP[index].bWasGenerated;
+                    break;
+                }
+            }
+
+            if (parentWasGenerated) // parent was generated
             {
                 if (Source.Particles[thisParticle].GenerationType == AGunParticle::Linked_IfNotGenerated)
                 {
@@ -515,6 +525,12 @@ void ASourceParticleGenerator::addGeneratedParticle(int iSource, int iParticle, 
     const AParticleSourceRecord & src = Settings.SourceData[iSource];
     const AGunParticle & gp = src.Particles[iParticle];
 
+    if (gp.Particle[0] == '_')
+    {
+        processSpecialParticle(gp, iSource, position, time, forceIsotropic, handler);
+        return;
+    }
+
     const double energy = gp.generateEnergy();
 
     if (!gp.isDirectDeposition())
@@ -556,6 +572,44 @@ void ASourceParticleGenerator::addGeneratedParticle(int iSource, int iParticle, 
         }
 #endif
     }
+}
+
+#ifdef GEANT4
+#include "G4Gamma.hh"
+#endif
+#include "aorthopositroniumgammagenerator.h"
+void ASourceParticleGenerator::processSpecialParticle(const AGunParticle & particle, int iSource, double * position, double time, bool forceIsotropic, std::function<void (const AParticleRecord &)> handler)
+{
+    if (particle.Particle == "_oPs")
+    {
+        std::array<AVector3, 3> unitVectors;
+        std::array<double, 3>   energies;
+        AOrthoPositroniumGammaGenerator::generate(unitVectors, energies);
+
+        AParticleRecord particle(
+#ifdef GEANT4
+            G4Gamma::Definition(),
+#else
+            "gamma",
+#endif
+            position, time, 1.234);
+
+        for (size_t iGamma = 0; iGamma < 3; iGamma++)
+        {
+            particle.energy = energies[iGamma]*1000; // here energy has to be in ants3 units, which is keV
+            for (size_t i = 0; i < 3; i++)
+                particle.v[i] = unitVectors[iGamma][i];
+            handler(particle);
+        }
+        return;
+    }
+
+#ifdef GEANT4
+    SessionManager & SM = SessionManager::getInstance();
+    SM.terminateSession("Unknown special particle: " + particle.Particle);
+#else
+    qWarning() << "Unknown special particle:" << particle.Particle << "in ASourceParticleGenerator::processSpecialParticle";
+#endif
 }
 
 void ASourceParticleGenerator::updateLimitedToMat()

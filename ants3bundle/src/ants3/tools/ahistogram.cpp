@@ -429,7 +429,7 @@ double ARandomSampler::getRandom() const
 
 // ---
 
-double interpolateHere(double a, double b, double fraction)
+double AHistogram1D::interpolateHere(double a, double b, double fraction)
 {
     //out("    interpolation->", a, b, fraction);
     if (fraction == 0.0) return a;
@@ -463,7 +463,7 @@ std::string RandomRadialSampler::configure(const std::vector<std::pair<double, d
         while (r <= data[indexOriginal+1].first)
         {
             const double interpolationFactor = (r - data[indexOriginal].first) / ( data[indexOriginal+1].first - data[indexOriginal].first );
-            const double interpolatedValue   = interpolateHere(data[indexOriginal].second, data[indexOriginal+1].second, interpolationFactor);
+            const double interpolatedValue   = AHistogram1D::interpolateHere(data[indexOriginal].second, data[indexOriginal+1].second, interpolationFactor);
 
             Distribution.push_back( {r, interpolatedValue} );
 

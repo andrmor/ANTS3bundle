@@ -311,7 +311,7 @@ void ARootHistRecord::smear(double sigma)
     for (int iBin = 1; iBin < bins+1; iBin++) h->SetBinContent(iBin, Convoluted[iBin]);
 }
 
-void ARootHistRecord::Scale(double ScaleIntegralTo, bool bDividedByBinWidth)
+void ARootHistRecord::scaleInegralTo(double ScaleIntegralTo, bool bDividedByBinWidth)
 {
     QMutexLocker locker(&Mutex);
 
@@ -319,6 +319,21 @@ void ARootHistRecord::Scale(double ScaleIntegralTo, bool bDividedByBinWidth)
     {
         TH1* h = dynamic_cast<TH1*>(Object);
         h->Scale( ScaleIntegralTo, ( bDividedByBinWidth ? "width" : "" ) );
+    }
+}
+
+void ARootHistRecord::scaleMaxTo(double scaleMaxTo)
+{
+    QMutexLocker locker(&Mutex);
+
+    if (Type == "TH1D")
+    {
+        TH1* h = dynamic_cast<TH1*>(Object);
+        double maximum = h->GetMaximum();
+        double factor = (maximum == 0 ? 1.0 : scaleMaxTo / maximum);
+        const int num = h->GetEntries();
+        for (int i = 1; i < num+2; i++)
+            h->SetBinContent(i, h->GetBinContent(i) * factor);
     }
 }
 

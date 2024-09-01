@@ -24,6 +24,8 @@
 
 #include <vector>
 
+#include "TObject.h"
+
 AGeoDelegateWidget::AGeoDelegateWidget(AGeoTree * tw) :
     Geometry(AGeometryHub::getInstance()),
     Materials(AMaterialHub::getInstance()),

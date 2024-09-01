@@ -55,6 +55,10 @@ ants3_jsroot{
 }
 #----------
 
+# Permission to script to start external processes
+# DEFINES += _ALLOW_LAUNCH_EXTERNAL_PROCESS_
+#----------
+
 QT += core
 ants3_GUI {
     QT += gui
@@ -130,6 +134,7 @@ SOURCES += \
     gui/aconfigexamplebrowser.cpp \
     gui/aglobsetwindow.cpp \
     gui/aguiwindow.cpp \
+    gui/aitemselectiondialog.cpp \
     gui/alineedit.cpp \
     gui/alineeditwithescape.cpp \
     gui/atreedatabaseselectordialog.cpp \
@@ -196,6 +201,7 @@ SOURCES += \
     ademomanager.cpp \
     gui/photsim/asensorgview.cpp \
     gui/photsim/asensorwindow.cpp \
+    gui/script/aargumentcounter.cpp \
     gui/script/ageoscriptmaker.cpp \
     gui/script/aguifromscrwin.cpp \
     gui/script/ahighlighters.cpp \
@@ -209,6 +215,7 @@ SOURCES += \
     gui/script/atextoutputwindow.cpp \
     materials/amatcomposition.cpp \
     particleSim/ageant4inspectormanager.cpp \
+    particleSim/aorthopositroniumgammagenerator.cpp \
     photonSim/aphotonloghandler.cpp \
     photonSim/interfaceRules/asurfaceinterfacerule.cpp \
     photonSim/interfaceRules/asurfacesettings.cpp \
@@ -347,6 +354,7 @@ HEADERS += \
     ../lsim/aphotonhistorylog.h \
     ademomanager.h \
     aviewer3dsettings.h \
+    gui/aitemselectiondialog.h \
     gui/atreedatabaseselectordialog.h \
     gui/graph/adrawmarginsrecord.h \
     gui/graph/asetmarginsdialog.h \
@@ -354,7 +362,9 @@ HEADERS += \
     gui/photsim/afunctionalmodelwidget.h \
     gui/photsim/aphotonlogsettingsform.h \
     gui/photsim/aphotontunnelwindow.h \
+    gui/script/aargumentcounter.h \
     gui/script/ascriptexampleexplorer.h \
+    particleSim/aorthopositroniumgammagenerator.h \
     photonSim/aphotonloghandler.h \
     photonSim/photonFunctional/aphotonfunctionalhub.h \
     photonSim/photonFunctional/aphotonfunctionalmodel.h \
@@ -573,6 +583,7 @@ HEADERS += \
 
 FORMS += \
         gui/aconfigexamplebrowser.ui \
+        gui/aitemselectiondialog.ui \
         gui/geom/ashownumbersdialog.ui \
         gui/aglobsetwindow.ui \
         gui/graph/asetmarginsdialog.ui \

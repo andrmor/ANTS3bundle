@@ -1,0 +1,17 @@
+{
+    "Items": [
+        {
+            "Name": "Na22_gammas",
+            "File": "Na22_gammas.json",
+            "Tags": ["Beta+"],
+            "Description": "100%: de-excitation gamma + 90%: two back-to-back annihilation gammas"
+        },
+        {
+            "Name": "OrthoPositronium_Na22",
+            "File": "oPs_Na22.json",
+            "Tags": ["Beta+", "Positronium"],
+            "Description": "OrthoPositronium deacying to 3 gammas with branching ratio of 1% and originating from Na22."
+        }
+        
+    ]
+}

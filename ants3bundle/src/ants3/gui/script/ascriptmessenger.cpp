@@ -25,6 +25,8 @@ void AScriptMessenger::output(QString txt, bool html)
         {
             (html ? AScriptHub::getInstance().outputHtml(txt, Language) : AScriptHub::getInstance().outputText(txt, Language));
             StopWatch->start();  // protext by mutex if expand to multiple instances of the caller
+            //qApp->processEvents();
+            AScriptHub::getInstance().processEvents(Language);
             return;
         }
         // else starting new "queue"
@@ -41,6 +43,9 @@ void AScriptMessenger::output(QString txt, bool html)
         QMutexLocker locker(&BufferMutex);
         Buffer.push_back({html, txt});
     }
+
+    //qApp->processEvents();
+    AScriptHub::getInstance().processEvents(Language);
 }
 
 void AScriptMessenger::flush()

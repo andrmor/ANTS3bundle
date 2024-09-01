@@ -700,6 +700,65 @@ void ABasketManager::reorder(const QVector<int> &indexes, int to)
             Basket.remove(i);
 }
 
+#include "aroothistappenders.h"
+QString ABasketManager::mergeHistograms(const std::vector<int> & indexes)
+{
+    int foundHistos = 0;
+    int bins;
+    double from, to;
+    for (int index : indexes)
+    {
+        const ABasketItem & item = Basket[index];
+        if (item.DrawObjects.empty()) continue;
+
+        const ADrawObject & obj = item.DrawObjects.front();
+        const TH1D * h = dynamic_cast<const TH1D*>(obj.Pointer);
+        if (!h) return "At least one of the selected items is not a 1D histogram";
+
+        int thisBins = h->GetNbinsX();
+        double thisFrom = h->GetXaxis()->GetXmin();
+        double thisTo   = h->GetXaxis()->GetXmax();
+        if (foundHistos == 0)
+        {
+            // this is the first
+            bins = thisBins;
+            from = thisFrom;
+            to   = thisTo;
+        }
+        else
+        {
+            if (bins != thisBins || from != thisFrom || to != thisTo)
+                return "Found mismatch in histogram binning";
+        }
+        foundHistos++;
+    }
+
+    if (foundHistos < 2) return "Select at least two 1D histograms";
+
+    TH1D * hist = nullptr;
+    QString name;
+    for (int index : indexes)
+    {
+        const ABasketItem & item = Basket[index];
+        if (item.DrawObjects.empty()) continue;
+
+        const ADrawObject & obj = item.DrawObjects.front();
+        const TH1D * h = dynamic_cast<const TH1D*>(obj.Pointer);
+
+        appendTH1DwithStat(hist, h);
+        name += item.Name + "+";
+    }
+    name.chop(1);
+
+    QVector<ADrawObject> drawObjects;
+    drawObjects << ADrawObject(hist, "hist");
+    add(name, drawObjects);
+
+    delete hist;
+
+    return "";
+}
+
 int ABasketManager::findPointerInDrawObjects(const QVector<ADrawObject> &DrawObjects, TObject *obj) const
 {
     for (int i=0; i<DrawObjects.size(); i++)

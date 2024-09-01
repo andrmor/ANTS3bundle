@@ -32,6 +32,8 @@ public:
 
     void clear() {} // !!!***
 
+    static double interpolateHere(double a, double b, double fraction);
+
 private:
     int    Bins = 100;
     double From = 0;

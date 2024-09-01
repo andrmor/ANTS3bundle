@@ -26,53 +26,64 @@ public:
     bool beforeRun() override;
 
 public slots:
-    void    abort(QString message);
-
+    // Internal tests
     //QVariant test(QVariant in);
-    double testVFormula(QString formula, QVariantList varNames, QVariantList varValues);
+    //double testVFormula(QString formula, QVariantList varNames, QVariantList varValues);
     //QString testComposition(QString comp);
-
     //int fun(int i, int j, int k);
     //int fun(int i);
+    //void fun0();
+    //void fun1(int i);
+    //void fun2(int i, double d);
 
-    double  arraySum(QVariantList array);
+    void         abort(QString message);
 
     // Output
-    void    clearOutput();
-    void    print(QVariant message);
-    void    print(QVariant m1, QVariant m2, QVariant m3=QVariant(), QVariant m4=QVariant(), QVariant m5=QVariant(), QVariant m6=QVariant(), QVariant m7=QVariant(), QVariant m8=QVariant(), QVariant m9=QVariant(), QVariant m10=QVariant());
-    void    printHtml(QString text);
+    void         print(QVariant message);
+    void         print(QVariant m1, QVariant m2, QVariant m3=QVariant(), QVariant m4=QVariant(), QVariant m5=QVariant(), QVariant m6=QVariant(), QVariant m7=QVariant(), QVariant m8=QVariant(), QVariant m9=QVariant(), QVariant m10=QVariant());
+    void         printHtml(QString text);
+    void         clearOutput();
 
     // Time
-    void    sleep(int ms);
-    double  getTimeMarkMilliseconds();
-    QString getDateTimeStamp();
+    void         sleep(int ms);
+    double       getTimeMarkMilliseconds();
+    QString      getDateTimeStamp();
 
     // Basic io
-    void createFile(QString fileName);
-    bool isFileExist(QString fileName);
-    bool deleteFile(QString fileName);
-    bool createDir(QString path);
+    void         createDir(QString path);
+    void         createFile(QString fileName);
+    void         deleteFile(QString fileName);
+    bool         isFileExist(QString fileName);
 
-    QString getCurrentDir();
+    void         setCurrentDir(QString path);
+    QString      getCurrentDir();
+
+    QVariantList getDirectories(QString dir, QString dirNamePattern);
+    QVariantList setNewFileFinder(QString dir, QString fileNamePattern);
+    QVariantList getNewFiles();
 
     // Text
-    void    saveText(QString text, QString fileName, bool append);
-    QString loadText(QString fileName);
+    void         saveText(QString text, QString fileName);
+    void         appendText(QString text, QString fileName);
+    QString      loadText(QString fileName);
     // !!!*** read line from file
 
     // Ascii array
-    void         saveArray(QVariantList array, QString fileName, bool append, int precision = 6);
+    void         saveArray(QVariantList array, QString fileName, bool append = false);
     QVariantList loadNumericArray(QString fileName);
-    QVariantList loadArray(const QString & fileName, const QVariantList & format, int fromLine, int untilLine);
+    QVariantList loadArray(QString fileName, QVariantList format);
+    QVariantList loadArray(QString fileName, QVariantList format, int fromLine, int untilLine);
 
     // Binary array
-    void         saveBinaryArray(const QVariantList & array, const QVariantList & format, const QString & fileName, bool append);
+    void         saveBinaryArray(QVariantList array, QString fileName, QVariantList format, bool append = false);
     QVariantList loadArrayBinary(const QString & fileName, const QVariantList & format);
 
     // 3D arrays
-    void         save3DArray(QVariantList array, QString topLevelSeparator, QVariantList topLevelLabels, QString fileName, bool append);
-    QVariantList load3DArray(const QString & fileName, const QString & topSeparator, const QVariantList & format, int recordsFrom, int recordsUntil, bool skipEmpty, bool allowIncomplete);
+    void         save3DArray(QVariantList array, QString fileName, QString topLevelSeparator, QVariantList topLevelLabels = QVariantList(),  bool append = false);
+    QVariantList load3DArray(QString fileName, QString topSeparator, QVariantList format,
+                             bool skipEmpty = true, bool allowIncomplete = false, int recordsFrom = 0, int recordsUntil = 2147483647);
+
+    // !!!*** add save3DBinaryArray
     QVariantList load3DBinaryArray(const QString &fileName, char dataId, const QVariantList &dataFormat, char separatorId, const QVariantList &separatorFormat, int recordsFrom = 0, int recordsUntil = 1e6, bool skipEmpty = false);
 
     // Object
@@ -81,25 +92,22 @@ public slots:
 
 //    QVariant loadArrayFromWeb(QString url, int msTimeout = 3000);
 
-    //file finder
-    QVariantList setNewFileFinder(const QString dir, const QString fileNamePattern);
-    QVariantList getNewFiles();
-
-    QVariantList getDirectories(const QString dir, const QString dirNamePattern);
-
     //misc
     QString str(double value, int precision);
     QString toStr(QVariant var);
+    double  arraySum(QVariantList array);
     QString getExamplesDir();
     void    processEvents();
-//  void    reportProgress(int percents);
+    void    reportProgress(int percents);
 
     void requestGuiUpdate();
 
-    QString startExternalProcess(QString command, QVariant arguments, bool waitToFinish, int milliseconds);
+    void startExternalProcess(QString command, QVariant arguments);
+    QString startExternalProcessAndWait(QString command, QVariant arguments, int maxWaitMilliseconds);
 
 private:
     enum EArrayFormat {StringFormat, IntFormat, UI32Format, DoubleFormat, FloatFormat, CharFormat, SkipFormat};
+
     //file finder
     QSet<QString>   Finder_FileNames;
     QString         Finder_Dir;

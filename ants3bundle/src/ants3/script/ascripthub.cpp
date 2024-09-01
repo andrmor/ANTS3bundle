@@ -130,6 +130,23 @@ void AScriptHub::clearOutput(EScriptLanguage lang)
     else                                     emit clearOutput_P();
 }
 
+#include <QCoreApplication>
+void AScriptHub::processEvents(EScriptLanguage lang)
+{
+    qApp->processEvents();
+#ifdef ANTS3_PYTHON
+    if (lang == EScriptLanguage::Python)
+        PythonM->checkSignals();
+#endif
+}
+
+void AScriptHub::reportProgress(int percents, EScriptLanguage lang)
+{
+    if (lang == EScriptLanguage::JavaScript) emit reportProgress_JS(percents);
+    else                                     emit reportProgress_P(percents);
+    processEvents(lang);
+}
+
 QString AScriptHub::getPythonVersion()
 {
 #ifdef ANTS3_PYTHON

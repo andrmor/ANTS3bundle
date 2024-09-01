@@ -301,6 +301,7 @@ private:
     void contextMenuForBasketMultipleSelection(const QPoint &pos);
     void removeAllSelectedBasketItems();
     void requestMultidraw();
+    void requestMergeHistograms();
     void applyTemplate(bool bAll);
     void updateSecondaryAxis(TGaxis *gaxis, const char *opt);
     void showHintInStatus();

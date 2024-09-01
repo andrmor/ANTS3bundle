@@ -66,6 +66,12 @@ AScriptWindow::AScriptWindow(EScriptLanguage lang, QWidget * parent) :
     }
 #endif
 
+    lHelp = new QLabel(this);
+    lHelp->setWindowFlag(Qt::ToolTip);
+    lHelp->setContentsMargins(3,3,3,3);
+    lHelp->setFrameShape(QFrame::Box);
+    lHelp->setStyleSheet("background: rgb(237, 230, 197); color: black");
+
     ui->pbStop->setVisible(false);
     ui->prbProgress->setValue(0);
     ui->prbProgress->setVisible(false);
@@ -192,7 +198,8 @@ void AScriptWindow::createGuiElements()
     trwHelp->setContextMenuPolicy(Qt::CustomContextMenu);
     trwHelp->setColumnCount(1);
     trwHelp->setHeaderLabel("Unit.Function");
-    QObject::connect(trwHelp, &QTreeWidget::itemClicked,                this, &AScriptWindow::onFunctionClicked);
+    //QObject::connect(trwHelp, &QTreeWidget::itemClicked,                this, &AScriptWindow::onFunctionClicked);
+    QObject::connect(trwHelp, &QTreeWidget::currentItemChanged,                this, &AScriptWindow::onCurrentItemChanged);
     QObject::connect(trwHelp, &QTreeWidget::customContextMenuRequested, this, &AScriptWindow::onContextMenuRequestedByHelp);
     sh->addWidget(trwHelp);
 
@@ -341,7 +348,7 @@ void AScriptWindow::reportError(QString error, int line)
     //error = "<font color=\"red\">Error:</font><br>" + error;
     error = "<font color=\"red\">" + error + "</font>";
     pteOut->appendHtml(error);
-    qDebug() << "ln:" << line;
+    //qDebug() << "ln:" << line;
     highlightErrorLine(line);
 }
 
@@ -399,6 +406,8 @@ void AScriptWindow::writeToJson(QJsonObject & json) const
     QJsonArray sar;
     for (int & i : splMain->sizes()) sar << i;
     json["Sizes"] = sar;
+
+    json["SaveAllBeforeRun"] = ui->cbSaveAllBeforeRun->isChecked();
 }
 
 void AScriptWindow::ReadFromJson()
@@ -445,6 +454,10 @@ void AScriptWindow::readFromJson(const QJsonObject &json)
             splMain->setSizes(sizes);
         }
     }
+
+    bool bSaveAll = false;
+    jstools::parseJson(json, "SaveAllBeforeRun", bSaveAll);
+    ui->cbSaveAllBeforeRun->setChecked(bSaveAll);
 }
 
 void AScriptWindow::onBusyOn()
@@ -502,9 +515,25 @@ void AScriptWindow::clearOutput()
 #include "acore_si.h"
 void AScriptWindow::on_pbRunScript_clicked()
 {
+    lHelp->hide();
+
     // save all tabs -> GlobSet
     WriteToJson();
     A3Global::getInstance().saveConfig();
+
+    if (ui->cbSaveAllBeforeRun->isChecked())
+    {
+        QString err;
+        for (AScriptBook & book : ScriptBooks)
+            err += book.saveAllModifiedFiles();
+        if (!err.isEmpty())
+        {
+            QMessageBox::StandardButton reply = QMessageBox::question(this, "Could not save all modified files", err,
+                                                                      QMessageBox::Abort|QMessageBox::Ignore, QMessageBox::Abort);
+            if (reply == QMessageBox::Abort) return;
+        }
+    }
+
     emit requestUpdateConfig();
 
     const QString Script = getTab()->TextEdit->document()->toPlainText();
@@ -539,6 +568,8 @@ void AScriptWindow::on_pbRunScript_clicked()
         if (!s.simplified().isEmpty() && s != "undefined") outputText(s);
     }
 
+    ui->prbProgress->setValue(0);
+    ui->prbProgress->setVisible(false);
     ScriptManager->collectGarbage();
 
     updateJsonTree();
@@ -546,16 +577,18 @@ void AScriptWindow::on_pbRunScript_clicked()
     emit requestUpdateGui();
 }
 
+/*
 void AScriptWindow::onF1pressed(QString text)
 {
-    //qDebug() << "F1 requested for:"<<text;
+    return;
+
+    qDebug() << "F1 requested for:"<<text;
     ui->pbHelp->setChecked(true);
 
     trwHelp->collapseAll();
     trwHelp->clearSelection();
 
-    QList<QTreeWidgetItem*> list;
-    list = trwHelp->findItems(text, Qt::MatchContains | Qt::MatchRecursive, 0);
+    QList<QTreeWidgetItem*> list = trwHelp->findItems(text, Qt::MatchContains | Qt::MatchRecursive, 0);
 
     for (int i=0; i<list.size(); i++)
     {
@@ -568,10 +601,55 @@ void AScriptWindow::onF1pressed(QString text)
         while (item);
         trwHelp->setCurrentItem(list[i], 0, QItemSelectionModel::Select);
         trwHelp->setCurrentItem(list[i], 1, QItemSelectionModel::Select);
+        qDebug() << list[i]->text(0) << list[i]->text(1);
     }
 
     if (list.size() == 1)
         emit trwHelp->itemClicked(list.first(), 0);
+}
+*/
+
+void AScriptWindow::onF1pressedExtended(std::pair<QString, int> methodNumArgspair)
+{
+    // It seems Qt has a bug and QTreeWidget::findItem() method does not work with non-zero column
+    // have to make a detour...
+
+    //qDebug() << "F1 requested for:" << methodNumArgspair;
+    ui->pbHelp->setChecked(true);
+
+    trwHelp->collapseAll();
+    trwHelp->clearSelection();
+    pteHelp->clear();
+
+    QString signature = methodNumArgspair.first;
+    QStringList sl = signature.split(' ');
+    if (sl.size() < 2) return;
+    QString pattern = sl[1];
+    //qDebug() << "Looking for pattern:" << pattern;
+
+    if (pattern == "core.print(") signature = "void core.print( QVariant m1, ... )";
+
+    QList<QTreeWidgetItem*> list = trwHelp->findItems(pattern, Qt::MatchContains | Qt::MatchRecursive, 0);
+    if (list.empty()) return;
+
+    QTreeWidgetItem * itemToFocus = nullptr;
+    for (QTreeWidgetItem * item : list)
+    {
+        //qDebug() << item->text(1);
+        if (item->text(1) == signature)
+        {
+            itemToFocus = item;
+            break;
+        }
+    }
+
+    if (!itemToFocus) return;
+
+    trwHelp->expandItem(itemToFocus);
+    trwHelp->setCurrentItem(itemToFocus, 0, QItemSelectionModel::Select);
+    trwHelp->setCurrentItem(itemToFocus, 1, QItemSelectionModel::Select);
+
+    emit trwHelp->itemClicked(itemToFocus, 0);
 }
 
 void AScriptWindow::on_pbStop_clicked()
@@ -873,6 +951,11 @@ void AScriptWindow::onFunctionClicked(QTreeWidgetItem *item, int /*column*/)
     pteHelp->appendPlainText(item->toolTip(0));
 }
 
+void AScriptWindow::onCurrentItemChanged(QTreeWidgetItem * current, QTreeWidgetItem *)
+{
+    onFunctionClicked(current, 1);
+}
+
 void AScriptWindow::onKeyDoubleClicked(QTreeWidgetItem *item, int /*column*/)
 {
     //QString str = getKeyPath(item);
@@ -1076,6 +1159,7 @@ void AScriptWindow::onDefaulFontSizeChanged(int size)
 
 void AScriptWindow::onProgressChanged(int percent)
 {
+    qDebug() << percent;
     ui->prbProgress->setValue(percent);
     ui->prbProgress->setVisible(true);
     qApp->processEvents();
@@ -1211,6 +1295,7 @@ void AScriptWindow::onCurrentTabChanged(int tab)
     //qDebug() << "Current changed for visible!" << tab;
     updateFileStatusIndication();
     applyTextFindState();
+    lHelp->hide();
 }
 
 QIcon makeIcon(int h)
@@ -1289,17 +1374,18 @@ void AScriptWindow::onScriptTabMoved(int from, int to)
     iMarkedTab = -1;
 }
 
-void AScriptWindow::updateTab(ATabRecord* tab)
+void AScriptWindow::updateTab(ATabRecord * tab)
 {
     tab->Highlighter->setExternalRules(UnitNames, Methods, ListOfDeprecatedOrRemovedMethods);
     tab->updateHighlight();
     tab->TextEdit->ListOfMethods = &ListOfMethods;
     tab->TextEdit->DeprecatedOrRemovedMethods = &DeprecatedOrRemovedMethods;
+    lHelp->hide();
 }
 
 ATabRecord & AScriptWindow::addNewTab(int iBook)
 {
-    ATabRecord * tab = new ATabRecord(Methods, ScriptLanguage);
+    ATabRecord * tab = new ATabRecord(Methods, ScriptLanguage, lHelp);
     tab->TabName = createNewTabName(iBook);
 
     formatTab(tab);
@@ -1331,7 +1417,8 @@ void AScriptWindow::formatTab(ATabRecord * tab)
     }
 
     connect(tab->TextEdit, &ATextEdit::fontSizeChanged, this, &AScriptWindow::onDefaulFontSizeChanged);
-    connect(tab->TextEdit, &ATextEdit::requestHelp, this, &AScriptWindow::onF1pressed);
+    //connect(tab->TextEdit, &ATextEdit::requestHelp, this, &AScriptWindow::onF1pressed);
+    connect(tab->TextEdit, &ATextEdit::requestHelpWithArgs, this, &AScriptWindow::onF1pressedExtended);
     connect(tab->TextEdit->document(), &QTextDocument::modificationChanged, this, &AScriptWindow::updateFileStatusIndication);
     connect(tab, &ATabRecord::requestFindText, this, &AScriptWindow::onFindSelected);
     connect(tab, &ATabRecord::requestReplaceText, this, &AScriptWindow::onReplaceSelected);
@@ -1877,6 +1964,7 @@ void AScriptWindow::on_pbReplaceAll_clicked()
 void AScriptWindow::on_actionShortcuts_triggered()
 {
     QString s = "For the current line:\n"
+                "F1\t\tShow method help\n"
                 "Ctrl + Alt + Del\tDelete line\n"
                 "Ctrl + Alt + Down\tDublicate line\n"
                 "Ctrl + Shift + Up\tShift line up\n"
@@ -2163,6 +2251,7 @@ void AScriptWindow::twBooks_currentChanged(int index)
     if (ScriptBooks[index].Tabs.empty()) addNewTab();
 
     updateFileStatusIndication();
+    lHelp->hide();
 }
 
 void AScriptWindow::onBookTabMoved(int from, int to)
@@ -2170,6 +2259,7 @@ void AScriptWindow::onBookTabMoved(int from, int to)
     //qDebug() << "Book from->to:"<<from<<to;
     std::swap(ScriptBooks[from], ScriptBooks[to]);
     iMarkedTab = -1;
+    lHelp->hide();
 }
 
 void AScriptWindow::on_actionAdd_new_book_triggered()

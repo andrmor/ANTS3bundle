@@ -1,7 +1,6 @@
 #include "aconfig_si.h"
 #include "aconfig.h"
 #include "ageometryhub.h"
-#include "ajsontools.h"
 
 #include <QJsonObject>
 #include <QJsonArray>
@@ -14,19 +13,21 @@ AConfig_SI::AConfig_SI() :
 {
     Description = "Read/change/save/load configuration\nToggle 'Config' button to access the configuration tree";
 
-    Help["load"]  = "Load configuration from file (.json).";
+    Help["load"]  = "Load configuration from file (.json).\n"
+                    "Before starting simulations, use updateConfig() method to take the config changes into effect!";
     Help["save"]  = "Save configuration to file (.json).";
 
     Help["getConfig"]  = "Get the entire configuration as an object";
-    Help["setConfig"]  = "Set the entire configuration from an object";
+    Help["setConfig"]  = "Set the entire configuration from an object.\n"
+                         "Before starting simulations, use updateConfig() method to take the config changes into effect!";
 
     Help["replace"] = "Replace the value of the Key in the config with the new one. Key value can be basic types (bool, double, string) as well as arrays and objects.\n"
-                      "Use rebuildDetector() method to take changes in effect!";
+                      "IMPORTANT: Use updateConfig() method to apply the changes in the config before starting simulation!";
     Help["getKeyValue"] = "Get the value of the Key: it can be basic types (bool, double, string) as well as arrays and objects.";
 
-    Help["rebuildDetector"]  = "Force to rebuild detector."; //\nNot anymore required after calling config.Replace - it is called automatically if Detector settings were modified.";
-    Help["updateGui"] = "Update GUI during script execution according to current settings in config.";
-
+    Help["updateConfig"]  = "Update ANTS3 configuration from the config file modified by the script.\n"
+                            "This method has to be called before running any type of simulation if changes were introduced in the config.\n"
+                            "Note that geometry can be redrawn using geowin.redraw()";
 }
 
 bool AConfig_SI::load(QString FileName)
@@ -52,7 +53,7 @@ bool AConfig_SI::save(QString FileName)
     return false;
 }
 
-QVariantMap AConfig_SI::getConfig() const
+QVariantMap AConfig_SI::getConfig()
 {
     return Config.JSON.toVariantMap();
 }
@@ -256,13 +257,6 @@ void AConfig_SI::updateConfig()
 
     QString err = Config.updateConfigFromJSON(false);
     if (!err.isEmpty()) abort("Error in configuration JSON:\n" + err);
-}
-
-void AConfig_SI::updateGui()
-{
-    if (!bGuiThread) return;
-
-    emit Config.configLoaded();
 }
 
 bool AConfig_SI::keyToNameAndIndex(QString Key, QString & Name, std::vector<int> & Indexes)

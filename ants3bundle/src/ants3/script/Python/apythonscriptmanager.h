@@ -47,6 +47,8 @@ public:
 
     QString getVersion();
 
+    void   checkSignals();
+
 private slots:
     void evalFinished(bool flag);
 

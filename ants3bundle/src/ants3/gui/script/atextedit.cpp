@@ -1,6 +1,7 @@
 #include "atextedit.h"
 #include "guitools.h"
 #include "a3global.h"
+#include "aargumentcounter.h"
 
 #include <QCompleter>
 #include <QKeyEvent>
@@ -19,9 +20,9 @@
 #include <QClipboard>
 #include <QRegularExpression>
 
-ATextEdit::ATextEdit(EScriptLanguage lang, QWidget * parent) :
-    QPlainTextEdit(parent), TabInSpaces(A3Global::getInstance().TabInSpaces),
-    ScriptLanguage(lang)
+ATextEdit::ATextEdit(EScriptLanguage lang, QLabel * labelHelpTooltip, QWidget * parent) :
+    QPlainTextEdit(parent),
+    ScriptLanguage(lang), lHelp(labelHelpTooltip), TabInSpaces(A3Global::getInstance().TabInSpaces)
 {
     LeftField = new ALeftField(*this);
     connect(this, &ATextEdit::blockCountChanged, this, &ATextEdit::updateLineNumberAreaWidth);
@@ -31,13 +32,6 @@ ATextEdit::ATextEdit(EScriptLanguage lang, QWidget * parent) :
     connect(this, &ATextEdit::cursorPositionChanged, this, &ATextEdit::onCursorPositionChanged);
 
     setMouseTracking(true);
-
-    lHelp = new QLabel();
-    lHelp->setWindowFlag(Qt::ToolTip);
-    lHelp->setContentsMargins(3,3,3,3);
-    lHelp->setFrameShape(QFrame::Box);
-    lHelp->setStyleSheet("background: rgb(237, 230, 197); color: black");
-    //lHelp->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
 }
 
 void ATextEdit::setCompleter(QCompleter *completer)
@@ -52,7 +46,48 @@ void ATextEdit::setCompleter(QCompleter *completer)
     QObject::connect(Completer, SIGNAL(activated(QString)), this, SLOT(insertCompletion(QString)));
 }
 
-//static int counter = 0;
+void ATextEdit::showMethodHelpForCursor()
+{
+    //QString text = selectObjFunctUnderCursor();
+    //emit requestHelp(text);
+
+    std::vector<std::pair<QString,int>> matchingMethods;
+    bool cursorIsInArguments = false;
+    int functionEndPosition = findMathcingMethodsForCursor(textCursor(), matchingMethods, cursorIsInArguments);
+    if (matchingMethods.empty()) return;
+
+    std::sort(matchingMethods.begin(), matchingMethods.end(), [](const auto & lhs, const auto & rhs){return (lhs.second < rhs.second);});
+    int selectedMethod = 0;
+    if (ForcedMethodTooltipSelection)
+        selectedMethod = SelectedMethodInTooltip;
+    else
+    {
+        int numNow = computeIntroducedNumberOfArguments(textCursor(), functionEndPosition);
+        //qDebug() << "Detected num arguments:" << numNow;
+        selectedMethod = 0;
+        for (const auto & pair : matchingMethods)
+        {
+            if (numNow == pair.second) break;
+            selectedMethod++;
+        }
+    }
+
+    if (matchingMethods.front().first.startsWith("void core.print(")) selectedMethod = 0;
+
+    if (selectedMethod >= matchingMethods.size())
+    {
+        qDebug() << "On F1 pressed: Bad method index!";
+        selectedMethod = 0;
+    }
+    emit requestHelpWithArgs(matchingMethods[selectedMethod]);
+}
+
+#include "afiletools.h"
+bool ATextEdit::saveTextToFile(const QString & fileName) const
+{
+     return ftools::saveTextToFile(document()->toPlainText(), fileName);
+}
+
 void ATextEdit::keyPressEvent(QKeyEvent * e)
 {
     const int key = e->key();
@@ -118,13 +153,12 @@ void ATextEdit::keyPressEvent(QKeyEvent * e)
     case Qt::Key_Escape :
       {
         //QToolTip::hideText();
-        lHelp->hide();
+        if (lHelp) lHelp->hide();
         break;
       }
     case Qt::Key_F1 :
       {
-        QString text = selectObjFunctUnderCursor();
-        emit requestHelp(text);
+        showMethodHelpForCursor();
         return;
       }
     case Qt::Key_Delete :
@@ -176,8 +210,7 @@ void ATextEdit::keyPressEvent(QKeyEvent * e)
             if (SelectedMethodInTooltip == 0) SelectedMethodInTooltip = NumberOfMethodsInTooltip - 1;
             else SelectedMethodInTooltip--;
             ForcedMethodTooltipSelection = true;
-            QTextCursor tcc = textCursor();
-            tryShowFunctionTooltip(&tcc);
+            tryShowFunctionTooltip(tc);
             return;
         }
         break;
@@ -206,8 +239,7 @@ void ATextEdit::keyPressEvent(QKeyEvent * e)
             SelectedMethodInTooltip++;
             if (SelectedMethodInTooltip >= NumberOfMethodsInTooltip) SelectedMethodInTooltip = 0;
             ForcedMethodTooltipSelection = true;
-            QTextCursor tcc = textCursor();
-            tryShowFunctionTooltip(&tcc);
+            tryShowFunctionTooltip(tc);
             return;
         }
         break;
@@ -599,22 +631,24 @@ void ATextEdit::focusInEvent(QFocusEvent *e)
 
 void ATextEdit::wheelEvent(QWheelEvent *e)
 {
-  if (e->modifiers().testFlag(Qt::ControlModifier))
+    if (lHelp) lHelp->hide();
+
+    if (e->modifiers().testFlag(Qt::ControlModifier))
     {
-      int size = font().pointSize();
-      if (e->angleDelta().y() > 0) setFontSizeAndEmitSignal(++size);
-      else setFontSizeAndEmitSignal(--size); //check is there: cannot go < 1
+        int size = font().pointSize();
+        if (e->angleDelta().y() > 0) setFontSizeAndEmitSignal(++size);
+        else setFontSizeAndEmitSignal(--size); //check is there: cannot go < 1
     }
-  else
+    else
     {
-      //scroll
-      int delta = e->angleDelta().y();
-      if (delta != 0) //paranoic :)
-      {
-          int was = this->verticalScrollBar()->value();
-          delta /= abs(delta);
-          this->verticalScrollBar()->setValue(was - 2*delta);
-      }
+        //scroll
+        int delta = e->angleDelta().y();
+        if (delta != 0) //paranoic :)
+        {
+            int was = this->verticalScrollBar()->value();
+            delta /= abs(delta);
+            this->verticalScrollBar()->setValue(was - 2*delta);
+        }
     }
 }
 
@@ -691,7 +725,7 @@ void ATextEdit::mouseDoubleClickEvent(QMouseEvent* /*e*/)
 void ATextEdit::focusOutEvent(QFocusEvent *e)
 {
     emit editingFinished();
-    lHelp->hide();
+    if (lHelp) lHelp->hide();
     QPlainTextEdit::focusOutEvent(e);
 }
 
@@ -889,8 +923,7 @@ void ATextEdit::onCursorPositionChanged()
     setExtraSelections(extraSelections);
 
     // tooltip for known functions
-    QTextCursor tcc = textCursor();
-    tryShowFunctionTooltip(&tcc);
+    tryShowFunctionTooltip(textCursor());
 
     if (bMonitorLineChange)
     {
@@ -903,20 +936,26 @@ void ATextEdit::onCursorPositionChanged()
     }
 }
 
-bool ATextEdit::tryShowFunctionTooltip(QTextCursor * cursor)
+int ATextEdit::findMathcingMethodsForCursor(const QTextCursor & cursor, std::vector<std::pair<QString,int>> & matchingMethods, bool & cursorIsInArguments)
 {
-    // !!!*** use copy of the cursor in the methods?
-    QTextCursor tc = *cursor;
-    QTextCursor tc1 = tc;
-    QTextCursor tc2 = tc;
-    const QString functionCandidateText = selectObjFunctUnderCursor(cursor);
-    std::vector<std::pair<QString,int>> matchingMethods;
+    int functionEndPosition = -1;
+    const QString functionCandidateText = selectObjFunctUnderCursor(cursor, functionEndPosition);
 
-    bool cursorIsInArguments = false;
-    // start with th ecase when the cursor is on one of the defined methods directly
+    // start with the case when the cursor is on one of the defined methods directly
     findMatchingMethods(functionCandidateText, matchingMethods);
     if (matchingMethods.empty())
     {
+        AArgumentCounter counter(cursor, 0, ScriptLanguage);
+        QTextCursor tc = cursor;
+        bool ok = counter.moveCursorBeforeArguments(tc);
+        if (!ok) return -1;
+        tc.setPosition(tc.position(), QTextCursor::MoveAnchor);
+        //qDebug() << SelectObjFunctUnderCursor(&tc);
+        findMatchingMethods(selectObjFunctUnderCursor(tc, functionEndPosition), matchingMethods);
+        cursorIsInArguments = true;
+
+        /*
+        QTextCursor tc = cursor;
         while (tc.position() != 0)
         {
             tc.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
@@ -929,100 +968,117 @@ bool ATextEdit::tryShowFunctionTooltip(QTextCursor * cursor)
                 // second case: the cursor is in the bracket section with the arguments
                 tc.setPosition(tc.position(), QTextCursor::MoveAnchor);
                 //qDebug() << SelectObjFunctUnderCursor(&tc);
-                findMatchingMethods(selectObjFunctUnderCursor(&tc), matchingMethods);
+                findMatchingMethods(selectObjFunctUnderCursor(tc, functionEndPosition), matchingMethods);
                 cursorIsInArguments = true;
                 break;
             }
         }
+        */
+    }
+    return functionEndPosition;
+}
+
+bool ATextEdit::tryShowFunctionTooltip(const QTextCursor & cursor)
+{
+    std::vector<std::pair<QString,int>> matchingMethods;
+    bool cursorIsInArguments = false;
+
+    int functionEndPosition = findMathcingMethodsForCursor(cursor, matchingMethods, cursorIsInArguments);
+    if (matchingMethods.empty())
+    {
+        ForcedMethodTooltipSelection = false;
+        MethodTooltipVisible = false;
+        SelectedMethodInTooltip = 0;
+        //QToolTip::hideText();
+        if (lHelp) lHelp->hide();
+        return false;
     }
 
-    if (!matchingMethods.empty())
+    std::sort(matchingMethods.begin(), matchingMethods.end(), [](const auto & lhs, const auto & rhs){return (lhs.second < rhs.second);});
+
+    MethodTooltipVisible = true;
+    NumberOfMethodsInTooltip = matchingMethods.size();
+
+    int selectedMethod = 0;
+    if (ForcedMethodTooltipSelection)
+        selectedMethod = SelectedMethodInTooltip;
+    else
     {
-        std::sort(matchingMethods.begin(), matchingMethods.end(), [](const auto & lhs, const auto & rhs){return (lhs.second < rhs.second);});
+        int numNow = computeIntroducedNumberOfArguments(cursor, functionEndPosition);
+        //qDebug() << "Computed number of arguments:" << numNow;
 
-        MethodTooltipVisible = true;
-        NumberOfMethodsInTooltip = matchingMethods.size();
-
-        int selectedMethod = 0;
-        if (ForcedMethodTooltipSelection)
-            selectedMethod = SelectedMethodInTooltip;
-        else
+        selectedMethod = 0;
+        for (const auto & pair : matchingMethods)
         {
-            int numNow = computeIntroducedNumberOfArguments(tc1, cursorIsInArguments);
-            //qDebug() << "Computed number of arguments:" << numNow;
+            if (numNow == pair.second) break;
+            selectedMethod++;
+        }
+    }
 
-            selectedMethod = 0;
-            for (const auto & pair : matchingMethods)
+    QString tooltipText;
+    int numArguments;
+    if (matchingMethods.size() == 1)
+    {
+        tooltipText = "<p style='white-space:pre'>" + matchingMethods.front().first + "</p>";
+        numArguments = matchingMethods.front().second;
+    }
+    else
+    {
+        if (selectedMethod >= matchingMethods.size()) selectedMethod = 0;
+        tooltipText = QString("<p style='white-space:pre'><b>%0</b> of %1 [shift+\u2195]:    %2</p>")
+                          .arg(selectedMethod + 1)
+                          .arg(NumberOfMethodsInTooltip)
+                          .arg(matchingMethods[selectedMethod].first);
+        numArguments = matchingMethods[selectedMethod].second;
+    }
+
+    if (numArguments > 1 && cursorIsInArguments)
+    {
+        int currentArgument = computeCurrentArgument(cursor, functionEndPosition);
+        //qDebug() << ">>>>>>>>>>" << currentArgument;
+        if (currentArgument != -1)
+        {
+            int iPos = 0;
+            for (; iPos < tooltipText.size(); iPos++)
+                if (tooltipText[iPos] == '(') break;
+            iPos++;
+            int start = -1;
+            if (currentArgument == 0) start = iPos;
+            else
             {
-                if (numNow == pair.second) break;
-                selectedMethod++;
-            }
-        }
-
-        QString tooltipText;
-        int numArguments;
-        if (matchingMethods.size() == 1)
-        {
-            tooltipText = "<p style='white-space:pre'>" + matchingMethods.front().first + "</p>";
-            numArguments = matchingMethods.front().second;
-        }
-        else
-        {
-            if (selectedMethod >= matchingMethods.size()) selectedMethod = 0;
-            tooltipText = QString("<p style='white-space:pre'><b>%0</b> of %1 [shift+\u2195]:    %2</p>")
-                              .arg(selectedMethod + 1)
-                              .arg(NumberOfMethodsInTooltip)
-                              .arg(matchingMethods[selectedMethod].first);
-            numArguments = matchingMethods[selectedMethod].second;
-        }
-
-        if (numArguments > 1 && cursorIsInArguments)
-        {
-            int currentArgument = computeCurrentArgument(tc2);
-            //qDebug() << ">>>>>>>>>>" << currentArgument;
-            if (currentArgument != -1)
-            {
-                size_t iPos = 0;
                 for (; iPos < tooltipText.size(); iPos++)
-                    if (tooltipText[iPos] == '(') break;
-                iPos++;
-                size_t start = -1;
-                if (currentArgument == 0) start = iPos;
-                else
-                {
-                    for (; iPos < tooltipText.size(); iPos++)
-                        if (tooltipText[iPos] == ',')
-                        {
-                            currentArgument--;
-                            if (currentArgument == 0)
-                            {
-                                iPos++;
-                                start = iPos;
-                                break;
-                            }
-                        }
-                }
-                size_t stop  = -1;
-                for (; iPos < tooltipText.size(); iPos++)
-                    if (tooltipText[iPos] == ',' || tooltipText[iPos] == ')')
+                    if (tooltipText[iPos] == ',')
                     {
-                        stop = iPos - 1;
-                        break;
+                        currentArgument--;
+                        if (currentArgument == 0)
+                        {
+                            iPos++;
+                            start = iPos;
+                            break;
+                        }
                     }
-
-                if (start > 0 && start < tooltipText.size() && stop > 0 && stop < tooltipText.size())
+            }
+            int stop  = -1;
+            for (; iPos < tooltipText.size(); iPos++)
+                if (tooltipText[iPos] == ',' || tooltipText[iPos] == ')')
                 {
-                    //qDebug() << start << " - " << stop;
-                    QString toBold = tooltipText.mid(start, stop - start + 1);
-                    //qDebug() << "--->" << toBold;
-                    toBold = "<b>" + toBold + "</b>";
-                    tooltipText.replace(start, stop - start + 1, toBold);
+                    stop = iPos - 1;
+                    break;
                 }
+
+            if (start > 0 && start < tooltipText.size() && stop > 0 && stop < tooltipText.size())
+            {
+                //qDebug() << start << " - " << stop;
+                QString toBold = tooltipText.mid(start, stop - start + 1);
+                //qDebug() << "--->" << toBold;
+                toBold = "<b>" + toBold + "</b>";
+                tooltipText.replace(start, stop - start + 1, toBold);
             }
         }
+    }
 
-        const int fh = fontMetrics().height();
-        /*
+    const int fontHeight = fontMetrics().height();
+    /*
         QToolTip::showText( mapToGlobal( QPoint(cursorRect(*cursor).topRight().x(), cursorRect(*cursor).topRight().y() -3.0*fh )),
                                     tooltipText,
                                     this,
@@ -1030,108 +1086,40 @@ bool ATextEdit::tryShowFunctionTooltip(QTextCursor * cursor)
                                     1000000);
         */
 
-        //lHelp->move(mapToGlobal( QPoint(cursorRect(*cursor).topRight().x(), cursorRect(*cursor).topRight().y() -3.0*fh)));
-        lHelp->move(mapToGlobal( QPoint( int(0.01*cursorRect(*cursor).topRight().x())*100, cursorRect(*cursor).topRight().y() -2.0*fh)));
+    //lHelp->move(mapToGlobal( QPoint(cursorRect(*cursor).topRight().x(), cursorRect(*cursor).topRight().y() -3.0*fh)));
+
+    int yPosition = cursorRect(cursor).topRight().y();
+    //qDebug() << yPosition << fh;
+    if (yPosition < 2*fontHeight)
+        yPosition += 2 * fontHeight;
+    else
+        yPosition -= 2 * fontHeight;
+
+    if (lHelp)
+    {
+        lHelp->move(mapToGlobal( QPoint( int(0.01*cursorRect(cursor).topRight().x())*100, yPosition)));
         lHelp->setText(tooltipText);
         lHelp->showNormal();
         lHelp->adjustSize();
+    }
 
-        return true;
-    }
-    else
-    {
-        ForcedMethodTooltipSelection = false;
-        MethodTooltipVisible = false;
-        SelectedMethodInTooltip = 0;
-        //QToolTip::hideText();
-        lHelp->hide();
-        return false;
-    }
+    return true;
 }
 
-int ATextEdit::computeIntroducedNumberOfArguments(QTextCursor & tc, bool cursorInArguments)
+int ATextEdit::computeIntroducedNumberOfArguments(const QTextCursor & cursor, int functionEndPosition)
 {
-    QString argLine;
-
-    if (cursorInArguments)
-    {
-        QTextCursor tc1 = tc;
-        QString onLeft;
-        while (tc.position() != 0)
-        {
-            tc.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
-            QString selected = tc.selectedText();
-            if (selected.startsWith(')')) return -1;
-            if (selected.startsWith('\n')) return -1;
-            if (selected.startsWith('('))
-            {
-                onLeft = selected;
-                while (tc1.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor))
-                {
-                    selected = tc1.selectedText();
-                    if (selected.endsWith('\n')) return -1;
-                    if (selected.endsWith('(')) return -1;
-                    if (selected.endsWith(')'))
-                    {
-                        argLine = onLeft + selected;
-                        break;
-                    }
-                }
-                break;
-            }
-        }
-    }
-    else
-    {
-        while (tc.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor))
-        {
-            QString selected = tc.selectedText();
-            if (selected.endsWith('\n')) return -1;
-            if (selected.endsWith(')')) return -1;
-            if (selected.endsWith('('))
-            {
-                tc.setPosition(tc.position(), QTextCursor::MoveAnchor);
-                while (tc.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor))
-                {
-                    selected = tc.selectedText();
-                    if (selected.endsWith('\n')) return -1;
-                    if (selected.endsWith('(')) return -1;
-                    if (selected.endsWith(')'))
-                    {
-                        argLine = "(" + selected;
-                        break;
-                    }
-                }
-                break;
-            }
-        }
-    }
-
-    //qDebug() << "->" << argLine;
-    //argLine.remove(0,1);
-    //argLine.chop(1);
-    argLine = argLine.simplified();
-    //qDebug() << "--" << argLine;
-    if (argLine.isEmpty()) return 0;
-    //qDebug() << argLine.split(',', Qt::SkipEmptyParts);
-    return argLine.split(',', Qt::SkipEmptyParts).size();
+    //qDebug() << cursor.position() << functionEndPosition;
+    AArgumentCounter counter(cursor, functionEndPosition, ScriptLanguage);
+    return counter.countArguments();
 }
 
-int ATextEdit::computeCurrentArgument(QTextCursor & tc)
+int ATextEdit::computeCurrentArgument(const QTextCursor & cursor, int functionEndPosition)
 {
-    int numCommas = 0;
-    while (tc.position() != 0)
-    {
-        tc.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
-        QString selected = tc.selectedText();
-        if (selected.startsWith(')')) return -1;
-        if (selected.startsWith('\n')) return -1;
-        if (selected.startsWith(',')) numCommas++;
-        if (selected.startsWith('(')) return numCommas;
-    }
-    return -1;
+    AArgumentCounter counter(cursor, functionEndPosition, ScriptLanguage);
+    return counter.getCurrentArgument();
 }
 
+#include <QTimer>
 bool ATextEdit::event(QEvent *event)
 {
     if (event->type() == QEvent::ToolTip)
@@ -1139,15 +1127,33 @@ bool ATextEdit::event(QEvent *event)
         QHelpEvent* helpEvent = static_cast<QHelpEvent*>(event);
         QTextCursor cursor = cursorForPosition(helpEvent->pos());
 
-        return tryShowFunctionTooltip(&cursor);
+        return tryShowFunctionTooltip(cursor);
     }
+    if (event->type() == QEvent::FocusIn && lHelp)
+    {
+        //QTimer::singleShot(0, this, [=](){lHelp->hide();});
+        lHelp->hide();
+    }
+    if (event->type() == QEvent::FocusOut)
+    {
+        if (lHelp) lHelp->hide();
+    }
+    //qDebug() << event->type();
     return QPlainTextEdit::event(event);
+}
+
+void ATextEdit::leaveEvent(QEvent *)
+{
+    if (!rect().contains(mapFromGlobal(QCursor::pos())))
+        if (lHelp) lHelp->hide();
 }
 
 void ATextEdit::mouseReleaseEvent(QMouseEvent *e)
 {
+    ForcedMethodTooltipSelection = false;
+
     QTextCursor cursor = cursorForPosition(e->pos());
-   tryShowFunctionTooltip(&cursor);
+    tryShowFunctionTooltip(cursor);
     QPlainTextEdit::mouseReleaseEvent(e);
 }
 
@@ -1470,10 +1476,10 @@ QString ATextEdit::textUnderCursor() const
     return selected;
 }
 
-QString ATextEdit::selectObjFunctUnderCursor(QTextCursor * cursor) const
+QString ATextEdit::selectObjFunctUnderCursor(const QTextCursor & cursor, int & functEndPosition) const
 {
     QString sel;
-    QTextCursor tc = (cursor == 0) ? textCursor() : *cursor;
+    QTextCursor tc = cursor;
     while (tc.position() != 0)
     {
         tc.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
@@ -1500,6 +1506,7 @@ QString ATextEdit::selectObjFunctUnderCursor(QTextCursor * cursor) const
         }
     }
     sel += tc.selectedText();
+    functEndPosition = tc.position();
     return sel;
 }
 

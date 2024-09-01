@@ -102,3 +102,25 @@ void AScriptBook::removeAllTabs()
     for (int i = Tabs.size() - 1; i > -1; i--)
         removeTab(i);
 }
+
+QString AScriptBook::saveAllModifiedFiles()
+{
+    QString err;
+
+    for (ATabRecord * tab : Tabs)
+    {
+        if (tab->FileName.isEmpty()) continue;
+
+        if (tab->wasModified())
+        {
+            bool ok = tab->saveTextToFile(tab->FileName);
+
+            if (ok)
+                tab->setModifiedStatus(false);
+            else
+                err += Name + " / " + tab->TabName + "\n";
+        }
+    }
+
+    return err;
+}

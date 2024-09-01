@@ -1,0 +1,29 @@
+
+hist.new1D(h="h", 100,0,1)
+for (var i = 0; i < 20; i++) hist.new1D("h"+i, 100,0,100) // just to give more work to find the right histo :)
+
+var numEvents = 1e6
+
+function directly()
+{
+   for (var ii = 0; ii < numEvents; ii++)
+      hist.fill(h, Math.random())
+}
+
+function allAtOnce()
+{
+   var data = []
+   data.length = numEvents
+   for (var ii = 0; ii < numEvents; ii++)
+      data[ii] = Math.random()
+   hist.fillArr(h, data)
+}
+
+var start = core.getTimeMarkMilliseconds()
+directly()
+//allAtOnce()
+core.print("Elapsed time:", core.getTimeMarkMilliseconds() - start, "ms")
+hist.draw(h)
+
+// note that gain in time strongly depends on the number of events (not linear)
+

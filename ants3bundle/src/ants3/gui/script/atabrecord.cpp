@@ -10,10 +10,10 @@
 #include <QAction>
 #include <QFileInfo>
 
-ATabRecord::ATabRecord(const QStringList & functions, EScriptLanguage language) :
+ATabRecord::ATabRecord(const QStringList & functions, EScriptLanguage language, QLabel * labelHelpTooltip) :
     Functions(functions)
 {
-    TextEdit = new ATextEdit(language);
+    TextEdit = new ATextEdit(language, labelHelpTooltip);
     TextEdit->setLineWrapMode(QPlainTextEdit::NoWrap);
 
     Completer = new QCompleter(this);
@@ -125,10 +125,17 @@ void ATabRecord::goForward()
     }
 }
 
+bool ATabRecord::saveTextToFile(const QString & fileName) const
+{
+    return TextEdit->saveTextToFile(fileName);
+}
+
 void ATabRecord::onCustomContextMenuRequested(const QPoint& pos)
 {
     QMenu menu;
 
+    QAction* f1 = menu.addAction("Method help"); f1->setShortcut(QKeySequence(Qt::Key_F1));
+    menu.addSeparator();
     QAction* paste = menu.addAction("Paste"); paste->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_V));
     QAction* copy  = menu.addAction("Copy");   copy->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_C));
     QAction* cut   = menu.addAction("Cut");     cut->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_X));
@@ -136,8 +143,8 @@ void ATabRecord::onCustomContextMenuRequested(const QPoint& pos)
     QAction* findSel =    menu.addAction("Find selected text");      findSel->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_F));
     QAction* replaceSel = menu.addAction("Replace selected text");replaceSel->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_R));
     menu.addSeparator();
-    QAction* findFunct = menu.addAction("Find function definition");      findFunct->setShortcut(QKeySequence(Qt::Key_F2));
-    QAction* findVar =   menu.addAction("Find variable definition (F3)");   findVar->setShortcut(QKeySequence(Qt::Key_F3));
+    QAction* findFunct = menu.addAction("Find function definition (JS only)"); findFunct->setShortcut(QKeySequence(Qt::Key_F2));
+    QAction* findVar =   menu.addAction("Find variable definition (JS only)"); findVar->setShortcut(QKeySequence(Qt::Key_F3));
     menu.addSeparator();
     QAction* shiftBack = menu.addAction("Go back");          shiftBack->setShortcut(QKeySequence(Qt::ALT | Qt::Key_Left));
     QAction* shiftForward = menu.addAction("Go forward"); shiftForward->setShortcut(QKeySequence(Qt::ALT | Qt::Key_Right));
@@ -146,6 +153,8 @@ void ATabRecord::onCustomContextMenuRequested(const QPoint& pos)
 
     QAction* selectedItem = menu.exec(TextEdit->mapToGlobal(pos));
     if (!selectedItem) return; //nothing was selected
+
+    if (selectedItem == f1)              TextEdit->showMethodHelpForCursor();
 
     if (selectedItem == findSel)         emit requestFindText();
     if (selectedItem == replaceSel)      emit requestReplaceText();

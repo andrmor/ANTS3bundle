@@ -17,7 +17,7 @@
 #include <QFileInfo>
 #include <QFile>
 #include <QDebug>
-#include <QtWidgets/QApplication>
+//#include <QtWidgets/QApplication>
 #include <QDir>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -34,40 +34,112 @@ ACore_SI::ACore_SI() : AScriptInterface()
 {
     Description = "General-purpose opeartions: abort script, basic text output and file save/load";
 
-    Help["abort"] = "Abort script execution and show text (1st argument) in the output";
+    Help["abort"] = "Abort script execution and show given text in the output";
 
-    Help["clearOutput"] = "Clear the output text";
-    Help["print"] = "Append up to 10 arguments to the output";
-    Help["printHtml"] = "Append the provided string to the output assuming HTML format";
+    Help["print"] = "Print up to 10 arguments in the output area. Arrays and objects are convetred to strings, a space is added between the arguments";
+    Help["printHtml"] = "Print the html-formatted text in the output area. Can be used, for example, to set text color or use bold font";
+    Help["clearOutput"] = "Clear the output area";
 
-    Help["getTimeMark"] = "Return the number of milliseconds since 1970-01-01T00:00:00 Universal Coordinated Time";
+    Help["sleep"] = "Pause the script thread for the given number of milliseconds";
+    Help["getTimeMarkMilliseconds"] = "Current time in milliseconds since the start, in UTC, of the year 1970";
+    Help["getDateTimeStamp"] = "Return text with the current date and time, in the format: hours:minutes:seconds Day Month Year";
 
-    Help["save"] = "Add string (second argument) to the file with the name given by the first argument.\n"
-              "Save is not performed (and false is returned) if the file does not exist\n"
-              "It is a very slow method!\n"
-              "Use \"<br>\" or \"\\n\" to add a line break.\n"
-              "For Windows users: pathes have to use \"/\" character, e.g. c:/tmp/file.txt\n";
-    Help["saveArray"] = "Appends an array (or array of arrays) with numeric data to the file.\n"
-                   "Save is not performed (and false is returned) if the file does not exist.\n"
-                   "For Windows users: pathes have to use \"/\" character, e.g. c:/tmp/file.txt\n";
-    Help["createFile"] = "Create new or clear an existent file.\n"
-                    "The file is NOT rewritten if the second argument is true (or absent) and the file already exists\n"
-                    "For Windows users: pathes have to use \"/\" character, e.g. c:/tmp/file.txt\n";
-    Help["isFileExists"] = "Return true if file exists";
-    Help["loadColumn"] = "Load a column with ascii numeric data from the file.\nSecond argument is the column number starting from 0.";
-//    Help["loadArray"] = "Load an array of numerics (or an array of numeric arrays).\nSecond argument is used to limit the number of columns to read";
-    Help["evaluate"] = "Evaluate script during another script evaluation. See example ScriptInsideScript.txt";
+    Help["createDir"] = "Create a new directory. Abort if not successful";
+    Help["createFile"] = "Create an empty file. Abort if not successful or file already exists";
+    Help["deleteFile"] = "Delete the file. Abort if not successful";
+    Help["isFileExist"] = "Return true if the file exists, false otherwise";
 
-    Help["setNewFileFinder"] = "Configurer for GetNewFiles() function. dir is the search directory, fileNamePattern: *.* for all files. Function return all filenames found.";
-    Help["getNewFiles"] = "Get list (array) of names of new files appeared in the directory configured with SetNewFileFinder()";
+    Help["getDirectories"] = "Return list of directories matching the provided pattern for the given path";
+    Help["setNewFileFinder"] = "Configurer for getNewFiles() method. dir is the search directory, fileNamePattern: e.g. *.dat for all dat files. Return all filenames mathcing the pattern";
+    Help["getNewFiles"] = "Get array of names of the new files appeared in the directory configured with setNewFileFinder() method";
 
-    Help["loadArrayExtended"] = "Load array of arrays from file, with inner array read according to format options:\n"
-          "'d'-double, 'i'-integer, 's'-string, ''-skip field: e.g. loadArrayExtended('fn.txt', ['d', 'd'])\n"
-          "bSkipComments parameters signals to skip lines starting with '#' or '//'"
-          "you can specify lin numbers to start from and to: by default it is set to 0 and 1e6";
-    Help["loadArrayBinary"] = "Load array of arrays (binary data), with second argument providing the format\n"
-          "This parameter should be an array of 's', 'i', 'd', 'f' or 'c' markers (zero-terminating string, int, double, float and char, respectively)";
+    Help["setCurrentDir"] = "Set default output directory. Abort if not successful";
+    Help["getCurrentDir"] = "Get default output directory";
 
+    Help["saveText"] = "Save text to the file (create new if does not exist; override if not empty). Abort if not successful";
+    Help["appendText"] = "Apend text to the existing file. Abort if not successful";
+    Help["loadText"] = "Load text from the file. Abort if not successful";
+
+    Help["saveArray"] = {{2,"Save 1D or 2D numeric array to the file. If the file exists, it will be reset"},
+                         {3,"Save 1D or 2D numeric array to the file. If 'append' argument is true, the data are added to the end of the file. "
+                            "In this case if the file does not exists, abort is triggered"}};
+    Help["loadNumericArray"] = "Load an array of numerics (or an array of numeric arrays). One row corresponds to one line in the file. Separators can be space, tab, comma or colon. Lines starting with # or // are ignored.";
+
+    {
+        AScriptHelpEntry se;
+        QString txt = "Load array of mixed-type arrays from file, with inner array read according to the array with format options:\n"
+                      "'d'-double, 'i'-integer, 's'-string, ''-skip field: e.g. loadArray('fn.txt', ['s', 'd', 'd']) for sub-arrays of 1 string and 2 doubles";
+        se.addRecord(2, txt);
+        txt += ". The last two arguments specify the limiting 'from' and 'to' line numbers in the file";
+        se.addRecord(4, txt);
+        Help["loadArray"] = se;
+    }
+
+    {
+        AScriptHelpEntry se;
+        QString txt = "Save array of mixed-type arrays (binary data), with second argument providing the format array. "
+                      "This available options are 's', 'i', 'd', 'f' or 'c' markers (zero-terminating string, int, double, float and char, respectively), "
+                      "e.g. ['s', 'd', 'd'] for arrays of string and two doubles";
+        se.addRecord(3, txt);
+        txt += ". if 'apend' is true, data are appended to the end of the exisiting file (abort if file does not exist)";
+        se.addRecord(4, txt);
+        Help["saveBinaryArray"] = se;
+    }
+
+    Help["loadArrayBinary"] = "Load array of mixed-type arrays from a binary file. The second argument defines the format of sub-arrays. "
+          "This argument should be an array of type indicators including 's', 'i', 'd', 'f' or 'c' for zero-terminating string, int, double, float and char, respectively. "
+          "e.g. ['s', 'd', 'd'] configures reading of sub-arryas of string and two doubles";
+
+    {
+        AScriptHelpEntry se;
+        QString txt = "Save 3D array to text file. The inner-most array can be of a mixed type. "
+                      "The top-level records are separated by inserting in the file the string given by the topLevelSeparator parameter";
+        se.addRecord(3, txt);
+        txt += ". Optional topLevelLabels argument is an array (or array of mixed-type arrays) with data to be added in the same 'event header' line after topLevelSeparator. "
+               "Its size should be equal to the size of the main array";
+        se.addRecord(4, txt);
+        txt += ". if 'apend' is true, data are appended to the end of the exisiting file (abort if file does not exist)";
+        se.addRecord(5, txt);
+        Help["save3DArray"] = se;
+    }
+
+    {
+        AScriptHelpEntry se;
+        QString txt = "Load 3D array from text file. The top level records in the file are separated by the string defined by 'topSeparator' argument. "
+                      "The inner-most array can be of mixed type, format is defined by an array given by the 'format' argument. The available options:\n"
+                      "'d'-double, 'i'-integer, 's'-string, ''-skip field: e.g. ['s', 'd', 'd']) configure sub-arrays of 1 string and 2 doubles";
+        se.addRecord(3, txt);
+        txt += ".\nIf 'skipEmpty' is true, empty lines are ignored";
+        se.addRecord(4, txt);
+        txt += ".\nIf 'allowIncomplete' is true, read will not abort if any sub-array contains less elements than defined by the 'format' array";
+        se.addRecord(5, txt);
+        txt += ".\n'recordsFrom' defines the top level index from which to start";
+        se.addRecord(6, txt);
+        txt += ". 'recordsUntil' defines the top level index until which to read (exclusive)";
+        se.addRecord(7, txt);
+        Help["load3DArray"] = se;
+    }
+
+    // !!!*** todo
+    //Help["save3DBinaryArray"] = ;
+    //Help["load3DBinaryArray"] = ;
+
+    Help["saveObject"] = "Save object (dictionaly in Python) to file using json format";
+    Help["loadObject"] = "Load object (dictionaly in Python) from a file with json format";
+
+    Help["str"] = "Converts numeric value to string using the given precision (number of digits after the decimal separator)";
+    Help["toStr"] = "Converts argument to the string and returns it";
+    Help["arraySum"] = "Return sum of all elements of 1D numeric array. If the argument is 2D array, return sum of the last column";
+    Help["getExamplesDir"] = "Get ANTS3 directory with script/config examples";
+    Help["processEvents"] = "Put this method sparsely inside computationaly-heavy code to improve reaction to user abort. Note that 'print' and 'reportProgress' have the same effect";
+    Help["reportProgress"] = "Show progress bar on the script window. The argument is progress value in percent";
+    Help["requestGuiUpdate"] = "Update all GUI windows during script execution";
+
+    Help["startExternalProcess"] = "Start external process (command and arguments(s)).\n"
+                                   "ANTS3 should be compiled with the following line uncommented in ants3.pro: DEFINES += _ALLOW_LAUNCH_EXTERNAL_PROCESS_";
+    Help["startExternalProcessAndWait"] = "Start external process (command and arguments(s)) and wait until it is finished or waiting time exceed the provided value. "
+                                          "Return error string if there were errors\n"
+                                          "ANTS3 should be compiled with the following line uncommented in ants3.pro: DEFINES += _ALLOW_LAUNCH_EXTERNAL_PROCESS_";
 }
 
 bool ACore_SI::beforeRun()
@@ -75,6 +147,23 @@ bool ACore_SI::beforeRun()
     delete Messenger; Messenger = new AScriptMessenger(Lang);
     return true;
 }
+
+/*
+void ACore_SI::fun0()
+{
+    qDebug() << "noooooo argsssss";
+}
+
+void ACore_SI::fun1(int i)
+{
+    qDebug() << "oooooonnnneeee"  << i;
+}
+
+void ACore_SI::fun2(int i, double d)
+{
+    qDebug() << "ttttwwwwooooo"  << i << d;
+}
+*/
 
 /*
 ACore_SI::ACore_SI(const ACore_SI &other) :
@@ -104,6 +193,7 @@ QVariant ACore_SI::test(QVariant in)
 }
 */
 
+/*
 #include "vformula.h"
 double ACore_SI::testVFormula(QString formula, QVariantList varNames, QVariantList varValues)
 {
@@ -147,22 +237,22 @@ double ACore_SI::testVFormula(QString formula, QVariantList varNames, QVariantLi
 
     /*
 // timed run
-    std::cout << "Timed run\n";
-    auto start = std::chrono::high_resolution_clock::now();
+    //std::cout << "Timed run\n";
+    //auto start = std::chrono::high_resolution_clock::now();
 
 //  Code to be timed
-    double sum =  0.;
-    for (int i=0; i<10000000; i++) {
-        sum += p.Eval(6);
-    }
-    std::cout << sum << std::endl;
+    //double sum =  0.;
+    //for (int i=0; i<10000000; i++) {
+    //    sum += p.Eval(6);
+    //}
+    //std::cout << sum << std::endl;
 
-    auto end = std::chrono::high_resolution_clock::now();
-    auto diff = end - start;
-    std::cout << std::chrono::duration <double, std::nano> (diff).count()/10000000 << " ns/eval" << std::endl;
-    */
+    //auto end = std::chrono::high_resolution_clock::now();
+    //auto diff = end - start;
+    //std::cout << std::chrono::duration <double, std::nano> (diff).count()/10000000 << " ns/eval" << std::endl;
     return res;
 }
+*/
 
 double ACore_SI::arraySum(QVariantList array)
 {
@@ -237,7 +327,8 @@ void ACore_SI::sleep(int ms)
     do
     {
         QThread::usleep(100);
-        qApp->processEvents();
+        //qApp->processEvents();
+        SH.processEvents(Lang);
         if (!SM->isRunning()) break;
     }
     while (t.elapsed() < ms);
@@ -296,21 +387,34 @@ void ACore_SI::clearOutput()
 
 QString ACore_SI::getDateTimeStamp()
 {
-    return QDateTime::currentDateTime().toString("dd.MMM.yyyy H:m:s");
+    return QDateTime::currentDateTime().toString("HH:mm:ss dd MMM yyyy");
 }
 
-void ACore_SI::saveText(QString text, QString fileName, bool append)
+void ACore_SI::saveText(QString text, QString fileName)
 {
-    if (append && !QFileInfo::exists(fileName))
+    QFile file(fileName);
+    if ( !file.open(QIODevice::WriteOnly) )
+    {
+        abort("Cannot open file: " + fileName);
+        return;
+    }
+
+    QTextStream outstream(&file);
+    outstream << text;
+}
+
+void ACore_SI::appendText(QString text, QString fileName)
+{
+    if (!QFileInfo::exists(fileName))
     {
         abort("File does not exist: " + fileName);
         return;
     }
 
     QFile file(fileName);
-    if ( !file.open(append ? QIODevice::Append : QIODevice::WriteOnly) )
+    if ( !file.open(QIODevice::Append) )
     {
-        abort("Cannot open file: " + fileName);
+        abort("Cannot open file for append: " + fileName);
         return;
     }
 
@@ -333,7 +437,7 @@ QString ACore_SI::loadText(QString fileName)
 }
 
 
-void ACore_SI::saveArray(QVariantList array, QString fileName, bool append, int precision)
+void ACore_SI::saveArray(QVariantList array, QString fileName, bool append)
 {
     if (append && !QFileInfo::exists(fileName))
     {
@@ -348,7 +452,7 @@ void ACore_SI::saveArray(QVariantList array, QString fileName, bool append, int 
     }
 
     QTextStream s(&file);
-    if (precision != 6) s.setRealNumberPrecision(precision);
+    //if (precision != 6) s.setRealNumberPrecision(precision);
 
     for (int i = 0; i < array.size(); i++)
     {
@@ -367,7 +471,7 @@ void ACore_SI::saveArray(QVariantList array, QString fileName, bool append, int 
     }
 }
 
-void ACore_SI::saveBinaryArray(const QVariantList & array, const QVariantList & format, const QString & fileName, bool append)
+void ACore_SI::saveBinaryArray(QVariantList array, QString fileName, QVariantList format, bool append)
 {
     std::vector<EArrayFormat> FormatSelector;
     bool bFormatOK = readFormat(format, FormatSelector, true);
@@ -482,8 +586,12 @@ QVariantList ACore_SI::loadNumericArray(QString fileName)
         if (fields.isEmpty()) continue;
 
         bool bOK;
-        double first = fields.at(0).toDouble(&bOK); // non-regular comments? !!!*** keep it?
-        if (!bOK) continue;
+        double first = fields.first().toDouble(&bOK);
+        if (!bOK)
+        {
+            abort("Bad format of the file: numeric values are expected");
+            return vl;
+        }
 
         if (fields.size() == 1)
             vl.append(first);
@@ -491,8 +599,15 @@ QVariantList ACore_SI::loadNumericArray(QString fileName)
         {
             QVariantList el;
             el << first;
-            for (int i=1; i<fields.size(); i++)
-                el << fields.at(i).toDouble();
+            for (int i = 1; i < fields.size(); i++)
+            {
+                el << fields[i].toDouble(&bOK);
+                if (!bOK)
+                {
+                    abort("Bad format of the file: numeric values are expected");
+                    return vl;
+                }
+            }
             vl.push_back(el);
         }
     }
@@ -556,7 +671,7 @@ void ACore_SI::readFormattedLine(const QStringList & fields, const std::vector<E
     }
 }
 
-QVariantList ACore_SI::loadArray(const QString & fileName, const QVariantList & format, int fromLine, int untilLine)
+QVariantList ACore_SI::loadArray(QString fileName, QVariantList format, int fromLine, int untilLine)
 {
     QVariantList vl;
 
@@ -608,7 +723,12 @@ QVariantList ACore_SI::loadArray(const QString & fileName, const QVariantList & 
     return vl;
 }
 
-QVariantList ACore_SI::load3DArray(const QString &fileName, const QString &topSeparator, const QVariantList &format, int recordsFrom, int recordsUntil, bool skipEmpty, bool allowIncomplete)
+QVariantList ACore_SI::loadArray(QString fileName, QVariantList format)
+{
+    return loadArray(fileName, format, 0, 2147483647);
+}
+
+QVariantList ACore_SI::load3DArray(QString fileName, QString topSeparator, QVariantList format, bool skipEmpty, bool allowIncomplete, int recordsFrom, int recordsUntil)
 {
     QVariantList vl1;
 
@@ -873,9 +993,10 @@ QVariantList ACore_SI::loadArrayBinary(const QString &fileName, const QVariantLi
     return vl1;
 }
 
-void ACore_SI::save3DArray(QVariantList array, QString topLevelSeparator, QVariantList topLevelLabels, QString fileName, bool append)
+void ACore_SI::save3DArray(QVariantList array, QString fileName, QString topLevelSeparator, QVariantList topLevelLabels, bool append)
 {
-    if (array.size() != topLevelLabels.size())
+    bool useTopLevelLabels = !topLevelLabels.empty();
+    if (useTopLevelLabels && array.size() != topLevelLabels.size())
     {
         abort("Mismatch in the sizes of the array and topLevelLabels");
         return;
@@ -898,17 +1019,22 @@ void ACore_SI::save3DArray(QVariantList array, QString topLevelSeparator, QVaria
     {
         //header of the event
         stream << topLevelSeparator;
-        const QVariant & var = topLevelLabels[i1];
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-        if (var.type() == QVariant::List)
-#else
-        if (var.userType() == QMetaType::QVariantList)
-#endif
+
+        if (useTopLevelLabels)
         {
-            const QStringList sl = var.toStringList();
-            stream << sl.join(' ');
+            const QVariant & var = topLevelLabels[i1];
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+            if (var.type() == QVariant::List)
+#else
+            if (var.userType() == QMetaType::QVariantList)
+#endif
+            {
+                const QStringList sl = var.toStringList();
+                stream << sl.join(' ');
+            }
+            else stream << var.toString();
         }
-        else stream << var.toString();
+
         stream << '\n';
 
         //data
@@ -1087,7 +1213,7 @@ QString ACore_SI::getExamplesDir()
     return A3Global::getConstInstance().ExamplesDir;
 }
 
-QVariantList ACore_SI::setNewFileFinder(const QString dir, const QString fileNamePattern)
+QVariantList ACore_SI::setNewFileFinder(QString dir, QString fileNamePattern)
 {
     Finder_Dir = dir;
     Finder_NamePattern = fileNamePattern;
@@ -1119,13 +1245,18 @@ QVariantList ACore_SI::getNewFiles()
     return newFiles;
 }
 
-QVariantList ACore_SI::getDirectories(const QString dir, const QString dirNamePattern)
+QVariantList ACore_SI::getDirectories(QString dir, QString dirNamePattern)
 {
     QDir d(dir);
     QStringList dl = d.entryList( QStringList(dirNamePattern), QDir::Dirs);
 
     QVariantList Dirs;
-    for (const QString & s : dl) Dirs << s;
+    for (const QString & s : dl)
+    {
+        if (s == ".") continue;
+        if (s == "..") continue;
+        Dirs << s;
+    }
     return Dirs;
 }
 
@@ -1143,7 +1274,7 @@ QString ACore_SI::toStr(QVariant var)
 
 void ACore_SI::processEvents()
 {
-    qApp->processEvents();
+    AScriptHub::getInstance().processEvents(Lang);
 }
 
 void ACore_SI::requestGuiUpdate()
@@ -1151,17 +1282,20 @@ void ACore_SI::requestGuiUpdate()
     emit AScriptHub::getInstance().requestUpdateGui();
 }
 
-/*
 void ACore_SI::reportProgress(int percents)
 {
-    emit ScriptManager->reportProgress(percents);
-    qApp->processEvents();
+    AScriptHub::getInstance().reportProgress(percents, Lang);
 }
-*/
 
 void ACore_SI::createFile(QString fileName)
 {
     QFile file(fileName);
+    if (file.exists())
+    {
+        abort("File already exists: " + fileName);
+        return;
+    }
+
     if ( !file.open(QIODevice::WriteOnly) )
         abort("Cannot open file: " + fileName);
 }
@@ -1171,15 +1305,17 @@ bool ACore_SI::isFileExist(QString fileName)
     return QFileInfo(fileName).exists();
 }
 
-bool ACore_SI::deleteFile(QString fileName)
+void ACore_SI::deleteFile(QString fileName)
 {
-    return QFile(fileName).remove();
+    bool ok = QFile(fileName).remove();
+    if (!ok) abort("Cannot delete file: " + fileName);
 }
 
-bool ACore_SI::createDir(QString path)
+void ACore_SI::createDir(QString path)
 {
     QDir dir("");
-    return dir.mkpath(path);
+    if (!dir.mkpath(path))
+        abort("Cannot create directory: " + path);
 }
 
 QString ACore_SI::getCurrentDir()
@@ -1187,8 +1323,15 @@ QString ACore_SI::getCurrentDir()
     return QDir::currentPath();
 }
 
+void ACore_SI::setCurrentDir(QString path)
+{
+    bool ok = QDir::setCurrent(path);
+    if (!ok) abort("cannot set current directory to " + path);
+}
+
+
 #include <QProcess>
-QString ACore_SI::startExternalProcess(QString command, QVariant argumentArray, bool waitToFinish, int milliseconds)
+QString ACore_SI::startExternalProcessAndWait(QString command, QVariant argumentArray, int maxWaitMilliseconds)
 {
 #ifndef _ALLOW_LAUNCH_EXTERNAL_PROCESS_
     abort("Launch of external process is not allowed.\nEnable \"_ALLOW_LAUNCH_EXTERNAL_PROCESS_\" in ants3.pro");
@@ -1218,10 +1361,10 @@ QString ACore_SI::startExternalProcess(QString command, QVariant argumentArray, 
     QProcess * process = new QProcess(this);
     QString errorString;
 
-    if (waitToFinish)
+    if (maxWaitMilliseconds > 0)
     {
         process->start(command, arg);
-        process->waitForFinished(milliseconds);
+        process->waitForFinished(maxWaitMilliseconds);
         errorString = process->errorString();
         delete process;
     }
@@ -1233,4 +1376,9 @@ QString ACore_SI::startExternalProcess(QString command, QVariant argumentArray, 
 
     return errorString;
 #endif // ANTS2_ALLOW_EXTERNAL_PROCESS
+}
+
+void ACore_SI::startExternalProcess(QString command, QVariant arguments)
+{
+    startExternalProcessAndWait(command, arguments, 0);
 }

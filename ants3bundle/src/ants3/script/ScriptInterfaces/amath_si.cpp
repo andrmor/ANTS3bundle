@@ -9,22 +9,29 @@
 AMath_SI::AMath_SI() :
     RandomHub(ARandomHub::getInstance())
 {
-    Description = "Expanded math module; implemented using std and CERN ROOT functions";
+    Description = "Basic and advanced math";
 
-    Help["random"] = "Returns a random number between 0 and 1.\nGenerator respects the seed set by SetSeed method of the sim module!";
-    Help["gauss"] = "Returns a random value sampled from Gaussian distribution with mean and sigma given by the user";
-    Help["poisson"] = "Returns a random value sampled from Poisson distribution with mean given by the user";
-    Help["maxwell"] = "Returns a random value sampled from maxwell distribution with Sqrt(kT/M) given by the user";
-    Help["exponential"] = "Returns a random value sampled from exponential decay with decay time given by the user";
+    Help["random"] = "Return a random number between 0 and 1.\nGenerator respects the seed set by SetSeed method of the sim module!";
+    Help["gauss"] = "Return a random value sampled from Gaussian distribution with the given mean and sigma";
+    Help["poisson"] = "Return a random value sampled from Poisson distribution with the given mean";
+    Help["maxwell"] = "Return a random value sampled from Maxwell distribution with the given Sqrt(kT/M)";
+    Help["exponential"] = "Return a random value sampled from exponential decay with the given decay time";
 
-    Help["fit1D"] = "Fits the array of [x,y] points using the provided TFormula of Cern ROOT.\n"
+    Help["interpolateToRegulareArray"] = "Convert an arbitrary array (can be unsorted) of double [x,y] pairs to a constant bin_size array. "
+                                         "The input arguments defines the number of bins and the range (lower and upper boundaries) of the output array. "
+                                         "The result is an array of [Xbin, Ybin] pairs, where Xbin is the middle of the bin and Ybin is linear-interpolated value. "
+                                         "The array is sorted (increasing values of Xbin)";
+
+    Help["fit1D"] = "Fit the array of [x,y] pairs using the provided TFormula of Cern ROOT.\n"
                   "Optional startParValues arguments can hold array of initial parameter values.\n"
                   "Returned value depends on the extendedOutput argument (false by default),\n"
                   "false: array of parameter values; true: array of [value, error] for each parameter";
 
-    Help["getAnglesBetween3DVectors"] = "Caluculates angles in radians between two or three 3D vectors.\n"
+    Help["getAnglesBetween3DVectors"] = "Caluculate angles in radians between two or three 3D vectors.\n"
                                         "For the case of two vectors, the method returns an array containing one element: the angle between the vectors;\n"
                                         "For the case of three vectors, the method returns an array of three angles: between 1-2, 2-3, and 3-1.";
+
+    Help["generateDirectionIsotropic"] = "Return [Vx,Vy,Vz] unit vector sampled from isotripic distribution";
 }
 
 double AMath_SI::abs(double val)
@@ -232,6 +239,68 @@ QVariantList AMath_SI::generateDirectionIsotropic()
     v.push_back(b * scale);
     v.push_back(-1.0 + 8.0 * r2);
     return v;
+}
+
+#include "ahistogram.h"
+QVariantList AMath_SI::interpolateToRegulareArray(QVariantList arrayOfPairs, int numBins, double from, double to)
+{
+    QVariantList res;
+    if (numBins < 2)
+    {
+        abort("interpolateToRegulareArray(): minimum numBins is 2");
+        return res;
+    }
+    if (to <= from)
+    {
+        abort("interpolateToRegulareArray(): the value of 'to' should be larger than the value of 'from'");
+        return res;
+    }
+    const size_t arraySize = arrayOfPairs.size();
+    if (arraySize < 1)
+    {
+        abort("interpolateToRegulareArray(): input array cannot be empty");
+        return res;
+    }
+
+    std::vector<std::pair<double,double>> dist;
+    dist.resize(arraySize);
+    for (size_t iBin = 0; iBin < arraySize; iBin++)
+    {
+        const QVariantList el = arrayOfPairs[iBin].toList();
+        if (el.size() != 2)
+        {
+            abort("interpolateToRegulareArray(): input array should contain pairs of doubles");
+            return res;
+        }
+        dist[iBin] = {el[0].toDouble(), el[1].toDouble()};
+    }
+
+    std::sort(dist.begin(), dist.end(), [](const auto & lhs, const auto & rhs){return (lhs.first < rhs.first);});
+    //qDebug() << dist;
+
+    const double step = (to - from) / numBins;
+    size_t positionInDist = 0;
+    for (int iBin = 0; iBin < numBins; iBin++)
+    {
+        const double pos = from + iBin * step;
+        while (dist[positionInDist].first < pos)
+            positionInDist++;
+
+        double val;
+        if (dist[positionInDist].first == pos) val = dist[positionInDist].second; // exact match
+        else
+        {
+            // need to interpolate
+
+            const double interpolationFactor = (pos - dist[positionInDist-1].first) / (dist[positionInDist].first - dist[positionInDist-1].first);
+            val = AHistogram1D::interpolateHere(dist[positionInDist-1].second, dist[positionInDist].second, interpolationFactor);
+        }
+
+        QVariantList thisPair;
+        thisPair << pos + 0.5*step << val;
+        res.push_back(thisPair);
+    }
+    return res;
 }
 
 #include "TFormula.h"

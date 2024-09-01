@@ -1,4 +1,8 @@
+* Generic
+@AllGeometryOptions.json All basic shapes and geometry building elements available in ants3.
 * Proton therapy
+** TPPT scanner
+@TPPT_basic.json Basic configuration of the TPPT scanner
 ** Basic
 @BasicProtonTherapy.json Proton pencil beam irradiating a PMMA phantom. The config also features a beam monitor for primary protons and the phantom is a calorimeter. #ProtonTherapy #Monitor #Calorimeter
 ** Beam range verification

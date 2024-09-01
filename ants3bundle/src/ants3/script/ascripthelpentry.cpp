@@ -12,7 +12,7 @@ AScriptHelpEntry::AScriptHelpEntry(const char * defaultHelpText)
     Records.push_back({-1, defaultHelpText});
 }
 
-AScriptHelpEntry::AScriptHelpEntry(const std::vector<std::pair<int, const char *>> & records)
+AScriptHelpEntry::AScriptHelpEntry(const std::vector<std::pair<int, QString>> &records)
 {
     for (const auto & pair : records)
         Records.push_back({pair.first, pair.second});

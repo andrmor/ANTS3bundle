@@ -369,8 +369,160 @@ QString      retString;
 QVariant     retVariant;
 QVariantList retList;
 QVariantMap  retMap;
-static PyObject* baseFunction(PyObject *caller, PyObject *args)
+
+template <size_t arraySize, size_t... indices>
+constexpr auto create_parameter_pack(const std::array<QMetaMethodArgument, arraySize> & array, std::index_sequence<indices...>)
 {
+    return std::make_tuple(array[indices]...);
+}
+
+template <size_t numberOfArguments, size_t arraySize>
+constexpr auto extract_elements_from_array(const std::array<QMetaMethodArgument, arraySize> & array)
+{
+    return create_parameter_pack(array, std::make_index_sequence<numberOfArguments>{});
+}
+
+template<size_t num>
+bool invokeMetaMethod(QObject * obj, QMetaMethod * met, std::array<QMetaMethodArgument, 20> & methodArgumentArray)
+{
+    auto pack = extract_elements_from_array<num, 20>(methodArgumentArray);
+
+    const int mtype = met->returnType(); // const QMetaType mtype = met.returnMetaType();
+    //qDebug() << "return argument type:" << QMetaType(mtype).name(); // qDebug() << "==============>" << mtype.name();
+    if      (mtype == QMetaType::Void)
+        std::apply([obj, met](auto &&... args) { met->invoke(obj, Qt::DirectConnection, args...); }, pack);
+    else if (mtype == QMetaType::Bool)
+        std::apply([obj, met](auto &&... args) { met->invoke(obj, Qt::DirectConnection, Q_RETURN_ARG(bool, retBool), args...); }, pack);
+    else if (mtype == QMetaType::Int)
+        std::apply([obj, met](auto &&... args) { met->invoke(obj, Qt::DirectConnection, Q_RETURN_ARG(int, retInt), args...); }, pack);
+    else if (mtype == QMetaType::Double)
+        std::apply([obj, met](auto &&... args) { met->invoke(obj, Qt::DirectConnection, Q_RETURN_ARG(double, retDouble), args...); }, pack);
+    else if (mtype == QMetaType::QString)
+        std::apply([obj, met](auto &&... args) { met->invoke(obj, Qt::DirectConnection, Q_RETURN_ARG(QString, retString), args...); }, pack);
+    else if (mtype == QMetaType::QVariant)
+        std::apply([obj, met](auto &&... args) { met->invoke(obj, Qt::DirectConnection, Q_RETURN_ARG(QVariant, retVariant), args...); }, pack);
+    else if (mtype == QMetaType::QVariantList)
+        std::apply([obj, met](auto &&... args) { met->invoke(obj, Qt::DirectConnection, Q_RETURN_ARG(QVariantList, retList), args...); }, pack);
+    else if (mtype == QMetaType::QVariantMap)
+        std::apply([obj, met](auto &&... args) { met->invoke(obj, Qt::DirectConnection, Q_RETURN_ARG(QVariantMap, retMap), args...); }, pack);
+    else
+    {
+        PyErr_SetString(PyExc_TypeError, (QString("Method '%1' has unsupported return argument of type %2").arg(met->name()).arg(QMetaType(mtype).name())).toLatin1().data());
+        return false;
+    }
+    return true;
+}
+
+static PyObject* baseFunction_Qt67(PyObject * caller, PyObject * args)
+{
+    //qDebug() << "Base function called!";
+    //qDebug() << "caller-->" << caller->ob_type->tp_name << "caller size:" << PyTuple_Size(caller);
+    const int iModule = PyLong_AsLong(PyTuple_GetItem(caller, 0));
+    QObject * obj = ModData[iModule]->Object;
+    //qDebug() << "script interface object:" << obj;
+
+    // optimized for non-overloaded methods
+    int iMethod = PyLong_AsLong(PyTuple_GetItem(caller, 1));
+    QMetaMethod met = obj->metaObject()->method(iMethod);
+    //qDebug() << "called method name:" << met.name();
+    int numArgs = met.parameterCount();
+    //qDebug() << "num arguments:" << numArgs;
+    if (PyTuple_Size(args) != numArgs)
+    {
+        const int numMethods = PyTuple_Size(caller) - 1;
+        //qDebug() << "There are" << numMethods << "method versions";
+        if (numMethods == 1)
+        {
+            PyErr_SetString(PyExc_TypeError, (QString("Method '%1' requires %2 argument(s)").arg(met.name()).arg(numArgs)).toLatin1().data());
+            return nullptr;
+        }
+        else
+        {
+            //check overloaded
+            bool bFound = false;
+            for (int methodIndex = 1; methodIndex < numMethods; methodIndex++)
+            {
+                iMethod = PyLong_AsLong(PyTuple_GetItem(caller, 1 + methodIndex)); // 1 is for the iModule!
+                met = obj->metaObject()->method(iMethod);
+                numArgs = met.parameterCount();
+                if (PyTuple_Size(args) == numArgs)
+                {
+                    bFound = true;
+                    break;
+                }
+            }
+            if (!bFound)
+            {
+                PyErr_SetString(PyExc_TypeError, (QString("Non of the overloaded versions of method '%1' takes %2 argument(s)").arg(met.name()).arg(PyTuple_Size(args))).toLatin1().data());
+                return nullptr;
+            }
+        }
+    }
+
+    std::array<QMetaMethodArgument, 20> argumentArray;
+    for (int i = 0; i < numArgs; i++)
+    {
+        bool ok = parseArg(i, args, met, argumentArray[i]);
+        //qDebug() << "Argument #" << i << "ok?--->" << ok;
+        if (!ok) return nullptr;
+    }
+
+    //qDebug() << "invoking...";
+    //qDebug() << "-------Num args" << numArgs << "Retuns void?" << returnsVoid;
+
+    bool ok;
+    switch (numArgs)
+    {
+    //case 0  : met.invoke(obj, Qt::DirectConnection); break;
+    case 0  : ok = invokeMetaMethod<0>(obj, &met, argumentArray); break;
+    case 1  : ok = invokeMetaMethod<1>(obj, &met, argumentArray); break;
+    case 2  : ok = invokeMetaMethod<2>(obj, &met, argumentArray); break;
+    case 3  : ok = invokeMetaMethod<3>(obj, &met, argumentArray); break;
+    case 4  : ok = invokeMetaMethod<4>(obj, &met, argumentArray); break;
+    case 5  : ok = invokeMetaMethod<5>(obj, &met, argumentArray); break;
+    case 6  : ok = invokeMetaMethod<6>(obj, &met, argumentArray); break;
+    case 7  : ok = invokeMetaMethod<7>(obj, &met, argumentArray); break;
+    case 8  : ok = invokeMetaMethod<8>(obj, &met, argumentArray); break;
+    case 9  : ok = invokeMetaMethod<9>(obj, &met, argumentArray); break;
+    case 10 : ok = invokeMetaMethod<10>(obj, &met, argumentArray); break;
+    case 11 : ok = invokeMetaMethod<11>(obj, &met, argumentArray); break;
+    case 12 : ok = invokeMetaMethod<12>(obj, &met, argumentArray); break;
+    case 13 : ok = invokeMetaMethod<13>(obj, &met, argumentArray); break;
+    case 14 : ok = invokeMetaMethod<14>(obj, &met, argumentArray); break;
+    case 15 : ok = invokeMetaMethod<15>(obj, &met, argumentArray); break;
+    case 16 : ok = invokeMetaMethod<16>(obj, &met, argumentArray); break;
+    case 17 : ok = invokeMetaMethod<17>(obj, &met, argumentArray); break;
+    case 18 : ok = invokeMetaMethod<18>(obj, &met, argumentArray); break;
+    case 19 : ok = invokeMetaMethod<19>(obj, &met, argumentArray); break;
+    case 20 : ok = invokeMetaMethod<20>(obj, &met, argumentArray); break;
+    default:
+        PyErr_SetString(PyExc_TypeError, (QString("Method '%1' has unsupported number of arguments: maximum is 20").arg(met.name())).toLatin1().data());
+        qCritical("Cannot be more than 20 arguments in Pythom interface call"); exit(333);
+    }
+    if (!ok) return nullptr;
+
+    //qDebug() << "converting and returning result...";
+    const int mtype = met.returnType(); // const QMetaType mtype = met.returnMetaType();
+    if      (mtype == QMetaType::Void)         Py_RETURN_NONE; // return Py_NewRef(Py_None);
+    else if (mtype == QMetaType::Bool)         return PyBool_FromLong(retBool); // else if (mtype == QMetaType(QMetaType::Bool))
+    else if (mtype == QMetaType::Int)          return PyLong_FromLong(retInt);
+    else if (mtype == QMetaType::Double)       return PyFloat_FromDouble(retDouble);
+    else if (mtype == QMetaType::QString)      return PyUnicode_FromString(retString.toLatin1().data());
+    else if (mtype == QMetaType::QVariant)     return APythonInterface::variantToPyObject(retVariant);
+    else if (mtype == QMetaType::QVariantList) return APythonInterface::listToTuple(retList);
+    else if (mtype == QMetaType::QVariantMap)  return APythonInterface::mapToDict(retMap);
+
+    PyErr_SetString(PyExc_TypeError, QString("Unexpected mismatch in return type of method '%1'").arg(met.name()).toLatin1().data());
+    return nullptr;
+}
+
+static PyObject* baseFunction(PyObject * caller, PyObject *args)
+{
+    // too drastic change in Qt 6.7, making a separate method
+#if QT_VERSION >= QT_VERSION_CHECK(6, 7, 0)
+    return baseFunction_Qt67(caller, args);
+#endif
+
     //qDebug() << "Base function called!";
     //qDebug() << "caller-->" << caller->ob_type->tp_name << "caller size:" << PyTuple_Size(caller);
     const int iModule = PyLong_AsLong(PyTuple_GetItem(caller, 0));
@@ -711,7 +863,8 @@ PyObject * APythonInterface::getMainModule()
 
 void APythonInterface::handleError()
 {
-    //qDebug() << "-------------ERROR-----------";
+    //qDebug() << "-------------Python interpreter signals an error-----------";
+
     PyObject * pyErr = PyErr_Occurred();
     if (!pyErr)
     {
@@ -719,74 +872,75 @@ void APythonInterface::handleError()
         return;
     }
 
+    //qDebug() << QString::number(PY_VERSION_HEX, 16);
+
+#if PY_VERSION_HEX < 0x030C0000
     PyObject * ptype;
     PyObject * pvalue;
     PyObject * ptraceback;
-    //PyErr_GetExcInfo(&ptype, &pvalue, &ptraceback);
     PyErr_Fetch(&ptype, &pvalue, &ptraceback);
 
     if (PyErr_GivenExceptionMatches(pyErr, PyExc_SyntaxError))
     {
-        qDebug() << "...syntax-related error";  //e.g. exception SyntaxError(message, details)
+        //qDebug() << "...syntax-related error";  //e.g. exception SyntaxError(message, details)
 
         PyObject * first = PyTuple_GetItem(pvalue, 0); // borrowed
-        //qDebug() << "SyntRel:" << PyUnicode_AsUTF8(PyObject_Str(first));
         ErrorDescription = PyUnicode_AsUTF8(PyObject_Str(first));
-
         PyObject * second = PyTuple_GetItem(pvalue, 1); // borrowed
-        //qDebug() << PyLong_AsLong( PyTuple_GetItem(second, 1) );
         ErrorLineNumber = PyLong_AsLong( PyTuple_GetItem(second, 1) );
-        //qDebug() << "...Storing info:" << ErrorDescription << ErrorLineNumber;
+
         return;
     }
 
-    // Not (yet) specifically implemented errors types (npo need?)
-    PyObject* repr = PyObject_Repr(pvalue);
-    PyObject* str = PyUnicode_AsEncodedString(repr, "utf-8", "~E~");
+    if (ptraceback)
+    {
+        PyTracebackObject *tb_o = (PyTracebackObject *)ptraceback;
+        ErrorLineNumber = tb_o->tb_lineno;
+    }
+
+    PyObject * repr = PyObject_Repr(pvalue);
+    PyObject * str = PyUnicode_AsEncodedString(repr, "utf-8", "~E~");
     const char * bytes = PyBytes_AS_STRING(str);
-
     ErrorDescription = QString(bytes);
-    //qDebug() << ">>>>>>>" << ErrorDescription;
-
     Py_XDECREF(repr);
     Py_XDECREF(str);
 
-/*
+#else
+    if (PyErr_GivenExceptionMatches(pyErr, PyExc_SyntaxError))
     {
-        PyObject* repr = PyObject_Repr(ptype);
-        PyObject* str = PyUnicode_AsEncodedString(repr, "utf-8", "~E~");
-        const char *bytes = PyBytes_AS_STRING(str);
+        //qDebug() << "...syntax-related error";
+        PyObject * exc = PyErr_GetRaisedException();
+        PyObject* linePy = PyObject_GetAttrString(exc,"lineno");
+        if (linePy) ErrorLineNumber = PyLong_AsLong(linePy);
+        PyObject* descPy = PyObject_GetAttrString(exc,"msg");
+        if (descPy) ErrorDescription = PyUnicode_AsUTF8(PyObject_Str(descPy));
+        //ErrorDescription = PyUnicode_AsUTF8(PyObject_Str(exc));
 
-        //printf("REPR: %s\n", bytes);
-        qDebug() << ">>>>>>>" << bytes;
-
-        Py_XDECREF(repr);
-        Py_XDECREF(str);
+        Py_XDECREF(descPy);
+        Py_XDECREF(linePy);
+        Py_XDECREF(exc);
+        return;
     }
+
+    PyObject * ptype;
+    PyObject * pvalue;
+    PyObject * ptraceback;
+    PyErr_Fetch(&ptype, &pvalue, &ptraceback); // Deprecated since version 3.12: Use PyErr_GetRaisedException() instead.
+    //PyErr_GetExcInfo(&ptype, &pvalue, &ptraceback); // no info in traceback
+
+    if (ptraceback)
     {
-        PyObject* repr = PyObject_Repr(pvalue);
-        PyObject* str = PyUnicode_AsEncodedString(repr, "utf-8", "~E~");
-        const char *bytes = PyBytes_AS_STRING(str);
-
-        //printf("REPR: %s\n", bytes);
-        qDebug() << ">>>>>>>" << bytes;
-
-        Py_XDECREF(repr);
-        Py_XDECREF(str);
+        PyTracebackObject *tb_o = (PyTracebackObject *)ptraceback;
+        ErrorLineNumber = tb_o->tb_lineno;
     }
-    {
-        PyObject* repr = PyObject_Repr(ptraceback);
-        PyObject* str = PyUnicode_AsEncodedString(repr, "utf-8", "~E~");
-        const char *bytes = PyBytes_AS_STRING(str);
 
-        //printf("REPR: %s\n", bytes);
-        qDebug() << ">>>>>>>" << bytes;
+    PyObject * repr = PyObject_Repr(pvalue);
+    PyObject * str = PyUnicode_AsEncodedString(repr, "utf-8", "~E~");
+    const char * bytes = PyBytes_AS_STRING(str);
+    ErrorDescription = QString(bytes);
+    Py_XDECREF(repr);
+    Py_XDECREF(str);
+#endif
 
-        Py_XDECREF(repr);
-        Py_XDECREF(str);
-    }
-*/
-    //const char *errMsg = PyUnicode_AsUTF8(PyObject_Str(pvalue));
-    //qDebug() << "\n\n" << errMsg;
-
+    //qDebug() << ">>>>>>>" << ErrorDescription << ErrorLineNumber;
 }

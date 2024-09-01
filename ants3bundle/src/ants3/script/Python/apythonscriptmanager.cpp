@@ -95,6 +95,11 @@ QString APythonScriptManager::getVersion()
     return QString::number(major) + "." + QString::number(minor) + "." + QString::number(extra, 16);
 }
 
+void APythonScriptManager::checkSignals()
+{
+    Worker->checkSignals();
+}
+
 void APythonScriptManager::evalFinished(bool flag)
 {
     emit finished(flag);

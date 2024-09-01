@@ -20,7 +20,7 @@ public:
     AScriptInterface * cloneBase() const {return new AParticleSim_SI();}
 
 public slots:
-    void simulate(bool updateGui);
+    void simulate();
 
     void setSeed(double seed);
 
@@ -42,10 +42,18 @@ public slots:
     QVariantList getMonitorAngle(int monitorIndex);
     QVariantList getMonitorXY(int monitorIndex);
 
+    void setTrackingHistoryFileName(QString fileName);
+    void buildTracks(int maxTracks);
+    void buildTracks(bool skipPrimaries, bool skipPrimNoInter, bool skipSecondaries, QVariantList limitToParticleList, QVariantList excludeParticles, int maxTracks);
+    void buildTracksSingleEvent(int eventIndex);
+
+    // reformat to use aorthopositroniumgammagenerator.h
     QVariantList getThreeGammasForPositronium(); // [ [dx1,dy1,dz1,e1], [dx2,dy2,dz2,e2], [dx3,dy3,dz1,e3] ]
 
 private:
     AParticleSimManager & SimMan;
+
+    QString TrackingHistoryFileName;
 
     void makeCandidateVectors(std::array<AVector3, 3> & unitVectors, std::array<double, 3> & energies);
 };

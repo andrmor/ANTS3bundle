@@ -12,12 +12,13 @@ class QStringListModel;
 class AHighlighter;
 class QJsonObject;
 class QPoint;
+class QLabel;
 
 class ATabRecord : public QObject
 {
     Q_OBJECT
 public:
-    ATabRecord(const QStringList & functions, EScriptLanguage language);
+    ATabRecord(const QStringList & functions, EScriptLanguage language, QLabel * labelHelpTooltip);
     ~ATabRecord();
 
     ATextEdit         * TextEdit = nullptr;
@@ -46,6 +47,8 @@ public:
 
     void goBack();
     void goForward();
+
+    bool saveTextToFile(const QString & fileName) const;
 
 private slots:
     void onCustomContextMenuRequested(const QPoint & pos);

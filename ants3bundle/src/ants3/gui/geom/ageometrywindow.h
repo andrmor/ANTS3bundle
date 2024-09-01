@@ -14,8 +14,9 @@ class QWebEngineView;
 class QWebEngineDownloadItem;
 class TGeoVolume;
 class ACameraControlDialog;
-class GeoMarkerClass;
+class AGeoMarkerClass;
 class ANodeRecord;
+class TVirtualGeoTrack;
 
 namespace Ui {
 class AGeometryWindow;
@@ -36,7 +37,7 @@ public:
     bool fRecallWindow   = false;
     bool bDisableDraw    = false;
 
-    std::vector<GeoMarkerClass*> GeoMarkers;
+    std::vector<AGeoMarkerClass*> GeoMarkers;
 
     void SaveAs(const QString & filename);
 
@@ -66,9 +67,16 @@ protected:
 public slots:
     void ClearRootCanvas();
     void ShowGeometry(bool ActivateWindow = true, bool SAME = true, bool ColorUpdateAllowed = true);
+    void onRequestRedrawFromScript();
     void showRecursive(QString objectName);
     void UpdateRootCanvas();
     void ShowTracks();
+    void onRequestShowTracksFromScript();
+    void onRequestClearTracksFromScript();
+    void onRequestClearMarkersFromScript();
+    void onRequestSaveImageFromScript(QString fileName);
+    void onRequestAddMarkersFromScript(AGeoMarkerClass * markers);
+    void onRequestAddTrackFromScript(TVirtualGeoTrack * track);
     void ShowPoint(double * r, bool keepTracks = false);
     void addGenerationMarker(const double * Pos);
     void FocusVolume(QString name);
@@ -183,6 +191,7 @@ signals:
     void requestUpdateRegisteredGeoManager(); // Geometry.notifyRootServerGeometryChanged();
     //void requestUpdateMaterialListWidget();   // ants2 MainWindow could have material list colored
     void requestShowNetSettings();
+    void taskRequestedFromScriptCompleted();
 };
 
 #endif // GEOMETRYWINDOWCLASS_H

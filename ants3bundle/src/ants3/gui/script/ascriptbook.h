@@ -34,6 +34,8 @@ public:
     void               removeTabNoCleanup(int index); //used by move
     void               removeTab(int index);
     void               removeAllTabs();
+
+    QString            saveAllModifiedFiles();
 };
 
 #endif // ASCRIPTBOOK_H

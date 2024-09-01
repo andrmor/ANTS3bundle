@@ -39,6 +39,7 @@ public slots:
     double sqrt(double val);
     double tan(double val);
     double round(double val);
+
     double random();
     double gauss(double mean, double sigma);
     double poisson(double mean);
@@ -48,6 +49,8 @@ public slots:
     QVariantList getAnglesBetween3DVectors(QVariantList arrayOfVectors);
 
     QVariantList generateDirectionIsotropic();
+
+    QVariantList interpolateToRegulareArray(QVariantList arrayOfPairs, int numBins, double from, double to);
 
     // NOT multi-thread friendly!
     //QVariantList fit1D(QVariantList array, QString tformula, QVariantList range = QVariantList(), QVariantList startParValues = QVariantList(), bool extendedOutput = false);

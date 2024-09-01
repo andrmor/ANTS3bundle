@@ -114,6 +114,8 @@ bool AMatWin::checkCurrentMaterial()
     QString error = tmpMaterial.convertPressureToDensity();
     if (!error.isEmpty())
     {
+        tmpMaterial.Composition.Gas = false;
+        ui->cbGas->setChecked(false);
         guitools::message(error, this);
         return false;
     }
@@ -1248,6 +1250,42 @@ void AMatWin::on_pbAddNew_clicked()
     if (index > -1) switchToMaterial(index);
 }
 
+#include "aitemselectiondialog.h"
+void AMatWin::on_pbLoadFromLibrary_clicked()
+{
+    QString dir = GlobSet.ResourcesDir;
+    QString matDir = dir + "/materials";
+    AItemSelectionDialog dialog(dir + "/MaterialLibrary.json", matDir, "Material library", this);
+    int res = dialog.exec();
+    if (res == QDialog::Rejected) return;
+
+    QString fileName = dialog.FileNameSelected;
+    QJsonObject json;
+    bool bOK = jstools::loadJsonFromFile(json, matDir + "/" + fileName);
+    if (!bOK)
+    {
+        guitools::message("Cannot open material library file: "+fileName, this);
+        return;
+    }
+    if (!json.contains("Material"))
+    {
+        guitools::message("File format error: Json with material settings not found", this);
+        return;
+    }
+
+    QJsonObject js = json["Material"].toObject();
+    tmpMaterial.readFromJson(js);
+
+    setWasModified(true);
+    updateWaveButtons();
+
+    ui->cobActiveMaterials->setCurrentIndex(-1); //to avoid confusion (and update is disabled for -1)
+    LastShownMaterial = -1;
+
+    updateTmpMaterialGui(); //refresh indication of tmpMaterial
+    updateWaveButtons(); //refresh button state for Wave-resolved properties
+}
+
 void AMatWin::on_pbClone_clicked()
 {
     if (bMaterialWasModified)
@@ -1454,7 +1492,12 @@ void AMatWin::on_ledPressure_editingFinished()
 {
     on_pbUpdateTmpMaterial_clicked();
     QString err = tmpMaterial.convertPressureToDensity();
-    if (!err.isEmpty()) guitools::message(err, this);
+    if (!err.isEmpty())
+    {
+        tmpMaterial.Composition.Gas = false;
+        ui->cbGas->setChecked(false);
+        guitools::message(err, this);
+    }
     ui->ledDensity->setText(QString::number(tmpMaterial.Composition.Density));
 }
 

@@ -35,6 +35,7 @@ public slots:
 
     void           clone(QString histName, QString cloneName);
 
+    void           fill(QString histName, double val);
     void           fill(QString histName, double val, double weight);
     void           fill(QString histName, double x, double y, double weight);
     void           fill(QString histName, double x, double y, double z, double weight);
@@ -44,7 +45,8 @@ public slots:
     void           fillArr(QString histName, QVariantList array1, QVariantList array2, QVariantList array3);
     void           fillArr(QString histName, QVariantList array1, QVariantList array2, QVariantList array3, QVariantList array4);
 
-    void           draw(QString HistName, QString options = "");
+    void           draw(QString HistName);
+    void           draw(QString HistName, QString options);
 
     void           setTitle(QString histName, QString title);
     void           setAxisTitles(QString histName, QString x_Title, QString y_Title, QString z_Title = "");
@@ -65,18 +67,20 @@ public slots:
     void           setXCustomLabels(QString histName, QVariantList textLabels);
 
     QVariantList   getData(QString histName);
+    QVariantList   getStatistics(QString histName); // num mean std, for 2D mean and std are vectors of [x,y]
     int            getNumberEntries(QString histName);
+    void           setNumberEntries(QString histName, int numEntries);
     double         getNumberUnderflows(QString histName); // !!!*** 2D
     double         getNumberOverflows(QString histName);  // !!!*** 2D
-    double         getIntegral(QString histName, bool multiplyByBinWidth = false);
+    double         getIntegral(QString histName);
+    double         getIntegral_multiplyByBinWidth(QString histName);
 
     double         getRandom(QString histName);
-    QVariantList   getRandomArray(QString histName, int numRandoms);
+    QVariantList   getRandom(QString histName, int numRandoms);
 
-    QVariantList   getStatistics(QString histName); // num mean std, for 2D mean and std are vectors of [x,y]
-    void           setNumberEntries(QString histName, int numEntries);
+    void           scaleIntegralTo(QString histName, double scaleIntegralTo, bool dividedByBinWidth = false);
+    void           scaleMaxTo(QString histName, double max);
 
-    void           scaleIntegral(QString histName, double scaleIntegralTo, bool dividedByBinWidth = false);
     void           divideByHistogram(QString histName, QString histToDivideWith);
 
     void           applyMedianFilter(QString histName, int span);

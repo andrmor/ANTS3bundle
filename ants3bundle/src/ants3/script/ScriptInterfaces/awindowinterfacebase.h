@@ -15,8 +15,8 @@ public:
     AWindowInterfaceBase(AGuiWindow * window);
 
 public slots:
-    void showWindow(bool activate = true);
-    void showWindowMaximized(bool activate = true);
+    void showWindow(bool activateFlag);
+    void showWindowMaximized(bool activate);
     void hide();
 
     QVariantList getGeometry();

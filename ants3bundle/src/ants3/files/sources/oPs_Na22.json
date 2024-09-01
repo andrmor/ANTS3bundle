@@ -1,0 +1,142 @@
+{
+    "Activity": 1,
+    "Angular": {
+        "CustomDistribution": [
+        ],
+        "CutOff": 45,
+        "Direction": {
+            "Phi": 0,
+            "Theta": 0,
+            "UseSphericalAngles": false,
+            "dX": 1,
+            "dY": 0,
+            "dZ": 0
+        },
+        "Mode": "Isotropic",
+        "Sigma": 1,
+        "UseCutOff": false
+    },
+    "Name": "oPs_Na22",
+    "Particles": [
+        {
+            "Energy": {
+                "EnergySigma": 50,
+                "EnergySpectrum": [
+                ],
+                "FixedEnergy": 0,
+                "PreferredSigmaUnits": "keV",
+                "PreferredUnits": "keV",
+                "UseFixedEnergy": true,
+                "UseGaussBlur": false
+            },
+            "Generation": {
+                "BtBPair": false,
+                "LinkedTo": 0,
+                "LinkingProbability": 0,
+                "StatWeight": 0.01,
+                "Type": "Independent"
+            },
+            "Particle": "_oPs"
+        },
+        {
+            "Energy": {
+                "EnergySigma": 50,
+                "EnergySpectrum": [
+                ],
+                "FixedEnergy": 511,
+                "PreferredSigmaUnits": "keV",
+                "PreferredUnits": "keV",
+                "UseFixedEnergy": true,
+                "UseGaussBlur": false
+            },
+            "Generation": {
+                "BtBPair": true,
+                "LinkedTo": 0,
+                "LinkingProbability": 0.90326,
+                "StatWeight": 0.99,
+                "Type": "Independent"
+            },
+            "Particle": "gamma"
+        },
+        {
+            "Energy": {
+                "EnergySigma": 50,
+                "EnergySpectrum": [
+                ],
+                "FixedEnergy": 1274.58,
+                "PreferredSigmaUnits": "keV",
+                "PreferredUnits": "keV",
+                "UseFixedEnergy": true,
+                "UseGaussBlur": false
+            },
+            "Generation": {
+                "BtBPair": false,
+                "LinkedTo": 0,
+                "LinkingProbability": 1,
+                "StatWeight": 1,
+                "Type": "Linked_IfGenerated"
+            },
+            "Particle": "gamma"
+        },
+        {
+            "Energy": {
+                "EnergySigma": 50,
+                "EnergySpectrum": [
+                ],
+                "FixedEnergy": 1274.58,
+                "PreferredSigmaUnits": "keV",
+                "PreferredUnits": "keV",
+                "UseFixedEnergy": true,
+                "UseGaussBlur": false
+            },
+            "Generation": {
+                "BtBPair": false,
+                "LinkedTo": 1,
+                "LinkingProbability": 1,
+                "StatWeight": 1,
+                "Type": "Linked_IfGenerated"
+            },
+            "Particle": "gamma"
+        }
+    ],
+    "Spatial": {
+        "AxialDistributionForRound": {
+            "CustomDistribution": [
+            ],
+            "Enabled": false,
+            "Sigma": 10,
+            "Type": "Gauss"
+        },
+        "MaterialLimited": {
+            "Enabled": false,
+            "Material": ""
+        },
+        "Orientation": [
+            0,
+            0,
+            0
+        ],
+        "Position": [
+            0,
+            0,
+            0
+        ],
+        "Shape": "Point",
+        "Size1": 10,
+        "Size2": 10,
+        "Size3": 10
+    },
+    "Time": {
+        "ByEventPeriod": 10,
+        "ByEventStart": 0,
+        "CustomDistribution": [
+        ],
+        "FixedOffset": 0,
+        "HalfLifePreferUnit": "ns",
+        "OffsetMode": "Fixed",
+        "SpreadHalfLife": 100,
+        "SpreadMode": "None",
+        "SpreadSigma": 50,
+        "SpreadWidth": 100
+    }
+}
