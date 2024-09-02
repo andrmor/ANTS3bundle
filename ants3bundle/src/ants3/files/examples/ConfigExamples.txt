@@ -1,5 +1,6 @@
 * Generic
 @AllGeometryOptions.json All basic shapes and geometry building elements available in ants3.
+@AnalyzersPT.json Simple example of the usage of a particle monitor and particle analyzer; 130 MeV proton beam generating prompt gammas
 * Proton therapy
 ** TPPT scanner
 @TPPT_basic.json Basic configuration of the TPPT scanner
