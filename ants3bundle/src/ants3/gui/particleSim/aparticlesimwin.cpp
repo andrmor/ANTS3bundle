@@ -1833,6 +1833,8 @@ void AParticleSimWin::on_cobPTHistVolRequestWhat_currentIndexChanged(int index)
     ui->frLimitHadronicTarget->setVisible(index == 1);
 
     ui->cbPTHistVolVsTime->setVisible(index == 3);
+
+    ui->pbHelpGetParticles->setVisible(index == 0);
 }
 
 void AParticleSimWin::on_twPTHistType_currentChanged(int index)
@@ -3625,5 +3627,10 @@ void AParticleSimWin::on_cobAnalyzerNumberOption_activated(int)
 void AParticleSimWin::on_cobAnalyzerEnergyUnits_activated(int)
 {
     updateAnalyzerDataGui(false);
+}
+
+void AParticleSimWin::on_pbHelpGetParticles_clicked()
+{
+    guitools::message("Note that if one particle during tracking enters several times volume(s) which pass the selection criteria, it is counted only once!", this);
 }
 
