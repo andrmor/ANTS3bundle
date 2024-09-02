@@ -52,6 +52,8 @@ public:
     static AParticleAnalyzerHub & getInstance();
     static const AParticleAnalyzerHub & getConstInstance();
 
+    void clear();
+
     std::vector<AAnalyzerData> UniqueAnalyzers;
 
 private:
@@ -67,8 +69,6 @@ public:
     void loadAnalyzerFiles(const std::vector<QString> & inFiles);
     bool saveAnalyzerData(const QString & fileName);
 
-private:
-    void clear();
 };
 
 #endif // APARTICLEANALYZERHUB_H

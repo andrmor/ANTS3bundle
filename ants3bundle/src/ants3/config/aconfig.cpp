@@ -100,6 +100,7 @@ QString AConfig::readFromJson(const QJsonObject & json, bool updateGui)
     }
 }
 
+#include "aparticleanalyzerhub.h"
 QString AConfig::tryReadFromJson(const QJsonObject & json)
 {
     bool ok = jstools::parseJson(json, "ConfigName",        ConfigName);
@@ -129,6 +130,8 @@ QString AConfig::tryReadFromJson(const QJsonObject & json)
 
     APhotonFunctionalHub::getInstance().readFromJson(json);
     // error handling! !!!***
+
+    AParticleAnalyzerHub::getInstance().clear(); // clear loaded data
 
     // Reconstruction
     // LRFs

@@ -47,7 +47,8 @@ AGeometryHub::AGeometryHub()
 AGeometryHub::~AGeometryHub()
 {
     //qDebug() << "Dest for A3Geometry";
-    clearWorld(); delete World;
+    clearWorld();
+    delete World; World = nullptr;
 
     delete GeoManager; // should be deleted by aboutToQuit()!
 }
@@ -62,6 +63,9 @@ void AGeometryHub::clearWorld()
     for (AGeoObject * obj : World->HostedObjects) obj->clearAll();
     World->HostedObjects.clear();
 
+    World->Material = 0;
+    setWorldSizeFixed(false);
+
     Prototypes->clearContent();
     World->HostedObjects.push_back(Prototypes);
 
@@ -72,6 +76,10 @@ void AGeometryHub::clearWorld()
     clearMonitors();
     ACalorimeterHub::getInstance().clear();
     AGridHub::getInstance().clear();
+
+    Scintillators.clear();
+    PhotonFunctionals.clear();
+    ParticleAnalyzers.clear();
 }
 
 void AGeometryHub::clearMonitors()

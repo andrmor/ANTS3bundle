@@ -291,6 +291,9 @@ void AParticleSimWin::updateGui()
 
     emit killSourceDialog();
 
+    updateCalorimeterGui();
+    updateAnalyzerGui();
+
     bGuiUpdateInProgress = false; // <--
 }
 
