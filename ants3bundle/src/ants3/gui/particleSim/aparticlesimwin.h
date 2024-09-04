@@ -43,6 +43,7 @@ public slots:
     void updateResultsGui();
     void onBusyStatusChange(bool busy);
     void onMaterialsChanged();
+    void onNewConfigStartedInGui();
 
 private slots:
     // auto-updates

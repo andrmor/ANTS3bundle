@@ -1051,6 +1051,12 @@ void AParticleSimWin::onMaterialsChanged()
     updateMatComboBox(ui->cobPTHistVolMat, mats);
 }
 
+void AParticleSimWin::onNewConfigStartedInGui()
+{
+    ui->cbRandomSeed->setChecked(true);
+    ui->sbSeed->setValue(1000);
+}
+
 void AParticleSimWin::onRequestShowSource()
 {
     emit requestShowGeometry(false, true, true);

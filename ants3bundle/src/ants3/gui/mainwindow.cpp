@@ -672,6 +672,7 @@ void MainWindow::on_pbNew_clicked()
     AInterfaceRuleHub::getInstance().clearRules();
 
     AParticleSimHub::getInstance().clear();
+    PartSimWin->onNewConfigStartedInGui();
 
     APhotonSimHub::getInstance().clear();
 
