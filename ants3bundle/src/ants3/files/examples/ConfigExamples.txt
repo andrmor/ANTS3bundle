@@ -3,7 +3,8 @@
 @AnalyzersPT.json Simple example of the usage of a particle monitor and particle analyzer; 130 MeV proton beam generating prompt gammas
 * Proton therapy
 ** TPPT scanner
-@TPPT_basic.json Basic configuration of the TPPT scanner
+@TPPT_basic.json TPPT scanner with the most basic configuration (only scintillators)
+@TPPT_advanced.json TPPT scanner with all important detector components
 ** Basic
 @BasicProtonTherapy.json Proton pencil beam irradiating a PMMA phantom. The config also features a beam monitor for primary protons and the phantom is a calorimeter. #ProtonTherapy #Monitor #Calorimeter
 ** Beam range verification

@@ -317,7 +317,7 @@ void ATypeCircularArrayObject::introduceGeoConstValues(QString & errorStr)
     bool ok;
     ok = GC.updateIntParameter(errorStr, strNum,         num,         true,  true);            if (!ok) errorStr += " in Number\n";
     ok = GC.updateDoubleParameter(errorStr, strAngularStep, angularStep, true,  false, false); if (!ok) errorStr += " in Angular Step\n";
-    ok = GC.updateDoubleParameter(errorStr, strRadius,      radius,      true,  true,  false); if (!ok) errorStr += " in Radius\n";
+    ok = GC.updateDoubleParameter(errorStr, strRadius,      radius,      false,  true,  false); if (!ok) errorStr += " in Radius\n";
     ok = GC.updateIntParameter(errorStr, strStartIndex,  startIndex,  false, true);            if (!ok) errorStr += " in Start Index\n";
 }
 
