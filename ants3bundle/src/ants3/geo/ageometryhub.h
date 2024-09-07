@@ -58,7 +58,10 @@ public:
 
     void         convertObjToComposite(AGeoObject * obj) const;
 
-    QString      convertToNewPrototype(std::vector<AGeoObject*> members);
+    // selection on tree widget marks all container levels --> if an object is already inside a selected item's container, remove it from the vector
+    void         removePresentInContainers(std::vector<AGeoObject *> & members);
+
+    QString      convertToNewPrototype(std::vector<AGeoObject *> & members);
     bool         isValidPrototypeName(const QString & ProtoName) const;
 
     void         aboutToQuit();

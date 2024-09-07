@@ -122,6 +122,7 @@ public:
   void changeLineWidthRecursive(int delta);
   bool isNameExists(const QString & name);
   bool isContainsLocked();
+  bool isContainsObjectRecursive(const AGeoObject * otherObj);
   bool isDisabled() const;
   void enableUp();
   void addObjectFirst(AGeoObject * Object);

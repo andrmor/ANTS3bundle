@@ -131,7 +131,30 @@ void AGeometryHub::convertObjToComposite(AGeoObject * obj) const
     obj->Shape = new AGeoComposite(sl, str);
 }
 
-QString AGeometryHub::convertToNewPrototype(std::vector<AGeoObject *> members)
+void AGeometryHub::removePresentInContainers(std::vector<AGeoObject *> & members)
+{
+    // assume unordered selection
+    size_t iCheckingObject = members.size();
+    while (iCheckingObject > 0)
+    {
+        iCheckingObject--;
+        AGeoObject * objChecking = members[iCheckingObject];
+        bool isInContainer = false;
+        for (AGeoObject * obj : members)
+        {
+            if (obj == objChecking) continue;
+            if (obj->isContainsObjectRecursive(objChecking))
+            {
+                isInContainer = true;
+                break;
+            }
+        }
+
+        if (isInContainer) members.erase(members.begin() + iCheckingObject);
+    }
+}
+
+QString AGeometryHub::convertToNewPrototype(std::vector<AGeoObject *> & members)
 {
     QString errStr;
 
@@ -147,8 +170,13 @@ QString AGeometryHub::convertToNewPrototype(std::vector<AGeoObject *> members)
     delete proto->Type; proto->Type = new ATypePrototypeObject();
     proto->migrateTo(Prototypes);
 
-    for (AGeoObject * obj : members)
-        obj->migrateTo(proto);
+    removePresentInContainers(members);
+    while (!members.empty())
+    {
+        AGeoObject * obj = members.front();
+        obj->migrateTo(proto, true);
+        members.erase(members.begin());
+    }
 
     return "";
 }

@@ -757,6 +757,16 @@ bool AGeoObject::isContainsLocked()
     return false;
 }
 
+bool AGeoObject::isContainsObjectRecursive(const AGeoObject * otherObj)
+{
+    for (AGeoObject * obj : HostedObjects)
+    {
+        if (obj == otherObj) return true;
+        if (obj->isContainsObjectRecursive(otherObj)) return true;
+    }
+    return false;
+}
+
 bool AGeoObject::isDisabled() const
 {
     if (Type->isWorld()) return false;

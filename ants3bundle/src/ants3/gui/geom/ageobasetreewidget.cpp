@@ -20,7 +20,6 @@ AGeoBaseTreeWidget::AGeoBaseTreeWidget(AGeoObject * World) :
     setDragEnabled(true);
     setDragDropMode(QAbstractItemView::InternalMove);
     setSelectionMode(QAbstractItemView::ExtendedSelection);
-    //setDropIndicatorShown(false);
     setDropIndicatorShown(true);
     //setIndentation(50);
     setContentsMargins(0, 0, 0, 0);
