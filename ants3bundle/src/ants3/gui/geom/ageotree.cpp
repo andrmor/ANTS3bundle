@@ -925,7 +925,7 @@ void AGeoTree::menuActionAddNewObject(AGeoObject * contObj, AGeoShape * shape)
     delete newObj->Shape; newObj->Shape = shape;
 
     newObj->color = 1;
-    contObj->addObjectFirst(newObj);
+    contObj->addObjectLast(newObj);
 
     emit RequestRebuildDetector();
     UpdateGui(objName);
