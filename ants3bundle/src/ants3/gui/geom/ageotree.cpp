@@ -1109,11 +1109,9 @@ void AGeoTree::menuActionMoveProtoToWorld(AGeoObject * obj)
         return;
     }
 
-    size_t iHO = obj->HostedObjects.size();
-    while (iHO > 0)
+    while (!obj->HostedObjects.empty())
     {
-        iHO--;
-        AGeoObject * hosted = obj->HostedObjects[iHO];
+        AGeoObject * hosted = obj->HostedObjects.front();
         hosted->migrateTo(World, true);
     }
     Prototypes->removeHostedObject(obj);
