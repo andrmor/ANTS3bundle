@@ -1330,6 +1330,8 @@ void GraphWindowClass::onDrawRequest(TObject * obj, QString options, bool transf
         Draw(obj, options.toLatin1().data(), true, transferOwnership);
     else
         DrawWithoutFocus(obj, options.toLatin1().data(), true, transferOwnership);
+
+    lwBasket->clearFocus();
 }
 
 void GraphWindowClass::onScriptDrawRequest(TObject * obj, QString options, bool fFocus)
