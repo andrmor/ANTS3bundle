@@ -22,6 +22,7 @@ class AParticleSourceRecord;
 class ATrackingHistoryCrawler;
 class AFindRecordSelector;
 class AEventTrackingRecord;
+class AParticleSourceDialog;
 
 namespace Ui {
 class AParticleSimWin;
@@ -135,6 +136,8 @@ private slots:
 
     void on_trwEventView_customContextMenuRequested(const QPoint &pos);
 
+    void onParticleSourceAccepted();
+
 signals:
     void requestShowGeometry(bool ActivateWindow, bool SAME, bool ColorUpdateAllowed);
     void requestShowTracks();
@@ -147,7 +150,6 @@ signals:
     void requestAddMarker(const double *);
     void requestShowGeoObjectDelegate(QString ObjName, bool bShow);
     void requestConfigureExchangeDir();
-    void killSourceDialog();
     void requestBusyStatus(bool flag);
 
 private:
@@ -199,6 +201,8 @@ private:
     bool   bFindEventAbortRequested = false;
 
     AEventTrackingRecord * CurrentEventRecord = nullptr;
+
+    AParticleSourceDialog * ParticleSourceDialog = nullptr;
 
     void updateG4Gui();
     void updateSimGui();

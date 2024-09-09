@@ -23,6 +23,8 @@
 #include "aeventsdonedialog.h"
 #include "atrackingdataexplorer.h"
 #include "aeventtrackingrecord.h"
+#include "aparticlesourcedialog.h"
+#include "aparticlesourcerecord.h"
 
 #include <QListWidget>
 #include <QDialog>
@@ -87,6 +89,11 @@ AParticleSimWin::AParticleSimWin(QWidget * parent) :
 
 AParticleSimWin::~AParticleSimWin()
 {
+    if (ParticleSourceDialog)
+    {
+        ParticleSourceDialog->reject();
+        delete ParticleSourceDialog; ParticleSourceDialog = nullptr;
+    }
     delete ui;
 }
 
@@ -289,7 +296,11 @@ void AParticleSimWin::updateGui()
 
     updateGeneralControlInResults();
 
-    emit killSourceDialog();
+    if (ParticleSourceDialog)
+    {
+        ParticleSourceDialog->reject();
+        delete ParticleSourceDialog; ParticleSourceDialog = nullptr;
+    }
 
     updateCalorimeterGui();
     updateAnalyzerGui();
@@ -468,8 +479,6 @@ void AParticleSimWin::on_pbRemoveStepLimit_clicked()
      updateG4Gui();
 }
 
-#include "aparticlesourcedialog.h"
-#include "aparticlesourcerecord.h"
 void AParticleSimWin::on_pbEditParticleSource_clicked()
 {
     int isource = ui->lwDefinedParticleSources->currentRow();
@@ -486,16 +495,27 @@ void AParticleSimWin::on_pbEditParticleSource_clicked()
         return;
     }
 
-    AParticleSourceDialog ParticleSourceDialog(SourceGenSettings.SourceData.at(isource), this);
-    connect(&ParticleSourceDialog, &AParticleSourceDialog::requestTestParticleGun, this, &AParticleSimWin::testParticleGun);
-    connect(&ParticleSourceDialog, &AParticleSourceDialog::requestShowSource,      this, &AParticleSimWin::onRequestShowSource);
-    connect(&ParticleSourceDialog, &AParticleSourceDialog::requestDraw,            this, &AParticleSimWin::requestDraw);
-    connect(this,                  &AParticleSimWin::killSourceDialog,             &ParticleSourceDialog, &AParticleSourceDialog::reject);
+    delete ParticleSourceDialog;
+    ParticleSourceDialog = new AParticleSourceDialog(SourceGenSettings.SourceData.at(isource), this);
+    connect(ParticleSourceDialog, &AParticleSourceDialog::requestTestParticleGun, this, &AParticleSimWin::testParticleGun);
+    connect(ParticleSourceDialog, &AParticleSourceDialog::requestShowSource,      this, &AParticleSimWin::onRequestShowSource);
+    connect(ParticleSourceDialog, &AParticleSourceDialog::requestDraw,            this, &AParticleSimWin::requestDraw);
+    connect(ParticleSourceDialog, &AParticleSourceDialog::accepted,               this, &AParticleSimWin::onParticleSourceAccepted);
 
-    int res = ParticleSourceDialog.exec();
-    if (res == QDialog::Rejected) return;
+    ParticleSourceDialog->setModal(true);
+    ParticleSourceDialog->open();
+}
 
-    AParticleSourceRecord & ps = ParticleSourceDialog.getResult();
+void AParticleSimWin::onParticleSourceAccepted()
+{
+    int isource = ui->lwDefinedParticleSources->currentRow();
+    if (isource == -1) return;
+
+    ASourceGeneratorSettings & SourceGenSettings = SimSet.SourceGenSettings;
+    const int numSources = SourceGenSettings.getNumSources();
+    if (isource >= numSources) return;
+
+    AParticleSourceRecord & ps = ParticleSourceDialog->getResult();
     SourceGenSettings.replace(isource, ps);
 
     updateSourceList();
