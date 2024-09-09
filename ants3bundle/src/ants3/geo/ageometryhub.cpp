@@ -234,6 +234,8 @@ void AGeometryHub::expandPrototypeInstances()
 
         for (AGeoObject * obj : prototypeObj->HostedObjects)
         {
+            if (obj->isDisabled()) continue;
+
             AGeoObject * clone = obj->makeCloneForInstance(instanceObj->Name);
             clone->lockRecursively();
             instanceObj->addObjectLast(clone);
