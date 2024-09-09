@@ -231,6 +231,23 @@ void AParticleSourceRecord::clear()
     Particles.clear();
 }
 
+std::string AParticleSourceRecord::timeUnitsToString(AParticleSourceRecord::ETimeUnits timeUnits) const
+{
+    switch (timeUnits)
+    {
+    case ns  : return "ns";
+    case us  : return "us";
+    case ms  : return "ms";
+    case s   : return "s";
+    case min : return "min";
+    case h   : return "h";
+    default  :;
+    }
+
+    // !!!*** error reporting
+    return "ns";
+}
+
 #ifndef JSON11
 void AParticleSourceRecord::writeToJson(QJsonObject & json) const
 {
@@ -337,16 +354,7 @@ void AParticleSourceRecord::writeToJson(QJsonObject & json) const
             js["SpreadSigma"]    = TimeSpreadSigma;
             js["SpreadWidth"]    = TimeSpreadWidth;
             js["SpreadHalfLife"] = TimeSpreadHalfLife;
-                switch (TimeHalfLifePrefUnit)
-                {
-                case ns  : str = "ns";  break;
-                case us  : str = "us";  break;
-                case ms  : str = "ms";  break;
-                case s   : str = "s";   break;
-                case min : str = "min"; break;
-                case h   : str = "h";   break;
-                }
-            js["HalfLifePreferUnit"] = str;
+            js["HalfLifePreferUnit"] = QString( timeUnitsToString(TimeHalfLifePrefUnit).data() );
             QJsonArray ar;
                 jstools::writeDPairVectorToArray(TimeDistribution, ar);
             js["CustomDistribution"] = ar;
@@ -366,6 +374,19 @@ void AParticleSourceRecord::writeToJson(QJsonObject & json) const
     }
 }
 #endif
+
+AParticleSourceRecord::ETimeUnits AParticleSourceRecord::strToTimeUnits(const std::string & str) const
+{
+    if      (str == "ns")  return ns;
+    else if (str == "us")  return us;
+    else if (str == "ms")  return ms;
+    else if (str == "s")   return s;
+    else if (str == "min") return min;
+    else if (str == "h")   return h;
+
+    // !!!*** error
+    return ns;
+}
 
 bool AParticleSourceRecord::readFromJson(const JsonObject & json)
 {
@@ -503,13 +524,7 @@ bool AParticleSourceRecord::readFromJson(const JsonObject & json)
             jstools::parseJson(js, "SpreadWidth",    TimeSpreadWidth);
             jstools::parseJson(js, "SpreadHalfLife", TimeSpreadHalfLife);
             jstools::parseJson(js, "HalfLifePreferUnit", str);
-            if      (str == "ns")  TimeHalfLifePrefUnit = ns;
-            else if (str == "us")  TimeHalfLifePrefUnit = us;
-            else if (str == "ms")  TimeHalfLifePrefUnit = ms;
-            else if (str == "s")   TimeHalfLifePrefUnit = s;
-            else if (str == "min") TimeHalfLifePrefUnit = min;
-            else if (str == "h")   TimeHalfLifePrefUnit = h;
-            else ; // !!!*** error
+            TimeHalfLifePrefUnit = strToTimeUnits(str);
             JsonArray ar;
                 jstools::parseJson(js, "CustomDistribution", ar);
             jstools::readDPairVectorFromArray(ar, TimeDistribution);

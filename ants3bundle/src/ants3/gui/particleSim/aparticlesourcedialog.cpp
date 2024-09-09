@@ -115,7 +115,7 @@ AParticleSourceDialog::AParticleSourceDialog(const AParticleSourceRecord & Rec, 
     ui->cobTimeSpreadMode->setCurrentIndex(index);
     ui->ledTimeSpreadSigma->setText( QString::number(Rec.TimeSpreadSigma) );
     ui->ledTimeSpreadWidth->setText( QString::number(Rec.TimeSpreadWidth) );
-    updateHalfLifeIndication();
+    updateTimeWithUnitsIndication(LocalRec.TimeSpreadHalfLife, LocalRec.TimeHalfLifePrefUnit, ui->ledTimeSpreadHalfLife, ui->cobPreferedHalfLifeUnits);
 
     updateListWidget();
     updateColorLimitingMat();
@@ -505,7 +505,7 @@ void AParticleSourceDialog::on_pbUpdateRecord_clicked()
     }
     LocalRec.TimeSpreadSigma = ui->ledTimeSpreadSigma->text().toDouble();
     LocalRec.TimeSpreadWidth = ui->ledTimeSpreadWidth->text().toDouble();
-    updateHalfLife();
+    readTimeWithUnits(ui->ledTimeSpreadHalfLife, ui->cobPreferedHalfLifeUnits, LocalRec.TimeSpreadHalfLife, LocalRec.TimeHalfLifePrefUnit);
 
     LocalRec.configureAngularSampler();
     LocalRec.configureTimeSampler();
@@ -721,11 +721,11 @@ void AParticleSourceDialog::on_leSourceLimitMaterial_textEdited(const QString &)
     updateColorLimitingMat();
 }
 
-void AParticleSourceDialog::updateHalfLifeIndication()
+void AParticleSourceDialog::updateTimeWithUnitsIndication(double time_ns, AParticleSourceRecord::ETimeUnits prefUnits, QLineEdit * led, QComboBox * cob)
 {
     int index = 0;
     double factor = 1.0;
-    switch (LocalRec.TimeHalfLifePrefUnit)
+    switch (prefUnits)
     {
     case AParticleSourceRecord::ns  : index = 0; factor = 1.0;    break;
     case AParticleSourceRecord::us  : index = 1; factor = 1e3;    break;
@@ -734,18 +734,19 @@ void AParticleSourceDialog::updateHalfLifeIndication()
     case AParticleSourceRecord::min : index = 4; factor = 60e9;   break;
     case AParticleSourceRecord::h   : index = 5; factor = 3600e9; break;
     default :
-        qWarning() << "Not impelmented AParticleSourceRecord::TimeHalfLifePrefUnit enum value";
+        qWarning() << "Not impelmented ETimeUnits enum value in updateTimeWithUnitsIndication";
         index = 0; factor = 1.0;
     }
-    ui->cobPreferedHalfLifeUnits->setCurrentIndex(index);
-    ui->ledTimeSpreadHalfLife->setText(QString::number(LocalRec.TimeSpreadHalfLife / factor));
+
+    led->setText(QString::number(time_ns / factor));
+    cob->setCurrentIndex(index);
 }
 
-void AParticleSourceDialog::updateHalfLife()
+void AParticleSourceDialog::readTimeWithUnits(QLineEdit * led, QComboBox * cob, double & time_ns, AParticleSourceRecord::ETimeUnits & prefUnits)
 {
     AParticleSourceRecord::ETimeUnits e = AParticleSourceRecord::ns;
     double factor = 1.0;
-    switch (ui->cobPreferedHalfLifeUnits->currentIndex())
+    switch (cob->currentIndex())
     {
     case 0 : e = AParticleSourceRecord::ns;  factor = 1.0;    break;
     case 1 : e = AParticleSourceRecord::us;  factor = 1e3;    break;
@@ -754,11 +755,11 @@ void AParticleSourceDialog::updateHalfLife()
     case 4 : e = AParticleSourceRecord::min; factor = 60e9;   break;
     case 5 : e = AParticleSourceRecord::h;   factor = 3600e9; break;
     default :
-        qWarning() << "Not implemented AParticleSourceRecord::TimeHalfLifePrefUnit value for ui->cobPreferedHalfLifeUnits";
+        qWarning() << "Not implemented ETimeUnits enum value in readTimeWithUnits";
         e = AParticleSourceRecord::ns; factor = 1.0;
     }
-    LocalRec.TimeHalfLifePrefUnit = e;
-    LocalRec.TimeSpreadHalfLife = ui->ledTimeSpreadHalfLife->text().toDouble() * factor;
+    time_ns = led->text().toDouble() * factor;
+    prefUnits = e;
 }
 
 double neutronEnergy_keV_ToWavelength_A(double energy_keV)

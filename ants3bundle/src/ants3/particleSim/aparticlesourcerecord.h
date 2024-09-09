@@ -143,6 +143,10 @@ struct AParticleSourceRecord
     ARandomSampler      _AngularSampler;
     ARandomSampler      _TimeSampler;
     RandomRadialSampler _AxialSampler;
+
+private:
+    AParticleSourceRecord::ETimeUnits strToTimeUnits(const std::string & str) const;  // !!!*** error reporting
+    std::string timeUnitsToString(AParticleSourceRecord::ETimeUnits timeUnits) const; // !!!*** error reporting
 };
 
 #endif // APARTICLESOURCERECORD_H
