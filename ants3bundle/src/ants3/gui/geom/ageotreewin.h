@@ -55,6 +55,7 @@ private slots:
   void on_tabwConstants_cellClicked(int row, int column);
 
   void on_actionFind_object_triggered();
+  void on_actionNew_objects_added_at_the_end_triggered(bool checked);
 
   private:
   AGeometryHub       & Geometry;

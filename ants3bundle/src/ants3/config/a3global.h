@@ -52,15 +52,8 @@ public:
     // Margins
     ADrawMarginsRecord DefaultDrawMargins;
 
-    /*
-    bool RecTreeSave_IncludePMsignals = true;
-    bool RecTreeSave_IncludeRho = true;
-    bool RecTreeSave_IncludeTrue = true;
-    bool SimTextSave_IncludeNumPhotons = true;
-    bool SimTextSave_IncludePositions = true;
-    */
-
-//    QString RootStyleScript;
+    // GeoTreeWindow
+    bool NewGeoObjectAddedLast = false;
 
     QJsonObject TrackVisAttributes;
 

@@ -106,6 +106,8 @@ void A3Global::saveConfig()
 
     json["TrackVisAttributes"] = TrackVisAttributes;
 
+    json["NewGeoObjectAddedLast"] = NewGeoObjectAddedLast;
+
     // Web server
     //js["DefaultWebSocketPort"] = DefaultWebSocketPort;
     //js["DefaultWebSocketIP"] = DefaultWebSocketIP;
@@ -172,6 +174,8 @@ void A3Global::loadConfig()
     jstools::parseJson(json, "TabInSpaces", TabInSpaces);
 
     jstools::parseJson(json, "TrackVisAttributes", TrackVisAttributes);
+
+    jstools::parseJson(json, "NewGeoObjectAddedLast", NewGeoObjectAddedLast);
 
     // Root server
     {
