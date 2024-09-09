@@ -4,7 +4,7 @@
 
 #include <QDoubleValidator>
 
-AShowNumbersDialog::AShowNumbersDialog(AGeometryWindow & gw) :
+AShowNumbersDialog::AShowNumbersDialog(int startType, AGeometryWindow & gw) :
     QDialog(&gw), GW(gw),
     ui(new Ui::AShowNumbersDialog)
 {
@@ -18,13 +18,19 @@ AShowNumbersDialog::AShowNumbersDialog(AGeometryWindow & gw) :
     //foreach (QLineEdit * w, list) if (w->objectName().startsWith("led")) w->setValidator(dv);
     ui->ledSize->setValidator(dv);
 
-    ui->cobObjectType->setCurrentIndex(0);
-    on_cobObjectType_currentIndexChanged(0);
+    if (startType < 0 || startType > 6) startType = 0;
+    ui->cobObjectType->setCurrentIndex(startType);
+    on_cobObjectType_currentIndexChanged(startType);
 }
 
 AShowNumbersDialog::~AShowNumbersDialog()
 {
     delete ui;
+}
+
+int AShowNumbersDialog::getLastSelectedObjectType() const
+{
+    return ui->cobObjectType->currentIndex();
 }
 
 void AShowNumbersDialog::on_cobObjectType_currentIndexChanged(int index)

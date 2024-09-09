@@ -14,8 +14,10 @@ class AShowNumbersDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit AShowNumbersDialog(AGeometryWindow & gw);
+    explicit AShowNumbersDialog(int startType, AGeometryWindow & gw);
     ~AShowNumbersDialog();
+
+    int getLastSelectedObjectType() const;
 
 public slots:
     int exec() override;

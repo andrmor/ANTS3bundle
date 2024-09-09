@@ -1383,8 +1383,9 @@ void AGeometryWindow::showScintillatorIndexes()
 #include "ashownumbersdialog.h"
 void AGeometryWindow::on_pbShowNumbers_clicked()
 {
-    AShowNumbersDialog d(*this);
+    AShowNumbersDialog d(LastShowObjectType, *this);
     d.exec();
+    LastShowObjectType = d.getLastSelectedObjectType();
 }
 
 void AGeometryWindow::on_cbWireFrame_clicked(bool)

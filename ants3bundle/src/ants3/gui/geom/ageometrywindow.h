@@ -170,6 +170,7 @@ private:
     bool ColorByMaterial = false;
 
     AGeoWriter GeoWriter;
+    int LastShowObjectType = 0;
 
 private:
     void redrawWebView(QString extraArguments = "");
