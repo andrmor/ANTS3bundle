@@ -99,9 +99,12 @@ AParticleSourceDialog::AParticleSourceDialog(const AParticleSourceRecord & Rec, 
     default : guitools::message("Unknown TimeOffsetMode, setting to FixedOffset!", this);
     }
     ui->cobTimeAverageMode->setCurrentIndex(index);
-    ui->ledTimeAverageFixed->setText( QString::number(Rec.TimeFixedOffset) );
-    ui->ledTimeAverageStart->setText( QString::number(Rec.TimeByEventStart) );
-    ui->ledTimeAveragePeriod->setText( QString::number(Rec.TimeByEventPeriod) );
+    //ui->ledTimeAverageFixed->setText( QString::number(Rec.TimeFixedOffset) );
+    updateTimeWithUnitsIndication(LocalRec.TimeFixedOffset,    LocalRec.TimeFixedOffsetPrefUnit, ui->ledTimeAverageFixed,    ui->cobTimeFixedOffsetPrefUnit);
+    //ui->ledTimeAverageStart->setText( QString::number(Rec.TimeByEventStart) );
+    updateTimeWithUnitsIndication(LocalRec.TimeByEventStart,    LocalRec.TimeByEventStartPrefUnit, ui->ledTimeAverageStart,    ui->cobTimeByEventStartPrefUnit);
+    //ui->ledTimeAveragePeriod->setText( QString::number(Rec.TimeByEventPeriod) );
+    updateTimeWithUnitsIndication(LocalRec.TimeByEventPeriod,    LocalRec.TimeByEventPeriodPrefUnit, ui->ledTimeAveragePeriod,    ui->cobTimeByEventPeriodPrefUnit);
     updateTimeButtons();
     index = 0;
     switch (Rec.TimeSpreadMode)
@@ -113,9 +116,11 @@ AParticleSourceDialog::AParticleSourceDialog(const AParticleSourceRecord & Rec, 
     default : guitools::message("Unknown TimeSpreadMode, setting to NoSpread!", this);
     }
     ui->cobTimeSpreadMode->setCurrentIndex(index);
-    ui->ledTimeSpreadSigma->setText( QString::number(Rec.TimeSpreadSigma) );
-    ui->ledTimeSpreadWidth->setText( QString::number(Rec.TimeSpreadWidth) );
-    updateTimeWithUnitsIndication(LocalRec.TimeSpreadHalfLife, LocalRec.TimeHalfLifePrefUnit, ui->ledTimeSpreadHalfLife, ui->cobPreferedHalfLifeUnits);
+    //ui->ledTimeSpreadSigma->setText( QString::number(Rec.TimeSpreadSigma) );
+    updateTimeWithUnitsIndication(LocalRec.TimeSpreadSigma,    LocalRec.TimeSpreadSigmaPrefUnit, ui->ledTimeSpreadSigma,    ui->cobTimeSpreadSigmaPrefUnit);
+    //ui->ledTimeSpreadWidth->setText( QString::number(Rec.TimeSpreadWidth) );
+    updateTimeWithUnitsIndication(LocalRec.TimeSpreadWidth,    LocalRec.TimeSpreadWidthPrefUnit, ui->ledTimeSpreadWidth,    ui->cobTimeSpreadWidthPrefUnit);
+    updateTimeWithUnitsIndication(LocalRec.TimeSpreadHalfLife, LocalRec.TimeHalfLifePrefUnit,    ui->ledTimeSpreadHalfLife, ui->cobPreferedHalfLifeUnits);
 
     updateListWidget();
     updateColorLimitingMat();
@@ -490,9 +495,12 @@ void AParticleSourceDialog::on_pbUpdateRecord_clicked()
         qWarning() << "Unknown time offset mode!";
         LocalRec.TimeOffsetMode = AParticleSourceRecord::FixedOffset;
     }
-    LocalRec.TimeFixedOffset = ui->ledTimeAverageFixed->text().toDouble();
-    LocalRec.TimeByEventStart = ui->ledTimeAverageStart->text().toDouble();
-    LocalRec.TimeByEventPeriod = ui->ledTimeAveragePeriod->text().toDouble();
+    //LocalRec.TimeFixedOffset = ui->ledTimeAverageFixed->text().toDouble();
+    readTimeWithUnits(ui->ledTimeAverageFixed,    ui->cobTimeFixedOffsetPrefUnit,   LocalRec.TimeFixedOffset,   LocalRec.TimeFixedOffsetPrefUnit);
+    //LocalRec.TimeByEventStart = ui->ledTimeAverageStart->text().toDouble();
+    readTimeWithUnits(ui->ledTimeAverageStart,    ui->cobTimeByEventStartPrefUnit,  LocalRec.TimeByEventStart,  LocalRec.TimeByEventStartPrefUnit);
+    //LocalRec.TimeByEventPeriod = ui->ledTimeAveragePeriod->text().toDouble();
+    readTimeWithUnits(ui->ledTimeAveragePeriod,   ui->cobTimeByEventPeriodPrefUnit, LocalRec.TimeByEventPeriod, LocalRec.TimeByEventPeriodPrefUnit);
     switch (ui->cobTimeSpreadMode->currentIndex())
     {
     case 0  : LocalRec.TimeSpreadMode = AParticleSourceRecord::NoSpread;          break;
@@ -503,9 +511,11 @@ void AParticleSourceDialog::on_pbUpdateRecord_clicked()
         qWarning() << "Unknown time spread mode!";
         LocalRec.TimeSpreadMode = AParticleSourceRecord::NoSpread;
     }
-    LocalRec.TimeSpreadSigma = ui->ledTimeSpreadSigma->text().toDouble();
-    LocalRec.TimeSpreadWidth = ui->ledTimeSpreadWidth->text().toDouble();
-    readTimeWithUnits(ui->ledTimeSpreadHalfLife, ui->cobPreferedHalfLifeUnits, LocalRec.TimeSpreadHalfLife, LocalRec.TimeHalfLifePrefUnit);
+    //LocalRec.TimeSpreadSigma = ui->ledTimeSpreadSigma->text().toDouble();
+    readTimeWithUnits(ui->ledTimeSpreadSigma,    ui->cobTimeSpreadSigmaPrefUnit, LocalRec.TimeSpreadSigma,    LocalRec.TimeSpreadSigmaPrefUnit);
+    //LocalRec.TimeSpreadWidth = ui->ledTimeSpreadWidth->text().toDouble();
+    readTimeWithUnits(ui->ledTimeSpreadWidth,    ui->cobTimeSpreadWidthPrefUnit, LocalRec.TimeSpreadWidth,    LocalRec.TimeSpreadWidthPrefUnit);
+    readTimeWithUnits(ui->ledTimeSpreadHalfLife, ui->cobPreferedHalfLifeUnits,   LocalRec.TimeSpreadHalfLife, LocalRec.TimeHalfLifePrefUnit);
 
     LocalRec.configureAngularSampler();
     LocalRec.configureTimeSampler();

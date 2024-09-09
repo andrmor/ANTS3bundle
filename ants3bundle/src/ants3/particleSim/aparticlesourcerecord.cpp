@@ -340,8 +340,11 @@ void AParticleSourceRecord::writeToJson(QJsonObject & json) const
                 }
             js["OffsetMode"]    = str;
             js["FixedOffset"]   = TimeFixedOffset;
+            js["FixedOffsetPrefUnit"] = QString( timeUnitsToString(TimeFixedOffsetPrefUnit).data() );
             js["ByEventStart"]  = TimeByEventStart;
+            js["ByEventStartPrefUnit"] = QString( timeUnitsToString(TimeByEventStartPrefUnit).data() );
             js["ByEventPeriod"] = TimeByEventPeriod;
+            js["ByEventPeriodPrefUnit"] = QString( timeUnitsToString(TimeByEventPeriodPrefUnit).data() );
                 switch (TimeSpreadMode)
                 {
                 case NoSpread          : str = "None";        break;
@@ -352,7 +355,9 @@ void AParticleSourceRecord::writeToJson(QJsonObject & json) const
                 }
             js["SpreadMode"]     = str;
             js["SpreadSigma"]    = TimeSpreadSigma;
+            js["SpreadSigmaPrefUnit"] = QString( timeUnitsToString(TimeSpreadSigmaPrefUnit).data() );
             js["SpreadWidth"]    = TimeSpreadWidth;
+            js["SpreadWidthPrefUnit"] = QString( timeUnitsToString(TimeSpreadWidthPrefUnit).data() );
             js["SpreadHalfLife"] = TimeSpreadHalfLife;
             js["HalfLifePreferUnit"] = QString( timeUnitsToString(TimeHalfLifePrefUnit).data() );
             QJsonArray ar;
@@ -510,8 +515,11 @@ bool AParticleSourceRecord::readFromJson(const JsonObject & json)
             else ; // !!!*** error reporting
 
             jstools::parseJson(js, "FixedOffset",   TimeFixedOffset);
+            jstools::parseJson(js, "FixedOffsetPrefUnit", str); TimeFixedOffsetPrefUnit = strToTimeUnits(str);
             jstools::parseJson(js, "ByEventStart",  TimeByEventStart);
+            jstools::parseJson(js, "ByEventStartPrefUnit", str); TimeByEventStartPrefUnit = strToTimeUnits(str);
             jstools::parseJson(js, "ByEventPeriod", TimeByEventPeriod);
+            jstools::parseJson(js, "ByEventPeriodPrefUnit", str); TimeByEventPeriodPrefUnit = strToTimeUnits(str);
 
             jstools::parseJson(js, "SpreadMode", str);
             if      (str == "None")        TimeSpreadMode = NoSpread;
@@ -521,10 +529,11 @@ bool AParticleSourceRecord::readFromJson(const JsonObject & json)
             else ; // !!!*** error reporting
 
             jstools::parseJson(js, "SpreadSigma",    TimeSpreadSigma);
+            jstools::parseJson(js, "SpreadSigmaPrefUnit", str); TimeSpreadSigmaPrefUnit = strToTimeUnits(str);
             jstools::parseJson(js, "SpreadWidth",    TimeSpreadWidth);
+            jstools::parseJson(js, "SpreadWidthPrefUnit", str); TimeSpreadWidthPrefUnit = strToTimeUnits(str);
             jstools::parseJson(js, "SpreadHalfLife", TimeSpreadHalfLife);
-            jstools::parseJson(js, "HalfLifePreferUnit", str);
-            TimeHalfLifePrefUnit = strToTimeUnits(str);
+            jstools::parseJson(js, "HalfLifePreferUnit", str);  TimeHalfLifePrefUnit = strToTimeUnits(str);
             JsonArray ar;
                 jstools::parseJson(js, "CustomDistribution", ar);
             jstools::readDPairVectorFromArray(ar, TimeDistribution);

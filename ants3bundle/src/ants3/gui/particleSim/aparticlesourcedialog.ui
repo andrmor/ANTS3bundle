@@ -2071,11 +2071,57 @@ If material with this name does not exist, this limitation is not applied.</stri
           </widget>
          </item>
          <item>
-          <widget class="QLabel" name="label_12">
-           <property name="text">
-            <string>ns</string>
+          <widget class="QComboBox" name="cobTimeFixedOffsetPrefUnit">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
            </property>
+           <item>
+            <property name="text">
+             <string>ns</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>us</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>ms</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>s</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>min</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>h</string>
+            </property>
+           </item>
           </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_26">
+           <property name="orientation">
+            <enum>Qt::Orientation::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
          </item>
          <item>
           <spacer name="horizontalSpacer_11">
@@ -2121,16 +2167,53 @@ If material with this name does not exist, this limitation is not applied.</stri
              <height>16777215</height>
             </size>
            </property>
+           <property name="toolTip">
+            <string>Time for each event is computed as:
+ Start + Period * Event_index</string>
+           </property>
            <property name="text">
             <string>0</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QLabel" name="label_15">
-           <property name="text">
-            <string>ns</string>
+          <widget class="QComboBox" name="cobTimeByEventStartPrefUnit">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
            </property>
+           <item>
+            <property name="text">
+             <string>ns</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>us</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>ms</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>s</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>min</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>h</string>
+            </property>
+           </item>
           </widget>
          </item>
          <item>
@@ -2148,13 +2231,50 @@ If material with this name does not exist, this limitation is not applied.</stri
              <height>16777215</height>
             </size>
            </property>
+           <property name="toolTip">
+            <string>Time for each event is computed as:
+ Start + Period * Event_index</string>
+           </property>
           </widget>
          </item>
          <item>
-          <widget class="QLabel" name="label_17">
-           <property name="text">
-            <string>ns</string>
+          <widget class="QComboBox" name="cobTimeByEventPeriodPrefUnit">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
            </property>
+           <item>
+            <property name="text">
+             <string>ns</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>us</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>ms</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>s</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>min</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>h</string>
+            </property>
+           </item>
           </widget>
          </item>
         </layout>
@@ -2193,6 +2313,9 @@ If material with this name does not exist, this limitation is not applied.</stri
              <width>50</width>
              <height>16777215</height>
             </size>
+           </property>
+           <property name="toolTip">
+            <string>Each line should give a data point with format: Time[ns] StatWeight</string>
            </property>
            <property name="text">
             <string>Load</string>
@@ -2301,7 +2424,7 @@ If material with this name does not exist, this limitation is not applied.</stri
         <enum>QFrame::Shape::NoFrame</enum>
        </property>
        <property name="currentIndex">
-        <number>3</number>
+        <number>0</number>
        </property>
        <widget class="QWidget" name="page_3"/>
        <widget class="QWidget" name="page_5">
@@ -2339,10 +2462,43 @@ If material with this name does not exist, this limitation is not applied.</stri
           </widget>
          </item>
          <item>
-          <widget class="QLabel" name="label_4">
-           <property name="text">
-            <string>ns</string>
+          <widget class="QComboBox" name="cobTimeSpreadSigmaPrefUnit">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
            </property>
+           <item>
+            <property name="text">
+             <string>ns</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>us</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>ms</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>s</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>min</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>h</string>
+            </property>
+           </item>
           </widget>
          </item>
          <item>
@@ -2395,10 +2551,43 @@ If material with this name does not exist, this limitation is not applied.</stri
           </widget>
          </item>
          <item>
-          <widget class="QLabel" name="label_7">
-           <property name="text">
-            <string>ns</string>
+          <widget class="QComboBox" name="cobTimeSpreadWidthPrefUnit">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
            </property>
+           <item>
+            <property name="text">
+             <string>ns</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>us</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>ms</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>s</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>min</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>h</string>
+            </property>
+           </item>
           </widget>
          </item>
          <item>
@@ -2486,6 +2675,19 @@ If material with this name does not exist, this limitation is not applied.</stri
             </property>
            </item>
           </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_5">
+           <property name="orientation">
+            <enum>Qt::Orientation::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
          </item>
         </layout>
        </widget>
@@ -2691,7 +2893,7 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>148</x>
+     <x>145</x>
      <y>68</y>
     </hint>
     <hint type="destinationlabel">
@@ -2851,8 +3053,8 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>254</x>
-     <y>224</y>
+     <x>253</x>
+     <y>232</y>
     </hint>
     <hint type="destinationlabel">
      <x>603</x>
@@ -2867,8 +3069,8 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>401</x>
-     <y>224</y>
+     <x>400</x>
+     <y>232</y>
     </hint>
     <hint type="destinationlabel">
      <x>603</x>
@@ -2883,8 +3085,8 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>278</x>
-     <y>302</y>
+     <x>348</x>
+     <y>314</y>
     </hint>
     <hint type="destinationlabel">
      <x>603</x>
@@ -2899,7 +3101,7 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>483</x>
+     <x>480</x>
      <y>314</y>
     </hint>
     <hint type="destinationlabel">
@@ -2915,7 +3117,7 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>227</x>
+     <x>226</x>
      <y>342</y>
     </hint>
     <hint type="destinationlabel">
@@ -2931,8 +3133,8 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>533</x>
-     <y>460</y>
+     <x>535</x>
+     <y>455</y>
     </hint>
     <hint type="destinationlabel">
      <x>603</x>
@@ -2963,8 +3165,8 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>466</x>
-     <y>460</y>
+     <x>465</x>
+     <y>455</y>
     </hint>
     <hint type="destinationlabel">
      <x>603</x>
@@ -2979,8 +3181,8 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>557</x>
-     <y>559</y>
+     <x>555</x>
+     <y>556</y>
     </hint>
     <hint type="destinationlabel">
      <x>603</x>
@@ -2995,11 +3197,11 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>setCurrentIndex(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>232</x>
+     <x>230</x>
      <y>709</y>
     </hint>
     <hint type="destinationlabel">
-     <x>525</x>
+     <x>523</x>
      <y>709</y>
     </hint>
    </hints>
@@ -3011,7 +3213,7 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>setCurrentIndex(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>182</x>
+     <x>181</x>
      <y>738</y>
     </hint>
     <hint type="destinationlabel">
@@ -3027,7 +3229,7 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>232</x>
+     <x>230</x>
      <y>709</y>
     </hint>
     <hint type="destinationlabel">
@@ -3043,7 +3245,7 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>315</x>
+     <x>313</x>
      <y>709</y>
     </hint>
     <hint type="destinationlabel">
@@ -3059,8 +3261,8 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>269</x>
-     <y>712</y>
+     <x>343</x>
+     <y>709</y>
     </hint>
     <hint type="destinationlabel">
      <x>603</x>
@@ -3075,8 +3277,8 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>320</x>
-     <y>712</y>
+     <x>503</x>
+     <y>709</y>
     </hint>
     <hint type="destinationlabel">
      <x>603</x>
@@ -3091,7 +3293,7 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>182</x>
+     <x>181</x>
      <y>738</y>
     </hint>
     <hint type="destinationlabel">
@@ -3107,8 +3309,8 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>262</x>
-     <y>741</y>
+     <x>311</x>
+     <y>738</y>
     </hint>
     <hint type="destinationlabel">
      <x>603</x>
@@ -3123,8 +3325,8 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>262</x>
-     <y>741</y>
+     <x>328</x>
+     <y>738</y>
     </hint>
     <hint type="destinationlabel">
      <x>603</x>
@@ -3139,7 +3341,7 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>147</x>
+     <x>146</x>
      <y>341</y>
     </hint>
     <hint type="destinationlabel">
@@ -3155,8 +3357,8 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>200</x>
-     <y>268</y>
+     <x>344</x>
+     <y>286</y>
     </hint>
     <hint type="destinationlabel">
      <x>603</x>
@@ -3171,8 +3373,8 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>420</x>
-     <y>281</y>
+     <x>446</x>
+     <y>289</y>
     </hint>
     <hint type="destinationlabel">
      <x>603</x>
@@ -3187,11 +3389,11 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>147</x>
+     <x>146</x>
      <y>341</y>
     </hint>
     <hint type="destinationlabel">
-     <x>227</x>
+     <x>226</x>
      <y>342</y>
     </hint>
    </hints>
@@ -3204,7 +3406,7 @@ If material with this name does not exist, this limitation is not applied.</stri
    <hints>
     <hint type="sourcelabel">
      <x>597</x>
-     <y>529</y>
+     <y>524</y>
     </hint>
     <hint type="destinationlabel">
      <x>603</x>
@@ -3219,8 +3421,8 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>253</x>
-     <y>741</y>
+     <x>331</x>
+     <y>738</y>
     </hint>
     <hint type="destinationlabel">
      <x>603</x>
@@ -3235,8 +3437,8 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>287</x>
-     <y>741</y>
+     <x>387</x>
+     <y>738</y>
     </hint>
     <hint type="destinationlabel">
      <x>603</x>
@@ -3331,7 +3533,7 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>464</x>
+     <x>463</x>
      <y>489</y>
     </hint>
     <hint type="destinationlabel">
@@ -3347,7 +3549,7 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>534</x>
+     <x>536</x>
      <y>490</y>
     </hint>
     <hint type="destinationlabel">
@@ -3363,11 +3565,11 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>setCurrentIndex(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>126</x>
-     <y>304</y>
+     <x>214</x>
+     <y>314</y>
     </hint>
     <hint type="destinationlabel">
-     <x>445</x>
+     <x>532</x>
      <y>314</y>
     </hint>
    </hints>
@@ -3379,7 +3581,7 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>254</x>
+     <x>251</x>
      <y>317</y>
     </hint>
     <hint type="destinationlabel">
@@ -3395,7 +3597,7 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>289</x>
+     <x>286</x>
      <y>317</y>
     </hint>
     <hint type="destinationlabel">
@@ -3411,7 +3613,7 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>324</x>
+     <x>321</x>
      <y>317</y>
     </hint>
     <hint type="destinationlabel">
@@ -3427,12 +3629,92 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>183</x>
-     <y>298</y>
+     <x>216</x>
+     <y>314</y>
     </hint>
     <hint type="destinationlabel">
      <x>534</x>
      <y>18</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cobTimeSpreadWidthPrefUnit</sender>
+   <signal>activated(int)</signal>
+   <receiver>pbUpdateRecord</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>363</x>
+     <y>730</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>568</x>
+     <y>16</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cobTimeSpreadSigmaPrefUnit</sender>
+   <signal>activated(int)</signal>
+   <receiver>pbUpdateRecord</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>351</x>
+     <y>726</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>567</x>
+     <y>17</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cobTimeFixedOffsetPrefUnit</sender>
+   <signal>activated(int)</signal>
+   <receiver>pbUpdateRecord</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>399</x>
+     <y>701</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>517</x>
+     <y>8</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cobTimeByEventStartPrefUnit</sender>
+   <signal>activated(int)</signal>
+   <receiver>pbUpdateRecord</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>378</x>
+     <y>696</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>540</x>
+     <y>13</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cobTimeByEventPeriodPrefUnit</sender>
+   <signal>activated(int)</signal>
+   <receiver>pbUpdateRecord</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>549</x>
+     <y>703</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>503</x>
+     <y>17</y>
     </hint>
    </hints>
   </connection>
