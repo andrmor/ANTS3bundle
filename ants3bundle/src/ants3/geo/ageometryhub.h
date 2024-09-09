@@ -98,6 +98,7 @@ public:
 
     size_t       countScintillators() const;
     void         getScintillatorPositions(std::vector<AVector3> & positions) const;
+    AVector3     getScintillatorPosition(size_t index) const;
     void         getScintillatorOrientations(std::vector<AVector3> & orientations) const;
     void         getScintillatorVolumeNames(std::vector<QString> & vol) const;
     void         getScintillatorVolumeUniqueNames(std::vector<QString> & vol) const;

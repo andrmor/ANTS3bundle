@@ -1366,6 +1366,20 @@ void AGeometryWindow::showAnalyzerIndexes()
     */
 }
 
+void AGeometryWindow::showScintillatorIndexes()
+{
+    Geometry.GeoManager->ClearTracks();
+
+    const size_t num = Geometry.countScintillators();
+    std::vector<QString> tmp;
+    for (size_t i = 0; i < num; i++) tmp.push_back( QString::number(i) );
+    showText(tmp, kBlue, AGeoWriter::Scints, true);
+
+    /*
+    emit requestUpdateRegisteredGeoManager();
+    */
+}
+
 #include "ashownumbersdialog.h"
 void AGeometryWindow::on_pbShowNumbers_clicked()
 {

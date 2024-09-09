@@ -22,6 +22,7 @@ class AGeoWriter
 public:
     AGeoWriter();
 
+    double SizeForScints       = 10.0;
     double SizeForSensors      = 10.0;
     double SizeForMonitors     = 10.0;
     double SizeForCalorimeters = 10.0;
@@ -30,7 +31,7 @@ public:
 
     void setOrientationRoot(double latitude, double longitude) {Latitude = latitude; Longitude = longitude;}
 
-    enum EDraw {Sensors, PhotMons, PartMons, Calorimeters, Analyzers, PhotonFunctional};
+    enum EDraw {Sensors, PhotMons, PartMons, Calorimeters, Analyzers, PhotonFunctional, Scints};
     void drawText(const std::vector<QString> & textVector, int color, EDraw onWhat);
 
     void writeToJson(QJsonObject & json) const;

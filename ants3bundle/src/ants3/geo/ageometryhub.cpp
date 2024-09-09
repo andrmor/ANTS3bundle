@@ -1729,6 +1729,16 @@ void AGeometryHub::getScintillatorPositions(std::vector<AVector3> & positions) c
     }
 }
 
+AVector3 AGeometryHub::getScintillatorPosition(size_t index) const
+{
+    if (index >= Scintillators.size()) return {0,0,0};
+
+    AVector3 position;
+    const TGeoNode * node = Scintillators[index].second;
+    getGlobalPosition(node, position);
+    return position;
+}
+
 void AGeometryHub::getScintillatorOrientations(std::vector<AVector3> & orientations) const
 {
     orientations.resize(Scintillators.size());
