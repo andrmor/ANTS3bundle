@@ -32,8 +32,6 @@ AConfig::AConfig()
 
 void AConfig::updateJSONfromConfig()
 {
-    if (!JSON.isEmpty()) createUndo();
-
     // if gui is present, save gui settings
     emit requestSaveGuiSettings();
 
@@ -141,6 +139,8 @@ QString AConfig::tryReadFromJson(const QJsonObject & json)
 
 void AConfig::createUndo()
 {
+    updateJSONfromConfig();
+
     A3Global & GS = A3Global::getInstance();
     QString fn = GS.QuicksaveDir + "/undo.json";
     jstools::saveJsonToFile(JSON, fn);

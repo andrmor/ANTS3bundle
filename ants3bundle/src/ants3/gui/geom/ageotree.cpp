@@ -16,6 +16,7 @@
 #include "guitools.h"
 #include "ageoconsts.h"
 #include "a3global.h"
+#include "aconfig.h"
 
 #include <QDebug>
 #include <QDropEvent>
@@ -234,7 +235,7 @@ void AGeoTree::onGridReshapeRequested(QString objName)
 }
 
 void AGeoTree::populateTreeWidget(QTreeWidgetItem * parent, AGeoObject * Container, bool fDisabled)
-{  
+{
     for (AGeoObject * obj : Container->HostedObjects)
     {
         if (obj->Type->isPrototypeCollection()) continue;
@@ -262,7 +263,7 @@ void AGeoTree::populateTreeWidget(QTreeWidgetItem * parent, AGeoObject * Contain
             QFont f = item->font(0); f.setItalic(true); item->setFont(0, f);
             updateIcon(item, obj);
             //item->setBackgroundColor(0, BackgroundColor);
-        }      
+        }
         else
         {
             updateIcon(item, obj);
@@ -272,7 +273,7 @@ void AGeoTree::populateTreeWidget(QTreeWidgetItem * parent, AGeoObject * Contain
                 QFont f = item->font(0); f.setBold(true); item->setFont(0, f);
             }
             //item->setBackgroundColor(0, BackgroundColor);
-        }      
+        }
 
         populateTreeWidget(item, obj, fDisabledLocal);
     }
@@ -361,7 +362,7 @@ QAction* Action(QMenu& Menu, QString Text)
 }
 
 void AGeoTree::customMenuRequested(const QPoint &pos)
-{  
+{
   QMenu menu;
   QList<QTreeWidgetItem*> selected = twGeoTree->selectedItems();
 
@@ -441,7 +442,6 @@ void AGeoTree::customMenuRequested(const QPoint &pos)
 
   QAction* prototypeA = Action(menu, QString("Make prototype (move object%1)").arg(selected.size()>1 ? "s" : ""));
 
-
   // enable actions according to selection
   QString objName;
   AGeoObject * obj = nullptr;
@@ -495,13 +495,13 @@ void AGeoTree::customMenuRequested(const QPoint &pos)
   QAction* SelectedAction = menu.exec(twGeoTree->mapToGlobal(pos));
   if (!SelectedAction) return;
 
+  // undo
+  if (SelectedAction != focusObjA && SelectedAction != showA && SelectedAction != showAonly && SelectedAction != showAdown)
+      AConfig::getInstance().createUndo();
+
   // -- EXECUTE SELECTED ACTION --
-  if (SelectedAction == focusObjA)  // FOCUS OBJECT
-  {
-      emit RequestFocusObject(objName);
-      UpdateGui(objName);
-  }
-  if (SelectedAction == showA)               ShowObject(obj);
+  if      (SelectedAction == focusObjA)      focusObject(objName);
+  else if (SelectedAction == showA)          ShowObject(obj);
   else if (SelectedAction == showAonly)      ShowObjectOnly(obj);
   else if (SelectedAction == showAdown)      ShowObjectRecursive(obj);
   else if (SelectedAction == lineA)          SetLineAttributes(obj);
@@ -654,9 +654,11 @@ void AGeoTree::customProtoMenuRequested(const QPoint & pos)
     QAction * SelectedAction = menu.exec(twPrototypes->mapToGlobal(pos));
     if (!SelectedAction) return; //nothing was selected
 
+    // undo
+    if (SelectedAction != showAllA) AConfig::getInstance().createUndo();
+
     // -- EXECUTE SELECTED ACTION --
-    //if (SelectedAction == showA)               ShowObject(obj); else
-    if (SelectedAction == showAllA)            ShowAllInstances(obj);
+    if      (SelectedAction == showAllA)       ShowAllInstances(obj);
     else if (SelectedAction == lineA)          SetLineAttributes(obj);
     else if (SelectedAction == enableDisableA) menuActionEnableDisable(obj);
     // ADD NEW OBJECT
@@ -1201,6 +1203,12 @@ void AGeoTree::SetLineAttributes(AGeoObject * obj)
     }
 }
 
+void AGeoTree::focusObject(const QString & objName)
+{
+    emit RequestFocusObject(objName);
+    UpdateGui(objName);
+}
+
 void AGeoTree::ShowObject(AGeoObject * obj)
 {
     if (obj)
@@ -1373,7 +1381,7 @@ QImage createImageWithOverlay(const QImage& base, const QImage& overlay)
 }
 
 void AGeoTree::updateIcon(QTreeWidgetItem* item, AGeoObject *obj)
-{  
+{
   if (!obj || !item) return;
 
   QImage image;
@@ -1401,7 +1409,7 @@ void AGeoTree::updateIcon(QTreeWidgetItem* item, AGeoObject *obj)
     }
 
   QIcon icon = QIcon(QPixmap::fromImage(image));
-  item->setIcon(0, icon); 
+  item->setIcon(0, icon);
 }
 
 void AGeoTree::rebuildDetectorAndRestoreCurrentDelegate()

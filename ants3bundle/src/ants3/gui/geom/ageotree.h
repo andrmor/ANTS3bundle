@@ -84,6 +84,7 @@ private:
 
   void menuActionAddNewObject(AGeoObject * contObj, AGeoShape * shape);
   void menuActionCloneObject(AGeoObject * obj);
+  void focusObject(const QString & objName);
   void ShowObject(AGeoObject * obj);
   void ShowObjectRecursive(AGeoObject * obj);
   void ShowObjectOnly(AGeoObject * obj);  // !!!***

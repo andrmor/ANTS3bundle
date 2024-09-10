@@ -355,6 +355,7 @@ void AGeoDelegateWidget::exitEditingMode()
     emit requestEnableGeoConstWidget(true);
 }
 
+#include "aconfig.h"
 void AGeoDelegateWidget::onConfirmPressed()
 {
     if (!GeoDelegate)
@@ -375,6 +376,8 @@ void AGeoDelegateWidget::onConfirmPressed()
         QMessageBox::warning(this, "", errorStr);
         return;
     }
+
+    AConfig::getInstance().createUndo();
 
     const QString oldName = CurrentObject->Name;
     bool ok = GeoDelegate->updateObject(CurrentObject);

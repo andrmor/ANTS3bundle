@@ -776,6 +776,7 @@
     <addaction name="actionRedo"/>
     <addaction name="separator"/>
     <addaction name="actionExperimental_feature"/>
+    <addaction name="actionOperations_with_constants_are_not_affected"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -874,6 +875,11 @@
    </property>
    <property name="toolTip">
     <string>If not checked, the added object appears at the first position of the corresponding container</string>
+   </property>
+  </action>
+  <action name="actionOperations_with_constants_are_not_affected">
+   <property name="text">
+    <string>Operations with constants are not affected!</string>
    </property>
   </action>
  </widget>

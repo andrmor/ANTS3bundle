@@ -191,8 +191,6 @@ void MainWindow::updateGui()
 
 void MainWindow::onRebuildGeometryRequested()
 {
-    Config.createUndo();
-
     AGeometryHub & geom = AGeometryHub::getInstance();
     geom.populateGeoManager();
     GeoTreeWin->updateGui();
