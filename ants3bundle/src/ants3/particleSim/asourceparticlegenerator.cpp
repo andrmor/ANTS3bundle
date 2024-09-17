@@ -18,6 +18,7 @@
     #include "G4NistManager.hh"
 #else
     #include <QApplication>
+    #include <QDebug>
     #include "amaterialhub.h"
     #include "arandomhub.h"
     #include "TGeoManager.h"
@@ -608,7 +609,7 @@ void ASourceParticleGenerator::processSpecialParticle(const AGunParticle & parti
     SessionManager & SM = SessionManager::getInstance();
     SM.terminateSession("Unknown special particle: " + particle.Particle);
 #else
-    qWarning() << "Unknown special particle:" << particle.Particle << "in ASourceParticleGenerator::processSpecialParticle";
+    qWarning() << "Unknown special particle:" << particle.Particle.data() << "in ASourceParticleGenerator::processSpecialParticle";
 #endif
 }
 
