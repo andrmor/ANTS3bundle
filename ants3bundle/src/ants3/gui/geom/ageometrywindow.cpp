@@ -493,9 +493,20 @@ void AGeometryWindow::writeToJson(QJsonObject & json) const
 {
     json["ZoomLevel"] = ZoomLevel;
 
-    QJsonObject js;
-    GeoWriter.writeToJson(js);
-    json["GeoWriter"] = js;
+    // Text using tracks
+    {
+        QJsonObject js;
+            GeoWriter.writeToJson(js);
+        json["GeoWriter"] = js;
+    }
+
+    // Visibility level control
+    {
+        QJsonObject js;
+            js["Enabled"] = ui->cbLimitVisibility->isChecked();
+            js["Level"]   = ui->sbLimitVisibility->value();
+        json["LimitVisibility"] = js;
+    }
 }
 
 void AGeometryWindow::readFromJson(const QJsonObject & json)
@@ -504,9 +515,24 @@ void AGeometryWindow::readFromJson(const QJsonObject & json)
     bool ok = jstools::parseJson(json, "ZoomLevel", ZoomLevel);
     if (ok && !UseJSRoot) Zoom(true);
 
-    QJsonObject js;
-    ok = jstools::parseJson(json, "GeoWriter", js);
-    if (ok) GeoWriter.readFromJson(js);
+    // Text using tracks
+    {
+        QJsonObject js;
+        ok = jstools::parseJson(json, "GeoWriter", js);
+        if (ok) GeoWriter.readFromJson(js);
+    }
+
+    // Visibility level control
+    {
+        QJsonObject js;
+        ok = jstools::parseJson(json, "LimitVisibility", js);
+        bool on = false;
+        jstools::parseJson(js, "Enabled", on);
+        ui->cbLimitVisibility->setChecked(on);
+        int level = 3;
+        jstools::parseJson(js, "Level", level);
+        ui->sbLimitVisibility->setValue(level);
+    }
 
     if (!UseJSRoot) RasterWindow->ForceResize();
 }
@@ -1179,7 +1205,12 @@ void AGeometryWindow::on_cbLimitVisibility_clicked()
 
 void AGeometryWindow::on_sbLimitVisibility_editingFinished()
 {
+    ui->sbLimitVisibility->blockSignals(true);
+
+    ui->sbLimitVisibility->clearFocus();
     on_cbLimitVisibility_clicked();
+
+    ui->sbLimitVisibility->blockSignals(false);
 }
 
 void AGeometryWindow::on_cobViewType_currentIndexChanged(int index)
@@ -1475,5 +1506,12 @@ void AGeometryWindow::on_cbColor_customContextMenuRequested(const QPoint & pos)
         lMain->addLayout(l);
     }
     d.exec();
+}
+
+void AGeometryWindow::on_cbLimitVisibility_toggled(bool checked)
+{
+    QFont font = ui->cbLimitVisibility->font();
+    font.setBold(checked);
+    ui->cbLimitVisibility->setFont(font);
 }
 

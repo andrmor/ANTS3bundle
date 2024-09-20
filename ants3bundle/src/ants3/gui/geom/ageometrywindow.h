@@ -149,6 +149,8 @@ private slots:
 
     void on_cbColor_customContextMenuRequested(const QPoint &pos);
 
+    void on_cbLimitVisibility_toggled(bool checked);
+
 private:
     bool                    UseJSRoot = false;
     AGeometryHub          & Geometry;
