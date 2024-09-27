@@ -2989,6 +2989,8 @@ void AParticleSimWin::on_pbCaloShow_clicked()
     bool bAverage = ui->cbCaloAverage->isChecked();
     bool bSwapAxes = ui->cbCalorimeterSwapAxes->isChecked();
 
+    bool bEnergy = (p.DataType == ACalorimeterProperties::Energy);
+
     if (bProjection)
     {
         if (b1D)
@@ -3089,7 +3091,9 @@ void AParticleSimWin::on_pbCaloShow_clicked()
 
         hist->SetTitle(TString(CalHub.Calorimeters[iCal].Name.toLatin1().data()) + "-" + axisTitle);
         hist->GetXaxis()->SetTitle(axisTitle + ", mm");
-        hist->GetYaxis()->SetTitle("Dose, Gy");
+
+        if (bEnergy) hist->GetYaxis()->SetTitle("Deposited energy, MeV");
+        else         hist->GetYaxis()->SetTitle("Dose, Gy");
 
         emit requestDraw(hist, "hist", true, true);
     }
@@ -3194,7 +3198,10 @@ void AParticleSimWin::on_pbCaloShow_clicked()
         hist->SetTitle(TString(CalHub.Calorimeters[iCal].Name.toLatin1().data()) + "-" + verAxisTitle + horAxisTitle);
         hist->GetXaxis()->SetTitle(horAxisTitle + ", mm");
         hist->GetYaxis()->SetTitle(verAxisTitle + ", mm");
-        hist->GetZaxis()->SetTitle("Dose, Gy");
+
+        if (bEnergy) hist->GetZaxis()->SetTitle("Deposited energy, MeV");
+        else         hist->GetZaxis()->SetTitle("Dose, Gy");
+
         hist->SetEntries(Data->GetEntries());
 
         emit requestDraw(hist, "colz", true, true);
