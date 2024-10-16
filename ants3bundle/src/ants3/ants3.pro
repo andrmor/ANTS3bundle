@@ -225,6 +225,7 @@ SOURCES += \
     photonSim/interfaceRules/aunifiedrule.cpp \
     photonSim/photonFunctional/aphotonfunctionalhub.cpp \
     photonSim/photonFunctional/aphotonfunctionalmodel.cpp \
+    rec/PET/acastorimageloader.cpp \
     script/ScriptInterfaces/ageo_si.cpp \
     script/ScriptInterfaces/ageowin_si.cpp \
     script/ScriptInterfaces/agraphwin_si.cpp \
@@ -374,6 +375,7 @@ HEADERS += \
     photonSim/aphotonloghandler.h \
     photonSim/photonFunctional/aphotonfunctionalhub.h \
     photonSim/photonFunctional/aphotonfunctionalmodel.h \
+    rec/PET/acastorimageloader.h \
     rec/PET/apetcoincidencefinderconfig.h \
     farm/afarmnoderecord.h \
     geo/acalorimeter.h \
