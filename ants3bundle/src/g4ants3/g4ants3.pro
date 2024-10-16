@@ -58,6 +58,7 @@ SOURCES += \
         src/ActionInitialization.cc \
         src/DetectorConstruction.cc \
         src/EventAction.cc \
+        src/PenelopePhysList.cc \
         src/PrimaryGeneratorAction.cc \
         src/SensitiveDetector.cc \
         src/SessionManager.cc \
@@ -97,6 +98,7 @@ HEADERS += \
     src/ActionInitialization.hh \
     src/DetectorConstruction.hh \
     src/EventAction.hh \
+    src/PenelopePhysList.hh \
     src/PrimaryGeneratorAction.hh \
     src/SensitiveDetector.hh \
     src/SessionManager.hh \
