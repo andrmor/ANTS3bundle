@@ -1,6 +1,10 @@
-* Generic
+* General
+** Misc
 @AllGeometryOptions.json All basic shapes and geometry building elements available in ants3.
+** Particle sim
 @AnalyzersPT.json Simple example of the usage of a particle monitor and particle analyzer; 130 MeV proton beam generating prompt gammas
+** Optical sim
+@ThinLens.json Example demonstrating how to configure thin lens for optical simulation using a PhotonFuncional object
 * Proton therapy
 ** TPPT scanner
 @TPPT_basic.json TPPT scanner with the most basic configuration (only scintillators)
