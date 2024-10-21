@@ -15,7 +15,7 @@ public:
     AWindowInterfaceBase(AGuiWindow * window);
 
 public slots:
-    void showWindow(bool activateFlag);
+    void showWindow(bool activateFlag = true);
     void showWindowMaximized(bool activate);
     void hide();
 
