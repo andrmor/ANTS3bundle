@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>430</width>
+    <width>380</width>
     <height>443</height>
    </rect>
   </property>
@@ -357,110 +357,6 @@
         </item>
        </layout>
       </item>
-      <item>
-       <layout class="QVBoxLayout" name="verticalLayout_12">
-        <item>
-         <widget class="QFrame" name="frame_10">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="frameShape">
-           <enum>QFrame::Panel</enum>
-          </property>
-          <property name="frameShadow">
-           <enum>QFrame::Raised</enum>
-          </property>
-          <layout class="QVBoxLayout" name="verticalLayout_14">
-           <item>
-            <widget class="QLabel" name="label_6">
-             <property name="text">
-              <string>Reconstruct</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QPushButton" name="pbLRFs">
-             <property name="contextMenuPolicy">
-              <enum>Qt::CustomContextMenu</enum>
-             </property>
-             <property name="text">
-              <string>LRFs</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QPushButton" name="pbRecon">
-             <property name="contextMenuPolicy">
-              <enum>Qt::CustomContextMenu</enum>
-             </property>
-             <property name="text">
-              <string>XYZ/Energy</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QLabel" name="lSpaceHolder3">
-             <property name="text">
-              <string>SH3</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </widget>
-        </item>
-        <item>
-         <widget class="QFrame" name="frame_11">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="frameShape">
-           <enum>QFrame::Panel</enum>
-          </property>
-          <property name="frameShadow">
-           <enum>QFrame::Raised</enum>
-          </property>
-          <layout class="QVBoxLayout" name="verticalLayout_15">
-           <item>
-            <widget class="QLabel" name="label_8">
-             <property name="text">
-              <string>Temporary</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QPushButton" name="pbDemo">
-             <property name="contextMenuPolicy">
-              <enum>Qt::CustomContextMenu</enum>
-             </property>
-             <property name="text">
-              <string>Demo</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QLabel" name="label_11">
-             <property name="text">
-              <string/>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </widget>
-        </item>
-       </layout>
-      </item>
      </layout>
     </item>
     <item>
@@ -579,8 +475,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>430</width>
-     <height>21</height>
+     <width>380</width>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -614,8 +510,15 @@
     <addaction name="actionVersions"/>
     <addaction name="actionShow_hints"/>
    </widget>
+   <widget class="QMenu" name="menuDev">
+    <property name="title">
+     <string>Dev</string>
+    </property>
+    <addaction name="actionDataTransport_demo"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuInfo"/>
+   <addaction name="menuDev"/>
    <addaction name="menuExit"/>
   </widget>
   <action name="actionSave_configuration">
@@ -676,6 +579,11 @@
   <action name="actionVersions">
    <property name="text">
     <string>Versions</string>
+   </property>
+  </action>
+  <action name="actionDataTransport_demo">
+   <property name="text">
+    <string>DataTransport demo</string>
    </property>
   </action>
  </widget>

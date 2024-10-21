@@ -149,7 +149,7 @@ MainWindow::MainWindow() :
     ui->menuFile->setToolTipsVisible(true);
     ui->menuFile->setToolTipDuration(1000);
 
-    std::vector<QLabel*> labels = {ui->lSpaceHolder1, ui->lSpaceHolder2, ui->lSpaceHolder3};
+    std::vector<QLabel*> labels = {ui->lSpaceHolder1, ui->lSpaceHolder2};
     for (QLabel * l : labels)
     {
         l->setMinimumHeight(ui->pbFunctionalModels->height());
@@ -165,7 +165,6 @@ MainWindow::MainWindow() :
     int size = ui->pbFunctionalModels->size().height();
     ui->lSpaceHolder1->setMinimumHeight(size);
     ui->lSpaceHolder2->setMinimumHeight(size);
-    ui->lSpaceHolder3->setMinimumHeight(size);
 }
 
 MainWindow::~MainWindow()
@@ -314,15 +313,6 @@ void MainWindow::on_pbPython_customContextMenuRequested(const QPoint &)
 #ifdef ANTS3_PYTHON
     PythonWin->onMainWinButtonClicked(false);
 #endif
-}
-
-void MainWindow::on_pbDemo_clicked()
-{
-    DemoWin->onMainWinButtonClicked(true);
-}
-void MainWindow::on_pbDemo_customContextMenuRequested(const QPoint &pos)
-{
-    DemoWin->onMainWinButtonClicked(false);
 }
 
 void MainWindow::on_pbLoadConfig_clicked()
@@ -847,3 +837,9 @@ void MainWindow::on_pbLoadConfig_customContextMenuRequested(const QPoint &)
 {
     on_actionLoad_last_config_triggered();
 }
+
+void MainWindow::on_actionDataTransport_demo_triggered()
+{
+    DemoWin->onMainWinButtonClicked(true);
+}
+

@@ -87,6 +87,7 @@ private slots:
     void on_actionQuickLoad_slot_3_hovered();
     void on_actionLoad_last_config_hovered();
     void on_actionVersions_triggered();
+    void on_actionDataTransport_demo_triggered();
 
     // Window buttons
     void on_pbGeometry_clicked();
@@ -115,8 +116,6 @@ private slots:
     void on_pbJavaScript_customContextMenuRequested(const QPoint & pos);
     void on_pbPython_clicked();
     void on_pbPython_customContextMenuRequested(const QPoint & pos);
-    void on_pbDemo_clicked();
-    void on_pbDemo_customContextMenuRequested(const QPoint & pos);
 
     // Other buttons
     void on_pbLoadConfig_clicked();
