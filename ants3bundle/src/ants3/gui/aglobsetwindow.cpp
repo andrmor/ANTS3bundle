@@ -102,23 +102,26 @@ void AGlobSetWindow::updateNetGui()
 */
 
 #ifdef USE_ROOT_HTML
-    ui->leJSROOT->setText(ser.ExternalJSROOT);
-    QString sPort = QString::number(ser.Port);
-    ui->leRootServerPort->setText(sPort);
-    QString url = ( ser.isRunning() ? "http://localhost:" + sPort : "" );
-    ui->leRootServerURL->setText(url);
-
     ARootHttpServer & ser = ARootHttpServer::getInstance();
     bool fRootServerRunning = ser.isRunning();
     ui->cbRunRootServer->setChecked(fRootServerRunning);
     ui->cbAutoRunRootServer->setChecked(ser.Autostart);
+    QString sPort = QString::number(ser.Port);
+    ui->leRootServerPort->setText(sPort);
+    QString url = ( ser.isRunning() ? "http://localhost:" + sPort : "" );
+    ui->leRootServerURL->setText(url);
 #else
     ui->cbRunRootServer->setChecked(false);
     ui->cbRunRootServer->setEnabled(false);
     ui->cbAutoRunRootServer->setEnabled(false);
     ui->leRootServerPort->setEnabled(false);
-    ui->leJSROOT->setEnabled(false);
     ui->leRootServerURL->setEnabled(false);
+#endif
+
+#ifdef __USE_ANTS_JSROOT__
+    ui->leJSROOT->setText(ser.ExternalJSROOT);
+#else
+    ui->leJSROOT->setEnabled(false);
 #endif
 }
 
