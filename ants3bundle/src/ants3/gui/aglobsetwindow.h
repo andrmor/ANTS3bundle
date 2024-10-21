@@ -60,10 +60,15 @@ private slots:
 //    void on_leWebSocketIP_editingFinished();
 //    void on_cbRunWebSocketServer_toggled(bool checked);
 
+#ifdef USE_ROOT_HTML
     void on_cbAutoRunRootServer_clicked();
     void on_leRootServerPort_editingFinished();
-    void on_leJSROOT_editingFinished();
     void on_cbRunRootServer_clicked(bool checked);
+#endif
+
+#ifdef __USE_ANTS_JSROOT__
+    void on_leJSROOT_editingFinished();
+#endif
 
 //    void on_cbSaveSimAsText_IncludeNumPhotons_clicked(bool checked);
 //    void on_cbSaveSimAsText_IncludePositions_clicked(bool checked);

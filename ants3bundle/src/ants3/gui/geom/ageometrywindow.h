@@ -145,8 +145,6 @@ private slots:
 
     void on_cbShowTop_clicked(bool checked);
 
-    void on_pushButton_clicked();
-
     void on_cbColor_customContextMenuRequested(const QPoint &pos);
 
     void on_cbLimitVisibility_toggled(bool checked);

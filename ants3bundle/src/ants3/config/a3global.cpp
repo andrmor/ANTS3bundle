@@ -113,11 +113,13 @@ void A3Global::saveConfig()
     //js["DefaultWebSocketIP"] = DefaultWebSocketIP;
 
     // Root server
+#ifdef USE_ROOT_HTML
     {
         QJsonObject js;
             ARootHttpServer::getInstance().writeToJson(js);
         json["RootServer"] = js;
     }
+#endif
 
     // Workload
     {
@@ -178,11 +180,13 @@ void A3Global::loadConfig()
     jstools::parseJson(json, "NewGeoObjectAddedLast", NewGeoObjectAddedLast);
 
     // Root server
+#ifdef USE_ROOT_HTML
     {
         QJsonObject js;
             jstools::parseJson(json, "RootServer", js);
         ARootHttpServer::getInstance().readFromJson(js);
     }
+#endif
 
     // Workload
     {

@@ -42,10 +42,12 @@ AGlobSetWindow::AGlobSetWindow(QWidget * parent) :
 
     QToolTip::setPalette(QPalette());
 
+#ifdef USE_ROOT_HTML
     ARootHttpServer & rs = ARootHttpServer::getInstance();
     QObject::connect(&rs, &ARootHttpServer::StatusChanged, this, &AGlobSetWindow::updateNetGui);
 
     if (rs.Autostart) rs.start();  //does nothing if compilation flag is not set
+#endif
 }
 
 AGlobSetWindow::~AGlobSetWindow()
@@ -99,17 +101,17 @@ void AGlobSetWindow::updateNetGui()
     }
 */
 
-    ARootHttpServer & ser = ARootHttpServer::getInstance();
-    bool fRootServerRunning = ser.isRunning();
-    ui->cbRunRootServer->setChecked(fRootServerRunning);
-    ui->cbAutoRunRootServer->setChecked(ser.Autostart);
-
 #ifdef USE_ROOT_HTML
     ui->leJSROOT->setText(ser.ExternalJSROOT);
     QString sPort = QString::number(ser.Port);
     ui->leRootServerPort->setText(sPort);
     QString url = ( ser.isRunning() ? "http://localhost:" + sPort : "" );
     ui->leRootServerURL->setText(url);
+
+    ARootHttpServer & ser = ARootHttpServer::getInstance();
+    bool fRootServerRunning = ser.isRunning();
+    ui->cbRunRootServer->setChecked(fRootServerRunning);
+    ui->cbAutoRunRootServer->setChecked(ser.Autostart);
 #else
     ui->cbRunRootServer->setChecked(false);
     ui->cbRunRootServer->setEnabled(false);
@@ -356,6 +358,7 @@ void AGlobSetWindow::on_cbSaveSimAsText_IncludePositions_clicked(bool checked)
 }
 */
 
+#ifdef USE_ROOT_HTML
 void AGlobSetWindow::on_cbAutoRunRootServer_clicked()
 {
     ARootHttpServer & ser = ARootHttpServer::getInstance();
@@ -371,15 +374,6 @@ void AGlobSetWindow::on_leRootServerPort_editingFinished()  // !!!*** stop when 
 
     ui->cbRunRootServer->setChecked(false);
 }
-void AGlobSetWindow::on_leJSROOT_editingFinished()   // !!!*** stop when changed? restart?
-{
-    ARootHttpServer & ser = ARootHttpServer::getInstance();
-    const QString newa = ui->leJSROOT->text();
-    if (newa == ser.ExternalJSROOT) return;
-    ser.ExternalJSROOT = newa;
-
-    ui->cbRunRootServer->setChecked(false);
-}
 void AGlobSetWindow::on_cbRunRootServer_clicked(bool checked)
 {
     ARootHttpServer & ser = ARootHttpServer::getInstance();
@@ -389,6 +383,19 @@ void AGlobSetWindow::on_cbRunRootServer_clicked(bool checked)
     else
         ser.stop();
 }
+#endif
+
+#ifdef __USE_ANTS_JSROOT__
+void AGlobSetWindow::on_leJSROOT_editingFinished()   // !!!*** stop when changed? restart?
+{
+    ARootHttpServer & ser = ARootHttpServer::getInstance();
+    const QString newa = ui->leJSROOT->text();
+    if (newa == ser.ExternalJSROOT) return;
+    ser.ExternalJSROOT = newa;
+
+    ui->cbRunRootServer->setChecked(false);
+}
+#endif
 
 /*
 #include "aproxystyle.h"

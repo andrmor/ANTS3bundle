@@ -1452,6 +1452,7 @@ void AGeometryWindow::on_cbShowTop_clicked(bool checked)
 */
 }
 
+/*
 void AGeometryWindow::on_pushButton_clicked()
 {
     if (!UseJSRoot) return;
@@ -1463,6 +1464,7 @@ void AGeometryWindow::on_pushButton_clicked()
     //page->runJavaScript(js, [](const QVariant & v) {qDebug() << v.toString(); });
     page->runJavaScript(js, [this](const QVariant & v) {this->onWebPageReplyViewPort(v);});
 }
+*/
 
 #include "amaterial.h"
 #include "amaterialhub.h"
