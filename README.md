@@ -42,5 +42,6 @@
 
  # Latest tested software versions
 
+* 21 Octpber 2024 --> Ubuntu 24.04 Mate, Qt 6.8.0, CERN ROOT 6.32.04, Geant4 11.2.2
 * 27 June 2024 --> Ubuntu 24.04 Mate, Qt 6.6.3, CERN ROOT 6.32.02, Geant4 11.2.2
-  * There is a known feature in Qt 6.7+ which prevents Python interface from working properly
+
