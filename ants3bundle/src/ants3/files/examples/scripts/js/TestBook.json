@@ -1,0 +1,18 @@
+{
+    "CurrentTab": 1,
+    "Name": "TestBook",
+    "ScriptTabs": [
+        {
+            "FileName": "",
+            "Script": "var aaa = \"ahaaa\"",
+            "TabName": "new_1",
+            "bExplicitlyNamed": false
+        },
+        {
+            "FileName": "",
+            "Script": "core.print(aaa)",
+            "TabName": "new_2",
+            "bExplicitlyNamed": false
+        }
+    ]
+}

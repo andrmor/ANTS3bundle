@@ -18,9 +18,9 @@
     <item>
      <widget class="QSplitter" name="splitter_2">
       <property name="orientation">
-       <enum>Qt::Vertical</enum>
+       <enum>Qt::Orientation::Vertical</enum>
       </property>
-      <widget class="QWidget" name="">
+      <widget class="QWidget" name="layoutWidget">
        <layout class="QVBoxLayout" name="verticalLayout_2" stretch="2,0,0,0">
         <property name="leftMargin">
          <number>2</number>
@@ -31,7 +31,7 @@
         <item>
          <widget class="QSplitter" name="splitter">
           <property name="orientation">
-           <enum>Qt::Horizontal</enum>
+           <enum>Qt::Orientation::Horizontal</enum>
           </property>
           <property name="childrenCollapsible">
            <bool>false</bool>
@@ -67,7 +67,7 @@
                <string>Available tags:</string>
               </property>
               <property name="alignment">
-               <set>Qt::AlignCenter</set>
+               <set>Qt::AlignmentFlag::AlignCenter</set>
               </property>
              </widget>
             </item>
@@ -116,7 +116,6 @@
            <widget class="QLineEdit" name="leFind">
             <property name="font">
              <font>
-              <weight>75</weight>
               <bold>true</bold>
              </font>
             </property>
@@ -130,7 +129,7 @@
         <item>
          <widget class="Line" name="line">
           <property name="orientation">
-           <enum>Qt::Horizontal</enum>
+           <enum>Qt::Orientation::Horizontal</enum>
           </property>
          </widget>
         </item>
@@ -170,15 +169,13 @@
               <height>23</height>
              </size>
             </property>
+            <property name="font">
+             <font>
+              <bold>true</bold>
+             </font>
+            </property>
             <property name="text">
              <string>Load</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="pbToClipboard">
-            <property name="text">
-             <string>To clipboard</string>
             </property>
            </widget>
           </item>
@@ -186,7 +183,7 @@
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="">
+      <widget class="QWidget" name="layoutWidget">
        <layout class="QVBoxLayout" name="verticalLayout_3">
         <property name="spacing">
          <number>2</number>

@@ -684,18 +684,48 @@ void AScriptWindow::on_pbLoad_clicked()
     updateFileStatusIndication();
 }
 
-void AScriptWindow::onLoadRequested(const QString & script)
+void AScriptWindow::onLoadRequested(const QString & fileName)
 {
+    if (fileName.isEmpty()) return;
+
     ATabRecord * tab = getTab();
     if (!tab->TextEdit->document()->isEmpty()) tab = &addNewTab();
 
     tab->TextEdit->clear();
-    tab->TextEdit->appendPlainText(script);
 
-    //for example load (triggered on signal from example explorer): do not register file name!
-    tab->FileName.clear();
-    setTabName( createNewTabName(iCurrentBook), getCurrentTabIndex(), iCurrentBook );
-    updateFileStatusIndication();
+    QFileInfo fileInfo(fileName);
+    if (fileInfo.suffix().toLower() == "json")
+    {
+        qDebug() << "Loading a script book";
+        if ( !isUntouchedBook(iCurrentBook) )
+        {
+            addNewBook();
+            iCurrentBook = (int)ScriptBooks.size() - 1;
+            twBooks->setCurrentIndex(iCurrentBook);
+        }
+
+        loadBook(iCurrentBook, fileName);
+
+        updateFileStatusIndication();
+        return;
+    }
+    else
+    {
+        QFile file(fileName);
+        if (!file.open(QIODevice::ReadOnly))
+        {
+            guitools::message("Cannot open example file:\n" + fileName);
+            return;
+        }
+        QTextStream in(&file);
+        QString script = in.readAll();
+        tab->TextEdit->appendPlainText(script);
+
+        //for example load (triggered on signal from example explorer): do not register file name!
+        tab->FileName.clear();
+        setTabName( createNewTabName(iCurrentBook), getCurrentTabIndex(), iCurrentBook );
+        updateFileStatusIndication();
+    }
 }
 
 void AScriptWindow::on_pbSave_clicked()

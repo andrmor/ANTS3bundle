@@ -54,3 +54,11 @@ Histogram:Optimisation
 Comparison of run time for filling a histogram by one point at a time or with an array
 #end
 
+#file
+TestBook.json
+#tags
+Test
+#info
+Test script example book
+#end
+

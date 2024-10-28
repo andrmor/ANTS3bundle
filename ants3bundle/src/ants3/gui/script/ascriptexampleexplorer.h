@@ -25,15 +25,16 @@ private:
 
     Ui::AScriptExampleExplorer * ui = nullptr;
 
-    AScriptExampleDatabase * Examples = nullptr;
+    AScriptExampleDatabase * ExampleDatabase = nullptr;
     bool BulkUpdate = false;
+
+    int SelectedExampleIndex = -1;
 
 private slots:
     void clearSelection();
     void onExampleSelected(int row);
 
     void on_pbLoad_clicked();
-    void on_pbToClipboard_clicked();
     void on_pbSelectAllTags_clicked();
     void on_pbUnselectAllTags_clicked();
 
