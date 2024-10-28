@@ -1,5 +1,5 @@
 {
-    "ConfigDescription": "Description is empty",
+    "ConfigDescription": "See script example for configuration and reconstruction:\nWSF_neutron_detector_ScriptBook.json",
     "ConfigName": "WSF-based neutron detector",
     "Geometry": {
         "GeoConsts": [
@@ -2716,6 +2716,8 @@
             ],
             "PhysicsList": "QGSP_BIC_HP",
             "ScintSensitiveVolumes": [
+                "ScintFront",
+                "ScintBack",
                 "ScintFront",
                 "ScintBack"
             ],
@@ -15554,7 +15556,7 @@
     },
     "PhotonSim": {
         "Deposition": {
-            "FileFormat": "Ascii",
+            "FileFormat": "Undefined",
             "FileName": "/home/andr/WORK/WSFexample/Output/Deposition.dat",
             "LastModified": 1729519304933,
             "NumEvents": 1,

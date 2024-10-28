@@ -55,10 +55,10 @@ Comparison of run time for filling a histogram by one point at a time or with an
 #end
 
 #file
-TestBook.json
+WSF_neutron_detector_ScriptBook.json
 #tags
-Test
+Photon functional
 #info
-Test script example book
+Script example book for configuring WSF neutron detector (config: WSFneutron.json) and demonstrating how to make position reconstruction
 #end
 

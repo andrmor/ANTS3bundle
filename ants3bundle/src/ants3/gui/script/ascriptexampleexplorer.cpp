@@ -50,7 +50,6 @@ AScriptExampleExplorer::AScriptExampleExplorer(QString recordsFileName, QString 
 
 AScriptExampleExplorer::~AScriptExampleExplorer()
 {
-    //qDebug() << "Script example explorer: destructor triggered";
     delete ui;
     delete ExampleDatabase;
 }
