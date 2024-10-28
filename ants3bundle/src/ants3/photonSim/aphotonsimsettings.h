@@ -245,7 +245,7 @@ public:
 
     QString FileNameReceipt       = "DummyReceipt.txt";
 
-    bool    SaveSensorSignals     = true;
+    bool    SaveSensorSignals     = false;
     QString FileNameSensorSignals = "SensorSignals.txt";
 
     bool    SaveSensorLog         = false;
@@ -255,18 +255,18 @@ public:
     bool    SensorLogAngle        = false;
     bool    SensorLogWave         = false;
 
-    bool    SavePhotonBombs       = true;
+    bool    SavePhotonBombs       = false;
     QString FileNamePhotonBombs   = "PhotonBombs.txt";
 
-    bool    SaveTracks            = true;
+    bool    SaveTracks            = false;
     int     MaxTracks             = 1000;
     QString FileNameTracks        = "PhotonTracks.txt";
 
     bool    SaveStatistics        = true;
     QString FileNameStatistics    = "PhotonStatistics.json";
-    double  UpperTimeLimit        = 100;
+    double  UpperTimeLimit        = 1e9;
 
-    bool    SaveMonitors          = true;
+    bool    SaveMonitors          = false;
     QString FileNameMonitors      = "PhotonMonitors.txt";
 
     APhotonLogSettings PhotonLogSet;

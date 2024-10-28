@@ -21,6 +21,8 @@ private slots:
     void on_pbAccept_clicked();
     void on_pbChangeDir_clicked();
 
+    void on_cbPhotonLog_toggled(bool checked);
+
 private:
     Ui::APhotonSimOutputDialog * ui;
     APhotonLogSettingsForm * PhotonLog = nullptr;

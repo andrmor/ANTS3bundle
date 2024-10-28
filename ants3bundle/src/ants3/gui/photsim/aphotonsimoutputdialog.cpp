@@ -53,6 +53,7 @@ APhotonSimOutputDialog::APhotonSimOutputDialog(QWidget *parent) :
     ui->labPhotonLog->setText(RunSet.PhotonLogSet.FileName);
 
     PhotonLog->updateGui(RunSet.PhotonLogSet);
+    PhotonLog->setEnabled(false);
 }
 
 APhotonSimOutputDialog::~APhotonSimOutputDialog()
@@ -113,3 +114,9 @@ void APhotonSimOutputDialog::on_pbChangeDir_clicked()
 
     if (!dir.isEmpty()) ui->leOutputDirectory->setText(dir);
 }
+
+void APhotonSimOutputDialog::on_cbPhotonLog_toggled(bool checked)
+{
+    PhotonLog->setEnabled(checked);
+}
+
