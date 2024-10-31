@@ -783,14 +783,21 @@ void AGeometryHub::positionArray(AGeoObject * obj, TGeoVolume * vol, int parentN
             }
             else
             {
+                double delta = 0;
+                if (!hexArray->SkipEvenFirst &&  hexArray->SkipOddLast) delta = 0;
+                if (!hexArray->SkipEvenFirst && !hexArray->SkipOddLast) delta = -0.25 * hexArray->Step;
+                if ( hexArray->SkipEvenFirst && !hexArray->SkipOddLast) delta = -0.5  * hexArray->Step;
+                if ( hexArray->SkipEvenFirst &&  hexArray->SkipOddLast) delta = -0.25  * hexArray->Step;
+
                 for (int iy = 0; iy < hexArray->NumY; iy++)
                 {
                     bool bOdd = ( (iy+1) % 2 == 0);
                     for (int ix = 0; ix < hexArray->NumX; ix++)
                     {
-                        if (hexArray->SkipOddLast && bOdd && ix == hexArray->NumX-1) continue;
+                        if (hexArray->SkipEvenFirst && !bOdd && ix == 0) continue;
+                        if (hexArray->SkipOddLast   &&  bOdd && ix == hexArray->NumX-1) continue;
 
-                        double x = el->Position[0] + (ix - 0.5*(hexArray->NumX - 1)) * hexArray->Step;
+                        double x = el->Position[0] + (ix - 0.5*(hexArray->NumX - 1)) * hexArray->Step + delta;
                         if (bOdd) x +=  0.5 * hexArray->Step;
                         double y = el->Position[1] + (iy - 0.5*(hexArray->NumY - 1)) * hexArray->Step * cos(30.0*3.1415926535/180.0);
 

@@ -564,6 +564,7 @@ protected:
     AOneLineTextEdit * ledNumRings;
     AOneLineTextEdit * ledNumX;
     AOneLineTextEdit * ledNumY;
+    QCheckBox        * cbSkipFirstEven;
     QCheckBox        * cbSkipLastOdd;
 
     AOneLineTextEdit * ledStartIndex;

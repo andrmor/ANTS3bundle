@@ -285,6 +285,7 @@ QString AGeoScriptMaker::makeScriptString_arrayObject(AGeoObject * obj) const
                    sNumX + ", " +
                    sNumY + ", " +
                    sStep + ", " +
+                   (h->SkipEvenFirst ? TrueStr : FalseStr) + ", " +
                    (h->SkipOddLast ? TrueStr : FalseStr) + ",   ";
         }
         str += "'" + obj->Container->Name + "',   " +

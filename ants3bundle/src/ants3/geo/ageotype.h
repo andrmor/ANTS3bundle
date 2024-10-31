@@ -184,7 +184,7 @@ public:
     enum EShapeMode {Hexagonal, XY};
     ATypeHexagonalArrayObject();
 
-    void reconfigure(double step, EShapeMode shape, int rings, int numX, int numY, bool skipOddLast);
+    void reconfigure(double step, EShapeMode shape, int rings, int numX, int numY, bool skipEvenFirst, bool skipOddLast);
 
     bool isGeoConstInUse(const QRegularExpression & nameRegExp) const override;
     void replaceGeoConstName(const QRegularExpression & nameRegExp, const QString & newName) override;
@@ -201,7 +201,8 @@ public:
     int        Rings        = 3;
     int        NumX         = 5;
     int        NumY         = 4;
-    bool       SkipOddLast = true;
+    bool       SkipEvenFirst = false;
+    bool       SkipOddLast  = true;
 
     QString    strStep, strRings, strNumX, strNumY;
 };

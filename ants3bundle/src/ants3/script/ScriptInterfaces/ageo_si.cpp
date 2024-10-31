@@ -1420,7 +1420,7 @@ void AGeo_SI::hexArray(QString name, int numRings, double pitch, QString contain
     delete o->Shape; o->Shape = new AGeoBox;
     delete o->Type;
     ATypeHexagonalArrayObject * ar = new ATypeHexagonalArrayObject();
-    ar->reconfigure(pitch, ATypeHexagonalArrayObject::Hexagonal, numRings, 1, 1, false);
+    ar->reconfigure(pitch, ATypeHexagonalArrayObject::Hexagonal, numRings, 1, 1, false, false);
     ar->startIndex = startIndex;
     o->Type = ar;
     GeoObjects.push_back(o);
@@ -1436,25 +1436,25 @@ void AGeo_SI::hexArray(QString name, int numRings, double pitch, QString contain
     delete o->Shape; o->Shape = new AGeoBox;
     delete o->Type;
     ATypeHexagonalArrayObject * ar = new ATypeHexagonalArrayObject();
-    ar->reconfigure(pitch, ATypeHexagonalArrayObject::Hexagonal, numRings, 1, 1, false);
+    ar->reconfigure(pitch, ATypeHexagonalArrayObject::Hexagonal, numRings, 1, 1, false, false);
     ar->startIndex = startIndex;
     o->Type = ar;
     GeoObjects.push_back(o);
 }
 
-void AGeo_SI::hexArray_rectangular(QString name, int numX, int numY, double pitch, bool skipLast, QString container, double x, double y, double z, double phi, double theta, double psi, int startIndex)
+void AGeo_SI::hexArray_rectangular(QString name, int numX, int numY, double pitch, bool skipEvenFirst, bool skipOddLast, QString container, double x, double y, double z, double phi, double theta, double psi, int startIndex)
 {
     AGeoObject * o = new AGeoObject(name, container, 0, 0, x,y,z, phi,theta,psi);
     delete o->Shape; o->Shape = new AGeoBox;
     delete o->Type;
     ATypeHexagonalArrayObject * ar = new ATypeHexagonalArrayObject();
-    ar->reconfigure(pitch, ATypeHexagonalArrayObject::XY, 1, numX, numY, skipLast);
+    ar->reconfigure(pitch, ATypeHexagonalArrayObject::XY, 1, numX, numY, skipEvenFirst, skipOddLast);
     ar->startIndex = startIndex;
     o->Type = ar;
     GeoObjects.push_back(o);
 }
 
-void AGeo_SI::hexArray_rectangular(QString name, int numX, int numY, double pitch, bool skipLast, QString container, QVariantList position, QVariantList orientation, int startIndex)
+void AGeo_SI::hexArray_rectangular(QString name, int numX, int numY, double pitch, bool skipEvenFirst, bool skipOddLast, QString container, QVariantList position, QVariantList orientation, int startIndex)
 {
     std::array<double,3> pos, ori;
     bool ok = checkPosOri(position, orientation, pos, ori);
@@ -1464,7 +1464,7 @@ void AGeo_SI::hexArray_rectangular(QString name, int numX, int numY, double pitc
     delete o->Shape; o->Shape = new AGeoBox;
     delete o->Type;
     ATypeHexagonalArrayObject * ar = new ATypeHexagonalArrayObject();
-    ar->reconfigure(pitch, ATypeHexagonalArrayObject::XY, 1, numX, numY, skipLast);
+    ar->reconfigure(pitch, ATypeHexagonalArrayObject::XY, 1, numX, numY, skipEvenFirst, skipOddLast);
     ar->startIndex = startIndex;
     o->Type = ar;
     GeoObjects.push_back(o);

@@ -3329,12 +3329,16 @@ AGeoHexagonalArrayDelegate::AGeoHexagonalArrayDelegate(const QStringList & mater
     QLabel * laY = new QLabel("in Y:"); grAW->addWidget(laY, 3, 2, Qt::AlignRight);
     ledNumY      = new AOneLineTextEdit("", Widget); grAW->addWidget(ledNumY, 3, 3); ledNumY->bIntegerTooltip = true;
 
+    cbSkipFirstEven = new QCheckBox("Skip first on even rows");
+    grAW->addWidget(cbSkipFirstEven, 4, 1, 2, 1);
+
     cbSkipLastOdd = new QCheckBox("Skip last on odd rows");
-    grAW->addWidget(cbSkipLastOdd, 4, 1, 2, 1);
+    grAW->addWidget(cbSkipLastOdd, 4, 3, 2, 1);
 
     lVer->addLayout(grAW);
 
     QObject::connect(cobShape, &QComboBox::currentIndexChanged, this, &AGeoBaseDelegate::onContentChangedBase);
+    QObject::connect(cbSkipFirstEven, &QCheckBox::stateChanged, this, &AGeoBaseDelegate::onContentChangedBase);
     QObject::connect(cbSkipLastOdd, &QCheckBox::stateChanged, this, &AGeoBaseDelegate::onContentChangedBase);
     QObject::connect(cobShape, &QComboBox::currentIndexChanged, this, [this, laR, laX, laY](int index)
     {
@@ -3345,6 +3349,7 @@ AGeoHexagonalArrayDelegate::AGeoHexagonalArrayDelegate(const QStringList & mater
         laY->setVisible(index == 1);
         ledNumX->setVisible(index == 1);
         ledNumY->setVisible(index == 1);
+        cbSkipFirstEven->setVisible(index == 1);
         cbSkipLastOdd->setVisible(index == 1);
     });
     cobShape->setCurrentIndex(1);
@@ -3399,6 +3404,7 @@ bool AGeoHexagonalArrayDelegate::updateObject(AGeoObject *obj) const
     a.strStartIndex = ledStartIndex->text();
 
     a.Shape         = ( cobShape->currentIndex() == 0 ? ATypeHexagonalArrayObject::Hexagonal : ATypeHexagonalArrayObject::XY );
+    a.SkipEvenFirst = cbSkipFirstEven->isChecked();
     a.SkipOddLast   = cbSkipLastOdd->isChecked();
 
     QString errorStr;
@@ -3428,6 +3434,7 @@ void AGeoHexagonalArrayDelegate::Update(const AGeoObject *obj)
         ledNumRings->setText(array->strRings.isEmpty() ? QString::number(array->Rings) : array->strRings);
         ledNumX->setText(array->strNumX.isEmpty() ? QString::number(array->NumX) : array->strNumX);
         ledNumY->setText(array->strNumY.isEmpty() ? QString::number(array->NumY) : array->strNumY);
+        cbSkipFirstEven->setChecked(array->SkipEvenFirst);
         cbSkipLastOdd->setChecked(array->SkipOddLast);
 
         ledStartIndex->setText(array->strStartIndex.isEmpty() ? QString::number(array->startIndex) : array->strStartIndex);
