@@ -7,7 +7,7 @@
 #include "ajsontools.h"
 #include "afiletools.h"
 #include "guitools.h"
-#include "acommonfunctions.h"
+//#include "acommonfunctions.h"
 #include "ageometrywindow.h"
 #include "agraphbuilder.h"
 #include "ageant4inspectormanager.h"
@@ -29,13 +29,14 @@
 #include <QPushButton>
 #include <QThread>
 #include <QPainter>
+#include <QDesktopServices>
 
 #include "TGraph.h"
 #include "TH1.h"
 #include "TAxis.h"
 #include "TGeoManager.h"
-#include "TAttLine.h"
-#include "TAttMarker.h"
+//#include "TAttLine.h"
+//#include "TAttMarker.h"
 
 AMatWin::AMatWin(QWidget * parent) :
     AGuiWindow("Mat", parent),
@@ -1163,38 +1164,11 @@ void AMatWin::on_pteComments_textChanged()
     if (!flagDisreguardChange) setWasModified(true);
 }
 
-/*
-#include "amaterialloader.h"
-void MaterialInspectorWindow::AddMaterialFromLibrary(QWidget * parentWidget)
+void AMatWin::on_actionLoad_from_material_library_triggered()
 {
-    AMaterialLoader MLMpCollection;
-
-    bool bLoaded = ML.LoadTmpMatFromGui(parentWidget);
-    if (!bLoaded) return;
-
-    const QString name = MpCollection.tmpMaterial.name;
-    MW->ReconstructDetector(true);   // TODO: go for detector directly  --> move to loader
-    int index = MpCollection.FindMaterial(name);
-
-    showMaterial(index);
+    on_pbLoadFromLibrary_clicked();
 }
-*/
 
-/*
-void MaterialInspectorWindow::on_actionLoad_from_material_library_triggered()
-{
-    if (bMaterialWasModified)
-    {
-        int res = QMessageBox::question(this, "Add new material", "All unsaved changes will be lost. Continue?", QMessageBox::Yes | QMessageBox::Cancel);
-        if (res == QMessageBox::Cancel)
-            return;
-    }
-
-    AddMaterialFromLibrary(this);
-}
-*/
-
-#include <QDesktopServices>
 void AMatWin::on_pbListGeant4Materials_clicked()
 {
     QDesktopServices::openUrl(QUrl("https://geant4-userdoc.web.cern.ch/UsersGuides/ForApplicationDeveloper/html/Appendix/materialNames.html", QUrl::TolerantMode));

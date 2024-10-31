@@ -113,7 +113,8 @@
           <item>
            <widget class="QComboBox" name="cobRefPhysLists">
             <property name="toolTip">
-             <string>AllHP list requires to download G4ENDL library and set environmental variable G4PARTICLEHPDATA</string>
+             <string>AllHP list requires to download G4ENDL library and set environmental variable G4PARTICLEHPDATA
+Experimental: Use &quot;Penelope&quot; to choose QGSP_BIC_HP phys list with EM part replaced with G4EmPenelopePhysics</string>
             </property>
             <item>
              <property name="text">
