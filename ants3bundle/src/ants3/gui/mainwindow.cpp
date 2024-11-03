@@ -648,6 +648,7 @@ void MainWindow::loadWindowGeometries()
 #include "aphotonsimhub.h"
 #include "ageoconsts.h"
 #include "aparticleanalyzerhub.h"
+#include "aphotonfunctionalhub.h"
 void MainWindow::on_pbNew_clicked()
 {
     bool ok = guitools::confirm("Start a new configuration?\nUnsaved changes will be lost", this);
@@ -665,6 +666,8 @@ void MainWindow::on_pbNew_clicked()
     APhotonSimHub::getInstance().clear();
 
     AParticleAnalyzerHub::getInstance().clear();
+
+    APhotonFunctionalHub::getInstance().clearAllRecords();
 
     // Reconstruction
     // LRFs
