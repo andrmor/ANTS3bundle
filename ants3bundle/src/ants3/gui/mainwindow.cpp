@@ -5,7 +5,7 @@
 #include "ageometryhub.h"
 #include "guitools.h"
 #include "ajsontools.h"
-#include "afiletools.h"
+//#include "afiletools.h"
 #include "ageotreewin.h"
 #include "ageometrywindow.h"
 #include "ageometryhub.h"
@@ -30,7 +30,7 @@
 #include <QFile>
 #include <QString>
 
-#include "TObject.h"
+//#include "TObject.h"
 
 MainWindow::MainWindow() :
     AGuiWindow("Main", nullptr),
@@ -668,9 +668,6 @@ void MainWindow::on_pbNew_clicked()
     AParticleAnalyzerHub::getInstance().clear();
 
     APhotonFunctionalHub::getInstance().clearAllRecords();
-
-    // Reconstruction
-    // LRFs
 
     AGeoConsts::getInstance().clearConstants();
     AGeometryHub::getInstance().clearWorld();
