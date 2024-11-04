@@ -149,7 +149,7 @@
       </item>
      </layout>
     </item>
-    <item alignment="">
+    <item>
      <widget class="QLabel" name="label_4">
       <property name="text">
        <string>Material properties:</string>

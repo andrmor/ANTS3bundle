@@ -783,9 +783,9 @@ void GraphWindowClass::on_ledZto_editingFinished()
     GraphWindowClass::Reshape();
 }
 
-TObject* GraphWindowClass::GetMainPlottedObject()
+TObject * GraphWindowClass::GetMainPlottedObject()
 {
-    if (DrawObjects.isEmpty()) return 0;
+    if (DrawObjects.isEmpty()) return nullptr;
 
     return DrawObjects.first().Pointer;
 }

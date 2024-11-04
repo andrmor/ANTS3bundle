@@ -639,7 +639,9 @@ void AMatWin::on_pbShowPrimSpectrum_customContextMenuRequested(const QPoint &)
     tmpMaterial._PrimarySpectrumHist->GetXaxis()->SetTitle("Wavelength, nm");
     tmpMaterial._PrimarySpectrumHist->SetLineColor(2);
     tmpMaterial._PrimarySpectrumHist->SetLineWidth(2);
-    emit requestDraw(tmpMaterial._PrimarySpectrumHist, "hist", false, true);
+
+    TH1D * copy = new TH1D(*tmpMaterial._PrimarySpectrumHist);
+    emit requestDraw(copy, "hist", true, true);
 }
 
 void AMatWin::on_pbDeletePrimSpectrum_clicked()
@@ -687,7 +689,9 @@ void AMatWin::on_pbShowSecSpectrum_customContextMenuRequested(const QPoint &)
     tmpMaterial._SecondarySpectrumHist->GetXaxis()->SetTitle("Wavelength, nm");
     tmpMaterial._SecondarySpectrumHist->SetLineColor(2);
     tmpMaterial._SecondarySpectrumHist->SetLineWidth(2);
-    emit requestDraw(tmpMaterial._SecondarySpectrumHist, "hist", false, true);
+
+    TH1D * copy = new TH1D(*tmpMaterial._SecondarySpectrumHist);
+    emit requestDraw(copy, "hist", true, true);
 }
 
 void AMatWin::on_pbDeleteSecSpectrum_clicked()
