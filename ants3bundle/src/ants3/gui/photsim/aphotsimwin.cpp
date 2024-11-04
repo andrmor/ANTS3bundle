@@ -466,8 +466,12 @@ void APhotSimWin::on_pbSimulate_clicked()
     if (!ok)
     {
         ui->progbSim->setValue(0);
-        guitools::message("Simulation error:\n" + AErrorHub::getQError(), this);
-        if ( AErrorHub::getQError().contains("Exchange directory") ) emit requestConfigureExchangeDir();
+
+        if (!SimMan.isAborted())
+        {
+            guitools::message("Simulation error:\n" + AErrorHub::getQError(), this);
+            if ( AErrorHub::getQError().contains("Exchange directory") ) emit requestConfigureExchangeDir();
+        }
     }
     else
     {
@@ -484,6 +488,22 @@ void APhotSimWin::on_pbSimulate_clicked()
     if (ok) showSimulationResults();
 
     updateDepoGui(); // file was force-checked in this mode
+}
+
+void APhotSimWin::on_pbAbort_clicked()
+{
+    qApp->processEvents();
+
+    APhotonSimManager & SimMan = APhotonSimManager::getInstance();
+    SimMan.abort();
+
+    disableInterface(false);
+
+    //TGeoManager * GeoManager = AGeometryHub::getInstance().GeoManager;
+    //GeoManager->ClearTracks();
+    //emit requestClearGeoMarkers(0);
+    //emit requestShowGeometry(false);
+    //updateDepoGui(); // file was force-checked in this mode
 }
 
 void APhotSimWin::showSimulationResults()

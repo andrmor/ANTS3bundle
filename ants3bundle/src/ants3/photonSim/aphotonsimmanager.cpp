@@ -155,6 +155,18 @@ bool APhotonSimManager::simulate(int numLocalProc)
     return !AErrorHub::isError();
 }
 
+void APhotonSimManager::abort()
+{
+    ADispatcherInterface & Dispatcher = ADispatcherInterface::getInstance();
+    Dispatcher.abortTask();
+}
+
+bool APhotonSimManager::isAborted() const
+{
+    ADispatcherInterface & Dispatcher = ADispatcherInterface::getInstance();
+    return Dispatcher.isAborted();
+}
+
 bool APhotonSimManager::checkDirectories()
 {
     if (SimSet.RunSet.OutputDirectory.isEmpty())       AErrorHub::addError("Output directory is not set!");
