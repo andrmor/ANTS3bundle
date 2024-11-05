@@ -6,6 +6,9 @@
 @AnalyzersPT.json Simple example of the usage of a particle monitor and particle analyzer; 130 MeV proton beam generating prompt gammas
 ** Optical sim
 @ThinLens.json Example demonstrating how to configure thin lens for optical simulation using a PhotonFuncional object
+* Gamma cameras
+** PMT-based
+@GammaCamera37PMTs.json Gamma camera with NaI scintillator and 37 PMTs
 * Proton therapy
 ** TPPT scanner
 @TPPT_basic.json TPPT scanner with the most basic configuration (only scintillators)

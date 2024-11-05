@@ -163,6 +163,10 @@ private slots:
 
     void on_pbAbort_clicked();
 
+    void on_tbwResults_tabBarClicked(int index);
+
+    void on_twSensors_tabBarClicked(int index);
+
 private:
     APhotonSimSettings & SimSet;
     const AMonitorHub  & MonitorHub;
@@ -181,6 +185,8 @@ private:
     APhotonLogSettingsForm * LogForm = nullptr;
 
     QPixmap YellowCircle;
+
+    bool bFreshDataLoaded = false;
 
     void updatePhotBombGui();
     void updateDepoGui();
@@ -216,6 +222,7 @@ private:
 
     QString initPhotonLogHandler(); // returns error if any
     void showLogRecord();
+    void resetViewportOnNewData();
 
 signals:
     void requestShowGeometry(bool ActivateWindow = true, bool SAME = true, bool ColorUpdateAllowed = true);

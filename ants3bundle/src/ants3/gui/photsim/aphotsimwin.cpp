@@ -545,7 +545,7 @@ void APhotSimWin::showSimulationResults()
 void APhotSimWin::on_pbLoadAllResults_clicked()
 {
     // !!!*** check logic - load only what was configured in sim!
-
+    bFreshDataLoaded = true;
     ui->sbEvent->setValue(0);
 
     APhotSimRunSettings Set;
@@ -559,6 +559,7 @@ void APhotSimWin::on_pbLoadAllResults_clicked()
     ui->leSensorSigFileName->setText(Set.FileNameSensorSignals);
     reshapeSensorSignalTable();
     showSensorSignals(true);
+    gvSensors->resetViewport(); // not working if the widget was not yet drawn :(
 
     ui->leBombsFile->setText(Set.FileNamePhotonBombs);
     on_pbShowBombsMultiple_clicked();
@@ -1931,4 +1932,22 @@ void APhotSimWin::on_pbPhotonLog_ShowAll_clicked()
 
     emit requestShowGeometry();
     emit requestShowTracks();
+}
+
+void APhotSimWin::on_tbwResults_tabBarClicked(int index)
+{
+    if (index == 2 && bFreshDataLoaded && ui->twSensors->currentIndex() == 0) resetViewportOnNewData();
+}
+
+void APhotSimWin::on_twSensors_tabBarClicked(int index)
+{
+    if (index == 0 && bFreshDataLoaded) resetViewportOnNewData();
+}
+
+void APhotSimWin::resetViewportOnNewData()
+{
+    qDebug() << "Resetting viewport";
+    qApp->processEvents();
+    gvSensors->resetViewport(); // viewport cannot be updated before the widget is visible
+    bFreshDataLoaded = false;
 }
