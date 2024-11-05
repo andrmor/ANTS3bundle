@@ -113,6 +113,9 @@ public slots:
     void setScintillatorByName(QString ObjectNameStartsWith);
     void setSecondaryScintillator(QString Object);
 
+    int countLightSensors();
+    QVariantList getLightSensorPositions();
+
     void setPhotonFunctional(QString Object);
     QVariantMap getDefaultConfigObjectForPhotonFunctionalModel(QString modelName);
     QVariantMap getConfigObjectForPhotonFunctional(int index);

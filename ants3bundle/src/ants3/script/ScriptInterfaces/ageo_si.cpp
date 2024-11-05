@@ -1664,6 +1664,28 @@ void AGeo_SI::setSecondaryScintillator(QString Object)
     delete obj->Role; obj->Role = new AGeoSecScint();
 }
 
+#include "asensorhub.h"
+int AGeo_SI::countLightSensors()
+{
+    return ASensorHub::getConstInstance().countSensors();
+}
+
+QVariantList AGeo_SI::getLightSensorPositions()
+{
+    QVariantList vl;
+    const ASensorHub & SensHub = ASensorHub::getConstInstance();
+
+    int numSensors = countLightSensors();
+    for (int iSens = 0; iSens < numSensors; iSens++)
+    {
+        QVariantList el;
+        AVector3 pos = SensHub.getPositionFast(iSens);
+        el << pos[0] << pos[1] << pos[2];
+        vl.push_back(el);
+    }
+    return vl;
+}
+
 void AGeo_SI::setPhotonFunctional(QString Object)
 {
     AGeoObject * obj = findObject(Object);

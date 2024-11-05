@@ -614,8 +614,9 @@
             "Commands": [
                 "/run/setCut 0.7 mm"
             ],
-            "PhysicsList": "QGSP_BERT_HP",
+            "PhysicsList": "QGSP_BIC_HP",
             "ScintSensitiveVolumes": [
+                "Scintillator",
                 "Scintillator"
             ],
             "SensitiveVolumes": [
