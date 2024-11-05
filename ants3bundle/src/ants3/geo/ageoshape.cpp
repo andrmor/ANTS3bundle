@@ -3227,6 +3227,14 @@ double AGeoPcon::maxSize() const
     return sqrt(3.0)*m;
 }
 
+double AGeoPcon::minSize() const
+{
+    double min = 0;
+    for (const APolyCGsection & ps : Sections)
+        min = std::min(min, ps.rmax);
+    return min;
+}
+
 void AGeoPcon::writeToJson(QJsonObject &json) const
 {
     json["phi"]  = phi;
@@ -3631,6 +3639,11 @@ double AGeoPolygon::maxSize() const
     double m = std::max(rmaxL, rmaxU);
     m = std::max(m, dz);
     return sqrt(3.0)*m;
+}
+
+double AGeoPolygon::minSize() const
+{
+    return std::min(rmaxL, rmaxU);
 }
 
 void AGeoPolygon::writeToJson(QJsonObject &json) const
