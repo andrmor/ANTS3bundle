@@ -1944,10 +1944,12 @@ void APhotSimWin::on_twSensors_tabBarClicked(int index)
     if (index == 0 && bFreshDataLoaded) resetViewportOnNewData();
 }
 
+#include <QTimer>
 void APhotSimWin::resetViewportOnNewData()
 {
     qDebug() << "Resetting viewport";
     qApp->processEvents();
-    gvSensors->resetViewport(); // viewport cannot be updated before the widget is visible
     bFreshDataLoaded = false;
+    //gvSensors->resetViewport(); // viewport cannot be updated before the widget is visible
+    QTimer::singleShot(0, gvSensors, [this](){gvSensors->resetViewport();});
 }
