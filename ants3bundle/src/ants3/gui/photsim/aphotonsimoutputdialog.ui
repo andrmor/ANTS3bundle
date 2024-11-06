@@ -47,7 +47,7 @@
      <item>
       <widget class="QPushButton" name="pbChangeDir">
        <property name="text">
-        <string>Change</string>
+        <string>Select</string>
        </property>
       </widget>
      </item>

@@ -3546,21 +3546,14 @@
            <number>0</number>
           </property>
           <item>
-           <widget class="QLabel" name="label_25">
+           <widget class="QPushButton" name="pbChangeWorkingDir">
             <property name="text">
-             <string>Directory:</string>
+             <string>Select directory</string>
             </property>
            </widget>
           </item>
           <item>
            <widget class="QLineEdit" name="leResultsWorkingDir"/>
-          </item>
-          <item>
-           <widget class="QPushButton" name="pbChangeWorkingDir">
-            <property name="text">
-             <string>Change</string>
-            </property>
-           </widget>
           </item>
          </layout>
         </item>
@@ -3586,7 +3579,7 @@
            <widget class="QPushButton" name="pbLoadAllResults">
             <property name="minimumSize">
              <size>
-              <width>200</width>
+              <width>250</width>
               <height>0</height>
              </size>
             </property>
@@ -3614,6 +3607,13 @@
          </layout>
         </item>
         <item>
+         <widget class="Line" name="line_3">
+          <property name="orientation">
+           <enum>Qt::Orientation::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="QTabWidget" name="tbwResults">
           <property name="currentIndex">
            <number>0</number>
@@ -3624,14 +3624,14 @@
            </attribute>
            <layout class="QVBoxLayout" name="verticalLayout_15">
             <item>
-             <widget class="QLabel" name="label_5">
-              <property name="text">
-               <string>Load from file:</string>
-              </property>
-             </widget>
-            </item>
-            <item>
              <layout class="QHBoxLayout" name="horizontalLayout_9">
+              <item>
+               <widget class="QPushButton" name="pbSelectStatisticsFile">
+                <property name="text">
+                 <string>Select file</string>
+                </property>
+               </widget>
+              </item>
               <item>
                <widget class="QLineEdit" name="leStatisticsFile">
                 <property name="text">
@@ -3640,20 +3640,13 @@
                </widget>
               </item>
               <item>
-               <widget class="QPushButton" name="pbSelectStatisticsFile">
+               <widget class="QPushButton" name="pbLoadAndShowStatistics">
                 <property name="text">
-                 <string>Select</string>
+                 <string>Load</string>
                 </property>
                </widget>
               </item>
              </layout>
-            </item>
-            <item>
-             <widget class="QPushButton" name="pbLoadAndShowStatistics">
-              <property name="text">
-               <string>Load and show</string>
-              </property>
-             </widget>
             </item>
             <item>
              <widget class="Line" name="line">
@@ -3762,7 +3755,7 @@
              <number>3</number>
             </property>
             <property name="topMargin">
-             <number>3</number>
+             <number>8</number>
             </property>
             <property name="rightMargin">
              <number>3</number>
@@ -3773,9 +3766,9 @@
             <item>
              <layout class="QHBoxLayout" name="horizontalLayout_39">
               <item>
-               <widget class="QLabel" name="label_6">
+               <widget class="QPushButton" name="pbChooseMonitorsFile">
                 <property name="text">
-                 <string>File:</string>
+                 <string>Select file</string>
                 </property>
                </widget>
               </item>
@@ -3787,20 +3780,13 @@
                </widget>
               </item>
               <item>
-               <widget class="QPushButton" name="pbChooseMonitorsFile">
+               <widget class="QPushButton" name="pbLoadMonitorsData">
                 <property name="text">
-                 <string>Choose</string>
+                 <string>Load</string>
                 </property>
                </widget>
               </item>
              </layout>
-            </item>
-            <item>
-             <widget class="QPushButton" name="pbLoadMonitorsData">
-              <property name="text">
-               <string>Load monitor data</string>
-              </property>
-             </widget>
             </item>
             <item>
              <layout class="QHBoxLayout" name="horizontalLayout_40">
@@ -4167,7 +4153,7 @@
              <number>3</number>
             </property>
             <property name="topMargin">
-             <number>3</number>
+             <number>8</number>
             </property>
             <property name="rightMargin">
              <number>3</number>
@@ -4178,9 +4164,9 @@
             <item>
              <layout class="QHBoxLayout" name="horizontalLayout_59">
               <item>
-               <widget class="QLabel" name="label_37">
+               <widget class="QPushButton" name="pbChooseSensorSigFile">
                 <property name="text">
-                 <string>File:</string>
+                 <string>Select file</string>
                 </property>
                </widget>
               </item>
@@ -4188,13 +4174,6 @@
                <widget class="QLineEdit" name="leSensorSigFileName">
                 <property name="text">
                  <string>SensorSignals.txt</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QPushButton" name="pbChooseSensorSigFile">
-                <property name="text">
-                 <string>Choose</string>
                 </property>
                </widget>
               </item>
@@ -4417,25 +4396,18 @@
            </attribute>
            <layout class="QVBoxLayout" name="verticalLayout_27">
             <item>
-             <widget class="QLabel" name="label_11">
-              <property name="text">
-               <string>Load from file:</string>
-              </property>
-             </widget>
-            </item>
-            <item>
              <layout class="QHBoxLayout" name="horizontalLayout_49">
               <item>
-               <widget class="QLineEdit" name="leBombsFile">
+               <widget class="QPushButton" name="pbSelectBombsFile">
                 <property name="text">
-                 <string>PhotonBombs.txt</string>
+                 <string>Select file</string>
                 </property>
                </widget>
               </item>
               <item>
-               <widget class="QPushButton" name="pbSelectBombsFile">
+               <widget class="QLineEdit" name="leBombsFile">
                 <property name="text">
-                 <string>Select</string>
+                 <string>PhotonBombs.txt</string>
                 </property>
                </widget>
               </item>
@@ -4579,14 +4551,14 @@
            </attribute>
            <layout class="QVBoxLayout" name="verticalLayout_13">
             <item>
-             <widget class="QLabel" name="label_3">
-              <property name="text">
-               <string>Load from file:</string>
-              </property>
-             </widget>
-            </item>
-            <item>
              <layout class="QHBoxLayout" name="horizontalLayout_8">
+              <item>
+               <widget class="QPushButton" name="pbSelectTracksFile">
+                <property name="text">
+                 <string>Select file</string>
+                </property>
+               </widget>
+              </item>
               <item>
                <widget class="QLineEdit" name="leTracksFile">
                 <property name="text">
@@ -4595,20 +4567,13 @@
                </widget>
               </item>
               <item>
-               <widget class="QPushButton" name="pbSelectTracksFile">
+               <widget class="QPushButton" name="pbLoadAndShowTracks">
                 <property name="text">
-                 <string>Select</string>
+                 <string>Load</string>
                 </property>
                </widget>
               </item>
              </layout>
-            </item>
-            <item>
-             <widget class="QPushButton" name="pbLoadAndShowTracks">
-              <property name="text">
-               <string>Load and show</string>
-              </property>
-             </widget>
             </item>
             <item>
              <spacer name="verticalSpacer_14">
@@ -4631,25 +4596,18 @@
            </attribute>
            <layout class="QVBoxLayout" name="verticalLayout_Log">
             <item>
-             <widget class="QLabel" name="label_45">
-              <property name="text">
-               <string>Load from file:</string>
-              </property>
-             </widget>
-            </item>
-            <item>
              <layout class="QHBoxLayout" name="horizontalLayout_62">
               <item>
-               <widget class="QLineEdit" name="leLogFile">
+               <widget class="QPushButton" name="pbSelectLogFile">
                 <property name="text">
-                 <string>PhotonLog.txt</string>
+                 <string>Select file</string>
                 </property>
                </widget>
               </item>
               <item>
-               <widget class="QPushButton" name="pbSelectLogFile">
+               <widget class="QLineEdit" name="leLogFile">
                 <property name="text">
-                 <string>Select</string>
+                 <string>PhotonLog.txt</string>
                 </property>
                </widget>
               </item>
@@ -4816,22 +4774,6 @@
      </widget>
     </item>
    </layout>
-  </widget>
-  <widget class="QMenuBar" name="menubar">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>593</width>
-     <height>21</height>
-    </rect>
-   </property>
-   <widget class="QMenu" name="menuFile">
-    <property name="title">
-     <string>File</string>
-    </property>
-   </widget>
-   <addaction name="menuFile"/>
   </widget>
  </widget>
  <resources/>
