@@ -1,5 +1,5 @@
 {
-    "ConfigDescription": "Anger camera with NaI scintillator and 37 PMTs",
+    "ConfigDescription": "Anger camera with NaI scintillator and 37 PMTs\nFirst run a particle simulation, then follow with the optical one using the energy deposition data",
     "ConfigName": "Clinical gamma camera",
     "Geometry": {
         "GeoConsts": [
@@ -893,7 +893,7 @@
     },
     "PhotonSim": {
         "Deposition": {
-            "FileFormat": "Undefined",
+            "FileFormat": "Ascii",
             "FileName": "/home/andr/WORK/GammaPMT/Out/Deposition.dat",
             "LastModified": 1730803441073,
             "NumEvents": 100,
@@ -942,16 +942,16 @@
                 "Number": 100,
                 "OuterDiameter": 300,
                 "Shape": "rectangle",
-                "Xfrom": -15,
-                "Xto": 15,
-                "Yfrom": -15,
-                "Yto": 15,
+                "Xfrom": -150,
+                "Xto": 150,
+                "Yfrom": -150,
+                "Yto": 150,
                 "Zfixed": 0,
-                "Zfrom": 0,
-                "Zmode": "fixed",
-                "Zto": 0
+                "Zfrom": -6,
+                "Zmode": "range",
+                "Zto": 6
             },
-            "GenerationMode": "single",
+            "GenerationMode": "flood",
             "Grid": {
                 "AxesData": [
                     {
@@ -986,7 +986,7 @@
             "PhotonsPerBomb": {
                 "CustomDist": [
                 ],
-                "FixedNumber": 10,
+                "FixedNumber": 1000,
                 "Mode": "constant",
                 "NormalMean": 100,
                 "NormalSigma": 10,
