@@ -653,6 +653,32 @@
               </widget>
              </item>
              <item>
+              <widget class="Line" name="line_5">
+               <property name="minimumSize">
+                <size>
+                 <width>25</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="frameShadow">
+                <enum>QFrame::Shadow::Plain</enum>
+               </property>
+               <property name="orientation">
+                <enum>Qt::Orientation::Horizontal</enum>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="pbCompteEffectivePDE">
+               <property name="text">
+                <string>Estimate for emission from</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QComboBox" name="cobMaterialForPDE"/>
+             </item>
+             <item>
               <spacer name="horizontalSpacer_6">
                <property name="orientation">
                 <enum>Qt::Orientation::Horizontal</enum>
@@ -1519,14 +1545,14 @@
           </item>
          </layout>
         </item>
-        <item alignment="">
+        <item>
          <widget class="QLabel" name="label_12">
           <property name="text">
            <string>&quot;Custom&quot; mode is activated automatically</string>
           </property>
          </widget>
         </item>
-        <item alignment="">
+        <item>
          <widget class="QLabel" name="label_14">
           <property name="text">
            <string>when any sensor assignment is modified by script</string>
@@ -1549,7 +1575,7 @@
           </property>
          </spacer>
         </item>
-        <item alignment="">
+        <item>
          <widget class="QLabel" name="labHelpAssignment">
           <property name="text">
            <string>Use script unit &quot;sens&quot; to manipulate sensor model assignment</string>

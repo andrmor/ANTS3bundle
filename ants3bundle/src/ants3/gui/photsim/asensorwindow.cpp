@@ -94,6 +94,15 @@ void ASensorWindow::updateGui()
     updateAngularButtons();
     updateAreaButtons();
     updatePhElToSigButtons();
+    onMaterialsChanged();
+}
+
+#include "amaterialhub.h"
+void ASensorWindow::onMaterialsChanged()
+{
+    ui->cobMaterialForPDE->clear();
+    QStringList list = AMaterialHub::getConstInstance().getListOfMaterialNames();
+    ui->cobMaterialForPDE->addItems(list);
 }
 
 void ASensorWindow::on_cobModel_activated(int index)
@@ -802,3 +811,58 @@ void ASensorWindow::on_pbTestPhElSignal_clicked()
     dialog->move(dialog->x(), QCursor::pos().y() - 15);
     dialog->exec();
 }
+
+#include "amaterialhub.h"
+void ASensorWindow::on_pbCompteEffectivePDE_clicked()
+{
+    int iSensorModel = ui->sbModelIndex->value();
+    if (iSensorModel < 0 || iSensorModel >= SensHub.countModels())
+    {
+        guitools::message("Sensor model does not exist!", this);
+        return;
+    }
+    if (SensHub.model(iSensorModel)->PDE_spectral.empty())
+    {
+        guitools::message("Wavelength-resolved PDE is not defined for this sensor model", this);
+        return;
+    }
+
+    int iMat = ui->cobMaterialForPDE->currentIndex();
+    AMaterialHub & MatHub = AMaterialHub::getInstance();
+    if (iMat < 0 || iMat >= MatHub.countMaterials() )
+    {
+        guitools::message("Material does not exist!", this);
+        return;
+    }
+    if (MatHub[iMat]->PrimarySpectrum.empty())
+    {
+        guitools::message(QString("Primary scintillation emission spectrum is not defined for the selected material"), this);
+        return;
+    }
+
+    //qDebug() << "Converting data to standart wavelength: From To Nodes"<<WaveFrom<<WaveTo<<WaveNodes;
+    const AWaveResSettings & WaveSet = APhotonSimHub::getConstInstance().Settings.WaveSet;
+    std::vector<double> spec;
+    WaveSet.toStandardBins(MatHub[iMat]->PrimarySpectrum, spec);
+    std::vector<double> pde;
+    WaveSet.toStandardBins(SensHub.model(iSensorModel)->PDE_spectral, pde);
+
+    double weightedSum = 0;
+    double weights = 0;
+    for(size_t i = 0; i < spec.size(); i++)
+    {
+        //qDebug() << i << "sp:" << spec[i] << "pde:" << pde[i];
+        weightedSum += spec[i] * pde[i];
+        weights     += spec[i];
+    }
+
+    if (weights == 0)
+    {
+        guitools::message("Error: the overlap is zero!", this);
+        return;
+    }
+
+    ui->ledEffectivePDE->setText(QString::number(0.01*weightedSum/weights, 'g', 4));
+    on_ledEffectivePDE_editingFinished();
+}
+
