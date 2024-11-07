@@ -1,0 +1,20 @@
+var dir = "/home/andr/WORK/FastNeutron_Cylinder/Out"
+var fileName = dir + "/Calorimeters.json"
+
+psim.loadCalorimeterData(fileName)
+var num = psim.countCalorimeters()
+
+var data = psim.getCalorimeterOverEventData(0)
+for (var iCa = 1; iCa < num; iCa++)
+{
+   var ar = psim.getCalorimeterOverEventData(iCa)
+   if (data.length != ar.length) core.abort("Data corrupted: mismatching colorimeter array data")
+   for (var i = 0; i < data.length; i++)
+      data[i][1] += ar[i][1]
+}
+
+hist.new1D("h", 190, 100, 2000)
+hist.fillArr("h", data)
+hist.draw("h")
+
+
