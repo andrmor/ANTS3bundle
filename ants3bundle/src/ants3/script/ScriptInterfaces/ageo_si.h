@@ -5,7 +5,6 @@
 
 #include <vector>
 
-#include <QVariant>  // !!!*** QVariant -> QVariantList or double in methods
 #include <QVariantList>
 #include <QString>
 
@@ -81,9 +80,9 @@ public slots:
 
     //void monitor(QString name, int shape, double size1, double size2, QString container, double x, double y, double z, double phi, double theta, double psi, bool SensitiveTop, bool SensitiveBottom, bool StopsTraking);
     void monitor(QString name, int shape, double size1, double size2, QString container, QVariantList position, QVariantList orientation, bool SensitiveTop, bool SensitiveBottom, bool StopsTraking);
-    void configurePhotonMonitor(QString MonitorName, QVariant Position, QVariant Time, QVariant Angle, QVariant Wave);
-    void configureParticleMonitor(QString MonitorName, QString Particle, int Both_Primary_Secondary, int Both_Direct_Indirect,
-                                  QVariant Position, QVariant Time, QVariant Angle, QVariant Energy);
+    void configurePhotonMonitor(QString monitorName, QVariantList position, QVariantList time, QVariantList angle, QVariantList wave);
+    void configureParticleMonitor(QString monitorName, QString particle, int both_Primary_Secondary, int both_Direct_Indirect,
+                                  QVariantList position, QVariantList time, QVariantList angle, QVariantList energy);
 
     //void stack(QString name, QString container, double x, double y, double z, double phi, double theta, double psi);
     void stack(QString name, QString container, QVariantList position, QVariantList orientation);

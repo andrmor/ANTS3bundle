@@ -993,12 +993,12 @@ void AGeo_SI::monitor(QString name, int shape, double size1, double size2, QStri
     GeoObjects.push_back(o);
 }
 
-void AGeo_SI::configurePhotonMonitor(QString MonitorName, QVariant Position, QVariant Time, QVariant Angle, QVariant Wave)
+void AGeo_SI::configurePhotonMonitor(QString monitorName, QVariantList position, QVariantList time, QVariantList angle, QVariantList wave)
 {
-    AGeoObject* o = nullptr;
-    for (AGeoObject* obj : GeoObjects)
+    AGeoObject * o = nullptr;
+    for (AGeoObject * obj : GeoObjects)
     {
-        if (obj->Name == MonitorName)
+        if (obj->Name == monitorName)
         {
             o = obj;
             break;
@@ -1007,28 +1007,27 @@ void AGeo_SI::configurePhotonMonitor(QString MonitorName, QVariant Position, QVa
 
     if (!o)
     {
-        abort("Cannot find monitor \"" + MonitorName + "\"");
+        abort("Cannot find monitor \"" + monitorName + "\"");
         return;
     }
 
     if (!o->Type || !o->Type->isMonitor())
     {
-        abort(MonitorName + " is not a monitor object!");
+        abort(monitorName + " is not a monitor object!");
         return;
     }
 
-    ATypeMonitorObject* m = static_cast<ATypeMonitorObject*>(o->Type);
-    AMonitorConfig& mc = m->config;
+    ATypeMonitorObject * m = static_cast<ATypeMonitorObject*>(o->Type);
+    AMonitorConfig & mc = m->config;
 
     mc.PhotonOrParticle = 0;
 
-    QVariantList pos = Position.toList();
-    if (!pos.isEmpty())
+    if (!position.isEmpty())
     {
-        if (pos.size() == 2)
+        if (position.size() == 2)
         {
-            mc.xbins = pos.at(0).toInt();
-            mc.ybins = pos.at(1).toInt();
+            mc.xbins = position.at(0).toInt();
+            mc.ybins = position.at(1).toInt();
         }
         else
         {
@@ -1037,7 +1036,6 @@ void AGeo_SI::configurePhotonMonitor(QString MonitorName, QVariant Position, QVa
         }
     }
 
-    QVariantList time = Time.toList();
     if (!time.isEmpty())
     {
         if (time.size() == 3)
@@ -1053,14 +1051,13 @@ void AGeo_SI::configurePhotonMonitor(QString MonitorName, QVariant Position, QVa
         }
     }
 
-    QVariantList a = Angle.toList();
-    if (!a.isEmpty())
+    if (!angle.isEmpty())
     {
-        if (a.size() == 3)
+        if (angle.size() == 3)
         {
-            mc.angleBins = a.at(0).toInt();
-            mc.angleFrom = a.at(1).toDouble();
-            mc.angleTo   = a.at(2).toDouble();
+            mc.angleBins = angle.at(0).toInt();
+            mc.angleFrom = angle.at(1).toDouble();
+            mc.angleTo   = angle.at(2).toDouble();
         }
         else
         {
@@ -1069,14 +1066,13 @@ void AGeo_SI::configurePhotonMonitor(QString MonitorName, QVariant Position, QVa
         }
     }
 
-    QVariantList w = Wave.toList();
-    if (!w.isEmpty())
+    if (!wave.isEmpty())
     {
-        if (w.size() == 3)
+        if (wave.size() == 3)
         {
-            mc.waveBins = w.at(0).toInt();
-            mc.waveFrom = w.at(1).toDouble();
-            mc.waveTo   = w.at(2).toDouble();
+            mc.waveBins = wave.at(0).toInt();
+            mc.waveFrom = wave.at(1).toDouble();
+            mc.waveTo   = wave.at(2).toDouble();
         }
         else
         {
@@ -1086,12 +1082,12 @@ void AGeo_SI::configurePhotonMonitor(QString MonitorName, QVariant Position, QVa
     }
 }
 
-void AGeo_SI::configureParticleMonitor(QString MonitorName, QString Particle, int Both_Primary_Secondary, int Both_Direct_Indirect,
-                                            QVariant Position, QVariant Time, QVariant Angle, QVariant Energy)
+void AGeo_SI::configureParticleMonitor(QString monitorName, QString particle, int both_Primary_Secondary, int both_Direct_Indirect,
+                                       QVariantList position, QVariantList time, QVariantList angle, QVariantList energy)
 {
-    AGeoObject* o = 0;
-    for (AGeoObject* obj : GeoObjects)
-        if (obj->Name == MonitorName)
+    AGeoObject * o = nullptr;
+    for (AGeoObject * obj : GeoObjects)
+        if (obj->Name == monitorName)
         {
             o = obj;
             break;
@@ -1099,30 +1095,30 @@ void AGeo_SI::configureParticleMonitor(QString MonitorName, QString Particle, in
 
     if (!o)
     {
-        abort("Cannot find monitor \"" + MonitorName + "\"");
+        abort("Cannot find monitor \"" + monitorName + "\"");
         return;
     }
 
     if (!o->Type || !o->Type->isMonitor())
     {
-        abort(MonitorName + " is not a monitor object!");
+        abort(monitorName + " is not a monitor object!");
         return;
     }
 
-    ATypeMonitorObject* m = static_cast<ATypeMonitorObject*>(o->Type);
-    AMonitorConfig& mc = m->config;
+    ATypeMonitorObject * m = static_cast<ATypeMonitorObject*>(o->Type);
+    AMonitorConfig & mc = m->config;
 
     mc.PhotonOrParticle = 1;
-    mc.Particle = Particle;
+    mc.Particle = particle;
 
-    switch (Both_Primary_Secondary)
+    switch (both_Primary_Secondary)
     {
     case 0: mc.bPrimary = true;  mc.bSecondary = true;  break;
     case 1: mc.bPrimary = true;  mc.bSecondary = false; break;
     case 2: mc.bPrimary = false; mc.bSecondary = true;  break;
     default: abort("Both_Primary_Secondary: 0 - sensitive to both, 1 - sensetive only to primary, 2 - sensitive only to secondary"); return;
     }
-    switch (Both_Direct_Indirect)
+    switch (both_Direct_Indirect)
     {
     case 0: mc.bDirect = true;  mc.bIndirect = true;  break;
     case 1: mc.bDirect = true;  mc.bIndirect = false; break;
@@ -1130,13 +1126,12 @@ void AGeo_SI::configureParticleMonitor(QString MonitorName, QString Particle, in
     default: abort("Both_Direct_Indirect: 0 - sensitive to both, 1 - sensitive only to direct, 2 - sensitive only to indirect"); return;
     }
 
-    QVariantList pos = Position.toList();
-    if (!pos.isEmpty())
+    if (!position.isEmpty())
     {
-        if (pos.size() == 2)
+        if (position.size() == 2)
         {
-            mc.xbins = pos.at(0).toInt();
-            mc.ybins = pos.at(1).toInt();
+            mc.xbins = position.at(0).toInt();
+            mc.ybins = position.at(1).toInt();
         }
         else
         {
@@ -1145,14 +1140,13 @@ void AGeo_SI::configureParticleMonitor(QString MonitorName, QString Particle, in
         }
     }
 
-    QVariantList time = Time.toList();
     if (!time.isEmpty())
     {
         if (time.size() == 4)
         {
-            mc.timeBins = time.at(0).toInt();
-            mc.timeFrom = time.at(1).toDouble();
-            mc.timeTo   = time.at(2).toDouble();
+            mc.timeBins  = time.at(0).toInt();
+            mc.timeFrom  = time.at(1).toDouble();
+            mc.timeTo    = time.at(2).toDouble();
             mc.timeUnits = time.at(3).toString();
 
             if (mc.timeUnits != "ns" && mc.timeUnits != "us" && mc.timeUnits != "ms" && mc.timeUnits != "s")
@@ -1169,14 +1163,13 @@ void AGeo_SI::configureParticleMonitor(QString MonitorName, QString Particle, in
         }
     }
 
-    QVariantList a = Angle.toList();
-    if (!a.isEmpty())
+    if (!angle.isEmpty())
     {
-        if (a.size() == 3)
+        if (angle.size() == 3)
         {
-            mc.angleBins = a.at(0).toInt();
-            mc.angleFrom = a.at(1).toDouble();
-            mc.angleTo   = a.at(2).toDouble();
+            mc.angleBins = angle.at(0).toInt();
+            mc.angleFrom = angle.at(1).toDouble();
+            mc.angleTo   = angle.at(2).toDouble();
         }
         else
         {
@@ -1185,15 +1178,14 @@ void AGeo_SI::configureParticleMonitor(QString MonitorName, QString Particle, in
         }
     }
 
-    QVariantList e = Energy.toList();
-    if (!e.isEmpty())
+    if (!energy.isEmpty())
     {
-        if (e.size() == 4 && e.at(3).toInt() >= 0 && e.at(3).toInt() < 4)
+        if (energy.size() == 4 && energy.at(3).toInt() >= 0 && energy.at(3).toInt() < 4)
         {
-            mc.energyBins  = e.at(0).toInt();
-            mc.energyFrom  = e.at(1).toDouble();
-            mc.energyTo    = e.at(2).toDouble();
-            mc.energyUnits = e.at(3).toString();
+            mc.energyBins  = energy.at(0).toInt();
+            mc.energyFrom  = energy.at(1).toDouble();
+            mc.energyTo    = energy.at(2).toDouble();
+            mc.energyUnits = energy.at(3).toString();
 
             if (mc.energyUnits != "meV" && mc.energyUnits != "eV" && mc.energyUnits != "keV" && mc.energyUnits != "MeV")
             {
