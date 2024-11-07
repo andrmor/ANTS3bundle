@@ -765,6 +765,7 @@ void MainWindow::on_pbExamples_clicked()
     }
 
     ConfigExampleBrowser->show();
+    ConfigExampleBrowser->expandAll(false);
 }
 
 void MainWindow::onRequestLoadConfiguration(QString fileName)

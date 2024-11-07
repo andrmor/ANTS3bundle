@@ -40,6 +40,8 @@ public:
     explicit AConfigExampleBrowser(QWidget * parent = nullptr);
     ~AConfigExampleBrowser();
 
+    void expandAll(bool flag);
+
 private slots:
     void on_pbLoadExample_clicked();
 
