@@ -149,7 +149,7 @@ AScriptWindow::AScriptWindow(EScriptLanguage lang, QWidget * parent) :
         windowFlags |= Qt::WindowCloseButtonHint;
         ExampleExplorer->setWindowFlags( windowFlags );
         ExampleExplorer->setWindowModality(Qt::WindowModal);
-        QObject::connect(ExampleExplorer, &AScriptExampleExplorer::requestLoadScript, this, &AScriptWindow::onLoadRequested);
+        QObject::connect(ExampleExplorer, &AScriptExampleExplorer::requestLoadScript, this, &AScriptWindow::onLoadFromFileRequested);
     }
 }
 
@@ -503,7 +503,7 @@ void AScriptWindow::onRequestAddScript(const QString & script)
     raise();
     activateWindow();
 
-    onLoadRequested(script);
+    addScript(script);
 }
 
 void AScriptWindow::clearOutput()
@@ -512,7 +512,7 @@ void AScriptWindow::clearOutput()
     qApp->processEvents();
 }
 
-#include "acore_si.h"
+//#include "acore_si.h"
 void AScriptWindow::on_pbRunScript_clicked()
 {
     lHelp->hide();
@@ -677,14 +677,14 @@ void AScriptWindow::on_pbLoad_clicked()
         return;
     }
 
-    onLoadRequested(Script);
+    addScript(Script);
 
     getTab()->FileName = fileName;
     setTabName(QFileInfo(fileName).baseName(), getCurrentTabIndex(), iCurrentBook);
     updateFileStatusIndication();
 }
 
-void AScriptWindow::onLoadRequested(const QString & fileName)
+void AScriptWindow::onLoadFromFileRequested(const QString & fileName)
 {
     if (fileName.isEmpty()) return;
 
@@ -726,6 +726,21 @@ void AScriptWindow::onLoadRequested(const QString & fileName)
         setTabName( createNewTabName(iCurrentBook), getCurrentTabIndex(), iCurrentBook );
         updateFileStatusIndication();
     }
+}
+
+void AScriptWindow::addScript(const QString & script)
+{
+    if (script.isEmpty()) return;
+
+    ATabRecord * tab = getTab();
+    if (!tab->TextEdit->document()->isEmpty()) tab = &addNewTab();
+
+    tab->TextEdit->clear();
+    tab->TextEdit->appendPlainText(script);
+
+    tab->FileName.clear();
+    setTabName( createNewTabName(iCurrentBook), getCurrentTabIndex(), iCurrentBook );
+    updateFileStatusIndication();
 }
 
 void AScriptWindow::on_pbSave_clicked()

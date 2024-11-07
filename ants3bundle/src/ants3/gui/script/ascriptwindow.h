@@ -164,7 +164,7 @@ public slots:
     void outputAbortMessage(QString text);
 
     void onRequestAddScript(const QString & script);
-    void onLoadRequested(const QString & script);
+    void onLoadFromFileRequested(const QString & fileName);
     void onProgressChanged(int percent);
 
 private slots:
@@ -269,6 +269,7 @@ private:
     void updateMethodHelp();
     void updateRemovedAndDeprecatedMethods();
     void updateAutocompleterAndHeighlighter();
+    void addScript(const QString & script);
 };
 
 #endif // ASCRIPTWINDOW_H

@@ -72,6 +72,7 @@ bool AGeo_SI::beforeRun()
     return true;
 }
 
+/*
 void AGeo_SI::box(QString name, double Lx, double Ly, double Lz, int iMat, QString container,
                   double x, double y, double z, double phi, double theta, double psi)
 {
@@ -80,6 +81,7 @@ void AGeo_SI::box(QString name, double Lx, double Ly, double Lz, int iMat, QStri
                                    x,y,z, phi,theta,psi);
     GeoObjects.push_back(o);
 }
+*/
 
 bool AGeo_SI::checkPosOri(QVariantList position, QVariantList orientation, std::array<double,3> & pos, std::array<double,3> & ori)
 {
@@ -119,6 +121,7 @@ void AGeo_SI::box(QString name, QVariantList fullSizes, int iMat, QString contai
     GeoObjects.push_back(o);
 }
 
+/*
 void AGeo_SI::parallelepiped(QString name, double Lx, double Ly, double Lz, double Alpha, double Theta, double Phi, int iMat, QString container,
                              double x, double y, double z, double phi, double theta, double psi)
 {
@@ -127,6 +130,7 @@ void AGeo_SI::parallelepiped(QString name, double Lx, double Ly, double Lz, doub
                                    x,y,z, phi,theta,psi);
     GeoObjects.push_back(o);
 }
+*/
 
 void AGeo_SI::parallelepiped(QString name, QVariantList fullSizes, QVariantList angles, int iMat, QString container, QVariantList position, QVariantList orientation)
 {
@@ -155,6 +159,7 @@ void AGeo_SI::parallelepiped(QString name, QVariantList fullSizes, QVariantList 
     GeoObjects.push_back(o);
 }
 
+/*
 void AGeo_SI::trap(QString name, double LXlow, double LXup, double Ly, double Lz, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
 {
     AGeoObject* o = new AGeoObject(name, container, iMat,
@@ -162,6 +167,7 @@ void AGeo_SI::trap(QString name, double LXlow, double LXup, double Ly, double Lz
                                    x,y,z, phi,theta,psi);
     GeoObjects.push_back(o);
 }
+*/
 
 void AGeo_SI::trap(QString name, double LXlow, double LXup, double Ly, double Lz, int iMat, QString container, QVariantList position, QVariantList orientation)
 {
@@ -174,6 +180,7 @@ void AGeo_SI::trap(QString name, double LXlow, double LXup, double Ly, double Lz
     GeoObjects.push_back(o);
 }
 
+/*
 void AGeo_SI::trap2(QString name, double LXlow, double LXup, double LYlow, double LYup, double Lz, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
 {
     AGeoObject* o = new AGeoObject(name, container, iMat,
@@ -181,6 +188,7 @@ void AGeo_SI::trap2(QString name, double LXlow, double LXup, double LYlow, doubl
                                    x,y,z, phi,theta,psi);
     GeoObjects.push_back(o);
 }
+*/
 
 void AGeo_SI::trap2(QString name, double LXlow, double LXup, double LYlow, double LYup, double Lz, int iMat, QString container, QVariantList position, QVariantList orientation)
 {
@@ -193,12 +201,14 @@ void AGeo_SI::trap2(QString name, double LXlow, double LXup, double LYlow, doubl
     GeoObjects.push_back(o);
 }
 
+/*
 void AGeo_SI::cylinder(QString name, double outerD, double h, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
 {
     AGeoObject * o = new AGeoObject(name, container, iMat, new AGeoTube(0, 0.5*outerD, 0.5*h), x,y,z, phi,theta,psi);
 
     GeoObjects.push_back(o);
 }
+*/
 
 void AGeo_SI::cylinder(QString name, double outerD, double h, int iMat, QString container, QVariantList position, QVariantList orientation)
 {
@@ -211,6 +221,7 @@ void AGeo_SI::cylinder(QString name, double outerD, double h, int iMat, QString 
     GeoObjects.push_back(o);
 }
 
+/*
 void AGeo_SI::tube(QString name, double outerD, double innerD, double h, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
 {
     if (innerD >= outerD)
@@ -223,6 +234,7 @@ void AGeo_SI::tube(QString name, double outerD, double innerD, double h, int iMa
                                    x,y,z, phi,theta,psi);
     GeoObjects.push_back(o);
 }
+*/
 
 void AGeo_SI::tube(QString name, double outerD, double innerD, double h, int iMat, QString container, QVariantList position, QVariantList orientation)
 {
@@ -241,6 +253,7 @@ void AGeo_SI::tube(QString name, double outerD, double innerD, double h, int iMa
     GeoObjects.push_back(o);
 }
 
+/*
 void AGeo_SI::tubeSegment(QString name, double outerD, double innerD, double h, double Phi1, double Phi2, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
 {
     if (innerD >= outerD)
@@ -253,6 +266,7 @@ void AGeo_SI::tubeSegment(QString name, double outerD, double innerD, double h, 
                                    x,y,z, phi,theta,psi);
     GeoObjects.push_back(o);
 }
+*/
 
 void AGeo_SI::tubeSegment(QString name, double outerD, double innerD, double h, double Phi1, double Phi2, int iMat, QString container, QVariantList position, QVariantList orientation)
 {
@@ -271,6 +285,7 @@ void AGeo_SI::tubeSegment(QString name, double outerD, double innerD, double h, 
     GeoObjects.push_back(o);
 }
 
+/*
 void AGeo_SI::tubeCut(QString name, double outerD, double innerD, double h, double Phi1, double Phi2,
                       QVariantList Nlow, QVariantList Nhigh,
                       int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
@@ -298,6 +313,7 @@ void AGeo_SI::tubeCut(QString name, double outerD, double innerD, double h, doub
                                    x,y,z, phi,theta,psi);
     GeoObjects.push_back(o);
 }
+*/
 
 void AGeo_SI::tubeCut(QString name, double outerD, double innerD, double h, double Phi1, double Phi2, QVariantList Nlow, QVariantList Nhigh, int iMat, QString container, QVariantList position, QVariantList orientation)
 {
@@ -328,6 +344,7 @@ void AGeo_SI::tubeCut(QString name, double outerD, double innerD, double h, doub
     GeoObjects.push_back(o);
 }
 
+/*
 void AGeo_SI::tubeElliptical(QString name, double Dx, double Dy, double height, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
 {
     AGeoObject* o = new AGeoObject(name, container, iMat,
@@ -335,6 +352,7 @@ void AGeo_SI::tubeElliptical(QString name, double Dx, double Dy, double height, 
                                    x,y,z, phi,theta,psi);
     GeoObjects.push_back(o);
 }
+*/
 
 void AGeo_SI::tubeElliptical(QString name, double Dx, double Dy, double height, int iMat, QString container, QVariantList position, QVariantList orientation)
 {
@@ -347,6 +365,7 @@ void AGeo_SI::tubeElliptical(QString name, double Dx, double Dy, double height, 
     GeoObjects.push_back(o);
 }
 
+/*
 void AGeo_SI::polygon(QString name, int edges, double inscribDiameter, double h, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
 {
     AGeoObject * o = new AGeoObject(name, container, iMat,
@@ -354,6 +373,7 @@ void AGeo_SI::polygon(QString name, int edges, double inscribDiameter, double h,
                                     x,y,z, phi,theta,psi);
     GeoObjects.push_back(o);
 }
+*/
 
 void AGeo_SI::polygon(QString name, int edges, double inscribDiameter, double h, int iMat, QString container, QVariantList position, QVariantList orientation)
 {
@@ -366,6 +386,7 @@ void AGeo_SI::polygon(QString name, int edges, double inscribDiameter, double h,
     GeoObjects.push_back(o);
 }
 
+/*
 void AGeo_SI::polygonSegment(QString name, int edges, double DtopOut, double DtopIn, double DbotOut, double DbotIn, double h, double dPhi, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
 {
     AGeoObject * o = new AGeoObject(name, container, iMat,
@@ -373,6 +394,7 @@ void AGeo_SI::polygonSegment(QString name, int edges, double DtopOut, double Dto
                                     x,y,z, phi,theta,psi);
     GeoObjects.push_back(o);
 }
+*/
 
 void AGeo_SI::polygonSegment(QString name, int edges, double DtopOut, double DtopIn, double DbotOut, double DbotIn, double h, double dPhi, int iMat, QString container, QVariantList position, QVariantList orientation)
 {
@@ -385,6 +407,7 @@ void AGeo_SI::polygonSegment(QString name, int edges, double DtopOut, double Dto
     GeoObjects.push_back(o);
 }
 
+/*
 void AGeo_SI::pGon(QString name, int numEdges, QVariantList sections, double Phi, double dPhi, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
 {
     if (numEdges < 3)
@@ -409,6 +432,7 @@ void AGeo_SI::pGon(QString name, int numEdges, QVariantList sections, double Phi
                                    x,y,z, phi,theta,psi);
     GeoObjects.push_back(o);
 }
+*/
 
 void AGeo_SI::pGon(QString name, int numEdges, QVariantList sections, double Phi, double dPhi, int iMat, QString container, QVariantList position, QVariantList orientation)
 {
@@ -440,6 +464,7 @@ void AGeo_SI::pGon(QString name, int numEdges, QVariantList sections, double Phi
     GeoObjects.push_back(o);
 }
 
+/*
 void AGeo_SI::cone(QString name, double Dtop, double Dbot, double h, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
 {
     AGeoObject* o = new AGeoObject(name, container, iMat,
@@ -447,6 +472,7 @@ void AGeo_SI::cone(QString name, double Dtop, double Dbot, double h, int iMat, Q
                                    x,y,z, phi,theta,psi);
     GeoObjects.push_back(o);
 }
+*/
 
 void AGeo_SI::cone(QString name, double Dtop, double Dbot, double h, int iMat, QString container, QVariantList position, QVariantList orientation)
 {
@@ -459,6 +485,7 @@ void AGeo_SI::cone(QString name, double Dtop, double Dbot, double h, int iMat, Q
     GeoObjects.push_back(o);
 }
 
+/*
 void AGeo_SI::conicalTube(QString name, double DtopOut,  double DtopIn, double DbotOut, double DbotIn, double h, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
 {
     AGeoObject* o = new AGeoObject(name, container, iMat,
@@ -466,6 +493,7 @@ void AGeo_SI::conicalTube(QString name, double DtopOut,  double DtopIn, double D
                                    x,y,z, phi,theta,psi);
     GeoObjects.push_back(o);
 }
+*/
 
 void AGeo_SI::conicalTube(QString name, double DtopOut, double DtopIn, double DbotOut, double DbotIn, double h, int iMat, QString container, QVariantList position, QVariantList orientation)
 {
@@ -478,6 +506,7 @@ void AGeo_SI::conicalTube(QString name, double DtopOut, double DtopIn, double Db
     GeoObjects.push_back(o);
 }
 
+/*
 void AGeo_SI::coneSegment(QString name, double DtopOut, double DtopIn, double DbotOut, double DbotIn, double h, double phi1, double phi2, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
 {
     AGeoObject* o = new AGeoObject(name, container, iMat,
@@ -485,6 +514,7 @@ void AGeo_SI::coneSegment(QString name, double DtopOut, double DtopIn, double Db
                                    x,y,z, phi,theta,psi);
     GeoObjects.push_back(o);
 }
+*/
 
 void AGeo_SI::coneSegment(QString name, double DtopOut, double DtopIn, double DbotOut, double DbotIn, double h, double phi1, double phi2, int iMat, QString container, QVariantList position, QVariantList orientation)
 {
@@ -543,6 +573,7 @@ bool AGeo_SI::getSectionsPoly(const QVariantList & sections, std::vector<std::ar
     return true;
 }
 
+/*
 void AGeo_SI::pCone(QString name, QVariantList sections, double Phi, double dPhi, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
 {
     AGeoPcon * p = new AGeoPcon();
@@ -561,6 +592,7 @@ void AGeo_SI::pCone(QString name, QVariantList sections, double Phi, double dPhi
                                    x,y,z, phi,theta,psi);
     GeoObjects.push_back(o);
 }
+*/
 
 void AGeo_SI::pCone(QString name, QVariantList sections, double Phi, double dPhi, int iMat, QString container, QVariantList position, QVariantList orientation)
 {
@@ -585,6 +617,7 @@ void AGeo_SI::pCone(QString name, QVariantList sections, double Phi, double dPhi
     GeoObjects.push_back(o);
 }
 
+/*
 void AGeo_SI::sphere(QString name, double Dout, double Din, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
 {
     AGeoObject* o = new AGeoObject(name, container, iMat,
@@ -592,6 +625,7 @@ void AGeo_SI::sphere(QString name, double Dout, double Din, int iMat, QString co
                                    x,y,z, phi,theta,psi);
     GeoObjects.push_back(o);
 }
+*/
 
 void AGeo_SI::sphere(QString name, double Dout, double Din, int iMat, QString container, QVariantList position, QVariantList orientation)
 {
@@ -604,6 +638,7 @@ void AGeo_SI::sphere(QString name, double Dout, double Din, int iMat, QString co
     GeoObjects.push_back(o);
 }
 
+/*
 void AGeo_SI::sphereSector(QString name, double Dout, double Din, double Theta1, double Theta2, double Phi1, double Phi2, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
 {
     AGeoObject * o = new AGeoObject(name, container, iMat,
@@ -611,6 +646,7 @@ void AGeo_SI::sphereSector(QString name, double Dout, double Din, double Theta1,
                                    x,y,z, phi,theta,psi);
     GeoObjects.push_back(o);
 }
+*/
 
 void AGeo_SI::sphereSector(QString name, double Dout, double Din, double theta1, double theta2, double phi1, double phi2, int iMat, QString container, QVariantList position, QVariantList orientation)
 {
@@ -623,6 +659,7 @@ void AGeo_SI::sphereSector(QString name, double Dout, double Din, double theta1,
     GeoObjects.push_back(o);
 }
 
+/*
 void AGeo_SI::torus(QString name, double D, double Dout, double Din, double Phi, double dPhi, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
 {
     AGeoObject * o = new AGeoObject(name, container, iMat,
@@ -630,6 +667,7 @@ void AGeo_SI::torus(QString name, double D, double Dout, double Din, double Phi,
                                    x,y,z, phi,theta,psi);
     GeoObjects.push_back(o);
 }
+*/
 
 void AGeo_SI::torus(QString name, double D, double Dout, double Din, double Phi, double dPhi, int iMat, QString container, QVariantList position, QVariantList orientation)
 {
@@ -642,6 +680,7 @@ void AGeo_SI::torus(QString name, double D, double Dout, double Din, double Phi,
     GeoObjects.push_back(o);
 }
 
+/*
 void AGeo_SI::paraboloid(QString name, double Dbot, double Dup, double h, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
 {
     AGeoObject * o = new AGeoObject(name, container, iMat,
@@ -649,6 +688,7 @@ void AGeo_SI::paraboloid(QString name, double Dbot, double Dup, double h, int iM
                                    x,y,z, phi,theta,psi);
     GeoObjects.push_back(o);
 }
+*/
 
 void AGeo_SI::paraboloid(QString name, double Dbot, double Dup, double h, int iMat, QString container, QVariantList position, QVariantList orientation)
 {
@@ -661,6 +701,7 @@ void AGeo_SI::paraboloid(QString name, double Dbot, double Dup, double h, int iM
     GeoObjects.push_back(o);
 }
 
+/*
 void AGeo_SI::composite(QString name, QString compositionString, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
 {
     AGeoObject * o = new AGeoObject(name, container, iMat,
@@ -712,6 +753,7 @@ void AGeo_SI::composite(QString name, QString compositionString, int iMat, QStri
     }
     GeoObjects.push_back(o);
 }
+*/
 
 void AGeo_SI::composite(QString name, QString compositionString, int iMat, QString container, QVariantList position, QVariantList orientation)
 {
@@ -768,6 +810,7 @@ void AGeo_SI::composite(QString name, QString compositionString, int iMat, QStri
     GeoObjects.push_back(o);
 }
 
+/*
 void AGeo_SI::arb8(QString name, QVariantList NodesXY, double h, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
 {
     if (NodesXY.size() != 8)
@@ -807,6 +850,7 @@ void AGeo_SI::arb8(QString name, QVariantList NodesXY, double h, int iMat, QStri
                                    x,y,z, phi,theta,psi);
     GeoObjects.push_back(o);
 }
+*/
 
 void AGeo_SI::arb8(QString name, QVariantList NodesXY, double h, int iMat, QString container, QVariantList position, QVariantList orientation)
 {
@@ -899,6 +943,7 @@ void AGeo_SI::toScaled(QString name, double xFactor, double yFactor, double zFac
     }
 }
 
+/*
 void AGeo_SI::monitor(QString name, int shape, double size1, double size2, QString container, double x, double y, double z, double phi, double theta, double psi, bool SensitiveTop, bool SensitiveBottom, bool StopsTraking)
 {
     AGeoObject * o = new AGeoObject(name, container, 0,    // no material -> it will be updated on build
@@ -921,6 +966,7 @@ void AGeo_SI::monitor(QString name, int shape, double size1, double size2, QStri
 
     GeoObjects.push_back(o);
 }
+*/
 
 void AGeo_SI::monitor(QString name, int shape, double size1, double size2, QString container, QVariantList position, QVariantList orientation, bool SensitiveTop, bool SensitiveBottom, bool StopsTraking)
 {
@@ -1164,6 +1210,7 @@ void AGeo_SI::configureParticleMonitor(QString MonitorName, QString Particle, in
     }
 }
 
+/*
 void AGeo_SI::customTGeo(QString name, QString GenerationString, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
 {
     AGeoObject* o = new AGeoObject(name, container, iMat,
@@ -1223,6 +1270,7 @@ void AGeo_SI::customTGeo(QString name, QString GenerationString, int iMat, QStri
     }
     GeoObjects.push_back(o);
 }
+*/
 
 void AGeo_SI::customTGeo(QString name, QString generationString, int iMat, QString container, QVariantList position, QVariantList orientation)
 {
@@ -1286,6 +1334,7 @@ void AGeo_SI::customTGeo(QString name, QString generationString, int iMat, QStri
     GeoObjects.push_back(o);
 }
 
+/*
 void AGeo_SI::stack(QString name, QString container, double x, double y, double z, double phi, double theta, double psi)
 {
     AGeoObject * o = new AGeoObject(name, container, 0, nullptr, x,y,z, phi,theta,psi);
@@ -1293,6 +1342,7 @@ void AGeo_SI::stack(QString name, QString container, double x, double y, double 
     o->Type = new ATypeStackContainerObject();
     GeoObjects.push_back(o);
 }
+*/
 
 void AGeo_SI::stack(QString name, QString container, QVariantList position, QVariantList orientation)
 {
@@ -1350,6 +1400,7 @@ void AGeo_SI::initializeStack(QString StackName, QString MemberName_StackReferen
     StackObj->HostedObjects.clear();
 }
 
+/*
 void AGeo_SI::array(QString name, int numX, int numY, int numZ, double stepX, double stepY, double stepZ, QString container, double x, double y, double z, double phi, double theta, double psi, bool centerSymmetric, int startIndex)
 {
     AGeoObject * o = new AGeoObject(name, container, 0, 0, x,y,z, phi,theta,psi);
@@ -1360,6 +1411,7 @@ void AGeo_SI::array(QString name, int numX, int numY, int numZ, double stepX, do
     o->Type = arType;
     GeoObjects.push_back(o);
 }
+*/
 
 void AGeo_SI::array(QString name, QVariantList numXYZ, QVariantList stepXYZ, QString container, QVariantList position, QVariantList orientation, bool centerSymmetric, int startIndex)
 {
@@ -1392,6 +1444,7 @@ void AGeo_SI::array(QString name, QVariantList numXYZ, QVariantList stepXYZ, QSt
     GeoObjects.push_back(o);
 }
 
+/*
 void AGeo_SI::circArray(QString name, int num, double angularStep, double radius, QString container, double x, double y, double z, double phi, double theta, double psi, int startIndex)
 {
     AGeoObject * o = new AGeoObject(name, container, 0, 0, x,y,z, phi,theta,psi);
@@ -1400,6 +1453,7 @@ void AGeo_SI::circArray(QString name, int num, double angularStep, double radius
     o->Type = new ATypeCircularArrayObject(num, angularStep, radius, startIndex);
     GeoObjects.push_back(o);
 }
+*/
 
 void AGeo_SI::circArray(QString name, int num, double angularStep, double radius, QString container, QVariantList position, QVariantList orientation, int startIndex)
 {
@@ -1414,6 +1468,7 @@ void AGeo_SI::circArray(QString name, int num, double angularStep, double radius
     GeoObjects.push_back(o);
 }
 
+/*
 void AGeo_SI::hexArray(QString name, int numRings, double pitch, QString container, double x, double y, double z, double phi, double theta, double psi, int startIndex)
 {
     AGeoObject * o = new AGeoObject(name, container, 0, 0, x,y,z, phi,theta,psi);
@@ -1425,6 +1480,7 @@ void AGeo_SI::hexArray(QString name, int numRings, double pitch, QString contain
     o->Type = ar;
     GeoObjects.push_back(o);
 }
+*/
 
 void AGeo_SI::hexArray(QString name, int numRings, double pitch, QString container, QVariantList position, QVariantList orientation, int startIndex)
 {
@@ -1442,6 +1498,7 @@ void AGeo_SI::hexArray(QString name, int numRings, double pitch, QString contain
     GeoObjects.push_back(o);
 }
 
+/*
 void AGeo_SI::hexArray_rectangular(QString name, int numX, int numY, double pitch, bool skipEvenFirst, bool skipOddLast, QString container, double x, double y, double z, double phi, double theta, double psi, int startIndex)
 {
     AGeoObject * o = new AGeoObject(name, container, 0, 0, x,y,z, phi,theta,psi);
@@ -1453,6 +1510,7 @@ void AGeo_SI::hexArray_rectangular(QString name, int numX, int numY, double pitc
     o->Type = ar;
     GeoObjects.push_back(o);
 }
+*/
 
 void AGeo_SI::hexArray_rectangular(QString name, int numX, int numY, double pitch, bool skipEvenFirst, bool skipOddLast, QString container, QVariantList position, QVariantList orientation, int startIndex)
 {
@@ -1478,6 +1536,7 @@ void AGeo_SI::prototype(QString name)
     GeoObjects.push_back(proto);
 }
 
+/*
 void AGeo_SI::instance(QString name, QString prototype, QString container, double x, double y, double z, double phi, double theta, double psi)
 {
     AGeoObject * instance = new AGeoObject(name);
@@ -1491,6 +1550,7 @@ void AGeo_SI::instance(QString name, QString prototype, QString container, doubl
     instance->Orientation[2] = psi;
     GeoObjects.push_back(instance);
 }
+*/
 
 void AGeo_SI::instance(QString name, QString prototype, QString container, QVariantList position, QVariantList orientation)
 {
