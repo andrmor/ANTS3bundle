@@ -1,5 +1,5 @@
 {
-    "ConfigDescription": "Description is empty",
+    "ConfigDescription": "Disable Tracking data for larger number of neutrons! Use DE_Neutrons.txt example script to compute detection efficiency.",
     "ConfigName": "FastNeutronDetector: Cylindric",
     "Geometry": {
         "GeoConsts": [

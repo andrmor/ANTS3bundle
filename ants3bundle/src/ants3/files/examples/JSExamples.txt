@@ -62,3 +62,10 @@ Photon functional
 Script example book for configuring WSF neutron detector (config: WSFneutron.json) and demonstrating how to make position reconstruction
 #end
 
+#file
+DE_FastNeutrons.txt
+#tags
+Calorimeter:Detection efficiency
+#info
+Compute detection effeciency for 10B-RPC neutron detector examples
+#end
