@@ -3045,7 +3045,7 @@ AGeoArrayDelegate::AGeoArrayDelegate(const QStringList &materials, QWidget *pare
     grAW->setContentsMargins(0,0,0,0);
     grAW->setVerticalSpacing(0);
 
-    QLabel *la = new QLabel;
+    QLabel * la = nullptr;
     la = new QLabel("Number in X:"); grAW->addWidget(la, 0, 0);
     la = new QLabel("Number in Y:"); grAW->addWidget(la, 1, 0);
     la = new QLabel("Number in Z:"); grAW->addWidget(la, 2, 0);
@@ -3092,7 +3092,6 @@ AGeoArrayDelegate::AGeoArrayDelegate(const QStringList &materials, QWidget *pare
     lHor->addStretch();
 
     lVer->addLayout(lHor);
-
 
     addLocalLayout(lVer);
 
