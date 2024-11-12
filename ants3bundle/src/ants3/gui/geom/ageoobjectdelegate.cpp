@@ -3104,6 +3104,7 @@ AGeoArrayDelegate::AGeoArrayDelegate(const QStringList &materials, QWidget *pare
         configureHighligherAndCompleter(le);
         QObject::connect(le, &AOneLineTextEdit::textChanged, this, &AGeoBaseDelegate::onContentChangedBase);
     }
+    QObject::connect(cbCenterSym, &QCheckBox::clicked, this, &AGeoBaseDelegate::onContentChangedBase);
 
     cbScale->setChecked(false);
     cbScale->setVisible(false);
