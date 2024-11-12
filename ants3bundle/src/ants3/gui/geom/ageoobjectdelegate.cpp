@@ -31,7 +31,7 @@
 #include <QTableWidget>
 #include <QHeaderView>
 
-#include "TVector3.h"
+//#include "TVector3.h"
 
 AGeoObjectDelegate::AGeoObjectDelegate(const QStringList & materials, QWidget * ParentWidget) :
     AGeoBaseDelegate(ParentWidget)

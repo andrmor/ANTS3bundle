@@ -32,3 +32,5 @@
 @WSFneutron.json One-dimensional detector with 200 fibers connected to readout PMTs using a coding approach. See script example WSF_neutron_detector_ScriptBook.json for position reconstruction and geometry tuning
 ** Fast neutrons
 @FastNeutron_Cylinder.json Cylindrical moderator, neutrons up to ~5 MeV
+@FastNeutron_SimpleCube.json Cubic moderator, equidistant arrays, neutrons up to ~5 MeV
+@FastNeutron_OptimizedCube.json Cubic moderator, three layers of arrays, neutrons up to ~5 MeV
