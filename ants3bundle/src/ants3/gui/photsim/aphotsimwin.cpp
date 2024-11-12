@@ -1548,14 +1548,14 @@ void APhotSimWin::showSensorSignals(bool suppressMessage)
     bool ok = SignalsFileHandler->gotoEvent(ui->sbEvent->value());
     if (!ok)
     {
-        guitools::message(AErrorHub::getQError(), this); // check: silence error if suppressMessage?
+        if (!suppressMessage) guitools::message(AErrorHub::getQError(), this);
         return;
     }
 
     ok = SignalsFileHandler->readNextRecordSameEvent(ar);
     if (!ok)
     {
-        guitools::message(AErrorHub::getQError(), this); // check: silence error if suppressMessage?
+        if (!suppressMessage) guitools::message(AErrorHub::getQError(), this);
         return;
     }
 
