@@ -1495,3 +1495,19 @@ void AMatWin::on_ledT_editingFinished()
     if (ui->cbGas->isChecked()) on_ledPressure_editingFinished();
     else on_pbUpdateTmpMaterial_clicked();
 }
+
+#include "aopticaldataimportdialog.h"
+void AMatWin::on_pbComputeNlambda_clicked()
+{
+    AOpticalDataImportDialog D;
+    int res = D.exec();
+    if (res == QDialog::Rejected) return;
+
+    tmpMaterial.RefIndex_Wave = D.Data;
+
+    bool bHaveData = !tmpMaterial.RefIndex_Wave.empty();
+    ui->pbShowNlambda->setEnabled(bHaveData);
+    ui->pbDeleteNlambda->setEnabled(bHaveData);
+    setWasModified(true);
+}
+
