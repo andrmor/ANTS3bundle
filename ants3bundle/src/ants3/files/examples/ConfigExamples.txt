@@ -5,6 +5,7 @@
 ** Particle sim
 @AnalyzersPT.json Simple example of the usage of a particle monitor and particle analyzer; 130 MeV proton beam generating prompt gammas
 ** Optical sim
+@FresnelTester.json Cuboid crystal, point source isotropic emission: testing Fresnel --> number of photons exiting from all sides should be the same
 @ThinLens.json Example demonstrating how to configure thin lens for optical simulation using a PhotonFuncional object
 * Gamma cameras
 ** PMT-based
