@@ -2,10 +2,11 @@
 #include "ui_aopticaldataimportdialog.h"
 #include "vformula.h"
 #include "guitools.h"
+#include "ajsontools.h"
 
-AOpticalDataImportDialog::AOpticalDataImportDialog(QWidget *parent)
-    : QDialog(parent)
-    , ui(new Ui::AOpticalDataImportDialog)
+AOpticalDataImportDialog::AOpticalDataImportDialog(QWidget *parent) :
+    QDialog(parent),
+    ui(new Ui::AOpticalDataImportDialog)
 {
     ui->setupUi(this);
 }
@@ -34,6 +35,12 @@ void AOpticalDataImportDialog::on_pbCompute_clicked()
     double to   = ui->ledWaveTo->text().toDouble();
     double step = ui->ledWaveStep->text().toDouble();
 
+    if (from >= to)
+    {
+        guitools::message("Error in the wavelength range", this);
+        return;
+    }
+
     double wave = from;
     do
     {
@@ -46,30 +53,23 @@ void AOpticalDataImportDialog::on_pbCompute_clicked()
     if      (ui->cobUnits->currentIndex() == 1) waveFactor = 0.001;
     else if (ui->cobUnits->currentIndex() == 2) waveFactor = 0.1;
 
-    VFormula p1;
+    VFormula p;
 
     std::vector<std::string> names;
     names.push_back("lambda");
-    p1.setVariableNames(names);
+    p.setVariableNames(names);
 
-    bool ok = p1.parse(formula.toLatin1().data());
+    bool ok = p.parse(formula.toLatin1().data());
     if (!ok)
     {
-        guitools::message("VFormula parse error!\n" + QString(p1.ErrorString.data()));
+        guitools::message("Formula parsing error\n" + QString(p.ErrorString.data()));
         return;
     }
-
-    VFormula p(p1);
-
-    //std::cout << "\n----------Map------------\n";
-    //p.printCVMap();
-    //std::cout << "\n---------Program---------\n";
-    //p.printPrg();
 
     ok = p.validate();
     if (!ok)
     {
-        guitools::message("VFormula validation error!\n" + QString(p.ErrorString.data()));
+        guitools::message("Formula validation error\n" + QString(p.ErrorString.data()));
         return;
     }
 
@@ -86,7 +86,53 @@ void AOpticalDataImportDialog::on_pbCompute_clicked()
         pair.second = res;
     }
 
-    qDebug() << Data;
+    //qDebug() << Data;
     accept();
 }
 
+void AOpticalDataImportDialog::writeToJson(QJsonObject & json) const
+{
+    {
+        QJsonObject js;
+            js["From"] = ui->ledWaveFrom->text().toDouble();
+            js["To"]   = ui->ledWaveTo->text().toDouble();
+            js["Step"] = ui->ledWaveStep->text().toDouble();
+        json["WavelengthRange"] = js;
+    }
+
+    json["Formula"] = ui->pteFormula->document()->toPlainText();
+
+    QString txt;
+    switch (ui->cobUnits->currentIndex())
+    {
+    case 0: txt = "nm"; break;
+    case 1: txt = "um"; break;
+    case 2: txt = "A"; break;
+    }
+    json["FormulaUnits"] = txt;
+}
+
+void AOpticalDataImportDialog::readFromJson(const QJsonObject & json)
+{
+    if (json.empty()) return;
+
+    {
+        QJsonObject js;
+        jstools::parseJson(json, "WavelengthRange", js);
+        double val;
+        if (jstools::parseJson(js, "From", val)) ui->ledWaveFrom->setText(QString::number(val));
+        if (jstools::parseJson(js, "To",   val)) ui->ledWaveTo->setText(QString::number(val));
+        if (jstools::parseJson(js, "Step", val)) ui->ledWaveStep->setText(QString::number(val));
+    }
+
+    QString txt;
+    if (jstools::parseJson(json, "Formula", txt)) ui->pteFormula->appendPlainText(txt);
+
+    if (jstools::parseJson(json, "FormulaUnits", txt))
+    {
+        int index = 0;
+        if      (txt == "um") index = 1;
+        else if (txt == "A")  index = 2;
+        ui->cobUnits->setCurrentIndex(index);
+    }
+}

@@ -1499,11 +1499,16 @@ void AMatWin::on_ledT_editingFinished()
 #include "aopticaldataimportdialog.h"
 void AMatWin::on_pbComputeNlambda_clicked()
 {
-    AOpticalDataImportDialog D;
+    AOpticalDataImportDialog D(this);
+    D.readFromJson(tmpMaterial.RefIndexImporter);
+
     int res = D.exec();
     if (res == QDialog::Rejected) return;
 
     tmpMaterial.RefIndex_Wave = D.Data;
+
+    tmpMaterial.RefIndexImporter = QJsonObject();
+    D.writeToJson(tmpMaterial.RefIndexImporter);
 
     bool bHaveData = !tmpMaterial.RefIndex_Wave.empty();
     ui->pbShowNlambda->setEnabled(bHaveData);

@@ -323,6 +323,8 @@ void AMaterial::writeToJson(QJsonObject & json) const
         json["RefIndexComplex_Wave"] = ar;
     }
 
+    json["RefIndexImporter"] = RefIndexImporter;
+
     json["PhotonYield"] = PhotonYield;
     json["IntrEnergyRes"] = IntrEnergyRes;
 
@@ -416,6 +418,8 @@ bool AMaterial::readFromJson(const QJsonObject & json)
 
     jstools::parseJson(json, "PhotonYield",   PhotonYield);
     jstools::parseJson(json, "IntrEnergyRes", IntrEnergyRes);
+
+    jstools::parseJson(json, "RefIndexImporter", RefIndexImporter);
 
     jstools::parseJson(json, "Dielectric", Dielectric);
     {
