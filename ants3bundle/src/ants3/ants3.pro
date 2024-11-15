@@ -147,6 +147,7 @@ SOURCES += \
     gui/graph/aviewer3d.cpp \
     gui/graph/aviewer3dsettingsdialog.cpp \
     gui/graph/aviewer3dwidget.cpp \
+    gui/materials/aabsorptiondataconverterdialog.cpp \
     gui/materials/amatwin.cpp \
     gui/materials/aopticaldataimportdialog.cpp \
     gui/particleSim/aeventsdonedialog.cpp \
@@ -365,6 +366,7 @@ HEADERS += \
     gui/graph/adrawmarginsrecord.h \
     gui/graph/asetmarginsdialog.h \
     gui/graph/aviewer3dsettingsdialog.h \
+    gui/materials/aabsorptiondataconverterdialog.h \
     gui/materials/aopticaldataimportdialog.h \
     gui/photsim/afunctionalmodelwidget.h \
     gui/photsim/aphotonlogsettingsform.h \
@@ -601,6 +603,7 @@ FORMS += \
         gui/graph/aviewer3d.ui \
         gui/graph/aviewer3dsettingsdialog.ui \
         gui/graph/aviewer3dwidget.ui \
+        gui/materials/aabsorptiondataconverterdialog.ui \
         gui/materials/aopticaldataimportdialog.ui \
         gui/particleSim/aeventsdonedialog.ui \
         gui/particleSim/atrackdrawdialog.ui \

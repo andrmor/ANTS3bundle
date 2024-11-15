@@ -1516,3 +1516,18 @@ void AMatWin::on_pbComputeNlambda_clicked()
     setWasModified(true);
 }
 
+#include "aabsorptiondataconverterdialog.h"
+void AMatWin::on_pbAbsImport_clicked()
+{
+    AAbsorptionDataConverterDialog D(this);
+
+    int res = D.exec();
+    if (res == QDialog::Rejected) return;
+
+    tmpMaterial.AbsCoeff_Wave = D.Data;
+
+    bool bHaveData = !tmpMaterial.AbsCoeff_Wave.empty();
+    ui->pbShowABSlambda->setEnabled(bHaveData);
+    ui->pbDeleteABSlambda->setEnabled(bHaveData);
+    setWasModified(true);
+}

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>569</width>
-    <height>642</height>
+    <width>582</width>
+    <height>695</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -1222,6 +1222,13 @@ Wavelengths shoul be given in increasing order</string>
                        </property>
                        <property name="text">
                         <string>Load</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QPushButton" name="pbAbsImport">
+                       <property name="text">
+                        <string>Import</string>
                        </property>
                       </widget>
                      </item>
@@ -2921,8 +2928,8 @@ Wavelengths shoul be given in increasing order</string>
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>569</width>
-     <height>21</height>
+     <width>582</width>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuLibrary">

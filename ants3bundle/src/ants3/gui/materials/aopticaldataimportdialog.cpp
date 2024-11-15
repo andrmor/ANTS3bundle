@@ -51,7 +51,7 @@ void AOpticalDataImportDialog::on_pbCompute_clicked()
 
     double waveFactor = 1.0;
     if      (ui->cobUnits->currentIndex() == 1) waveFactor = 0.001;
-    else if (ui->cobUnits->currentIndex() == 2) waveFactor = 0.1;
+    else if (ui->cobUnits->currentIndex() == 2) waveFactor = 10;
 
     VFormula p;
 

@@ -98,6 +98,8 @@ private slots:
 
     void on_pbComputeNlambda_clicked();
 
+    void on_pbAbsImport_clicked();
+
 private:
     AGeometryHub & Geometry;
     AMaterialHub & MatHub;
