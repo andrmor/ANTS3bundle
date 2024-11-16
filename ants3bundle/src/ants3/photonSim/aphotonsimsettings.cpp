@@ -50,11 +50,16 @@ int AWaveResSettings::toIndex(double wavelength) const
 {
     if (!Enabled) return -1;
 
+    if (wavelength < From) return -1;
+    if (wavelength > To)   return -1;
+
     int iwave = round( (wavelength - From) / Step );
 
-    if (iwave < 0) iwave = 0;
+    if (iwave < 0) return -1;
+
     const int numNodes = countNodes();
-    if (iwave >= numNodes) iwave = numNodes - 1;
+    if (iwave >= numNodes) return -1;
+
     return iwave;
 }
 
@@ -933,7 +938,7 @@ void APhotonAdvancedSettings::clear()
     ConeAngle     = 10.0;
 
     bFixWave      = false;
-    WaveIndex  = -1;
+    FixedWavelength  = 550.0;
 
     bFixDecay     = false;
     DecayTime  = 5.0; // in ns
@@ -968,8 +973,8 @@ void APhotonAdvancedSettings::writeToJson(QJsonObject & json) const
     // Wave index
     {
         QJsonObject js;
-            js["Enabled"]   = bFixWave;
-            js["WaveIndex"] = WaveIndex;
+            js["Enabled"] = bFixWave;
+            js["FixedWavelength"] = FixedWavelength;
         json["Wave"] = js;
     }
 
@@ -1019,7 +1024,7 @@ void APhotonAdvancedSettings::readFromJson(const QJsonObject &json)
         QJsonObject js;
         jstools::parseJson(json, "Wave", js);
         jstools::parseJson(js, "Enabled",   bFixWave);
-        jstools::parseJson(js, "WaveIndex", WaveIndex);
+        jstools::parseJson(js, "FixedWavelength", FixedWavelength);
     }
 
     // Decay time

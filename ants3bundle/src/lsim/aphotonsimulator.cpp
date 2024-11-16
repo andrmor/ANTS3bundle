@@ -239,9 +239,8 @@ void APhotonSimulator::setupPhotonBombs()
 
     // Wavelength
     Photon.waveIndex = -1;
-    if (SimSet.WaveSet.Enabled && AdvSet.bFixWave)
-        if (AdvSet.WaveIndex >= -1 && AdvSet.WaveIndex < SimSet.WaveSet.countNodes())
-            Photon.waveIndex = AdvSet.WaveIndex;
+    if (AdvSet.bFixWave)
+        Photon.waveIndex = SimSet.WaveSet.toIndex(AdvSet.FixedWavelength);
 
     // Limiters
     if (AdvSet.bOnlyVolume)   LimitToVolume   = TString(AdvSet.Volume.toLatin1().data());

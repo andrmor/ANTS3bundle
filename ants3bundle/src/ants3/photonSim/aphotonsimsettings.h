@@ -166,7 +166,8 @@ public:
     double    ConeAngle     = 10.0;
 
     bool      bFixWave      = false;
-    int       WaveIndex     = -1;
+    //int       WaveIndex     = -1;
+    double    FixedWavelength = 550.0;
 
     bool      bFixDecay     = false;
     double    DecayTime     = 5.0; // in ns

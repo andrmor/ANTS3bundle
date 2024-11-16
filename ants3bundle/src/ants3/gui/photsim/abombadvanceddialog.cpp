@@ -2,6 +2,7 @@
 #include "ui_abombadvanceddialog.h"
 #include "aphotonsimhub.h"
 #include "guitools.h"
+#include "aphotonsimhub.h"
 
 ABombAdvancedDialog::ABombAdvancedDialog(QWidget *parent) :
     QDialog(parent),
@@ -32,7 +33,8 @@ ABombAdvancedDialog::ABombAdvancedDialog(QWidget *parent) :
     ui->ledConeAngle->setText(QString::number(s.ConeAngle));
 
     ui->cbFixWave->setChecked(s.bFixWave);
-    ui->sbFixedWave->setValue(s.WaveIndex);
+    ui->ledFixedWavelength->setText(QString::number(s.FixedWavelength));
+    updateFixedWavelengthGui();
 
     ui->cbFixedDecay->setChecked(s.bFixDecay);
     ui->ledDecayTime->setText(QString::number(s.DecayTime));
@@ -68,7 +70,7 @@ void ABombAdvancedDialog::on_pbAccept_clicked()
     s.ConeAngle = ui->ledConeAngle->text().toDouble();
 
     s.bFixWave = ui->cbFixWave->isChecked();
-    s.WaveIndex = ui->sbFixedWave->value();
+    s.FixedWavelength = ui->ledFixedWavelength->text().toDouble();
 
     s.bFixDecay = ui->cbFixedDecay->isChecked();
     s.DecayTime = ui->ledDecayTime->text().toDouble();
@@ -117,3 +119,27 @@ void ABombAdvancedDialog::on_cbSkipByMaterial_toggled(bool)
     ui->twAdvSimOpt->setTabIcon(3, (flag ? YellowCircle : QIcon()));
 }
 
+void ABombAdvancedDialog::on_pbFixedWavelengthInfo_clicked()
+{
+    guitools::message("If not checked, the wavelength of the generated photons is defined by the emission spectrum of the material at the emission position.\n"
+                      "\nIn case the emission spectrum is not defined, the photons are generated with waveindex of -1, and non-wavelength resolved properties of all materials is used in tracking of this photon\n"
+                      "\nIf the slected wavelength is outside of the configured wavelength range, the generated photons will have waveindex of -1", this);
+}
+
+void ABombAdvancedDialog::updateFixedWavelengthGui()
+{
+    const APhotonSimHub & SimSet = APhotonSimHub::getConstInstance();
+    const AWaveResSettings & WaveSet = SimSet.Settings.WaveSet;
+
+    ui->labNotWavelengthResolved->setVisible(!WaveSet.Enabled);
+    ui->frFixedWavelength->setEnabled(WaveSet.Enabled);
+
+    const double wave = ui->ledFixedWavelength->text().toDouble();
+    const int iwave = WaveSet.toIndex(wave);
+    ui->labFixedWaveIndex->setText(QString::number(iwave));
+}
+
+void ABombAdvancedDialog::on_ledFixedWavelength_editingFinished()
+{
+    updateFixedWavelengthGui();
+}
