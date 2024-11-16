@@ -4,11 +4,19 @@
 #include "guitools.h"
 #include "ajsontools.h"
 
+#include <QDoubleValidator>
+
 AOpticalDataImportDialog::AOpticalDataImportDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::AOpticalDataImportDialog)
 {
     ui->setupUi(this);
+
+    QDoubleValidator * dv = new QDoubleValidator(this);
+    dv->setBottom(0);
+    ui->ledWaveFrom->setValidator(dv);
+    ui->ledWaveTo->setValidator(dv);
+    ui->ledWaveStep->setValidator(dv);
 }
 
 AOpticalDataImportDialog::~AOpticalDataImportDialog()
@@ -62,14 +70,14 @@ void AOpticalDataImportDialog::on_pbCompute_clicked()
     bool ok = p.parse(formula.toLatin1().data());
     if (!ok)
     {
-        guitools::message("Formula parsing error\n" + QString(p.ErrorString.data()));
+        guitools::message("Formula parsing error\n" + QString(p.ErrorString.data()), this);
         return;
     }
 
     ok = p.validate();
     if (!ok)
     {
-        guitools::message("Formula validation error\n" + QString(p.ErrorString.data()));
+        guitools::message("Formula validation error\n" + QString(p.ErrorString.data()), this);
         return;
     }
 
@@ -80,7 +88,7 @@ void AOpticalDataImportDialog::on_pbCompute_clicked()
         double res = p.eval(values);
         if (!p.ErrorString.empty())
         {
-            guitools::message("VFormula eval error!\n" + QString(p.ErrorString.data()));
+            guitools::message("VFormula eval error!\n" + QString(p.ErrorString.data()), this);
             return;
         }
         pair.second = res;

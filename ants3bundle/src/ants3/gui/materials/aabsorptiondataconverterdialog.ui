@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
+    <width>439</width>
     <height>300</height>
    </rect>
   </property>
@@ -43,24 +43,43 @@
       </widget>
      </item>
      <item>
-      <spacer name="horizontalSpacer">
-       <property name="orientation">
-        <enum>Qt::Orientation::Horizontal</enum>
+      <widget class="QLabel" name="label_2">
+       <property name="text">
+        <string>Values:</string>
        </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
+      </widget>
+     </item>
+     <item>
+      <widget class="QComboBox" name="cobWhat">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
        </property>
-      </spacer>
+       <item>
+        <property name="text">
+         <string>Absorption, mm-1</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Absorption, cm-1</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Extinction coefficient</string>
+        </property>
+       </item>
+      </widget>
      </item>
     </layout>
    </item>
    <item>
     <widget class="QPlainTextEdit" name="pteTable">
      <property name="toolTip">
-      <string>Table of wavelength and extinction coefficiant values, one pair per line</string>
+      <string>Table of wavelength and absorption or extinction coefficiants, one pair per line</string>
      </property>
     </widget>
    </item>
