@@ -65,7 +65,7 @@ int AWaveResSettings::toIndex(double wavelength) const
 
 int AWaveResSettings::toIndexFast(double wavelength) const
 {
-    return (wavelength - From) / Step;
+    return round( (wavelength - From) / Step );
 }
 
 void AWaveResSettings::toStandardBins(const QVector<double>* wavelength, const QVector<double>* value, QVector<double>* binnedValue) const
