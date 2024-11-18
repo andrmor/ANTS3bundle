@@ -8,8 +8,8 @@
 
 #include <QDebug>
 
-#include "TMath.h"
-#include "TH1D.h"
+//#include "TMath.h"
+//#include "TH1D.h"
 
 AOneEvent::AOneEvent() :
     SimSet(APhotonSimHub::getInstance().Settings),
