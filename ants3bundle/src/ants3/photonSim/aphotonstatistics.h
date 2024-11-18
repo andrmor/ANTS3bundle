@@ -1,8 +1,6 @@
 #ifndef ASIMULATIONSTATISTICS_H
 #define ASIMULATIONSTATISTICS_H
 
-#include <vector>
-
 class QJsonObject;
 class TH1D;
 class QString;
