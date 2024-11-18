@@ -26,6 +26,7 @@ public:
     QString ExchangeDir;   // can be changed, therefore it is saved
     QString ExecutableDir;
     QString ConfigDir;     // global settings are saved there
+    QString TmpOutputDir;
     QString QuicksaveDir;
     QString ExamplesDir;
     QString ResourcesDir;

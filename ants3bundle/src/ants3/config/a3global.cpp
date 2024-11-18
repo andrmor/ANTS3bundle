@@ -42,6 +42,9 @@ A3Global::A3Global()
         qDebug() << "Config dir not found, skipping config load, creating new config dir" ;
         QDir().mkdir(ConfigDir); //dir not found, skipping load config
     }
+
+    TmpOutputDir = AntsBaseDir + "/TmpOutput";
+    if (!QDir(TmpOutputDir).exists()) QDir().mkdir(TmpOutputDir);
 }
 
 #include "TStyle.h"

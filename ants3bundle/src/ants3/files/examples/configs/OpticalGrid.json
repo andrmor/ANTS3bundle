@@ -27,6 +27,15 @@
             },
             {
                 "Container": "World",
+                "Name": "_#_PrototypeContainer_#_",
+                "Type": {
+                    "Type": "PrototypeCollection"
+                },
+                "fActive": true,
+                "fExpanded": true
+            },
+            {
+                "Container": "World",
                 "Name": "Array1",
                 "Phi": 0,
                 "Psi": 0,
@@ -120,15 +129,6 @@
                 "fExpanded": true,
                 "style": 1,
                 "width": 1
-            },
-            {
-                "Container": "World",
-                "Name": "_#_PrototypeContainer_#_",
-                "Type": {
-                    "Type": "PrototypeCollection"
-                },
-                "fActive": true,
-                "fExpanded": true
             },
             {
                 "Container": "World",
@@ -449,6 +449,8 @@
             ],
             "RefIndexComplex_Wave": [
             ],
+            "RefIndexImporter": {
+            },
             "RefIndexWave": [
             ],
             "SecScintSpectrum": [
@@ -515,6 +517,8 @@
             ],
             "RefIndexComplex_Wave": [
             ],
+            "RefIndexImporter": {
+            },
             "RefIndexWave": [
             ],
             "SecScintSpectrum": [
@@ -537,6 +541,7 @@
             ],
             "PhysicsList": "QGSP_BERT_HP",
             "ScintSensitiveVolumes": [
+                "Scintillator",
                 "ScintFront",
                 "ScintBack",
                 "ScintFront",
@@ -644,7 +649,7 @@
                 },
                 "Wave": {
                     "Enabled": false,
-                    "WaveIndex": -1
+                    "FixedWavelength": 550
                 }
             },
             "File": {
@@ -736,7 +741,7 @@
             "FileNameStatistics": "PhotonStatistics.json",
             "FileNameTracks": "PhotonTracks.txt",
             "MaxTracks": 1000,
-            "OutputDirectory": "/home/andr/tmp",
+            "OutputDirectory": "",
             "PhotonLog": {
                 "Enabled": false,
                 "FileName": "PhotonLog.txt",

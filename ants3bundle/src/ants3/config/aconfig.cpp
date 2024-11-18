@@ -88,6 +88,7 @@ QString AConfig::readFromJson(const QJsonObject & json, bool updateGui)
     if (err.isEmpty())
     {
         JSON = json;
+        replaceEmptyOutputDirsWithTemporary();
         if (updateGui) emit configLoaded();
         return "";
     }
@@ -96,6 +97,15 @@ QString AConfig::readFromJson(const QJsonObject & json, bool updateGui)
         readFromJson(JSON, updateGui);
         return err;
     }
+}
+
+void AConfig::replaceEmptyOutputDirsWithTemporary()
+{
+    // examples have output dir empty, replace them with a temporary one
+    QString & photonSimOutputDir = APhotonSimHub::getInstance().Settings.RunSet.OutputDirectory;
+    if (photonSimOutputDir.isEmpty()) photonSimOutputDir = A3Global::getConstInstance().TmpOutputDir;
+    std::string & particleSimOutputDir = AParticleSimHub::getInstance().Settings.RunSet.OutputDirectory;
+    if (particleSimOutputDir.empty()) particleSimOutputDir = A3Global::getConstInstance().TmpOutputDir.toLatin1().data();
 }
 
 #include "aparticleanalyzerhub.h"
