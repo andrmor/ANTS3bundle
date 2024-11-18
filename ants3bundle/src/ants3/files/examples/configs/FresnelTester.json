@@ -2479,7 +2479,7 @@
                 },
                 "Wave": {
                     "Enabled": false,
-                    "WaveIndex": 7
+                    "FixedWavelength": 550
                 }
             },
             "File": {
@@ -2571,7 +2571,7 @@
             "FileNameStatistics": "PhotonStatistics.json",
             "FileNameTracks": "PhotonTracks.txt",
             "MaxTracks": 1000,
-            "OutputDirectory": "/home/andr/WORK/Examples/Out",
+            "OutputDirectory": "",
             "PhotonLog": {
                 "Enabled": false,
                 "FileName": "PhotonLog.txt",
