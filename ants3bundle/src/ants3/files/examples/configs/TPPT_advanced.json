@@ -1819,6 +1819,8 @@
             ],
             "RefIndexComplex_Wave": [
             ],
+            "RefIndexImporter": {
+            },
             "RefIndexWave": [
             ],
             "SecScintSpectrum": [
@@ -1885,6 +1887,8 @@
             ],
             "RefIndexComplex_Wave": [
             ],
+            "RefIndexImporter": {
+            },
             "RefIndexWave": [
             ],
             "SecScintSpectrum": [
@@ -1951,6 +1955,8 @@
             ],
             "RefIndexComplex_Wave": [
             ],
+            "RefIndexImporter": {
+            },
             "RefIndexWave": [
             ],
             "SecScintSpectrum": [
@@ -2017,6 +2023,8 @@
             ],
             "RefIndexComplex_Wave": [
             ],
+            "RefIndexImporter": {
+            },
             "RefIndexWave": [
             ],
             "SecScintSpectrum": [
@@ -2083,6 +2091,8 @@
             ],
             "RefIndexComplex_Wave": [
             ],
+            "RefIndexImporter": {
+            },
             "RefIndexWave": [
             ],
             "SecScintSpectrum": [
@@ -2149,6 +2159,8 @@
             ],
             "RefIndexComplex_Wave": [
             ],
+            "RefIndexImporter": {
+            },
             "RefIndexWave": [
             ],
             "SecScintSpectrum": [
@@ -2215,6 +2227,8 @@
             ],
             "RefIndexComplex_Wave": [
             ],
+            "RefIndexImporter": {
+            },
             "RefIndexWave": [
             ],
             "SecScintSpectrum": [
@@ -2281,6 +2295,8 @@
             ],
             "RefIndexComplex_Wave": [
             ],
+            "RefIndexImporter": {
+            },
             "RefIndexWave": [
             ],
             "SecScintSpectrum": [
@@ -2347,6 +2363,8 @@
             ],
             "RefIndexComplex_Wave": [
             ],
+            "RefIndexImporter": {
+            },
             "RefIndexWave": [
             ],
             "SecScintSpectrum": [
@@ -2462,16 +2480,21 @@
                     },
                     "Time": {
                         "ByEventPeriod": 10,
+                        "ByEventPeriodPrefUnit": "ns",
                         "ByEventStart": 0,
+                        "ByEventStartPrefUnit": "ns",
                         "CustomDistribution": [
                         ],
                         "FixedOffset": 0,
+                        "FixedOffsetPrefUnit": "ns",
                         "HalfLifePreferUnit": "ns",
                         "OffsetMode": "Fixed",
                         "SpreadHalfLife": 100,
                         "SpreadMode": "None",
                         "SpreadSigma": 50,
-                        "SpreadWidth": 100
+                        "SpreadSigmaPrefUnit": "ns",
+                        "SpreadWidth": 100,
+                        "SpreadWidthPrefUnit": "ns"
                     }
                 }
             ]
@@ -2494,7 +2517,7 @@
                 "Enabled": false,
                 "FileName": "ParticleMonitors.json"
             },
-            "OutputDirectory": "/home/andr/tmp",
+            "OutputDirectory": "",
             "SaveDeposition": true,
             "SaveParticles": {
                 "Enabled": false,
@@ -2548,7 +2571,7 @@
                 },
                 "Wave": {
                     "Enabled": false,
-                    "WaveIndex": -1
+                    "FixedWavelength": 550
                 }
             },
             "File": {
@@ -2654,12 +2677,12 @@
                 "MustNotInclude_Volumes": [
                 ]
             },
-            "SaveMonitors": true,
-            "SavePhotonBombs": true,
+            "SaveMonitors": false,
+            "SavePhotonBombs": false,
             "SaveSensorLog": false,
-            "SaveSensorSignals": true,
+            "SaveSensorSignals": false,
             "SaveStatistics": true,
-            "SaveTracks": true,
+            "SaveTracks": false,
             "Seed": 0,
             "SensorLogAngle": false,
             "SensorLogTime": true,
@@ -2727,7 +2750,12 @@
                 "SizeForCalorimeters": 10,
                 "SizeForMonitors": 10,
                 "SizeForPhotFuncts": 10,
+                "SizeForScints": 10,
                 "SizeForSensors": 10
+            },
+            "LimitVisibility": {
+                "Enabled": false,
+                "Level": 3
             },
             "ZoomLevel": 0
         },
