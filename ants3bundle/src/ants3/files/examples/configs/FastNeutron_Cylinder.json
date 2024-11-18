@@ -624,6 +624,8 @@
             ],
             "RefIndexComplex_Wave": [
             ],
+            "RefIndexImporter": {
+            },
             "RefIndexWave": [
             ],
             "SecScintSpectrum": [
@@ -690,6 +692,8 @@
             ],
             "RefIndexComplex_Wave": [
             ],
+            "RefIndexImporter": {
+            },
             "RefIndexWave": [
             ],
             "SecScintSpectrum": [
@@ -756,6 +760,8 @@
             ],
             "RefIndexComplex_Wave": [
             ],
+            "RefIndexImporter": {
+            },
             "RefIndexWave": [
             ],
             "SecScintSpectrum": [
@@ -822,6 +828,8 @@
             ],
             "RefIndexComplex_Wave": [
             ],
+            "RefIndexImporter": {
+            },
             "RefIndexWave": [
             ],
             "SecScintSpectrum": [
@@ -888,6 +896,8 @@
             ],
             "RefIndexComplex_Wave": [
             ],
+            "RefIndexImporter": {
+            },
             "RefIndexWave": [
             ],
             "SecScintSpectrum": [
@@ -954,6 +964,8 @@
             ],
             "RefIndexComplex_Wave": [
             ],
+            "RefIndexImporter": {
+            },
             "RefIndexWave": [
             ],
             "SecScintSpectrum": [
@@ -1020,6 +1032,8 @@
             ],
             "RefIndexComplex_Wave": [
             ],
+            "RefIndexImporter": {
+            },
             "RefIndexWave": [
             ],
             "SecScintSpectrum": [
@@ -1086,6 +1100,8 @@
             ],
             "RefIndexComplex_Wave": [
             ],
+            "RefIndexImporter": {
+            },
             "RefIndexWave": [
             ],
             "SecScintSpectrum": [
@@ -1244,7 +1260,7 @@
                 "Enabled": false,
                 "FileName": "ParticleMonitors.json"
             },
-            "OutputDirectory": "/home/andr/WORK/FastNeutron_Cylinder/Out",
+            "OutputDirectory": "",
             "SaveDeposition": false,
             "SaveParticles": {
                 "Enabled": false,
@@ -1298,7 +1314,7 @@
                 },
                 "Wave": {
                     "Enabled": false,
-                    "WaveIndex": -1
+                    "FixedWavelength": 550
                 }
             },
             "File": {
