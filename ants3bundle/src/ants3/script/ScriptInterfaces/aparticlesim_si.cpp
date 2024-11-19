@@ -33,8 +33,6 @@ AParticleSim_SI::AParticleSim_SI() :
 
 void AParticleSim_SI::simulate()
 {
-    AErrorHub::clear();
-
     SimMan.simulate();
 
     QString err = AErrorHub::getQError();

@@ -18,17 +18,15 @@ APhotonSim_SI::~APhotonSim_SI()
     qDebug() << "Dest for APhotonSim_SI";
 }
 
-QString APhotonSim_SI::simulate(bool updateGui)
+void APhotonSim_SI::simulate()
 {
     bool ok = SimMan.simulate(-1);
-    if (ok)
+
+    QString err = AErrorHub::getQError();
+    if (!ok || !err.isEmpty())
     {
-        if (updateGui) emit SimMan.requestUpdateResultsGUI();
-        return "Done!";
-    }
-    else
-    {
-        return AErrorHub::getQError();
+        if (err.isEmpty()) err = "Unknown simulation error";
+        abort(err);
     }
 }
 
