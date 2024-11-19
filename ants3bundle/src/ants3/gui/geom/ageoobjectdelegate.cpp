@@ -33,6 +33,8 @@
 
 //#include "TVector3.h"
 
+#include "TObject.h"
+
 AGeoObjectDelegate::AGeoObjectDelegate(const QStringList & materials, QWidget * ParentWidget) :
     AGeoBaseDelegate(ParentWidget)
 {

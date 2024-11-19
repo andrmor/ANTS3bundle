@@ -75,6 +75,7 @@ bool AConfig_SI::setConfig(QVariantMap ConfigObject)
     return false;
 }
 
+#include <QJSValue>
 bool AConfig_SI::replace(QString Key, QVariant Value)
 {
     if (!bGuiThread)
@@ -84,8 +85,15 @@ bool AConfig_SI::replace(QString Key, QVariant Value)
     }
 
     LastError = "";
-    //qDebug() << Key << val << val.typeName();
     QString type = Value.typeName();
+    //qDebug() << Key << Value << type;
+
+    if (type == "QJSValue")
+    {
+        Value = Value.value<QJSValue>().toVariant();
+        type =  Value.typeName();
+        //qDebug() << "Conv:" << Value << type;
+    }
 
     QJsonValue jv;
     QString rep;

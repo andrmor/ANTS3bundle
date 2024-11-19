@@ -3,6 +3,8 @@
 
 #include <QString>
 
+#include <vector>
+
 class QJsonObject;
 class AGeoObject;
 
