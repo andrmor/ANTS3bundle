@@ -165,7 +165,7 @@ bool AConfig_SI::replace(QString Key, QVariant Value)
 
 QVariant AConfig_SI::getKeyValue(QString Key)
 {
-    qDebug() << this << "get "<< Key << "triggered";
+    //qDebug() << this << "get "<< Key << "triggered";
 
     LastError = "";
 
