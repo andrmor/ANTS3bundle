@@ -1,6 +1,6 @@
 {
     "ConfigDescription": "",
-    "ConfigName": "Doi_tester",
+    "ConfigName": "--",
     "Geometry": {
         "GeoConsts": [
             [
@@ -42,6 +42,15 @@
                 "fExpanded": true,
                 "style": 1,
                 "width": 1
+            },
+            {
+                "Container": "World",
+                "Name": "_#_PrototypeContainer_#_",
+                "Type": {
+                    "Type": "PrototypeCollection"
+                },
+                "fActive": true,
+                "fExpanded": true
             },
             {
                 "Container": "World",
@@ -233,22 +242,13 @@
                 "fExpanded": true,
                 "style": 1,
                 "width": 1
-            },
-            {
-                "Container": "World",
-                "Name": "_#_PrototypeContainer_#_",
-                "Type": {
-                    "Type": "PrototypeCollection"
-                },
-                "fActive": true,
-                "fExpanded": true
             }
         ]
     },
     "InterfaceRules": {
         "MaterialRules": [
             {
-                "Abs": 0.05,
+                "Abs": 0.01,
                 "MatFrom": 1,
                 "MatTo": 3,
                 "Model": "Simplistic",
@@ -257,7 +257,7 @@
                 "Spec": 0,
                 "SurfaceProperties": {
                     "Model": "Unified",
-                    "SigmaAlpha": 0.1
+                    "SigmaAlpha": 0.4
                 }
             },
             {
@@ -285,7 +285,7 @@
                 }
             },
             {
-                "Abs": 0.05,
+                "Abs": 0.01,
                 "MatFrom": 3,
                 "MatTo": 1,
                 "Model": "Simplistic",
@@ -294,7 +294,7 @@
                 "Spec": 0,
                 "SurfaceProperties": {
                     "Model": "Unified",
-                    "SigmaAlpha": 0.1
+                    "SigmaAlpha": 0.4
                 }
             }
         ],
@@ -1086,19 +1086,19 @@
                 "CenterX": 0,
                 "CenterY": 0,
                 "InnerDiameter": 0,
-                "Number": 100,
+                "Number": 1000,
                 "OuterDiameter": 300,
                 "Shape": "rectangle",
-                "Xfrom": -15,
-                "Xto": 15,
-                "Yfrom": -15,
-                "Yto": 15,
-                "Zfixed": 0,
+                "Xfrom": -1.45,
+                "Xto": 1.45,
+                "Yfrom": -1.45,
+                "Yto": 1.45,
+                "Zfixed": 1.5,
                 "Zfrom": 0,
                 "Zmode": "fixed",
                 "Zto": 0
             },
-            "GenerationMode": "single",
+            "GenerationMode": "flood",
             "Grid": {
                 "AxesData": [
                     {
@@ -1134,9 +1134,9 @@
                 "CustomDist": [
                 ],
                 "FixedNumber": 16000,
-                "Mode": "constant",
-                "NormalMean": 100,
-                "NormalSigma": 10,
+                "Mode": "normal",
+                "NormalMean": 16000,
+                "NormalSigma": 1024,
                 "PoissonMean": 10,
                 "UniformMax": 12,
                 "UniformMin": 10
