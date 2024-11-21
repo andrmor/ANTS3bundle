@@ -963,9 +963,14 @@ void APhotonAdvancedSettings::writeToJson(QJsonObject & json) const
             case Cone      : DirStr = "Cone";     break;
             }
             js["DirectionMode"] = DirStr;
-            js["DirDX"] = DirDX;
-            js["DirDY"] = DirDY;
-            js["DirDZ"] = DirDZ;
+
+            //js["DirDX"] = DirDX;
+            //js["DirDY"] = DirDY;
+            //js["DirDZ"] = DirDZ;
+            QJsonArray ar;
+            ar << DirDX << DirDY << DirDZ;
+            js["DirectionVector"] = ar;
+
             js["ConeAngle"] = ConeAngle;
         json["Direction"] = js;
     }
@@ -1013,9 +1018,18 @@ void APhotonAdvancedSettings::readFromJson(const QJsonObject &json)
         else if (DirStr == "Cone")  DirectionMode = Cone;
         else                        DirectionMode = Isotropic;
 
-        jstools::parseJson(js, "DirDX",     DirDX);
-        jstools::parseJson(js, "DirDY",     DirDY);
-        jstools::parseJson(js, "DirDZ",     DirDZ);
+        //jstools::parseJson(js, "DirDX",     DirDX);
+        //jstools::parseJson(js, "DirDY",     DirDY);
+        //jstools::parseJson(js, "DirDZ",     DirDZ);
+        QJsonArray ar;
+        if ( jstools::parseJson(js, "DirectionVector", ar) && ar.size() == 3)
+        {
+            DirDX = ar[0].toDouble();
+            DirDY = ar[1].toDouble();
+            DirDZ = ar[2].toDouble();
+        }
+        if (DirDX == 0 && DirDY == 0 && DirDZ == 0) DirDZ = 1.0;
+
         jstools::parseJson(js, "ConeAngle", ConeAngle);
     }
 
