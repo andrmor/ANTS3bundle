@@ -42,6 +42,14 @@ private slots:
 
     void on_leSigmaAlphaUnified_editingFinished();
 
+    void on_pbLoadCustomNormalDistribution_clicked();
+
+    void on_pbShowCustomNormalDistribution_clicked();
+
+    void on_pbRemoveCustomNormalDistribution_clicked();
+
+    void on_pbShowCustomNormalDistribution_customContextMenuRequested(const QPoint &pos);
+
 protected:
     void closeEvent(QCloseEvent * e);
 
@@ -61,6 +69,7 @@ private:
     void updateGui();
     AInterfaceRule * findInOpended(const QString & ovType);
     void clearTmpRules();
+    void updateCustomNormalButtons();
 
 signals:
     // next four are retranslators from aopticaloverridetester

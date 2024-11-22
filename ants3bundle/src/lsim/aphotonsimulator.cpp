@@ -721,7 +721,8 @@ void APhotonSimulator::loadConfig()
 
     Error         = AInterfaceRuleHub::getInstance().readFromJson(json);
     if (!Error.isEmpty()) terminate(Error);
-    AInterfaceRuleHub::getInstance().checkAll();
+    Error = AInterfaceRuleHub::getInstance().checkAll();
+    if (!Error.isEmpty()) terminate(Error);
     LOG << "Loaded optical rules" << '\n';
     LOG.flush();
 

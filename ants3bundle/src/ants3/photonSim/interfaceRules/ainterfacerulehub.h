@@ -51,7 +51,7 @@ public:
 
     void updateRuntimeProperties();
 
-    QString checkAll(); // !!!***
+    QString checkAll();
 
     std::vector<std::vector<AInterfaceRule*>> MaterialRules; // [fromMatIndex][toMatIndex]      nullptr -> rule not defined, using Fresnel
 

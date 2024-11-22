@@ -15,6 +15,8 @@
 #include <QDebug>
 #include <QJsonObject>
 
+#include "TH1.h"
+
 AInterfaceRule * AInterfaceRule::interfaceRuleFactory(const QString & Model, int MatFrom, int MatTo)
 {
     if (Model == "Simplistic")
@@ -170,6 +172,7 @@ void AInterfaceRule::calculateLocalNormal(const double * globalNormal, const dou
             {
                 //FacetNormal = Normal;
                 for (int i = 0; i < 3; i++) LocalNormal[i] = globalNormal[i];
+                break;
             }
 
             //G4ThreeVector tmpNormal = Normal;
@@ -214,6 +217,47 @@ void AInterfaceRule::calculateLocalNormal(const double * globalNormal, const dou
 
             break;
         }
+    case ASurfaceSettings::CustomNormal :
+    {
+        if (!SurfaceSettings.NormalDistributionHist)
+        {
+            for (int i = 0; i < 3; i++) LocalNormal[i] = globalNormal[i];
+            break;
+        }
+
+        const TVector3 tmpNormal(globalNormal);
+        TVector3 FacetNormal;
+        double nk;
+        do
+        {
+            double alpha = SurfaceSettings.NormalDistributionHist->GetRandom();
+
+            const double phi = RandomHub.uniform() * 2.0*3.1415926535;
+
+            const double SinAlpha = sin(alpha);
+            const double CosAlpha = cos(alpha);
+            const double SinPhi   = sin(phi);
+            const double CosPhi   = cos(phi);
+
+            const double unit_x = SinAlpha * CosPhi;
+            const double unit_y = SinAlpha * SinPhi;
+            const double unit_z = CosAlpha;
+
+            FacetNormal.SetX(unit_x);
+            FacetNormal.SetY(unit_y);
+            FacetNormal.SetZ(unit_z);
+
+            FacetNormal.RotateUz(tmpNormal);
+
+            nk = 0;
+            for (int i = 0; i < 3; i++) nk += photonDirection[i] * FacetNormal[i];
+        }
+        while (nk <= 0.0);
+
+        for (int i = 0; i < 3; i++) LocalNormal[i] = FacetNormal[i];
+
+        break;
+    }
     default:;
     }
 

@@ -5,7 +5,6 @@
 #include <QDebug>
 
 #include "TH1D.h"
-#include "TVectorD.h"
 
 ASurfaceSettings::ASurfaceSettings()
 {
@@ -19,16 +18,19 @@ QString ASurfaceSettings::checkRuntimeData()
         delete NormalDistributionHist; NormalDistributionHist = nullptr;
         if (NormalDeviation.size() < 2) return "Custom distribution of microfacet normal for rough surface should contain at least two points";
 
-        TVectorD edges(NormalDeviation.size());
+        std::vector<double> edges(NormalDeviation.size() + 1);
         for (size_t i = 0; i < NormalDeviation.size(); i++)
         {
             edges[i] = NormalDeviation[i].first;
             if (i > 0 && edges[i-1] >= edges[i]) return "Custom distribution of microfacet normal for rough surface should be sorted in increasing order";
         }
+        edges[NormalDeviation.size()] = edges[NormalDeviation.size()-1] + (edges[NormalDeviation.size()-1] - edges[NormalDeviation.size()-2]);
 
-        NormalDistributionHist = new TH1D(edges);
-        for (size_t i = 0; i < NormalDeviation.size()-1; i++) // ignore last bin, it is used to define the edge only
+        NormalDistributionHist = new TH1D("", "", NormalDeviation.size(), edges.data());
+        for (size_t i = 0; i < NormalDeviation.size(); i++)
             NormalDistributionHist->SetBinContent(i+1, NormalDeviation[i].second);
+
+        NormalDistributionHist->ComputeIntegral();
     }
 
     return "";

@@ -40,6 +40,8 @@ AInterfaceRuleDialog::AInterfaceRuleDialog(AInterfaceRule * rule, int matFrom, i
 
     ui->swSurfaceModel->setVisible(false);
 
+    updateCustomNormalButtons();
+
     updateGui();
 
     TesterWindow = new AInterfaceRuleTester(&LocalRule,  matFrom, matTo, this);
@@ -95,6 +97,7 @@ void AInterfaceRuleDialog::updateGui()
         case ASurfaceSettings::Polished        : iModel = 0; break;
         case ASurfaceSettings::Glisur          : iModel = 1; break;
         case ASurfaceSettings::Unified         : iModel = 2; break;
+        case ASurfaceSettings::CustomNormal    : iModel = 3; break;
         default:
             qWarning() << "Invalid surface model!";
             iModel = 0;
@@ -205,6 +208,7 @@ void AInterfaceRuleDialog::on_cobSurfaceModel_activated(int index)
         case 0 : LocalRule->SurfaceSettings.Model = ASurfaceSettings::Polished; break;
         case 1 : LocalRule->SurfaceSettings.Model = ASurfaceSettings::Glisur; break;
         case 2 : LocalRule->SurfaceSettings.Model = ASurfaceSettings::Unified; break;
+        case 3 : LocalRule->SurfaceSettings.Model = ASurfaceSettings::CustomNormal; break;
         default:
             qWarning() << "Error in selecting surface model!";
             LocalRule->SurfaceSettings.Model = ASurfaceSettings::Polished;
@@ -236,5 +240,75 @@ void AInterfaceRuleDialog::on_leSigmaAlphaUnified_editingFinished()
         ui->leSigmaAlphaUnified->setText(QString::number(LocalRule->SurfaceSettings.SigmaAlpha));
     }
     LocalRule->SurfaceSettings.SigmaAlpha = sa;
+}
+
+#include "afiletools.h"
+void AInterfaceRuleDialog::on_pbLoadCustomNormalDistribution_clicked()
+{
+    QString fileName = guitools::dialogLoadFile(this, "Load file with distribution of the angle between the microfacet's and global's normal", "Data files (*.txt *.dat); All files (*.*)");
+    if (fileName.isEmpty()) return;
+
+    QString err = ftools::loadPairs(fileName, LocalRule->SurfaceSettings.NormalDeviation, true);
+    if (!err.isEmpty())
+    {
+        guitools::message(err, this);
+        return;
+    }
+    updateCustomNormalButtons();
+}
+
+#include "agraphbuilder.h"
+#include "TGraph.h"
+void AInterfaceRuleDialog::on_pbShowCustomNormalDistribution_clicked()
+{
+    if (LocalRule->SurfaceSettings.NormalDeviation.empty())
+    {
+        guitools::message("Distribution is not loaded", this);
+        return;
+    }
+
+    TGraph * g = AGraphBuilder::graph(LocalRule->SurfaceSettings.NormalDeviation);
+    emit requestDraw(g, "APL", true, true);
+}
+
+void AInterfaceRuleDialog::on_pbRemoveCustomNormalDistribution_clicked()
+{
+    LocalRule->SurfaceSettings.NormalDeviation.clear();
+    updateCustomNormalButtons();
+}
+
+void AInterfaceRuleDialog::updateCustomNormalButtons()
+{
+    bool bHaveData = (LocalRule->SurfaceSettings.NormalDeviation.size() > 1);
+
+    ui->pbShowCustomNormalDistribution->setEnabled(bHaveData);
+    ui->pbRemoveCustomNormalDistribution->setEnabled(bHaveData);
+}
+
+#include "TH1D.h"
+void AInterfaceRuleDialog::on_pbShowCustomNormalDistribution_customContextMenuRequested(const QPoint &)
+{
+    if (LocalRule->SurfaceSettings.NormalDeviation.empty())
+    {
+        guitools::message("Distribution is not loaded", this);
+        return;
+    }
+
+    QString err = LocalRule->SurfaceSettings.checkRuntimeData();
+    if (!err.isEmpty())
+    {
+        guitools::message(err, this);
+        return;
+    }
+
+    //emit requestDraw(LocalRule->SurfaceSettings.NormalDistributionHist, "hist", false, true);
+
+    TH1D * h = new TH1D("", "", 100,0,0);
+    for (size_t i = 0; i < 1000000; i++)
+    {
+        double alpha = LocalRule->SurfaceSettings.NormalDistributionHist->GetRandom();
+        h->Fill(alpha);
+    }
+    emit requestDraw(h, "hist", true, true);
 }
 

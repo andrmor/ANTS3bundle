@@ -244,6 +244,7 @@ QString AInterfaceRuleHub::checkAll()
     for (auto & rv : MaterialRules)
         for (auto & r : rv)
         {
+            if (!r) continue;
             QString es = r->checkOverrideData();
             if (!es.isEmpty())
             {
@@ -255,6 +256,7 @@ QString AInterfaceRuleHub::checkAll()
 
     for (auto & NNIpair : VolumeRules)
     {
+        if (!NNIpair.second) continue;
         QString es = NNIpair.second->checkOverrideData();
         if (!err.isEmpty())
         {
