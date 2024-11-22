@@ -249,9 +249,19 @@ QString AInterfaceRuleHub::checkAll()
             {
                 const QString matFrom = MatHub[r->getMaterialFrom()]->Name;
                 const QString matTo   = MatHub[r->getMaterialTo()]  ->Name;
-                err += QString("In interface rule from %1 to %2:\n").arg(matFrom, matTo) + err;
+                err += QString("In interface rule from %1 to %2:\n").arg(matFrom, matTo) + es + "\n";
             }
         }
+
+    for (auto & NNIpair : VolumeRules)
+    {
+        QString es = NNIpair.second->checkOverrideData();
+        if (!err.isEmpty())
+        {
+            const std::pair<TString, TString> & np = NNIpair.first;
+            err += QString("In interface rule from %1 to %2:\n").arg(np.first.Data(), np.second.Data()) + es + "\n";
+        }
+    }
 
     return err;
 }
