@@ -85,7 +85,12 @@ bool AInterfaceRule::readFromJson(const QJsonObject & json)
 
 QString AInterfaceRule::checkOverrideData()
 {
-    if (isNotPolishedSurface() && !canHaveRoughSurface()) return "This interface rule type cannot have rough optical surface";
+    if (isNotPolishedSurface())
+    {
+        if (!canHaveRoughSurface()) return "This interface rule type cannot have rough optical surface";
+        QString err = SurfaceSettings.checkRuntimeData();
+        if (!err.isEmpty()) return err;
+    }
 
     return doCheckOverrideData();
 }
