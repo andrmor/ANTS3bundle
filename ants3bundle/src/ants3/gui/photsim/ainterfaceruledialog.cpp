@@ -254,6 +254,17 @@ void AInterfaceRuleDialog::on_pbLoadCustomNormalDistribution_clicked()
         guitools::message(err, this);
         return;
     }
+
+    if (ui->cobCustomNormalDistributionUnits->currentIndex() == 0)
+        for (auto & pair : LocalRule->SurfaceSettings.NormalDeviation)
+            pair.first *= 3.1415926535/180.0;
+
+    if (LocalRule->SurfaceSettings.NormalDeviation.back().first > 0.5*3.1415926535)
+        guitools::message("Angle range is suspiciously large: did you happen to forget to select the proper angle units?", this);
+
+    if (LocalRule->SurfaceSettings.NormalDeviation.back().first < 0.5*3.1415926535  * 3.1415926535/180.0)
+        guitools::message("Angle range is suspiciously short: did you happen to forget to select the proper angle units?", this);
+
     updateCustomNormalButtons();
 }
 
@@ -268,6 +279,20 @@ void AInterfaceRuleDialog::on_pbShowCustomNormalDistribution_clicked()
     }
 
     TGraph * g = AGraphBuilder::graph(LocalRule->SurfaceSettings.NormalDeviation);
+    QString xLabel = "Angle between normals, ";
+    if (ui->cobCustomNormalDistributionUnits->currentIndex() == 0)
+    {
+        // degrees
+        AGraphBuilder::shift(g, 180.0/3.1415926535, 0);  // from radians
+        xLabel += "degrees";
+    }
+    else
+    {
+        // radians
+        xLabel += "radians";
+    }
+    AGraphBuilder::configure(g, "", xLabel, "", 2, 20, 0.5,  2, 1, 1);
+
     emit requestDraw(g, "APL", true, true);
 }
 
@@ -279,6 +304,7 @@ void AInterfaceRuleDialog::on_pbRemoveCustomNormalDistribution_clicked()
 
 void AInterfaceRuleDialog::updateCustomNormalButtons()
 {
+    if (!LocalRule) return;
     bool bHaveData = (LocalRule->SurfaceSettings.NormalDeviation.size() > 1);
 
     ui->pbShowCustomNormalDistribution->setEnabled(bHaveData);

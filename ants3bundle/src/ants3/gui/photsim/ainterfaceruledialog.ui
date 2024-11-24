@@ -333,12 +333,16 @@
           <item>
            <widget class="QLabel" name="label_6">
             <property name="text">
-             <string>Normal distribution:</string>
+             <string>Distribution:</string>
             </property>
            </widget>
           </item>
           <item>
            <widget class="QPushButton" name="pbLoadCustomNormalDistribution">
+            <property name="toolTip">
+             <string>Distribution of the angle between the microfacet's normal and the global normal
+Select the angle units before load!</string>
+            </property>
             <property name="text">
              <string>Load</string>
             </property>
@@ -368,6 +372,27 @@
             <property name="text">
              <string>X</string>
             </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_7">
+            <property name="text">
+             <string>using</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QComboBox" name="cobCustomNormalDistributionUnits">
+            <item>
+             <property name="text">
+              <string>degrees</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>radians</string>
+             </property>
+            </item>
            </widget>
           </item>
           <item>

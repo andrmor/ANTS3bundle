@@ -119,7 +119,7 @@ TGraph2D * AGraphBuilder::graph(const QVector<double>& x, const QVector<double>&
 
 void AGraphBuilder::configure(TGraph * graph, const QString & GraphTitle,
                                       const QString & XTitle, const QString & YTitle,
-                                      int MarkerColor, int MarkerStyle, int MarkerSize,
+                                      int MarkerColor, int MarkerStyle, double MarkerSize,
                                       int LineColor,   int LineStyle, int LineWidth)
 {
     graph->SetTitle(GraphTitle.toLatin1().data());
@@ -183,4 +183,30 @@ TGraph * AGraphBuilder::graph(const std::vector<std::pair<double, std::complex<d
     gr->SetFillStyle(0);
     gr->SetFillColor(0);
     return gr;
+}
+
+void AGraphBuilder::shift(TGraph * g, double multiply, double add)
+{
+    int numPoints = g->GetN();
+
+    for (int i = 0; i < numPoints; i++)
+    {
+        double x = g->GetPointX(i);
+        x *= multiply;
+        x += add;
+        g->SetPointX(i, x);
+    }
+}
+
+void AGraphBuilder::scale(TGraph *g, double multiply, double add)
+{
+    int numPoints = g->GetN();
+
+    for (int i = 0; i < numPoints; i++)
+    {
+        double y = g->GetPointY(i);
+        y *= multiply;
+        y += add;
+        g->SetPointY(i, y);
+    }
 }

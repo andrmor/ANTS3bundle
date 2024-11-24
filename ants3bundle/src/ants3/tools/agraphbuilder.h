@@ -36,9 +36,12 @@ namespace AGraphBuilder
                           short MarkerColor=2, int MarkerStyle=20, int MarkerSize=1,
                           short LineColor=2,   int LineStyle=1,    int LineWidth=2);
 
+    void shift(TGraph * g, double multiply, double add);
+    void scale(TGraph * g, double multiply, double add);
+
     void configure(TGraph * graph,
                    const QString & GraphTitle, const QString & XTitle, const QString & YTitle,
-                   int MarkerColor=2, int MarkerStyle=20, int MarkerSize=1,
+                   int MarkerColor=2, int MarkerStyle=20, double MarkerSize=1.0,
                    int LineColor=2,   int LineStyle=1,    int LineWidth=2);
 
     TGraph2D * graph(const QVector<double>& x, const QVector<double>& y, const QVector<double>& z);
