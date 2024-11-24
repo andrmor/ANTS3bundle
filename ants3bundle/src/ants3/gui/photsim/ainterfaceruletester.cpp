@@ -400,7 +400,7 @@ void AInterfaceRuleTester::showGeometry()
     track->SetLineColor(kRed);
     track->SetLineWidth(3);
 
-    emit requestShowTracks();
+    emit requestShowTracks(false);
 }
 
 void AInterfaceRuleTester::on_pbST_showTracks_clicked()
@@ -427,7 +427,7 @@ void AInterfaceRuleTester::on_pbST_showTracks_clicked()
             track->AddPoint(th.Nodes[iNode][0], th.Nodes[iNode][1], th.Nodes[iNode][2], 0);
     }
 
-    emit requestShowTracks();
+    emit requestShowTracks(true);
 }
 
 bool AInterfaceRuleTester::testOverride()

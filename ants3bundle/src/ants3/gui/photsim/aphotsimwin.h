@@ -226,7 +226,7 @@ private:
 
 signals:
     void requestShowGeometry(bool ActivateWindow = true, bool SAME = true, bool ColorUpdateAllowed = true);
-    void requestShowTracks();
+    void requestShowTracks(bool activateWindow = false);
     void requestDraw(TObject * obj, const QString & options, bool transferOwnership, bool focusWindow);
 
     void requestClearGeoMarkers(int All_Rec_True);

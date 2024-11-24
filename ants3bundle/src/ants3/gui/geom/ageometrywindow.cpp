@@ -776,7 +776,7 @@ void AGeometryWindow::on_pbShowTracks_clicked()
     ShowTracks();
 }
 
-void AGeometryWindow::ShowTracks()
+void AGeometryWindow::ShowTracks(bool activateWindow)
 {
     if (bDisableDraw) return;
 
@@ -788,6 +788,8 @@ void AGeometryWindow::ShowTracks()
         UpdateRootCanvas();
     }
     else ShowGeometry(false);
+
+    if (activateWindow) ShowAndFocus();
 }
 
 void AGeometryWindow::onRequestShowTracksFromScript()

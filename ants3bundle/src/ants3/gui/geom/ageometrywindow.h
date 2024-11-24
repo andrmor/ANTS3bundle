@@ -70,7 +70,7 @@ public slots:
     void onRequestRedrawFromScript();
     void showRecursive(QString objectName);
     void UpdateRootCanvas();
-    void ShowTracks();
+    void ShowTracks(bool activateWindow = false);
     void onRequestShowTracksFromScript();
     void onRequestClearTracksFromScript();
     void onRequestClearMarkersFromScript();

@@ -140,7 +140,7 @@ private slots:
 
 signals:
     void requestShowGeometry(bool ActivateWindow, bool SAME, bool ColorUpdateAllowed);
-    void requestShowTracks();
+    void requestShowTracks(bool activateWindow = false);
     void requestDraw(TObject * obj, const QString & options, bool transferOwnership, bool focusWindow);
     void requestAddToBasket(const QString & name);
     void requestShowPosition(double * pos, bool keepTracks);
