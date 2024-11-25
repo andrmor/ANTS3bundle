@@ -407,6 +407,7 @@ void ASensorWindow::on_pbShowPDE_clicked()
 
     TGraph * gr = AGraphBuilder::graph(mod->PDE_spectral);
     AGraphBuilder::configure(gr, QString("PDE for model%0").arg(iModel), "Wavelength, nm", "PDE");
+    gr->SetMinimum(0);
     emit requestDraw(gr, "APL", true, true);
 }
 
@@ -425,6 +426,7 @@ void ASensorWindow::on_pbShowBinnedPDE_clicked()
 
     TGraph * gr = AGraphBuilder::graph(wave, mod->PDEbinned);
     AGraphBuilder::configure(gr, QString("Binned PDE, model%0").arg(iModel), "Wavelength, nm", "PDE", 4, 20, 1, 4);
+    gr->SetMinimum(0);
     emit requestDraw(gr, "APL", true, true);
 }
 
