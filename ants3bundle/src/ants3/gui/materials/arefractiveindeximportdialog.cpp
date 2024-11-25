@@ -1,27 +1,27 @@
-#include "aabsorptiondataconverterdialog.h"
-#include "ui_aabsorptiondataconverterdialog.h"
+#include "arefractiveindeximportdialog.h"
+#include "ui_arefractiveindeximportdialog.h"
 #include "guitools.h"
 
-AAbsorptionDataConverterDialog::AAbsorptionDataConverterDialog(QWidget * parent) :
+ARefractiveIndexImportDialog::ARefractiveIndexImportDialog(QWidget * parent) :
     QDialog(parent),
-    ui(new Ui::AAbsorptionDataConverterDialog)
+    ui(new Ui::ARefractiveIndexImportDialog)
 {
     ui->setupUi(this);
 }
 
-AAbsorptionDataConverterDialog::~AAbsorptionDataConverterDialog()
+ARefractiveIndexImportDialog::~ARefractiveIndexImportDialog()
 {
     delete ui;
 }
 
-void AAbsorptionDataConverterDialog::on_pbCancel_clicked()
+void ARefractiveIndexImportDialog::on_pbCancel_clicked()
 {
     reject();
 }
 
-void AAbsorptionDataConverterDialog::on_pbConvert_clicked()
+void ARefractiveIndexImportDialog::on_pbConvert_clicked()
 {
-    QString errorTxt = "The text should conain pairs of wavelength and absorption or extinction coefficients\n,separated by space, one pair per line";
+    QString errorTxt = "The text should conain pairs of wavelength and refractive index\n,separated by space, one pair per line";
     QString txt = ui->pteTable->document()->toPlainText();
     if (txt.isEmpty())
     {
@@ -33,8 +33,6 @@ void AAbsorptionDataConverterDialog::on_pbConvert_clicked()
     if      (ui->cobWavelengthUnits->currentIndex() == 1) waveFactor = 1000;
     else if (ui->cobWavelengthUnits->currentIndex() == 2) waveFactor = 0.1;
 
-    int valueType = ui->cobWhat->currentIndex(); // 0 - abs mm-1, 1 - abs cm-1, 2 - extinction
-
     Data.clear();
     const QStringList slAll = txt.split("\n", Qt::SkipEmptyParts);
     for (const QString & str : slAll)
@@ -45,15 +43,8 @@ void AAbsorptionDataConverterDialog::on_pbConvert_clicked()
 
         double wave_nm = sl[0].toDouble() * waveFactor;
         double value   = sl[1].toDouble();
-        double abs;
-        switch (valueType)
-        {
-        case 0: abs = value; break;
-        case 1: abs = 0.1 * value; break;
-        case 2: abs = 4.0 * 3.1415926 * value / (wave_nm * 1e-9) * 0.001; // 4 Pi k / lambda, [mm-1]
-        }
 
-        Data.push_back({wave_nm, abs});
+        Data.push_back({wave_nm, value});
     }
 
     if (Data.empty())
@@ -63,4 +54,3 @@ void AAbsorptionDataConverterDialog::on_pbConvert_clicked()
     }
     accept();
 }
-

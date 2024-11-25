@@ -100,6 +100,8 @@ private slots:
 
     void on_pbAbsImport_clicked();
 
+    void on_pbImportNWave_clicked();
+
 private:
     AGeometryHub & Geometry;
     AMaterialHub & MatHub;

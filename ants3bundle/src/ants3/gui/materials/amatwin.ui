@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>582</width>
+    <width>651</width>
     <height>695</height>
    </rect>
   </property>
@@ -1056,6 +1056,13 @@ Wavelengths shoul be given in increasing order</string>
                       </widget>
                      </item>
                      <item>
+                      <widget class="QPushButton" name="pbImportNWave">
+                       <property name="text">
+                        <string>Import</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
                       <widget class="QPushButton" name="pbComputeNlambda">
                        <property name="minimumSize">
                         <size>
@@ -1081,7 +1088,7 @@ Wavelengths shoul be given in increasing order</string>
                        </property>
                        <property name="maximumSize">
                         <size>
-                         <width>30</width>
+                         <width>21</width>
                          <height>16777215</height>
                         </size>
                        </property>
@@ -1245,7 +1252,7 @@ Wavelengths shoul be given in increasing order</string>
                        </property>
                        <property name="maximumSize">
                         <size>
-                         <width>30</width>
+                         <width>21</width>
                          <height>16777215</height>
                         </size>
                        </property>
@@ -1648,7 +1655,7 @@ Wavelengths shoul be given in increasing order</string>
                </property>
                <property name="maximumSize">
                 <size>
-                 <width>30</width>
+                 <width>21</width>
                  <height>16777215</height>
                 </size>
                </property>
@@ -1912,7 +1919,7 @@ Wavelengths shoul be given in increasing order</string>
                </property>
                <property name="maximumSize">
                 <size>
-                 <width>30</width>
+                 <width>21</width>
                  <height>16777215</height>
                 </size>
                </property>
@@ -2928,7 +2935,7 @@ Wavelengths shoul be given in increasing order</string>
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>582</width>
+     <width>651</width>
      <height>22</height>
     </rect>
    </property>

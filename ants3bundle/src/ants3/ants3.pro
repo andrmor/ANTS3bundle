@@ -150,6 +150,7 @@ SOURCES += \
     gui/materials/aabsorptiondataconverterdialog.cpp \
     gui/materials/amatwin.cpp \
     gui/materials/aopticaldataimportdialog.cpp \
+    gui/materials/arefractiveindeximportdialog.cpp \
     gui/particleSim/aeventsdonedialog.cpp \
     gui/particleSim/aparticlesourceplotter.cpp \
     gui/particleSim/atrackdrawdialog.cpp \
@@ -368,6 +369,7 @@ HEADERS += \
     gui/graph/aviewer3dsettingsdialog.h \
     gui/materials/aabsorptiondataconverterdialog.h \
     gui/materials/aopticaldataimportdialog.h \
+    gui/materials/arefractiveindeximportdialog.h \
     gui/photsim/afunctionalmodelwidget.h \
     gui/photsim/aphotonlogsettingsform.h \
     gui/photsim/aphotontunnelwindow.h \
@@ -605,6 +607,7 @@ FORMS += \
         gui/graph/aviewer3dwidget.ui \
         gui/materials/aabsorptiondataconverterdialog.ui \
         gui/materials/aopticaldataimportdialog.ui \
+        gui/materials/arefractiveindeximportdialog.ui \
         gui/particleSim/aeventsdonedialog.ui \
         gui/particleSim/atrackdrawdialog.ui \
         gui/particleSim/aworldsizewarningdialog.ui \

@@ -734,8 +734,8 @@ void AMatWin::on_pbShowNlambda_clicked()
 
 void AMatWin::on_pbShowNlambda_customContextMenuRequested(const QPoint &)
 {
-    tmpMaterial.updateRuntimeProperties();
     const AWaveResSettings & WaveSet = APhotonSimHub::getInstance().Settings.WaveSet;
+    WaveSet.toStandardBins(tmpMaterial.RefIndex_Wave, tmpMaterial._RefIndex_WaveBinned);
     std::vector<double> indexes = WaveSet.getVectorOfIndexes();
     TGraph * g = AGraphBuilder::graph(indexes, tmpMaterial._RefIndex_WaveBinned);
     AGraphBuilder::configure(g, "Refractive index",
@@ -1531,3 +1531,20 @@ void AMatWin::on_pbAbsImport_clicked()
     ui->pbDeleteABSlambda->setEnabled(bHaveData);
     setWasModified(true);
 }
+
+#include "arefractiveindeximportdialog.h"
+void AMatWin::on_pbImportNWave_clicked()
+{
+    ARefractiveIndexImportDialog D(this);
+
+    int res = D.exec();
+    if (res == QDialog::Rejected) return;
+
+    tmpMaterial.RefIndex_Wave = D.Data;
+
+    bool bHaveData = !tmpMaterial.RefIndex_Wave.empty();
+    ui->pbShowNlambda->setEnabled(bHaveData);
+    ui->pbDeleteNlambda->setEnabled(bHaveData);
+    setWasModified(true);
+}
+
