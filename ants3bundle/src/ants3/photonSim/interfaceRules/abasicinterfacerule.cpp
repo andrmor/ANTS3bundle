@@ -31,14 +31,23 @@ AInterfaceRule::OpticalOverrideResultEnum ABasicInterfaceRule::calculate(APhoton
 
     // specular reflection?
     rnd -= Spec;
-    if (rnd<0)
+    if (rnd < 0)
     {
         // qDebug()<<"Override: specular reflection!";
         //rotating the vector: K = K - 2*(NK)*N
-        double NK = NormalVector[0]*Photon->v[0]; NK += NormalVector[1]*Photon->v[1];  NK += NormalVector[2]*Photon->v[2];
-        Photon->v[0] -= 2.0*NK*NormalVector[0]; Photon->v[1] -= 2.0*NK*NormalVector[1]; Photon->v[2] -= 2.0*NK*NormalVector[2];
-
-        Status = SpikeReflection;
+        if (SurfaceSettings.isPolished())
+        {
+            double NK = NormalVector[0]*Photon->v[0]; NK += NormalVector[1]*Photon->v[1];  NK += NormalVector[2]*Photon->v[2];
+            Photon->v[0] -= 2.0*NK*NormalVector[0]; Photon->v[1] -= 2.0*NK*NormalVector[1]; Photon->v[2] -= 2.0*NK*NormalVector[2];
+            Status = SpikeReflection;
+        }
+        else
+        {
+            calculateLocalNormal(NormalVector, Photon->v);
+            double NK = LocalNormal[0]*Photon->v[0]; NK += LocalNormal[1]*Photon->v[1];  NK += LocalNormal[2]*Photon->v[2];
+            Photon->v[0] -= 2.0*NK*LocalNormal[0]; Photon->v[1] -= 2.0*NK*LocalNormal[1]; Photon->v[2] -= 2.0*NK*LocalNormal[2];
+            Status = LobeReflection;
+        }
         return Back;
     }
 
