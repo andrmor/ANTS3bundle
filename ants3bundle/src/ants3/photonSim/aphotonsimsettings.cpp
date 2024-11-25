@@ -100,10 +100,10 @@ void AWaveResSettings::toStandardBins(const std::vector<double> & wavelength, co
     for (int iP = 0; iP < points; iP++)
     {
         wave = From + Step * iP;
-        if (wave <= wavelength.front()) binned = value.front();
+        if (wave <= wavelength.front()) binned = 0; // before November 2024: value.front();
         else
         {
-            if (wave >= wavelength.back()) binned = value.back();
+            if (wave >= wavelength.back()) binned = 0; // before November 2024: value.back();
             else                           binned = getInterpolatedValue(wave, wavelength, value);
         }
         binnedValue.push_back(binned);
