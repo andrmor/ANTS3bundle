@@ -21,13 +21,14 @@ void ARefractiveIndexImportDialog::on_pbCancel_clicked()
 
 void ARefractiveIndexImportDialog::on_pbConvert_clicked()
 {
-    QString errorTxt = "The text should conain pairs of wavelength and refractive index\n,separated by space, one pair per line";
+    QString errorTxt = "The text should conain pairs of wavelength and refractive index\n,separated by space or ',', one pair per line";
     QString txt = ui->pteTable->document()->toPlainText();
     if (txt.isEmpty())
     {
         guitools::message(errorTxt, this);
         return;
     }
+    txt.replace(","," ");
 
     double waveFactor = 1.0;
     if      (ui->cobWavelengthUnits->currentIndex() == 1) waveFactor = 1000;
