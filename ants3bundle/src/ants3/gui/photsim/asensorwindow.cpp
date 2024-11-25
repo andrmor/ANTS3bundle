@@ -375,6 +375,13 @@ void ASensorWindow::on_pbLoadPDE_clicked()
     QString err = ftools::loadPairs(fname, data, true);
     if (err.isEmpty())
     {
+        for (const auto & pair : data)
+            if (pair.second > 1.0)
+            {
+                guitools::message("Photon detection efficinecy should be in the range from 0 to 1", this);
+                return;
+            }
+
         mod->PDE_spectral = data;
         updatePdeButtons();
     }
@@ -399,7 +406,7 @@ void ASensorWindow::on_pbShowPDE_clicked()
     if (mod->PDE_spectral.empty()) return;
 
     TGraph * gr = AGraphBuilder::graph(mod->PDE_spectral);
-    AGraphBuilder::configure(gr, QString("PDE for model%0").arg(iModel), "Wavelength, nm", "");
+    AGraphBuilder::configure(gr, QString("PDE for model%0").arg(iModel), "Wavelength, nm", "PDE");
     emit requestDraw(gr, "APL", true, true);
 }
 
@@ -862,7 +869,7 @@ void ASensorWindow::on_pbCompteEffectivePDE_clicked()
         return;
     }
 
-    ui->ledEffectivePDE->setText(QString::number(0.01*weightedSum/weights, 'g', 4));
+    ui->ledEffectivePDE->setText(QString::number(weightedSum/weights, 'g', 4));
     on_ledEffectivePDE_editingFinished();
 }
 

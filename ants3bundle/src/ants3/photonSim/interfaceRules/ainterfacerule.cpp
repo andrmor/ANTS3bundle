@@ -253,6 +253,7 @@ void AInterfaceRule::calculateLocalNormal(const double * globalNormal, const dou
             for (int i = 0; i < 3; i++) nk += photonDirection[i] * FacetNormal[i];
         }
         while (nk <= 0.0);
+        //while (nk <= RandomHub.uniform());  // prob = cos(angle) = nk   --> accept when Random[0,1] < prob  --> reject when Random[0,1] >= prob --> Random[0,1] >= nk
 
         for (int i = 0; i < 3; i++) LocalNormal[i] = FacetNormal[i];
 
