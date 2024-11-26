@@ -9,6 +9,8 @@
 #include "aspectralbasicinterfacerule.h"
 #include "guitools.h"
 #include "aphotonsimhub.h"
+#include "agraphbuilder.h"
+#include "graphwindowclass.h"
 
 #include <QObject>
 #include <QDebug>
@@ -20,6 +22,8 @@
 #include <QDoubleValidator>
 #include <QComboBox>
 #include <QPushButton>
+
+#include "TGraph.h"
 
 AInterfaceRuleWidget * AInterfaceWidgetFactory::createEditWidget(AInterfaceRule * rule, QWidget * parent)
 {
@@ -392,35 +396,35 @@ void ASpectralBasicInterfaceWidget::loadSpectralData()
     if (!err.isEmpty()) guitools::message(err, this);
 }
 
-#include "TMultiGraph.h"
-#include "agraphbuilder.h"
-#include "graphwindowclass.h"
-#include "TAxis.h"
 void ASpectralBasicInterfaceWidget::showLoaded()
 {
     std::vector<double> fresnel(Rule->Wave.size());
+    double max = 0.01;
     for (size_t i = 0; i < Rule->Wave.size(); i++)
+    {
         fresnel[i] = 1.0 - Rule->ProbLoss[i] - Rule->ProbRef[i] - Rule->ProbDiff[i];
+        max = std::max({max, Rule->ProbLoss[i],  Rule->ProbRef[i], Rule->ProbDiff[i], fresnel[i]});
+    }
 
-    TMultiGraph * mg = new TMultiGraph();
     TGraph * gLoss = AGraphBuilder::graph(Rule->Wave, Rule->ProbLoss);
-    AGraphBuilder::configure(gLoss, "Absorption", "Wavelength, nm", "", 2, 20, 1, 2);
-    mg->Add(gLoss, "LP");
-    TGraph* gRef = AGraphBuilder::graph(Rule->Wave, Rule->ProbRef);
-    AGraphBuilder::configure(gRef, "Specular reflection", "Wavelength, nm", "", 4, 21, 1, 4);
-    mg->Add(gRef, "LP");
-    TGraph* gDiff = AGraphBuilder::graph(Rule->Wave, Rule->ProbDiff);
-    AGraphBuilder::configure(gDiff, "Diffuse scattering", "Wavelength, nm", "", 7, 22, 1, 7);
-    mg->Add(gDiff, "LP");
-    TGraph* gFr = AGraphBuilder::graph(Rule->Wave, fresnel);
-    AGraphBuilder::configure(gFr, "Fresnel", "Wavelength, nm", "", 1, 24, 1, 1, 1, 1);
-    mg->Add(gFr, "LP");
+    AGraphBuilder::configure(gLoss, "Absorption", "Wavelength, nm", "Probability", 2, 20, 1, 2);
+    gLoss->SetMinimum(0);
+    gLoss->SetMaximum(max);
+    emit requestDraw(gLoss, "ALP", true, false);
 
-    mg->SetMinimum(0);
-    emit requestDraw(mg, "apl", true, true);
-    mg->GetXaxis()->SetTitle("Wavelength, nm");
-    mg->GetYaxis()->SetTitle("Probability");
-    //GraphWindow->addLegend(0.7,0.8, 0.95,0.95, "");
+    TGraph * gRef = AGraphBuilder::graph(Rule->Wave, Rule->ProbRef);
+    AGraphBuilder::configure(gRef, "Specular reflection", "Wavelength, nm", "Probability", 4, 21, 1, 4);
+    emit requestDraw(gRef, "LPsame", true, false);
+
+    TGraph* gDiff = AGraphBuilder::graph(Rule->Wave, Rule->ProbDiff);
+    AGraphBuilder::configure(gDiff, "Diffuse scattering", "Wavelength, nm", "Probability", 7, 22, 1, 7);
+    emit requestDraw(gDiff, "LPsame", true, false);
+
+    TGraph* gFr = AGraphBuilder::graph(Rule->Wave, fresnel);
+    AGraphBuilder::configure(gFr, "Fresnel", "Wavelength, nm", "Probability", 1, 24, 1, 1, 1, 1);
+    emit requestDraw(gFr, "LPsame", true, true);
+
+    emit requestDrawLegend(0.7,0.8, 0.95,0.95, "");
 }
 
 void ASpectralBasicInterfaceWidget::showBinned()

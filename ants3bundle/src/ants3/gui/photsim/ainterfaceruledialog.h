@@ -75,11 +75,12 @@ private:
     void updateCustomNormalButtons();
 
 signals:
-    // next four are retranslators from aopticaloverridetester
+    // signal retranslators from AInterfaceRuleTester and AInterfaceRuleWidget
     void requestDraw(TObject * obj, const QString & options, bool transferOwnership, bool focusWindow);
     void requestDrawLegend(double x1, double y1, double x2, double y2, QString title);
     void requestClearGeometryViewer(); // also has to set current canvas to geometry view window!
     void requestShowTracks(bool activateWindow = false);
+
     void closed(bool);
 
 };

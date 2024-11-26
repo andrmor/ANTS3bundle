@@ -111,7 +111,7 @@ protected:
     QPushButton *pbShow, *pbShowBinned;
 
 private slots:
-    void loadSpectralData();  // !!!***
+    void loadSpectralData();
     void showLoaded(); // !!!***
     void showBinned(); // !!!***
     void updateButtons();
