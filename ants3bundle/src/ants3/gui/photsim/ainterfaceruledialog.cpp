@@ -53,7 +53,7 @@ AInterfaceRuleDialog::AInterfaceRuleDialog(AInterfaceRule * rule, int matFrom, i
 
 AInterfaceRuleDialog::~AInterfaceRuleDialog()
 {
-    qDebug() << "Destr for AInterfaceRuleDialog";
+    //qDebug() << "Destr for AInterfaceRuleDialog";
     delete ui;
     clearTmpRules();
     delete LocalRule;

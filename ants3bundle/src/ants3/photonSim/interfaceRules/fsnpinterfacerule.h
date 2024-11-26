@@ -15,6 +15,7 @@ public:
     QString getAbbreviation() const override {return "FSNP";}
     QString getReportLine() const override;
     QString getLongReportLine() const override;
+    QString getDescription() const override;
 
     double Albedo = 0.95;
 

@@ -95,6 +95,18 @@ QString FsnpInterfaceRule::getLongReportLine() const
     return s;
 }
 
+QString FsnpInterfaceRule::getDescription() const
+{
+    QString txt = "1.0 minus Albedo parameter defines the fraction of absorbed light.\n"
+                  "The remaining fraction is specular reflection and back-scattering.\n"
+                  "The specular refelection fraction is computed with the Fresnel equation,\n"
+                  "so it depends on the refractive indexes before/after the interface.\n"
+                  "The remaining is back-scattering (2Pi, Lambertian).\n"
+                  "\n"
+                  "This interface rule cannot be configured with rough surface.";
+    return txt;
+}
+
 void FsnpInterfaceRule::doWriteToJson(QJsonObject & json) const
 {
     json["Albedo"] = Albedo;
