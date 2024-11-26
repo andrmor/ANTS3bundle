@@ -127,16 +127,16 @@ void ASpectralBasicInterfaceRule::initializeWaveResolved()
     }
     else
     {
-        int isize = Wave.size();
-        int i = 0;
+        size_t isize = Wave.size();
+        size_t i = 0;
         if (isize != 1)  //esle use i = 0
         {
             for (; i < isize; i++)
-                if (Wave.at(i) > effectiveWavelength) break;
+                if (Wave[i] > effectiveWavelength) break;
 
             //closest is i-1 or i
-            if (i != 0)
-                if ( fabs(Wave.at(i-1) - effectiveWavelength) < fabs(Wave.at(i) - effectiveWavelength) ) i--;
+            if (i != 0 && i != isize-1)
+                if ( fabs(Wave[i-1] - effectiveWavelength) < fabs(Wave[i] - effectiveWavelength) ) i--;
         }
 
         //qDebug() << "Selected i = "<< i << "with wave"<<Wave.at(i) << Wave;

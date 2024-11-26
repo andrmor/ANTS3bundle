@@ -429,57 +429,56 @@ void ASpectralBasicInterfaceWidget::showLoaded()
 
 void ASpectralBasicInterfaceWidget::showBinned()
 {
-    /*
-    bool bWR;
-    double WaveFrom, WaveTo, WaveStep;
-    int WaveNodes;
-    MatCollection->GetWave(bWR, WaveFrom, WaveTo, WaveStep, WaveNodes);
+    Rule->initializeWaveResolved();
 
-    initializeWaveResolved();
-
-    //TODO run checker
-
-    if (!bWR)
+    const AWaveResSettings & WaveSet = APhotonSimHub::getConstInstance().Settings.WaveSet;
+    if (!WaveSet.Enabled)
     {
-        QString s = "Simulation is configured as not wavelength-resolved\n";
-        s +=        "All photons will have the same properties:\n";
-        s +=QString("Absorption: %1").arg(probLoss) + "\n";
-        s +=QString("Specular reflection: %1").arg(probRef) + "\n";
-        s +=QString("Scattering: %1").arg(probDiff);
-        message(s, widget);
+        QString s =  "Simulation is configured as not wavelength-resolved\n";
+        s +=         "All photons will have the same properties:\n";
+        s += QString("Absorption: %1").arg(Rule->ProbLossBinned[Rule->effectiveWaveIndex]) + "\n";
+        s += QString("Specular reflection: %1").arg(Rule->ProbRefBinned[Rule->effectiveWaveIndex]) + "\n";
+        s += QString("Scattering: %1").arg(Rule->ProbDiffBinned[Rule->effectiveWaveIndex]);
+        guitools::message(s, Parent);
         return;
     }
 
-    QVector<double> waveIndex;
-    for (int i=0; i<WaveNodes; i++) waveIndex << i;
+    std::vector<double> waveIndexes = WaveSet.getVectorOfIndexes();
 
-    QVector<double> Fr;
-    for (int i=0; i<waveIndex.size(); i++)
-        Fr << (1.0 - ProbLossBinned.at(i) - ProbRefBinned.at(i) - ProbDiffBinned.at(i));
+    std::vector<double> fresnel(waveIndexes.size());
+    double max = 0.01;
+    for (size_t i = 0; i < waveIndexes.size(); i++)
+    {
+        fresnel[i] = 1.0 - Rule->ProbLossBinned[i] - Rule->ProbRefBinned[i] - Rule->ProbDiffBinned[i];
+        max = std::max({max, Rule->ProbLossBinned[i],  Rule->ProbRefBinned[i], Rule->ProbDiffBinned[i], fresnel[i]});
+    }
 
-    TMultiGraph* mg = new TMultiGraph();
-    TGraph* gLoss = GraphWindow->ConstructTGraph(waveIndex, ProbLossBinned, "Loss", "Wave index", "Loss", 2, 20, 1, 2);
-    mg->Add(gLoss, "LP");
-    TGraph* gRef = GraphWindow->ConstructTGraph(waveIndex, ProbRefBinned, "Specular reflection", "Wave index", "Reflection", 4, 21, 1, 4);
-    mg->Add(gRef, "LP");
-    TGraph* gDiff = GraphWindow->ConstructTGraph(waveIndex, ProbDiffBinned, "Diffuse scattering", "Wave index", "Scatter", 7, 22, 1, 7);
-    mg->Add(gDiff, "LP");
-    TGraph* gFr = GraphWindow->ConstructTGraph(waveIndex, Fr, "Fresnel", "Wave index", "", 1, 24, 1, 1, 1, 1);
-    mg->Add(gFr, "LP");
+    TGraph * gLoss = AGraphBuilder::graph(waveIndexes, Rule->ProbLossBinned);
+    AGraphBuilder::configure(gLoss, "Absorption", "WaveIndex", "Probability", 2, 20, 1, 2);
+    gLoss->SetMinimum(0);
+    gLoss->SetMaximum(max);
+    emit requestDraw(gLoss, "AP", true, false);
 
-    mg->SetMinimum(0);
-    GraphWindow->Draw(mg, "apl");
-    mg->GetXaxis()->SetTitle("Wave index");
-    mg->GetYaxis()->SetTitle("Probability");
-    GraphWindow->AddLegend(0.7,0.8, 0.95,0.95, "");
-    */
+    TGraph * gRef = AGraphBuilder::graph(waveIndexes, Rule->ProbRefBinned);
+    AGraphBuilder::configure(gRef, "Specular reflection", "WaveIndex", "Probability", 4, 21, 1, 4);
+    emit requestDraw(gRef, "Psame", true, false);
+
+    TGraph* gDiff = AGraphBuilder::graph(waveIndexes, Rule->ProbDiffBinned);
+    AGraphBuilder::configure(gDiff, "Diffuse scattering", "WaveIndex", "Probability", 7, 22, 1, 7);
+    emit requestDraw(gDiff, "Psame", true, false);
+
+    TGraph* gFr = AGraphBuilder::graph(waveIndexes, fresnel);
+    AGraphBuilder::configure(gFr, "Fresnel", "WaveIndex", "Probability", 1, 24, 1, 1, 1, 1);
+    emit requestDraw(gFr, "Psame", true, true);
+
+    emit requestDrawLegend(0.7,0.8, 0.95,0.95, "");
 }
 
 void ASpectralBasicInterfaceWidget::updateButtons()
 {
     pbShow->setDisabled(Rule->Wave.empty());
-    const AWaveResSettings & WaveSet = APhotonSimHub::getConstInstance().Settings.WaveSet;
-    pbShowBinned->setDisabled(!WaveSet.Enabled || Rule->Wave.empty());
+    //const AWaveResSettings & WaveSet = APhotonSimHub::getConstInstance().Settings.WaveSet;
+    //pbShowBinned->setDisabled(!WaveSet.Enabled || Rule->Wave.empty());
 }
 
 // -------
