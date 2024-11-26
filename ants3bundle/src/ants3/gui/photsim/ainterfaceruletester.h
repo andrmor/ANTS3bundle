@@ -86,7 +86,7 @@ private:
 
     Ui::AInterfaceRuleTester * ui = nullptr;
 
-    const int maxNumTracks = 1000;
+    const size_t MaxNumTracks = 1000;
 
     std::vector<ATmpTrackRec> Tracks;
 

@@ -340,9 +340,13 @@ void AInterfaceRuleDialog::on_pbShowCustomNormalDistribution_customContextMenuRe
 
 void AInterfaceRuleDialog::on_pbInfo_clicked()
 {
-    if (!LocalRule) return;
-
-    QString txt = LocalRule->getDescription();
-    if (txt.isEmpty()) txt = "Description is not provided";
+    QString txt;
+    if (!LocalRule)
+        txt = "The interface rule is not defined:\nUsing \"normal\" physics model (Fresnel + Snell) for this interface";
+    else
+    {
+        txt = LocalRule->getDescription();
+        if (txt.isEmpty()) txt = "Description is not provided";
+    }
     guitools::message(txt, this);
 }

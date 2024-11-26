@@ -405,14 +405,14 @@ void AInterfaceRuleTester::showGeometry()
 
 void AInterfaceRuleTester::on_pbST_showTracks_clicked()
 {
-    showGeometry();
-
     if (Tracks.empty()) return;
     int selector = ui->cobST_trackType->currentIndex() - 1;
     if (selector == 3) return; //do not show any tracks
 
-    int numTracks = 0;
-    for(size_t iTrack = 1; iTrack < Tracks.size() && numTracks < maxNumTracks; iTrack++)
+    showGeometry();
+
+    size_t numTracks = 0;
+    for(size_t iTrack = 1; iTrack < Tracks.size() && numTracks < MaxNumTracks; iTrack++)
     {
         const ATmpTrackRec & th = Tracks[iTrack];
         //filter
