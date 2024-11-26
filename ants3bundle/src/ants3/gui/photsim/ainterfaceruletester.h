@@ -51,7 +51,7 @@ class AInterfaceRuleTester : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit AInterfaceRuleTester(AInterfaceRule ** ovLocal, int matFrom, int matTo, QWidget * parent = nullptr);
+    explicit AInterfaceRuleTester(AInterfaceRule * ovLocal, int matFrom, int matTo, QWidget * parent = nullptr);
     ~AInterfaceRuleTester();
 
     void writeToJson(QJsonObject& json) const;
@@ -80,7 +80,7 @@ private:
     ARandomHub         & RandomHub;
     APhotonStatistics  & Stats;
 
-    AInterfaceRule ** pOV; // !!!*** to reference to pointer
+    AInterfaceRule * pOV;
     int MatFrom;
     int MatTo;
 

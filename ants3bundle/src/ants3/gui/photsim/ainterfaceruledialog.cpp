@@ -44,7 +44,7 @@ AInterfaceRuleDialog::AInterfaceRuleDialog(AInterfaceRule * rule, int matFrom, i
 
     updateGui();
 
-    TesterWindow = new AInterfaceRuleTester(&LocalRule,  matFrom, matTo, this);
+    TesterWindow = new AInterfaceRuleTester(LocalRule,  matFrom, matTo, this);
     connect(TesterWindow, &AInterfaceRuleTester::requestClearGeometryViewer, this, &AInterfaceRuleDialog::requestClearGeometryViewer);
     connect(TesterWindow, &AInterfaceRuleTester::requestDraw,                this, &AInterfaceRuleDialog::requestDraw);
     connect(TesterWindow, &AInterfaceRuleTester::requestDrawLegend,          this, &AInterfaceRuleDialog::requestDrawLegend);

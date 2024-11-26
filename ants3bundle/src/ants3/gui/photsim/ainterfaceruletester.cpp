@@ -1,15 +1,14 @@
 #include "ainterfaceruletester.h"
 #include "ui_ainterfaceruletester.h"
-#include "mainwindow.h"
 #include "guitools.h"
 #include "amaterialhub.h"
 #include "ainterfacerule.h"
 #include "ainterfacerulehub.h"
 #include "aphoton.h"
 #include "aphotonstatistics.h"
-#include "aphotontrackrecord.h"
+//#include "aphotontrackrecord.h"
 #include "ajsontools.h"
-#include "a3global.h"
+//#include "a3global.h"
 #include "arandomhub.h"
 #include "astatisticshub.h"
 #include "agraphbuilder.h"
@@ -22,7 +21,7 @@
 
 #include "TVector3.h"
 #include "TGraph.h"
-#include "TLegend.h"
+//#include "TLegend.h"
 #include "TMath.h"
 #include "TH1D.h"
 #include "TGeoManager.h"
@@ -30,7 +29,7 @@
 
 #include <complex>
 
-AInterfaceRuleTester::AInterfaceRuleTester(AInterfaceRule ** ovLocal, int matFrom, int matTo, QWidget * parent) :
+AInterfaceRuleTester::AInterfaceRuleTester(AInterfaceRule * ovLocal, int matFrom, int matTo, QWidget * parent) :
     QMainWindow(parent),
     MatHub(AMaterialHub::getConstInstance()),
     GeoHub(AGeometryHub::getInstance()),
@@ -139,7 +138,7 @@ void AInterfaceRuleTester::on_pbST_RvsAngle_clicked()
             ph.v[1] = K[1];
             ph.v[2] = K[2];
             ph.waveIndex = getWaveIndex();
-            AInterfaceRule::OpticalOverrideResultEnum result = (*pOV)->calculate(&ph, N);
+            AInterfaceRule::OpticalOverrideResultEnum result = pOV->calculate(&ph, N);
 
             switch (result)
             {
@@ -150,7 +149,7 @@ void AInterfaceRuleTester::on_pbST_RvsAngle_clicked()
             default:;
             }
 
-            switch ((*pOV)->Status)
+            switch (pOV->Status)
             {
             case AInterfaceRule::SpikeReflection: Spike[iAngle]++; break;
             case AInterfaceRule::LobeReflection: BackLobe[iAngle]++; break;
@@ -258,7 +257,7 @@ void AInterfaceRuleTester::on_pbTracePhotons_clicked()
         ph.waveIndex = waveIndex;
 
 tryAgainLabel:
-        AInterfaceRule::OpticalOverrideResultEnum result = (*pOV)->calculate(&ph, N);
+        AInterfaceRule::OpticalOverrideResultEnum result = pOV->calculate(&ph, N);
 
         //in case of absorption or not triggered override, do not build tracks!
         switch (result)
@@ -275,8 +274,8 @@ tryAgainLabel:
                 {
                     //reflected --> must use the same algorithm as performReflection() method of APhotonTracer class
                     double NK = 0;
-                    for (int i = 0; i < 3; i++) NK += (*pOV)->LocalNormal[i] * ph.v[i];
-                    for (int i = 0; i < 3; i++) ph.v[i] -= 2.0 * NK * (*pOV)->LocalNormal[i];
+                    for (int i = 0; i < 3; i++) NK += pOV->LocalNormal[i] * ph.v[i];
+                    for (int i = 0; i < 3; i++) ph.v[i] -= 2.0 * NK * pOV->LocalNormal[i];
 
                     double GNK = 0;
                     for (int i = 0; i < 3; i++) GNK += ph.v[i] * N[i];
@@ -286,7 +285,7 @@ tryAgainLabel:
                         goto tryAgainLabel;
                     }
 
-                    (*pOV)->Status = AInterfaceRule::LobeReflection;
+                    pOV->Status = AInterfaceRule::LobeReflection;
                     rep.back++; break;
                 }
                 else
@@ -299,7 +298,7 @@ tryAgainLabel:
 
                         const double nn = RefrIndexFrom / RefrIndexTo;
                         double NK = 0;
-                        for (int i = 0; i < 3; i++) NK += ph.v[i] * (*pOV)->LocalNormal[i];
+                        for (int i = 0; i < 3; i++) NK += ph.v[i] * pOV->LocalNormal[i];
 
                         const double UnderRoot = 1.0 - nn*nn*(1.0 - NK*NK);
                         if (UnderRoot < 0)
@@ -308,7 +307,7 @@ tryAgainLabel:
                             rep.error++; continue;                                 // ! ->
                         }
                         const double tmp = nn * NK - sqrt(UnderRoot);
-                        for (int i = 0; i < 3; i++) ph.v[i] = nn * ph.v[i] - tmp * (*pOV)->LocalNormal[i];
+                        for (int i = 0; i < 3; i++) ph.v[i] = nn * ph.v[i] - tmp * pOV->LocalNormal[i];
                     }
                     // for metals do nothing -> anyway geometric optics is not a proper model to use
                     rep.forw++; break;
@@ -318,19 +317,19 @@ tryAgainLabel:
 
         short col;
         int type;
-        if ((*pOV)->Status == AInterfaceRule::SpikeReflection)
+        if (pOV->Status == AInterfaceRule::SpikeReflection)
         {
             rep.Bspike++;
             type = 0;
             col = 6; //0,magenta for Spike
         }
-        else if ((*pOV)->Status == AInterfaceRule::LobeReflection)
+        else if (pOV->Status == AInterfaceRule::LobeReflection)
         {
             rep.Blobe++;
             type = 1;
             col = 7; //1,teal for Lobe
         }
-        else if ((*pOV)->Status == AInterfaceRule::LambertianReflection)
+        else if (pOV->Status == AInterfaceRule::LambertianReflection)
         {
             rep.Blamb++;
             type = 2;
@@ -432,13 +431,13 @@ void AInterfaceRuleTester::on_pbST_showTracks_clicked()
 
 bool AInterfaceRuleTester::testOverride()
 {
-    if ( !(*pOV) )
+    if (!pOV)
     {
         guitools::message("Override not defined!", this);
         return false;
     }
 
-    QString err = (*pOV)->checkOverrideData();
+    QString err = pOV->checkOverrideData();
     if (!err.isEmpty())
     {
         guitools::message("Override reports an error:\n" + err, this);
@@ -501,20 +500,20 @@ void AInterfaceRuleTester::on_pbST_uniform_clicked()
         ph.time = 0;
         ph.waveIndex = waveIndex;
 
-        AInterfaceRule::OpticalOverrideResultEnum result = (*pOV)->calculate(&ph, N);
+        AInterfaceRule::OpticalOverrideResultEnum result = pOV->calculate(&ph, N);
 
         switch (result)
         {
-        case AInterfaceRule::Absorbed: rep.abs++; break;
+        case AInterfaceRule::Absorbed:     rep.abs++;        break;
         case AInterfaceRule::NotTriggered: rep.notTrigger++; break;
-        case AInterfaceRule::Forward: rep.forw++; break;
-        case AInterfaceRule::Back: rep.back++; break;
+        case AInterfaceRule::Forward:      rep.forw++;       break;
+        case AInterfaceRule::Back:         rep.back++;       break;
         default: rep.error++;
         }
 
-        if ((*pOV)->Status == AInterfaceRule::SpikeReflection) rep.Bspike++;
-        else if ((*pOV)->Status == AInterfaceRule::LobeReflection) rep.Blobe++;
-        else if ((*pOV)->Status == AInterfaceRule::LambertianReflection) rep.Blamb++;
+        if      (pOV->Status == AInterfaceRule::SpikeReflection)      rep.Bspike++;
+        else if (pOV->Status == AInterfaceRule::LobeReflection)       rep.Blobe++;
+        else if (pOV->Status == AInterfaceRule::LambertianReflection) rep.Blamb++;
 
         double costr = N[0]*K[0] + N[1]*K[1] + N[2]*K[2];
         hist1->Fill(180.0 / TMath::Pi() * acos(costr));
@@ -597,7 +596,7 @@ double AInterfaceRuleTester::calculateReflectionProbability(const APhoton & Phot
     // has to be synchronized (algorithm) with the method calculateReflectionProbability() of the APhotonTracer class of lsim module!
 
     double NK = 0;
-    for (int i = 0; i < 3; i++) NK += Photon.v[i] * (*pOV)->LocalNormal[i];
+    for (int i = 0; i < 3; i++) NK += Photon.v[i] * pOV->LocalNormal[i];
     const double cos1 = fabs(NK); // cos of the angle of incidence
     const double sin1 = (cos1 < 0.9999999) ? sqrt(1.0 - cos1*cos1) : 0;
 
