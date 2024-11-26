@@ -20,6 +20,7 @@ public:
     QString getAbbreviation() const override {return "SimpS";}
     QString getReportLine() const override;
     QString getLongReportLine() const override;
+    QString getDescription() const override;
 
     void initializeWaveResolved() override;
 

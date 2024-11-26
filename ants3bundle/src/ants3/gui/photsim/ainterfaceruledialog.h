@@ -50,6 +50,8 @@ private slots:
 
     void on_pbShowCustomNormalDistribution_customContextMenuRequested(const QPoint &pos);
 
+    void on_pbInfo_clicked();
+
 protected:
     void closeEvent(QCloseEvent * e);
 

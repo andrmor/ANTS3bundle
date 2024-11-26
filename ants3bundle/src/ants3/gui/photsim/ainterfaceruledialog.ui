@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>457</width>
+    <width>461</width>
     <height>400</height>
    </rect>
   </property>
@@ -416,17 +416,37 @@ Select the angle units before load!</string>
     </widget>
    </item>
    <item>
-    <widget class="QPushButton" name="pbTestOverride">
-     <property name="minimumSize">
-      <size>
-       <width>200</width>
-       <height>0</height>
-      </size>
+    <layout class="QHBoxLayout" name="horizontalLayout_5">
+     <property name="topMargin">
+      <number>0</number>
      </property>
-     <property name="text">
-      <string>Test override</string>
-     </property>
-    </widget>
+     <item>
+      <widget class="QPushButton" name="pbTestOverride">
+       <property name="minimumSize">
+        <size>
+         <width>200</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>Test this interface</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pbInfo">
+       <property name="maximumSize">
+        <size>
+         <width>16777215</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>Info</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </item>
    <item>
     <spacer name="verticalSpacer">
@@ -473,7 +493,7 @@ Select the angle units before load!</string>
        </property>
        <property name="font">
         <font>
-         <bold>true</bold>
+         <fontweight>DemiBold</fontweight>
         </font>
        </property>
        <property name="text">
@@ -504,7 +524,7 @@ Select the angle units before load!</string>
        </property>
        <property name="font">
         <font>
-         <bold>true</bold>
+         <bold>false</bold>
         </font>
        </property>
        <property name="text">

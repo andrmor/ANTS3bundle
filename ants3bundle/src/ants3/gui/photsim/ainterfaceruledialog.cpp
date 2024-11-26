@@ -338,3 +338,11 @@ void AInterfaceRuleDialog::on_pbShowCustomNormalDistribution_customContextMenuRe
     emit requestDraw(h, "hist", true, true);
 }
 
+void AInterfaceRuleDialog::on_pbInfo_clicked()
+{
+    if (!LocalRule) return;
+
+    QString txt = LocalRule->getDescription();
+    if (txt.isEmpty()) txt = "Description is not provided";
+    guitools::message(txt, this);
+}

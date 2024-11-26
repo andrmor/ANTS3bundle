@@ -176,6 +176,22 @@ QString ABasicInterfaceRule::getLongReportLine() const
     return s;
 }
 
+QString ABasicInterfaceRule::getDescription() const
+{
+    QString txt = "This interface defines three wavelength-independent parameters:\n"
+                  "1) Absorption - the probability the photon is killed\n"
+                  "2) Specuar reflection - the probability of specular reflection (flat or rough surface: see below)\n"
+                  "3) Scattering\n"
+                  "    3a) Lambertian back in 2Pi\n"
+                  "    3b) Lambertian forward in 2Pi\n"
+                  "    3c) Isotropic scattering in 4Pi\n"
+                  "All values must be in the range from 0 to 1\n"
+                  "If the sum does not ammounts to 1, the remaining fraction is the \"normal\" Freshnel/Snell physics\n"
+                  "\n"
+                  "The rough surface settings only affect specular reflection!";
+    return txt;
+}
+
 void ABasicInterfaceRule::doWriteToJson(QJsonObject & json) const
 {
     json["Abs"]      = Abs;

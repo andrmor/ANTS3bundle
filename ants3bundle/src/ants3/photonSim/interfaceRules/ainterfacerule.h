@@ -36,9 +36,10 @@ public:
     virtual OpticalOverrideResultEnum calculate(APhoton * Photon, const double * NormalVector) = 0; //unitary vectors! iWave = -1 if not wavelength-resolved
 
     virtual QString getType() const = 0;
-    virtual QString getAbbreviation() const = 0; //for GUI: used to identify - must be short (<= 4 chars) - try to make unique
+    virtual QString getAbbreviation() const = 0; // for GUI: used to identify - must be short (<= 4 chars) - try to make unique
     virtual QString getReportLine() const = 0;   // for GUI: used to reports override status (try to make as short as possible)
-    virtual QString getLongReportLine() const;   //for GUI: used in overlap map
+    virtual QString getLongReportLine() const;   // for GUI: used in overlap map
+    virtual QString getDescription() const {return "";}// !!!*** = 0;  // shown with "Info" button on the rule widget
 
     //called automatically before sim start
     virtual void initializeWaveResolved() {}  //override if override has wavelength-resolved data
