@@ -5,7 +5,7 @@
 
 class QWidget;
 class AInterfaceRule;
-class GraphWindowClass;
+class GraphWindowClass;   // !!!*** remove, use signal-slot
 class ABasicInterfaceRule;
 class AMetalInterfaceRule;
 class AWaveshifterInterfaceRule;

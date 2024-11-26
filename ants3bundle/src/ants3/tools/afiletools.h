@@ -23,8 +23,8 @@ namespace ftools
 
     // !!!*** to std::vector
     QString loadDoubleVectorsFromFile(const QString & FileName, QVector<double>* x, QVector<double>* y, QString * header = nullptr, int numLines = 10);  //cleans previous data
-    QString loadDoubleVectorsFromFile(const QString & FileName, QVector<QVector<double> *> & V);  //cleans previous data, returns error string
-
+    QString loadDoubleVectorsFromFile(const QString & FileName, QVector<QVector<double> *> & V);             //cleans previous data, returns error string
+    QString loadDoubleVectorsFromFile(const QString & fileName, std::vector< std::vector<double>* > & vec);  //cleans previous data, returns error string
     QString saveDoubleVectorsToFile(const QVector<QVector<double> *> & V, const QString & FileName);
 
     // TODO: refactor all next, minimize number of functions

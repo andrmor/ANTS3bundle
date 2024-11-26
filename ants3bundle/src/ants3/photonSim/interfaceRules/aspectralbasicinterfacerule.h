@@ -4,7 +4,7 @@
 #include "ainterfacerule.h"
 #include "abasicinterfacerule.h"
 
-#include <QVector> // !!!***
+#include <vector>
 
 class AWaveResSettings;
 
@@ -24,16 +24,16 @@ public:
 
     void initializeWaveResolved() override;
 
-    QString loadData(const QString & fileName); // !!!***
+    QString loadData(const QString & fileName);
 
-    QVector<double> Wave;
-    QVector<double> ProbLoss; //probability of absorption
-    QVector<double> ProbLossBinned; //probability of absorption
-    QVector<double> ProbRef;  //probability of specular reflection
-    QVector<double> ProbRefBinned;  //probability of specular reflection
-    QVector<double> ProbDiff; //probability of scattering
-    QVector<double> ProbDiffBinned; //probability of scattering
-    double effectiveWavelength = 500; //if waveIndex of photon is -1, index correspinding to this wavelength will be used
+    std::vector<double> Wave;
+    std::vector<double> ProbLoss;       //probability of absorption
+    std::vector<double> ProbLossBinned; //probability of absorption
+    std::vector<double> ProbRef;        //probability of specular reflection
+    std::vector<double> ProbRefBinned;  //probability of specular reflection
+    std::vector<double> ProbDiff;       //probability of scattering
+    std::vector<double> ProbDiffBinned; //probability of scattering
+    double effectiveWavelength = 500;   //if waveIndex of photon is -1, index correspinding to this wavelength will be used
     double effectiveWaveIndex;
 
 protected:

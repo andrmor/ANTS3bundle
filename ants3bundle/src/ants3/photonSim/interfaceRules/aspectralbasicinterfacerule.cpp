@@ -1,26 +1,19 @@
 #include "aspectralbasicinterfacerule.h"
 #include "aphoton.h"
-#include "amaterial.h"
-#include "amaterialhub.h"
 #include "aphotonsimhub.h"
 #include "aphotonstatistics.h"
-//#include "acommonfunctions.h"
 #include "ajsontools.h"
 
 #include <QJsonObject>
 #include <QDebug>
 
-#include "TMath.h"
-#include "TRandom2.h"
-#include "TH1D.h"
-
 ASpectralBasicInterfaceRule::ASpectralBasicInterfaceRule(int MatFrom, int MatTo)
     : ABasicInterfaceRule(MatFrom, MatTo), WaveSet(APhotonSimHub::getConstInstance().Settings.WaveSet)
 {
-    Wave << 500;
-    ProbLoss << 0;
-    ProbRef << 0;
-    ProbDiff << 0;
+    Wave     = {200, 800};
+    ProbLoss = {0,   1.0};
+    ProbRef  = {1.0, 0};
+    ProbDiff = {0,   0};
 }
 
 AInterfaceRule::OpticalOverrideResultEnum ASpectralBasicInterfaceRule::calculate(APhoton *Photon, const double *NormalVector)
@@ -28,9 +21,9 @@ AInterfaceRule::OpticalOverrideResultEnum ASpectralBasicInterfaceRule::calculate
     int waveIndex = Photon->waveIndex;
     if (!WaveSet.Enabled || waveIndex == -1) waveIndex = effectiveWaveIndex; //guard: if not resolved, script ovberride can in principle assign index != -1
 
-    Abs = ProbLossBinned.at(waveIndex);
-    Scat = ProbDiffBinned.at(waveIndex);
-    Spec  = ProbRefBinned.at(waveIndex);
+    Abs = ProbLossBinned[waveIndex];
+    Scat = ProbDiffBinned[waveIndex];
+    Spec  = ProbRefBinned[waveIndex];
 
     return ABasicInterfaceRule::calculate(Photon, NormalVector);
 }
@@ -43,7 +36,7 @@ QString ASpectralBasicInterfaceRule::getReportLine() const
 QString ASpectralBasicInterfaceRule::getLongReportLine() const
 {
     QString s = "--> Simplistic spectral <--\n";
-    s += QString("Spectral data from %1 to %2 nm\n").arg(Wave.first()).arg(Wave.last());
+    s += QString("Spectral data from %1 to %2 nm\n").arg(Wave.front()).arg(Wave.back());
     s += QString("Number of points: %1\n").arg(Wave.size());
     s += QString("Effective wavelength: %1").arg(effectiveWavelength);
     return s;
@@ -61,6 +54,9 @@ QString ASpectralBasicInterfaceRule::getDescription() const
                   "All values must be in the range from 0 to 1\n"
                   "If the sum does not ammounts to 1, the remaining fraction is the \"normal\" Freshnel/Snell physics\n"
                   "\n"
+                  "Data are to be loaded from a text file, with every line containing 4 numbers:\n"
+                  "wavelength[nm] absorption_prob[0..1] reflection_prob[0..1] scattering_prob[0..1]\n"
+                  "\n"
                   "The rough surface settings only affect specular reflection!";
     return txt;
 }
@@ -76,7 +72,7 @@ void ASpectralBasicInterfaceRule::doWriteToJson(QJsonObject & json) const
         return;
     }
     QJsonArray sp;
-    for (int i=0; i<Wave.size(); i++)
+    for (size_t i = 0; i < Wave.size(); i++)
     {
         QJsonArray ar;
         ar << Wave.at(i) << ProbLoss.at(i) << ProbRef.at(i) << ProbDiff.at(i);
@@ -98,15 +94,23 @@ bool ASpectralBasicInterfaceRule::doReadFromJson(const QJsonObject & json)
 
     QJsonArray sp;
     if ( !jstools::parseJson(json, "Data", sp) ) return false;
-    if (sp.isEmpty()) return false;
-    for (int i=0; i<sp.size(); i++)
+    size_t size = sp.size();
+    if (size == 0) return false;
+
+    Wave.    resize(size);
+    ProbLoss.resize(size);
+    ProbRef. resize(size);
+    ProbDiff.resize(size);
+
+    for (size_t i = 0; i < size; i++)
     {
-        QJsonArray ar = sp.at(i).toArray();
+        QJsonArray ar = sp[i].toArray();
         if (ar.size() != 4) return false;
-        Wave     << ar.at(0).toDouble();
-        ProbLoss << ar.at(1).toDouble();
-        ProbRef  << ar.at(2).toDouble();
-        ProbDiff << ar.at(3).toDouble();
+
+        Wave[i]     = ar[0].toDouble();
+        ProbLoss[i] = ar[1].toDouble();
+        ProbRef[i]  = ar[2].toDouble();
+        ProbDiff[i] = ar[3].toDouble();
     }
     return true;
 }
@@ -115,9 +119,9 @@ void ASpectralBasicInterfaceRule::initializeWaveResolved()
 {
     if (WaveSet.Enabled)
     {
-        WaveSet.toStandardBins(&Wave, &ProbLoss, &ProbLossBinned);
-        WaveSet.toStandardBins(&Wave, &ProbRef, &ProbRefBinned);
-        WaveSet.toStandardBins(&Wave, &ProbDiff, &ProbDiffBinned);
+        WaveSet.toStandardBins(Wave, ProbLoss, ProbLossBinned);
+        WaveSet.toStandardBins(Wave, ProbRef,  ProbRefBinned);
+        WaveSet.toStandardBins(Wave, ProbDiff, ProbDiffBinned);
 
         effectiveWaveIndex = WaveSet.toIndex(effectiveWavelength);
     }
@@ -137,31 +141,29 @@ void ASpectralBasicInterfaceRule::initializeWaveResolved()
 
         //qDebug() << "Selected i = "<< i << "with wave"<<Wave.at(i) << Wave;
         effectiveWaveIndex = 0;
-        ProbLossBinned = QVector<double>(1, ProbLoss.at(i));
-        ProbRefBinned = QVector<double>(1, ProbRef.at(i));
-        ProbDiffBinned = QVector<double>(1, ProbDiff.at(i));
+        ProbLossBinned = { ProbLoss[i] };
+        ProbRefBinned  = { ProbRef[i] };
+        ProbDiffBinned = { ProbDiff[i] };
         //qDebug() << "LossRefDiff"<<ProbLossBinned.at(effectiveWaveIndex)<<ProbRefBinned.at(effectiveWaveIndex)<<ProbDiffBinned.at(effectiveWaveIndex);
     }
 }
 
 #include "afiletools.h"
-QString ASpectralBasicInterfaceRule::loadData(const QString &fileName)
+QString ASpectralBasicInterfaceRule::loadData(const QString & fileName)
 {
-    /*
-    QVector< QVector<double>* > vec;
-    vec << &Wave << &ProbLoss << &ProbRef << &ProbDiff;
-    QString err = LoadDoubleVectorsFromFile(fileName, vec);
+    std::vector< std::vector<double>* > vec = { &Wave, &ProbLoss, &ProbRef, &ProbDiff};
+    QString err = ftools::loadDoubleVectorsFromFile(fileName, vec);
     if (!err.isEmpty()) return err;
 
-    for (int i=0; i<Wave.size(); i++)
+    for (size_t i = 0; i < Wave.size(); i++)
     {
-        double sum = ProbLoss.at(i) + ProbRef.at(i) + ProbDiff.at(i);
-        if (sum > 1.0) return QString("Sum of probabilities is larger than 1.0 for wavelength of ") + QString::number(Wave.at(i)) + " nm";
+        double sum = ProbLoss[i] + ProbRef[i] + ProbDiff[i];
+        if (sum > 1.0) return QString("Sum of probabilities is larger than 1.0 for wavelength of ") + QString::number(Wave[i]) + " nm";
     }
 
-    if (Wave.isEmpty())
+    if (Wave.empty())
         return "No data were read from the file!";
-*/
+
     return "";
 }
 
@@ -170,16 +172,16 @@ QString ASpectralBasicInterfaceRule::doCheckOverrideData()
     //checking spectrum
     if (Wave.size() == 0) return "Spectral data are not defined";
     if (Wave.size() != ProbLoss.size() || Wave.size() != ProbRef.size() || Wave.size() != ProbDiff.size()) return "Spectral data do not match in size";
-    for (int i=0; i<Wave.size(); i++)
+    for (size_t i = 0; i < Wave.size(); i++)
     {
-        if (Wave.at(i) < 0) return "negative wavelength are not allowed";
-        if (ProbLoss.at(i) < 0 || ProbLoss.at(i) > 1.0) return "absorption probability has to be in the range of [0, 1.0]";
-        if (ProbDiff.at(i) < 0 || ProbDiff.at(i) > 1.0) return "scattering probability has to be in the range of [0, 1.0]";
-        if (ProbRef.at(i) < 0 || ProbRef.at(i) > 1.0) return "scattering probability has to be in the range of [0, 1.0]";
-        double sum = ProbLoss.at(i) + ProbRef.at(i) + ProbDiff.at(i);
-        if (sum > 1.0) return QString("Sum of probabilities is larger than 1.0 for wavelength of %1 nm").arg(Wave.at(i));
+        if (Wave[i] < 0) return "Negative wavelength are not allowed";
+        if (ProbLoss[i] < 0 || ProbLoss[i] > 1.0) return "Absorption probability has to be in the range of [0, 1.0]";
+        if (ProbRef[i]  < 0 || ProbRef[i]  > 1.0) return "Reflection probability has to be in the range of [0, 1.0]";
+        if (ProbDiff[i] < 0 || ProbDiff[i] > 1.0) return "Scattering probability has to be in the range of [0, 1.0]";
+        double sum = ProbLoss[i] + ProbRef[i] + ProbDiff[i];
+        if (sum > 1.0) return QString("Sum of probabilities is larger than 1.0 for wavelength of %1 nm").arg(Wave[i]);
     }
-    if (ScatterModel < 0 || ScatterModel > 2) return "unknown scattering model";
+    if (ScatterModel < 0 || ScatterModel > 2) return "Unknown scattering option";
 
     return "";
 }
