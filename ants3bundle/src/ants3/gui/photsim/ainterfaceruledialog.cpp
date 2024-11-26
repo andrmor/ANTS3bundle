@@ -68,11 +68,11 @@ AInterfaceRule * AInterfaceRuleDialog::getRule()
 
 void AInterfaceRuleDialog::updateGui()
 {
-    if (customWidget)
+    if (CustomWidget)
     {
         QVBoxLayout* l = static_cast<QVBoxLayout*>(layout());
-        l->removeWidget(customWidget);
-        delete customWidget; customWidget = nullptr;
+        l->removeWidget(CustomWidget);
+        delete CustomWidget; CustomWidget = nullptr;
     }
 
     if (LocalRule)
@@ -86,8 +86,10 @@ void AInterfaceRuleDialog::updateGui()
 
         QVBoxLayout* l = static_cast<QVBoxLayout*>(layout());
         //customWidget = ovLocal->getEditWidget(this, MW->GraphWindow);
-        customWidget = AInterfaceWidgetFactory::createEditWidget(LocalRule, this, nullptr); // !!!***
-        l->insertWidget(customWidgetPositionInLayout, customWidget);
+        CustomWidget = AInterfaceWidgetFactory::createEditWidget(LocalRule, this);
+        l->insertWidget(customWidgetPositionInLayout, CustomWidget);
+        connect(CustomWidget, &AInterfaceRuleWidget::requestDraw, this, &AInterfaceRuleDialog::requestDraw);
+        connect(CustomWidget, &AInterfaceRuleWidget::requestDrawLegend, this, &AInterfaceRuleDialog::requestDrawLegend);
 
         //surface
         if (!LocalRule->canHaveRoughSurface()) LocalRule->SurfaceSettings.Model = ASurfaceSettings::Polished;

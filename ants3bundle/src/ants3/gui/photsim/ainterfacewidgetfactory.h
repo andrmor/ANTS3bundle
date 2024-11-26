@@ -1,11 +1,11 @@
 #ifndef AINTERFACEWIDGETFACTORY_H
 #define AINTERFACEWIDGETFACTORY_H
 
+#include <QString>
 #include <QFrame>
 
 class QWidget;
 class AInterfaceRule;
-class GraphWindowClass;   // !!!*** remove, use signal-slot
 class ABasicInterfaceRule;
 class AMetalInterfaceRule;
 class AWaveshifterInterfaceRule;
@@ -14,58 +14,78 @@ class FsnpInterfaceRule;
 class ASurfaceInterfaceRule;
 class AUnifiedRule;
 class QPushButton;
+class TObject;
+class AInterfaceRuleWidget;
+
+// --- Widget factory ---
 
 class AInterfaceWidgetFactory
 {
 public:
-    static QWidget * createEditWidget(AInterfaceRule * Rule, QWidget * Caller, GraphWindowClass * GraphWindow);
+    static AInterfaceRuleWidget * createEditWidget(AInterfaceRule * rule, QWidget * parent);
 };
 
-class ABasicInterfaceWidget : public QFrame
+// --- Base class for the widget ----
+
+class AInterfaceRuleWidget : public QFrame
 {
     Q_OBJECT
 public:
-    ABasicInterfaceWidget(ABasicInterfaceRule * rule);
+    AInterfaceRuleWidget(QWidget * parent) : QFrame(), Parent(parent) {}
+
+protected:
+    QWidget * Parent = nullptr;
+
+signals:
+    void requestDraw(TObject * obj, const QString & options, bool transferOwnership, bool focusWindow);
+    void requestDrawLegend(double x1, double y1, double x2, double y2, QString title);
 };
 
-class AMetalInterfaceWidget : public QFrame
+// ----- Sub-classes ------
+
+class ABasicInterfaceWidget : public AInterfaceRuleWidget
 {
     Q_OBJECT
 public:
-    AMetalInterfaceWidget(AMetalInterfaceRule * rule);
+    ABasicInterfaceWidget(ABasicInterfaceRule * rule, QWidget * parent);
 };
 
-class AFsnpInterfaceWidget : public QFrame
+class AMetalInterfaceWidget : public AInterfaceRuleWidget
 {
     Q_OBJECT
 public:
-    AFsnpInterfaceWidget(FsnpInterfaceRule * rule);
+    AMetalInterfaceWidget(AMetalInterfaceRule * rule, QWidget * parent);
 };
 
-class ASurfaceInterfaceWidget : public QFrame
+class AFsnpInterfaceWidget : public AInterfaceRuleWidget
 {
     Q_OBJECT
 public:
-    ASurfaceInterfaceWidget(ASurfaceInterfaceRule * rule);
+    AFsnpInterfaceWidget(FsnpInterfaceRule * rule, QWidget * parent);
 };
 
-class AUnifiedInterfaceWidget : public QFrame
+class ASurfaceInterfaceWidget : public AInterfaceRuleWidget
 {
     Q_OBJECT
 public:
-    AUnifiedInterfaceWidget(AUnifiedRule * rule);
+    ASurfaceInterfaceWidget(ASurfaceInterfaceRule * rule, QWidget * parent);
 };
 
-class AWaveshifterInterfaceWidget : public QFrame
+class AUnifiedInterfaceWidget : public AInterfaceRuleWidget
 {
     Q_OBJECT
 public:
-    AWaveshifterInterfaceWidget(AWaveshifterInterfaceRule * rule, QWidget * caller, GraphWindowClass * graphWindow);
+    AUnifiedInterfaceWidget(AUnifiedRule * rule, QWidget * parent);
+};
+
+class AWaveshifterInterfaceWidget : public AInterfaceRuleWidget
+{
+    Q_OBJECT
+public:
+    AWaveshifterInterfaceWidget(AWaveshifterInterfaceRule * rule, QWidget * parent);
 
 protected:
     AWaveshifterInterfaceRule * Rule;
-    QWidget * Caller;
-    GraphWindowClass * GraphWindow;
 
     QPushButton *pbShowRP, *pbShowRPbinned, *pbShowES, *pbShowESbinned;
 
@@ -79,16 +99,14 @@ private slots:
     void updateButtons();
 };
 
-class ASpectralBasicInterfaceWidget : public QFrame
+class ASpectralBasicInterfaceWidget : public AInterfaceRuleWidget
 {
     Q_OBJECT
 public:
-    ASpectralBasicInterfaceWidget(ASpectralBasicInterfaceRule * rule, QWidget * caller, GraphWindowClass * graphWindow);
+    ASpectralBasicInterfaceWidget(ASpectralBasicInterfaceRule * rule, QWidget * caller);
 
 protected:
     ASpectralBasicInterfaceRule * Rule;
-    QWidget * Caller;
-    GraphWindowClass * GraphWindow;
 
     QPushButton *pbShow, *pbShowBinned;
 

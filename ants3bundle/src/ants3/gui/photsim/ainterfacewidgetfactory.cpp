@@ -21,38 +21,39 @@
 #include <QComboBox>
 #include <QPushButton>
 
-QWidget * AInterfaceWidgetFactory::createEditWidget(AInterfaceRule * Rule, QWidget * Caller, GraphWindowClass * GraphWindow)
+AInterfaceRuleWidget * AInterfaceWidgetFactory::createEditWidget(AInterfaceRule * rule, QWidget * parent)
 {
-    ASpectralBasicInterfaceRule * spir = dynamic_cast<ASpectralBasicInterfaceRule*>(Rule); // has to be before ABasicInterfaceRule
-    if (spir) return new ASpectralBasicInterfaceWidget(spir, Caller, GraphWindow);
+    ASpectralBasicInterfaceRule * spir = dynamic_cast<ASpectralBasicInterfaceRule*>(rule); // has to be before ABasicInterfaceRule
+    if (spir) return new ASpectralBasicInterfaceWidget(spir, parent);
 
-    ABasicInterfaceRule * bir = dynamic_cast<ABasicInterfaceRule*>(Rule);
-    if (bir) return new ABasicInterfaceWidget(bir);
+    ABasicInterfaceRule * bir = dynamic_cast<ABasicInterfaceRule*>(rule);
+    if (bir) return new ABasicInterfaceWidget(bir, parent);
 
-    AMetalInterfaceRule * mir = dynamic_cast<AMetalInterfaceRule*>(Rule);
-    if (mir) return new AMetalInterfaceWidget(mir);
+    AMetalInterfaceRule * mir = dynamic_cast<AMetalInterfaceRule*>(rule);
+    if (mir) return new AMetalInterfaceWidget(mir, parent);
 
-    FsnpInterfaceRule * fir = dynamic_cast<FsnpInterfaceRule*>(Rule);
-    if (fir) return new AFsnpInterfaceWidget(fir);
+    FsnpInterfaceRule * fir = dynamic_cast<FsnpInterfaceRule*>(rule);
+    if (fir) return new AFsnpInterfaceWidget(fir, parent);
 
-    ASurfaceInterfaceRule * sir = dynamic_cast<ASurfaceInterfaceRule*>(Rule);
-    if (sir) return new ASurfaceInterfaceWidget(sir);
+    ASurfaceInterfaceRule * sir = dynamic_cast<ASurfaceInterfaceRule*>(rule);
+    if (sir) return new ASurfaceInterfaceWidget(sir, parent);
 
-    AUnifiedRule * uir = dynamic_cast<AUnifiedRule*>(Rule);
-    if (uir) return new AUnifiedInterfaceWidget(uir);
+    AUnifiedRule * uir = dynamic_cast<AUnifiedRule*>(rule);
+    if (uir) return new AUnifiedInterfaceWidget(uir, parent);
 
-    AWaveshifterInterfaceRule * wir = dynamic_cast<AWaveshifterInterfaceRule*>(Rule);
-    if (wir) return new AWaveshifterInterfaceWidget(wir, Caller, GraphWindow);
+    AWaveshifterInterfaceRule * wir = dynamic_cast<AWaveshifterInterfaceRule*>(rule);
+    if (wir) return new AWaveshifterInterfaceWidget(wir, parent);
 
 
     qWarning() << "Unknown interface rule!";
-    QFrame * f = new QFrame();
+    AInterfaceRuleWidget * f = new AInterfaceRuleWidget(parent);
     f->setFrameStyle(QFrame::Box);
     f->setMinimumHeight(100);
     return f;
 }
 
-ABasicInterfaceWidget::ABasicInterfaceWidget(ABasicInterfaceRule * rule) : QFrame()
+ABasicInterfaceWidget::ABasicInterfaceWidget(ABasicInterfaceRule * rule, QWidget * parent) :
+    AInterfaceRuleWidget(parent)
 {
     setFrameStyle(QFrame::Box);
 
@@ -97,7 +98,8 @@ ABasicInterfaceWidget::ABasicInterfaceWidget(ABasicInterfaceRule * rule) : QFram
     hl->addLayout(l);
 }
 
-AMetalInterfaceWidget::AMetalInterfaceWidget(AMetalInterfaceRule * rule) : QFrame()
+AMetalInterfaceWidget::AMetalInterfaceWidget(AMetalInterfaceRule * rule, QWidget * parent) :
+    AInterfaceRuleWidget(parent)
 {
     setFrameStyle(QFrame::Box);
 
@@ -124,7 +126,8 @@ AMetalInterfaceWidget::AMetalInterfaceWidget(AMetalInterfaceRule * rule) : QFram
     hl->addLayout(l);
 }
 
-AFsnpInterfaceWidget::AFsnpInterfaceWidget(FsnpInterfaceRule * rule) : QFrame()
+AFsnpInterfaceWidget::AFsnpInterfaceWidget(FsnpInterfaceRule * rule, QWidget * parent) :
+    AInterfaceRuleWidget(parent)
 {
     setFrameStyle(QFrame::Box);
 
@@ -142,8 +145,8 @@ AFsnpInterfaceWidget::AFsnpInterfaceWidget(FsnpInterfaceRule * rule) : QFrame()
     l->addWidget(le);
 }
 
-AWaveshifterInterfaceWidget::AWaveshifterInterfaceWidget(AWaveshifterInterfaceRule * rule, QWidget * caller, GraphWindowClass * graphWindow) :
-    QFrame(), Rule(rule), Caller(caller), GraphWindow(graphWindow)
+AWaveshifterInterfaceWidget::AWaveshifterInterfaceWidget(AWaveshifterInterfaceRule * rule, QWidget * parent) :
+    AInterfaceRuleWidget(parent), Rule(rule)
 {
     setFrameStyle(QFrame::Box);
 
@@ -237,7 +240,7 @@ void AWaveshifterInterfaceWidget::showReemissionProbability()
 {
     if (Rule->ReemissionProbability_lambda.isEmpty())
     {
-        guitools::message("No data were loaded", Caller);
+        guitools::message("No data were loaded", Parent);
         return;
     }
 /*
@@ -251,7 +254,7 @@ void AWaveshifterInterfaceWidget::showEmissionSpectrum()
 {
     if (Rule->EmissionSpectrum_lambda.isEmpty())
     {
-        guitools::message("No data were loaded", Caller);
+        guitools::message("No data were loaded", Parent);
         return;
     }
 /*
@@ -333,8 +336,8 @@ void AWaveshifterInterfaceWidget::updateButtons()
 
 // -------------
 
-ASpectralBasicInterfaceWidget::ASpectralBasicInterfaceWidget(ASpectralBasicInterfaceRule * rule, QWidget * caller, GraphWindowClass * graphWindow) :
-    QFrame(), Rule(rule), Caller(caller), GraphWindow(graphWindow)
+ASpectralBasicInterfaceWidget::ASpectralBasicInterfaceWidget(ASpectralBasicInterfaceRule * rule, QWidget * parent) :
+    AInterfaceRuleWidget(parent), Rule(rule)
 {
     setFrameStyle(QFrame::Box);
 
@@ -414,7 +417,7 @@ void ASpectralBasicInterfaceWidget::showLoaded()
     mg->Add(gFr, "LP");
 
     mg->SetMinimum(0);
-    GraphWindow->Draw(mg, "apl");
+    emit requestDraw(mg, "apl", true, true);
     mg->GetXaxis()->SetTitle("Wavelength, nm");
     mg->GetYaxis()->SetTitle("Probability");
     //GraphWindow->addLegend(0.7,0.8, 0.95,0.95, "");
@@ -477,7 +480,8 @@ void ASpectralBasicInterfaceWidget::updateButtons()
 
 // -------
 
-ASurfaceInterfaceWidget::ASurfaceInterfaceWidget(ASurfaceInterfaceRule *rule)
+ASurfaceInterfaceWidget::ASurfaceInterfaceWidget(ASurfaceInterfaceRule * rule, QWidget * parent) :
+    AInterfaceRuleWidget(parent)
 {
     setFrameStyle(QFrame::Box);
 
@@ -498,7 +502,8 @@ ASurfaceInterfaceWidget::ASurfaceInterfaceWidget(ASurfaceInterfaceRule *rule)
     */
 }
 
-AUnifiedInterfaceWidget::AUnifiedInterfaceWidget(AUnifiedRule * rule)
+AUnifiedInterfaceWidget::AUnifiedInterfaceWidget(AUnifiedRule * rule, QWidget * parent) :
+    AInterfaceRuleWidget(parent)
 {
     setFrameStyle(QFrame::Box);
 

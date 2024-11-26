@@ -10,6 +10,7 @@ class AInterfaceRuleDialog;
 }
 
 class AInterfaceRule;
+class AInterfaceRuleWidget;
 class AInterfaceRuleTester;
 class AMaterialHub;
 class AInterfaceRuleHub;
@@ -64,7 +65,7 @@ private:
     AInterfaceRuleTester     * TesterWindow = nullptr;
 
     int customWidgetPositionInLayout = 5;
-    QWidget * customWidget = nullptr;
+    AInterfaceRuleWidget * CustomWidget = nullptr;
 
     QSet<AInterfaceRule*> TmpRules;
 
