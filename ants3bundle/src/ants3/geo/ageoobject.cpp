@@ -875,12 +875,13 @@ bool AGeoObject::suicide()
 
     //qDebug() << "!!--Suicide triggered for object:"<<Name;
     AGeoObject * ObjectContainer = Container;
-    auto it = Container->HostedObjects.begin();
-    for ( ; it != Container->HostedObjects.end(); ++it)
-        if (*it == this) break;
-    if (it == Container->HostedObjects.end()) return false;
 
-    Container->HostedObjects.erase(it);
+    size_t iObj = 0;
+    for (; iObj < Container->HostedObjects.size(); iObj++)
+        if (Container->HostedObjects[iObj] == this)
+            break;
+    if (iObj == Container->HostedObjects.size()) return false;
+    Container->HostedObjects.erase(Container->HostedObjects.begin() + iObj);
 
     //for composite, clear all unused logicals then kill the composite container
     if (Type->isComposite())
@@ -917,8 +918,8 @@ bool AGeoObject::suicide()
     for (AGeoObject * obj : HostedObjects)
     {
         obj->Container = ObjectContainer;
-        Container->HostedObjects.insert(it, obj);
-        ++it;
+        Container->HostedObjects.insert(Container->HostedObjects.begin() + iObj, obj);
+        iObj++;
     }
 
     delete this;
