@@ -52,6 +52,7 @@ AInterfaceRuleTester::AInterfaceRuleTester(AInterfaceRule* & ovLocal, int matFro
     updateGUI();
 }
 
+#include "ametalinterfacerule.h"
 void AInterfaceRuleTester::updateGUI()
 {
     bool bWR = APhotonSimHub::getConstInstance().Settings.WaveSet.Enabled;
@@ -75,7 +76,12 @@ void AInterfaceRuleTester::updateGUI()
     else
     {
         const std::complex<double> ref = MatHub[MatTo]->getComplexRefractiveIndex(waveIndex);
-        str2 = QString("%1 %2*i").arg(QString::number(ref.real(),'g',4)).arg(QString::number(ref.imag(),'g',4));
+        str2 = QString("%1 + i*%2").arg(QString::number(ref.real(),'g',4)).arg(QString::number(ref.imag(),'g',4));
+    }
+    if (pOV->getType() == "DielectricToMetal")
+    {
+        AMetalInterfaceRule * mir = static_cast<AMetalInterfaceRule*>(pOV);
+        str2 = QString("%1 + i*%2").arg(QString::number(mir->RealN,'g',4)).arg(QString::number(mir->ImaginaryN,'g',4));
     }
     ui->ledST_Ref1->setText(str1);
     ui->ledST_Ref2->setText(str2);

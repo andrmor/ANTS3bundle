@@ -14,6 +14,7 @@ public:
     QString getAbbreviation() const override {return "Met";}
     QString getReportLine() const override;
     QString getLongReportLine() const override;
+    QString getDescription() const override;
 
     bool canHaveRoughSurface() const override {return true;}
 
