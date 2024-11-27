@@ -1,17 +1,16 @@
 #include "awaveshifterinterfacerule.h"
 #include "aphoton.h"
 #include "amaterial.h"
-#include "amaterialhub.h"
 #include "arandomhub.h"
 #include "aphotonstatistics.h"
 #include "aphotonsimhub.h"
 #include "ajsontools.h"
+#include "afiletools.h"
 
 #include <QJsonObject>
 #include <QDebug>
 
 #include "TMath.h"
-#include "TRandom2.h"
 #include "TH1D.h"
 
 AWaveshifterInterfaceRule::AWaveshifterInterfaceRule(int MatFrom, int MatTo)
@@ -28,17 +27,17 @@ void AWaveshifterInterfaceRule::initializeWaveResolved()
     {
         const int WaveNodes = WaveSet.countNodes();
 
-        WaveSet.toStandardBins(&ReemissionProbability_lambda, &ReemissionProbability, &ReemissionProbabilityBinned);
+        WaveSet.toStandardBins(ReemissionProbability, ReemissionProbabilityBinned);
 
-        QVector<double> y;
-        WaveSet.toStandardBins(&EmissionSpectrum_lambda, &EmissionSpectrum, &y);
+        std::vector<double> emisSpecBinned;
+        WaveSet.toStandardBins(EmissionSpectrum, emisSpecBinned);
 
         TString name = "WLSEmSpec";
         name += MatFrom;
         name += "to";
         name += MatTo;
         delete Spectrum; Spectrum = new TH1D(name, "", WaveSet.countNodes(), WaveSet.From, WaveSet.From + WaveSet.Step * WaveNodes);
-        for (int j = 1; j<WaveNodes+1; j++)  Spectrum->SetBinContent(j, y[j-1]);
+        for (int j = 1; j < WaveSet.countNodes(); j++)  Spectrum->SetBinContent(j, emisSpecBinned[j-1]);
         Spectrum->GetIntegral(); //to make thread safe
     }
     else
@@ -53,9 +52,9 @@ AInterfaceRule::OpticalOverrideResultEnum AWaveshifterInterfaceRule::calculate(A
 {
     //currently assuming there is no scattering on original wavelength - only reemission or absorption
 
-    if ( !Spectrum ||                               //emission spectrum not defined
-         Photon->waveIndex == -1 ||                 //or photon without wavelength
-         ReemissionProbabilityBinned.isEmpty() )    //or probability not defined
+    if ( !Spectrum ||                             // emission spectrum not defined
+         Photon->waveIndex == -1 ||               // or photon without wavelength
+         ReemissionProbabilityBinned.empty() )    // or probability not defined
     {
         Status = Absorption;
         return Absorbed;
@@ -143,7 +142,7 @@ AInterfaceRule::OpticalOverrideResultEnum AWaveshifterInterfaceRule::calculate(A
 
 QString AWaveshifterInterfaceRule::getReportLine() const
 {
-    QString s = QString("CProb %1 pts; Spectr %2 pts; Mod: ").arg(ReemissionProbability_lambda.size()).arg(EmissionSpectrum_lambda.size());
+    QString s = QString("RProb %1 pts; Spectr %2 pts; Mod: ").arg(ReemissionProbability.size()).arg(EmissionSpectrum.size());
     switch( ReemissionModel )
     {
     case 0:
@@ -162,10 +161,10 @@ QString AWaveshifterInterfaceRule::getReportLine() const
 QString AWaveshifterInterfaceRule::getLongReportLine() const
 {
     QString s = "--> Wavelength shifter <--\n";
-    s += QString("Reemission probaility from %1 to %2 nm\n").arg(ReemissionProbability_lambda.first()).arg(ReemissionProbability_lambda.last());
-    s += QString("Number of points: %1\n").arg(ReemissionProbability_lambda.size());
-    s += QString("Emission spectrum from %1 to %2 nm\n").arg(EmissionSpectrum_lambda.first()).arg(EmissionSpectrum_lambda.last());
-    s += QString("Number of points: %1\n").arg(EmissionSpectrum_lambda.size());
+    s += QString("Reemission probaility from %1 to %2 nm\n").arg(ReemissionProbability.front().first).arg(ReemissionProbability.back().first);
+    s += QString("Number of points: %1\n").arg(ReemissionProbability.size());
+    s += QString("Emission spectrum from %1 to %2 nm\n").arg(EmissionSpectrum.front().first).arg(EmissionSpectrum.back().first);
+    s += QString("Number of points: %1\n").arg(EmissionSpectrum.size());
     s += "Reemission model: ";
     switch( ReemissionModel )
     {
@@ -182,17 +181,38 @@ QString AWaveshifterInterfaceRule::getLongReportLine() const
     return s;
 }
 
+QString AWaveshifterInterfaceRule::loadReemissionProbability(const QString & fileName)
+{
+    QString err = ftools::loadPairs(fileName, ReemissionProbability, true);
+    if (!err.isEmpty()) return err;
+
+    for (const auto & pair : ReemissionProbability)
+    {
+        if (pair.second < 0 || pair.second > 1.0)
+        {
+            ReemissionProbability.clear();
+            return "Reemission probability should be in the range from 0 to 1.0";
+        }
+    }
+    return "";
+}
+
+QString AWaveshifterInterfaceRule::loadEmissionSpectrum(const QString & fileName)
+{
+    QString err = ftools::loadPairs(fileName, EmissionSpectrum, true);
+    return err;
+}
+
 void AWaveshifterInterfaceRule::doWriteToJson(QJsonObject & json) const
 {
-/*
     QJsonArray arRP;
-    writeTwoQVectorsToJArray(ReemissionProbability_lambda, ReemissionProbability, arRP);
+    jstools::writeDPairVectorToArray(ReemissionProbability, arRP);
     json["ReemissionProbability"] = arRP;
+
     QJsonArray arEm;
-    writeTwoQVectorsToJArray(EmissionSpectrum_lambda, EmissionSpectrum, arEm);
+    jstools::writeDPairVectorToArray(EmissionSpectrum, arEm);
     json["EmissionSpectrum"] = arEm;
     json["ReemissionModel"] = ReemissionModel;
-*/
 }
 
 bool AWaveshifterInterfaceRule::doReadFromJson(const QJsonObject & json)
@@ -202,17 +222,17 @@ bool AWaveshifterInterfaceRule::doReadFromJson(const QJsonObject & json)
         ReemissionModel = 1;
         qWarning() << "Load WLS optical override: ReemissionModel not given, assuming Lambert back";
     }
-/*
+
     QJsonArray arRP;
     if ( !jstools::parseJson(json, "ReemissionProbability", arRP) ) return false;
     if (arRP.isEmpty()) return false;
-    if ( !readTwoQVectorsFromJArray(arRP, ReemissionProbability_lambda, ReemissionProbability) ) return false;
+    if ( !jstools::readDPairVectorFromArray(arRP, ReemissionProbability) ) return false;
 
     QJsonArray arES;
     if ( !jstools::parseJson(json, "EmissionSpectrum", arES) ) return false;
     if (arES.isEmpty()) return false;
-    if ( !readTwoQVectorsFromJArray(arES, EmissionSpectrum_lambda, EmissionSpectrum) ) return false;
-*/
+    if ( !jstools::readDPairVectorFromArray(arES, EmissionSpectrum) ) return false;
+
     return true;
 }
 
@@ -220,15 +240,8 @@ QString AWaveshifterInterfaceRule::doCheckOverrideData()
 {
     if (ReemissionModel < 0 || ReemissionModel > 2) return "Invalid reemission model";
 
-    if (ReemissionProbability_lambda.isEmpty())
-        return "Reemission probability not loaded";
-    if (ReemissionProbability_lambda.size() != ReemissionProbability.size())
-        return "Mismatch in reemission probability data";
-
-    if (EmissionSpectrum_lambda.isEmpty())
-        return "Emission spectrum not loaded";
-    if (EmissionSpectrum_lambda.size() != EmissionSpectrum.size())
-        return "Mismatch in emission spectrum data";
+    if (ReemissionProbability.empty()) return "Reemission probability not loaded";
+    if (EmissionSpectrum.empty()) return "Emission spectrum not loaded";
 
     initializeWaveResolved();
 

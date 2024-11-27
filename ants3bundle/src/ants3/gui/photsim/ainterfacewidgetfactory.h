@@ -90,10 +90,10 @@ protected:
     QPushButton *pbShowRP, *pbShowRPbinned, *pbShowES, *pbShowESbinned;
 
 private slots:
-    void loadReemissionProbability(); // !!!***
-    void loadEmissionSpectrum(); // !!!***
-    void showReemissionProbability(); // !!!***
-    void showEmissionSpectrum();  // !!!***
+    void loadReemissionProbability();
+    void loadEmissionSpectrum();
+    void showReemissionProbability();
+    void showEmissionSpectrum();
     void showBinnedReemissionProbability(); // !!!***
     void showBinnedEmissionSpectrum();  // !!!***
     void updateButtons();
@@ -112,8 +112,8 @@ protected:
 
 private slots:
     void loadSpectralData();
-    void showLoaded(); // !!!***
-    void showBinned(); // !!!***
+    void showLoaded();
+    void showBinned();
     void updateButtons();
 };
 

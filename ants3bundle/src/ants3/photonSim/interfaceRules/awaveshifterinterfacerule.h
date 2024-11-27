@@ -4,7 +4,8 @@
 #include "ainterfacerule.h"
 
 #include <QString>
-#include <QVector>   // !!!***
+
+#include <vector>
 
 class AWaveResSettings;
 class TH1D;
@@ -23,13 +24,13 @@ public:
     QString getReportLine() const override;
     QString getLongReportLine() const override;
 
-    int ReemissionModel = 1; //0-isotropic (4Pi), 1-Lamb back (2Pi), 2-Lamb forward (2Pi)
-    QVector<double> ReemissionProbability_lambda;
-    QVector<double> ReemissionProbability;
-    QVector<double> ReemissionProbabilityBinned;
+    QString loadReemissionProbability(const QString & fileName);
+    QString loadEmissionSpectrum(const QString & fileName);
 
-    QVector<double> EmissionSpectrum_lambda;
-    QVector<double> EmissionSpectrum;
+    int ReemissionModel = 1; //0-isotropic (4Pi), 1-Lamb back (2Pi), 2-Lamb forward (2Pi)
+    std::vector<std::pair<double,double>> ReemissionProbability;
+    std::vector<double> ReemissionProbabilityBinned;
+    std::vector<std::pair<double,double>> EmissionSpectrum;
     TH1D * Spectrum = nullptr;
 
 protected:

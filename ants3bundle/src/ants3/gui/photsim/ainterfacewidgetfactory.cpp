@@ -198,7 +198,7 @@ AWaveshifterInterfaceWidget::AWaveshifterInterfaceWidget(AWaveshifterInterfaceRu
             vv->addWidget(pbShowESbinned);
         l->addLayout(vv);
     vl->addLayout(l);
-        lab = new QLabel("If simulation is NOT wavelength-resolved, this override does nothing!");
+        lab = new QLabel("If simulation is NOT wavelength-resolved, this rule does nothing!");
         lab->setAlignment(Qt::AlignCenter);
     vl->addWidget(lab);
     updateButtons();
@@ -206,69 +206,52 @@ AWaveshifterInterfaceWidget::AWaveshifterInterfaceWidget(AWaveshifterInterfaceRu
 
 void AWaveshifterInterfaceWidget::loadReemissionProbability()
 {
-    /*
-    AGlobalSettings& GlobSet = AGlobalSettings::getInstance();
-    QString fileName = QFileDialog::getOpenFileName(caller, "Load reemission probability", GlobSet.LastOpenDir, "Data files (*.dat *.txt);;All files (*)");
+    QString fileName = guitools::dialogLoadFile(Parent, "Load reemission probability", "Data files (*.dat *.txt);;All files (*)");
     if (fileName.isEmpty()) return;
-    GlobSet.LastOpenDir = QFileInfo(fileName).absolutePath();
-    QVector<double> X, Y;
-    int ret = LoadDoubleVectorsFromFile(fileName, &X, &Y);
-    if (ret == 0)
-    {
-        ReemissionProbability_lambda = X;
-        ReemissionProbability = Y;
-        updateButtons();
-    }
-    */
+
+    QString err = Rule->loadReemissionProbability(fileName);
+    if (!err.isEmpty()) guitools::message(err, Parent);
+
+    updateButtons();
 }
 
 void AWaveshifterInterfaceWidget::loadEmissionSpectrum()
 {
-    /*
-    AGlobalSettings& GlobSet = AGlobalSettings::getInstance();
-    QString fileName = QFileDialog::getOpenFileName(caller, "Load emission spectrum", GlobSet.LastOpenDir, "Data files (*.dat *.txt);;All files (*)");
+    QString fileName = guitools::dialogLoadFile(Parent, "Load emission spectrum", "Data files (*.dat *.txt);;All files (*)");
     if (fileName.isEmpty()) return;
-    GlobSet.LastOpenDir = QFileInfo(fileName).absolutePath();
-    QVector<double> X, Y;
-    int ret = LoadDoubleVectorsFromFile(fileName, &X, &Y);
-    if (ret == 0)
-    {
-        EmissionSpectrum_lambda = X;
-        EmissionSpectrum = Y;
-        updateButtons();
-    }
-    */
+
+    QString err = Rule->loadEmissionSpectrum(fileName);
+    if (!err.isEmpty()) guitools::message(err, Parent);
+
+    updateButtons();
 }
 
 void AWaveshifterInterfaceWidget::showReemissionProbability()
 {
-    if (Rule->ReemissionProbability_lambda.isEmpty())
+    if (Rule->ReemissionProbability.empty())
     {
         guitools::message("No data were loaded", Parent);
         return;
     }
-/*
-    TGraph* gr = GraphWindow->ConstructTGraph(ReemissionProbability_lambda, ReemissionProbability, "Reemission probability", "Wavelength, nm", "Reemission probability, a.u.", 2, 20, 1, 2, 2);
+
+    TGraph * gr = AGraphBuilder::graph(Rule->ReemissionProbability);
+    AGraphBuilder::configure(gr, "Reemission probability", "Wavelength, nm", "Reemission probability", 2, 20, 1, 2, 2);
     gr->SetMinimum(0);
-    GraphWindow->Draw(gr, "apl");
-*/
+    emit requestDraw(gr, "apl", true, true);
 }
 
 void AWaveshifterInterfaceWidget::showEmissionSpectrum()
 {
-    if (Rule->EmissionSpectrum_lambda.isEmpty())
+    if (Rule->EmissionSpectrum.empty())
     {
         guitools::message("No data were loaded", Parent);
         return;
     }
-/*
-    TGraph* gr = GraphWindow->ConstructTGraph(EmissionSpectrum_lambda, EmissionSpectrum,
-                                              "Emission spectrum", "Wavelength, nm", "Relative intensity, a.u.",
-                                              4, 20, 1,
-                                              4, 2);
+
+    TGraph * gr = AGraphBuilder::graph(Rule->EmissionSpectrum);
+    AGraphBuilder::configure(gr, "Emission spectrum", "Wavelength, nm", "Relative intensity, a.u.", 4, 20, 1, 4, 2);
     gr->SetMinimum(0);
-    GraphWindow->Draw(gr, "apl");
-*/
+    emit requestDraw(gr, "apl", true, true);
 }
 
 void AWaveshifterInterfaceWidget::showBinnedReemissionProbability()
@@ -331,11 +314,11 @@ void AWaveshifterInterfaceWidget::showBinnedEmissionSpectrum()
 
 void AWaveshifterInterfaceWidget::updateButtons()
 {
-    pbShowRP->setDisabled(Rule->ReemissionProbability_lambda.isEmpty());
-    pbShowES->setDisabled(Rule->EmissionSpectrum_lambda.isEmpty());
-    bool bWR = true; // WaveSet.Enabled;  !!!***
-    pbShowRPbinned->setDisabled(!bWR || Rule->ReemissionProbability_lambda.isEmpty());
-    pbShowESbinned->setDisabled(!bWR || Rule->EmissionSpectrum_lambda.isEmpty());
+    pbShowRP->setDisabled(Rule->ReemissionProbability.empty());
+    pbShowES->setDisabled(Rule->EmissionSpectrum.empty());
+    bool bWR = APhotonSimHub::getConstInstance().Settings.WaveSet.Enabled;
+    pbShowRPbinned->setDisabled(!bWR || Rule->ReemissionProbability.empty());
+    pbShowESbinned->setDisabled(!bWR || Rule->EmissionSpectrum.empty());
 }
 
 // -------------
