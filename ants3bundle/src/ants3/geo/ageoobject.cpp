@@ -901,18 +901,19 @@ bool AGeoObject::suicide()
     }
     else if (Type->isGrid())
     {
-/*
-        AGeoObject* ge = getGridElement();
+        AGeoObject * ge = getGridElement();
         if (ge)
         {
-            for (int i=0; i<ge->HostedObjects.size(); i++)
-                delete ge->HostedObjects[i];
-            ge->HostedObjects.clear();
-
+            for (AGeoObject * obj : ge->HostedObjects) delete obj;
             delete ge;
-            HostedObjects.removeAll(ge);
+
+            for (auto itge = HostedObjects.begin(); itge != HostedObjects.end(); ++itge)
+                if (*itge == ge)
+                {
+                    HostedObjects.erase(itge);
+                    break;
+                }
         }
-*/
     }
 
     for (AGeoObject * obj : HostedObjects)
