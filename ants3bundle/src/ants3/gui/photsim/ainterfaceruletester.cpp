@@ -29,7 +29,7 @@
 
 #include <complex>
 
-AInterfaceRuleTester::AInterfaceRuleTester(AInterfaceRule * ovLocal, int matFrom, int matTo, QWidget * parent) :
+AInterfaceRuleTester::AInterfaceRuleTester(AInterfaceRule* & ovLocal, int matFrom, int matTo, QWidget * parent) :
     QMainWindow(parent),
     MatHub(AMaterialHub::getConstInstance()),
     GeoHub(AGeometryHub::getInstance()),
