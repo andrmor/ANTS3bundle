@@ -78,7 +78,7 @@ void AInterfaceRuleTester::updateGUI()
         const std::complex<double> ref = MatHub[MatTo]->getComplexRefractiveIndex(waveIndex);
         str2 = QString("%1 + i*%2").arg(QString::number(ref.real(),'g',4)).arg(QString::number(ref.imag(),'g',4));
     }
-    if (pOV->getType() == "DielectricToMetal")
+    if (pOV && pOV->getType() == "DielectricToMetal")
     {
         AMetalInterfaceRule * mir = static_cast<AMetalInterfaceRule*>(pOV);
         str2 = QString("%1 + i*%2").arg(QString::number(mir->RealN,'g',4)).arg(QString::number(mir->ImaginaryN,'g',4));
