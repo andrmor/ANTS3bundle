@@ -94,8 +94,8 @@ private slots:
     void loadEmissionSpectrum();
     void showReemissionProbability();
     void showEmissionSpectrum();
-    void showBinnedReemissionProbability(); // !!!***
-    void showBinnedEmissionSpectrum();  // !!!***
+    void showBinnedReemissionProbability();
+    void showBinnedEmissionSpectrum();
     void updateButtons();
 };
 

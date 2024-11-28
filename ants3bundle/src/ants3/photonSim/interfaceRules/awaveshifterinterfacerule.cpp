@@ -77,8 +77,9 @@ AInterfaceRule::OpticalOverrideResultEnum AWaveshifterInterfaceRule::calculate(A
                 Status = Absorption;
                 return Absorbed;
             }
-            wavelength = Spectrum->GetRandom();
+            wavelength = Spectrum->GetRandom(); // !!!*** can be faster if sample from waveIndex histogram
             waveIndex = WaveSet.toIndexFast(wavelength);
+            if (!ConserveEnergy) break;
         }
         while (waveIndex < Photon->waveIndex); //conserving energy
 
@@ -181,6 +182,20 @@ QString AWaveshifterInterfaceRule::getLongReportLine() const
     return s;
 }
 
+QString AWaveshifterInterfaceRule::getDescription() const
+{
+    QString txt = "This rule is active only for wavelength-resolved simulations!\n\n"
+        "Each incoming photon is first absorped.\n"
+        "Then a check is made vs loaded reemision probability (wavelength-resolved).\n"
+        "If reemitted, the photon wavelength is sampled from the provided emission spectrum.\n"
+        "If ConserveEnergy is checked, the photon generation is attempted up to 10 times\n"
+        "checking that the wavelength is longer than that for the absorped photon.\n"
+        "If unseccessful, the photon is absorpbed.\n\n"
+        "The direcion of the reemitted photon can be configured to be generated according to the\n"
+        "isotropic (4Pi) or Lambertian distribution (back-scattering or forward).";
+    return txt;
+}
+
 QString AWaveshifterInterfaceRule::loadReemissionProbability(const QString & fileName)
 {
     QString err = ftools::loadPairs(fileName, ReemissionProbability, true);
@@ -213,6 +228,8 @@ void AWaveshifterInterfaceRule::doWriteToJson(QJsonObject & json) const
     jstools::writeDPairVectorToArray(EmissionSpectrum, arEm);
     json["EmissionSpectrum"] = arEm;
     json["ReemissionModel"] = ReemissionModel;
+
+    json["ConserveEnergy"] = ConserveEnergy;
 }
 
 bool AWaveshifterInterfaceRule::doReadFromJson(const QJsonObject & json)
@@ -232,6 +249,8 @@ bool AWaveshifterInterfaceRule::doReadFromJson(const QJsonObject & json)
     if ( !jstools::parseJson(json, "EmissionSpectrum", arES) ) return false;
     if (arES.isEmpty()) return false;
     if ( !jstools::readDPairVectorFromArray(arES, EmissionSpectrum) ) return false;
+
+    jstools::parseJson(json, "ConserveEnergy", ConserveEnergy);
 
     return true;
 }

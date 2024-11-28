@@ -24,6 +24,7 @@
 #include <QPushButton>
 
 #include "TGraph.h"
+#include "TH1D.h"
 
 AInterfaceRuleWidget * AInterfaceWidgetFactory::createEditWidget(AInterfaceRule * rule, QWidget * parent)
 {
@@ -149,6 +150,7 @@ AFsnpInterfaceWidget::AFsnpInterfaceWidget(FsnpInterfaceRule * rule, QWidget * p
     l->addWidget(le);
 }
 
+#include <QCheckBox>
 AWaveshifterInterfaceWidget::AWaveshifterInterfaceWidget(AWaveshifterInterfaceRule * rule, QWidget * parent) :
     AInterfaceRuleWidget(parent), Rule(rule)
 {
@@ -198,6 +200,10 @@ AWaveshifterInterfaceWidget::AWaveshifterInterfaceWidget(AWaveshifterInterfaceRu
             vv->addWidget(pbShowESbinned);
         l->addLayout(vv);
     vl->addLayout(l);
+        QCheckBox * cbConserveEnergy = new QCheckBox("Conserve energy");
+        cbConserveEnergy->setChecked(rule->ConserveEnergy);
+        QObject::connect(cbConserveEnergy, &QCheckBox::clicked, [rule](bool checked) { rule->ConserveEnergy = checked; } );
+    vl->addWidget(cbConserveEnergy);
         lab = new QLabel("If simulation is NOT wavelength-resolved, this rule does nothing!");
         lab->setAlignment(Qt::AlignCenter);
     vl->addWidget(lab);
@@ -258,58 +264,51 @@ void AWaveshifterInterfaceWidget::showBinnedReemissionProbability()
 {
     Rule->initializeWaveResolved();
 
-    //TODO run checker
-
-    /*
+    const AWaveResSettings & WaveSet = APhotonSimHub::getConstInstance().Settings.WaveSet;
     if (!WaveSet.Enabled)
     {
-        guitools::message("Simulation is NOT wavelength resolved, override is inactive!", caller);
+        guitools::message("Simulation is NOT wavelength resolved, override is inactive!", Parent);
         return;
     }
 
-    const int WaveNodes = WaveSet.countNodes();
-    QVector<double> waveIndex;
-    for (int i=0; i<WaveNodes; i++) waveIndex << i;
-    TGraph* gr = GraphWindow->ConstructTGraph(waveIndex, ReemissionProbabilityBinned,
-                                              "Reemission probability (binned)", "Wave index", "Reemission probability, a.u.",
+    std::vector<double> waveIndexes = WaveSet.getVectorOfIndexes();
+    TGraph * gr = AGraphBuilder::graph(waveIndexes, Rule->ReemissionProbabilityBinned);
+    AGraphBuilder::configure(gr, "BinnedReemissionProbability", "Wave index", "Reemission probability, a.u.",
                                               2, 20, 1,
                                               2, 2);
     gr->SetMinimum(0);
-    GraphWindow->Draw(gr, "apl");
-*/
+    emit requestDraw(gr, "apl", true, true);
 }
 
 void AWaveshifterInterfaceWidget::showBinnedEmissionSpectrum()
 {
     Rule->initializeWaveResolved();
 
-    //TODO run checker
-/*
+    const AWaveResSettings & WaveSet = APhotonSimHub::getConstInstance().Settings.WaveSet;
     if (!WaveSet.Enabled)
     {
-        guitools::message("Simulation is NOT wavelength resolved, override is inactive!", caller);
+        guitools::message("Simulation is NOT wavelength resolved, override is inactive!", Parent);
         return;
     }
 
-    if ( !Spectrum ) //paranoic
+    if ( !Rule->Spectrum ) //paranoic
     {
-        guitools::message("Spectrum is not defined!", caller);
+        guitools::message("Reemission spectrum is not defined!", Parent);
         return;
     }
 
-    double integral = Spectrum->ComputeIntegral();
+    double integral = Rule->Spectrum->ComputeIntegral();
     if (integral <= 0)
     {
-        guitools::message("Binned emission spectrum: integral <=0, override will report an error!", caller);
+        guitools::message("Binned emission spectrum: integral <= 0, override will report an error!", Parent);
         return;
     }
 
-    TH1D* SpectrumCopy = new TH1D(*Spectrum);
+    TH1D * SpectrumCopy = new TH1D(*Rule->Spectrum);
     SpectrumCopy->SetTitle("Binned emission spectrum");
     SpectrumCopy->GetXaxis()->SetTitle("Wavelength, nm");
     SpectrumCopy->GetYaxis()->SetTitle("Relative intensity, a.u.");
-//    GraphWindow->Draw(SpectrumCopy, "hist"); //gets ownership of the copy
-*/
+    emit requestDraw(SpectrumCopy, "hist", true, true);
 }
 
 void AWaveshifterInterfaceWidget::updateButtons()
@@ -460,8 +459,6 @@ void ASpectralBasicInterfaceWidget::showBinned()
 void ASpectralBasicInterfaceWidget::updateButtons()
 {
     pbShow->setDisabled(Rule->Wave.empty());
-    //const AWaveResSettings & WaveSet = APhotonSimHub::getConstInstance().Settings.WaveSet;
-    //pbShowBinned->setDisabled(!WaveSet.Enabled || Rule->Wave.empty());
 }
 
 // -------
@@ -475,17 +472,6 @@ ASurfaceInterfaceWidget::ASurfaceInterfaceWidget(ASurfaceInterfaceRule * rule, Q
         QLabel* lab = new QLabel("Using Fresnel equations and Snell's law");
         lab->setAlignment(Qt::AlignHCenter);
     l->addWidget(lab);
-    /*
-        QLineEdit* le = new QLineEdit(QString::number(rule->Albedo));
-        QDoubleValidator* val = new QDoubleValidator(this);
-        val->setNotation(QDoubleValidator::StandardNotation);
-        val->setBottom(0);
-        //val->setTop(1.0); //Qt(5.8.0) BUG: check does not work
-        val->setDecimals(6);
-        le->setValidator(val);
-        QObject::connect(le, &QLineEdit::editingFinished, [le, rule]() { rule->Albedo = le->text().toDouble(); } );
-    l->addWidget(le);
-    */
 }
 
 AUnifiedInterfaceWidget::AUnifiedInterfaceWidget(AUnifiedRule * rule, QWidget * parent) :

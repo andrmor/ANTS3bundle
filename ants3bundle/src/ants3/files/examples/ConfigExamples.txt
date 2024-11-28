@@ -6,6 +6,7 @@
 ** Optical sim
 @OpticalTransmissionTester.json Transmission through a sodalime_glass slab: compare with the database data (see example description)
 @FresnelTester.json Cuboid crystal, point source isotropic emission: testing Fresnel --> number of photons exiting from all sides should be the same
+@SurfaceWaveShifter.json A minimal configuration featuring optical interface rule for wavelength shifter
 @ThinLens.json Example demonstrating how to configure thin lens for optical simulation using a PhotonFuncional object
 @OpticalGrid.json Optical grid: comparison with an array of wires
 * Gamma cameras

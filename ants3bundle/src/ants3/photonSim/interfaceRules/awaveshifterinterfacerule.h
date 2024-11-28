@@ -23,6 +23,7 @@ public:
     QString getAbbreviation() const override {return "WLS";}
     QString getReportLine() const override;
     QString getLongReportLine() const override;
+    QString getDescription() const override;
 
     QString loadReemissionProbability(const QString & fileName);
     QString loadEmissionSpectrum(const QString & fileName);
@@ -32,6 +33,7 @@ public:
     std::vector<double> ReemissionProbabilityBinned;
     std::vector<std::pair<double,double>> EmissionSpectrum;
     TH1D * Spectrum = nullptr;
+    bool ConserveEnergy = false;
 
 protected:
     void doWriteToJson(QJsonObject & json) const override;  // !!!***
