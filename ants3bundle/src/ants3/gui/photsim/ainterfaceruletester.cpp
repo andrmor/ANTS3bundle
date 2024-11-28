@@ -114,7 +114,7 @@ void AInterfaceRuleTester::on_pbST_RvsAngle_clicked()
 
     int numPhotons = ui->sbST_number->value();
     std::vector<double> Back(91, 0), Forward(91, 0), Absorb(91, 0), NotTrigger(91, 0);
-    std::vector<double> Spike(91, 0), BackLobe(91, 0), BackLambert(91, 0), WaveShifted(91, 0);
+    std::vector<double> Spike(91, 0), BackSpike(91, 0), BackLobe(91, 0), BackLambert(91, 0), WaveShifted(91, 0);
     std::vector<double> Angle;
     double N[3], K[3];
     N[0] = 0;
@@ -158,6 +158,7 @@ void AInterfaceRuleTester::on_pbST_RvsAngle_clicked()
             switch (pOV->Status)
             {
             case AInterfaceRule::SpikeReflection: Spike[iAngle]++; break;
+            case AInterfaceRule::BackscatterSpikeReflection: BackSpike[iAngle]++; break;
             case AInterfaceRule::LobeReflection: BackLobe[iAngle]++; break;
             case AInterfaceRule::LambertianReflection: BackLambert[iAngle]++; break;
             default: ;
@@ -169,6 +170,7 @@ void AInterfaceRuleTester::on_pbST_RvsAngle_clicked()
         Back[iAngle] /= numPhotons;
 
         Spike[iAngle] /= numPhotons;
+        BackSpike[iAngle] /= numPhotons;
         BackLobe[iAngle] /= numPhotons;
         BackLambert[iAngle] /= numPhotons;
 
@@ -198,17 +200,19 @@ void AInterfaceRuleTester::on_pbST_RvsAngle_clicked()
     }
     case 1:
     {
-        TGraph * gT = AGraphBuilder::graph(Angle, Back);        AGraphBuilder::configure(gT, "All reflections", "Angle, deg", "Fraction",  2, 0, 1,   2, 1, 2);
-        TGraph * gS = AGraphBuilder::graph(Angle, Spike);       AGraphBuilder::configure(gS, "Spike",           "Angle, deg", "Fraction",  1, 0, 1,   1, 1, 2);
-        TGraph * gL = AGraphBuilder::graph(Angle, BackLobe);    AGraphBuilder::configure(gL, "Lobe",            "Angle, deg", "Fraction",  3, 0, 1,   3, 1, 2);
-        TGraph * gD = AGraphBuilder::graph(Angle, BackLambert); AGraphBuilder::configure(gD, "Diffuse",         "Angle, deg", "Fraction",  4, 0, 1,   4, 1, 2);
+        TGraph * gT =  AGraphBuilder::graph(Angle, Back);        AGraphBuilder::configure(gT,  "All reflections", "Angle, deg", "Fraction",  2,   0, 1,     2, 1, 2);
+        TGraph * gS =  AGraphBuilder::graph(Angle, Spike);       AGraphBuilder::configure(gS,  "Spike",           "Angle, deg", "Fraction",  1,   0, 1,     1, 1, 2);
+        TGraph * gBS = AGraphBuilder::graph(Angle, BackSpike);   AGraphBuilder::configure(gBS, "BackSpike",       "Angle, deg", "Fraction",  797, 0, 1,   797, 1, 2);
+        TGraph * gL =  AGraphBuilder::graph(Angle, BackLobe);    AGraphBuilder::configure(gL,  "Lobe",            "Angle, deg", "Fraction",  3,   0, 1,     3, 1, 2);
+        TGraph * gD =  AGraphBuilder::graph(Angle, BackLambert); AGraphBuilder::configure(gD,  "Diffuse",         "Angle, deg", "Fraction",  4,   0, 1,     4, 1, 2);
         gT->SetMinimum(0);
         gT->SetMaximum(1.05);
 
-        emit requestDraw(gT, "AL",    true, true);
-        emit requestDraw(gS, "Lsame", true, false);
-        emit requestDraw(gL, "Lsame", true, false);
-        emit requestDraw(gD, "Lsame", true, false);
+        emit requestDraw(gT,  "AL",    true, true);
+        emit requestDraw(gS,  "Lsame", true, false);
+        emit requestDraw(gBS, "Lsame", true, false);
+        emit requestDraw(gL,  "Lsame", true, false);
+        emit requestDraw(gD,  "Lsame", true, false);
 
         emit requestDrawLegend(0.12,0.12, 0.4,0.25, "Backscattering");
         break;
@@ -328,6 +332,12 @@ tryAgainLabel:
             rep.Bspike++;
             type = 0;
             col = 6; //0,magenta for Spike
+        }
+        else if (pOV->Status == AInterfaceRule::BackscatterSpikeReflection)
+        {
+            rep.Bbackspike++;
+            type = 0;
+            col = 6; //0,magenta as for normal Spike
         }
         else if (pOV->Status == AInterfaceRule::LobeReflection)
         {
@@ -517,9 +527,10 @@ void AInterfaceRuleTester::on_pbST_uniform_clicked()
         default: rep.error++;
         }
 
-        if      (pOV->Status == AInterfaceRule::SpikeReflection)      rep.Bspike++;
-        else if (pOV->Status == AInterfaceRule::LobeReflection)       rep.Blobe++;
-        else if (pOV->Status == AInterfaceRule::LambertianReflection) rep.Blamb++;
+        if      (pOV->Status == AInterfaceRule::SpikeReflection)            rep.Bspike++;
+        else if (pOV->Status == AInterfaceRule::BackscatterSpikeReflection) rep.Bbackspike++;
+        else if (pOV->Status == AInterfaceRule::LobeReflection)             rep.Blobe++;
+        else if (pOV->Status == AInterfaceRule::LambertianReflection)       rep.Blamb++;
 
         double costr = N[0]*K[0] + N[1]*K[1] + N[2]*K[2];
         hist1->Fill(180.0 / TMath::Pi() * acos(costr));
@@ -580,9 +591,10 @@ void AInterfaceRuleTester::reportStatistics(const AReportForOverride &rep, int n
     {
         //show stat of processes
         t += "Backscattering composition:\n";
-        if (rep.Bspike > 0) t += QString("  Specular spike: %1%  (%2,   %3% of total)\n").arg(rep.Bspike/rep.back*100.0).arg(rep.Bspike).arg(100.0*rep.Bspike/numPhot);
-        if (rep.Blobe > 0)  t += QString("  Diffuse lobe: %1%  (%2,   %3% of total)\n").arg(rep.Blobe/rep.back*100.0).arg(rep.Blobe).arg(100.0*rep.Blobe/numPhot);
-        if (rep.Blamb > 0)  t += QString("  Lambertian: %1%  (%2,   %3% of total)\n").arg(rep.Blamb/rep.back*100.0).arg(rep.Blamb).arg(100.0*rep.Blamb/numPhot);
+        if (rep.Bspike > 0)     t += QString("  Specular spike: %1%  (%2,   %3% of total)\n").arg(rep.Bspike/rep.back*100.0).arg(rep.Bspike).arg(100.0*rep.Bspike/numPhot);
+        if (rep.Bbackspike > 0) t += QString("  Backward specular spike: %1%  (%2,   %3% of total)\n").arg(rep.Bbackspike/rep.back*100.0).arg(rep.Bbackspike).arg(100.0*rep.Bbackspike/numPhot);
+        if (rep.Blobe > 0)      t += QString("  Diffuse lobe: %1%  (%2,   %3% of total)\n").arg(rep.Blobe/rep.back*100.0).arg(rep.Blobe).arg(100.0*rep.Blobe/numPhot);
+        if (rep.Blamb > 0)      t += QString("  Lambertian: %1%  (%2,   %3% of total)\n").arg(rep.Blamb/rep.back*100.0).arg(rep.Blamb).arg(100.0*rep.Blamb/numPhot);
     }
 
     if (rep.waveChanged > 0)

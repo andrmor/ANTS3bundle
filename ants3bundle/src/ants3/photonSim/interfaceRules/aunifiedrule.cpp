@@ -170,6 +170,23 @@ QString AUnifiedRule::getLongReportLine() const
     return "UniLong";
 }
 
+QString AUnifiedRule::getDescription() const
+{
+    QString txt = "Reflection coefficient is calculated using the Fresnel law\n"
+                  "and the angle of incidence considering the global normal.\n\n"
+                  "Random generator is used to test the reflection, and if successful,\n"
+                  "one of the four scenarios is selected based on the user-defined relative probabilities:\n"
+                  "1) Specular Spike -> the photon is reflected speculary (global surface)\n"
+                  "2) Backscatter Spike -> the photon direction is reversed\n"
+                  "3) Diffuse Lobe -> Lambertian reflection backward (global surface)\n"
+                  "4) Specular Lobe -> The local normal is sampled based on the rough surface properties\n"
+                  "   and the photon is reflected specularly (on this microfacet)\n\n"
+                  "If refelection test is failed, the photon is transmitted.\n"
+                  "The local normal is sampled based on the rough surface properties,\n"
+                  "an the refracted angle is computed using the Snell's law and the microfacet's normal.";
+    return txt;
+}
+
 void AUnifiedRule::doWriteToJson(QJsonObject &json) const
 {
     json["Cspec"]     = Cspec;

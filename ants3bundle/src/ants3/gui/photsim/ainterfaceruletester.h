@@ -30,6 +30,7 @@ struct AReportForOverride
     double error = 0;
 
     double Bspike = 0;
+    double Bbackspike = 0;
     double Blobe = 0;
     double Blamb = 0;
 
