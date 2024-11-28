@@ -675,7 +675,7 @@ void APhotSimRunSettings::clear()
     OutputDirectory.clear();
     BinaryFormat = false;
 
-    SaveSensorSignals     = true;
+    SaveSensorSignals     = false;
     FileNameSensorSignals = "SensorSignals.txt";
 
     SaveSensorLog         = false;
@@ -685,7 +685,7 @@ void APhotSimRunSettings::clear()
     SensorLogAngle        = false;
     SensorLogWave         = false;
 
-    SavePhotonBombs       = true;
+    SavePhotonBombs       = false;
     FileNamePhotonBombs   = "PhotonBombs.txt";
 
     SaveTracks            = true;
@@ -696,7 +696,7 @@ void APhotSimRunSettings::clear()
     FileNameStatistics    = "PhotonStatistics.json";
     UpperTimeLimit        = 100;
 
-    SaveMonitors          = true;
+    SaveMonitors          = false;
     FileNameMonitors      = "PhotonMonitors.txt";
 
     PhotonLogSet.clear();
