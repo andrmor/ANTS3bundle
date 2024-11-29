@@ -108,7 +108,7 @@ void AInterfaceRuleTester::readFromJson(const QJsonObject &json)
     if (x>0 && y>0) move(x, y);
 }
 
-void AInterfaceRuleTester::on_pbST_RvsAngle_clicked()
+void AInterfaceRuleTester::on_pbProcessesVsAngle_clicked()
 {
     if ( !testOverride() ) return;
 
@@ -127,13 +127,13 @@ void AInterfaceRuleTester::on_pbST_RvsAngle_clicked()
     for (int iAngle = 0; iAngle < 91; iAngle++) //cycle by angle of incidence
     {
         double angle = iAngle;
-        if (angle == 90) angle = 89.99;
+        if (angle == 90) angle = 89.999;
         Angle.push_back(angle);
 
         //angle->photon direction
         double cosA = cos(TMath::Pi() * angle / 180.0);
         double sinA = sin(TMath::Pi() * angle / 180.0);
-        for (int iPhot=0; iPhot<numPhotons; iPhot++) //cycle by photons
+        for (int iPhot = 0; iPhot < numPhotons; iPhot++)
         {
             //have to reset since K is modified by the override object
             K[0] = sinA;
@@ -249,8 +249,10 @@ void AInterfaceRuleTester::on_pbTracePhotons_clicked()
 
     //preparing and running cycle with photons
 
-    TH1D * hist1 = new TH1D("", "", 100, 0, 0);
-    hist1->GetXaxis()->SetTitle("Backscattering angle, degrees");
+    TH1D * histBack = new TH1D("", "Reflected", 90, 0, 90);
+    TH1D * histForw = new TH1D("", "Transmitted", 90, 0, 90);
+    histBack->GetXaxis()->SetTitle("Angle from global normal, degrees"); histBack->SetLineWidth(2); histBack->SetLineColor(2);
+    histForw->GetXaxis()->SetTitle("Angle from global normal, degrees"); histForw->SetLineWidth(2);
 
     APhoton ph;
     Stats.clear();
@@ -272,89 +274,81 @@ tryAgainLabel:
         //in case of absorption or not triggered override, do not build tracks!
         switch (result)
         {
+        default                                  : rep.error++; continue;         // ! ->
         case AInterfaceRule::Absorbed            : rep.abs++; continue;           // ! ->
-        case AInterfaceRule::NotTriggered        : rep.notTrigger++; continue;    // ! ->
         case AInterfaceRule::Forward             : rep.forw++; break;
         case AInterfaceRule::Back                : rep.back++; break;
-        default                                  : rep.error++; continue;         // ! ->
+        case AInterfaceRule::NotTriggered        :;// rep.notTrigger++; continue;    // ! ->
         case AInterfaceRule::DelegateLocalNormal :
             {
-                const double ref = calculateReflectionProbability(ph);
-                if (RandomHub.uniform() < ref)
+                bool valid = doFresnelSnell(ph, N);
+                if (!valid) goto tryAgainLabel;
+
+                if      (pOV->Status == AInterfaceRule::SpikeReflection)
                 {
-                    //reflected --> must use the same algorithm as performReflection() method of APhotonTracer class
-                    double NK = 0;
-                    for (int i = 0; i < 3; i++) NK += pOV->LocalNormal[i] * ph.v[i];
-                    for (int i = 0; i < 3; i++) ph.v[i] -= 2.0 * NK * pOV->LocalNormal[i];
-
-                    double GNK = 0;
-                    for (int i = 0; i < 3; i++) GNK += ph.v[i] * N[i];
-                    if (GNK > 0) //back only in respect to the local normal but actually forward considering global one
-                    {
-                        //qDebug() << "Rule result is 'Back', but direction is actually 'Forward' --> re-running the rule";
-                        goto tryAgainLabel;
-                    }
-
-                    pOV->Status = AInterfaceRule::LobeReflection;
-                    rep.back++; break;
+                    rep.back++;
+                    break;
+                }
+                else if (pOV->Status == AInterfaceRule::LobeReflection)
+                {
+                    rep.back++; // already tested against wrong angle (as in transmission -> goto will be triggered)
+                    break;
+                }
+                else if (pOV->Status == AInterfaceRule::Transmission)
+                {
+                    rep.forw++; // !!!*** check here and in APhotonTracer - what will happen if the photon status is transmitted, but the direction is backward
+                    break;
+                }
+                else if (pOV->Status == AInterfaceRule::Absorption)
+                {
+                    rep.abs++;
+                    continue; // ! ->
                 }
                 else
                 {
-                    //transmitted --> must be synchronized with performRefraction() method of APhotontracer class
-                    if (MatHub[MatTo]->Dielectric)
-                    {
-                        const double RefrIndexFrom = MatHub[MatFrom]->getRefractiveIndex(ph.waveIndex);
-                        const double RefrIndexTo   = MatHub[MatTo]->getRefractiveIndex(ph.waveIndex);
-
-                        const double nn = RefrIndexFrom / RefrIndexTo;
-                        double NK = 0;
-                        for (int i = 0; i < 3; i++) NK += ph.v[i] * pOV->LocalNormal[i];
-
-                        const double UnderRoot = 1.0 - nn*nn*(1.0 - NK*NK);
-                        if (UnderRoot < 0)
-                        {
-                            //should not happen --> reflection coefficient takes it into account
-                            rep.error++; continue;                                 // ! ->
-                        }
-                        const double tmp = nn * NK - sqrt(UnderRoot);
-                        for (int i = 0; i < 3; i++) ph.v[i] = nn * ph.v[i] - tmp * pOV->LocalNormal[i];
-                    }
-                    // for metals do nothing -> anyway geometric optics is not a proper model to use
-                    rep.forw++; break;
+                    rep.error++;
+                    continue;
                 }
             }
         }
 
         short col;
         int type;
+        bool bBack = false;
+        bool bForw = false;
         if (pOV->Status == AInterfaceRule::SpikeReflection)
         {
             rep.Bspike++;
             type = 0;
             col = 6; //0,magenta for Spike
+            bBack = true;
         }
         else if (pOV->Status == AInterfaceRule::BackscatterSpikeReflection)
         {
             rep.Bbackspike++;
             type = 0;
             col = 6; //0,magenta as for normal Spike
+            bBack = true;
         }
         else if (pOV->Status == AInterfaceRule::LobeReflection)
         {
             rep.Blobe++;
             type = 1;
             col = 7; //1,teal for Lobe
+            bBack = true;
         }
         else if (pOV->Status == AInterfaceRule::LambertianReflection)
         {
             rep.Blamb++;
             type = 2;
             col = 3; //2,grean for lambert
+            bBack = true;
         }
         else
         {
             type = 666;
             col = kBlue; //blue for transmitted or error
+            bForw = true;
         }
 
         Tracks.push_back(ATmpTrackRec(type, col));
@@ -363,15 +357,85 @@ tryAgainLabel:
 
         double costr = - SurfNorm[0] * ph.v[0] - SurfNorm[1] * ph.v[1] - SurfNorm[2] * ph.v[2];
 
-        hist1->Fill(180.0 / TMath::Pi() * acos(costr));
+        if (bBack) histBack->Fill(180.0 / TMath::Pi() * acos(costr));
+        if (bForw) histForw->Fill(180.0 - 180.0 / TMath::Pi() * acos(costr));
     }
 
-    emit requestDraw(hist1, "hist", true, true);
+    double max = 1.05 * std::max(histBack->GetMaximum(), histForw->GetMaximum());
+    histBack->SetMaximum(max);
+    histForw->SetMaximum(max);
+
+    emit requestDraw(histBack, "hist", true, true);
+    emit requestDraw(histForw, "histsame", true, true);
+    emit requestDrawLegend(0.7,0.8, 0.95,0.95, "");
+
     on_pbST_showTracks_clicked();
 
     rep.waveChanged = Stats.WaveChanged;
     rep.timeChanged = Stats.TimeChanged;
     reportStatistics(rep, numPhot);
+}
+
+//reflected --> must use the same algorithm as performReflection() method of APhotonTracer class
+//transmitted --> must be synchronized with performRefraction() method of APhotontracer class
+bool AInterfaceRuleTester::doFresnelSnell(APhoton & ph, double * N) // if return false, run eule->calculate again
+{
+    if (pOV->isPolishedSurface()) // otherwise already have it
+        for (size_t i = 0; i < 3; i++)
+            pOV->LocalNormal[i] = N[i];
+
+    const double ref = calculateReflectionProbability(ph);
+
+    if (RandomHub.uniform() < ref)
+    {
+        double NK = 0;
+        for (int i = 0; i < 3; i++) NK += pOV->LocalNormal[i] * ph.v[i];
+        for (int i = 0; i < 3; i++) ph.v[i] -= 2.0 * NK * pOV->LocalNormal[i];
+
+        double GNK = 0;
+        for (int i = 0; i < 3; i++) GNK += ph.v[i] * N[i];
+        if (GNK > 0) //back only in respect to the local normal but actually forward considering global one
+        {
+            //qDebug() << "Rule result is 'Back', but direction is actually 'Forward' --> re-running the rule";
+            return false;
+        }
+
+        if (pOV->isPolishedSurface())
+            pOV->Status = AInterfaceRule::SpikeReflection;
+        else
+            pOV->Status = AInterfaceRule::LobeReflection;
+    }
+    else
+    {
+        if (MatHub[MatTo]->Dielectric)
+        {
+            const double RefrIndexFrom = MatHub[MatFrom]->getRefractiveIndex(ph.waveIndex);
+            const double RefrIndexTo   = MatHub[MatTo]->getRefractiveIndex(ph.waveIndex);
+
+            const double nn = RefrIndexFrom / RefrIndexTo;
+            double NK = 0;
+            for (int i = 0; i < 3; i++) NK += ph.v[i] * pOV->LocalNormal[i];
+
+            const double UnderRoot = 1.0 - nn*nn*(1.0 - NK*NK);
+            if (UnderRoot < 0)
+            {
+                //should not happen --> reflection coefficient takes it into account
+                //rep.error++; continue;
+                pOV->Status = AInterfaceRule::Error;
+            }
+            const double tmp = nn * NK - sqrt(UnderRoot);
+            for (int i = 0; i < 3; i++) ph.v[i] = nn * ph.v[i] - tmp * pOV->LocalNormal[i];
+
+            pOV->Status = AInterfaceRule::Transmission;
+        }
+        else
+        {
+            // absorption for metals
+            pOV->Status = AInterfaceRule::Absorption;
+        }
+    }
+
+    return true;
 }
 
 void AInterfaceRuleTester::showGeometry()
@@ -427,7 +491,7 @@ void AInterfaceRuleTester::on_pbST_showTracks_clicked()
     showGeometry();
 
     size_t numTracks = 0;
-    for(size_t iTrack = 1; iTrack < Tracks.size() && numTracks < MaxNumTracks; iTrack++)
+    for(size_t iTrack = 0; iTrack < Tracks.size() && numTracks < MaxNumTracks; iTrack++)
     {
         const ATmpTrackRec & th = Tracks[iTrack];
         //filter
@@ -481,7 +545,7 @@ TVector3 AInterfaceRuleTester::getPhotonVector()
     return PhotDir;
 }
 
-void AInterfaceRuleTester::on_pbST_uniform_clicked()
+void AInterfaceRuleTester::on_pbDiffuseIrradiation_clicked()
 {
     if ( !testOverride() ) return;
 
@@ -533,6 +597,7 @@ void AInterfaceRuleTester::on_pbST_uniform_clicked()
         else if (pOV->Status == AInterfaceRule::LambertianReflection)       rep.Blamb++;
 
         double costr = N[0]*K[0] + N[1]*K[1] + N[2]*K[2];
+        qDebug() << "aaaaa" << costr;
         hist1->Fill(180.0 / TMath::Pi() * acos(costr));
     }
 

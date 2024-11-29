@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>481</width>
+    <width>493</width>
     <height>424</height>
    </rect>
   </property>
@@ -23,7 +23,7 @@
          <string>Number of  photons:</string>
         </property>
         <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
         </property>
        </widget>
       </item>
@@ -40,7 +40,7 @@
       <item>
        <spacer name="horizontalSpacer_5">
         <property name="orientation">
-         <enum>Qt::Horizontal</enum>
+         <enum>Qt::Orientation::Horizontal</enum>
         </property>
         <property name="sizeHint" stdset="0">
          <size>
@@ -97,7 +97,7 @@
          <string>  Refr index from</string>
         </property>
         <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
         </property>
        </widget>
       </item>
@@ -129,7 +129,7 @@
          <string>to</string>
         </property>
         <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
         </property>
        </widget>
       </item>
@@ -160,7 +160,7 @@
     <item>
      <widget class="Line" name="line">
       <property name="orientation">
-       <enum>Qt::Horizontal</enum>
+       <enum>Qt::Orientation::Horizontal</enum>
       </property>
      </widget>
     </item>
@@ -172,7 +172,7 @@
       <item>
        <spacer name="horizontalSpacer_3">
         <property name="orientation">
-         <enum>Qt::Horizontal</enum>
+         <enum>Qt::Orientation::Horizontal</enum>
         </property>
         <property name="sizeHint" stdset="0">
          <size>
@@ -212,7 +212,7 @@
       <item>
        <spacer name="horizontalSpacer_4">
         <property name="orientation">
-         <enum>Qt::Horizontal</enum>
+         <enum>Qt::Orientation::Horizontal</enum>
         </property>
         <property name="sizeHint" stdset="0">
          <size>
@@ -284,7 +284,7 @@ the incoming photon direction is positive.</string>
     <item>
      <widget class="Line" name="line_3">
       <property name="orientation">
-       <enum>Qt::Horizontal</enum>
+       <enum>Qt::Orientation::Horizontal</enum>
       </property>
      </widget>
     </item>
@@ -294,7 +294,7 @@ the incoming photon direction is positive.</string>
        <number>0</number>
       </property>
       <item>
-       <widget class="QPushButton" name="pbST_RvsAngle">
+       <widget class="QPushButton" name="pbProcessesVsAngle">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
           <horstretch>0</horstretch>
@@ -352,7 +352,7 @@ the incoming photon direction is positive.</string>
      </layout>
     </item>
     <item>
-     <widget class="QPushButton" name="pbST_uniform">
+     <widget class="QPushButton" name="pbDiffuseIrradiation">
       <property name="font">
        <font>
         <bold>true</bold>
@@ -369,7 +369,7 @@ the incoming photon direction is positive.</string>
     <item>
      <widget class="Line" name="line_2">
       <property name="orientation">
-       <enum>Qt::Horizontal</enum>
+       <enum>Qt::Orientation::Horizontal</enum>
       </property>
      </widget>
     </item>
@@ -383,8 +383,8 @@ the incoming photon direction is positive.</string>
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>481</width>
-     <height>21</height>
+     <width>493</width>
+     <height>22</height>
     </rect>
    </property>
   </widget>

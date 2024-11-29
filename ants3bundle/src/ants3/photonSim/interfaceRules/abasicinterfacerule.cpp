@@ -1,7 +1,7 @@
 #include "abasicinterfacerule.h"
 #include "aphoton.h"
 #include "amaterial.h"
-#include "amaterialhub.h"
+//#include "amaterialhub.h"
 #include "arandomhub.h"
 //#include "asimulationstatistics.h"
 #include "ajsontools.h"
@@ -13,7 +13,7 @@
 ABasicInterfaceRule::ABasicInterfaceRule(int MatFrom, int MatTo)
     : AInterfaceRule(MatFrom, MatTo)
 {
-    SurfaceSettings.Model = ASurfaceSettings::Polished; // !!!*** set default to Polished, and for rough surface rule to Glisur
+    SurfaceSettings.Model = ASurfaceSettings::Polished;
 }
 
 AInterfaceRule::OpticalOverrideResultEnum ABasicInterfaceRule::calculate(APhoton * Photon, const double * NormalVector)
