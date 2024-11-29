@@ -564,8 +564,10 @@ void AInterfaceRuleTester::on_pbDiffuseIrradiation_clicked()
 
     double K[3]; //photon direction - new for every photon!
 
-    TH1D* hist1 = new TH1D("", "", 100, 0, 0);
-    hist1->GetXaxis()->SetTitle("Backscattering angle, degrees");
+    TH1D * histBack = new TH1D("", "Reflected", 90, 0, 90);
+    TH1D * histForw = new TH1D("", "Transmitted", 90, 0, 90);
+    histBack->GetXaxis()->SetTitle("Angle from global normal, degrees"); histBack->SetLineWidth(2); histBack->SetLineColor(2);
+    histForw->GetXaxis()->SetTitle("Angle from global normal, degrees"); histForw->SetLineWidth(2);
 
     const int waveIndex = getWaveIndex();
     const int numPhot = ui->sbST_number->value();
@@ -588,14 +590,23 @@ void AInterfaceRuleTester::on_pbDiffuseIrradiation_clicked()
         ph.time = 0;
         ph.waveIndex = waveIndex;
 
+tryAgainLabel:
         AInterfaceRule::OpticalOverrideResultEnum result = pOV->calculate(&ph, N);
 
+        if (result == AInterfaceRule::NotTriggered || result == AInterfaceRule::DelegateLocalNormal)
+        {
+            bool valid = doFresnelSnell(ph, N);
+            if (!valid) goto tryAgainLabel;
+        }
+
+        bool bBack = false;
+        bool bForw = false;
         switch (result)
         {
-        case AInterfaceRule::Absorbed:     rep.abs++;        break;
-        case AInterfaceRule::NotTriggered: rep.notTrigger++; break;
-        case AInterfaceRule::Forward:      rep.forw++;       break;
-        case AInterfaceRule::Back:         rep.back++;       break;
+        case AInterfaceRule::Absorbed:     rep.abs++;                      break;
+        case AInterfaceRule::NotTriggered: rep.notTrigger++;               break;
+        case AInterfaceRule::Forward:      rep.forw++;       bForw = true; break;
+        case AInterfaceRule::Back:         rep.back++;       bBack = true; break;
         default: rep.error++;
         }
 
@@ -604,12 +615,19 @@ void AInterfaceRuleTester::on_pbDiffuseIrradiation_clicked()
         else if (pOV->Status == AInterfaceRule::LobeReflection)             rep.Blobe++;
         else if (pOV->Status == AInterfaceRule::LambertianReflection)       rep.Blamb++;
 
-        double costr = N[0]*K[0] + N[1]*K[1] + N[2]*K[2];
-        qDebug() << "aaaaa" << costr;
-        hist1->Fill(180.0 / TMath::Pi() * acos(costr));
+        double costr = - N[0] * ph.v[0] - N[1] * ph.v[1] - N[2] * ph.v[2];
+
+        if (bBack) histBack->Fill(180.0 / TMath::Pi() * acos(costr));
+        if (bForw) histForw->Fill(180.0 - 180.0 / TMath::Pi() * acos(costr));
     }
 
-    emit requestDraw(hist1, "hist", true, true);
+    double max = 1.05 * std::max(histBack->GetMaximum(), histForw->GetMaximum());
+    histBack->SetMaximum(max);
+    histForw->SetMaximum(max);
+
+    emit requestDraw(histBack, "hist", true, true);
+    emit requestDraw(histForw, "histsame", true, true);
+    emit requestDrawLegend(0.7,0.8, 0.95,0.95, "");
 
     rep.waveChanged = Stats.WaveChanged;
     rep.timeChanged = Stats.TimeChanged;
