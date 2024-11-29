@@ -144,11 +144,19 @@ void AInterfaceRuleTester::on_pbProcessesVsAngle_clicked()
             ph.v[1] = K[1];
             ph.v[2] = K[2];
             ph.waveIndex = getWaveIndex();
+
+tryAgainLabel:
             AInterfaceRule::OpticalOverrideResultEnum result = pOV->calculate(&ph, N);
+
+            if (result == AInterfaceRule::NotTriggered || result == AInterfaceRule::DelegateLocalNormal)
+            {
+                bool valid = doFresnelSnell(ph, N);
+                if (!valid) goto tryAgainLabel;
+            }
 
             switch (result)
             {
-            case AInterfaceRule::NotTriggered: NotTrigger[iAngle]++; break;
+            //case AInterfaceRule::NotTriggered: NotTrigger[iAngle]++; break;
             case AInterfaceRule::Absorbed:     Absorb[iAngle]++;     break;
             case AInterfaceRule::Forward:      Forward[iAngle]++;    break;
             case AInterfaceRule::Back:         Back[iAngle]++;       break;
@@ -183,44 +191,44 @@ void AInterfaceRuleTester::on_pbProcessesVsAngle_clicked()
     {
     case 0:
     {
-        TGraph * gN = AGraphBuilder::graph(Angle, NotTrigger); AGraphBuilder::configure(gN, "Not triggered", "Angle, deg", "Fraction",   2, 0, 1,   2, 1, 2);
-        TGraph * gA = AGraphBuilder::graph(Angle, Absorb);     AGraphBuilder::configure(gA, "Absorption",    "Angle, deg", "Fraction",   1, 0, 1,   1, 1, 2);
-        TGraph * gB = AGraphBuilder::graph(Angle, Back);       AGraphBuilder::configure(gB, "Back",          "Angle, deg", "Fraction",   3, 0, 1,   3, 1, 2);
-        TGraph * gF = AGraphBuilder::graph(Angle, Forward);    AGraphBuilder::configure(gF, "Forward",       "Angle, deg", "Fraction",   4, 0, 1,   4, 1, 2);
-        gN->SetMinimum(0);
-        gN->SetMaximum(1.05);
+        //TGraph * gN = AGraphBuilder::graph(Angle, NotTrigger); AGraphBuilder::configure(gN, "Not triggered", "Angle of incidence, deg", "Fraction",   2, 0, 1,   2, 1, 2);
+        TGraph * gA = AGraphBuilder::graph(Angle, Absorb);     AGraphBuilder::configure(gA, "Absorption",      "Angle of incidence, deg", "Fraction",   1, 0, 1,   1, 1, 2);
+        TGraph * gB = AGraphBuilder::graph(Angle, Back);       AGraphBuilder::configure(gB, "Back",            "Angle of incidence, deg", "Fraction",   3, 0, 1,   3, 1, 2);
+        TGraph * gF = AGraphBuilder::graph(Angle, Forward);    AGraphBuilder::configure(gF, "Forward",         "Angle of incidence, deg", "Fraction",   4, 0, 1,   4, 1, 2);
+        gA->SetMinimum(0);
+        gA->SetMaximum(1.05);
 
-        emit requestDraw(gN, "AL",    true, true);
-        emit requestDraw(gA, "Lsame", true, false);
+        //emit requestDraw(gN, "AL",    true, true);
+        emit requestDraw(gA, "AL",    true, false);
         emit requestDraw(gB, "Lsame", true, false);
-        emit requestDraw(gF, "Lsame", true, false);
+        emit requestDraw(gF, "Lsame", true, true);
 
         emit requestDrawLegend(0.12,0.12, 0.4,0.25, "Basic info");
         break;
     }
     case 1:
     {
-        TGraph * gT =  AGraphBuilder::graph(Angle, Back);        AGraphBuilder::configure(gT,  "All reflections", "Angle, deg", "Fraction",  2,   0, 1,     2, 1, 2);
-        TGraph * gS =  AGraphBuilder::graph(Angle, Spike);       AGraphBuilder::configure(gS,  "Spike",           "Angle, deg", "Fraction",  1,   0, 1,     1, 1, 2);
-        TGraph * gBS = AGraphBuilder::graph(Angle, BackSpike);   AGraphBuilder::configure(gBS, "BackSpike",       "Angle, deg", "Fraction",  797, 0, 1,   797, 1, 2);
-        TGraph * gL =  AGraphBuilder::graph(Angle, BackLobe);    AGraphBuilder::configure(gL,  "Lobe",            "Angle, deg", "Fraction",  3,   0, 1,     3, 1, 2);
-        TGraph * gD =  AGraphBuilder::graph(Angle, BackLambert); AGraphBuilder::configure(gD,  "Diffuse",         "Angle, deg", "Fraction",  4,   0, 1,     4, 1, 2);
+        TGraph * gT =  AGraphBuilder::graph(Angle, Back);        AGraphBuilder::configure(gT,  "All reflections", "Angle of incidence, deg", "Fraction",  2,   0, 1,     2, 1, 2);
+        TGraph * gS =  AGraphBuilder::graph(Angle, Spike);       AGraphBuilder::configure(gS,  "Spike",           "Angle of incidence, deg", "Fraction",  1,   0, 1,     1, 1, 2);
+        TGraph * gBS = AGraphBuilder::graph(Angle, BackSpike);   AGraphBuilder::configure(gBS, "BackwardSpike",   "Angle of incidence, deg", "Fraction",  797, 0, 1,   797, 1, 2);
+        TGraph * gL =  AGraphBuilder::graph(Angle, BackLobe);    AGraphBuilder::configure(gL,  "Lobe",            "Angle of incidence, deg", "Fraction",  3,   0, 1,     3, 1, 2);
+        TGraph * gD =  AGraphBuilder::graph(Angle, BackLambert); AGraphBuilder::configure(gD,  "Diffuse",         "Angle of incidence, deg", "Fraction",  4,   0, 1,     4, 1, 2);
         gT->SetMinimum(0);
         gT->SetMaximum(1.05);
 
-        emit requestDraw(gT,  "AL",    true, true);
+        emit requestDraw(gT,  "AL",    true, false);
         emit requestDraw(gS,  "Lsame", true, false);
         emit requestDraw(gBS, "Lsame", true, false);
         emit requestDraw(gL,  "Lsame", true, false);
-        emit requestDraw(gD,  "Lsame", true, false);
+        emit requestDraw(gD,  "Lsame", true, true);
 
-        emit requestDrawLegend(0.12,0.12, 0.4,0.25, "Backscattering");
+        emit requestDrawLegend(0.12,0.75, 0.4,0.93, "Backscattering");
         break;
     }
     case 2:
     {
         TGraph * gW = AGraphBuilder::graph(Angle, WaveShifted);
-        AGraphBuilder::configure(gW, "Wavelength shifted", "Angle, deg", "Fraction", 4, 0, 1, 4, 1, 2);
+        AGraphBuilder::configure(gW, "Wavelength shifted", "Angle of incidence, deg", "Fraction", 4, 0, 1, 4, 1, 2);
         gW->SetMaximum(1.05);
         gW->SetMinimum(0);
         emit requestDraw(gW, "AL", true, true);
