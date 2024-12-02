@@ -19,8 +19,6 @@ AInterfaceRuleDialog::AInterfaceRuleDialog(AInterfaceRule * rule, int matFrom, i
     ui(new Ui::AInterfaceRuleDialog)
 {
     ui->setupUi(this);
-    ui->pbInterceptorForEnter->setVisible(false);
-    ui->pbInterceptorForEnter->setDefault(true);
     setWindowTitle("Photon tracing rules for material interface");
 
     QStringList matNames = MatHub.getListOfMaterialNames();

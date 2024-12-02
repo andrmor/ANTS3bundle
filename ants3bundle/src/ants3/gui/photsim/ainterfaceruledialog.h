@@ -59,7 +59,7 @@ private:
     AInterfaceRule           * LocalRule    = nullptr;
     AInterfaceRuleTester     * TesterWindow = nullptr;
 
-    int customWidgetPositionInLayout = 5;
+    int customWidgetPositionInLayout = 4;
     AInterfaceRuleWidget * CustomWidget = nullptr;
 
     QSet<AInterfaceRule*> TmpRules;

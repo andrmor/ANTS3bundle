@@ -52,7 +52,8 @@ AInterfaceRuleWidget * AInterfaceWidgetFactory::createEditWidget(AInterfaceRule 
 
     qWarning() << "Unknown interface rule!";
     AInterfaceRuleWidget * f = new AInterfaceRuleWidget(parent);
-    f->setFrameStyle(QFrame::Box);
+    //f->setFrameStyle(QFrame::Box);
+    //f->setFrameStyle(QFrame::StyledPanel);
     f->setMinimumHeight(100);
     return f;
 }
@@ -60,8 +61,6 @@ AInterfaceRuleWidget * AInterfaceWidgetFactory::createEditWidget(AInterfaceRule 
 ABasicInterfaceWidget::ABasicInterfaceWidget(ABasicInterfaceRule * rule, QWidget * parent) :
     AInterfaceRuleWidget(parent)
 {
-    setFrameStyle(QFrame::Box);
-
     QHBoxLayout * hl = new QHBoxLayout(this);
         QVBoxLayout * l = new QVBoxLayout();
             QLabel * lab = new QLabel("Absorption:");
@@ -106,8 +105,6 @@ ABasicInterfaceWidget::ABasicInterfaceWidget(ABasicInterfaceRule * rule, QWidget
 AMetalInterfaceWidget::AMetalInterfaceWidget(AMetalInterfaceRule * rule, QWidget * parent) :
     AInterfaceRuleWidget(parent)
 {
-    setFrameStyle(QFrame::Box);
-
     QHBoxLayout* hl = new QHBoxLayout(this);
     QVBoxLayout* l = new QVBoxLayout();
     QLabel* lab = new QLabel("Refractive index, real:");
@@ -134,8 +131,6 @@ AMetalInterfaceWidget::AMetalInterfaceWidget(AMetalInterfaceRule * rule, QWidget
 AFsnpInterfaceWidget::AFsnpInterfaceWidget(FsnpInterfaceRule * rule, QWidget * parent) :
     AInterfaceRuleWidget(parent)
 {
-    setFrameStyle(QFrame::Box);
-
     QHBoxLayout* l = new QHBoxLayout(this);
         QLabel* lab = new QLabel("Albedo:");
     l->addWidget(lab);
@@ -154,8 +149,6 @@ AFsnpInterfaceWidget::AFsnpInterfaceWidget(FsnpInterfaceRule * rule, QWidget * p
 AWaveshifterInterfaceWidget::AWaveshifterInterfaceWidget(AWaveshifterInterfaceRule * rule, QWidget * parent) :
     AInterfaceRuleWidget(parent), Rule(rule)
 {
-    setFrameStyle(QFrame::Box);
-
     QVBoxLayout* vl = new QVBoxLayout(this);
         QHBoxLayout* l = new QHBoxLayout();
             QLabel* lab = new QLabel("Reemission generation:");
@@ -325,8 +318,6 @@ void AWaveshifterInterfaceWidget::updateButtons()
 ASpectralBasicInterfaceWidget::ASpectralBasicInterfaceWidget(ASpectralBasicInterfaceRule * rule, QWidget * parent) :
     AInterfaceRuleWidget(parent), Rule(rule)
 {
-    setFrameStyle(QFrame::Box);
-
     QVBoxLayout* vl = new QVBoxLayout(this);
         QHBoxLayout* l = new QHBoxLayout();
             QLabel* lab = new QLabel("Absorption, reflection and scattering:");
@@ -466,8 +457,6 @@ void ASpectralBasicInterfaceWidget::updateButtons()
 ASurfaceInterfaceWidget::ASurfaceInterfaceWidget(ASurfaceInterfaceRule * rule, QWidget * parent) :
     AInterfaceRuleWidget(parent)
 {
-    setFrameStyle(QFrame::Box);
-
     QHBoxLayout* l = new QHBoxLayout(this);
         QLabel* lab = new QLabel("Using Fresnel equations and Snell's law");
         lab->setAlignment(Qt::AlignHCenter);
@@ -477,8 +466,6 @@ ASurfaceInterfaceWidget::ASurfaceInterfaceWidget(ASurfaceInterfaceRule * rule, Q
 AUnifiedInterfaceWidget::AUnifiedInterfaceWidget(AUnifiedRule * rule, QWidget * parent) :
     AInterfaceRuleWidget(parent)
 {
-    setFrameStyle(QFrame::Box);
-
     QGridLayout * lay = new QGridLayout(this);
 
     lay->addWidget(new QLabel("Specular Spike:"), 0, 0);
