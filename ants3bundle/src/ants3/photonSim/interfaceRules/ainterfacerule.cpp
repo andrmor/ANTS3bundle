@@ -260,16 +260,14 @@ void AInterfaceRule::calculateLocalNormal(const double * globalNormal, const dou
             nk = 0;
             for (int i = 0; i < 3; i++) nk += photonDirection[i] * FacetNormal[i];
 
+            if (nk <= 0.0) continue;
             if (SurfaceSettings.OrientationProbabilityCorrection)
-            {
-                if (nk <= 0.0) continue;
-            }
-            else
             {
                 if (nk <= RandomHub.uniform()) continue;
             }
+            break;
         }
-        while (false);
+        while (true);
         //while (nk <= 0.0);
         //while (nk <= RandomHub.uniform());  // prob = cos(angle) = nk   --> accept when Random[0,1] < prob  --> reject when Random[0,1] >= prob --> Random[0,1] >= nk
 
