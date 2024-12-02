@@ -268,8 +268,16 @@ void AInterfaceRuleTester::on_pbTracePhotons_clicked()
 
     const int waveIndex = getWaveIndex();
     const int numPhot = ui->sbST_number->value();
+    setEnabled(false); AbortCycle = false; QApplication::processEvents();
     for (int i = 0; i < numPhot; i++)
     {
+        if (i % 1000 == 0) qApp->processEvents();
+        if (AbortCycle)
+        {
+            qDebug() << "Close clicked during cycle";
+            return;
+        }
+
         ph.v[0] = PhotDir.X(); //old has output direction after full cycle!
         ph.v[1] = PhotDir.Y();
         ph.v[2] = PhotDir.Z();
@@ -382,6 +390,8 @@ tryAgainLabel:
     rep.waveChanged = Stats.WaveChanged;
     rep.timeChanged = Stats.TimeChanged;
     reportStatistics(rep, numPhot);
+
+    setEnabled(true);
 }
 
 //reflected --> must use the same algorithm as performReflection() method of APhotonTracer class
@@ -448,8 +458,8 @@ bool AInterfaceRuleTester::doFresnelSnell(APhoton & ph, double * N) // if return
 
 void AInterfaceRuleTester::showGeometry()
 {
-    GeoHub.GeoManager->ClearTracks();
     emit requestClearGeometryViewer();
+    GeoHub.GeoManager->ClearTracks();
 
     double d = 0.5;
     double f = 0.5;
@@ -660,6 +670,7 @@ void AInterfaceRuleTester::on_ledAngle_editingFinished()
 
 void AInterfaceRuleTester::closeEvent(QCloseEvent * e)
 {
+    AbortCycle = true;
     QMainWindow::closeEvent(e);
     emit closed(true);
 }

@@ -91,6 +91,8 @@ private:
 
     std::vector<ATmpTrackRec> Tracks;
 
+    bool AbortCycle = false;
+
     bool     testOverride();
     int      getWaveIndex();
     TVector3 getPhotonVector();
