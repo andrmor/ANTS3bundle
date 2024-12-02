@@ -160,6 +160,15 @@ tryAgainLabel:
             {
                 bool valid = doFresnelSnell(ph, N);
                 if (!valid) goto tryAgainLabel;
+
+                switch (pOV->Status)
+                {
+                case (AInterfaceRule::SpikeReflection) : result = AInterfaceRule::Back;     break;
+                case (AInterfaceRule::LobeReflection)  : result = AInterfaceRule::Back;     break;
+                case (AInterfaceRule::Transmission)    : result = AInterfaceRule::Forward;  break;
+                case (AInterfaceRule::Absorption)      :;
+                default                                : result = AInterfaceRule::Absorbed; break;
+                }
             }
 
             switch (result)
@@ -625,6 +634,15 @@ tryAgainLabel:
         {
             bool valid = doFresnelSnell(ph, N);
             if (!valid) goto tryAgainLabel;
+
+            switch (pOV->Status)
+            {
+            case (AInterfaceRule::SpikeReflection) : result = AInterfaceRule::Back;     break;
+            case (AInterfaceRule::LobeReflection)  : result = AInterfaceRule::Back;     break;
+            case (AInterfaceRule::Transmission)    : result = AInterfaceRule::Forward;  break;
+            case (AInterfaceRule::Absorption)      :;
+            default                                : result = AInterfaceRule::Absorbed; break;
+            }
         }
 
         bool bBack = false;
