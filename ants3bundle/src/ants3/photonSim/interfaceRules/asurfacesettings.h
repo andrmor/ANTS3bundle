@@ -20,6 +20,8 @@ public:
 
     QString checkRuntimeData(); // also populates NormalDistributionHist
 
+    QString getDescription() const;
+
     EModel Model = Glisur;
 
     //Glisur model settings

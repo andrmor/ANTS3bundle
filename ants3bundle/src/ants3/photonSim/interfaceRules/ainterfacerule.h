@@ -39,7 +39,9 @@ public:
     virtual QString getAbbreviation() const = 0; // for GUI: used to identify - must be short (<= 4 chars) - try to make unique
     virtual QString getReportLine() const = 0;   // for GUI: used to reports override status (try to make as short as possible)
     virtual QString getLongReportLine() const;   // for GUI: used in overlap map
-    virtual QString getDescription() const {return "";}// !!!*** = 0;  // shown with "Info" button on the rule widget
+    virtual QString getDescription() const = 0;  // shown with "Info" button on the rule widget
+
+    QString getFullDescription(); // overrid itself + rough surface if defined
 
     //called automatically before sim start
     virtual void initializeWaveResolved() {}  //override if override has wavelength-resolved data

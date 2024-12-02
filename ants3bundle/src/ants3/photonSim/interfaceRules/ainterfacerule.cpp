@@ -63,6 +63,14 @@ QString AInterfaceRule::getLongReportLine() const
     return getReportLine();
 }
 
+QString AInterfaceRule::getFullDescription()
+{
+    QString txt = getDescription();
+    if (!txt.isEmpty()) txt += "\n\n";
+    txt += SurfaceSettings.getDescription();
+    return txt;
+}
+
 void AInterfaceRule::writeToJson(QJsonObject & json) const
 {
     json["Model"]   = getType();

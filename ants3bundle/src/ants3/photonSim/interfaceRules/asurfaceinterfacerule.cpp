@@ -34,6 +34,11 @@ QString ASurfaceInterfaceRule::getLongReportLine() const
     return s;
 }
 
+QString ASurfaceInterfaceRule::getDescription() const
+{
+    return "";
+}
+
 void ASurfaceInterfaceRule::doWriteToJson(QJsonObject & /*json*/) const {}
 
 bool ASurfaceInterfaceRule::doReadFromJson(const QJsonObject & /*json*/)

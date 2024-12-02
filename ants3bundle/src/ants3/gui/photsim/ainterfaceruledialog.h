@@ -30,28 +30,22 @@ public:
     int MatTo;
 
 private slots:
-    void on_pbAccept_clicked();
-    void on_pbCancel_clicked();
-    void on_cobType_activated(int index);
-    void on_pbTestOverride_clicked();
-
+    void on_cobType_currentIndexChanged(int index);
     void on_cobSurfaceModel_currentIndexChanged(int index);
 
+    void on_pbAccept_clicked();
+    void on_pbCancel_clicked();
+    void on_pbInfo_clicked();
+    void on_cobType_activated(int index);
+    void on_pbTestOverride_clicked();
     void on_cobSurfaceModel_activated(int index);
-
     void on_lePolishGlisur_editingFinished();
-
     void on_leSigmaAlphaUnified_editingFinished();
-
     void on_pbLoadCustomNormalDistribution_clicked();
-
     void on_pbShowCustomNormalDistribution_clicked();
-
     void on_pbRemoveCustomNormalDistribution_clicked();
 
     void on_pbShowCustomNormalDistribution_customContextMenuRequested(const QPoint &pos);
-
-    void on_pbInfo_clicked();
 
 protected:
     void closeEvent(QCloseEvent * e);

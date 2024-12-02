@@ -347,8 +347,13 @@ void AInterfaceRuleDialog::on_pbInfo_clicked()
         txt = "The interface rule is not defined:\nUsing \"normal\" physics model (Fresnel + Snell) for this interface";
     else
     {
-        txt = LocalRule->getDescription();
+        txt = LocalRule->getFullDescription();
         if (txt.isEmpty()) txt = "Description is not provided";
     }
-    guitools::message(txt, this);
+    guitools::message1(txt, "Info for the selected interface rule", this);
+}
+
+void AInterfaceRuleDialog::on_cobType_currentIndexChanged(int index)
+{
+    ui->frSurfaceModel->setVisible(index != 0);
 }

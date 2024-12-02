@@ -36,6 +36,48 @@ QString ASurfaceSettings::checkRuntimeData()
     return "";
 }
 
+QString ASurfaceSettings::getDescription() const
+{
+    QString txt;
+    switch (Model)
+    {
+        case Polished :
+            txt = "Polished surface:\n"
+                  "all rougness details of the surface are ignored,\n"
+                  "the global normal of the surface is used for photon tracing.";
+            break;
+        case Glisur :
+            txt = "Glisur:\n"
+                  "The surface is assumed to consist of spherical \"bulges\".\n"
+                  "The roughness level is defined by the non-negative \"polish factor\":\n"
+                  "when it is < 1, then a random point is generated on a sphere of\n"
+                  "radius (1-polish), and the corresponding vector is added to the normal.\n"
+                  "The value 0 means maximum roughness with effective plane of reflection\n"
+                  "distributed as cos(α).";
+            break;
+        case Unified :
+            txt = "Unified:\n"
+                  "The rough surface is represented by \"microfacetes\" with\n"
+                  "a certain distribution of the angle, α, between the microfacet's normal\n"
+                  "and that of the average surface.\n"
+                  "The model assumes that the probability of microfacet normals populates\n"
+                  "the annulus of solid angle sin(α)dα is proportional to a Gaussian of\n"
+                  "SigmaAlpha parameter.";
+            break;
+        case CustomNormal :
+            txt = "CustomNormal:\n"
+                  "The rough surface is represented by \"microfacetes\" with a\n"
+                  "user-defined distribution of the angle, α, between the\n"
+                  "microfacet's normal and that of the average surface.\n"
+                  "Note that the provided probability distrbution of microfacet\n"
+                  "normals should populate the annulus of solid angle sin(α)dα\n"
+                  "(that is the effect of the solid angle should be corrected for\n"
+                  "in the loaded distribution).";
+            break;
+    };
+    return txt;
+}
+
 void ASurfaceSettings::writeToJson(QJsonObject & json) const
 {
     QString str;
