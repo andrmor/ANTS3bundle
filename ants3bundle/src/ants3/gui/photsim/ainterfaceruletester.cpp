@@ -124,6 +124,7 @@ void AInterfaceRuleTester::on_pbProcessesVsAngle_clicked()
     APhoton ph;
     Stats.clear();
 
+    setEnabled(false); AbortCycle = false; QApplication::processEvents();
     for (int iAngle = 0; iAngle < 91; iAngle++) //cycle by angle of incidence
     {
         double angle = iAngle;
@@ -135,6 +136,13 @@ void AInterfaceRuleTester::on_pbProcessesVsAngle_clicked()
         double sinA = sin(TMath::Pi() * angle / 180.0);
         for (int iPhot = 0; iPhot < numPhotons; iPhot++)
         {
+            if (iPhot % 1000 == 0) qApp->processEvents();
+            if (AbortCycle)
+            {
+                qDebug() << "Close clicked during cycle";
+                return;
+            }
+
             //have to reset since K is modified by the override object
             K[0] = sinA;
             K[1] = 0;
@@ -236,6 +244,8 @@ tryAgainLabel:
         break;
     }
     }
+
+    setEnabled(true);
 }
 
 void AInterfaceRuleTester::on_pbTracePhotons_clicked()
@@ -586,8 +596,16 @@ void AInterfaceRuleTester::on_pbDiffuseIrradiation_clicked()
     Stats.clear();
     AReportForOverride rep;
 
+    setEnabled(false); AbortCycle = false; QApplication::processEvents();
     for (int i = 0; i < numPhot; i++)
     {
+        if (i % 1000 == 0) qApp->processEvents();
+        if (AbortCycle)
+        {
+            qDebug() << "Close clicked during cycle";
+            return;
+        }
+
         //diffuse illumination - lambertian is used
         double sin2angle = RandomHub.uniform();
         double angle = asin(sqrt(sin2angle));
@@ -644,6 +662,8 @@ tryAgainLabel:
     reportStatistics(rep, numPhot);
 
     showGeometry(); //to clear track vis
+
+    setEnabled(true);
 }
 
 void AInterfaceRuleTester::on_cbWavelength_toggled(bool)
