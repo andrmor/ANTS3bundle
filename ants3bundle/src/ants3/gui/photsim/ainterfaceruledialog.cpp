@@ -40,8 +40,6 @@ AInterfaceRuleDialog::AInterfaceRuleDialog(AInterfaceRule * rule, int matFrom, i
 
     ui->swSurfaceModel->setVisible(false);
 
-    updateCustomNormalButtons();
-
     updateGui();
 
     TesterWindow = new AInterfaceRuleTester(LocalRule,  matFrom, matTo, this);
@@ -110,6 +108,8 @@ void AInterfaceRuleDialog::updateGui()
         ui->cobSurfaceModel->setEnabled(LocalRule->canHaveRoughSurface());
         ui->lePolishGlisur->setText(QString::number(LocalRule->SurfaceSettings.Polish));
         ui->leSigmaAlphaUnified->setText(QString::number(LocalRule->SurfaceSettings.SigmaAlpha));
+        ui->cbCustNorm_CorrectForOrientation->setChecked(LocalRule->SurfaceSettings.OrientationProbabilityCorrection);
+        updateCustomNormalButtons();
     }
     else
     {
@@ -230,7 +230,6 @@ void AInterfaceRuleDialog::on_lePolishGlisur_editingFinished()
     }
     LocalRule->SurfaceSettings.Polish = polish;
 }
-
 
 void AInterfaceRuleDialog::on_leSigmaAlphaUnified_editingFinished()
 {
@@ -357,3 +356,9 @@ void AInterfaceRuleDialog::on_cobType_currentIndexChanged(int index)
 {
     ui->frSurfaceModel->setVisible(index != 0);
 }
+
+void AInterfaceRuleDialog::on_cbCustNorm_CorrectForOrientation_clicked(bool checked)
+{
+    LocalRule->SurfaceSettings.OrientationProbabilityCorrection = checked;
+}
+

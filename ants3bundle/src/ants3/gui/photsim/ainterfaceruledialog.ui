@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>461</width>
-    <height>400</height>
+    <height>410</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -236,8 +236,11 @@
       </item>
       <item>
        <widget class="QStackedWidget" name="swSurfaceModel">
+        <property name="frameShape">
+         <enum>QFrame::Shape::NoFrame</enum>
+        </property>
         <property name="currentIndex">
-         <number>0</number>
+         <number>3</number>
         </property>
         <widget class="QWidget" name="page"/>
         <widget class="QWidget" name="page_3">
@@ -329,84 +332,110 @@
          </layout>
         </widget>
         <widget class="QWidget" name="page_2">
-         <layout class="QHBoxLayout" name="horizontalLayout_4">
+         <layout class="QVBoxLayout" name="verticalLayout_3">
+          <property name="spacing">
+           <number>3</number>
+          </property>
+          <property name="leftMargin">
+           <number>1</number>
+          </property>
+          <property name="topMargin">
+           <number>1</number>
+          </property>
+          <property name="rightMargin">
+           <number>1</number>
+          </property>
+          <property name="bottomMargin">
+           <number>1</number>
+          </property>
           <item>
-           <widget class="QLabel" name="label_6">
-            <property name="text">
-             <string>Distribution:</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="pbLoadCustomNormalDistribution">
-            <property name="toolTip">
-             <string>Distribution of the angle between the microfacet's normal and the global normal
+           <layout class="QHBoxLayout" name="horizontalLayout_4">
+            <item>
+             <widget class="QLabel" name="label_6">
+              <property name="text">
+               <string>Distribution:</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="pbLoadCustomNormalDistribution">
+              <property name="toolTip">
+               <string>Distribution of the angle between the microfacet's normal and the global normal
 Select the angle units before load!</string>
-            </property>
-            <property name="text">
-             <string>Load</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="pbShowCustomNormalDistribution">
-            <property name="contextMenuPolicy">
-             <enum>Qt::ContextMenuPolicy::CustomContextMenu</enum>
-            </property>
-            <property name="toolTip">
-             <string>Right-click to test random generator</string>
-            </property>
-            <property name="text">
-             <string>Show</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="pbRemoveCustomNormalDistribution">
-            <property name="maximumSize">
-             <size>
-              <width>25</width>
-              <height>16777215</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>X</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLabel" name="label_7">
-            <property name="text">
-             <string>using</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QComboBox" name="cobCustomNormalDistributionUnits">
-            <item>
-             <property name="text">
-              <string>degrees</string>
-             </property>
+              </property>
+              <property name="text">
+               <string>Load</string>
+              </property>
+             </widget>
             </item>
             <item>
-             <property name="text">
-              <string>radians</string>
-             </property>
+             <widget class="QPushButton" name="pbShowCustomNormalDistribution">
+              <property name="contextMenuPolicy">
+               <enum>Qt::ContextMenuPolicy::CustomContextMenu</enum>
+              </property>
+              <property name="toolTip">
+               <string>Right-click to test random generator</string>
+              </property>
+              <property name="text">
+               <string>Show</string>
+              </property>
+             </widget>
             </item>
-           </widget>
+            <item>
+             <widget class="QLabel" name="label_7">
+              <property name="text">
+               <string>using</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QComboBox" name="cobCustomNormalDistributionUnits">
+              <item>
+               <property name="text">
+                <string>degrees</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>radians</string>
+               </property>
+              </item>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="pbRemoveCustomNormalDistribution">
+              <property name="maximumSize">
+               <size>
+                <width>25</width>
+                <height>16777215</height>
+               </size>
+              </property>
+              <property name="text">
+               <string>X</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_10">
+              <property name="orientation">
+               <enum>Qt::Orientation::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>73</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
           </item>
           <item>
-           <spacer name="horizontalSpacer_10">
-            <property name="orientation">
-             <enum>Qt::Orientation::Horizontal</enum>
+           <widget class="QCheckBox" name="cbCustNorm_CorrectForOrientation">
+            <property name="text">
+             <string>Correct for the probability to &quot;see&quot; the sampled orientation </string>
             </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>73</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
+           </widget>
           </item>
          </layout>
         </widget>

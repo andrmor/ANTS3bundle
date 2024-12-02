@@ -102,6 +102,7 @@ void ASurfaceSettings::writeToJson(QJsonObject & json) const
             jstools::writeDPairVectorToArray(NormalDeviation, ar);
             json["NormalDeviation"] = ar;
         }
+        json["OrientationProbabilityCorrection"] = OrientationProbabilityCorrection;
         break;
     }
     json["Model"] = str;
@@ -130,6 +131,7 @@ void ASurfaceSettings::readFromJson(const QJsonObject & json)
             jstools::parseJson(json, "NormalDeviation", ar);
             jstools::readDPairVectorFromArray(ar, NormalDeviation);
         }
+        jstools::parseJson(json, "OrientationProbabilityCorrection", OrientationProbabilityCorrection);
     }
     else
     {

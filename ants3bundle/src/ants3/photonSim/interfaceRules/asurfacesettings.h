@@ -32,6 +32,7 @@ public:
 
     //CustomNormal settings
     std::vector<std::pair<double,double>> NormalDeviation;
+    bool OrientationProbabilityCorrection = true;
 
     void writeToJson(QJsonObject & json) const;
     void readFromJson(const QJsonObject & json);

@@ -44,6 +44,7 @@ private slots:
     void on_pbLoadCustomNormalDistribution_clicked();
     void on_pbShowCustomNormalDistribution_clicked();
     void on_pbRemoveCustomNormalDistribution_clicked();
+    void on_cbCustNorm_CorrectForOrientation_clicked(bool checked);
 
     void on_pbShowCustomNormalDistribution_customContextMenuRequested(const QPoint &pos);
 
