@@ -232,7 +232,8 @@ void APhotonTracer::tracePhoton(const APhoton & phot)
 
         if (bDoFresnel)
         {
-            const bool ok = performRefraction(); // if local normal is defined, the photon direction can be pointing towards the interface!
+            const bool ok = performRefraction(); // !!!*** if local normal is defined, the photon direction can be pointing towards the interface!
+            Navigator->SetCurrentDirection(Photon.v);
             // true - successful, false - forbidden -> considered that the photon is absorbed at the surface! Should not happen
             if (!ok) qWarning()<<"Error in photon tracker: problem with transmission!";
             if (SimSet.RunSet.PhotonLogSet.Save) PhLog.push_back( APhotonHistoryLog(Navigator->GetCurrentPoint(), NameTo, VolumeIndexTo, Photon.time, Photon.waveIndex, APhotonHistoryLog::Fresnel_Transmition, MatIndexFrom, MatIndexTo) );
@@ -965,6 +966,7 @@ void APhotonTracer::processSensorHit(int iSensor)
 
     //since we check vs cos of _refracted_:
     if (bDoFresnel) performRefraction(); // true - successful  // !!!*** now can use local normal! - check
+    Navigator->SetCurrentDirection(Photon.v);
     if (!bHaveNormal) N = Navigator->FindNormal(false);
     //       qDebug()<<N[0]<<N[1]<<N[2]<<"Normal length is:"<<sqrt(N[0]*N[0]+N[1]*N[1]+N[2]*N[2]);
     //       qDebug()<<K[0]<<K[1]<<K[2]<<"Dir vector length is:"<<sqrt(K[0]*K[0]+K[1]*K[1]+K[2]*K[2]);
@@ -1000,11 +1002,12 @@ void APhotonTracer::appendToSensorLog(int ipm, double time, double x, double y, 
     *StreamSensorLog << '\n';
 }
 
+// Navigator is nullptr in AInterfaceRuleTester! But bHaveNormal = true in that case
 bool APhotonTracer::performRefraction()
 {
     if (MaterialTo->Dielectric)
     {
-        const double RefrIndexFrom = MaterialFrom->getRefractiveIndex(Photon.waveIndex); //qDebug() << "Refractive index from:" << RefrIndexFrom;
+        const double RefrIndexFrom = MaterialFrom->getRefractiveIndex(Photon.waveIndex);
         const double RefrIndexTo   = MaterialTo->getRefractiveIndex(Photon.waveIndex);
 
         const double nn = RefrIndexFrom / RefrIndexTo;
@@ -1031,14 +1034,13 @@ bool APhotonTracer::performRefraction()
         //Photon.v[0] = -tmp*N[0] + nn*Photon.v[0]; Photon.v[1] = -tmp*N[1] + nn*Photon.v[1]; Photon.v[2] = -tmp*N[2] + nn*Photon.v[2];
         if (bUseLocalNormal) for (int i = 0; i < 3; i++) Photon.v[i] = nn * Photon.v[i] - tmp * InterfaceRule->LocalNormal[i];
         else                 for (int i = 0; i < 3; i++) Photon.v[i] = nn * Photon.v[i] - tmp * N[i];
-
-        Navigator->SetCurrentDirection(Photon.v);
     }
     // for metals do nothing -> anyway geometric optics is not a proper model to use
 
     return true;
 }
 
+// Navigator is nullptr in AInterfaceRuleTester! But bHaveNormal = true in that case
 void APhotonTracer::performReflection()
 {
     if (!bHaveNormal)

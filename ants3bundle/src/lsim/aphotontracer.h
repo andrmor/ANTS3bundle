@@ -41,6 +41,7 @@ public:
     void   configureForInterfaceRuleTester(int fromMat, int toMat, AInterfaceRule * interfaceRule, APhoton & photon);
     double calculateReflectionProbability(); // double usage!
     void   performReflection();              // double usage!
+    bool   performRefraction();              // double usage!   !!!*** back to interface case handling!
     void   readBackPhoton(APhoton & photonToUpdate);
 
     APhotonTrackRecord             Track;
@@ -106,7 +107,6 @@ private:
     void initPhotonLog();
     void endTracing();
     void processSensorHit(int iSensor);
-    bool performRefraction();
     bool enterGrid(int GridNumber);
     bool isOutsideGridBulk();
     void exitGrid();
