@@ -9,7 +9,7 @@
 #include "ainterfacerulehub.h"
 #include "ainterfacerule.h"
 #include "aphotonstatistics.h"
-#include "aoneevent.h"
+#include "alightsensorevent.h"
 #include "agridhub.h"
 #include "agridelementrecord.h"
 #include "aphoton.h"
@@ -24,7 +24,7 @@
 #include "TMath.h"
 #include "TH1D.h"
 
-APhotonTracer::APhotonTracer(AOneEvent & event, QTextStream* & streamTracks, QTextStream* & streamSensorLog, QTextStream* & streamPhotonLog) :
+APhotonTracer::APhotonTracer(ALightSensorEvent & event, QTextStream* & streamTracks, QTextStream* & streamSensorLog, QTextStream* & streamPhotonLog) :
     MatHub(AMaterialHub::getConstInstance()),
     RuleHub(AInterfaceRuleHub::getConstInstance()),
     SensorHub(ASensorHub::getConstInstance()),
@@ -864,8 +864,19 @@ EBulkProcessResult APhotonTracer::checkBulkProcesses()
     return EBulkProcessResult::NotTriggered;
 }
 
+void APhotonTracer::configureForInterfaceRuleTester(int fromMat, int toMat, AInterfaceRule * interfaceRule, APhoton & photon)
+{
+    MaterialFrom = MatHub[fromMat];
+    MaterialTo   = MatHub[toMat];
+    InterfaceRule = interfaceRule;
+    Photon = photon;
+
+    bHaveNormal = true;
+    bUseLocalNormal = true;
+}
+
 #include <complex>
-double APhotonTracer::calculateReflectionProbability()
+double APhotonTracer::calculateReflectionProbability() // ! Note it also has an external use in AInterfaceRuleTester !
 {
     if (!bHaveNormal)
     {
@@ -876,6 +887,7 @@ double APhotonTracer::calculateReflectionProbability()
     double NK = 0;
     if (bUseLocalNormal) for (int i = 0; i < 3; i++) NK += Photon.v[i] * InterfaceRule->LocalNormal[i];
     else                 for (int i = 0; i < 3; i++) NK += Photon.v[i] * N[i];
+
     const double cos1 = fabs(NK); // cos of the angle of incidence
     //qDebug() << "Cos of incidence:"<<cos1;
     const double sin1 = (cos1 < 0.9999999) ? sqrt(1.0 - cos1*cos1) : 0;

@@ -46,6 +46,8 @@ class ARandomHub;
 class QJsonObject;
 class TObject;
 class APhoton;
+class APhotonTracer;
+class ALightSensorEvent;
 
 class AInterfaceRuleTester : public QMainWindow
 {
@@ -81,7 +83,8 @@ private:
     ARandomHub         & RandomHub;
     APhotonStatistics  & Stats;
 
-    AInterfaceRule* & pOV;
+    AInterfaceRule*    & Rule;
+
     int MatFrom;
     int MatTo;
 
@@ -93,11 +96,14 @@ private:
 
     bool AbortCycle = false;
 
+    APhotonTracer * PhotonTracer = nullptr;   // used in the cases the interface rule is not triggering or delegating local normal
+    ALightSensorEvent * DummyLightSensorEvent = nullptr; // dummy
+
     bool     testOverride();
     int      getWaveIndex();
     TVector3 getPhotonVector();
     void     reportStatistics(const AReportForOverride & rep, int numPhot);
-    double   calculateReflectionProbability(const APhoton & Photon) const;
+    double   calculateReflectionProbability(APhoton & photon) const;
     bool     doFresnelSnell(APhoton & ph, double * N); // !!! warning: code duplication with APhotonTracer class !!!
 
 signals:

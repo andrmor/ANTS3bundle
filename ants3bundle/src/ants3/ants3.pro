@@ -124,8 +124,10 @@ DESTDIR = ../../bin
 SOURCES += \
     ../dispatcher/a3dispatcher.cpp \
     ../dispatcher/a3processhandler.cpp \
+    ../lsim/alightsensorevent.cpp \
     ../lsim/anoderecord.cpp \
     ../lsim/aphotonhistorylog.cpp \
+    ../lsim/aphotontracer.cpp \
     aviewer3dsettings.cpp \
     farm/afarmnoderecord.cpp \
     geo/acalorimeter.cpp \
@@ -357,8 +359,10 @@ SOURCES += \
 HEADERS += \
     ../dispatcher/a3dispatcher.h \
     ../dispatcher/a3processhandler.h \
+    ../lsim/alightsensorevent.h \
     ../lsim/anoderecord.h \
     ../lsim/aphotonhistorylog.h \
+    ../lsim/aphotontracer.h \
     ademomanager.h \
     aviewer3dsettings.h \
     gui/aitemselectiondialog.h \

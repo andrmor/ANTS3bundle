@@ -1,5 +1,5 @@
-#ifndef AONEEVENT_H
-#define AONEEVENT_H
+#ifndef ALIGHTSENSOREVENT_H
+#define ALIGHTSENSOREVENT_H
 
 #include <QBitArray>
 
@@ -10,10 +10,10 @@ class ARandomHub;
 class APhotonSimSettings;
 class APhotonStatistics;
 
-class AOneEvent
+class ALightSensorEvent
 {
 public:
-    AOneEvent();
+    ALightSensorEvent();
 
     std::vector<float>     PMhits;       // PM hits in photoelectrons [PM#]
     std::vector<QBitArray> SiPMpixels;   // on/off status of SiPM pixels [PM#] [pixY] [pixX]
@@ -40,4 +40,4 @@ private:
     void  fillDetectionStatistics(int waveIndex, double time, double angle, int numTransitions);
 };
 
-#endif // AONEEVENT_H
+#endif // ALIGHTSENSOREVENT_H

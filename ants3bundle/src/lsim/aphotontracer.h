@@ -18,7 +18,7 @@ class ARandomHub;
 class APhotonStatistics;
 class TGeoManager;
 class AMaterial;
-class AOneEvent;
+class ALightSensorEvent;
 class TGeoNavigator;
 class TGeoVolume;
 class QTextStream;
@@ -32,11 +32,14 @@ enum class EInterRuleResult   {NotTriggered, DelegateLocalNormal, Absorbed, Refl
 class APhotonTracer
 {
 public:
-    APhotonTracer(AOneEvent & event, QTextStream* & streamTracks, QTextStream* & streamSensorLog, QTextStream* & streamPhotonLog);
+    APhotonTracer(ALightSensorEvent & event, QTextStream* & streamTracks, QTextStream* & streamSensorLog, QTextStream* & streamPhotonLog);
 
     void configureTracer();
 
     void tracePhoton(const APhoton & phot);
+
+    void   configureForInterfaceRuleTester(int fromMat, int toMat, AInterfaceRule * interfaceRule, APhoton & photon);
+    double calculateReflectionProbability(); // double usage!
 
     APhotonTrackRecord             Track;
     std::vector<APhotonHistoryLog> PhLog;
@@ -52,7 +55,7 @@ private:
     APhotonStatistics        & SimStat;
 
     // external resources
-    AOneEvent                & Event;
+    ALightSensorEvent                & Event;
     QTextStream*             & StreamTracks;
     QTextStream*             & StreamSensorLog;
     QTextStream*             & StreamPhotonLog;
@@ -100,7 +103,6 @@ private:
     void initTracks();
     void initPhotonLog();
     void endTracing();
-    double calculateReflectionProbability();
     void processSensorHit(int iSensor);
     bool performRefraction();
     void performReflection();

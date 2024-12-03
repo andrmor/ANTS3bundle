@@ -8,7 +8,7 @@
 #include "astatisticshub.h"
 #include "amonitorhub.h"
 #include "anoderecord.h"
-#include "aoneevent.h"
+#include "alightsensorevent.h"
 #include "aphotontracer.h"
 #include "arandomhub.h"
 #include "ajsontools.h"
@@ -44,7 +44,7 @@ APhotonSimulator::APhotonSimulator(const QString & dir, const QString & fileName
     LOG << "Working Dir: " << WorkingDir << "\n";
     LOG << "Config file: " << ConfigFN   << "\n";
 
-    Event = new AOneEvent();
+    Event = new ALightSensorEvent();
     Tracer = new APhotonTracer(*Event, StreamTracks, StreamSensorLog, StreamPhotonLog);
 }
 

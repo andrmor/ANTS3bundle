@@ -78,11 +78,11 @@ SOURCES += \
         ../ants3/photonSim/astatisticshub.cpp \
         ../ants3/tools/ath.cpp \
         ../ants3/tools/avector.cpp \
+        alightsensorevent.cpp \
         anoderecord.cpp \
         aphotongenerator.cpp \
         aphotonsimulator.cpp \
         aphotontracer.cpp \
-        aoneevent.cpp \
         aphotonhistorylog.cpp \
         alogger.cpp \
         as1generator.cpp \
@@ -147,9 +147,9 @@ HEADERS += \
     ../ants3/photonSim/aphotontrackrecord.h \
     ../ants3/tools/ath.h \
     ../ants3/tools/avector.h \
+    alightsensorevent.h \
     aphotonsimulator.h \
     aphotontracer.h \
-    aoneevent.h \
     aphotonhistorylog.h \
     anoderecord.h \
     aphotongenerator.h \

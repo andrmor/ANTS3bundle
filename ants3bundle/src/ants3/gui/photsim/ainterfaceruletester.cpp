@@ -6,15 +6,15 @@
 #include "ainterfacerulehub.h"
 #include "aphoton.h"
 #include "aphotonstatistics.h"
-//#include "aphotontrackrecord.h"
 #include "ajsontools.h"
-//#include "a3global.h"
 #include "arandomhub.h"
 #include "astatisticshub.h"
 #include "agraphbuilder.h"
 #include "aphotonsimhub.h"
 #include "ageometryhub.h"
 #include "ametalinterfacerule.h"
+#include "aphotontracer.h"
+#include "alightsensorevent.h" // needed by aphotontracer
 
 #include <QDoubleValidator>
 #include <QLineEdit>
@@ -22,7 +22,6 @@
 
 #include "TVector3.h"
 #include "TGraph.h"
-//#include "TLegend.h"
 #include "TMath.h"
 #include "TH1D.h"
 #include "TGeoManager.h"
@@ -36,7 +35,7 @@ AInterfaceRuleTester::AInterfaceRuleTester(AInterfaceRule* & ovLocal, int matFro
     GeoHub(AGeometryHub::getInstance()),
     RandomHub(ARandomHub::getInstance()),
     Stats(AStatisticsHub::getInstance().SimStat),
-    pOV(ovLocal), MatFrom(matFrom), MatTo(matTo),
+    Rule(ovLocal), MatFrom(matFrom), MatTo(matTo),
     ui(new Ui::AInterfaceRuleTester)
 {
     ui->setupUi(this);
@@ -51,6 +50,11 @@ AInterfaceRuleTester::AInterfaceRuleTester(AInterfaceRule* & ovLocal, int matFro
     ui->labMaterials->setText( QString("(%1 -> %2)").arg(matNames.at(matFrom)).arg(matNames.at(matTo)) );
 
     updateGUI();
+
+    DummyLightSensorEvent = new ALightSensorEvent();
+    QTextStream * dummyStream = nullptr;
+    PhotonTracer = new APhotonTracer(*DummyLightSensorEvent, dummyStream, dummyStream, dummyStream);
+    // dont forget to 'configure' with the actual override and photon
 }
 
 void AInterfaceRuleTester::updateGUI()
@@ -78,9 +82,9 @@ void AInterfaceRuleTester::updateGUI()
         const std::complex<double> ref = MatHub[MatTo]->getComplexRefractiveIndex(waveIndex);
         str2 = QString("%1 + i*%2").arg(QString::number(ref.real(),'g',4)).arg(QString::number(ref.imag(),'g',4));
     }
-    if (pOV && pOV->getType() == "DielectricToMetal")
+    if (Rule && Rule->getType() == "DielectricToMetal")
     {
-        AMetalInterfaceRule * mir = static_cast<AMetalInterfaceRule*>(pOV);
+        AMetalInterfaceRule * mir = static_cast<AMetalInterfaceRule*>(Rule);
         str2 = QString("%1 + i*%2").arg(QString::number(mir->RealN,'g',4)).arg(QString::number(mir->ImaginaryN,'g',4));
     }
     ui->ledST_Ref1->setText(str1);
@@ -90,6 +94,9 @@ void AInterfaceRuleTester::updateGUI()
 AInterfaceRuleTester::~AInterfaceRuleTester()
 {
     delete ui;
+
+    delete PhotonTracer;
+    delete DummyLightSensorEvent;
 }
 
 void AInterfaceRuleTester::writeToJson(QJsonObject &json) const
@@ -154,14 +161,14 @@ void AInterfaceRuleTester::on_pbProcessesVsAngle_clicked()
             ph.waveIndex = getWaveIndex();
 
 tryAgainLabel:
-            AInterfaceRule::OpticalOverrideResultEnum result = pOV->calculate(&ph, N);
+            AInterfaceRule::OpticalOverrideResultEnum result = Rule->calculate(&ph, N);
 
             if (result == AInterfaceRule::NotTriggered || result == AInterfaceRule::DelegateLocalNormal)
             {
                 bool valid = doFresnelSnell(ph, N);
                 if (!valid) goto tryAgainLabel;
 
-                switch (pOV->Status)
+                switch (Rule->Status)
                 {
                 case (AInterfaceRule::SpikeReflection) : result = AInterfaceRule::Back;     break;
                 case (AInterfaceRule::LobeReflection)  : result = AInterfaceRule::Back;     break;
@@ -180,7 +187,7 @@ tryAgainLabel:
             default:;
             }
 
-            switch (pOV->Status)
+            switch (Rule->Status)
             {
             case AInterfaceRule::SpikeReflection: Spike[iAngle]++; break;
             case AInterfaceRule::BackscatterSpikeReflection: BackSpike[iAngle]++; break;
@@ -304,7 +311,7 @@ void AInterfaceRuleTester::on_pbTracePhotons_clicked()
         ph.waveIndex = waveIndex;
 
 tryAgainLabel:
-        AInterfaceRule::OpticalOverrideResultEnum result = pOV->calculate(&ph, N);
+        AInterfaceRule::OpticalOverrideResultEnum result = Rule->calculate(&ph, N);
 
         //in case of absorption or not triggered override, do not build tracks!
         switch (result)
@@ -319,22 +326,22 @@ tryAgainLabel:
                 bool valid = doFresnelSnell(ph, N);
                 if (!valid) goto tryAgainLabel;
 
-                if      (pOV->Status == AInterfaceRule::SpikeReflection)
+                if      (Rule->Status == AInterfaceRule::SpikeReflection)
                 {
                     rep.back++;
                     break;
                 }
-                else if (pOV->Status == AInterfaceRule::LobeReflection)
+                else if (Rule->Status == AInterfaceRule::LobeReflection)
                 {
                     rep.back++; // already tested against wrong angle (as in transmission -> goto will be triggered)
                     break;
                 }
-                else if (pOV->Status == AInterfaceRule::Transmission)
+                else if (Rule->Status == AInterfaceRule::Transmission)
                 {
                     rep.forw++; // !!!*** check here and in APhotonTracer - what will happen if the photon status is transmitted, but the direction is backward
                     break;
                 }
-                else if (pOV->Status == AInterfaceRule::Absorption)
+                else if (Rule->Status == AInterfaceRule::Absorption)
                 {
                     rep.abs++;
                     continue; // ! ->
@@ -351,28 +358,28 @@ tryAgainLabel:
         int type;
         bool bBack = false;
         bool bForw = false;
-        if (pOV->Status == AInterfaceRule::SpikeReflection)
+        if (Rule->Status == AInterfaceRule::SpikeReflection)
         {
             rep.Bspike++;
             type = 0;
             col = 6; //0,magenta for Spike
             bBack = true;
         }
-        else if (pOV->Status == AInterfaceRule::BackscatterSpikeReflection)
+        else if (Rule->Status == AInterfaceRule::BackscatterSpikeReflection)
         {
             rep.Bbackspike++;
             type = 0;
             col = 6; //0,magenta as for normal Spike
             bBack = true;
         }
-        else if (pOV->Status == AInterfaceRule::LobeReflection)
+        else if (Rule->Status == AInterfaceRule::LobeReflection)
         {
             rep.Blobe++;
             type = 1;
             col = 7; //1,teal for Lobe
             bBack = true;
         }
-        else if (pOV->Status == AInterfaceRule::LambertianReflection)
+        else if (Rule->Status == AInterfaceRule::LambertianReflection)
         {
             rep.Blamb++;
             type = 2;
@@ -417,17 +424,17 @@ tryAgainLabel:
 //transmitted --> must be synchronized with performRefraction() method of APhotontracer class
 bool AInterfaceRuleTester::doFresnelSnell(APhoton & ph, double * N) // if return false, run eule->calculate again
 {
-    if (pOV->isPolishedSurface()) // otherwise already have it
+    if (Rule->isPolishedSurface()) // otherwise already have it
         for (size_t i = 0; i < 3; i++)
-            pOV->LocalNormal[i] = N[i];
+            Rule->LocalNormal[i] = N[i];
 
     const double ref = calculateReflectionProbability(ph);
 
     if (RandomHub.uniform() < ref)
     {
         double NK = 0;
-        for (int i = 0; i < 3; i++) NK += pOV->LocalNormal[i] * ph.v[i];
-        for (int i = 0; i < 3; i++) ph.v[i] -= 2.0 * NK * pOV->LocalNormal[i];
+        for (int i = 0; i < 3; i++) NK += Rule->LocalNormal[i] * ph.v[i];
+        for (int i = 0; i < 3; i++) ph.v[i] -= 2.0 * NK * Rule->LocalNormal[i];
 
         double GNK = 0;
         for (int i = 0; i < 3; i++) GNK += ph.v[i] * N[i];
@@ -437,10 +444,10 @@ bool AInterfaceRuleTester::doFresnelSnell(APhoton & ph, double * N) // if return
             return false;
         }
 
-        if (pOV->isPolishedSurface())
-            pOV->Status = AInterfaceRule::SpikeReflection;
+        if (Rule->isPolishedSurface())
+            Rule->Status = AInterfaceRule::SpikeReflection;
         else
-            pOV->Status = AInterfaceRule::LobeReflection;
+            Rule->Status = AInterfaceRule::LobeReflection;
     }
     else
     {
@@ -451,24 +458,24 @@ bool AInterfaceRuleTester::doFresnelSnell(APhoton & ph, double * N) // if return
 
             const double nn = RefrIndexFrom / RefrIndexTo;
             double NK = 0;
-            for (int i = 0; i < 3; i++) NK += ph.v[i] * pOV->LocalNormal[i];
+            for (int i = 0; i < 3; i++) NK += ph.v[i] * Rule->LocalNormal[i];
 
             const double UnderRoot = 1.0 - nn*nn*(1.0 - NK*NK);
             if (UnderRoot < 0)
             {
                 //should not happen --> reflection coefficient takes it into account
                 //rep.error++; continue;
-                pOV->Status = AInterfaceRule::Error;
+                Rule->Status = AInterfaceRule::Error;
             }
             const double tmp = nn * NK - sqrt(UnderRoot);
-            for (int i = 0; i < 3; i++) ph.v[i] = nn * ph.v[i] - tmp * pOV->LocalNormal[i];
+            for (int i = 0; i < 3; i++) ph.v[i] = nn * ph.v[i] - tmp * Rule->LocalNormal[i];
 
-            pOV->Status = AInterfaceRule::Transmission;
+            Rule->Status = AInterfaceRule::Transmission;
         }
         else
         {
             // absorption for metals
-            pOV->Status = AInterfaceRule::Absorption;
+            Rule->Status = AInterfaceRule::Absorption;
         }
     }
 
@@ -548,13 +555,13 @@ void AInterfaceRuleTester::on_pbST_showTracks_clicked()
 
 bool AInterfaceRuleTester::testOverride()
 {
-    if (!pOV)
+    if (!Rule)
     {
         guitools::message("Override not defined!", this);
         return false;
     }
 
-    QString err = pOV->checkOverrideData();
+    QString err = Rule->checkOverrideData();
     if (!err.isEmpty())
     {
         guitools::message("Override reports an error:\n" + err, this);
@@ -628,14 +635,14 @@ void AInterfaceRuleTester::on_pbDiffuseIrradiation_clicked()
         ph.waveIndex = waveIndex;
 
 tryAgainLabel:
-        AInterfaceRule::OpticalOverrideResultEnum result = pOV->calculate(&ph, N);
+        AInterfaceRule::OpticalOverrideResultEnum result = Rule->calculate(&ph, N);
 
         if (result == AInterfaceRule::NotTriggered || result == AInterfaceRule::DelegateLocalNormal)
         {
             bool valid = doFresnelSnell(ph, N);
             if (!valid) goto tryAgainLabel;
 
-            switch (pOV->Status)
+            switch (Rule->Status)
             {
             case (AInterfaceRule::SpikeReflection) : result = AInterfaceRule::Back;     break;
             case (AInterfaceRule::LobeReflection)  : result = AInterfaceRule::Back;     break;
@@ -656,10 +663,10 @@ tryAgainLabel:
         default: rep.error++;
         }
 
-        if      (pOV->Status == AInterfaceRule::SpikeReflection)            rep.Bspike++;
-        else if (pOV->Status == AInterfaceRule::BackscatterSpikeReflection) rep.Bbackspike++;
-        else if (pOV->Status == AInterfaceRule::LobeReflection)             rep.Blobe++;
-        else if (pOV->Status == AInterfaceRule::LambertianReflection)       rep.Blamb++;
+        if      (Rule->Status == AInterfaceRule::SpikeReflection)            rep.Bspike++;
+        else if (Rule->Status == AInterfaceRule::BackscatterSpikeReflection) rep.Bbackspike++;
+        else if (Rule->Status == AInterfaceRule::LobeReflection)             rep.Blobe++;
+        else if (Rule->Status == AInterfaceRule::LambertianReflection)       rep.Blamb++;
 
         double costr = - N[0] * ph.v[0] - N[1] * ph.v[1] - N[2] * ph.v[2];
 
@@ -749,50 +756,8 @@ void AInterfaceRuleTester::reportStatistics(const AReportForOverride &rep, int n
     ui->pte->ensureCursorVisible();
 }
 
-double AInterfaceRuleTester::calculateReflectionProbability(const APhoton & Photon) const
+double AInterfaceRuleTester::calculateReflectionProbability(APhoton & photon) const
 {
-    // has to be synchronized (algorithm) with the method calculateReflectionProbability() of the APhotonTracer class of lsim module!
-
-    double NK = 0;
-    for (int i = 0; i < 3; i++) NK += Photon.v[i] * pOV->LocalNormal[i];
-    const double cos1 = fabs(NK); // cos of the angle of incidence
-    const double sin1 = (cos1 < 0.9999999) ? sqrt(1.0 - cos1*cos1) : 0;
-
-    if (MatHub[MatTo]->Dielectric)
-    {
-        const double RefrIndexFrom = MatHub[MatFrom]->getRefractiveIndex(Photon.waveIndex);
-        const double RefrIndexTo   = MatHub[MatTo]->getRefractiveIndex(Photon.waveIndex);
-
-        const double sin2 = RefrIndexFrom / RefrIndexTo * sin1;
-        if (fabs(sin2) > 1.0)
-        {
-            // qDebug()<<"Total internal reflection, RefCoeff = 1.0";
-            return 1.0;
-        }
-        else
-        {
-            const double cos2 = sqrt(1.0 - sin2*sin2);
-            double Rs = (RefrIndexFrom*cos1 - RefrIndexTo*cos2) / (RefrIndexFrom*cos1 + RefrIndexTo*cos2);
-            Rs *= Rs;
-            double Rp = (RefrIndexFrom*cos2 - RefrIndexTo*cos1) / (RefrIndexFrom*cos2 + RefrIndexTo*cos1);
-            Rp *= Rp;
-            return 0.5 * (Rs + Rp);
-        }
-    }
-    else
-    {
-        const double nFrom = MatHub[MatFrom]->getRefractiveIndex(Photon.waveIndex);
-        const std::complex<double> & NTo = MatHub[MatTo]->getComplexRefractiveIndex(Photon.waveIndex);
-
-        const std::complex<double> sin2 = sin1 / NTo * nFrom;
-        const std::complex<double> cos2 = sqrt( 1.0 - sin2*sin2 );
-
-        const std::complex<double> rs = (nFrom*cos1 -   NTo*cos2) / (nFrom*cos1 +   NTo*cos2);
-        const std::complex<double> rp = ( -NTo*cos1 + nFrom*cos2) / (  NTo*cos1 + nFrom*cos2);
-
-        const double RS = std::norm(rs);
-        const double RP = std::norm(rp);
-
-        return 0.5 * (RS + RP);
-    }
+    PhotonTracer->configureForInterfaceRuleTester(MatFrom, MatTo, Rule, photon);
+    return PhotonTracer->calculateReflectionProbability();
 }
