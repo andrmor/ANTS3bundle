@@ -39,7 +39,7 @@ AInterfaceRuleTester::AInterfaceRuleTester(AInterfaceRule* & ovLocal, int matFro
     ui(new Ui::AInterfaceRuleTester)
 {
     ui->setupUi(this);
-    setWindowTitle("Override tester");
+    setWindowTitle("Interface rule tester");
 
     QDoubleValidator * dv = new QDoubleValidator(this);
     dv->setNotation(QDoubleValidator::ScientificNotation);

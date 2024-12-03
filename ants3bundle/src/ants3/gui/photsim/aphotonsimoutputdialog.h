@@ -23,6 +23,8 @@ private slots:
 
     void on_cbPhotonLog_toggled(bool checked);
 
+    void on_pbChangeDir_customContextMenuRequested(const QPoint &pos);
+
 private:
     Ui::APhotonSimOutputDialog * ui;
     APhotonLogSettingsForm * PhotonLog = nullptr;

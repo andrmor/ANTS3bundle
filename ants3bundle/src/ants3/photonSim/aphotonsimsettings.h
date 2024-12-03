@@ -270,6 +270,9 @@ public:
     bool    SaveMonitors          = false;
     QString FileNameMonitors      = "PhotonMonitors.txt";
 
+    bool    SaveConfig            = false;
+    QString FileNameConfig        = "Config_OpticalSim.json";
+
     APhotonLogSettings PhotonLogSet;
 
     void writeToJson(QJsonObject & json, bool addRuntimeExport) const;

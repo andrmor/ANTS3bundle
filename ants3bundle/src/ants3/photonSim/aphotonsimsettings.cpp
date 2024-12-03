@@ -615,6 +615,9 @@ void APhotSimRunSettings::writeToJson(QJsonObject & json, bool addRuntimeExport)
     json["SaveMonitors"]          = SaveMonitors;
     json["FileNameMonitors"]      = FileNameMonitors;
 
+    json["SaveConfig"]            = SaveConfig;
+    json["FileNameConfig"]        = FileNameConfig;
+
     {
         QJsonObject js;
         PhotonLogSet.writeToJson(js);
@@ -658,6 +661,9 @@ void APhotSimRunSettings::readFromJson(const QJsonObject & json)
     jstools::parseJson(json, "SaveMonitors",          SaveMonitors);
     jstools::parseJson(json, "FileNameMonitors",      FileNameMonitors);
 
+    jstools::parseJson(json, "SaveConfig",            SaveConfig);
+    jstools::parseJson(json, "FileNameConfig",        FileNameConfig);
+
     {
         QJsonObject js;
         jstools::parseJson(json, "PhotonLog", js);
@@ -698,6 +704,9 @@ void APhotSimRunSettings::clear()
 
     SaveMonitors          = false;
     FileNameMonitors      = "PhotonMonitors.txt";
+
+    SaveConfig            = false;
+    FileNameConfig        = "Config_OpticalSim.json";
 
     PhotonLogSet.clear();
 }

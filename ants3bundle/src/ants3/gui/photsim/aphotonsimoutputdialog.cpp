@@ -52,6 +52,8 @@ APhotonSimOutputDialog::APhotonSimOutputDialog(QWidget *parent) :
     ui->cbPhotonLog->setChecked(RunSet.PhotonLogSet.Save);
     ui->labPhotonLog->setText(RunSet.PhotonLogSet.FileName);
 
+    ui->cbSaveConfig->setChecked(RunSet.SaveConfig);
+
     PhotonLog->updateGui(RunSet.PhotonLogSet);
     PhotonLog->setEnabled(false);
 }
@@ -102,6 +104,8 @@ void APhotonSimOutputDialog::on_pbAccept_clicked()
 
     RunSet.PhotonLogSet.Save = ui->cbPhotonLog->isChecked();
 
+    RunSet.SaveConfig        = ui->cbSaveConfig->isChecked();
+
     accept();
 }
 
@@ -118,5 +122,13 @@ void APhotonSimOutputDialog::on_pbChangeDir_clicked()
 void APhotonSimOutputDialog::on_cbPhotonLog_toggled(bool checked)
 {
     PhotonLog->setEnabled(checked);
+}
+
+#include <QDesktopServices>
+void APhotonSimOutputDialog::on_pbChangeDir_customContextMenuRequested(const QPoint &)
+{
+    QString txt = ui->leOutputDirectory->text();
+    if (txt.isEmpty()) return;
+    QDesktopServices::openUrl( QUrl::fromLocalFile(txt) );
 }
 
