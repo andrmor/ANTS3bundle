@@ -57,8 +57,8 @@ public:
     explicit AInterfaceRuleTester(AInterfaceRule* & ovLocal, int matFrom, int matTo, QWidget * parent = nullptr);
     ~AInterfaceRuleTester();
 
-    void writeToJson(QJsonObject& json) const;
-    void readFromJson(const QJsonObject& json);
+    void writeToJson(QJsonObject & json) const;
+    void readFromJson(const QJsonObject & json);
 
 public slots:
     void updateGUI();
@@ -104,7 +104,7 @@ private:
     TVector3 getPhotonVector();
     void     reportStatistics(const AReportForOverride & rep, int numPhot);
     double   calculateReflectionProbability(APhoton & photon) const;
-    bool     doFresnelSnell(APhoton & ph, double * N); // !!! warning: code duplication with APhotonTracer class !!!
+    bool     doFresnelSnell(APhoton & ph, double * normal);
 
 signals:
     void requestDraw(TObject * obj, const QString & options, bool transferOwnership, bool focusWindow);

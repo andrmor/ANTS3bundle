@@ -342,7 +342,9 @@ void AInterfaceRuleDialog::on_pbInfo_clicked()
 {
     QString txt;
     if (!LocalRule)
-        txt = "The interface rule is not defined:\nUsing \"normal\" physics model (Fresnel + Snell) for this interface";
+        txt = "The interface rule is not defined:\nUsing \"normal\" physics model (Fresnel + Snell) for this interface.\n\n"
+              "The optical properties of this interface still can be tested:\n"
+              "Select 'Simplistic' rule and keep all settings on default.";
     else
     {
         txt = LocalRule->getFullDescription();

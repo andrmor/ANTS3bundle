@@ -420,13 +420,11 @@ tryAgainLabel:
     setEnabled(true);
 }
 
-//reflected --> must use the same algorithm as performReflection() method of APhotonTracer class
-//transmitted --> must be synchronized with performRefraction() method of APhotontracer class
-bool AInterfaceRuleTester::doFresnelSnell(APhoton & ph, double * N) // if return false, run eule->calculate again
+bool AInterfaceRuleTester::doFresnelSnell(APhoton & ph, double * normal) // if return false, run rule->calculate again, same as in APhotonTracer
 {
     if (Rule->isPolishedSurface()) // otherwise already have it
         for (size_t i = 0; i < 3; i++)
-            Rule->LocalNormal[i] = N[i];
+            Rule->LocalNormal[i] = normal[i];
 
     const double ref = calculateReflectionProbability(ph);
 
@@ -439,7 +437,7 @@ bool AInterfaceRuleTester::doFresnelSnell(APhoton & ph, double * N) // if return
         PhotonTracer->readBackPhoton(ph);
 
         double GNK = 0;
-        for (int i = 0; i < 3; i++) GNK += ph.v[i] * N[i];
+        for (int i = 0; i < 3; i++) GNK += ph.v[i] * normal[i];
         if (GNK > 0) //back only in respect to the local normal but actually forward considering global one
         {
             //qDebug() << "Rule result is 'Back', but direction is actually 'Forward' --> re-running the rule with new photon direction";
@@ -477,6 +475,7 @@ bool AInterfaceRuleTester::doFresnelSnell(APhoton & ph, double * N) // if return
         else
         {
             // absorption for metals
+            // !!!*** not synchronized with APhotontracer
             Rule->Status = AInterfaceRule::Absorption;
         }
     }
