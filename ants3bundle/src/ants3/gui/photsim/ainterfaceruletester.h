@@ -1,7 +1,7 @@
 #ifndef AINTERFACERULETESTER_H
 #define AINTERFACERULETESTER_H
 
-#include <QMainWindow>
+#include "aguiwindow.h"
 
 #include <vector>
 #include <array>
@@ -49,12 +49,12 @@ class APhoton;
 class APhotonTracer;
 class ALightSensorEvent;
 
-class AInterfaceRuleTester : public QMainWindow
+class AInterfaceRuleTester : public AGuiWindow
 {
     Q_OBJECT
 
 public:
-    explicit AInterfaceRuleTester(AInterfaceRule* & ovLocal, int matFrom, int matTo, QWidget * parent = nullptr);
+     AInterfaceRuleTester(AInterfaceRule* & ovLocal, int matFrom, int matTo, QWidget * parent = nullptr);
     ~AInterfaceRuleTester();
 
     void writeToJson(QJsonObject & json) const;

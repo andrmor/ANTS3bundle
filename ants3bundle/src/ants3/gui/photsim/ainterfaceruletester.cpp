@@ -30,7 +30,7 @@
 #include <complex>
 
 AInterfaceRuleTester::AInterfaceRuleTester(AInterfaceRule* & ovLocal, int matFrom, int matTo, QWidget * parent) :
-    QMainWindow(parent),
+    AGuiWindow("RuleTester", parent),
     MatHub(AMaterialHub::getConstInstance()),
     GeoHub(AGeometryHub::getInstance()),
     RandomHub(ARandomHub::getInstance()),
@@ -717,6 +717,7 @@ void AInterfaceRuleTester::on_ledAngle_editingFinished()
 void AInterfaceRuleTester::closeEvent(QCloseEvent * e)
 {
     AbortCycle = true;
+    storeGeomStatus();
     QMainWindow::closeEvent(e);
     emit closed(true);
 }

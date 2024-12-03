@@ -79,7 +79,7 @@ void AInterfaceRuleDialog::updateGui()
     if (LocalRule)
     {
         ui->frNoOverride->setVisible(false);
-        ui->pbTestOverride->setVisible(true);
+        ui->pbTestOverride->setEnabled(true);
 
         QStringList avOv = AInterfaceRule::getAllInterfaceRuleTypes();
         int index = avOv.indexOf(LocalRule->getType()); //TODO -> if not found?
@@ -117,7 +117,7 @@ void AInterfaceRuleDialog::updateGui()
     else
     {
         ui->frNoOverride->setVisible(true);
-        ui->pbTestOverride->setVisible(false);
+        ui->pbTestOverride->setEnabled(false);
         ui->cobSurfaceModel->setCurrentIndex(0);
         ui->swSurfaceModel->setCurrentIndex(0);
         ui->cobSurfaceModel->setEnabled(false);
@@ -191,7 +191,8 @@ void AInterfaceRuleDialog::on_pbTestOverride_clicked()
     TesterWindow->updateGUI();
     TesterWindow->showGeometry();
 
-    TesterWindow->move(x(), y());
+    TesterWindow->restoreGeomStatus();
+    if (TesterWindow->x() == 0 && TesterWindow->y() == 0) TesterWindow->move(x(), y());
 
     connect(TesterWindow, &AInterfaceRuleTester::closed, this, &AInterfaceRuleDialog::setEnabled);
     setEnabled(false);
@@ -344,7 +345,8 @@ void AInterfaceRuleDialog::on_pbInfo_clicked()
     if (!LocalRule)
         txt = "The interface rule is not defined:\nUsing \"normal\" physics model (Fresnel + Snell) for this interface.\n\n"
               "The optical properties of this interface still can be tested:\n"
-              "Select 'Simplistic' rule and keep all settings on default.";
+              "Select 'Simplistic' rule and keep all settings on default:\n"
+              "all coefficents set to 0, and 'Polished' surface model.";
     else
     {
         txt = LocalRule->getFullDescription();
