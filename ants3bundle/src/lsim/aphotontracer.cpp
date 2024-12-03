@@ -319,6 +319,7 @@ EFresnelResult APhotonTracer::tryReflection()
         SimStat.FresnelReflected++;
         Navigator->PopPoint();       // restore the point before the border
         performReflection();         // in the case of modified local normal, photon can point towards the interface again!
+        Navigator->SetCurrentDirection(Photon.v);
         if (SimSet.RunSet.PhotonLogSet.Save) PhLog.push_back( APhotonHistoryLog(Navigator->GetCurrentPoint(), NameFrom, VolumeIndexFrom, Photon.time, Photon.waveIndex, APhotonHistoryLog::Fresnel_Reflection, MatIndexFrom, MatIndexTo) );
         return EFresnelResult::Reflected;
     }
@@ -1066,8 +1067,11 @@ void APhotonTracer::performReflection()
 
     //qDebug() << "Vector after:"<<p.v[0]<<p.v[1]<<p.v[2];
     //qDebug() << "Photon position:"<<navigator->GetCurrentPoint()[0]<<navigator->GetCurrentPoint()[1]<<navigator->GetCurrentPoint()[2];
+}
 
-    Navigator->SetCurrentDirection(Photon.v);
+void APhotonTracer::readBackPhoton(APhoton & photonToUpdate)
+{
+    photonToUpdate = Photon;
 }
 
 bool APhotonTracer::enterGrid(int GridNumber)

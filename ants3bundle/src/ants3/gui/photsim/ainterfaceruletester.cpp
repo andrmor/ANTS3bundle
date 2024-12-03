@@ -432,15 +432,17 @@ bool AInterfaceRuleTester::doFresnelSnell(APhoton & ph, double * N) // if return
 
     if (RandomHub.uniform() < ref)
     {
-        double NK = 0;
-        for (int i = 0; i < 3; i++) NK += Rule->LocalNormal[i] * ph.v[i];
-        for (int i = 0; i < 3; i++) ph.v[i] -= 2.0 * NK * Rule->LocalNormal[i];
+        //double NK = 0;
+        //for (int i = 0; i < 3; i++) NK += Rule->LocalNormal[i] * ph.v[i];
+        //for (int i = 0; i < 3; i++) ph.v[i] -= 2.0 * NK * Rule->LocalNormal[i];
+        PhotonTracer->performReflection();
+        PhotonTracer->readBackPhoton(ph);
 
         double GNK = 0;
         for (int i = 0; i < 3; i++) GNK += ph.v[i] * N[i];
         if (GNK > 0) //back only in respect to the local normal but actually forward considering global one
         {
-            //qDebug() << "Rule result is 'Back', but direction is actually 'Forward' --> re-running the rule";
+            //qDebug() << "Rule result is 'Back', but direction is actually 'Forward' --> re-running the rule with new photon direction";
             return false;
         }
 

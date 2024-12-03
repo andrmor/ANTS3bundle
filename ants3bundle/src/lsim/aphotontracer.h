@@ -40,6 +40,8 @@ public:
 
     void   configureForInterfaceRuleTester(int fromMat, int toMat, AInterfaceRule * interfaceRule, APhoton & photon);
     double calculateReflectionProbability(); // double usage!
+    void   performReflection();              // double usage!
+    void   readBackPhoton(APhoton & photonToUpdate);
 
     APhotonTrackRecord             Track;
     std::vector<APhotonHistoryLog> PhLog;
@@ -105,7 +107,6 @@ private:
     void endTracing();
     void processSensorHit(int iSensor);
     bool performRefraction();
-    void performReflection();
     bool enterGrid(int GridNumber);
     bool isOutsideGridBulk();
     void exitGrid();
