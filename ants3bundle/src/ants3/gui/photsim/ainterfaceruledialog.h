@@ -1,9 +1,10 @@
 #ifndef AINTERFACERULEDIALOG_H
 #define AINTERFACERULEDIALOG_H
 
+#include <set>
+
 #include <QDialog>
 #include <QStringList>
-#include <QSet>
 
 namespace Ui {
 class AInterfaceRuleDialog;
@@ -62,7 +63,7 @@ private:
     int customWidgetPositionInLayout = 4;
     AInterfaceRuleWidget * CustomWidget = nullptr;
 
-    QSet<AInterfaceRule*> TmpRules;
+    std::set<AInterfaceRule*> TmpRules;
 
     void updateGui();
     AInterfaceRule * findInOpended(const QString & ovType);

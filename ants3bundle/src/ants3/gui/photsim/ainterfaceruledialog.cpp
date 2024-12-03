@@ -6,10 +6,15 @@
 #include "ainterfacewidgetfactory.h"
 #include "guitools.h"
 #include "ainterfaceruletester.h"
+#include "agraphbuilder.h"
+#include "afiletools.h"
 
 #include <QJsonObject>
 #include <QVBoxLayout>
 #include <QDebug>
+
+#include "TGraph.h"
+#include "TH1D.h"
 
 AInterfaceRuleDialog::AInterfaceRuleDialog(AInterfaceRule * rule, int matFrom, int matTo, QWidget * parent) :
     QDialog(parent),
@@ -121,10 +126,10 @@ void AInterfaceRuleDialog::updateGui()
 
 AInterfaceRule * AInterfaceRuleDialog::findInOpended(const QString & ovType)
 {
-    for (AInterfaceRule* ov : qAsConst(TmpRules))
+    for (AInterfaceRule * ov : TmpRules)
         if (ov->getType() == ovType)
         {
-            TmpRules.remove(ov);
+            TmpRules.erase(ov);
             return ov;
         }
 
@@ -133,7 +138,7 @@ AInterfaceRule * AInterfaceRuleDialog::findInOpended(const QString & ovType)
 
 void AInterfaceRuleDialog::clearTmpRules()
 {
-    for (AInterfaceRule * ov : qAsConst(TmpRules)) delete ov;
+    for (AInterfaceRule * ov : TmpRules) delete ov;
     TmpRules.clear();
 }
 
@@ -167,7 +172,7 @@ void AInterfaceRuleDialog::closeEvent(QCloseEvent *e)
 
 void AInterfaceRuleDialog::on_cobType_activated(int index)
 {
-    if (LocalRule) TmpRules << LocalRule;
+    if (LocalRule) TmpRules.insert(LocalRule);
     LocalRule = nullptr;
 
     if (index != 0)
@@ -241,7 +246,6 @@ void AInterfaceRuleDialog::on_leSigmaAlphaUnified_editingFinished()
     LocalRule->SurfaceSettings.SigmaAlpha = sa;
 }
 
-#include "afiletools.h"
 void AInterfaceRuleDialog::on_pbLoadCustomNormalDistribution_clicked()
 {
     QString fileName = guitools::dialogLoadFile(this, "Load file with distribution of the angle between the microfacet's and global's normal", "Data files (*.txt *.dat); All files (*.*)");
@@ -267,8 +271,6 @@ void AInterfaceRuleDialog::on_pbLoadCustomNormalDistribution_clicked()
     updateCustomNormalButtons();
 }
 
-#include "agraphbuilder.h"
-#include "TGraph.h"
 void AInterfaceRuleDialog::on_pbShowCustomNormalDistribution_clicked()
 {
     if (LocalRule->SurfaceSettings.NormalDeviation.empty())
@@ -310,7 +312,6 @@ void AInterfaceRuleDialog::updateCustomNormalButtons()
     ui->pbRemoveCustomNormalDistribution->setEnabled(bHaveData);
 }
 
-#include "TH1D.h"
 void AInterfaceRuleDialog::on_pbShowCustomNormalDistribution_customContextMenuRequested(const QPoint &)
 {
     if (LocalRule->SurfaceSettings.NormalDeviation.empty())
@@ -359,4 +360,3 @@ void AInterfaceRuleDialog::on_cbCustNorm_CorrectForOrientation_clicked(bool chec
 {
     LocalRule->SurfaceSettings.OrientationProbabilityCorrection = checked;
 }
-

@@ -14,6 +14,7 @@
 #include "agraphbuilder.h"
 #include "aphotonsimhub.h"
 #include "ageometryhub.h"
+#include "ametalinterfacerule.h"
 
 #include <QDoubleValidator>
 #include <QLineEdit>
@@ -52,7 +53,6 @@ AInterfaceRuleTester::AInterfaceRuleTester(AInterfaceRule* & ovLocal, int matFro
     updateGUI();
 }
 
-#include "ametalinterfacerule.h"
 void AInterfaceRuleTester::updateGUI()
 {
     bool bWR = APhotonSimHub::getConstInstance().Settings.WaveSet.Enabled;
