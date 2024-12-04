@@ -217,7 +217,7 @@ private:
 
     void loadStatistics(bool suppressMessage);
     void loadMonitorsData(bool suppressMessage);
-    void loadTracks(bool suppressMessage);
+    void loadAndShowTracks(bool suppressMessage, int selectedEvent = -1);
     void showTracksSingleEvent();
 
     QString initPhotonLogHandler(); // returns error if any

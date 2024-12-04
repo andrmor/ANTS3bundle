@@ -565,7 +565,7 @@ void APhotSimWin::on_pbLoadAllResults_clicked()
     on_pbShowBombsMultiple_clicked();
 
     ui->leTracksFile->setText(Set.FileNameTracks);
-    loadTracks(true);
+    loadAndShowTracks(true);
 
     ui->leLogFile->setText(Set.PhotonLogSet.FileName);
     delete LogHandler; LogHandler = nullptr;
@@ -733,10 +733,10 @@ void APhotSimWin::on_pbSelectTracksFile_clicked()
 
 void APhotSimWin::on_pbLoadAndShowTracks_clicked()
 {
-    loadTracks(false);
+    loadAndShowTracks(false);
 }
 
-void APhotSimWin::loadTracks(bool suppressMessage)
+void APhotSimWin::loadAndShowTracks(bool suppressMessage, int selectedEvent)
 {
     QString FileName = ui->leTracksFile->text();
     if (!FileName.contains('/')) FileName = ui->leResultsWorkingDir->text() + '/' + FileName;
@@ -751,12 +751,34 @@ void APhotSimWin::loadTracks(bool suppressMessage)
     TGeoManager * GeoManager = AGeometryHub::getInstance().GeoManager;
     GeoManager->ClearTracks();
 
+    bool bSkipNextEvent = false;
+
     QTextStream in(&file);
     while(!in.atEnd())
     {
-        const QString line = in.readLine();
-        if (line.startsWith('#')) continue;
+        QString line = in.readLine();
+        if (line.startsWith('#'))
+        {
+            if (selectedEvent == -1) continue;
+            line.remove(0, 1);
+            bool ok;
+            int iEvent = line.toInt(&ok);
+            if (!ok)
+            {
+                if (!suppressMessage) guitools::message("Invalid format of the file with tracks (event index corrupted):\n" + FileName, this);
+                return;
+            }
+            if (iEvent < selectedEvent)
+            {
+                bSkipNextEvent = true;
+                continue;
+            }
+            else bSkipNextEvent = false;
+            if (iEvent > selectedEvent) break;
+            continue;
+        }
 
+        if (bSkipNextEvent) continue;
         QJsonObject json = jstools::strToJson(line);
         QJsonArray ar;
         bool ok = jstools::parseJson(json, "P", ar);
@@ -1660,62 +1682,8 @@ void APhotSimWin::showBombSingleEvent()
 
 void APhotSimWin::showTracksSingleEvent()
 {
-    QString FileName = ui->leTracksFile->text();
-    if (!FileName.contains('/')) FileName = ui->leResultsWorkingDir->text() + '/' + FileName;
-
-    QFile file(FileName);
-    if (!file.open(QIODevice::ReadOnly | QFile::Text)) return;
-
-    TGeoManager * GeoManager = AGeometryHub::getInstance().GeoManager;
-    GeoManager->ClearTracks();
-
     const int iShowEvent = ui->sbEvent->value();
-
-    QTextStream in(&file);
-    int iCurrentEvent = 0;
-    while (!in.atEnd())
-    {
-        QString line = in.readLine();
-        if (line.startsWith('#'))
-        {
-            line.remove('#');
-            iCurrentEvent = line.toInt();
-            continue;
-        }
-
-        if (iShowEvent != iCurrentEvent) continue;
-
-        QJsonObject json = jstools::strToJson(line);
-        QJsonArray ar;
-        bool ok = jstools::parseJson(json, "P", ar);
-        if (!ok)
-        {
-            guitools::message("Unknown file format!", this);
-            return;
-        }
-        const bool bHit = (json.contains("h") ? true : false);
-        const bool bSec = (json.contains("s") ? true : false);
-
-        TGeoTrack * track = new TGeoTrack(1, 22);
-        int Color = 7;
-        if (bSec) Color = kMagenta;
-        if (bHit) Color = 2;
-        track->SetLineColor(Color);
-        //track->SetLineWidth(th->Width);
-        //track->SetLineStyle(th->Style);
-
-        for (int iNode = 0; iNode < ar.size(); iNode++)
-        {
-            QJsonArray el = ar[iNode].toArray();
-            if (el.size() < 3) continue; // !!!***
-            track->AddPoint(el[0].toDouble(), el[1].toDouble(), el[2].toDouble(), 0);
-        }
-        if (track->GetNpoints() > 1) GeoManager->AddTrack(track);
-        else delete track;
-    }
-
-    emit requestShowGeometry(); // !!!***
-    emit requestShowTracks();
+    loadAndShowTracks(false, iShowEvent);
 }
 
 bool APhotSimWin::updateBombHandler()
