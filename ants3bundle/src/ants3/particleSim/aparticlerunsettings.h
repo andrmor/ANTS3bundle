@@ -41,6 +41,8 @@ class AParticleRunSettings
 public:
   // ants3 only
     std::string OutputDirectory;
+    bool        SaveConfig = false;
+    std::string FileNameSaveConfig = "Config_ParticleSim.json";
 
   // ants3 and g4ants3
     int         Seed = 0;

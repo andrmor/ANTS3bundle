@@ -35,6 +35,7 @@ AParticleSimManager::~AParticleSimManager()
     delete Generator_File;
 }
 
+#include "aconfig.h"
 void AParticleSimManager::simulate(int numLocalProc)
 {
     AErrorHub::clear();
@@ -75,7 +76,12 @@ void AParticleSimManager::simulate(int numLocalProc)
 
     processReply(Reply);
 
-    if (!AErrorHub::isError()) mergeOutput(!SimSet.RunSet.AsciiOutput);
+    if (!AErrorHub::isError())
+    {
+        mergeOutput(!SimSet.RunSet.AsciiOutput);
+        if (SimSet.RunSet.SaveConfig) jstools::saveJsonToFile( AConfig::getConstInstance().JSON,
+                                                               QString(SimSet.RunSet.OutputDirectory.data()) + "/" + QString(SimSet.RunSet.FileNameSaveConfig.data()) );
+    }
 }
 
 void AParticleSimManager::abort()
@@ -147,6 +153,7 @@ void addNames(const AParticleRunSettings & settings)
     fileNames.push_back(OutputDir + '/' + settings.MonitorSettings.FileName.data());
     fileNames.push_back(OutputDir + '/' + settings.CalorimeterSettings.FileName.data());
     fileNames.push_back(OutputDir + '/' + settings.Receipt.data());
+    fileNames.push_back(OutputDir + '/' + settings.FileNameSaveConfig.data());
 
     for (const QString & fn : fileNames) QFile::remove(fn);
 }

@@ -53,6 +53,9 @@ void AParticleRunSettings::writeToJson(QJsonObject & json, bool includeG4ants3Se
 {
     json["OutputDirectory"]      = QString(OutputDirectory.data());
 
+    json["SaveConfig"]           = SaveConfig;
+    json["FileNameSaveConfig"]   = QString(FileNameSaveConfig.data());
+
     json["Seed"]                 = Seed;
 
     json["SaveTrackingHistory"]     = SaveTrackingHistory;
@@ -129,6 +132,9 @@ void AParticleRunSettings::readFromJson(const QJsonObject & json)
     clear();
 
     jstools::parseJson(json, "OutputDirectory",      OutputDirectory);
+
+    jstools::parseJson(json, "SaveConfig",           SaveConfig);
+    jstools::parseJson(json, "FileNameSaveConfig",   FileNameSaveConfig);
 
     jstools::parseJson(json, "Seed",                 Seed);
 

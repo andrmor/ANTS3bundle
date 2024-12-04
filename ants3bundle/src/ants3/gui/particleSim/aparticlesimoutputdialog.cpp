@@ -13,6 +13,8 @@ AParticleSimOutputDialog::AParticleSimOutputDialog(QWidget *parent) :
 
     ui->leOutputDirectory->setText(RunSet.OutputDirectory.data());
 
+    ui->cbSaveConfig->setChecked(RunSet.SaveConfig);
+
     ui->cobAsciiBinary->setCurrentIndex( RunSet.AsciiOutput ? 0 : 1);
     ui->sbAsciiPrecision->setValue(RunSet.AsciiPrecision);
 
@@ -48,6 +50,8 @@ AParticleSimOutputDialog::~AParticleSimOutputDialog()
 void AParticleSimOutputDialog::on_pbAccept_clicked()
 {
     RunSet.OutputDirectory = ui->leOutputDirectory->text().toLatin1().data();
+
+    RunSet.SaveConfig = ui->cbSaveConfig->isChecked();
 
     RunSet.AsciiPrecision = ui->sbAsciiPrecision->value();
     RunSet.AsciiOutput = (ui->cobAsciiBinary->currentIndex() == 0);
