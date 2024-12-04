@@ -1645,6 +1645,9 @@ void APhotSimWin::showSensorSignalTable(const std::vector<float> & signalArray, 
 
 void APhotSimWin::showBombSingleEvent()
 {
+    TGeoManager * GeoManager = AGeometryHub::getInstance().GeoManager;
+    GeoManager->ClearTracks();
+
     emit requestClearGeoMarkers(0);
 
     bool ok = updateBombHandler();
@@ -1682,6 +1685,8 @@ void APhotSimWin::showBombSingleEvent()
 
 void APhotSimWin::showTracksSingleEvent()
 {
+    emit requestClearGeoMarkers(0);
+
     const int iShowEvent = ui->sbEvent->value();
     loadAndShowTracks(false, iShowEvent);
 }
