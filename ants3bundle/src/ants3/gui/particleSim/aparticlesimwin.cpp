@@ -2947,8 +2947,8 @@ void AParticleSimWin::updateShowCalorimeterGui()
     }
 
     int maxX = p.Bins[0] - 1; ui->sbCaloX0->setMaximum(maxX); ui->sbCaloX1->setMaximum(maxX);
-    int maxY = p.Bins[1] - 1; ui->sbCaloY0->setMaximum(maxX); ui->sbCaloY1->setMaximum(maxX);
-    int maxZ = p.Bins[2] - 1; ui->sbCaloZ0->setMaximum(maxX); ui->sbCaloZ1->setMaximum(maxX);
+    int maxY = p.Bins[1] - 1; ui->sbCaloY0->setMaximum(maxY); ui->sbCaloY1->setMaximum(maxY);
+    int maxZ = p.Bins[2] - 1; ui->sbCaloZ0->setMaximum(maxZ); ui->sbCaloZ1->setMaximum(maxZ);
 
     if (ui->sbCaloX0->value() == 0 && ui->sbCaloX1->value() == 0)
     {
