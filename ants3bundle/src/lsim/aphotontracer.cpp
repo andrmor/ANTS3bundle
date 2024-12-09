@@ -321,7 +321,7 @@ EInterfaceResult APhotonTracer::processInterface()
             if (Photon.v[0]*N[0] + Photon.v[1]*N[1] + Photon.v[2]*N[2] > 0)
             {
                 // the result is Reflected from the microfacet, but the photon direction is 'Forward' --> rerun the interface with the new photon direction
-                qDebug() << "Status is 'Reflected', but the direction is forward";
+                //qDebug() << "Status is 'Reflected', but the direction is forward";
                 continue;
             }
             else
@@ -345,7 +345,7 @@ EInterfaceResult APhotonTracer::processInterface()
             if (Photon.v[0]*N[0] + Photon.v[1]*N[1] + Photon.v[2]*N[2] < 0)
             {
                 // the result is Transmitted through the microfacet, but the photon direction is 'Backward'
-                qDebug() << "Status is 'Transmitted', but the direction is backward";
+                //qDebug() << "Status is 'Transmitted', but the direction is backward";
                 if (!MaterialTo->Dielectric) return EInterfaceResult::Absorbed; // anyway absorbed
 
                 // --> reversing the interface
@@ -379,6 +379,7 @@ void APhotonTracer::reverseInterface()
     if (InterfaceRule) InterfaceRule->reverseMaterialsFromTo();
     for (int i = 0; i < 3; i++) N[i] *= -1.0;
     std::swap(MatIndexFrom, MatIndexTo);
+    InterfaceReversed = !InterfaceReversed;
 }
 
 void APhotonTracer::endTracing()

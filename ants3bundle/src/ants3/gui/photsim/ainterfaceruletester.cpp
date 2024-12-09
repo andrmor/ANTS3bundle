@@ -127,7 +127,7 @@ void AInterfaceRuleTester::on_pbProcessesVsAngle_clicked()
     double N[3], K[3];
     N[0] = 0;
     N[1] = 0;
-    N[2] = 1.0;
+    N[2] = -1.0;
 
     APhoton ph;
     Stats.clear();
@@ -158,7 +158,7 @@ void AInterfaceRuleTester::on_pbProcessesVsAngle_clicked()
 
             ph.v[0] = K[0];
             ph.v[1] = K[1];
-            ph.v[2] = K[2];
+            ph.v[2] = -K[2];
             ph.waveIndex = getWaveIndex();
 
             PhotonTracer->configureForInterfaceRuleTester(MatFrom, MatTo, Rule, N, ph);
