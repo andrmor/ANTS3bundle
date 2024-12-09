@@ -16,7 +16,7 @@ ASpectralBasicInterfaceRule::ASpectralBasicInterfaceRule(int MatFrom, int MatTo)
     ProbDiff = {0,   0};
 }
 
-AInterfaceRule::OpticalOverrideResultEnum ASpectralBasicInterfaceRule::calculate(APhoton *Photon, const double *NormalVector)
+AInterfaceRule::EInterfaceRuleResult ASpectralBasicInterfaceRule::calculate(APhoton *Photon, const double *NormalVector)
 {
     int waveIndex = Photon->waveIndex;
     if (!WaveSet.Enabled || waveIndex == -1) waveIndex = effectiveWaveIndex; //guard: if not resolved, script ovberride can in principle assign index != -1

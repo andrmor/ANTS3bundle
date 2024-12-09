@@ -7,7 +7,6 @@
 #include "arandomhub.h"
 #include "astatisticshub.h"
 #include "ainterfacerulehub.h"
-#include "ainterfacerule.h"
 #include "aphotonstatistics.h"
 #include "alightsensorevent.h"
 #include "agridhub.h"
@@ -240,19 +239,27 @@ void APhotonTracer::tracePhoton(const APhoton & phot)
 EInterfaceResult APhotonTracer::processInterface()
 {
     EInterfaceResult status = EInterfaceResult::Undefined;
+    InterfaceReversed = false;
 
     do
     {
-        const EInterRuleResult res = tryInterfaceRule();
-        bUseLocalNormal = (res == EInterRuleResult::DelegateLocalNormal);
+        const AInterfaceRule::EInterfaceRuleResult res = tryInterfaceRule();
+        if (InterfaceReversed) reverseInterface();
+        bUseLocalNormal = (InterfaceRule && InterfaceRule->LocalNormalInEffect);
 
         switch (res)
         {
-        case EInterRuleResult::NotTriggered        : bDoFresnel = true;  break;
-        case EInterRuleResult::DelegateLocalNormal : bDoFresnel = true;  break; // same as NotTriggered, but with bUseLocalNormal on
-        case EInterRuleResult::Transmitted         : bDoFresnel = false; status = EInterfaceResult::Transmitted; break;
-        case EInterRuleResult::Reflected           : bDoFresnel = false; status = EInterfaceResult::Reflected; break;// --> stack clean
-        case EInterRuleResult::Absorbed            : return EInterfaceResult::Absorbed; // --> clean stack and endTracing
+        default: qCritical() << "Interface rule returns Error status"; // skip to absorption // !!!*** add error in SimStat or abort?
+
+        case AInterfaceRule::Absorbed            :
+            if (SaveLog) PhLog.push_back( APhotonHistoryLog(Photon.r, NameFrom, VolumeIndexFrom, Photon.time, Photon.waveIndex, APhotonHistoryLog::Override_Loss, MatIndexFrom, MatIndexTo) );
+            SimStat.InterfaceRuleLoss++;
+            return EInterfaceResult::Absorbed; // finished with Absorption case!
+
+        case AInterfaceRule::NotTriggered        : bDoFresnel = true;  break;
+        case AInterfaceRule::DelegateLocalNormal : bDoFresnel = true;  break; // same as NotTriggered, but with bUseLocalNormal on
+        case AInterfaceRule::Forward             : bDoFresnel = false; status = EInterfaceResult::Transmitted; break;
+        case AInterfaceRule::Back                : bDoFresnel = false; status = EInterfaceResult::Reflected;   break;
         }
 
         //--- Interface rule not set or not triggered (but the local normal could be different from the global one! ---
@@ -264,8 +271,7 @@ EInterfaceResult APhotonTracer::processInterface()
                 // Reflection
                 status = EInterfaceResult::Reflected;
                 performReflection();
-                SimStat.FresnelReflected++;
-                if (SaveLog) PhLog.push_back( APhotonHistoryLog(Photon.r, NameFrom, VolumeIndexFrom, Photon.time, Photon.waveIndex, APhotonHistoryLog::Fresnel_Reflection, MatIndexFrom, MatIndexTo) );
+
                 if (InterfaceRule)
                 {
                     if (bUseLocalNormal) InterfaceRule->Status = AInterfaceRule::LobeReflection;
@@ -274,44 +280,107 @@ EInterfaceResult APhotonTracer::processInterface()
             }
             else
             {
-                // Transmission ---> Photon entered another volume
+                // Transmission
                 status = EInterfaceResult::Transmitted;
                 const bool ok = performRefraction();
-                if (!ok) qWarning() << "Error in photon tracker: problem with transmission!";
-                if (SaveLog) PhLog.push_back( APhotonHistoryLog(Photon.r, NameTo, VolumeIndexTo, Photon.time, Photon.waveIndex, APhotonHistoryLog::Fresnel_Transmition, MatIndexFrom, MatIndexTo) );
+                if (!ok) qWarning() << "Error in photon tracker: problem with transmission!"; // !!!*** error handling?
             }
         }
 
-        if (!bUseLocalNormal) return status; // default return: optimizing simulation usiming the interfaces are mostly using polished
+        if (!bUseLocalNormal)
+        {
+            // default return: optimizing simulation usiming the interfaces are mostly using polished
+            if (!InterfaceRule)
+            {
+                if (status == EInterfaceResult::Reflected) SimStat.FresnelReflected++;
+                else                                       SimStat.FresnelTransmitted++;
+                if (SaveLog)
+                {
+                    if (status == EInterfaceResult::Reflected) PhLog.push_back( APhotonHistoryLog(Photon.r, NameFrom, VolumeIndexFrom, Photon.time, Photon.waveIndex, APhotonHistoryLog::Fresnel_Reflection,  MatIndexFrom, MatIndexTo) );
+                    else                                       PhLog.push_back( APhotonHistoryLog(Photon.r, NameTo,   VolumeIndexTo,   Photon.time, Photon.waveIndex, APhotonHistoryLog::Fresnel_Transmition, MatIndexFrom, MatIndexTo) );
+                }
+            }
+            else
+            {
+                if (status == EInterfaceResult::Reflected) SimStat.InterfaceRuleBack++;
+                else                                       SimStat.InterfaceRuleForward++;
+                if (SaveLog)
+                {
+                    if (status == EInterfaceResult::Reflected) PhLog.push_back( APhotonHistoryLog(Photon.r, NameFrom, VolumeIndexFrom, Photon.time, Photon.waveIndex, APhotonHistoryLog::Override_Back,    MatIndexFrom, MatIndexTo) );
+                    else                                       PhLog.push_back( APhotonHistoryLog(Photon.r, NameTo,   VolumeIndexTo,   Photon.time, Photon.waveIndex, APhotonHistoryLog::Override_Forward, MatIndexFrom, MatIndexTo) );
+                }
+            }
 
+            return status;
+        }
+
+        // Only Rough surface cases remaining!
+        // Checking for complications: direction is not Back or Forward in respect to the global one
         if (status == EInterfaceResult::Reflected)
         {
             if (Photon.v[0]*N[0] + Photon.v[1]*N[1] + Photon.v[2]*N[2] > 0)
             {
                 // the result is Reflected from the microfacet, but the photon direction is 'Forward' --> rerun the interface with the new photon direction
+                qDebug() << "Status is 'Reflected', but the direction is forward";
                 continue;
             }
-            else break;
+            else
+            {
+                // ok
+                if (!InterfaceRule)
+                {
+                    SimStat.FresnelReflected++;
+                    if (SaveLog) PhLog.push_back( APhotonHistoryLog(Photon.r, NameFrom, VolumeIndexFrom, Photon.time, Photon.waveIndex, APhotonHistoryLog::Fresnel_Reflection,  MatIndexFrom, MatIndexTo) );
+                }
+                else
+                {
+                    SimStat.InterfaceRuleBack++;
+                    if (SaveLog) PhLog.push_back( APhotonHistoryLog(Photon.r, NameFrom, VolumeIndexFrom, Photon.time, Photon.waveIndex, APhotonHistoryLog::Override_Back,    MatIndexFrom, MatIndexTo) );
+                }
+                break;
+            }
         }
         else if (status == EInterfaceResult::Transmitted)
         {
             if (Photon.v[0]*N[0] + Photon.v[1]*N[1] + Photon.v[2]*N[2] < 0)
             {
                 // the result is Transmitted through the microfacet, but the photon direction is 'Backward'
+                qDebug() << "Status is 'Transmitted', but the direction is backward";
                 if (!MaterialTo->Dielectric) return EInterfaceResult::Absorbed; // anyway absorbed
 
                 // --> reversing the interface
-                if (InterfaceRule) InterfaceRule->reverseMaterialsFromTo(); // paranoid: cannot be rough surface without interfaceRule
-                for (int i = 0; i < 3; i++) N[i] *= -1.0;
+                reverseInterface();
 
                 continue;
             }
-            else break;
+            else
+            {
+                if (!InterfaceRule)
+                {
+                    SimStat.FresnelTransmitted++;
+                    if (SaveLog) PhLog.push_back( APhotonHistoryLog(Photon.r, NameTo,   VolumeIndexTo,   Photon.time, Photon.waveIndex, APhotonHistoryLog::Fresnel_Transmition, MatIndexFrom, MatIndexTo) );
+                }
+                else
+                {
+                    SimStat.InterfaceRuleForward++;
+                    if (SaveLog) PhLog.push_back( APhotonHistoryLog(Photon.r, NameTo,   VolumeIndexTo,   Photon.time, Photon.waveIndex, APhotonHistoryLog::Override_Forward, MatIndexFrom, MatIndexTo) );
+                }
+                break;
+            }
         }
     }
     while (true);
 
     return status;
+}
+
+void APhotonTracer::reverseInterface()
+{
+    if (InterfaceRule) InterfaceRule->reverseMaterialsFromTo();
+    for (int i = 0; i < 3; i++) N[i] *= -1.0;
+    std::swap(MatIndexFrom, MatIndexTo);
+    MaterialFrom = MatHub[MatIndexFrom];
+    MaterialTo   = MatHub[MatIndexTo];
 }
 
 void APhotonTracer::endTracing()
@@ -321,9 +390,9 @@ void APhotonTracer::endTracing()
 //    qDebug() << "Finished with the photon\n\n";
 }
 
-EInterRuleResult APhotonTracer::tryInterfaceRule()
+AInterfaceRule::EInterfaceRuleResult APhotonTracer::tryInterfaceRule()
 {
-    if (!InterfaceRule) return EInterRuleResult::NotTriggered;
+    if (!InterfaceRule) return AInterfaceRule::NotTriggered;
 
     if (!bHaveNormal)
     {
@@ -331,31 +400,7 @@ EInterRuleResult APhotonTracer::tryInterfaceRule()
         bHaveNormal = true;
     }
 
-    AInterfaceRule::OpticalOverrideResultEnum result = InterfaceRule->calculate(&Photon, N);
-
-    switch (result)
-    {
-    case AInterfaceRule::Absorbed:
-        if (SaveLog) PhLog.push_back( APhotonHistoryLog(Photon.r, NameFrom, VolumeIndexFrom, Photon.time, Photon.waveIndex, APhotonHistoryLog::Override_Loss, MatIndexFrom, MatIndexTo) );
-        SimStat.InterfaceRuleLoss++;
-        return EInterRuleResult::Absorbed;
-    case AInterfaceRule::Back:
-        if (SaveLog) PhLog.push_back( APhotonHistoryLog(Photon.r, NameFrom, VolumeIndexFrom, Photon.time, Photon.waveIndex, APhotonHistoryLog::Override_Back, MatIndexFrom, MatIndexTo) );
-        SimStat.InterfaceRuleBack++;
-        return EInterRuleResult::Reflected;
-    case AInterfaceRule::Forward:
-        if (SaveLog) PhLog.push_back( APhotonHistoryLog(Photon.r, NameTo, VolumeIndexTo, Photon.time, Photon.waveIndex, APhotonHistoryLog::Override_Forward, MatIndexFrom, MatIndexTo) );
-        SimStat.InterfaceRuleForward++;
-        return EInterRuleResult::Transmitted;  // stack cleaned afterwards
-    case AInterfaceRule::DelegateLocalNormal:
-        return EInterRuleResult::DelegateLocalNormal;
-    case AInterfaceRule::NotTriggered:
-        // if nothing at all happened (also local normal was NOT introduced)
-        return EInterRuleResult::NotTriggered; // stack cleaned afterwards
-    default:
-        qCritical() << "override error - doing fresnel instead!";
-        return EInterRuleResult::NotTriggered; // stack cleaned afterwards
-    }
+    return InterfaceRule->calculate(&Photon, N);
 }
 
 bool APhotonTracer::isOutsideGridBulk()
@@ -897,13 +942,15 @@ EBulkProcessResult APhotonTracer::checkBulkProcesses()
 
 void APhotonTracer::configureForInterfaceRuleTester(int fromMat, int toMat, AInterfaceRule * interfaceRule, double * globalNormal, APhoton & photon)
 {
-    MaterialFrom = MatHub[fromMat];
-    MaterialTo   = MatHub[toMat];
+    MaterialFrom = MatHub[fromMat]; // can be reversed during tests!
+    MaterialTo   = MatHub[toMat];   // can be reversed during tests!
     InterfaceRule = interfaceRule;
+    interfaceRule->updateMatIndices(fromMat, toMat); // can be reversed during tests!
     Photon = photon;
 
     bHaveNormal = true;
     N = globalNormal;
+    N[0] = 0; N[1] = 0; N[2] = -1.0; // can be reversed during tests!
     SaveLog = false;
 }
 

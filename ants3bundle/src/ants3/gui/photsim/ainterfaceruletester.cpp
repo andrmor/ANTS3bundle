@@ -258,7 +258,7 @@ void AInterfaceRuleTester::on_pbTracePhotons_clicked()
 
     //surface normal and photon direction
     TVector3 SurfNorm(0, 0, -1.0);
-    double N[3]; //needs to calculate override
+    double N[3]; //needs to calculate override   // !!!*** memory leak, see also the other two methods
     N[0] = SurfNorm.X();
     N[1] = SurfNorm.Y();
     N[2] = SurfNorm.Z();

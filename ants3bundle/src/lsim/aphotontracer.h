@@ -4,6 +4,7 @@
 #include "aphoton.h"
 #include "aphotontrackrecord.h"
 #include "aphotonhistorylog.h"
+#include "ainterfacerule.h"
 
 #include "TString.h"
 
@@ -22,7 +23,6 @@ class ALightSensorEvent;
 class TGeoNavigator;
 class TGeoVolume;
 class QTextStream;
-class AInterfaceRule;
 class TGeoNode;
 
 enum class EBulkProcessResult {NotTriggered, Absorbed, Scattered, WaveShifted};
@@ -103,6 +103,8 @@ private:
 
     bool SaveLog = false;
 
+    bool InterfaceReversed = false;
+
     bool initBeforeTracing(const APhoton & phot);
     void initTracks();
     void initPhotonLog();
@@ -115,13 +117,14 @@ private:
     void savePhotonLogRecord();
     void saveTrack();
     AInterfaceRule * getInterfaceRule() const; // can return nullptr
-    EInterRuleResult tryInterfaceRule();
+    AInterfaceRule::EInterfaceRuleResult tryInterfaceRule();
     EBulkProcessResult checkBulkProcesses();
     void checkSpecialVolume(TGeoNode * NodeAfterInterface, bool & returnEndTracingFlag);
     bool isPhotonEscaped();
     void appendToSensorLog(int ipm, double time, double x, double y, double angle, int waveIndex);
     double calculateReflectionProbability();
-    void   performReflection();
-    bool   performRefraction();
+    void performReflection();
+    bool performRefraction();
+    void reverseInterface();
 };
 #endif // APHOTONTRACER_H

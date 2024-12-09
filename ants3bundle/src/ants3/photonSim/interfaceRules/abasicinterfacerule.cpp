@@ -16,7 +16,7 @@ ABasicInterfaceRule::ABasicInterfaceRule(int MatFrom, int MatTo)
     SurfaceSettings.Model = ASurfaceSettings::Polished;
 }
 
-AInterfaceRule::OpticalOverrideResultEnum ABasicInterfaceRule::calculate(APhoton * Photon, const double * NormalVector)
+AInterfaceRule::EInterfaceRuleResult ABasicInterfaceRule::calculate(APhoton * Photon, const double * NormalVector)
 {
     double rnd = RandomHub.uniform();
 

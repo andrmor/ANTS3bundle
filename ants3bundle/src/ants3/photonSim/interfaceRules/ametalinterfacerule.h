@@ -8,7 +8,7 @@ class AMetalInterfaceRule : public AInterfaceRule
 public:    
     AMetalInterfaceRule(int MatFrom, int MatTo);
 
-    OpticalOverrideResultEnum calculate(APhoton * photon, const double * globalNormal) override;
+    EInterfaceRuleResult calculate(APhoton * photon, const double * globalNormal) override;
 
     QString getType() const override {return "DielectricToMetal";}
     QString getAbbreviation() const override {return "Met";}

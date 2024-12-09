@@ -19,7 +19,7 @@ public:
     static AInterfaceRule * interfaceRuleFactory(const QString & Model, int MatFrom, int MatTo);
     static QStringList      getAllInterfaceRuleTypes();
 
-    enum OpticalOverrideResultEnum {NotTriggered, Absorbed, Forward, Back, DelegateLocalNormal, _Error_}; //return status for photon tracing:
+    enum EInterfaceRuleResult {NotTriggered, Absorbed, Forward, Back, DelegateLocalNormal, _Error_};
     enum ScatterStatusEnum {
         Absorption,
         SpikeReflection, LobeReflection, LambertianReflection, BackscatterSpikeReflection,
@@ -33,7 +33,8 @@ public:
     virtual ~AInterfaceRule();
 
     // !!!*** to reference
-    virtual OpticalOverrideResultEnum calculate(APhoton * Photon, const double * NormalVector) = 0; //unitary vectors! iWave = -1 if not wavelength-resolved
+    // assuming that if LocalNormalInEffect is set once by calculateLocalNormal(), this flag will always remain =true
+    virtual EInterfaceRuleResult calculate(APhoton * Photon, const double * NormalVector) = 0; //unitary vectors! iWave = -1 if not wavelength-resolved
 
     virtual QString getType() const = 0;
     virtual QString getAbbreviation() const = 0; // for GUI: used to identify - must be short (<= 4 chars) - try to make unique
@@ -67,6 +68,7 @@ public:
     virtual bool canHaveRoughSurface() const {return false;}
     bool isPolishedSurface() const    {return SurfaceSettings.isPolished();}
     bool isNotPolishedSurface() const {return SurfaceSettings.isNotPolished();}
+    bool   LocalNormalInEffect = false;
     double LocalNormal[3];
     ASurfaceSettings SurfaceSettings;
 
