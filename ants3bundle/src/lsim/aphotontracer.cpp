@@ -379,8 +379,6 @@ void APhotonTracer::reverseInterface()
     if (InterfaceRule) InterfaceRule->reverseMaterialsFromTo();
     for (int i = 0; i < 3; i++) N[i] *= -1.0;
     std::swap(MatIndexFrom, MatIndexTo);
-    MaterialFrom = MatHub[MatIndexFrom];
-    MaterialTo   = MatHub[MatIndexTo];
 }
 
 void APhotonTracer::endTracing()
