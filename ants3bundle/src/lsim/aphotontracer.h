@@ -26,7 +26,6 @@ class AInterfaceRule;
 class TGeoNode;
 
 enum class EBulkProcessResult {NotTriggered, Absorbed, Scattered, WaveShifted};
-enum class EFresnelResult     {Reflected, Transmitted};
 enum class EInterRuleResult   {NotTriggered, DelegateLocalNormal, Absorbed, Reflected, Transmitted};
 enum class EInterfaceResult   {Undefined, Absorbed, Reflected, Transmitted};
 
@@ -39,12 +38,10 @@ public:
 
     void tracePhoton(const APhoton & phot);
 
-    void   configureForInterfaceRuleTester(int fromMat, int toMat, AInterfaceRule * interfaceRule, APhoton & photon);
-    double calculateReflectionProbability(); // double usage!
-    void   performReflection();              // double usage!
-    bool   performRefraction();              // double usage!   !!!*** back to interface case handling!
-    void   readBackPhoton(APhoton & photonToUpdate);
+    // the next tree methods are used by AInterfaceRuleTester
+    void             configureForInterfaceRuleTester(int fromMat, int toMat, AInterfaceRule * interfaceRule, double * globalNormal, APhoton & photon);
     EInterfaceResult processInterface();
+    void             readBackPhoton(APhoton & photonToUpdate);
 
     APhotonTrackRecord             Track;
     std::vector<APhotonHistoryLog> PhLog;
@@ -104,6 +101,8 @@ private:
 
     const int MaxNumberAttemptsGenerateReemissionWavelength = 10; // if failed within this number, photon is forced to absorption
 
+    bool SaveLog = false;
+
     bool initBeforeTracing(const APhoton & phot);
     void initTracks();
     void initPhotonLog();
@@ -116,11 +115,13 @@ private:
     void savePhotonLogRecord();
     void saveTrack();
     AInterfaceRule * getInterfaceRule() const; // can return nullptr
-    EFresnelResult tryReflection();
     EInterRuleResult tryInterfaceRule();
     EBulkProcessResult checkBulkProcesses();
     void checkSpecialVolume(TGeoNode * NodeAfterInterface, bool & returnEndTracingFlag);
     bool isPhotonEscaped();
     void appendToSensorLog(int ipm, double time, double x, double y, double angle, int waveIndex);
+    double calculateReflectionProbability();
+    void   performReflection();
+    bool   performRefraction();
 };
 #endif // APHOTONTRACER_H

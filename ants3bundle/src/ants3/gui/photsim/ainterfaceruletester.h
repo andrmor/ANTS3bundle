@@ -103,8 +103,6 @@ private:
     int      getWaveIndex();
     TVector3 getPhotonVector();
     void     reportStatistics(const AReportForOverride & rep, int numPhot);
-    double   calculateReflectionProbability(APhoton & photon) const;
-    bool     doFresnelSnell(APhoton & ph, double * normal);
 
 signals:
     void requestDraw(TObject * obj, const QString & options, bool transferOwnership, bool focusWindow);
