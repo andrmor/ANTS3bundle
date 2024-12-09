@@ -28,6 +28,7 @@ class TGeoNode;
 enum class EBulkProcessResult {NotTriggered, Absorbed, Scattered, WaveShifted};
 enum class EFresnelResult     {Reflected, Transmitted};
 enum class EInterRuleResult   {NotTriggered, DelegateLocalNormal, Absorbed, Reflected, Transmitted};
+enum class EInterfaceResult   {Undefined, Absorbed, Reflected, Transmitted};
 
 class APhotonTracer
 {
@@ -43,6 +44,7 @@ public:
     void   performReflection();              // double usage!
     bool   performRefraction();              // double usage!   !!!*** back to interface case handling!
     void   readBackPhoton(APhoton & photonToUpdate);
+    EInterfaceResult processInterface();
 
     APhotonTrackRecord             Track;
     std::vector<APhotonHistoryLog> PhLog;

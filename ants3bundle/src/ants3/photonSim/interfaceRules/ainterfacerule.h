@@ -52,6 +52,7 @@ public:
 
     //used by MatCollection when a material is removed
     void updateMatIndices(int iMatFrom, int iMatTo) {MatFrom = iMatFrom; MatTo = iMatTo;}
+    void reverseMaterialsFromTo();
 
     //called on editing end (widget above) and before sim start to avoid miss-configurations
     QString checkOverrideData(); //cannot be const - w.resolved needs rebin

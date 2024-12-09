@@ -93,6 +93,11 @@ bool AInterfaceRule::readFromJson(const QJsonObject & json)
     return doReadFromJson(json);
 }
 
+void AInterfaceRule::reverseMaterialsFromTo()
+{
+    std::swap(MatFrom, MatTo);
+}
+
 QString AInterfaceRule::checkOverrideData()
 {
     if (isNotPolishedSurface())
