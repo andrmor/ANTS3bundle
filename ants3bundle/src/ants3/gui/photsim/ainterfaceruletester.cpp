@@ -117,11 +117,12 @@ void AInterfaceRuleTester::readFromJson(const QJsonObject &json)
 
 void AInterfaceRuleTester::on_pbProcessesVsAngle_clicked()
 {
+    ui->pte->clear();
     if ( !testOverride() ) return;
 
     int numPhotons = ui->sbST_number->value();
-    std::vector<double> Back(91, 0), Forward(91, 0), Absorb(91, 0), NotTrigger(91, 0);
-    std::vector<double> Spike(91, 0), BackSpike(91, 0), BackLobe(91, 0), BackLambert(91, 0), WaveShifted(91, 0);
+    std::vector<double> Back(100, 0), Forward(100, 0), Absorb(100, 0), NotTrigger(100, 0);
+    std::vector<double> Spike(100, 0), BackSpike(100, 0), BackLobe(100, 0), BackLambert(100, 0), WaveShifted(100, 0);
     std::vector<double> Angle;
     double N[3], K[3];
     N[0] = 0;
@@ -268,8 +269,8 @@ void AInterfaceRuleTester::on_pbTracePhotons_clicked()
 
     //preparing and running cycle with photons
 
-    TH1D * histBack = new TH1D("", "Reflected", 90, 0, 90);
-    TH1D * histForw = new TH1D("", "Transmitted", 90, 0, 90);
+    TH1D * histBack = new TH1D("", "Reflected",   100, 0, 100);
+    TH1D * histForw = new TH1D("", "Transmitted", 100, 0, 100);
     histBack->GetXaxis()->SetTitle("Angle from global normal, degrees"); histBack->SetLineWidth(2); histBack->SetLineColor(2);
     histForw->GetXaxis()->SetTitle("Angle from global normal, degrees"); histForw->SetLineWidth(2);
 
@@ -481,6 +482,7 @@ TVector3 AInterfaceRuleTester::getPhotonVector()
 
 void AInterfaceRuleTester::on_pbDiffuseIrradiation_clicked()
 {
+    ui->pte->clear();
     if ( !testOverride() ) return;
 
     double N[3]; //normal
@@ -490,8 +492,8 @@ void AInterfaceRuleTester::on_pbDiffuseIrradiation_clicked()
 
     double K[3]; //photon direction - new for every photon!
 
-    TH1D * histBack = new TH1D("", "Reflected", 90, 0, 90);
-    TH1D * histForw = new TH1D("", "Transmitted", 90, 0, 90);
+    TH1D * histBack = new TH1D("", "Reflected",   100, 0, 100);
+    TH1D * histForw = new TH1D("", "Transmitted", 100, 0, 100);
     histBack->GetXaxis()->SetTitle("Angle from global normal, degrees"); histBack->SetLineWidth(2); histBack->SetLineColor(2);
     histForw->GetXaxis()->SetTitle("Angle from global normal, degrees"); histForw->SetLineWidth(2);
 
