@@ -24,15 +24,18 @@ public:
 
     EModel Model = Glisur;
 
-    //Glisur model settings
+    // Glisur model settings
     double Polish = 0.85;
 
-    //Unified model settings
+    // Unified model settings
     double SigmaAlpha = 0.1;
 
-    //CustomNormal settings
+    // CustomNormal settings
     std::vector<std::pair<double,double>> NormalDeviation;
     bool OrientationProbabilityCorrection = true;
+
+    // General settings
+    bool KillPhotonsRefractedBackward = false; // affects nly rough surface. There is a possibility for a photon to refract through a microfacet in the backward direction
 
     void writeToJson(QJsonObject & json) const;
     void readFromJson(const QJsonObject & json);

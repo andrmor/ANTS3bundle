@@ -42,6 +42,7 @@ AInterfaceRuleDialog::AInterfaceRuleDialog(AInterfaceRule * rule, int matFrom, i
     }
 
     ui->swSurfaceModel->setVisible(false);
+    ui->cbKillBackRefracted->setVisible(false);
 
     updateGui();
 
@@ -113,6 +114,7 @@ void AInterfaceRuleDialog::updateGui()
         ui->leSigmaAlphaUnified->setText(QString::number(LocalRule->SurfaceSettings.SigmaAlpha));
         ui->cbCustNorm_CorrectForOrientation->setChecked(LocalRule->SurfaceSettings.OrientationProbabilityCorrection);
         updateCustomNormalButtons();
+        ui->cbKillBackRefracted->setChecked(LocalRule->SurfaceSettings.KillPhotonsRefractedBackward);
     }
     else
     {
@@ -203,6 +205,7 @@ void AInterfaceRuleDialog::on_cobSurfaceModel_currentIndexChanged(int index)
 {
     ui->swSurfaceModel->setCurrentIndex(index);
     ui->swSurfaceModel->setVisible(index != 0);
+    ui->cbKillBackRefracted->setVisible(index != 0);
 }
 
 void AInterfaceRuleDialog::on_cobSurfaceModel_activated(int index)
@@ -364,3 +367,9 @@ void AInterfaceRuleDialog::on_cbCustNorm_CorrectForOrientation_clicked(bool chec
 {
     LocalRule->SurfaceSettings.OrientationProbabilityCorrection = checked;
 }
+
+void AInterfaceRuleDialog::on_cbKillBackRefracted_clicked(bool checked)
+{
+    LocalRule->SurfaceSettings.KillPhotonsRefractedBackward = checked;
+}
+

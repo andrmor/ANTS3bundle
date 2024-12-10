@@ -80,6 +80,8 @@ QString ASurfaceSettings::getDescription() const
 
 void ASurfaceSettings::writeToJson(QJsonObject & json) const
 {
+    json["KillPhotonsRefractedBackward"] = KillPhotonsRefractedBackward;
+
     QString str;
     switch (Model)
     {
@@ -110,6 +112,8 @@ void ASurfaceSettings::writeToJson(QJsonObject & json) const
 
 void ASurfaceSettings::readFromJson(const QJsonObject & json)
 {
+    jstools::parseJson(json, "KillPhotonsRefractedBackward", KillPhotonsRefractedBackward);
+
     QString str;
     jstools::parseJson(json, "Model", str);
     if      (str == "Polished")        Model = Polished;

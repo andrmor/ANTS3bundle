@@ -304,9 +304,10 @@ EInterfaceResult APhotonTracer::processInterface()
                 // the result is Transmitted through the microfacet, but the photon direction is 'Backward'
                 qDebug() << "Status is 'Transmitted', but the direction is backward";
                 if (!MaterialTo->Dielectric) return EInterfaceResult::Absorbed; // !!! considering all metals not transparent
+                if (InterfaceRule->SurfaceSettings.KillPhotonsRefractedBackward) return EInterfaceResult::Absorbed; // !!!*** consider special case in SimStats
 
                 // too complaex to handle this case locally, need to send the photon to the next iteration as transmitted,
-                // but due to the "backward" direxction it will arrive at the same interface again
+                // but due to the "backward" direction it will arrive at the same interface again
                 // !!! AInterfaceRuleTester has to be aware of this possibility !!!
             }
             else break; // direction is ok, done

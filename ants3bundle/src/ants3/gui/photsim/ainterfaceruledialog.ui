@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>461</width>
-    <height>373</height>
+    <height>404</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -266,7 +266,7 @@
          <enum>QFrame::Shape::NoFrame</enum>
         </property>
         <property name="currentIndex">
-         <number>0</number>
+         <number>1</number>
         </property>
         <widget class="QWidget" name="page"/>
         <widget class="QWidget" name="page_3">
@@ -512,6 +512,26 @@ Select the angle units before load!</string>
          </layout>
         </widget>
        </widget>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_10">
+        <property name="leftMargin">
+         <number>10</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <item>
+         <widget class="QCheckBox" name="cbKillBackRefracted">
+          <property name="toolTip">
+           <string>e.g. back-painted material</string>
+          </property>
+          <property name="text">
+           <string>Photons refracted back towards the interface are absorbed</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </item>
      </layout>
     </widget>

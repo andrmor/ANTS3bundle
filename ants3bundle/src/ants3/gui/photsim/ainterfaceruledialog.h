@@ -46,8 +46,8 @@ private slots:
     void on_pbShowCustomNormalDistribution_clicked();
     void on_pbRemoveCustomNormalDistribution_clicked();
     void on_cbCustNorm_CorrectForOrientation_clicked(bool checked);
-
     void on_pbShowCustomNormalDistribution_customContextMenuRequested(const QPoint &pos);
+    void on_cbKillBackRefracted_clicked(bool checked);
 
 protected:
     void closeEvent(QCloseEvent * e);
