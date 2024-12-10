@@ -126,5 +126,6 @@ private:
     void performReflection();
     bool performRefraction();
     void reverseInterface();
+    void fillSimStatAndLog(EInterfaceResult status);
 };
 #endif // APHOTONTRACER_H
