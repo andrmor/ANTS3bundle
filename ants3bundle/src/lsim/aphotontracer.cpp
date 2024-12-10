@@ -906,12 +906,10 @@ void APhotonTracer::configureForInterfaceRuleTester(int fromMat, int toMat, AInt
     MaterialFrom = MatHub[fromMat]; // can be reversed during tests!
     MaterialTo   = MatHub[toMat];   // can be reversed during tests!
     InterfaceRule = interfaceRule;
-    interfaceRule->updateMatIndices(fromMat, toMat); // can be reversed during tests!
     Photon = photon;
 
     bHaveNormal = true;
     N = globalNormal;
-    N[0] = 0; N[1] = 0; N[2] = -1.0; // can be reversed during tests!
     SaveLog = false;
 }
 
