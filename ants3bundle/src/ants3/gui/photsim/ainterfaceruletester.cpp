@@ -167,8 +167,8 @@ void AInterfaceRuleTester::on_pbProcessesVsAngle_clicked()
             {
             case EInterfaceResult::Undefined   : NotTrigger[iAngle]++; continue;
             case EInterfaceResult::Absorbed    : Absorb[iAngle]++;     continue;
-            case EInterfaceResult::Reflected   : Forward[iAngle]++;    break;
-            case EInterfaceResult::Transmitted : Back[iAngle]++;       break;
+            case EInterfaceResult::Transmitted : Forward[iAngle]++;    break;
+            case EInterfaceResult::Reflected   : Back[iAngle]++;       break;
             }
             PhotonTracer->readBackPhoton(ph);
 
