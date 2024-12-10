@@ -217,10 +217,11 @@ void APhotonTracer::tracePhoton(const APhoton & phot)
             break;
         case EInterfaceResult::Undefined :
             Navigator->PopDummy(); // cleaning stack
-            qCritical() << "Unexpected EInterfaceResult::Undefined";
+            qCritical() << "Unexpected EInterfaceResult::Undefined"; // !!!*** error handling
             break;
         }
 
+        //--- Transfer to the next volume is confirmed ---
         if (bGridShiftOn && Step > 0.001) exitGrid(); // before refactor it was called before doFresnel-case transmission
 
         bool returnEndTracingFlag = false;
@@ -245,6 +246,7 @@ EInterfaceResult APhotonTracer::processInterface()
         const AInterfaceRule::EInterfaceRuleResult res = tryInterfaceRule();
         bUseLocalNormal = (InterfaceRule && InterfaceRule->isNotPolishedSurface());
 
+        bool bDoFresnel;
         switch (res)
         {
         default: qCritical() << "Interface rule returns Error status"; // skip to absorption // !!!*** add error in SimStat or abort?
@@ -431,11 +433,7 @@ void APhotonTracer::checkSpecialVolume(TGeoNode * NodeAfterInterface, bool & ret
     {
         const int iSensor = NodeAfterInterface->GetNumber();
         //qDebug()<< "Sensor hit! (" << ThisVolume->GetTitle() <<") Sensor name:"<< ThisVolume->GetName() << "Sensor index" << iSensor;
-        if (SaveLog)
-        {
-            //PhLog.push_back( APhotonHistoryLog(Navigator->GetCurrentPoint(), NameTo, VolumeIndexTo, Photon.time, Photon.waveIndex, APhotonHistoryLog::Fresnel_Transmition, MatIndexFrom, MatIndexTo) );
-            PhLog.push_back( APhotonHistoryLog(Navigator->GetCurrentPoint(), NameTo, VolumeIndexTo, Photon.time, Photon.waveIndex, APhotonHistoryLog::HitSensor, -1, -1, iSensor) );
-        }
+        if (SaveLog) PhLog.push_back( APhotonHistoryLog(Navigator->GetCurrentPoint(), NameTo, VolumeIndexTo, Photon.time, Photon.waveIndex, APhotonHistoryLog::HitSensor, -1, -1, iSensor) );
         Track.HitSensor = true;
         processSensorHit(iSensor);
         SimStat.HitSensor++;
@@ -993,7 +991,7 @@ void APhotonTracer::processSensorHit(int iSensor)
         exit(222);
     }
 
-    double local[3];//if no area dep or not SiPM - local content is undefined!
+    double local[3]; //if no area dep or not SiPM - content of the local is undefined!
     if (model->isAreaSensitive() || model->SiPM || (SimSet.RunSet.SaveSensorLog && SimSet.RunSet.SensorLogXY) )
     {
         const double * global = Navigator->GetCurrentPoint();
@@ -1001,32 +999,27 @@ void APhotonTracer::processSensorHit(int iSensor)
         //qDebug()<<local[0]<<local[1];
     }
 
-    //since we check vs cos of _refracted_:
-    if (bDoFresnel) performRefraction(); // true - successful  // !!!*** now can use local normal! - check
+    // angular dependence: check vs cos of refracted
+    // !!!*** TODO for metals as the sensor material
     Navigator->SetCurrentDirection(Photon.v);
     if (!bHaveNormal) N = Navigator->FindNormal(false);
     //       qDebug()<<N[0]<<N[1]<<N[2]<<"Normal length is:"<<sqrt(N[0]*N[0]+N[1]*N[1]+N[2]*N[2]);
     //       qDebug()<<K[0]<<K[1]<<K[2]<<"Dir vector length is:"<<sqrt(K[0]*K[0]+K[1]*K[1]+K[2]*K[2]);
     double cosAngle = 0;
-    for (int i=0; i<3; i++) cosAngle += N[i] * Photon.v[i];
+    for (int i = 0; i < 3; i++) cosAngle += N[i] * Photon.v[i];
     //       qDebug()<<"cos() = "<<cosAngle;
     double angle = 0;
     if ( !model->AngularBinned.empty() ||
          SimSet.RunSet.SaveStatistics ||
-         (SimSet.RunSet.SaveSensorLog && SimSet.RunSet.SensorLogAngle) )
-    {
-        // !!!*** TODO for metals!
-        angle = TMath::ACos(cosAngle)*180.0/3.1415926535;
-    }
+         (SimSet.RunSet.SaveSensorLog && SimSet.RunSet.SensorLogAngle) ) angle = TMath::ACos(cosAngle)*180.0/3.1415926535;
 
-    if (!SimSet.OptSet.CheckQeBeforeTracking) Rnd = RandomHub.uniform(); //else already calculated
-    const bool bDetected = Event.checkSensorHit(iSensor, Photon.time, Photon.waveIndex, local[0], local[1], angle, TransitionCounter, Rnd);
+    if (!SimSet.OptSet.CheckQeBeforeTracking) Rnd = RandomHub.uniform(); // else already have a value
+    bool bDetected = Event.checkSensorHit(iSensor, Photon.time, Photon.waveIndex, local[0], local[1], angle, TransitionCounter, Rnd);
 
     if (bDetected && SimSet.RunSet.SaveSensorLog)
         appendToSensorLog(iSensor, Photon.time, local[0], local[1], angle, Photon.waveIndex);
 
-    if (SaveLog)
-        PhLog.push_back( APhotonHistoryLog(Navigator->GetCurrentPoint(), Navigator->GetCurrentVolume()->GetName(), Navigator->GetCurrentNode()->GetNumber(), Photon.time, Photon.waveIndex, (bDetected ? APhotonHistoryLog::Detected : APhotonHistoryLog::NotDetected), -1, -1, iSensor) );
+    if (SaveLog) PhLog.push_back( APhotonHistoryLog(Navigator->GetCurrentPoint(), Navigator->GetCurrentVolume()->GetName(), Navigator->GetCurrentNode()->GetNumber(), Photon.time, Photon.waveIndex, (bDetected ? APhotonHistoryLog::Detected : APhotonHistoryLog::NotDetected), -1, -1, iSensor) );
 }
 
 void APhotonTracer::appendToSensorLog(int ipm, double time, double x, double y, double angle, int waveIndex)

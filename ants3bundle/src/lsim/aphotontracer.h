@@ -57,7 +57,7 @@ private:
     APhotonStatistics        & SimStat;
 
     // external resources
-    ALightSensorEvent                & Event;
+    ALightSensorEvent        & Event;
     QTextStream*             & StreamTracks;
     QTextStream*             & StreamSensorLog;
     QTextStream*             & StreamPhotonLog;
@@ -71,11 +71,9 @@ private:
     double   Rnd;                   // pre-generated random number for accelerated mode
     double   Step;
     double * N = nullptr;           //normal vector to the surface - returned by TGeo
-    double   LocalN[3];             //local normal vector to the surface - only if the interface rule defines it!
     bool     bHaveNormal = false;
     int      MatIndexFrom;          // material index of the current medium or medium before the interface
     int      MatIndexTo;            // material index of the medium after interface
-    bool     bDoFresnel;            // flag - to perform or not the fresnel calculation on the interface
     TString  NameFrom;
     int      VolumeIndexFrom;
     TString  NameTo;
@@ -86,7 +84,6 @@ private:
     const TGeoVolume * VolumeTo     = nullptr;
     const AMaterial  * MaterialFrom = nullptr; // material before the interface
     const AMaterial  * MaterialTo   = nullptr; // material after the interface
-    //TGeoNode         * NodeAfter    = nullptr; // node after interface
 
     bool               bGridShiftOn = false;
     double             R_afterStep[3];
@@ -95,7 +92,7 @@ private:
     const TGeoVolume * GridVolume = nullptr;         // the grid bulk
 
     AInterfaceRule * InterfaceRule = nullptr;
-    bool    bUseLocalNormal = false;
+    bool bUseLocalNormal = false;
 
     double _MaxQE = 1.0;
 
