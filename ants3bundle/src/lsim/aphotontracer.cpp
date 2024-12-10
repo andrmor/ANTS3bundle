@@ -239,12 +239,10 @@ void APhotonTracer::tracePhoton(const APhoton & phot)
 EInterfaceResult APhotonTracer::processInterface()
 {
     EInterfaceResult status = EInterfaceResult::Undefined;
-    InterfaceReversed = false;
 
     do
     {
         const AInterfaceRule::EInterfaceRuleResult res = tryInterfaceRule();
-        if (InterfaceReversed) reverseInterface();
         bUseLocalNormal = (InterfaceRule && InterfaceRule->LocalNormalInEffect);
 
         switch (res)
@@ -268,10 +266,8 @@ EInterfaceResult APhotonTracer::processInterface()
             const double prob = calculateReflectionProbability();
             if (RandomHub.uniform() < prob)
             {
-                // Reflection
                 status = EInterfaceResult::Reflected;
                 performReflection();
-
                 if (InterfaceRule)
                 {
                     if (bUseLocalNormal) InterfaceRule->Status = AInterfaceRule::LobeReflection;
@@ -280,106 +276,72 @@ EInterfaceResult APhotonTracer::processInterface()
             }
             else
             {
-                // Transmission
                 status = EInterfaceResult::Transmitted;
                 const bool ok = performRefraction();
                 if (!ok) qWarning() << "Error in photon tracker: problem with transmission!"; // !!!*** error handling?
             }
         }
 
-        if (!bUseLocalNormal)
-        {
-            // default return: optimizing simulation usiming the interfaces are mostly using polished
-            if (!InterfaceRule)
-            {
-                if (status == EInterfaceResult::Reflected) SimStat.FresnelReflected++;
-                else                                       SimStat.FresnelTransmitted++;
-                if (SaveLog)
-                {
-                    if (status == EInterfaceResult::Reflected) PhLog.push_back( APhotonHistoryLog(Photon.r, NameFrom, VolumeIndexFrom, Photon.time, Photon.waveIndex, APhotonHistoryLog::Fresnel_Reflection,  MatIndexFrom, MatIndexTo) );
-                    else                                       PhLog.push_back( APhotonHistoryLog(Photon.r, NameTo,   VolumeIndexTo,   Photon.time, Photon.waveIndex, APhotonHistoryLog::Fresnel_Transmition, MatIndexFrom, MatIndexTo) );
-                }
-            }
-            else
-            {
-                if (status == EInterfaceResult::Reflected) SimStat.InterfaceRuleBack++;
-                else                                       SimStat.InterfaceRuleForward++;
-                if (SaveLog)
-                {
-                    if (status == EInterfaceResult::Reflected) PhLog.push_back( APhotonHistoryLog(Photon.r, NameFrom, VolumeIndexFrom, Photon.time, Photon.waveIndex, APhotonHistoryLog::Override_Back,    MatIndexFrom, MatIndexTo) );
-                    else                                       PhLog.push_back( APhotonHistoryLog(Photon.r, NameTo,   VolumeIndexTo,   Photon.time, Photon.waveIndex, APhotonHistoryLog::Override_Forward, MatIndexFrom, MatIndexTo) );
-                }
-            }
-
-            return status;
-        }
+        if (!bUseLocalNormal) break; // finished
 
         // Only Rough surface cases remaining!
         // Checking for complications: direction is not Back or Forward in respect to the global one
+        // tests have to be performed with Global normal (not reversed in case of backPropagation!)
         if (status == EInterfaceResult::Reflected)
         {
             if (Photon.v[0]*N[0] + Photon.v[1]*N[1] + Photon.v[2]*N[2] > 0)
             {
-                // the result is Reflected from the microfacet, but the photon direction is 'Forward' --> rerun the interface with the new photon direction
+                // the result is Reflected from the microfacet, but the photon direction is 'Forward'
                 //qDebug() << "Status is 'Reflected', but the direction is forward";
-                continue;
+                continue; // rerun the interface with the new photon direction
             }
-            else
-            {
-                // ok
-                if (!InterfaceRule)
-                {
-                    SimStat.FresnelReflected++;
-                    if (SaveLog) PhLog.push_back( APhotonHistoryLog(Photon.r, NameFrom, VolumeIndexFrom, Photon.time, Photon.waveIndex, APhotonHistoryLog::Fresnel_Reflection,  MatIndexFrom, MatIndexTo) );
-                }
-                else
-                {
-                    SimStat.InterfaceRuleBack++;
-                    if (SaveLog) PhLog.push_back( APhotonHistoryLog(Photon.r, NameFrom, VolumeIndexFrom, Photon.time, Photon.waveIndex, APhotonHistoryLog::Override_Back,    MatIndexFrom, MatIndexTo) );
-                }
-                break;
-            }
+            else break; // direction is ok, done
         }
         else if (status == EInterfaceResult::Transmitted)
         {
             if (Photon.v[0]*N[0] + Photon.v[1]*N[1] + Photon.v[2]*N[2] < 0)
             {
                 // the result is Transmitted through the microfacet, but the photon direction is 'Backward'
-                //qDebug() << "Status is 'Transmitted', but the direction is backward";
-                if (!MaterialTo->Dielectric) return EInterfaceResult::Absorbed; // anyway absorbed
+                qDebug() << "Status is 'Transmitted', but the direction is backward";
+                if (!MaterialTo->Dielectric) return EInterfaceResult::Absorbed; // !!! considering all metals not transparent
 
-                // --> reversing the interface
-                reverseInterface();
-
-                continue;
+                // too complaex to handle this case locally, need to send the photon to the next iteration as transmitted,
+                // but due to the "backward" direxction it will arrive at the same interface again
+                // !!! AInterfaceRuleTester has to be aware of this possibility !!!
             }
-            else
-            {
-                if (!InterfaceRule)
-                {
-                    SimStat.FresnelTransmitted++;
-                    if (SaveLog) PhLog.push_back( APhotonHistoryLog(Photon.r, NameTo,   VolumeIndexTo,   Photon.time, Photon.waveIndex, APhotonHistoryLog::Fresnel_Transmition, MatIndexFrom, MatIndexTo) );
-                }
-                else
-                {
-                    SimStat.InterfaceRuleForward++;
-                    if (SaveLog) PhLog.push_back( APhotonHistoryLog(Photon.r, NameTo,   VolumeIndexTo,   Photon.time, Photon.waveIndex, APhotonHistoryLog::Override_Forward, MatIndexFrom, MatIndexTo) );
-                }
-                break;
-            }
+            else break; // direction is ok, done
         }
     }
     while (true);
 
+    fillSimStatAndLog(status);
     return status;
 }
 
-void APhotonTracer::reverseInterface()
+void APhotonTracer::fillSimStatAndLog(EInterfaceResult status)
 {
-    if (InterfaceRule) InterfaceRule->reverseMaterialsFromTo();
-    for (int i = 0; i < 3; i++) N[i] *= -1.0;
-    std::swap(MatIndexFrom, MatIndexTo);
-    InterfaceReversed = !InterfaceReversed;
+    if (!InterfaceRule)
+    {
+        if (status == EInterfaceResult::Reflected) SimStat.FresnelReflected++;
+        else                                       SimStat.FresnelTransmitted++;
+
+        if (SaveLog)
+        {
+            if (status == EInterfaceResult::Reflected) PhLog.push_back( APhotonHistoryLog(Photon.r, NameFrom, VolumeIndexFrom, Photon.time, Photon.waveIndex, APhotonHistoryLog::Fresnel_Reflection,  MatIndexFrom, MatIndexTo) );
+            else                                       PhLog.push_back( APhotonHistoryLog(Photon.r, NameTo,   VolumeIndexTo,   Photon.time, Photon.waveIndex, APhotonHistoryLog::Fresnel_Transmition, MatIndexFrom, MatIndexTo) );
+        }
+    }
+    else
+    {
+        if (status == EInterfaceResult::Reflected) SimStat.InterfaceRuleBack++;
+        else                                       SimStat.InterfaceRuleForward++;
+
+        if (SaveLog)
+        {
+            if (status == EInterfaceResult::Reflected) PhLog.push_back( APhotonHistoryLog(Photon.r, NameFrom, VolumeIndexFrom, Photon.time, Photon.waveIndex, APhotonHistoryLog::Override_Back,    MatIndexFrom, MatIndexTo) );
+            else                                       PhLog.push_back( APhotonHistoryLog(Photon.r, NameTo,   VolumeIndexTo,   Photon.time, Photon.waveIndex, APhotonHistoryLog::Override_Forward, MatIndexFrom, MatIndexTo) );
+        }
+    }
 }
 
 void APhotonTracer::endTracing()

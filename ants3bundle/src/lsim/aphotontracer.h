@@ -103,8 +103,6 @@ private:
 
     bool SaveLog = false;
 
-    bool InterfaceReversed = false;
-
     bool initBeforeTracing(const APhoton & phot);
     void initTracks();
     void initPhotonLog();
@@ -125,7 +123,6 @@ private:
     double calculateReflectionProbability();
     void performReflection();
     bool performRefraction();
-    void reverseInterface();
     void fillSimStatAndLog(EInterfaceResult status);
 };
 #endif // APHOTONTRACER_H
