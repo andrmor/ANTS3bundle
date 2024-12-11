@@ -14,6 +14,8 @@ class AInterfaceRule;
 class QJsonObject;
 class AMaterialHub;
 
+// !!!*** check memory leak on rule replacement!
+
 class AInterfaceRuleHub : public QObject
 {
     Q_OBJECT
@@ -32,10 +34,12 @@ public:
 
     void updateVolumesFromTo();  // run it before filling GeoManager
     bool isFromVolume(const TString & name) const;
-    bool isToVolume(const TString &name) const;
+    bool isToVolume(const TString & name) const;
 
     AInterfaceRule * getMaterialRuleFast(int MatFrom, int MatTo) const {return MaterialRules[MatFrom][MatTo];} // TODO: size_t and const !!!***
     AInterfaceRule * getVolumeRule(const TString & from, const TString & to) const;
+
+    bool setMaterialRule(int matFrom, int matTo, AInterfaceRule * rule);
 
     void setVolumeRule(const TString & from, const TString & to, AInterfaceRule * rule);
     void removeVolumeRule(const TString & from, const TString & to);

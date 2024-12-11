@@ -76,6 +76,7 @@ void AInterfaceRule::writeToJson(QJsonObject & json) const
     json["Model"]   = getType();
     json["MatFrom"] = MatFrom;
     json["MatTo"]   = MatTo;
+    json["Symmetric"]   = Symmetric;
 
     QJsonObject jsurf;
     SurfaceSettings.writeToJson(jsurf);
@@ -86,6 +87,8 @@ void AInterfaceRule::writeToJson(QJsonObject & json) const
 
 bool AInterfaceRule::readFromJson(const QJsonObject & json)
 {
+    jstools::parseJson(json, "Symmetric", Symmetric);
+
     QJsonObject jsurf;
     jstools::parseJson(json, "SurfaceProperties", jsurf);
     SurfaceSettings.readFromJson(jsurf);

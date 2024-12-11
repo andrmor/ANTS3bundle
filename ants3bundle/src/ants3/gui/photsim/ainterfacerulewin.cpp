@@ -169,10 +169,43 @@ void AInterfaceRuleWin::onMatCellDoubleClicked()
     RuleDialog->show();
 }
 
+#include "guitools.h"
 void AInterfaceRuleWin::OnRuleDialogAccepted_Mat()
 {
     if (!RuleDialog) return;
-    RuleHub.MaterialRules[RuleDialog->MatFrom][RuleDialog->MatTo] = RuleDialog->getRule();
+
+    AInterfaceRule * rule = RuleDialog->getRule();
+    RuleHub.setMaterialRule(RuleDialog->MatFrom, RuleDialog->MatTo, rule);
+
+    if (RuleDialog->MatFrom != RuleDialog->MatTo)
+    {
+        if (RuleDialog->isSetSymmetric())
+        {
+            AInterfaceRule * ruleCopy = nullptr;
+            if (rule)
+            {
+                // cloning the rule
+                QJsonObject json;
+                rule->writeToJson(json);
+                ruleCopy = AInterfaceRule::interfaceRuleFactory(rule->getType(), RuleDialog->MatTo, RuleDialog->MatFrom); // reversed materials!
+                bool ok = false;
+                if (ruleCopy) ok = ruleCopy->readFromJson(json);
+                if (!ok)
+                {
+                    guitools::message("Failed to clone the interface rule!", this);
+                    return;
+                }
+            }
+            RuleHub.setMaterialRule(RuleDialog->MatTo, RuleDialog->MatFrom, ruleCopy); // reversed materials!
+        }
+        else
+        {
+            // synchronize not-symmetric in case the reversed one has this flag on
+            AInterfaceRule * reverseRule = RuleHub.getMaterialRuleFast(RuleDialog->MatTo, RuleDialog->MatFrom);
+            if (reverseRule) reverseRule->Symmetric = false;
+        }
+    }
+
     updateMatGui();
     delete RuleDialog; RuleDialog = nullptr;
 }
