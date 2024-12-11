@@ -56,7 +56,7 @@ public:
     void reverseMaterialsFromTo();
 
     //called on editing end (widget above) and before sim start to avoid miss-configurations
-    QString checkOverrideData(); //cannot be const - w.resolved needs rebin
+    QString checkOverrideData(); //cannot be const - w.resolved needs rebin // !!!*** rename / refactor to make obvious update of runtime data
 
     bool Symmetric = false; // auto-update the rule in the opposote direction, does not affect update from the script!
 

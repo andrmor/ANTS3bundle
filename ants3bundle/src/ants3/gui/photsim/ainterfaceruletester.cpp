@@ -162,8 +162,7 @@ void AInterfaceRuleTester::on_pbProcessesVsAngle_clicked()
             ph.v[2] = -K[2];
             ph.waveIndex = getWaveIndex();
 
-            PhotonTracer->configureForInterfaceRuleTester(MatFrom, MatTo, Rule, N, ph);
-            EInterfaceResult result = PhotonTracer->processInterface();
+            EInterfaceResult result = runSinglePhoton(N, ph);
             switch (result)
             {
             case EInterfaceResult::Undefined   : NotTrigger[iAngle]++; continue;
@@ -171,7 +170,6 @@ void AInterfaceRuleTester::on_pbProcessesVsAngle_clicked()
             case EInterfaceResult::Transmitted : Forward[iAngle]++;    break;
             case EInterfaceResult::Reflected   : Back[iAngle]++;       break;
             }
-            PhotonTracer->readBackPhoton(ph);
 
             switch (Rule->Status)
             {
@@ -267,7 +265,7 @@ EInterfaceResult AInterfaceRuleTester::runSinglePhoton(double * globalNormal, AP
         return EInterfaceResult::Absorbed;
     }
 
-    qDebug() << "\"Bad photon\":"  << photon.v[0] << photon.v[1] << photon.v[2] << (int)result << "<-0123 is Undefined, Absorbed, Reflected, Transmitted";
+    //qDebug() << "\"Bad photon\":"  << photon.v[0] << photon.v[1] << photon.v[2] << (int)result << "<-0123 is Undefined, Absorbed, Reflected, Transmitted";
 
     std::array<double,3> reversedNormal;
     for (size_t i = 0; i < 3; i++) reversedNormal[i] = -globalNormal[i];
@@ -315,10 +313,7 @@ EInterfaceResult AInterfaceRuleTester::runSinglePhoton(double * globalNormal, AP
     }
     while (true);
 
-    qDebug() << "After:" << photon.v[0] << photon.v[1] << photon.v[2] << (int)result << "<-0123 is Undefined, Absorbed, Reflected, Transmitted";
-
-    photon.v[0] = 0.707106781; photon.v[1] = 0; photon.v[2] = 0.707106781;
-
+    //qDebug() << "After:" << photon.v[0] << photon.v[1] << photon.v[2] << (int)result << "<-0123 is Undefined, Absorbed, Reflected, Transmitted";
     return result;
 }
 
@@ -522,7 +517,7 @@ bool AInterfaceRuleTester::beforeRun()
         return false;
     }
 
-    QString err = Rule->checkOverrideData();
+    QString err = Rule->checkOverrideData(); // also prepares runtime
     if (!err.isEmpty())
     {
         guitools::message("Override reports an error:\n" + err, this);
@@ -540,6 +535,12 @@ bool AInterfaceRuleTester::beforeRun()
         if (!ok)
         {
             guitools::message("Failed to create the reverse interface rule!", this);
+            return false;
+        }
+        QString err = ReverseRule->checkOverrideData(); // also prepares runtime
+        if (!err.isEmpty())
+        {
+            guitools::message("Reverse rule error:\n" + err, this);
             return false;
         }
     }
@@ -614,8 +615,7 @@ void AInterfaceRuleTester::on_pbDiffuseIrradiation_clicked()
 
         bool bBack = false;
         bool bForw = false;
-        PhotonTracer->configureForInterfaceRuleTester(MatFrom, MatTo, Rule, N, ph);
-        EInterfaceResult result = PhotonTracer->processInterface();
+        EInterfaceResult result = runSinglePhoton(N, ph);
         switch (result)
         {
         case EInterfaceResult::Undefined   : rep.error++;               continue;
@@ -623,7 +623,6 @@ void AInterfaceRuleTester::on_pbDiffuseIrradiation_clicked()
         case EInterfaceResult::Transmitted : rep.forw++;  bForw = true; break;
         case EInterfaceResult::Reflected   : rep.back++;  bBack = true; break;
         }
-        PhotonTracer->readBackPhoton(ph);
 
         if      (Rule->Status == AInterfaceRule::SpikeReflection)            rep.Bspike++;
         else if (Rule->Status == AInterfaceRule::BackscatterSpikeReflection) rep.Bbackspike++;
