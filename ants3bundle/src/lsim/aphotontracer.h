@@ -26,8 +26,6 @@ class QTextStream;
 class TGeoNode;
 
 enum class EBulkProcessResult {NotTriggered, Absorbed, Scattered, WaveShifted};
-enum class EInterRuleResult   {NotTriggered, DelegateLocalNormal, Absorbed, Reflected, Transmitted};
-enum class EInterfaceResult   {Undefined, Absorbed, Reflected, Transmitted};
 
 class APhotonTracer
 {

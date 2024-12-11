@@ -308,9 +308,10 @@ EInterfaceResult APhotonTracer::processInterface()
                 if (!MaterialTo->Dielectric) return EInterfaceResult::Absorbed; // !!! considering all metals not transparent
                 if (InterfaceRule->SurfaceSettings.KillPhotonsRefractedBackward) return EInterfaceResult::Absorbed; // !!!*** consider special case in SimStats
 
-                // too complaex to handle this case locally, need to send the photon to the next iteration as transmitted,
+                // too complex to handle this case locally, need to send the photon to the next iteration as transmitted,
                 // but due to the "backward" direction it will arrive at the same interface again
                 // !!! AInterfaceRuleTester has to be aware of this possibility !!!
+                break;
             }
             else break; // direction is ok, done
         }

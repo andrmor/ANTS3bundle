@@ -58,7 +58,7 @@ public:
     //called on editing end (widget above) and before sim start to avoid miss-configurations
     QString checkOverrideData(); //cannot be const - w.resolved needs rebin
 
-    bool Symmetric = true; // auto-update the rule in the opposote direction, does not affect update from the script!
+    bool Symmetric = false; // auto-update the rule in the opposote direction, does not affect update from the script!
 
     // read-out variables for standalone checker only (not multithreaded)
     ScatterStatusEnum Status;               // type of interaction which happened - use in 1 thread only!

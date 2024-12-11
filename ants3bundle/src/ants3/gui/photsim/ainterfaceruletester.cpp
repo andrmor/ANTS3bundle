@@ -97,6 +97,7 @@ AInterfaceRuleTester::~AInterfaceRuleTester()
 
     delete PhotonTracer;
     delete DummyLightSensorEvent;
+    delete ReverseRule;
 }
 
 void AInterfaceRuleTester::writeToJson(QJsonObject &json) const
@@ -118,7 +119,7 @@ void AInterfaceRuleTester::readFromJson(const QJsonObject &json)
 void AInterfaceRuleTester::on_pbProcessesVsAngle_clicked()
 {
     ui->pte->clear();
-    if ( !testOverride() ) return;
+    if ( !beforeRun() ) return;
 
     int numPhotons = ui->sbST_number->value();
     std::vector<double> Back(100, 0), Forward(100, 0), Absorb(100, 0), NotTrigger(100, 0);
@@ -250,9 +251,80 @@ void AInterfaceRuleTester::on_pbProcessesVsAngle_clicked()
     setEnabled(true);
 }
 
+EInterfaceResult AInterfaceRuleTester::runSinglePhoton(double * globalNormal, APhoton & photon)
+{
+    PhotonTracer->configureForInterfaceRuleTester(MatFrom, MatTo, Rule, globalNormal, photon);
+    EInterfaceResult result = PhotonTracer->processInterface();
+    PhotonTracer->readBackPhoton(photon);
+
+    // have to catch for rough surface: Status is 'Transmitted', but the direction is backward
+    if (result != EInterfaceResult::Transmitted) return result;
+    if (photon.v[0]*globalNormal[0] + photon.v[1]*globalNormal[1] + photon.v[2]*globalNormal[2] > 0) return result; // good direction
+
+    if (!Rule || Rule->isPolishedSurface())
+    {
+        qWarning() << "Unexpected 'transmitted with wrong direction' environment!";
+        return EInterfaceResult::Absorbed;
+    }
+
+    qDebug() << "\"Bad photon\":"  << photon.v[0] << photon.v[1] << photon.v[2] << (int)result << "<-0123 is Undefined, Absorbed, Reflected, Transmitted";
+
+    std::array<double,3> reversedNormal;
+    for (size_t i = 0; i < 3; i++) reversedNormal[i] = -globalNormal[i];
+
+    double reversed = true;
+    do
+    {
+        if (reversed)
+        {
+            PhotonTracer->configureForInterfaceRuleTester(MatTo, MatFrom, ReverseRule, reversedNormal.data(), photon);
+            result = PhotonTracer->processInterface();
+            PhotonTracer->readBackPhoton(photon);
+            if (result == EInterfaceResult::Transmitted &&
+                photon.v[0]*reversedNormal[0] + photon.v[1]*reversedNormal[1] + photon.v[2]*reversedNormal[2] < 0)
+            {
+                //again the same problem
+                reversed = false;
+                continue;
+            }
+            // valid photon
+            // in the reversed case we need to reverse the result "interpretation"
+            if (result == EInterfaceResult::Transmitted)
+            {
+                result = EInterfaceResult::Reflected;
+                Rule->Status = AInterfaceRule::LobeReflection;
+            }
+            else if (result == EInterfaceResult::Reflected)
+                result = EInterfaceResult::Transmitted;
+            break; // done
+        }
+        else
+        {
+            PhotonTracer->configureForInterfaceRuleTester(MatFrom, MatTo, Rule, globalNormal, photon);
+            result = PhotonTracer->processInterface();
+            PhotonTracer->readBackPhoton(photon);
+            if (result == EInterfaceResult::Transmitted &&
+                photon.v[0]*globalNormal[0] + photon.v[1]*globalNormal[1] + photon.v[2]*globalNormal[2] < 0)
+            {
+                //again the same problem
+                reversed = true;
+                continue;
+            }
+            break; // done
+        }
+    }
+    while (true);
+
+    qDebug() << "After:" << photon.v[0] << photon.v[1] << photon.v[2] << (int)result << "<-0123 is Undefined, Absorbed, Reflected, Transmitted";
+
+    photon.v[0] = 0.707106781; photon.v[1] = 0; photon.v[2] = 0.707106781;
+
+    return result;
+}
+
 void AInterfaceRuleTester::on_pbTracePhotons_clicked()
 {
-    if ( !testOverride() ) return;
+    if ( !beforeRun() ) return;
 
     //qDebug() << "Surface:->" << (int)((*pOV)->SurfaceSettings.Model);
 
@@ -296,8 +368,7 @@ void AInterfaceRuleTester::on_pbTracePhotons_clicked()
         ph.time = 0;
         ph.waveIndex = waveIndex;
 
-        PhotonTracer->configureForInterfaceRuleTester(MatFrom, MatTo, Rule, N, ph);
-        EInterfaceResult result = PhotonTracer->processInterface();
+        EInterfaceResult result = runSinglePhoton(N, ph);
         switch (result)
         {
         case EInterfaceResult::Undefined   : rep.error++; continue;
@@ -305,7 +376,6 @@ void AInterfaceRuleTester::on_pbTracePhotons_clicked()
         case EInterfaceResult::Transmitted : rep.forw++;  break;
         case EInterfaceResult::Reflected   : rep.back++;  break;
         }
-        PhotonTracer->readBackPhoton(ph);
 
         short col;
         int type;
@@ -444,7 +514,7 @@ void AInterfaceRuleTester::on_pbST_showTracks_clicked()
     emit requestShowTracks(true);
 }
 
-bool AInterfaceRuleTester::testOverride()
+bool AInterfaceRuleTester::beforeRun()
 {
     if (!Rule)
     {
@@ -458,6 +528,22 @@ bool AInterfaceRuleTester::testOverride()
         guitools::message("Override reports an error:\n" + err, this);
         return false;
     }
+
+    delete ReverseRule; ReverseRule = nullptr;
+    if (Rule->isNotPolishedSurface() && !Rule->SurfaceSettings.KillPhotonsRefractedBackward)
+    {
+        QJsonObject json;
+        Rule->writeToJson(json);
+        ReverseRule = AInterfaceRule::interfaceRuleFactory(Rule->getType(), Rule->getMaterialTo(), Rule->getMaterialFrom()); // reversed materials!
+        bool ok = false;
+        if (ReverseRule) ok = ReverseRule->readFromJson(json);
+        if (!ok)
+        {
+            guitools::message("Failed to create the reverse interface rule!", this);
+            return false;
+        }
+    }
+
     return true;
 }
 
@@ -483,7 +569,7 @@ TVector3 AInterfaceRuleTester::getPhotonVector()
 void AInterfaceRuleTester::on_pbDiffuseIrradiation_clicked()
 {
     ui->pte->clear();
-    if ( !testOverride() ) return;
+    if ( !beforeRun() ) return;
 
     double N[3]; //normal
     N[0] = 0;
