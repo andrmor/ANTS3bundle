@@ -116,13 +116,14 @@ void AInterfaceRuleTester::readFromJson(const QJsonObject &json)
     if (x>0 && y>0) move(x, y);
 }
 
+#include <numeric>
 void AInterfaceRuleTester::on_pbProcessesVsAngle_clicked()
 {
     ui->pte->clear();
     if ( !beforeRun() ) return;
 
     int numPhotons = ui->sbST_number->value();
-    std::vector<double> Back(100, 0), Forward(100, 0), Absorb(100, 0), NotTrigger(100, 0);
+    std::vector<double> Reflected(100, 0), Transmitted(100, 0), Absorbed(100, 0), Undefined(100, 0);
     std::vector<double> Spike(100, 0), BackSpike(100, 0), BackLobe(100, 0), BackLambert(100, 0), WaveShifted(100, 0);
     std::vector<double> Angle;
     double N[3], K[3];
@@ -165,10 +166,10 @@ void AInterfaceRuleTester::on_pbProcessesVsAngle_clicked()
             EInterfaceResult result = runSinglePhoton(N, ph);
             switch (result)
             {
-            case EInterfaceResult::Undefined   : NotTrigger[iAngle]++; continue;
-            case EInterfaceResult::Absorbed    : Absorb[iAngle]++;     continue;
-            case EInterfaceResult::Transmitted : Forward[iAngle]++;    break;
-            case EInterfaceResult::Reflected   : Back[iAngle]++;       break;
+            case EInterfaceResult::Undefined   : Undefined[iAngle]++;   continue;
+            case EInterfaceResult::Absorbed    : Absorbed[iAngle]++;    continue;
+            case EInterfaceResult::Transmitted : Transmitted[iAngle]++; break;
+            case EInterfaceResult::Reflected   : Reflected[iAngle]++;   break;
             }
 
             switch (Rule->Status)
@@ -181,10 +182,10 @@ void AInterfaceRuleTester::on_pbProcessesVsAngle_clicked()
             }
         }
 
-        NotTrigger[iAngle] /= numPhotons;
-        Absorb[iAngle] /= numPhotons;
-        Forward[iAngle] /= numPhotons;
-        Back[iAngle] /= numPhotons;
+        Undefined[iAngle] /= numPhotons;
+        Absorbed[iAngle] /= numPhotons;
+        Transmitted[iAngle] /= numPhotons;
+        Reflected[iAngle] /= numPhotons;
 
         Spike[iAngle] /= numPhotons;
         BackSpike[iAngle] /= numPhotons;
@@ -200,24 +201,30 @@ void AInterfaceRuleTester::on_pbProcessesVsAngle_clicked()
     {
     case 0:
     {
-        //TGraph * gN = AGraphBuilder::graph(Angle, NotTrigger); AGraphBuilder::configure(gN, "Not triggered", "Angle of incidence, deg", "Fraction",   2, 0, 1,   2, 1, 2);
-        TGraph * gA = AGraphBuilder::graph(Angle, Absorb);     AGraphBuilder::configure(gA, "Absorption",      "Angle of incidence, deg", "Fraction",   1, 0, 1,   1, 1, 2);
-        TGraph * gB = AGraphBuilder::graph(Angle, Back);       AGraphBuilder::configure(gB, "Back",            "Angle of incidence, deg", "Fraction",   3, 0, 1,   3, 1, 2);
-        TGraph * gF = AGraphBuilder::graph(Angle, Forward);    AGraphBuilder::configure(gF, "Forward",         "Angle of incidence, deg", "Fraction",   4, 0, 1,   4, 1, 2);
+        TGraph * gA = AGraphBuilder::graph(Angle, Absorbed);    AGraphBuilder::configure(gA, "Absorption",   "Angle of incidence, deg", "Fraction",   1, 0, 1,   1, 1, 2);
+        TGraph * gB = AGraphBuilder::graph(Angle, Reflected);   AGraphBuilder::configure(gB, "Reflection",   "Angle of incidence, deg", "Fraction",   3, 0, 1,   3, 1, 2);
+        TGraph * gF = AGraphBuilder::graph(Angle, Transmitted); AGraphBuilder::configure(gF, "Transmission", "Angle of incidence, deg", "Fraction",   4, 0, 1,   4, 1, 2);
+        TGraph * gU = nullptr;
+        int sum = std::accumulate(Undefined.begin(), Undefined.end(), 0);
+        if (sum > 0)
+        {
+                 gU = AGraphBuilder::graph(Angle, Undefined);   AGraphBuilder::configure(gU, "Error",       "Angle of incidence, deg", "Fraction",   2, 0, 1,   2, 1, 2);
+        }
+
         gA->SetMinimum(0);
         gA->SetMaximum(1.05);
 
-        //emit requestDraw(gN, "AL",    true, true);
-        emit requestDraw(gA, "AL",    true, false);
-        emit requestDraw(gB, "Lsame", true, false);
-        emit requestDraw(gF, "Lsame", true, true);
+        emit requestDraw(gA,         "AL",    true, false);
+        emit requestDraw(gB,         "Lsame", true, false);
+        emit requestDraw(gF,         "Lsame", true, true);
+        if (gU) emit requestDraw(gU, "Lsame", true, true);
 
-        emit requestDrawLegend(0.12,0.12, 0.4,0.25, "Basic info");
+        emit requestDrawLegend(0.12,0.12, 0.4,0.25, "");
         break;
     }
     case 1:
     {
-        TGraph * gT =  AGraphBuilder::graph(Angle, Back);        AGraphBuilder::configure(gT,  "All reflections", "Angle of incidence, deg", "Fraction",  2,   0, 1,     2, 1, 2);
+        TGraph * gT =  AGraphBuilder::graph(Angle, Reflected);   AGraphBuilder::configure(gT,  "All reflections", "Angle of incidence, deg", "Fraction",  2,   0, 1,     2, 1, 2);
         TGraph * gS =  AGraphBuilder::graph(Angle, Spike);       AGraphBuilder::configure(gS,  "Spike",           "Angle of incidence, deg", "Fraction",  1,   0, 1,     1, 1, 2);
         TGraph * gBS = AGraphBuilder::graph(Angle, BackSpike);   AGraphBuilder::configure(gBS, "BackwardSpike",   "Angle of incidence, deg", "Fraction",  797, 0, 1,   797, 1, 2);
         TGraph * gL =  AGraphBuilder::graph(Angle, BackLobe);    AGraphBuilder::configure(gL,  "Lobe",            "Angle of incidence, deg", "Fraction",  3,   0, 1,     3, 1, 2);
@@ -231,7 +238,7 @@ void AInterfaceRuleTester::on_pbProcessesVsAngle_clicked()
         emit requestDraw(gL,  "Lsame", true, false);
         emit requestDraw(gD,  "Lsame", true, true);
 
-        emit requestDrawLegend(0.12,0.75, 0.4,0.93, "Backscattering");
+        emit requestDrawLegend(0.12,0.75, 0.4,0.93, "Reflection fractions");
         break;
     }
     case 2:
@@ -693,7 +700,7 @@ void AInterfaceRuleTester::reportStatistics(const AReportForOverride &rep, int n
     if (rep.abs > 0)    t += QString("  Absorption: %1%  (%2)\n").arg(rep.abs/numPhot*100.0).arg(rep.abs);
     if (rep.back > 0)   t += QString("  Back: %1%  (%2)\n").arg(rep.back/numPhot*100.0).arg(rep.back);
     if (rep.forw)       t += QString("  Forward: %1%  (%2)\n").arg(rep.forw/numPhot*100.0).arg(rep.forw);
-    if (rep.notTrigger) t += QString("  Not triggered: %1%  (%2)\n").arg(rep.notTrigger/numPhot*100.0).arg(rep.notTrigger);
+    if (rep.error)      t += QString("  Error: %1%  (%2)\n").arg(rep.error/numPhot*100.0).arg(rep.error);
     t += "\n";
 
     if (rep.back > 0)

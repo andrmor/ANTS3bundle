@@ -27,7 +27,6 @@ struct AReportForOverride
     double abs = 0;
     double back = 0;
     double forw = 0;
-    double notTrigger = 0;
     double error = 0;
 
     double Bspike = 0;
