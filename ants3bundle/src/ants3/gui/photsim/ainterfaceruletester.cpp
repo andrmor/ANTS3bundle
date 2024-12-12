@@ -47,7 +47,7 @@ AInterfaceRuleTester::AInterfaceRuleTester(AInterfaceRule* & ovLocal, int matFro
     foreach(QLineEdit *w, list) if (w->objectName().startsWith("led")) w->setValidator(dv);
 
     const QStringList matNames = AMaterialHub::getConstInstance().getListOfMaterialNames();
-    ui->labMaterials->setText( QString("(%1 -> %2)").arg(matNames.at(matFrom)).arg(matNames.at(matTo)) );
+    ui->labMaterials->setText( QString("%1 --> %2").arg(matNames.at(matFrom)).arg(matNames.at(matTo)) );
 
     updateGUI();
 
@@ -87,8 +87,8 @@ void AInterfaceRuleTester::updateGUI()
         AMetalInterfaceRule * mir = static_cast<AMetalInterfaceRule*>(Rule);
         str2 = QString("%1 + i*%2").arg(QString::number(mir->RealN,'g',4)).arg(QString::number(mir->ImaginaryN,'g',4));
     }
-    ui->ledST_Ref1->setText(str1);
-    ui->ledST_Ref2->setText(str2);
+    ui->labRefractiveIndexFrom->setText(str1);
+    ui->labRefractiveIndexTo->setText(str2);
 }
 
 AInterfaceRuleTester::~AInterfaceRuleTester()
