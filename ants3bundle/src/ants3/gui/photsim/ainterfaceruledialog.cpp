@@ -16,9 +16,10 @@
 #include "TGraph.h"
 #include "TH1D.h"
 
-AInterfaceRuleDialog::AInterfaceRuleDialog(AInterfaceRule * rule, int matFrom, int matTo, QWidget * parent) :
+AInterfaceRuleDialog::AInterfaceRuleDialog(AInterfaceRule * rule, int matFrom, int matTo, QWidget * parent, QString volFrom, QString volTo) :
     QDialog(parent),
     MatFrom(matFrom), MatTo(matTo),
+    VolumeFrom(volFrom), VolumeTo(volTo),
     MatHub(AMaterialHub::getInstance()),
     RuleHub(AInterfaceRuleHub::getInstance()),
     ui(new Ui::AInterfaceRuleDialog)
@@ -26,9 +27,17 @@ AInterfaceRuleDialog::AInterfaceRuleDialog(AInterfaceRule * rule, int matFrom, i
     ui->setupUi(this);
     setWindowTitle("Photon tracing rule for an interface");
 
-    QStringList matNames = MatHub.getListOfMaterialNames();
-    ui->labFrom->setText(matNames.at(matFrom));
-    ui->labTo->setText(matNames.at(matTo));
+    if (volFrom.isEmpty())
+    {
+        QStringList matNames = MatHub.getListOfMaterialNames();
+        ui->labFrom->setText(matNames.at(matFrom));
+        ui->labTo->setText(matNames.at(matTo));
+    }
+    else
+    {
+        ui->labFrom->setText(VolumeFrom);
+        ui->labTo->setText(VolumeTo);
+    }
 
     ui->cobType->addItem("No special rule");
     QStringList avOv = AInterfaceRule::getAllInterfaceRuleTypes();

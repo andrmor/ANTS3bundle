@@ -4,6 +4,7 @@
 #include <set>
 
 #include <QDialog>
+#include <QString>
 #include <QStringList>
 
 namespace Ui {
@@ -22,7 +23,7 @@ class AInterfaceRuleDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit AInterfaceRuleDialog(AInterfaceRule * rule, int matFrom, int matTo, QWidget * parent); // !!!*** load
+    AInterfaceRuleDialog(AInterfaceRule * rule, int matFrom, int matTo, QWidget * parent, QString volFrom = "", QString volTo = ""); // !!!*** load
     ~AInterfaceRuleDialog();
 
     AInterfaceRule * getRule();
@@ -30,6 +31,9 @@ public:
 
     int MatFrom;
     int MatTo;
+
+    QString VolumeFrom;
+    QString VolumeTo;
 
 private slots:
     void on_cobType_currentIndexChanged(int index);
