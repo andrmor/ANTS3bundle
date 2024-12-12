@@ -200,6 +200,17 @@ void AInterfaceRuleDialog::on_cobType_activated(int index)
 
 void AInterfaceRuleDialog::on_pbTestOverride_clicked()
 {
+    if (Rule && Rule->SurfaceSettings.isNotPolished())
+    {
+        if (!Rule->Symmetric && !Rule->SurfaceSettings.KillPhotonsRefractedBackward)
+        {
+            bool ok = guitools::confirm("Rule is not symmetric and \"killing\" of back-transmitted photons is not activated.\n"
+                              "The test will still assume symmetric interface for handling such photons.\n"
+                              "Continue?", this);
+            if (!ok) return;
+        }
+    }
+
     TesterWindow->show();
     TesterWindow->updateGUI();
     TesterWindow->showGeometry();
