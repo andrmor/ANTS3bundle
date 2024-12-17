@@ -230,6 +230,8 @@ void AInterfaceRuleWin::onVolCellDoubleClicked()
     if (obTo) iTo = obTo->Material;
 
     delete RuleDialog; RuleDialog = new AInterfaceRuleDialog(RuleHub.getVolumeRule(LastFrom, LastTo), iFrom, iTo, this, LastFrom.Data(), LastTo.Data());
+    if (obFrom && obTo) RuleDialog->VolumesExist = true;
+
     configureInterfaceDialog();
     itemDoubleClicked = ui->tabwVolumes->item(iRow, iCol);
     connect(RuleDialog, &AInterfaceRuleDialog::accepted, this, &AInterfaceRuleWin::OnRuleDialogAccepted_Vol);

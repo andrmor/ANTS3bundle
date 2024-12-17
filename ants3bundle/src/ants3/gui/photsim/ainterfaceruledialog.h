@@ -23,7 +23,7 @@ class AInterfaceRuleDialog : public QDialog
     Q_OBJECT
 
 public:
-    AInterfaceRuleDialog(AInterfaceRule * rule, int matFrom, int matTo, QWidget * parent, QString volFrom = "", QString volTo = ""); // !!!*** load
+    AInterfaceRuleDialog(AInterfaceRule * rule, int matFrom, int matTo, QWidget * parent, QString volFrom = "", QString volTo = "");
     ~AInterfaceRuleDialog();
 
     AInterfaceRule * getRule();
@@ -34,6 +34,8 @@ public:
 
     QString VolumeFrom;
     QString VolumeTo;
+    bool    VolumeInterfaceRule = false;
+    bool    VolumesExist = false;
 
 private slots:
     void on_cobType_currentIndexChanged(int index);

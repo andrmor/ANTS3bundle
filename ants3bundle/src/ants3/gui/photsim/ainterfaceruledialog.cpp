@@ -27,16 +27,18 @@ AInterfaceRuleDialog::AInterfaceRuleDialog(AInterfaceRule * rule, int matFrom, i
     ui->setupUi(this);
     setWindowTitle("Photon tracing rule for an interface");
 
-    if (volFrom.isEmpty())
+    VolumeInterfaceRule = (!volFrom.isEmpty() && !volTo.isEmpty());
+
+    if (VolumeInterfaceRule)
+    {
+        ui->labFrom->setText(VolumeFrom);
+        ui->labTo->setText(VolumeTo);
+    }
+    else
     {
         QStringList matNames = MatHub.getListOfMaterialNames();
         ui->labFrom->setText(matNames.at(matFrom));
         ui->labTo->setText(matNames.at(matTo));
-    }
-    else
-    {
-        ui->labFrom->setText(VolumeFrom);
-        ui->labTo->setText(VolumeTo);
     }
 
     ui->cobType->addItem("No special rule");
@@ -209,6 +211,12 @@ void AInterfaceRuleDialog::on_cobType_activated(int index)
 
 void AInterfaceRuleDialog::on_pbTestOverride_clicked()
 {
+    if (VolumeInterfaceRule && !VolumesExist)
+    {
+        guitools::message("At least one of the from/to volumes does not exist, cannot run tests", this);
+        return;
+    }
+
     if (Rule && Rule->SurfaceSettings.isNotPolished())
     {
         if (!Rule->Symmetric && !Rule->SurfaceSettings.KillPhotonsRefractedBackward)
