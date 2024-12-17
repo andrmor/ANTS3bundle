@@ -13,8 +13,6 @@ class AGraphWin_SI : public AWindowInterfaceBase
 {
     Q_OBJECT
 
-    // !!!*** TODO queued signal -> slots! GUI shoul dnot be manipulated from script thread!
-
 public:
     AGraphWin_SI(GraphWindowClass * graphWin);
 
@@ -31,8 +29,8 @@ public slots:
     void setLegendBorder(int color, int style, int size);
 
     void addText(QString text, bool showframe, int alignment_0Left1Center2Right);
-    void addTextAtXY(QString text, bool Showframe, int Alignment_0Left1Center2Right, double x1, double y1, double x2, double y2);
     void addTextAtScreenXY(QString text, bool Showframe, int Alignment_0Left1Center2Right, double x1, double y1, double x2, double y2);
+    void addTextAtXY(QString text, bool Showframe, int Alignment_0Left1Center2Right, double x1, double y1, double x2, double y2);
 
     void addLine(double x1, double y1, double x2, double y2, int color, int width, int style);
     void addArrow(double x1, double y1, double x2, double y2, int color, int width, int style);
@@ -44,7 +42,6 @@ public slots:
 
     void show3D(QString castorFileName);
 
-    //void exportTH2AsText(QString fileName); obsolete?
     /*
     QVariant GetProjection();
     void ConfigureProjectionTool(double x0, double y0, double dx, double dy, double angle);
@@ -60,6 +57,9 @@ signals:
     void requestSetStatPanelVisible(bool flag);
     void requestAddLegend(double x1, double y1, double x2, double y2, QString title);
     void requestSetLegendBorder(int color, int style, int size);
+    void requestAddText(QString text, bool Showframe, int Alignment_0Left1Center2Right, double x1, double y1, double x2, double y2, QString opt);
+    void requestAddLine(double x1, double y1, double x2, double y2, int color, int width, int style);
+    void requestAddArrow(double x1, double y1, double x2, double y2, int color, int width, int style);
 
 private:
     GraphWindowClass * GraphWindow = nullptr;
