@@ -13,13 +13,15 @@ class AGraphWin_SI : public AWindowInterfaceBase
 {
     Q_OBJECT
 
+    // !!!*** TODO queued signal -> slots! GUI shoul dnot be manipulated from script thread!
+
 public:
     AGraphWin_SI(GraphWindowClass * graphWin);
 
     AScriptInterface * cloneBase() const {return new AGraphWin_SI(GraphWindow);}
 
 public slots:
-    void addToBasket(QString Title);
+    void addToBasket(QString title);
     void clearBasket();
 
     void setLog(bool Xaxis, bool Yaxis);
@@ -51,6 +53,13 @@ public slots:
 
 signals:
     void requestShow3D(QString fileName, bool keepSettings = false);
+
+    void requestAddToBasket(QString title);
+    void requestClearBasket();
+    void requestSetLog(bool Xaxis, bool Yaxis);
+    void requestSetStatPanelVisible(bool flag);
+    void requestAddLegend(double x1, double y1, double x2, double y2, QString title);
+    void requestSetLegendBorder(int color, int style, int size);
 
 private:
     GraphWindowClass * GraphWindow = nullptr;

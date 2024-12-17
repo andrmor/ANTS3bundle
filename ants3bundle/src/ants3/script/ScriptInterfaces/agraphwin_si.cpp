@@ -1,6 +1,7 @@
 #include "agraphwin_si.h"
 #include "graphwindowclass.h"
 
+#include <QApplication>
 #include <QDebug>
 
 AGraphWin_SI::AGraphWin_SI(GraphWindowClass * graphWin) :
@@ -48,26 +49,43 @@ AGraphWin_SI::AGraphWin_SI(GraphWindowClass * graphWin) :
     Help["getContent"] = "Return the data content of the first drawn 1D histogram or 1D graph. It is an array with sub-arrays of coordinate and value pairs";
 
     connect(this, &AGraphWin_SI::requestShow3D, GraphWindow, &GraphWindowClass::show3D, Qt::QueuedConnection);
+
+    // the rest of the methods to look like that:
+    connect(this, &AGraphWin_SI::requestAddToBasket,         graphWin, &GraphWindowClass::addCurrentToBasket,  Qt::QueuedConnection);
+    connect(this, &AGraphWin_SI::requestClearBasket,         graphWin, &GraphWindowClass::ClearBasket,         Qt::QueuedConnection);
+    connect(this, &AGraphWin_SI::requestSetLog,              graphWin, &GraphWindowClass::SetLog,              Qt::QueuedConnection);
+    connect(this, &AGraphWin_SI::requestSetStatPanelVisible, graphWin, &GraphWindowClass::SetStatPanelVisible, Qt::QueuedConnection);
+    connect(this, &AGraphWin_SI::requestAddLegend,           graphWin, &GraphWindowClass::drawLegend,          Qt::QueuedConnection);
+    connect(this, &AGraphWin_SI::requestSetLegendBorder,     graphWin, &GraphWindowClass::SetLegendBorder,     Qt::QueuedConnection);
+
 }
 
 void AGraphWin_SI::setLog(bool Xaxis, bool Yaxis)
 {
-    GraphWindow->SetLog(Xaxis, Yaxis);
+    QApplication::processEvents();
+    emit requestSetLog(Xaxis, Yaxis);
+    QApplication::processEvents();
 }
 
 void AGraphWin_SI::setStatPanelVisible(bool flag)
 {
-    GraphWindow->SetStatPanelVisible(flag);
+    QApplication::processEvents();
+    emit requestSetStatPanelVisible(flag);
+    QApplication::processEvents();
 }
 
 void AGraphWin_SI::addLegend(double x1, double y1, double x2, double y2, QString title)
 {
-    GraphWindow->drawLegend(x1, y1, x2, y2, title);
+    QApplication::processEvents();
+    emit requestAddLegend(x1, y1, x2, y2, title);
+    QApplication::processEvents();
 }
 
 void AGraphWin_SI::setLegendBorder(int color, int style, int size)
 {
-    GraphWindow->SetLegendBorder(color, style, size);
+    QApplication::processEvents();
+    emit requestSetLegendBorder(color, style, size);
+    QApplication::processEvents();
 }
 
 void AGraphWin_SI::addText(QString text, bool showframe, int alignment_0Left1Center2Right)
@@ -95,14 +113,18 @@ void AGraphWin_SI::addArrow(double x1, double y1, double x2, double y2, int colo
     GraphWindow->AddArrow(x1, y1, x2, y2, color, width, style);
 }
 
-void AGraphWin_SI::addToBasket(QString Title)
+void AGraphWin_SI::addToBasket(QString title)
 {
-    GraphWindow->addCurrentToBasket(Title);
+    QApplication::processEvents();
+    emit requestAddToBasket(title);
+    QApplication::processEvents();
 }
 
 void AGraphWin_SI::clearBasket()
 {
-    GraphWindow->ClearBasket();
+    QApplication::processEvents();
+    emit requestClearBasket();
+    QApplication::processEvents();
 }
 
 void AGraphWin_SI::saveImage(QString fileName)
