@@ -696,17 +696,17 @@ void AInterfaceRuleTester::reportStatistics(const AReportForOverride &rep, int n
     QString t;
     if (rep.error > 0)  t += QString("Error detected: %1\n\n").arg(rep.error);
 
-    t += "Processes:\n";
-    if (rep.abs > 0)    t += QString("  Absorption: %1%  (%2)\n").arg(rep.abs/numPhot*100.0).arg(rep.abs);
-    if (rep.back > 0)   t += QString("  Back: %1%  (%2)\n").arg(rep.back/numPhot*100.0).arg(rep.back);
-    if (rep.forw)       t += QString("  Forward: %1%  (%2)\n").arg(rep.forw/numPhot*100.0).arg(rep.forw);
+    t += "Outcomes:\n";
+    if (rep.abs > 0)    t += QString("  Absorbed: %1%  (%2)\n").arg(rep.abs/numPhot*100.0).arg(rep.abs);
+    if (rep.back > 0)   t += QString("  Reflected: %1%  (%2)\n").arg(rep.back/numPhot*100.0).arg(rep.back);
+    if (rep.forw)       t += QString("  Transmitted: %1%  (%2)\n").arg(rep.forw/numPhot*100.0).arg(rep.forw);
     if (rep.error)      t += QString("  Error: %1%  (%2)\n").arg(rep.error/numPhot*100.0).arg(rep.error);
     t += "\n";
 
     if (rep.back > 0)
     {
         //show stat of processes
-        t += "Backscattering composition:\n";
+        t += "Reflection composition:\n";
         if (rep.Bspike > 0)     t += QString("  Specular spike: %1%  (%2,   %3% of total)\n").arg(rep.Bspike/rep.back*100.0).arg(rep.Bspike).arg(100.0*rep.Bspike/numPhot);
         if (rep.Bbackspike > 0) t += QString("  Backward specular spike: %1%  (%2,   %3% of total)\n").arg(rep.Bbackspike/rep.back*100.0).arg(rep.Bbackspike).arg(100.0*rep.Bbackspike/numPhot);
         if (rep.Blobe > 0)      t += QString("  Diffuse lobe: %1%  (%2,   %3% of total)\n").arg(rep.Blobe/rep.back*100.0).arg(rep.Blobe).arg(100.0*rep.Blobe/numPhot);
