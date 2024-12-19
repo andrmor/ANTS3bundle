@@ -3399,7 +3399,7 @@
             <property name="minimumSize">
              <size>
               <width>150</width>
-              <height>40</height>
+              <height>35</height>
              </size>
             </property>
             <property name="font">
@@ -3496,7 +3496,7 @@
           <item>
            <widget class="QCheckBox" name="cbAutoLoadResults">
             <property name="text">
-             <string>Auto-load all results</string>
+             <string>Auto-load results</string>
             </property>
             <property name="checked">
              <bool>true</bool>

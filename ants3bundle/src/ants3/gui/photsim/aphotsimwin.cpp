@@ -158,6 +158,12 @@ void APhotSimWin::readFromJson(const QJsonObject & json)
     }
 }
 
+void APhotSimWin::onNewConfigStartedInGui()
+{
+    ui->cbRandomSeed->setChecked(true);
+    ui->sbSeed->setValue(1000);
+}
+
 void APhotSimWin::updateGui()
 {
     int index;

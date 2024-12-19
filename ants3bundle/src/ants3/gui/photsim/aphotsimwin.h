@@ -30,6 +30,8 @@ public:
     void writeToJson(QJsonObject & json) const;
     void readFromJson(const QJsonObject & json);
 
+    void onNewConfigStartedInGui();
+
 public slots:
     void updateGui();
 

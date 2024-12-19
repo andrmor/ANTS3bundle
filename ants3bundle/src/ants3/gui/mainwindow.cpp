@@ -665,6 +665,7 @@ void MainWindow::on_pbNew_clicked()
     PartSimWin->onNewConfigStartedInGui();
 
     APhotonSimHub::getInstance().clear();
+    PhotSimWin->onNewConfigStartedInGui();
 
     AParticleAnalyzerHub::getInstance().clear();
 
