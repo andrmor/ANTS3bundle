@@ -566,6 +566,8 @@ void APhotonBombsSettings::clear()
 {
     GenerationMode = EBombGen::Single;
 
+    PhotonsPerBomb.clearSettings();
+
     SingleSettings.clearSettings();
     GridSettings.clearSettings();
     FloodSettings.clearSettings();
