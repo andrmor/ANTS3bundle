@@ -28,6 +28,17 @@ AInterfaceRule * AInterfaceRuleHub::getVolumeRule(const TString & from, const TS
     else return nullptr;
 }
 
+bool AInterfaceRuleHub::setMaterialRule(int matFrom, int matTo, AInterfaceRule * rule)
+{
+    if (matFrom < 0 || matFrom >= MaterialRules.size()) return false;
+    std::vector<AInterfaceRule*> & vec = MaterialRules[matFrom];
+    if (matTo < 0 || matTo >= vec.size()) return false;
+
+    delete vec[matTo];
+    vec[matTo] = rule;
+    return true;
+}
+
 void AInterfaceRuleHub::setVolumeRule(const TString & from, const TString & to, AInterfaceRule * rule)
 {
     VolumeRules[{from, to}] = rule;

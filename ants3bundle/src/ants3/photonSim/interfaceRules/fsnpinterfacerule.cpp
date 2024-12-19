@@ -11,7 +11,7 @@
 #include "TMath.h"
 //#include "TRandom2.h"
 
-AInterfaceRule::OpticalOverrideResultEnum FsnpInterfaceRule::calculate(APhoton * Photon, const double * NormalVector)
+AInterfaceRule::EInterfaceRuleResult FsnpInterfaceRule::calculate(APhoton * Photon, const double * NormalVector)
 {
   // Angular reflectance: fraction of light reflected at the interface bewteen
   // medium 1 and medium 2 assuming non-polarized incident light:

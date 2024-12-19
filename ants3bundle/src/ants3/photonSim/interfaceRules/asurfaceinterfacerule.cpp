@@ -16,7 +16,7 @@ ASurfaceInterfaceRule::ASurfaceInterfaceRule(int MatFrom, int MatTo)
     SurfaceSettings.Model = ASurfaceSettings::Glisur;
 }
 
-AInterfaceRule::OpticalOverrideResultEnum ASurfaceInterfaceRule::calculate(APhoton * Photon, const double * NormalVector)
+AInterfaceRule::EInterfaceRuleResult ASurfaceInterfaceRule::calculate(APhoton * Photon, const double * NormalVector)
 {
     calculateLocalNormal(NormalVector, Photon->v);
     Status = LocalNormalDelegated;

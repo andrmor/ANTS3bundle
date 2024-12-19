@@ -565,6 +565,7 @@ QString APhotonBombsSettings::readFromJson(const QJsonObject & json)
 void APhotonBombsSettings::clear()
 {
     GenerationMode = EBombGen::Single;
+    PhotonsPerBomb.clearSettings();
 
     SingleSettings.clearSettings();
     GridSettings.clearSettings();

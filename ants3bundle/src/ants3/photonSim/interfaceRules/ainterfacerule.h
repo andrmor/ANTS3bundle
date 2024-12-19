@@ -19,7 +19,7 @@ public:
     static AInterfaceRule * interfaceRuleFactory(const QString & Model, int MatFrom, int MatTo);
     static QStringList      getAllInterfaceRuleTypes();
 
-    enum OpticalOverrideResultEnum {NotTriggered, Absorbed, Forward, Back, DelegateLocalNormal, _Error_}; //return status for photon tracing:
+    enum EInterfaceRuleResult {NotTriggered, Absorbed, Forward, Back, DelegateLocalNormal, _Error_};
     enum ScatterStatusEnum {
         Absorption,
         SpikeReflection, LobeReflection, LambertianReflection, BackscatterSpikeReflection,
@@ -33,7 +33,8 @@ public:
     virtual ~AInterfaceRule();
 
     // !!!*** to reference
-    virtual OpticalOverrideResultEnum calculate(APhoton * Photon, const double * NormalVector) = 0; //unitary vectors! iWave = -1 if not wavelength-resolved
+    // assuming that if LocalNormalInEffect is set once by calculateLocalNormal(), this flag will always remain =true
+    virtual EInterfaceRuleResult calculate(APhoton * Photon, const double * NormalVector) = 0; //unitary vectors! iWave = -1 if not wavelength-resolved
 
     virtual QString getType() const = 0;
     virtual QString getAbbreviation() const = 0; // for GUI: used to identify - must be short (<= 4 chars) - try to make unique
@@ -52,9 +53,12 @@ public:
 
     //used by MatCollection when a material is removed
     void updateMatIndices(int iMatFrom, int iMatTo) {MatFrom = iMatFrom; MatTo = iMatTo;}
+    void reverseMaterialsFromTo();
 
     //called on editing end (widget above) and before sim start to avoid miss-configurations
-    QString checkOverrideData(); //cannot be const - w.resolved needs rebin
+    QString checkOverrideData(); //cannot be const - w.resolved needs rebin // !!!*** rename / refactor to make obvious update of runtime data
+
+    bool Symmetric = false; // auto-update the rule in the opposote direction, does not affect update from the script!
 
     // read-out variables for standalone checker only (not multithreaded)
     ScatterStatusEnum Status;               // type of interaction which happened - use in 1 thread only!

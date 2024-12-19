@@ -1407,9 +1407,12 @@ sources</string>
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_6">
           <item>
-           <widget class="QLabel" name="label_6">
+           <widget class="QPushButton" name="pbChooseWorkingDirectory">
+            <property name="contextMenuPolicy">
+             <enum>Qt::ContextMenuPolicy::CustomContextMenu</enum>
+            </property>
             <property name="text">
-             <string>Directory:</string>
+             <string>Select directory</string>
             </property>
            </widget>
           </item>
@@ -1417,16 +1420,6 @@ sources</string>
            <widget class="QLineEdit" name="leWorkingDirectory">
             <property name="text">
              <string/>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="pbChooseWorkingDirectory">
-            <property name="contextMenuPolicy">
-             <enum>Qt::ContextMenuPolicy::CustomContextMenu</enum>
-            </property>
-            <property name="text">
-             <string>Choose</string>
             </property>
            </widget>
           </item>
@@ -1442,7 +1435,7 @@ sources</string>
              <string>Assuming standard filenames</string>
             </property>
             <property name="text">
-             <string>Load all</string>
+             <string>Load all data</string>
             </property>
            </widget>
           </item>
@@ -1473,9 +1466,9 @@ sources</string>
             <item>
              <layout class="QHBoxLayout" name="horizontalLayout_18">
               <item>
-               <widget class="QLabel" name="label_7">
+               <widget class="QPushButton" name="pbChooseFileTrackingData">
                 <property name="text">
-                 <string>File:</string>
+                 <string>Select file</string>
                 </property>
                </widget>
               </item>
@@ -1483,13 +1476,6 @@ sources</string>
                <widget class="QLineEdit" name="leTrackingDataFile">
                 <property name="text">
                  <string>TrackingData.dat</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QPushButton" name="pbChooseFileTrackingData">
-                <property name="text">
-                 <string>Choose</string>
                 </property>
                </widget>
               </item>
@@ -3905,9 +3891,9 @@ Please specify a valid range</string>
             <item>
              <layout class="QHBoxLayout" name="horizontalLayout_42">
               <item>
-               <widget class="QLabel" name="label_13">
+               <widget class="QPushButton" name="pbChooseMonitorsFile">
                 <property name="text">
-                 <string>File:</string>
+                 <string>Select file</string>
                 </property>
                </widget>
               </item>
@@ -3919,20 +3905,13 @@ Please specify a valid range</string>
                </widget>
               </item>
               <item>
-               <widget class="QPushButton" name="pbChooseMonitorsFile">
+               <widget class="QPushButton" name="pbLoadMonitorsData">
                 <property name="text">
-                 <string>Choose</string>
+                 <string>Load monitor data</string>
                 </property>
                </widget>
               </item>
              </layout>
-            </item>
-            <item>
-             <widget class="QPushButton" name="pbLoadMonitorsData">
-              <property name="text">
-               <string>Load monitor data</string>
-              </property>
-             </widget>
             </item>
             <item>
              <layout class="QHBoxLayout" name="horizontalLayout_49">
@@ -4284,9 +4263,9 @@ Please specify a valid range</string>
             <item>
              <layout class="QHBoxLayout" name="horizontalLayout_52">
               <item>
-               <widget class="QLabel" name="label_25">
+               <widget class="QPushButton" name="pbChooseCalorimetersFile">
                 <property name="text">
-                 <string>File:</string>
+                 <string>Select file</string>
                 </property>
                </widget>
               </item>
@@ -4298,20 +4277,13 @@ Please specify a valid range</string>
                </widget>
               </item>
               <item>
-               <widget class="QPushButton" name="pbChooseCalorimetersFile">
+               <widget class="QPushButton" name="pbLoadCalorimetersData">
                 <property name="text">
-                 <string>Choose</string>
+                 <string>Load calorimeter data</string>
                 </property>
                </widget>
               </item>
              </layout>
-            </item>
-            <item>
-             <widget class="QPushButton" name="pbLoadCalorimetersData">
-              <property name="text">
-               <string>Load calorimeter data</string>
-              </property>
-             </widget>
             </item>
             <item>
              <layout class="QHBoxLayout" name="horizontalLayout_55">
@@ -5052,9 +5024,9 @@ Please specify a valid range</string>
             <item>
              <layout class="QHBoxLayout" name="horizontalLayout_69">
               <item>
-               <widget class="QLabel" name="label_54">
+               <widget class="QPushButton" name="pbChooseDepositionFile">
                 <property name="text">
-                 <string>File:</string>
+                 <string>Select file</string>
                 </property>
                </widget>
               </item>
@@ -5062,13 +5034,6 @@ Please specify a valid range</string>
                <widget class="QLineEdit" name="leDepositionFileName">
                 <property name="text">
                  <string>Deposition.dat</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QPushButton" name="pbChooseDepositionFile">
-                <property name="text">
-                 <string>Choose</string>
                 </property>
                </widget>
               </item>
@@ -5139,18 +5104,11 @@ Please specify a valid range</string>
            </attribute>
            <layout class="QVBoxLayout" name="verticalLayout_43">
             <item>
-             <widget class="QPushButton" name="pbLoadAnalyzersData">
-              <property name="text">
-               <string>Load analyzer data</string>
-              </property>
-             </widget>
-            </item>
-            <item>
              <layout class="QHBoxLayout" name="horizontalLayout_72">
               <item>
-               <widget class="QLabel" name="label_31">
+               <widget class="QPushButton" name="pbChooseAnalyzersFile">
                 <property name="text">
-                 <string>File:</string>
+                 <string>Select file</string>
                 </property>
                </widget>
               </item>
@@ -5162,9 +5120,9 @@ Please specify a valid range</string>
                </widget>
               </item>
               <item>
-               <widget class="QPushButton" name="pbChooseAnalyzersFile">
+               <widget class="QPushButton" name="pbLoadAnalyzersData">
                 <property name="text">
-                 <string>Choose</string>
+                 <string>Load analyzer data</string>
                 </property>
                </widget>
               </item>

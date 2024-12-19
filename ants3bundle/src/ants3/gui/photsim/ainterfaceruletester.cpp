@@ -47,7 +47,7 @@ AInterfaceRuleTester::AInterfaceRuleTester(AInterfaceRule* & ovLocal, int matFro
     foreach(QLineEdit *w, list) if (w->objectName().startsWith("led")) w->setValidator(dv);
 
     const QStringList matNames = AMaterialHub::getConstInstance().getListOfMaterialNames();
-    ui->labMaterials->setText( QString("(%1 -> %2)").arg(matNames.at(matFrom)).arg(matNames.at(matTo)) );
+    ui->labMaterials->setText( QString("%1 --> %2").arg(matNames.at(matFrom)).arg(matNames.at(matTo)) );
 
     updateGUI();
 
@@ -87,8 +87,8 @@ void AInterfaceRuleTester::updateGUI()
         AMetalInterfaceRule * mir = static_cast<AMetalInterfaceRule*>(Rule);
         str2 = QString("%1 + i*%2").arg(QString::number(mir->RealN,'g',4)).arg(QString::number(mir->ImaginaryN,'g',4));
     }
-    ui->ledST_Ref1->setText(str1);
-    ui->ledST_Ref2->setText(str2);
+    ui->labRefractiveIndexFrom->setText(str1);
+    ui->labRefractiveIndexTo->setText(str2);
 }
 
 AInterfaceRuleTester::~AInterfaceRuleTester()
@@ -97,6 +97,7 @@ AInterfaceRuleTester::~AInterfaceRuleTester()
 
     delete PhotonTracer;
     delete DummyLightSensorEvent;
+    delete ReverseRule;
 }
 
 void AInterfaceRuleTester::writeToJson(QJsonObject &json) const
@@ -115,18 +116,20 @@ void AInterfaceRuleTester::readFromJson(const QJsonObject &json)
     if (x>0 && y>0) move(x, y);
 }
 
+#include <numeric>
 void AInterfaceRuleTester::on_pbProcessesVsAngle_clicked()
 {
-    if ( !testOverride() ) return;
+    ui->pte->clear();
+    if ( !beforeRun() ) return;
 
     int numPhotons = ui->sbST_number->value();
-    std::vector<double> Back(91, 0), Forward(91, 0), Absorb(91, 0), NotTrigger(91, 0);
-    std::vector<double> Spike(91, 0), BackSpike(91, 0), BackLobe(91, 0), BackLambert(91, 0), WaveShifted(91, 0);
+    std::vector<double> Reflected(100, 0), Transmitted(100, 0), Absorbed(100, 0), Undefined(100, 0);
+    std::vector<double> Spike(100, 0), BackSpike(100, 0), BackLobe(100, 0), BackLambert(100, 0), WaveShifted(100, 0);
     std::vector<double> Angle;
     double N[3], K[3];
     N[0] = 0;
     N[1] = 0;
-    N[2] = 1.0;
+    N[2] = -1.0;
 
     APhoton ph;
     Stats.clear();
@@ -157,49 +160,32 @@ void AInterfaceRuleTester::on_pbProcessesVsAngle_clicked()
 
             ph.v[0] = K[0];
             ph.v[1] = K[1];
-            ph.v[2] = K[2];
+            ph.v[2] = -K[2];
             ph.waveIndex = getWaveIndex();
 
-tryAgainLabel:
-            AInterfaceRule::OpticalOverrideResultEnum result = Rule->calculate(&ph, N);
-
-            if (result == AInterfaceRule::NotTriggered || result == AInterfaceRule::DelegateLocalNormal)
-            {
-                bool valid = doFresnelSnell(ph, N);
-                if (!valid) goto tryAgainLabel;
-
-                switch (Rule->Status)
-                {
-                case (AInterfaceRule::SpikeReflection) : result = AInterfaceRule::Back;     break;
-                case (AInterfaceRule::LobeReflection)  : result = AInterfaceRule::Back;     break;
-                case (AInterfaceRule::Transmission)    : result = AInterfaceRule::Forward;  break;
-                case (AInterfaceRule::Absorption)      :;
-                default                                : result = AInterfaceRule::Absorbed; break;
-                }
-            }
-
+            EInterfaceResult result = runSinglePhoton(N, ph);
             switch (result)
             {
-            //case AInterfaceRule::NotTriggered: NotTrigger[iAngle]++; break;
-            case AInterfaceRule::Absorbed:     Absorb[iAngle]++;     break;
-            case AInterfaceRule::Forward:      Forward[iAngle]++;    break;
-            case AInterfaceRule::Back:         Back[iAngle]++;       break;
-            default:;
+            case EInterfaceResult::Undefined   : Undefined[iAngle]++;   continue;
+            case EInterfaceResult::Absorbed    : Absorbed[iAngle]++;    continue;
+            case EInterfaceResult::Transmitted : Transmitted[iAngle]++; break;
+            case EInterfaceResult::Reflected   : Reflected[iAngle]++;   break;
             }
 
             switch (Rule->Status)
             {
-            case AInterfaceRule::SpikeReflection: Spike[iAngle]++; break;
-            case AInterfaceRule::BackscatterSpikeReflection: BackSpike[iAngle]++; break;
-            case AInterfaceRule::LobeReflection: BackLobe[iAngle]++; break;
-            case AInterfaceRule::LambertianReflection: BackLambert[iAngle]++; break;
+            case AInterfaceRule::SpikeReflection:            Spike[iAngle]++;       break;
+            case AInterfaceRule::BackscatterSpikeReflection: BackSpike[iAngle]++;   break;
+            case AInterfaceRule::LobeReflection:             BackLobe[iAngle]++;    break;
+            case AInterfaceRule::LambertianReflection:       BackLambert[iAngle]++; break;
             default: ;
             }
         }
-        NotTrigger[iAngle] /= numPhotons;
-        Absorb[iAngle] /= numPhotons;
-        Forward[iAngle] /= numPhotons;
-        Back[iAngle] /= numPhotons;
+
+        Undefined[iAngle] /= numPhotons;
+        Absorbed[iAngle] /= numPhotons;
+        Transmitted[iAngle] /= numPhotons;
+        Reflected[iAngle] /= numPhotons;
 
         Spike[iAngle] /= numPhotons;
         BackSpike[iAngle] /= numPhotons;
@@ -215,24 +201,30 @@ tryAgainLabel:
     {
     case 0:
     {
-        //TGraph * gN = AGraphBuilder::graph(Angle, NotTrigger); AGraphBuilder::configure(gN, "Not triggered", "Angle of incidence, deg", "Fraction",   2, 0, 1,   2, 1, 2);
-        TGraph * gA = AGraphBuilder::graph(Angle, Absorb);     AGraphBuilder::configure(gA, "Absorption",      "Angle of incidence, deg", "Fraction",   1, 0, 1,   1, 1, 2);
-        TGraph * gB = AGraphBuilder::graph(Angle, Back);       AGraphBuilder::configure(gB, "Back",            "Angle of incidence, deg", "Fraction",   3, 0, 1,   3, 1, 2);
-        TGraph * gF = AGraphBuilder::graph(Angle, Forward);    AGraphBuilder::configure(gF, "Forward",         "Angle of incidence, deg", "Fraction",   4, 0, 1,   4, 1, 2);
+        TGraph * gA = AGraphBuilder::graph(Angle, Absorbed);    AGraphBuilder::configure(gA, "Absorption",   "Angle of incidence, deg", "Fraction",   1, 0, 1,   1, 1, 2);
+        TGraph * gB = AGraphBuilder::graph(Angle, Reflected);   AGraphBuilder::configure(gB, "Reflection",   "Angle of incidence, deg", "Fraction",   3, 0, 1,   3, 1, 2);
+        TGraph * gF = AGraphBuilder::graph(Angle, Transmitted); AGraphBuilder::configure(gF, "Transmission", "Angle of incidence, deg", "Fraction",   4, 0, 1,   4, 1, 2);
+        TGraph * gU = nullptr;
+        int sum = std::accumulate(Undefined.begin(), Undefined.end(), 0);
+        if (sum > 0)
+        {
+                 gU = AGraphBuilder::graph(Angle, Undefined);   AGraphBuilder::configure(gU, "Error",       "Angle of incidence, deg", "Fraction",   2, 0, 1,   2, 1, 2);
+        }
+
         gA->SetMinimum(0);
         gA->SetMaximum(1.05);
 
-        //emit requestDraw(gN, "AL",    true, true);
-        emit requestDraw(gA, "AL",    true, false);
-        emit requestDraw(gB, "Lsame", true, false);
-        emit requestDraw(gF, "Lsame", true, true);
+        emit requestDraw(gA,         "AL",    true, false);
+        emit requestDraw(gB,         "Lsame", true, false);
+        emit requestDraw(gF,         "Lsame", true, true);
+        if (gU) emit requestDraw(gU, "Lsame", true, true);
 
-        emit requestDrawLegend(0.12,0.12, 0.4,0.25, "Basic info");
+        emit requestDrawLegend(0.12,0.12, 0.4,0.25, "");
         break;
     }
     case 1:
     {
-        TGraph * gT =  AGraphBuilder::graph(Angle, Back);        AGraphBuilder::configure(gT,  "All reflections", "Angle of incidence, deg", "Fraction",  2,   0, 1,     2, 1, 2);
+        TGraph * gT =  AGraphBuilder::graph(Angle, Reflected);   AGraphBuilder::configure(gT,  "All reflections", "Angle of incidence, deg", "Fraction",  2,   0, 1,     2, 1, 2);
         TGraph * gS =  AGraphBuilder::graph(Angle, Spike);       AGraphBuilder::configure(gS,  "Spike",           "Angle of incidence, deg", "Fraction",  1,   0, 1,     1, 1, 2);
         TGraph * gBS = AGraphBuilder::graph(Angle, BackSpike);   AGraphBuilder::configure(gBS, "BackwardSpike",   "Angle of incidence, deg", "Fraction",  797, 0, 1,   797, 1, 2);
         TGraph * gL =  AGraphBuilder::graph(Angle, BackLobe);    AGraphBuilder::configure(gL,  "Lobe",            "Angle of incidence, deg", "Fraction",  3,   0, 1,     3, 1, 2);
@@ -246,7 +238,7 @@ tryAgainLabel:
         emit requestDraw(gL,  "Lsame", true, false);
         emit requestDraw(gD,  "Lsame", true, true);
 
-        emit requestDrawLegend(0.12,0.75, 0.4,0.93, "Backscattering");
+        emit requestDrawLegend(0.12,0.75, 0.4,0.93, "Reflection fractions");
         break;
     }
     case 2:
@@ -264,15 +256,83 @@ tryAgainLabel:
     setEnabled(true);
 }
 
+EInterfaceResult AInterfaceRuleTester::runSinglePhoton(double * globalNormal, APhoton & photon)
+{
+    PhotonTracer->configureForInterfaceRuleTester(MatFrom, MatTo, Rule, globalNormal, photon);
+    EInterfaceResult result = PhotonTracer->processInterface();
+    PhotonTracer->readBackPhoton(photon);
+
+    // have to catch for rough surface: Status is 'Transmitted', but the direction is backward
+    if (result != EInterfaceResult::Transmitted) return result;
+    if (photon.v[0]*globalNormal[0] + photon.v[1]*globalNormal[1] + photon.v[2]*globalNormal[2] > 0) return result; // good direction
+
+    if (!Rule || Rule->isPolishedSurface())
+    {
+        qWarning() << "Unexpected 'transmitted with wrong direction' environment!";
+        return EInterfaceResult::Absorbed;
+    }
+
+    //qDebug() << "\"Bad photon\":"  << photon.v[0] << photon.v[1] << photon.v[2] << (int)result << "<-0123 is Undefined, Absorbed, Reflected, Transmitted";
+
+    std::array<double,3> reversedNormal;
+    for (size_t i = 0; i < 3; i++) reversedNormal[i] = -globalNormal[i];
+
+    double reversed = true;
+    do
+    {
+        if (reversed)
+        {
+            PhotonTracer->configureForInterfaceRuleTester(MatTo, MatFrom, ReverseRule, reversedNormal.data(), photon);
+            result = PhotonTracer->processInterface();
+            PhotonTracer->readBackPhoton(photon);
+            if (result == EInterfaceResult::Transmitted &&
+                photon.v[0]*reversedNormal[0] + photon.v[1]*reversedNormal[1] + photon.v[2]*reversedNormal[2] < 0)
+            {
+                //again the same problem
+                reversed = false;
+                continue;
+            }
+            // valid photon
+            // in the reversed case we need to reverse the result "interpretation"
+            if (result == EInterfaceResult::Transmitted)
+            {
+                result = EInterfaceResult::Reflected;
+                Rule->Status = AInterfaceRule::LobeReflection;
+            }
+            else if (result == EInterfaceResult::Reflected)
+                result = EInterfaceResult::Transmitted;
+            break; // done
+        }
+        else
+        {
+            PhotonTracer->configureForInterfaceRuleTester(MatFrom, MatTo, Rule, globalNormal, photon);
+            result = PhotonTracer->processInterface();
+            PhotonTracer->readBackPhoton(photon);
+            if (result == EInterfaceResult::Transmitted &&
+                photon.v[0]*globalNormal[0] + photon.v[1]*globalNormal[1] + photon.v[2]*globalNormal[2] < 0)
+            {
+                //again the same problem
+                reversed = true;
+                continue;
+            }
+            break; // done
+        }
+    }
+    while (true);
+
+    //qDebug() << "After:" << photon.v[0] << photon.v[1] << photon.v[2] << (int)result << "<-0123 is Undefined, Absorbed, Reflected, Transmitted";
+    return result;
+}
+
 void AInterfaceRuleTester::on_pbTracePhotons_clicked()
 {
-    if ( !testOverride() ) return;
+    if ( !beforeRun() ) return;
 
     //qDebug() << "Surface:->" << (int)((*pOV)->SurfaceSettings.Model);
 
     //surface normal and photon direction
     TVector3 SurfNorm(0, 0, -1.0);
-    double N[3]; //needs to calculate override
+    double N[3]; //needs to calculate override   // !!!*** memory leak, see also the other two methods
     N[0] = SurfNorm.X();
     N[1] = SurfNorm.Y();
     N[2] = SurfNorm.Z();
@@ -283,8 +343,8 @@ void AInterfaceRuleTester::on_pbTracePhotons_clicked()
 
     //preparing and running cycle with photons
 
-    TH1D * histBack = new TH1D("", "Reflected", 90, 0, 90);
-    TH1D * histForw = new TH1D("", "Transmitted", 90, 0, 90);
+    TH1D * histBack = new TH1D("", "Reflected",   100, 0, 100);
+    TH1D * histForw = new TH1D("", "Transmitted", 100, 0, 100);
     histBack->GetXaxis()->SetTitle("Angle from global normal, degrees"); histBack->SetLineWidth(2); histBack->SetLineColor(2);
     histForw->GetXaxis()->SetTitle("Angle from global normal, degrees"); histForw->SetLineWidth(2);
 
@@ -310,48 +370,13 @@ void AInterfaceRuleTester::on_pbTracePhotons_clicked()
         ph.time = 0;
         ph.waveIndex = waveIndex;
 
-tryAgainLabel:
-        AInterfaceRule::OpticalOverrideResultEnum result = Rule->calculate(&ph, N);
-
-        //in case of absorption or not triggered override, do not build tracks!
+        EInterfaceResult result = runSinglePhoton(N, ph);
         switch (result)
         {
-        default                                  : rep.error++; continue;         // ! ->
-        case AInterfaceRule::Absorbed            : rep.abs++; continue;           // ! ->
-        case AInterfaceRule::Forward             : rep.forw++; break;
-        case AInterfaceRule::Back                : rep.back++; break;
-        case AInterfaceRule::NotTriggered        :;// rep.notTrigger++; continue;    // ! ->
-        case AInterfaceRule::DelegateLocalNormal :
-            {
-                bool valid = doFresnelSnell(ph, N);
-                if (!valid) goto tryAgainLabel;
-
-                if      (Rule->Status == AInterfaceRule::SpikeReflection)
-                {
-                    rep.back++;
-                    break;
-                }
-                else if (Rule->Status == AInterfaceRule::LobeReflection)
-                {
-                    rep.back++; // already tested against wrong angle (as in transmission -> goto will be triggered)
-                    break;
-                }
-                else if (Rule->Status == AInterfaceRule::Transmission)
-                {
-                    rep.forw++; // !!!*** check here and in APhotonTracer - what will happen if the photon status is transmitted, but the direction is backward
-                    break;
-                }
-                else if (Rule->Status == AInterfaceRule::Absorption)
-                {
-                    rep.abs++;
-                    continue; // ! ->
-                }
-                else
-                {
-                    rep.error++;
-                    continue;
-                }
-            }
+        case EInterfaceResult::Undefined   : rep.error++; continue;
+        case EInterfaceResult::Absorbed    : rep.abs++;   continue;
+        case EInterfaceResult::Transmitted : rep.forw++;  break;
+        case EInterfaceResult::Reflected   : rep.back++;  break;
         }
 
         short col;
@@ -418,69 +443,6 @@ tryAgainLabel:
     reportStatistics(rep, numPhot);
 
     setEnabled(true);
-}
-
-bool AInterfaceRuleTester::doFresnelSnell(APhoton & ph, double * normal) // if return false, run rule->calculate again, same as in APhotonTracer
-{
-    if (Rule->isPolishedSurface()) // otherwise already have it
-        for (size_t i = 0; i < 3; i++)
-            Rule->LocalNormal[i] = normal[i];
-
-    const double ref = calculateReflectionProbability(ph);
-
-    if (RandomHub.uniform() < ref)
-    {
-        //double NK = 0;
-        //for (int i = 0; i < 3; i++) NK += Rule->LocalNormal[i] * ph.v[i];
-        //for (int i = 0; i < 3; i++) ph.v[i] -= 2.0 * NK * Rule->LocalNormal[i];
-        PhotonTracer->performReflection();
-        PhotonTracer->readBackPhoton(ph);
-
-        double GNK = 0;
-        for (int i = 0; i < 3; i++) GNK += ph.v[i] * normal[i];
-        if (GNK > 0) //back only in respect to the local normal but actually forward considering global one
-        {
-            //qDebug() << "Rule result is 'Back', but direction is actually 'Forward' --> re-running the rule with new photon direction";
-            return false;
-        }
-
-        if (Rule->isPolishedSurface())
-            Rule->Status = AInterfaceRule::SpikeReflection;
-        else
-            Rule->Status = AInterfaceRule::LobeReflection;
-    }
-    else
-    {
-        if (MatHub[MatTo]->Dielectric)
-        {
-            const double RefrIndexFrom = MatHub[MatFrom]->getRefractiveIndex(ph.waveIndex);
-            const double RefrIndexTo   = MatHub[MatTo]->getRefractiveIndex(ph.waveIndex);
-
-            const double nn = RefrIndexFrom / RefrIndexTo;
-            double NK = 0;
-            for (int i = 0; i < 3; i++) NK += ph.v[i] * Rule->LocalNormal[i];
-
-            const double UnderRoot = 1.0 - nn*nn*(1.0 - NK*NK);
-            if (UnderRoot < 0)
-            {
-                //should not happen --> reflection coefficient takes it into account
-                //rep.error++; continue;
-                Rule->Status = AInterfaceRule::Error;
-            }
-            const double tmp = nn * NK - sqrt(UnderRoot);
-            for (int i = 0; i < 3; i++) ph.v[i] = nn * ph.v[i] - tmp * Rule->LocalNormal[i];
-
-            Rule->Status = AInterfaceRule::Transmission;
-        }
-        else
-        {
-            // absorption for metals
-            // !!!*** not synchronized with APhotontracer
-            Rule->Status = AInterfaceRule::Absorption;
-        }
-    }
-
-    return true;
 }
 
 void AInterfaceRuleTester::showGeometry()
@@ -554,7 +516,7 @@ void AInterfaceRuleTester::on_pbST_showTracks_clicked()
     emit requestShowTracks(true);
 }
 
-bool AInterfaceRuleTester::testOverride()
+bool AInterfaceRuleTester::beforeRun()
 {
     if (!Rule)
     {
@@ -562,12 +524,34 @@ bool AInterfaceRuleTester::testOverride()
         return false;
     }
 
-    QString err = Rule->checkOverrideData();
+    QString err = Rule->checkOverrideData(); // also prepares runtime
     if (!err.isEmpty())
     {
         guitools::message("Override reports an error:\n" + err, this);
         return false;
     }
+
+    delete ReverseRule; ReverseRule = nullptr;
+    if (Rule->isNotPolishedSurface() && !Rule->SurfaceSettings.KillPhotonsRefractedBackward)
+    {
+        QJsonObject json;
+        Rule->writeToJson(json);
+        ReverseRule = AInterfaceRule::interfaceRuleFactory(Rule->getType(), Rule->getMaterialTo(), Rule->getMaterialFrom()); // reversed materials!
+        bool ok = false;
+        if (ReverseRule) ok = ReverseRule->readFromJson(json);
+        if (!ok)
+        {
+            guitools::message("Failed to create the reverse interface rule!", this);
+            return false;
+        }
+        QString err = ReverseRule->checkOverrideData(); // also prepares runtime
+        if (!err.isEmpty())
+        {
+            guitools::message("Reverse rule error:\n" + err, this);
+            return false;
+        }
+    }
+
     return true;
 }
 
@@ -592,7 +576,8 @@ TVector3 AInterfaceRuleTester::getPhotonVector()
 
 void AInterfaceRuleTester::on_pbDiffuseIrradiation_clicked()
 {
-    if ( !testOverride() ) return;
+    ui->pte->clear();
+    if ( !beforeRun() ) return;
 
     double N[3]; //normal
     N[0] = 0;
@@ -601,8 +586,8 @@ void AInterfaceRuleTester::on_pbDiffuseIrradiation_clicked()
 
     double K[3]; //photon direction - new for every photon!
 
-    TH1D * histBack = new TH1D("", "Reflected", 90, 0, 90);
-    TH1D * histForw = new TH1D("", "Transmitted", 90, 0, 90);
+    TH1D * histBack = new TH1D("", "Reflected",   100, 0, 100);
+    TH1D * histForw = new TH1D("", "Transmitted", 100, 0, 100);
     histBack->GetXaxis()->SetTitle("Angle from global normal, degrees"); histBack->SetLineWidth(2); histBack->SetLineColor(2);
     histForw->GetXaxis()->SetTitle("Angle from global normal, degrees"); histForw->SetLineWidth(2);
 
@@ -635,33 +620,15 @@ void AInterfaceRuleTester::on_pbDiffuseIrradiation_clicked()
         ph.time = 0;
         ph.waveIndex = waveIndex;
 
-tryAgainLabel:
-        AInterfaceRule::OpticalOverrideResultEnum result = Rule->calculate(&ph, N);
-
-        if (result == AInterfaceRule::NotTriggered || result == AInterfaceRule::DelegateLocalNormal)
-        {
-            bool valid = doFresnelSnell(ph, N);
-            if (!valid) goto tryAgainLabel;
-
-            switch (Rule->Status)
-            {
-            case (AInterfaceRule::SpikeReflection) : result = AInterfaceRule::Back;     break;
-            case (AInterfaceRule::LobeReflection)  : result = AInterfaceRule::Back;     break;
-            case (AInterfaceRule::Transmission)    : result = AInterfaceRule::Forward;  break;
-            case (AInterfaceRule::Absorption)      :;
-            default                                : result = AInterfaceRule::Absorbed; break;
-            }
-        }
-
         bool bBack = false;
         bool bForw = false;
+        EInterfaceResult result = runSinglePhoton(N, ph);
         switch (result)
         {
-        case AInterfaceRule::Absorbed:     rep.abs++;                      break;
-        case AInterfaceRule::NotTriggered: rep.notTrigger++;               break;
-        case AInterfaceRule::Forward:      rep.forw++;       bForw = true; break;
-        case AInterfaceRule::Back:         rep.back++;       bBack = true; break;
-        default: rep.error++;
+        case EInterfaceResult::Undefined   : rep.error++;               continue;
+        case EInterfaceResult::Absorbed    : rep.abs++;                 continue;
+        case EInterfaceResult::Transmitted : rep.forw++;  bForw = true; break;
+        case EInterfaceResult::Reflected   : rep.back++;  bBack = true; break;
         }
 
         if      (Rule->Status == AInterfaceRule::SpikeReflection)            rep.Bspike++;
@@ -733,7 +700,7 @@ void AInterfaceRuleTester::reportStatistics(const AReportForOverride &rep, int n
     if (rep.abs > 0)    t += QString("  Absorption: %1%  (%2)\n").arg(rep.abs/numPhot*100.0).arg(rep.abs);
     if (rep.back > 0)   t += QString("  Back: %1%  (%2)\n").arg(rep.back/numPhot*100.0).arg(rep.back);
     if (rep.forw)       t += QString("  Forward: %1%  (%2)\n").arg(rep.forw/numPhot*100.0).arg(rep.forw);
-    if (rep.notTrigger) t += QString("  Not triggered: %1%  (%2)\n").arg(rep.notTrigger/numPhot*100.0).arg(rep.notTrigger);
+    if (rep.error)      t += QString("  Error: %1%  (%2)\n").arg(rep.error/numPhot*100.0).arg(rep.error);
     t += "\n";
 
     if (rep.back > 0)
@@ -756,10 +723,4 @@ void AInterfaceRuleTester::reportStatistics(const AReportForOverride &rep, int n
     ui->pte->appendPlainText(t);
     ui->pte->moveCursor(QTextCursor::Start);
     ui->pte->ensureCursorVisible();
-}
-
-double AInterfaceRuleTester::calculateReflectionProbability(APhoton & photon) const
-{
-    PhotonTracer->configureForInterfaceRuleTester(MatFrom, MatTo, Rule, photon);
-    return PhotonTracer->calculateReflectionProbability();
 }

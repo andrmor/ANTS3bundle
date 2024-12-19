@@ -4,6 +4,7 @@
 #include <set>
 
 #include <QDialog>
+#include <QString>
 #include <QStringList>
 
 namespace Ui {
@@ -22,13 +23,19 @@ class AInterfaceRuleDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit AInterfaceRuleDialog(AInterfaceRule * rule, int matFrom, int matTo, QWidget * parent); // !!!*** load
+    AInterfaceRuleDialog(AInterfaceRule * rule, int matFrom, int matTo, QWidget * parent, QString volFrom = "", QString volTo = "");
     ~AInterfaceRuleDialog();
 
     AInterfaceRule * getRule();
+    bool isSetSymmetric() const;
 
     int MatFrom;
     int MatTo;
+
+    QString VolumeFrom;
+    QString VolumeTo;
+    bool    VolumeInterfaceRule = false;
+    bool    VolumesExist = false;
 
 private slots:
     void on_cobType_currentIndexChanged(int index);
@@ -46,8 +53,10 @@ private slots:
     void on_pbShowCustomNormalDistribution_clicked();
     void on_pbRemoveCustomNormalDistribution_clicked();
     void on_cbCustNorm_CorrectForOrientation_clicked(bool checked);
-
     void on_pbShowCustomNormalDistribution_customContextMenuRequested(const QPoint &pos);
+    void on_cbKillBackRefracted_clicked(bool checked);
+
+    void on_cbSymmetric_clicked(bool checked);
 
 protected:
     void closeEvent(QCloseEvent * e);
@@ -57,7 +66,7 @@ private:
     AInterfaceRuleHub & RuleHub;
 
     Ui::AInterfaceRuleDialog * ui           = nullptr;
-    AInterfaceRule           * LocalRule    = nullptr;
+    AInterfaceRule           * Rule    = nullptr;
     AInterfaceRuleTester     * TesterWindow = nullptr;
 
     int customWidgetPositionInLayout = 4;
@@ -69,6 +78,7 @@ private:
     AInterfaceRule * findInOpended(const QString & ovType);
     void clearTmpRules();
     void updateCustomNormalButtons();
+    void updateSymmetricVisuals();
 
 signals:
     // signal retranslators from AInterfaceRuleTester and AInterfaceRuleWidget

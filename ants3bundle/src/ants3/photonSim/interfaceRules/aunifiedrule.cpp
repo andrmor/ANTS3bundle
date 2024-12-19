@@ -16,7 +16,7 @@ AUnifiedRule::AUnifiedRule(int MatFrom, int MatTo) : AInterfaceRule(MatFrom, Mat
     SurfaceSettings.Model = ASurfaceSettings::Unified;
 }
 
-AInterfaceRule::OpticalOverrideResultEnum AUnifiedRule::calculate(APhoton * Photon, const double * NormalVector)
+AInterfaceRule::EInterfaceRuleResult AUnifiedRule::calculate(APhoton * Photon, const double * NormalVector)
 {
     const double Refl = computeRefractionProbability(Photon, NormalVector);
 

@@ -6,6 +6,8 @@
 class APhotonStatistics;
 class QString;
 
+enum class EInterfaceResult   {Undefined, Absorbed, Reflected, Transmitted};
+
 class APhoton : public ADataIOBase
 {
 public:

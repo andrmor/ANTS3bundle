@@ -4,6 +4,7 @@
 #include "aphoton.h"
 #include "aphotontrackrecord.h"
 #include "aphotonhistorylog.h"
+#include "ainterfacerule.h"
 
 #include "TString.h"
 
@@ -22,12 +23,9 @@ class ALightSensorEvent;
 class TGeoNavigator;
 class TGeoVolume;
 class QTextStream;
-class AInterfaceRule;
 class TGeoNode;
 
 enum class EBulkProcessResult {NotTriggered, Absorbed, Scattered, WaveShifted};
-enum class EFresnelResult     {Reflected, Transmitted};
-enum class EInterRuleResult   {NotTriggered, DelegateLocalNormal, Absorbed, Reflected, Transmitted};
 
 class APhotonTracer
 {
@@ -38,11 +36,10 @@ public:
 
     void tracePhoton(const APhoton & phot);
 
-    void   configureForInterfaceRuleTester(int fromMat, int toMat, AInterfaceRule * interfaceRule, APhoton & photon);
-    double calculateReflectionProbability(); // double usage!
-    void   performReflection();              // double usage!
-    bool   performRefraction();              // double usage!   !!!*** back to interface case handling!
-    void   readBackPhoton(APhoton & photonToUpdate);
+    // the next tree methods are used by AInterfaceRuleTester
+    void             configureForInterfaceRuleTester(int fromMat, int toMat, AInterfaceRule * interfaceRule, double * globalNormal, APhoton & photon);
+    EInterfaceResult processInterface();
+    void             readBackPhoton(APhoton & photonToUpdate);
 
     APhotonTrackRecord             Track;
     std::vector<APhotonHistoryLog> PhLog;
@@ -58,7 +55,7 @@ private:
     APhotonStatistics        & SimStat;
 
     // external resources
-    ALightSensorEvent                & Event;
+    ALightSensorEvent        & Event;
     QTextStream*             & StreamTracks;
     QTextStream*             & StreamSensorLog;
     QTextStream*             & StreamPhotonLog;
@@ -72,11 +69,9 @@ private:
     double   Rnd;                   // pre-generated random number for accelerated mode
     double   Step;
     double * N = nullptr;           //normal vector to the surface - returned by TGeo
-    double   LocalN[3];             //local normal vector to the surface - only if the interface rule defines it!
     bool     bHaveNormal = false;
     int      MatIndexFrom;          // material index of the current medium or medium before the interface
     int      MatIndexTo;            // material index of the medium after interface
-    bool     bDoFresnel;            // flag - to perform or not the fresnel calculation on the interface
     TString  NameFrom;
     int      VolumeIndexFrom;
     TString  NameTo;
@@ -87,7 +82,6 @@ private:
     const TGeoVolume * VolumeTo     = nullptr;
     const AMaterial  * MaterialFrom = nullptr; // material before the interface
     const AMaterial  * MaterialTo   = nullptr; // material after the interface
-    //TGeoNode         * NodeAfter    = nullptr; // node after interface
 
     bool               bGridShiftOn = false;
     double             R_afterStep[3];
@@ -96,11 +90,13 @@ private:
     const TGeoVolume * GridVolume = nullptr;         // the grid bulk
 
     AInterfaceRule * InterfaceRule = nullptr;
-    bool    bUseLocalNormal = false;
+    bool bUseLocalNormal = false;
 
     double _MaxQE = 1.0;
 
     const int MaxNumberAttemptsGenerateReemissionWavelength = 10; // if failed within this number, photon is forced to absorption
+
+    bool SaveLog = false;
 
     bool initBeforeTracing(const APhoton & phot);
     void initTracks();
@@ -114,11 +110,14 @@ private:
     void savePhotonLogRecord();
     void saveTrack();
     AInterfaceRule * getInterfaceRule() const; // can return nullptr
-    EFresnelResult tryReflection();
-    EInterRuleResult tryInterfaceRule();
+    AInterfaceRule::EInterfaceRuleResult tryInterfaceRule();
     EBulkProcessResult checkBulkProcesses();
     void checkSpecialVolume(TGeoNode * NodeAfterInterface, bool & returnEndTracingFlag);
     bool isPhotonEscaped();
     void appendToSensorLog(int ipm, double time, double x, double y, double angle, int waveIndex);
+    double calculateReflectionProbability();
+    void performReflection();
+    bool performRefraction();
+    void fillSimStatAndLog(EInterfaceResult status);
 };
 #endif // APHOTONTRACER_H

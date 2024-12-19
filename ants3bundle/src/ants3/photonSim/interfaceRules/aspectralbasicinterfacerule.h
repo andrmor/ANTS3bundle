@@ -14,7 +14,7 @@ public:
     ASpectralBasicInterfaceRule(int MatFrom, int MatTo);
     ~ASpectralBasicInterfaceRule() {}
 
-    OpticalOverrideResultEnum calculate(APhoton* Photon, const double* NormalVector) override; //unitary vectors! iWave = -1 if not wavelength-resolved
+    EInterfaceRuleResult calculate(APhoton* Photon, const double* NormalVector) override; //unitary vectors! iWave = -1 if not wavelength-resolved
 
     QString getType() const override {return "SimplisticSpectral";}
     QString getAbbreviation() const override {return "SimpS";}

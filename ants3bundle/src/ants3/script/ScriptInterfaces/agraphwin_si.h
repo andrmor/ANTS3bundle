@@ -19,7 +19,7 @@ public:
     AScriptInterface * cloneBase() const {return new AGraphWin_SI(GraphWindow);}
 
 public slots:
-    void addToBasket(QString Title);
+    void addToBasket(QString title);
     void clearBasket();
 
     void setLog(bool Xaxis, bool Yaxis);
@@ -29,8 +29,8 @@ public slots:
     void setLegendBorder(int color, int style, int size);
 
     void addText(QString text, bool showframe, int alignment_0Left1Center2Right);
-    void addTextAtXY(QString text, bool Showframe, int Alignment_0Left1Center2Right, double x1, double y1, double x2, double y2);
     void addTextAtScreenXY(QString text, bool Showframe, int Alignment_0Left1Center2Right, double x1, double y1, double x2, double y2);
+    void addTextAtXY(QString text, bool Showframe, int Alignment_0Left1Center2Right, double x1, double y1, double x2, double y2);
 
     void addLine(double x1, double y1, double x2, double y2, int color, int width, int style);
     void addArrow(double x1, double y1, double x2, double y2, int color, int width, int style);
@@ -42,7 +42,6 @@ public slots:
 
     void show3D(QString castorFileName);
 
-    //void exportTH2AsText(QString fileName); obsolete?
     /*
     QVariant GetProjection();
     void ConfigureProjectionTool(double x0, double y0, double dx, double dy, double angle);
@@ -51,6 +50,16 @@ public slots:
 
 signals:
     void requestShow3D(QString fileName, bool keepSettings = false);
+
+    void requestAddToBasket(QString title);
+    void requestClearBasket();
+    void requestSetLog(bool Xaxis, bool Yaxis);
+    void requestSetStatPanelVisible(bool flag);
+    void requestAddLegend(double x1, double y1, double x2, double y2, QString title);
+    void requestSetLegendBorder(int color, int style, int size);
+    void requestAddText(QString text, bool Showframe, int Alignment_0Left1Center2Right, double x1, double y1, double x2, double y2, QString opt);
+    void requestAddLine(double x1, double y1, double x2, double y2, int color, int width, int style);
+    void requestAddArrow(double x1, double y1, double x2, double y2, int color, int width, int style);
 
 private:
     GraphWindowClass * GraphWindow = nullptr;

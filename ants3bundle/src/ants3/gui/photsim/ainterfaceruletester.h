@@ -2,6 +2,7 @@
 #define AINTERFACERULETESTER_H
 
 #include "aguiwindow.h"
+#include "aphoton.h"
 
 #include <vector>
 #include <array>
@@ -26,7 +27,6 @@ struct AReportForOverride
     double abs = 0;
     double back = 0;
     double forw = 0;
-    double notTrigger = 0;
     double error = 0;
 
     double Bspike = 0;
@@ -67,8 +67,9 @@ public slots:
 private slots:
     void on_pbTracePhotons_clicked();
     void on_pbProcessesVsAngle_clicked();
-    void on_pbST_showTracks_clicked();
     void on_pbDiffuseIrradiation_clicked();
+
+    void on_pbST_showTracks_clicked();
 
     void on_cbWavelength_toggled(bool checked);
     void on_ledST_wave_editingFinished();
@@ -96,15 +97,16 @@ private:
 
     bool AbortCycle = false;
 
-    APhotonTracer * PhotonTracer = nullptr;   // used in the cases the interface rule is not triggering or delegating local normal
+    APhotonTracer     * PhotonTracer = nullptr;
     ALightSensorEvent * DummyLightSensorEvent = nullptr; // dummy
+    AInterfaceRule    * ReverseRule = nullptr;
 
-    bool     testOverride();
+    bool     beforeRun();
     int      getWaveIndex();
     TVector3 getPhotonVector();
     void     reportStatistics(const AReportForOverride & rep, int numPhot);
-    double   calculateReflectionProbability(APhoton & photon) const;
-    bool     doFresnelSnell(APhoton & ph, double * normal);
+
+    EInterfaceResult runSinglePhoton(double * globalNormal, APhoton & photon);
 
 signals:
     void requestDraw(TObject * obj, const QString & options, bool transferOwnership, bool focusWindow);

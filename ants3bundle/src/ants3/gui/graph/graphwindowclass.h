@@ -56,7 +56,6 @@ public:
     void ClearRootCanvas();
     void UpdateRootCanvas();
     void SetModifiedFlag();
-    void SetLog(bool X, bool Y);
 
     //Canvas size in actual coordinates of plotted data
     double getCanvasMinX();
@@ -111,7 +110,6 @@ public:
 
     bool Extraction();
 
-    void ClearBasket();
     TObject * GetMainPlottedObject();
     void SaveGraph(const QString & fileName);
     void EnforceOverlayOff();
@@ -147,6 +145,8 @@ public slots:
     void UpdateControls(); //updates visualisation of the current master graph parameters   !!!***
     void DoSaveGraph(QString name);
     void addCurrentToBasket(const QString & name);
+    void ClearBasket();
+    void SetLog(bool X, bool Y);
     void drawLegend(double x1, double y1, double x2, double y2, QString title);
     void ShowTextPanel(const QString Text, bool bShowFrame=true, int AlignLeftCenterRight=0,
                        double x1=0.15, double y1=0.75, double x2=0.5, double y2=0.85, const QString opt = "NDC");

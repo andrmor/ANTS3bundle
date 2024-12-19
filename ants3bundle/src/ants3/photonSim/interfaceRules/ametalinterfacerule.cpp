@@ -59,7 +59,7 @@ QString AMetalInterfaceRule::doCheckOverrideData()
     return "";
 }
 
-AInterfaceRule::OpticalOverrideResultEnum AMetalInterfaceRule::calculate(APhoton * photon, const double * globalNormal)
+AInterfaceRule::EInterfaceRuleResult AMetalInterfaceRule::calculate(APhoton * photon, const double * globalNormal)
 {
 tryAgainLabel:
     double cosTheta = 0;

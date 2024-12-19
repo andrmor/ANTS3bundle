@@ -48,7 +48,7 @@ void AWaveshifterInterfaceRule::initializeWaveResolved()
 }
 
 #include "astatisticshub.h"
-AInterfaceRule::OpticalOverrideResultEnum AWaveshifterInterfaceRule::calculate(APhoton *Photon, const double *NormalVector)
+AInterfaceRule::EInterfaceRuleResult AWaveshifterInterfaceRule::calculate(APhoton *Photon, const double *NormalVector)
 {
     //currently assuming there is no scattering on original wavelength - only reemission or absorption
 

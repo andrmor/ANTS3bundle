@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>461</width>
-    <height>373</height>
+    <height>404</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -37,31 +37,89 @@
      <item>
       <widget class="QLabel" name="label">
        <property name="text">
-        <string>Interface from:</string>
+        <string>Interface:</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="leMatFrom">
+      <widget class="QLabel" name="labFrom">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="font">
+        <font>
+         <fontweight>DemiBold</fontweight>
+        </font>
+       </property>
        <property name="text">
-        <string/>
+        <string>From</string>
        </property>
-       <property name="readOnly">
-        <bool>true</bool>
+       <property name="alignment">
+        <set>Qt::AlignmentFlag::AlignCenter</set>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QLabel" name="label_2">
+      <widget class="QLabel" name="labArrow">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="text">
-        <string>to:</string>
+        <string>--&gt;</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignmentFlag::AlignCenter</set>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="leMatTo">
-       <property name="readOnly">
-        <bool>true</bool>
+      <widget class="QLabel" name="labTo">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="font">
+        <font>
+         <fontweight>DemiBold</fontweight>
+        </font>
+       </property>
+       <property name="text">
+        <string>To</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignmentFlag::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_17">
+       <property name="orientation">
+        <enum>Qt::Orientation::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="cbSymmetric">
+       <property name="toolTip">
+        <string>When 'Accept changes' is pressed, the reverse interface rule is also updated with the same settings.
+Note that for updates from the script you have to update both rules!</string>
+       </property>
+       <property name="text">
+        <string>Symmetric</string>
        </property>
       </widget>
      </item>
@@ -266,7 +324,7 @@
          <enum>QFrame::Shape::NoFrame</enum>
         </property>
         <property name="currentIndex">
-         <number>0</number>
+         <number>1</number>
         </property>
         <widget class="QWidget" name="page"/>
         <widget class="QWidget" name="page_3">
@@ -512,6 +570,26 @@ Select the angle units before load!</string>
          </layout>
         </widget>
        </widget>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_10">
+        <property name="leftMargin">
+         <number>10</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <item>
+         <widget class="QCheckBox" name="cbKillBackRefracted">
+          <property name="toolTip">
+           <string>e.g. back-painted material</string>
+          </property>
+          <property name="text">
+           <string>Photons refracted back towards the interface are absorbed</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </item>
      </layout>
     </widget>
