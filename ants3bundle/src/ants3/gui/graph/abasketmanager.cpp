@@ -11,6 +11,7 @@
 #include "TF2.h"
 #include "TGraph.h"
 #include "TGraphErrors.h"
+#include "TGraph2D.h"
 #include "TAxis.h"
 #include "TH1.h"
 #include "TH2.h"
@@ -19,22 +20,14 @@
 #include "TLegend.h"
 #include "TLegendEntry.h"
 
-ABasketManager::ABasketManager()
-{
-    //NotValidItem << ADrawObject(new TNamed("Not valid index", "Not valid index"), "");
-}
-
 ABasketManager::~ABasketManager()
 {
     clear();
-
-    //delete NotValidItem.first().Pointer;
-    //NotValidItem.clear();
 }
 
 TGraph * HistToGraph(TH1 * h)
 {
-    if (!h) return 0;
+    if (!h) return nullptr;
     QVector<double> x, f;
     for (int i=1; i<h->GetXaxis()->GetNbins()-1; i++)
     {
@@ -44,7 +37,6 @@ TGraph * HistToGraph(TH1 * h)
     return new TGraph(x.size(), x.data(), f.data());
 }
 
-#include "TGraph2D.h"
 void ABasketManager::add(const QString & name, const QVector<ADrawObject> & drawObjects)
 {
     ABasketItem item;
@@ -172,7 +164,7 @@ void ABasketManager::update(int index, const QVector<ADrawObject> & drawObjects)
     Basket.remove(Basket.size()-1);
 }
 
-const QVector<ADrawObject> ABasketManager::getCopy(int index) const
+QVector<ADrawObject> ABasketManager::getCopy(int index) const
 {
     QVector<ADrawObject> res;
 
@@ -272,7 +264,7 @@ void ABasketManager::rename(int index, const QString & newName)
     Basket[index].Name = newName;
 }
 
-const QStringList ABasketManager::getItemNames() const
+QStringList ABasketManager::getItemNames() const
 {
     QStringList res;
     for (const ABasketItem & item : Basket)
@@ -338,62 +330,6 @@ void ABasketManager::saveAll(const QString & fileName)
     desc.Write("BasketDescription_v2");
 
     f.Close();
-
-    /*
-    //Old system - files created using it still can be loaded
-    QString str;
-    TFile f(fileName.toLocal8Bit(), "RECREATE");
-
-    //qDebug() << "----Items:"<<Basket.size()<<"----";
-    int index = 0;
-    for (int ib=0; ib<Basket.size(); ib++)
-    {
-        //qDebug() << ib<<">"<<Basket[ib].Name;
-        str += getName(ib) + '\n';
-
-        QVector<ADrawObject> & DrawObjects = getDrawObjects(ib);
-        str += QString::number( DrawObjects.size() );
-
-        for (int i = 0; i < DrawObjects.size(); i++)
-        {
-            ADrawObject & Obj = DrawObjects[i];
-            qDebug() << "Saving>>"<<i<<Obj.Pointer<<Obj.Pointer->GetName()<<Obj.Pointer->ClassName();
-            TString name = "";
-            name += index;
-            TNamed* nameO = dynamic_cast<TNamed*>(Obj.Pointer);
-            if (nameO) nameO->SetName(name);
-
-            TString KeyName = "#";
-            KeyName += index;
-            Obj.Pointer->Write(KeyName);
-
-            str += '|' + Obj.Options;
-
-            index++;
-
-
-            TLegend * Legend = dynamic_cast<TLegend*>(Obj.Pointer);
-            if (Legend)
-            {
-                TList * elist = Legend->GetListOfPrimitives();
-                int num = elist->GetEntries();
-                for (int ie = 0; ie < num; ie++)
-                {
-                    TLegendEntry * en = static_cast<TLegendEntry*>( (*elist).At(ie));
-                    qDebug() << "Entry obj:"<< en->GetObject();
-                }
-            }
-        }
-
-        str += '\n';
-    }
-
-    TNamed desc;
-    desc.SetTitle(str.toLocal8Bit().data());
-    desc.Write("BasketDescription");
-
-    f.Close();
-    */
 }
 
 QString ABasketManager::appendBasket(const QString & fileName)
