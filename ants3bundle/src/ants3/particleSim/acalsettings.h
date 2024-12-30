@@ -44,6 +44,8 @@ public:
 
     enum EDataType {Energy, Dose};
 
+    bool IncludeHostedVolumes = false;
+
     EDataType DataType = Energy;
     bool RandomizeBin = false;
     std::array<double, 3> Origin = {-5, -5, -5};
@@ -95,6 +97,8 @@ public:
 #endif
 
     std::vector<ACalSetRecord> Calorimeters;
+
+    std::vector<std::string> DelegatingCalorimeters;
 
     void clear();
 };

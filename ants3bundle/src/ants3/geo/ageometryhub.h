@@ -137,6 +137,7 @@ private:
     QString readGDMLtoTGeo(const QString & fileName);
 
     void registerPhotonFunctional(AGeoObject * obj, TGeoVolume * parentVol);
+    void registerCompositeCalorimeterMembers(AGeoObject *obj);
 
 private:
     bool   DoScaling = false;

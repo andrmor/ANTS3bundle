@@ -77,6 +77,7 @@ protected:
     QComboBox * cobRole = nullptr;
     QComboBox * cobSensorModel = nullptr;
     QComboBox * cobCalType;
+    QCheckBox * cbCalIncludeHosted;
     QCheckBox * cbCalRandomize;
     AOneLineTextEdit *ledCalOriginX, *ledCalOriginY, *ledCalOriginZ;
     AOneLineTextEdit *ledCalStepX, *ledCalStepY, *ledCalStepZ;

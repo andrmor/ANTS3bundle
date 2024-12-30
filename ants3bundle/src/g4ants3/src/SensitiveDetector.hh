@@ -103,7 +103,14 @@ public:
 
     AHistogram1D * EventDepoData = nullptr;
     double SumDepoOverEvent = 0;
+};
 
+class DelegatingCalorimeterSensitiveDetector : public G4VSensitiveDetector
+{
+public:
+    DelegatingCalorimeterSensitiveDetector(const std::string & name);
+
+    G4bool ProcessHits(G4Step * step, G4TouchableHistory * history) override;
 };
 
 class AnalyzerSensitiveDetector : public G4VSensitiveDetector

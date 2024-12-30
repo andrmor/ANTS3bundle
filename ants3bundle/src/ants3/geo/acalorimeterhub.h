@@ -43,6 +43,7 @@ private:
 
 public:
     std::vector<ACalorimeterData> Calorimeters;
+    std::vector<QString> CompositeCalorimeterMembers; // members of the composite calorimeters
 
     void clear();
     void clearData();

@@ -412,6 +412,51 @@ void CalorimeterSensitiveDetector::writeToJson(json11::Json::object & json)
 
 // -------------------------
 
+DelegatingCalorimeterSensitiveDetector::DelegatingCalorimeterSensitiveDetector(const std::string & name) :
+    G4VSensitiveDetector(name) {}
+
+G4bool DelegatingCalorimeterSensitiveDetector::ProcessHits(G4Step * step, G4TouchableHistory * history)
+{
+    const G4double depo = step->GetTotalEnergyDeposit();
+    if (depo == 0.0) return false;
+
+    const G4ThreeVector & fromGlobal = step->GetPreStepPoint()->GetPosition();
+    const G4ThreeVector & toGlobal   = step->GetPostStepPoint()->GetPosition();
+
+    bool RandomizeBin = false; // !!!*** tmp
+
+    G4ThreeVector global;
+    if (RandomizeBin)
+    {
+        const double rnd = 0.00001 + 0.99999 * ARandomHub::getInstance().uniform();
+        global = fromGlobal + rnd * (toGlobal - fromGlobal);
+    }
+    else
+        global = 0.5 * (fromGlobal + toGlobal);
+
+    G4VSensitiveDetector * parentSensDet = nullptr;
+    const G4TouchableHandle & touch = step->GetPreStepPoint()->GetTouchableHandle();
+    int depth = 1;
+    do
+    {
+        G4VPhysicalVolume * physVol = touch->GetVolume(depth);
+        if (!physVol) return false; // !!!***
+
+        parentSensDet = physVol->GetLogicalVolume()->GetSensitiveDetector();
+    }
+    while (parentSensDet == this);
+
+    //G4NavigationHistory * hist = touch->GetHistory()->GetTransform(depth).TransformPoint(global);
+    const G4ThreeVector local = touch->GetHistory()->GetTransform(depth).TransformPoint(global);
+
+    std::cout << global << local << "\n";
+
+    //masterSensDet->ProcessDelegatedHit(depo, local, step);
+    return true;
+}
+
+// -------------------------
+
 AnalyzerSensitiveDetector::AnalyzerSensitiveDetector(const std::string & name) :
     G4VSensitiveDetector(name) {}
 
