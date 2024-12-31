@@ -330,10 +330,17 @@ G4bool CalorimeterSensitiveDetector::ProcessHits(G4Step * step, G4TouchableHisto
 
     //std::cout << global << local << "\n";
 
+    registerHit(depo, local, step);
+
+    return true;
+}
+
+void CalorimeterSensitiveDetector::registerHit(double depo, const G4ThreeVector & local, G4Step * step)
+{
     if (Properties.DataType == ACalorimeterProperties::Dose)
     {
         const G4Material * material = step->GetPreStepPoint()->GetMaterial();  // on material change step always ends anyway
-        if (!material) return false; // paranoic
+        if (!material) return; // paranoic
         const double density_kgPerMM3 = material->GetDensity() / (kg/mm3);
         if (density_kgPerMM3 > 1e-10 * g/cm3 / (kg/mm3)) // ignore vacuum
         {
@@ -344,8 +351,6 @@ G4bool CalorimeterSensitiveDetector::ProcessHits(G4Step * step, G4TouchableHisto
     else Data->fill({local[0], local[1], local[2]}, depo / MeV);
 
     if (Properties.CollectDepoOverEvent) SumDepoOverEvent += depo / MeV;
-
-    return true;
 }
 
 void CalorimeterSensitiveDetector::writeToJson(json11::Json::object & json)
@@ -443,15 +448,20 @@ G4bool DelegatingCalorimeterSensitiveDetector::ProcessHits(G4Step * step, G4Touc
         if (!physVol) return false; // !!!***
 
         parentSensDet = physVol->GetLogicalVolume()->GetSensitiveDetector();
+        // !!!*** inc depth
     }
     while (parentSensDet == this);
+    // !!!*** fix depth (-1?)
+
+    // !!!*** check for errors
+    CalorimeterSensitiveDetector * masterSensDet = dynamic_cast<CalorimeterSensitiveDetector*>(parentSensDet);
 
     //G4NavigationHistory * hist = touch->GetHistory()->GetTransform(depth).TransformPoint(global);
     const G4ThreeVector local = touch->GetHistory()->GetTransform(depth).TransformPoint(global);
 
-    std::cout << global << local << "\n";
+    //std::cout << global << local << "\n";
 
-    //masterSensDet->ProcessDelegatedHit(depo, local, step);
+    masterSensDet->registerHit(depo, local, step);
     return true;
 }
 
