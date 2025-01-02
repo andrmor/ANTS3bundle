@@ -425,13 +425,26 @@ G4bool DelegatingCalorimeterSensitiveDetector::ProcessHits(G4Step * step, G4Touc
     const G4double depo = step->GetTotalEnergyDeposit();
     if (depo == 0.0) return false;
 
+    G4VSensitiveDetector * parentSensDet = nullptr;
+    const G4TouchableHandle & touch = step->GetPreStepPoint()->GetTouchableHandle();
+    int depth = 0;
+    do
+    {
+        depth++; // starting with 1, do not want to inc during the last step
+        G4VPhysicalVolume * physVol = touch->GetVolume(depth);
+        if (!physVol) return false; // !!!***
+
+        parentSensDet = physVol->GetLogicalVolume()->GetSensitiveDetector();
+    }
+    while (parentSensDet == this);
+
+    CalorimeterSensitiveDetector * masterSensDet = dynamic_cast<CalorimeterSensitiveDetector*>(parentSensDet);
+    if (!masterSensDet) SessionManager::getInstance().terminateSession("Cannot find main sensitive detector for composite calorimeter");
+
     const G4ThreeVector & fromGlobal = step->GetPreStepPoint()->GetPosition();
     const G4ThreeVector & toGlobal   = step->GetPostStepPoint()->GetPosition();
-
-    bool RandomizeBin = false; // !!!*** tmp
-
     G4ThreeVector global;
-    if (RandomizeBin)
+    if (masterSensDet->Properties.RandomizeBin)
     {
         const double rnd = 0.00001 + 0.99999 * ARandomHub::getInstance().uniform();
         global = fromGlobal + rnd * (toGlobal - fromGlobal);
@@ -439,27 +452,13 @@ G4bool DelegatingCalorimeterSensitiveDetector::ProcessHits(G4Step * step, G4Touc
     else
         global = 0.5 * (fromGlobal + toGlobal);
 
-    G4VSensitiveDetector * parentSensDet = nullptr;
-    const G4TouchableHandle & touch = step->GetPreStepPoint()->GetTouchableHandle();
-    int depth = 1;
-    do
-    {
-        G4VPhysicalVolume * physVol = touch->GetVolume(depth);
-        if (!physVol) return false; // !!!***
-
-        parentSensDet = physVol->GetLogicalVolume()->GetSensitiveDetector();
-        // !!!*** inc depth
-    }
-    while (parentSensDet == this);
-    // !!!*** fix depth (-1?)
-
-    // !!!*** check for errors
-    CalorimeterSensitiveDetector * masterSensDet = dynamic_cast<CalorimeterSensitiveDetector*>(parentSensDet);
+    int currentHistoryDepth = touch->GetHistory()->GetDepth();
 
     //G4NavigationHistory * hist = touch->GetHistory()->GetTransform(depth).TransformPoint(global);
-    const G4ThreeVector local = touch->GetHistory()->GetTransform(depth).TransformPoint(global);
+    //const G4ThreeVector local = touch->GetHistory()->GetTransform(depth).TransformPoint(global);
+    const G4ThreeVector local = touch->GetHistory()->GetTransform(currentHistoryDepth - depth).TransformPoint(global);
 
-    //std::cout << global << local << "\n";
+    //std::cout << "CalorDepth:" << depth << " HistDepth"<< currentHistoryDepth << " Glob:"<< global << " Loc:" << local << "\n";
 
     masterSensDet->registerHit(depo, local, step);
     return true;
