@@ -739,7 +739,7 @@ void SessionManager::readConfig(const std::string & workingDir, const std::strin
     {
         for (ACalSetRecord & r : Settings.RunSet.CalorimeterSettings.Calorimeters)
         {
-            CalorimeterSensitiveDetector * sd = new CalorimeterSensitiveDetector(r.Name, r.Properties, r.Index);
+            CalorimeterSensitiveDetectorWrapper * sd = new CalorimeterSensitiveDetectorWrapper(r.Name, r.Properties, r.Index);
             Calorimeters.push_back(sd);
         }
     }
@@ -869,7 +869,7 @@ void SessionManager::storeCalorimeterData()
 {
     json11::Json::array Arr;
 
-    for (CalorimeterSensitiveDetector * cal : Calorimeters)
+    for (CalorimeterSensitiveDetectorWrapper * cal : Calorimeters)
     {
         json11::Json::object json;
         cal->writeToJson(json);

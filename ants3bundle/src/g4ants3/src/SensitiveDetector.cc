@@ -92,14 +92,13 @@ G4bool MonitorSensitiveDetector::ProcessHits(G4Step * step, G4TouchableHistory *
                 if (!SM.Monitors[index]) SM.terminateSession("Nullptr monitor in sensitive detector hit");
                 return SM.Monitors[index]->ProcessHits(step, history);
             }
-            else SM.terminateSession("Wrong monitor index in sensitive detector hit");
+            else SM.terminateSession("Invalid monitor index in sensitive detector hit");
         }
 
     return true;
 }
 
 MonitorSensitiveDetectorWrapper::MonitorSensitiveDetectorWrapper(const std::string & name, const std::string & particle, int index) :
-    G4VSensitiveDetector(name),
     Name(name), ParticleName(particle), MonitorIndex(index) {}
 
 G4bool MonitorSensitiveDetectorWrapper::ProcessHits(G4Step *step, G4TouchableHistory *)
@@ -305,8 +304,28 @@ void MonitorSensitiveDetectorWrapper::writeHist1D(AHistogram1D *hist, json11::Js
 
 // ---
 
-CalorimeterSensitiveDetector::CalorimeterSensitiveDetector(const std::string & name, ACalorimeterProperties &properties, int index) :
-    G4VSensitiveDetector(name),
+CalorimeterSensitiveDetector::CalorimeterSensitiveDetector(const std::string & name) :
+    G4VSensitiveDetector(name) {}
+
+G4bool CalorimeterSensitiveDetector::ProcessHits(G4Step * step, G4TouchableHistory * history)
+{
+    const G4double depo = step->GetTotalEnergyDeposit();
+    if (depo == 0.0) return true;
+
+    G4StepPoint * preStepPoint = step->GetPreStepPoint();
+    int index = preStepPoint->GetPhysicalVolume()->GetCopyNo();
+    SessionManager & SM = SessionManager::getInstance();
+    if (index < SM.Calorimeters.size())
+    {
+        if (!SM.Calorimeters[index]) SM.terminateSession("Nullptr calorimeter in sensitive detector hit");
+        return SM.Calorimeters[index]->ProcessHits(step, history);
+    }
+    else SM.terminateSession("Invalid calorimeter index in sensitive detector hit");
+
+    return true;
+}
+
+CalorimeterSensitiveDetectorWrapper::CalorimeterSensitiveDetectorWrapper(const std::string & name, ACalorimeterProperties &properties, int index) :
     Name(name), Properties(properties), CalorimeterIndex(index)
 {
     Data = new AHistogram3Dfixed(properties.Origin, properties.Step, properties.Bins);
@@ -316,12 +335,12 @@ CalorimeterSensitiveDetector::CalorimeterSensitiveDetector(const std::string & n
     if (properties.CollectDepoOverEvent) EventDepoData = new AHistogram1D(properties.EventDepoBins, properties.EventDepoFrom, properties.EventDepoTo);
 }
 
-CalorimeterSensitiveDetector::~CalorimeterSensitiveDetector()
+CalorimeterSensitiveDetectorWrapper::~CalorimeterSensitiveDetectorWrapper()
 {
     delete Data;
 }
 
-G4bool CalorimeterSensitiveDetector::ProcessHits(G4Step * step, G4TouchableHistory *)
+G4bool CalorimeterSensitiveDetectorWrapper::ProcessHits(G4Step * step, G4TouchableHistory *)
 {
     const G4double depo = step->GetTotalEnergyDeposit();
     if (depo == 0.0) return false;
@@ -347,7 +366,7 @@ G4bool CalorimeterSensitiveDetector::ProcessHits(G4Step * step, G4TouchableHisto
     return true;
 }
 
-void CalorimeterSensitiveDetector::registerHit(double depo, const G4ThreeVector & local, G4Step * step)
+void CalorimeterSensitiveDetectorWrapper::registerHit(double depo, const G4ThreeVector & local, G4Step * step)
 {
     if (Properties.DataType == ACalorimeterProperties::Dose)
     {
@@ -365,7 +384,7 @@ void CalorimeterSensitiveDetector::registerHit(double depo, const G4ThreeVector 
     if (Properties.CollectDepoOverEvent) SumDepoOverEvent += depo / MeV;
 }
 
-void CalorimeterSensitiveDetector::writeToJson(json11::Json::object & json)
+void CalorimeterSensitiveDetectorWrapper::writeToJson(json11::Json::object & json)
 {
     json["CalorimeterIndex"] = CalorimeterIndex;
 
@@ -440,6 +459,7 @@ G4bool DelegatingCalorimeterSensitiveDetector::ProcessHits(G4Step * step, G4Touc
     G4VSensitiveDetector * parentSensDet = nullptr;
     const G4TouchableHandle & touch = step->GetPreStepPoint()->GetTouchableHandle();
     int depth = 0;
+    int index = 0;
     do
     {
         depth++; // starting with 1, do not want to inc during the last step
@@ -447,11 +467,14 @@ G4bool DelegatingCalorimeterSensitiveDetector::ProcessHits(G4Step * step, G4Touc
         if (!physVol) return false; // !!!***
 
         parentSensDet = physVol->GetLogicalVolume()->GetSensitiveDetector();
+        index = physVol->GetCopyNo();
     }
     while (parentSensDet == this);
 
-    CalorimeterSensitiveDetector * masterSensDet = dynamic_cast<CalorimeterSensitiveDetector*>(parentSensDet);
-    if (!masterSensDet) SessionManager::getInstance().terminateSession("Cannot find main sensitive detector for composite calorimeter");
+    SessionManager & SM = SessionManager::getInstance();
+    if (index >= SM.Calorimeters.size()) SM.terminateSession("Bad index in delegating calorimeter hit");
+    CalorimeterSensitiveDetectorWrapper * masterSensDet = SM.Calorimeters[index]; // dynamic_cast<CalorimeterSensitiveDetector*>(parentSensDet);
+    if (!masterSensDet) SM.terminateSession("Cannot find main sensitive detector for composite calorimeter");
 
     const G4ThreeVector & fromGlobal = step->GetPreStepPoint()->GetPosition();
     const G4ThreeVector & toGlobal   = step->GetPostStepPoint()->GetPosition();

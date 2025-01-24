@@ -60,13 +60,20 @@ void DetectorConstruction::ConstructSDandField()
     }
 
     // ---- Monitors ----
-    MonitorSensitiveDetector * msens = new MonitorSensitiveDetector("MonSensDet");
-    for (MonitorSensitiveDetectorWrapper * mon : SM.Monitors)
-        if (mon) SetSensitiveDetector(mon->Name, msens);
+    if (!SM.Monitors.empty())
+    {
+        MonitorSensitiveDetector * msens = new MonitorSensitiveDetector("MonSensDet");
+        for (MonitorSensitiveDetectorWrapper * mon : SM.Monitors)
+            if (mon) SetSensitiveDetector(mon->Name, msens);
+    }
 
     // ---- Calorimeters ----
-    for (CalorimeterSensitiveDetector * cal : SM.Calorimeters)
-        SetSensitiveDetector(cal->Name, cal);
+    if (!SM.Calorimeters.empty())
+    {
+        CalorimeterSensitiveDetector * csens = new CalorimeterSensitiveDetector("CaloSensDet");
+        for (CalorimeterSensitiveDetectorWrapper * cal : SM.Calorimeters)
+            SetSensitiveDetector(cal->Name, csens);
+    }
     if (!SM.Settings.RunSet.CalorimeterSettings.DelegatingCalorimeters.empty())
     {
         DelegatingCalorimeterSensitiveDetector * delCal = new DelegatingCalorimeterSensitiveDetector("DelCal");
