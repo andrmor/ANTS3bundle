@@ -22,14 +22,21 @@ public:
     G4bool ProcessHits(G4Step* step, G4TouchableHistory* history) override;
 };
 
-class AHistogram1D;
-class AHistogram2D;
-
 class MonitorSensitiveDetector : public G4VSensitiveDetector
 {
 public:
-    MonitorSensitiveDetector(const std::string & name, const std::string & particle, int index);
-    ~MonitorSensitiveDetector();
+    MonitorSensitiveDetector(const std::string & name);
+
+    G4bool ProcessHits(G4Step * step, G4TouchableHistory * history) override;
+};
+
+class AHistogram1D;
+class AHistogram2D;
+
+class MonitorSensitiveDetectorWrapper : public G4VSensitiveDetector
+{
+public:
+    MonitorSensitiveDetectorWrapper(const std::string & name, const std::string & particle, int index);
 
     G4bool ProcessHits(G4Step* step, G4TouchableHistory* history) override;
 

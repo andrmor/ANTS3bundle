@@ -655,7 +655,7 @@ bool SessionManager::isEnergyDepoLogger(G4LogicalVolume * vol)
 #include "SensitiveDetector.hh"
 void SessionManager::prepareMonitors()
 {
-    for (MonitorSensitiveDetector * m : Monitors)
+    for (MonitorSensitiveDetectorWrapper * m : Monitors)
     {
         if (!m->ParticleName.empty())
             m->pParticleDefinition = G4ParticleTable::GetParticleTable()->FindParticle(m->ParticleName);
@@ -726,7 +726,7 @@ void SessionManager::readConfig(const std::string & workingDir, const std::strin
     {
         for (const AMonSetRecord & r : Settings.RunSet.MonitorSettings.Monitors)
         {
-            MonitorSensitiveDetector * mobj = new MonitorSensitiveDetector(r.Name, r.Particle, r.Index);
+            MonitorSensitiveDetectorWrapper * mobj = new MonitorSensitiveDetectorWrapper(r.Name, r.Particle, r.Index);
             bool ok = mobj->readFromJson(r.ConfigJson);
             if (!ok) terminateSession("Failed to read monitor config, might be units");
             Monitors.push_back(mobj);
@@ -848,7 +848,7 @@ void SessionManager::storeMonitorsData()
 {
     json11::Json::array Arr;
 
-    for (MonitorSensitiveDetector * mon : Monitors)
+    for (MonitorSensitiveDetectorWrapper * mon : Monitors)
     {
         json11::Json::object json;
         mon->writeToJson(json);

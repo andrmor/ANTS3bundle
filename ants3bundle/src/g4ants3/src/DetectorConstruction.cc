@@ -60,8 +60,9 @@ void DetectorConstruction::ConstructSDandField()
     }
 
     // ---- Monitors ----
-    for (MonitorSensitiveDetector * mon : SM.Monitors)
-        SetSensitiveDetector(mon->Name, mon);
+    MonitorSensitiveDetector * msens = new MonitorSensitiveDetector("MonSensDet");
+    for (MonitorSensitiveDetectorWrapper * mon : SM.Monitors)
+        if (mon) SetSensitiveDetector(mon->Name, msens);
 
     // ---- Calorimeters ----
     for (CalorimeterSensitiveDetector * cal : SM.Calorimeters)
