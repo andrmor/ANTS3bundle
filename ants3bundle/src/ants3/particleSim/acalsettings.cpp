@@ -121,6 +121,8 @@ void ACalorimeterProperties::writeToJson(QJsonObject & json) const
 
     json["RandomizeBin"] = RandomizeBin;
 
+    json["IncludeHostedVolumes"] = IncludeHostedVolumes;
+
     json["CollectDepoOverEvent"] = CollectDepoOverEvent;
     json["EventDepoBins"] = EventDepoBins;
     json["EventDepoFrom"] = EventDepoFrom;
@@ -201,6 +203,8 @@ void ACalorimeterProperties::readFromJson(const QJsonObject & json)
     }
 
     jstools::parseJson(json, "RandomizeBin", RandomizeBin);
+
+    jstools::parseJson(json, "IncludeHostedVolumes", IncludeHostedVolumes);
 
     jstools::parseJson(json, "CollectDepoOverEvent", CollectDepoOverEvent);
     jstools::parseJson(json, "EventDepoBins", EventDepoBins);
@@ -327,14 +331,24 @@ void ACalSettings::writeToJson(QJsonObject & json, bool includeG4ants3Set) const
 
     if (includeG4ants3Set)
     {
-        QJsonArray ar;
-        for (const ACalSetRecord & c : Calorimeters)
+        // "Normal calorimeters"
         {
-            QJsonObject js;
-            c.writeToJson(js);
-            ar.append(js);
+            QJsonArray ar;
+            for (const ACalSetRecord & c : Calorimeters)
+            {
+                QJsonObject js;
+                c.writeToJson(js);
+                ar.append(js);
+            }
+            json["Calorimeters"] = ar;
         }
-        json["Calorimeters"] = ar;
+
+        // Memebers of the composite calorimeters
+        {
+            QJsonArray ar;
+            for (const std::string & dc : DelegatingCalorimeters) ar.append(dc.data());
+            json["DelegatingCalorimeters"] = ar;
+        }
     }
 }
 #endif
@@ -349,16 +363,27 @@ void ACalSettings::readFromJson(const QJsonObject & json)
     jstools::parseJson(json, "FileName", FileName);
 
     Calorimeters.clear();
+    DelegatingCalorimeters.clear();
 #ifdef JSON11
-    json11::Json::array calArray;
-    jstools::parseJson(json, "Calorimeters", calArray);
-    for (size_t i = 0; i < calArray.size(); i++)
+    // "Normal" calorimeters
     {
-        json11::Json::object mjs = calArray[i].object_items();
+        json11::Json::array calArray;
+        jstools::parseJson(json, "Calorimeters", calArray);
+        for (size_t i = 0; i < calArray.size(); i++)
+        {
+            json11::Json::object mjs = calArray[i].object_items();
 
-        ACalSetRecord r;
+            ACalSetRecord r;
             r.readFromJson(mjs);
-        Calorimeters.push_back(r);
+            Calorimeters.push_back(r);
+        }
+    }
+    // Members of the composite calorimeters
+    {
+        json11::Json::array ar;
+        jstools::parseJson(json, "DelegatingCalorimeters", ar);
+        for (size_t i = 0; i < ar.size(); i++)
+            DelegatingCalorimeters.push_back(ar[i].string_value());
     }
 #endif
     // no need to read configs on ANTS3 side
@@ -380,6 +405,12 @@ void ACalSettings::initFromHub()
         r.Properties = cal.Calorimeter->Properties;
         Calorimeters.push_back(r);
     }
+
+    DelegatingCalorimeters.clear();
+    const std::vector<QString> & vecNames = ACalorimeterHub::getConstInstance().CompositeCalorimeterMembers;
+    DelegatingCalorimeters.reserve(vecNames.size());
+    for (const QString & dc : vecNames)
+        DelegatingCalorimeters.push_back(dc.toLatin1().data());
 }
 #endif
 
@@ -389,6 +420,7 @@ void ACalSettings::clear()
     FileName = "Calorimeters.json";
 
     Calorimeters.clear();
+    DelegatingCalorimeters.clear();
 }
 
 void ACalorimeterProperties::copyDepoDoseProperties(const ACalorimeterProperties & other)

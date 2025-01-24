@@ -267,6 +267,9 @@ QFrame * AGeoObjectDelegate::createCalorimeterGui()
     QFrame * frCal = new QFrame();
     {
         QVBoxLayout * cvl = new QVBoxLayout(frCal); cvl->setContentsMargins(0,0,0,0);
+        cbCalIncludeHosted = new QCheckBox("Composite calorimeter");
+        cbCalIncludeHosted->setToolTip("When checked, all hosted volumes without an assigned special role (recursive!) are monitored by this calorimeter");
+        cvl->addWidget(cbCalIncludeHosted);
         QHBoxLayout * chl = new QHBoxLayout(); chl->setContentsMargins(15,0,15,0);
         cvl->addLayout(chl);
         chl->addWidget(new QLabel("Acquire:"));
@@ -396,8 +399,9 @@ QFrame * AGeoObjectDelegate::createCalorimeterGui()
         }
     }
 
-    connect(cobCalType,     &QComboBox::activated, this, &AGeoObjectDelegate::onContentChanged);
-    connect(cbCalRandomize, &QCheckBox::clicked,   this, &AGeoObjectDelegate::onContentChanged);
+    connect(cobCalType,         &QComboBox::activated, this, &AGeoObjectDelegate::onContentChanged);
+    connect(cbCalIncludeHosted, &QCheckBox::clicked,   this, &AGeoObjectDelegate::onContentChanged);
+    connect(cbCalRandomize,     &QCheckBox::clicked,   this, &AGeoObjectDelegate::onContentChanged);
 
     connect(cbOffX,         &QCheckBox::clicked,   this, &AGeoObjectDelegate::onContentChanged);
     connect(cbOffY,         &QCheckBox::clicked,   this, &AGeoObjectDelegate::onContentChanged);
@@ -701,6 +705,8 @@ bool AGeoObjectDelegate::updateObject(AGeoObject * obj) const  //react to false 
                     qWarning() << "Not impelemnted calorimeter type in the combo box";
                     cal->Properties.DataType = ACalorimeterProperties::Energy; break;
                 }
+
+                cal->Properties.IncludeHostedVolumes = cbCalIncludeHosted->isChecked();
 
                 cal->Properties.RandomizeBin = cbCalRandomize->isChecked();
 
@@ -1109,6 +1115,8 @@ void AGeoObjectDelegate::updateCalorimeterGui(const ACalorimeterProperties & p)
         qWarning() << "Unknown calorimter type";
     }
     cobCalType->setCurrentIndex(index);
+
+    cbCalIncludeHosted->setChecked(p.IncludeHostedVolumes);
 
     cbCalRandomize->setChecked(p.RandomizeBin);
 

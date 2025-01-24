@@ -50,6 +50,7 @@ void ACalorimeterHub::clear()
 {
     for (ACalorimeterData & md : Calorimeters) delete md.Calorimeter;
     Calorimeters.clear();
+    CompositeCalorimeterMembers.clear();
 }
 
 void ACalorimeterHub::clearData()

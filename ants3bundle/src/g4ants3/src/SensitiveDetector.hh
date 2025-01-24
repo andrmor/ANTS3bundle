@@ -91,6 +91,8 @@ public:
 
     G4bool ProcessHits(G4Step * step, G4TouchableHistory * history) override;
 
+    void registerHit(double depo, const G4ThreeVector & local, G4Step * step); // called by both ProcessHits and externally from DelegatingCalorimeterSensitiveDetector
+
     void writeToJson(json11::Json::object & json);
 
     std::string Name;
@@ -103,7 +105,14 @@ public:
 
     AHistogram1D * EventDepoData = nullptr;
     double SumDepoOverEvent = 0;
+};
 
+class DelegatingCalorimeterSensitiveDetector : public G4VSensitiveDetector
+{
+public:
+    DelegatingCalorimeterSensitiveDetector(const std::string & name);
+
+    G4bool ProcessHits(G4Step * step, G4TouchableHistory * history) override;
 };
 
 class AnalyzerSensitiveDetector : public G4VSensitiveDetector

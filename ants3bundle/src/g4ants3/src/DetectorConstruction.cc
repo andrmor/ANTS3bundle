@@ -66,6 +66,12 @@ void DetectorConstruction::ConstructSDandField()
     // ---- Calorimeters ----
     for (CalorimeterSensitiveDetector * cal : SM.Calorimeters)
         SetSensitiveDetector(cal->Name, cal);
+    if (!SM.Settings.RunSet.CalorimeterSettings.DelegatingCalorimeters.empty())
+    {
+        DelegatingCalorimeterSensitiveDetector * delCal = new DelegatingCalorimeterSensitiveDetector("DelCal");
+        for (const std::string & name : SM.Settings.RunSet.CalorimeterSettings.DelegatingCalorimeters)
+            SetSensitiveDetector(name, delCal);
+    }
 
     // ---- Analyzers ----
     if (SM.Settings.RunSet.AnalyzerSettings.Enabled)

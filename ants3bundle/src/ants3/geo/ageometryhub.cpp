@@ -409,6 +409,26 @@ void AGeometryHub::addCalorimeterNode(AGeoObject * obj, TGeoVolume * vol, TGeoVo
     getGlobalUnitVectors(node, calData.UnitXMaster, calData.UnitYMaster, calData.UnitZMaster);
 
     CalorimeterHub.Calorimeters.push_back(calData);
+    if (calData.Calorimeter->Properties.IncludeHostedVolumes)
+        registerCompositeCalorimeterMembersRecursive(obj);
+}
+
+void AGeometryHub::registerCompositeCalorimeterMembersRecursive(AGeoObject * obj)
+{
+    ACalorimeterHub & CalorimeterHub = ACalorimeterHub::getInstance();
+    for (AGeoObject * memObj : obj->HostedObjects)
+    {
+        if (memObj->Role) continue; // only objects without assigned special role
+
+        // optimized for expected small number of unique calorimeters
+        // caching of last can speed up !!!***
+        std::vector<QString> vec = CalorimeterHub.CompositeCalorimeterMembers;
+        auto it = std::find (vec.begin(), vec.end(), memObj->Name);
+        if (it == vec.end())
+            CalorimeterHub.CompositeCalorimeterMembers.push_back(memObj->Name);
+
+        registerCompositeCalorimeterMembersRecursive(memObj);
+    }
 }
 
 void AGeometryHub::addSensorNode(AGeoObject * obj, TGeoVolume * vol, TGeoVolume * parent, TGeoCombiTrans * lTrans)
