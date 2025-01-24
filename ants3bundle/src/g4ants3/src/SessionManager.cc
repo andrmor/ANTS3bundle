@@ -606,8 +606,6 @@ void SessionManager::findExitVolume()
     for (lvciter = lvs->begin(); lvciter != lvs->end(); ++lvciter)
     {
         std::string name = (std::string)(*lvciter)->GetName();
-        const size_t pos = name.find("_-_");
-        if (pos != std::string::npos) name.resize(pos);
         if (name == Settings.RunSet.SaveSettings.VolumeName)
         {
             ExitVolume = *lvciter;

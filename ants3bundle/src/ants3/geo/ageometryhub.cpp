@@ -366,8 +366,6 @@ void AGeometryHub::addMonitorNode(AGeoObject * obj, TGeoVolume * vol, TGeoVolume
     parent->AddNode(vol, MonitorCounter, lTrans);
 
     TString fixedName = vol->GetName();
-    fixedName += IndexSeparator;
-    fixedName += MonitorCounter;
     vol->SetName(fixedName);
 
     AMonitorData md;
@@ -393,8 +391,6 @@ void AGeometryHub::addCalorimeterNode(AGeoObject * obj, TGeoVolume * vol, TGeoVo
     parent->AddNode(vol, CalorimeterCounter, lTrans);
 
     TString fixedName = vol->GetName();
-    fixedName += IndexSeparator;
-    fixedName += CalorimeterCounter;
     vol->SetName(fixedName);
 
     ACalorimeterData calData;
@@ -672,11 +668,7 @@ void AGeometryHub::setVolumeTitle(AGeoObject * obj, TGeoVolume * vol)
     const bool bInstance = (!obj->NameWithoutSuffix.isEmpty());
     TString BaseName;
     if (bInstance) BaseName = TString(obj->NameWithoutSuffix.toLatin1().data());
-    else
-    {
-        BaseName = vol->GetName();
-        if (title[0] != '-') AGeometryHub::getConstInstance().removeNameDecorators(BaseName);
-    }
+    else           BaseName = vol->GetName();
 
     const AInterfaceRuleHub & IRH = AInterfaceRuleHub::getConstInstance();
     if (IRH.isFromVolume(BaseName)) title[1] = '*';
@@ -1280,12 +1272,6 @@ void AGeometryHub::colorVolumes(int scheme, int id)
             else
             {
                 const AGeoObject * obj = World->findObjectByName(name); // !!!*** can be very slow for large detectors!
-                if (!obj && !name.isEmpty())
-                {
-                    //special for monitors
-                    QString mName = name.split(IndexSeparator.Data()).at(0);
-                    obj = World->findObjectByName(mName);
-                }
                 if (obj)
                 {
                     vol->SetLineColor(obj->color);
@@ -1732,12 +1718,6 @@ QString AGeometryHub::generateObjectName(const QString & prefix) const
     while (World->isNameExists(name));
 
     return name;
-}
-
-void AGeometryHub::removeNameDecorators(TString & name) const
-{
-    const int ind = name.Index(IndexSeparator, IndexSeparator.Length(), 0, TString::kExact);
-    if (ind != TString::kNPOS) name.Resize(ind);
 }
 
 size_t AGeometryHub::countScintillators() const

@@ -7,6 +7,8 @@
 #include "G4SystemOfUnits.hh"
 #include "G4UserLimits.hh"
 
+#include <algorithm>
+
 DetectorConstruction::DetectorConstruction(G4VPhysicalVolume *setWorld)
     : G4VUserDetectorConstruction(), fWorld(setWorld) {}
 
@@ -63,22 +65,48 @@ void DetectorConstruction::ConstructSDandField()
     if (!SM.Monitors.empty())
     {
         MonitorSensitiveDetector * msens = new MonitorSensitiveDetector("MonSensDet");
+
+        std::vector<std::string> alreadyAddedNames;
         for (MonitorSensitiveDetectorWrapper * mon : SM.Monitors)
-            if (mon) SetSensitiveDetector(mon->Name, msens);
+        {
+            if (!mon) continue;
+            if (std::find(alreadyAddedNames.begin(), alreadyAddedNames.end(), mon->Name) == alreadyAddedNames.end())
+            {
+                SetSensitiveDetector(mon->Name, msens, true);
+                alreadyAddedNames.push_back(mon->Name);
+            }
+        }
     }
 
     // ---- Calorimeters ----
     if (!SM.Calorimeters.empty())
     {
         CalorimeterSensitiveDetector * csens = new CalorimeterSensitiveDetector("CaloSensDet");
+
+        std::vector<std::string> alreadyAddedNames;
         for (CalorimeterSensitiveDetectorWrapper * cal : SM.Calorimeters)
-            SetSensitiveDetector(cal->Name, csens);
+        {
+            if (!cal) continue;
+            if (std::find(alreadyAddedNames.begin(), alreadyAddedNames.end(), cal->Name) == alreadyAddedNames.end())
+            {
+                SetSensitiveDetector(cal->Name, csens, true);
+                alreadyAddedNames.push_back(cal->Name);
+            }
+        }
     }
     if (!SM.Settings.RunSet.CalorimeterSettings.DelegatingCalorimeters.empty())
     {
         DelegatingCalorimeterSensitiveDetector * delCal = new DelegatingCalorimeterSensitiveDetector("DelCal");
+
+        std::vector<std::string> alreadyAddedNames;
         for (const std::string & name : SM.Settings.RunSet.CalorimeterSettings.DelegatingCalorimeters)
-            SetSensitiveDetector(name, delCal);
+        {
+            if (std::find(alreadyAddedNames.begin(), alreadyAddedNames.end(), name) == alreadyAddedNames.end())
+            {
+                SetSensitiveDetector(name, delCal, true);
+                alreadyAddedNames.push_back(name);
+            }
+        }
     }
 
     // ---- Analyzers ----
@@ -99,15 +127,6 @@ bool DetectorConstruction::isAccordingTo(const std::string &name, const std::str
     if (name.size() < size) return false;
 
     return ( wildcard == name.substr(0, size) );
-}
-
-void DetectorConstruction::removeVolumeNameDecorator(std::string & name)
-{
-    //std::cout << name << "\n";
-    const auto begin = name.find("_-_");
-    if (begin != std::string::npos)
-        name.erase(begin);
-    //std::cout << "->" << name << std::endl;
 }
 
 void DetectorConstruction::setStepLimiters()
@@ -138,7 +157,6 @@ void DetectorConstruction::setStepLimiters()
             for (G4LogicalVolumeStore::iterator pos=store->begin(); pos!=store->end(); pos++)
             {
                 std::string volName = (*pos)->GetName();
-                removeVolumeNameDecorator(volName);
                 //std::cout << "   analysing vol:" << volName << std::endl;
                 if (isAccordingTo(volName, wildcard))
                 {
@@ -153,7 +171,6 @@ void DetectorConstruction::setStepLimiters()
             for (G4LogicalVolumeStore::iterator pos=store->begin(); pos!=store->end(); pos++)
             {
                 std::string name = (*pos)->GetName();
-                removeVolumeNameDecorator(name);
                 if (VolName == name)
                 {
                     //std::cout << "   found!" << std::endl;

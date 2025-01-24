@@ -320,9 +320,6 @@ void AGeoTreeWin::highlightVolume(const QString & VolName)
         if (!vol) break;
 
         QString name = vol->GetName();
-        int ind = name.indexOf(Geometry.IndexSeparator.Data());   //reserved for monitors/calorimeters: after "_-_" comes monitor index
-        if (ind != -1) name.truncate(ind);
-
         if (set.contains(name))
         {
             vol->SetLineColor(kRed);
