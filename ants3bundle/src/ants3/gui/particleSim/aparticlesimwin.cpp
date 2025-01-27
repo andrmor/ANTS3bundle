@@ -2089,8 +2089,7 @@ void AParticleSimWin::updateMonitorGui()
 
         ui->cobMonitor->clear();
         for (int i = 0; i < numMonitors; i++)
-            //ui->cobMonitor->addItem( QString("%1   index=%2").arg(MonitorHub.Monitors[i].Name).arg(i));
-            ui->cobMonitor->addItem(MonitorHub.ParticleMonitors[i].Name);
+            ui->cobMonitor->addItem(QString("%0  (#%1)").arg(MonitorHub.ParticleMonitors[i].Name).arg(i));
 
         if (oldNum >-1 && oldNum < numMonitors)
         {
@@ -2580,7 +2579,7 @@ void AParticleSimWin::updateCalorimeterGui()
         const int oldNum = ui->cobCalorimeter->currentIndex();
 
         ui->cobCalorimeter->clear();
-        ui->cobCalorimeter->addItems(CalHub.getCalorimeterNames());
+        ui->cobCalorimeter->addItems(CalHub.getCalorimeterNamesWithIndexes());
 
         if (oldNum >-1 && oldNum < numCal)
         {

@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>595</width>
+    <width>622</width>
     <height>767</height>
    </rect>
   </property>
@@ -4410,7 +4410,7 @@ Please specify a valid range</string>
               </item>
              </layout>
             </item>
-            <item alignment="Qt::AlignmentFlag::AlignHCenter">
+            <item alignment="">
              <widget class="QPushButton" name="pbShowCalorimeterSettings">
               <property name="minimumSize">
                <size>
@@ -5409,8 +5409,8 @@ Please specify a valid range</string>
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>595</width>
-     <height>21</height>
+     <width>622</width>
+     <height>22</height>
     </rect>
    </property>
   </widget>

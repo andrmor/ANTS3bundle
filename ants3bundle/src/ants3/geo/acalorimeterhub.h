@@ -52,6 +52,7 @@ public:
     int  countCalorimetersWithData() const;
 
     QStringList getCalorimeterNames() const;
+    QStringList getCalorimeterNamesWithIndexes() const;
 
     std::vector<const ACalorimeterData*> getCalorimeters(const AGeoObject * obj) const;  // returns nullptr if not found
 
