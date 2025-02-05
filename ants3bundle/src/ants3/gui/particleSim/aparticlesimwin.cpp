@@ -3002,7 +3002,7 @@ void AParticleSimWin::on_pbCaloShow_clicked()
 
             h->SetTitle(TString(CalHub.Calorimeters[iCal].Name.toLatin1().data()) + "-" + opt);
             h->GetXaxis()->SetTitle( TString(opt) + ", mm" );
-            h->GetYaxis()->SetTitle("Deposited energy, MeV");
+            h->GetYaxis()->SetTitle("Deposited energy, keV");
 
             emit requestDraw(h, "hist", true, true);
         }
@@ -3018,7 +3018,7 @@ void AParticleSimWin::on_pbCaloShow_clicked()
             h->SetTitle(TString(CalHub.Calorimeters[iCal].Name.toLatin1().data()) + "-" + opt);
             h->GetXaxis()->SetTitle(TString(opt[1]) + ", mm");
             h->GetYaxis()->SetTitle(TString(opt[0]) + ", mm");
-            h->GetZaxis()->SetTitle("Deposited energy, MeV");
+            h->GetZaxis()->SetTitle("Deposited energy, keV");
 
             emit requestDraw(h, "colz", true, true);
         }
@@ -3091,7 +3091,7 @@ void AParticleSimWin::on_pbCaloShow_clicked()
         hist->SetTitle(TString(CalHub.Calorimeters[iCal].Name.toLatin1().data()) + "-" + axisTitle);
         hist->GetXaxis()->SetTitle(axisTitle + ", mm");
 
-        if (bEnergy) hist->GetYaxis()->SetTitle("Deposited energy, MeV");
+        if (bEnergy) hist->GetYaxis()->SetTitle("Deposited energy, keV");
         else         hist->GetYaxis()->SetTitle("Dose, Gy");
 
         emit requestDraw(hist, "hist", true, true);
@@ -3198,7 +3198,7 @@ void AParticleSimWin::on_pbCaloShow_clicked()
         hist->GetXaxis()->SetTitle(horAxisTitle + ", mm");
         hist->GetYaxis()->SetTitle(verAxisTitle + ", mm");
 
-        if (bEnergy) hist->GetZaxis()->SetTitle("Deposited energy, MeV");
+        if (bEnergy) hist->GetZaxis()->SetTitle("Deposited energy, keV");
         else         hist->GetZaxis()->SetTitle("Dose, Gy");
 
         hist->SetEntries(Data->GetEntries());

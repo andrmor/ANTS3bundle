@@ -379,9 +379,9 @@ void CalorimeterSensitiveDetectorWrapper::registerHit(double depo, const G4Three
             Data->fill({local[0], local[1], local[2]}, deltaDose);
         }
     }
-    else Data->fill({local[0], local[1], local[2]}, depo / MeV);
+    else Data->fill({local[0], local[1], local[2]}, depo / keV);
 
-    if (Properties.CollectDepoOverEvent) SumDepoOverEvent += depo / MeV;
+    if (Properties.CollectDepoOverEvent) SumDepoOverEvent += depo / keV;
 }
 
 void CalorimeterSensitiveDetectorWrapper::writeToJson(json11::Json::object & json)
