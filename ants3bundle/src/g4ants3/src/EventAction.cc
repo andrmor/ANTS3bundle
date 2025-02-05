@@ -12,7 +12,7 @@ void EventAction::BeginOfEventAction(const G4Event*)
     SessionManager & SM = SessionManager::getInstance();
     SM.writeNewEventMarker();
 
-    for (CalorimeterSensitiveDetector * cal : SM.Calorimeters) cal->SumDepoOverEvent = 0;
+    for (CalorimeterSensitiveDetectorWrapper * cal : SM.Calorimeters) cal->SumDepoOverEvent = 0;
 }
 
 void EventAction::EndOfEventAction(const G4Event*)
@@ -21,6 +21,6 @@ void EventAction::EndOfEventAction(const G4Event*)
     SM.onEventFinished();
     SM.resetPredictedTrackID();
 
-    for (CalorimeterSensitiveDetector * cal : SM.Calorimeters)
+    for (CalorimeterSensitiveDetectorWrapper * cal : SM.Calorimeters)
         if (cal->EventDepoData && cal->SumDepoOverEvent > 0) cal->EventDepoData->fill(cal->SumDepoOverEvent);
 }

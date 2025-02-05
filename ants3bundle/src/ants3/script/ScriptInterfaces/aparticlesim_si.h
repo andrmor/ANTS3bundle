@@ -27,10 +27,10 @@ public slots:
     void loadCalorimeterData(QString fileName);
     int countCalorimeters();
     QVariantList getCalorimeterGlobalPositionsAll();
-    //QVariantList getCalorimeterData(int calorimeterIndex, QString mode); // !!!*** update!
-    QVariantList getCalorimeterData(int calorimeterIndex);
-    QVariantList getCalorimeterOverEventData(int calorimeterIndex);
     QVariantList getCalorimeterBinning(int calorimeterIndex);
+    QVariantList getCalorimeterData(int calorimeterIndex);
+    QVariantList getCalorimeterDataProjection(int calorimeterIndex, QString mode);
+    QVariantList getCalorimeterOverEventData(int calorimeterIndex);
     void clearCalorimeterData();
 
     void loadMonitorData(QString fileName);
@@ -44,13 +44,13 @@ public slots:
 
     void loadAnalyzerData(QString fileName);
     int countAnalyzers();
-    QVariantList getAnalyzerDataAll();
     QVariantList getAnalyzerUniqueToGlobalIndex();
     QVariantList getAnalyzerPositionsByGlobalIndex();
+    QVariantList getAnalyzerDataAll();
 
     void setTrackingHistoryFileName(QString fileName);
     void buildTracks(int maxTracks);
-    void buildTracks(bool skipPrimaries, bool skipPrimNoInter, bool skipSecondaries, QVariantList limitToParticleList, QVariantList excludeParticles, int maxTracks);
+    void buildTracksSpecific(bool skipPrimaries, bool skipPrimNoInter, bool skipSecondaries, QVariantList limitToParticleList, QVariantList excludeParticles, int maxTracks);
     void buildTracksSingleEvent(int eventIndex);
 
     // reformat to use aorthopositroniumgammagenerator.h

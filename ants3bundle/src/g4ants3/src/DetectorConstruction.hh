@@ -20,7 +20,6 @@ private:
 
     bool isAccordingTo(const std::string & name, const std::string & wildcard) const;
     void setStepLimiters();
-    void removeVolumeNameDecorator(std::string & name); // should be synchronized with AGeometryHub: static constexpr char IndexSeparator[] = "_-_";
 };
 
 #endif // DetectorConstruction_h

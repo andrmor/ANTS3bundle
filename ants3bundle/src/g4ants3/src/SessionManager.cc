@@ -606,8 +606,6 @@ void SessionManager::findExitVolume()
     for (lvciter = lvs->begin(); lvciter != lvs->end(); ++lvciter)
     {
         std::string name = (std::string)(*lvciter)->GetName();
-        const size_t pos = name.find("_-_");
-        if (pos != std::string::npos) name.resize(pos);
         if (name == Settings.RunSet.SaveSettings.VolumeName)
         {
             ExitVolume = *lvciter;
@@ -655,7 +653,7 @@ bool SessionManager::isEnergyDepoLogger(G4LogicalVolume * vol)
 #include "SensitiveDetector.hh"
 void SessionManager::prepareMonitors()
 {
-    for (MonitorSensitiveDetector * m : Monitors)
+    for (MonitorSensitiveDetectorWrapper * m : Monitors)
     {
         if (!m->ParticleName.empty())
             m->pParticleDefinition = G4ParticleTable::GetParticleTable()->FindParticle(m->ParticleName);
@@ -726,7 +724,7 @@ void SessionManager::readConfig(const std::string & workingDir, const std::strin
     {
         for (const AMonSetRecord & r : Settings.RunSet.MonitorSettings.Monitors)
         {
-            MonitorSensitiveDetector * mobj = new MonitorSensitiveDetector(r.Name, r.Particle, r.Index);
+            MonitorSensitiveDetectorWrapper * mobj = new MonitorSensitiveDetectorWrapper(r.Name, r.Particle, r.Index);
             bool ok = mobj->readFromJson(r.ConfigJson);
             if (!ok) terminateSession("Failed to read monitor config, might be units");
             Monitors.push_back(mobj);
@@ -739,7 +737,7 @@ void SessionManager::readConfig(const std::string & workingDir, const std::strin
     {
         for (ACalSetRecord & r : Settings.RunSet.CalorimeterSettings.Calorimeters)
         {
-            CalorimeterSensitiveDetector * sd = new CalorimeterSensitiveDetector(r.Name, r.Properties, r.Index);
+            CalorimeterSensitiveDetectorWrapper * sd = new CalorimeterSensitiveDetectorWrapper(r.Name, r.Properties, r.Index);
             Calorimeters.push_back(sd);
         }
     }
@@ -848,7 +846,7 @@ void SessionManager::storeMonitorsData()
 {
     json11::Json::array Arr;
 
-    for (MonitorSensitiveDetector * mon : Monitors)
+    for (MonitorSensitiveDetectorWrapper * mon : Monitors)
     {
         json11::Json::object json;
         mon->writeToJson(json);
@@ -869,7 +867,7 @@ void SessionManager::storeCalorimeterData()
 {
     json11::Json::array Arr;
 
-    for (CalorimeterSensitiveDetector * cal : Calorimeters)
+    for (CalorimeterSensitiveDetectorWrapper * cal : Calorimeters)
     {
         json11::Json::object json;
         cal->writeToJson(json);

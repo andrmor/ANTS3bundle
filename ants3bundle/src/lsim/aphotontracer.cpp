@@ -584,10 +584,8 @@ AInterfaceRule * APhotonTracer::getInterfaceRule() const
         TString fromName;
         if (VolumeFrom->GetTitle()[4] == 0)
         {
-            // not an intance
+            // not an instance
             fromName = VolumeFrom->GetName();
-            if (VolumeFrom->GetTitle()[0] != '-') // can be monitor or calorimeter, then the name contains _-_ and index
-                AGeometryHub::getConstInstance().removeNameDecorators(fromName);
         }
         else
         {
@@ -598,10 +596,8 @@ AInterfaceRule * APhotonTracer::getInterfaceRule() const
         TString toName;
         if (VolumeTo->GetTitle()[4] == 0)
         {
-            // not an intance
+            // not an instance
             toName = VolumeTo->GetName();
-            if (VolumeTo->GetTitle()[0] != '-') // can be monitor or calorimeter, then the name contains _-_ and index
-                AGeometryHub::getConstInstance().removeNameDecorators(toName);
         }
         else
         {

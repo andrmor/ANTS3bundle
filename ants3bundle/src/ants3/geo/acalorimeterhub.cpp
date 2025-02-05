@@ -78,6 +78,14 @@ QStringList ACalorimeterHub::getCalorimeterNames() const
     return sl;
 }
 
+QStringList ACalorimeterHub::getCalorimeterNamesWithIndexes() const
+{
+    QStringList sl;
+    for (size_t i = 0; i < Calorimeters.size(); i++)
+        sl << QString("%0  (#%1)").arg(Calorimeters[i].Name).arg(i);
+    return sl;
+}
+
 std::vector<const ACalorimeterData *> ACalorimeterHub::getCalorimeters(const AGeoObject * obj) const
 {
     std::vector<const ACalorimeterData *> vec;

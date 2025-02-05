@@ -45,8 +45,6 @@ public:
     TGeoManager * GeoManager = nullptr;
     TGeoVolume  * Top        = nullptr;  // world in TGeoManager
 
-    const TString IndexSeparator = "_-_";
-
     void         populateGeoManager(bool notifyRootServer = true);
     void         notifyRootServerGeometryChanged();
 
@@ -93,8 +91,6 @@ public:
 
     QString      generateStandaloneObjectName(const AGeoShape * shape) const;
     QString      generateObjectName(const QString & prefix) const;
-
-    void         removeNameDecorators(TString & name) const;
 
     size_t       countScintillators() const;
     void         getScintillatorPositions(std::vector<AVector3> & positions) const;

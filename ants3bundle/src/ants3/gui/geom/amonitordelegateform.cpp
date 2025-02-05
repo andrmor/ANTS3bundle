@@ -144,12 +144,6 @@ bool AMonitorDelegateForm::updateObject(AGeoObject * obj)
     const AGeoConsts & GC = AGeoConsts::getConstInstance();
     QString ErrorStr;
 
-    if (getName().contains(AGeometryHub::getConstInstance().IndexSeparator.Data()))
-    {
-        guitools::message(QString("Monitor name cannot contain %1 substring").arg(AGeometryHub::getInstance().IndexSeparator.Data()), this);
-        return false;
-    }
-
     QString strSize1 = leSize1->text();
     double Size1;
     bool ok = GC.updateDoubleParameter(ErrorStr, strSize1, Size1);

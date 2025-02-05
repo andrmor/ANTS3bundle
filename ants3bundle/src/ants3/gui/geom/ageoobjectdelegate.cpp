@@ -507,12 +507,6 @@ bool AGeoObjectDelegate::updateObject(AGeoObject * obj) const  //react to false 
     const QString oldName = obj->Name;
     const QString newName = leName->text();
 
-    if (newName.contains(AGeometryHub::getInstance().IndexSeparator.Data()))
-    {
-        QMessageBox::warning(this->ParentWidget, "", QString("Object name cannot contain %1 substring").arg(AGeometryHub::getInstance().IndexSeparator.Data()));
-        return false;
-    }
-
     if (obj->Type->isHandlingSet() && !obj->Type->isStack())
     {
         //set container object does not have updateable properties except name

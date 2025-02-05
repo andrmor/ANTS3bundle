@@ -15,8 +15,8 @@
 
 class G4ParticleDefinition;
 class G4StepPoint;
-class MonitorSensitiveDetector;
-class CalorimeterSensitiveDetector;
+class MonitorSensitiveDetectorWrapper;
+class CalorimeterSensitiveDetectorWrapper;
 class AnalyzerSensitiveDetector;
 class G4LogicalVolume;
 class G4VPhysicalVolume;
@@ -99,9 +99,9 @@ public:
 
         int CurrentEvent = 0;
 
-        std::vector<MonitorSensitiveDetector*>     Monitors;      // can contain nullptr!
-        std::vector<CalorimeterSensitiveDetector*> Calorimeters;  // can contain nullptr!
-        std::vector<AAnalyzerUniqueInstance>       Analyzers;
+        std::vector<MonitorSensitiveDetectorWrapper*>     Monitors;      // can contain nullptr!
+        std::vector<CalorimeterSensitiveDetectorWrapper*> Calorimeters;  // can contain nullptr!
+        std::vector<AAnalyzerUniqueInstance>              Analyzers;
 
         const G4String DepoLoggerSDName = "SD";
 
