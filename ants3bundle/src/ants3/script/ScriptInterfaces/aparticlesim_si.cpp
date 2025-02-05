@@ -82,8 +82,7 @@ QVariantList AParticleSim_SI::getCalorimeterGlobalPositionsAll()
     return vl;
 }
 
-/*
-QVariantList AParticleSim_SI::getCalorimeterData(int calorimeterIndex, QString mode)
+QVariantList AParticleSim_SI::getCalorimeterDataProjection(int calorimeterIndex, QString mode)
 {
     QVariantList res;
     const ACalorimeterHub & CalHub = ACalorimeterHub::getConstInstance();
@@ -139,11 +138,10 @@ QVariantList AParticleSim_SI::getCalorimeterData(int calorimeterIndex, QString m
                                                 data->GetZaxis()->GetBinCenter(iz+1),
                                                 data->GetBinContent(ix+1, iy+1, iz+1)} );
     }
-    else abort("Undefined option in getCalorimeterData()");
+    else abort("Undefined option in getCalorimeterData(), it should be one of the following:\nx y z xy xz yx yz zx zy");
 
     return res;
 }
-*/
 
 QVariantList AParticleSim_SI::getCalorimeterData(int calorimeterIndex)
 {

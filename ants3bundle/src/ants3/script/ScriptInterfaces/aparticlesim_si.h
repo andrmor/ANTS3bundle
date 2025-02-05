@@ -27,7 +27,7 @@ public slots:
     void loadCalorimeterData(QString fileName);
     int countCalorimeters();
     QVariantList getCalorimeterGlobalPositionsAll();
-    //QVariantList getCalorimeterData(int calorimeterIndex, QString mode); // !!!*** update!
+    QVariantList getCalorimeterDataProjection(int calorimeterIndex, QString mode); // !!!*** update!
     QVariantList getCalorimeterData(int calorimeterIndex);
     QVariantList getCalorimeterOverEventData(int calorimeterIndex);
     QVariantList getCalorimeterBinning(int calorimeterIndex);

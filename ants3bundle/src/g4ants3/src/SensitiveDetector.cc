@@ -338,6 +338,7 @@ CalorimeterSensitiveDetectorWrapper::CalorimeterSensitiveDetectorWrapper(const s
 CalorimeterSensitiveDetectorWrapper::~CalorimeterSensitiveDetectorWrapper()
 {
     delete Data;
+    delete EventDepoData;
 }
 
 G4bool CalorimeterSensitiveDetectorWrapper::ProcessHits(G4Step * step, G4TouchableHistory *)

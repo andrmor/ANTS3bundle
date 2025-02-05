@@ -102,7 +102,7 @@ class CalorimeterSensitiveDetectorWrapper
 {
 public:
     CalorimeterSensitiveDetectorWrapper(const std::string & name, ACalorimeterProperties & properties, int index);
-    ~CalorimeterSensitiveDetectorWrapper(); // !!!***
+    ~CalorimeterSensitiveDetectorWrapper();
 
     G4bool ProcessHits(G4Step * step, G4TouchableHistory * history);
 
