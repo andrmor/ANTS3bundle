@@ -195,12 +195,11 @@ private:
     void updateBombFileGui();
     void updatePhotonFileGui();
     void updateGeneralSettingsGui();
+    void updateMonitorGui();
 
     void storeGeneralSettings();
 
     void disableInterface(bool flag);
-
-    void updateMonitorGui();
 
     void updateAdvancedBombIndicator();
 

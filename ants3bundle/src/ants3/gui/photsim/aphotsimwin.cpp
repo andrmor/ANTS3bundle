@@ -1625,6 +1625,7 @@ void APhotSimWin::showSensorSignalTable(const std::vector<float> & signalArray, 
     const size_t numSensors = signalArray.size();
     const int numColumns = ui->sbSensorTableColumns->value();
 
+    double sum = 0;
     int currentRow = 0;
     int currentColumn = 0;
     for (int iSensorIndex : enabledSensors)
@@ -1644,7 +1645,10 @@ void APhotSimWin::showSensorSignalTable(const std::vector<float> & signalArray, 
                 currentColumn = 0;
                 currentRow++;
             }
+            sum += signalArray[iSensorIndex];
         }
+
+    ui->lSensorSum->setText(QString::number(sum));
 }
 
 // ------
