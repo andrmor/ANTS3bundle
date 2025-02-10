@@ -130,7 +130,7 @@ ACore_SI::ACore_SI() : AScriptInterface()
 
     Help["str"] = "Converts numeric value to string using the given precision (number of digits after the decimal separator)";
     Help["toStr"] = "Converts argument to the string and returns it";
-    Help["arraySum"] = "Return sum of all elements of 1D numeric array. If the argument is 2D array, return sum of the last column";
+    Help["arraySum"] = "For 1D array, returns sum of all elements.\nFor 2D arrays, returns sum of the last column";
     Help["getExamplesDir"] = "Get ANTS3 directory with script/config examples";
     Help["processEvents"] = "Put this method sparsely inside computationaly-heavy code to improve reaction to user abort. Note that 'print' and 'reportProgress' have the same effect";
     Help["reportProgress"] = "Show progress bar on the script window. The argument is progress value in percent";
@@ -270,7 +270,8 @@ double ACore_SI::arraySum(QVariantList array)
         }
 
         QVariantList el = array[i].toList();
-        sum += el.back().toDouble();
+        if (el.size() > 0)
+            sum += el.back().toDouble();
     }
 
     return sum;
