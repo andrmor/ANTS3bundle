@@ -3317,7 +3317,7 @@ void AParticleSimWin::on_pbCaloShowDepoOverEvent_clicked()
     ATH1D * Data = CalHub.Calorimeters[iCal].Calorimeter->EventDepoData;
     if (!Data) return;
 
-    Data->GetXaxis()->SetTitle("Deposited energy over event, MeV");
+    Data->GetXaxis()->SetTitle("Deposited energy over event, keV");
 
     emit requestDraw(Data, "hist", false, true);
 }

@@ -327,7 +327,7 @@ QFrame * AGeoObjectDelegate::createCalorimeterGui()
         hlCalEvStat->addWidget(new QLabel("To:"));
         ledCalEventDepoTo = new AOneLineTextEdit(); ledCalEventDepoTo->setMinimumWidth(50);
         hlCalEvStat->addWidget(ledCalEventDepoTo);
-        hlCalEvStat->addWidget(new QLabel("MeV"));
+        hlCalEvStat->addWidget(new QLabel("keV"));
         connect(cbCalEventStat, &QCheckBox::toggled, frCalEventStat, &QFrame::setVisible);
         connect(cbCalEventStat, &QCheckBox::clicked, this, &AGeoObjectDelegate::onContentChanged);
         hlCalOverEv->addWidget(frCalEventStat);

@@ -54,8 +54,8 @@ public:
 
     bool CollectDepoOverEvent = false;
     int EventDepoBins = 190;
-    double EventDepoFrom = 0.1;
-    double EventDepoTo = 2.0;
+    double EventDepoFrom = 100;
+    double EventDepoTo = 2000;
 
 #ifndef JSON11
     //ants3 side: text fields to be used with Geo Constants
