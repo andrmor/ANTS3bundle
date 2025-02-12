@@ -624,11 +624,13 @@ bool AGeoObjectDelegate::updateObject(AGeoObject * obj) const  //react to false 
         if (ledPsi->isEnabled())   ok = ok && processEditBox("Psi orientation",   ledPsi,   tempDoubles[5], tempStrs[5], ParentWidget);
         if (!ok) return false;
 
-        std::vector<double> calDouble(6); std::vector<QString> calDoubleStr(6);
-        std::vector<int>    calInt(3);    std::vector<QString> calIntStr(3);
-        int calEventDepoBins; QString calEventDepoBinsStr;
-        double calEventDepoFrom; QString calEventDepoFromStr;
-        double calEventDepoTo; QString calEventDepoToStr;
+        std::vector<double> calDouble(6); calDouble = {-5.0, -5.0, -5.0, 1.0, 1.0, 1.0};
+        std::vector<QString> calDoubleStr(6);
+        std::vector<int>    calInt(3); calInt = {10,10,10};
+        std::vector<QString> calIntStr(3);
+        int calEventDepoBins = 190; QString calEventDepoBinsStr;
+        double calEventDepoFrom = 100.0; QString calEventDepoFromStr;
+        double calEventDepoTo = 2000.0; QString calEventDepoToStr;
         if (cobRole->currentIndex() == 2)
         {
             if (cobCalType->currentIndex() == 0)
