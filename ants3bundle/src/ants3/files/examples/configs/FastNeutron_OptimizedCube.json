@@ -113,7 +113,7 @@
                     "Type": "Prototype"
                 },
                 "fActive": true,
-                "fExpanded": false
+                "fExpanded": true
             },
             {
                 "Container": "LargeRPC",
@@ -129,7 +129,7 @@
                 "Y": 0,
                 "Z": 0,
                 "fActive": true,
-                "fExpanded": false
+                "fExpanded": true
             },
             {
                 "Container": "StackL",
@@ -204,25 +204,25 @@
                 },
                 "SpecialRole": {
                     "Bins": [
-                        1,
-                        1,
-                        1
+                        10,
+                        10,
+                        10
                     ],
-                    "CollectDepoOverEvent": true,
-                    "DataType": "Energy",
+                    "DataType": "DepoPerEvent",
                     "EventDepoBins": 190,
-                    "EventDepoFrom": 0.1,
-                    "EventDepoTo": 2,
+                    "EventDepoFrom": 100,
+                    "EventDepoTo": 2000,
+                    "IncludeHostedVolumes": false,
                     "Origin": [
-                        -10000000000,
-                        -10000000000,
-                        -10000000000
+                        -5,
+                        -5,
+                        -5
                     ],
                     "RandomizeBin": false,
                     "Step": [
-                        20000000000,
-                        20000000000,
-                        20000000000
+                        1,
+                        1,
+                        1
                     ],
                     "Type": "Calorimeter",
                     "strEventDepoBins": "",
@@ -343,25 +343,25 @@
                 },
                 "SpecialRole": {
                     "Bins": [
-                        1,
-                        1,
-                        1
+                        10,
+                        10,
+                        10
                     ],
-                    "CollectDepoOverEvent": true,
-                    "DataType": "Energy",
+                    "DataType": "DepoPerEvent",
                     "EventDepoBins": 190,
-                    "EventDepoFrom": 0.1,
-                    "EventDepoTo": 2,
+                    "EventDepoFrom": 100,
+                    "EventDepoTo": 2000,
+                    "IncludeHostedVolumes": false,
                     "Origin": [
-                        -10000000000,
-                        -10000000000,
-                        -10000000000
+                        -5,
+                        -5,
+                        -5
                     ],
                     "RandomizeBin": false,
                     "Step": [
-                        20000000000,
-                        20000000000,
-                        20000000000
+                        1,
+                        1,
+                        1
                     ],
                     "Type": "Calorimeter",
                     "strEventDepoBins": "",
@@ -540,11 +540,11 @@
                         1,
                         1
                     ],
-                    "CollectDepoOverEvent": true,
                     "DataType": "Energy",
                     "EventDepoBins": 190,
                     "EventDepoFrom": 0.1,
                     "EventDepoTo": 2,
+                    "IncludeHostedVolumes": false,
                     "Origin": [
                         -10000000000,
                         -10000000000,
@@ -679,11 +679,11 @@
                         1,
                         1
                     ],
-                    "CollectDepoOverEvent": true,
                     "DataType": "Energy",
                     "EventDepoBins": 190,
                     "EventDepoFrom": 0.1,
                     "EventDepoTo": 2,
+                    "IncludeHostedVolumes": false,
                     "Origin": [
                         -10000000000,
                         -10000000000,
@@ -859,25 +859,25 @@
                 },
                 "SpecialRole": {
                     "Bins": [
-                        1,
-                        1,
-                        1
+                        10,
+                        10,
+                        10
                     ],
-                    "CollectDepoOverEvent": true,
-                    "DataType": "Energy",
+                    "DataType": "DepoPerEvent",
                     "EventDepoBins": 190,
-                    "EventDepoFrom": 0.1,
-                    "EventDepoTo": 2,
+                    "EventDepoFrom": 100,
+                    "EventDepoTo": 2000,
+                    "IncludeHostedVolumes": false,
                     "Origin": [
-                        -10000000000,
-                        -10000000000,
-                        -10000000000
+                        -5,
+                        -5,
+                        -5
                     ],
                     "RandomizeBin": false,
                     "Step": [
-                        20000000000,
-                        20000000000,
-                        20000000000
+                        1,
+                        1,
+                        1
                     ],
                     "Type": "Calorimeter",
                     "strEventDepoBins": "",
@@ -998,25 +998,25 @@
                 },
                 "SpecialRole": {
                     "Bins": [
-                        1,
-                        1,
-                        1
+                        10,
+                        10,
+                        10
                     ],
-                    "CollectDepoOverEvent": true,
-                    "DataType": "Energy",
+                    "DataType": "DepoPerEvent",
                     "EventDepoBins": 190,
-                    "EventDepoFrom": 0.1,
-                    "EventDepoTo": 2,
+                    "EventDepoFrom": 100,
+                    "EventDepoTo": 2000,
+                    "IncludeHostedVolumes": false,
                     "Origin": [
-                        -10000000000,
-                        -10000000000,
-                        -10000000000
+                        -5,
+                        -5,
+                        -5
                     ],
                     "RandomizeBin": false,
                     "Step": [
-                        20000000000,
-                        20000000000,
-                        20000000000
+                        1,
+                        1,
+                        1
                     ],
                     "Type": "Calorimeter",
                     "strEventDepoBins": "",
@@ -2502,12 +2502,14 @@
                 "FileName": "Calorimeters.json"
             },
             "FileNameDeposition": "Deposition.dat",
+            "FileNameSaveConfig": "Config_ParticleSim.json",
             "FileNameTrackingHistory": "TrackingData.dat",
             "MonitorSettings": {
                 "Enabled": false,
                 "FileName": "ParticleMonitors.json"
             },
-            "OutputDirectory": "",
+            "OutputDirectory": "/home/andr/.config/ants3/TmpOutput",
+            "SaveConfig": false,
             "SaveDeposition": false,
             "SaveParticles": {
                 "Enabled": false,
@@ -2543,10 +2545,12 @@
             "Advanced": {
                 "Direction": {
                     "ConeAngle": 10,
-                    "DirDX": 0,
-                    "DirDY": 0,
-                    "DirDZ": 1,
-                    "DirectionMode": "Isotropic"
+                    "DirectionMode": "Isotropic",
+                    "DirectionVector": [
+                        0,
+                        0,
+                        1
+                    ]
                 },
                 "SkipBombs": {
                     "EnableOnlyMat": false,
@@ -2645,6 +2649,7 @@
         },
         "Run": {
             "BinaryFormat": false,
+            "FileNameConfig": "Config_OpticalSim.json",
             "FileNameMonitors": "PhotonMonitors.txt",
             "FileNamePhotonBombs": "PhotonBombs.txt",
             "FileNameReceipt": "DummyReceipt.txt",
@@ -2653,7 +2658,7 @@
             "FileNameStatistics": "PhotonStatistics.json",
             "FileNameTracks": "PhotonTracks.txt",
             "MaxTracks": 1000,
-            "OutputDirectory": "",
+            "OutputDirectory": "/home/andr/.config/ants3/TmpOutput",
             "PhotonLog": {
                 "Enabled": false,
                 "FileName": "PhotonLog.txt",
@@ -2667,6 +2672,7 @@
                 "MustNotInclude_Volumes": [
                 ]
             },
+            "SaveConfig": false,
             "SaveMonitors": false,
             "SavePhotonBombs": false,
             "SaveSensorLog": false,
