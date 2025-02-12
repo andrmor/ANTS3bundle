@@ -2593,10 +2593,22 @@ void AParticleSimWin::updateCalorimeterGui()
 
         if (Cal)
         {
-            ui->leCalorimetersEntries->setText( QString::number(Cal->Entries) );
-            ui->pbCaloShow->setEnabled(Cal->DataHistogram);
-            ui->frCaloShowDepoOverEvent->setVisible(Cal->EventDepoData);
-            updateShowCalorimeterGui();
+            ui->frCaloShowDepoOverEvent->setVisible(false);
+            ui->frCaloShowEnergyDose->setVisible(false);
+
+            if (Cal->EventDepoData)
+            {
+                ui->frCaloShowDepoOverEvent->setVisible(true);
+                ui->leCalorimetersEntries->setText(QString::number(Cal->EventDepoData->GetEntries()));
+            }
+
+            if (Cal->DataHistogram)
+            {
+                ui->frCaloShowEnergyDose->setVisible(true);
+                ui->leCalorimetersEntries->setText( QString::number(Cal->Entries) );
+                ui->pbCaloShow->setEnabled(Cal->DataHistogram);
+                updateShowCalorimeterGui();
+            }
         }
         else
         {
