@@ -149,22 +149,11 @@ MainWindow::MainWindow() :
     ui->menuFile->setToolTipsVisible(true);
     ui->menuFile->setToolTipDuration(1000);
 
-    std::vector<QLabel*> labels = {ui->lSpaceHolder1, ui->lSpaceHolder2};
-    for (QLabel * l : labels)
-    {
-        l->setMinimumHeight(ui->pbFunctionalModels->height());
-        l->setText("");
-    }
-
   // Finalizing
     updateAllGuiFromConfig(); //updateGui();
     ScriptHub->finalizeInit();
 
     if (!bShown) GeoWin->hide(); // has to be last, if before updateAllGuiFromConfig() and window is hidden --> dark on open
-
-    int size = ui->pbFunctionalModels->size().height();
-    ui->lSpaceHolder1->setMinimumHeight(size);
-    ui->lSpaceHolder2->setMinimumHeight(size);
 }
 
 MainWindow::~MainWindow()
