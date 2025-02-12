@@ -83,7 +83,7 @@ protected:
     AOneLineTextEdit *ledCalStepX, *ledCalStepY, *ledCalStepZ;
     AOneLineTextEdit *leiCalBinsX, *leiCalBinsY, *leiCalBinsZ;
     QCheckBox *cbOffX, *cbOffY, *cbOffZ;
-    QCheckBox * cbCalEventStat;
+    //QCheckBox * cbCalEventStat;
     AOneLineTextEdit * leiCalEventDepoBins, *ledCalEventDepoFrom, *ledCalEventDepoTo;
 
     QLineEdit * lePhFunModelName = nullptr;

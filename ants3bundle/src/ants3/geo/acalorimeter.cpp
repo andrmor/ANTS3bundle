@@ -121,10 +121,13 @@ bool ACalorimeter::appendDataFromJson(const QJsonObject & json)
     ACalorimeterProperties loadedProps;
     loadedProps.readFromJson(pjs);
 
-    ok = addDepoDoseData(json, loadedProps);
-    if (!ok) return false;
-
-    if (Properties.CollectDepoOverEvent) addEventDepoDataFromJson(json, loadedProps);
+    if (Properties.DataType == ACalorimeterProperties::DepoPerEvent)
+        addEventDepoDataFromJson(json, loadedProps);
+    else
+    {
+        ok = addDepoDoseData(json, loadedProps);
+        if (!ok) return false;
+    }
 
     return true;
 }

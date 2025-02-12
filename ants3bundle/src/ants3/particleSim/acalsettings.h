@@ -42,7 +42,7 @@ public:
     bool isSameDepoDoseProperties(const ACalorimeterProperties & other) const;
     bool isSameEventDepoProperties(const ACalorimeterProperties & other) const;
 
-    enum EDataType {Energy, Dose};
+    enum EDataType {DepoPerEvent, Energy, Dose};
 
     bool IncludeHostedVolumes = false;
 
@@ -52,7 +52,7 @@ public:
     std::array<double, 3> Step   = { 1,  1,  1};
     std::array<int,    3> Bins   = {10, 10,  10};
 
-    bool CollectDepoOverEvent = false;
+    //bool CollectDepoOverEvent = false;
     int EventDepoBins = 190;
     double EventDepoFrom = 100;
     double EventDepoTo = 2000;

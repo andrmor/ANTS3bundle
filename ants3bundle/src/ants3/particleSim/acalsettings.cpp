@@ -107,7 +107,13 @@ void ACalorimeterProperties::writeToJson(QJsonObject & json) const
     QJsonArray arS;
     QJsonArray arB;
 #endif
-    dataTypeStr = ( DataType == Energy ? "Energy" : "Dose" );
+    switch (DataType)
+    {
+    case DepoPerEvent : dataTypeStr = "DepoPerEvent"; break;
+    case Energy       : dataTypeStr = "Energy";       break;
+    case Dose         : dataTypeStr = "Dose";         break;
+    }
+    //dataTypeStr = ( DataType == Energy ? "Energy" : "Dose" );
     json["DataType"] = dataTypeStr;
     for (int i=0; i<3; i++)
     {
@@ -123,7 +129,7 @@ void ACalorimeterProperties::writeToJson(QJsonObject & json) const
 
     json["IncludeHostedVolumes"] = IncludeHostedVolumes;
 
-    json["CollectDepoOverEvent"] = CollectDepoOverEvent;
+    //json["CollectDepoOverEvent"] = CollectDepoOverEvent;
     json["EventDepoBins"] = EventDepoBins;
     json["EventDepoFrom"] = EventDepoFrom;
     json["EventDepoTo"] = EventDepoTo;
@@ -151,13 +157,14 @@ void ACalorimeterProperties::readFromJson(const json11::Json::object & json)
 {
     std::string dataTypeStr;
     jstools::parseJson(json, "DataType", dataTypeStr);
-    if      (dataTypeStr == "Energy") DataType = Energy;
-    else if (dataTypeStr == "Dose")   DataType = Dose;
+    if      (dataTypeStr == "DepoPerEvent") DataType = DepoPerEvent;
+    else if (dataTypeStr == "Energy")       DataType = Energy;
+    else if (dataTypeStr == "Dose")         DataType = Dose;
     else
     {
         // !!!*** error control
         // "Unknown string for calorimeter DataType, setting it to 'Energy'";
-        DataType = Energy;
+        DataType = DepoPerEvent;
     }
 
     jstools::parseJson(json, "RandomizeBin", RandomizeBin);
@@ -183,7 +190,7 @@ void ACalorimeterProperties::readFromJson(const json11::Json::object & json)
             Bins[i] = ar[i].int_value();
     }
 
-    jstools::parseJson(json, "CollectDepoOverEvent", CollectDepoOverEvent);
+    //jstools::parseJson(json, "CollectDepoOverEvent", CollectDepoOverEvent);
     jstools::parseJson(json, "EventDepoBins", EventDepoBins);
     jstools::parseJson(json, "EventDepoFrom", EventDepoFrom);
     jstools::parseJson(json, "EventDepoTo",   EventDepoTo);
@@ -193,20 +200,21 @@ void ACalorimeterProperties::readFromJson(const QJsonObject & json)
 {
     QString dataTypeStr;
     jstools::parseJson(json, "DataType", dataTypeStr);
-    if      (dataTypeStr == "Energy") DataType = Energy;
-    else if (dataTypeStr == "Dose")   DataType = Dose;
+    if      (dataTypeStr == "DepoPerEvent") DataType = DepoPerEvent;
+    else if (dataTypeStr == "Energy")       DataType = Energy;
+    else if (dataTypeStr == "Dose")         DataType = Dose;
     else
     {
         // !!!*** error control
         qWarning() << "Unknown string for calorimeter DataType, setting it to 'Energy'";
-        DataType = Energy;
+        DataType = DepoPerEvent;
     }
 
     jstools::parseJson(json, "RandomizeBin", RandomizeBin);
 
     jstools::parseJson(json, "IncludeHostedVolumes", IncludeHostedVolumes);
 
-    jstools::parseJson(json, "CollectDepoOverEvent", CollectDepoOverEvent);
+    //jstools::parseJson(json, "CollectDepoOverEvent", CollectDepoOverEvent);
     jstools::parseJson(json, "EventDepoBins", EventDepoBins);
     jstools::parseJson(json, "EventDepoFrom", EventDepoFrom);
     jstools::parseJson(json, "EventDepoTo",   EventDepoTo);
@@ -435,7 +443,7 @@ void ACalorimeterProperties::copyDepoDoseProperties(const ACalorimeterProperties
 
 void ACalorimeterProperties::copyEventDepoProperties(const ACalorimeterProperties &other)
 {
-    CollectDepoOverEvent = other.CollectDepoOverEvent;
+    //CollectDepoOverEvent = other.CollectDepoOverEvent;
     EventDepoBins = other.EventDepoBins;
     EventDepoFrom = other.EventDepoFrom;
     EventDepoTo = other.EventDepoTo;
@@ -453,7 +461,7 @@ bool ACalorimeterProperties::isSameDepoDoseProperties(const ACalorimeterProperti
 
 bool ACalorimeterProperties::isSameEventDepoProperties(const ACalorimeterProperties &other) const
 {
-    if (CollectDepoOverEvent != other.CollectDepoOverEvent) return false;
+    //if (CollectDepoOverEvent != other.CollectDepoOverEvent) return false;
     if (EventDepoBins != other.EventDepoBins) return false;
     if (EventDepoFrom != other.EventDepoFrom) return false;
     if (EventDepoTo != other.EventDepoTo) return false;

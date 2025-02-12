@@ -97,6 +97,7 @@ public:
     G4bool ProcessHits(G4Step * step, G4TouchableHistory * history) override;
 };
 
+// !!!*** optimisation is possible: do not compute local coordinates in DepoOverEvent mode
 #include "acalsettings.h"
 class CalorimeterSensitiveDetectorWrapper
 {

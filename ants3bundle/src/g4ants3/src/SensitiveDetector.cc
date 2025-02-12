@@ -328,11 +328,13 @@ G4bool CalorimeterSensitiveDetector::ProcessHits(G4Step * step, G4TouchableHisto
 CalorimeterSensitiveDetectorWrapper::CalorimeterSensitiveDetectorWrapper(const std::string & name, ACalorimeterProperties &properties, int index) :
     Name(name), Properties(properties), CalorimeterIndex(index)
 {
-    Data = new AHistogram3Dfixed(properties.Origin, properties.Step, properties.Bins);
-
-    VoxelVolume_mm3 = Properties.Step[0] * Properties.Step[1] * Properties.Step[2]; // in mm3
-
-    if (properties.CollectDepoOverEvent) EventDepoData = new AHistogram1D(properties.EventDepoBins, properties.EventDepoFrom, properties.EventDepoTo);
+    if (properties.DataType == ACalorimeterProperties::DepoPerEvent)
+        EventDepoData = new AHistogram1D(properties.EventDepoBins, properties.EventDepoFrom, properties.EventDepoTo);
+    else
+    {
+        Data = new AHistogram3Dfixed(properties.Origin, properties.Step, properties.Bins);
+        VoxelVolume_mm3 = Properties.Step[0] * Properties.Step[1] * Properties.Step[2]; // in mm3
+    }
 }
 
 CalorimeterSensitiveDetectorWrapper::~CalorimeterSensitiveDetectorWrapper()
@@ -369,20 +371,23 @@ G4bool CalorimeterSensitiveDetectorWrapper::ProcessHits(G4Step * step, G4Touchab
 
 void CalorimeterSensitiveDetectorWrapper::registerHit(double depo, const G4ThreeVector & local, G4Step * step)
 {
-    if (Properties.DataType == ACalorimeterProperties::Dose)
+    if (Properties.DataType == ACalorimeterProperties::DepoPerEvent)
+        SumDepoOverEvent += depo / keV;
+    else
     {
-        const G4Material * material = step->GetPreStepPoint()->GetMaterial();  // on material change step always ends anyway
-        if (!material) return; // paranoic
-        const double density_kgPerMM3 = material->GetDensity() / (kg/mm3);
-        if (density_kgPerMM3 > 1e-10 * g/cm3 / (kg/mm3)) // ignore vacuum
+        if (Properties.DataType == ACalorimeterProperties::Dose)
         {
-            const double deltaDose = (depo / joule) / (density_kgPerMM3 * VoxelVolume_mm3);
-            Data->fill({local[0], local[1], local[2]}, deltaDose);
+            const G4Material * material = step->GetPreStepPoint()->GetMaterial();  // on material change step always ends anyway
+            if (!material) return; // paranoic
+            const double density_kgPerMM3 = material->GetDensity() / (kg/mm3);
+            if (density_kgPerMM3 > 1e-10 * g/cm3 / (kg/mm3)) // ignore vacuum
+            {
+                const double deltaDose = (depo / joule) / (density_kgPerMM3 * VoxelVolume_mm3);
+                Data->fill({local[0], local[1], local[2]}, deltaDose);
+            }
         }
+        else Data->fill({local[0], local[1], local[2]}, depo / keV);
     }
-    else Data->fill({local[0], local[1], local[2]}, depo / keV);
-
-    if (Properties.CollectDepoOverEvent) SumDepoOverEvent += depo / keV;
 }
 
 void CalorimeterSensitiveDetectorWrapper::writeToJson(json11::Json::object & json)
@@ -390,6 +395,35 @@ void CalorimeterSensitiveDetectorWrapper::writeToJson(json11::Json::object & jso
     json["CalorimeterIndex"] = CalorimeterIndex;
 
     json11::Json::object jsDepo;
+    if (Properties.DataType == ACalorimeterProperties::DepoPerEvent)
+    {
+        json11::Json::object js;
+
+        const std::vector<double> & data = EventDepoData->getContent();
+        double from, to;
+        EventDepoData->getLimits(from, to);
+        Properties.EventDepoFrom = from;
+        Properties.EventDepoTo = to;
+        double delta = (to - from) / Properties.EventDepoBins;
+        json11::Json::array ar;
+        for (size_t i = 0; i < data.size(); i++)  // 0=underflow and last=overflow
+        {
+            json11::Json::array el;
+            el.push_back(from + (i - 0.5)*delta); // i - 1 + 0.5
+            el.push_back(data[i]);
+            ar.push_back(el);
+        }
+        js["Data"] = ar;
+
+        const std::vector<double> vec = EventDepoData->getStat();
+        json11::Json::array sjs;
+        for (const double & d : vec)
+            sjs.push_back(d);
+        js["Stat"] = sjs;
+
+        json["DepoOverEvent"] = js;
+    }
+    else
     {
         std::vector<std::vector< std::vector<double> >> vSpatial = Data->getContent(); //[x][y][z]
         json11::Json::array ar;
@@ -410,36 +444,7 @@ void CalorimeterSensitiveDetectorWrapper::writeToJson(json11::Json::object & jso
         jsDepo["Stat"] = sjs;
 
         jsDepo["Entries"] = Data->getEntries();
-    }
-    json["XYZDepo"] = jsDepo;
-
-    if (Properties.CollectDepoOverEvent)
-    {
-        json11::Json::object js;
-
-        const std::vector<double> & data = EventDepoData->getContent();
-        double from, to;
-        EventDepoData->getLimits(from, to);
-        Properties.EventDepoFrom = from;
-        Properties.EventDepoTo = to;
-        double delta = (to - from) / Properties.EventDepoBins;
-        json11::Json::array ar;
-        for (size_t i = 0; i < data.size(); i++)  // 0=underflow and last=overflow
-        {
-            json11::Json::array el;
-                el.push_back(from + (i - 0.5)*delta); // i - 1 + 0.5
-                el.push_back(data[i]);
-            ar.push_back(el);
-        }
-        js["Data"] = ar;
-
-        const std::vector<double> vec = EventDepoData->getStat();
-        json11::Json::array sjs;
-        for (const double & d : vec)
-            sjs.push_back(d);
-        js["Stat"] = sjs;
-
-        json["DepoOverEvent"] = js;
+        json["XYZDepo"] = jsDepo;
     }
 
     json11::Json::object jsProps;
