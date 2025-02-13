@@ -2636,19 +2636,20 @@ void AParticleSimWin::on_pbNextCalorimeter_clicked()
     if (numCal == 0) return;
 
     int iCal = ui->cobCalorimeter->currentIndex();
-    //int iCalStart = iCal;
 
-    double depo = 0;
+    //double depo = 0;
     do
     {
         iCal++;
         if (iCal >= numCal) return;
-            /*iCal = 0;
-        if (iCal == iCalStart) return;
-        */
-        depo = CalHub.Calorimeters[iCal].Calorimeter->Stats[0];
+
+        //depo = CalHub.Calorimeters[iCal].Calorimeter->Stats[0];
+        if (CalHub.Calorimeters[iCal].Calorimeter->EventDepoData)
+            if (CalHub.Calorimeters[iCal].Calorimeter->EventDepoData->GetEntries() > 0) break;
+        if (CalHub.Calorimeters[iCal].Calorimeter->DataHistogram)
+            if (CalHub.Calorimeters[iCal].Calorimeter->DataHistogram->GetEntries() > 0) break;
     }
-    while (depo == 0);
+    while (true);
 
     if (iCal < ui->cobCalorimeter->count()) ui->cobCalorimeter->setCurrentIndex(iCal);
     updateCalorimeterGui();

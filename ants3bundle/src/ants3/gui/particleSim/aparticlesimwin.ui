@@ -37,7 +37,7 @@
     <item>
      <widget class="QTabWidget" name="twMain">
       <property name="currentIndex">
-       <number>1</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="tabGeant4">
        <attribute name="title">
@@ -1444,7 +1444,7 @@ sources</string>
         <item>
          <widget class="QTabWidget" name="twResults">
           <property name="currentIndex">
-           <number>0</number>
+           <number>2</number>
           </property>
           <widget class="QWidget" name="tabTrackingHistory">
            <attribute name="title">
@@ -5428,7 +5428,7 @@ Please specify a valid range</string>
      <x>0</x>
      <y>0</y>
      <width>622</width>
-     <height>22</height>
+     <height>21</height>
     </rect>
    </property>
   </widget>
