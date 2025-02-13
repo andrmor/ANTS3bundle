@@ -2637,13 +2637,11 @@ void AParticleSimWin::on_pbNextCalorimeter_clicked()
 
     int iCal = ui->cobCalorimeter->currentIndex();
 
-    //double depo = 0;
     do
     {
         iCal++;
         if (iCal >= numCal) return;
 
-        //depo = CalHub.Calorimeters[iCal].Calorimeter->Stats[0];
         if (CalHub.Calorimeters[iCal].Calorimeter->EventDepoData)
             if (CalHub.Calorimeters[iCal].Calorimeter->EventDepoData->GetEntries() > 0) break;
         if (CalHub.Calorimeters[iCal].Calorimeter->DataHistogram)
