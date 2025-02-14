@@ -63,7 +63,7 @@ Script example book for configuring WSF neutron detector (config: WSFneutron.jso
 #end
 
 #file
-DE_FastNeutrons.txt
+DE_Neutrons.txt
 #tags
 Calorimeter:Detection efficiency
 #info
