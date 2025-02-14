@@ -854,6 +854,8 @@ void AGeometryWindow::ShowPoint(double * r, bool keepTracks)
 
     ShowGeometry(false);
     if (keepTracks) ShowTracks();
+
+    activateWindow();
 }
 
 void AGeometryWindow::addGenerationMarker(const double * Pos)
