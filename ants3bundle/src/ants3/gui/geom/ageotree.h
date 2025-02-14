@@ -82,6 +82,7 @@ private:
   void markAsStackRefVolume(AGeoObject * obj);
   void updatePrototypeTreeGui();
 
+  void menuActionMoveObject(AGeoObject * obj, int option); //0 1 2 3 = top up down bottom
   void menuActionAddNewObject(AGeoObject * contObj, AGeoShape * shape);
   void menuActionCloneObject(AGeoObject * obj);
   void focusObject(const QString & objName);

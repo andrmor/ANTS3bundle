@@ -178,6 +178,58 @@ void AGeoTree::updatePrototypeTreeGui()
     updateExpandState(topItemPrototypes, true);
 }
 
+void AGeoTree::menuActionMoveObject(AGeoObject * obj, int option)
+{
+    if (!obj) return;
+
+    AGeoObject * cont = obj->Container;
+
+    if (option == 0)
+    {
+        cont->removeHostedObject(obj);
+        cont->addObjectFirst(obj);
+    }
+    else if (option == 1)
+    {
+        for (size_t i = 0; i < cont->HostedObjects.size(); i++)
+        {
+            if (cont->HostedObjects[i] != obj) continue;
+
+            if (i == 0) return; // already first
+            //check cannot migrate to the first position
+            if (i == 1)
+            {
+                if (cont->isWorld()) return; // prototypes at the front
+                if (obj->isCompositeMemeber()) return; // there is container with logicals at the front
+                if (cont->HostedObjects.front()->Type && cont->HostedObjects.front()->Type->isGridElement()) return; // there is a container with grid elements
+            }
+            std::swap(cont->HostedObjects[i], cont->HostedObjects[i-1]);
+            break;
+        }
+    }
+    else if (option == 2)
+    {
+        for (size_t i = 0; i < cont->HostedObjects.size(); i++)
+        {
+            if (cont->HostedObjects[i] != obj) continue;
+
+            if (i == cont->HostedObjects.size()-1) return; // already last
+
+            std::swap(cont->HostedObjects[i], cont->HostedObjects[i+1]);
+            break;
+        }
+    }
+    else if (option == 3)
+    {
+        cont->removeHostedObject(obj);
+        cont->addObjectLast(obj);
+    }
+
+    const QString name = obj->Name;
+    emit RequestRebuildDetector();
+    //emit RequestHighlightObject(name);
+}
+
 #include "agridhub.h"
 void AGeoTree::onGridReshapeRequested(QString objName)
 {
@@ -374,6 +426,14 @@ void AGeoTree::customMenuRequested(const QPoint &pos)
 
   menu.addSeparator();
 
+  QMenu * moveMenu = menu.addMenu("Move"); moveMenu->setEnabled(false);
+    QAction * moveTop = moveMenu->addAction("Move to top");
+    QAction * moveUp = moveMenu->addAction("Move up");
+    QAction * moveDown = moveMenu->addAction("Move down");
+    QAction * moveBottom = moveMenu->addAction("Move to bottom");
+
+  menu.addSeparator();
+
   QAction* enableDisableA = Action(menu, "Enable/Disable");
 
   menu.addSeparator();
@@ -459,6 +519,8 @@ void AGeoTree::customMenuRequested(const QPoint &pos)
 
       bool fNotGridNotMonitor = !Type.isGrid() && !Type.isMonitor();
 
+      moveMenu->setEnabled(true);
+
       addObjMenu->setEnabled(fNotGridNotMonitor);
       enableDisableA->setEnabled( !obj->isWorld() );
       enableDisableA->setText( (obj->isDisabled() ? "Enable object" : "Disable object" ) );
@@ -504,6 +566,10 @@ void AGeoTree::customMenuRequested(const QPoint &pos)
   else if (SelectedAction == showA)          ShowObject(obj);
   else if (SelectedAction == showAonly)      ShowObjectOnly(obj);
   else if (SelectedAction == showAdown)      ShowObjectRecursive(obj);
+  else if (SelectedAction == moveTop)        menuActionMoveObject(obj, 0);
+  else if (SelectedAction == moveUp)         menuActionMoveObject(obj, 1);
+  else if (SelectedAction == moveDown)       menuActionMoveObject(obj, 2);
+  else if (SelectedAction == moveBottom)     menuActionMoveObject(obj, 3);
   else if (SelectedAction == lineA)          SetLineAttributes(obj);
   else if (SelectedAction == enableDisableA) menuActionEnableDisable(obj);
   // ADD NEW OBJECT
@@ -562,6 +628,14 @@ void AGeoTree::customProtoMenuRequested(const QPoint & pos)
 
     QAction* showAllA  = Action(menu, "Show all instances");
     QAction* lineA     = Action(menu, "Change line color/width/style");
+
+    menu.addSeparator();
+
+    QMenu * moveMenu = menu.addMenu("Move"); moveMenu->setEnabled(false);
+    QAction * moveTop = moveMenu->addAction("Move to top");
+    QAction * moveUp = moveMenu->addAction("Move up");
+    QAction * moveDown = moveMenu->addAction("Move down");
+    QAction * moveBottom = moveMenu->addAction("Move to bottom");
 
     menu.addSeparator();
 
@@ -629,6 +703,7 @@ void AGeoTree::customProtoMenuRequested(const QPoint & pos)
 
     if (selected.size() == 1)
     {
+        moveMenu->setEnabled(true);
         showAllA->setEnabled(bIsPrototype);
         lineA->setEnabled(!bIsPrototype);
         enableDisableA->setEnabled(!obj->isWorld() && !bIsPrototype);
@@ -660,6 +735,10 @@ void AGeoTree::customProtoMenuRequested(const QPoint & pos)
     // -- EXECUTE SELECTED ACTION --
     if      (SelectedAction == showAllA)       ShowAllInstances(obj);
     else if (SelectedAction == lineA)          SetLineAttributes(obj);
+    else if (SelectedAction == moveTop)        menuActionMoveObject(obj, 0);
+    else if (SelectedAction == moveUp)         menuActionMoveObject(obj, 1);
+    else if (SelectedAction == moveDown)       menuActionMoveObject(obj, 2);
+    else if (SelectedAction == moveBottom)     menuActionMoveObject(obj, 3);
     else if (SelectedAction == enableDisableA) menuActionEnableDisable(obj);
     // ADD NEW OBJECT
     else if (SelectedAction == newBox)         menuActionAddNewObject(obj, new AGeoBox());

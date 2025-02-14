@@ -41,7 +41,8 @@ AGeometryHub::AGeometryHub()
 
     Prototypes = new AGeoObject("_#_PrototypeContainer_#_");
     delete Prototypes->Type; Prototypes->Type = new ATypePrototypeCollectionObject();
-    Prototypes->migrateTo(World);
+    Prototypes->Container = World;
+    World->HostedObjects.push_back(Prototypes);
 }
 
 AGeometryHub::~AGeometryHub()

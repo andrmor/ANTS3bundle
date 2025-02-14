@@ -128,7 +128,7 @@ public:
   void addObjectFirst(AGeoObject * Object);
   void addObjectLast(AGeoObject * Object);   // !!!***
   bool migrateTo(AGeoObject* objTo, bool fAfter = false, AGeoObject *reorderObj = nullptr);
-  bool repositionInHosted(AGeoObject* objTo, bool fAfter);
+  bool repositionInHosted(AGeoObject* objTo, bool fAfter); // !!!*** not safe !!!
   bool suicide(); // not possible for static objects
   void recursiveSuicide(); // does not remove locked and static objects, but removes all unlocked objects down the chain
   void lockUpTheChain();

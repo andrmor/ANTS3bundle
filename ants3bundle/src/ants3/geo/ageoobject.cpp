@@ -787,6 +787,7 @@ void AGeoObject::enableUp()
 void AGeoObject::addObjectFirst(AGeoObject * Object)
 {
     auto it = HostedObjects.begin();
+    if (isWorld()) ++it; // world has a prototype container
     if (getContainerWithLogical()) ++it;
     if (getGridElement()) ++it;
     HostedObjects.insert(it, Object);
@@ -796,11 +797,7 @@ void AGeoObject::addObjectFirst(AGeoObject * Object)
 void AGeoObject::addObjectLast(AGeoObject * Object)
 {
     Object->Container = this;
-
-//    if (this->Type->isWorld())
-//        HostedObjects.insert(0, Object); //why ???  TODO: check this!
-//    else
-        HostedObjects.push_back(Object);
+    HostedObjects.push_back(Object);
 }
 
 bool AGeoObject::migrateTo(AGeoObject * objTo, bool fAfter, AGeoObject *reorderObj)
