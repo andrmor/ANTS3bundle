@@ -2592,6 +2592,8 @@ void AParticleSimWin::updateCalorimeterGui()
         const ACalorimeter * Cal = CalHub.Calorimeters[iCal].Calorimeter;
 
         ui->leCalorimetersEntries->setText("--");
+        ui->labIntegral->setVisible(false);
+        ui->leIntegral->setVisible(false);
         if (Cal)
         {
             ui->frCaloShowDepoOverEvent->setVisible(false);
@@ -2601,6 +2603,9 @@ void AParticleSimWin::updateCalorimeterGui()
             {
                 ui->frCaloShowDepoOverEvent->setVisible(true);
                 ui->leCalorimetersEntries->setText(QString::number(Cal->EventDepoData->GetEntries()));
+                ui->labIntegral->setVisible(true);
+                ui->leIntegral->setVisible(true);
+                ui->leIntegral->setText(QString::number(Cal->EventDepoData->GetSumOfWeights()));
             }
 
             if (Cal->DataHistogram)

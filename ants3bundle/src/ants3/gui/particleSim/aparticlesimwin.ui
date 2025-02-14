@@ -4459,6 +4459,16 @@ Please specify a valid range</string>
                </widget>
               </item>
               <item>
+               <widget class="QLabel" name="labIntegral">
+                <property name="text">
+                 <string>Within range:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLineEdit" name="leIntegral"/>
+              </item>
+              <item>
                <spacer name="horizontalSpacer_71">
                 <property name="orientation">
                  <enum>Qt::Orientation::Horizontal</enum>
