@@ -66,6 +66,7 @@ protected:
 
 public slots:
     void ClearRootCanvas();
+    void onNewConfigLoaded();
     void ShowGeometry(bool ActivateWindow = true, bool SAME = true, bool ColorUpdateAllowed = true);
     void onRequestRedrawFromScript();
     void showRecursive(QString objectName);

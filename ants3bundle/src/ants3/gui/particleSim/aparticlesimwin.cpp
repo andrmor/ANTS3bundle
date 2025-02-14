@@ -2591,6 +2591,7 @@ void AParticleSimWin::updateCalorimeterGui()
         const int iCal = ui->cobCalorimeter->currentIndex();
         const ACalorimeter * Cal = CalHub.Calorimeters[iCal].Calorimeter;
 
+        ui->leCalorimetersEntries->setText("--");
         if (Cal)
         {
             ui->frCaloShowDepoOverEvent->setVisible(false);
@@ -2612,7 +2613,6 @@ void AParticleSimWin::updateCalorimeterGui()
         }
         else
         {
-            ui->leCalorimetersEntries->setText("--");
             ui->pbCaloShow->setEnabled(false);
         }
     }

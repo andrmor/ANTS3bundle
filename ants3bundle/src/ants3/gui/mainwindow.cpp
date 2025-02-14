@@ -496,6 +496,8 @@ void MainWindow::changeGeoViewer(bool useJSRoot)
 
 void MainWindow::connectSignalSlotsForGeoWin()
 {
+    connect(&Config, &AConfig::configLoaded,                            GeoWin, &AGeometryWindow::onNewConfigLoaded);
+
     connect(GeoWin,     &AGeometryWindow::requestChangeGeoViewer,       this,   &MainWindow::onRequestChangeGeoViewer);
 
     connect(GeoTreeWin, &AGeoTreeWin::requestShowGeometry,              GeoWin, &AGeometryWindow::ShowGeometry);

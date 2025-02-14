@@ -37,7 +37,7 @@
     <item>
      <widget class="QTabWidget" name="twMain">
       <property name="currentIndex">
-       <number>2</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="tabGeant4">
        <attribute name="title">
@@ -1444,7 +1444,7 @@ sources</string>
         <item>
          <widget class="QTabWidget" name="twResults">
           <property name="currentIndex">
-           <number>2</number>
+           <number>0</number>
           </property>
           <widget class="QWidget" name="tabTrackingHistory">
            <attribute name="title">
@@ -5000,6 +5000,19 @@ Please specify a valid range</string>
                     </item>
                    </layout>
                   </item>
+                  <item>
+                   <spacer name="verticalSpacer_9">
+                    <property name="orientation">
+                     <enum>Qt::Orientation::Vertical</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>20</width>
+                      <height>40</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
                  </layout>
                 </widget>
                </item>
@@ -5428,7 +5441,7 @@ Please specify a valid range</string>
      <x>0</x>
      <y>0</y>
      <width>622</width>
-     <height>21</height>
+     <height>22</height>
     </rect>
    </property>
   </widget>

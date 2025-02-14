@@ -440,6 +440,13 @@ void AGeometryWindow::ClearRootCanvas()
     }
 }
 
+void AGeometryWindow::onNewConfigLoaded()
+{
+    clearGeoMarkers();
+    ClearTracks(false);
+    on_pbShowGeometry_clicked();
+}
+
 void AGeometryWindow::UpdateRootCanvas()
 {
     if (UseJSRoot) qDebug() << "UpdateRootCanvas called in JSRoot mode!!!";
