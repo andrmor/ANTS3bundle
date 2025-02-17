@@ -10,7 +10,7 @@ class ARandomHub;
 class AMath_SI : public AScriptInterface
 {
     Q_OBJECT
-    Q_PROPERTY(double pi READ pi)
+    Q_PROPERTY(double pi READ pi CONSTANT)
     double pi() const { return 3.141592653589793238462643383279502884; }
 
 public:
@@ -50,7 +50,7 @@ public slots:
 
     QVariantList generateDirectionIsotropic();
 
-    QVariantList interpolateToRegulareArray(QVariantList arrayOfPairs, int numBins, double from, double to);
+    QVariantList interpolateToRegularArray(QVariantList arrayOfPairs, int numBins, double from, double to, bool shiftByHalfBin = false);
 
     // NOT multi-thread friendly!
     //QVariantList fit1D(QVariantList array, QString tformula, QVariantList range = QVariantList(), QVariantList startParValues = QVariantList(), bool extendedOutput = false);
