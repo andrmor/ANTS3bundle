@@ -1023,11 +1023,7 @@ void AGeoObject::updateStack()
 
 void AGeoObject::updateAllStacks()
 {
-    if (Type)
-    {
-        ATypeStackContainerObject * so = dynamic_cast<ATypeStackContainerObject*>(Type);
-        if (so) updateStack();
-    }
+    if (Type && Type->isStack()) updateStack();
 
     for (AGeoObject * obj : HostedObjects) obj->updateAllStacks();
 }

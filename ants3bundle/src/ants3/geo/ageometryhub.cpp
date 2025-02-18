@@ -17,6 +17,7 @@
 #include <QDebug>
 #include <QFileInfo>
 
+#include "TString.h"
 #include "TGeoManager.h"
 #include "TVector3.h"
 

@@ -21,8 +21,6 @@ class QStringLists;
 class AGeoShape;
 class AParticleAnalyzerSettings;
 
-#include "TString.h"
-
 class AGeometryHub
 {
 public:

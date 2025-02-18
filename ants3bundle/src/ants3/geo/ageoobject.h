@@ -112,7 +112,7 @@ public:
   bool isStackReference() const;
   AGeoObject * getOrMakeStackReferenceVolume();  // for stack container or members
   void updateStack();  //called on one object of the set - it is used to calculate positions of other members!
-  void updateAllStacks(); // !!!*** --> isStack when enum is introduced
+  void updateAllStacks();
 
   // the following checks are always done DOWN the chain
   // for global effect, the check has to be performed on World (Top) object
