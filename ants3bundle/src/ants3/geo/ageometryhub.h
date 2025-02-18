@@ -52,6 +52,7 @@ public:
     QString      readFromJson(const QJsonObject & json);
 
     void         clearWorld();
+    void         restoreWorldAttributes();
     bool         canBeDeleted(AGeoObject * obj) const;
 
     void         convertObjToComposite(AGeoObject * obj) const;

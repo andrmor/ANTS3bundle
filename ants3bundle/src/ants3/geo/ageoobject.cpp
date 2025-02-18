@@ -13,7 +13,7 @@
 
 void AGeoObject::constructorInit()
 {
-    if (Name.isEmpty()) Name = GenerateRandomObjectName();
+    if (Name.isEmpty()) Name = generateRandomObjectName();
 
     Position[0] = Position[1] = Position[2] = 0;
     Orientation[0] = Orientation[1] = Orientation[2] = 0;
@@ -1448,11 +1448,13 @@ bool AGeoObject::isGoodContainerForInstance() const
     return false;
 }
 
+/*
 void AGeoObject::makeItWorld()
 {
     Name = "World";
     delete Type; Type = new ATypeWorldObject();
 }
+*/
 
 void AGeoObject::clearTrueRotationRecursive()
 {
@@ -1474,7 +1476,7 @@ bool AGeoObject::checkCompatibleWithGeant4() const
 {
     if (!fActive) return true;
 
-    if (Shape && !Shape->   isCompatibleWithGeant4())
+    if (Shape && !Shape->isCompatibleWithGeant4())
     {
         AErrorHub::addQError(Name + ": shape is incopatible with Geant4");
         return false;
@@ -1509,12 +1511,12 @@ QString randomString(int lettLength, int numLength)  // !!!*** RandomHub
     return randomString;
 }
 
-QString AGeoObject::GenerateRandomName()
+QString AGeoObject::generateRandomName()
 {
     return randomString(2, 1);
 }
 
-QString AGeoObject::GenerateRandomObjectName()
+QString AGeoObject::generateRandomObjectName()
 {
     QString str = randomString(2, 1);
     str = "New_" + str;

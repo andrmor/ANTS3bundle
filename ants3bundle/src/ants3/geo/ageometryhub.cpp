@@ -83,6 +83,12 @@ void AGeometryHub::clearWorld()
     ParticleAnalyzers.clear();
 }
 
+void AGeometryHub::restoreWorldAttributes()
+{
+    World->Name = "World";
+    delete World->Type; World->Type = new ATypeWorldObject();
+}
+
 void AGeometryHub::clearMonitors()
 {
     AMonitorHub & mh = AMonitorHub::getInstance();
@@ -1524,7 +1530,7 @@ void processTCompositeShape(TGeoCompositeShape* Tshape, QVector<AGeoObject*>& Lo
     {
         QString leftNameBase = leftName = left->GetName();
         while (isLogicalObjectsHaveName(LogicalObjects, leftName))
-            leftName = leftNameBase + "_" + AGeoObject::GenerateRandomName();
+            leftName = leftNameBase + "_" + AGeoObject::generateRandomName();
         processNonComposite(leftName, left, n->GetLeftMatrix(), LogicalObjects);
     }
 
@@ -1543,7 +1549,7 @@ void processTCompositeShape(TGeoCompositeShape* Tshape, QVector<AGeoObject*>& Lo
     {
         QString rightNameBase = rightName = right->GetName();
         while (isLogicalObjectsHaveName(LogicalObjects, rightName))
-            rightName = rightNameBase + "_" + AGeoObject::GenerateRandomName();
+            rightName = rightNameBase + "_" + AGeoObject::generateRandomName();
         processNonComposite(rightName, right, n->GetRightMatrix(), LogicalObjects);
     }
 
@@ -1644,7 +1650,8 @@ QString AGeometryHub::importGDML(const QString & fileName)
 
     clearWorld();
     readGeoObjectTree(World, top);
-    World->makeItWorld();
+    //World->makeItWorld();
+    restoreWorldAttributes();
     AGeoBox * wb = dynamic_cast<AGeoBox*>(World->Shape);
     if (wb)
     {
@@ -1677,7 +1684,8 @@ QString AGeometryHub::importGeometry(const QString &fileName)
 
     clearWorld();
     readGeoObjectTree(World, top);
-    World->makeItWorld();
+    //World->makeItWorld();
+    restoreWorldAttributes();
     AGeoBox * wb = dynamic_cast<AGeoBox*>(World->Shape);
     if (wb)
     {

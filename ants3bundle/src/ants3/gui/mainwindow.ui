@@ -64,7 +64,7 @@
             <enum>Qt::ContextMenuPolicy::CustomContextMenu</enum>
            </property>
            <property name="text">
-            <string>Geometry</string>
+            <string>Design</string>
            </property>
           </widget>
          </item>
