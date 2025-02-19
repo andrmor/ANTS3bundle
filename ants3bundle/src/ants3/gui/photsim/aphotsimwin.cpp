@@ -759,6 +759,11 @@ void APhotSimWin::loadAndShowTracks(bool suppressMessage, int selectedEvent)
 
     bool bSkipNextEvent = false;
 
+    bool bSuppressNotHittingSensors = ui->cbSuppressTracksMissing->isChecked();
+    bool bEnforceMaxNumTracks = ui->cbTracksMaxInVis->isChecked();
+    int maxTracks = ui->sbmaxTracksInVis->value();
+
+    int addedTracks = 0;
     QTextStream in(&file);
     while(!in.atEnd())
     {
@@ -785,6 +790,8 @@ void APhotSimWin::loadAndShowTracks(bool suppressMessage, int selectedEvent)
         }
 
         if (bSkipNextEvent) continue;
+        if (bEnforceMaxNumTracks && addedTracks > maxTracks) break;
+
         QJsonObject json = jstools::strToJson(line);
         QJsonArray ar;
         bool ok = jstools::parseJson(json, "P", ar);
@@ -796,7 +803,10 @@ void APhotSimWin::loadAndShowTracks(bool suppressMessage, int selectedEvent)
         const bool bHit = (json.contains("h") ? true : false);
         const bool bSec = (json.contains("s") ? true : false);
 
+        if (bSuppressNotHittingSensors && !bHit) continue;
+
         TGeoTrack * track = new TGeoTrack(1, 22);
+        addedTracks++;
         int Color = 7;
         if (bSec) Color = kMagenta;
         if (bHit) Color = 2;
@@ -1697,7 +1707,7 @@ void APhotSimWin::showTracksSingleEvent()
 {
     emit requestClearGeoMarkers(0);
 
-    const int iShowEvent = ui->sbEvent->value();
+    int iShowEvent = ui->sbEvent->value();
     loadAndShowTracks(false, iShowEvent);
 }
 
@@ -1731,6 +1741,7 @@ bool APhotSimWin::updateBombHandler()
 
 void APhotSimWin::setGuiEnabled(bool flag)
 {
+    qApp->processEvents();
     setEnabled(flag);
     qApp->processEvents();
 }
