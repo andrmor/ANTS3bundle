@@ -1288,6 +1288,15 @@ void AGeometryWindow::on_pbSaveAs_clicked()
     }
 }
 
+#include <QApplication>
+#include <QClipboard>
+void AGeometryWindow::on_pbSaveAs_customContextMenuRequested(const QPoint &)
+{
+    RasterWindow->SaveAs("tmpImage.png");
+    QImage image("tmpImage.png");
+    QApplication::clipboard()->setImage(image, QClipboard::Clipboard);
+}
+
 void AGeometryWindow::onDownloadPngRequested(QWebEngineDownloadItem *item)
 {
 /*
@@ -1527,4 +1536,3 @@ void AGeometryWindow::on_cbLimitVisibility_toggled(bool checked)
     font.setBold(checked);
     ui->cbLimitVisibility->setFont(font);
 }
-

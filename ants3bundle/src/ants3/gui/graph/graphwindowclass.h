@@ -317,6 +317,10 @@ private slots:
 
     void on_actionSet_default_margins_triggered();
 
+    void on_pbSaveImage_clicked();
+
+    void on_pbSaveImage_customContextMenuRequested(const QPoint &pos);
+
 signals:
     void requestLocalDrawObject(TObject *obj, QString options, bool fFocus);
 };

@@ -270,6 +270,12 @@
        </item>
        <item>
         <widget class="QPushButton" name="pbSaveAs">
+         <property name="contextMenuPolicy">
+          <enum>Qt::ContextMenuPolicy::CustomContextMenu</enum>
+         </property>
+         <property name="toolTip">
+          <string>Right-click to save to clipboard</string>
+         </property>
          <property name="text">
           <string>Save image</string>
          </property>
@@ -344,7 +350,7 @@
      <x>0</x>
      <y>0</y>
      <width>854</width>
-     <height>21</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuMarkers">

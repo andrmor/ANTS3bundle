@@ -150,6 +150,8 @@ private slots:
 
     void on_cbLimitVisibility_toggled(bool checked);
 
+    void on_pbSaveAs_customContextMenuRequested(const QPoint &pos);
+
 private:
     bool                    UseJSRoot = false;
     AGeometryHub          & Geometry;

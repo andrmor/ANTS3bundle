@@ -2417,7 +2417,6 @@ void GraphWindowClass::on_actionSave_image_triggered()
     if (file.suffix().isEmpty()) fileName += ".png";
 
     GraphWindowClass::SaveGraph(fileName);
-//  if (AGlobalSettings::getInstance().fOpenImageExternalEditor) QDesktopServices::openUrl(QUrl("file:"+fileName, QUrl::TolerantMode)); !!!***
 }
 
 void GraphWindowClass::on_actionBasic_ROOT_triggered()
@@ -3066,4 +3065,18 @@ void GraphWindowClass::updateMargins(ADrawObject * obj)
 
     double right = (hitWithZ ? rec.RightForZ : rec.Right);
     RasterWindow->fCanvas->SetRightMargin(right);
+}
+
+void GraphWindowClass::on_pbSaveImage_clicked()
+{
+    on_actionSave_image_triggered();
+}
+
+#include <QApplication>
+#include <QClipboard>
+void GraphWindowClass::on_pbSaveImage_customContextMenuRequested(const QPoint &)
+{
+    RasterWindow->SaveAs("tmpImage.png");
+    QImage image("tmpImage.png");
+    QApplication::clipboard()->setImage(image, QClipboard::Clipboard);
 }
