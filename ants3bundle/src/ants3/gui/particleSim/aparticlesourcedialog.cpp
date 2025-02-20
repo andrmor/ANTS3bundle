@@ -1,6 +1,5 @@
 #include "aparticlesourcedialog.h"
 #include "ui_aparticlesourcedialog.h"
-#include "ajsontools.h"
 #include "guitools.h"
 #include "afiletools.h"
 #include "asourceparticlegenerator.h"
@@ -39,7 +38,7 @@ AParticleSourceDialog::AParticleSourceDialog(const AParticleSourceRecord & Rec, 
     ui->pbUpdateRecord->setVisible(false);
 
     ui->leSourceName->setText(Rec.Name.data());
-    ui->cobGunSourceType->setCurrentIndex(Rec.Shape);  // !!!***
+    ui->cobGunSourceType->setCurrentIndex(Rec.Shape);
 
     ui->ledGun1DSize->setText(QString::number(2.0 * Rec.Size1));
     ui->ledGun2DSize->setText(QString::number(2.0 * Rec.Size2));
@@ -68,11 +67,11 @@ AParticleSourceDialog::AParticleSourceDialog(const AParticleSourceRecord & Rec, 
     index = 0;
     switch (Rec.AngularMode)
     {
-    case AParticleSourceRecord::Isotropic  : index = 0; break;
+    case AParticleSourceRecord::Isotropic       : index = 0; break;
     case AParticleSourceRecord::FixedDirection  : index = 1; break;
     case AParticleSourceRecord::GaussDispersion : index = 2; break;
     case AParticleSourceRecord::CustomAngular   : index = 3; break;
-    default : guitools::message("Unknown angular mode, setting to Uniform!", this);
+    default : guitools::message("Unknown angular mode, setting to Isotropic!", this);
     }
     ui->cobAngularMode->setCurrentIndex(index);
     on_cobAngularMode_currentIndexChanged(ui->cobAngularMode->currentIndex());
@@ -969,4 +968,3 @@ void AParticleSourceDialog::on_cbEnergyGaussBlur_toggled(bool checked)
     ui->ledEnergySigma->setEnabled(checked);
     ui->cobEnergySigmaUnits->setEnabled(checked);
 }
-

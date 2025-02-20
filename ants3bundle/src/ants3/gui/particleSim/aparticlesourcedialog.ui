@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>610</width>
-    <height>817</height>
+    <width>640</width>
+    <height>847</height>
    </rect>
   </property>
   <property name="maximumSize">
@@ -1564,6 +1564,12 @@ If material with this name does not exist, this limitation is not applied.</stri
                  </item>
                  <item>
                   <widget class="QComboBox" name="cobUnits">
+                   <property name="minimumSize">
+                    <size>
+                     <width>60</width>
+                     <height>0</height>
+                    </size>
+                   </property>
                    <item>
                     <property name="text">
                      <string>MeV</string>
@@ -1700,6 +1706,12 @@ If material with this name does not exist, this limitation is not applied.</stri
                   <horstretch>0</horstretch>
                   <verstretch>0</verstretch>
                  </sizepolicy>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>60</width>
+                  <height>0</height>
+                 </size>
                 </property>
                 <property name="maximumSize">
                  <size>
