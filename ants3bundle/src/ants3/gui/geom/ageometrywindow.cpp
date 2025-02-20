@@ -1262,16 +1262,14 @@ void AGeometryWindow::on_cobViewType_currentIndexChanged(int index)
 
 void AGeometryWindow::on_pbSaveAs_clicked()
 {
+    QFileDialog *fileDialog = new QFileDialog;
+    fileDialog->setDefaultSuffix("png");
+    QString fileName = fileDialog->getSaveFileName(this, "Save image as file", "", "png (*.png);;gif (*.gif);;Jpg (*.jpg)");
+    if (fileName.isEmpty()) return;
+
     int Mode = ui->cobViewer->currentIndex(); // 0 - standard, 1 - jsroot
     if (Mode == 0)
     {
-        QFileDialog *fileDialog = new QFileDialog;
-        fileDialog->setDefaultSuffix("png");
-        //QString fileName = fileDialog->getSaveFileName(this, "Save image as file", AGlobalSettings::getInstance().LastOpenDir, "png (*.png);;gif (*.gif);;Jpg (*.jpg)");
-        QString fileName = fileDialog->getSaveFileName(this, "Save image as file", "", "png (*.png);;gif (*.gif);;Jpg (*.jpg)");
-        if (fileName.isEmpty()) return;
-//        AGlobalSettings::getInstance().LastOpenDir = QFileInfo(fileName).absolutePath();
-
         QFileInfo file(fileName);
         if(file.suffix().isEmpty()) fileName += ".png";
         AGeometryWindow::SaveAs(fileName);
@@ -1280,10 +1278,7 @@ void AGeometryWindow::on_pbSaveAs_clicked()
     else
     {
 #ifdef __USE_ANTS_JSROOT__
-        QWebEnginePage * page = WebView->page();
-        QString js = "var painter = JSROOT.GetMainPainter(\"onlineGUI_drawing\");";
-        js += QString("painter.createSnapshot('dummy.png')");
-        page->runJavaScript(js);
+        WebView->grab().save(fileName, "PNG");
 #endif
     }
 }
@@ -1292,9 +1287,21 @@ void AGeometryWindow::on_pbSaveAs_clicked()
 #include <QClipboard>
 void AGeometryWindow::on_pbSaveAs_customContextMenuRequested(const QPoint &)
 {
-    RasterWindow->SaveAs("tmpImage.png");
-    QImage image("tmpImage.png");
-    QApplication::clipboard()->setImage(image, QClipboard::Clipboard);
+    int Mode = ui->cobViewer->currentIndex(); // 0 - standard, 1 - jsroot
+    if (Mode == 0)
+    {
+        RasterWindow->SaveAs("tmpImage.png");
+        QImage image("tmpImage.png");
+        QApplication::clipboard()->setImage(image, QClipboard::Clipboard);
+    }
+    else
+    {
+#ifdef __USE_ANTS_JSROOT__
+        WebView->grab().save("tmpImage.png", "PNG");
+        QImage image("tmpImage.png");
+        QApplication::clipboard()->setImage(image, QClipboard::Clipboard);
+#endif
+    }
 }
 
 void AGeometryWindow::onDownloadPngRequested(QWebEngineDownloadItem *item)
