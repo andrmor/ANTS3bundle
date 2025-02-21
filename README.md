@@ -1,120 +1,48 @@
-# ANTS3bundle
+# ANTS3 mission
 
-* GUI and scripting components are ready, collecting user suggestion for tweaking
-* Particle simulation part is in beta
-* Optical simulation part is in alpha
+* The toolkit was created to greatly facilitate particle and optical photon simulations for the students
+   * Interactive graphical interface and scrpting interface (Python and Javascript) for Geant4
+ * Quick (and not so dirty) simulations during initial stahges of the development of position-sensitive detectors
+ * Many features which are missing in "vanilla" Geant4 are added to make life simpler
+
+# ANTS3 highlights
+
+* Monte Carlo particle simulations: an adavanced frontend for Geant4 toolkit
+   * Multi-process simulation
+   * Interactive GUI for configuration and visualisation of the results
+   * Custom scoring infrastructure
+   * Flexible options for generation of primary particles
+   * Direct Interface from energy deposition to optical photon generation
+ * Custom optical tracer based on CERN ROOT 3D navigation
+   * Fresnel-based tracing combined with
+   * Custom rules for optical interfaces
+   * Possibility to add "functional objects" in photon tracing, allowing to easlily connect Monte Carlo tracing and formula-driven transport (e.g. thin lense, optical fiber)
+   * Flexible scoring and history recording
+ * Detector configuration, simulations and processing of results (integrated CERN ROOT) are possible  to conduct either in GUI or using scripts
+   * Python interface
+   * JavaScript interface
+   * 
+# Status of the development
+
+* Particle and optical simulation parts are ready  
+* GUI is ready
+* Scripting system is ready
+* Computer farm support is in early alpha
+* Infrastructure for help system for scripting method is ready, help text is in the process of filling
+* Warning: work on ANTS3 documentation has not yet started!
 
 ---
 
-# Installation instructions for ants3 on Ubuntu 22.04 Mate
+# Installation instructions
+* [Ubuntu 24.04 Mate](https://github.com/andrmor/ANTS3bundle/wiki/Install_Ubuntu24.04_Qt6)
+* [Outdated: Ubuntu 24.04 Mate with Qt5](https://github.com/andrmor/ANTS3bundle/wiki/Install_Ubuntu22.04_Qt5)
+* [Outdated: Ubuntu 22.04 Mate](https://github.com/andrmor/ANTS3bundle/wiki/Install_Ubuntu22.04)
+ 
+ ---
 
-### General
+ # Latest tested software versions
 
-sudo su      # and enter your password
+* 21 February 2025 --> Ubuntu 24.04 Mate, Qt 6.8.0, CERN ROOT 6.32.06, Geant4 11.3.0
+* 21 October 2024 --> Ubuntu 24.04 Mate, Qt 6.8.0, CERN ROOT 6.32.04, Geant4 11.2.2
+* 27 June 2024 --> Ubuntu 24.04 Mate, Qt 6.6.3, CERN ROOT 6.32.02, Geant4 11.2.2
 
-update-locale LANG=en_GB.UTF-8       # this is to ensure you use decimal separator "."
-
-apt -y update && apt -y upgrade
-
-apt -y dist-upgrade
-
-apt -y install git wget
-
-apt -y install build-essential cmake
-
-apt -y install libtbb-dev
-
-apt -y install libeigen3-dev
-
-apt -y install x11-apps
-
-apt -y install libgl2ps-dev liblz4-dev
-
-apt -y install python3-dev
-
-apt -y install libxerces-c-dev freeglut3-dev libmotif-dev tk-dev libxpm-dev libxmu-dev libxi-dev
-
-### CERN ROOT
-export VERSION=6.28.04     # check for the newest version at https://root.cern/
-
-export ROOTTGZ=root_v$VERSION.Linux-ubuntu22-x86_64-gcc11.3.tar.gz
-
-wget https://root.cern.ch/download/$ROOTTGZ
-
-mkdir /opt/root$VERSION
-
-tar -xzf $ROOTTGZ -C /opt/root$VERSION
-
-rm $ROOTTGZ
-
-### QtCreator
-Install qtcreator: see https://www.qt.io/download
-* go to open source section, 
-* then download "Qt online installer",
-* allow execution for the downloaded file and start it
-* you will have to create an account to use the installer
-* Go for "Custom installation"
-    * QtCreator and the tools will be automatically selected, you only need to selected the Qt version
-    * For example, in Qt 6.5.1, you have to select:
-      * Desktop gcc 64-bit
-      * Additional libraries / QWebSockets
-      * Additional libraries / QWebEngine
-    * If you also plan to use ants2 or Geant4's Qt-based GUI, install the following:
-        * Qt 5.15.2
-           * Desktop gcc 64-bit
-           * Qt Script
-   * Do NOT start QtCreator from the installation tool, only from the terminal!
-   *   only in this way the environmental variables will be configured properly!
-
-### Geant4
-export VERSION=11.1.1         # see for version number https://geant4.web.cern.ch/
-
-wget https://github.com/Geant4/geant4/archive/v$VERSION.tar.gz
-
-tar -xzf v$VERSION.tar.gz -C /opt
-
-rm v$VERSION.tar.gz
-
-mkdir /opt/geant4-$VERSION-build
-
-cd /opt/geant4-$VERSION-build
-
-* Modify the Qt directory in the following line.
-* If Geant4's GUI is not needed, set -DGEANT4_USE_QT=OFF and remove -DCMAKE_PREFIX_PATH=... compilation key from the line
-
-cmake -DCMAKE_INSTALL_PREFIX=/opt/geant4-$VERSION-install -DGEANT4_USE_GDML=ON -DCMAKE_BUILD_TYPE=Release -DGEANT4_INSTALL_DATA=ON -DGEANT4_USE_OPENGL_X11=ON -DGEANT4_USE_XM=ON -DGEANT4_USE_QT=ON -DGEANT4_BUILD_MULTITHREADED=OFF -DCMAKE_PREFIX_PATH=/home/andr/Qt/5.15.2/gcc_64/lib/cmake -DCMAKE_CXX_STANDARD=17 /opt/geant4-$VERSION
-
-make -j8
-
-make install
-
-rm -rf /opt/geant4-$VERSION-build
-
-rm -rf /opt/geant4-$VERSION
-
-### ants3 source code
-* Create a directory for ants3 and open a terminal inside
-* git clone https://github.com/andrmor/ANTS3bundle
-   * for dev version, use: git clone --branch dev https://github.com/andrmor/ANTS3bundle
-
-exit
-
-### Setting the environment: THE NEXT IS NOT WITH SUPERUSER!!!
-
-* Adjuct the paths according to the root and geant4 versions!
-
-echo ". /opt/root6.28.04/root/bin/thisroot.sh" >> ~/.bashrc
-
-echo ". /opt/geant4-11.1.1-install/bin/geant4.sh" >> ~/.bashrc
-              #  
-* Adjust the path for the QtCreator
-
-echo "alias qt="/home/andr/Qt/Tools/QtCreator/bin/qtcreator"" >> ~/.bashrc
-              #
-* Adjust the path for the Qt directory in the third line
-
-echo "export LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:/usr/local/lib" >>  ~/.bashrc
-
-echo "export PATH=\$PATH:/usr/include" >>  ~/.bashrc
-
-echo "export LD_LIBRARY_PATH=/home/andr/Qt/5.15.2/gcc_64/lib:\$LD_LIBRARY_PATH" >>  ~/.bashrc
