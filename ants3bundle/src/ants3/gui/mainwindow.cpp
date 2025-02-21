@@ -769,6 +769,7 @@ void MainWindow::onRequestLoadConfiguration(QString fileName)
 }
 
 #include "TROOT.h"
+#include "ageant4inspectormanager.h"
 void MainWindow::on_actionVersions_triggered()
 {
     int majVer = ANTS3_MAJOR;
@@ -779,6 +780,11 @@ void MainWindow::on_actionVersions_triggered()
 
     QString qv = QT_VERSION_STR;
 
+    qApp->processEvents();
+    AGeant4InspectorManager & G4Inspector = AGeant4InspectorManager::getInstance();
+    QString g4version = "NA";
+    G4Inspector.requestVersion(g4version);
+
     QString out = "ANTS3\n"
                   "   version:  " + mav + "." + miv + "\n"
                   "   build date:  " + QString::fromLocal8Bit(__DATE__) + "\n"
@@ -786,6 +792,8 @@ void MainWindow::on_actionVersions_triggered()
                   "Qt version:  " + qv + "\n"
                   "\n"
                   "ROOT version:  " + gROOT->GetVersion() + "\n"
+                  "\n"
+                  "Local Geant4 version:  " + g4version + "\n"
                   "\n"
                   "Optional components:\n"
                   "  Python scripting: "

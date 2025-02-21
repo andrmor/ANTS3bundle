@@ -40,6 +40,7 @@ void AInspector::generateResponseFile(const QJsonObject & responseJson)
     jstools::saveJsonToFile(json, WorkingDir + "/response.json");
 }
 
+#include "G4Version.hh"
 void AInspector::processRequest(const QJsonObject & json)
 {
     QString request;
@@ -53,6 +54,17 @@ void AInspector::processRequest(const QJsonObject & json)
 
         QJsonObject json;
         fillMaterialComposition(matName, json);
+        generateResponseFile(json);
+    }
+    else if (request == "Geant4Version")
+    {
+        QJsonObject json;
+        QString str = G4Version.data();
+        str.remove("$");
+        str.remove("Name:");
+        str.remove("geant4-");
+        str = str.simplified();
+        json["Version"] = str;
         generateResponseFile(json);
     }
     else terminate("Unknown request");
