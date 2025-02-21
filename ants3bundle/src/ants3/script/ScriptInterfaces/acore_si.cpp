@@ -58,7 +58,8 @@ ACore_SI::ACore_SI() : AScriptInterface()
 
     Help["saveText"] = "Save text to the file (create new if does not exist; override if not empty). Abort if not successful";
     Help["appendText"] = "Apend text to the existing file. Abort if not successful";
-    Help["loadText"] = "Load text from the file. Abort if not successful";
+    Help["loadText"] = {{1,"Load text from the file. Abort if not successful"},
+                        {2,"Load a given number of lines form the beginning of the file. Abort if not successful"}};
 
     Help["saveArray"] = {{2,"Save 1D or 2D numeric array to the file. If the file exists, it will be reset"},
                          {3,"Save 1D or 2D numeric array to the file. If 'append' argument is true, the data are added to the end of the file. "
@@ -129,7 +130,7 @@ ACore_SI::ACore_SI() : AScriptInterface()
 
     Help["str"] = "Converts numeric value to string using the given precision (number of digits after the decimal separator)";
     Help["toStr"] = "Converts argument to the string and returns it";
-    Help["arraySum"] = "Return sum of all elements of 1D numeric array. If the argument is 2D array, return sum of the last column";
+    Help["arraySum"] = "For 1D array, returns sum of all elements.\nFor 2D arrays, returns sum of the last column";
     Help["getExamplesDir"] = "Get ANTS3 directory with script/config examples";
     Help["processEvents"] = "Put this method sparsely inside computationaly-heavy code to improve reaction to user abort. Note that 'print' and 'reportProgress' have the same effect";
     Help["reportProgress"] = "Show progress bar on the script window. The argument is progress value in percent";
@@ -269,7 +270,8 @@ double ACore_SI::arraySum(QVariantList array)
         }
 
         QVariantList el = array[i].toList();
-        sum += el.back().toDouble();
+        if (el.size() > 0)
+            sum += el.back().toDouble();
     }
 
     return sum;
@@ -436,6 +438,26 @@ QString ACore_SI::loadText(QString fileName)
     return str;
 }
 
+QString ACore_SI::loadText(QString fileName, int numLines)
+{
+    QString txt;
+    QFile file(fileName);
+    if (!file.open(QIODevice::ReadOnly | QFile::Text))
+    {
+        abort("cannot open file " + fileName);
+        return "";
+    }
+
+    QTextStream in(&file);
+    while (numLines > 0)
+    {
+        txt += in.readLine() + "\n";
+        numLines--;
+    }
+
+    file.close();
+    return txt;
+}
 
 void ACore_SI::saveArray(QVariantList array, QString fileName, bool append)
 {

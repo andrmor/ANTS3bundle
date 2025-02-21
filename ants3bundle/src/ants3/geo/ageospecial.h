@@ -100,4 +100,20 @@ protected:
     void doWriteToJson(QJsonObject & json) const override;
 };
 
+#include "aparticleanalyzersettings.h"
+class AGeoParticleAnalyzer : public AGeoSpecial
+{
+public:
+    AGeoParticleAnalyzer(){}
+
+    QString getType() const override {return QStringLiteral("ParticleAnalyzer");}
+
+    void readFromJson(const QJsonObject & json) override;
+protected:
+    void doWriteToJson(QJsonObject & json) const override;
+
+public:
+    AParticleAnalyzerRecord Properties;
+};
+
 #endif // AGEOSPECIAL_H

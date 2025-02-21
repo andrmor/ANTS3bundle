@@ -149,10 +149,24 @@ bool APhotonSimManager::simulate(int numLocalProc)
 
     qDebug() << "Photon simulation finished";
 
-    if (AErrorHub::isError()) return false;
+    if (SimSet.RunSet.SaveConfig) jstools::saveJsonToFile( AConfig::getConstInstance().JSON, SimSet.RunSet.OutputDirectory + "/" + SimSet.RunSet.FileNameConfig);
 
+    if (AErrorHub::isError()) return false;
     mergeOutput();
+
     return !AErrorHub::isError();
+}
+
+void APhotonSimManager::abort()
+{
+    ADispatcherInterface & Dispatcher = ADispatcherInterface::getInstance();
+    Dispatcher.abortTask();
+}
+
+bool APhotonSimManager::isAborted() const
+{
+    ADispatcherInterface & Dispatcher = ADispatcherInterface::getInstance();
+    return Dispatcher.isAborted();
 }
 
 bool APhotonSimManager::checkDirectories()
@@ -244,6 +258,7 @@ void removePhotonOutputFiles(const APhotSimRunSettings & settings)
     fileNames.push_back(OutputDir + '/' + settings.FileNameStatistics);
     fileNames.push_back(OutputDir + '/' + settings.FileNameMonitors);
     fileNames.push_back(OutputDir + '/' + settings.FileNameReceipt);
+    fileNames.push_back(OutputDir + '/' + settings.FileNameConfig);
 
     for (const QString & fn : fileNames) QFile::remove(fn);
 }

@@ -147,12 +147,20 @@ void AGuiWindow::showEvent(QShowEvent * event)
     bWinGeomUpdateAllowed = true;
     bWinVisible = true;
 }
+*/
 
 void AGuiWindow::hideEvent(QHideEvent * event)
 {
-    qDebug() << IdStr<<"----Hide event"<<isVisible();
-    bWinGeomUpdateAllowed = false;
-    bWinVisible = false;
+    //qDebug() << IdStr<<"----Hide event"<<isVisible();
+    storeGeomStatus();
+    QMainWindow::hideEvent(event);
 }
 
+/*
+void AGuiWindow::moveEvent(QMoveEvent *event)
+{
+    storeGeomStatus();
+    QMainWindow::moveEvent(event);
+}
 */
+

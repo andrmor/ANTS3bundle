@@ -8,7 +8,7 @@
 #include "astatisticshub.h"
 #include "amonitorhub.h"
 #include "anoderecord.h"
-#include "aoneevent.h"
+#include "alightsensorevent.h"
 #include "aphotontracer.h"
 #include "arandomhub.h"
 #include "ajsontools.h"
@@ -44,7 +44,7 @@ APhotonSimulator::APhotonSimulator(const QString & dir, const QString & fileName
     LOG << "Working Dir: " << WorkingDir << "\n";
     LOG << "Config file: " << ConfigFN   << "\n";
 
-    Event = new AOneEvent();
+    Event = new ALightSensorEvent();
     Tracer = new APhotonTracer(*Event, StreamTracks, StreamSensorLog, StreamPhotonLog);
 }
 
@@ -239,9 +239,8 @@ void APhotonSimulator::setupPhotonBombs()
 
     // Wavelength
     Photon.waveIndex = -1;
-    if (SimSet.WaveSet.Enabled && AdvSet.bFixWave)
-        if (AdvSet.WaveIndex >= -1 && AdvSet.WaveIndex < SimSet.WaveSet.countNodes())
-            Photon.waveIndex = AdvSet.WaveIndex;
+    if (AdvSet.bFixWave)
+        Photon.waveIndex = SimSet.WaveSet.toIndex(AdvSet.FixedWavelength);
 
     // Limiters
     if (AdvSet.bOnlyVolume)   LimitToVolume   = TString(AdvSet.Volume.toLatin1().data());
@@ -721,6 +720,8 @@ void APhotonSimulator::loadConfig()
     LOG.flush();
 
     Error         = AInterfaceRuleHub::getInstance().readFromJson(json);
+    if (!Error.isEmpty()) terminate(Error);
+    Error = AInterfaceRuleHub::getInstance().checkAll();
     if (!Error.isEmpty()) terminate(Error);
     LOG << "Loaded optical rules" << '\n';
     LOG.flush();

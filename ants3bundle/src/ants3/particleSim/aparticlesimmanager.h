@@ -56,6 +56,7 @@ private:
     AFileMerger DepositionFileMerger;
     std::vector<QString> MonitorFiles;
     std::vector<QString> CalorimeterFiles;
+    std::vector<QString> AnalyzerFiles;
 
     std::vector<QString> ReceiptFiles;
 
@@ -69,6 +70,7 @@ private:
     void configureMaterials();
     void configureMonitors();
     void configureCalorimeters();
+    void configureAnalyzers();
     bool configureParticleGun();
     void configureScintillators();
 

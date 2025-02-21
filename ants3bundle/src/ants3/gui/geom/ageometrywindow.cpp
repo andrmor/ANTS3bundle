@@ -440,6 +440,13 @@ void AGeometryWindow::ClearRootCanvas()
     }
 }
 
+void AGeometryWindow::onNewConfigLoaded()
+{
+    clearGeoMarkers();
+    ClearTracks(false);
+    on_pbShowGeometry_clicked();
+}
+
 void AGeometryWindow::UpdateRootCanvas()
 {
     if (UseJSRoot) qDebug() << "UpdateRootCanvas called in JSRoot mode!!!";
@@ -493,9 +500,20 @@ void AGeometryWindow::writeToJson(QJsonObject & json) const
 {
     json["ZoomLevel"] = ZoomLevel;
 
-    QJsonObject js;
-    GeoWriter.writeToJson(js);
-    json["GeoWriter"] = js;
+    // Text using tracks
+    {
+        QJsonObject js;
+            GeoWriter.writeToJson(js);
+        json["GeoWriter"] = js;
+    }
+
+    // Visibility level control
+    {
+        QJsonObject js;
+            js["Enabled"] = ui->cbLimitVisibility->isChecked();
+            js["Level"]   = ui->sbLimitVisibility->value();
+        json["LimitVisibility"] = js;
+    }
 }
 
 void AGeometryWindow::readFromJson(const QJsonObject & json)
@@ -504,9 +522,24 @@ void AGeometryWindow::readFromJson(const QJsonObject & json)
     bool ok = jstools::parseJson(json, "ZoomLevel", ZoomLevel);
     if (ok && !UseJSRoot) Zoom(true);
 
-    QJsonObject js;
-    ok = jstools::parseJson(json, "GeoWriter", js);
-    if (ok) GeoWriter.readFromJson(js);
+    // Text using tracks
+    {
+        QJsonObject js;
+        ok = jstools::parseJson(json, "GeoWriter", js);
+        if (ok) GeoWriter.readFromJson(js);
+    }
+
+    // Visibility level control
+    {
+        QJsonObject js;
+        ok = jstools::parseJson(json, "LimitVisibility", js);
+        bool on = false;
+        jstools::parseJson(js, "Enabled", on);
+        ui->cbLimitVisibility->setChecked(on);
+        int level = 3;
+        jstools::parseJson(js, "Level", level);
+        ui->sbLimitVisibility->setValue(level);
+    }
 
     if (!UseJSRoot) RasterWindow->ForceResize();
 }
@@ -750,7 +783,7 @@ void AGeometryWindow::on_pbShowTracks_clicked()
     ShowTracks();
 }
 
-void AGeometryWindow::ShowTracks()
+void AGeometryWindow::ShowTracks(bool activateWindow)
 {
     if (bDisableDraw) return;
 
@@ -762,6 +795,8 @@ void AGeometryWindow::ShowTracks()
         UpdateRootCanvas();
     }
     else ShowGeometry(false);
+
+    if (activateWindow) ShowAndFocus();
 }
 
 void AGeometryWindow::onRequestShowTracksFromScript()
@@ -819,6 +854,8 @@ void AGeometryWindow::ShowPoint(double * r, bool keepTracks)
 
     ShowGeometry(false);
     if (keepTracks) ShowTracks();
+
+    activateWindow();
 }
 
 void AGeometryWindow::addGenerationMarker(const double * Pos)
@@ -1179,7 +1216,12 @@ void AGeometryWindow::on_cbLimitVisibility_clicked()
 
 void AGeometryWindow::on_sbLimitVisibility_editingFinished()
 {
+    ui->sbLimitVisibility->blockSignals(true);
+
+    ui->sbLimitVisibility->clearFocus();
     on_cbLimitVisibility_clicked();
+
+    ui->sbLimitVisibility->blockSignals(false);
 }
 
 void AGeometryWindow::on_cobViewType_currentIndexChanged(int index)
@@ -1220,16 +1262,14 @@ void AGeometryWindow::on_cobViewType_currentIndexChanged(int index)
 
 void AGeometryWindow::on_pbSaveAs_clicked()
 {
+    QFileDialog *fileDialog = new QFileDialog;
+    fileDialog->setDefaultSuffix("png");
+    QString fileName = fileDialog->getSaveFileName(this, "Save image as file", "", "png (*.png);;gif (*.gif);;Jpg (*.jpg)");
+    if (fileName.isEmpty()) return;
+
     int Mode = ui->cobViewer->currentIndex(); // 0 - standard, 1 - jsroot
     if (Mode == 0)
     {
-        QFileDialog *fileDialog = new QFileDialog;
-        fileDialog->setDefaultSuffix("png");
-        //QString fileName = fileDialog->getSaveFileName(this, "Save image as file", AGlobalSettings::getInstance().LastOpenDir, "png (*.png);;gif (*.gif);;Jpg (*.jpg)");
-        QString fileName = fileDialog->getSaveFileName(this, "Save image as file", "", "png (*.png);;gif (*.gif);;Jpg (*.jpg)");
-        if (fileName.isEmpty()) return;
-//        AGlobalSettings::getInstance().LastOpenDir = QFileInfo(fileName).absolutePath();
-
         QFileInfo file(fileName);
         if(file.suffix().isEmpty()) fileName += ".png";
         AGeometryWindow::SaveAs(fileName);
@@ -1238,10 +1278,28 @@ void AGeometryWindow::on_pbSaveAs_clicked()
     else
     {
 #ifdef __USE_ANTS_JSROOT__
-        QWebEnginePage * page = WebView->page();
-        QString js = "var painter = JSROOT.GetMainPainter(\"onlineGUI_drawing\");";
-        js += QString("painter.createSnapshot('dummy.png')");
-        page->runJavaScript(js);
+        WebView->grab().save(fileName, "PNG");
+#endif
+    }
+}
+
+#include <QApplication>
+#include <QClipboard>
+void AGeometryWindow::on_pbSaveAs_customContextMenuRequested(const QPoint &)
+{
+    int Mode = ui->cobViewer->currentIndex(); // 0 - standard, 1 - jsroot
+    if (Mode == 0)
+    {
+        RasterWindow->SaveAs("tmpImage.png");
+        QImage image("tmpImage.png");
+        QApplication::clipboard()->setImage(image, QClipboard::Clipboard);
+    }
+    else
+    {
+#ifdef __USE_ANTS_JSROOT__
+        WebView->grab().save("tmpImage.png", "PNG");
+        QImage image("tmpImage.png");
+        QApplication::clipboard()->setImage(image, QClipboard::Clipboard);
 #endif
     }
 }
@@ -1352,11 +1410,40 @@ void AGeometryWindow::showPhotonFunctionalIndexes()
     */
 }
 
+void AGeometryWindow::showAnalyzerIndexes()
+{
+    Geometry.GeoManager->ClearTracks();
+
+    const size_t num = Geometry.countParticleAnalyzers();
+    std::vector<QString> tmp;
+    for (size_t i = 0; i < num; i++) tmp.push_back( QString::number(i) );
+    showText(tmp, kRed, AGeoWriter::Analyzers, true);
+
+    /*
+    emit requestUpdateRegisteredGeoManager();
+    */
+}
+
+void AGeometryWindow::showScintillatorIndexes()
+{
+    Geometry.GeoManager->ClearTracks();
+
+    const size_t num = Geometry.countScintillators();
+    std::vector<QString> tmp;
+    for (size_t i = 0; i < num; i++) tmp.push_back( QString::number(i) );
+    showText(tmp, kBlue, AGeoWriter::Scints, true);
+
+    /*
+    emit requestUpdateRegisteredGeoManager();
+    */
+}
+
 #include "ashownumbersdialog.h"
 void AGeometryWindow::on_pbShowNumbers_clicked()
 {
-    AShowNumbersDialog d(*this);
+    AShowNumbersDialog d(LastShowObjectType, *this);
     d.exec();
+    LastShowObjectType = d.getLastSelectedObjectType();
 }
 
 void AGeometryWindow::on_cbWireFrame_clicked(bool)
@@ -1392,6 +1479,7 @@ void AGeometryWindow::on_cbShowTop_clicked(bool checked)
 */
 }
 
+/*
 void AGeometryWindow::on_pushButton_clicked()
 {
     if (!UseJSRoot) return;
@@ -1403,6 +1491,7 @@ void AGeometryWindow::on_pushButton_clicked()
     //page->runJavaScript(js, [](const QVariant & v) {qDebug() << v.toString(); });
     page->runJavaScript(js, [this](const QVariant & v) {this->onWebPageReplyViewPort(v);});
 }
+*/
 
 #include "amaterial.h"
 #include "amaterialhub.h"
@@ -1448,3 +1537,9 @@ void AGeometryWindow::on_cbColor_customContextMenuRequested(const QPoint & pos)
     d.exec();
 }
 
+void AGeometryWindow::on_cbLimitVisibility_toggled(bool checked)
+{
+    QFont font = ui->cbLimitVisibility->font();
+    font.setBold(checked);
+    ui->cbLimitVisibility->setFont(font);
+}

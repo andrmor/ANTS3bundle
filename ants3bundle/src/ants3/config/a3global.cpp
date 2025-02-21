@@ -42,6 +42,9 @@ A3Global::A3Global()
         qDebug() << "Config dir not found, skipping config load, creating new config dir" ;
         QDir().mkdir(ConfigDir); //dir not found, skipping load config
     }
+
+    TmpOutputDir = AntsBaseDir + "/TmpOutput";
+    if (!QDir(TmpOutputDir).exists()) QDir().mkdir(TmpOutputDir);
 }
 
 #include "TStyle.h"
@@ -106,16 +109,20 @@ void A3Global::saveConfig()
 
     json["TrackVisAttributes"] = TrackVisAttributes;
 
+    json["NewGeoObjectAddedLast"] = NewGeoObjectAddedLast;
+
     // Web server
     //js["DefaultWebSocketPort"] = DefaultWebSocketPort;
     //js["DefaultWebSocketIP"] = DefaultWebSocketIP;
 
     // Root server
+#ifdef USE_ROOT_HTML
     {
         QJsonObject js;
             ARootHttpServer::getInstance().writeToJson(js);
         json["RootServer"] = js;
     }
+#endif
 
     // Workload
     {
@@ -173,12 +180,16 @@ void A3Global::loadConfig()
 
     jstools::parseJson(json, "TrackVisAttributes", TrackVisAttributes);
 
+    jstools::parseJson(json, "NewGeoObjectAddedLast", NewGeoObjectAddedLast);
+
     // Root server
+#ifdef USE_ROOT_HTML
     {
         QJsonObject js;
             jstools::parseJson(json, "RootServer", js);
         ARootHttpServer::getInstance().readFromJson(js);
     }
+#endif
 
     // Workload
     {

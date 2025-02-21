@@ -1,15 +1,39 @@
-* Generic
-@AllGeometryOptions.json All basic shapes and geometry building elements available in ants3.
+* General
+** Misc
+@AllGeometryOptions.json All basic shapes and geometry building elements available in ants3
+** Particle sim
+@AnalyzersPT.json Simple example of the usage of a particle monitor and particle analyzer; 130 MeV proton beam generating prompt gammas
+** Optical sim
+@OpticalTransmissionTester.json Transmission through a sodalime_glass slab: compare with the database data (see example description)
+@FresnelTester.json Cuboid crystal, point source isotropic emission: testing Fresnel --> number of photons exiting from all sides should be the same
+@SurfaceWaveShifter.json A minimal configuration featuring optical interface rule for wavelength shifter
+@ThinLens.json Example demonstrating how to configure thin lens for optical simulation using a PhotonFuncional object
+@OpticalGrid.json Optical grid: comparison with an array of wires
+* Gamma cameras
+** PMT-based
+@GammaCamera37PMTs.json Gamma camera with NaI scintillator and 37 PMTs
+** SiPM-based
+@GammaCameraSiPMs.json Compact gamma camera with LYSO scintilator and 64 SiPMs
 * Proton therapy
 ** TPPT scanner
-@TPPT_basic.json Basic configuration of the TPPT scanner
+@TPPT_basic.json TPPT scanner with the most basic configuration (only scintillators)
+@TPPT_advanced.json TPPT scanner with all important detector components
 ** Basic
 @BasicProtonTherapy.json Proton pencil beam irradiating a PMMA phantom. The config also features a beam monitor for primary protons and the phantom is a calorimeter. #ProtonTherapy #Monitor #Calorimeter
 ** Beam range verification
 *** Prompt gammas
-@ProtonTherapy-PG-MultiSlat.json Prompt Gamma-based beam verification system for Proton Therapy utilizing Multi-Slat collimator.
+@ProtonTherapy-PG-MultiSlat.json Prompt Gamma-based beam verification system for Proton Therapy utilizing Multi-Slat collimator
 * Neutrons
 ** 10B-RPCs
 @DoubleGap10BRPC.json Single hybrid double-gap 10B-RPC irradiated by a pencil beam of thermal neutrons.
 @TenStack10BRPC.json Stack of 10 hybrid double-gap 10B-RPCs with pick-up electrodes, irradiated by a pencil beam of thermal neutrons.
-@TenStack10BRPC-3-4-3.json Stack of 10 hybrid double-gap 10B-RPCs (different RPC thicknesses in the arrangement 3-4-3) with pick-up electrodes, irradiated by a pencil beam of thermal neutrons.
+@TenStack10BRPC-3-4-3.json Stack of 10 hybrid double-gap 10B-RPCs (different RPC thicknesses in the arrangement 3-4-3) with pick-up electrodes, irradiated by a pencil beam of thermal neutrons
+** Anger-type readout
+@NeutronAnger.json GS20 scintillator readout with an array of 64 SiPMs
+@GSPC67.json 3He-CF4 filled detector, where light is generated on a MicroStrip and readout with an array of 67 PMTs
+** Wavelength-shifting fibers
+@WSFneutron.json One-dimensional detector with 200 fibers connected to readout PMTs using a coding approach. See script example WSF_neutron_detector_ScriptBook.json for position reconstruction and geometry tuning
+** Fast neutrons
+@FastNeutron_Cylinder.json Cylindrical moderator, neutrons up to ~5 MeV
+@FastNeutron_SimpleCube.json Cubic moderator, equidistant arrays, neutrons up to ~5 MeV
+@FastNeutron_OptimizedCube.json Cubic moderator, three layers of arrays, neutrons up to ~5 MeV

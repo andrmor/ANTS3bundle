@@ -50,6 +50,7 @@ void ACalorimeterHub::clear()
 {
     for (ACalorimeterData & md : Calorimeters) delete md.Calorimeter;
     Calorimeters.clear();
+    CompositeCalorimeterMembers.clear();
 }
 
 void ACalorimeterHub::clearData()
@@ -74,6 +75,14 @@ QStringList ACalorimeterHub::getCalorimeterNames() const
 {
     QStringList sl;
     for (const ACalorimeterData & d : Calorimeters) sl << d.Name;
+    return sl;
+}
+
+QStringList ACalorimeterHub::getCalorimeterNamesWithIndexes() const
+{
+    QStringList sl;
+    for (size_t i = 0; i < Calorimeters.size(); i++)
+        sl << QString("%0  (#%1)").arg(Calorimeters[i].Name).arg(i);
     return sl;
 }
 

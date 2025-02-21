@@ -1,11 +1,11 @@
 {
-    "ConfigDescription": "Description is empty",
-    "ConfigName": "--",
+    "ConfigDescription": "Scintillator configuration of the TPPT scanner",
+    "ConfigName": "TPPT basic",
     "Geometry": {
         "GeoConsts": [
             [
                 "ScintXY",
-                3,
+                3.005,
                 "",
                 ""
             ],
@@ -16,8 +16,14 @@
                 ""
             ],
             [
+                "TeflonThick",
+                0.195,
+                "",
+                ""
+            ],
+            [
                 "RingGap",
-                3,
+                0.6,
                 "",
                 ""
             ],
@@ -89,98 +95,27 @@
                 "fExpanded": true
             },
             {
-                "Container": "_#_PrototypeContainer_#_",
-                "Name": "Sector",
-                "Type": {
-                    "Type": "Prototype"
-                },
-                "fActive": true,
-                "fExpanded": true
-            },
-            {
-                "Container": "Sector",
-                "Name": "aRings",
-                "Phi": 0,
-                "Psi": 0,
-                "Theta": 0,
-                "Type": {
-                    "Type": "Array",
-                    "centerSymmetric": true,
-                    "numX": 1,
-                    "numY": 1,
-                    "numZ": 4,
-                    "startIndex": 0,
-                    "stepX": 25,
-                    "stepY": 25,
-                    "stepZ": 27,
-                    "strNumZ": "NumRings",
-                    "strStepZ": "NumScint*ScintXY+RingGap"
-                },
-                "X": 0,
-                "Y": 0,
-                "Z": 0,
-                "fActive": true,
-                "fExpanded": true
-            },
-            {
-                "Container": "aRings",
-                "Name": "aAssembly",
-                "Phi": 90,
-                "Psi": 0,
-                "Theta": 90,
-                "Type": {
-                    "Type": "Array",
-                    "centerSymmetric": true,
-                    "numX": 8,
-                    "numY": 8,
-                    "numZ": 1,
-                    "startIndex": 0,
-                    "stepX": 3.2,
-                    "stepY": 3.2,
-                    "stepZ": 25,
-                    "strNumX": "NumScint",
-                    "strNumY": "NumScint"
-                },
-                "X": 0,
-                "Y": 0,
-                "Z": 0,
-                "fActive": true,
-                "fExpanded": true
-            },
-            {
-                "Container": "aAssembly",
-                "Material": 1,
-                "Name": "Scint",
-                "Phi": 0,
-                "Psi": 0,
-                "Shape": "TGeoBBox",
-                "ShapeSpecific": {
-                    "dx": 1.5,
-                    "dy": 1.5,
-                    "dz": 7.5,
-                    "str2dx": "ScintXY",
-                    "str2dy": "ScintXY",
-                    "str2dz": "ScintZ"
-                },
-                "SpecialRole": {
-                    "Type": "Scint"
-                },
-                "Theta": 0,
-                "Type": {
-                    "Type": "Single"
-                },
-                "X": 0,
-                "Y": 0,
-                "Z": 0,
-                "color": 4,
-                "fActive": true,
-                "fExpanded": true,
-                "style": 1,
-                "width": 1
-            },
-            {
                 "Container": "World",
-                "Name": "RightHead",
+                "Name": "Scintillators",
+                "Phi": 0,
+                "Psi": 0,
+                "Theta": 0,
+                "Type": {
+                    "Type": "CircularArray",
+                    "angularStep": 180,
+                    "num": 2,
+                    "radius": 0,
+                    "startIndex": 0
+                },
+                "X": 0,
+                "Y": 0,
+                "Z": 0,
+                "fActive": true,
+                "fExpanded": true
+            },
+            {
+                "Container": "Scintillators",
+                "Name": "DetectorHead",
                 "Phi": 0,
                 "Psi": -49.5,
                 "Theta": 0,
@@ -202,77 +137,85 @@
                 "strPsi": "-AngularOffset"
             },
             {
-                "Container": "RightHead",
-                "Material": 0,
-                "Name": "Sector_Inst1",
+                "Container": "DetectorHead",
+                "Name": "aRings",
+                "Phi": 0,
+                "Psi": 0,
+                "Theta": 0,
+                "Type": {
+                    "Type": "Array",
+                    "centerSymmetric": true,
+                    "numX": 1,
+                    "numY": 1,
+                    "numZ": 4,
+                    "startIndex": 0,
+                    "stepX": 25,
+                    "stepY": 25,
+                    "stepZ": 26.2,
+                    "strNumZ": "NumRings",
+                    "strStepZ": "NumScint*(ScintXY+TeflonThick)+RingGap"
+                },
+                "X": 0,
+                "Y": 0,
+                "Z": 0,
+                "fActive": true,
+                "fExpanded": true
+            },
+            {
+                "Container": "aRings",
+                "Name": "aAssembly",
+                "Phi": 90,
+                "Psi": 0,
+                "Theta": 90,
+                "Type": {
+                    "Type": "Array",
+                    "centerSymmetric": true,
+                    "numX": 8,
+                    "numY": 8,
+                    "numZ": 1,
+                    "startIndex": 0,
+                    "stepX": 3.1999999999999997,
+                    "stepY": 3.1999999999999997,
+                    "stepZ": 25,
+                    "strNumX": "NumScint",
+                    "strNumY": "NumScint",
+                    "strStepX": "ScintXY+TeflonThick",
+                    "strStepY": "ScintXY+TeflonThick"
+                },
+                "X": 0,
+                "Y": 0,
+                "Z": 0,
+                "fActive": true,
+                "fExpanded": true
+            },
+            {
+                "Container": "aAssembly",
+                "Material": 1,
+                "Name": "Scint",
                 "Phi": 0,
                 "Psi": 0,
                 "Shape": "TGeoBBox",
                 "ShapeSpecific": {
-                    "dx": 10,
-                    "dy": 10,
-                    "dz": 10
+                    "dx": 1.5025,
+                    "dy": 1.5025,
+                    "dz": 7.5,
+                    "str2dx": "ScintXY",
+                    "str2dy": "ScintXY",
+                    "str2dz": "ScintZ"
+                },
+                "SpecialRole": {
+                    "Type": "Scint"
                 },
                 "Theta": 0,
                 "Type": {
-                    "PrototypeName": "Sector",
-                    "Type": "Instance"
+                    "Type": "Single"
                 },
                 "X": 0,
                 "Y": 0,
                 "Z": 0,
-                "color": -1,
-                "fActive": true,
-                "fExpanded": false,
-                "style": 1,
-                "width": 1
-            },
-            {
-                "Container": "World",
-                "Name": "LeftHead",
-                "Phi": 0,
-                "Psi": -229.5,
-                "Theta": 0,
-                "Type": {
-                    "Type": "CircularArray",
-                    "angularStep": 9,
-                    "num": 12,
-                    "radius": 175.2,
-                    "startIndex": 0,
-                    "strAngularStep": "AngularStep",
-                    "strNum": "NumSectors",
-                    "strRadius": "OuterRadius + 0.5*ScintZ"
-                },
-                "X": 0,
-                "Y": 0,
-                "Z": 0,
+                "color": 4,
                 "fActive": true,
                 "fExpanded": true,
-                "strPsi": "-AngularOffset-180"
-            },
-            {
-                "Container": "LeftHead",
-                "Material": 0,
-                "Name": "Sector_Inst1_c0",
-                "Phi": 0,
-                "Psi": 0,
-                "Shape": "TGeoBBox",
-                "ShapeSpecific": {
-                    "dx": 10,
-                    "dy": 10,
-                    "dz": 10
-                },
-                "Theta": 0,
-                "Type": {
-                    "PrototypeName": "Sector",
-                    "Type": "Instance"
-                },
-                "X": 0,
-                "Y": 0,
-                "Z": 0,
-                "color": -1,
-                "fActive": true,
-                "fExpanded": false,
                 "style": 1,
                 "width": 1
             }
@@ -341,6 +284,8 @@
             ],
             "RefIndexComplex_Wave": [
             ],
+            "RefIndexImporter": {
+            },
             "RefIndexWave": [
             ],
             "SecScintSpectrum": [
@@ -407,6 +352,8 @@
             ],
             "RefIndexComplex_Wave": [
             ],
+            "RefIndexImporter": {
+            },
             "RefIndexWave": [
             ],
             "SecScintSpectrum": [
@@ -473,6 +420,8 @@
             ],
             "RefIndexComplex_Wave": [
             ],
+            "RefIndexImporter": {
+            },
             "RefIndexWave": [
             ],
             "SecScintSpectrum": [
@@ -539,6 +488,348 @@
             ],
             "RefIndexComplex_Wave": [
             ],
+            "RefIndexImporter": {
+            },
+            "RefIndexWave": [
+            ],
+            "SecScintSpectrum": [
+            ],
+            "SecScint_PhYield": 0,
+            "SecScint_Tau": 0,
+            "Tags": [
+            ],
+            "W": 0
+        },
+        {
+            "*Name": "BaseMat_ABS",
+            "AbsCoeff": 0,
+            "BulkAbsorptionWave": [
+            ],
+            "Comments": "",
+            "Composition": {
+                "CustomComposition": {
+                    "CompositionString": "C15H17N1",
+                    "Density": 1.07,
+                    "GasProperties": {
+                        "Gas": false,
+                        "PressureUnitsInGui": "bar",
+                        "Pressure_bar": 1
+                    },
+                    "MeanExcitationEnergy_eV": 0,
+                    "Temperature": 298,
+                    "UseMeanExcitationEnergy": false
+                },
+                "Geant4Material": "",
+                "UseGeant4Material": false
+            },
+            "CustomScatterMFP": 0,
+            "Dielectric": true,
+            "ElDiffusionL": 0,
+            "ElDiffusionT": 0,
+            "ElDriftVelo": 0,
+            "IgnoreEnergyConservationInReemission": false,
+            "IntrEnergyRes": 0,
+            "PhotonYield": 0,
+            "PrimScintDecay": [
+                [
+                    0,
+                    1
+                ]
+            ],
+            "PrimScintRaise": [
+                [
+                    0,
+                    1
+                ]
+            ],
+            "PrimScintSpectrum": [
+            ],
+            "RayleighMFP": 0,
+            "RayleighWave": 500,
+            "ReemissionProb": 0,
+            "ReemissionProbabilityWave": [
+            ],
+            "RefIndex": 1,
+            "RefIndexComplex": [
+                1,
+                0
+            ],
+            "RefIndexComplex_Wave": [
+            ],
+            "RefIndexImporter": {
+            },
+            "RefIndexWave": [
+            ],
+            "SecScintSpectrum": [
+            ],
+            "SecScint_PhYield": 0,
+            "SecScint_Tau": 0,
+            "Tags": [
+            ],
+            "W": 0
+        },
+        {
+            "*Name": "Cu",
+            "AbsCoeff": 0,
+            "BulkAbsorptionWave": [
+            ],
+            "Comments": "",
+            "Composition": {
+                "CustomComposition": {
+                    "CompositionString": "H",
+                    "Density": 1e-24,
+                    "GasProperties": {
+                        "Gas": false,
+                        "PressureUnitsInGui": "bar",
+                        "Pressure_bar": 1
+                    },
+                    "MeanExcitationEnergy_eV": 0,
+                    "Temperature": 298,
+                    "UseMeanExcitationEnergy": false
+                },
+                "Geant4Material": "G4_Cu",
+                "UseGeant4Material": true
+            },
+            "CustomScatterMFP": 0,
+            "Dielectric": true,
+            "ElDiffusionL": 0,
+            "ElDiffusionT": 0,
+            "ElDriftVelo": 0,
+            "IgnoreEnergyConservationInReemission": false,
+            "IntrEnergyRes": 0,
+            "PhotonYield": 0,
+            "PrimScintDecay": [
+                [
+                    0,
+                    1
+                ]
+            ],
+            "PrimScintRaise": [
+                [
+                    0,
+                    1
+                ]
+            ],
+            "PrimScintSpectrum": [
+            ],
+            "RayleighMFP": 0,
+            "RayleighWave": 500,
+            "ReemissionProb": 0,
+            "ReemissionProbabilityWave": [
+            ],
+            "RefIndex": 1,
+            "RefIndexComplex": [
+                1,
+                0
+            ],
+            "RefIndexComplex_Wave": [
+            ],
+            "RefIndexImporter": {
+            },
+            "RefIndexWave": [
+            ],
+            "SecScintSpectrum": [
+            ],
+            "SecScint_PhYield": 0,
+            "SecScint_Tau": 0,
+            "Tags": [
+            ],
+            "W": 0
+        },
+        {
+            "*Name": "CarbonFiber",
+            "AbsCoeff": 0,
+            "BulkAbsorptionWave": [
+            ],
+            "Comments": "",
+            "Composition": {
+                "CustomComposition": {
+                    "CompositionString": "H",
+                    "Density": 1e-24,
+                    "GasProperties": {
+                        "Gas": false,
+                        "PressureUnitsInGui": "bar",
+                        "Pressure_bar": 1
+                    },
+                    "MeanExcitationEnergy_eV": 0,
+                    "Temperature": 298,
+                    "UseMeanExcitationEnergy": false
+                },
+                "Geant4Material": "G4_C",
+                "UseGeant4Material": true
+            },
+            "CustomScatterMFP": 0,
+            "Dielectric": true,
+            "ElDiffusionL": 0,
+            "ElDiffusionT": 0,
+            "ElDriftVelo": 0,
+            "IgnoreEnergyConservationInReemission": false,
+            "IntrEnergyRes": 0,
+            "PhotonYield": 0,
+            "PrimScintDecay": [
+                [
+                    0,
+                    1
+                ]
+            ],
+            "PrimScintRaise": [
+                [
+                    0,
+                    1
+                ]
+            ],
+            "PrimScintSpectrum": [
+            ],
+            "RayleighMFP": 0,
+            "RayleighWave": 500,
+            "ReemissionProb": 0,
+            "ReemissionProbabilityWave": [
+            ],
+            "RefIndex": 1,
+            "RefIndexComplex": [
+                1,
+                0
+            ],
+            "RefIndexComplex_Wave": [
+            ],
+            "RefIndexImporter": {
+            },
+            "RefIndexWave": [
+            ],
+            "SecScintSpectrum": [
+            ],
+            "SecScint_PhYield": 0,
+            "SecScint_Tau": 0,
+            "Tags": [
+            ],
+            "W": 0
+        },
+        {
+            "*Name": "SiPMBoardMat",
+            "AbsCoeff": 0,
+            "BulkAbsorptionWave": [
+            ],
+            "Comments": "",
+            "Composition": {
+                "CustomComposition": {
+                    "CompositionString": "(C21H25ClO5/30 + SiO2/30 + Cu/30 + Fe/5 + Sn/5)/91 + Si/9",
+                    "Density": 4.2,
+                    "GasProperties": {
+                        "Gas": false,
+                        "PressureUnitsInGui": "bar",
+                        "Pressure_bar": 1
+                    },
+                    "MeanExcitationEnergy_eV": 0,
+                    "Temperature": 298,
+                    "UseMeanExcitationEnergy": false
+                },
+                "Geant4Material": "",
+                "UseGeant4Material": false
+            },
+            "CustomScatterMFP": 0,
+            "Dielectric": true,
+            "ElDiffusionL": 0,
+            "ElDiffusionT": 0,
+            "ElDriftVelo": 0,
+            "IgnoreEnergyConservationInReemission": false,
+            "IntrEnergyRes": 0,
+            "PhotonYield": 0,
+            "PrimScintDecay": [
+                [
+                    0,
+                    1
+                ]
+            ],
+            "PrimScintRaise": [
+                [
+                    0,
+                    1
+                ]
+            ],
+            "PrimScintSpectrum": [
+            ],
+            "RayleighMFP": 0,
+            "RayleighWave": 500,
+            "ReemissionProb": 0,
+            "ReemissionProbabilityWave": [
+            ],
+            "RefIndex": 1,
+            "RefIndexComplex": [
+                1,
+                0
+            ],
+            "RefIndexComplex_Wave": [
+            ],
+            "RefIndexImporter": {
+            },
+            "RefIndexWave": [
+            ],
+            "SecScintSpectrum": [
+            ],
+            "SecScint_PhYield": 0,
+            "SecScint_Tau": 0,
+            "Tags": [
+            ],
+            "W": 0
+        },
+        {
+            "*Name": "PCBmat",
+            "AbsCoeff": 0,
+            "BulkAbsorptionWave": [
+            ],
+            "Comments": "",
+            "Composition": {
+                "CustomComposition": {
+                    "CompositionString": "C21H25ClO5/30 + SiO2/30 + Cu/30 + Fe/5 + Sn/5",
+                    "Density": 4.57,
+                    "GasProperties": {
+                        "Gas": false,
+                        "PressureUnitsInGui": "bar",
+                        "Pressure_bar": 1
+                    },
+                    "MeanExcitationEnergy_eV": 0,
+                    "Temperature": 298,
+                    "UseMeanExcitationEnergy": false
+                },
+                "Geant4Material": "",
+                "UseGeant4Material": false
+            },
+            "CustomScatterMFP": 0,
+            "Dielectric": true,
+            "ElDiffusionL": 0,
+            "ElDiffusionT": 0,
+            "ElDriftVelo": 0,
+            "IgnoreEnergyConservationInReemission": false,
+            "IntrEnergyRes": 0,
+            "PhotonYield": 0,
+            "PrimScintDecay": [
+                [
+                    0,
+                    1
+                ]
+            ],
+            "PrimScintRaise": [
+                [
+                    0,
+                    1
+                ]
+            ],
+            "PrimScintSpectrum": [
+            ],
+            "RayleighMFP": 0,
+            "RayleighWave": 500,
+            "ReemissionProb": 0,
+            "ReemissionProbabilityWave": [
+            ],
+            "RefIndex": 1,
+            "RefIndexComplex": [
+                1,
+                0
+            ],
+            "RefIndexComplex_Wave": [
+            ],
+            "RefIndexImporter": {
+            },
             "RefIndexWave": [
             ],
             "SecScintSpectrum": [
@@ -554,16 +845,15 @@
         "ClusterMerge": false,
         "ClusterMergeRadius": 0.1,
         "ClusterMergeTime": 1,
-        "Events": 100,
+        "Events": 10000,
         "Geant4Settings": {
             "AddScintillatorsToSensitiveVolumes": true,
             "Commands": [
-                "/run/setCut 0.7 mm"
+                "/run/setCut 0.1 mm"
             ],
             "PhysicsList": "QGSP_BIC_HP",
             "ScintSensitiveVolumes": [
-                "Scint_at_Sector_Inst1",
-                "Scint_at_Sector_Inst1_c0"
+                "Scint"
             ],
             "SensitiveVolumes": [
             ],
@@ -654,22 +944,31 @@
                     },
                     "Time": {
                         "ByEventPeriod": 10,
+                        "ByEventPeriodPrefUnit": "ns",
                         "ByEventStart": 0,
+                        "ByEventStartPrefUnit": "ns",
                         "CustomDistribution": [
                         ],
                         "FixedOffset": 0,
+                        "FixedOffsetPrefUnit": "ns",
                         "HalfLifePreferUnit": "ns",
                         "OffsetMode": "Fixed",
                         "SpreadHalfLife": 100,
                         "SpreadMode": "None",
                         "SpreadSigma": 50,
-                        "SpreadWidth": 100
+                        "SpreadSigmaPrefUnit": "ns",
+                        "SpreadWidth": 100,
+                        "SpreadWidthPrefUnit": "ns"
                     }
                 }
             ]
         },
         "ParticleGenerationMode": "Sources",
         "RunSettings": {
+            "AnalyzerSettings": {
+                "Enabled": false,
+                "FileName": "ParticleAnalyzers.json"
+            },
             "AsciiOutput": true,
             "AsciiPrecision": 6,
             "CalorimeterSettings": {
@@ -682,7 +981,7 @@
                 "Enabled": false,
                 "FileName": "ParticleMonitors.json"
             },
-            "OutputDirectory": "/home/andr/tmp",
+            "OutputDirectory": "",
             "SaveDeposition": true,
             "SaveParticles": {
                 "Enabled": false,
@@ -736,7 +1035,7 @@
                 },
                 "Wave": {
                     "Enabled": false,
-                    "WaveIndex": -1
+                    "FixedWavelength": 550
                 }
             },
             "File": {
@@ -842,12 +1141,12 @@
                 "MustNotInclude_Volumes": [
                 ]
             },
-            "SaveMonitors": true,
-            "SavePhotonBombs": true,
+            "SaveMonitors": false,
+            "SavePhotonBombs": false,
             "SaveSensorLog": false,
-            "SaveSensorSignals": true,
+            "SaveSensorSignals": false,
             "SaveStatistics": true,
-            "SaveTracks": true,
+            "SaveTracks": false,
             "Seed": 0,
             "SensorLogAngle": false,
             "SensorLogTime": true,
@@ -911,10 +1210,16 @@
     "gui": {
         "GeometryWindow": {
             "GeoWriter": {
+                "SizeForAnalyzers": 10,
                 "SizeForCalorimeters": 10,
                 "SizeForMonitors": 10,
                 "SizeForPhotFuncts": 10,
+                "SizeForScints": 10,
                 "SizeForSensors": 10
+            },
+            "LimitVisibility": {
+                "Enabled": false,
+                "Level": 3
             },
             "ZoomLevel": 0
         },

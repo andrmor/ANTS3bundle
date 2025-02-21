@@ -1,0 +1,938 @@
+{
+    "ConfigDescription": "On the Geometry window use constants RedFilter_on or BlueFilter_on (set to 1 or 0) to choose the wavelength of light passing the thin lens.",
+    "ConfigName": "Thin lens tester",
+    "Geometry": {
+        "GeoConsts": [
+            [
+                "objDist",
+                60,
+                "",
+                ""
+            ],
+            [
+                "blueImagDist",
+                30,
+                "",
+                ""
+            ],
+            [
+                "redImagDist",
+                32.3077,
+                "",
+                ""
+            ],
+            [
+                "monHalfThick",
+                0.001,
+                "",
+                ""
+            ],
+            [
+                "F",
+                21,
+                "",
+                ""
+            ],
+            [
+                "Calculator",
+                32.307692307692314,
+                "1 / (1/F - 1 /objDist)",
+                ""
+            ],
+            [
+                "RedFilter_on",
+                0,
+                "",
+                ""
+            ],
+            [
+                "BlueFilter_on",
+                1,
+                "",
+                ""
+            ]
+        ],
+        "WorldTree": [
+            {
+                "Container": "",
+                "Material": 0,
+                "Name": "World",
+                "Shape": "TGeoBBox",
+                "ShapeSpecific": {
+                    "dx": 195.93266739736606,
+                    "dy": 195.93266739736606,
+                    "dz": 167.58266739736604
+                },
+                "Type": {
+                    "FixedSize": false,
+                    "Type": "World"
+                },
+                "color": 1,
+                "fActive": true,
+                "fExpanded": true,
+                "style": 1,
+                "width": 1
+            },
+            {
+                "Container": "World",
+                "Name": "_#_PrototypeContainer_#_",
+                "Type": {
+                    "Type": "PrototypeCollection"
+                },
+                "fActive": true,
+                "fExpanded": true
+            },
+            {
+                "Container": "World",
+                "Material": 1,
+                "Name": "Screen",
+                "Phi": 0,
+                "Psi": 0,
+                "Shape": "TGeoBBox",
+                "ShapeSpecific": {
+                    "dx": 50,
+                    "dy": 50,
+                    "dz": 5e-04
+                },
+                "Theta": 0,
+                "Type": {
+                    "Type": "Single"
+                },
+                "X": 0,
+                "Y": 0,
+                "Z": 0,
+                "color": 11,
+                "fActive": true,
+                "fExpanded": true,
+                "style": 1,
+                "width": 1
+            },
+            {
+                "Container": "World",
+                "Material": 0,
+                "Name": "ThinLens",
+                "Phi": 0,
+                "Psi": 0,
+                "Shape": "TGeoTube",
+                "ShapeSpecific": {
+                    "dz": 2.5,
+                    "rmax": 50,
+                    "rmin": 0
+                },
+                "SpecialRole": {
+                    "Model": {
+                        "Settings": {
+                            "FocalLengthSpectrum_mm": [
+                                [
+                                    200,
+                                    20
+                                ],
+                                [
+                                    400,
+                                    20
+                                ],
+                                [
+                                    450,
+                                    20
+                                ],
+                                [
+                                    500,
+                                    20
+                                ],
+                                [
+                                    550,
+                                    20
+                                ],
+                                [
+                                    600,
+                                    21
+                                ],
+                                [
+                                    650,
+                                    21
+                                ],
+                                [
+                                    700,
+                                    21
+                                ],
+                                [
+                                    800,
+                                    21
+                                ]
+                            ],
+                            "FocalLength_mm": 20
+                        },
+                        "Type": "ThinLens"
+                    },
+                    "Type": "PhotonFunctional"
+                },
+                "Theta": 0,
+                "Type": {
+                    "Type": "Single"
+                },
+                "X": 0,
+                "Y": 0,
+                "Z": -60,
+                "color": 7,
+                "fActive": true,
+                "fExpanded": true,
+                "strZ": "-objDist",
+                "style": 1,
+                "width": 1
+            },
+            {
+                "Container": "World",
+                "Material": 0,
+                "Name": "RedFilter",
+                "Phi": 0,
+                "Psi": 0,
+                "Shape": "TGeoBBox",
+                "ShapeSpecific": {
+                    "dx": 50,
+                    "dy": 50,
+                    "dz": 0.5
+                },
+                "SpecialRole": {
+                    "Model": {
+                        "Settings": {
+                            "Gray": false,
+                            "GrayTransmission": 0.5,
+                            "TransmissionSpectrum": [
+                                [
+                                    630,
+                                    0
+                                ],
+                                [
+                                    640,
+                                    1
+                                ],
+                                [
+                                    660,
+                                    1
+                                ],
+                                [
+                                    670,
+                                    0
+                                ]
+                            ]
+                        },
+                        "Type": "Filter"
+                    },
+                    "Type": "PhotonFunctional"
+                },
+                "Theta": 0,
+                "Type": {
+                    "Type": "Single"
+                },
+                "X": -100,
+                "Y": 0,
+                "Z": -70,
+                "color": 2,
+                "fActive": true,
+                "fExpanded": true,
+                "strX": "-100*(!RedFilter_on)",
+                "strZ": "-objDist-10",
+                "style": 1,
+                "width": 1
+            },
+            {
+                "Container": "World",
+                "Material": 0,
+                "Name": "BlueFilter",
+                "Phi": 0,
+                "Psi": 0,
+                "Shape": "TGeoBBox",
+                "ShapeSpecific": {
+                    "dx": 50,
+                    "dy": 50,
+                    "dz": 0.5
+                },
+                "SpecialRole": {
+                    "Model": {
+                        "Settings": {
+                            "Gray": false,
+                            "GrayTransmission": 0.5,
+                            "TransmissionSpectrum": [
+                                [
+                                    430,
+                                    0
+                                ],
+                                [
+                                    440,
+                                    1
+                                ],
+                                [
+                                    460,
+                                    1
+                                ],
+                                [
+                                    470,
+                                    0
+                                ]
+                            ]
+                        },
+                        "Type": "Filter"
+                    },
+                    "Type": "PhotonFunctional"
+                },
+                "Theta": 0,
+                "Type": {
+                    "Type": "Single"
+                },
+                "X": 0,
+                "Y": 0,
+                "Z": -73,
+                "color": 4,
+                "fActive": true,
+                "fExpanded": true,
+                "strX": "-100*(!BlueFilter_on)",
+                "strZ": "-objDist-13",
+                "style": 1,
+                "width": 1
+            },
+            {
+                "Container": "World",
+                "Material": 0,
+                "Name": "Monitor-BlueImage",
+                "Phi": 0,
+                "Psi": 0,
+                "Theta": 0,
+                "Type": {
+                    "Particle": "",
+                    "PhotonOrParticle": 0,
+                    "Type": "Monitor",
+                    "angleBins": 90,
+                    "angleFrom": 0,
+                    "angleTo": 90,
+                    "bDirect": true,
+                    "bIndirect": true,
+                    "bLower": true,
+                    "bPrimary": true,
+                    "bSecondary": true,
+                    "bStopTracking": false,
+                    "bUpper": true,
+                    "dz": 0.001,
+                    "energyBins": 100,
+                    "energyFrom": 0,
+                    "energyTo": 0,
+                    "energyUnits": "keV",
+                    "shape": 0,
+                    "size1": 37.5,
+                    "size2": 37.5,
+                    "timeBins": 10,
+                    "timeFrom": 0,
+                    "timeTo": 0,
+                    "timeUnits": "ns",
+                    "waveBins": 150,
+                    "waveFrom": -1,
+                    "waveTo": 148,
+                    "xbins": 301,
+                    "ybins": 301
+                },
+                "X": 0,
+                "Y": 0,
+                "Z": -90.001,
+                "color": 864,
+                "fActive": true,
+                "fExpanded": true,
+                "strZ": "-blueImagDist-objDist-monHalfThick",
+                "style": 1,
+                "width": 1
+            },
+            {
+                "Container": "World",
+                "Material": 0,
+                "Name": "Monitor-RedImage",
+                "Phi": 0,
+                "Psi": 0,
+                "Theta": 0,
+                "Type": {
+                    "Particle": "",
+                    "PhotonOrParticle": 0,
+                    "Type": "Monitor",
+                    "angleBins": 90,
+                    "angleFrom": 0,
+                    "angleTo": 90,
+                    "bDirect": true,
+                    "bIndirect": true,
+                    "bLower": true,
+                    "bPrimary": true,
+                    "bSecondary": true,
+                    "bStopTracking": false,
+                    "bUpper": true,
+                    "dz": 0.001,
+                    "energyBins": 100,
+                    "energyFrom": 0,
+                    "energyTo": 0,
+                    "energyUnits": "keV",
+                    "shape": 0,
+                    "size1": 37.5,
+                    "size2": 37.5,
+                    "timeBins": 10,
+                    "timeFrom": 0,
+                    "timeTo": 0,
+                    "timeUnits": "ns",
+                    "waveBins": 150,
+                    "waveFrom": -1,
+                    "waveTo": 148,
+                    "xbins": 301,
+                    "ybins": 301
+                },
+                "X": 0,
+                "Y": 0,
+                "Z": -92.3087,
+                "color": 899,
+                "fActive": true,
+                "fExpanded": true,
+                "strZ": "-redImagDist-objDist-monHalfThick",
+                "style": 1,
+                "width": 1
+            }
+        ]
+    },
+    "InterfaceRules": {
+        "MaterialRules": [
+        ],
+        "VolumeRules": [
+        ]
+    },
+    "Materials": [
+        {
+            "*Name": "Vacuum",
+            "AbsCoeff": 0,
+            "BulkAbsorptionWave": [
+            ],
+            "Comments": "",
+            "Composition": {
+                "CustomComposition": {
+                    "CompositionString": "H",
+                    "Density": 1e-24,
+                    "GasProperties": {
+                        "Gas": false,
+                        "PressureUnitsInGui": "bar",
+                        "Pressure_bar": 1
+                    },
+                    "MeanExcitationEnergy_eV": 0,
+                    "Temperature": 298,
+                    "UseMeanExcitationEnergy": false
+                },
+                "Geant4Material": "",
+                "UseGeant4Material": false
+            },
+            "CustomScatterMFP": 0,
+            "Dielectric": true,
+            "ElDiffusionL": 0,
+            "ElDiffusionT": 0,
+            "ElDriftVelo": 0,
+            "IgnoreEnergyConservationInReemission": false,
+            "IntrEnergyRes": 0,
+            "PhotonYield": 0,
+            "PrimScintDecay": [
+                [
+                    0,
+                    1
+                ]
+            ],
+            "PrimScintRaise": [
+                [
+                    0,
+                    1
+                ]
+            ],
+            "PrimScintSpectrum": [
+            ],
+            "RayleighMFP": 0,
+            "RayleighWave": 500,
+            "ReemissionProb": 0,
+            "ReemissionProbabilityWave": [
+            ],
+            "RefIndex": 1,
+            "RefIndexComplex": [
+                1,
+                0
+            ],
+            "RefIndexComplex_Wave": [
+            ],
+            "RefIndexImporter": {
+            },
+            "RefIndexWave": [
+            ],
+            "SecScintSpectrum": [
+            ],
+            "SecScint_PhYield": 0,
+            "SecScint_Tau": 0,
+            "Tags": [
+            ],
+            "W": 0
+        },
+        {
+            "*Name": "Emitter",
+            "AbsCoeff": 0,
+            "BulkAbsorptionWave": [
+            ],
+            "Comments": "",
+            "Composition": {
+                "CustomComposition": {
+                    "CompositionString": "H",
+                    "Density": 1e-24,
+                    "GasProperties": {
+                        "Gas": false,
+                        "PressureUnitsInGui": "bar",
+                        "Pressure_bar": 1
+                    },
+                    "MeanExcitationEnergy_eV": 0,
+                    "Temperature": 298,
+                    "UseMeanExcitationEnergy": false
+                },
+                "Geant4Material": "",
+                "UseGeant4Material": false
+            },
+            "CustomScatterMFP": 0,
+            "Dielectric": true,
+            "ElDiffusionL": 0,
+            "ElDiffusionT": 0,
+            "ElDriftVelo": 0,
+            "IgnoreEnergyConservationInReemission": false,
+            "IntrEnergyRes": 0,
+            "PhotonYield": 0,
+            "PrimScintDecay": [
+                [
+                    0,
+                    1
+                ]
+            ],
+            "PrimScintRaise": [
+                [
+                    0,
+                    1
+                ]
+            ],
+            "PrimScintSpectrum": [
+                [
+                    449,
+                    0
+                ],
+                [
+                    450,
+                    1
+                ],
+                [
+                    451,
+                    0
+                ],
+                [
+                    649,
+                    0
+                ],
+                [
+                    650,
+                    1
+                ],
+                [
+                    651,
+                    0
+                ]
+            ],
+            "RayleighMFP": 0,
+            "RayleighWave": 500,
+            "ReemissionProb": 0,
+            "ReemissionProbabilityWave": [
+            ],
+            "RefIndex": 1,
+            "RefIndexComplex": [
+                1,
+                0
+            ],
+            "RefIndexComplex_Wave": [
+            ],
+            "RefIndexImporter": {
+            },
+            "RefIndexWave": [
+            ],
+            "SecScintSpectrum": [
+            ],
+            "SecScint_PhYield": 0,
+            "SecScint_Tau": 0,
+            "Tags": [
+            ],
+            "W": 0
+        }
+    ],
+    "ParticleSim": {
+        "ClusterMerge": false,
+        "ClusterMergeRadius": 0.1,
+        "ClusterMergeTime": 1,
+        "Events": 1,
+        "Geant4Settings": {
+            "AddScintillatorsToSensitiveVolumes": true,
+            "Commands": [
+                "/run/setCut 0.7 mm"
+            ],
+            "PhysicsList": "QGSP_BERT_HP",
+            "ScintSensitiveVolumes": [
+                "Scint_at_Sector_Inst1",
+                "Scint_at_Sector_Inst1_c0",
+                "Scint_at_Sector_Inst1",
+                "Scint_at_Sector_Inst1_c0",
+                "Scint_at_Sector_Inst1",
+                "Scint_at_Sector_Inst1_c0"
+            ],
+            "SensitiveVolumes": [
+            ],
+            "StepLimits": [
+            ],
+            "UseTSphys": false
+        },
+        "GenerationFromFile": {
+            "FileFormat": "Undefined",
+            "FileLastModified": -3600000,
+            "FileName": "",
+            "NumEvents": 0
+        },
+        "GenerationFromSources": {
+            "MultiplePerEvent": {
+                "Enabled": false,
+                "Mode": "Constant",
+                "Number": 1
+            },
+            "ParticleSources": [
+            ]
+        },
+        "ParticleGenerationMode": "Sources",
+        "RunSettings": {
+            "AnalyzerSettings": {
+                "Enabled": false,
+                "FileName": "ParticleAnalyzers.json"
+            },
+            "AsciiOutput": true,
+            "AsciiPrecision": 6,
+            "CalorimeterSettings": {
+                "Enabled": false,
+                "FileName": "Calorimeters.json"
+            },
+            "FileNameDeposition": "Deposition.dat",
+            "FileNameTrackingHistory": "TrackingData.dat",
+            "MonitorSettings": {
+                "Enabled": false,
+                "FileName": "ParticleMonitors.json"
+            },
+            "OutputDirectory": "",
+            "SaveDeposition": false,
+            "SaveParticles": {
+                "Enabled": false,
+                "FileName": "OutputParticles.dat",
+                "StopTrack": true,
+                "TimeFrom": 0,
+                "TimeTo": 10000000000,
+                "TimeWindow": false,
+                "VolumeName": ""
+            },
+            "SaveTrackingHistory": false,
+            "Seed": 0
+        }
+    },
+    "PhotonFunctional": {
+        "OverritenRecords": [
+        ]
+    },
+    "PhotonSim": {
+        "Deposition": {
+            "FileFormat": "Undefined",
+            "FileName": "",
+            "LastModified": -3600000,
+            "NumEvents": 0,
+            "Primary": true,
+            "Secondary": false
+        },
+        "Optimization": {
+            "CheckQeBeforeTracking": false,
+            "MaxPhotonTransitions": 500
+        },
+        "PhotonBombs": {
+            "Advanced": {
+                "Direction": {
+                    "ConeAngle": 40,
+                    "DirDX": 0,
+                    "DirDY": 0,
+                    "DirDZ": -1,
+                    "DirectionMode": "Cone"
+                },
+                "SkipBombs": {
+                    "EnableOnlyMat": false,
+                    "EnableOnlyVol": false,
+                    "Material": "",
+                    "MaxNodeAttempts": 1000,
+                    "Volume": ""
+                },
+                "Time": {
+                    "DecayTime": 5,
+                    "Enabled": false
+                },
+                "Wave": {
+                    "Enabled": false,
+                    "FixedWavelength": 550
+                }
+            },
+            "File": {
+                "FileFormat": "Undefined",
+                "FileName": "",
+                "LastModified": -3600000,
+                "NumEvents": 0
+            },
+            "Flood": {
+                "CenterX": 0,
+                "CenterY": 0,
+                "InnerDiameter": 0,
+                "Number": 100,
+                "OuterDiameter": 95,
+                "Shape": "ring",
+                "Xfrom": -15,
+                "Xto": 15,
+                "Yfrom": -15,
+                "Yto": 15,
+                "Zfixed": 20,
+                "Zfrom": 0,
+                "Zmode": "fixed",
+                "Zto": 0
+            },
+            "GenerationMode": "single",
+            "Grid": {
+                "AxesData": [
+                    {
+                        "BiDirect": false,
+                        "Enabled": true,
+                        "Nodes": 10,
+                        "dX": 10,
+                        "dY": 0,
+                        "dZ": 0
+                    },
+                    {
+                        "BiDirect": false,
+                        "Enabled": false,
+                        "Nodes": 10,
+                        "dX": 0,
+                        "dY": 10,
+                        "dZ": 0
+                    },
+                    {
+                        "BiDirect": false,
+                        "Enabled": false,
+                        "Nodes": 10,
+                        "dX": 0,
+                        "dY": 0,
+                        "dZ": 10
+                    }
+                ],
+                "ScanX0": 0,
+                "ScanY0": 0,
+                "ScanZ0": 0
+            },
+            "PhotonsPerBomb": {
+                "CustomDist": [
+                ],
+                "FixedNumber": 1000,
+                "Mode": "constant",
+                "NormalMean": 100,
+                "NormalSigma": 10,
+                "PoissonMean": 10,
+                "UniformMax": 12,
+                "UniformMin": 10
+            },
+            "Single": {
+                "Position": [
+                    0,
+                    0,
+                    0
+                ]
+            }
+        },
+        "PhotonFile": {
+            "FileFormat": "Undefined",
+            "FileName": "",
+            "LastModified": -3600000,
+            "NumEvents": 0
+        },
+        "Run": {
+            "BinaryFormat": false,
+            "FileNameMonitors": "PhotonMonitors.txt",
+            "FileNamePhotonBombs": "PhotonBombs.txt",
+            "FileNameReceipt": "DummyReceipt.txt",
+            "FileNameSensorLog": "SensorLog.dat",
+            "FileNameSensorSignals": "SensorSignals.txt",
+            "FileNameStatistics": "PhotonStatistics.json",
+            "FileNameTracks": "PhotonTracks.txt",
+            "MaxTracks": 1000,
+            "OutputDirectory": "",
+            "PhotonLog": {
+                "Enabled": false,
+                "FileName": "PhotonLog.txt",
+                "MaxNumber": 1000,
+                "MustInclude_Processes": [
+                ],
+                "MustInclude_Volumes": [
+                ],
+                "MustNotInclude_Processes": [
+                ],
+                "MustNotInclude_Volumes": [
+                ]
+            },
+            "SaveMonitors": true,
+            "SavePhotonBombs": false,
+            "SaveSensorLog": false,
+            "SaveSensorSignals": false,
+            "SaveStatistics": true,
+            "SaveTracks": true,
+            "Seed": 0,
+            "SensorLogAngle": false,
+            "SensorLogTime": true,
+            "SensorLogWave": false,
+            "SensorLogXY": false,
+            "UpperTimeLimit": 100
+        },
+        "SimulationType": "bomb",
+        "WaveResolved": {
+            "Enabled": true,
+            "From": 200,
+            "Step": 5,
+            "To": 800
+        }
+    },
+    "Sensors": {
+        "ModelAssignment": [
+        ],
+        "Models": [
+            {
+                "AngularResponse": {
+                    "Data": [
+                    ]
+                },
+                "AreaResponse": {
+                    "Data": [
+                    ],
+                    "StepX": 1,
+                    "StepY": 1
+                },
+                "DarkCountRate": 0,
+                "IntegrationTime": 1e-06,
+                "Name": "Ideal",
+                "PDE": {
+                    "Effective": 1,
+                    "Spectral": [
+                    ]
+                },
+                "PhElToSignals": {
+                    "AverageSignalPerPhEl": 1,
+                    "ElectronicGainFactor": 1,
+                    "GammaShape": 2,
+                    "Model": "Constant",
+                    "NormalSigma": 0,
+                    "SinglePhElPHS": [
+                    ]
+                },
+                "PreampSigma": 0,
+                "SiPM": {
+                    "PixelSizeX": 3,
+                    "PixelSizeY": 3,
+                    "PixelSpacingX": 0,
+                    "PixelSpacingY": 0,
+                    "PixelsX": 50,
+                    "PixelsY": 50,
+                    "isSiPM": false
+                }
+            }
+        ]
+    },
+    "gui": {
+        "GeometryWindow": {
+            "GeoWriter": {
+                "SizeForAnalyzers": 10,
+                "SizeForCalorimeters": 10,
+                "SizeForMonitors": 10,
+                "SizeForPhotFuncts": 10,
+                "SizeForScints": 10,
+                "SizeForSensors": 10
+            },
+            "LimitVisibility": {
+                "Enabled": false,
+                "Level": 3
+            },
+            "ZoomLevel": 0
+        },
+        "ParticleSimWindow": {
+            "Analyser": {
+                "Statistics": {
+                    "AveragePerBins": false,
+                    "BinsX": 100,
+                    "BinsY": 100,
+                    "BulkOrTransition": 0,
+                    "Cuts": "",
+                    "EnableLimitToCreated": false,
+                    "EnableLimitToEscaping": false,
+                    "EnableLimitToIndex": false,
+                    "EnableLimitToIndexFrom": false,
+                    "EnableLimitToIndexTo": false,
+                    "EnableLimitToMat": false,
+                    "EnableLimitToMatFrom": false,
+                    "EnableLimitToMatTo": false,
+                    "EnableLimitToParticle": false,
+                    "EnableLimitToVolume": false,
+                    "EnableLimitToVolumeFrom": false,
+                    "EnableLimitToVolumeTo": false,
+                    "EnableWhat2": false,
+                    "EnableWhat3": false,
+                    "EventsPerThread": "1",
+                    "FromX": "0",
+                    "FromY": "0",
+                    "HadronicTarget": "",
+                    "LimitParticle": "",
+                    "LimitTime": false,
+                    "LimitToFirstInteractionOfPrimary": false,
+                    "LimitToHadronic": false,
+                    "LimitToIndex": 0,
+                    "LimitToIndexFrom": 0,
+                    "LimitToIndexTo": 0,
+                    "LimitToMat": 0,
+                    "LimitToMatFrom": 0,
+                    "LimitToMatTo": 0,
+                    "LimitToVolume": "",
+                    "LimitToVolumeFrom": "",
+                    "LimitToVolumeTo": "",
+                    "OnlyPrimary": false,
+                    "OnlySecondary": false,
+                    "RequestWhat": 0,
+                    "RequestWhatPlus": -1,
+                    "RequestWhatVsTime": false,
+                    "Threads": 0,
+                    "TimeFrom": "0",
+                    "TimeTo": "1e99",
+                    "ToX": "0",
+                    "ToY": "0",
+                    "What1": "Energy * 1e-3",
+                    "What2": "",
+                    "What3": ""
+                }
+            },
+            "AutoLoadAllResults": true,
+            "Seed": {
+                "FixedSeed": 1000,
+                "Random": true
+            }
+        },
+        "PhotonSimWindow": {
+            "AutoLoadAllResults": true,
+            "Seed": {
+                "FixedSeed": 1000,
+                "Random": true
+            },
+            "SensorGroups": {
+                "AllEnabled": true,
+                "G1": "0-5,7",
+                "G1Enabled": false,
+                "G2": "",
+                "G2Enabled": false,
+                "G3": "",
+                "G3Enabled": false
+            }
+        }
+    }
+}

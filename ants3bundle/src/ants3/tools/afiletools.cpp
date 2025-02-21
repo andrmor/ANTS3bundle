@@ -317,6 +317,44 @@ QString ftools::loadDoubleVectorsFromFile(const QString & FileName, QVector<QVec
     return "";
 }
 
+QString ftools::loadDoubleVectorsFromFile(const QString & fileName, std::vector< std::vector<double>* > & vec)
+{
+    if (fileName.isEmpty()) return("File name not provided");
+
+    QFile file(fileName);
+    if(!file.open(QIODevice::ReadOnly | QFile::Text)) return QString("Could not open file %1").arg(fileName);
+
+    const size_t Vsize = vec.size();
+    if (Vsize == 0) return "Received no vectors to load";
+    for (auto * v : vec) v->clear();
+
+    QTextStream in(&file);
+    QRegularExpression rx("(\\ |\\,|\\:|\\t)"); //separators: ' ' or ',' or ':' or '\t'
+    while (!in.atEnd())
+    {
+        const QStringList fields = in.readLine().split(rx, Qt::SkipEmptyParts);
+
+        bool ok = true;
+        std::vector<double> tmp(Vsize);
+        if (fields.size() >= Vsize )
+        {
+            for (size_t i = 0; i < Vsize; i++)
+            {
+                double x = fields[i].toDouble(&ok);
+                if (!ok) break;
+                tmp[i] = x;
+            }
+        }
+        if (ok)
+            for (size_t i = 0; i < Vsize; i++)
+                vec[i]->push_back(tmp[i]);
+    }
+    file.close();
+
+    if (vec.front()->empty()) return QString("File %1 has invalid format").arg(fileName);
+
+    return "";
+}
 
 QString ftools::saveDoubleVectorsToFile(const QVector<QVector<double> *> & V, const QString & FileName)
 {

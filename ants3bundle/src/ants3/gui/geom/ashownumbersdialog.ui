@@ -6,243 +6,182 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>148</width>
-    <height>565</height>
+    <width>152</width>
+    <height>137</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
-   <item alignment="Qt::AlignHCenter">
-    <widget class="QLabel" name="label">
-     <property name="font">
-      <font>
-       <bold>true</bold>
-      </font>
-     </property>
-     <property name="text">
-      <string>Optical sensors</string>
-     </property>
-    </widget>
-   </item>
+   <property name="leftMargin">
+    <number>5</number>
+   </property>
+   <property name="topMargin">
+    <number>5</number>
+   </property>
+   <property name="rightMargin">
+    <number>5</number>
+   </property>
+   <property name="bottomMargin">
+    <number>5</number>
+   </property>
    <item>
-    <widget class="QPushButton" name="pbSensorIndex">
-     <property name="text">
-      <string>Indexes</string>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QPushButton" name="pbSensorModel">
-     <property name="text">
-      <string>Models</string>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <layout class="QHBoxLayout" name="horizontalLayout">
+    <widget class="QComboBox" name="cobObjectType">
      <item>
-      <widget class="QLabel" name="label_2">
-       <property name="text">
-        <string>Size:</string>
-       </property>
-      </widget>
+      <property name="text">
+       <string>Scintillators</string>
+      </property>
      </item>
      <item>
-      <widget class="QLineEdit" name="ledSizeSensor">
-       <property name="text">
-        <string>10</string>
-       </property>
-      </widget>
+      <property name="text">
+       <string>Light sensors</string>
+      </property>
      </item>
      <item>
-      <widget class="QLabel" name="label_3">
-       <property name="text">
-        <string>mm</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </item>
-   <item>
-    <widget class="Line" name="line">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-    </widget>
-   </item>
-   <item alignment="Qt::AlignHCenter">
-    <widget class="QLabel" name="label_6">
-     <property name="font">
-      <font>
-       <bold>true</bold>
-      </font>
-     </property>
-     <property name="text">
-      <string>Monitors</string>
-     </property>
-    </widget>
-   </item>
-   <item alignment="Qt::AlignHCenter">
-    <widget class="QLabel" name="label_11">
-     <property name="text">
-      <string>Optical photons</string>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QPushButton" name="pbOptMonIndex">
-     <property name="text">
-      <string>Indexes</string>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QPushButton" name="pbOptMonHits">
-     <property name="text">
-      <string>Hits</string>
-     </property>
-    </widget>
-   </item>
-   <item alignment="Qt::AlignHCenter">
-    <widget class="QLabel" name="label_10">
-     <property name="text">
-      <string>Particles</string>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QPushButton" name="pbPartMonIndex">
-     <property name="text">
-      <string>Indexes</string>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QPushButton" name="pbPartMonHits">
-     <property name="text">
-      <string>Hits</string>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_2">
-     <item>
-      <widget class="QLabel" name="label_5">
-       <property name="text">
-        <string>Size:</string>
-       </property>
-      </widget>
+      <property name="text">
+       <string>Particle monitors</string>
+      </property>
      </item>
      <item>
-      <widget class="QLineEdit" name="ledSizeMonitor">
-       <property name="text">
-        <string>10</string>
-       </property>
-      </widget>
+      <property name="text">
+       <string>Photon monitors</string>
+      </property>
      </item>
      <item>
-      <widget class="QLabel" name="label_4">
-       <property name="text">
-        <string>mm</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </item>
-   <item>
-    <widget class="Line" name="line_2">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-    </widget>
-   </item>
-   <item alignment="Qt::AlignHCenter">
-    <widget class="QLabel" name="label_9">
-     <property name="font">
-      <font>
-       <bold>true</bold>
-      </font>
-     </property>
-     <property name="text">
-      <string>Calorimeters</string>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QPushButton" name="pbCalIndex">
-     <property name="text">
-      <string>Indexes</string>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QPushButton" name="pbCalTotals">
-     <property name="text">
-      <string>Totals</string>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_3">
-     <item>
-      <widget class="QLabel" name="label_8">
-       <property name="text">
-        <string>Size:</string>
-       </property>
-      </widget>
+      <property name="text">
+       <string>Calorimeters</string>
+      </property>
      </item>
      <item>
-      <widget class="QLineEdit" name="ledSizeCalorimeter">
-       <property name="text">
-        <string>10</string>
-       </property>
-      </widget>
+      <property name="text">
+       <string>Particle analyzers</string>
+      </property>
      </item>
      <item>
-      <widget class="QLabel" name="label_7">
-       <property name="text">
-        <string>mm</string>
-       </property>
-      </widget>
+      <property name="text">
+       <string>Photon functional</string>
+      </property>
      </item>
-    </layout>
-   </item>
-   <item>
-    <widget class="Line" name="line_3">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
     </widget>
    </item>
    <item>
-    <widget class="QLabel" name="label_12">
-     <property name="font">
-      <font>
-       <bold>true</bold>
-      </font>
+    <widget class="QStackedWidget" name="swMain">
+     <property name="currentIndex">
+      <number>0</number>
      </property>
-     <property name="text">
-      <string>Photon functional</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QPushButton" name="pbPhFunIndex">
-     <property name="text">
-      <string>Indexes</string>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QPushButton" name="pbPhFunLinks">
-     <property name="text">
-      <string>Links</string>
-     </property>
+     <widget class="QWidget" name="pageScintillators">
+      <layout class="QVBoxLayout" name="verticalLayout_8">
+       <item>
+        <widget class="QPushButton" name="pbScintillatorIndex">
+         <property name="text">
+          <string>Indexes</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="pageOpticalSensors">
+      <layout class="QVBoxLayout" name="verticalLayout_6">
+       <item>
+        <widget class="QPushButton" name="pbSensorIndex">
+         <property name="text">
+          <string>Indexes</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="pbSensorModel">
+         <property name="text">
+          <string>Models</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="pageParticleMonitors">
+      <layout class="QVBoxLayout" name="verticalLayout_7">
+       <item>
+        <widget class="QPushButton" name="pbPartMonIndex">
+         <property name="text">
+          <string>Indexes</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="pbPartMonHits">
+         <property name="text">
+          <string>Hits</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="pagePhotonMonitors">
+      <layout class="QVBoxLayout" name="verticalLayout_3">
+       <item>
+        <widget class="QPushButton" name="pbOptMonIndex">
+         <property name="text">
+          <string>Indexes</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="pbOptMonHits">
+         <property name="text">
+          <string>Hits</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="pageCalorimeters">
+      <layout class="QVBoxLayout" name="verticalLayout_4">
+       <item>
+        <widget class="QPushButton" name="pbCalIndex">
+         <property name="text">
+          <string>Indexes</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="pbCalTotals">
+         <property name="text">
+          <string>Totals</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="pageParticleAnalyzers">
+      <layout class="QVBoxLayout" name="verticalLayout_5">
+       <item>
+        <widget class="QPushButton" name="pbAnIndex">
+         <property name="text">
+          <string>Indexes</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="pagePhotonFunctional">
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <item>
+        <widget class="QPushButton" name="pbPhFunIndex">
+         <property name="text">
+          <string>Indexes</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="pbPhFunLinks">
+         <property name="text">
+          <string>Links</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
     </widget>
    </item>
    <item>
@@ -255,7 +194,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="ledSizePhFun">
+      <widget class="QLineEdit" name="ledSize">
        <property name="text">
         <string>10</string>
        </property>

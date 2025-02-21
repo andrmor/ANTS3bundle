@@ -23,6 +23,8 @@
 #include "aeventsdonedialog.h"
 #include "atrackingdataexplorer.h"
 #include "aeventtrackingrecord.h"
+#include "aparticlesourcedialog.h"
+#include "aparticlesourcerecord.h"
 
 #include <QListWidget>
 #include <QDialog>
@@ -87,6 +89,11 @@ AParticleSimWin::AParticleSimWin(QWidget * parent) :
 
 AParticleSimWin::~AParticleSimWin()
 {
+    if (ParticleSourceDialog)
+    {
+        ParticleSourceDialog->reject();
+        delete ParticleSourceDialog; ParticleSourceDialog = nullptr;
+    }
     delete ui;
 }
 
@@ -289,7 +296,14 @@ void AParticleSimWin::updateGui()
 
     updateGeneralControlInResults();
 
-    emit killSourceDialog();
+    if (ParticleSourceDialog)
+    {
+        ParticleSourceDialog->reject();
+        delete ParticleSourceDialog; ParticleSourceDialog = nullptr;
+    }
+
+    updateCalorimeterGui();
+    updateAnalyzerGui();
 
     bGuiUpdateInProgress = false; // <--
 }
@@ -465,8 +479,6 @@ void AParticleSimWin::on_pbRemoveStepLimit_clicked()
      updateG4Gui();
 }
 
-#include "aparticlesourcedialog.h"
-#include "aparticlesourcerecord.h"
 void AParticleSimWin::on_pbEditParticleSource_clicked()
 {
     int isource = ui->lwDefinedParticleSources->currentRow();
@@ -483,16 +495,27 @@ void AParticleSimWin::on_pbEditParticleSource_clicked()
         return;
     }
 
-    AParticleSourceDialog ParticleSourceDialog(SourceGenSettings.SourceData.at(isource), this);
-    connect(&ParticleSourceDialog, &AParticleSourceDialog::requestTestParticleGun, this, &AParticleSimWin::testParticleGun);
-    connect(&ParticleSourceDialog, &AParticleSourceDialog::requestShowSource,      this, &AParticleSimWin::onRequestShowSource);
-    connect(&ParticleSourceDialog, &AParticleSourceDialog::requestDraw,            this, &AParticleSimWin::requestDraw);
-    connect(this,                  &AParticleSimWin::killSourceDialog,             &ParticleSourceDialog, &AParticleSourceDialog::reject);
+    delete ParticleSourceDialog;
+    ParticleSourceDialog = new AParticleSourceDialog(SourceGenSettings.SourceData.at(isource), this);
+    connect(ParticleSourceDialog, &AParticleSourceDialog::requestTestParticleGun, this, &AParticleSimWin::testParticleGun);
+    connect(ParticleSourceDialog, &AParticleSourceDialog::requestShowSource,      this, &AParticleSimWin::onRequestShowSource);
+    connect(ParticleSourceDialog, &AParticleSourceDialog::requestDraw,            this, &AParticleSimWin::requestDraw);
+    connect(ParticleSourceDialog, &AParticleSourceDialog::accepted,               this, &AParticleSimWin::onParticleSourceAccepted);
 
-    int res = ParticleSourceDialog.exec();
-    if (res == QDialog::Rejected) return;
+    ParticleSourceDialog->setModal(true);
+    ParticleSourceDialog->open();
+}
 
-    AParticleSourceRecord & ps = ParticleSourceDialog.getResult();
+void AParticleSimWin::onParticleSourceAccepted()
+{
+    int isource = ui->lwDefinedParticleSources->currentRow();
+    if (isource == -1) return;
+
+    ASourceGeneratorSettings & SourceGenSettings = SimSet.SourceGenSettings;
+    const int numSources = SourceGenSettings.getNumSources();
+    if (isource >= numSources) return;
+
+    AParticleSourceRecord & ps = ParticleSourceDialog->getResult();
     SourceGenSettings.replace(isource, ps);
 
     updateSourceList();
@@ -965,6 +988,13 @@ void AParticleSimWin::updateResultsGui()
 
         if (SimSet.RunSet.SaveDeposition)
             ui->leDepositionFileName->setText(SimSet.RunSet.FileNameDeposition.data());
+
+        if (SimSet.RunSet.AnalyzerSettings.Enabled)
+        {
+            ui->leAnalyzersFileName->setText(SimSet.RunSet.AnalyzerSettings.FileName.data());
+            LastFile_Analyzers = ui->leAnalyzersFileName->text();
+            updateAnalyzerGui(); // data will be already loaded for merging
+        }
     }
 }
 
@@ -1013,6 +1043,12 @@ void AParticleSimWin::on_pbLoadAllResults_clicked()
     ui->leCalorimetersFileName->setText(fileName);
     if (QFile(dir + '/' + fileName).exists())
         on_pbLoadCalorimetersData_clicked();
+
+    //analyzers
+    fileName = QString(defaultSettings.AnalyzerSettings.FileName.data());
+    ui->leAnalyzersFileName->setText(fileName);
+    if (QFile(dir + '/' + fileName).exists())
+        on_pbLoadAnalyzersData_clicked();
 }
 
 void updateMatComboBox(QComboBox * cob, const QStringList & mats)
@@ -1033,6 +1069,12 @@ void AParticleSimWin::onMaterialsChanged()
     updateMatComboBox(ui->cobPTHistVolMatFrom, mats);
     updateMatComboBox(ui->cobPTHistVolMatTo, mats);
     updateMatComboBox(ui->cobPTHistVolMat, mats);
+}
+
+void AParticleSimWin::onNewConfigStartedInGui()
+{
+    ui->cbRandomSeed->setChecked(true);
+    ui->sbSeed->setValue(1000);
 }
 
 void AParticleSimWin::onRequestShowSource()
@@ -1817,6 +1859,8 @@ void AParticleSimWin::on_cobPTHistVolRequestWhat_currentIndexChanged(int index)
     ui->frLimitHadronicTarget->setVisible(index == 1);
 
     ui->cbPTHistVolVsTime->setVisible(index == 3);
+
+    ui->pbHelpGetParticles->setVisible(index == 0);
 }
 
 void AParticleSimWin::on_twPTHistType_currentChanged(int index)
@@ -2045,8 +2089,7 @@ void AParticleSimWin::updateMonitorGui()
 
         ui->cobMonitor->clear();
         for (int i = 0; i < numMonitors; i++)
-            //ui->cobMonitor->addItem( QString("%1   index=%2").arg(MonitorHub.Monitors[i].Name).arg(i));
-            ui->cobMonitor->addItem(MonitorHub.ParticleMonitors[i].Name);
+            ui->cobMonitor->addItem(QString("%0  (#%1)").arg(MonitorHub.ParticleMonitors[i].Name).arg(i));
 
         if (oldNum >-1 && oldNum < numMonitors)
         {
@@ -2536,7 +2579,7 @@ void AParticleSimWin::updateCalorimeterGui()
         const int oldNum = ui->cobCalorimeter->currentIndex();
 
         ui->cobCalorimeter->clear();
-        ui->cobCalorimeter->addItems(CalHub.getCalorimeterNames());
+        ui->cobCalorimeter->addItems(CalHub.getCalorimeterNamesWithIndexes());
 
         if (oldNum >-1 && oldNum < numCal)
         {
@@ -2548,16 +2591,33 @@ void AParticleSimWin::updateCalorimeterGui()
         const int iCal = ui->cobCalorimeter->currentIndex();
         const ACalorimeter * Cal = CalHub.Calorimeters[iCal].Calorimeter;
 
+        ui->leCalorimetersEntries->setText("--");
+        ui->labIntegral->setVisible(false);
+        ui->leIntegral->setVisible(false);
         if (Cal)
         {
-            ui->leCalorimetersEntries->setText( QString::number(Cal->Entries) );
-            ui->pbCaloShow->setEnabled(Cal->DataHistogram);
-            ui->frCaloShowDepoOverEvent->setVisible(Cal->EventDepoData);
-            updateShowCalorimeterGui();
+            ui->frCaloShowDepoOverEvent->setVisible(false);
+            ui->frCaloShowEnergyDose->setVisible(false);
+
+            if (Cal->EventDepoData)
+            {
+                ui->frCaloShowDepoOverEvent->setVisible(true);
+                ui->leCalorimetersEntries->setText(QString::number(Cal->EventDepoData->GetEntries()));
+                ui->labIntegral->setVisible(true);
+                ui->leIntegral->setVisible(true);
+                ui->leIntegral->setText(QString::number(Cal->EventDepoData->GetSumOfWeights()));
+            }
+
+            if (Cal->DataHistogram)
+            {
+                ui->frCaloShowEnergyDose->setVisible(true);
+                ui->leCalorimetersEntries->setText( QString::number(Cal->Entries) );
+                ui->pbCaloShow->setEnabled(Cal->DataHistogram);
+                updateShowCalorimeterGui();
+            }
         }
         else
         {
-            ui->leCalorimetersEntries->setText("--");
             ui->pbCaloShow->setEnabled(false);
         }
     }
@@ -2581,19 +2641,18 @@ void AParticleSimWin::on_pbNextCalorimeter_clicked()
     if (numCal == 0) return;
 
     int iCal = ui->cobCalorimeter->currentIndex();
-    //int iCalStart = iCal;
 
-    double depo = 0;
     do
     {
         iCal++;
         if (iCal >= numCal) return;
-            /*iCal = 0;
-        if (iCal == iCalStart) return;
-        */
-        depo = CalHub.Calorimeters[iCal].Calorimeter->Stats[0];
+
+        if (CalHub.Calorimeters[iCal].Calorimeter->EventDepoData)
+            if (CalHub.Calorimeters[iCal].Calorimeter->EventDepoData->GetEntries() > 0) break;
+        if (CalHub.Calorimeters[iCal].Calorimeter->DataHistogram)
+            if (CalHub.Calorimeters[iCal].Calorimeter->DataHistogram->GetEntries() > 0) break;
     }
-    while (depo == 0);
+    while (true);
 
     if (iCal < ui->cobCalorimeter->count()) ui->cobCalorimeter->setCurrentIndex(iCal);
     updateCalorimeterGui();
@@ -2903,8 +2962,8 @@ void AParticleSimWin::updateShowCalorimeterGui()
     }
 
     int maxX = p.Bins[0] - 1; ui->sbCaloX0->setMaximum(maxX); ui->sbCaloX1->setMaximum(maxX);
-    int maxY = p.Bins[1] - 1; ui->sbCaloY0->setMaximum(maxX); ui->sbCaloY1->setMaximum(maxX);
-    int maxZ = p.Bins[2] - 1; ui->sbCaloZ0->setMaximum(maxX); ui->sbCaloZ1->setMaximum(maxX);
+    int maxY = p.Bins[1] - 1; ui->sbCaloY0->setMaximum(maxY); ui->sbCaloY1->setMaximum(maxY);
+    int maxZ = p.Bins[2] - 1; ui->sbCaloZ0->setMaximum(maxZ); ui->sbCaloZ1->setMaximum(maxZ);
 
     if (ui->sbCaloX0->value() == 0 && ui->sbCaloX1->value() == 0)
     {
@@ -2945,6 +3004,8 @@ void AParticleSimWin::on_pbCaloShow_clicked()
     bool bAverage = ui->cbCaloAverage->isChecked();
     bool bSwapAxes = ui->cbCalorimeterSwapAxes->isChecked();
 
+    bool bEnergy = (p.DataType == ACalorimeterProperties::Energy);
+
     if (bProjection)
     {
         if (b1D)
@@ -2957,7 +3018,7 @@ void AParticleSimWin::on_pbCaloShow_clicked()
 
             h->SetTitle(TString(CalHub.Calorimeters[iCal].Name.toLatin1().data()) + "-" + opt);
             h->GetXaxis()->SetTitle( TString(opt) + ", mm" );
-            h->GetYaxis()->SetTitle("Deposited energy, MeV");
+            h->GetYaxis()->SetTitle("Deposited energy, keV");
 
             emit requestDraw(h, "hist", true, true);
         }
@@ -2973,7 +3034,7 @@ void AParticleSimWin::on_pbCaloShow_clicked()
             h->SetTitle(TString(CalHub.Calorimeters[iCal].Name.toLatin1().data()) + "-" + opt);
             h->GetXaxis()->SetTitle(TString(opt[1]) + ", mm");
             h->GetYaxis()->SetTitle(TString(opt[0]) + ", mm");
-            h->GetZaxis()->SetTitle("Deposited energy, MeV");
+            h->GetZaxis()->SetTitle("Deposited energy, keV");
 
             emit requestDraw(h, "colz", true, true);
         }
@@ -3045,7 +3106,9 @@ void AParticleSimWin::on_pbCaloShow_clicked()
 
         hist->SetTitle(TString(CalHub.Calorimeters[iCal].Name.toLatin1().data()) + "-" + axisTitle);
         hist->GetXaxis()->SetTitle(axisTitle + ", mm");
-        hist->GetYaxis()->SetTitle("Dose, Gy");
+
+        if (bEnergy) hist->GetYaxis()->SetTitle("Deposited energy, keV");
+        else         hist->GetYaxis()->SetTitle("Dose, Gy");
 
         emit requestDraw(hist, "hist", true, true);
     }
@@ -3150,7 +3213,10 @@ void AParticleSimWin::on_pbCaloShow_clicked()
         hist->SetTitle(TString(CalHub.Calorimeters[iCal].Name.toLatin1().data()) + "-" + verAxisTitle + horAxisTitle);
         hist->GetXaxis()->SetTitle(horAxisTitle + ", mm");
         hist->GetYaxis()->SetTitle(verAxisTitle + ", mm");
-        hist->GetZaxis()->SetTitle("Dose, Gy");
+
+        if (bEnergy) hist->GetZaxis()->SetTitle("Deposited energy, keV");
+        else         hist->GetZaxis()->SetTitle("Dose, Gy");
+
         hist->SetEntries(Data->GetEntries());
 
         emit requestDraw(hist, "colz", true, true);
@@ -3267,7 +3333,7 @@ void AParticleSimWin::on_pbCaloShowDepoOverEvent_clicked()
     ATH1D * Data = CalHub.Calorimeters[iCal].Calorimeter->EventDepoData;
     if (!Data) return;
 
-    Data->GetXaxis()->SetTitle("Deposited energy over event, MeV");
+    Data->GetXaxis()->SetTitle("Deposited energy over event, keV");
 
     emit requestDraw(Data, "hist", false, true);
 }
@@ -3364,3 +3430,255 @@ void AParticleSimWin::on_cbRandomSeed_toggled(bool checked)
 {
     ui->sbSeed->setVisible(!checked);
 }
+
+// --------------------------
+
+void AParticleSimWin::on_pbChooseAnalyzersFile_clicked()
+{
+    QString fileName = QFileDialog::getOpenFileName(this, "Select a file with particle analyzers' data", SimSet.RunSet.OutputDirectory.data());
+    if (fileName.isEmpty()) return;
+
+    ui->leAnalyzersFileName->setText(fileName);
+}
+
+#include "aparticleanalyzerhub.h"
+void AParticleSimWin::on_pbLoadAnalyzersData_clicked()
+{
+    const QString str = ui->leAnalyzersFileName->text();
+    if (str == LastFile_Analyzers) return;
+    LastFile_Analyzers = str;
+
+    QString fileName = LastFile_Analyzers;
+    if (!fileName.contains('/'))
+        fileName = ui->leWorkingDirectory->text() + '/' + fileName;
+
+    AParticleAnalyzerHub & AnHub = AParticleAnalyzerHub::getInstance();
+
+    AErrorHub::clear();
+    AnHub.loadAnalyzerFiles( {fileName} );
+    if (AErrorHub::isError())
+    {
+        guitools::message(AErrorHub::getQError(), this);
+        return;
+    }
+
+    updateAnalyzerGui();
+}
+
+void AParticleSimWin::updateAnalyzerGui()
+{
+    AParticleAnalyzerHub & AnHub = AParticleAnalyzerHub::getInstance();
+
+    size_t numTotAnalyzers = AGeometryHub::getInstance().countParticleAnalyzers();
+    ui->labNumTotalAnalyzers->setText( QString::number(numTotAnalyzers) );
+
+    size_t numUniqueAnalyzers = AnHub.UniqueAnalyzers.size();
+    ui->labNumUniqueAnalyzers->setText( QString::number(numUniqueAnalyzers) );
+
+    ui->cobAnalyzer->clear();
+    ui->pteAnalyzer->clear();
+    ui->cobAnalyzerParticle->clear();
+
+    ui->frAnalayzerData->setEnabled(numTotAnalyzers != 0);
+    if (numTotAnalyzers == 0) return;
+
+    // cob with analyzers
+    QStringList sl;
+    for (const AAnalyzerData & ana : AnHub.UniqueAnalyzers)
+    {
+        QString str = ana.Name;
+        int ind = ana.GlobalIndexIfNoMerge;
+        if (ind == -1) str += "(combined)";
+        else           str += QString(" (#%0)").arg(ind);
+        sl << str;
+    }
+    ui->cobAnalyzer->addItems(sl);
+    ui->cobAnalyzer->setCurrentIndex(0);
+    ui->sbAnalyzerUnqiueIndex->setValue(0);
+
+    updateAnalyzerDataGui(true);
+}
+
+struct AAnalyzerParticleTmpRecord
+{
+    QString Particle;
+    double  Number;
+    double  MeanEnergy;
+};
+
+void AParticleSimWin::updateAnalyzerDataGui(bool suppressMessages)
+{
+    int uniqueIndex = ui->sbAnalyzerUnqiueIndex->value();
+
+    AParticleAnalyzerHub & AnHub = AParticleAnalyzerHub::getInstance();
+    const size_t numUniqueAnalyzers = AnHub.UniqueAnalyzers.size();
+    if (uniqueIndex >= numUniqueAnalyzers)
+    {
+        if (!suppressMessages) guitools::message("Invalid analyzer index", this);
+        return;
+    }
+
+    const AAnalyzerData & data = AnHub.UniqueAnalyzers[uniqueIndex];
+
+    const QString & strDataEnergyUnits = data.EnergyDataUnits;
+    double factorTo_keV = 1.0;
+    if      (strDataEnergyUnits == "MeV") factorTo_keV = 1e3;
+    else if (strDataEnergyUnits == "eV")  factorTo_keV = 1e-3;
+    else if (strDataEnergyUnits == "meV") factorTo_keV = 1e-6;
+
+    int guiEnergyUnits = ui->cobAnalyzerEnergyUnits->currentIndex();
+    double guiEnergyFactor = 1.0;
+    switch (guiEnergyUnits)
+    {
+        case 0 : guiEnergyFactor = 0.001; break; // MeV
+        case 2 : guiEnergyFactor = 1e3;   break; // eV
+        case 3 : guiEnergyFactor = 1e6;   break; // meV
+        default: guiEnergyFactor = 1.0;
+    }
+
+    double energyFactor = factorTo_keV * guiEnergyFactor;
+
+    bool useNumberFractions = ( ui->cobAnalyzerNumberOption->currentIndex() != 0 );
+    size_t sum = 0;
+    for (const auto & pair : data.ParticleMap)
+    {
+        const AAnalyzerParticle & pa = pair.second;
+        sum += pa.getNumber();
+    }
+
+    // statistics
+    std::vector<AAnalyzerParticleTmpRecord> vec;
+    vec.reserve(20);
+    for (const auto & pair : data.ParticleMap)
+    {
+        AAnalyzerParticleTmpRecord rec;
+        rec.Particle = pair.first;
+        const AAnalyzerParticle & pa = pair.second;
+        rec.Number = pa.getNumber();
+        if (useNumberFractions && sum != 0)
+            rec.Number *= (100.0 / sum );
+        rec.MeanEnergy = pa.getMean() * energyFactor;
+        vec.push_back(rec);
+    }
+
+    std::sort(vec.begin(), vec.end(), [](const AAnalyzerParticleTmpRecord & lhs, const AAnalyzerParticleTmpRecord & rhs)
+            {
+                return (lhs.Number > rhs.Number);
+            });
+
+    ui->pteAnalyzer->clear();
+    ui->pteAnalyzer->appendPlainText( QString("Particle\t\t%0\t\tMeanEnergy[%1]").arg(useNumberFractions ? "Number[%]" : "Number").arg(ui->cobAnalyzerEnergyUnits->currentText()) );
+    ui->pteAnalyzer->appendPlainText("");
+    for (const AAnalyzerParticleTmpRecord & rec : vec)
+    {
+        QString numStr = QString::number(rec.Number, 'g', 4);
+        ui->pteAnalyzer->appendPlainText( QString("%0\t\t%1%2\t\t%3")
+                                             .arg(rec.Particle)
+                                             .arg(numStr)
+                                             .arg(useNumberFractions ? "%" : "")
+                                             .arg( QString::number(rec.MeanEnergy, 'g', 4)) );
+    }
+    ui->pteAnalyzer->appendPlainText("");
+    ui->pteAnalyzer->appendPlainText( QString("In total: %0 particles").arg( QString::number(sum, 'g', 4) ) );
+
+    // energy spectra
+    int tmp = ui->cobAnalyzerParticle->currentIndex();
+    ui->cobAnalyzerParticle->clear();
+    QStringList particles;
+    particles.reserve(data.ParticleMap.size());
+    for (const auto & pair : data.ParticleMap)
+        particles << pair.first;
+    particles.sort();
+    ui->cobAnalyzerParticle->addItems(particles);
+    if (tmp >= 0 && tmp < particles.size()) ui->cobAnalyzerParticle->setCurrentIndex(tmp);
+}
+
+void AParticleSimWin::on_pbAnalyzerShowEnergySpectrum_clicked()
+{
+    const QString particle = ui->cobAnalyzerParticle->currentText();
+    if (particle.isEmpty()) return;
+
+    int uniqueIndex = ui->sbAnalyzerUnqiueIndex->value();
+
+    AParticleAnalyzerHub & AnHub = AParticleAnalyzerHub::getInstance();
+    const size_t numUniqueAnalyzers = AnHub.UniqueAnalyzers.size();
+    if (uniqueIndex >= numUniqueAnalyzers)
+    {
+        guitools::message("Invalid unique index", this);
+        return;
+    }
+
+    const AAnalyzerData & data = AnHub.UniqueAnalyzers[uniqueIndex];
+    const auto & it = data.ParticleMap.find(particle);
+    if (it == data.ParticleMap.end())
+    {
+        guitools::message("No data was found for this particle (unexpected, report it please)", this);
+        return;
+    }
+
+    TH1D * hist = it->second.EnergyHist;
+    if (!hist) return;
+
+    QString str = "Particle energy, " + data.EnergyDataUnits;
+    hist->GetXaxis()->SetTitle(str.toLatin1().data());
+
+    emit requestDraw(hist, "hist", false, true);
+}
+
+void AParticleSimWin::on_pbNextAnalyzer_clicked()
+{
+    int index = ui->sbAnalyzerUnqiueIndex->value();
+    index++;
+
+    AParticleAnalyzerHub & AnHub = AParticleAnalyzerHub::getInstance();
+    const size_t numUniqueAnalyzers = AnHub.UniqueAnalyzers.size();
+    if (index >= numUniqueAnalyzers) return;
+
+    ui->sbAnalyzerUnqiueIndex->setValue(index);
+    onUserChangedAnalyzerIndex();
+}
+
+void AParticleSimWin::on_cobAnalyzer_activated(int index)
+{
+    ui->sbAnalyzerUnqiueIndex->setValue(index);
+    onUserChangedAnalyzerIndex();
+}
+
+void AParticleSimWin::on_sbAnalyzerUnqiueIndex_editingFinished()
+{
+    onUserChangedAnalyzerIndex();
+}
+
+void AParticleSimWin::onUserChangedAnalyzerIndex()
+{
+    int index = ui->sbAnalyzerUnqiueIndex->value();
+    // !!!*** add LastAnalyzerIndex property and return if the same
+    if (index == -1) return;
+
+    AParticleAnalyzerHub & AnHub = AParticleAnalyzerHub::getInstance();
+    const size_t numUniqueAnalyzers = AnHub.UniqueAnalyzers.size();
+    if (index >= numUniqueAnalyzers)
+    {
+        index = numUniqueAnalyzers - 1;
+        ui->sbAnalyzerUnqiueIndex->setValue(index);
+    }
+
+    ui->cobAnalyzer->setCurrentIndex(index);
+    updateAnalyzerDataGui(false);
+}
+
+void AParticleSimWin::on_cobAnalyzerNumberOption_activated(int)
+{
+    updateAnalyzerDataGui(false);
+}
+
+void AParticleSimWin::on_cobAnalyzerEnergyUnits_activated(int)
+{
+    updateAnalyzerDataGui(false);
+}
+
+void AParticleSimWin::on_pbHelpGetParticles_clicked()
+{
+    guitools::message("Note that if one particle during tracking enters several times volume(s) which pass the selection criteria, it is counted only once!", this);
+}
+

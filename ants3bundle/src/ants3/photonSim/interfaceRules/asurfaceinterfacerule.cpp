@@ -1,17 +1,14 @@
 #include "asurfaceinterfacerule.h"
 #include "aphoton.h"
-#include "amaterial.h"
-#include "amaterialhub.h"
+//#include "amaterial.h"
+//#include "amaterialhub.h"
 #include "aphotonstatistics.h"
-#include "ajsontools.h"
-#include "arandomhub.h"
-#include "asurfacesettings.h" // !!!*** tmp
+//#include "ajsontools.h"
+//#include "arandomhub.h"
+#include "asurfacesettings.h"
 
 #include <QJsonObject>
 #include <QDebug>
-
-#include "TMath.h"
-#include "TRandom2.h"
 
 ASurfaceInterfaceRule::ASurfaceInterfaceRule(int MatFrom, int MatTo)
     : AInterfaceRule(MatFrom, MatTo)
@@ -19,37 +16,34 @@ ASurfaceInterfaceRule::ASurfaceInterfaceRule(int MatFrom, int MatTo)
     SurfaceSettings.Model = ASurfaceSettings::Glisur;
 }
 
-AInterfaceRule::OpticalOverrideResultEnum ASurfaceInterfaceRule::calculate(APhoton * Photon, const double * NormalVector)
+AInterfaceRule::EInterfaceRuleResult ASurfaceInterfaceRule::calculate(APhoton * Photon, const double * NormalVector)
 {
-    qDebug() << "Surface rule triggered";
-
     calculateLocalNormal(NormalVector, Photon->v);
     Status = LocalNormalDelegated;
-
     return DelegateLocalNormal;
 }
 
 QString ASurfaceInterfaceRule::getReportLine() const
 {
-    //return QString("Albedo %1").arg(Albedo);
-    return "Test";
+    return "";
 }
 
 QString ASurfaceInterfaceRule::getLongReportLine() const
 {
-    QString s = "--> Surface <--\n";
-    //s += QString("Albedo: %1").arg(Albedo);
+    QString s = "--> Rough surface <--\n";
     return s;
 }
 
-void ASurfaceInterfaceRule::doWriteToJson(QJsonObject & json) const
+QString ASurfaceInterfaceRule::getDescription() const
 {
-    //json["Albedo"] = Albedo;
+    return "";
 }
 
-bool ASurfaceInterfaceRule::doReadFromJson(const QJsonObject & json)
+void ASurfaceInterfaceRule::doWriteToJson(QJsonObject & /*json*/) const {}
+
+bool ASurfaceInterfaceRule::doReadFromJson(const QJsonObject & /*json*/)
 {
-    return true; //jstools::parseJson(json, "Albedo", Albedo);
+    return true;
 }
 
 QString ASurfaceInterfaceRule::doCheckOverrideData()

@@ -81,6 +81,13 @@ private slots:
     void on_actionQuickLoad_slot_2_triggered();
     void on_actionQuickLoad_slot_3_triggered();
     void on_actionClose_ants3_triggered();
+    void on_actionShow_hints_triggered();
+    void on_actionQuickLoad_slot_1_hovered();
+    void on_actionQuickLoad_slot_2_hovered();
+    void on_actionQuickLoad_slot_3_hovered();
+    void on_actionLoad_last_config_hovered();
+    void on_actionVersions_triggered();
+    void on_actionDataTransport_demo_triggered();
 
     // Window buttons
     void on_pbGeometry_clicked();
@@ -109,31 +116,20 @@ private slots:
     void on_pbJavaScript_customContextMenuRequested(const QPoint & pos);
     void on_pbPython_clicked();
     void on_pbPython_customContextMenuRequested(const QPoint & pos);
-    void on_pbDemo_clicked();
-    void on_pbDemo_customContextMenuRequested(const QPoint & pos);
 
     // Other buttons
     void on_pbLoadConfig_clicked();
     void on_pbSaveConfig_clicked();
     void on_pbNew_clicked();
+    void on_pbExamples_clicked();
+    void on_pbLoadConfig_customContextMenuRequested(const QPoint &pos);
 
+    // gui elements
     void on_leConfigName_editingFinished();
     void on_pteConfigDescription_textChanged();
 
-    void on_actionQuickLoad_slot_1_hovered();
-    void on_actionQuickLoad_slot_2_hovered();
-    void on_actionQuickLoad_slot_3_hovered();
-    void on_actionLoad_last_config_hovered();
-
+    // run time
     void rootTimerTimeout();
-
-    void on_actionShow_hints_triggered();
-
-    void on_pbExamples_clicked();
-
-    void on_actionVersions_triggered();
-
-    void on_pbLoadConfig_customContextMenuRequested(const QPoint &pos);
 
 protected:
     void closeEvent(QCloseEvent * event);
@@ -144,6 +140,7 @@ private:
     QString getQuickLoadMessage(int index);
     void changeGeoViewer(bool useJSRoot);
     void connectSignalSlotsForGeoWin();
+
 };
 
 #endif // MAINWINDOW_H

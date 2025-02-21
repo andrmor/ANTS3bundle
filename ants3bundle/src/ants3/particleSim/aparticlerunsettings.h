@@ -3,6 +3,7 @@
 
 #include "amonitorsettings.h"
 #include "acalsettings.h"
+#include "aparticleanalyzersettings.h"
 
 #include <string>
 #include <vector>
@@ -40,6 +41,8 @@ class AParticleRunSettings
 public:
   // ants3 only
     std::string OutputDirectory;
+    bool        SaveConfig = false;
+    std::string FileNameSaveConfig = "Config_ParticleSim.json";
 
   // ants3 and g4ants3
     int         Seed = 0;
@@ -58,6 +61,8 @@ public:
     AMonitorSettings MonitorSettings;  // also contains settings which are only initialized during g4anst3 export!
 
     ACalSettings CalorimeterSettings;  // also contains settings which are only initialized during g4anst3 export!
+
+    AParticleAnalyzerSettings AnalyzerSettings;  // also contains settings which are only initialized during g4anst3 export!
 
   // g4ants3 only
     int         EventFrom = 0;

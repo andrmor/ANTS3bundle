@@ -27,6 +27,7 @@ class QFrame;
 class ACalorimeterProperties;
 class APhotonFunctionalModel;
 class AFunctionalModelWidget;
+class AParticleAnalyzerWidget;
 
 class AGeoObjectDelegate : public AGeoBaseDelegate
 {
@@ -40,7 +41,7 @@ public:
 
     bool updateObject(AGeoObject * obj) const override;
 
-    void Update(const AGeoObject * obj) override;
+    void Update(const AGeoObject * obj) override;  // !!!*** need to refactor!
 
 protected:
     QVBoxLayout * lMF = nullptr;      //main layout
@@ -76,19 +77,22 @@ protected:
     QComboBox * cobRole = nullptr;
     QComboBox * cobSensorModel = nullptr;
     QComboBox * cobCalType;
+    QCheckBox * cbCalIncludeHosted;
     QCheckBox * cbCalRandomize;
     AOneLineTextEdit *ledCalOriginX, *ledCalOriginY, *ledCalOriginZ;
     AOneLineTextEdit *ledCalStepX, *ledCalStepY, *ledCalStepZ;
     AOneLineTextEdit *leiCalBinsX, *leiCalBinsY, *leiCalBinsZ;
     QCheckBox *cbOffX, *cbOffY, *cbOffZ;
-    QCheckBox * cbCalEventStat;
+    //QCheckBox * cbCalEventStat;
     AOneLineTextEdit * leiCalEventDepoBins, *ledCalEventDepoFrom, *ledCalEventDepoTo;
 
     QLineEdit * lePhFunModelName = nullptr;
     QPushButton * pbSelectPhFunModel = nullptr;
-    APhotonFunctionalModel * LocalPhFunModel = nullptr;
-    AFunctionalModelWidget * PhFunModelWidget = nullptr;
+    APhotonFunctionalModel * LocalPhFunModel = nullptr;  // !!!*** add to destructor?
+    AFunctionalModelWidget * PhFunModelWidget = nullptr; // !!!*** add to destructor?
     QVBoxLayout * vblPhFun = nullptr;
+
+    AParticleAnalyzerWidget * PartAnWidget = nullptr;
 
 private slots:
     void onContentChanged();          // only to enter the editing mode! Object update is performed only on confirm button click!
@@ -113,6 +117,7 @@ private:
     QFrame * createSensorGui();
     QFrame * createCalorimeterGui();
     QFrame * createFunctionalModelGui();
+    QFrame * createParticleAnalyzerGui();
 
 signals:
     void RequestChangeShape(AGeoShape * newShape);
@@ -560,6 +565,7 @@ protected:
     AOneLineTextEdit * ledNumRings;
     AOneLineTextEdit * ledNumX;
     AOneLineTextEdit * ledNumY;
+    QCheckBox        * cbSkipFirstEven;
     QCheckBox        * cbSkipLastOdd;
 
     AOneLineTextEdit * ledStartIndex;

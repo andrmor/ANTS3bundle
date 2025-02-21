@@ -45,16 +45,16 @@ private slots:
   void on_cbAutoCheck_stateChanged(int arg1);
   void on_pmParseInGeometryFromGDML_clicked();
   void on_tabwConstants_cellChanged(int row, int column);
+  void on_tabwConstants_cellClicked(int row, int column);
+  void on_cbShowPrototypes_toggled(bool checked);
+
   void on_actionUndo_triggered();
   void on_actionRedo_triggered();
   void on_actionHow_to_use_drag_and_drop_triggered();
   void on_actionTo_JavaScript_triggered();
   void on_actionTo_Python_triggered();
-  void on_cbShowPrototypes_toggled(bool checked);
-
-  void on_tabwConstants_cellClicked(int row, int column);
-
   void on_actionFind_object_triggered();
+  void on_actionNew_objects_added_at_the_end_triggered(bool checked);
 
   private:
   AGeometryHub       & Geometry;
@@ -89,7 +89,7 @@ signals:
   void requestRebuildGeometry(); // to the parent, direct connection
   void requestShowGeometry(bool ActivateWindow, bool SAME, bool ColorUpdateAllowed);
   void requestShowRecursive(QString objectName);
-  void requestShowTracks();
+  void requestShowTracks(bool activateWindow = false);
   void requestFocusVolume(QString name);
   void requestAddGeoMarkers(const std::vector<std::array<double, 3>> & XYZs, int color, int style, double size);
   void requestClearGeoMarkers(int All_Rec_True);

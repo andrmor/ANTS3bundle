@@ -2,13 +2,13 @@
 #define AMATERIAL_H
 
 #include <QString>
+#include <QJsonObject>
 
 #include <vector>
 #include <complex>
 
 #include "amatcomposition.h"
 
-class QJsonObject;
 class TH1D;
 class TGeoMaterial;
 class TGeoMedium;
@@ -44,6 +44,8 @@ public:
     double  ReemissionProb;       // probability that absorbed photon is reemitted (to implement waveshifters, uses PrimaryScint data)
     bool    IgnoreEnergyConservationInReemission = false; // if true, sample wavelength from entire spectrum, otherwise only longer wavelengths
     std::vector<std::pair<double,double>> ReemissionProb_Wave;
+
+    QJsonObject RefIndexImporter;
 
     // primary scintillation
     double PhotonYield = 0;

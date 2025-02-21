@@ -82,8 +82,10 @@ private:
   void markAsStackRefVolume(AGeoObject * obj);
   void updatePrototypeTreeGui();
 
+  void menuActionMoveObject(AGeoObject * obj, int option); //0 1 2 3 = top up down bottom
   void menuActionAddNewObject(AGeoObject * contObj, AGeoShape * shape);
   void menuActionCloneObject(AGeoObject * obj);
+  void focusObject(const QString & objName);
   void ShowObject(AGeoObject * obj);
   void ShowObjectRecursive(AGeoObject * obj);
   void ShowObjectOnly(AGeoObject * obj);  // !!!***
@@ -91,13 +93,13 @@ private:
   void menuActionRemoveKeepContent(QTreeWidget * treeWidget);
   void menuActionRemoveHostedObjects(AGeoObject * obj);
   void menuActionRemoveWithContent(QTreeWidget * treeWidget);
-  void menuActionAddNewComposite(AGeoObject * ContObj);
-  void menuActionAddNewArray(AGeoObject * ContObj);
-  void menuActionAddNewCircularArray(AGeoObject * ContObj);
-  void menuActionAddNewHexagonalArray(AGeoObject * ContObj);
-  void menuActionAddNewGrid(AGeoObject * ContObj);
-  void menuActionAddNewMonitor(AGeoObject * ContObj, bool Photon);
-  void menuActionAddInstance(AGeoObject * ContObj, const QString & PrototypeName);
+  void menuActionAddNewComposite(AGeoObject * contObj);
+  void menuActionAddNewArray(AGeoObject * contObj);
+  void menuActionAddNewCircularArray(AGeoObject * contObj);
+  void menuActionAddNewHexagonalArray(AGeoObject * contObj);
+  void menuActionAddNewGrid(AGeoObject * contObj);
+  void menuActionAddNewMonitor(AGeoObject * contObj, bool isPhoton);
+  void menuActionAddInstance(AGeoObject * contObj, const QString & prototypeName);
   void menuActionMakeItPrototype(const QList<QTreeWidgetItem *> & selected);
   void menuActionMoveProtoToWorld(AGeoObject * obj);
   void protoMenuEmptySelection(const QPoint & pos);

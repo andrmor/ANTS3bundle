@@ -3,7 +3,6 @@
 #include "afarmhub.h"
 #include "aserverdelegate.h"
 #include "guitools.h"
-#include "ajsontools.h"
 
 #include <QPlainTextEdit>
 #include <QMessageBox>

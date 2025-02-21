@@ -35,6 +35,7 @@ AParticleSimManager::~AParticleSimManager()
     delete Generator_File;
 }
 
+#include "aconfig.h"
 void AParticleSimManager::simulate(int numLocalProc)
 {
     AErrorHub::clear();
@@ -75,7 +76,12 @@ void AParticleSimManager::simulate(int numLocalProc)
 
     processReply(Reply);
 
-    if (!AErrorHub::isError()) mergeOutput(!SimSet.RunSet.AsciiOutput);
+    if (!AErrorHub::isError())
+    {
+        mergeOutput(!SimSet.RunSet.AsciiOutput);
+        if (SimSet.RunSet.SaveConfig) jstools::saveJsonToFile( AConfig::getConstInstance().JSON,
+                                                               QString(SimSet.RunSet.OutputDirectory.data()) + "/" + QString(SimSet.RunSet.FileNameSaveConfig.data()) );
+    }
 }
 
 void AParticleSimManager::abort()
@@ -147,6 +153,7 @@ void addNames(const AParticleRunSettings & settings)
     fileNames.push_back(OutputDir + '/' + settings.MonitorSettings.FileName.data());
     fileNames.push_back(OutputDir + '/' + settings.CalorimeterSettings.FileName.data());
     fileNames.push_back(OutputDir + '/' + settings.Receipt.data());
+    fileNames.push_back(OutputDir + '/' + settings.FileNameSaveConfig.data());
 
     for (const QString & fn : fileNames) QFile::remove(fn);
 }
@@ -205,6 +212,7 @@ bool AParticleSimManager::configureSimulation(const std::vector<AFarmNodeRecord>
     configureMaterials();
     configureMonitors();
     configureCalorimeters();
+    configureAnalyzers();
     configureScintillators();
 
     HistoryFileMerger.clear();
@@ -212,6 +220,7 @@ bool AParticleSimManager::configureSimulation(const std::vector<AFarmNodeRecord>
     ParticlesFileMerger.clear();
     MonitorFiles.clear();
     CalorimeterFiles.clear();
+    AnalyzerFiles.clear();
     ReceiptFiles.clear();
 
     ARandomHub & RandomHub = ARandomHub::getInstance();
@@ -297,6 +306,14 @@ bool AParticleSimManager::configureSimulation(const std::vector<AFarmNodeRecord>
                 WorkSet.RunSet.CalorimeterSettings.FileName = fileName.toLatin1().data();
                 Worker.OutputFiles.push_back(fileName);
                 CalorimeterFiles.push_back(ExchangeDir + '/' + fileName);
+            }
+
+            if (SimSet.RunSet.AnalyzerSettings.Enabled)
+            {
+                const QString fileName = QString("particleAnalyzers-%0").arg(iProcess);
+                WorkSet.RunSet.AnalyzerSettings.FileName = fileName.toLatin1().data();
+                Worker.OutputFiles.push_back(fileName);
+                AnalyzerFiles.push_back(ExchangeDir + '/' + fileName);
             }
 
             {
@@ -388,6 +405,11 @@ void AParticleSimManager::configureCalorimeters()
     SimSet.RunSet.CalorimeterSettings.initFromHub();
 }
 
+void AParticleSimManager::configureAnalyzers()
+{
+    SimSet.RunSet.AnalyzerSettings.initFromHub();
+}
+
 void AParticleSimManager::configureScintillators()
 {
     SimSet.G4Set.ScintSensitiveVolumes.clear();
@@ -415,6 +437,7 @@ void AParticleSimManager::checkDirectories()
 
 #include "amonitorhub.h"
 #include "acalorimeterhub.h"
+#include "aparticleanalyzerhub.h"
 void AParticleSimManager::mergeOutput(bool binary)
 {
     qDebug() << "Merging output files...";
@@ -438,4 +461,11 @@ void AParticleSimManager::mergeOutput(bool binary)
     ACalorimeterHub & CalHub = ACalorimeterHub::getInstance();
     if (SimSet.RunSet.CalorimeterSettings.Enabled)
         CalHub.mergeCalorimeterFiles(CalorimeterFiles, OutputDir + '/' + SimSet.RunSet.CalorimeterSettings.FileName.data());
+
+    AParticleAnalyzerHub & AnHub = AParticleAnalyzerHub::getInstance();
+    if (SimSet.RunSet.AnalyzerSettings.Enabled)
+    {
+        AnHub.loadAnalyzerFiles(AnalyzerFiles);
+        AnHub.saveAnalyzerData(OutputDir + '/' + SimSet.RunSet.AnalyzerSettings.FileName.data());
+    }
 }

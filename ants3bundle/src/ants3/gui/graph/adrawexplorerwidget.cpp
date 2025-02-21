@@ -433,6 +433,7 @@ void ADrawExplorerWidget::fitPanel(ADrawObject &obj)
 double runScaleDialog(QWidget * parent)
 {
     QDialog * D = new QDialog(parent);
+    D->setMinimumWidth(500);
 
     QDoubleValidator * vali = new QDoubleValidator(D);
     QVBoxLayout * l = new QVBoxLayout(D);

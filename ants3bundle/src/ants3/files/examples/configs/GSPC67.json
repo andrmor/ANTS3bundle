@@ -1,0 +1,3837 @@
+{
+    "ConfigDescription": "3He-CF4 secondary scintillation on MicroStrip is readout by an array of PMTs\nFirst make particle simulation which will generate energy deposition file, then use this file in the photon simulation",
+    "ConfigName": "GSPC67",
+    "Geometry": {
+        "GeoConsts": [
+            [
+                "BoxHeight",
+                32,
+                "",
+                ""
+            ],
+            [
+                "InnerHeight",
+                27,
+                "",
+                ""
+            ],
+            [
+                "BackPlateHight",
+                5,
+                "",
+                ""
+            ]
+        ],
+        "WorldTree": [
+            {
+                "Container": "",
+                "Material": 0,
+                "Name": "World",
+                "Shape": "TGeoBBox",
+                "ShapeSpecific": {
+                    "dx": 733.3331098484508,
+                    "dy": 733.3331098484508,
+                    "dz": 733.3331098484508
+                },
+                "Type": {
+                    "FixedSize": false,
+                    "Type": "World"
+                },
+                "color": 1,
+                "fActive": true,
+                "fExpanded": true,
+                "style": 1,
+                "width": 1
+            },
+            {
+                "Container": "World",
+                "Name": "_#_PrototypeContainer_#_",
+                "Type": {
+                    "Type": "PrototypeCollection"
+                },
+                "fActive": true,
+                "fExpanded": true
+            },
+            {
+                "Container": "World",
+                "Name": "Detector",
+                "Phi": 0,
+                "Psi": 0,
+                "Theta": 0,
+                "Type": {
+                    "ReferenceVolume": "Box",
+                    "Type": "Stack"
+                },
+                "X": 0,
+                "Y": 0,
+                "Z": 0,
+                "fActive": true,
+                "fExpanded": true
+            },
+            {
+                "Container": "Detector",
+                "Material": 1,
+                "Name": "Box",
+                "Phi": 0,
+                "Psi": 0,
+                "Shape": "TGeoBBox",
+                "ShapeSpecific": {
+                    "dx": 150,
+                    "dy": 150,
+                    "dz": 16,
+                    "str2dz": "BoxHeight"
+                },
+                "Theta": 0,
+                "Type": {
+                    "Type": "Single"
+                },
+                "X": 0,
+                "Y": 0,
+                "Z": 0,
+                "color": 1,
+                "fActive": true,
+                "fExpanded": true,
+                "style": 1,
+                "width": 1
+            },
+            {
+                "Container": "Box",
+                "Material": 4,
+                "Name": "GasVolume",
+                "Phi": 0,
+                "Psi": 0,
+                "Shape": "TGeoBBox",
+                "ShapeSpecific": {
+                    "dx": 140,
+                    "dy": 140,
+                    "dz": 13.5,
+                    "str2dz": "InnerHeight"
+                },
+                "Theta": 0,
+                "Type": {
+                    "Type": "Single"
+                },
+                "X": 0,
+                "Y": 0,
+                "Z": -2.5,
+                "color": 1,
+                "fActive": true,
+                "fExpanded": true,
+                "strZ": "-0.5*BoxHeight+0.5*InnerHeight",
+                "style": 1,
+                "width": 1
+            },
+            {
+                "Container": "GasVolume",
+                "Material": 6,
+                "Name": "Microstrip",
+                "Phi": 0,
+                "Psi": 0,
+                "Shape": "TGeoBBox",
+                "ShapeSpecific": {
+                    "dx": 100,
+                    "dy": 100,
+                    "dz": 0.1
+                },
+                "SpecialRole": {
+                    "Type": "SecScint"
+                },
+                "Theta": 0,
+                "Type": {
+                    "Type": "Single"
+                },
+                "X": 0,
+                "Y": 0,
+                "Z": 12.7,
+                "color": 1,
+                "fActive": true,
+                "fExpanded": true,
+                "strZ": "0.5*InnerHeight-0.8",
+                "style": 1,
+                "width": 1
+            },
+            {
+                "Container": "GasVolume",
+                "Material": 4,
+                "Name": "Mesh",
+                "Phi": 0,
+                "Psi": 0,
+                "Shape": "TGeoBBox",
+                "ShapeSpecific": {
+                    "dx": 115,
+                    "dy": 115,
+                    "dz": 0.501
+                },
+                "Theta": 0,
+                "Type": {
+                    "Type": "Grid"
+                },
+                "X": 0,
+                "Y": 0,
+                "Z": -12.7,
+                "color": 1,
+                "fActive": true,
+                "fExpanded": false,
+                "strZ": "-0.5*InnerHeight+0.8",
+                "style": 1,
+                "width": 1
+            },
+            {
+                "Container": "Mesh",
+                "Material": 0,
+                "Name": "GridElement_Grid1",
+                "Phi": 0,
+                "Psi": 0,
+                "Shape": "TGeoBBox",
+                "ShapeSpecific": {
+                    "dx": 5,
+                    "dy": 5,
+                    "dz": 0.501
+                },
+                "Theta": 0,
+                "Type": {
+                    "Type": "GridElement",
+                    "dz": 0.501,
+                    "shape": 1,
+                    "size1": 5,
+                    "size2": 5
+                },
+                "X": 0,
+                "Y": 0,
+                "Z": 0,
+                "color": 1,
+                "fActive": true,
+                "fExpanded": true,
+                "style": 1,
+                "width": 1
+            },
+            {
+                "Container": "GridElement_Grid1",
+                "Material": 5,
+                "Name": "Wires1",
+                "Phi": 0,
+                "Psi": 0,
+                "Shape": "TGeoCompositeShape",
+                "ShapeSpecific": {
+                    "GenerationString": "TGeoCompositeShape( Wire_11 + Wire_21 + Wire_31 + Wire_41 )"
+                },
+                "Theta": 0,
+                "Type": {
+                    "Type": "Composite"
+                },
+                "X": 0,
+                "Y": 0,
+                "Z": 0,
+                "color": -1,
+                "fActive": true,
+                "fExpanded": true,
+                "style": 1,
+                "width": 1
+            },
+            {
+                "Container": "Wires1",
+                "Name": "Logicals_Wires1",
+                "Type": {
+                    "Type": "CompositeContainer"
+                },
+                "fActive": true,
+                "fExpanded": true
+            },
+            {
+                "Container": "Logicals_Wires1",
+                "Material": 5,
+                "Name": "Wire_11",
+                "Phi": 0,
+                "Psi": 0,
+                "Shape": "TGeoTubeSeg",
+                "ShapeSpecific": {
+                    "dz": 5,
+                    "phi1": -90,
+                    "phi2": 90,
+                    "rmax": 0.5,
+                    "rmin": 0
+                },
+                "Theta": 90,
+                "Type": {
+                    "Type": "Single"
+                },
+                "X": -5,
+                "Y": 0,
+                "Z": 0,
+                "color": -1,
+                "fActive": true,
+                "fExpanded": true,
+                "style": 1,
+                "width": 1
+            },
+            {
+                "Container": "Logicals_Wires1",
+                "Material": 5,
+                "Name": "Wire_21",
+                "Phi": 0,
+                "Psi": 0,
+                "Shape": "TGeoTubeSeg",
+                "ShapeSpecific": {
+                    "dz": 5,
+                    "phi1": 90,
+                    "phi2": 270,
+                    "rmax": 0.5,
+                    "rmin": 0
+                },
+                "Theta": 90,
+                "Type": {
+                    "Type": "Single"
+                },
+                "X": 5,
+                "Y": 0,
+                "Z": 0,
+                "color": -1,
+                "fActive": true,
+                "fExpanded": true,
+                "style": 1,
+                "width": 1
+            },
+            {
+                "Container": "Logicals_Wires1",
+                "Material": 5,
+                "Name": "Wire_31",
+                "Phi": 90,
+                "Psi": 0,
+                "Shape": "TGeoTubeSeg",
+                "ShapeSpecific": {
+                    "dz": 5,
+                    "phi1": 90,
+                    "phi2": 270,
+                    "rmax": 0.5,
+                    "rmin": 0
+                },
+                "Theta": 90,
+                "Type": {
+                    "Type": "Single"
+                },
+                "X": 0,
+                "Y": 5,
+                "Z": 0,
+                "color": -1,
+                "fActive": true,
+                "fExpanded": true,
+                "style": 1,
+                "width": 1
+            },
+            {
+                "Container": "Logicals_Wires1",
+                "Material": 5,
+                "Name": "Wire_41",
+                "Phi": 90,
+                "Psi": 0,
+                "Shape": "TGeoTubeSeg",
+                "ShapeSpecific": {
+                    "dz": 5,
+                    "phi1": -90,
+                    "phi2": 90,
+                    "rmax": 0.5,
+                    "rmin": 0
+                },
+                "Theta": 90,
+                "Type": {
+                    "Type": "Single"
+                },
+                "X": 0,
+                "Y": -5,
+                "Z": 0,
+                "color": -1,
+                "fActive": true,
+                "fExpanded": true,
+                "style": 1,
+                "width": 1
+            },
+            {
+                "Container": "Detector",
+                "Material": 3,
+                "Name": "Window",
+                "Phi": 0,
+                "Psi": 0,
+                "Shape": "TGeoBBox",
+                "ShapeSpecific": {
+                    "dx": 150,
+                    "dy": 150,
+                    "dz": 1.65
+                },
+                "Theta": 0,
+                "Type": {
+                    "Type": "Single"
+                },
+                "X": 0,
+                "Y": 0,
+                "Z": -17.65,
+                "color": 4,
+                "fActive": true,
+                "fExpanded": true,
+                "style": 1,
+                "width": 1
+            },
+            {
+                "Container": "Detector",
+                "Material": 2,
+                "Name": "TeflonSpacer",
+                "Phi": 0,
+                "Psi": 0,
+                "Shape": "TGeoBBox",
+                "ShapeSpecific": {
+                    "dx": 150,
+                    "dy": 150,
+                    "dz": 0.5
+                },
+                "Theta": 0,
+                "Type": {
+                    "Type": "Single"
+                },
+                "X": 0,
+                "Y": 0,
+                "Z": -19.799999999999997,
+                "color": 801,
+                "fActive": true,
+                "fExpanded": false,
+                "style": 1,
+                "width": 1
+            },
+            {
+                "Container": "TeflonSpacer",
+                "Name": "ApertureArray",
+                "Phi": 0,
+                "Psi": 0,
+                "Theta": 0,
+                "Type": {
+                    "NumX": 8,
+                    "NumY": 9,
+                    "Rings": 3,
+                    "Shape": "XY",
+                    "SkipEvenFirst": true,
+                    "SkipOddLast": false,
+                    "Step": 29,
+                    "Type": "HexagonalArray",
+                    "startIndex": 0
+                },
+                "X": 0,
+                "Y": 0,
+                "Z": 0,
+                "fActive": true,
+                "fExpanded": true
+            },
+            {
+                "Container": "ApertureArray",
+                "Material": 0,
+                "Name": "Aperture",
+                "Phi": 0,
+                "Psi": 0,
+                "Shape": "TGeoTube",
+                "ShapeSpecific": {
+                    "dz": 0.5,
+                    "rmax": 11.5,
+                    "rmin": 0
+                },
+                "Theta": 0,
+                "Type": {
+                    "Type": "Single"
+                },
+                "X": 0,
+                "Y": 0,
+                "Z": 0,
+                "color": 1,
+                "fActive": true,
+                "fExpanded": true,
+                "style": 1,
+                "width": 1
+            },
+            {
+                "Container": "Detector",
+                "Material": 1,
+                "Name": "BackPlate",
+                "Phi": 0,
+                "Psi": 0,
+                "Shape": "TGeoBBox",
+                "ShapeSpecific": {
+                    "dx": 150,
+                    "dy": 150,
+                    "dz": 2.5,
+                    "str2dz": "BackPlateHight"
+                },
+                "Theta": 0,
+                "Type": {
+                    "Type": "Single"
+                },
+                "X": 0,
+                "Y": 0,
+                "Z": -22.799999999999997,
+                "color": 1,
+                "fActive": true,
+                "fExpanded": false,
+                "style": 1,
+                "width": 1
+            },
+            {
+                "Container": "BackPlate",
+                "Name": "ChannelArray",
+                "Phi": 0,
+                "Psi": 0,
+                "Theta": 0,
+                "Type": {
+                    "NumX": 8,
+                    "NumY": 9,
+                    "Rings": 3,
+                    "Shape": "XY",
+                    "SkipEvenFirst": true,
+                    "SkipOddLast": false,
+                    "Step": 29,
+                    "Type": "HexagonalArray",
+                    "startIndex": 0
+                },
+                "X": 0,
+                "Y": 0,
+                "Z": 0,
+                "fActive": true,
+                "fExpanded": true
+            },
+            {
+                "Container": "ChannelArray",
+                "Material": 0,
+                "Name": "Channel",
+                "Phi": 0,
+                "Psi": 0,
+                "Shape": "TGeoTube",
+                "ShapeSpecific": {
+                    "dz": 2.5,
+                    "rmax": 12.65,
+                    "rmin": 0,
+                    "str2dz": "BackPlateHight"
+                },
+                "Theta": 0,
+                "Type": {
+                    "Type": "Single"
+                },
+                "X": 0,
+                "Y": 0,
+                "Z": 0,
+                "color": 1,
+                "fActive": true,
+                "fExpanded": true,
+                "style": 1,
+                "width": 1
+            },
+            {
+                "Container": "Channel",
+                "Material": 3,
+                "Name": "PMT",
+                "Phi": 0,
+                "Psi": 0,
+                "Shape": "TGeoTube",
+                "ShapeSpecific": {
+                    "dz": 0.5,
+                    "rmax": 12.5,
+                    "rmin": 0
+                },
+                "SpecialRole": {
+                    "SensorModel": 0,
+                    "Type": "Sensor"
+                },
+                "Theta": 0,
+                "Type": {
+                    "Type": "Single"
+                },
+                "X": 0,
+                "Y": 0,
+                "Z": 2,
+                "color": 3,
+                "fActive": true,
+                "fExpanded": true,
+                "strZ": "0.5*BackPlateHight-0.5",
+                "style": 1,
+                "width": 1
+            }
+        ]
+    },
+    "InterfaceRules": {
+        "MaterialRules": [
+            {
+                "Abs": 0.1,
+                "MatFrom": 0,
+                "MatTo": 2,
+                "Model": "Simplistic",
+                "Scat": 0.9,
+                "ScatMode": 1,
+                "Spec": 0,
+                "SurfaceProperties": {
+                    "Model": "Polished"
+                }
+            },
+            {
+                "Abs": 0.2,
+                "MatFrom": 3,
+                "MatTo": 1,
+                "Model": "Simplistic",
+                "Scat": 0.1,
+                "ScatMode": 1,
+                "Spec": 0.7,
+                "SurfaceProperties": {
+                    "Model": "Polished"
+                }
+            },
+            {
+                "Abs": 0.1,
+                "MatFrom": 3,
+                "MatTo": 2,
+                "Model": "Simplistic",
+                "Scat": 0.9,
+                "ScatMode": 1,
+                "Spec": 0,
+                "SurfaceProperties": {
+                    "Model": "Polished"
+                }
+            },
+            {
+                "Abs": 0.2,
+                "MatFrom": 4,
+                "MatTo": 1,
+                "Model": "Simplistic",
+                "Scat": 0.1,
+                "ScatMode": 1,
+                "Spec": 0.7,
+                "SurfaceProperties": {
+                    "Model": "Polished"
+                }
+            },
+            {
+                "Abs": 0.4,
+                "MatFrom": 4,
+                "MatTo": 5,
+                "Model": "Simplistic",
+                "Scat": 0.3,
+                "ScatMode": 1,
+                "Spec": 0.3,
+                "SurfaceProperties": {
+                    "Model": "Polished"
+                }
+            },
+            {
+                "Abs": 0.9,
+                "MatFrom": 4,
+                "MatTo": 6,
+                "Model": "Simplistic",
+                "Scat": 0,
+                "ScatMode": 1,
+                "Spec": 0.1,
+                "SurfaceProperties": {
+                    "Model": "Polished"
+                }
+            }
+        ],
+        "VolumeRules": [
+        ]
+    },
+    "Materials": [
+        {
+            "*Name": "Vacuum",
+            "AbsCoeff": 0,
+            "BulkAbsorptionWave": [
+            ],
+            "Comments": "",
+            "Composition": {
+                "CustomComposition": {
+                    "CompositionString": "H",
+                    "Density": 1e-24,
+                    "GasProperties": {
+                        "Gas": false,
+                        "PressureUnitsInGui": "bar",
+                        "Pressure_bar": 1
+                    },
+                    "MeanExcitationEnergy_eV": 0,
+                    "Temperature": 298,
+                    "UseMeanExcitationEnergy": false
+                },
+                "Geant4Material": "",
+                "UseGeant4Material": false
+            },
+            "CustomScatterMFP": 0,
+            "Dielectric": true,
+            "ElDiffusionL": 0,
+            "ElDiffusionT": 0,
+            "ElDriftVelo": 0,
+            "IgnoreEnergyConservationInReemission": false,
+            "IntrEnergyRes": 0,
+            "PhotonYield": 0,
+            "PrimScintDecay": [
+                [
+                    0,
+                    1
+                ]
+            ],
+            "PrimScintRaise": [
+                [
+                    0,
+                    1
+                ]
+            ],
+            "PrimScintSpectrum": [
+            ],
+            "RayleighMFP": 0,
+            "RayleighWave": 500,
+            "ReemissionProb": 0,
+            "ReemissionProbabilityWave": [
+            ],
+            "RefIndex": 1,
+            "RefIndexComplex": [
+                1,
+                0
+            ],
+            "RefIndexComplex_Wave": [
+            ],
+            "RefIndexWave": [
+            ],
+            "SecScintSpectrum": [
+            ],
+            "SecScint_PhYield": 0,
+            "SecScint_Tau": 0,
+            "Tags": [
+            ],
+            "W": 0
+        },
+        {
+            "*Name": "Al",
+            "AbsCoeff": 0,
+            "BulkAbsorptionWave": [
+            ],
+            "Comments": "",
+            "Composition": {
+                "CustomComposition": {
+                    "CompositionString": "H",
+                    "Density": 1e-24,
+                    "GasProperties": {
+                        "Gas": false,
+                        "PressureUnitsInGui": "bar",
+                        "Pressure_bar": 1
+                    },
+                    "MeanExcitationEnergy_eV": 0,
+                    "Temperature": 298,
+                    "UseMeanExcitationEnergy": false
+                },
+                "Geant4Material": "G4_Al",
+                "UseGeant4Material": true
+            },
+            "CustomScatterMFP": 0,
+            "Dielectric": true,
+            "ElDiffusionL": 0,
+            "ElDiffusionT": 0,
+            "ElDriftVelo": 0,
+            "IgnoreEnergyConservationInReemission": false,
+            "IntrEnergyRes": 0,
+            "PhotonYield": 0,
+            "PrimScintDecay": [
+                [
+                    0,
+                    1
+                ]
+            ],
+            "PrimScintRaise": [
+                [
+                    0,
+                    1
+                ]
+            ],
+            "PrimScintSpectrum": [
+            ],
+            "RayleighMFP": 0,
+            "RayleighWave": 500,
+            "ReemissionProb": 0,
+            "ReemissionProbabilityWave": [
+            ],
+            "RefIndex": 1,
+            "RefIndexComplex": [
+                1,
+                0
+            ],
+            "RefIndexComplex_Wave": [
+            ],
+            "RefIndexWave": [
+            ],
+            "SecScintSpectrum": [
+            ],
+            "SecScint_PhYield": 0,
+            "SecScint_Tau": 0,
+            "Tags": [
+            ],
+            "W": 0
+        },
+        {
+            "*Name": "Teflon",
+            "AbsCoeff": 0,
+            "BulkAbsorptionWave": [
+            ],
+            "Comments": "",
+            "Composition": {
+                "CustomComposition": {
+                    "CompositionString": "H",
+                    "Density": 1e-24,
+                    "GasProperties": {
+                        "Gas": false,
+                        "PressureUnitsInGui": "bar",
+                        "Pressure_bar": 1
+                    },
+                    "MeanExcitationEnergy_eV": 0,
+                    "Temperature": 298,
+                    "UseMeanExcitationEnergy": false
+                },
+                "Geant4Material": "G4_TEFLON",
+                "UseGeant4Material": true
+            },
+            "CustomScatterMFP": 0,
+            "Dielectric": true,
+            "ElDiffusionL": 0,
+            "ElDiffusionT": 0,
+            "ElDriftVelo": 0,
+            "IgnoreEnergyConservationInReemission": false,
+            "IntrEnergyRes": 0,
+            "PhotonYield": 0,
+            "PrimScintDecay": [
+                [
+                    0,
+                    1
+                ]
+            ],
+            "PrimScintRaise": [
+                [
+                    0,
+                    1
+                ]
+            ],
+            "PrimScintSpectrum": [
+            ],
+            "RayleighMFP": 0,
+            "RayleighWave": 500,
+            "ReemissionProb": 0,
+            "ReemissionProbabilityWave": [
+            ],
+            "RefIndex": 1.37,
+            "RefIndexComplex": [
+                1,
+                0
+            ],
+            "RefIndexComplex_Wave": [
+            ],
+            "RefIndexWave": [
+            ],
+            "SecScintSpectrum": [
+            ],
+            "SecScint_PhYield": 0,
+            "SecScint_Tau": 0,
+            "Tags": [
+            ],
+            "W": 0
+        },
+        {
+            "*Name": "Glass",
+            "AbsCoeff": 0,
+            "BulkAbsorptionWave": [
+                [
+                    200,
+                    1.69932
+                ],
+                [
+                    205,
+                    1.62055
+                ],
+                [
+                    210,
+                    1.54177
+                ],
+                [
+                    215,
+                    1.46299
+                ],
+                [
+                    220,
+                    1.38422
+                ],
+                [
+                    225,
+                    1.30544
+                ],
+                [
+                    230,
+                    1.22666
+                ],
+                [
+                    235,
+                    1.14789
+                ],
+                [
+                    240,
+                    1.06911
+                ],
+                [
+                    245,
+                    0.99033
+                ],
+                [
+                    250,
+                    0.91156
+                ],
+                [
+                    255,
+                    0.83278
+                ],
+                [
+                    260,
+                    0.754
+                ],
+                [
+                    265,
+                    0.67523
+                ],
+                [
+                    270,
+                    0.59645
+                ],
+                [
+                    275,
+                    0.51767
+                ],
+                [
+                    280,
+                    0.43889
+                ],
+                [
+                    285,
+                    0.36012
+                ],
+                [
+                    290,
+                    0.28134
+                ],
+                [
+                    295,
+                    0.20256
+                ],
+                [
+                    300,
+                    0.12379
+                ],
+                [
+                    305,
+                    0.09
+                ],
+                [
+                    310,
+                    0.05621
+                ],
+                [
+                    315,
+                    0.04117
+                ],
+                [
+                    320,
+                    0.02614
+                ],
+                [
+                    325,
+                    0.02017
+                ],
+                [
+                    330,
+                    0.0142
+                ],
+                [
+                    335,
+                    0.00905
+                ],
+                [
+                    340,
+                    0.00715
+                ],
+                [
+                    345,
+                    0.00525
+                ],
+                [
+                    350,
+                    0.00336
+                ],
+                [
+                    355,
+                    0.00264
+                ],
+                [
+                    360,
+                    0.00192
+                ],
+                [
+                    365,
+                    0.00121
+                ],
+                [
+                    370,
+                    0.000904074
+                ],
+                [
+                    375,
+                    0.000803268
+                ],
+                [
+                    380,
+                    0.000702461
+                ],
+                [
+                    385,
+                    0.000551632
+                ],
+                [
+                    390,
+                    0.000400802
+                ],
+                [
+                    395,
+                    0.000350627
+                ],
+                [
+                    400,
+                    0.000300451
+                ],
+                [
+                    405,
+                    0.000300451
+                ],
+                [
+                    410,
+                    0.000300451
+                ],
+                [
+                    415,
+                    0.000300451
+                ],
+                [
+                    420,
+                    0.000300451
+                ],
+                [
+                    425,
+                    0.000300451
+                ],
+                [
+                    430,
+                    0.000300451
+                ],
+                [
+                    435,
+                    0.000300451
+                ],
+                [
+                    440,
+                    0.000300451
+                ],
+                [
+                    445,
+                    0.000300451
+                ],
+                [
+                    450,
+                    0.000300451
+                ],
+                [
+                    455,
+                    0.000300451
+                ],
+                [
+                    460,
+                    0.000300451
+                ],
+                [
+                    465,
+                    0.00028792
+                ],
+                [
+                    470,
+                    0.000275388
+                ],
+                [
+                    475,
+                    0.000262857
+                ],
+                [
+                    480,
+                    0.000250326
+                ],
+                [
+                    485,
+                    0.000237794
+                ],
+                [
+                    490,
+                    0.000225263
+                ],
+                [
+                    495,
+                    0.000212732
+                ],
+                [
+                    500,
+                    0.0002002
+                ],
+                [
+                    505,
+                    0.0002002
+                ],
+                [
+                    510,
+                    0.0002002
+                ],
+                [
+                    515,
+                    0.0002002
+                ],
+                [
+                    520,
+                    0.0002002
+                ],
+                [
+                    525,
+                    0.0002002
+                ],
+                [
+                    530,
+                    0.0002002
+                ],
+                [
+                    535,
+                    0.0002002
+                ],
+                [
+                    540,
+                    0.0002002
+                ],
+                [
+                    545,
+                    0.0002002
+                ],
+                [
+                    550,
+                    0.0002002
+                ],
+                [
+                    555,
+                    0.0002002
+                ],
+                [
+                    560,
+                    0.0002002
+                ],
+                [
+                    565,
+                    0.0002002
+                ],
+                [
+                    570,
+                    0.0002002
+                ],
+                [
+                    575,
+                    0.0002002
+                ],
+                [
+                    580,
+                    0.0002002
+                ],
+                [
+                    585,
+                    0.0002002
+                ],
+                [
+                    590,
+                    0.0002002
+                ],
+                [
+                    595,
+                    0.0002002
+                ],
+                [
+                    600,
+                    0.0002002
+                ],
+                [
+                    605,
+                    0.0002002
+                ],
+                [
+                    610,
+                    0.0002002
+                ],
+                [
+                    615,
+                    0.0002002
+                ],
+                [
+                    620,
+                    0.0002002
+                ],
+                [
+                    625,
+                    0.0002002
+                ],
+                [
+                    630,
+                    0.0002002
+                ],
+                [
+                    635,
+                    0.0002002
+                ],
+                [
+                    640,
+                    0.0002002
+                ],
+                [
+                    645,
+                    0.0002002
+                ],
+                [
+                    650,
+                    0.0002002
+                ],
+                [
+                    655,
+                    0.0002002
+                ],
+                [
+                    660,
+                    0.0002002
+                ],
+                [
+                    665,
+                    0.0002002
+                ],
+                [
+                    670,
+                    0.0002002
+                ],
+                [
+                    675,
+                    0.0002002
+                ],
+                [
+                    680,
+                    0.0002002
+                ],
+                [
+                    685,
+                    0.0002002
+                ],
+                [
+                    690,
+                    0.0002002
+                ],
+                [
+                    695,
+                    0.0002002
+                ],
+                [
+                    700,
+                    0.0002002
+                ],
+                [
+                    705,
+                    0.0002002
+                ],
+                [
+                    710,
+                    0.0002002
+                ],
+                [
+                    715,
+                    0.0002002
+                ],
+                [
+                    720,
+                    0.0002002
+                ],
+                [
+                    725,
+                    0.0002002
+                ],
+                [
+                    730,
+                    0.0002002
+                ],
+                [
+                    735,
+                    0.0002002
+                ],
+                [
+                    740,
+                    0.0002002
+                ],
+                [
+                    745,
+                    0.0002002
+                ],
+                [
+                    750,
+                    0.0002002
+                ],
+                [
+                    755,
+                    0.0002002
+                ],
+                [
+                    760,
+                    0.0002002
+                ],
+                [
+                    765,
+                    0.0002002
+                ],
+                [
+                    770,
+                    0.0002002
+                ],
+                [
+                    775,
+                    0.0002002
+                ],
+                [
+                    780,
+                    0.0002002
+                ],
+                [
+                    785,
+                    0.0002002
+                ],
+                [
+                    790,
+                    0.0002002
+                ],
+                [
+                    795,
+                    0.0002002
+                ],
+                [
+                    800,
+                    0.0002002
+                ]
+            ],
+            "Comments": "",
+            "Composition": {
+                "CustomComposition": {
+                    "CompositionString": "SiO2/74+Na2O/13+CaO/10.5+Al2O3/1.3+K2O/0.3+MgO/0.2+SO3/0.2",
+                    "Density": 2.53,
+                    "GasProperties": {
+                        "Gas": false,
+                        "PressureUnitsInGui": "bar",
+                        "Pressure_bar": 1
+                    },
+                    "MeanExcitationEnergy_eV": 0,
+                    "Temperature": 298,
+                    "UseMeanExcitationEnergy": false
+                },
+                "Geant4Material": "",
+                "UseGeant4Material": false
+            },
+            "CustomScatterMFP": 0,
+            "Dielectric": true,
+            "ElDiffusionL": 0,
+            "ElDiffusionT": 0,
+            "ElDriftVelo": 0,
+            "IgnoreEnergyConservationInReemission": false,
+            "IntrEnergyRes": 0,
+            "PhotonYield": 0,
+            "PrimScintDecay": [
+                [
+                    0,
+                    1
+                ]
+            ],
+            "PrimScintRaise": [
+                [
+                    0,
+                    1
+                ]
+            ],
+            "PrimScintSpectrum": [
+            ],
+            "RayleighMFP": 0,
+            "RayleighWave": 500,
+            "ReemissionProb": 0,
+            "ReemissionProbabilityWave": [
+            ],
+            "RefIndex": 1.45,
+            "RefIndexComplex": [
+                1,
+                0
+            ],
+            "RefIndexComplex_Wave": [
+            ],
+            "RefIndexWave": [
+                [
+                    200,
+                    1.66
+                ],
+                [
+                    205,
+                    1.654
+                ],
+                [
+                    210,
+                    1.648
+                ],
+                [
+                    215,
+                    1.642
+                ],
+                [
+                    220,
+                    1.636
+                ],
+                [
+                    225,
+                    1.63
+                ],
+                [
+                    230,
+                    1.624
+                ],
+                [
+                    235,
+                    1.618
+                ],
+                [
+                    240,
+                    1.612
+                ],
+                [
+                    245,
+                    1.606
+                ],
+                [
+                    250,
+                    1.6
+                ],
+                [
+                    255,
+                    1.594
+                ],
+                [
+                    260,
+                    1.588
+                ],
+                [
+                    265,
+                    1.582
+                ],
+                [
+                    270,
+                    1.576
+                ],
+                [
+                    275,
+                    1.57
+                ],
+                [
+                    280,
+                    1.567
+                ],
+                [
+                    285,
+                    1.564
+                ],
+                [
+                    290,
+                    1.561
+                ],
+                [
+                    295,
+                    1.558
+                ],
+                [
+                    300,
+                    1.555
+                ],
+                [
+                    305,
+                    1.55246
+                ],
+                [
+                    310,
+                    1.54992
+                ],
+                [
+                    315,
+                    1.54797
+                ],
+                [
+                    320,
+                    1.54666
+                ],
+                [
+                    325,
+                    1.54536
+                ],
+                [
+                    330,
+                    1.54405
+                ],
+                [
+                    335,
+                    1.54278
+                ],
+                [
+                    340,
+                    1.5417
+                ],
+                [
+                    345,
+                    1.54062
+                ],
+                [
+                    350,
+                    1.53954
+                ],
+                [
+                    355,
+                    1.53846
+                ],
+                [
+                    360,
+                    1.53738
+                ],
+                [
+                    365,
+                    1.5363
+                ],
+                [
+                    370,
+                    1.53551
+                ],
+                [
+                    375,
+                    1.53472
+                ],
+                [
+                    380,
+                    1.53394
+                ],
+                [
+                    385,
+                    1.53315
+                ],
+                [
+                    390,
+                    1.53236
+                ],
+                [
+                    395,
+                    1.53158
+                ],
+                [
+                    400,
+                    1.53079
+                ],
+                [
+                    405,
+                    1.53
+                ],
+                [
+                    410,
+                    1.52952
+                ],
+                [
+                    415,
+                    1.52903
+                ],
+                [
+                    420,
+                    1.52855
+                ],
+                [
+                    425,
+                    1.52806
+                ],
+                [
+                    430,
+                    1.52758
+                ],
+                [
+                    435,
+                    1.5271
+                ],
+                [
+                    440,
+                    1.5266
+                ],
+                [
+                    445,
+                    1.5261
+                ],
+                [
+                    450,
+                    1.5256
+                ],
+                [
+                    455,
+                    1.5251
+                ],
+                [
+                    460,
+                    1.5246
+                ],
+                [
+                    465,
+                    1.5241
+                ],
+                [
+                    470,
+                    1.5236
+                ],
+                [
+                    475,
+                    1.5231
+                ],
+                [
+                    480,
+                    1.5226
+                ],
+                [
+                    485,
+                    1.5221
+                ],
+                [
+                    490,
+                    1.52181
+                ],
+                [
+                    495,
+                    1.52156
+                ],
+                [
+                    500,
+                    1.52132
+                ],
+                [
+                    505,
+                    1.52108
+                ],
+                [
+                    510,
+                    1.52083
+                ],
+                [
+                    515,
+                    1.52059
+                ],
+                [
+                    520,
+                    1.52035
+                ],
+                [
+                    525,
+                    1.52011
+                ],
+                [
+                    530,
+                    1.51986
+                ],
+                [
+                    535,
+                    1.51962
+                ],
+                [
+                    540,
+                    1.51938
+                ],
+                [
+                    545,
+                    1.51914
+                ],
+                [
+                    550,
+                    1.51889
+                ],
+                [
+                    555,
+                    1.51865
+                ],
+                [
+                    560,
+                    1.51841
+                ],
+                [
+                    565,
+                    1.51817
+                ],
+                [
+                    570,
+                    1.51792
+                ],
+                [
+                    575,
+                    1.51768
+                ],
+                [
+                    580,
+                    1.51744
+                ],
+                [
+                    585,
+                    1.51719
+                ],
+                [
+                    590,
+                    1.51697
+                ],
+                [
+                    595,
+                    1.5168
+                ],
+                [
+                    600,
+                    1.51663
+                ],
+                [
+                    605,
+                    1.51646
+                ],
+                [
+                    610,
+                    1.51629
+                ],
+                [
+                    615,
+                    1.51612
+                ],
+                [
+                    620,
+                    1.51595
+                ],
+                [
+                    625,
+                    1.51578
+                ],
+                [
+                    630,
+                    1.51561
+                ],
+                [
+                    635,
+                    1.51544
+                ],
+                [
+                    640,
+                    1.51527
+                ],
+                [
+                    645,
+                    1.5151
+                ],
+                [
+                    650,
+                    1.51493
+                ],
+                [
+                    655,
+                    1.51476
+                ],
+                [
+                    660,
+                    1.51459
+                ],
+                [
+                    665,
+                    1.51442
+                ],
+                [
+                    670,
+                    1.51425
+                ],
+                [
+                    675,
+                    1.51408
+                ],
+                [
+                    680,
+                    1.51392
+                ],
+                [
+                    685,
+                    1.51375
+                ],
+                [
+                    690,
+                    1.51358
+                ],
+                [
+                    695,
+                    1.51341
+                ],
+                [
+                    700,
+                    1.51324
+                ],
+                [
+                    705,
+                    1.51307
+                ],
+                [
+                    710,
+                    1.51294
+                ],
+                [
+                    715,
+                    1.51283
+                ],
+                [
+                    720,
+                    1.51273
+                ],
+                [
+                    725,
+                    1.51263
+                ],
+                [
+                    730,
+                    1.51252
+                ],
+                [
+                    735,
+                    1.51242
+                ],
+                [
+                    740,
+                    1.51232
+                ],
+                [
+                    745,
+                    1.51221
+                ],
+                [
+                    750,
+                    1.51211
+                ],
+                [
+                    755,
+                    1.51201
+                ],
+                [
+                    760,
+                    1.5119
+                ],
+                [
+                    765,
+                    1.5118
+                ],
+                [
+                    770,
+                    1.5117
+                ],
+                [
+                    775,
+                    1.51159
+                ],
+                [
+                    780,
+                    1.51149
+                ],
+                [
+                    785,
+                    1.51139
+                ],
+                [
+                    790,
+                    1.51128
+                ],
+                [
+                    795,
+                    1.51118
+                ],
+                [
+                    800,
+                    1.51108
+                ]
+            ],
+            "SecScintSpectrum": [
+            ],
+            "SecScint_PhYield": 0,
+            "SecScint_Tau": 0,
+            "Tags": [
+            ],
+            "W": 0
+        },
+        {
+            "*Name": "CF4_3He",
+            "AbsCoeff": 0,
+            "BulkAbsorptionWave": [
+            ],
+            "Comments": "",
+            "Composition": {
+                "CustomComposition": {
+                    "CompositionString": "{3He}:4+CF4:6",
+                    "Density": 0.013077217723352392,
+                    "GasProperties": {
+                        "Gas": true,
+                        "PressureUnitsInGui": "bar",
+                        "Pressure_bar": 6
+                    },
+                    "MeanExcitationEnergy_eV": 0,
+                    "Temperature": 298,
+                    "UseMeanExcitationEnergy": false
+                },
+                "Geant4Material": "",
+                "UseGeant4Material": false
+            },
+            "CustomScatterMFP": 0,
+            "Dielectric": true,
+            "ElDiffusionL": 0,
+            "ElDiffusionT": 0,
+            "ElDriftVelo": 2,
+            "IgnoreEnergyConservationInReemission": false,
+            "IntrEnergyRes": 0,
+            "PhotonYield": 0,
+            "PrimScintDecay": [
+                [
+                    15,
+                    1
+                ]
+            ],
+            "PrimScintRaise": [
+                [
+                    0,
+                    1
+                ]
+            ],
+            "PrimScintSpectrum": [
+                [
+                    200,
+                    0
+                ],
+                [
+                    205,
+                    0
+                ],
+                [
+                    210,
+                    1.5778
+                ],
+                [
+                    215,
+                    0.93438
+                ],
+                [
+                    220,
+                    3.99934
+                ],
+                [
+                    225,
+                    7.79297
+                ],
+                [
+                    230,
+                    9.19935
+                ],
+                [
+                    235,
+                    8.47355
+                ],
+                [
+                    240,
+                    10.342
+                ],
+                [
+                    245,
+                    8.26439
+                ],
+                [
+                    250,
+                    7.6561
+                ],
+                [
+                    255,
+                    7.0149
+                ],
+                [
+                    260,
+                    6.26169
+                ],
+                [
+                    265,
+                    7.21502
+                ],
+                [
+                    270,
+                    8.36281
+                ],
+                [
+                    275,
+                    10.6174
+                ],
+                [
+                    280,
+                    12.5769
+                ],
+                [
+                    285,
+                    14.1486
+                ],
+                [
+                    290,
+                    14.8667
+                ],
+                [
+                    295,
+                    13.9005
+                ],
+                [
+                    300,
+                    12.6429
+                ],
+                [
+                    305,
+                    11.1763
+                ],
+                [
+                    310,
+                    10.8249
+                ],
+                [
+                    315,
+                    8.7742
+                ],
+                [
+                    320,
+                    7.49289
+                ],
+                [
+                    325,
+                    7.19894
+                ],
+                [
+                    330,
+                    5.88713
+                ],
+                [
+                    335,
+                    5.90984
+                ],
+                [
+                    340,
+                    4.68021
+                ],
+                [
+                    345,
+                    4.19457
+                ],
+                [
+                    350,
+                    3.65773
+                ],
+                [
+                    355,
+                    3.00398
+                ],
+                [
+                    360,
+                    3.92305
+                ],
+                [
+                    365,
+                    2.88566
+                ],
+                [
+                    370,
+                    3.60288
+                ],
+                [
+                    375,
+                    2.76664
+                ],
+                [
+                    380,
+                    2.37076
+                ],
+                [
+                    385,
+                    2.61928
+                ],
+                [
+                    390,
+                    2.35493
+                ],
+                [
+                    395,
+                    2.25284
+                ],
+                [
+                    400,
+                    1.87141
+                ],
+                [
+                    405,
+                    2.21386
+                ],
+                [
+                    410,
+                    1.70551
+                ],
+                [
+                    415,
+                    1.7796
+                ],
+                [
+                    420,
+                    1.36669
+                ],
+                [
+                    425,
+                    1.33359
+                ],
+                [
+                    430,
+                    1.07455
+                ],
+                [
+                    435,
+                    1.06149
+                ],
+                [
+                    440,
+                    0.95908
+                ],
+                [
+                    445,
+                    1.13448
+                ],
+                [
+                    450,
+                    0.84361
+                ],
+                [
+                    460,
+                    1.14649
+                ],
+                [
+                    470,
+                    0.34998
+                ],
+                [
+                    480,
+                    0.53101
+                ],
+                [
+                    490,
+                    0.32584
+                ],
+                [
+                    500,
+                    0
+                ],
+                [
+                    510,
+                    0.16896
+                ],
+                [
+                    520,
+                    0.44653
+                ],
+                [
+                    530,
+                    0.27757
+                ],
+                [
+                    540,
+                    0.04827
+                ],
+                [
+                    550,
+                    0.36908
+                ],
+                [
+                    560,
+                    0.83271
+                ],
+                [
+                    570,
+                    2.32918
+                ],
+                [
+                    580,
+                    3.36706
+                ],
+                [
+                    590,
+                    6.29965
+                ],
+                [
+                    600,
+                    8.20645
+                ],
+                [
+                    610,
+                    9.29259
+                ],
+                [
+                    620,
+                    10.6201
+                ],
+                [
+                    630,
+                    11.0666
+                ],
+                [
+                    640,
+                    10.2339
+                ],
+                [
+                    650,
+                    9.73912
+                ],
+                [
+                    660,
+                    8.59263
+                ],
+                [
+                    670,
+                    7.14443
+                ],
+                [
+                    680,
+                    6.11863
+                ],
+                [
+                    690,
+                    4.62216
+                ],
+                [
+                    700,
+                    3.04121
+                ],
+                [
+                    710,
+                    2.59468
+                ],
+                [
+                    720,
+                    2.14816
+                ],
+                [
+                    730,
+                    1.2551
+                ],
+                [
+                    740,
+                    2.90846
+                ],
+                [
+                    750,
+                    0.71203
+                ],
+                [
+                    760,
+                    0.2655
+                ],
+                [
+                    770,
+                    0.53101
+                ],
+                [
+                    780,
+                    0.31378
+                ],
+                [
+                    790,
+                    -0.48273
+                ],
+                [
+                    800,
+                    0.20516
+                ],
+                [
+                    810,
+                    -0.36205
+                ]
+            ],
+            "RayleighMFP": 0,
+            "RayleighWave": 500,
+            "ReemissionProb": 0,
+            "ReemissionProbabilityWave": [
+            ],
+            "RefIndex": 1,
+            "RefIndexComplex": [
+                1,
+                0
+            ],
+            "RefIndexComplex_Wave": [
+            ],
+            "RefIndexWave": [
+            ],
+            "SecScintSpectrum": [
+            ],
+            "SecScint_PhYield": 0,
+            "SecScint_Tau": 0,
+            "Tags": [
+            ],
+            "W": 0.0334
+        },
+        {
+            "*Name": "Wire",
+            "AbsCoeff": 0,
+            "BulkAbsorptionWave": [
+            ],
+            "Comments": "",
+            "Composition": {
+                "CustomComposition": {
+                    "CompositionString": "H",
+                    "Density": 1e-24,
+                    "GasProperties": {
+                        "Gas": false,
+                        "PressureUnitsInGui": "bar",
+                        "Pressure_bar": 1
+                    },
+                    "MeanExcitationEnergy_eV": 0,
+                    "Temperature": 298,
+                    "UseMeanExcitationEnergy": false
+                },
+                "Geant4Material": "",
+                "UseGeant4Material": false
+            },
+            "CustomScatterMFP": 0,
+            "Dielectric": true,
+            "ElDiffusionL": 0,
+            "ElDiffusionT": 0,
+            "ElDriftVelo": 0,
+            "IgnoreEnergyConservationInReemission": false,
+            "IntrEnergyRes": 0,
+            "PhotonYield": 0,
+            "PrimScintDecay": [
+                [
+                    0,
+                    1
+                ]
+            ],
+            "PrimScintRaise": [
+                [
+                    0,
+                    1
+                ]
+            ],
+            "PrimScintSpectrum": [
+            ],
+            "RayleighMFP": 0,
+            "RayleighWave": 500,
+            "ReemissionProb": 0,
+            "ReemissionProbabilityWave": [
+            ],
+            "RefIndex": 1,
+            "RefIndexComplex": [
+                1,
+                0
+            ],
+            "RefIndexComplex_Wave": [
+            ],
+            "RefIndexWave": [
+            ],
+            "SecScintSpectrum": [
+            ],
+            "SecScint_PhYield": 0,
+            "SecScint_Tau": 0,
+            "Tags": [
+            ],
+            "W": 0
+        },
+        {
+            "*Name": "MSGC",
+            "AbsCoeff": 0,
+            "BulkAbsorptionWave": [
+            ],
+            "Comments": "",
+            "Composition": {
+                "CustomComposition": {
+                    "CompositionString": "SiO2/74+Na2O/13+CaO/10.5+Al2O3/1.3+K2O/0.3+MgO/0.2+SO3/0.2",
+                    "Density": 2.53,
+                    "GasProperties": {
+                        "Gas": false,
+                        "PressureUnitsInGui": "bar",
+                        "Pressure_bar": 1
+                    },
+                    "MeanExcitationEnergy_eV": 0,
+                    "Temperature": 298,
+                    "UseMeanExcitationEnergy": false
+                },
+                "Geant4Material": "",
+                "UseGeant4Material": false
+            },
+            "CustomScatterMFP": 0,
+            "Dielectric": true,
+            "ElDiffusionL": 0,
+            "ElDiffusionT": 0,
+            "ElDriftVelo": 10000000000,
+            "IgnoreEnergyConservationInReemission": false,
+            "IntrEnergyRes": 0,
+            "PhotonYield": 0,
+            "PrimScintDecay": [
+                [
+                    0,
+                    1
+                ]
+            ],
+            "PrimScintRaise": [
+                [
+                    0,
+                    1
+                ]
+            ],
+            "PrimScintSpectrum": [
+            ],
+            "RayleighMFP": 0,
+            "RayleighWave": 500,
+            "ReemissionProb": 0,
+            "ReemissionProbabilityWave": [
+            ],
+            "RefIndex": 1,
+            "RefIndexComplex": [
+                1,
+                0
+            ],
+            "RefIndexComplex_Wave": [
+            ],
+            "RefIndexWave": [
+            ],
+            "SecScintSpectrum": [
+                [
+                    200,
+                    0
+                ],
+                [
+                    205,
+                    3.48728e-05
+                ],
+                [
+                    210,
+                    5.87239e-05
+                ],
+                [
+                    215,
+                    0.000119324
+                ],
+                [
+                    220,
+                    0.000315513
+                ],
+                [
+                    225,
+                    0.000464966
+                ],
+                [
+                    230,
+                    0.00056769
+                ],
+                [
+                    235,
+                    0.000571828
+                ],
+                [
+                    240,
+                    0.00064118
+                ],
+                [
+                    245,
+                    0.000579343
+                ],
+                [
+                    250,
+                    0.000520047
+                ],
+                [
+                    255,
+                    0.000501512
+                ],
+                [
+                    260,
+                    0.000504519
+                ],
+                [
+                    265,
+                    0.000524343
+                ],
+                [
+                    270,
+                    0.000604552
+                ],
+                [
+                    275,
+                    0.000730284
+                ],
+                [
+                    280,
+                    0.000792347
+                ],
+                [
+                    285,
+                    0.000935568
+                ],
+                [
+                    290,
+                    0.000928219
+                ],
+                [
+                    295,
+                    0.000889165
+                ],
+                [
+                    300,
+                    0.000820466
+                ],
+                [
+                    305,
+                    0.000727289
+                ],
+                [
+                    310,
+                    0.000635169
+                ],
+                [
+                    315,
+                    0.000550075
+                ],
+                [
+                    320,
+                    0.000479926
+                ],
+                [
+                    325,
+                    0.000410217
+                ],
+                [
+                    330,
+                    0.000355238
+                ],
+                [
+                    335,
+                    0.000314494
+                ],
+                [
+                    340,
+                    0.000279459
+                ],
+                [
+                    345,
+                    0.000242659
+                ],
+                [
+                    350,
+                    0.000213421
+                ],
+                [
+                    355,
+                    0.000197375
+                ],
+                [
+                    360,
+                    0.000185671
+                ],
+                [
+                    365,
+                    0.000155955
+                ],
+                [
+                    370,
+                    0.000150867
+                ],
+                [
+                    375,
+                    0.000161236
+                ],
+                [
+                    380,
+                    0.000132565
+                ],
+                [
+                    385,
+                    0.000142467
+                ],
+                [
+                    390,
+                    0.000129111
+                ],
+                [
+                    395,
+                    0.00013468
+                ],
+                [
+                    400,
+                    0.000117341
+                ],
+                [
+                    405,
+                    0.000112645
+                ],
+                [
+                    410,
+                    0.000116965
+                ],
+                [
+                    415,
+                    0.000103736
+                ],
+                [
+                    420,
+                    0.000100634
+                ],
+                [
+                    425,
+                    9.01975e-05
+                ],
+                [
+                    430,
+                    7.95202e-05
+                ],
+                [
+                    435,
+                    6.36637e-05
+                ],
+                [
+                    440,
+                    6.3737e-05
+                ],
+                [
+                    445,
+                    8.75063e-05
+                ],
+                [
+                    450,
+                    4.94775e-05
+                ],
+                [
+                    455,
+                    4.66314e-05
+                ],
+                [
+                    460,
+                    3.46216e-05
+                ],
+                [
+                    465,
+                    2.88297e-05
+                ],
+                [
+                    470,
+                    2.85627e-05
+                ],
+                [
+                    475,
+                    1.87224e-05
+                ],
+                [
+                    480,
+                    2.44589e-05
+                ],
+                [
+                    485,
+                    9.3025e-06
+                ],
+                [
+                    490,
+                    1.4226e-05
+                ],
+                [
+                    495,
+                    1.10099e-05
+                ],
+                [
+                    500,
+                    7.2582e-06
+                ],
+                [
+                    505,
+                    4.72494e-06
+                ],
+                [
+                    510,
+                    1.14813e-05
+                ],
+                [
+                    515,
+                    9.56088e-06
+                ],
+                [
+                    520,
+                    6.61891e-06
+                ],
+                [
+                    525,
+                    1.70527e-06
+                ],
+                [
+                    530,
+                    8.35915e-06
+                ],
+                [
+                    535,
+                    9.83908e-06
+                ],
+                [
+                    540,
+                    2.64354e-05
+                ],
+                [
+                    545,
+                    4.30315e-05
+                ],
+                [
+                    550,
+                    6.76662e-05
+                ],
+                [
+                    555,
+                    7.51756e-05
+                ],
+                [
+                    560,
+                    0.00013754
+                ],
+                [
+                    565,
+                    0.000190265
+                ],
+                [
+                    570,
+                    0.000240672
+                ],
+                [
+                    575,
+                    0.000334371
+                ],
+                [
+                    580,
+                    0.000375334
+                ],
+                [
+                    585,
+                    0.000459485
+                ],
+                [
+                    590,
+                    0.000539501
+                ],
+                [
+                    595,
+                    0.000600453
+                ],
+                [
+                    600,
+                    0.000662277
+                ],
+                [
+                    605,
+                    0.000745238
+                ],
+                [
+                    610,
+                    0.000815473
+                ],
+                [
+                    615,
+                    0.000802555
+                ],
+                [
+                    620,
+                    0.000846366
+                ],
+                [
+                    625,
+                    0.00085215
+                ],
+                [
+                    630,
+                    0.000830472
+                ],
+                [
+                    635,
+                    0.000856499
+                ],
+                [
+                    640,
+                    0.000821234
+                ],
+                [
+                    645,
+                    0.00073106
+                ],
+                [
+                    650,
+                    0.000749247
+                ],
+                [
+                    655,
+                    0.000699057
+                ],
+                [
+                    660,
+                    0.000655307
+                ],
+                [
+                    665,
+                    0.000628059
+                ],
+                [
+                    670,
+                    0.000536805
+                ],
+                [
+                    675,
+                    0.000547811
+                ],
+                [
+                    680,
+                    0.000498732
+                ],
+                [
+                    685,
+                    0.000438061
+                ],
+                [
+                    690,
+                    0.00036873
+                ],
+                [
+                    695,
+                    0.00033906
+                ],
+                [
+                    700,
+                    0.000300927
+                ],
+                [
+                    705,
+                    0.000274581
+                ],
+                [
+                    710,
+                    0.000210775
+                ],
+                [
+                    715,
+                    0.000214981
+                ],
+                [
+                    720,
+                    0.000164735
+                ],
+                [
+                    725,
+                    0.000144235
+                ],
+                [
+                    730,
+                    0.000162912
+                ],
+                [
+                    735,
+                    0.000126307
+                ],
+                [
+                    740,
+                    9.95259e-05
+                ],
+                [
+                    745,
+                    9.22434e-05
+                ],
+                [
+                    750,
+                    7.65554e-05
+                ],
+                [
+                    755,
+                    6.23003e-05
+                ],
+                [
+                    760,
+                    6.67853e-05
+                ],
+                [
+                    765,
+                    5.56505e-05
+                ],
+                [
+                    770,
+                    4.27783e-05
+                ],
+                [
+                    775,
+                    2.73451e-05
+                ],
+                [
+                    780,
+                    2.3677e-05
+                ],
+                [
+                    785,
+                    3.29815e-05
+                ],
+                [
+                    790,
+                    2.41035e-05
+                ],
+                [
+                    795,
+                    1.2496e-05
+                ],
+                [
+                    800,
+                    0
+                ]
+            ],
+            "SecScint_PhYield": 20,
+            "SecScint_Tau": 15,
+            "Tags": [
+            ],
+            "W": 0
+        }
+    ],
+    "ParticleSim": {
+        "ClusterMerge": false,
+        "ClusterMergeRadius": 0.1,
+        "ClusterMergeTime": 1,
+        "Events": 100,
+        "Geant4Settings": {
+            "AddScintillatorsToSensitiveVolumes": true,
+            "Commands": [
+            ],
+            "PhysicsList": "QGSP_BIC_HP",
+            "ScintSensitiveVolumes": [
+            ],
+            "SensitiveVolumes": [
+                "GasVolume"
+            ],
+            "StepLimits": [
+            ],
+            "UseTSphys": false
+        },
+        "GenerationFromFile": {
+            "FileFormat": "Undefined",
+            "FileLastModified": 0,
+            "FileName": "",
+            "NumEvents": 0
+        },
+        "GenerationFromSources": {
+            "MultiplePerEvent": {
+                "Enabled": false,
+                "Mode": "Constant",
+                "Number": 1
+            },
+            "ParticleSources": [
+                {
+                    "Activity": 1,
+                    "Angular": {
+                        "CustomDistribution": [
+                        ],
+                        "CutOff": 45,
+                        "Direction": {
+                            "Phi": 0,
+                            "Theta": 0,
+                            "UseSphericalAngles": false,
+                            "dX": 0,
+                            "dY": 0,
+                            "dZ": -1
+                        },
+                        "Mode": "Fixed",
+                        "Sigma": 1,
+                        "UseCutOff": false
+                    },
+                    "Name": "No_name",
+                    "Particles": [
+                        {
+                            "Energy": {
+                                "EnergySigma": 50,
+                                "EnergySpectrum": [
+                                ],
+                                "FixedEnergy": 5.112763160157056e-06,
+                                "PreferredSigmaUnits": "keV",
+                                "PreferredUnits": "keV",
+                                "UseFixedEnergy": true,
+                                "UseGaussBlur": false
+                            },
+                            "Generation": {
+                                "BtBPair": false,
+                                "LinkedTo": 0,
+                                "LinkingProbability": 0,
+                                "StatWeight": 1,
+                                "Type": "Independent"
+                            },
+                            "Particle": "neutron"
+                        }
+                    ],
+                    "Spatial": {
+                        "AxialDistributionForRound": {
+                            "CustomDistribution": [
+                            ],
+                            "Enabled": false,
+                            "Sigma": 10,
+                            "Type": "Gauss"
+                        },
+                        "MaterialLimited": {
+                            "Enabled": false,
+                            "Material": ""
+                        },
+                        "Orientation": [
+                            0,
+                            0,
+                            0
+                        ],
+                        "Position": [
+                            0,
+                            0,
+                            30
+                        ],
+                        "Shape": "Point",
+                        "Size1": 10,
+                        "Size2": 10,
+                        "Size3": 10
+                    },
+                    "Time": {
+                        "ByEventPeriod": 10,
+                        "ByEventPeriodPrefUnit": "ns",
+                        "ByEventStart": 0,
+                        "ByEventStartPrefUnit": "ns",
+                        "CustomDistribution": [
+                        ],
+                        "FixedOffset": 0,
+                        "FixedOffsetPrefUnit": "ns",
+                        "HalfLifePreferUnit": "ns",
+                        "OffsetMode": "Fixed",
+                        "SpreadHalfLife": 100,
+                        "SpreadMode": "None",
+                        "SpreadSigma": 50,
+                        "SpreadSigmaPrefUnit": "ns",
+                        "SpreadWidth": 100,
+                        "SpreadWidthPrefUnit": "ns"
+                    }
+                }
+            ]
+        },
+        "ParticleGenerationMode": "Sources",
+        "RunSettings": {
+            "AnalyzerSettings": {
+                "Enabled": false,
+                "FileName": "ParticleAnalyzers.json"
+            },
+            "AsciiOutput": true,
+            "AsciiPrecision": 6,
+            "CalorimeterSettings": {
+                "Enabled": false,
+                "FileName": "Calorimeters.json"
+            },
+            "FileNameDeposition": "Deposition.dat",
+            "FileNameTrackingHistory": "TrackingData.dat",
+            "MonitorSettings": {
+                "Enabled": false,
+                "FileName": "ParticleMonitors.json"
+            },
+            "OutputDirectory": "/home/andr/WORK/GSPC67example/Out",
+            "SaveDeposition": true,
+            "SaveParticles": {
+                "Enabled": false,
+                "FileName": "OutputParticles.dat",
+                "StopTrack": true,
+                "TimeFrom": 0,
+                "TimeTo": 10000000000,
+                "TimeWindow": false,
+                "VolumeName": ""
+            },
+            "SaveTrackingHistory": true,
+            "Seed": 0
+        }
+    },
+    "PhotonFunctional": {
+        "OverritenRecords": [
+        ]
+    },
+    "PhotonSim": {
+        "Deposition": {
+            "FileFormat": "Ascii",
+            "FileName": "/home/andr/WORK/GSPC67example/Out/Deposition.dat",
+            "LastModified": 1730718351438,
+            "NumEvents": 100,
+            "Primary": false,
+            "Secondary": true
+        },
+        "Optimization": {
+            "CheckQeBeforeTracking": true,
+            "MaxPhotonTransitions": 250
+        },
+        "PhotonBombs": {
+            "Advanced": {
+                "Direction": {
+                    "ConeAngle": 10,
+                    "DirDX": 0,
+                    "DirDY": 0,
+                    "DirDZ": 1,
+                    "DirectionMode": "Isotropic"
+                },
+                "SkipBombs": {
+                    "EnableOnlyMat": false,
+                    "EnableOnlyVol": false,
+                    "Material": "",
+                    "MaxNodeAttempts": 1000,
+                    "Volume": ""
+                },
+                "Time": {
+                    "DecayTime": 5,
+                    "Enabled": false
+                },
+                "Wave": {
+                    "Enabled": false,
+                    "WaveIndex": -1
+                }
+            },
+            "File": {
+                "FileFormat": "Undefined",
+                "FileName": "",
+                "LastModified": 0,
+                "NumEvents": 0
+            },
+            "Flood": {
+                "CenterX": 0,
+                "CenterY": 0,
+                "InnerDiameter": 0,
+                "Number": 100,
+                "OuterDiameter": 300,
+                "Shape": "rectangle",
+                "Xfrom": -15,
+                "Xto": 15,
+                "Yfrom": -15,
+                "Yto": 15,
+                "Zfixed": 0,
+                "Zfrom": 0,
+                "Zmode": "fixed",
+                "Zto": 0
+            },
+            "GenerationMode": "single",
+            "Grid": {
+                "AxesData": [
+                    {
+                        "BiDirect": false,
+                        "Enabled": true,
+                        "Nodes": 10,
+                        "dX": 10,
+                        "dY": 0,
+                        "dZ": 0
+                    },
+                    {
+                        "BiDirect": false,
+                        "Enabled": false,
+                        "Nodes": 10,
+                        "dX": 0,
+                        "dY": 10,
+                        "dZ": 0
+                    },
+                    {
+                        "BiDirect": false,
+                        "Enabled": false,
+                        "Nodes": 10,
+                        "dX": 0,
+                        "dY": 0,
+                        "dZ": 10
+                    }
+                ],
+                "ScanX0": 0,
+                "ScanY0": 0,
+                "ScanZ0": 0
+            },
+            "PhotonsPerBomb": {
+                "CustomDist": [
+                ],
+                "FixedNumber": 100000,
+                "Mode": "constant",
+                "NormalMean": 100,
+                "NormalSigma": 10,
+                "PoissonMean": 10,
+                "UniformMax": 12,
+                "UniformMin": 10
+            },
+            "Single": {
+                "Position": [
+                    0,
+                    0,
+                    9
+                ]
+            }
+        },
+        "PhotonFile": {
+            "FileFormat": "Undefined",
+            "FileName": "",
+            "LastModified": 0,
+            "NumEvents": 0
+        },
+        "Run": {
+            "BinaryFormat": false,
+            "FileNameMonitors": "PhotonMonitors.txt",
+            "FileNamePhotonBombs": "PhotonBombs.txt",
+            "FileNameReceipt": "DummyReceipt.txt",
+            "FileNameSensorLog": "SensorLog.dat",
+            "FileNameSensorSignals": "SensorSignals.txt",
+            "FileNameStatistics": "PhotonStatistics.json",
+            "FileNameTracks": "PhotonTracks.txt",
+            "MaxTracks": 1000,
+            "OutputDirectory": "/home/andr/WORK/WSFexample/Output",
+            "PhotonLog": {
+                "Enabled": false,
+                "FileName": "PhotonLog.txt",
+                "MaxNumber": 1000,
+                "MustInclude_Processes": [
+                ],
+                "MustInclude_Volumes": [
+                ],
+                "MustNotInclude_Processes": [
+                ],
+                "MustNotInclude_Volumes": [
+                ]
+            },
+            "SaveMonitors": false,
+            "SavePhotonBombs": false,
+            "SaveSensorLog": false,
+            "SaveSensorSignals": true,
+            "SaveStatistics": true,
+            "SaveTracks": false,
+            "Seed": 0,
+            "SensorLogAngle": false,
+            "SensorLogTime": true,
+            "SensorLogWave": false,
+            "SensorLogXY": false,
+            "UpperTimeLimit": 1000000000
+        },
+        "SimulationType": "depo",
+        "WaveResolved": {
+            "Enabled": true,
+            "From": 250,
+            "Step": 5,
+            "To": 800
+        }
+    },
+    "Sensors": {
+        "ModelAssignment": [
+        ],
+        "Models": [
+            {
+                "AngularResponse": {
+                    "Data": [
+                    ]
+                },
+                "AreaResponse": {
+                    "Data": [
+                    ],
+                    "StepX": 1,
+                    "StepY": 1
+                },
+                "DarkCountRate": 0,
+                "IntegrationTime": 1e-06,
+                "Name": "PMT",
+                "PDE": {
+                    "Effective": 0.15,
+                    "Spectral": [
+                        [
+                            200,
+                            0
+                        ],
+                        [
+                            205,
+                            0
+                        ],
+                        [
+                            210,
+                            0
+                        ],
+                        [
+                            215,
+                            0
+                        ],
+                        [
+                            220,
+                            0
+                        ],
+                        [
+                            225,
+                            0
+                        ],
+                        [
+                            230,
+                            0
+                        ],
+                        [
+                            235,
+                            0
+                        ],
+                        [
+                            240,
+                            0
+                        ],
+                        [
+                            245,
+                            0
+                        ],
+                        [
+                            250,
+                            0
+                        ],
+                        [
+                            255,
+                            0
+                        ],
+                        [
+                            260,
+                            0
+                        ],
+                        [
+                            265,
+                            0
+                        ],
+                        [
+                            270,
+                            0
+                        ],
+                        [
+                            275,
+                            0
+                        ],
+                        [
+                            280,
+                            0.021
+                        ],
+                        [
+                            285,
+                            0.068
+                        ],
+                        [
+                            290,
+                            0.121
+                        ],
+                        [
+                            295,
+                            0.158
+                        ],
+                        [
+                            300,
+                            0.217
+                        ],
+                        [
+                            305,
+                            0.245
+                        ],
+                        [
+                            310,
+                            0.262
+                        ],
+                        [
+                            315,
+                            0.272
+                        ],
+                        [
+                            320,
+                            0.28
+                        ],
+                        [
+                            325,
+                            0.284
+                        ],
+                        [
+                            330,
+                            0.286
+                        ],
+                        [
+                            335,
+                            0.286
+                        ],
+                        [
+                            340,
+                            0.286
+                        ],
+                        [
+                            345,
+                            0.286
+                        ],
+                        [
+                            350,
+                            0.285
+                        ],
+                        [
+                            355,
+                            0.283
+                        ],
+                        [
+                            360,
+                            0.282
+                        ],
+                        [
+                            365,
+                            0.28
+                        ],
+                        [
+                            370,
+                            0.277
+                        ],
+                        [
+                            375,
+                            0.275
+                        ],
+                        [
+                            380,
+                            0.272
+                        ],
+                        [
+                            385,
+                            0.268
+                        ],
+                        [
+                            390,
+                            0.264
+                        ],
+                        [
+                            395,
+                            0.259
+                        ],
+                        [
+                            400,
+                            0.255
+                        ],
+                        [
+                            405,
+                            0.252
+                        ],
+                        [
+                            410,
+                            0.248
+                        ],
+                        [
+                            415,
+                            0.242
+                        ],
+                        [
+                            420,
+                            0.236
+                        ],
+                        [
+                            425,
+                            0.23
+                        ],
+                        [
+                            430,
+                            0.22
+                        ],
+                        [
+                            435,
+                            0.217
+                        ],
+                        [
+                            440,
+                            0.21
+                        ],
+                        [
+                            445,
+                            0.204
+                        ],
+                        [
+                            450,
+                            0.196
+                        ],
+                        [
+                            455,
+                            0.187
+                        ],
+                        [
+                            460,
+                            0.181
+                        ],
+                        [
+                            465,
+                            0.174
+                        ],
+                        [
+                            470,
+                            0.168
+                        ],
+                        [
+                            475,
+                            0.16
+                        ],
+                        [
+                            480,
+                            0.153
+                        ],
+                        [
+                            485,
+                            0.144
+                        ],
+                        [
+                            490,
+                            0.139
+                        ],
+                        [
+                            495,
+                            0.132
+                        ],
+                        [
+                            500,
+                            0.125
+                        ],
+                        [
+                            505,
+                            0.119
+                        ],
+                        [
+                            510,
+                            0.11
+                        ],
+                        [
+                            515,
+                            0.098
+                        ],
+                        [
+                            520,
+                            0.093
+                        ],
+                        [
+                            525,
+                            0.089
+                        ],
+                        [
+                            530,
+                            0.081
+                        ],
+                        [
+                            535,
+                            0.071
+                        ],
+                        [
+                            540,
+                            0.063
+                        ],
+                        [
+                            545,
+                            0.055
+                        ],
+                        [
+                            550,
+                            0.049
+                        ],
+                        [
+                            555,
+                            0.042
+                        ],
+                        [
+                            560,
+                            0.037
+                        ],
+                        [
+                            565,
+                            0.031
+                        ],
+                        [
+                            570,
+                            0.028
+                        ],
+                        [
+                            575,
+                            0.023
+                        ],
+                        [
+                            580,
+                            0.018
+                        ],
+                        [
+                            585,
+                            0.015
+                        ],
+                        [
+                            590,
+                            0.012
+                        ],
+                        [
+                            595,
+                            0.01
+                        ],
+                        [
+                            600,
+                            0.008
+                        ],
+                        [
+                            605,
+                            0.006
+                        ],
+                        [
+                            610,
+                            0.005
+                        ],
+                        [
+                            615,
+                            0.004
+                        ],
+                        [
+                            620,
+                            0.002
+                        ],
+                        [
+                            625,
+                            0.001
+                        ],
+                        [
+                            630,
+                            0
+                        ],
+                        [
+                            635,
+                            0
+                        ],
+                        [
+                            640,
+                            0
+                        ],
+                        [
+                            645,
+                            0
+                        ],
+                        [
+                            650,
+                            0
+                        ],
+                        [
+                            655,
+                            0
+                        ],
+                        [
+                            660,
+                            0
+                        ],
+                        [
+                            665,
+                            0
+                        ],
+                        [
+                            670,
+                            0
+                        ],
+                        [
+                            675,
+                            0
+                        ],
+                        [
+                            680,
+                            0
+                        ],
+                        [
+                            685,
+                            0
+                        ],
+                        [
+                            690,
+                            0
+                        ],
+                        [
+                            695,
+                            0
+                        ],
+                        [
+                            700,
+                            0
+                        ],
+                        [
+                            705,
+                            0
+                        ],
+                        [
+                            710,
+                            0
+                        ],
+                        [
+                            715,
+                            0
+                        ],
+                        [
+                            720,
+                            0
+                        ],
+                        [
+                            725,
+                            0
+                        ],
+                        [
+                            730,
+                            0
+                        ],
+                        [
+                            735,
+                            0
+                        ],
+                        [
+                            740,
+                            0
+                        ],
+                        [
+                            745,
+                            0
+                        ],
+                        [
+                            750,
+                            0
+                        ],
+                        [
+                            755,
+                            0
+                        ],
+                        [
+                            760,
+                            0
+                        ],
+                        [
+                            765,
+                            0
+                        ],
+                        [
+                            770,
+                            0
+                        ],
+                        [
+                            775,
+                            0
+                        ],
+                        [
+                            780,
+                            0
+                        ],
+                        [
+                            785,
+                            0
+                        ],
+                        [
+                            790,
+                            0
+                        ],
+                        [
+                            795,
+                            0
+                        ],
+                        [
+                            800,
+                            0
+                        ]
+                    ]
+                },
+                "PhElToSignals": {
+                    "AverageSignalPerPhEl": 1,
+                    "ElectronicGainFactor": 1,
+                    "GammaShape": 2,
+                    "Model": "Constant",
+                    "NormalSigma": 0,
+                    "SinglePhElPHS": [
+                    ]
+                },
+                "PreampSigma": 0,
+                "SiPM": {
+                    "PixelSizeX": 3,
+                    "PixelSizeY": 3,
+                    "PixelSpacingX": 0,
+                    "PixelSpacingY": 0,
+                    "PixelsX": 50,
+                    "PixelsY": 50,
+                    "isSiPM": false
+                }
+            }
+        ]
+    },
+    "gui": {
+        "GeometryWindow": {
+            "GeoWriter": {
+                "SizeForAnalyzers": 10,
+                "SizeForCalorimeters": 10,
+                "SizeForMonitors": 10,
+                "SizeForPhotFuncts": 10,
+                "SizeForScints": 10,
+                "SizeForSensors": 10
+            },
+            "LimitVisibility": {
+                "Enabled": false,
+                "Level": 3
+            },
+            "ZoomLevel": 0
+        },
+        "ParticleSimWindow": {
+            "Analyser": {
+                "Statistics": {
+                    "AveragePerBins": false,
+                    "BinsX": 100,
+                    "BinsY": 100,
+                    "BulkOrTransition": 0,
+                    "Cuts": "",
+                    "EnableLimitToCreated": false,
+                    "EnableLimitToEscaping": false,
+                    "EnableLimitToIndex": false,
+                    "EnableLimitToIndexFrom": false,
+                    "EnableLimitToIndexTo": false,
+                    "EnableLimitToMat": false,
+                    "EnableLimitToMatFrom": false,
+                    "EnableLimitToMatTo": false,
+                    "EnableLimitToParticle": false,
+                    "EnableLimitToVolume": false,
+                    "EnableLimitToVolumeFrom": false,
+                    "EnableLimitToVolumeTo": false,
+                    "EnableWhat2": false,
+                    "EnableWhat3": false,
+                    "EventsPerThread": "1",
+                    "FromX": "0",
+                    "FromY": "0",
+                    "HadronicTarget": "",
+                    "LimitParticle": "",
+                    "LimitTime": false,
+                    "LimitToFirstInteractionOfPrimary": false,
+                    "LimitToHadronic": false,
+                    "LimitToIndex": 0,
+                    "LimitToIndexFrom": 0,
+                    "LimitToIndexTo": 0,
+                    "LimitToMat": 0,
+                    "LimitToMatFrom": 0,
+                    "LimitToMatTo": 0,
+                    "LimitToVolume": "",
+                    "LimitToVolumeFrom": "",
+                    "LimitToVolumeTo": "",
+                    "OnlyPrimary": false,
+                    "OnlySecondary": false,
+                    "RequestWhat": 0,
+                    "RequestWhatPlus": -1,
+                    "RequestWhatVsTime": false,
+                    "Threads": 0,
+                    "TimeFrom": "0",
+                    "TimeTo": "1e99",
+                    "ToX": "0",
+                    "ToY": "0",
+                    "What1": "Energy * 1e-3",
+                    "What2": "",
+                    "What3": ""
+                }
+            },
+            "AutoLoadAllResults": true,
+            "Seed": {
+                "FixedSeed": 1000,
+                "Random": true
+            }
+        },
+        "PhotonSimWindow": {
+            "AutoLoadAllResults": true,
+            "Seed": {
+                "FixedSeed": 1000,
+                "Random": true
+            },
+            "SensorGroups": {
+                "AllEnabled": true,
+                "G1": "0-5,7",
+                "G1Enabled": false,
+                "G2": "",
+                "G2Enabled": false,
+                "G3": "",
+                "G3Enabled": false
+            }
+        }
+    }
+}

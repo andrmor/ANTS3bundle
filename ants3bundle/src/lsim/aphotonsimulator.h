@@ -11,7 +11,7 @@
 
 class APhotonSimSettings;
 class ANodeRecord;
-class AOneEvent;
+class ALightSensorEvent;
 class APhotonTracer;
 class QFile;
 class QTextStream;
@@ -42,7 +42,7 @@ protected:
     ARandomHub         & RandomHub;
 
     APhotonTracer * Tracer = nullptr;
-    AOneEvent     * Event  = nullptr;
+    ALightSensorEvent     * Event  = nullptr;
 
     APhoton Photon;
 

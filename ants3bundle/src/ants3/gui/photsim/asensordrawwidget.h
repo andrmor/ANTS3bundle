@@ -25,6 +25,7 @@ public:
     ~ASensorDrawWidget();
 
     void updateGui(const std::vector<float> & sensorSignals, const std::vector<int> & enabledSensors);
+    void resetViewport();
 
 private:
     Ui::ASensorDrawWidget * ui = nullptr;
@@ -48,7 +49,6 @@ private slots:
 private:
     void clearGrItems();
     void updateLegend(float MaxSignal);
-    void resetViewport();
     void addSensorItems(float MaxSignal);
     void addTextItems(float MaxSignal);
     void positionToSceneCoordinates(int iSens, double &x, double &y, double &z);

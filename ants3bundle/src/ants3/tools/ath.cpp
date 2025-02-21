@@ -41,8 +41,8 @@ bool ATH1D::mergeIdentical(const TH1D & other)
 
     double otherStats[20];
     other.GetStats(otherStats);
-    ///  - s[0]  = sumw       s[1]  = sumw2
-    ///  - s[2]  = sumwx      s[3]  = sumwx2
+    //  - s[0]  = sumw       s[1]  = sumw2
+    //  - s[2]  = sumwx      s[3]  = sumwx2
 
     fTsumw   += otherStats[0];
     fTsumw2  += otherStats[1];
@@ -99,6 +99,19 @@ void ATH1D::merge(TH1D* & to, TH1D* const & from)
     for (int i = 1; i <= from->GetNbinsX(); i++)
         to->Fill(from->GetBinCenter(i), from->GetBinContent(i));
     to->SetEntries(numEv + from->GetEntries());
+}
+
+void ATH1D::mergeFrom(const ATH1D * other)
+{
+    bool ok = mergeIdentical(*other);
+    if (ok) return;
+
+    // the histograms are not identical, most frequent usage will be merging of hists with auto-range
+    int numEv = GetEntries();
+    for (int i = 1; i <= other->GetNbinsX(); i++)
+        Fill(other->GetBinCenter(i), other->GetBinContent(i));
+
+    SetEntries(numEv + other->GetEntries());
 }
 
 void ATH1D::SetStatistic(const std::vector<double> & stats)

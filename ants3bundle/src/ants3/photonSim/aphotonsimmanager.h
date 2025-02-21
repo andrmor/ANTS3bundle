@@ -24,6 +24,12 @@ public:
 
     void setSeed(double seed);
 
+    bool simulate(int numLocalProc = -1);
+
+    void abort();
+
+    bool isAborted() const;
+
 private:
     APhotonSimManager();
     ~APhotonSimManager(){}
@@ -32,9 +38,6 @@ private:
     APhotonSimManager(APhotonSimManager&&)                 = delete;
     APhotonSimManager& operator=(const APhotonSimManager&) = delete;
     APhotonSimManager& operator=(APhotonSimManager&&)      = delete;
-
-public:
-    bool simulate(int numLocalProc = -1);
 
 signals:
     void requestUpdateResultsGUI();

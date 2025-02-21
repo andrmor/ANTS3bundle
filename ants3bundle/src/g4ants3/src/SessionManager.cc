@@ -45,8 +45,8 @@ void SessionManager::startSession()
 {
     prepareParticleGun();
 
-    //prepare monitors: populate particle pointers
-    prepareMonitors();
+    prepareMonitors(); // populating particle pointers
+    prepareAnalyzers();
 
     // preparing ouptut for deposition data
     if (Settings.RunSet.SaveDeposition) prepareOutputDepoStream();
@@ -104,8 +104,9 @@ void SessionManager::endSession()
     bError = false;
     ErrorMessage.clear();
 
-    if (Settings.RunSet.MonitorSettings.Enabled) storeMonitorsData();
+    if (Settings.RunSet.MonitorSettings.Enabled)     storeMonitorsData();
     if (Settings.RunSet.CalorimeterSettings.Enabled) storeCalorimeterData();
+    if (Settings.RunSet.AnalyzerSettings.Enabled)    storeAnalyzerData();
 
     generateReceipt();
 }
@@ -605,8 +606,6 @@ void SessionManager::findExitVolume()
     for (lvciter = lvs->begin(); lvciter != lvs->end(); ++lvciter)
     {
         std::string name = (std::string)(*lvciter)->GetName();
-        const size_t pos = name.find("_-_");
-        if (pos != std::string::npos) name.resize(pos);
         if (name == Settings.RunSet.SaveSettings.VolumeName)
         {
             ExitVolume = *lvciter;
@@ -654,7 +653,7 @@ bool SessionManager::isEnergyDepoLogger(G4LogicalVolume * vol)
 #include "SensitiveDetector.hh"
 void SessionManager::prepareMonitors()
 {
-    for (MonitorSensitiveDetector * m : Monitors)
+    for (MonitorSensitiveDetectorWrapper * m : Monitors)
     {
         if (!m->ParticleName.empty())
             m->pParticleDefinition = G4ParticleTable::GetParticleTable()->FindParticle(m->ParticleName);
@@ -725,7 +724,7 @@ void SessionManager::readConfig(const std::string & workingDir, const std::strin
     {
         for (const AMonSetRecord & r : Settings.RunSet.MonitorSettings.Monitors)
         {
-            MonitorSensitiveDetector * mobj = new MonitorSensitiveDetector(r.Name, r.Particle, r.Index);
+            MonitorSensitiveDetectorWrapper * mobj = new MonitorSensitiveDetectorWrapper(r.Name, r.Particle, r.Index);
             bool ok = mobj->readFromJson(r.ConfigJson);
             if (!ok) terminateSession("Failed to read monitor config, might be units");
             Monitors.push_back(mobj);
@@ -738,12 +737,45 @@ void SessionManager::readConfig(const std::string & workingDir, const std::strin
     {
         for (ACalSetRecord & r : Settings.RunSet.CalorimeterSettings.Calorimeters)
         {
-            CalorimeterSensitiveDetector * sd = new CalorimeterSensitiveDetector(r.Name, r.Properties, r.Index);
+            CalorimeterSensitiveDetectorWrapper * sd = new CalorimeterSensitiveDetectorWrapper(r.Name, r.Properties, r.Index);
             Calorimeters.push_back(sd);
         }
     }
 
     std::cout << "Config read completed" << std::endl;
+}
+
+void SessionManager::prepareAnalyzers()
+{
+    if (Settings.RunSet.AnalyzerSettings.Enabled)
+    {
+        const size_t num = Settings.RunSet.AnalyzerSettings.NumberOfUniqueAnalyzers;
+        Analyzers.reserve(num);
+
+        for (size_t iUnique = 0; iUnique < num; iUnique++)
+        {
+            const AParticleAnalyzerSettings & settings = Settings.RunSet.AnalyzerSettings;
+            size_t iType = settings.UniqueToTypeLUT[iUnique]; // !!!*** error handling!
+
+            const AParticleAnalyzerRecord & properties = settings.AnalyzerTypes[iType];
+
+            int seenCopies = 0;
+            int seenGlobal = -1;
+            for (size_t iGlob = 0; iGlob < settings.GlobalToUniqueLUT.size(); iGlob++)
+            {
+                size_t iUn = settings.GlobalToUniqueLUT[iGlob];
+                if (iUn == iUnique)
+                {
+                    seenCopies++;
+                    if (seenCopies > 1) break;
+                    seenGlobal = iGlob;
+                }
+            }
+            if (seenCopies > 1) seenGlobal = -1;
+
+            Analyzers.push_back( AAnalyzerUniqueInstance(properties, seenGlobal) );
+        }
+    }
 }
 
 void SessionManager::prepareOutputDepoStream()
@@ -814,7 +846,7 @@ void SessionManager::storeMonitorsData()
 {
     json11::Json::array Arr;
 
-    for (MonitorSensitiveDetector * mon : Monitors)
+    for (MonitorSensitiveDetectorWrapper * mon : Monitors)
     {
         json11::Json::object json;
         mon->writeToJson(json);
@@ -835,7 +867,7 @@ void SessionManager::storeCalorimeterData()
 {
     json11::Json::array Arr;
 
-    for (CalorimeterSensitiveDetector * cal : Calorimeters)
+    for (CalorimeterSensitiveDetectorWrapper * cal : Calorimeters)
     {
         json11::Json::object json;
         cal->writeToJson(json);
@@ -844,6 +876,27 @@ void SessionManager::storeCalorimeterData()
 
     std::ofstream outStream;
     outStream.open(WorkingDir + "/" + Settings.RunSet.CalorimeterSettings.FileName);
+    if (outStream.is_open())
+    {
+        std::string json_str = json11::Json(Arr).dump();
+        outStream << json_str << '\n';
+    }
+    outStream.close();
+}
+
+void SessionManager::storeAnalyzerData()
+{
+    json11::Json::array Arr;
+
+    for (const AAnalyzerUniqueInstance & an : Analyzers)
+    {
+        json11::Json::object json;
+        an.writeToJson(json);
+        Arr.push_back(json);
+    }
+
+    std::ofstream outStream;
+    outStream.open(WorkingDir + "/" + Settings.RunSet.AnalyzerSettings.FileName);
     if (outStream.is_open())
     {
         std::string json_str = json11::Json(Arr).dump();

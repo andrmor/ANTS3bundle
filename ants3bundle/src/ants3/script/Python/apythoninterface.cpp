@@ -370,6 +370,7 @@ QVariant     retVariant;
 QVariantList retList;
 QVariantMap  retMap;
 
+#if QT_VERSION >= QT_VERSION_CHECK(6, 7, 0)
 template <size_t arraySize, size_t... indices>
 constexpr auto create_parameter_pack(const std::array<QMetaMethodArgument, arraySize> & array, std::index_sequence<indices...>)
 {
@@ -515,6 +516,7 @@ static PyObject* baseFunction_Qt67(PyObject * caller, PyObject * args)
     PyErr_SetString(PyExc_TypeError, QString("Unexpected mismatch in return type of method '%1'").arg(met.name()).toLatin1().data());
     return nullptr;
 }
+#endif
 
 static PyObject* baseFunction(PyObject * caller, PyObject *args)
 {

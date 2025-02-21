@@ -136,17 +136,15 @@ void AHistogram1D::fillFixed(double x, double val)
 {
     if (x < From)
         Data[0] += val;
-    else if (x > To)
+    else if (x >= To)
         Data[Bins+1] += val;
     else
-    {
         Data[ 1 + (x - From)/DeltaBin ] += val;
 
-        SumVal   += val;
-        SumVal2  += val*val;
-        SumValX  += val*x;
-        SumValX2 += val*x*x;
-    }
+    SumVal   += val;
+    SumVal2  += val*val;
+    SumValX  += val*x;
+    SumValX2 += val*x*x;
 }
 
 void AHistogram1D::processBuffer()

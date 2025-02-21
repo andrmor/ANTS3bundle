@@ -34,6 +34,13 @@ QString AMetalInterfaceRule::getLongReportLine() const
     return s;
 }
 
+QString AMetalInterfaceRule::getDescription() const
+{
+    QString txt = "This rule models reflection from a metallic surface with the provided complex refractive index.\n"
+                  "It is possible to use rough surface (affects the direction of the reflected photon).";
+    return txt;
+}
+
 void AMetalInterfaceRule::doWriteToJson(QJsonObject & json) const
 {
     json["RealN"]  = RealN;
@@ -52,7 +59,7 @@ QString AMetalInterfaceRule::doCheckOverrideData()
     return "";
 }
 
-AInterfaceRule::OpticalOverrideResultEnum AMetalInterfaceRule::calculate(APhoton * photon, const double * globalNormal)
+AInterfaceRule::EInterfaceRuleResult AMetalInterfaceRule::calculate(APhoton * photon, const double * globalNormal)
 {
 tryAgainLabel:
     double cosTheta = 0;

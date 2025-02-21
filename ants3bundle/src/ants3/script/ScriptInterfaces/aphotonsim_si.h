@@ -19,7 +19,7 @@ public:
     AScriptInterface * cloneBase() const {return new APhotonSim_SI();}
 
 public slots:
-    QString simulate(bool updateGui);
+    void simulate();
 
     void setSeed(double seed);
 

@@ -34,6 +34,7 @@ SOURCES += \
         ../ants3/geo/agridhub.cpp \
         ../ants3/particleSim/acalsettings.cpp \ # not needed for functionality, can be removed using a new DEFINE
         ../ants3/geo/amonitorhub.cpp \
+        ../ants3/particleSim/aparticleanalyzersettings.cpp \ # not needed for functionality, can be removed using a new DEFINE
         ../ants3/photonSim/adeporecord.cpp \
         ../ants3/photonSim/adepositionfilehandler.cpp \
         ../ants3/photonSim/afilehandlerbase.cpp \
@@ -77,11 +78,11 @@ SOURCES += \
         ../ants3/photonSim/astatisticshub.cpp \
         ../ants3/tools/ath.cpp \
         ../ants3/tools/avector.cpp \
+        alightsensorevent.cpp \
         anoderecord.cpp \
         aphotongenerator.cpp \
         aphotonsimulator.cpp \
         aphotontracer.cpp \
-        aoneevent.cpp \
         aphotonhistorylog.cpp \
         alogger.cpp \
         as1generator.cpp \
@@ -101,6 +102,7 @@ HEADERS += \
     ../ants3/geo/agridhub.h \
     ../ants3/geo/amonitorhub.h \
     ../ants3/particleSim/acalsettings.h \
+    ../ants3/particleSim/aparticleanalyzersettings.h \
     ../ants3/photonSim/adeporecord.h \
     ../ants3/photonSim/adepositionfilehandler.h \
     ../ants3/photonSim/afilehandlerbase.h \
@@ -145,9 +147,9 @@ HEADERS += \
     ../ants3/photonSim/aphotontrackrecord.h \
     ../ants3/tools/ath.h \
     ../ants3/tools/avector.h \
+    alightsensorevent.h \
     aphotonsimulator.h \
     aphotontracer.h \
-    aoneevent.h \
     aphotonhistorylog.h \
     anoderecord.h \
     aphotongenerator.h \

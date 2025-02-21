@@ -13,7 +13,7 @@
 
 void AGeoObject::constructorInit()
 {
-    if (Name.isEmpty()) Name = GenerateRandomObjectName();
+    if (Name.isEmpty()) Name = generateRandomObjectName();
 
     Position[0] = Position[1] = Position[2] = 0;
     Orientation[0] = Orientation[1] = Orientation[2] = 0;
@@ -201,6 +201,12 @@ bool AGeoObject::isScintillator() const
 {
     if (!Role) return false;
     return dynamic_cast<AGeoScint*>(Role);
+}
+
+bool AGeoObject::isParticleAnalyzer() const
+{
+    if (!Role) return false;
+    return dynamic_cast<AGeoParticleAnalyzer*>(Role);
 }
 
 int AGeoObject::getMaterial() const
@@ -751,6 +757,16 @@ bool AGeoObject::isContainsLocked()
     return false;
 }
 
+bool AGeoObject::isContainsObjectRecursive(const AGeoObject * otherObj)
+{
+    for (AGeoObject * obj : HostedObjects)
+    {
+        if (obj == otherObj) return true;
+        if (obj->isContainsObjectRecursive(otherObj)) return true;
+    }
+    return false;
+}
+
 bool AGeoObject::isDisabled() const
 {
     if (Type->isWorld()) return false;
@@ -771,6 +787,7 @@ void AGeoObject::enableUp()
 void AGeoObject::addObjectFirst(AGeoObject * Object)
 {
     auto it = HostedObjects.begin();
+    if (isWorld()) ++it; // world has a prototype container
     if (getContainerWithLogical()) ++it;
     if (getGridElement()) ++it;
     HostedObjects.insert(it, Object);
@@ -780,11 +797,7 @@ void AGeoObject::addObjectFirst(AGeoObject * Object)
 void AGeoObject::addObjectLast(AGeoObject * Object)
 {
     Object->Container = this;
-
-//    if (this->Type->isWorld())
-//        HostedObjects.insert(0, Object); //why ???  TODO: check this!
-//    else
-        HostedObjects.push_back(Object);
+    HostedObjects.push_back(Object);
 }
 
 bool AGeoObject::migrateTo(AGeoObject * objTo, bool fAfter, AGeoObject *reorderObj)
@@ -859,12 +872,13 @@ bool AGeoObject::suicide()
 
     //qDebug() << "!!--Suicide triggered for object:"<<Name;
     AGeoObject * ObjectContainer = Container;
-    auto it = Container->HostedObjects.begin();
-    for ( ; it != Container->HostedObjects.end(); ++it)
-        if (*it == this) break;
-    if (it == Container->HostedObjects.end()) return false;
 
-    Container->HostedObjects.erase(it);
+    size_t iObj = 0;
+    for (; iObj < Container->HostedObjects.size(); iObj++)
+        if (Container->HostedObjects[iObj] == this)
+            break;
+    if (iObj == Container->HostedObjects.size()) return false;
+    Container->HostedObjects.erase(Container->HostedObjects.begin() + iObj);
 
     //for composite, clear all unused logicals then kill the composite container
     if (Type->isComposite())
@@ -884,25 +898,26 @@ bool AGeoObject::suicide()
     }
     else if (Type->isGrid())
     {
-/*
-        AGeoObject* ge = getGridElement();
+        AGeoObject * ge = getGridElement();
         if (ge)
         {
-            for (int i=0; i<ge->HostedObjects.size(); i++)
-                delete ge->HostedObjects[i];
-            ge->HostedObjects.clear();
-
+            for (AGeoObject * obj : ge->HostedObjects) delete obj;
             delete ge;
-            HostedObjects.removeAll(ge);
+
+            for (auto itge = HostedObjects.begin(); itge != HostedObjects.end(); ++itge)
+                if (*itge == ge)
+                {
+                    HostedObjects.erase(itge);
+                    break;
+                }
         }
-*/
     }
 
     for (AGeoObject * obj : HostedObjects)
     {
         obj->Container = ObjectContainer;
-        Container->HostedObjects.insert(it, obj);
-        ++it;
+        Container->HostedObjects.insert(Container->HostedObjects.begin() + iObj, obj);
+        iObj++;
     }
 
     delete this;
@@ -1008,11 +1023,7 @@ void AGeoObject::updateStack()
 
 void AGeoObject::updateAllStacks()
 {
-    if (Type)
-    {
-        ATypeStackContainerObject * so = dynamic_cast<ATypeStackContainerObject*>(Type);
-        if (so) updateStack();
-    }
+    if (Type && Type->isStack()) updateStack();
 
     for (AGeoObject * obj : HostedObjects) obj->updateAllStacks();
 }
@@ -1433,11 +1444,13 @@ bool AGeoObject::isGoodContainerForInstance() const
     return false;
 }
 
+/*
 void AGeoObject::makeItWorld()
 {
     Name = "World";
     delete Type; Type = new ATypeWorldObject();
 }
+*/
 
 void AGeoObject::clearTrueRotationRecursive()
 {
@@ -1459,7 +1472,7 @@ bool AGeoObject::checkCompatibleWithGeant4() const
 {
     if (!fActive) return true;
 
-    if (Shape && !Shape->   isCompatibleWithGeant4())
+    if (Shape && !Shape->isCompatibleWithGeant4())
     {
         AErrorHub::addQError(Name + ": shape is incopatible with Geant4");
         return false;
@@ -1494,12 +1507,12 @@ QString randomString(int lettLength, int numLength)  // !!!*** RandomHub
     return randomString;
 }
 
-QString AGeoObject::GenerateRandomName()
+QString AGeoObject::generateRandomName()
 {
     return randomString(2, 1);
 }
 
-QString AGeoObject::GenerateRandomObjectName()
+QString AGeoObject::generateRandomObjectName()
 {
     QString str = randomString(2, 1);
     str = "New_" + str;

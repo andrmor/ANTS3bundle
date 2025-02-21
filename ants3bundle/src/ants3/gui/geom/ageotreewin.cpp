@@ -79,6 +79,8 @@ AGeoTreeWin::AGeoTreeWin(QWidget * parent) :
 
     ui->pteTP->setReadOnly(true);
 
+    ui->actionNew_objects_added_at_the_end->setChecked( A3Global::getInstance().NewGeoObjectAddedLast );
+
     QDoubleValidator* dv = new QDoubleValidator(this);
     dv->setNotation(QDoubleValidator::ScientificNotation);
     QList<QLineEdit*> list = this->findChildren<QLineEdit *>();
@@ -318,9 +320,6 @@ void AGeoTreeWin::highlightVolume(const QString & VolName)
         if (!vol) break;
 
         QString name = vol->GetName();
-        int ind = name.indexOf(Geometry.IndexSeparator.Data());   //reserved for monitors/calorimeters: after "_-_" comes monitor index
-        if (ind != -1) name.truncate(ind);
-
         if (set.contains(name))
         {
             vol->SetLineColor(kRed);
@@ -974,3 +973,9 @@ void AGeoTreeWin::on_actionFind_object_triggered()
 
     UpdateGeoTree(name, true);
 }
+
+void AGeoTreeWin::on_actionNew_objects_added_at_the_end_triggered(bool checked)
+{
+    A3Global::getInstance().NewGeoObjectAddedLast = checked;
+}
+

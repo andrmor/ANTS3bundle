@@ -43,6 +43,7 @@ private:
 
 public:
     std::vector<ACalorimeterData> Calorimeters;
+    std::vector<QString> CompositeCalorimeterMembers; // members of the composite calorimeters
 
     void clear();
     void clearData();
@@ -51,6 +52,7 @@ public:
     int  countCalorimetersWithData() const;
 
     QStringList getCalorimeterNames() const;
+    QStringList getCalorimeterNamesWithIndexes() const;
 
     std::vector<const ACalorimeterData*> getCalorimeters(const AGeoObject * obj) const;  // returns nullptr if not found
 

@@ -61,27 +61,30 @@ void ACalorimeter::writeDataToJson(QJsonObject & json, int index) const
     Properties.writeToJson(jsProps);
     json["Properties"] = jsProps;
 
-    QJsonObject jsDepo;
+    if (DataHistogram)
     {
-        QJsonArray ar;
-        for (int iz = 0; iz < Properties.Bins[2]; iz++)
-            for (int iy = 0; iy < Properties.Bins[1]; iy++)
-            {
-                QJsonArray el;
-                for (int ix = 0; ix < Properties.Bins[0]; ix++)
-                    el.push_back (DataHistogram->GetBinContent(ix+1, iy+1, iz+1) );
-                ar.push_back(el);
-            }
-        jsDepo["Data"] = ar;
+        QJsonObject jsDepo;
+        {
+            QJsonArray ar;
+            for (int iz = 0; iz < Properties.Bins[2]; iz++)
+                for (int iy = 0; iy < Properties.Bins[1]; iy++)
+                {
+                    QJsonArray el;
+                    for (int ix = 0; ix < Properties.Bins[0]; ix++)
+                        el.push_back (DataHistogram->GetBinContent(ix+1, iy+1, iz+1) );
+                    ar.push_back(el);
+                }
+            jsDepo["Data"] = ar;
 
-        QJsonArray sjs;
-        for (const double & d : Stats)
-            sjs.push_back(d);
-        jsDepo["Stat"] = sjs;
+            QJsonArray sjs;
+            for (const double & d : Stats)
+                sjs.push_back(d);
+            jsDepo["Stat"] = sjs;
 
-        jsDepo["Entries"] = Entries;
+            jsDepo["Entries"] = Entries;
+        }
+        json["XYZDepo"] = jsDepo;
     }
-    json["XYZDepo"] = jsDepo;
 
     if (EventDepoData)
     {
@@ -121,10 +124,13 @@ bool ACalorimeter::appendDataFromJson(const QJsonObject & json)
     ACalorimeterProperties loadedProps;
     loadedProps.readFromJson(pjs);
 
-    ok = addDepoDoseData(json, loadedProps);
-    if (!ok) return false;
-
-    if (Properties.CollectDepoOverEvent) addEventDepoDataFromJson(json, loadedProps);
+    if (Properties.DataType == ACalorimeterProperties::DepoPerEvent)
+        addEventDepoDataFromJson(json, loadedProps);
+    else
+    {
+        ok = addDepoDoseData(json, loadedProps);
+        if (!ok) return false;
+    }
 
     return true;
 }

@@ -15,6 +15,7 @@
 #include "QGSP_BIC.hh"
 #include "QGSP_BIC_HP.hh"
 #include "QGSP_BIC_AllHP.hh"
+#include "PenelopePhysList.hh"
 
 #include "QGSP_BERT.hh"
 #include "QGSP_BERT_HP.hh"
@@ -58,6 +59,7 @@ int main(int argc, char** argv)
     G4VModularPhysicsList *          physicsList = nullptr;
     if      (pl == "QGSP_BIC")       physicsList = new QGSP_BIC();
     else if (pl == "QGSP_BIC_HP")    physicsList = new QGSP_BIC_HP();
+    else if (pl == "Penelope")       physicsList = new PenelopePhysList();
     else if (pl == "QGSP_BIC_AllHP") physicsList = new QGSP_BIC_AllHP();
     else if (pl == "QGSP_BERT")      physicsList = new QGSP_BERT();
     else if (pl == "QGSP_BERT_HP")   physicsList = new QGSP_BERT_HP();

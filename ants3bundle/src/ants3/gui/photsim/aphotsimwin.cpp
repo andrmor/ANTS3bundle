@@ -158,6 +158,12 @@ void APhotSimWin::readFromJson(const QJsonObject & json)
     }
 }
 
+void APhotSimWin::onNewConfigStartedInGui()
+{
+    ui->cbRandomSeed->setChecked(true);
+    ui->sbSeed->setValue(1000);
+}
+
 void APhotSimWin::updateGui()
 {
     int index;
@@ -466,8 +472,12 @@ void APhotSimWin::on_pbSimulate_clicked()
     if (!ok)
     {
         ui->progbSim->setValue(0);
-        guitools::message("Simulation error:\n" + AErrorHub::getQError(), this);
-        if ( AErrorHub::getQError().contains("Exchange directory") ) emit requestConfigureExchangeDir();
+
+        if (!SimMan.isAborted())
+        {
+            guitools::message("Simulation error:\n" + AErrorHub::getQError(), this);
+            if ( AErrorHub::getQError().contains("Exchange directory") ) emit requestConfigureExchangeDir();
+        }
     }
     else
     {
@@ -484,6 +494,22 @@ void APhotSimWin::on_pbSimulate_clicked()
     if (ok) showSimulationResults();
 
     updateDepoGui(); // file was force-checked in this mode
+}
+
+void APhotSimWin::on_pbAbort_clicked()
+{
+    qApp->processEvents();
+
+    APhotonSimManager & SimMan = APhotonSimManager::getInstance();
+    SimMan.abort();
+
+    disableInterface(false);
+
+    //TGeoManager * GeoManager = AGeometryHub::getInstance().GeoManager;
+    //GeoManager->ClearTracks();
+    //emit requestClearGeoMarkers(0);
+    //emit requestShowGeometry(false);
+    //updateDepoGui(); // file was force-checked in this mode
 }
 
 void APhotSimWin::showSimulationResults()
@@ -525,7 +551,7 @@ void APhotSimWin::showSimulationResults()
 void APhotSimWin::on_pbLoadAllResults_clicked()
 {
     // !!!*** check logic - load only what was configured in sim!
-
+    bFreshDataLoaded = true;
     ui->sbEvent->setValue(0);
 
     APhotSimRunSettings Set;
@@ -539,12 +565,13 @@ void APhotSimWin::on_pbLoadAllResults_clicked()
     ui->leSensorSigFileName->setText(Set.FileNameSensorSignals);
     reshapeSensorSignalTable();
     showSensorSignals(true);
+    gvSensors->resetViewport(); // not working if the widget was not yet drawn :(
 
     ui->leBombsFile->setText(Set.FileNamePhotonBombs);
     on_pbShowBombsMultiple_clicked();
 
     ui->leTracksFile->setText(Set.FileNameTracks);
-    loadTracks(true);
+    loadAndShowTracks(true);
 
     ui->leLogFile->setText(Set.PhotonLogSet.FileName);
     delete LogHandler; LogHandler = nullptr;
@@ -712,10 +739,10 @@ void APhotSimWin::on_pbSelectTracksFile_clicked()
 
 void APhotSimWin::on_pbLoadAndShowTracks_clicked()
 {
-    loadTracks(false);
+    loadAndShowTracks(false);
 }
 
-void APhotSimWin::loadTracks(bool suppressMessage)
+void APhotSimWin::loadAndShowTracks(bool suppressMessage, int selectedEvent)
 {
     QString FileName = ui->leTracksFile->text();
     if (!FileName.contains('/')) FileName = ui->leResultsWorkingDir->text() + '/' + FileName;
@@ -730,11 +757,40 @@ void APhotSimWin::loadTracks(bool suppressMessage)
     TGeoManager * GeoManager = AGeometryHub::getInstance().GeoManager;
     GeoManager->ClearTracks();
 
+    bool bSkipNextEvent = false;
+
+    bool bSuppressNotHittingSensors = ui->cbSuppressTracksMissing->isChecked();
+    bool bEnforceMaxNumTracks = ui->cbTracksMaxInVis->isChecked();
+    int maxTracks = ui->sbmaxTracksInVis->value();
+
+    int addedTracks = 0;
     QTextStream in(&file);
     while(!in.atEnd())
     {
-        const QString line = in.readLine();
-        if (line.startsWith('#')) continue;
+        QString line = in.readLine();
+        if (line.startsWith('#'))
+        {
+            if (selectedEvent == -1) continue;
+            line.remove(0, 1);
+            bool ok;
+            int iEvent = line.toInt(&ok);
+            if (!ok)
+            {
+                if (!suppressMessage) guitools::message("Invalid format of the file with tracks (event index corrupted):\n" + FileName, this);
+                return;
+            }
+            if (iEvent < selectedEvent)
+            {
+                bSkipNextEvent = true;
+                continue;
+            }
+            else bSkipNextEvent = false;
+            if (iEvent > selectedEvent) break;
+            continue;
+        }
+
+        if (bSkipNextEvent) continue;
+        if (bEnforceMaxNumTracks && addedTracks > maxTracks) break;
 
         QJsonObject json = jstools::strToJson(line);
         QJsonArray ar;
@@ -747,7 +803,10 @@ void APhotSimWin::loadTracks(bool suppressMessage)
         const bool bHit = (json.contains("h") ? true : false);
         const bool bSec = (json.contains("s") ? true : false);
 
+        if (bSuppressNotHittingSensors && !bHit) continue;
+
         TGeoTrack * track = new TGeoTrack(1, 22);
+        addedTracks++;
         int Color = 7;
         if (bSec) Color = kMagenta;
         if (bHit) Color = 2;
@@ -1527,14 +1586,14 @@ void APhotSimWin::showSensorSignals(bool suppressMessage)
     bool ok = SignalsFileHandler->gotoEvent(ui->sbEvent->value());
     if (!ok)
     {
-        guitools::message(AErrorHub::getQError(), this); // check: silence error if suppressMessage?
+        if (!suppressMessage) guitools::message(AErrorHub::getQError(), this);
         return;
     }
 
     ok = SignalsFileHandler->readNextRecordSameEvent(ar);
     if (!ok)
     {
-        guitools::message(AErrorHub::getQError(), this); // check: silence error if suppressMessage?
+        if (!suppressMessage) guitools::message(AErrorHub::getQError(), this);
         return;
     }
 
@@ -1576,6 +1635,7 @@ void APhotSimWin::showSensorSignalTable(const std::vector<float> & signalArray, 
     const size_t numSensors = signalArray.size();
     const int numColumns = ui->sbSensorTableColumns->value();
 
+    double sum = 0;
     int currentRow = 0;
     int currentColumn = 0;
     for (int iSensorIndex : enabledSensors)
@@ -1595,13 +1655,19 @@ void APhotSimWin::showSensorSignalTable(const std::vector<float> & signalArray, 
                 currentColumn = 0;
                 currentRow++;
             }
+            sum += signalArray[iSensorIndex];
         }
+
+    ui->lSensorSum->setText(QString::number(sum));
 }
 
 // ------
 
 void APhotSimWin::showBombSingleEvent()
 {
+    TGeoManager * GeoManager = AGeometryHub::getInstance().GeoManager;
+    GeoManager->ClearTracks();
+
     emit requestClearGeoMarkers(0);
 
     bool ok = updateBombHandler();
@@ -1639,62 +1705,10 @@ void APhotSimWin::showBombSingleEvent()
 
 void APhotSimWin::showTracksSingleEvent()
 {
-    QString FileName = ui->leTracksFile->text();
-    if (!FileName.contains('/')) FileName = ui->leResultsWorkingDir->text() + '/' + FileName;
+    emit requestClearGeoMarkers(0);
 
-    QFile file(FileName);
-    if (!file.open(QIODevice::ReadOnly | QFile::Text)) return;
-
-    TGeoManager * GeoManager = AGeometryHub::getInstance().GeoManager;
-    GeoManager->ClearTracks();
-
-    const int iShowEvent = ui->sbEvent->value();
-
-    QTextStream in(&file);
-    int iCurrentEvent = 0;
-    while (!in.atEnd())
-    {
-        QString line = in.readLine();
-        if (line.startsWith('#'))
-        {
-            line.remove('#');
-            iCurrentEvent = line.toInt();
-            continue;
-        }
-
-        if (iShowEvent != iCurrentEvent) continue;
-
-        QJsonObject json = jstools::strToJson(line);
-        QJsonArray ar;
-        bool ok = jstools::parseJson(json, "P", ar);
-        if (!ok)
-        {
-            guitools::message("Unknown file format!", this);
-            return;
-        }
-        const bool bHit = (json.contains("h") ? true : false);
-        const bool bSec = (json.contains("s") ? true : false);
-
-        TGeoTrack * track = new TGeoTrack(1, 22);
-        int Color = 7;
-        if (bSec) Color = kMagenta;
-        if (bHit) Color = 2;
-        track->SetLineColor(Color);
-        //track->SetLineWidth(th->Width);
-        //track->SetLineStyle(th->Style);
-
-        for (int iNode = 0; iNode < ar.size(); iNode++)
-        {
-            QJsonArray el = ar[iNode].toArray();
-            if (el.size() < 3) continue; // !!!***
-            track->AddPoint(el[0].toDouble(), el[1].toDouble(), el[2].toDouble(), 0);
-        }
-        if (track->GetNpoints() > 1) GeoManager->AddTrack(track);
-        else delete track;
-    }
-
-    emit requestShowGeometry(); // !!!***
-    emit requestShowTracks();
+    int iShowEvent = ui->sbEvent->value();
+    loadAndShowTracks(false, iShowEvent);
 }
 
 bool APhotSimWin::updateBombHandler()
@@ -1727,6 +1741,7 @@ bool APhotSimWin::updateBombHandler()
 
 void APhotSimWin::setGuiEnabled(bool flag)
 {
+    qApp->processEvents();
     setEnabled(flag);
     qApp->processEvents();
 }
@@ -1911,4 +1926,24 @@ void APhotSimWin::on_pbPhotonLog_ShowAll_clicked()
 
     emit requestShowGeometry();
     emit requestShowTracks();
+}
+
+void APhotSimWin::on_tbwResults_tabBarClicked(int index)
+{
+    if (index == 2 && bFreshDataLoaded && ui->twSensors->currentIndex() == 0) resetViewportOnNewData();
+}
+
+void APhotSimWin::on_twSensors_tabBarClicked(int index)
+{
+    if (index == 0 && bFreshDataLoaded) resetViewportOnNewData();
+}
+
+#include <QTimer>
+void APhotSimWin::resetViewportOnNewData()
+{
+    qDebug() << "Resetting viewport";
+    qApp->processEvents();
+    bFreshDataLoaded = false;
+    //gvSensors->resetViewport(); // viewport cannot be updated before the widget is visible
+    QTimer::singleShot(0, gvSensors, [this](){gvSensors->resetViewport();});
 }

@@ -28,6 +28,17 @@ AInterfaceRule * AInterfaceRuleHub::getVolumeRule(const TString & from, const TS
     else return nullptr;
 }
 
+bool AInterfaceRuleHub::setMaterialRule(int matFrom, int matTo, AInterfaceRule * rule)
+{
+    if (matFrom < 0 || matFrom >= MaterialRules.size()) return false;
+    std::vector<AInterfaceRule*> & vec = MaterialRules[matFrom];
+    if (matTo < 0 || matTo >= vec.size()) return false;
+
+    delete vec[matTo];
+    vec[matTo] = rule;
+    return true;
+}
+
 void AInterfaceRuleHub::setVolumeRule(const TString & from, const TString & to, AInterfaceRule * rule)
 {
     VolumeRules[{from, to}] = rule;
@@ -244,14 +255,26 @@ QString AInterfaceRuleHub::checkAll()
     for (auto & rv : MaterialRules)
         for (auto & r : rv)
         {
+            if (!r) continue;
             QString es = r->checkOverrideData();
             if (!es.isEmpty())
             {
                 const QString matFrom = MatHub[r->getMaterialFrom()]->Name;
                 const QString matTo   = MatHub[r->getMaterialTo()]  ->Name;
-                err += QString("In interface rule from %1 to %2:\n").arg(matFrom, matTo) + err;
+                err += QString("In interface rule from %1 to %2:\n").arg(matFrom, matTo) + es + "\n";
             }
         }
+
+    for (auto & NNIpair : VolumeRules)
+    {
+        if (!NNIpair.second) continue;
+        QString es = NNIpair.second->checkOverrideData();
+        if (!err.isEmpty())
+        {
+            const std::pair<TString, TString> & np = NNIpair.first;
+            err += QString("In interface rule from %1 to %2:\n").arg(np.first.Data(), np.second.Data()) + es + "\n";
+        }
+    }
 
     return err;
 }

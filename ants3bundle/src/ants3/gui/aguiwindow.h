@@ -23,10 +23,11 @@ public slots:
     void setGeometry(QVariantList XYWHm);
 
 protected:
+    void hideEvent(QHideEvent *event) override;
+    //void moveEvent(QMoveEvent * event) override; // cannot do it in Linux: the position is not yet finalized so the wrong window position is stored
 
-//    bool event(QEvent * event) override;
-//    void showEvent(QShowEvent *event) override;
-//    void hideEvent(QHideEvent *event) override;
+    //bool event(QEvent * event) override;
+    //void showEvent(QShowEvent *event) override;
 
 /*
     bool bWinGeomUpdateAllowed = true;

@@ -19,8 +19,7 @@ class QJsonObject;
 class AVector3;
 class QStringLists;
 class AGeoShape;
-
-#include "TString.h"
+class AParticleAnalyzerSettings;
 
 class AGeometryHub
 {
@@ -44,8 +43,6 @@ public:
     TGeoManager * GeoManager = nullptr;
     TGeoVolume  * Top        = nullptr;  // world in TGeoManager
 
-    const TString IndexSeparator = "_-_";
-
     void         populateGeoManager(bool notifyRootServer = true);
     void         notifyRootServerGeometryChanged();
 
@@ -53,11 +50,15 @@ public:
     QString      readFromJson(const QJsonObject & json);
 
     void         clearWorld();
+    void         restoreWorldAttributes();
     bool         canBeDeleted(AGeoObject * obj) const;
 
     void         convertObjToComposite(AGeoObject * obj) const;
 
-    QString      convertToNewPrototype(std::vector<AGeoObject*> members);
+    // selection on tree widget marks all container levels --> if an object is already inside a selected item's container, remove it from the vector
+    void         removePresentInContainers(std::vector<AGeoObject *> & members);
+
+    QString      convertToNewPrototype(std::vector<AGeoObject *> & members);
     bool         isValidPrototypeName(const QString & ProtoName) const;
 
     void         aboutToQuit();
@@ -90,15 +91,17 @@ public:
     QString      generateStandaloneObjectName(const AGeoShape * shape) const;
     QString      generateObjectName(const QString & prefix) const;
 
-    void         removeNameDecorators(TString & name) const;
-
     size_t       countScintillators() const;
     void         getScintillatorPositions(std::vector<AVector3> & positions) const;
+    AVector3     getScintillatorPosition(size_t index) const;
     void         getScintillatorOrientations(std::vector<AVector3> & orientations) const;
     void         getScintillatorVolumeNames(std::vector<QString> & vol) const;
     void         getScintillatorVolumeUniqueNames(std::vector<QString> & vol) const;
 
     void         checkGeometryCompatibleWithGeant4() const;
+
+    size_t       countParticleAnalyzers() const;
+    void         fillParticleAnalyzerRecords(AParticleAnalyzerSettings * settings) const;
 
 private:
     void addTGeoVolumeRecursively(AGeoObject * obj, TGeoVolume * parent, int forcedNodeNumber = 0);
@@ -129,6 +132,7 @@ private:
     QString readGDMLtoTGeo(const QString & fileName);
 
     void registerPhotonFunctional(AGeoObject * obj, TGeoVolume * parentVol);
+    void registerCompositeCalorimeterMembersRecursive(AGeoObject * obj); // !!!*** check composite flag, make recursive
 
 private:
     bool   DoScaling = false;
@@ -136,6 +140,7 @@ private:
 
     std::vector<std::pair<AGeoObject*,TGeoNode*>> Scintillators;
 public:
+    std::vector<std::tuple<AGeoObject*,TGeoNode*,AVector3>> ParticleAnalyzers;  // last is global position
     std::vector<std::tuple<AGeoObject*,TGeoNode*,AVector3>> PhotonFunctionals;  // last is global position
 };
 

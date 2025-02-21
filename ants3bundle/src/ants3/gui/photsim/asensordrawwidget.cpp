@@ -246,21 +246,27 @@ void ASensorDrawWidget::addSensorItems(float MaxSignal)
             double radius = tube->rmax * GVscale;
             item = scene->addEllipse( -radius, -radius, 2.0*radius, 2.0*radius, pen, brush);
         }
-        /*
-        else if !!!***polygon!
+        else if (shapeType == "TGeoPolygon")
         {
-            double radius = 0.5*tp->SizeX*GVscale;
+            AGeoPolygon * pgon = static_cast<AGeoPolygon*>(obj->Shape);
+            const int nEdges = pgon->nedges;
+            const double size = pgon->minSize();
+
+            double rot = obj->Orientation[0];
+            if (rot == 0) rot = obj->Orientation[2];
+            rot *= 3.1415926535/180.0;
+
+            double radius = size * GVscale;
             QPolygon polygon;
-            for (int j=0; j<7; j++)
+            for (int j = 0; j < nEdges+1; j++)
             {
-                double angle = 3.1415926535/3.0 * j + 3.1415926535/2.0;
+                double angle = 2.0 * 3.1415926535/nEdges * j + rot;
                 double x = radius * cos(angle);
                 double y = radius * sin(angle);
                 polygon << QPoint(x, y);
             }
             item = scene->addPolygon(polygon, pen, brush);
         }
-        */
         else
         {
             qDebug() << "Representing" << shapeType << "shaped sensor with a square of size 20 mm";

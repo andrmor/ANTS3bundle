@@ -1,0 +1,33 @@
+var dir = "/home/andr/tmp/Out"
+var fileName = dir + "/SensorSignals.txt"
+
+var numSens = geo.countLightSensors()
+if (numSens == 0) core.abort("There are no light sensors in the current configuration")
+var sensorPositions = geo.getLightSensorPositions()
+
+var DATA = core.loadNumericArray(fileName)
+if (DATA.length == 0) core.abort("Sensor signal data are empty!")
+
+
+for (var iEv = 0; iEv < DATA.length; iEv++)
+{
+    var sigAr = DATA[iEv]
+    if (sigAr.length != numSens) core.abort("Mismatch in data length and number of light sensors!")
+    
+    var sumSig = 0
+    var sumSigPosX = 0
+    var sumSigPosY = 0
+    for (var iSens = 0; iSens < numSens; iSens++)
+    {
+        sumSig += sigAr[iSens]
+        sumSigPosX += sigAr[iSens] * sensorPositions[iSens][0]
+        sumSigPosY += sigAr[iSens] * sensorPositions[iSens][1]
+    }
+    
+    if (sumSig == 0) continue
+    
+    var X = sumSigPosX / sumSig
+    var Y = sumSigPosY / sumSig
+    
+    core.print(X, Y)
+}

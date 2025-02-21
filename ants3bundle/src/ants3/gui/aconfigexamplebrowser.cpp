@@ -24,7 +24,7 @@ AConfigExampleBrowser::AConfigExampleBrowser(QWidget *parent) :
     ui(new Ui::AConfigExampleBrowser)
 {
     ui->setupUi(this);
-    setWindowTitle("Config example browser");
+    setWindowTitle("Configuration examples");
 
     const A3Global & GlobSet = A3Global::getConstInstance();
     QString fn = GlobSet.ExamplesDir + "/ConfigExamples.txt";
@@ -40,6 +40,12 @@ AConfigExampleBrowser::AConfigExampleBrowser(QWidget *parent) :
 AConfigExampleBrowser::~AConfigExampleBrowser()
 {
     delete ui;
+}
+
+void AConfigExampleBrowser::expandAll(bool flag)
+{
+    if (flag) ui->trwExamples->expandAll();
+    else      ui->trwExamples->collapseAll();
 }
 
 QString AConfigExampleBrowser::readDatabase(QString fileName)
@@ -184,7 +190,7 @@ void AConfigExampleBrowser::updateTableWidget()
     {
         QTreeWidgetItem * item = new QTreeWidgetItem();
         //QFont font = item->font(0); font.setBold(true); item->setFont(0, font);
-        QFont font = item->font(0); font.setPointSize(font.pointSize() + 2); item->setFont(0, font);
+        //QFont font = item->font(0); font.setPointSize(font.pointSize() + 1); item->setFont(0, font);
         ui->trwExamples->addTopLevelItem(item);
         fillTableRecursively(br, item);
     }
@@ -205,7 +211,8 @@ void AConfigExampleBrowser::fillTableRecursively(AConfigExampleBranch * branch, 
     for (const AConfigExampleItem & example : branch->Items)
     {
         QTreeWidgetItem * exampleItem = new QTreeWidgetItem({example.FileName, example.Description});
-        QFont font = exampleItem->font(0); font.setBold(true); exampleItem->setFont(0, font);
+        //QFont font = exampleItem->font(0); font.setBold(true); exampleItem->setFont(0, font);
+        QFont font = exampleItem->font(0); font.setItalic(true); font.setPointSize(font.pointSize() + 1); exampleItem->setFont(0, font);
         item->addChild(exampleItem);
     }
 }

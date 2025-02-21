@@ -19,8 +19,11 @@ void AParticleSimHub::writeToJson(QJsonObject & json, bool exportSimulation) con
     json["ParticleSim"] = js;
 }
 
+#include "aparticleanalyzerhub.h"
 void AParticleSimHub::readFromJson(const QJsonObject &json)
 {
+    AParticleAnalyzerHub::getInstance().clear();
+
     QJsonObject js;
     jstools::parseJson(json, "ParticleSim", js);
     Settings.readFromJson(js);

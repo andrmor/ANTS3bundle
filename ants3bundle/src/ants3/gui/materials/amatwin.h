@@ -25,7 +25,6 @@ public:
     void initWindow();
     void updateGui();
     void setMaterial(int index);
-//    void AddMaterialFromLibrary(QWidget * parentWidget);   !!!***
 
 private slots:
     //on user input
@@ -34,7 +33,7 @@ private slots:
     void on_pbClone_clicked();
     void on_pbAcceptChanges_clicked();
     void on_pbCancel_clicked();
-    void on_leName_textChanged(const QString &arg1);
+    void on_leName_textChanged(const QString & arg1);
     void on_leName_editingFinished();
     void on_cobActiveMaterials_activated(int index);
     void on_pbUpdateTmpMaterial_clicked();
@@ -54,7 +53,7 @@ private slots:
     void on_ledRayleighWave_editingFinished();
     void on_ledRayleigh_editingFinished();
     void on_pbRemoveRayleigh_clicked();
-    void on_pbShowUsage_clicked();
+    void on_pbShowUsage_clicked();    // !!!*** migrate to GeoHub
     void on_ledIntEnergyRes_editingFinished();
     void on_lePriT_raise_editingFinished();
     void on_pbShowReemProbLambda_clicked();
@@ -71,40 +70,37 @@ private slots:
     void on_leComposition_editingFinished();
     void on_pbHelpComposition_clicked();
     void on_pbInspectG4Material_clicked();
+    void on_ledT_editingFinished();
+    void on_cbGas_clicked(bool checked);
+    void on_ledPressure_editingFinished();
+    void on_cobPressureUnits_activated(int index);
+    void on_ledCustoimScatterMFP_editingFinished();
+    void on_pbShowNlambda_customContextMenuRequested(const QPoint &pos);
+    void on_pbShowABSlambda_customContextMenuRequested(const QPoint &pos);
+    void on_pbShowReemProbLambda_customContextMenuRequested(const QPoint &pos);
+    void on_pbShowPrimSpectrum_customContextMenuRequested(const QPoint &pos);
+    void on_pbShowSecSpectrum_customContextMenuRequested(const QPoint &pos);
+    void on_pbLoadFromLibrary_clicked();
 
     //user or code controlled change - safe or only GUI
-    void on_ledRayleigh_textChanged(const QString &arg1);
+    void on_ledRayleigh_textChanged(const QString & arg1);
     void on_pteComments_textChanged();
     void on_cobCompositionType_currentIndexChanged(int index);
     void on_cobMeanExcitationEnergy_currentIndexChanged(int index);
+    void on_cbGas_toggled(bool checked);
 
     //menu actions
     void on_actionSave_material_triggered();
     void on_actionLoad_material_triggered();
-//    void on_actionLoad_from_material_library_triggered();   !!!***
+    void on_actionLoad_from_material_library_triggered();
     void on_actionAdd_default_material_triggered();
     void on_actionRemove_selected_material_triggered();
 
-    void on_cbGas_toggled(bool checked);
-    void on_cbGas_clicked(bool checked);
-    void on_ledPressure_editingFinished();
-    void on_cobPressureUnits_activated(int index);
+    void on_pbComputeNlambda_clicked();
 
-    void on_ledT_editingFinished();
+    void on_pbAbsImport_clicked();
 
-    void on_ledCustoimScatterMFP_editingFinished();
-
-    void on_pbShowNlambda_customContextMenuRequested(const QPoint &pos);
-
-    void on_pbShowABSlambda_customContextMenuRequested(const QPoint &pos);
-
-    void on_pbShowReemProbLambda_customContextMenuRequested(const QPoint &pos);
-
-    void on_pbShowPrimSpectrum_customContextMenuRequested(const QPoint &pos);
-
-    void on_pbShowSecSpectrum_customContextMenuRequested(const QPoint &pos);
-
-    void on_pbLoadFromLibrary_clicked();
+    void on_pbImportNWave_clicked();
 
 private:
     AGeometryHub & Geometry;

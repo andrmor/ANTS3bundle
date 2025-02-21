@@ -1,0 +1,54 @@
+// compute detection efficiency using the calorimeters' data
+
+// !!! change the directory !!!
+var dir = "/home/andr/.config/ants3/TmpOutput"
+
+// !!! make sure that the number of events is not changed if re-processing old data
+var numEvents = config.getKeyValue("ParticleSim.Events")
+if (numEvents == 0) abort("Number of events is zero")
+
+var fileName = dir + "/Calorimeters.json"
+root.SetOptStat( "rmeoui" )
+
+psim.loadCalorimeterData(fileName)
+var num = psim.countCalorimeters()
+
+var data = psim.getCalorimeterOverEventData(0)
+var indexAr = [0]
+var EffvsIndex = []
+var ErrvsIndex = []
+var dummy = [0]
+
+var DE = core.arraySum(data)
+EffvsIndex.push(100.0*DE/numEvents)
+ErrvsIndex.push(100.0*math.sqrt(DE)/numEvents)
+
+for (var iCa = 1; iCa < num; iCa++)
+{
+   var ar = psim.getCalorimeterOverEventData(iCa)
+   if (data.length != ar.length) core.abort("Data corrupted: mismatching colorimeter array data")
+   var thisDE = core.arraySum(ar)
+   DE += thisDE
+   EffvsIndex.push(100.0*thisDE/numEvents)
+   ErrvsIndex.push(100.0*Math.sqrt(thisDE)/numEvents)
+   dummy.push(0)
+   indexAr.push(iCa)
+   for (var i = 0; i < data.length; i++)
+      data[i][1] += ar[i][1]
+}
+
+hist.new1D("h", 190, 100, 2000)
+hist.fillArr("h", data)
+hist.setAxisTitles("h", "Deposition energy, keV", "")
+hist.draw("h")
+grwin.addToBasket("TotalDepoPerEvent")
+
+graphName = "g"
+graph.new1DErr(graphName)
+graph.addPoints(graphName, indexAr, EffvsIndex, dummy, ErrvsIndex)
+graph.setAxisTitles(graphName, "Gap index", "Detection efficiency, %")
+graph.setMinimum(graphName, 0)
+graph.draw(graphName, "APL")
+grwin.addToBasket("DetEffVsIndex")
+
+core.print("Total detection efficiency:", 100.0*DE/numEvents, "%")

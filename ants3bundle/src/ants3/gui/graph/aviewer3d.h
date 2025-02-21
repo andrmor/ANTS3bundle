@@ -73,7 +73,7 @@ private:
     AViewer3DWidget * View2 = nullptr;
     AViewer3DWidget * View3 = nullptr;
 
-    bool doLoadCastorImage(const QString & fileName);
+    bool doLoadCastorImage(const QString & fileName); // !!!*** use ACastorImageLoader class
     void createViewWidgets();
     void calculateGlobalMaximum();
     void configureConnections(AViewer3DWidget * from, AViewer3DWidget * to1, AViewer3DWidget * to2);

@@ -317,7 +317,7 @@ void ATypeCircularArrayObject::introduceGeoConstValues(QString & errorStr)
     bool ok;
     ok = GC.updateIntParameter(errorStr, strNum,         num,         true,  true);            if (!ok) errorStr += " in Number\n";
     ok = GC.updateDoubleParameter(errorStr, strAngularStep, angularStep, true,  false, false); if (!ok) errorStr += " in Angular Step\n";
-    ok = GC.updateDoubleParameter(errorStr, strRadius,      radius,      true,  true,  false); if (!ok) errorStr += " in Radius\n";
+    ok = GC.updateDoubleParameter(errorStr, strRadius,      radius,      false,  true,  false); if (!ok) errorStr += " in Radius\n";
     ok = GC.updateIntParameter(errorStr, strStartIndex,  startIndex,  false, true);            if (!ok) errorStr += " in Start Index\n";
 }
 
@@ -330,14 +330,15 @@ void ATypeCircularArrayObject::scale(double factor)
 
 ATypeHexagonalArrayObject::ATypeHexagonalArrayObject() {pType = &HexagonalArray;}
 
-void ATypeHexagonalArrayObject::reconfigure(double step, EShapeMode shape, int rings, int numX, int numY, bool skipOddLast)
+void ATypeHexagonalArrayObject::reconfigure(double step, EShapeMode shape, int rings, int numX, int numY, bool skipEvenFirst, bool skipOddLast)
 {
-    Step        = step;
-    Shape       = shape;
-    Rings       = rings;
-    NumX        = numX;
-    NumY        = numY;
-    SkipOddLast = skipOddLast;
+    Step         = step;
+    Shape        = shape;
+    Rings        = rings;
+    NumX         = numX;
+    NumY         = numY;
+    SkipEvenFirst = skipEvenFirst;
+    SkipOddLast  = skipOddLast;
 }
 
 bool ATypeHexagonalArrayObject::isGeoConstInUse(const QRegularExpression &nameRegExp) const
@@ -361,13 +362,14 @@ void ATypeHexagonalArrayObject::replaceGeoConstName(const QRegularExpression &na
 
 void ATypeHexagonalArrayObject::doWriteToJson(QJsonObject & json) const
 {
-    json["Step"]        = Step;
-    json["Shape"]       = ( Shape == Hexagonal ? "Hexagonal" : "XY" );
-    json["Rings"]       = Rings;
-    json["NumX"]        = NumX;
-    json["NumY"]        = NumY;
-    json["SkipOddLast"] = SkipOddLast;
-    json["startIndex"]  = startIndex;
+    json["Step"]          = Step;
+    json["Shape"]         = ( Shape == Hexagonal ? "Hexagonal" : "XY" );
+    json["Rings"]         = Rings;
+    json["NumX"]          = NumX;
+    json["NumY"]          = NumY;
+    json["SkipEvenFirst"] = SkipEvenFirst;
+    json["SkipOddLast"]   = SkipOddLast;
+    json["startIndex"]    = startIndex;
 
     if (!strStep.isEmpty())       json["strStep"]       = strStep;
     if (!strRings.isEmpty())      json["strRings"]      = strRings;
@@ -383,11 +385,13 @@ void ATypeHexagonalArrayObject::readFromJson(const QJsonObject & json)
     if (ModeStr == "XY") Shape = XY;
     else                 Shape = Hexagonal;
 
-    jstools::parseJson(json, "Step",       Step);
-    jstools::parseJson(json, "Rings",      Rings);
-    jstools::parseJson(json, "NumX",       NumX);
-    jstools::parseJson(json, "NumY",       NumY);
-    jstools::parseJson(json, "startIndex", startIndex);
+    jstools::parseJson(json, "Step",          Step);
+    jstools::parseJson(json, "Rings",         Rings);
+    jstools::parseJson(json, "NumX",          NumX);
+    jstools::parseJson(json, "NumY",          NumY);
+    jstools::parseJson(json, "SkipEvenFirst", SkipEvenFirst);
+    jstools::parseJson(json, "SkipOddLast",   SkipOddLast);
+    jstools::parseJson(json, "startIndex",    startIndex);
 
     if (!jstools::parseJson(json, "strStep",       strStep))       strStep.clear();
     if (!jstools::parseJson(json, "strRings",      strRings))      strRings.clear();

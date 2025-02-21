@@ -13,21 +13,65 @@
 #include <QVariant>
 
 #include "TH1D.h"
+#include "TH2D.h"
+#include "TH3D.h"
 
 AParticleSim_SI::AParticleSim_SI() :
     SimMan(AParticleSimManager::getInstance())
 {
-    Help["getCalorimeterData"] = "Returns array of [x,val] or [x,y,val] or [x,y,z,val],\n"
-                                 "options: 'x' or 'y' or 'z' for 1D,\n,"
-                                 "'xy' or 'xz' or 'yx' or 'yz' or 'zx' or 'zy' for 2D,\n"
-                                 "'xyz' or empty for 3D";
+    Help["simulate"] = "Starts particle simulation using current configuration";
+    Help["setSeed"] = "Sets seed of the random generator";
+
+    Help["loadCalorimeterData"] = "Load simulation data containing calorimeter results";
+    Help["countCalorimeters"] = "Returns number of configured calorimeters in the current configuration";
+    Help["getCalorimeterGlobalPositionsAll"] = "Returns array with global positions [x,y,z] of all calorimeters defined in the current configuration";
     Help["getCalorimeterBinning"] = "Returns array of 3 arrays, [Bins, Origin, Step], each one is for x,y and z axis";
+    Help["getCalorimeterData"] = "Returns array of [x, y, z, val], val is in units of keV or Gy, depending on the configuratuion";
+    Help["getCalorimeterDataProjection"] = "Returns a projections as an array of [x, val] or [x, y, val]\n"
+                                 "options: 'x' or 'y' or 'z' for 1D,\n,"
+                                 "'xy' or 'xz' or 'yx' or 'yz' or 'zx' or 'zy' for 2D.\n"
+                                 "val is is units of keV or Gy, note that this method does not make sense for calorimeters acquiring the dose!";
+    Help["getCalorimeterOverEventData"] = "Returs array of [keV, weight] giving the distribution of the energy deposition over events.\n"
+                                          "Energy is the bin's mean.";
+    Help["clearCalorimeterData"] = "Clears the loaded calorimeter data";
+
+    Help["loadMonitorData"] = "Load simulation data containing monitor results";
+    Help["countMonitors"] = "Returns number of configured particle monitors in the current configuration";
+    Help["getMonitorGlobalPositionsAll"] = "Returns array with global positions [x,y,z] of all particle monitors defined in the current configuration";
+    Help["getMonitorHitsAll"] = "Returns array of detected hits for all particle monitors";
+    Help["getMonitorEnergy"] = "Returns array of the distribution of particle energy for the monitor with the given index\n"
+                               "The units parameter should be meV eV keV or MeV\n"
+                               "Energy is the bin's mean.";
+    Help["getMonitorTime"] = "Returns array of the distribution of time for the monitor with the given index\n"
+                             "The units parameter should be ns us ms or s\n"
+                             "Time is the bin's mean.";
+    Help["getMonitorAngle"] = "Returns array of the distribution of angle for the monitor with the given index\n"
+                             "Angle is in degrees and the bin's mean is given.";
+    Help["getMonitorXY"] = "Returns array of the distribution of the XY positions ([X, Y, val]) for the monitor with the given index\n"
+                           "The bin center positions are given";
+
+    Help["loadAnalyzerData"] = "Loads simulation data with the particle analyzer results";
+    Help["countAnalyzers"] = "Count unique analyzers ('global' number of analyzers can be different from 'unique' if merging of copies was selected at least for one analyzer)";
+    Help["getAnalyzerUniqueToGlobalIndex"] = "Get global analyzer indexes (returns -1 for all non-unique ones). "
+                                             "Use getAnalyzerPositionsByGlobalIndex() to get positions of analyzers by the global index";
+    Help["getAnalyzerPositionsByGlobalIndex"] = "Returns array with global positions [x,y,z] of all analyzers\n"
+                                                "Non-unique analyzers cannot return position";
+    Help["getAnalyzerDataAll"] = "Return array with the data for all unique analyzers. The array element is an array of [particleName, number, EnergyData], "
+                                 "where EnergyData is an array of bins [Energy_centerOfBin_keV, Number], excluding under- and overflow";
+
+    Help["setTrackingHistoryFileName"] = "Configures the file used to build tracks";
+    Help["buildTracks"] = "Build tracks using data from the configured file (see setTrackingHistoryFileName). maxTracks parameter defined the maximum number of constructed tracks";
+    Help["buildTracksSpecific"] = "Build tracks using data from the configured file (see setTrackingHistoryFileName) using a set of selectors:\n"
+                                  "skipPrimaries / skipPrimNoInter (primaries without interaction) / skipSecondaries selects the particle type,\n"
+                                  "limitToParticleList and excludeParticles allows to define a specific list of included or excluded particles\n\n"
+                                  "maxTracks parameter defined the maximum number of constructed tracks";
+    Help["buildTracksSingleEvent"] = "Build tracks using data from the configured file (see setTrackingHistoryFileName) for s given event index.";
+
+    Help["getThreeGammasForPositronium"] = "Returns array containing three arrays of gammas [dx,dy,dz,MeV] representing ortho-positronium decay";
 }
 
 void AParticleSim_SI::simulate()
 {
-    AErrorHub::clear();
-
     SimMan.simulate();
 
     QString err = AErrorHub::getQError();
@@ -77,8 +121,7 @@ QVariantList AParticleSim_SI::getCalorimeterGlobalPositionsAll()
     return vl;
 }
 
-/*
-QVariantList AParticleSim_SI::getCalorimeterData(int calorimeterIndex, QString mode)
+QVariantList AParticleSim_SI::getCalorimeterDataProjection(int calorimeterIndex, QString mode)
 {
     QVariantList res;
     const ACalorimeterHub & CalHub = ACalorimeterHub::getConstInstance();
@@ -134,11 +177,10 @@ QVariantList AParticleSim_SI::getCalorimeterData(int calorimeterIndex, QString m
                                                 data->GetZaxis()->GetBinCenter(iz+1),
                                                 data->GetBinContent(ix+1, iy+1, iz+1)} );
     }
-    else abort("Undefined option in getCalorimeterData()");
+    else abort("Undefined option in getCalorimeterData(), it should be one of the following:\nx y z xy xz yx yz zx zy");
 
     return res;
 }
-*/
 
 QVariantList AParticleSim_SI::getCalorimeterData(int calorimeterIndex)
 {
@@ -339,7 +381,7 @@ QVariantList AParticleSim_SI::getMonitorEnergy(int monitorIndex, QString units)
     else if (units == "MeV") factor *= 1e-3;
     else
     {
-        abort("Unrecognized energy units: " + units);
+        abort("Unrecognized energy units: " + units + "\nIt should be meV eV keV or MeV");
         return vl;
     }
 
@@ -391,7 +433,7 @@ QVariantList AParticleSim_SI::getMonitorTime(int monitorIndex, QString units)
     else if (units == "s")  factor *= 1e-9;
     else
     {
-        abort("Unrecognized time units: " + units);
+        abort("Unrecognized time units: " + units + "\nIt should be ns us ms or s");
         return vl;
     }
 
@@ -467,6 +509,112 @@ QVariantList AParticleSim_SI::getMonitorXY(int monitorIndex)
     return vl;
 }
 
+// ----------
+#include "ageometryhub.h"
+#include "aparticleanalyzerhub.h"
+void AParticleSim_SI::loadAnalyzerData(QString fileName)
+{
+    const AGeometryHub & GeoHub = AGeometryHub::getInstance();
+    if (GeoHub.countParticleAnalyzers() == 0)
+    {
+        abort("There are no particle analyzers in the loaded config!");
+        return;
+    }
+
+    AErrorHub::clear();
+    AParticleAnalyzerHub & AnHub = AParticleAnalyzerHub::getInstance();
+    AnHub.loadAnalyzerFiles({fileName});
+    if (AErrorHub::isError())
+    {
+        abort(AErrorHub::getQError());
+        return;
+    }
+}
+
+int AParticleSim_SI::countAnalyzers()
+{
+    return AParticleAnalyzerHub::getConstInstance().UniqueAnalyzers.size();
+}
+
+QVariantList AParticleSim_SI::getAnalyzerDataAll()
+{
+    const AParticleAnalyzerHub & AnHub = AParticleAnalyzerHub::getInstance();
+    QVariantList allAnalayzersList;
+
+    for (const AAnalyzerData & an : AnHub.UniqueAnalyzers)
+    {
+        const QString enUnits = an.EnergyDataUnits;
+        double energyFactor = 1.0;
+        if      (enUnits == "MeV") energyFactor = 1e3;
+        else if (enUnits == "eV")  energyFactor = 1e-3;
+        else if (enUnits == "meV")  energyFactor = 1e-6;
+
+        QVariantList oneAnalyzerList;
+        for (const auto & pair : an.ParticleMap)
+        {
+            QVariantList particleList;
+
+            const AAnalyzerParticle & particleRec = pair.second;
+            QVariantList histVL;
+            for (size_t i = 1; i < particleRec.EnergyBins+1; i++)
+            {
+                QVariantList el;
+                    el.push_back(particleRec.EnergyHist->GetBinCenter(i));
+                    el.push_back(particleRec.EnergyHist->GetBinContent(i) * energyFactor);
+                histVL.push_back(el);
+            }
+
+            // [name, number, [energyDataExcludingUnderOver:[E_center,Number]]]
+            particleList.push_back(pair.first);
+            particleList.push_back( (int)particleRec.getNumber() );
+            particleList.push_back(histVL);
+
+            oneAnalyzerList.push_back(particleList);
+        }
+
+        allAnalayzersList.push_back(oneAnalyzerList);
+    }
+
+    return allAnalayzersList;
+}
+
+QVariantList AParticleSim_SI::getAnalyzerUniqueToGlobalIndex()
+{
+    const AParticleAnalyzerHub & AnHub = AParticleAnalyzerHub::getInstance();
+    const std::vector<AAnalyzerData> UniqueAnalyzers = AnHub.UniqueAnalyzers;
+
+    QVariantList vl;
+
+    for (const AAnalyzerData & ad : UniqueAnalyzers)
+        vl << ad.GlobalIndexIfNoMerge;
+
+    return vl;
+}
+
+QVariantList AParticleSim_SI::getAnalyzerPositionsByGlobalIndex()
+{
+    const AGeometryHub & GeoHub = AGeometryHub::getInstance();
+
+    QVariantList vl;
+
+    for (const auto & ad : GeoHub.ParticleAnalyzers)
+    {
+        QVariantList el;
+            const AVector3 & pos = std::get<2>(ad);
+            for (size_t i = 0; i < 3; i++)
+            {
+                double res = pos[i];
+                if (abs(res) < 1e-300) res = 0;
+                el << res;
+            }
+        vl.push_back(el);
+    }
+
+    return vl;
+}
+
+// ----------
+
 void AParticleSim_SI::setTrackingHistoryFileName(QString fileName)
 {
     TrackingHistoryFileName = fileName;
@@ -474,11 +622,11 @@ void AParticleSim_SI::setTrackingHistoryFileName(QString fileName)
 
 void AParticleSim_SI::buildTracks(int maxTracks)
 {
-    buildTracks(false, false, false, QVariantList(), QVariantList(), maxTracks);
+    buildTracksSpecific(false, false, false, QVariantList(), QVariantList(), maxTracks);
 }
 
 #include "atrackingdataexplorer.h"
-void AParticleSim_SI::buildTracks(bool skipPrimaries, bool skipPrimNoInter, bool skipSecondaries, QVariantList limitToParticleList, QVariantList excludeParticles, int maxTracks)
+void AParticleSim_SI::buildTracksSpecific(bool skipPrimaries, bool skipPrimNoInter, bool skipSecondaries, QVariantList limitToParticleList, QVariantList excludeParticles, int maxTracks)
 {
     if (TrackingHistoryFileName.isEmpty())
     {

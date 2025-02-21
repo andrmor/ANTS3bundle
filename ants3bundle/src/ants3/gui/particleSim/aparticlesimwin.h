@@ -22,6 +22,7 @@ class AParticleSourceRecord;
 class ATrackingHistoryCrawler;
 class AFindRecordSelector;
 class AEventTrackingRecord;
+class AParticleSourceDialog;
 
 namespace Ui {
 class AParticleSimWin;
@@ -43,6 +44,7 @@ public slots:
     void updateResultsGui();
     void onBusyStatusChange(bool busy);
     void onMaterialsChanged();
+    void onNewConfigStartedInGui();
 
 private slots:
     // auto-updates
@@ -134,9 +136,11 @@ private slots:
 
     void on_trwEventView_customContextMenuRequested(const QPoint &pos);
 
+    void onParticleSourceAccepted();
+
 signals:
     void requestShowGeometry(bool ActivateWindow, bool SAME, bool ColorUpdateAllowed);
-    void requestShowTracks();
+    void requestShowTracks(bool activateWindow = false);
     void requestDraw(TObject * obj, const QString & options, bool transferOwnership, bool focusWindow);
     void requestAddToBasket(const QString & name);
     void requestShowPosition(double * pos, bool keepTracks);
@@ -146,7 +150,6 @@ signals:
     void requestAddMarker(const double *);
     void requestShowGeoObjectDelegate(QString ObjName, bool bShow);
     void requestConfigureExchangeDir();
-    void killSourceDialog();
     void requestBusyStatus(bool flag);
 
 private:
@@ -184,6 +187,7 @@ private:
     QString LastFile_Tracking;
     QString LastFile_Monitors;
     QString LastFile_Calorimeters;
+    QString LastFile_Analyzers;
 
     TH1D * histEnergy = nullptr;
     TH1D * histAngle = nullptr;
@@ -197,6 +201,8 @@ private:
     bool   bFindEventAbortRequested = false;
 
     AEventTrackingRecord * CurrentEventRecord = nullptr;
+
+    AParticleSourceDialog * ParticleSourceDialog = nullptr;
 
     void updateG4Gui();
     void updateSimGui();
@@ -239,6 +245,9 @@ private:
     void findInTransitions(ATrackingHistoryCrawler & crawler, AFindRecordSelector & options, int numThreads, int numEventsPerThread);
     void updateCaloRange();
     void updateRangeWarning();
+    void updateAnalyzerGui();
+    void updateAnalyzerDataGui(bool suppressMessages);
+    void onUserChangedAnalyzerIndex();
 
 private slots:
     void testParticleGun(AParticleGun * gun, int numParticles, bool fillStatistics);
@@ -281,8 +290,19 @@ private slots:
     void on_pbChooseDepositionFile_clicked();
     void on_pbHelpOnDepositionDataFormat_clicked();
     void on_pbAnalyzeDepositionFile_clicked();
+
     void on_cbRandomSeed_toggled(bool checked);
     void on_pbLoadFromLibrary_clicked();
+
+    void on_pbLoadAnalyzersData_clicked();
+    void on_pbChooseAnalyzersFile_clicked();
+    void on_pbAnalyzerShowEnergySpectrum_clicked();
+    void on_pbNextAnalyzer_clicked();
+    void on_cobAnalyzer_activated(int index);
+    void on_sbAnalyzerUnqiueIndex_editingFinished();
+    void on_cobAnalyzerNumberOption_activated(int index);
+    void on_cobAnalyzerEnergyUnits_activated(int index);
+    void on_pbHelpGetParticles_clicked();
 };
 
 #endif // APARTICLESIMWIN_H

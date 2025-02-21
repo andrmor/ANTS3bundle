@@ -1,28 +1,47 @@
 #ifndef ASURFACESETTINGS_H
 #define ASURFACESETTINGS_H
 
+#include <vector>
+
+#include <QString>
+
 class QJsonObject;
+class TH1D;
 
 class ASurfaceSettings
 {
 public:
-    enum EModel {Polished, Glisur, Unified};
+    enum EModel {Polished, Glisur, Unified, CustomNormal};
 
-    ASurfaceSettings(){}
+    ASurfaceSettings();
 
     bool isPolished()    const {return Model == Polished;}
     bool isNotPolished() const {return Model != Polished;}
 
+    QString checkRuntimeData(); // also populates NormalDistributionHist
+
+    QString getDescription() const;
+
     EModel Model = Glisur;
 
-    //Glisur model settings
+    // Glisur model settings
     double Polish = 0.85;
 
-    //Unified model settings
+    // Unified model settings
     double SigmaAlpha = 0.1;
+
+    // CustomNormal settings
+    std::vector<std::pair<double,double>> NormalDeviation;
+    bool OrientationProbabilityCorrection = true;
+
+    // General settings
+    bool KillPhotonsRefractedBackward = false; // affects nly rough surface. There is a possibility for a photon to refract through a microfacet in the backward direction
 
     void writeToJson(QJsonObject & json) const;
     void readFromJson(const QJsonObject & json);
+
+    // Run-time data
+    TH1D * NormalDistributionHist = nullptr;
 };
 
 #endif // ASURFACESETTINGS_H

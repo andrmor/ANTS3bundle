@@ -50,17 +50,22 @@ int AWaveResSettings::toIndex(double wavelength) const
 {
     if (!Enabled) return -1;
 
+    if (wavelength < From) return -1;
+    if (wavelength > To)   return -1;
+
     int iwave = round( (wavelength - From) / Step );
 
-    if (iwave < 0) iwave = 0;
+    if (iwave < 0) return -1;
+
     const int numNodes = countNodes();
-    if (iwave >= numNodes) iwave = numNodes - 1;
+    if (iwave >= numNodes) return -1;
+
     return iwave;
 }
 
 int AWaveResSettings::toIndexFast(double wavelength) const
 {
-    return (wavelength - From) / Step;
+    return round( (wavelength - From) / Step );
 }
 
 void AWaveResSettings::toStandardBins(const QVector<double>* wavelength, const QVector<double>* value, QVector<double>* binnedValue) const
@@ -95,10 +100,10 @@ void AWaveResSettings::toStandardBins(const std::vector<double> & wavelength, co
     for (int iP = 0; iP < points; iP++)
     {
         wave = From + Step * iP;
-        if (wave <= wavelength.front()) binned = value.front();
+        if (wave <= wavelength.front()) binned = 0; // before November 2024: value.front();
         else
         {
-            if (wave >= wavelength.back()) binned = value.back();
+            if (wave >= wavelength.back()) binned = 0; // before November 2024: value.back();
             else                           binned = getInterpolatedValue(wave, wavelength, value);
         }
         binnedValue.push_back(binned);
@@ -560,6 +565,7 @@ QString APhotonBombsSettings::readFromJson(const QJsonObject & json)
 void APhotonBombsSettings::clear()
 {
     GenerationMode = EBombGen::Single;
+    PhotonsPerBomb.clearSettings();
 
     SingleSettings.clearSettings();
     GridSettings.clearSettings();
@@ -610,6 +616,9 @@ void APhotSimRunSettings::writeToJson(QJsonObject & json, bool addRuntimeExport)
     json["SaveMonitors"]          = SaveMonitors;
     json["FileNameMonitors"]      = FileNameMonitors;
 
+    json["SaveConfig"]            = SaveConfig;
+    json["FileNameConfig"]        = FileNameConfig;
+
     {
         QJsonObject js;
         PhotonLogSet.writeToJson(js);
@@ -653,6 +662,9 @@ void APhotSimRunSettings::readFromJson(const QJsonObject & json)
     jstools::parseJson(json, "SaveMonitors",          SaveMonitors);
     jstools::parseJson(json, "FileNameMonitors",      FileNameMonitors);
 
+    jstools::parseJson(json, "SaveConfig",            SaveConfig);
+    jstools::parseJson(json, "FileNameConfig",        FileNameConfig);
+
     {
         QJsonObject js;
         jstools::parseJson(json, "PhotonLog", js);
@@ -670,7 +682,7 @@ void APhotSimRunSettings::clear()
     OutputDirectory.clear();
     BinaryFormat = false;
 
-    SaveSensorSignals     = true;
+    SaveSensorSignals     = false;
     FileNameSensorSignals = "SensorSignals.txt";
 
     SaveSensorLog         = false;
@@ -680,7 +692,7 @@ void APhotSimRunSettings::clear()
     SensorLogAngle        = false;
     SensorLogWave         = false;
 
-    SavePhotonBombs       = true;
+    SavePhotonBombs       = false;
     FileNamePhotonBombs   = "PhotonBombs.txt";
 
     SaveTracks            = true;
@@ -691,8 +703,11 @@ void APhotSimRunSettings::clear()
     FileNameStatistics    = "PhotonStatistics.json";
     UpperTimeLimit        = 100;
 
-    SaveMonitors          = true;
+    SaveMonitors          = false;
     FileNameMonitors      = "PhotonMonitors.txt";
+
+    SaveConfig            = false;
+    FileNameConfig        = "Config_OpticalSim.json";
 
     PhotonLogSet.clear();
 }
@@ -933,7 +948,7 @@ void APhotonAdvancedSettings::clear()
     ConeAngle     = 10.0;
 
     bFixWave      = false;
-    WaveIndex  = -1;
+    FixedWavelength  = 550.0;
 
     bFixDecay     = false;
     DecayTime  = 5.0; // in ns
@@ -958,9 +973,14 @@ void APhotonAdvancedSettings::writeToJson(QJsonObject & json) const
             case Cone      : DirStr = "Cone";     break;
             }
             js["DirectionMode"] = DirStr;
-            js["DirDX"] = DirDX;
-            js["DirDY"] = DirDY;
-            js["DirDZ"] = DirDZ;
+
+            //js["DirDX"] = DirDX;
+            //js["DirDY"] = DirDY;
+            //js["DirDZ"] = DirDZ;
+            QJsonArray ar;
+            ar << DirDX << DirDY << DirDZ;
+            js["DirectionVector"] = ar;
+
             js["ConeAngle"] = ConeAngle;
         json["Direction"] = js;
     }
@@ -968,8 +988,8 @@ void APhotonAdvancedSettings::writeToJson(QJsonObject & json) const
     // Wave index
     {
         QJsonObject js;
-            js["Enabled"]   = bFixWave;
-            js["WaveIndex"] = WaveIndex;
+            js["Enabled"] = bFixWave;
+            js["FixedWavelength"] = FixedWavelength;
         json["Wave"] = js;
     }
 
@@ -1008,9 +1028,18 @@ void APhotonAdvancedSettings::readFromJson(const QJsonObject &json)
         else if (DirStr == "Cone")  DirectionMode = Cone;
         else                        DirectionMode = Isotropic;
 
-        jstools::parseJson(js, "DirDX",     DirDX);
-        jstools::parseJson(js, "DirDY",     DirDY);
-        jstools::parseJson(js, "DirDZ",     DirDZ);
+        //jstools::parseJson(js, "DirDX",     DirDX);
+        //jstools::parseJson(js, "DirDY",     DirDY);
+        //jstools::parseJson(js, "DirDZ",     DirDZ);
+        QJsonArray ar;
+        if ( jstools::parseJson(js, "DirectionVector", ar) && ar.size() == 3)
+        {
+            DirDX = ar[0].toDouble();
+            DirDY = ar[1].toDouble();
+            DirDZ = ar[2].toDouble();
+        }
+        if (DirDX == 0 && DirDY == 0 && DirDZ == 0) DirDZ = 1.0;
+
         jstools::parseJson(js, "ConeAngle", ConeAngle);
     }
 
@@ -1019,7 +1048,7 @@ void APhotonAdvancedSettings::readFromJson(const QJsonObject &json)
         QJsonObject js;
         jstools::parseJson(json, "Wave", js);
         jstools::parseJson(js, "Enabled",   bFixWave);
-        jstools::parseJson(js, "WaveIndex", WaveIndex);
+        jstools::parseJson(js, "FixedWavelength", FixedWavelength);
     }
 
     // Decay time

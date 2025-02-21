@@ -1,6 +1,5 @@
 #include "aparticlesourcedialog.h"
 #include "ui_aparticlesourcedialog.h"
-#include "ajsontools.h"
 #include "guitools.h"
 #include "afiletools.h"
 #include "asourceparticlegenerator.h"
@@ -39,7 +38,7 @@ AParticleSourceDialog::AParticleSourceDialog(const AParticleSourceRecord & Rec, 
     ui->pbUpdateRecord->setVisible(false);
 
     ui->leSourceName->setText(Rec.Name.data());
-    ui->cobGunSourceType->setCurrentIndex(Rec.Shape);  // !!!***
+    ui->cobGunSourceType->setCurrentIndex(Rec.Shape);
 
     ui->ledGun1DSize->setText(QString::number(2.0 * Rec.Size1));
     ui->ledGun2DSize->setText(QString::number(2.0 * Rec.Size2));
@@ -68,11 +67,11 @@ AParticleSourceDialog::AParticleSourceDialog(const AParticleSourceRecord & Rec, 
     index = 0;
     switch (Rec.AngularMode)
     {
-    case AParticleSourceRecord::Isotropic  : index = 0; break;
+    case AParticleSourceRecord::Isotropic       : index = 0; break;
     case AParticleSourceRecord::FixedDirection  : index = 1; break;
     case AParticleSourceRecord::GaussDispersion : index = 2; break;
     case AParticleSourceRecord::CustomAngular   : index = 3; break;
-    default : guitools::message("Unknown angular mode, setting to Uniform!", this);
+    default : guitools::message("Unknown angular mode, setting to Isotropic!", this);
     }
     ui->cobAngularMode->setCurrentIndex(index);
     on_cobAngularMode_currentIndexChanged(ui->cobAngularMode->currentIndex());
@@ -99,9 +98,12 @@ AParticleSourceDialog::AParticleSourceDialog(const AParticleSourceRecord & Rec, 
     default : guitools::message("Unknown TimeOffsetMode, setting to FixedOffset!", this);
     }
     ui->cobTimeAverageMode->setCurrentIndex(index);
-    ui->ledTimeAverageFixed->setText( QString::number(Rec.TimeFixedOffset) );
-    ui->ledTimeAverageStart->setText( QString::number(Rec.TimeByEventStart) );
-    ui->ledTimeAveragePeriod->setText( QString::number(Rec.TimeByEventPeriod) );
+    //ui->ledTimeAverageFixed->setText( QString::number(Rec.TimeFixedOffset) );
+    updateTimeWithUnitsIndication(LocalRec.TimeFixedOffset,    LocalRec.TimeFixedOffsetPrefUnit, ui->ledTimeAverageFixed,    ui->cobTimeFixedOffsetPrefUnit);
+    //ui->ledTimeAverageStart->setText( QString::number(Rec.TimeByEventStart) );
+    updateTimeWithUnitsIndication(LocalRec.TimeByEventStart,    LocalRec.TimeByEventStartPrefUnit, ui->ledTimeAverageStart,    ui->cobTimeByEventStartPrefUnit);
+    //ui->ledTimeAveragePeriod->setText( QString::number(Rec.TimeByEventPeriod) );
+    updateTimeWithUnitsIndication(LocalRec.TimeByEventPeriod,    LocalRec.TimeByEventPeriodPrefUnit, ui->ledTimeAveragePeriod,    ui->cobTimeByEventPeriodPrefUnit);
     updateTimeButtons();
     index = 0;
     switch (Rec.TimeSpreadMode)
@@ -113,9 +115,11 @@ AParticleSourceDialog::AParticleSourceDialog(const AParticleSourceRecord & Rec, 
     default : guitools::message("Unknown TimeSpreadMode, setting to NoSpread!", this);
     }
     ui->cobTimeSpreadMode->setCurrentIndex(index);
-    ui->ledTimeSpreadSigma->setText( QString::number(Rec.TimeSpreadSigma) );
-    ui->ledTimeSpreadWidth->setText( QString::number(Rec.TimeSpreadWidth) );
-    updateHalfLifeIndication();
+    //ui->ledTimeSpreadSigma->setText( QString::number(Rec.TimeSpreadSigma) );
+    updateTimeWithUnitsIndication(LocalRec.TimeSpreadSigma,    LocalRec.TimeSpreadSigmaPrefUnit, ui->ledTimeSpreadSigma,    ui->cobTimeSpreadSigmaPrefUnit);
+    //ui->ledTimeSpreadWidth->setText( QString::number(Rec.TimeSpreadWidth) );
+    updateTimeWithUnitsIndication(LocalRec.TimeSpreadWidth,    LocalRec.TimeSpreadWidthPrefUnit, ui->ledTimeSpreadWidth,    ui->cobTimeSpreadWidthPrefUnit);
+    updateTimeWithUnitsIndication(LocalRec.TimeSpreadHalfLife, LocalRec.TimeHalfLifePrefUnit,    ui->ledTimeSpreadHalfLife, ui->cobPreferedHalfLifeUnits);
 
     updateListWidget();
     updateColorLimitingMat();
@@ -490,9 +494,12 @@ void AParticleSourceDialog::on_pbUpdateRecord_clicked()
         qWarning() << "Unknown time offset mode!";
         LocalRec.TimeOffsetMode = AParticleSourceRecord::FixedOffset;
     }
-    LocalRec.TimeFixedOffset = ui->ledTimeAverageFixed->text().toDouble();
-    LocalRec.TimeByEventStart = ui->ledTimeAverageStart->text().toDouble();
-    LocalRec.TimeByEventPeriod = ui->ledTimeAveragePeriod->text().toDouble();
+    //LocalRec.TimeFixedOffset = ui->ledTimeAverageFixed->text().toDouble();
+    readTimeWithUnits(ui->ledTimeAverageFixed,    ui->cobTimeFixedOffsetPrefUnit,   LocalRec.TimeFixedOffset,   LocalRec.TimeFixedOffsetPrefUnit);
+    //LocalRec.TimeByEventStart = ui->ledTimeAverageStart->text().toDouble();
+    readTimeWithUnits(ui->ledTimeAverageStart,    ui->cobTimeByEventStartPrefUnit,  LocalRec.TimeByEventStart,  LocalRec.TimeByEventStartPrefUnit);
+    //LocalRec.TimeByEventPeriod = ui->ledTimeAveragePeriod->text().toDouble();
+    readTimeWithUnits(ui->ledTimeAveragePeriod,   ui->cobTimeByEventPeriodPrefUnit, LocalRec.TimeByEventPeriod, LocalRec.TimeByEventPeriodPrefUnit);
     switch (ui->cobTimeSpreadMode->currentIndex())
     {
     case 0  : LocalRec.TimeSpreadMode = AParticleSourceRecord::NoSpread;          break;
@@ -503,9 +510,11 @@ void AParticleSourceDialog::on_pbUpdateRecord_clicked()
         qWarning() << "Unknown time spread mode!";
         LocalRec.TimeSpreadMode = AParticleSourceRecord::NoSpread;
     }
-    LocalRec.TimeSpreadSigma = ui->ledTimeSpreadSigma->text().toDouble();
-    LocalRec.TimeSpreadWidth = ui->ledTimeSpreadWidth->text().toDouble();
-    updateHalfLife();
+    //LocalRec.TimeSpreadSigma = ui->ledTimeSpreadSigma->text().toDouble();
+    readTimeWithUnits(ui->ledTimeSpreadSigma,    ui->cobTimeSpreadSigmaPrefUnit, LocalRec.TimeSpreadSigma,    LocalRec.TimeSpreadSigmaPrefUnit);
+    //LocalRec.TimeSpreadWidth = ui->ledTimeSpreadWidth->text().toDouble();
+    readTimeWithUnits(ui->ledTimeSpreadWidth,    ui->cobTimeSpreadWidthPrefUnit, LocalRec.TimeSpreadWidth,    LocalRec.TimeSpreadWidthPrefUnit);
+    readTimeWithUnits(ui->ledTimeSpreadHalfLife, ui->cobPreferedHalfLifeUnits,   LocalRec.TimeSpreadHalfLife, LocalRec.TimeHalfLifePrefUnit);
 
     LocalRec.configureAngularSampler();
     LocalRec.configureTimeSampler();
@@ -721,11 +730,11 @@ void AParticleSourceDialog::on_leSourceLimitMaterial_textEdited(const QString &)
     updateColorLimitingMat();
 }
 
-void AParticleSourceDialog::updateHalfLifeIndication()
+void AParticleSourceDialog::updateTimeWithUnitsIndication(double time_ns, AParticleSourceRecord::ETimeUnits prefUnits, QLineEdit * led, QComboBox * cob)
 {
     int index = 0;
     double factor = 1.0;
-    switch (LocalRec.TimeHalfLifePrefUnit)
+    switch (prefUnits)
     {
     case AParticleSourceRecord::ns  : index = 0; factor = 1.0;    break;
     case AParticleSourceRecord::us  : index = 1; factor = 1e3;    break;
@@ -734,18 +743,19 @@ void AParticleSourceDialog::updateHalfLifeIndication()
     case AParticleSourceRecord::min : index = 4; factor = 60e9;   break;
     case AParticleSourceRecord::h   : index = 5; factor = 3600e9; break;
     default :
-        qWarning() << "Not impelmented AParticleSourceRecord::TimeHalfLifePrefUnit enum value";
+        qWarning() << "Not impelmented ETimeUnits enum value in updateTimeWithUnitsIndication";
         index = 0; factor = 1.0;
     }
-    ui->cobPreferedHalfLifeUnits->setCurrentIndex(index);
-    ui->ledTimeSpreadHalfLife->setText(QString::number(LocalRec.TimeSpreadHalfLife / factor));
+
+    led->setText(QString::number(time_ns / factor));
+    cob->setCurrentIndex(index);
 }
 
-void AParticleSourceDialog::updateHalfLife()
+void AParticleSourceDialog::readTimeWithUnits(QLineEdit * led, QComboBox * cob, double & time_ns, AParticleSourceRecord::ETimeUnits & prefUnits)
 {
     AParticleSourceRecord::ETimeUnits e = AParticleSourceRecord::ns;
     double factor = 1.0;
-    switch (ui->cobPreferedHalfLifeUnits->currentIndex())
+    switch (cob->currentIndex())
     {
     case 0 : e = AParticleSourceRecord::ns;  factor = 1.0;    break;
     case 1 : e = AParticleSourceRecord::us;  factor = 1e3;    break;
@@ -754,11 +764,11 @@ void AParticleSourceDialog::updateHalfLife()
     case 4 : e = AParticleSourceRecord::min; factor = 60e9;   break;
     case 5 : e = AParticleSourceRecord::h;   factor = 3600e9; break;
     default :
-        qWarning() << "Not implemented AParticleSourceRecord::TimeHalfLifePrefUnit value for ui->cobPreferedHalfLifeUnits";
+        qWarning() << "Not implemented ETimeUnits enum value in readTimeWithUnits";
         e = AParticleSourceRecord::ns; factor = 1.0;
     }
-    LocalRec.TimeHalfLifePrefUnit = e;
-    LocalRec.TimeSpreadHalfLife = ui->ledTimeSpreadHalfLife->text().toDouble() * factor;
+    time_ns = led->text().toDouble() * factor;
+    prefUnits = e;
 }
 
 double neutronEnergy_keV_ToWavelength_A(double energy_keV)
@@ -958,4 +968,3 @@ void AParticleSourceDialog::on_cbEnergyGaussBlur_toggled(bool checked)
     ui->ledEnergySigma->setEnabled(checked);
     ui->cobEnergySigmaUnits->setEnabled(checked);
 }
-

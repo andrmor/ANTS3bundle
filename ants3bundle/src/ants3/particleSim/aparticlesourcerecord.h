@@ -109,13 +109,18 @@ struct AParticleSourceRecord
     // Time
     EOffsetMode TimeOffsetMode = FixedOffset;
     double      TimeFixedOffset = 0;
+    ETimeUnits  TimeFixedOffsetPrefUnit = ns;   // only for GUI!
     double      TimeByEventStart = 0;
+    ETimeUnits  TimeByEventStartPrefUnit = ns;  // only for GUI!
     double      TimeByEventPeriod = 10.0;
+    ETimeUnits  TimeByEventPeriodPrefUnit = ns; // only for GUI!
     ESpreadMode TimeSpreadMode = NoSpread;
     double      TimeSpreadSigma = 50.0;
-    double      TimeSpreadWidth = 100.0;
-    double      TimeSpreadHalfLife = 100.0; // in ns
-    ETimeUnits  TimeHalfLifePrefUnit = ns;
+    ETimeUnits  TimeSpreadSigmaPrefUnit = ns;  // only for GUI!
+    double      TimeSpreadWidth = 100.0;       // always in ns
+    ETimeUnits  TimeSpreadWidthPrefUnit = ns;  // only for GUI!
+    double      TimeSpreadHalfLife = 100.0;    // alsways in ns
+    ETimeUnits  TimeHalfLifePrefUnit = ns;     // only for GUI!
     std::vector<std::pair<double, double>> TimeDistribution;
 
     // Particles
@@ -143,6 +148,10 @@ struct AParticleSourceRecord
     ARandomSampler      _AngularSampler;
     ARandomSampler      _TimeSampler;
     RandomRadialSampler _AxialSampler;
+
+private:
+    AParticleSourceRecord::ETimeUnits strToTimeUnits(const std::string & str) const;  // !!!*** error reporting
+    std::string timeUnitsToString(AParticleSourceRecord::ETimeUnits timeUnits) const; // !!!*** error reporting
 };
 
 #endif // APARTICLESOURCERECORD_H

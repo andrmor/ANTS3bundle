@@ -7,7 +7,7 @@
 #include "ajsontools.h"
 #include "afiletools.h"
 #include "guitools.h"
-#include "acommonfunctions.h"
+//#include "acommonfunctions.h"
 #include "ageometrywindow.h"
 #include "agraphbuilder.h"
 #include "ageant4inspectormanager.h"
@@ -29,13 +29,14 @@
 #include <QPushButton>
 #include <QThread>
 #include <QPainter>
+#include <QDesktopServices>
 
 #include "TGraph.h"
 #include "TH1.h"
 #include "TAxis.h"
 #include "TGeoManager.h"
-#include "TAttLine.h"
-#include "TAttMarker.h"
+//#include "TAttLine.h"
+//#include "TAttMarker.h"
 
 AMatWin::AMatWin(QWidget * parent) :
     AGuiWindow("Mat", parent),
@@ -638,7 +639,9 @@ void AMatWin::on_pbShowPrimSpectrum_customContextMenuRequested(const QPoint &)
     tmpMaterial._PrimarySpectrumHist->GetXaxis()->SetTitle("Wavelength, nm");
     tmpMaterial._PrimarySpectrumHist->SetLineColor(2);
     tmpMaterial._PrimarySpectrumHist->SetLineWidth(2);
-    emit requestDraw(tmpMaterial._PrimarySpectrumHist, "hist", false, true);
+
+    TH1D * copy = new TH1D(*tmpMaterial._PrimarySpectrumHist);
+    emit requestDraw(copy, "hist", true, true);
 }
 
 void AMatWin::on_pbDeletePrimSpectrum_clicked()
@@ -686,7 +689,9 @@ void AMatWin::on_pbShowSecSpectrum_customContextMenuRequested(const QPoint &)
     tmpMaterial._SecondarySpectrumHist->GetXaxis()->SetTitle("Wavelength, nm");
     tmpMaterial._SecondarySpectrumHist->SetLineColor(2);
     tmpMaterial._SecondarySpectrumHist->SetLineWidth(2);
-    emit requestDraw(tmpMaterial._SecondarySpectrumHist, "hist", false, true);
+
+    TH1D * copy = new TH1D(*tmpMaterial._SecondarySpectrumHist);
+    emit requestDraw(copy, "hist", true, true);
 }
 
 void AMatWin::on_pbDeleteSecSpectrum_clicked()
@@ -729,8 +734,8 @@ void AMatWin::on_pbShowNlambda_clicked()
 
 void AMatWin::on_pbShowNlambda_customContextMenuRequested(const QPoint &)
 {
-    tmpMaterial.updateRuntimeProperties();
     const AWaveResSettings & WaveSet = APhotonSimHub::getInstance().Settings.WaveSet;
+    WaveSet.toStandardBins(tmpMaterial.RefIndex_Wave, tmpMaterial._RefIndex_WaveBinned);
     std::vector<double> indexes = WaveSet.getVectorOfIndexes();
     TGraph * g = AGraphBuilder::graph(indexes, tmpMaterial._RefIndex_WaveBinned);
     AGraphBuilder::configure(g, "Refractive index",
@@ -1163,38 +1168,11 @@ void AMatWin::on_pteComments_textChanged()
     if (!flagDisreguardChange) setWasModified(true);
 }
 
-/*
-#include "amaterialloader.h"
-void MaterialInspectorWindow::AddMaterialFromLibrary(QWidget * parentWidget)
+void AMatWin::on_actionLoad_from_material_library_triggered()
 {
-    AMaterialLoader MLMpCollection;
-
-    bool bLoaded = ML.LoadTmpMatFromGui(parentWidget);
-    if (!bLoaded) return;
-
-    const QString name = MpCollection.tmpMaterial.name;
-    MW->ReconstructDetector(true);   // TODO: go for detector directly  --> move to loader
-    int index = MpCollection.FindMaterial(name);
-
-    showMaterial(index);
+    on_pbLoadFromLibrary_clicked();
 }
-*/
 
-/*
-void MaterialInspectorWindow::on_actionLoad_from_material_library_triggered()
-{
-    if (bMaterialWasModified)
-    {
-        int res = QMessageBox::question(this, "Add new material", "All unsaved changes will be lost. Continue?", QMessageBox::Yes | QMessageBox::Cancel);
-        if (res == QMessageBox::Cancel)
-            return;
-    }
-
-    AddMaterialFromLibrary(this);
-}
-*/
-
-#include <QDesktopServices>
 void AMatWin::on_pbListGeant4Materials_clicked()
 {
     QDesktopServices::openUrl(QUrl("https://geant4-userdoc.web.cern.ch/UsersGuides/ForApplicationDeveloper/html/Appendix/materialNames.html", QUrl::TolerantMode));
@@ -1517,3 +1495,56 @@ void AMatWin::on_ledT_editingFinished()
     if (ui->cbGas->isChecked()) on_ledPressure_editingFinished();
     else on_pbUpdateTmpMaterial_clicked();
 }
+
+#include "aopticaldataimportdialog.h"
+void AMatWin::on_pbComputeNlambda_clicked()
+{
+    AOpticalDataImportDialog D(this);
+    D.readFromJson(tmpMaterial.RefIndexImporter);
+
+    int res = D.exec();
+    if (res == QDialog::Rejected) return;
+
+    tmpMaterial.RefIndex_Wave = D.Data;
+
+    tmpMaterial.RefIndexImporter = QJsonObject();
+    D.writeToJson(tmpMaterial.RefIndexImporter);
+
+    bool bHaveData = !tmpMaterial.RefIndex_Wave.empty();
+    ui->pbShowNlambda->setEnabled(bHaveData);
+    ui->pbDeleteNlambda->setEnabled(bHaveData);
+    setWasModified(true);
+}
+
+#include "aabsorptiondataconverterdialog.h"
+void AMatWin::on_pbAbsImport_clicked()
+{
+    AAbsorptionDataConverterDialog D(this);
+
+    int res = D.exec();
+    if (res == QDialog::Rejected) return;
+
+    tmpMaterial.AbsCoeff_Wave = D.Data;
+
+    bool bHaveData = !tmpMaterial.AbsCoeff_Wave.empty();
+    ui->pbShowABSlambda->setEnabled(bHaveData);
+    ui->pbDeleteABSlambda->setEnabled(bHaveData);
+    setWasModified(true);
+}
+
+#include "arefractiveindeximportdialog.h"
+void AMatWin::on_pbImportNWave_clicked()
+{
+    ARefractiveIndexImportDialog D(this);
+
+    int res = D.exec();
+    if (res == QDialog::Rejected) return;
+
+    tmpMaterial.RefIndex_Wave = D.Data;
+
+    bool bHaveData = !tmpMaterial.RefIndex_Wave.empty();
+    ui->pbShowNlambda->setEnabled(bHaveData);
+    ui->pbDeleteNlambda->setEnabled(bHaveData);
+    setWasModified(true);
+}
+

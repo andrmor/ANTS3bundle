@@ -8,6 +8,9 @@
 #include "awaveshifterinterfacerule.h"
 #include "aspectralbasicinterfacerule.h"
 #include "guitools.h"
+#include "aphotonsimhub.h"
+#include "agraphbuilder.h"
+#include "graphwindowclass.h"
 
 #include <QObject>
 #include <QDebug>
@@ -20,40 +23,44 @@
 #include <QComboBox>
 #include <QPushButton>
 
-QWidget * AInterfaceWidgetFactory::createEditWidget(AInterfaceRule * Rule, QWidget * Caller, GraphWindowClass * GraphWindow)
+#include "TGraph.h"
+#include "TH1D.h"
+
+AInterfaceRuleWidget * AInterfaceWidgetFactory::createEditWidget(AInterfaceRule * rule, QWidget * parent)
 {
-    ABasicInterfaceRule * bir = dynamic_cast<ABasicInterfaceRule*>(Rule);
-    if (bir) return new ABasicInterfaceWidget(bir);
+    ASpectralBasicInterfaceRule * spir = dynamic_cast<ASpectralBasicInterfaceRule*>(rule); // has to be before ABasicInterfaceRule
+    if (spir) return new ASpectralBasicInterfaceWidget(spir, parent);
 
-    AMetalInterfaceRule * mir = dynamic_cast<AMetalInterfaceRule*>(Rule);
-    if (mir) return new AMetalInterfaceWidget(mir);
+    ABasicInterfaceRule * bir = dynamic_cast<ABasicInterfaceRule*>(rule);
+    if (bir) return new ABasicInterfaceWidget(bir, parent);
 
-    FsnpInterfaceRule * fir = dynamic_cast<FsnpInterfaceRule*>(Rule);
-    if (fir) return new AFsnpInterfaceWidget(fir);
+    AMetalInterfaceRule * mir = dynamic_cast<AMetalInterfaceRule*>(rule);
+    if (mir) return new AMetalInterfaceWidget(mir, parent);
 
-    ASurfaceInterfaceRule * sir = dynamic_cast<ASurfaceInterfaceRule*>(Rule);
-    if (sir) return new ASurfaceInterfaceWidget(sir);
+    FsnpInterfaceRule * fir = dynamic_cast<FsnpInterfaceRule*>(rule);
+    if (fir) return new AFsnpInterfaceWidget(fir, parent);
 
-    AUnifiedRule * uir = dynamic_cast<AUnifiedRule*>(Rule);
-    if (uir) return new AUnifiedInterfaceWidget(uir);
+    ASurfaceInterfaceRule * sir = dynamic_cast<ASurfaceInterfaceRule*>(rule);
+    if (sir) return new ASurfaceInterfaceWidget(sir, parent);
 
-    AWaveshifterInterfaceRule * wir = dynamic_cast<AWaveshifterInterfaceRule*>(Rule);
-    if (wir) return new AWaveshifterInterfaceWidget(wir, Caller, GraphWindow);
+    AUnifiedRule * uir = dynamic_cast<AUnifiedRule*>(rule);
+    if (uir) return new AUnifiedInterfaceWidget(uir, parent);
 
-    ASpectralBasicInterfaceRule * spir = dynamic_cast<ASpectralBasicInterfaceRule*>(Rule);
-    if (spir) return new ASpectralBasicInterfaceWidget(spir, Caller, GraphWindow);
+    AWaveshifterInterfaceRule * wir = dynamic_cast<AWaveshifterInterfaceRule*>(rule);
+    if (wir) return new AWaveshifterInterfaceWidget(wir, parent);
+
 
     qWarning() << "Unknown interface rule!";
-    QFrame * f = new QFrame();
-    f->setFrameStyle(QFrame::Box);
+    AInterfaceRuleWidget * f = new AInterfaceRuleWidget(parent);
+    //f->setFrameStyle(QFrame::Box);
+    //f->setFrameStyle(QFrame::StyledPanel);
     f->setMinimumHeight(100);
     return f;
 }
 
-ABasicInterfaceWidget::ABasicInterfaceWidget(ABasicInterfaceRule * rule) : QFrame()
+ABasicInterfaceWidget::ABasicInterfaceWidget(ABasicInterfaceRule * rule, QWidget * parent) :
+    AInterfaceRuleWidget(parent)
 {
-    setFrameStyle(QFrame::Box);
-
     QHBoxLayout * hl = new QHBoxLayout(this);
         QVBoxLayout * l = new QVBoxLayout();
             QLabel * lab = new QLabel("Absorption:");
@@ -95,10 +102,9 @@ ABasicInterfaceWidget::ABasicInterfaceWidget(ABasicInterfaceRule * rule) : QFram
     hl->addLayout(l);
 }
 
-AMetalInterfaceWidget::AMetalInterfaceWidget(AMetalInterfaceRule * rule) : QFrame()
+AMetalInterfaceWidget::AMetalInterfaceWidget(AMetalInterfaceRule * rule, QWidget * parent) :
+    AInterfaceRuleWidget(parent)
 {
-    setFrameStyle(QFrame::Box);
-
     QHBoxLayout* hl = new QHBoxLayout(this);
     QVBoxLayout* l = new QVBoxLayout();
     QLabel* lab = new QLabel("Refractive index, real:");
@@ -122,10 +128,9 @@ AMetalInterfaceWidget::AMetalInterfaceWidget(AMetalInterfaceRule * rule) : QFram
     hl->addLayout(l);
 }
 
-AFsnpInterfaceWidget::AFsnpInterfaceWidget(FsnpInterfaceRule * rule) : QFrame()
+AFsnpInterfaceWidget::AFsnpInterfaceWidget(FsnpInterfaceRule * rule, QWidget * parent) :
+    AInterfaceRuleWidget(parent)
 {
-    setFrameStyle(QFrame::Box);
-
     QHBoxLayout* l = new QHBoxLayout(this);
         QLabel* lab = new QLabel("Albedo:");
     l->addWidget(lab);
@@ -140,11 +145,10 @@ AFsnpInterfaceWidget::AFsnpInterfaceWidget(FsnpInterfaceRule * rule) : QFrame()
     l->addWidget(le);
 }
 
-AWaveshifterInterfaceWidget::AWaveshifterInterfaceWidget(AWaveshifterInterfaceRule * rule, QWidget * caller, GraphWindowClass * graphWindow) :
-    QFrame(), Rule(rule), Caller(caller), GraphWindow(graphWindow)
+#include <QCheckBox>
+AWaveshifterInterfaceWidget::AWaveshifterInterfaceWidget(AWaveshifterInterfaceRule * rule, QWidget * parent) :
+    AInterfaceRuleWidget(parent), Rule(rule)
 {
-    setFrameStyle(QFrame::Box);
-
     QVBoxLayout* vl = new QVBoxLayout(this);
         QHBoxLayout* l = new QHBoxLayout();
             QLabel* lab = new QLabel("Reemission generation:");
@@ -189,7 +193,11 @@ AWaveshifterInterfaceWidget::AWaveshifterInterfaceWidget(AWaveshifterInterfaceRu
             vv->addWidget(pbShowESbinned);
         l->addLayout(vv);
     vl->addLayout(l);
-        lab = new QLabel("If simulation is NOT wavelength-resolved, this override does nothing!");
+        QCheckBox * cbConserveEnergy = new QCheckBox("Conserve energy");
+        cbConserveEnergy->setChecked(rule->ConserveEnergy);
+        QObject::connect(cbConserveEnergy, &QCheckBox::clicked, [rule](bool checked) { rule->ConserveEnergy = checked; } );
+    vl->addWidget(cbConserveEnergy);
+        lab = new QLabel("If simulation is NOT wavelength-resolved, this rule does nothing!");
         lab->setAlignment(Qt::AlignCenter);
     vl->addWidget(lab);
     updateButtons();
@@ -197,143 +205,119 @@ AWaveshifterInterfaceWidget::AWaveshifterInterfaceWidget(AWaveshifterInterfaceRu
 
 void AWaveshifterInterfaceWidget::loadReemissionProbability()
 {
-    /*
-    AGlobalSettings& GlobSet = AGlobalSettings::getInstance();
-    QString fileName = QFileDialog::getOpenFileName(caller, "Load reemission probability", GlobSet.LastOpenDir, "Data files (*.dat *.txt);;All files (*)");
+    QString fileName = guitools::dialogLoadFile(Parent, "Load reemission probability", "Data files (*.dat *.txt);;All files (*)");
     if (fileName.isEmpty()) return;
-    GlobSet.LastOpenDir = QFileInfo(fileName).absolutePath();
-    QVector<double> X, Y;
-    int ret = LoadDoubleVectorsFromFile(fileName, &X, &Y);
-    if (ret == 0)
-    {
-        ReemissionProbability_lambda = X;
-        ReemissionProbability = Y;
-        updateButtons();
-    }
-    */
+
+    QString err = Rule->loadReemissionProbability(fileName);
+    if (!err.isEmpty()) guitools::message(err, Parent);
+
+    updateButtons();
 }
 
 void AWaveshifterInterfaceWidget::loadEmissionSpectrum()
 {
-    /*
-    AGlobalSettings& GlobSet = AGlobalSettings::getInstance();
-    QString fileName = QFileDialog::getOpenFileName(caller, "Load emission spectrum", GlobSet.LastOpenDir, "Data files (*.dat *.txt);;All files (*)");
+    QString fileName = guitools::dialogLoadFile(Parent, "Load emission spectrum", "Data files (*.dat *.txt);;All files (*)");
     if (fileName.isEmpty()) return;
-    GlobSet.LastOpenDir = QFileInfo(fileName).absolutePath();
-    QVector<double> X, Y;
-    int ret = LoadDoubleVectorsFromFile(fileName, &X, &Y);
-    if (ret == 0)
-    {
-        EmissionSpectrum_lambda = X;
-        EmissionSpectrum = Y;
-        updateButtons();
-    }
-    */
+
+    QString err = Rule->loadEmissionSpectrum(fileName);
+    if (!err.isEmpty()) guitools::message(err, Parent);
+
+    updateButtons();
 }
 
 void AWaveshifterInterfaceWidget::showReemissionProbability()
 {
-    if (Rule->ReemissionProbability_lambda.isEmpty())
+    if (Rule->ReemissionProbability.empty())
     {
-        guitools::message("No data were loaded", Caller);
+        guitools::message("No data were loaded", Parent);
         return;
     }
-/*
-    TGraph* gr = GraphWindow->ConstructTGraph(ReemissionProbability_lambda, ReemissionProbability, "Reemission probability", "Wavelength, nm", "Reemission probability, a.u.", 2, 20, 1, 2, 2);
+
+    TGraph * gr = AGraphBuilder::graph(Rule->ReemissionProbability);
+    AGraphBuilder::configure(gr, "Reemission probability", "Wavelength, nm", "Reemission probability", 2, 20, 1, 2, 2);
     gr->SetMinimum(0);
-    GraphWindow->Draw(gr, "apl");
-*/
+    emit requestDraw(gr, "apl", true, true);
 }
 
 void AWaveshifterInterfaceWidget::showEmissionSpectrum()
 {
-    if (Rule->EmissionSpectrum_lambda.isEmpty())
+    if (Rule->EmissionSpectrum.empty())
     {
-        guitools::message("No data were loaded", Caller);
+        guitools::message("No data were loaded", Parent);
         return;
     }
-/*
-    TGraph* gr = GraphWindow->ConstructTGraph(EmissionSpectrum_lambda, EmissionSpectrum,
-                                              "Emission spectrum", "Wavelength, nm", "Relative intensity, a.u.",
-                                              4, 20, 1,
-                                              4, 2);
+
+    TGraph * gr = AGraphBuilder::graph(Rule->EmissionSpectrum);
+    AGraphBuilder::configure(gr, "Emission spectrum", "Wavelength, nm", "Relative intensity, a.u.", 4, 20, 1, 4, 2);
     gr->SetMinimum(0);
-    GraphWindow->Draw(gr, "apl");
-*/
+    emit requestDraw(gr, "apl", true, true);
 }
 
 void AWaveshifterInterfaceWidget::showBinnedReemissionProbability()
 {
     Rule->initializeWaveResolved();
 
-    //TODO run checker
-
-    /*
+    const AWaveResSettings & WaveSet = APhotonSimHub::getConstInstance().Settings.WaveSet;
     if (!WaveSet.Enabled)
     {
-        guitools::message("Simulation is NOT wavelength resolved, override is inactive!", caller);
+        guitools::message("Simulation is NOT wavelength resolved, override is inactive!", Parent);
         return;
     }
 
-    const int WaveNodes = WaveSet.countNodes();
-    QVector<double> waveIndex;
-    for (int i=0; i<WaveNodes; i++) waveIndex << i;
-    TGraph* gr = GraphWindow->ConstructTGraph(waveIndex, ReemissionProbabilityBinned,
-                                              "Reemission probability (binned)", "Wave index", "Reemission probability, a.u.",
+    std::vector<double> waveIndexes = WaveSet.getVectorOfIndexes();
+    TGraph * gr = AGraphBuilder::graph(waveIndexes, Rule->ReemissionProbabilityBinned);
+    AGraphBuilder::configure(gr, "BinnedReemissionProbability", "Wave index", "Reemission probability, a.u.",
                                               2, 20, 1,
                                               2, 2);
     gr->SetMinimum(0);
-    GraphWindow->Draw(gr, "apl");
-*/
+    emit requestDraw(gr, "apl", true, true);
 }
 
 void AWaveshifterInterfaceWidget::showBinnedEmissionSpectrum()
 {
     Rule->initializeWaveResolved();
 
-    //TODO run checker
-/*
+    const AWaveResSettings & WaveSet = APhotonSimHub::getConstInstance().Settings.WaveSet;
     if (!WaveSet.Enabled)
     {
-        guitools::message("Simulation is NOT wavelength resolved, override is inactive!", caller);
+        guitools::message("Simulation is NOT wavelength resolved, override is inactive!", Parent);
         return;
     }
 
-    if ( !Spectrum ) //paranoic
+    if ( !Rule->Spectrum ) //paranoic
     {
-        guitools::message("Spectrum is not defined!", caller);
+        guitools::message("Reemission spectrum is not defined!", Parent);
         return;
     }
 
-    double integral = Spectrum->ComputeIntegral();
+    double integral = Rule->Spectrum->ComputeIntegral();
     if (integral <= 0)
     {
-        guitools::message("Binned emission spectrum: integral <=0, override will report an error!", caller);
+        guitools::message("Binned emission spectrum: integral <= 0, override will report an error!", Parent);
         return;
     }
 
-    TH1D* SpectrumCopy = new TH1D(*Spectrum);
+    TH1D * SpectrumCopy = new TH1D(*Rule->Spectrum);
     SpectrumCopy->SetTitle("Binned emission spectrum");
     SpectrumCopy->GetXaxis()->SetTitle("Wavelength, nm");
     SpectrumCopy->GetYaxis()->SetTitle("Relative intensity, a.u.");
-//    GraphWindow->Draw(SpectrumCopy, "hist"); //gets ownership of the copy
-*/
+    emit requestDraw(SpectrumCopy, "hist", true, true);
 }
 
 void AWaveshifterInterfaceWidget::updateButtons()
 {
-    pbShowRP->setDisabled(Rule->ReemissionProbability_lambda.isEmpty());
-    pbShowES->setDisabled(Rule->EmissionSpectrum_lambda.isEmpty());
-    bool bWR = true; // WaveSet.Enabled;  !!!***
-    pbShowRPbinned->setDisabled(!bWR || Rule->ReemissionProbability_lambda.isEmpty());
-    pbShowESbinned->setDisabled(!bWR || Rule->EmissionSpectrum_lambda.isEmpty());
+    pbShowRP->setDisabled(Rule->ReemissionProbability.empty());
+    pbShowES->setDisabled(Rule->EmissionSpectrum.empty());
+    bool bWR = APhotonSimHub::getConstInstance().Settings.WaveSet.Enabled;
+    pbShowRPbinned->setDisabled(!bWR || Rule->ReemissionProbability.empty());
+    pbShowESbinned->setDisabled(!bWR || Rule->EmissionSpectrum.empty());
 }
 
-ASpectralBasicInterfaceWidget::ASpectralBasicInterfaceWidget(ASpectralBasicInterfaceRule * rule, QWidget * caller, GraphWindowClass * graphWindow) :
-    QFrame(), Rule(rule), Caller(caller), GraphWindow(graphWindow)
-{
-    setFrameStyle(QFrame::Box);
+// -------------
 
+ASpectralBasicInterfaceWidget::ASpectralBasicInterfaceWidget(ASpectralBasicInterfaceRule * rule, QWidget * parent) :
+    AInterfaceRuleWidget(parent), Rule(rule)
+{
     QVBoxLayout* vl = new QVBoxLayout(this);
         QHBoxLayout* l = new QHBoxLayout();
             QLabel* lab = new QLabel("Absorption, reflection and scattering:");
@@ -378,125 +362,110 @@ ASpectralBasicInterfaceWidget::ASpectralBasicInterfaceWidget(ASpectralBasicInter
 
 void ASpectralBasicInterfaceWidget::loadSpectralData()
 {
-    /*
-    AGlobalSettings& GlobSet = AGlobalSettings::getInstance();
-    QString fileName = QFileDialog::getOpenFileName(caller, "Load spectral data (Wavelength, Absorption, Reflection, Scattering)", GlobSet.LastOpenDir, "Data files (*.dat *.txt);;All files (*)");
+    QString fileName = guitools::dialogLoadFile(this, "Load data from file", "Data files (*.dat *.txt);;All files (*.*)");
     if (fileName.isEmpty()) return;
-    GlobSet.LastOpenDir = QFileInfo(fileName).absolutePath();
 
-    QVector< QVector<double>* > vec;
-    vec << &Wave << &ProbLoss << &ProbRef << &ProbDiff;
-    QString err = LoadDoubleVectorsFromFile(fileName, vec);
-    if (!err.isEmpty()) message(err, caller);
-*/
+    QString err = Rule->loadData(fileName);
+    if (!err.isEmpty()) guitools::message(err, this);
 }
 
 void ASpectralBasicInterfaceWidget::showLoaded()
 {
-    /*
-    QVector<double> Fr;
-    for (int i=0; i<Wave.size(); i++)
-        Fr << (1.0 - ProbLoss.at(i) - ProbRef.at(i) - ProbDiff.at(i));
+    std::vector<double> fresnel(Rule->Wave.size());
+    double max = 0.01;
+    for (size_t i = 0; i < Rule->Wave.size(); i++)
+    {
+        fresnel[i] = 1.0 - Rule->ProbLoss[i] - Rule->ProbRef[i] - Rule->ProbDiff[i];
+        max = std::max({max, Rule->ProbLoss[i],  Rule->ProbRef[i], Rule->ProbDiff[i], fresnel[i]});
+    }
 
-    TMultiGraph* mg = new TMultiGraph();
-    TGraph* gLoss = GraphWindow->ConstructTGraph(Wave, ProbLoss, "Absorption", "Wavelength, nm", "", 2, 20, 1, 2);
-    mg->Add(gLoss, "LP");
-    TGraph* gRef = GraphWindow->ConstructTGraph(Wave, ProbRef, "Specular reflection", "Wavelength, nm", "", 4, 21, 1, 4);
-    mg->Add(gRef, "LP");
-    TGraph* gDiff = GraphWindow->ConstructTGraph(Wave, ProbDiff, "Diffuse scattering", "Wavelength, nm", "", 7, 22, 1, 7);
-    mg->Add(gDiff, "LP");
-    TGraph* gFr = GraphWindow->ConstructTGraph(Wave, Fr, "Fresnel", "Wavelength, nm", "", 1, 24, 1, 1, 1, 1);
-    mg->Add(gFr, "LP");
+    TGraph * gLoss = AGraphBuilder::graph(Rule->Wave, Rule->ProbLoss);
+    AGraphBuilder::configure(gLoss, "Absorption", "Wavelength, nm", "Probability", 2, 20, 1, 2);
+    gLoss->SetMinimum(0);
+    gLoss->SetMaximum(max);
+    emit requestDraw(gLoss, "ALP", true, false);
 
-    mg->SetMinimum(0);
-    GraphWindow->Draw(mg, "apl");
-    mg->GetXaxis()->SetTitle("Wavelength, nm");
-    mg->GetYaxis()->SetTitle("Probability");
-    GraphWindow->AddLegend(0.7,0.8, 0.95,0.95, "");
-*/
+    TGraph * gRef = AGraphBuilder::graph(Rule->Wave, Rule->ProbRef);
+    AGraphBuilder::configure(gRef, "Specular reflection", "Wavelength, nm", "Probability", 4, 21, 1, 4);
+    emit requestDraw(gRef, "LPsame", true, false);
+
+    TGraph* gDiff = AGraphBuilder::graph(Rule->Wave, Rule->ProbDiff);
+    AGraphBuilder::configure(gDiff, "Diffuse scattering", "Wavelength, nm", "Probability", 7, 22, 1, 7);
+    emit requestDraw(gDiff, "LPsame", true, false);
+
+    TGraph* gFr = AGraphBuilder::graph(Rule->Wave, fresnel);
+    AGraphBuilder::configure(gFr, "Fresnel", "Wavelength, nm", "Probability", 1, 24, 1, 1, 1, 1);
+    emit requestDraw(gFr, "LPsame", true, true);
+
+    emit requestDrawLegend(0.7,0.8, 0.95,0.95, "");
 }
 
 void ASpectralBasicInterfaceWidget::showBinned()
 {
-    /*
-    bool bWR;
-    double WaveFrom, WaveTo, WaveStep;
-    int WaveNodes;
-    MatCollection->GetWave(bWR, WaveFrom, WaveTo, WaveStep, WaveNodes);
+    Rule->initializeWaveResolved();
 
-    initializeWaveResolved();
-
-    //TODO run checker
-
-    if (!bWR)
+    const AWaveResSettings & WaveSet = APhotonSimHub::getConstInstance().Settings.WaveSet;
+    if (!WaveSet.Enabled)
     {
-        QString s = "Simulation is configured as not wavelength-resolved\n";
-        s +=        "All photons will have the same properties:\n";
-        s +=QString("Absorption: %1").arg(probLoss) + "\n";
-        s +=QString("Specular reflection: %1").arg(probRef) + "\n";
-        s +=QString("Scattering: %1").arg(probDiff);
-        message(s, widget);
+        QString s =  "Simulation is configured as not wavelength-resolved\n";
+        s +=         "All photons will have the same properties:\n";
+        s += QString("Absorption: %1").arg(Rule->ProbLossBinned[Rule->effectiveWaveIndex]) + "\n";
+        s += QString("Specular reflection: %1").arg(Rule->ProbRefBinned[Rule->effectiveWaveIndex]) + "\n";
+        s += QString("Scattering: %1").arg(Rule->ProbDiffBinned[Rule->effectiveWaveIndex]);
+        guitools::message(s, Parent);
         return;
     }
 
-    QVector<double> waveIndex;
-    for (int i=0; i<WaveNodes; i++) waveIndex << i;
+    std::vector<double> waveIndexes = WaveSet.getVectorOfIndexes();
 
-    QVector<double> Fr;
-    for (int i=0; i<waveIndex.size(); i++)
-        Fr << (1.0 - ProbLossBinned.at(i) - ProbRefBinned.at(i) - ProbDiffBinned.at(i));
+    std::vector<double> fresnel(waveIndexes.size());
+    double max = 0.01;
+    for (size_t i = 0; i < waveIndexes.size(); i++)
+    {
+        fresnel[i] = 1.0 - Rule->ProbLossBinned[i] - Rule->ProbRefBinned[i] - Rule->ProbDiffBinned[i];
+        max = std::max({max, Rule->ProbLossBinned[i],  Rule->ProbRefBinned[i], Rule->ProbDiffBinned[i], fresnel[i]});
+    }
 
-    TMultiGraph* mg = new TMultiGraph();
-    TGraph* gLoss = GraphWindow->ConstructTGraph(waveIndex, ProbLossBinned, "Loss", "Wave index", "Loss", 2, 20, 1, 2);
-    mg->Add(gLoss, "LP");
-    TGraph* gRef = GraphWindow->ConstructTGraph(waveIndex, ProbRefBinned, "Specular reflection", "Wave index", "Reflection", 4, 21, 1, 4);
-    mg->Add(gRef, "LP");
-    TGraph* gDiff = GraphWindow->ConstructTGraph(waveIndex, ProbDiffBinned, "Diffuse scattering", "Wave index", "Scatter", 7, 22, 1, 7);
-    mg->Add(gDiff, "LP");
-    TGraph* gFr = GraphWindow->ConstructTGraph(waveIndex, Fr, "Fresnel", "Wave index", "", 1, 24, 1, 1, 1, 1);
-    mg->Add(gFr, "LP");
+    TGraph * gLoss = AGraphBuilder::graph(waveIndexes, Rule->ProbLossBinned);
+    AGraphBuilder::configure(gLoss, "Absorption", "WaveIndex", "Probability", 2, 20, 1, 2);
+    gLoss->SetMinimum(0);
+    gLoss->SetMaximum(max);
+    emit requestDraw(gLoss, "AP", true, false);
 
-    mg->SetMinimum(0);
-    GraphWindow->Draw(mg, "apl");
-    mg->GetXaxis()->SetTitle("Wave index");
-    mg->GetYaxis()->SetTitle("Probability");
-    GraphWindow->AddLegend(0.7,0.8, 0.95,0.95, "");
-    */
+    TGraph * gRef = AGraphBuilder::graph(waveIndexes, Rule->ProbRefBinned);
+    AGraphBuilder::configure(gRef, "Specular reflection", "WaveIndex", "Probability", 4, 21, 1, 4);
+    emit requestDraw(gRef, "Psame", true, false);
+
+    TGraph* gDiff = AGraphBuilder::graph(waveIndexes, Rule->ProbDiffBinned);
+    AGraphBuilder::configure(gDiff, "Diffuse scattering", "WaveIndex", "Probability", 7, 22, 1, 7);
+    emit requestDraw(gDiff, "Psame", true, false);
+
+    TGraph* gFr = AGraphBuilder::graph(waveIndexes, fresnel);
+    AGraphBuilder::configure(gFr, "Fresnel", "WaveIndex", "Probability", 1, 24, 1, 1, 1, 1);
+    emit requestDraw(gFr, "Psame", true, true);
+
+    emit requestDrawLegend(0.7,0.8, 0.95,0.95, "");
 }
 
 void ASpectralBasicInterfaceWidget::updateButtons()
 {
-    /*
-    pbShow->setDisabled(Wave.isEmpty());
-    pbShowBinned->setDisabled(!WaveSet.Enabled || Wave.isEmpty());
-    */
+    pbShow->setDisabled(Rule->Wave.empty());
 }
 
-ASurfaceInterfaceWidget::ASurfaceInterfaceWidget(ASurfaceInterfaceRule *rule)
-{
-    setFrameStyle(QFrame::Box);
+// -------
 
+ASurfaceInterfaceWidget::ASurfaceInterfaceWidget(ASurfaceInterfaceRule * rule, QWidget * parent) :
+    AInterfaceRuleWidget(parent)
+{
     QHBoxLayout* l = new QHBoxLayout(this);
         QLabel* lab = new QLabel("Using Fresnel equations and Snell's law");
         lab->setAlignment(Qt::AlignHCenter);
     l->addWidget(lab);
-    /*
-        QLineEdit* le = new QLineEdit(QString::number(rule->Albedo));
-        QDoubleValidator* val = new QDoubleValidator(this);
-        val->setNotation(QDoubleValidator::StandardNotation);
-        val->setBottom(0);
-        //val->setTop(1.0); //Qt(5.8.0) BUG: check does not work
-        val->setDecimals(6);
-        le->setValidator(val);
-        QObject::connect(le, &QLineEdit::editingFinished, [le, rule]() { rule->Albedo = le->text().toDouble(); } );
-    l->addWidget(le);
-    */
 }
 
-AUnifiedInterfaceWidget::AUnifiedInterfaceWidget(AUnifiedRule * rule)
+AUnifiedInterfaceWidget::AUnifiedInterfaceWidget(AUnifiedRule * rule, QWidget * parent) :
+    AInterfaceRuleWidget(parent)
 {
-    setFrameStyle(QFrame::Box);
-
     QGridLayout * lay = new QGridLayout(this);
 
     lay->addWidget(new QLabel("Specular Spike:"), 0, 0);

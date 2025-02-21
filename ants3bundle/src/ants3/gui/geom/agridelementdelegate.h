@@ -19,7 +19,7 @@ public:
     AGridElementDelegate(QWidget * ParentWidget);
 
     QString getName() const override;
-    bool updateObject(AGeoObject * obj) const override; // !!!*** forbid "_-_"
+    bool updateObject(AGeoObject * obj) const override;
     void Update(const AGeoObject * obj) override;
 
 private:

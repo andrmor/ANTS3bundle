@@ -8,25 +8,37 @@ class G4Step;
 class G4HCofThisEvent;
 class AHistogram3Dfixed;
 
-class SensitiveDetector : public G4VSensitiveDetector
+namespace SensitiveDetectorTools
+{
+    void stopAndKill(G4Step * step);
+};
+
+class DepositionSensitiveDetector : public G4VSensitiveDetector
 {
 public:
-    SensitiveDetector(const G4String & name);
-    ~SensitiveDetector();
+    DepositionSensitiveDetector(const G4String & name);
+    ~DepositionSensitiveDetector();
 
     G4bool ProcessHits(G4Step* step, G4TouchableHistory* history) override;
+};
+
+class MonitorSensitiveDetector : public G4VSensitiveDetector
+{
+public:
+    MonitorSensitiveDetector(const std::string & name);
+
+    G4bool ProcessHits(G4Step * step, G4TouchableHistory * history) override;
 };
 
 class AHistogram1D;
 class AHistogram2D;
 
-class MonitorSensitiveDetector : public G4VSensitiveDetector
+class MonitorSensitiveDetectorWrapper
 {
 public:
-    MonitorSensitiveDetector(const std::string & name, const std::string & particle, int index);
-    ~MonitorSensitiveDetector();
+    MonitorSensitiveDetectorWrapper(const std::string & name, const std::string & particle, int index);
 
-    G4bool ProcessHits(G4Step* step, G4TouchableHistory* history) override;
+    G4bool ProcessHits(G4Step * step, G4TouchableHistory * history);
 
     bool readFromJson(const json11::Json & json);
     void writeToJson(json11::Json::object & json);
@@ -77,14 +89,25 @@ protected:
     void writeHist1D(AHistogram1D *hist, json11::Json::object & json) const;
 };
 
-#include "acalsettings.h"
 class CalorimeterSensitiveDetector : public G4VSensitiveDetector
 {
 public:
-    CalorimeterSensitiveDetector(const std::string & name, ACalorimeterProperties & properties, int index);
-    ~CalorimeterSensitiveDetector();
+    CalorimeterSensitiveDetector(const std::string & name);
 
     G4bool ProcessHits(G4Step * step, G4TouchableHistory * history) override;
+};
+
+// !!!*** optimisation is possible: do not compute local coordinates in DepoOverEvent mode
+#include "acalsettings.h"
+class CalorimeterSensitiveDetectorWrapper
+{
+public:
+    CalorimeterSensitiveDetectorWrapper(const std::string & name, ACalorimeterProperties & properties, int index);
+    ~CalorimeterSensitiveDetectorWrapper();
+
+    G4bool ProcessHits(G4Step * step, G4TouchableHistory * history);
+
+    void registerHit(double depo, const G4ThreeVector & local, G4Step * step); // called by both ProcessHits and externally from DelegatingCalorimeterSensitiveDetector
 
     void writeToJson(json11::Json::object & json);
 
@@ -98,7 +121,22 @@ public:
 
     AHistogram1D * EventDepoData = nullptr;
     double SumDepoOverEvent = 0;
+};
 
+class DelegatingCalorimeterSensitiveDetector : public G4VSensitiveDetector
+{
+public:
+    DelegatingCalorimeterSensitiveDetector(const std::string & name);
+
+    G4bool ProcessHits(G4Step * step, G4TouchableHistory * history) override;
+};
+
+class AnalyzerSensitiveDetector : public G4VSensitiveDetector
+{
+public:
+    AnalyzerSensitiveDetector(const std::string & name);
+
+    G4bool ProcessHits(G4Step * step, G4TouchableHistory * history) override;
 };
 
 #endif // SensitiveDetector_h

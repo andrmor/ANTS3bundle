@@ -37,6 +37,12 @@ AGeoSpecial * GeoRoleFactory::make(const QJsonObject & json)
         th->readFromJson(json);
         return th;
     }
+    if (Type == "ParticleAnalyzer")
+    {
+        AGeoParticleAnalyzer * pa = new AGeoParticleAnalyzer();
+        pa->readFromJson(json);
+        return pa;
+    }
 
     return nullptr;
 }
@@ -73,19 +79,7 @@ void AGeoCalorimeter::introduceGeoConstValues(QString & errorStr)
     const AGeoConsts & GC = AGeoConsts::getConstInstance();
 
     bool ok;
-    for (int i = 0; i <3 ; i++)
-    {
-        ok = GC.updateDoubleParameter(errorStr, Properties.strOrigin[i], Properties.Origin[i], false, false, false);
-        if (!ok) errorStr += QString(" in Origin[%0]\n").arg(i);
-
-        ok = GC.updateDoubleParameter(errorStr, Properties.strStep[i],   Properties.Step[i],   true,  true,  false);
-        if (!ok) errorStr += QString(" in Step[%0]\n").arg(i);
-
-        ok = GC.updateIntParameter(errorStr, Properties.strBins[i],   Properties.Bins[i],   true,  true);
-        if (!ok) errorStr += QString(" in Bins[%0]\n").arg(i);
-    }
-
-    if (Properties.CollectDepoOverEvent)
+    if (Properties.DataType == ACalorimeterProperties::DepoPerEvent)
     {
         ok = GC.updateIntParameter(errorStr, Properties.strEventDepoBins, Properties.EventDepoBins,  true, true);
         if (!ok) errorStr += " in event energy depo bins";
@@ -95,6 +89,20 @@ void AGeoCalorimeter::introduceGeoConstValues(QString & errorStr)
 
         ok = GC.updateDoubleParameter(errorStr, Properties.strEventDepoTo,   Properties.EventDepoTo,    false, true, false);
         if (!ok) errorStr += " in event energy depo to";
+    }
+    else
+    {
+        for (int i = 0; i <3 ; i++)
+        {
+            ok = GC.updateDoubleParameter(errorStr, Properties.strOrigin[i], Properties.Origin[i], false, false, false);
+            if (!ok) errorStr += QString(" in Origin[%0]\n").arg(i);
+
+            ok = GC.updateDoubleParameter(errorStr, Properties.strStep[i],   Properties.Step[i],   true,  true,  false);
+            if (!ok) errorStr += QString(" in Step[%0]\n").arg(i);
+
+            ok = GC.updateIntParameter(errorStr, Properties.strBins[i],   Properties.Bins[i],   true,  true);
+            if (!ok) errorStr += QString(" in Bins[%0]\n").arg(i);
+        }
     }
 }
 
@@ -162,6 +170,18 @@ void AGeoPhotonFunctional::doWriteToJson(QJsonObject & json) const
     QJsonObject js;
     DefaultModel->writeToJson(js);
     json["Model"] = js;
+}
+
+// ---
+
+void AGeoParticleAnalyzer::readFromJson(const QJsonObject & json)
+{
+    Properties.readFromJson(json);
+}
+
+void AGeoParticleAnalyzer::doWriteToJson(QJsonObject & json) const
+{
+    Properties.writeToJson(json, false);
 }
 
 // ---

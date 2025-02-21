@@ -1,4 +1,4 @@
-#include "aoneevent.h"
+#include "alightsensorevent.h"
 #include "asensorhub.h"
 #include "arandomhub.h"
 #include "aphotonsimhub.h"
@@ -8,17 +8,17 @@
 
 #include <QDebug>
 
-#include "TMath.h"
-#include "TH1D.h"
+//#include "TMath.h"
+//#include "TH1D.h"
 
-AOneEvent::AOneEvent() :
+ALightSensorEvent::ALightSensorEvent() :
     SimSet(APhotonSimHub::getInstance().Settings),
     SensorHub(ASensorHub::getConstInstance()),
     RandomHub(ARandomHub::getInstance()),
     SimStat(AStatisticsHub::getInstance().SimStat)
 {}
 
-void AOneEvent::init()
+void ALightSensorEvent::init()
 {
     numPMs = SensorHub.countSensors();
 
@@ -37,7 +37,7 @@ void AOneEvent::init()
     clearHits(); //clears and resizes the hits / signals containers
 }
 
-void AOneEvent::clearHits()
+void ALightSensorEvent::clearHits()
 {
     for (int ipm = 0; ipm < numPMs; ipm++)
     {
@@ -46,7 +46,7 @@ void AOneEvent::clearHits()
     }
 }
 
-bool AOneEvent::checkSensorHit(int ipm, double time, int iWave, double x, double y, double angle, int numTransitions, double rnd)
+bool ALightSensorEvent::checkSensorHit(int ipm, double time, int iWave, double x, double y, double angle, int numTransitions, double rnd)
 {
     const ASensorModel * model = SensorHub.sensorModelFast(ipm); // already checked
     double detectionProb = model->getPDE(iWave);
@@ -72,7 +72,7 @@ bool AOneEvent::checkSensorHit(int ipm, double time, int iWave, double x, double
     return true;
 }
 
-bool AOneEvent::registerSiPMhit(int ipm, size_t binX, size_t binY)
+bool ALightSensorEvent::registerSiPMhit(int ipm, size_t binX, size_t binY)
 {
     const ASensorModel * model = SensorHub.sensorModelFast(ipm);
     const int index = model->getPixelIndex(binX, binY);
@@ -84,14 +84,14 @@ bool AOneEvent::registerSiPMhit(int ipm, size_t binX, size_t binY)
     return true;
 }
 
-bool AOneEvent::isHitsEmpty() const
+bool ALightSensorEvent::isHitsEmpty() const
 {
     for (int ipm = 0; ipm < numPMs; ipm++)
         if (PMhits[ipm] != 0) return false;  // set to exact zero on init, any non-zero is fine
     return true;
 }
 
-void AOneEvent::convertHitsToSignals()
+void ALightSensorEvent::convertHitsToSignals()
 {
     for (int ipm = 0; ipm < numPMs; ipm++)
     {
@@ -100,7 +100,7 @@ void AOneEvent::convertHitsToSignals()
     }
 }
 
-void AOneEvent::addDarkCounts()
+void ALightSensorEvent::addDarkCounts()
 {
     for (int ipm = 0; ipm < numPMs; ipm++)
     {
@@ -139,7 +139,7 @@ void AOneEvent::addDarkCounts()
     }
 }
 
-void AOneEvent::fillDetectionStatistics(int waveIndex, double time, double angle, int numTransitions)
+void ALightSensorEvent::fillDetectionStatistics(int waveIndex, double time, double angle, int numTransitions)
 {
     SimStat.registerWave(waveIndex);
     SimStat.registerTime(time);

@@ -17,6 +17,7 @@
 #include <QDebug>
 #include <QFileInfo>
 
+#include "TString.h"
 #include "TGeoManager.h"
 #include "TVector3.h"
 
@@ -41,13 +42,15 @@ AGeometryHub::AGeometryHub()
 
     Prototypes = new AGeoObject("_#_PrototypeContainer_#_");
     delete Prototypes->Type; Prototypes->Type = new ATypePrototypeCollectionObject();
-    Prototypes->migrateTo(World);
+    Prototypes->Container = World;
+    World->HostedObjects.push_back(Prototypes);
 }
 
 AGeometryHub::~AGeometryHub()
 {
     //qDebug() << "Dest for A3Geometry";
-    clearWorld(); delete World;
+    clearWorld();
+    delete World; World = nullptr;
 
     delete GeoManager; // should be deleted by aboutToQuit()!
 }
@@ -62,6 +65,9 @@ void AGeometryHub::clearWorld()
     for (AGeoObject * obj : World->HostedObjects) obj->clearAll();
     World->HostedObjects.clear();
 
+    World->Material = 0;
+    setWorldSizeFixed(false);
+
     Prototypes->clearContent();
     World->HostedObjects.push_back(Prototypes);
 
@@ -72,6 +78,16 @@ void AGeometryHub::clearWorld()
     clearMonitors();
     ACalorimeterHub::getInstance().clear();
     AGridHub::getInstance().clear();
+
+    Scintillators.clear();
+    PhotonFunctionals.clear();
+    ParticleAnalyzers.clear();
+}
+
+void AGeometryHub::restoreWorldAttributes()
+{
+    World->Name = "World";
+    delete World->Type; World->Type = new ATypeWorldObject();
 }
 
 void AGeometryHub::clearMonitors()
@@ -123,7 +139,30 @@ void AGeometryHub::convertObjToComposite(AGeoObject * obj) const
     obj->Shape = new AGeoComposite(sl, str);
 }
 
-QString AGeometryHub::convertToNewPrototype(std::vector<AGeoObject *> members)
+void AGeometryHub::removePresentInContainers(std::vector<AGeoObject *> & members)
+{
+    // assume unordered selection
+    size_t iCheckingObject = members.size();
+    while (iCheckingObject > 0)
+    {
+        iCheckingObject--;
+        AGeoObject * objChecking = members[iCheckingObject];
+        bool isInContainer = false;
+        for (AGeoObject * obj : members)
+        {
+            if (obj == objChecking) continue;
+            if (obj->isContainsObjectRecursive(objChecking))
+            {
+                isInContainer = true;
+                break;
+            }
+        }
+
+        if (isInContainer) members.erase(members.begin() + iCheckingObject);
+    }
+}
+
+QString AGeometryHub::convertToNewPrototype(std::vector<AGeoObject *> & members)
 {
     QString errStr;
 
@@ -139,8 +178,13 @@ QString AGeometryHub::convertToNewPrototype(std::vector<AGeoObject *> members)
     delete proto->Type; proto->Type = new ATypePrototypeObject();
     proto->migrateTo(Prototypes);
 
-    for (AGeoObject * obj : members)
-        obj->migrateTo(proto);
+    removePresentInContainers(members);
+    while (!members.empty())
+    {
+        AGeoObject * obj = members.front();
+        obj->migrateTo(proto, true);
+        members.erase(members.begin());
+    }
 
     return "";
 }
@@ -198,6 +242,8 @@ void AGeometryHub::expandPrototypeInstances()
 
         for (AGeoObject * obj : prototypeObj->HostedObjects)
         {
+            if (obj->isDisabled()) continue;
+
             AGeoObject * clone = obj->makeCloneForInstance(instanceObj->Name);
             clone->lockRecursively();
             instanceObj->addObjectLast(clone);
@@ -260,6 +306,7 @@ void AGeometryHub::populateGeoManager(bool notifyRootServer)
     ACalorimeterHub::getInstance().clear();
     AGridHub::getInstance().clear();
     Scintillators.clear();
+    ParticleAnalyzers.clear();
     PhotonFunctionals.clear();
     World->clearTrueRotationRecursive();
 
@@ -327,8 +374,6 @@ void AGeometryHub::addMonitorNode(AGeoObject * obj, TGeoVolume * vol, TGeoVolume
     parent->AddNode(vol, MonitorCounter, lTrans);
 
     TString fixedName = vol->GetName();
-    fixedName += IndexSeparator;
-    fixedName += MonitorCounter;
     vol->SetName(fixedName);
 
     AMonitorData md;
@@ -354,8 +399,6 @@ void AGeometryHub::addCalorimeterNode(AGeoObject * obj, TGeoVolume * vol, TGeoVo
     parent->AddNode(vol, CalorimeterCounter, lTrans);
 
     TString fixedName = vol->GetName();
-    fixedName += IndexSeparator;
-    fixedName += CalorimeterCounter;
     vol->SetName(fixedName);
 
     ACalorimeterData calData;
@@ -370,6 +413,26 @@ void AGeometryHub::addCalorimeterNode(AGeoObject * obj, TGeoVolume * vol, TGeoVo
     getGlobalUnitVectors(node, calData.UnitXMaster, calData.UnitYMaster, calData.UnitZMaster);
 
     CalorimeterHub.Calorimeters.push_back(calData);
+    if (calData.Calorimeter->Properties.IncludeHostedVolumes)
+        registerCompositeCalorimeterMembersRecursive(obj);
+}
+
+void AGeometryHub::registerCompositeCalorimeterMembersRecursive(AGeoObject * obj)
+{
+    ACalorimeterHub & CalorimeterHub = ACalorimeterHub::getInstance();
+    for (AGeoObject * memObj : obj->HostedObjects)
+    {
+        if (memObj->Role) continue; // only objects without assigned special role
+
+        // optimized for expected small number of unique calorimeters
+        // caching of last can speed up !!!***
+        std::vector<QString> vec = CalorimeterHub.CompositeCalorimeterMembers;
+        auto it = std::find (vec.begin(), vec.end(), memObj->Name);
+        if (it == vec.end())
+            CalorimeterHub.CompositeCalorimeterMembers.push_back(memObj->Name);
+
+        registerCompositeCalorimeterMembersRecursive(memObj);
+    }
 }
 
 void AGeometryHub::addSensorNode(AGeoObject * obj, TGeoVolume * vol, TGeoVolume * parent, TGeoCombiTrans * lTrans)
@@ -552,18 +615,22 @@ void AGeometryHub::addTGeoVolumeRecursively(AGeoObject * obj, TGeoVolume * paren
             addCalorimeterNode(obj, vol, parent, lTrans);
         else if (obj->isSensor())
             addSensorNode(obj, vol, parent, lTrans);
-        else
+        else if (obj->isScintillator())
         {
-            if (obj->isScintillator())
-            {
-                //TGeoNode * node = parent->AddNode(vol, Scintillators.size(), lTrans);  // not compatible with old ROOT versions
-                parent->AddNode(vol, Scintillators.size(), lTrans);
-                TGeoNode * node = parent->GetNode(parent->GetNdaughters()-1);
-                Scintillators.push_back({obj, node});
-            }
-            else
-                parent->AddNode(vol, forcedNodeNumber, lTrans);
+            parent->AddNode(vol, Scintillators.size(), lTrans);
+            TGeoNode * node = parent->GetNode(parent->GetNdaughters()-1);
+            Scintillators.push_back({obj, node});
         }
+        else if (obj->isParticleAnalyzer())
+        {
+            parent->AddNode(vol, ParticleAnalyzers.size(), lTrans);
+            TGeoNode * node = parent->GetNode(parent->GetNdaughters()-1);
+            AVector3 globalPosition;
+            getGlobalPosition(node, globalPosition);
+            ParticleAnalyzers.push_back({obj, node, globalPosition});
+        }
+        else
+            parent->AddNode(vol, forcedNodeNumber, lTrans);
     }
 
     // Position hosted objects
@@ -609,11 +676,7 @@ void AGeometryHub::setVolumeTitle(AGeoObject * obj, TGeoVolume * vol)
     const bool bInstance = (!obj->NameWithoutSuffix.isEmpty());
     TString BaseName;
     if (bInstance) BaseName = TString(obj->NameWithoutSuffix.toLatin1().data());
-    else
-    {
-        BaseName = vol->GetName();
-        if (title[0] != '-') AGeometryHub::getConstInstance().removeNameDecorators(BaseName);
-    }
+    else           BaseName = vol->GetName();
 
     const AInterfaceRuleHub & IRH = AInterfaceRuleHub::getConstInstance();
     if (IRH.isFromVolume(BaseName)) title[1] = '*';
@@ -632,6 +695,73 @@ void AGeometryHub::registerPhotonFunctional(AGeoObject * obj, TGeoVolume * paren
     AVector3 globalPosition;
     getGlobalPosition(node, globalPosition);
     PhotonFunctionals.push_back({obj, node, globalPosition});
+}
+
+void AGeometryHub::fillParticleAnalyzerRecords(AParticleAnalyzerSettings * settings) const
+{
+    settings->AnalyzerTypes.clear();
+    settings->UniqueToTypeLUT.clear();
+    settings->GlobalToUniqueLUT.clear();
+
+    int typeIndex = 0;
+    int uniqueIndex = 0;
+    for (const auto & tup : ParticleAnalyzers)
+    {
+        const AGeoSpecial * role = std::get<0>(tup)->Role;
+        const AGeoParticleAnalyzer * pa = static_cast<const AGeoParticleAnalyzer*>(role);
+        const AParticleAnalyzerRecord & rec = pa->Properties;
+
+        const std::string volumeName = std::get<0>(tup)->Name.toLatin1().data();
+
+        std::string baseName = std::get<0>(tup)->NameWithoutSuffix.toLatin1().data();
+        // all AGeoObjects not belonging to an instance have baseName empty
+        if (baseName.empty()) baseName = volumeName;
+
+        bool found = false;
+        for (AParticleAnalyzerRecord & filledRecord : settings->AnalyzerTypes) // !!!*** consider map
+        {
+            if (baseName == filledRecord.VolumeBaseName)  // record for this base type already exists
+            {
+                if (rec.SingleInstanceForAllCopies)
+                {
+                    settings->GlobalToUniqueLUT.push_back(filledRecord.UniqueIndex); // reuse unique
+                    // UniqueToTypeLUT already filled
+                }
+                else
+                {
+                    settings->GlobalToUniqueLUT.push_back(uniqueIndex);
+                    settings->UniqueToTypeLUT.push_back(filledRecord.TypeIndex);
+                    uniqueIndex++;
+                }
+
+                filledRecord.addVolumeNameIfNew(volumeName);
+
+                found = true;
+                break;
+            }
+        }
+
+        if (!found)
+        {
+            AParticleAnalyzerRecord recordCopy = rec;
+
+                recordCopy.TypeIndex      = typeIndex;   // just tmp
+                recordCopy.UniqueIndex    = uniqueIndex; // just tmp
+
+                recordCopy.VolumeBaseName = baseName;
+                recordCopy.addVolumeNameIfNew(volumeName);
+
+            settings->AnalyzerTypes.push_back(recordCopy);
+
+            settings->UniqueToTypeLUT.push_back(typeIndex);
+            settings->GlobalToUniqueLUT.push_back(uniqueIndex);
+
+            typeIndex++;
+            uniqueIndex++;
+        }
+    }
+
+    settings->NumberOfUniqueAnalyzers = uniqueIndex;
 }
 
 void AGeometryHub::positionArray(AGeoObject * obj, TGeoVolume * vol, int parentNodeIndex)
@@ -673,14 +803,21 @@ void AGeometryHub::positionArray(AGeoObject * obj, TGeoVolume * vol, int parentN
             }
             else
             {
+                double delta = 0;
+                if (!hexArray->SkipEvenFirst &&  hexArray->SkipOddLast) delta = 0;
+                if (!hexArray->SkipEvenFirst && !hexArray->SkipOddLast) delta = -0.25 * hexArray->Step;
+                if ( hexArray->SkipEvenFirst && !hexArray->SkipOddLast) delta = -0.5  * hexArray->Step;
+                if ( hexArray->SkipEvenFirst &&  hexArray->SkipOddLast) delta = -0.25  * hexArray->Step;
+
                 for (int iy = 0; iy < hexArray->NumY; iy++)
                 {
                     bool bOdd = ( (iy+1) % 2 == 0);
                     for (int ix = 0; ix < hexArray->NumX; ix++)
                     {
-                        if (hexArray->SkipOddLast && bOdd && ix == hexArray->NumX-1) continue;
+                        if (hexArray->SkipEvenFirst && !bOdd && ix == 0) continue;
+                        if (hexArray->SkipOddLast   &&  bOdd && ix == hexArray->NumX-1) continue;
 
-                        double x = el->Position[0] + (ix - 0.5*(hexArray->NumX - 1)) * hexArray->Step;
+                        double x = el->Position[0] + (ix - 0.5*(hexArray->NumX - 1)) * hexArray->Step + delta;
                         if (bOdd) x +=  0.5 * hexArray->Step;
                         double y = el->Position[1] + (iy - 0.5*(hexArray->NumY - 1)) * hexArray->Step * cos(30.0*3.1415926535/180.0);
 
@@ -1143,12 +1280,6 @@ void AGeometryHub::colorVolumes(int scheme, int id)
             else
             {
                 const AGeoObject * obj = World->findObjectByName(name); // !!!*** can be very slow for large detectors!
-                if (!obj && !name.isEmpty())
-                {
-                    //special for monitors
-                    QString mName = name.split(IndexSeparator.Data()).at(0);
-                    obj = World->findObjectByName(mName);
-                }
                 if (obj)
                 {
                     vol->SetLineColor(obj->color);
@@ -1400,7 +1531,7 @@ void processTCompositeShape(TGeoCompositeShape* Tshape, QVector<AGeoObject*>& Lo
     {
         QString leftNameBase = leftName = left->GetName();
         while (isLogicalObjectsHaveName(LogicalObjects, leftName))
-            leftName = leftNameBase + "_" + AGeoObject::GenerateRandomName();
+            leftName = leftNameBase + "_" + AGeoObject::generateRandomName();
         processNonComposite(leftName, left, n->GetLeftMatrix(), LogicalObjects);
     }
 
@@ -1419,7 +1550,7 @@ void processTCompositeShape(TGeoCompositeShape* Tshape, QVector<AGeoObject*>& Lo
     {
         QString rightNameBase = rightName = right->GetName();
         while (isLogicalObjectsHaveName(LogicalObjects, rightName))
-            rightName = rightNameBase + "_" + AGeoObject::GenerateRandomName();
+            rightName = rightNameBase + "_" + AGeoObject::generateRandomName();
         processNonComposite(rightName, right, n->GetRightMatrix(), LogicalObjects);
     }
 
@@ -1520,7 +1651,8 @@ QString AGeometryHub::importGDML(const QString & fileName)
 
     clearWorld();
     readGeoObjectTree(World, top);
-    World->makeItWorld();
+    //World->makeItWorld();
+    restoreWorldAttributes();
     AGeoBox * wb = dynamic_cast<AGeoBox*>(World->Shape);
     if (wb)
     {
@@ -1553,7 +1685,8 @@ QString AGeometryHub::importGeometry(const QString &fileName)
 
     clearWorld();
     readGeoObjectTree(World, top);
-    World->makeItWorld();
+    //World->makeItWorld();
+    restoreWorldAttributes();
     AGeoBox * wb = dynamic_cast<AGeoBox*>(World->Shape);
     if (wb)
     {
@@ -1597,12 +1730,6 @@ QString AGeometryHub::generateObjectName(const QString & prefix) const
     return name;
 }
 
-void AGeometryHub::removeNameDecorators(TString & name) const
-{
-    const int ind = name.Index(IndexSeparator, IndexSeparator.Length(), 0, TString::kExact);
-    if (ind != TString::kNPOS) name.Resize(ind);
-}
-
 size_t AGeometryHub::countScintillators() const
 {
     return Scintillators.size();
@@ -1617,6 +1744,16 @@ void AGeometryHub::getScintillatorPositions(std::vector<AVector3> & positions) c
         const TGeoNode * node = Scintillators[i].second;
         getGlobalPosition(node, positions[i]);
     }
+}
+
+AVector3 AGeometryHub::getScintillatorPosition(size_t index) const
+{
+    if (index >= Scintillators.size()) return {0,0,0};
+
+    AVector3 position;
+    const TGeoNode * node = Scintillators[index].second;
+    getGlobalPosition(node, position);
+    return position;
 }
 
 void AGeometryHub::getScintillatorOrientations(std::vector<AVector3> & orientations) const
@@ -1651,6 +1788,11 @@ void AGeometryHub::getScintillatorVolumeUniqueNames(std::vector<QString> & vol) 
 void AGeometryHub::checkGeometryCompatibleWithGeant4() const
 {
     World->checkCompatibleWithGeant4();
+}
+
+size_t AGeometryHub::countParticleAnalyzers() const
+{
+    return ParticleAnalyzers.size();
 }
 
 QString AGeometryHub::checkVolumesExist(const std::vector<std::string> & VolumesAndWildcards) const

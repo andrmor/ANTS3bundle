@@ -8,12 +8,13 @@ class ABasicInterfaceRule : public AInterfaceRule
 public:
     ABasicInterfaceRule(int MatFrom, int MatTo);
 
-    OpticalOverrideResultEnum calculate(APhoton* Photon, const double* NormalVector) override; //unitary vectors! iWave = -1 if not wavelength-resolved
+    EInterfaceRuleResult calculate(APhoton* Photon, const double* NormalVector) override; //unitary vectors! iWave = -1 if not wavelength-resolved
 
     QString getType() const override {return "Simplistic";}
     QString getAbbreviation() const override {return "Simp";}
     QString getReportLine() const override;
     QString getLongReportLine() const override;
+    QString getDescription() const override;
 
     bool    canHaveRoughSurface() const override {return true;}
 

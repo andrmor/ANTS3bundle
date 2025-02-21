@@ -12,6 +12,8 @@ class AParticleSourceDialog;
 
 class MainWindow;
 class TObject;
+class QLineEdit;
+class QComboBox;
 
 class AParticleSourceDialog : public QDialog
 {
@@ -99,10 +101,10 @@ private:
     void updateDirectionVisibility();
     void storePersistentSettings();
     void restorePersistentSettings();
-    void updateHalfLifeIndication();
-    void updateHalfLife();
     void updateFixedEnergyIndication(const AGunParticle & gRec);
     void updateFixedEnergy();
+    void updateTimeWithUnitsIndication(double time_ns, AParticleSourceRecord::ETimeUnits prefUnits, QLineEdit * led, QComboBox * cob);
+    void readTimeWithUnits(QLineEdit * led, QComboBox * cob, double & time_ns, AParticleSourceRecord::ETimeUnits & prefUnits);
 };
 
 #endif // APARTICLESOURCEDIALOG_H

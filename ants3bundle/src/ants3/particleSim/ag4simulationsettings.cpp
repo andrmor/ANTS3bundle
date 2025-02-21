@@ -142,5 +142,6 @@ void AG4SimulationSettings::clear()
     UseTSphys = false;
     Commands.clear();
     SensitiveVolumes.clear();
+    ScintSensitiveVolumes.clear();
     StepLimits.clear();
 }

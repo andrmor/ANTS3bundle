@@ -57,7 +57,10 @@ APet_si::APet_si() :
                           "If castor was compiled with OpenMP use numThreads argument to provide th enumber of threads. The reconstruction process is further "
                           "configured using the methods with names starting from configureReconstruction...";
 
-    Help["loadImage"] = "Load image from Castor outputs file loadImage (suffix .hdr). The loaded 2D array is a sequence of Z-slices, each having numY slices of numX values.\n"
+    Help["loadImage"] = "Load image from CASToR output file (file suffix .hdr).\n"
+                        "The method returns an array of two arrays.\n"
+                        "The first one is a 3D array of image voxels [ix][iy][iz]\n"
+                        "The second one is array of image parameters: [ [NumBinsX,NumBinsY,NumBinsZ], [mmPerPixelX,mmPerPixelY,mmPerPixelZ], [OffsetX_mm,OffsetY_mm,OffsetZ_mm] ]\n"
                         "Note that for visualization a special option is provided: use grwin.show3D(fileName), which opens a dedicated 3D graph viewer";
 }
 
@@ -386,37 +389,46 @@ void APet_si::onReadReady()
 }
 
 #include <QVariantList>
+#include "acastorimageloader.h"
 QVariantList APet_si::loadImage(QString fileName)
 {
-    QVariantList res;
+    QVariantList vl;
 
-    std::ifstream inStream;
-    inStream.open(fileName.toLatin1().data(), std::ios::in | std::ios::binary);
-
-    if (!inStream.is_open() || inStream.fail() || inStream.bad())
+    ACastorImageLoader il;
+    QString err = il.loadImage(fileName);
+    if (!err.isEmpty())
     {
-        abort("Cannot open image file: " + fileName);
-        return res;
+        abort("Castor image loader error:\n" + err);
+        return vl;
     }
 
-    float buffer;
-    for (int iz = 0; iz < 128; iz++)
+    QVariantList data; data.reserve(il.NumBinsX);
+    for (int ix = 0; ix < il.NumBinsX; ix++)
     {
-        QVariantList frame;
-        for (int iy = 0; iy < 128; iy++)
+        QVariantList vlX; vlX.reserve(il.NumBinsY);
+        for (int iy = 0; iy < il.NumBinsY; iy++)
         {
-            //qDebug() << "---"<<iy<<"---";
-            QVariantList el;
-            for (int ix = 0; ix < 128; ix++)
-            {
-                inStream.read((char*)&buffer,   sizeof(float));
-                //if (buffer != 0) qDebug() << buffer;
-                el << buffer;
-            }
-            frame.push_back(el);
+            QVariantList vlY; vlX.reserve(il.NumBinsZ);
+            for (int iz = 0; iz < il.NumBinsZ; iz++)
+                vlY.push_back(il.Data[ix][iy][iz]);
+            vlX.push_back(vlY);
         }
-        res.push_back(frame);
+        data.push_back(vlX);
     }
+    vl.push_back(data);
 
-    return res;
+    QVariantList parameters;
+        QVariantList num;
+        num << il.NumBinsX << il.NumBinsY << il.NumBinsZ;
+    parameters.push_back(num);
+        QVariantList mmPerPix;
+        mmPerPix << il.mmPerPixelX << il.mmPerPixelY << il.mmPerPixelZ;
+    parameters.push_back(mmPerPix);
+        QVariantList offset;
+        offset << il.OffsetX << il.OffsetY << il.OffsetZ;
+    parameters.push_back(offset);
+
+    vl.push_back(parameters);
+
+    return vl;
 }

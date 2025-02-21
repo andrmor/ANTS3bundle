@@ -67,6 +67,7 @@ public:
 
 private:
     QString tryReadFromJson(const QJsonObject & json); // !!!***
+    void replaceEmptyOutputDirsWithTemporary();
 
 signals:
     void configLoaded();  // signal to GUI

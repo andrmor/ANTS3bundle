@@ -66,11 +66,12 @@ protected:
 
 public slots:
     void ClearRootCanvas();
+    void onNewConfigLoaded();
     void ShowGeometry(bool ActivateWindow = true, bool SAME = true, bool ColorUpdateAllowed = true);
     void onRequestRedrawFromScript();
     void showRecursive(QString objectName);
     void UpdateRootCanvas();
-    void ShowTracks();
+    void ShowTracks(bool activateWindow = false);
     void onRequestShowTracksFromScript();
     void onRequestClearTracksFromScript();
     void onRequestClearMarkersFromScript();
@@ -87,6 +88,8 @@ public slots:
     void showCalorimeterIndexes();  // !!!***
     void showSensorModelIndexes(int iModel = -1);  // !!!***
     void showPhotonFunctionalIndexes();  // !!!***
+    void showAnalyzerIndexes();  // !!!***
+    void showScintillatorIndexes();  // !!!***
 
     void showText(const std::vector<QString> & textVec, int color, AGeoWriter::EDraw onWhat, bool bFullCycle = true);
 
@@ -143,9 +146,11 @@ private slots:
 
     void on_cbShowTop_clicked(bool checked);
 
-    void on_pushButton_clicked();
-
     void on_cbColor_customContextMenuRequested(const QPoint &pos);
+
+    void on_cbLimitVisibility_toggled(bool checked);
+
+    void on_pbSaveAs_customContextMenuRequested(const QPoint &pos);
 
 private:
     bool                    UseJSRoot = false;
@@ -168,6 +173,7 @@ private:
     bool ColorByMaterial = false;
 
     AGeoWriter GeoWriter;
+    int LastShowObjectType = 0;
 
 private:
     void redrawWebView(QString extraArguments = "");

@@ -10,12 +10,46 @@
 #include "G4ThreeVector.hh"
 #include "G4SystemOfUnits.hh"
 
-SensitiveDetector::SensitiveDetector(const G4String& name)
+void SensitiveDetectorTools::stopAndKill(G4Step * step)
+{
+    step->GetTrack()->SetTrackStatus(fStopAndKill);
+
+    // Found cases when secondaries were generated inside the analyzer -> error in processing on ants3 side
+    // !!! cannot use fKillTrackAndSecondaries --> there could be secondaries generated before entrance to the analyzer
+    //  Beacuse of the bug in Geant4, the approach based on step->GetSecondaryInCurrentStep() does not work:
+    //auto secondaries = step->GetSecondaryInCurrentStep();
+    //for (auto sec : *secondaries){
+    //    std::cout << "!!!" << sec->GetTrackID() << G4endl;
+    //}  // it returns nullptrs -> track ids are not yet assigned
+
+    // Using time info to kill the secondaries, created later than time of entrance
+    G4TrackVector * vec = step->GetfSecondary();
+    if (vec->empty()) return;
+
+    size_t iTr = vec->size();
+    do
+    {
+        iTr--;
+        G4Track * tr = vec->at(iTr);
+        //tr->SetTrackStatus(fStopAndKill); // ignored if set on a track in fSecondary container :(
+        //std::cout << "->" << tr->GetGlobalTime() << G4endl;
+        if (tr->GetGlobalTime() > step->GetPreStepPoint()->GetGlobalTime())
+        {
+            //std::cout << "->kill secondary created after particle tracking was aborted" << G4endl;
+            vec->erase(vec->begin() + iTr);
+            delete tr;
+        }
+        else break; // tracks created in the last step are at the end
+    }
+    while (iTr != 0);
+}
+
+DepositionSensitiveDetector::DepositionSensitiveDetector(const G4String& name)
     : G4VSensitiveDetector(name) {}
 
-SensitiveDetector::~SensitiveDetector() {}
+DepositionSensitiveDetector::~DepositionSensitiveDetector() {}
 
-G4bool SensitiveDetector::ProcessHits(G4Step* aStep, G4TouchableHistory*)
+G4bool DepositionSensitiveDetector::ProcessHits(G4Step* aStep, G4TouchableHistory*)
 {  
     G4double edep = aStep->GetTotalEnergyDeposit()/keV;
     if (edep == 0.0) return false;
@@ -42,87 +76,99 @@ G4bool SensitiveDetector::ProcessHits(G4Step* aStep, G4TouchableHistory*)
 
 #include "G4VProcess.hh"
 
-MonitorSensitiveDetector::MonitorSensitiveDetector(const std::string & name, const std::string & particle, int index) :
-    G4VSensitiveDetector(name),
-    Name(name), ParticleName(particle), MonitorIndex(index) {}
+MonitorSensitiveDetector::MonitorSensitiveDetector(const std::string & name) : G4VSensitiveDetector(name) {}
 
-MonitorSensitiveDetector::~MonitorSensitiveDetector()
+G4bool MonitorSensitiveDetector::ProcessHits(G4Step * step, G4TouchableHistory * history)
 {
-    //std::cout << "Deleting monitor object" << std::endl;
-}
-
-G4bool MonitorSensitiveDetector::ProcessHits(G4Step *step, G4TouchableHistory *)
-{
-    const G4VProcess * proc = step->GetPostStepPoint()->GetProcessDefinedStep();
+    G4StepPoint * preStepPoint = step->GetPreStepPoint();
+    const G4VProcess * proc = preStepPoint->GetProcessDefinedStep();
     if (proc && proc->GetProcessType() == fTransportation)
-        if (step->GetPostStepPoint()->GetStepStatus() == fGeomBoundary)
+        if (preStepPoint->GetStepStatus() == fGeomBoundary)
         {
-            if ( pParticleDefinition && (step->GetTrack()->GetParticleDefinition() != pParticleDefinition) ) // for "all particles" pParticleDefinition == nullptr
-                return true;
-
-            const bool bIsPrimary = (step->GetTrack()->GetParentID() == 0);
-            if (  bIsPrimary && !bAcceptPrimary   ) return true;
-            if ( !bIsPrimary && !bAcceptSecondary ) return true;
-
-            const bool bIsDirect = !step->GetTrack()->GetUserInformation();
-            if (  bIsDirect && !bAcceptDirect)   return true;
-            if ( !bIsDirect && !bAcceptIndirect) return true;
-
-            //position info
-            G4StepPoint* p1 = step->GetPreStepPoint();
-            const G4ThreeVector & coord1 = p1->GetPosition();
-            const G4AffineTransform & transformation = p1->GetTouchable()->GetHistory()->GetTopTransform();
-            const G4ThreeVector localPosition = transformation.TransformPoint(coord1);
-            //std::cout << "Local position: " << localPosition[0] << " " << localPosition[1] << " " << localPosition[2] << " " << std::endl;
-            if ( localPosition[2] > 0  && !bAcceptUpper ) return true;
-            if ( localPosition[2] < 0  && !bAcceptLower ) return true;
-            const double x = localPosition[0] / mm;
-            const double y = localPosition[1] / mm;
-            hPosition->fill(x, y);
-
-            // time info
-            const double time = step->GetPostStepPoint()->GetGlobalTime() / TimeFactor;
-            hTime->fill(time);
-
-            // angle info
-            G4ThreeVector vec = step->GetTrack()->GetMomentumDirection();
-            //std::cout << "Global dir: "<< vec[0] << ' ' << vec[1] << ' '<< vec[2] << std::endl;
-            transformation.ApplyAxisTransform(vec);
-            double angle = 180.0/3.14159265358979323846*acos(vec[2]);
-            if (angle > 90.0) angle = 180.0 - angle;
-            //std::cout << "Local vector: " << vec[0] << " " << vec[1] << " " << vec[2] << " "<< angle << std::endl;
-            hAngle->fill(angle);
-
-            //energy
-            const double energy = step->GetPostStepPoint()->GetKineticEnergy() / EnergyFactor;
-            hEnergy->fill(energy);
-
-            //stop tracking?
-            if (bStopTracking)
+            int index = preStepPoint->GetPhysicalVolume()->GetCopyNo();
+            SessionManager & SM = SessionManager::getInstance();
+            if (index < SM.Monitors.size())
             {
-                step->GetTrack()->SetTrackStatus(fStopAndKill);
-
-                SessionManager & SM = SessionManager::getInstance();
-                if (SM.Settings.RunSet.SaveTrackingHistory)
-                {
-                    const G4ThreeVector & pos = step->GetPostStepPoint()->GetPosition();
-                    const double kinE = step->GetPostStepPoint()->GetKineticEnergy()/keV;
-                    const double depoE = step->GetTotalEnergyDeposit()/keV;
-                    SM.saveTrackRecord("MonitorStop",
-                                       pos, time,
-                                       kinE, depoE);
-                }
-                // bug in Geant4.10.5.1? Tracking reports one more step - transportation from the monitor to the next volume
-                //the next is the fix:
-                SM.bStoppedOnMonitor = true;
-                return true;
+                if (!SM.Monitors[index]) SM.terminateSession("Nullptr monitor in sensitive detector hit");
+                return SM.Monitors[index]->ProcessHits(step, history);
             }
+            else SM.terminateSession("Invalid monitor index in sensitive detector hit");
         }
 
     return true;
 }
 
-bool MonitorSensitiveDetector::readFromJson(const json11::Json & json)
+MonitorSensitiveDetectorWrapper::MonitorSensitiveDetectorWrapper(const std::string & name, const std::string & particle, int index) :
+    Name(name), ParticleName(particle), MonitorIndex(index) {}
+
+G4bool MonitorSensitiveDetectorWrapper::ProcessHits(G4Step *step, G4TouchableHistory *)
+{
+    if ( pParticleDefinition && (step->GetTrack()->GetParticleDefinition() != pParticleDefinition) ) // for "all particles" pParticleDefinition == nullptr
+        return true;
+
+    const bool bIsPrimary = (step->GetTrack()->GetParentID() == 0);
+    if (  bIsPrimary && !bAcceptPrimary   ) return true;
+    if ( !bIsPrimary && !bAcceptSecondary ) return true;
+
+    const bool bIsDirect = !step->GetTrack()->GetUserInformation();
+    if (  bIsDirect && !bAcceptDirect)   return true;
+    if ( !bIsDirect && !bAcceptIndirect) return true;
+
+    //position info
+    G4StepPoint * preStepPoint = step->GetPreStepPoint();
+    const G4ThreeVector & coord1 = preStepPoint->GetPosition();
+    const G4AffineTransform & transformation = preStepPoint->GetTouchable()->GetHistory()->GetTopTransform();
+    const G4ThreeVector localPosition = transformation.TransformPoint(coord1);
+    //std::cout << "Local position: " << localPosition[0] << " " << localPosition[1] << " " << localPosition[2] << " " << std::endl;
+    if ( localPosition[2] > 0  && !bAcceptUpper ) return true;
+    if ( localPosition[2] < 0  && !bAcceptLower ) return true;
+    const double x = localPosition[0] / mm;
+    const double y = localPosition[1] / mm;
+    hPosition->fill(x, y);
+
+    // time info
+    const double time = preStepPoint->GetGlobalTime() / TimeFactor;
+    hTime->fill(time);
+
+    // angle info
+    G4ThreeVector vec = step->GetTrack()->GetMomentumDirection();
+    //std::cout << "Global dir: "<< vec[0] << ' ' << vec[1] << ' '<< vec[2] << std::endl;
+    transformation.ApplyAxisTransform(vec);
+    double angle = 180.0/3.14159265358979323846*acos(vec[2]);
+    if (angle > 90.0) angle = 180.0 - angle;
+    //std::cout << "Local vector: " << vec[0] << " " << vec[1] << " " << vec[2] << " "<< angle << std::endl;
+    hAngle->fill(angle);
+
+    //energy
+    const double energy = preStepPoint->GetKineticEnergy() / EnergyFactor;
+    hEnergy->fill(energy);
+
+    //stop tracking?
+    if (bStopTracking)
+    {
+        //step->GetTrack()->SetTrackStatus(fStopAndKill);
+        SensitiveDetectorTools::stopAndKill(step);
+
+        SessionManager & SM = SessionManager::getInstance();
+        if (SM.Settings.RunSet.SaveTrackingHistory)
+        {
+            const G4ThreeVector & pos = preStepPoint->GetPosition();
+            const double kinE = preStepPoint->GetKineticEnergy()/keV;
+            const double depoE = step->GetTotalEnergyDeposit()/keV;
+            SM.saveTrackRecord("MonitorStop",
+                               pos, time,
+                               kinE, depoE);
+        }
+        // bug in Geant4.10.5.1? Tracking reports one more step - transportation from the monitor to the next volume
+        //the next is the fix:
+        SM.bStoppedOnMonitor = true;
+        return true;
+    }
+
+    return true;
+}
+
+bool MonitorSensitiveDetectorWrapper::readFromJson(const json11::Json & json)
 {
     //std::cout << "Monitor created for volume " << Name << " and particle " << ParticleName << std::endl;
 
@@ -188,7 +234,7 @@ bool MonitorSensitiveDetector::readFromJson(const json11::Json & json)
     return true;
 }
 
-void MonitorSensitiveDetector::writeToJson(json11::Json::object &json)
+void MonitorSensitiveDetectorWrapper::writeToJson(json11::Json::object &json)
 {
     json["MonitorIndex"] = MonitorIndex;
 
@@ -236,7 +282,7 @@ void MonitorSensitiveDetector::writeToJson(json11::Json::object &json)
     json["Spatial"] = jsSpatial;
 }
 
-void MonitorSensitiveDetector::writeHist1D(AHistogram1D *hist, json11::Json::object &json) const
+void MonitorSensitiveDetectorWrapper::writeHist1D(AHistogram1D *hist, json11::Json::object &json) const
 {
     json11::Json::array ar;
     for (const double & d : hist->getContent())
@@ -258,23 +304,46 @@ void MonitorSensitiveDetector::writeHist1D(AHistogram1D *hist, json11::Json::obj
 
 // ---
 
-CalorimeterSensitiveDetector::CalorimeterSensitiveDetector(const std::string & name, ACalorimeterProperties &properties, int index) :
-    G4VSensitiveDetector(name),
+CalorimeterSensitiveDetector::CalorimeterSensitiveDetector(const std::string & name) :
+    G4VSensitiveDetector(name) {}
+
+G4bool CalorimeterSensitiveDetector::ProcessHits(G4Step * step, G4TouchableHistory * history)
+{
+    const G4double depo = step->GetTotalEnergyDeposit();
+    if (depo == 0.0) return true;
+
+    G4StepPoint * preStepPoint = step->GetPreStepPoint();
+    int index = preStepPoint->GetPhysicalVolume()->GetCopyNo();
+    SessionManager & SM = SessionManager::getInstance();
+    if (index < SM.Calorimeters.size())
+    {
+        if (!SM.Calorimeters[index]) SM.terminateSession("Nullptr calorimeter in sensitive detector hit");
+        return SM.Calorimeters[index]->ProcessHits(step, history);
+    }
+    else SM.terminateSession("Invalid calorimeter index in sensitive detector hit");
+
+    return true;
+}
+
+CalorimeterSensitiveDetectorWrapper::CalorimeterSensitiveDetectorWrapper(const std::string & name, ACalorimeterProperties &properties, int index) :
     Name(name), Properties(properties), CalorimeterIndex(index)
 {
-    Data = new AHistogram3Dfixed(properties.Origin, properties.Step, properties.Bins);
-
-    VoxelVolume_mm3 = Properties.Step[0] * Properties.Step[1] * Properties.Step[2]; // in mm3
-
-    if (properties.CollectDepoOverEvent) EventDepoData = new AHistogram1D(properties.EventDepoBins, properties.EventDepoFrom, properties.EventDepoTo);
+    if (properties.DataType == ACalorimeterProperties::DepoPerEvent)
+        EventDepoData = new AHistogram1D(properties.EventDepoBins, properties.EventDepoFrom, properties.EventDepoTo);
+    else
+    {
+        Data = new AHistogram3Dfixed(properties.Origin, properties.Step, properties.Bins);
+        VoxelVolume_mm3 = Properties.Step[0] * Properties.Step[1] * Properties.Step[2]; // in mm3
+    }
 }
 
-CalorimeterSensitiveDetector::~CalorimeterSensitiveDetector()
+CalorimeterSensitiveDetectorWrapper::~CalorimeterSensitiveDetectorWrapper()
 {
     delete Data;
+    delete EventDepoData;
 }
 
-G4bool CalorimeterSensitiveDetector::ProcessHits(G4Step * step, G4TouchableHistory *)
+G4bool CalorimeterSensitiveDetectorWrapper::ProcessHits(G4Step * step, G4TouchableHistory *)
 {
     const G4double depo = step->GetTotalEnergyDeposit();
     if (depo == 0.0) return false;
@@ -295,29 +364,66 @@ G4bool CalorimeterSensitiveDetector::ProcessHits(G4Step * step, G4TouchableHisto
 
     //std::cout << global << local << "\n";
 
-    if (Properties.DataType == ACalorimeterProperties::Dose)
-    {
-        const G4Material * material = step->GetPreStepPoint()->GetMaterial();  // on material change step always ends anyway
-        if (!material) return false; // paranoic
-        const double density_kgPerMM3 = material->GetDensity() / (kg/mm3);
-        if (density_kgPerMM3 > 1e-10 * g/cm3 / (kg/mm3)) // ignore vacuum
-        {
-            const double deltaDose = (depo / joule) / (density_kgPerMM3 * VoxelVolume_mm3);
-            Data->fill({local[0], local[1], local[2]}, deltaDose);
-        }
-    }
-    else Data->fill({local[0], local[1], local[2]}, depo / MeV);
-
-    if (Properties.CollectDepoOverEvent) SumDepoOverEvent += depo / MeV;
+    registerHit(depo, local, step);
 
     return true;
 }
 
-void CalorimeterSensitiveDetector::writeToJson(json11::Json::object & json)
+void CalorimeterSensitiveDetectorWrapper::registerHit(double depo, const G4ThreeVector & local, G4Step * step)
+{
+    if (Properties.DataType == ACalorimeterProperties::DepoPerEvent)
+        SumDepoOverEvent += depo / keV;
+    else
+    {
+        if (Properties.DataType == ACalorimeterProperties::Dose)
+        {
+            const G4Material * material = step->GetPreStepPoint()->GetMaterial();  // on material change step always ends anyway
+            if (!material) return; // paranoic
+            const double density_kgPerMM3 = material->GetDensity() / (kg/mm3);
+            if (density_kgPerMM3 > 1e-10 * g/cm3 / (kg/mm3)) // ignore vacuum
+            {
+                const double deltaDose = (depo / joule) / (density_kgPerMM3 * VoxelVolume_mm3);
+                Data->fill({local[0], local[1], local[2]}, deltaDose);
+            }
+        }
+        else Data->fill({local[0], local[1], local[2]}, depo / keV);
+    }
+}
+
+void CalorimeterSensitiveDetectorWrapper::writeToJson(json11::Json::object & json)
 {
     json["CalorimeterIndex"] = CalorimeterIndex;
 
     json11::Json::object jsDepo;
+    if (Properties.DataType == ACalorimeterProperties::DepoPerEvent)
+    {
+        json11::Json::object js;
+
+        const std::vector<double> & data = EventDepoData->getContent();
+        double from, to;
+        EventDepoData->getLimits(from, to);
+        Properties.EventDepoFrom = from;
+        Properties.EventDepoTo = to;
+        double delta = (to - from) / Properties.EventDepoBins;
+        json11::Json::array ar;
+        for (size_t i = 0; i < data.size(); i++)  // 0=underflow and last=overflow
+        {
+            json11::Json::array el;
+            el.push_back(from + (i - 0.5)*delta); // i - 1 + 0.5
+            el.push_back(data[i]);
+            ar.push_back(el);
+        }
+        js["Data"] = ar;
+
+        const std::vector<double> vec = EventDepoData->getStat();
+        json11::Json::array sjs;
+        for (const double & d : vec)
+            sjs.push_back(d);
+        js["Stat"] = sjs;
+
+        json["DepoOverEvent"] = js;
+    }
+    else
     {
         std::vector<std::vector< std::vector<double> >> vSpatial = Data->getContent(); //[x][y][z]
         json11::Json::array ar;
@@ -338,39 +444,107 @@ void CalorimeterSensitiveDetector::writeToJson(json11::Json::object & json)
         jsDepo["Stat"] = sjs;
 
         jsDepo["Entries"] = Data->getEntries();
-    }
-    json["XYZDepo"] = jsDepo;
-
-    if (Properties.CollectDepoOverEvent)
-    {
-        json11::Json::object js;
-
-        const std::vector<double> & data = EventDepoData->getContent();
-        double from, to;
-        EventDepoData->getLimits(from, to);
-        Properties.EventDepoFrom = from;
-        Properties.EventDepoTo = to;
-        double delta = (to - from) / Properties.EventDepoBins;
-        json11::Json::array ar;
-        for (size_t i = 0; i < data.size(); i++)  // 0=underflow and last=overflow
-        {
-            json11::Json::array el;
-                el.push_back(from + (i - 0.5)*delta); // i - 1 + 0.5
-                el.push_back(data[i]);
-            ar.push_back(el);
-        }
-        js["Data"] = ar;
-
-        const std::vector<double> vec = EventDepoData->getStat();
-        json11::Json::array sjs;
-        for (const double & d : vec)
-            sjs.push_back(d);
-        js["Stat"] = sjs;
-
-        json["DepoOverEvent"] = js;
+        json["XYZDepo"] = jsDepo;
     }
 
     json11::Json::object jsProps;
     Properties.writeToJson(jsProps);
     json["Properties"] = jsProps;
+}
+
+// -------------------------
+
+DelegatingCalorimeterSensitiveDetector::DelegatingCalorimeterSensitiveDetector(const std::string & name) :
+    G4VSensitiveDetector(name) {}
+
+G4bool DelegatingCalorimeterSensitiveDetector::ProcessHits(G4Step * step, G4TouchableHistory * history)
+{
+    const G4double depo = step->GetTotalEnergyDeposit();
+    if (depo == 0.0) return false;
+
+    G4VSensitiveDetector * parentSensDet = nullptr;
+    const G4TouchableHandle & touch = step->GetPreStepPoint()->GetTouchableHandle();
+    int depth = 0;
+    int index = 0;
+    do
+    {
+        depth++; // starting with 1, do not want to inc during the last step
+        G4VPhysicalVolume * physVol = touch->GetVolume(depth);
+        if (!physVol) return false; // !!!***
+
+        parentSensDet = physVol->GetLogicalVolume()->GetSensitiveDetector();
+        index = physVol->GetCopyNo();
+    }
+    while (parentSensDet == this);
+
+    SessionManager & SM = SessionManager::getInstance();
+    if (index >= SM.Calorimeters.size()) SM.terminateSession("Bad index in delegating calorimeter hit");
+    CalorimeterSensitiveDetectorWrapper * masterSensDet = SM.Calorimeters[index]; // dynamic_cast<CalorimeterSensitiveDetector*>(parentSensDet);
+    if (!masterSensDet) SM.terminateSession("Cannot find main sensitive detector for composite calorimeter");
+
+    const G4ThreeVector & fromGlobal = step->GetPreStepPoint()->GetPosition();
+    const G4ThreeVector & toGlobal   = step->GetPostStepPoint()->GetPosition();
+    G4ThreeVector global;
+    if (masterSensDet->Properties.RandomizeBin)
+    {
+        const double rnd = 0.00001 + 0.99999 * ARandomHub::getInstance().uniform();
+        global = fromGlobal + rnd * (toGlobal - fromGlobal);
+    }
+    else
+        global = 0.5 * (fromGlobal + toGlobal);
+
+    int currentHistoryDepth = touch->GetHistory()->GetDepth();
+
+    //G4NavigationHistory * hist = touch->GetHistory()->GetTransform(depth).TransformPoint(global);
+    //const G4ThreeVector local = touch->GetHistory()->GetTransform(depth).TransformPoint(global);
+    const G4ThreeVector local = touch->GetHistory()->GetTransform(currentHistoryDepth - depth).TransformPoint(global);
+
+    //std::cout << "CalorDepth:" << depth << " HistDepth"<< currentHistoryDepth << " Glob:"<< global << " Loc:" << local << "\n";
+
+    masterSensDet->registerHit(depo, local, step);
+    return true;
+}
+
+// -------------------------
+
+AnalyzerSensitiveDetector::AnalyzerSensitiveDetector(const std::string & name) :
+    G4VSensitiveDetector(name) {}
+
+G4bool AnalyzerSensitiveDetector::ProcessHits(G4Step * step, G4TouchableHistory *)
+{
+    G4StepPoint * preStepPoint = step->GetPreStepPoint();
+    const G4VProcess * proc = preStepPoint->GetProcessDefinedStep();
+    if (!proc) return true;
+    //std::cout << step->GetPreStepPoint()->GetProcessDefinedStep()->GetProcessName() << std::endl;
+    //std::cout << step->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName() << std::endl;
+    if (proc->GetProcessType() != fTransportation || preStepPoint->GetStepStatus() != fGeomBoundary) return true;
+
+    int index = preStepPoint->GetPhysicalVolume()->GetCopyNo();
+    // !!!*** error processing
+
+    SessionManager & SM = SessionManager::getInstance();
+    size_t iUnique = SM.Settings.RunSet.AnalyzerSettings.GlobalToUniqueLUT[index]; // !!!*** error processing
+
+    bool isStopped = SM.Analyzers[iUnique].processParticle(step);
+    if (isStopped)
+    {
+        SensitiveDetectorTools::stopAndKill(step);
+
+        SessionManager & SM = SessionManager::getInstance();
+        if (SM.Settings.RunSet.SaveTrackingHistory)
+        {
+            const G4ThreeVector & pos = preStepPoint->GetPosition();
+            const double kinE = preStepPoint->GetKineticEnergy()/keV;
+            //const double depoE = step->GetTotalEnergyDeposit()/keV;
+            SM.saveTrackRecord("AnalyzerStop",
+                               pos, preStepPoint->GetGlobalTime()/ns,
+                               kinE, 0);
+            // bug in Geant4.10.5.1? Tracking reports one more step - transportation from the monitor to the next volume
+            //the next is the fix:
+            SM.bStoppedOnMonitor = true;
+        }
+        return false;
+    }
+
+    return true;
 }

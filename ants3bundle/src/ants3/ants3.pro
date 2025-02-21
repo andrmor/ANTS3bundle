@@ -45,13 +45,13 @@ ants3_RootServer{
 
     SOURCES += net/aroothttpserver.cpp
     HEADERS += net/aroothttpserver.h
-}
-#----------
 
-# JSROOT viewer
-ants3_jsroot{
-    DEFINES += __USE_ANTS_JSROOT__
-    QT      += webenginewidgets
+    # JSROOT viewer
+    ants3_jsroot{
+        DEFINES += __USE_ANTS_JSROOT__
+        QT      += webenginewidgets
+    }
+
 }
 #----------
 
@@ -70,7 +70,7 @@ ants3_GUI {
 
 # ANTS3 version
 DEFINES += ANTS3_MAJOR=1
-DEFINES += ANTS3_MINOR=0
+DEFINES += ANTS3_MINOR=2
 
 QT += qml   #this is for qjsengine
 
@@ -124,8 +124,10 @@ DESTDIR = ../../bin
 SOURCES += \
     ../dispatcher/a3dispatcher.cpp \
     ../dispatcher/a3processhandler.cpp \
+    ../lsim/alightsensorevent.cpp \
     ../lsim/anoderecord.cpp \
     ../lsim/aphotonhistorylog.cpp \
+    ../lsim/aphotontracer.cpp \
     aviewer3dsettings.cpp \
     farm/afarmnoderecord.cpp \
     geo/acalorimeter.cpp \
@@ -140,13 +142,17 @@ SOURCES += \
     gui/atreedatabaseselectordialog.cpp \
     gui/geom/ageoconstexpressiondialog.cpp \
     gui/geom/ageotreewin.cpp \
+    gui/geom/aparticleanalyzerwidget.cpp \
     gui/geom/ashownumbersdialog.cpp \
     gui/graph/adrawmarginsrecord.cpp \
     gui/graph/asetmarginsdialog.cpp \
     gui/graph/aviewer3d.cpp \
     gui/graph/aviewer3dsettingsdialog.cpp \
     gui/graph/aviewer3dwidget.cpp \
+    gui/materials/aabsorptiondataconverterdialog.cpp \
     gui/materials/amatwin.cpp \
+    gui/materials/aopticaldataimportdialog.cpp \
+    gui/materials/arefractiveindeximportdialog.cpp \
     gui/particleSim/aeventsdonedialog.cpp \
     gui/particleSim/aparticlesourceplotter.cpp \
     gui/particleSim/atrackdrawdialog.cpp \
@@ -216,12 +222,15 @@ SOURCES += \
     materials/amatcomposition.cpp \
     particleSim/ageant4inspectormanager.cpp \
     particleSim/aorthopositroniumgammagenerator.cpp \
+    particleSim/aparticleanalyzerhub.cpp \
+    particleSim/aparticleanalyzersettings.cpp \
     photonSim/aphotonloghandler.cpp \
     photonSim/interfaceRules/asurfaceinterfacerule.cpp \
     photonSim/interfaceRules/asurfacesettings.cpp \
     photonSim/interfaceRules/aunifiedrule.cpp \
     photonSim/photonFunctional/aphotonfunctionalhub.cpp \
     photonSim/photonFunctional/aphotonfunctionalmodel.cpp \
+    rec/PET/acastorimageloader.cpp \
     script/ScriptInterfaces/ageo_si.cpp \
     script/ScriptInterfaces/ageowin_si.cpp \
     script/ScriptInterfaces/agraphwin_si.cpp \
@@ -350,24 +359,33 @@ SOURCES += \
 HEADERS += \
     ../dispatcher/a3dispatcher.h \
     ../dispatcher/a3processhandler.h \
+    ../lsim/alightsensorevent.h \
     ../lsim/anoderecord.h \
     ../lsim/aphotonhistorylog.h \
+    ../lsim/aphotontracer.h \
     ademomanager.h \
     aviewer3dsettings.h \
     gui/aitemselectiondialog.h \
     gui/atreedatabaseselectordialog.h \
+    gui/geom/aparticleanalyzerwidget.h \
     gui/graph/adrawmarginsrecord.h \
     gui/graph/asetmarginsdialog.h \
     gui/graph/aviewer3dsettingsdialog.h \
+    gui/materials/aabsorptiondataconverterdialog.h \
+    gui/materials/aopticaldataimportdialog.h \
+    gui/materials/arefractiveindeximportdialog.h \
     gui/photsim/afunctionalmodelwidget.h \
     gui/photsim/aphotonlogsettingsform.h \
     gui/photsim/aphotontunnelwindow.h \
     gui/script/aargumentcounter.h \
     gui/script/ascriptexampleexplorer.h \
     particleSim/aorthopositroniumgammagenerator.h \
+    particleSim/aparticleanalyzerhub.h \
+    particleSim/aparticleanalyzersettings.h \
     photonSim/aphotonloghandler.h \
     photonSim/photonFunctional/aphotonfunctionalhub.h \
     photonSim/photonFunctional/aphotonfunctionalmodel.h \
+    rec/PET/acastorimageloader.h \
     rec/PET/apetcoincidencefinderconfig.h \
     farm/afarmnoderecord.h \
     geo/acalorimeter.h \
@@ -584,12 +602,16 @@ HEADERS += \
 FORMS += \
         gui/aconfigexamplebrowser.ui \
         gui/aitemselectiondialog.ui \
+        gui/geom/aparticleanalyzerwidget.ui \
         gui/geom/ashownumbersdialog.ui \
         gui/aglobsetwindow.ui \
         gui/graph/asetmarginsdialog.ui \
         gui/graph/aviewer3d.ui \
         gui/graph/aviewer3dsettingsdialog.ui \
         gui/graph/aviewer3dwidget.ui \
+        gui/materials/aabsorptiondataconverterdialog.ui \
+        gui/materials/aopticaldataimportdialog.ui \
+        gui/materials/arefractiveindeximportdialog.ui \
         gui/particleSim/aeventsdonedialog.ui \
         gui/particleSim/atrackdrawdialog.ui \
         gui/particleSim/aworldsizewarningdialog.ui \

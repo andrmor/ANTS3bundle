@@ -26,6 +26,7 @@ public:
     QString ExchangeDir;   // can be changed, therefore it is saved
     QString ExecutableDir;
     QString ConfigDir;     // global settings are saved there
+    QString TmpOutputDir;
     QString QuicksaveDir;
     QString ExamplesDir;
     QString ResourcesDir;
@@ -52,15 +53,8 @@ public:
     // Margins
     ADrawMarginsRecord DefaultDrawMargins;
 
-    /*
-    bool RecTreeSave_IncludePMsignals = true;
-    bool RecTreeSave_IncludeRho = true;
-    bool RecTreeSave_IncludeTrue = true;
-    bool SimTextSave_IncludeNumPhotons = true;
-    bool SimTextSave_IncludePositions = true;
-    */
-
-//    QString RootStyleScript;
+    // GeoTreeWindow
+    bool NewGeoObjectAddedLast = false;
 
     QJsonObject TrackVisAttributes;
 

@@ -54,3 +54,18 @@ Histogram:Optimisation
 Comparison of run time for filling a histogram by one point at a time or with an array
 #end
 
+#file
+WSF_neutron_detector_ScriptBook.json
+#tags
+Photon functional
+#info
+Script example book for configuring WSF neutron detector (config: WSFneutron.json) and demonstrating how to make position reconstruction
+#end
+
+#file
+DE_Neutrons.txt
+#tags
+Calorimeter:Detection efficiency
+#info
+Compute detection effeciency for 10B-RPC neutron detector examples
+#end

@@ -30,6 +30,8 @@ public:
     void writeToJson(QJsonObject & json) const;
     void readFromJson(const QJsonObject & json);
 
+    void onNewConfigStartedInGui();
+
 public slots:
     void updateGui();
 
@@ -161,6 +163,12 @@ private slots:
 
     void on_pbShowWaveDistr_customContextMenuRequested(const QPoint &pos);
 
+    void on_pbAbort_clicked();
+
+    void on_tbwResults_tabBarClicked(int index);
+
+    void on_twSensors_tabBarClicked(int index);
+
 private:
     APhotonSimSettings & SimSet;
     const AMonitorHub  & MonitorHub;
@@ -180,17 +188,18 @@ private:
 
     QPixmap YellowCircle;
 
+    bool bFreshDataLoaded = false;
+
     void updatePhotBombGui();
     void updateDepoGui();
     void updateBombFileGui();
     void updatePhotonFileGui();
     void updateGeneralSettingsGui();
+    void updateMonitorGui();
 
     void storeGeneralSettings();
 
     void disableInterface(bool flag);
-
-    void updateMonitorGui();
 
     void updateAdvancedBombIndicator();
 
@@ -209,15 +218,16 @@ private:
 
     void loadStatistics(bool suppressMessage);
     void loadMonitorsData(bool suppressMessage);
-    void loadTracks(bool suppressMessage);
+    void loadAndShowTracks(bool suppressMessage, int selectedEvent = -1);
     void showTracksSingleEvent();
 
     QString initPhotonLogHandler(); // returns error if any
     void showLogRecord();
+    void resetViewportOnNewData();
 
 signals:
     void requestShowGeometry(bool ActivateWindow = true, bool SAME = true, bool ColorUpdateAllowed = true);
-    void requestShowTracks();
+    void requestShowTracks(bool activateWindow = false);
     void requestDraw(TObject * obj, const QString & options, bool transferOwnership, bool focusWindow);
 
     void requestClearGeoMarkers(int All_Rec_True);

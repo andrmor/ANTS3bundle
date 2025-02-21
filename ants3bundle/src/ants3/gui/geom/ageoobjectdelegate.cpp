@@ -6,6 +6,7 @@
 #include "ageoconsts.h"
 #include "guitools.h"
 #include "aonelinetextedit.h"
+#include "aparticleanalyzerwidget.h"
 
 #include <QDebug>
 #include <QWidget>
@@ -30,7 +31,9 @@
 #include <QTableWidget>
 #include <QHeaderView>
 
-#include "TVector3.h"
+//#include "TVector3.h"
+
+#include "TObject.h"
 
 AGeoObjectDelegate::AGeoObjectDelegate(const QStringList & materials, QWidget * ParentWidget) :
     AGeoBaseDelegate(ParentWidget)
@@ -188,6 +191,8 @@ AGeoObjectDelegate::~AGeoObjectDelegate()
     //qDebug() << "deleted---------------";
     blockSignals(true);
     delete ShapeCopy; ShapeCopy = nullptr;
+
+    //delete PartAnWidget; PartAnWidget = nullptr; // removed by the layout!
 }
 
 #include "QStackedWidget"
@@ -199,7 +204,7 @@ void AGeoObjectDelegate::crateSpecialRoleWidget()
     QVBoxLayout * rl = new QVBoxLayout(RoleWidget);
     rl->setContentsMargins(2,0,2,0);
         cobRole = new QComboBox();
-        cobRole->addItems({"No special role", "Light sensor", "Calorimeter", "Secondary scintillator", "Scintillator", "Photon transport: functional model"});
+        cobRole->addItems({"No special role", "Light sensor", "Calorimeter", "Secondary scintillator", "Scintillator", "Photon transport: functional model", "Particle analyzer"});
     rl->addWidget(cobRole);
     rl->setAlignment(cobRole, Qt::AlignHCenter);
 
@@ -219,6 +224,10 @@ void AGeoObjectDelegate::crateSpecialRoleWidget()
     QFrame * frFun = createFunctionalModelGui();
     rl->addWidget(frFun);
     connect(cobRole, &QComboBox::currentIndexChanged, frFun, [frFun](int index){frFun->setVisible(index == 5);} );
+
+    QFrame * frPartAn = createParticleAnalyzerGui();
+    rl->addWidget(frPartAn);
+    connect(cobRole, &QComboBox::currentIndexChanged, frPartAn, [frPartAn](int index){frPartAn->setVisible(index == 6);} );
 
     rl->addStretch();
 
@@ -257,80 +266,103 @@ QFrame * AGeoObjectDelegate::createCalorimeterGui()
 {
     QFrame * frCal = new QFrame();
     {
-        QVBoxLayout * cvl = new QVBoxLayout(frCal); cvl->setContentsMargins(0,0,0,0);
-        QHBoxLayout * chl = new QHBoxLayout(); chl->setContentsMargins(15,0,15,0);
-        cvl->addLayout(chl);
-        chl->addWidget(new QLabel("Acquire:"));
-        cobCalType = new QComboBox(); cobCalType->addItems({"Deposited energy", "Dose"});
-        cobCalType->setToolTip("Energy is collected as MeV per voxel\nDose is collected as grays per voxel.");
-        chl->addWidget(cobCalType);
-        chl->addStretch();
-        cbCalRandomize = new QCheckBox("Random bin along step");
-        chl->addWidget(cbCalRandomize);
+        QVBoxLayout * layMain = new QVBoxLayout(frCal); layMain->setContentsMargins(0,0,0,0); layMain->setSpacing(3);
 
-        QGridLayout * gl = new QGridLayout();
-        cvl->addLayout(gl);
-        gl->setContentsMargins(0,0,0,0);
-        ledCalOriginX = new AOneLineTextEdit();
-        ledCalOriginY = new AOneLineTextEdit();
-        ledCalOriginZ = new AOneLineTextEdit();
-        ledCalStepX = new AOneLineTextEdit();
-        ledCalStepY = new AOneLineTextEdit();
-        ledCalStepZ = new AOneLineTextEdit();
-        leiCalBinsX = new AOneLineTextEdit();
-        leiCalBinsY = new AOneLineTextEdit();
-        leiCalBinsZ = new AOneLineTextEdit();
-        cbOffX = new QCheckBox("Off");
-        cbOffY = new QCheckBox("Off");
-        cbOffZ = new QCheckBox("Off");
-        gl->addWidget(new QLabel("Local X"), 0, 1, Qt::AlignHCenter);
-        gl->addWidget(new QLabel("Local Y"), 0, 2, Qt::AlignHCenter);
-        gl->addWidget(new QLabel("Local Z"), 0, 3, Qt::AlignHCenter);
-        gl->addWidget(new QLabel("Bins"),   1, 0);
-        gl->addWidget(leiCalBinsX,          1, 1);
-        gl->addWidget(leiCalBinsY,          1, 2);
-        gl->addWidget(leiCalBinsZ,          1, 3);
-        gl->addWidget(new QLabel("Origin"), 2, 0);
-        gl->addWidget(ledCalOriginX,        2, 1);
-        gl->addWidget(ledCalOriginY,        2, 2);
-        gl->addWidget(ledCalOriginZ,        2, 3);
-        gl->addWidget(new QLabel("Step"),   3, 0);
-        gl->addWidget(ledCalStepX,          3, 1);
-        gl->addWidget(ledCalStepY,          3, 2);
-        gl->addWidget(ledCalStepZ,          3, 3);
-        gl->addWidget(cbOffX,               4, 1, Qt::AlignHCenter);
-        gl->addWidget(cbOffY,               4, 2, Qt::AlignHCenter);
-        gl->addWidget(cbOffZ,               4, 3, Qt::AlignHCenter);
-        QHBoxLayout * hlCalOverEv = new QHBoxLayout(); hlCalOverEv->setContentsMargins(0,0,0,0);
-        cbCalEventStat = new QCheckBox("Dep. over event");
-        hlCalOverEv->addWidget(cbCalEventStat);
-        QFrame * frCalEventStat = new QFrame(); frCalEventStat->setVisible(false);
-        QHBoxLayout * hlCalEvStat = new QHBoxLayout(frCalEventStat); hlCalEvStat->setContentsMargins(0,0,0,0);
-        hlCalEvStat->addWidget(new QLabel("Bins:"));
-        leiCalEventDepoBins = new AOneLineTextEdit(); leiCalEventDepoBins->setMinimumWidth(50);
-        hlCalEvStat->addWidget(leiCalEventDepoBins);
-        hlCalEvStat->addWidget(new QLabel("From:"));
-        ledCalEventDepoFrom = new AOneLineTextEdit(); ledCalEventDepoFrom->setMinimumWidth(50);
-        hlCalEvStat->addWidget(ledCalEventDepoFrom);
-        hlCalEvStat->addWidget(new QLabel("To:"));
-        ledCalEventDepoTo = new AOneLineTextEdit(); ledCalEventDepoTo->setMinimumWidth(50);
-        hlCalEvStat->addWidget(ledCalEventDepoTo);
-        hlCalEvStat->addWidget(new QLabel("MeV"));
-        connect(cbCalEventStat, &QCheckBox::toggled, frCalEventStat, &QFrame::setVisible);
-        connect(cbCalEventStat, &QCheckBox::clicked, this, &AGeoObjectDelegate::onContentChanged);
-        hlCalOverEv->addWidget(frCalEventStat);
-        hlCalOverEv->addStretch();
-        cvl->addLayout(hlCalOverEv);
+        QHBoxLayout * layType = new QHBoxLayout(); //chl->setContentsMargins(15,0,15,0);
+            layType->addWidget(new QLabel("Mode:"));
+            cobCalType = new QComboBox(); cobCalType->addItems({"Energy per event", "3D energy", "3D dose"});
+            cobCalType->setToolTip("Energy per event mode: Collect deposited energy for each event independently;\n3D modes: 3D distribution of energy [keV] or dose [grey] per voxel is collected over all events.");
+            layType->addWidget(cobCalType);
+            layType->addStretch();
+            cbCalIncludeHosted = new QCheckBox("Composite calorimeter");
+            cbCalIncludeHosted->setToolTip("When checked, all hosted volumes without an assigned special role (recursive!) are monitored by this calorimeter");
+            layType->addWidget(cbCalIncludeHosted);
+        layMain->addLayout(layType);
 
-        connect(cobCalType, &QComboBox::currentIndexChanged, this, [this](int index)
+            //cbCalEventStat = new QCheckBox("Dep. over event"); // !!!*** tmp
+        QFrame * frOverEvents = new QFrame();
+            QHBoxLayout * layOverEvents = new QHBoxLayout(); layOverEvents->setContentsMargins(0,0,0,0);
+                layOverEvents->addWidget(new QLabel("Bins:"));
+                leiCalEventDepoBins = new AOneLineTextEdit(); leiCalEventDepoBins->setMinimumWidth(50);
+                layOverEvents->addWidget(leiCalEventDepoBins);
+                layOverEvents->addWidget(new QLabel("From:"));
+                ledCalEventDepoFrom = new AOneLineTextEdit(); ledCalEventDepoFrom->setMinimumWidth(50);
+                layOverEvents->addWidget(ledCalEventDepoFrom);
+                layOverEvents->addWidget(new QLabel("To:"));
+                ledCalEventDepoTo = new AOneLineTextEdit(); ledCalEventDepoTo->setMinimumWidth(50);
+                layOverEvents->addWidget(ledCalEventDepoTo);
+                layOverEvents->addWidget(new QLabel("keV"));
+                //connect(cbCalEventStat, &QCheckBox::toggled, frCalEventStat, &QFrame::setVisible);
+                //connect(cbCalEventStat, &QCheckBox::clicked, this, &AGeoObjectDelegate::onContentChanged);
+                //hlCalOverEv->addWidget(frCalEventStat);
+                //hlCalOverEv->addStretch();
+            frOverEvents->setLayout(layOverEvents);
+        layMain->addWidget(frOverEvents);
+
+        QFrame * fr3D = new QFrame();
+            QGridLayout * gl = new QGridLayout(); gl->setContentsMargins(0,0,0,0);
+                ledCalOriginX = new AOneLineTextEdit();
+                ledCalOriginY = new AOneLineTextEdit();
+                ledCalOriginZ = new AOneLineTextEdit();
+                ledCalStepX = new AOneLineTextEdit();
+                ledCalStepY = new AOneLineTextEdit();
+                ledCalStepZ = new AOneLineTextEdit();
+                leiCalBinsX = new AOneLineTextEdit();
+                leiCalBinsY = new AOneLineTextEdit();
+                leiCalBinsZ = new AOneLineTextEdit();
+                cbOffX = new QCheckBox("Local X");
+                cbOffY = new QCheckBox("Local Y");
+                cbOffZ = new QCheckBox("Local Z");
+                QLabel * labX = new QLabel("Local X"); labX->setContextMenuPolicy(Qt::CustomContextMenu); labX->setToolTip("Right-click to \"disable\"");
+                QLabel * labY = new QLabel("Local Y"); labY->setContextMenuPolicy(Qt::CustomContextMenu); labY->setToolTip("Right-click to \"disable\"");
+                QLabel * labZ = new QLabel("Local Z"); labZ->setContextMenuPolicy(Qt::CustomContextMenu); labZ->setToolTip("Right-click to \"disable\"");
+                //gl->addWidget(new QLabel("Local X"), 0, 1, Qt::AlignHCenter);
+                //gl->addWidget(new QLabel("Local Y"), 0, 2, Qt::AlignHCenter);
+                //gl->addWidget(new QLabel("Local Z"), 0, 3, Qt::AlignHCenter);
+                gl->addWidget(labX, 0, 1, Qt::AlignHCenter);
+                gl->addWidget(labY, 0, 2, Qt::AlignHCenter);
+                gl->addWidget(labZ, 0, 3, Qt::AlignHCenter);
+                gl->addWidget(new QLabel("Bins"),   1, 0);
+                gl->addWidget(leiCalBinsX,          1, 1);
+                gl->addWidget(leiCalBinsY,          1, 2);
+                gl->addWidget(leiCalBinsZ,          1, 3);
+                gl->addWidget(new QLabel("Origin"), 2, 0);
+                gl->addWidget(ledCalOriginX,        2, 1);
+                gl->addWidget(ledCalOriginY,        2, 2);
+                gl->addWidget(ledCalOriginZ,        2, 3);
+                gl->addWidget(new QLabel("Step"),   3, 0);
+                gl->addWidget(ledCalStepX,          3, 1);
+                gl->addWidget(ledCalStepY,          3, 2);
+                gl->addWidget(ledCalStepZ,          3, 3);
+                //gl->addWidget(cbOffX,               4, 1, Qt::AlignHCenter);
+                //gl->addWidget(cbOffY,               4, 2, Qt::AlignHCenter);
+                //gl->addWidget(cbOffZ,               4, 3, Qt::AlignHCenter);
+                //gl->addWidget(new QLabel("aaaaaaa"), 5, 1, 1, 3, Qt::AlignCenter);
+            fr3D->setLayout(gl);
+        layMain->addWidget(fr3D);
+        fr3D->setVisible(false);
+
+        QFrame * frOpt3D = new QFrame();
+            QHBoxLayout * layOpt = new QHBoxLayout(); layOpt->setContentsMargins(0,0,0,0);
+                cbCalRandomize = new QCheckBox("Random bin along step");
+                layOpt->addWidget(cbCalRandomize, 0, Qt::AlignCenter);
+            frOpt3D->setLayout(layOpt);
+        layMain->addWidget(frOpt3D);
+        frOpt3D->setVisible(false);
+
+        connect(cobCalType, &QComboBox::currentIndexChanged, this, [this, frOverEvents, fr3D, frOpt3D](int index)
                 {
-                    if (index == 0) // energy
+                    frOverEvents->setVisible(index == 0);
+                    fr3D->setVisible(index != 0);
+                    frOpt3D->setVisible(index != 0);
+
+                    if (index == 1) // energy
                     {
                         cbOffX->setEnabled(true);
                         cbOffY->setEnabled(true);
                         cbOffZ->setEnabled(true);
                     }
-                    else // dose
+                    else if (index == 2) // dose
                     {
                         cbOffX->setChecked(false); cbOffX->setEnabled(false);
                         cbOffY->setChecked(false); cbOffY->setEnabled(false);
@@ -338,8 +370,42 @@ QFrame * AGeoObjectDelegate::createCalorimeterGui()
                     }
                 } );
 
+        connect(labX, &QLabel::customContextMenuRequested, this, [this]()
+                {
+                    if (cobCalType->currentIndex() != 2)
+                    {
+                        ledCalOriginX->setText("-1e+10");
+                        ledCalStepX->setText("2e+10");
+                        leiCalBinsX->setText("1");
+                    }
+                });
+        connect(labY, &QLabel::customContextMenuRequested, this, [this]()
+                {
+                    if (cobCalType->currentIndex() != 2)
+                    {
+                        ledCalOriginY->setText("-1e+10");
+                        ledCalStepY->setText("2e+10");
+                        leiCalBinsY->setText("1");
+                    }
+                });
+        connect(labZ, &QLabel::customContextMenuRequested, this, [this]()
+                {
+                    if (cobCalType->currentIndex() != 2)
+                    {
+                        ledCalOriginZ->setText("-1e+10");
+                        ledCalStepZ->setText("2e+10");
+                        leiCalBinsZ->setText("1");
+                    }
+                });
+
+        /*
         connect(cbOffX, &QCheckBox::toggled, this, [this](bool checked)
                 {
+                    if (checked && cobCalType->currentIndex() == 2)
+                    {
+                        cbOffX->setChecked(false);
+                        return;
+                    }
                     ledCalOriginX->setDisabled(checked);
                     ledCalStepX  ->setDisabled(checked);
                     leiCalBinsX  ->setDisabled(checked);
@@ -374,6 +440,7 @@ QFrame * AGeoObjectDelegate::createCalorimeterGui()
                         leiCalBinsZ->setText("1");
                     }
                 } );
+        */
 
         const std::vector<AOneLineTextEdit*> ole = {ledCalOriginX, ledCalOriginY, ledCalOriginZ,
                                                      ledCalStepX, ledCalStepY, ledCalStepZ,
@@ -387,8 +454,9 @@ QFrame * AGeoObjectDelegate::createCalorimeterGui()
         }
     }
 
-    connect(cobCalType,     &QComboBox::activated, this, &AGeoObjectDelegate::onContentChanged);
-    connect(cbCalRandomize, &QCheckBox::clicked,   this, &AGeoObjectDelegate::onContentChanged);
+    connect(cobCalType,         &QComboBox::activated, this, &AGeoObjectDelegate::onContentChanged);
+    connect(cbCalIncludeHosted, &QCheckBox::clicked,   this, &AGeoObjectDelegate::onContentChanged);
+    connect(cbCalRandomize,     &QCheckBox::clicked,   this, &AGeoObjectDelegate::onContentChanged);
 
     connect(cbOffX,         &QCheckBox::clicked,   this, &AGeoObjectDelegate::onContentChanged);
     connect(cbOffY,         &QCheckBox::clicked,   this, &AGeoObjectDelegate::onContentChanged);
@@ -426,6 +494,23 @@ QFrame * AGeoObjectDelegate::createFunctionalModelGui()
     frFun->setVisible(false);
 
     return frFun;
+}
+
+QFrame * AGeoObjectDelegate::createParticleAnalyzerGui()
+{
+    QFrame * frame = new QFrame();
+    {
+        QVBoxLayout * vbl = new QVBoxLayout(frame); vbl->setContentsMargins(0,0,0,0);
+        PartAnWidget = new AParticleAnalyzerWidget();
+        AGeoParticleAnalyzer tmp;
+        PartAnWidget->updateGui(tmp);
+        vbl->addWidget(PartAnWidget);
+        connect(PartAnWidget, &AParticleAnalyzerWidget::contentChanged, this, &AGeoObjectDelegate::onContentChanged);
+    }
+
+    frame->setVisible(false);
+
+    return frame;
 }
 
 #include "atreedatabaseselectordialog.h"
@@ -476,12 +561,6 @@ bool AGeoObjectDelegate::updateObject(AGeoObject * obj) const  //react to false 
     QString errorStr;
     const QString oldName = obj->Name;
     const QString newName = leName->text();
-
-    if (newName.contains(AGeometryHub::getInstance().IndexSeparator.Data()))
-    {
-        QMessageBox::warning(this->ParentWidget, "", QString("Object name cannot contain %1 substring").arg(AGeometryHub::getInstance().IndexSeparator.Data()));
-        return false;
-    }
 
     if (obj->Type->isHandlingSet() && !obj->Type->isStack())
     {
@@ -545,33 +624,37 @@ bool AGeoObjectDelegate::updateObject(AGeoObject * obj) const  //react to false 
         if (ledPsi->isEnabled())   ok = ok && processEditBox("Psi orientation",   ledPsi,   tempDoubles[5], tempStrs[5], ParentWidget);
         if (!ok) return false;
 
-        std::vector<double> calDouble(6); std::vector<QString> calDoubleStr(6);
-        std::vector<int>    calInt(3);    std::vector<QString> calIntStr(3);
-        int calEventDepoBins; QString calEventDepoBinsStr;
-        double calEventDepoFrom; QString calEventDepoFromStr;
-        double calEventDepoTo; QString calEventDepoToStr;
-        if (cobRole->currentIndex() == 2) // !!!***
+        std::vector<double> calDouble(6); calDouble = {-5.0, -5.0, -5.0, 1.0, 1.0, 1.0};
+        std::vector<QString> calDoubleStr(6);
+        std::vector<int>    calInt(3); calInt = {10,10,10};
+        std::vector<QString> calIntStr(3);
+        int calEventDepoBins = 190; QString calEventDepoBinsStr;
+        double calEventDepoFrom = 100.0; QString calEventDepoFromStr;
+        double calEventDepoTo = 2000.0; QString calEventDepoToStr;
+        if (cobRole->currentIndex() == 2)
         {
-            ok = ok && processDoubleEditBox("Origin X", ledCalOriginX, calDouble[0], calDoubleStr[0],  false,false,false,  ParentWidget);
-            ok = ok && processDoubleEditBox("Origin Y", ledCalOriginY, calDouble[1], calDoubleStr[1],  false,false,false,  ParentWidget);
-            ok = ok && processDoubleEditBox("Origin Z", ledCalOriginZ, calDouble[2], calDoubleStr[2],  false,false,false,  ParentWidget);
-            ok = ok && processDoubleEditBox("Step X", ledCalStepX,   calDouble[3], calDoubleStr[3],  true, true, false,  ParentWidget);
-            ok = ok && processDoubleEditBox("Step Y", ledCalStepY,   calDouble[4], calDoubleStr[4],  true, true, false,  ParentWidget);
-            ok = ok && processDoubleEditBox("Step Z", ledCalStepZ,   calDouble[5], calDoubleStr[5],  true, true, false,  ParentWidget);
-            ok = ok && processIntEditBox("Bins X", leiCalBinsX, calInt[0], calIntStr[0],  true, true,  ParentWidget);
-            ok = ok && processIntEditBox("Bins Y", leiCalBinsY, calInt[1], calIntStr[1],  true, true,  ParentWidget);
-            ok = ok && processIntEditBox("Bins Z", leiCalBinsZ, calInt[2], calIntStr[2],  true, true,  ParentWidget);
-
-            if (cbCalEventStat->isChecked())
+            if (cobCalType->currentIndex() == 0)
             {
                 ok = ok && processIntEditBox("Event energy depo bins", leiCalEventDepoBins, calEventDepoBins, calEventDepoBinsStr,  true, true,  ParentWidget);
                 ok = ok && processDoubleEditBox("Event energy depo from", ledCalEventDepoFrom, calEventDepoFrom, calEventDepoFromStr,  false, true, false,  ParentWidget);
                 ok = ok && processDoubleEditBox("Event energy depo to",   ledCalEventDepoTo,   calEventDepoTo,   calEventDepoToStr,    false, true, false,  ParentWidget);
             }
+            else
+            {
+                ok = ok && processDoubleEditBox("Origin X", ledCalOriginX, calDouble[0], calDoubleStr[0],  false,false,false,  ParentWidget);
+                ok = ok && processDoubleEditBox("Origin Y", ledCalOriginY, calDouble[1], calDoubleStr[1],  false,false,false,  ParentWidget);
+                ok = ok && processDoubleEditBox("Origin Z", ledCalOriginZ, calDouble[2], calDoubleStr[2],  false,false,false,  ParentWidget);
+                ok = ok && processDoubleEditBox("Step X", ledCalStepX,   calDouble[3], calDoubleStr[3],  true, true, false,  ParentWidget);
+                ok = ok && processDoubleEditBox("Step Y", ledCalStepY,   calDouble[4], calDoubleStr[4],  true, true, false,  ParentWidget);
+                ok = ok && processDoubleEditBox("Step Z", ledCalStepZ,   calDouble[5], calDoubleStr[5],  true, true, false,  ParentWidget);
+                ok = ok && processIntEditBox("Bins X", leiCalBinsX, calInt[0], calIntStr[0],  true, true,  ParentWidget);
+                ok = ok && processIntEditBox("Bins Y", leiCalBinsY, calInt[1], calIntStr[1],  true, true,  ParentWidget);
+                ok = ok && processIntEditBox("Bins Z", leiCalBinsZ, calInt[2], calIntStr[2],  true, true,  ParentWidget);
+            }
 
             if (!ok) return false;
 
-            if (cobCalType->currentIndex() == 1)
+            if (cobCalType->currentIndex() == 2)
             {
                 bool badForDose = false;
                 for (int iA = 0; iA < 3; iA++)
@@ -601,6 +684,16 @@ bool AGeoObjectDelegate::updateObject(AGeoObject * obj) const  //react to false 
             if (!err.isEmpty())
             {
                 QMessageBox::warning(ParentWidget, "Warning", "Error in functional model:\n" + err);
+                return false;
+            }
+        }
+
+        if (cobRole->currentIndex() == 6)
+        {
+            QString err = PartAnWidget->check();
+            if (!err.isEmpty())
+            {
+                QMessageBox::warning(ParentWidget, "Warning", err);
                 return false;
             }
         }
@@ -657,19 +750,23 @@ bool AGeoObjectDelegate::updateObject(AGeoObject * obj) const  //react to false 
                 cal->Properties.strStep   = {calDoubleStr[3], calDoubleStr[4], calDoubleStr[5]};
                 cal->Properties.strBins   = {calIntStr[0], calIntStr[1], calIntStr[2]};
 
+                //cal->Properties.CollectDepoOverEvent = false;
                 switch (cobCalType->currentIndex())
                 {
-                case 0: cal->Properties.DataType = ACalorimeterProperties::Energy; break;
-                case 1: cal->Properties.DataType = ACalorimeterProperties::Dose;   break;
+                case 0: cal->Properties.DataType = ACalorimeterProperties::DepoPerEvent; break; // cal->Properties.CollectDepoOverEvent = true;
+                case 1: cal->Properties.DataType = ACalorimeterProperties::Energy; break;
+                case 2: cal->Properties.DataType = ACalorimeterProperties::Dose;   break;
                 default:
                     qWarning() << "Not impelemnted calorimeter type in the combo box";
                     cal->Properties.DataType = ACalorimeterProperties::Energy; break;
                 }
 
+                cal->Properties.IncludeHostedVolumes = cbCalIncludeHosted->isChecked();
+
                 cal->Properties.RandomizeBin = cbCalRandomize->isChecked();
 
-                cal->Properties.CollectDepoOverEvent = cbCalEventStat->isChecked();
-                if (cal->Properties.CollectDepoOverEvent)
+                //cal->Properties.CollectDepoOverEvent = cbCalEventStat->isChecked();
+                if (cal->Properties.DataType == ACalorimeterProperties::DepoPerEvent)
                 {
                     cal->Properties.EventDepoBins = calEventDepoBins; cal->Properties.strEventDepoBins = calEventDepoBinsStr;
                     cal->Properties.EventDepoFrom = calEventDepoFrom; cal->Properties.strEventDepoFrom = calEventDepoFromStr;
@@ -687,6 +784,13 @@ bool AGeoObjectDelegate::updateObject(AGeoObject * obj) const  //react to false 
                 break;
             case 5:
                 obj->Role = new AGeoPhotonFunctional(*LocalPhFunModel); // cloned, no transfer!
+                break;
+            case 6:
+                {
+                    AGeoParticleAnalyzer * pa = new AGeoParticleAnalyzer();
+                    PartAnWidget->updateObject(*pa);
+                    obj->Role = pa;
+                }
                 break;
             default:;
             }
@@ -1037,6 +1141,15 @@ void AGeoObjectDelegate::Update(const AGeoObject *obj)
                             LocalPhFunModel = APhotonFunctionalModel::factory(js);
                             updatePhFunModelGui();
                         }
+                        else
+                        {
+                            AGeoParticleAnalyzer * partAn = dynamic_cast<AGeoParticleAnalyzer*>(obj->Role);
+                            if (partAn)
+                            {
+                                cobRole->setCurrentIndex(6);
+                                PartAnWidget->updateGui(*partAn);
+                            }
+                        }
                     }
                 }
             }
@@ -1051,12 +1164,15 @@ void AGeoObjectDelegate::updateCalorimeterGui(const ACalorimeterProperties & p)
     int index = 0;
     switch (p.DataType)
     {
-    case ACalorimeterProperties::Energy : index = 0; break;
-    case ACalorimeterProperties::Dose   : index = 1; break;
+    case ACalorimeterProperties::DepoPerEvent : index = 0; break;
+    case ACalorimeterProperties::Energy       : index = 1; break;
+    case ACalorimeterProperties::Dose         : index = 2; break;
     default:
-        qWarning() << "Unknown calorimter type";
+        qWarning() << "Unknown calorimter mode";
     }
     cobCalType->setCurrentIndex(index);
+
+    cbCalIncludeHosted->setChecked(p.IncludeHostedVolumes);
 
     cbCalRandomize->setChecked(p.RandomizeBin);
 
@@ -1074,7 +1190,7 @@ void AGeoObjectDelegate::updateCalorimeterGui(const ACalorimeterProperties & p)
     cbOffY->setChecked( p.isAxisOff(1) );
     cbOffZ->setChecked( p.isAxisOff(2) );
 
-    cbCalEventStat->setChecked(p.CollectDepoOverEvent);
+    //cbCalEventStat->setChecked(p.CollectDepoOverEvent);
     leiCalEventDepoBins->setText(p.strEventDepoBins.isEmpty() ? QString::number(p.EventDepoBins) : p.strEventDepoBins );
     ledCalEventDepoFrom->setText(p.strEventDepoFrom.isEmpty() ? QString::number(p.EventDepoFrom) : p.strEventDepoFrom );
     ledCalEventDepoTo  ->setText(p.strEventDepoTo.isEmpty()   ? QString::number(p.EventDepoTo)   : p.strEventDepoTo );
@@ -2995,7 +3111,7 @@ AGeoArrayDelegate::AGeoArrayDelegate(const QStringList &materials, QWidget *pare
     grAW->setContentsMargins(0,0,0,0);
     grAW->setVerticalSpacing(0);
 
-    QLabel *la = new QLabel;
+    QLabel * la = nullptr;
     la = new QLabel("Number in X:"); grAW->addWidget(la, 0, 0);
     la = new QLabel("Number in Y:"); grAW->addWidget(la, 1, 0);
     la = new QLabel("Number in Z:"); grAW->addWidget(la, 2, 0);
@@ -3043,7 +3159,6 @@ AGeoArrayDelegate::AGeoArrayDelegate(const QStringList &materials, QWidget *pare
 
     lVer->addLayout(lHor);
 
-
     addLocalLayout(lVer);
 
     QVector<AOneLineTextEdit*> l = {ledNumX, ledNumY, ledNumZ, ledStepX, ledStepY, ledStepZ, ledStartIndex};
@@ -3054,6 +3169,7 @@ AGeoArrayDelegate::AGeoArrayDelegate(const QStringList &materials, QWidget *pare
         configureHighligherAndCompleter(le);
         QObject::connect(le, &AOneLineTextEdit::textChanged, this, &AGeoBaseDelegate::onContentChangedBase);
     }
+    QObject::connect(cbCenterSym, &QCheckBox::clicked, this, &AGeoBaseDelegate::onContentChangedBase);
 
     cbScale->setChecked(false);
     cbScale->setVisible(false);
@@ -3279,12 +3395,16 @@ AGeoHexagonalArrayDelegate::AGeoHexagonalArrayDelegate(const QStringList & mater
     QLabel * laY = new QLabel("in Y:"); grAW->addWidget(laY, 3, 2, Qt::AlignRight);
     ledNumY      = new AOneLineTextEdit("", Widget); grAW->addWidget(ledNumY, 3, 3); ledNumY->bIntegerTooltip = true;
 
+    cbSkipFirstEven = new QCheckBox("Skip first on even rows");
+    grAW->addWidget(cbSkipFirstEven, 4, 1, 2, 1);
+
     cbSkipLastOdd = new QCheckBox("Skip last on odd rows");
-    grAW->addWidget(cbSkipLastOdd, 4, 1, 2, 1);
+    grAW->addWidget(cbSkipLastOdd, 4, 3, 2, 1);
 
     lVer->addLayout(grAW);
 
     QObject::connect(cobShape, &QComboBox::currentIndexChanged, this, &AGeoBaseDelegate::onContentChangedBase);
+    QObject::connect(cbSkipFirstEven, &QCheckBox::stateChanged, this, &AGeoBaseDelegate::onContentChangedBase);
     QObject::connect(cbSkipLastOdd, &QCheckBox::stateChanged, this, &AGeoBaseDelegate::onContentChangedBase);
     QObject::connect(cobShape, &QComboBox::currentIndexChanged, this, [this, laR, laX, laY](int index)
     {
@@ -3295,6 +3415,7 @@ AGeoHexagonalArrayDelegate::AGeoHexagonalArrayDelegate(const QStringList & mater
         laY->setVisible(index == 1);
         ledNumX->setVisible(index == 1);
         ledNumY->setVisible(index == 1);
+        cbSkipFirstEven->setVisible(index == 1);
         cbSkipLastOdd->setVisible(index == 1);
     });
     cobShape->setCurrentIndex(1);
@@ -3349,6 +3470,7 @@ bool AGeoHexagonalArrayDelegate::updateObject(AGeoObject *obj) const
     a.strStartIndex = ledStartIndex->text();
 
     a.Shape         = ( cobShape->currentIndex() == 0 ? ATypeHexagonalArrayObject::Hexagonal : ATypeHexagonalArrayObject::XY );
+    a.SkipEvenFirst = cbSkipFirstEven->isChecked();
     a.SkipOddLast   = cbSkipLastOdd->isChecked();
 
     QString errorStr;
@@ -3378,6 +3500,7 @@ void AGeoHexagonalArrayDelegate::Update(const AGeoObject *obj)
         ledNumRings->setText(array->strRings.isEmpty() ? QString::number(array->Rings) : array->strRings);
         ledNumX->setText(array->strNumX.isEmpty() ? QString::number(array->NumX) : array->strNumX);
         ledNumY->setText(array->strNumY.isEmpty() ? QString::number(array->NumY) : array->strNumY);
+        cbSkipFirstEven->setChecked(array->SkipEvenFirst);
         cbSkipLastOdd->setChecked(array->SkipOddLast);
 
         ledStartIndex->setText(array->strStartIndex.isEmpty() ? QString::number(array->startIndex) : array->strStartIndex);

@@ -15,6 +15,8 @@
 #include "amonitordelegateform.h"
 #include "guitools.h"
 #include "ageoconsts.h"
+#include "a3global.h"
+#include "aconfig.h"
 
 #include <QDebug>
 #include <QDropEvent>
@@ -176,6 +178,58 @@ void AGeoTree::updatePrototypeTreeGui()
     updateExpandState(topItemPrototypes, true);
 }
 
+void AGeoTree::menuActionMoveObject(AGeoObject * obj, int option)
+{
+    if (!obj) return;
+
+    AGeoObject * cont = obj->Container;
+
+    if (option == 0)
+    {
+        cont->removeHostedObject(obj);
+        cont->addObjectFirst(obj);
+    }
+    else if (option == 1)
+    {
+        for (size_t i = 0; i < cont->HostedObjects.size(); i++)
+        {
+            if (cont->HostedObjects[i] != obj) continue;
+
+            if (i == 0) return; // already first
+            //check cannot migrate to the first position
+            if (i == 1)
+            {
+                if (cont->isWorld()) return; // prototypes at the front
+                if (obj->isCompositeMemeber()) return; // there is container with logicals at the front
+                if (cont->HostedObjects.front()->Type && cont->HostedObjects.front()->Type->isGridElement()) return; // there is a container with grid elements
+            }
+            std::swap(cont->HostedObjects[i], cont->HostedObjects[i-1]);
+            break;
+        }
+    }
+    else if (option == 2)
+    {
+        for (size_t i = 0; i < cont->HostedObjects.size(); i++)
+        {
+            if (cont->HostedObjects[i] != obj) continue;
+
+            if (i == cont->HostedObjects.size()-1) return; // already last
+
+            std::swap(cont->HostedObjects[i], cont->HostedObjects[i+1]);
+            break;
+        }
+    }
+    else if (option == 3)
+    {
+        cont->removeHostedObject(obj);
+        cont->addObjectLast(obj);
+    }
+
+    const QString name = obj->Name;
+    emit RequestRebuildDetector();
+    //emit RequestHighlightObject(name);
+}
+
 #include "agridhub.h"
 void AGeoTree::onGridReshapeRequested(QString objName)
 {
@@ -233,7 +287,7 @@ void AGeoTree::onGridReshapeRequested(QString objName)
 }
 
 void AGeoTree::populateTreeWidget(QTreeWidgetItem * parent, AGeoObject * Container, bool fDisabled)
-{  
+{
     for (AGeoObject * obj : Container->HostedObjects)
     {
         if (obj->Type->isPrototypeCollection()) continue;
@@ -261,7 +315,7 @@ void AGeoTree::populateTreeWidget(QTreeWidgetItem * parent, AGeoObject * Contain
             QFont f = item->font(0); f.setItalic(true); item->setFont(0, f);
             updateIcon(item, obj);
             //item->setBackgroundColor(0, BackgroundColor);
-        }      
+        }
         else
         {
             updateIcon(item, obj);
@@ -271,7 +325,7 @@ void AGeoTree::populateTreeWidget(QTreeWidgetItem * parent, AGeoObject * Contain
                 QFont f = item->font(0); f.setBold(true); item->setFont(0, f);
             }
             //item->setBackgroundColor(0, BackgroundColor);
-        }      
+        }
 
         populateTreeWidget(item, obj, fDisabledLocal);
     }
@@ -360,7 +414,7 @@ QAction* Action(QMenu& Menu, QString Text)
 }
 
 void AGeoTree::customMenuRequested(const QPoint &pos)
-{  
+{
   QMenu menu;
   QList<QTreeWidgetItem*> selected = twGeoTree->selectedItems();
 
@@ -369,6 +423,14 @@ void AGeoTree::customMenuRequested(const QPoint &pos)
   QAction* showAdown = Action(menu, "Show - this object with content");
   QAction* showAonly = Action(menu, "Show - only this object");
   QAction* lineA     = Action(menu, "Change line color/width/style");
+
+  menu.addSeparator();
+
+  QMenu * moveMenu = menu.addMenu("Move"); moveMenu->setEnabled(false);
+    QAction * moveTop = moveMenu->addAction("Move to top");
+    QAction * moveUp = moveMenu->addAction("Move up");
+    QAction * moveDown = moveMenu->addAction("Move down");
+    QAction * moveBottom = moveMenu->addAction("Move to bottom");
 
   menu.addSeparator();
 
@@ -440,7 +502,6 @@ void AGeoTree::customMenuRequested(const QPoint &pos)
 
   QAction* prototypeA = Action(menu, QString("Make prototype (move object%1)").arg(selected.size()>1 ? "s" : ""));
 
-
   // enable actions according to selection
   QString objName;
   AGeoObject * obj = nullptr;
@@ -457,6 +518,8 @@ void AGeoTree::customMenuRequested(const QPoint &pos)
       const AGeoType & Type = *obj->Type;
 
       bool fNotGridNotMonitor = !Type.isGrid() && !Type.isMonitor();
+
+      moveMenu->setEnabled(true);
 
       addObjMenu->setEnabled(fNotGridNotMonitor);
       enableDisableA->setEnabled( !obj->isWorld() );
@@ -494,15 +557,19 @@ void AGeoTree::customMenuRequested(const QPoint &pos)
   QAction* SelectedAction = menu.exec(twGeoTree->mapToGlobal(pos));
   if (!SelectedAction) return;
 
+  // undo
+  if (SelectedAction != focusObjA && SelectedAction != showA && SelectedAction != showAonly && SelectedAction != showAdown)
+      AConfig::getInstance().createUndo();
+
   // -- EXECUTE SELECTED ACTION --
-  if (SelectedAction == focusObjA)  // FOCUS OBJECT
-  {
-      emit RequestFocusObject(objName);
-      UpdateGui(objName);
-  }
-  if (SelectedAction == showA)               ShowObject(obj);
+  if      (SelectedAction == focusObjA)      focusObject(objName);
+  else if (SelectedAction == showA)          ShowObject(obj);
   else if (SelectedAction == showAonly)      ShowObjectOnly(obj);
   else if (SelectedAction == showAdown)      ShowObjectRecursive(obj);
+  else if (SelectedAction == moveTop)        menuActionMoveObject(obj, 0);
+  else if (SelectedAction == moveUp)         menuActionMoveObject(obj, 1);
+  else if (SelectedAction == moveDown)       menuActionMoveObject(obj, 2);
+  else if (SelectedAction == moveBottom)     menuActionMoveObject(obj, 3);
   else if (SelectedAction == lineA)          SetLineAttributes(obj);
   else if (SelectedAction == enableDisableA) menuActionEnableDisable(obj);
   // ADD NEW OBJECT
@@ -561,6 +628,14 @@ void AGeoTree::customProtoMenuRequested(const QPoint & pos)
 
     QAction* showAllA  = Action(menu, "Show all instances");
     QAction* lineA     = Action(menu, "Change line color/width/style");
+
+    menu.addSeparator();
+
+    QMenu * moveMenu = menu.addMenu("Move"); moveMenu->setEnabled(false);
+    QAction * moveTop = moveMenu->addAction("Move to top");
+    QAction * moveUp = moveMenu->addAction("Move up");
+    QAction * moveDown = moveMenu->addAction("Move down");
+    QAction * moveBottom = moveMenu->addAction("Move to bottom");
 
     menu.addSeparator();
 
@@ -628,6 +703,7 @@ void AGeoTree::customProtoMenuRequested(const QPoint & pos)
 
     if (selected.size() == 1)
     {
+        moveMenu->setEnabled(true);
         showAllA->setEnabled(bIsPrototype);
         lineA->setEnabled(!bIsPrototype);
         enableDisableA->setEnabled(!obj->isWorld() && !bIsPrototype);
@@ -653,10 +729,16 @@ void AGeoTree::customProtoMenuRequested(const QPoint & pos)
     QAction * SelectedAction = menu.exec(twPrototypes->mapToGlobal(pos));
     if (!SelectedAction) return; //nothing was selected
 
+    // undo
+    if (SelectedAction != showAllA) AConfig::getInstance().createUndo();
+
     // -- EXECUTE SELECTED ACTION --
-    //if (SelectedAction == showA)               ShowObject(obj); else
-    if (SelectedAction == showAllA)            ShowAllInstances(obj);
+    if      (SelectedAction == showAllA)       ShowAllInstances(obj);
     else if (SelectedAction == lineA)          SetLineAttributes(obj);
+    else if (SelectedAction == moveTop)        menuActionMoveObject(obj, 0);
+    else if (SelectedAction == moveUp)         menuActionMoveObject(obj, 1);
+    else if (SelectedAction == moveDown)       menuActionMoveObject(obj, 2);
+    else if (SelectedAction == moveBottom)     menuActionMoveObject(obj, 3);
     else if (SelectedAction == enableDisableA) menuActionEnableDisable(obj);
     // ADD NEW OBJECT
     else if (SelectedAction == newBox)         menuActionAddNewObject(obj, new AGeoBox());
@@ -925,15 +1007,19 @@ void AGeoTree::menuActionAddNewObject(AGeoObject * contObj, AGeoShape * shape)
     delete newObj->Shape; newObj->Shape = shape;
 
     newObj->color = 1;
-    contObj->addObjectFirst(newObj);
+
+    if (A3Global::getInstance().NewGeoObjectAddedLast)
+        contObj->addObjectLast(newObj);
+    else
+        contObj->addObjectFirst(newObj);
 
     emit RequestRebuildDetector();
     UpdateGui(objName);
 }
 
-void AGeoTree::menuActionAddNewArray(AGeoObject * ContObj)
+void AGeoTree::menuActionAddNewArray(AGeoObject * contObj)
 {
-    if (!ContObj) return;
+    if (!contObj) return;
 
     const QString name = Geometry.generateObjectName("Array");
     AGeoObject * newObj = new AGeoObject(name, nullptr);
@@ -941,7 +1027,12 @@ void AGeoTree::menuActionAddNewArray(AGeoObject * ContObj)
     delete newObj->Type; newObj->Type = new ATypeArrayObject();
 
     newObj->color = 1;
-    ContObj->addObjectFirst(newObj);  //inserts to the first position in the list of HostedObjects!
+
+    //contObj->addObjectFirst(newObj);  //inserts to the first position in the list of HostedObjects!
+    if (A3Global::getInstance().NewGeoObjectAddedLast)
+        contObj->addObjectLast(newObj);
+    else
+        contObj->addObjectFirst(newObj);
 
     //element inside
     AGeoBox * shape = new AGeoBox();
@@ -954,9 +1045,9 @@ void AGeoTree::menuActionAddNewArray(AGeoObject * ContObj)
     UpdateGui(name);
 }
 
-void AGeoTree::menuActionAddNewCircularArray(AGeoObject *ContObj)
+void AGeoTree::menuActionAddNewCircularArray(AGeoObject * contObj)
 {
-    if (!ContObj) return;
+    if (!contObj) return;
 
     const QString name = Geometry.generateObjectName("CircArray");
     AGeoObject * newObj = new AGeoObject(name, nullptr);
@@ -964,7 +1055,12 @@ void AGeoTree::menuActionAddNewCircularArray(AGeoObject *ContObj)
     delete newObj->Type; newObj->Type = new ATypeCircularArrayObject();
 
     newObj->color = 1;
-    ContObj->addObjectFirst(newObj);  //inserts to the first position in the list of HostedObjects!
+
+    //contObj->addObjectFirst(newObj);  //inserts to the first position in the list of HostedObjects!
+    if (A3Global::getInstance().NewGeoObjectAddedLast)
+        contObj->addObjectLast(newObj);
+    else
+        contObj->addObjectFirst(newObj);
 
     //element inside
     AGeoBox * shape = new AGeoBox();
@@ -977,9 +1073,9 @@ void AGeoTree::menuActionAddNewCircularArray(AGeoObject *ContObj)
     UpdateGui(name);
 }
 
-void AGeoTree::menuActionAddNewHexagonalArray(AGeoObject *ContObj)
+void AGeoTree::menuActionAddNewHexagonalArray(AGeoObject * contObj)
 {
-    if (!ContObj) return;
+    if (!contObj) return;
 
     const QString name = Geometry.generateObjectName("HexArray");
     AGeoObject * newObj = new AGeoObject(name, nullptr);
@@ -987,7 +1083,12 @@ void AGeoTree::menuActionAddNewHexagonalArray(AGeoObject *ContObj)
     delete newObj->Type; newObj->Type = new ATypeHexagonalArrayObject();
 
     newObj->color = 1;
-    ContObj->addObjectFirst(newObj);  //inserts to the first position in the list of HostedObjects!
+
+    //contObj->addObjectFirst(newObj);  //inserts to the first position in the list of HostedObjects!
+    if (A3Global::getInstance().NewGeoObjectAddedLast)
+        contObj->addObjectLast(newObj);
+    else
+        contObj->addObjectFirst(newObj);
 
     //element inside
     AGeoBox * shape = new AGeoBox();
@@ -1001,17 +1102,23 @@ void AGeoTree::menuActionAddNewHexagonalArray(AGeoObject *ContObj)
 }
 
 #include "agridhub.h"
-void AGeoTree::menuActionAddNewGrid(AGeoObject * ContObj)
+void AGeoTree::menuActionAddNewGrid(AGeoObject * contObj)
 {
-    if (!ContObj) return;
+    if (!contObj) return;
 
     AGeoObject * newObj = new AGeoObject();
     newObj->Name = Geometry.generateObjectName("Grid");
     delete newObj->Shape; newObj->Shape = new AGeoBox(50.0, 50.0, 0.501);
-    newObj->Material = ContObj->Material;
+    newObj->Material = contObj->Material;
 
     newObj->color = 1;
-    ContObj->addObjectFirst(newObj);
+
+    //contObj->addObjectFirst(newObj);
+    if (A3Global::getInstance().NewGeoObjectAddedLast)
+        contObj->addObjectLast(newObj);
+    else
+        contObj->addObjectFirst(newObj);
+
     AGridHub::getInstance().convertObjToGrid(newObj);
 
     const QString name = newObj->Name;
@@ -1019,43 +1126,48 @@ void AGeoTree::menuActionAddNewGrid(AGeoObject * ContObj)
     UpdateGui(name);
 }
 
-void AGeoTree::menuActionAddNewMonitor(AGeoObject * ContObj, bool Photon)
+void AGeoTree::menuActionAddNewMonitor(AGeoObject * contObj, bool isPhoton)
 {
-    if (!ContObj) return;
+    if (!contObj) return;
 
     const QString name = Geometry.generateObjectName("Monitor");
-    AGeoObject* newObj = new AGeoObject(name, nullptr);
+    AGeoObject * newObj = new AGeoObject(name, nullptr);
 
-    newObj->Material = ContObj->Material;
+    newObj->Material = contObj->Material;
 
     delete newObj->Type; newObj->Type = new ATypeMonitorObject();
-    static_cast<ATypeMonitorObject*>(newObj->Type)->config.PhotonOrParticle = (Photon ? 0 : 1);
+    static_cast<ATypeMonitorObject*>(newObj->Type)->config.PhotonOrParticle = (isPhoton ? 0 : 1);
 
     //newObj->updateMonitorShape();
 
     newObj->color = 1;
-    ContObj->addObjectFirst(newObj);
+
+    //contObj->addObjectFirst(newObj);
+    if (A3Global::getInstance().NewGeoObjectAddedLast)
+        contObj->addObjectLast(newObj);
+    else
+        contObj->addObjectFirst(newObj);
 
     emit RequestRebuildDetector();
     UpdateGui(name);
 }
 
-void AGeoTree::menuActionAddInstance(AGeoObject * ContObj, const QString & PrototypeName)
+void AGeoTree::menuActionAddInstance(AGeoObject * contObj, const QString & prototypeName)
 {
-    if (!ContObj) return;
-    if (!ContObj->isGoodContainerForInstance()) return;
+    if (!contObj) return;
+    if (!contObj->isGoodContainerForInstance()) return;
 
-    AGeoObject * protoObj = Prototypes->findObjectByName(PrototypeName);
+    AGeoObject * protoObj = Prototypes->findObjectByName(prototypeName);
     if (!protoObj)
     {
         guitools::message("Something went very wrong: prototype not found", twGeoTree);
         return;
     }
 
-    const QString name = Geometry.generateObjectName(PrototypeName + "_Inst");
+    const QString name = Geometry.generateObjectName(prototypeName + "_Inst");
     AGeoObject * newObj = new AGeoObject(name, nullptr);
 
-    delete newObj->Type; newObj->Type = new ATypeInstanceObject(PrototypeName);
+    delete newObj->Type; newObj->Type = new ATypeInstanceObject(prototypeName);
 
     for (int i = 0; i < 3; i++)
     {
@@ -1065,7 +1177,11 @@ void AGeoTree::menuActionAddInstance(AGeoObject * ContObj, const QString & Proto
         newObj->OrientationStr[i] = protoObj->OrientationStr[i];
     }
 
-    ContObj->addObjectFirst(newObj);
+    //contObj->addObjectFirst(newObj);
+    if (A3Global::getInstance().NewGeoObjectAddedLast)
+        contObj->addObjectLast(newObj);
+    else
+        contObj->addObjectFirst(newObj);
 
     emit RequestRebuildDetector();
     UpdateGui(name);
@@ -1109,24 +1225,31 @@ void AGeoTree::menuActionMoveProtoToWorld(AGeoObject * obj)
         return;
     }
 
-    for (AGeoObject * hosted : obj->HostedObjects)
+    while (!obj->HostedObjects.empty())
+    {
+        AGeoObject * hosted = obj->HostedObjects.front();
         hosted->migrateTo(World, true);
-    //Prototypes->HostedObjects.removeOne(obj);
+    }
     Prototypes->removeHostedObject(obj);
     delete obj;
 
     emit RequestRebuildDetector();
 }
 
-void AGeoTree::menuActionAddNewComposite(AGeoObject * ContObj)
+void AGeoTree::menuActionAddNewComposite(AGeoObject * contObj)
 {
-  if (!ContObj) return;
+  if (!contObj) return;
 
   const QString name = Geometry.generateObjectName("Composite");
   AGeoObject * newObj = new AGeoObject(name, nullptr);
 
   newObj->color = 1;
-  ContObj->addObjectFirst(newObj);  //inserts to the first position in the list of HostedObjects!
+
+  //contObj->addObjectFirst(newObj);  //inserts to the first position in the list of HostedObjects!
+  if (A3Global::getInstance().NewGeoObjectAddedLast)
+      contObj->addObjectLast(newObj);
+  else
+      contObj->addObjectFirst(newObj);
 
   Geometry.convertObjToComposite(newObj);
 
@@ -1157,6 +1280,12 @@ void AGeoTree::SetLineAttributes(AGeoObject * obj)
         emit RequestRebuildDetector();
         UpdateGui(name);
     }
+}
+
+void AGeoTree::focusObject(const QString & objName)
+{
+    emit RequestFocusObject(objName);
+    UpdateGui(objName);
 }
 
 void AGeoTree::ShowObject(AGeoObject * obj)
@@ -1331,7 +1460,7 @@ QImage createImageWithOverlay(const QImage& base, const QImage& overlay)
 }
 
 void AGeoTree::updateIcon(QTreeWidgetItem* item, AGeoObject *obj)
-{  
+{
   if (!obj || !item) return;
 
   QImage image;
@@ -1359,7 +1488,7 @@ void AGeoTree::updateIcon(QTreeWidgetItem* item, AGeoObject *obj)
     }
 
   QIcon icon = QIcon(QPixmap::fromImage(image));
-  item->setIcon(0, icon); 
+  item->setIcon(0, icon);
 }
 
 void AGeoTree::rebuildDetectorAndRestoreCurrentDelegate()

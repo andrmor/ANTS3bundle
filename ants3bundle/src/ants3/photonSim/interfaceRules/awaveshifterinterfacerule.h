@@ -4,7 +4,8 @@
 #include "ainterfacerule.h"
 
 #include <QString>
-#include <QVector>   // !!!***
+
+#include <vector>
 
 class AWaveResSettings;
 class TH1D;
@@ -16,21 +17,23 @@ public:
     ~AWaveshifterInterfaceRule();
 
     void initializeWaveResolved() override;
-    OpticalOverrideResultEnum calculate(APhoton* Photon, const double* NormalVector) override; //unitary vectors! iWave = -1 if not wavelength-resolved
+    EInterfaceRuleResult calculate(APhoton* Photon, const double* NormalVector) override; //unitary vectors! iWave = -1 if not wavelength-resolved
 
     QString getType() const override {return "SurfaceWLS";}
     QString getAbbreviation() const override {return "WLS";}
     QString getReportLine() const override;
     QString getLongReportLine() const override;
+    QString getDescription() const override;
+
+    QString loadReemissionProbability(const QString & fileName);
+    QString loadEmissionSpectrum(const QString & fileName);
 
     int ReemissionModel = 1; //0-isotropic (4Pi), 1-Lamb back (2Pi), 2-Lamb forward (2Pi)
-    QVector<double> ReemissionProbability_lambda;
-    QVector<double> ReemissionProbability;
-    QVector<double> ReemissionProbabilityBinned;
-
-    QVector<double> EmissionSpectrum_lambda;
-    QVector<double> EmissionSpectrum;
+    std::vector<std::pair<double,double>> ReemissionProbability;
+    std::vector<double> ReemissionProbabilityBinned;
+    std::vector<std::pair<double,double>> EmissionSpectrum;
     TH1D * Spectrum = nullptr;
+    bool ConserveEnergy = false;
 
 protected:
     void doWriteToJson(QJsonObject & json) const override;  // !!!***

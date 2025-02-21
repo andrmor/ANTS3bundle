@@ -1,0 +1,48 @@
+{
+    "CurrentTab": 6,
+    "Name": "WSFexample",
+    "ScriptTabs": [
+        {
+            "FileName": "",
+            "Script": "var ar = [] // ar = [iLeft, iRight]  200 of them\nvar positionFrom = 1\nvar positionTo = 33\nvar flag = false\nvar max = 200\n\npositionTo-- // to counter first cycle\nfor (var i = 0; i < max; i++)\n{\n   if (flag) positionFrom++\n   else      positionTo++\n   flag = !flag\n   if (i == (64-1)) positionFrom = 10 // confirmed\n   if (i == (65-1)) positionTo = 33   // confirmed\n   if (i == (110-1)) positionFrom = 1 // confirmed\n   if (i == (129-1)) {positionFrom = 19; positionTo = 33}\n   if (i == (156-1)) positionFrom = 10 \n   if (i == (193-1)) positionTo = 33\n   //ar.push([positionFrom, positionTo])\n   ar.push([positionFrom-1, positionTo-1])\n}\n\nfor (var i = 0; i < max; i++)\n   core.print(i+1,ar[i])\n   \n",
+            "TabName": "Init_MakeLinkTable",
+            "bExplicitlyNamed": false
+        },
+        {
+            "FileName": "",
+            "Script": "// !!!---> requires to run first the following script:   Init_MakeLinkTable\n\n// test link array for non-unique pairs\n// the config built based on an incomplete instruction in the paper has one non-unique pair\n// https://doi.org/10.1140/epjp/s13360-021-01215-3\n\nvar nonUniques = []\nfor (var iL = 0; iL < 200-1; iL++)\n   for (var iR = iL+1; iR < 200; iR++)\n   {\n      if (ar[iL][0] == ar[iR][0] && ar[iL][1] == ar[iR][1]) \n      {\n         nonUniques.push([iL,iR])\n         core.print(\"Found the same pair \", ar[iL], \" for fiber #\"+(iL+1), \"and #\"+(iR+1) )\n         \n      }      \n   }   \n\nnonUniques\n",
+            "TabName": "CheckAllUnique",
+            "bExplicitlyNamed": true
+        },
+        {
+            "FileName": "",
+            "Script": "// !!!---> requires to run first the following script:   Init_MakeLinkTable\n\n// used to connect from->to photon functionals in the geometry\n// use only if geometry was changed!\n\nvar counterAr = []\nfor (var i = 0; i < 64; i++) counterAr[i] = 0\n\nfunction outTunnel(iSens)\n{\n   var num = 400 + iSens * 9\n   num += counterAr[iSens]\n   counterAr[iSens]++\n   return num\n}\n\nvar configObj = geo.getConfigObjectForPhotonFunctional(0)\ngeo.clearPhotonFunctionalAttribution()\nfor (var i = 0; i < 200; i++)\n{\n   var iLeftFrom = i*2\n   var iRightFrom = i*2 + 1\n   \n   var iSensLeft = ar[i][0]\n   var iSensRight = ar[i][1]\n   \n   var iLeftTo = outTunnel(iSensLeft)\n   var iRightTo = outTunnel(iSensRight)\n   \n   geo.configurePhotonFunctional(\"OpticalFiber\", configObj,  iLeftFrom,  iLeftTo)\n   geo.configurePhotonFunctional(\"OpticalFiber\", configObj,  iLeftTo, iLeftFrom)\n   \n   geo.configurePhotonFunctional(\"OpticalFiber\", configObj,  iRightFrom,  iRightTo)\n   geo.configurePhotonFunctional(\"OpticalFiber\", configObj,  iRightTo, iRightFrom)\n}\n\nvar iUnc = geo.overrideUnconnectedLinkFunctionals()\ncore.print(\"There were unconnected functionals:\", iUnc)\n",
+            "TabName": "Geometry_ConnectFibers",
+            "bExplicitlyNamed": false
+        },
+        {
+            "FileName": "",
+            "Script": "var dir = config.getKeyValue(\"PhotonSim.Run.OutputDirectory\")\ndir += \"/\"\n\ncore.print(\"Data output directory for photon simulation was set to:\", dir)",
+            "TabName": "Init_Directories",
+            "bExplicitlyNamed": false
+        },
+        {
+            "FileName": "",
+            "Script": "// !!!---> requires to run first the following script:   Init_MakeLinkTable\n// !!!---> requires to set working directory: Init_Directories\n\n// reconstruct first event (signal vs fiber index) without applying multiplicity correction\n\nvar fn = dir + \"SensorSignals.txt\"\nvar format = []; for (var i = 0; i < 64; i++) format.push(\"d\")\nvar allEvents = core.load3DArray(fn, \"#\", format, true, false, 0, 1e10)\n\nvar sigAr = allEvents[0][0]\n//core.print(sigAr)\n\nvar fibAr = []\nfor (var i = 0; i < ar.length; i++)\n{\n   var iLeft = ar[i][0]\n   var iRight = ar[i][1]\n   var sum = sigAr[iLeft] + sigAr[iRight]\n   //core.print(sum)\n   fibAr.push(sum)\n}\n\ngraphName = \"g\"\ngraph.new1D(graphName)\ngraph.addPoints(graphName, fibAr)\ngraph.draw(graphName, \"APL\")\n",
+            "TabName": "Reconstr_NoCorrection",
+            "bExplicitlyNamed": false
+        },
+        {
+            "FileName": "",
+            "Script": "// !!!---> requires to run first the following script:   Init_MakeLinkTable\n\n// ar = [iLeft, iRight]  200 of them\nvar arLinks = []\nfor (var ii = 0; ii < 64; ii++) arLinks.push([])\n\n// checking lefts\nfor (var iSens = 0; iSens < 32; iSens++)\n{\n   for (var iPair = 0; iPair < ar.length; iPair++)\n      if (ar[iPair][0] == iSens) arLinks[iSens].push(ar[iPair][1])\n}\n\n// checking rights\nfor (var iSens = 32; iSens < 64; iSens++)\n{\n   for (var iPair = 0; iPair < ar.length; iPair++)\n      if (ar[iPair][1] == iSens) arLinks[iSens].push(ar[iPair][0])\n}\n\ncore.print(arLinks)",
+            "TabName": "Init_calcMulties",
+            "bExplicitlyNamed": false
+        },
+        {
+            "FileName": "",
+            "Script": "// !!!---> requires to run first the following script:   Init_MakeLinkTable\n// !!!---> requires to run first the following script:   Init_calcMulties\n\n// compute position of the neutron in the first event\n\nvar fn = dir + \"SensorSignals.txt\"\nvar format = []; for (var i = 0; i < 64; i++) format.push(\"d\")\nvar allEvents = core.load3DArray(fn, \"#\", format, true, false, 0, 1e10)\n\nvar sigAr = allEvents[0][0]\n//core.print(sigAr)\n\nvar fibAr = []\nfor (var i = 0; i < ar.length; i++)\n{\n   var iLeft = ar[i][0]\n   var iRight = ar[i][1]\n      //var sum = sigAr[iLeft] + sigAr[iRight]\n      //core.print(sum)\n   var sumR = 0\n   for (var ii = 0; ii < arLinks[iLeft].length; ii++)\n      sumR += sigAr[ arLinks[iLeft][ii] ]\n   var LeftCorr = ( sumR == 0 ? 0 : sigAr[iLeft] * sigAr[iRight]/sumR )\n   \n   var sumL = 0\n   for (var ii = 0; ii < arLinks[iRight].length; ii++)\n      sumL += sigAr[ arLinks[iRight][ii] ]\n   var RightCorr = ( sumL == 0? 0 : sigAr[iRight] * sigAr[iLeft]/sumL )\n   \n   fibAr.push(LeftCorr + RightCorr)\n}\n\ncore.print(fibAr)\n\ngraphName = \"g\"\ngraph.new1D(graphName)\ngraph.addPoints(graphName, fibAr)\ngraph.draw(graphName, \"APL\")\n\n// max fiber?\nvar iMax = 0\nfor (var i = 1; i < fibAr.length; i++)\n   if (fibAr[i] > fibAr[iMax]) iMax = i\n\nFiberPitch = 0.55 //mm\nNumFibers = 200\nvar position = -0.5*(NumFibers-1)*FiberPitch + iMax*FiberPitch\ncore.print(\"Max signal in fiber #\", iMax, \", position =\", position, \"mm\")\n",
+            "TabName": "Reconstr_corrected",
+            "bExplicitlyNamed": false
+        }
+    ]
+}

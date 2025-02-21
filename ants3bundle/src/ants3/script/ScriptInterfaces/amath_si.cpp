@@ -17,10 +17,11 @@ AMath_SI::AMath_SI() :
     Help["maxwell"] = "Return a random value sampled from Maxwell distribution with the given Sqrt(kT/M)";
     Help["exponential"] = "Return a random value sampled from exponential decay with the given decay time";
 
-    Help["interpolateToRegulareArray"] = "Convert an arbitrary array (can be unsorted) of double [x,y] pairs to a constant bin_size array. "
-                                         "The input arguments defines the number of bins and the range (lower and upper boundaries) of the output array. "
-                                         "The result is an array of [Xbin, Ybin] pairs, where Xbin is the middle of the bin and Ybin is linear-interpolated value. "
-                                         "The array is sorted (increasing values of Xbin)";
+    Help["interpolateToRegularArray"] = "Convert an arbitrary array (can be unsorted and with non-regular step) of [x,y] pairs to an array with a regular step.\n"
+                                         "The input arguments define the number of bins and the range (lower and upper boundaries) of the output array.\n"
+                                         "The result is an array of [Xbin, Ybin] pairs, where Ybin is linear-interpolated value.\n"
+                                         "The array is sorted (increasing values of Xbin).\n"
+                                         "If shiftByHalfBin optional parameter is set to true (recommended when filling a histogram using this array), Xbin is the middle of the corresponding bin";
 
     Help["fit1D"] = "Fit the array of [x,y] pairs using the provided TFormula of Cern ROOT.\n"
                   "Optional startParValues arguments can hold array of initial parameter values.\n"
@@ -242,7 +243,7 @@ QVariantList AMath_SI::generateDirectionIsotropic()
 }
 
 #include "ahistogram.h"
-QVariantList AMath_SI::interpolateToRegulareArray(QVariantList arrayOfPairs, int numBins, double from, double to)
+QVariantList AMath_SI::interpolateToRegularArray(QVariantList arrayOfPairs, int numBins, double from, double to, bool shiftByHalfBin)
 {
     QVariantList res;
     if (numBins < 2)
@@ -287,7 +288,9 @@ QVariantList AMath_SI::interpolateToRegulareArray(QVariantList arrayOfPairs, int
             positionInDist++;
 
         double val;
-        if (dist[positionInDist].first == pos) val = dist[positionInDist].second; // exact match
+        if      (pos <= dist.front().first) val = dist.front().second; // underflow
+        else if (pos >= dist.back().first)  val = dist.back().second;  // overflow
+        else if (dist[positionInDist].first == pos) val = dist[positionInDist].second; // exact match
         else
         {
             // need to interpolate
@@ -297,7 +300,8 @@ QVariantList AMath_SI::interpolateToRegulareArray(QVariantList arrayOfPairs, int
         }
 
         QVariantList thisPair;
-        thisPair << pos + 0.5*step << val;
+        if (shiftByHalfBin) thisPair << pos + 0.5*step << val;
+        else                thisPair << pos << val;
         res.push_back(thisPair);
     }
     return res;

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>610</width>
-    <height>817</height>
+    <width>640</width>
+    <height>847</height>
    </rect>
   </property>
   <property name="maximumSize">
@@ -86,7 +86,7 @@
    <item>
     <widget class="Line" name="line">
      <property name="orientation">
-      <enum>Qt::Horizontal</enum>
+      <enum>Qt::Orientation::Horizontal</enum>
      </property>
     </widget>
    </item>
@@ -106,7 +106,7 @@
         <string>Shape:</string>
        </property>
        <property name="alignment">
-        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+        <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
        </property>
       </widget>
      </item>
@@ -158,7 +158,7 @@
      <item>
       <spacer name="horizontalSpacer_15">
        <property name="orientation">
-        <enum>Qt::Horizontal</enum>
+        <enum>Qt::Orientation::Horizontal</enum>
        </property>
        <property name="sizeHint" stdset="0">
         <size>
@@ -177,10 +177,10 @@
         </size>
        </property>
        <property name="frameShape">
-        <enum>QFrame::NoFrame</enum>
+        <enum>QFrame::Shape::NoFrame</enum>
        </property>
        <property name="frameShadow">
-        <enum>QFrame::Raised</enum>
+        <enum>QFrame::Shadow::Raised</enum>
        </property>
        <layout class="QHBoxLayout" name="horizontalLayout_31">
         <property name="leftMargin">
@@ -227,10 +227,10 @@ If material with this name does not exist, this limitation is not applied.</stri
       </size>
      </property>
      <property name="frameShape">
-      <enum>QFrame::NoFrame</enum>
+      <enum>QFrame::Shape::NoFrame</enum>
      </property>
      <property name="frameShadow">
-      <enum>QFrame::Raised</enum>
+      <enum>QFrame::Shadow::Raised</enum>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_10">
       <property name="spacing">
@@ -262,7 +262,7 @@ If material with this name does not exist, this limitation is not applied.</stri
            <string>Size1:</string>
           </property>
           <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
           </property>
          </widget>
         </item>
@@ -285,7 +285,7 @@ If material with this name does not exist, this limitation is not applied.</stri
            <string>Size2:</string>
           </property>
           <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
           </property>
          </widget>
         </item>
@@ -308,7 +308,7 @@ If material with this name does not exist, this limitation is not applied.</stri
            <string>Size3:</string>
           </property>
           <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
           </property>
          </widget>
         </item>
@@ -335,7 +335,7 @@ If material with this name does not exist, this limitation is not applied.</stri
         <item>
          <spacer name="hsDimensions">
           <property name="orientation">
-           <enum>Qt::Horizontal</enum>
+           <enum>Qt::Orientation::Horizontal</enum>
           </property>
           <property name="sizeHint" stdset="0">
            <size>
@@ -353,10 +353,10 @@ If material with this name does not exist, this limitation is not applied.</stri
    <item>
     <widget class="QFrame" name="frAxialDistribution">
      <property name="frameShape">
-      <enum>QFrame::NoFrame</enum>
+      <enum>QFrame::Shape::NoFrame</enum>
      </property>
      <property name="frameShadow">
-      <enum>QFrame::Raised</enum>
+      <enum>QFrame::Shadow::Raised</enum>
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout_35">
       <property name="leftMargin">
@@ -390,10 +390,10 @@ If material with this name does not exist, this limitation is not applied.</stri
          </size>
         </property>
         <property name="frameShape">
-         <enum>QFrame::NoFrame</enum>
+         <enum>QFrame::Shape::NoFrame</enum>
         </property>
         <property name="frameShadow">
-         <enum>QFrame::Raised</enum>
+         <enum>QFrame::Shadow::Raised</enum>
         </property>
         <layout class="QHBoxLayout" name="horizontalLayout_36">
          <property name="leftMargin">
@@ -523,7 +523,7 @@ If material with this name does not exist, this limitation is not applied.</stri
              <item>
               <spacer name="horizontalSpacer_23">
                <property name="orientation">
-                <enum>Qt::Horizontal</enum>
+                <enum>Qt::Orientation::Horizontal</enum>
                </property>
                <property name="sizeHint" stdset="0">
                 <size>
@@ -543,7 +543,7 @@ If material with this name does not exist, this limitation is not applied.</stri
       <item>
        <spacer name="horizontalSpacer_10">
         <property name="orientation">
-         <enum>Qt::Horizontal</enum>
+         <enum>Qt::Orientation::Horizontal</enum>
         </property>
         <property name="sizeHint" stdset="0">
          <size>
@@ -559,7 +559,7 @@ If material with this name does not exist, this limitation is not applied.</stri
    <item>
     <widget class="Line" name="line_7">
      <property name="orientation">
-      <enum>Qt::Horizontal</enum>
+      <enum>Qt::Orientation::Horizontal</enum>
      </property>
     </widget>
    </item>
@@ -574,7 +574,7 @@ If material with this name does not exist, this limitation is not applied.</stri
       <string>Position of the center:</string>
      </property>
      <property name="alignment">
-      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+      <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
      </property>
     </widget>
    </item>
@@ -653,7 +653,7 @@ If material with this name does not exist, this limitation is not applied.</stri
      <item>
       <spacer name="horizontalSpacer_2">
        <property name="orientation">
-        <enum>Qt::Horizontal</enum>
+        <enum>Qt::Orientation::Horizontal</enum>
        </property>
        <property name="sizeHint" stdset="0">
         <size>
@@ -668,7 +668,7 @@ If material with this name does not exist, this limitation is not applied.</stri
    <item>
     <widget class="Line" name="line_6">
      <property name="orientation">
-      <enum>Qt::Horizontal</enum>
+      <enum>Qt::Orientation::Horizontal</enum>
      </property>
     </widget>
    </item>
@@ -683,7 +683,7 @@ If material with this name does not exist, this limitation is not applied.</stri
       <string>Orientation:</string>
      </property>
      <property name="alignment">
-      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+      <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
      </property>
     </widget>
    </item>
@@ -698,7 +698,7 @@ If material with this name does not exist, this limitation is not applied.</stri
         <string>Phi:</string>
        </property>
        <property name="alignment">
-        <set>Qt::AlignCenter</set>
+        <set>Qt::AlignmentFlag::AlignCenter</set>
        </property>
       </widget>
      </item>
@@ -721,7 +721,7 @@ If material with this name does not exist, this limitation is not applied.</stri
         <string>Theta:</string>
        </property>
        <property name="alignment">
-        <set>Qt::AlignCenter</set>
+        <set>Qt::AlignmentFlag::AlignCenter</set>
        </property>
       </widget>
      </item>
@@ -744,7 +744,7 @@ If material with this name does not exist, this limitation is not applied.</stri
         <string>Around Z:</string>
        </property>
        <property name="alignment">
-        <set>Qt::AlignCenter</set>
+        <set>Qt::AlignmentFlag::AlignCenter</set>
        </property>
       </widget>
      </item>
@@ -771,7 +771,7 @@ If material with this name does not exist, this limitation is not applied.</stri
      <item>
       <spacer name="horizontalSpacer_3">
        <property name="orientation">
-        <enum>Qt::Horizontal</enum>
+        <enum>Qt::Orientation::Horizontal</enum>
        </property>
        <property name="sizeHint" stdset="0">
         <size>
@@ -786,7 +786,7 @@ If material with this name does not exist, this limitation is not applied.</stri
    <item>
     <widget class="Line" name="line_5">
      <property name="orientation">
-      <enum>Qt::Horizontal</enum>
+      <enum>Qt::Orientation::Horizontal</enum>
      </property>
     </widget>
    </item>
@@ -850,7 +850,7 @@ If material with this name does not exist, this limitation is not applied.</stri
      <item>
       <spacer name="horizontalSpacer_18">
        <property name="orientation">
-        <enum>Qt::Horizontal</enum>
+        <enum>Qt::Orientation::Horizontal</enum>
        </property>
        <property name="sizeHint" stdset="0">
         <size>
@@ -920,7 +920,7 @@ If material with this name does not exist, this limitation is not applied.</stri
          <item>
           <spacer name="horizontalSpacer_19">
            <property name="orientation">
-            <enum>Qt::Horizontal</enum>
+            <enum>Qt::Orientation::Horizontal</enum>
            </property>
            <property name="sizeHint" stdset="0">
             <size>
@@ -1013,7 +1013,7 @@ If material with this name does not exist, this limitation is not applied.</stri
          <item>
           <spacer name="horizontalSpacer_16">
            <property name="orientation">
-            <enum>Qt::Horizontal</enum>
+            <enum>Qt::Orientation::Horizontal</enum>
            </property>
            <property name="sizeHint" stdset="0">
             <size>
@@ -1032,10 +1032,10 @@ If material with this name does not exist, this limitation is not applied.</stri
    <item>
     <widget class="QFrame" name="frDirection">
      <property name="frameShape">
-      <enum>QFrame::NoFrame</enum>
+      <enum>QFrame::Shape::NoFrame</enum>
      </property>
      <property name="frameShadow">
-      <enum>QFrame::Raised</enum>
+      <enum>QFrame::Shadow::Raised</enum>
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout_28">
       <property name="leftMargin">
@@ -1056,7 +1056,7 @@ If material with this name does not exist, this limitation is not applied.</stri
          <string>Direction</string>
         </property>
         <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
         </property>
        </widget>
       </item>
@@ -1119,7 +1119,7 @@ If material with this name does not exist, this limitation is not applied.</stri
              <string>theta:</string>
             </property>
             <property name="alignment">
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
             </property>
            </widget>
           </item>
@@ -1217,7 +1217,7 @@ If material with this name does not exist, this limitation is not applied.</stri
       <item>
        <spacer name="horizontalSpacer_25">
         <property name="orientation">
-         <enum>Qt::Horizontal</enum>
+         <enum>Qt::Orientation::Horizontal</enum>
         </property>
         <property name="sizeHint" stdset="0">
          <size>
@@ -1241,10 +1241,10 @@ If material with this name does not exist, this limitation is not applied.</stri
      <item>
       <widget class="QFrame" name="frAngularCutoff">
        <property name="frameShape">
-        <enum>QFrame::NoFrame</enum>
+        <enum>QFrame::Shape::NoFrame</enum>
        </property>
        <property name="frameShadow">
-        <enum>QFrame::Raised</enum>
+        <enum>QFrame::Shadow::Raised</enum>
        </property>
        <layout class="QHBoxLayout" name="horizontalLayout_29">
         <property name="spacing">
@@ -1298,7 +1298,7 @@ If material with this name does not exist, this limitation is not applied.</stri
         <item>
          <spacer name="horizontalSpacer_24">
           <property name="orientation">
-           <enum>Qt::Horizontal</enum>
+           <enum>Qt::Orientation::Horizontal</enum>
           </property>
           <property name="sizeHint" stdset="0">
            <size>
@@ -1316,7 +1316,7 @@ If material with this name does not exist, this limitation is not applied.</stri
    <item>
     <widget class="Line" name="line_4">
      <property name="orientation">
-      <enum>Qt::Horizontal</enum>
+      <enum>Qt::Orientation::Horizontal</enum>
      </property>
     </widget>
    </item>
@@ -1351,10 +1351,10 @@ If material with this name does not exist, this limitation is not applied.</stri
           </size>
          </property>
          <property name="selectionBehavior">
-          <enum>QAbstractItemView::SelectRows</enum>
+          <enum>QAbstractItemView::SelectionBehavior::SelectRows</enum>
          </property>
          <property name="viewMode">
-          <enum>QListView::ListMode</enum>
+          <enum>QListView::ViewMode::ListMode</enum>
          </property>
         </widget>
        </item>
@@ -1398,10 +1398,10 @@ If material with this name does not exist, this limitation is not applied.</stri
         </size>
        </property>
        <property name="frameShape">
-        <enum>QFrame::Box</enum>
+        <enum>QFrame::Shape::Box</enum>
        </property>
        <property name="frameShadow">
-        <enum>QFrame::Raised</enum>
+        <enum>QFrame::Shadow::Raised</enum>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_3">
         <property name="spacing">
@@ -1464,10 +1464,10 @@ If material with this name does not exist, this limitation is not applied.</stri
            </size>
           </property>
           <property name="frameShape">
-           <enum>QFrame::NoFrame</enum>
+           <enum>QFrame::Shape::NoFrame</enum>
           </property>
           <property name="frameShadow">
-           <enum>QFrame::Raised</enum>
+           <enum>QFrame::Shadow::Raised</enum>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_7">
            <property name="spacing">
@@ -1488,7 +1488,7 @@ If material with this name does not exist, this limitation is not applied.</stri
            <item>
             <widget class="Line" name="line_11">
              <property name="orientation">
-              <enum>Qt::Horizontal</enum>
+              <enum>Qt::Orientation::Horizontal</enum>
              </property>
             </widget>
            </item>
@@ -1564,6 +1564,12 @@ If material with this name does not exist, this limitation is not applied.</stri
                  </item>
                  <item>
                   <widget class="QComboBox" name="cobUnits">
+                   <property name="minimumSize">
+                    <size>
+                     <width>60</width>
+                     <height>0</height>
+                    </size>
+                   </property>
                    <item>
                     <property name="text">
                      <string>MeV</string>
@@ -1662,10 +1668,10 @@ If material with this name does not exist, this limitation is not applied.</stri
               </size>
              </property>
              <property name="frameShape">
-              <enum>QFrame::NoFrame</enum>
+              <enum>QFrame::Shape::NoFrame</enum>
              </property>
              <property name="frameShadow">
-              <enum>QFrame::Raised</enum>
+              <enum>QFrame::Shadow::Raised</enum>
              </property>
              <layout class="QHBoxLayout" name="horizontalLayout_37">
               <property name="leftMargin">
@@ -1701,6 +1707,12 @@ If material with this name does not exist, this limitation is not applied.</stri
                   <verstretch>0</verstretch>
                  </sizepolicy>
                 </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>60</width>
+                  <height>0</height>
+                 </size>
+                </property>
                 <property name="maximumSize">
                  <size>
                   <width>60</width>
@@ -1735,7 +1747,7 @@ If material with this name does not exist, this limitation is not applied.</stri
            <item>
             <widget class="Line" name="line_2">
              <property name="orientation">
-              <enum>Qt::Horizontal</enum>
+              <enum>Qt::Orientation::Horizontal</enum>
              </property>
             </widget>
            </item>
@@ -1774,10 +1786,10 @@ If material with this name does not exist, this limitation is not applied.</stri
               </size>
              </property>
              <property name="frameShape">
-              <enum>QFrame::NoFrame</enum>
+              <enum>QFrame::Shape::NoFrame</enum>
              </property>
              <property name="frameShadow">
-              <enum>QFrame::Raised</enum>
+              <enum>QFrame::Shadow::Raised</enum>
              </property>
              <layout class="QHBoxLayout" name="horizontalLayout_2">
               <property name="leftMargin">
@@ -1804,7 +1816,7 @@ If material with this name does not exist, this limitation is not applied.</stri
                  <string>Statistical weight:</string>
                 </property>
                 <property name="alignment">
-                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                 <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
                 </property>
                </widget>
               </item>
@@ -1824,7 +1836,7 @@ If material with this name does not exist, this limitation is not applied.</stri
               <item>
                <spacer name="horizontalSpacer_20">
                 <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
+                 <enum>Qt::Orientation::Horizontal</enum>
                 </property>
                 <property name="sizeHint" stdset="0">
                  <size>
@@ -1846,10 +1858,10 @@ If material with this name does not exist, this limitation is not applied.</stri
               </size>
              </property>
              <property name="frameShape">
-              <enum>QFrame::NoFrame</enum>
+              <enum>QFrame::Shape::NoFrame</enum>
              </property>
              <property name="frameShadow">
-              <enum>QFrame::Raised</enum>
+              <enum>QFrame::Shadow::Raised</enum>
              </property>
              <layout class="QVBoxLayout" name="verticalLayout_5">
               <property name="leftMargin">
@@ -1875,7 +1887,7 @@ If material with this name does not exist, this limitation is not applied.</stri
                    <string>Linked to particle #</string>
                   </property>
                   <property name="alignment">
-                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                   <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
                   </property>
                  </widget>
                 </item>
@@ -1885,7 +1897,7 @@ If material with this name does not exist, this limitation is not applied.</stri
                 <item>
                  <spacer name="horizontalSpacer_17">
                   <property name="orientation">
-                   <enum>Qt::Horizontal</enum>
+                   <enum>Qt::Orientation::Horizontal</enum>
                   </property>
                   <property name="sizeHint" stdset="0">
                    <size>
@@ -1908,7 +1920,7 @@ If material with this name does not exist, this limitation is not applied.</stri
                    <string>With probability:</string>
                   </property>
                   <property name="alignment">
-                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                   <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
                   </property>
                  </widget>
                 </item>
@@ -1928,7 +1940,7 @@ If material with this name does not exist, this limitation is not applied.</stri
                 <item>
                  <spacer name="horizontalSpacer_21">
                   <property name="orientation">
-                   <enum>Qt::Horizontal</enum>
+                   <enum>Qt::Orientation::Horizontal</enum>
                   </property>
                   <property name="sizeHint" stdset="0">
                    <size>
@@ -1959,7 +1971,7 @@ If material with this name does not exist, this limitation is not applied.</stri
         <item>
          <spacer name="verticalSpacer">
           <property name="orientation">
-           <enum>Qt::Vertical</enum>
+           <enum>Qt::Orientation::Vertical</enum>
           </property>
           <property name="sizeHint" stdset="0">
            <size>
@@ -1979,7 +1991,7 @@ If material with this name does not exist, this limitation is not applied.</stri
    <item>
     <widget class="Line" name="line_3">
      <property name="orientation">
-      <enum>Qt::Horizontal</enum>
+      <enum>Qt::Orientation::Horizontal</enum>
      </property>
     </widget>
    </item>
@@ -2038,7 +2050,7 @@ If material with this name does not exist, this limitation is not applied.</stri
         </sizepolicy>
        </property>
        <property name="frameShape">
-        <enum>QFrame::NoFrame</enum>
+        <enum>QFrame::Shape::NoFrame</enum>
        </property>
        <property name="currentIndex">
         <number>0</number>
@@ -2071,16 +2083,62 @@ If material with this name does not exist, this limitation is not applied.</stri
           </widget>
          </item>
          <item>
-          <widget class="QLabel" name="label_12">
-           <property name="text">
-            <string>ns</string>
+          <widget class="QComboBox" name="cobTimeFixedOffsetPrefUnit">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
            </property>
+           <item>
+            <property name="text">
+             <string>ns</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>us</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>ms</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>s</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>min</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>h</string>
+            </property>
+           </item>
           </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_26">
+           <property name="orientation">
+            <enum>Qt::Orientation::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
          </item>
          <item>
           <spacer name="horizontalSpacer_11">
            <property name="orientation">
-            <enum>Qt::Horizontal</enum>
+            <enum>Qt::Orientation::Horizontal</enum>
            </property>
            <property name="sizeHint" stdset="0">
             <size>
@@ -2121,16 +2179,53 @@ If material with this name does not exist, this limitation is not applied.</stri
              <height>16777215</height>
             </size>
            </property>
+           <property name="toolTip">
+            <string>Time for each event is computed as:
+ Start + Period * Event_index</string>
+           </property>
            <property name="text">
             <string>0</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QLabel" name="label_15">
-           <property name="text">
-            <string>ns</string>
+          <widget class="QComboBox" name="cobTimeByEventStartPrefUnit">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
            </property>
+           <item>
+            <property name="text">
+             <string>ns</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>us</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>ms</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>s</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>min</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>h</string>
+            </property>
+           </item>
           </widget>
          </item>
          <item>
@@ -2148,13 +2243,50 @@ If material with this name does not exist, this limitation is not applied.</stri
              <height>16777215</height>
             </size>
            </property>
+           <property name="toolTip">
+            <string>Time for each event is computed as:
+ Start + Period * Event_index</string>
+           </property>
           </widget>
          </item>
          <item>
-          <widget class="QLabel" name="label_17">
-           <property name="text">
-            <string>ns</string>
+          <widget class="QComboBox" name="cobTimeByEventPeriodPrefUnit">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
            </property>
+           <item>
+            <property name="text">
+             <string>ns</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>us</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>ms</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>s</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>min</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>h</string>
+            </property>
+           </item>
           </widget>
          </item>
         </layout>
@@ -2194,6 +2326,9 @@ If material with this name does not exist, this limitation is not applied.</stri
              <height>16777215</height>
             </size>
            </property>
+           <property name="toolTip">
+            <string>Each line should give a data point with format: Time[ns] StatWeight</string>
+           </property>
            <property name="text">
             <string>Load</string>
            </property>
@@ -2221,7 +2356,7 @@ If material with this name does not exist, this limitation is not applied.</stri
          <item>
           <spacer name="horizontalSpacer_22">
            <property name="orientation">
-            <enum>Qt::Horizontal</enum>
+            <enum>Qt::Orientation::Horizontal</enum>
            </property>
            <property name="sizeHint" stdset="0">
             <size>
@@ -2238,7 +2373,7 @@ If material with this name does not exist, this limitation is not applied.</stri
      <item>
       <spacer name="horizontalSpacer">
        <property name="orientation">
-        <enum>Qt::Horizontal</enum>
+        <enum>Qt::Orientation::Horizontal</enum>
        </property>
        <property name="sizeHint" stdset="0">
         <size>
@@ -2298,7 +2433,7 @@ If material with this name does not exist, this limitation is not applied.</stri
         </sizepolicy>
        </property>
        <property name="frameShape">
-        <enum>QFrame::NoFrame</enum>
+        <enum>QFrame::Shape::NoFrame</enum>
        </property>
        <property name="currentIndex">
         <number>0</number>
@@ -2339,16 +2474,49 @@ If material with this name does not exist, this limitation is not applied.</stri
           </widget>
          </item>
          <item>
-          <widget class="QLabel" name="label_4">
-           <property name="text">
-            <string>ns</string>
+          <widget class="QComboBox" name="cobTimeSpreadSigmaPrefUnit">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
            </property>
+           <item>
+            <property name="text">
+             <string>ns</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>us</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>ms</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>s</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>min</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>h</string>
+            </property>
+           </item>
           </widget>
          </item>
          <item>
           <spacer name="horizontalSpacer_13">
            <property name="orientation">
-            <enum>Qt::Horizontal</enum>
+            <enum>Qt::Orientation::Horizontal</enum>
            </property>
            <property name="sizeHint" stdset="0">
             <size>
@@ -2395,16 +2563,49 @@ If material with this name does not exist, this limitation is not applied.</stri
           </widget>
          </item>
          <item>
-          <widget class="QLabel" name="label_7">
-           <property name="text">
-            <string>ns</string>
+          <widget class="QComboBox" name="cobTimeSpreadWidthPrefUnit">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
            </property>
+           <item>
+            <property name="text">
+             <string>ns</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>us</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>ms</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>s</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>min</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>h</string>
+            </property>
+           </item>
           </widget>
          </item>
          <item>
           <spacer name="horizontalSpacer_14">
            <property name="orientation">
-            <enum>Qt::Horizontal</enum>
+            <enum>Qt::Orientation::Horizontal</enum>
            </property>
            <property name="sizeHint" stdset="0">
             <size>
@@ -2487,6 +2688,19 @@ If material with this name does not exist, this limitation is not applied.</stri
            </item>
           </widget>
          </item>
+         <item>
+          <spacer name="horizontalSpacer_5">
+           <property name="orientation">
+            <enum>Qt::Orientation::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
         </layout>
        </widget>
       </widget>
@@ -2494,7 +2708,7 @@ If material with this name does not exist, this limitation is not applied.</stri
      <item>
       <spacer name="horizontalSpacer_12">
        <property name="orientation">
-        <enum>Qt::Horizontal</enum>
+        <enum>Qt::Orientation::Horizontal</enum>
        </property>
        <property name="sizeHint" stdset="0">
         <size>
@@ -2515,7 +2729,7 @@ If material with this name does not exist, this limitation is not applied.</stri
       </size>
      </property>
      <property name="orientation">
-      <enum>Qt::Horizontal</enum>
+      <enum>Qt::Orientation::Horizontal</enum>
      </property>
     </widget>
    </item>
@@ -2527,7 +2741,7 @@ If material with this name does not exist, this limitation is not applied.</stri
      <item>
       <spacer name="horizontalSpacer_4">
        <property name="orientation">
-        <enum>Qt::Horizontal</enum>
+        <enum>Qt::Orientation::Horizontal</enum>
        </property>
        <property name="sizeHint" stdset="0">
         <size>
@@ -2573,7 +2787,7 @@ If material with this name does not exist, this limitation is not applied.</stri
      <item>
       <spacer name="horizontalSpacer_6">
        <property name="orientation">
-        <enum>Qt::Horizontal</enum>
+        <enum>Qt::Orientation::Horizontal</enum>
        </property>
        <property name="sizeHint" stdset="0">
         <size>
@@ -2590,7 +2804,7 @@ If material with this name does not exist, this limitation is not applied.</stri
      <item>
       <spacer name="horizontalSpacer_7">
        <property name="orientation">
-        <enum>Qt::Horizontal</enum>
+        <enum>Qt::Orientation::Horizontal</enum>
        </property>
        <property name="sizeHint" stdset="0">
         <size>
@@ -2621,7 +2835,7 @@ If material with this name does not exist, this limitation is not applied.</stri
      <item>
       <spacer name="horizontalSpacer_8">
        <property name="orientation">
-        <enum>Qt::Horizontal</enum>
+        <enum>Qt::Orientation::Horizontal</enum>
        </property>
        <property name="sizeHint" stdset="0">
         <size>
@@ -2652,7 +2866,7 @@ If material with this name does not exist, this limitation is not applied.</stri
      <item>
       <spacer name="horizontalSpacer_9">
        <property name="orientation">
-        <enum>Qt::Horizontal</enum>
+        <enum>Qt::Orientation::Horizontal</enum>
        </property>
        <property name="sizeHint" stdset="0">
         <size>
@@ -2691,7 +2905,7 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>148</x>
+     <x>145</x>
      <y>68</y>
     </hint>
     <hint type="destinationlabel">
@@ -2851,8 +3065,8 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>254</x>
-     <y>224</y>
+     <x>253</x>
+     <y>232</y>
     </hint>
     <hint type="destinationlabel">
      <x>603</x>
@@ -2867,8 +3081,8 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>401</x>
-     <y>224</y>
+     <x>400</x>
+     <y>232</y>
     </hint>
     <hint type="destinationlabel">
      <x>603</x>
@@ -2883,8 +3097,8 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>278</x>
-     <y>302</y>
+     <x>348</x>
+     <y>314</y>
     </hint>
     <hint type="destinationlabel">
      <x>603</x>
@@ -2899,7 +3113,7 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>483</x>
+     <x>480</x>
      <y>314</y>
     </hint>
     <hint type="destinationlabel">
@@ -2915,7 +3129,7 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>227</x>
+     <x>226</x>
      <y>342</y>
     </hint>
     <hint type="destinationlabel">
@@ -2931,8 +3145,8 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>533</x>
-     <y>460</y>
+     <x>535</x>
+     <y>455</y>
     </hint>
     <hint type="destinationlabel">
      <x>603</x>
@@ -2963,8 +3177,8 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>466</x>
-     <y>460</y>
+     <x>465</x>
+     <y>455</y>
     </hint>
     <hint type="destinationlabel">
      <x>603</x>
@@ -2979,8 +3193,8 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>557</x>
-     <y>559</y>
+     <x>555</x>
+     <y>556</y>
     </hint>
     <hint type="destinationlabel">
      <x>603</x>
@@ -2995,11 +3209,11 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>setCurrentIndex(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>232</x>
+     <x>230</x>
      <y>709</y>
     </hint>
     <hint type="destinationlabel">
-     <x>525</x>
+     <x>523</x>
      <y>709</y>
     </hint>
    </hints>
@@ -3011,7 +3225,7 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>setCurrentIndex(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>182</x>
+     <x>181</x>
      <y>738</y>
     </hint>
     <hint type="destinationlabel">
@@ -3027,7 +3241,7 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>232</x>
+     <x>230</x>
      <y>709</y>
     </hint>
     <hint type="destinationlabel">
@@ -3043,7 +3257,7 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>315</x>
+     <x>313</x>
      <y>709</y>
     </hint>
     <hint type="destinationlabel">
@@ -3059,8 +3273,8 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>269</x>
-     <y>712</y>
+     <x>343</x>
+     <y>709</y>
     </hint>
     <hint type="destinationlabel">
      <x>603</x>
@@ -3075,8 +3289,8 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>320</x>
-     <y>712</y>
+     <x>503</x>
+     <y>709</y>
     </hint>
     <hint type="destinationlabel">
      <x>603</x>
@@ -3091,7 +3305,7 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>182</x>
+     <x>181</x>
      <y>738</y>
     </hint>
     <hint type="destinationlabel">
@@ -3107,8 +3321,8 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>262</x>
-     <y>741</y>
+     <x>311</x>
+     <y>738</y>
     </hint>
     <hint type="destinationlabel">
      <x>603</x>
@@ -3123,8 +3337,8 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>262</x>
-     <y>741</y>
+     <x>328</x>
+     <y>738</y>
     </hint>
     <hint type="destinationlabel">
      <x>603</x>
@@ -3139,7 +3353,7 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>147</x>
+     <x>146</x>
      <y>341</y>
     </hint>
     <hint type="destinationlabel">
@@ -3155,8 +3369,8 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>200</x>
-     <y>268</y>
+     <x>344</x>
+     <y>286</y>
     </hint>
     <hint type="destinationlabel">
      <x>603</x>
@@ -3171,8 +3385,8 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>420</x>
-     <y>281</y>
+     <x>446</x>
+     <y>289</y>
     </hint>
     <hint type="destinationlabel">
      <x>603</x>
@@ -3187,11 +3401,11 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>147</x>
+     <x>146</x>
      <y>341</y>
     </hint>
     <hint type="destinationlabel">
-     <x>227</x>
+     <x>226</x>
      <y>342</y>
     </hint>
    </hints>
@@ -3204,7 +3418,7 @@ If material with this name does not exist, this limitation is not applied.</stri
    <hints>
     <hint type="sourcelabel">
      <x>597</x>
-     <y>529</y>
+     <y>524</y>
     </hint>
     <hint type="destinationlabel">
      <x>603</x>
@@ -3219,8 +3433,8 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>253</x>
-     <y>741</y>
+     <x>331</x>
+     <y>738</y>
     </hint>
     <hint type="destinationlabel">
      <x>603</x>
@@ -3235,8 +3449,8 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>287</x>
-     <y>741</y>
+     <x>387</x>
+     <y>738</y>
     </hint>
     <hint type="destinationlabel">
      <x>603</x>
@@ -3331,7 +3545,7 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>464</x>
+     <x>463</x>
      <y>489</y>
     </hint>
     <hint type="destinationlabel">
@@ -3347,7 +3561,7 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>534</x>
+     <x>536</x>
      <y>490</y>
     </hint>
     <hint type="destinationlabel">
@@ -3363,11 +3577,11 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>setCurrentIndex(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>126</x>
-     <y>304</y>
+     <x>214</x>
+     <y>314</y>
     </hint>
     <hint type="destinationlabel">
-     <x>445</x>
+     <x>532</x>
      <y>314</y>
     </hint>
    </hints>
@@ -3379,7 +3593,7 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>254</x>
+     <x>251</x>
      <y>317</y>
     </hint>
     <hint type="destinationlabel">
@@ -3395,7 +3609,7 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>289</x>
+     <x>286</x>
      <y>317</y>
     </hint>
     <hint type="destinationlabel">
@@ -3411,7 +3625,7 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>324</x>
+     <x>321</x>
      <y>317</y>
     </hint>
     <hint type="destinationlabel">
@@ -3427,12 +3641,92 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>183</x>
-     <y>298</y>
+     <x>216</x>
+     <y>314</y>
     </hint>
     <hint type="destinationlabel">
      <x>534</x>
      <y>18</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cobTimeSpreadWidthPrefUnit</sender>
+   <signal>activated(int)</signal>
+   <receiver>pbUpdateRecord</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>363</x>
+     <y>730</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>568</x>
+     <y>16</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cobTimeSpreadSigmaPrefUnit</sender>
+   <signal>activated(int)</signal>
+   <receiver>pbUpdateRecord</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>351</x>
+     <y>726</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>567</x>
+     <y>17</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cobTimeFixedOffsetPrefUnit</sender>
+   <signal>activated(int)</signal>
+   <receiver>pbUpdateRecord</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>399</x>
+     <y>701</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>517</x>
+     <y>8</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cobTimeByEventStartPrefUnit</sender>
+   <signal>activated(int)</signal>
+   <receiver>pbUpdateRecord</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>378</x>
+     <y>696</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>540</x>
+     <y>13</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cobTimeByEventPeriodPrefUnit</sender>
+   <signal>activated(int)</signal>
+   <receiver>pbUpdateRecord</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>549</x>
+     <y>703</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>503</x>
+     <y>17</y>
     </hint>
    </hints>
   </connection>

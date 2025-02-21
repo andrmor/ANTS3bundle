@@ -13,6 +13,8 @@ AParticleSimOutputDialog::AParticleSimOutputDialog(QWidget *parent) :
 
     ui->leOutputDirectory->setText(RunSet.OutputDirectory.data());
 
+    ui->cbSaveConfig->setChecked(RunSet.SaveConfig);
+
     ui->cobAsciiBinary->setCurrentIndex( RunSet.AsciiOutput ? 0 : 1);
     ui->sbAsciiPrecision->setValue(RunSet.AsciiPrecision);
 
@@ -35,6 +37,9 @@ AParticleSimOutputDialog::AParticleSimOutputDialog(QWidget *parent) :
 
     ui->cbCalorimeters->setChecked(RunSet.CalorimeterSettings.Enabled);
     ui->labCalorimeters->setText(RunSet.CalorimeterSettings.FileName.data());
+
+    ui->cbParticleAnalyzers->setChecked(RunSet.AnalyzerSettings.Enabled);
+    ui->labParticleAnalyzers->setText(RunSet.AnalyzerSettings.FileName.data());
 }
 
 AParticleSimOutputDialog::~AParticleSimOutputDialog()
@@ -45,6 +50,8 @@ AParticleSimOutputDialog::~AParticleSimOutputDialog()
 void AParticleSimOutputDialog::on_pbAccept_clicked()
 {
     RunSet.OutputDirectory = ui->leOutputDirectory->text().toLatin1().data();
+
+    RunSet.SaveConfig = ui->cbSaveConfig->isChecked();
 
     RunSet.AsciiPrecision = ui->sbAsciiPrecision->value();
     RunSet.AsciiOutput = (ui->cobAsciiBinary->currentIndex() == 0);
@@ -68,6 +75,9 @@ void AParticleSimOutputDialog::on_pbAccept_clicked()
 
     RunSet.CalorimeterSettings.Enabled = ui->cbCalorimeters->isChecked();
     //RunSet.CalorimeterSettings.FileName = ui->leCalorimeters->text().toLatin1().data();
+
+    RunSet.AnalyzerSettings.Enabled = ui->cbParticleAnalyzers->isChecked();
+    //RunSet.AnalyzerSettings.FileName = ui->labParticleAnalyzers->text().toLatin1().data();
 
     accept();
 }

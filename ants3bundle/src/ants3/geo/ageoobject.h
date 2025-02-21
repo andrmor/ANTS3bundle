@@ -63,6 +63,7 @@ public:
   bool isSensor() const; // !!!*** use enum
   bool isCalorimeter() const; // !!!*** use enum
   bool isScintillator() const; // !!!*** consider using enum (might be not possible though)
+  bool isParticleAnalyzer() const; // !!!*** consider using enum (might be not possible though)
 
   int  getMaterial() const;
 
@@ -111,7 +112,7 @@ public:
   bool isStackReference() const;
   AGeoObject * getOrMakeStackReferenceVolume();  // for stack container or members
   void updateStack();  //called on one object of the set - it is used to calculate positions of other members!
-  void updateAllStacks(); // !!!*** isStack
+  void updateAllStacks();
 
   // the following checks are always done DOWN the chain
   // for global effect, the check has to be performed on World (Top) object
@@ -121,13 +122,14 @@ public:
   void changeLineWidthRecursive(int delta);
   bool isNameExists(const QString & name);
   bool isContainsLocked();
+  bool isContainsObjectRecursive(const AGeoObject * otherObj);
   bool isDisabled() const;
   void enableUp();
   void addObjectFirst(AGeoObject * Object);
-  void addObjectLast(AGeoObject * Object);   // !!!***
+  void addObjectLast(AGeoObject * Object);
   bool migrateTo(AGeoObject* objTo, bool fAfter = false, AGeoObject *reorderObj = nullptr);
   bool repositionInHosted(AGeoObject* objTo, bool fAfter);
-  bool suicide(); // not possible for locked and static objects  !!!***
+  bool suicide(); // not possible for static objects
   void recursiveSuicide(); // does not remove locked and static objects, but removes all unlocked objects down the chain
   void lockUpTheChain();
   void lockBuddies();
@@ -143,12 +145,12 @@ public:
 
   bool getPositionInWorld(double * worldPos) const;
 
-  bool isContainerValidForDrop(QString &errorStr) const;
+  bool isContainerValidForDrop(QString & errorStr) const;
 
   AGeoObject * makeClone(AGeoObject * World); // returns nullptr if failed; garantees unique names if World is not nullptr; Slabs are not properly cloned while there is a special container with them!
   AGeoObject * makeCloneForInstance(const QString & suffix);
 
-  void findAllInstancesRecursive(std::vector<AGeoObject*> &Instances);
+  void findAllInstancesRecursive(std::vector<AGeoObject*> & Instances);
   bool isContainInstanceRecursive() const;
   bool isInstanceMember() const;
 
@@ -159,7 +161,7 @@ public:
 
   bool isGoodContainerForInstance() const;
 
-  void makeItWorld();
+  //void makeItWorld();
 
   void clearTrueRotationRecursive();
 
@@ -181,11 +183,9 @@ private:
   void enforceUniqueNameForCloneRecursive(AGeoObject * World, AGeoObject & tmpContainer);
   void addSuffixToNameRecursive(const QString & suffix);
 
-public:  // !!!*** remove static for this one:     ---> return to this after GDML read is refactored !!!***
-  static QString GenerateRandomName();   // !!!***
-  // !!!*** move statics to AGeometryHub           ---> return to this after GDML read is refactored !!!***
-  static QString GenerateRandomObjectName();
-
+public:
+  static QString generateRandomName();
+  static QString generateRandomObjectName();
   static QString generateCloneObjName(const QString & initialName);
 
 };

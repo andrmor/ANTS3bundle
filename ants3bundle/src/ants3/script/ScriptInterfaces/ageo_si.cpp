@@ -72,6 +72,7 @@ bool AGeo_SI::beforeRun()
     return true;
 }
 
+/*
 void AGeo_SI::box(QString name, double Lx, double Ly, double Lz, int iMat, QString container,
                   double x, double y, double z, double phi, double theta, double psi)
 {
@@ -80,6 +81,7 @@ void AGeo_SI::box(QString name, double Lx, double Ly, double Lz, int iMat, QStri
                                    x,y,z, phi,theta,psi);
     GeoObjects.push_back(o);
 }
+*/
 
 bool AGeo_SI::checkPosOri(QVariantList position, QVariantList orientation, std::array<double,3> & pos, std::array<double,3> & ori)
 {
@@ -119,6 +121,7 @@ void AGeo_SI::box(QString name, QVariantList fullSizes, int iMat, QString contai
     GeoObjects.push_back(o);
 }
 
+/*
 void AGeo_SI::parallelepiped(QString name, double Lx, double Ly, double Lz, double Alpha, double Theta, double Phi, int iMat, QString container,
                              double x, double y, double z, double phi, double theta, double psi)
 {
@@ -127,6 +130,7 @@ void AGeo_SI::parallelepiped(QString name, double Lx, double Ly, double Lz, doub
                                    x,y,z, phi,theta,psi);
     GeoObjects.push_back(o);
 }
+*/
 
 void AGeo_SI::parallelepiped(QString name, QVariantList fullSizes, QVariantList angles, int iMat, QString container, QVariantList position, QVariantList orientation)
 {
@@ -155,6 +159,7 @@ void AGeo_SI::parallelepiped(QString name, QVariantList fullSizes, QVariantList 
     GeoObjects.push_back(o);
 }
 
+/*
 void AGeo_SI::trap(QString name, double LXlow, double LXup, double Ly, double Lz, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
 {
     AGeoObject* o = new AGeoObject(name, container, iMat,
@@ -162,6 +167,7 @@ void AGeo_SI::trap(QString name, double LXlow, double LXup, double Ly, double Lz
                                    x,y,z, phi,theta,psi);
     GeoObjects.push_back(o);
 }
+*/
 
 void AGeo_SI::trap(QString name, double LXlow, double LXup, double Ly, double Lz, int iMat, QString container, QVariantList position, QVariantList orientation)
 {
@@ -174,6 +180,7 @@ void AGeo_SI::trap(QString name, double LXlow, double LXup, double Ly, double Lz
     GeoObjects.push_back(o);
 }
 
+/*
 void AGeo_SI::trap2(QString name, double LXlow, double LXup, double LYlow, double LYup, double Lz, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
 {
     AGeoObject* o = new AGeoObject(name, container, iMat,
@@ -181,6 +188,7 @@ void AGeo_SI::trap2(QString name, double LXlow, double LXup, double LYlow, doubl
                                    x,y,z, phi,theta,psi);
     GeoObjects.push_back(o);
 }
+*/
 
 void AGeo_SI::trap2(QString name, double LXlow, double LXup, double LYlow, double LYup, double Lz, int iMat, QString container, QVariantList position, QVariantList orientation)
 {
@@ -193,12 +201,14 @@ void AGeo_SI::trap2(QString name, double LXlow, double LXup, double LYlow, doubl
     GeoObjects.push_back(o);
 }
 
+/*
 void AGeo_SI::cylinder(QString name, double outerD, double h, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
 {
     AGeoObject * o = new AGeoObject(name, container, iMat, new AGeoTube(0, 0.5*outerD, 0.5*h), x,y,z, phi,theta,psi);
 
     GeoObjects.push_back(o);
 }
+*/
 
 void AGeo_SI::cylinder(QString name, double outerD, double h, int iMat, QString container, QVariantList position, QVariantList orientation)
 {
@@ -211,6 +221,7 @@ void AGeo_SI::cylinder(QString name, double outerD, double h, int iMat, QString 
     GeoObjects.push_back(o);
 }
 
+/*
 void AGeo_SI::tube(QString name, double outerD, double innerD, double h, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
 {
     if (innerD >= outerD)
@@ -223,6 +234,7 @@ void AGeo_SI::tube(QString name, double outerD, double innerD, double h, int iMa
                                    x,y,z, phi,theta,psi);
     GeoObjects.push_back(o);
 }
+*/
 
 void AGeo_SI::tube(QString name, double outerD, double innerD, double h, int iMat, QString container, QVariantList position, QVariantList orientation)
 {
@@ -241,6 +253,7 @@ void AGeo_SI::tube(QString name, double outerD, double innerD, double h, int iMa
     GeoObjects.push_back(o);
 }
 
+/*
 void AGeo_SI::tubeSegment(QString name, double outerD, double innerD, double h, double Phi1, double Phi2, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
 {
     if (innerD >= outerD)
@@ -253,6 +266,7 @@ void AGeo_SI::tubeSegment(QString name, double outerD, double innerD, double h, 
                                    x,y,z, phi,theta,psi);
     GeoObjects.push_back(o);
 }
+*/
 
 void AGeo_SI::tubeSegment(QString name, double outerD, double innerD, double h, double Phi1, double Phi2, int iMat, QString container, QVariantList position, QVariantList orientation)
 {
@@ -271,6 +285,7 @@ void AGeo_SI::tubeSegment(QString name, double outerD, double innerD, double h, 
     GeoObjects.push_back(o);
 }
 
+/*
 void AGeo_SI::tubeCut(QString name, double outerD, double innerD, double h, double Phi1, double Phi2,
                       QVariantList Nlow, QVariantList Nhigh,
                       int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
@@ -298,6 +313,7 @@ void AGeo_SI::tubeCut(QString name, double outerD, double innerD, double h, doub
                                    x,y,z, phi,theta,psi);
     GeoObjects.push_back(o);
 }
+*/
 
 void AGeo_SI::tubeCut(QString name, double outerD, double innerD, double h, double Phi1, double Phi2, QVariantList Nlow, QVariantList Nhigh, int iMat, QString container, QVariantList position, QVariantList orientation)
 {
@@ -328,6 +344,7 @@ void AGeo_SI::tubeCut(QString name, double outerD, double innerD, double h, doub
     GeoObjects.push_back(o);
 }
 
+/*
 void AGeo_SI::tubeElliptical(QString name, double Dx, double Dy, double height, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
 {
     AGeoObject* o = new AGeoObject(name, container, iMat,
@@ -335,6 +352,7 @@ void AGeo_SI::tubeElliptical(QString name, double Dx, double Dy, double height, 
                                    x,y,z, phi,theta,psi);
     GeoObjects.push_back(o);
 }
+*/
 
 void AGeo_SI::tubeElliptical(QString name, double Dx, double Dy, double height, int iMat, QString container, QVariantList position, QVariantList orientation)
 {
@@ -347,6 +365,7 @@ void AGeo_SI::tubeElliptical(QString name, double Dx, double Dy, double height, 
     GeoObjects.push_back(o);
 }
 
+/*
 void AGeo_SI::polygon(QString name, int edges, double inscribDiameter, double h, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
 {
     AGeoObject * o = new AGeoObject(name, container, iMat,
@@ -354,6 +373,7 @@ void AGeo_SI::polygon(QString name, int edges, double inscribDiameter, double h,
                                     x,y,z, phi,theta,psi);
     GeoObjects.push_back(o);
 }
+*/
 
 void AGeo_SI::polygon(QString name, int edges, double inscribDiameter, double h, int iMat, QString container, QVariantList position, QVariantList orientation)
 {
@@ -366,6 +386,7 @@ void AGeo_SI::polygon(QString name, int edges, double inscribDiameter, double h,
     GeoObjects.push_back(o);
 }
 
+/*
 void AGeo_SI::polygonSegment(QString name, int edges, double DtopOut, double DtopIn, double DbotOut, double DbotIn, double h, double dPhi, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
 {
     AGeoObject * o = new AGeoObject(name, container, iMat,
@@ -373,6 +394,7 @@ void AGeo_SI::polygonSegment(QString name, int edges, double DtopOut, double Dto
                                     x,y,z, phi,theta,psi);
     GeoObjects.push_back(o);
 }
+*/
 
 void AGeo_SI::polygonSegment(QString name, int edges, double DtopOut, double DtopIn, double DbotOut, double DbotIn, double h, double dPhi, int iMat, QString container, QVariantList position, QVariantList orientation)
 {
@@ -385,6 +407,7 @@ void AGeo_SI::polygonSegment(QString name, int edges, double DtopOut, double Dto
     GeoObjects.push_back(o);
 }
 
+/*
 void AGeo_SI::pGon(QString name, int numEdges, QVariantList sections, double Phi, double dPhi, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
 {
     if (numEdges < 3)
@@ -409,6 +432,7 @@ void AGeo_SI::pGon(QString name, int numEdges, QVariantList sections, double Phi
                                    x,y,z, phi,theta,psi);
     GeoObjects.push_back(o);
 }
+*/
 
 void AGeo_SI::pGon(QString name, int numEdges, QVariantList sections, double Phi, double dPhi, int iMat, QString container, QVariantList position, QVariantList orientation)
 {
@@ -440,6 +464,7 @@ void AGeo_SI::pGon(QString name, int numEdges, QVariantList sections, double Phi
     GeoObjects.push_back(o);
 }
 
+/*
 void AGeo_SI::cone(QString name, double Dtop, double Dbot, double h, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
 {
     AGeoObject* o = new AGeoObject(name, container, iMat,
@@ -447,6 +472,7 @@ void AGeo_SI::cone(QString name, double Dtop, double Dbot, double h, int iMat, Q
                                    x,y,z, phi,theta,psi);
     GeoObjects.push_back(o);
 }
+*/
 
 void AGeo_SI::cone(QString name, double Dtop, double Dbot, double h, int iMat, QString container, QVariantList position, QVariantList orientation)
 {
@@ -459,6 +485,7 @@ void AGeo_SI::cone(QString name, double Dtop, double Dbot, double h, int iMat, Q
     GeoObjects.push_back(o);
 }
 
+/*
 void AGeo_SI::conicalTube(QString name, double DtopOut,  double DtopIn, double DbotOut, double DbotIn, double h, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
 {
     AGeoObject* o = new AGeoObject(name, container, iMat,
@@ -466,6 +493,7 @@ void AGeo_SI::conicalTube(QString name, double DtopOut,  double DtopIn, double D
                                    x,y,z, phi,theta,psi);
     GeoObjects.push_back(o);
 }
+*/
 
 void AGeo_SI::conicalTube(QString name, double DtopOut, double DtopIn, double DbotOut, double DbotIn, double h, int iMat, QString container, QVariantList position, QVariantList orientation)
 {
@@ -478,6 +506,7 @@ void AGeo_SI::conicalTube(QString name, double DtopOut, double DtopIn, double Db
     GeoObjects.push_back(o);
 }
 
+/*
 void AGeo_SI::coneSegment(QString name, double DtopOut, double DtopIn, double DbotOut, double DbotIn, double h, double phi1, double phi2, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
 {
     AGeoObject* o = new AGeoObject(name, container, iMat,
@@ -485,6 +514,7 @@ void AGeo_SI::coneSegment(QString name, double DtopOut, double DtopIn, double Db
                                    x,y,z, phi,theta,psi);
     GeoObjects.push_back(o);
 }
+*/
 
 void AGeo_SI::coneSegment(QString name, double DtopOut, double DtopIn, double DbotOut, double DbotIn, double h, double phi1, double phi2, int iMat, QString container, QVariantList position, QVariantList orientation)
 {
@@ -543,6 +573,7 @@ bool AGeo_SI::getSectionsPoly(const QVariantList & sections, std::vector<std::ar
     return true;
 }
 
+/*
 void AGeo_SI::pCone(QString name, QVariantList sections, double Phi, double dPhi, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
 {
     AGeoPcon * p = new AGeoPcon();
@@ -561,6 +592,7 @@ void AGeo_SI::pCone(QString name, QVariantList sections, double Phi, double dPhi
                                    x,y,z, phi,theta,psi);
     GeoObjects.push_back(o);
 }
+*/
 
 void AGeo_SI::pCone(QString name, QVariantList sections, double Phi, double dPhi, int iMat, QString container, QVariantList position, QVariantList orientation)
 {
@@ -585,6 +617,7 @@ void AGeo_SI::pCone(QString name, QVariantList sections, double Phi, double dPhi
     GeoObjects.push_back(o);
 }
 
+/*
 void AGeo_SI::sphere(QString name, double Dout, double Din, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
 {
     AGeoObject* o = new AGeoObject(name, container, iMat,
@@ -592,6 +625,7 @@ void AGeo_SI::sphere(QString name, double Dout, double Din, int iMat, QString co
                                    x,y,z, phi,theta,psi);
     GeoObjects.push_back(o);
 }
+*/
 
 void AGeo_SI::sphere(QString name, double Dout, double Din, int iMat, QString container, QVariantList position, QVariantList orientation)
 {
@@ -604,6 +638,7 @@ void AGeo_SI::sphere(QString name, double Dout, double Din, int iMat, QString co
     GeoObjects.push_back(o);
 }
 
+/*
 void AGeo_SI::sphereSector(QString name, double Dout, double Din, double Theta1, double Theta2, double Phi1, double Phi2, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
 {
     AGeoObject * o = new AGeoObject(name, container, iMat,
@@ -611,6 +646,7 @@ void AGeo_SI::sphereSector(QString name, double Dout, double Din, double Theta1,
                                    x,y,z, phi,theta,psi);
     GeoObjects.push_back(o);
 }
+*/
 
 void AGeo_SI::sphereSector(QString name, double Dout, double Din, double theta1, double theta2, double phi1, double phi2, int iMat, QString container, QVariantList position, QVariantList orientation)
 {
@@ -623,6 +659,7 @@ void AGeo_SI::sphereSector(QString name, double Dout, double Din, double theta1,
     GeoObjects.push_back(o);
 }
 
+/*
 void AGeo_SI::torus(QString name, double D, double Dout, double Din, double Phi, double dPhi, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
 {
     AGeoObject * o = new AGeoObject(name, container, iMat,
@@ -630,6 +667,7 @@ void AGeo_SI::torus(QString name, double D, double Dout, double Din, double Phi,
                                    x,y,z, phi,theta,psi);
     GeoObjects.push_back(o);
 }
+*/
 
 void AGeo_SI::torus(QString name, double D, double Dout, double Din, double Phi, double dPhi, int iMat, QString container, QVariantList position, QVariantList orientation)
 {
@@ -642,6 +680,7 @@ void AGeo_SI::torus(QString name, double D, double Dout, double Din, double Phi,
     GeoObjects.push_back(o);
 }
 
+/*
 void AGeo_SI::paraboloid(QString name, double Dbot, double Dup, double h, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
 {
     AGeoObject * o = new AGeoObject(name, container, iMat,
@@ -649,6 +688,7 @@ void AGeo_SI::paraboloid(QString name, double Dbot, double Dup, double h, int iM
                                    x,y,z, phi,theta,psi);
     GeoObjects.push_back(o);
 }
+*/
 
 void AGeo_SI::paraboloid(QString name, double Dbot, double Dup, double h, int iMat, QString container, QVariantList position, QVariantList orientation)
 {
@@ -661,6 +701,7 @@ void AGeo_SI::paraboloid(QString name, double Dbot, double Dup, double h, int iM
     GeoObjects.push_back(o);
 }
 
+/*
 void AGeo_SI::composite(QString name, QString compositionString, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
 {
     AGeoObject * o = new AGeoObject(name, container, iMat,
@@ -712,6 +753,7 @@ void AGeo_SI::composite(QString name, QString compositionString, int iMat, QStri
     }
     GeoObjects.push_back(o);
 }
+*/
 
 void AGeo_SI::composite(QString name, QString compositionString, int iMat, QString container, QVariantList position, QVariantList orientation)
 {
@@ -768,6 +810,7 @@ void AGeo_SI::composite(QString name, QString compositionString, int iMat, QStri
     GeoObjects.push_back(o);
 }
 
+/*
 void AGeo_SI::arb8(QString name, QVariantList NodesXY, double h, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
 {
     if (NodesXY.size() != 8)
@@ -807,6 +850,7 @@ void AGeo_SI::arb8(QString name, QVariantList NodesXY, double h, int iMat, QStri
                                    x,y,z, phi,theta,psi);
     GeoObjects.push_back(o);
 }
+*/
 
 void AGeo_SI::arb8(QString name, QVariantList NodesXY, double h, int iMat, QString container, QVariantList position, QVariantList orientation)
 {
@@ -899,6 +943,7 @@ void AGeo_SI::toScaled(QString name, double xFactor, double yFactor, double zFac
     }
 }
 
+/*
 void AGeo_SI::monitor(QString name, int shape, double size1, double size2, QString container, double x, double y, double z, double phi, double theta, double psi, bool SensitiveTop, bool SensitiveBottom, bool StopsTraking)
 {
     AGeoObject * o = new AGeoObject(name, container, 0,    // no material -> it will be updated on build
@@ -921,6 +966,7 @@ void AGeo_SI::monitor(QString name, int shape, double size1, double size2, QStri
 
     GeoObjects.push_back(o);
 }
+*/
 
 void AGeo_SI::monitor(QString name, int shape, double size1, double size2, QString container, QVariantList position, QVariantList orientation, bool SensitiveTop, bool SensitiveBottom, bool StopsTraking)
 {
@@ -947,12 +993,12 @@ void AGeo_SI::monitor(QString name, int shape, double size1, double size2, QStri
     GeoObjects.push_back(o);
 }
 
-void AGeo_SI::configurePhotonMonitor(QString MonitorName, QVariant Position, QVariant Time, QVariant Angle, QVariant Wave)
+void AGeo_SI::configurePhotonMonitor(QString monitorName, QVariantList position, QVariantList time, QVariantList angle, QVariantList wave)
 {
-    AGeoObject* o = nullptr;
-    for (AGeoObject* obj : GeoObjects)
+    AGeoObject * o = nullptr;
+    for (AGeoObject * obj : GeoObjects)
     {
-        if (obj->Name == MonitorName)
+        if (obj->Name == monitorName)
         {
             o = obj;
             break;
@@ -961,28 +1007,27 @@ void AGeo_SI::configurePhotonMonitor(QString MonitorName, QVariant Position, QVa
 
     if (!o)
     {
-        abort("Cannot find monitor \"" + MonitorName + "\"");
+        abort("Cannot find monitor \"" + monitorName + "\"");
         return;
     }
 
     if (!o->Type || !o->Type->isMonitor())
     {
-        abort(MonitorName + " is not a monitor object!");
+        abort(monitorName + " is not a monitor object!");
         return;
     }
 
-    ATypeMonitorObject* m = static_cast<ATypeMonitorObject*>(o->Type);
-    AMonitorConfig& mc = m->config;
+    ATypeMonitorObject * m = static_cast<ATypeMonitorObject*>(o->Type);
+    AMonitorConfig & mc = m->config;
 
     mc.PhotonOrParticle = 0;
 
-    QVariantList pos = Position.toList();
-    if (!pos.isEmpty())
+    if (!position.isEmpty())
     {
-        if (pos.size() == 2)
+        if (position.size() == 2)
         {
-            mc.xbins = pos.at(0).toInt();
-            mc.ybins = pos.at(1).toInt();
+            mc.xbins = position.at(0).toInt();
+            mc.ybins = position.at(1).toInt();
         }
         else
         {
@@ -991,7 +1036,6 @@ void AGeo_SI::configurePhotonMonitor(QString MonitorName, QVariant Position, QVa
         }
     }
 
-    QVariantList time = Time.toList();
     if (!time.isEmpty())
     {
         if (time.size() == 3)
@@ -1007,14 +1051,13 @@ void AGeo_SI::configurePhotonMonitor(QString MonitorName, QVariant Position, QVa
         }
     }
 
-    QVariantList a = Angle.toList();
-    if (!a.isEmpty())
+    if (!angle.isEmpty())
     {
-        if (a.size() == 3)
+        if (angle.size() == 3)
         {
-            mc.angleBins = a.at(0).toInt();
-            mc.angleFrom = a.at(1).toDouble();
-            mc.angleTo   = a.at(2).toDouble();
+            mc.angleBins = angle.at(0).toInt();
+            mc.angleFrom = angle.at(1).toDouble();
+            mc.angleTo   = angle.at(2).toDouble();
         }
         else
         {
@@ -1023,14 +1066,13 @@ void AGeo_SI::configurePhotonMonitor(QString MonitorName, QVariant Position, QVa
         }
     }
 
-    QVariantList w = Wave.toList();
-    if (!w.isEmpty())
+    if (!wave.isEmpty())
     {
-        if (w.size() == 3)
+        if (wave.size() == 3)
         {
-            mc.waveBins = w.at(0).toInt();
-            mc.waveFrom = w.at(1).toDouble();
-            mc.waveTo   = w.at(2).toDouble();
+            mc.waveBins = wave.at(0).toInt();
+            mc.waveFrom = wave.at(1).toDouble();
+            mc.waveTo   = wave.at(2).toDouble();
         }
         else
         {
@@ -1040,12 +1082,12 @@ void AGeo_SI::configurePhotonMonitor(QString MonitorName, QVariant Position, QVa
     }
 }
 
-void AGeo_SI::configureParticleMonitor(QString MonitorName, QString Particle, int Both_Primary_Secondary, int Both_Direct_Indirect,
-                                            QVariant Position, QVariant Time, QVariant Angle, QVariant Energy)
+void AGeo_SI::configureParticleMonitor(QString monitorName, QString particle, int both_Primary_Secondary, int both_Direct_Indirect,
+                                       QVariantList position, QVariantList time, QVariantList angle, QVariantList energy)
 {
-    AGeoObject* o = 0;
-    for (AGeoObject* obj : GeoObjects)
-        if (obj->Name == MonitorName)
+    AGeoObject * o = nullptr;
+    for (AGeoObject * obj : GeoObjects)
+        if (obj->Name == monitorName)
         {
             o = obj;
             break;
@@ -1053,30 +1095,30 @@ void AGeo_SI::configureParticleMonitor(QString MonitorName, QString Particle, in
 
     if (!o)
     {
-        abort("Cannot find monitor \"" + MonitorName + "\"");
+        abort("Cannot find monitor \"" + monitorName + "\"");
         return;
     }
 
     if (!o->Type || !o->Type->isMonitor())
     {
-        abort(MonitorName + " is not a monitor object!");
+        abort(monitorName + " is not a monitor object!");
         return;
     }
 
-    ATypeMonitorObject* m = static_cast<ATypeMonitorObject*>(o->Type);
-    AMonitorConfig& mc = m->config;
+    ATypeMonitorObject * m = static_cast<ATypeMonitorObject*>(o->Type);
+    AMonitorConfig & mc = m->config;
 
     mc.PhotonOrParticle = 1;
-    mc.Particle = Particle;
+    mc.Particle = particle;
 
-    switch (Both_Primary_Secondary)
+    switch (both_Primary_Secondary)
     {
     case 0: mc.bPrimary = true;  mc.bSecondary = true;  break;
     case 1: mc.bPrimary = true;  mc.bSecondary = false; break;
     case 2: mc.bPrimary = false; mc.bSecondary = true;  break;
     default: abort("Both_Primary_Secondary: 0 - sensitive to both, 1 - sensetive only to primary, 2 - sensitive only to secondary"); return;
     }
-    switch (Both_Direct_Indirect)
+    switch (both_Direct_Indirect)
     {
     case 0: mc.bDirect = true;  mc.bIndirect = true;  break;
     case 1: mc.bDirect = true;  mc.bIndirect = false; break;
@@ -1084,13 +1126,12 @@ void AGeo_SI::configureParticleMonitor(QString MonitorName, QString Particle, in
     default: abort("Both_Direct_Indirect: 0 - sensitive to both, 1 - sensitive only to direct, 2 - sensitive only to indirect"); return;
     }
 
-    QVariantList pos = Position.toList();
-    if (!pos.isEmpty())
+    if (!position.isEmpty())
     {
-        if (pos.size() == 2)
+        if (position.size() == 2)
         {
-            mc.xbins = pos.at(0).toInt();
-            mc.ybins = pos.at(1).toInt();
+            mc.xbins = position.at(0).toInt();
+            mc.ybins = position.at(1).toInt();
         }
         else
         {
@@ -1099,14 +1140,13 @@ void AGeo_SI::configureParticleMonitor(QString MonitorName, QString Particle, in
         }
     }
 
-    QVariantList time = Time.toList();
     if (!time.isEmpty())
     {
         if (time.size() == 4)
         {
-            mc.timeBins = time.at(0).toInt();
-            mc.timeFrom = time.at(1).toDouble();
-            mc.timeTo   = time.at(2).toDouble();
+            mc.timeBins  = time.at(0).toInt();
+            mc.timeFrom  = time.at(1).toDouble();
+            mc.timeTo    = time.at(2).toDouble();
             mc.timeUnits = time.at(3).toString();
 
             if (mc.timeUnits != "ns" && mc.timeUnits != "us" && mc.timeUnits != "ms" && mc.timeUnits != "s")
@@ -1123,14 +1163,13 @@ void AGeo_SI::configureParticleMonitor(QString MonitorName, QString Particle, in
         }
     }
 
-    QVariantList a = Angle.toList();
-    if (!a.isEmpty())
+    if (!angle.isEmpty())
     {
-        if (a.size() == 3)
+        if (angle.size() == 3)
         {
-            mc.angleBins = a.at(0).toInt();
-            mc.angleFrom = a.at(1).toDouble();
-            mc.angleTo   = a.at(2).toDouble();
+            mc.angleBins = angle.at(0).toInt();
+            mc.angleFrom = angle.at(1).toDouble();
+            mc.angleTo   = angle.at(2).toDouble();
         }
         else
         {
@@ -1139,15 +1178,14 @@ void AGeo_SI::configureParticleMonitor(QString MonitorName, QString Particle, in
         }
     }
 
-    QVariantList e = Energy.toList();
-    if (!e.isEmpty())
+    if (!energy.isEmpty())
     {
-        if (e.size() == 4 && e.at(3).toInt() >= 0 && e.at(3).toInt() < 4)
+        if (energy.size() == 4 && energy.at(3).toInt() >= 0 && energy.at(3).toInt() < 4)
         {
-            mc.energyBins  = e.at(0).toInt();
-            mc.energyFrom  = e.at(1).toDouble();
-            mc.energyTo    = e.at(2).toDouble();
-            mc.energyUnits = e.at(3).toString();
+            mc.energyBins  = energy.at(0).toInt();
+            mc.energyFrom  = energy.at(1).toDouble();
+            mc.energyTo    = energy.at(2).toDouble();
+            mc.energyUnits = energy.at(3).toString();
 
             if (mc.energyUnits != "meV" && mc.energyUnits != "eV" && mc.energyUnits != "keV" && mc.energyUnits != "MeV")
             {
@@ -1164,6 +1202,7 @@ void AGeo_SI::configureParticleMonitor(QString MonitorName, QString Particle, in
     }
 }
 
+/*
 void AGeo_SI::customTGeo(QString name, QString GenerationString, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
 {
     AGeoObject* o = new AGeoObject(name, container, iMat,
@@ -1223,6 +1262,7 @@ void AGeo_SI::customTGeo(QString name, QString GenerationString, int iMat, QStri
     }
     GeoObjects.push_back(o);
 }
+*/
 
 void AGeo_SI::customTGeo(QString name, QString generationString, int iMat, QString container, QVariantList position, QVariantList orientation)
 {
@@ -1286,6 +1326,7 @@ void AGeo_SI::customTGeo(QString name, QString generationString, int iMat, QStri
     GeoObjects.push_back(o);
 }
 
+/*
 void AGeo_SI::stack(QString name, QString container, double x, double y, double z, double phi, double theta, double psi)
 {
     AGeoObject * o = new AGeoObject(name, container, 0, nullptr, x,y,z, phi,theta,psi);
@@ -1293,6 +1334,7 @@ void AGeo_SI::stack(QString name, QString container, double x, double y, double 
     o->Type = new ATypeStackContainerObject();
     GeoObjects.push_back(o);
 }
+*/
 
 void AGeo_SI::stack(QString name, QString container, QVariantList position, QVariantList orientation)
 {
@@ -1350,6 +1392,7 @@ void AGeo_SI::initializeStack(QString StackName, QString MemberName_StackReferen
     StackObj->HostedObjects.clear();
 }
 
+/*
 void AGeo_SI::array(QString name, int numX, int numY, int numZ, double stepX, double stepY, double stepZ, QString container, double x, double y, double z, double phi, double theta, double psi, bool centerSymmetric, int startIndex)
 {
     AGeoObject * o = new AGeoObject(name, container, 0, 0, x,y,z, phi,theta,psi);
@@ -1360,6 +1403,7 @@ void AGeo_SI::array(QString name, int numX, int numY, int numZ, double stepX, do
     o->Type = arType;
     GeoObjects.push_back(o);
 }
+*/
 
 void AGeo_SI::array(QString name, QVariantList numXYZ, QVariantList stepXYZ, QString container, QVariantList position, QVariantList orientation, bool centerSymmetric, int startIndex)
 {
@@ -1392,6 +1436,7 @@ void AGeo_SI::array(QString name, QVariantList numXYZ, QVariantList stepXYZ, QSt
     GeoObjects.push_back(o);
 }
 
+/*
 void AGeo_SI::circArray(QString name, int num, double angularStep, double radius, QString container, double x, double y, double z, double phi, double theta, double psi, int startIndex)
 {
     AGeoObject * o = new AGeoObject(name, container, 0, 0, x,y,z, phi,theta,psi);
@@ -1400,6 +1445,7 @@ void AGeo_SI::circArray(QString name, int num, double angularStep, double radius
     o->Type = new ATypeCircularArrayObject(num, angularStep, radius, startIndex);
     GeoObjects.push_back(o);
 }
+*/
 
 void AGeo_SI::circArray(QString name, int num, double angularStep, double radius, QString container, QVariantList position, QVariantList orientation, int startIndex)
 {
@@ -1414,17 +1460,19 @@ void AGeo_SI::circArray(QString name, int num, double angularStep, double radius
     GeoObjects.push_back(o);
 }
 
+/*
 void AGeo_SI::hexArray(QString name, int numRings, double pitch, QString container, double x, double y, double z, double phi, double theta, double psi, int startIndex)
 {
     AGeoObject * o = new AGeoObject(name, container, 0, 0, x,y,z, phi,theta,psi);
     delete o->Shape; o->Shape = new AGeoBox;
     delete o->Type;
     ATypeHexagonalArrayObject * ar = new ATypeHexagonalArrayObject();
-    ar->reconfigure(pitch, ATypeHexagonalArrayObject::Hexagonal, numRings, 1, 1, false);
+    ar->reconfigure(pitch, ATypeHexagonalArrayObject::Hexagonal, numRings, 1, 1, false, false);
     ar->startIndex = startIndex;
     o->Type = ar;
     GeoObjects.push_back(o);
 }
+*/
 
 void AGeo_SI::hexArray(QString name, int numRings, double pitch, QString container, QVariantList position, QVariantList orientation, int startIndex)
 {
@@ -1436,25 +1484,27 @@ void AGeo_SI::hexArray(QString name, int numRings, double pitch, QString contain
     delete o->Shape; o->Shape = new AGeoBox;
     delete o->Type;
     ATypeHexagonalArrayObject * ar = new ATypeHexagonalArrayObject();
-    ar->reconfigure(pitch, ATypeHexagonalArrayObject::Hexagonal, numRings, 1, 1, false);
+    ar->reconfigure(pitch, ATypeHexagonalArrayObject::Hexagonal, numRings, 1, 1, false, false);
     ar->startIndex = startIndex;
     o->Type = ar;
     GeoObjects.push_back(o);
 }
 
-void AGeo_SI::hexArray_rectangular(QString name, int numX, int numY, double pitch, bool skipLast, QString container, double x, double y, double z, double phi, double theta, double psi, int startIndex)
+/*
+void AGeo_SI::hexArray_rectangular(QString name, int numX, int numY, double pitch, bool skipEvenFirst, bool skipOddLast, QString container, double x, double y, double z, double phi, double theta, double psi, int startIndex)
 {
     AGeoObject * o = new AGeoObject(name, container, 0, 0, x,y,z, phi,theta,psi);
     delete o->Shape; o->Shape = new AGeoBox;
     delete o->Type;
     ATypeHexagonalArrayObject * ar = new ATypeHexagonalArrayObject();
-    ar->reconfigure(pitch, ATypeHexagonalArrayObject::XY, 1, numX, numY, skipLast);
+    ar->reconfigure(pitch, ATypeHexagonalArrayObject::XY, 1, numX, numY, skipEvenFirst, skipOddLast);
     ar->startIndex = startIndex;
     o->Type = ar;
     GeoObjects.push_back(o);
 }
+*/
 
-void AGeo_SI::hexArray_rectangular(QString name, int numX, int numY, double pitch, bool skipLast, QString container, QVariantList position, QVariantList orientation, int startIndex)
+void AGeo_SI::hexArray_rectangular(QString name, int numX, int numY, double pitch, bool skipEvenFirst, bool skipOddLast, QString container, QVariantList position, QVariantList orientation, int startIndex)
 {
     std::array<double,3> pos, ori;
     bool ok = checkPosOri(position, orientation, pos, ori);
@@ -1464,7 +1514,7 @@ void AGeo_SI::hexArray_rectangular(QString name, int numX, int numY, double pitc
     delete o->Shape; o->Shape = new AGeoBox;
     delete o->Type;
     ATypeHexagonalArrayObject * ar = new ATypeHexagonalArrayObject();
-    ar->reconfigure(pitch, ATypeHexagonalArrayObject::XY, 1, numX, numY, skipLast);
+    ar->reconfigure(pitch, ATypeHexagonalArrayObject::XY, 1, numX, numY, skipEvenFirst, skipOddLast);
     ar->startIndex = startIndex;
     o->Type = ar;
     GeoObjects.push_back(o);
@@ -1478,6 +1528,7 @@ void AGeo_SI::prototype(QString name)
     GeoObjects.push_back(proto);
 }
 
+/*
 void AGeo_SI::instance(QString name, QString prototype, QString container, double x, double y, double z, double phi, double theta, double psi)
 {
     AGeoObject * instance = new AGeoObject(name);
@@ -1491,6 +1542,7 @@ void AGeo_SI::instance(QString name, QString prototype, QString container, doubl
     instance->Orientation[2] = psi;
     GeoObjects.push_back(instance);
 }
+*/
 
 void AGeo_SI::instance(QString name, QString prototype, QString container, QVariantList position, QVariantList orientation)
 {
@@ -1664,6 +1716,28 @@ void AGeo_SI::setSecondaryScintillator(QString Object)
     delete obj->Role; obj->Role = new AGeoSecScint();
 }
 
+#include "asensorhub.h"
+int AGeo_SI::countLightSensors()
+{
+    return ASensorHub::getConstInstance().countSensors();
+}
+
+QVariantList AGeo_SI::getLightSensorPositions()
+{
+    QVariantList vl;
+    const ASensorHub & SensHub = ASensorHub::getConstInstance();
+
+    int numSensors = countLightSensors();
+    for (int iSens = 0; iSens < numSensors; iSens++)
+    {
+        QVariantList el;
+        AVector3 pos = SensHub.getPositionFast(iSens);
+        el << pos[0] << pos[1] << pos[2];
+        vl.push_back(el);
+    }
+    return vl;
+}
+
 void AGeo_SI::setPhotonFunctional(QString Object)
 {
     AGeoObject * obj = findObject(Object);
@@ -1734,6 +1808,102 @@ void AGeo_SI::configurePhotonFunctional(QString modelName, QVariantMap configObj
 int AGeo_SI::overrideUnconnectedLinkFunctionals()
 {
     return APhotonFunctionalHub::getInstance().overrideUnconnectedLinkFunctionals();
+}
+
+void AGeo_SI::setParticleAnalyzer(QString object)
+{
+    AGeoObject * obj = findObject(object);
+    if (!obj) return;
+    delete obj->Role; obj->Role = new AGeoParticleAnalyzer();
+}
+
+QVariantMap AGeo_SI::getDefaultParticleAnalyzerProperties()
+{
+    AGeoParticleAnalyzer an;
+
+    QJsonObject js;
+    an.Properties.writeToJson(js, false);
+    return js.toVariantMap();
+}
+
+QVariantMap AGeo_SI::getParticleAnalyzerProperties(QString object)
+{
+    AGeoObject * paObj = nullptr;
+
+    for (AGeoObject * obj : GeoObjects)
+        if (obj->Name == object)
+        {
+            paObj = obj;
+            break;
+        }
+
+    if (!paObj)
+        paObj = AGeometryHub::getInstance().World->findObjectByName(object);
+
+    if (!paObj)
+    {
+        abort("Cannot find particle analyzer \"" + object + "\"");
+        return QVariantMap();
+    }
+
+    if (!paObj->Role)
+    {
+        abort(object + " is not a particle analyzer!");
+        return QVariantMap();
+    }
+    AGeoParticleAnalyzer * pa = dynamic_cast<AGeoParticleAnalyzer*>(paObj->Role);
+    if (!pa)
+    {
+        abort(object + " is not a particle analyzer!");
+        return QVariantMap();
+    }
+
+    QJsonObject js;
+    pa->Properties.writeToJson(js, false);
+    return js.toVariantMap();
+}
+
+#include "aerrorhub.h"
+void AGeo_SI::configureParticleAnalyzer(QString object, QVariantMap configObject)
+{
+    AGeoObject * paObj = nullptr;
+
+    for (AGeoObject * obj : GeoObjects)
+        if (obj->Name == object)
+        {
+            paObj = obj;
+            break;
+        }
+
+    if (!paObj)
+        paObj = AGeometryHub::getInstance().World->findObjectByName(object);
+
+    if (!paObj)
+    {
+        abort("Cannot find particle analyzer \"" + object + "\"");
+        return;
+    }
+
+    if (!paObj->Role)
+    {
+        abort(object + " is not a particle analyzer!");
+        return;
+    }
+    AGeoParticleAnalyzer * pa = dynamic_cast<AGeoParticleAnalyzer*>(paObj->Role);
+    if (!pa)
+    {
+        abort(object + " is not a particle analyzer!");
+        return;
+    }
+
+    QJsonObject js = QJsonObject::fromVariantMap(configObject);
+    AErrorHub::clear();
+    pa->Properties.readFromJson(js);
+    if (AErrorHub::isError())
+    {
+        abort("Error while attempting to configure particle analyzer " + object + ":\n" + AErrorHub::getQError());
+        return;
+    }
 }
 
 void AGeo_SI::setEnabled(QString ObjectOrWildcard, bool flag)

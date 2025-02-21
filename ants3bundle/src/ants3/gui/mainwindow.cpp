@@ -5,7 +5,7 @@
 #include "ageometryhub.h"
 #include "guitools.h"
 #include "ajsontools.h"
-#include "afiletools.h"
+//#include "afiletools.h"
 #include "ageotreewin.h"
 #include "ageometrywindow.h"
 #include "ageometryhub.h"
@@ -30,7 +30,7 @@
 #include <QFile>
 #include <QString>
 
-#include "TObject.h"
+//#include "TObject.h"
 
 MainWindow::MainWindow() :
     AGuiWindow("Main", nullptr),
@@ -91,28 +91,28 @@ MainWindow::MainWindow() :
     qDebug() << "Creating JScript window";
     JScriptWin = new AScriptWindow(EScriptLanguage::JavaScript, this);
     JScriptWin->registerInterfaces();
-    connect(ScriptHub,  &AScriptHub::clearOutput_JS,      JScriptWin, &AScriptWindow::clearOutput, Qt::QueuedConnection);
-    connect(ScriptHub,  &AScriptHub::outputText_JS,       JScriptWin, &AScriptWindow::outputText, Qt::QueuedConnection);
-    connect(ScriptHub,  &AScriptHub::outputHtml_JS,       JScriptWin, &AScriptWindow::outputHtml, Qt::QueuedConnection);
-    connect(ScriptHub,  &AScriptHub::outputFromBuffer_JS, JScriptWin, &AScriptWindow::outputFromBuffer, Qt::QueuedConnection);
-    connect(ScriptHub,  &AScriptHub::reportProgress_JS,   JScriptWin, &AScriptWindow::onProgressChanged, Qt::QueuedConnection);
-    connect(ScriptHub,  &AScriptHub::showAbortMessage_JS, JScriptWin, &AScriptWindow::outputAbortMessage);
-    connect(JScriptWin, &AScriptWindow::requestUpdateGui, this,       &MainWindow::updateAllGuiFromConfig);
-    connect(GeoTreeWin, &AGeoTreeWin::requestAddJavaScript,   JScriptWin, &AScriptWindow::onRequestAddScript);
+    connect(ScriptHub,  &AScriptHub::clearOutput_JS,        JScriptWin, &AScriptWindow::clearOutput, Qt::QueuedConnection);
+    connect(ScriptHub,  &AScriptHub::outputText_JS,         JScriptWin, &AScriptWindow::outputText, Qt::QueuedConnection);
+    connect(ScriptHub,  &AScriptHub::outputHtml_JS,         JScriptWin, &AScriptWindow::outputHtml, Qt::QueuedConnection);
+    connect(ScriptHub,  &AScriptHub::outputFromBuffer_JS,   JScriptWin, &AScriptWindow::outputFromBuffer, Qt::QueuedConnection);
+    connect(ScriptHub,  &AScriptHub::reportProgress_JS,     JScriptWin, &AScriptWindow::onProgressChanged, Qt::QueuedConnection);
+    connect(ScriptHub,  &AScriptHub::showAbortMessage_JS,   JScriptWin, &AScriptWindow::outputAbortMessage);
+    connect(JScriptWin, &AScriptWindow::requestUpdateGui,   this,       &MainWindow::updateAllGuiFromConfig);
+    connect(GeoTreeWin, &AGeoTreeWin::requestAddJavaScript, JScriptWin, &AScriptWindow::onRequestAddScript);
     JScriptWin->updateGui();
 
 #ifdef ANTS3_PYTHON
     qDebug() << "Creating Python window";
     PythonWin = new AScriptWindow(EScriptLanguage::Python, this);
     PythonWin->registerInterfaces();
-    connect(ScriptHub,  &AScriptHub::clearOutput_P,       PythonWin, &AScriptWindow::clearOutput);
-    connect(ScriptHub,  &AScriptHub::outputText_P,        PythonWin, &AScriptWindow::outputText);
-    connect(ScriptHub,  &AScriptHub::outputHtml_P,        PythonWin, &AScriptWindow::outputHtml);
-    connect(ScriptHub,  &AScriptHub::outputFromBuffer_P,  PythonWin, &AScriptWindow::outputFromBuffer);
-    connect(ScriptHub,  &AScriptHub::reportProgress_P,    PythonWin, &AScriptWindow::onProgressChanged);
-    connect(ScriptHub,  &AScriptHub::showAbortMessage_P,  PythonWin, &AScriptWindow::outputAbortMessage);
-    connect(PythonWin,  &AScriptWindow::requestUpdateGui, this,      &MainWindow::updateAllGuiFromConfig);
-    connect(GeoTreeWin, &AGeoTreeWin::requestAddPythonScript,   PythonWin, &AScriptWindow::onRequestAddScript);
+    connect(ScriptHub,  &AScriptHub::clearOutput_P,           PythonWin, &AScriptWindow::clearOutput);
+    connect(ScriptHub,  &AScriptHub::outputText_P,            PythonWin, &AScriptWindow::outputText);
+    connect(ScriptHub,  &AScriptHub::outputHtml_P,            PythonWin, &AScriptWindow::outputHtml);
+    connect(ScriptHub,  &AScriptHub::outputFromBuffer_P,      PythonWin, &AScriptWindow::outputFromBuffer);
+    connect(ScriptHub,  &AScriptHub::reportProgress_P,        PythonWin, &AScriptWindow::onProgressChanged);
+    connect(ScriptHub,  &AScriptHub::showAbortMessage_P,      PythonWin, &AScriptWindow::outputAbortMessage);
+    connect(PythonWin,  &AScriptWindow::requestUpdateGui,     this,      &MainWindow::updateAllGuiFromConfig);
+    connect(GeoTreeWin, &AGeoTreeWin::requestAddPythonScript, PythonWin, &AScriptWindow::onRequestAddScript);
     PythonWin->updateGui();
 #endif
 
@@ -149,23 +149,11 @@ MainWindow::MainWindow() :
     ui->menuFile->setToolTipsVisible(true);
     ui->menuFile->setToolTipDuration(1000);
 
-    std::vector<QLabel*> labels = {ui->lSpaceHolder1, ui->lSpaceHolder2, ui->lSpaceHolder3};
-    for (QLabel * l : labels)
-    {
-        l->setMinimumHeight(ui->pbFunctionalModels->height());
-        l->setText("");
-    }
-
   // Finalizing
     updateAllGuiFromConfig(); //updateGui();
     ScriptHub->finalizeInit();
 
     if (!bShown) GeoWin->hide(); // has to be last, if before updateAllGuiFromConfig() and window is hidden --> dark on open
-
-    int size = ui->pbFunctionalModels->size().height();
-    ui->lSpaceHolder1->setMinimumHeight(size);
-    ui->lSpaceHolder2->setMinimumHeight(size);
-    ui->lSpaceHolder3->setMinimumHeight(size);
 }
 
 MainWindow::~MainWindow()
@@ -191,16 +179,15 @@ void MainWindow::updateGui()
 
 void MainWindow::onRebuildGeometryRequested()
 {
-    Config.createUndo();
-
     AGeometryHub & geom = AGeometryHub::getInstance();
     geom.populateGeoManager();
     GeoTreeWin->updateGui();
     MatWin->updateGui();
     RuleWin->updateGui();
     PartSimWin->onMaterialsChanged();
+    SensWin->onMaterialsChanged();
     emit GeoTreeWin->requestClearGeoMarkers(0);
-    if (GeoWin->isVisible()) GeoWin->ShowGeometry();
+    if (GeoWin->isVisible()) GeoWin->ShowGeometry(false);
 }
 
 void MainWindow::on_pbGeometry_clicked()
@@ -316,15 +303,6 @@ void MainWindow::on_pbPython_customContextMenuRequested(const QPoint &)
 #ifdef ANTS3_PYTHON
     PythonWin->onMainWinButtonClicked(false);
 #endif
-}
-
-void MainWindow::on_pbDemo_clicked()
-{
-    DemoWin->onMainWinButtonClicked(true);
-}
-void MainWindow::on_pbDemo_customContextMenuRequested(const QPoint &pos)
-{
-    DemoWin->onMainWinButtonClicked(false);
 }
 
 void MainWindow::on_pbLoadConfig_clicked()
@@ -518,6 +496,8 @@ void MainWindow::changeGeoViewer(bool useJSRoot)
 
 void MainWindow::connectSignalSlotsForGeoWin()
 {
+    connect(&Config, &AConfig::configLoaded,                            GeoWin, &AGeometryWindow::onNewConfigLoaded);
+
     connect(GeoWin,     &AGeometryWindow::requestChangeGeoViewer,       this,   &MainWindow::onRequestChangeGeoViewer);
 
     connect(GeoTreeWin, &AGeoTreeWin::requestShowGeometry,              GeoWin, &AGeometryWindow::ShowGeometry);
@@ -659,6 +639,8 @@ void MainWindow::loadWindowGeometries()
 #include "aparticlesimhub.h"
 #include "aphotonsimhub.h"
 #include "ageoconsts.h"
+#include "aparticleanalyzerhub.h"
+#include "aphotonfunctionalhub.h"
 void MainWindow::on_pbNew_clicked()
 {
     bool ok = guitools::confirm("Start a new configuration?\nUnsaved changes will be lost", this);
@@ -671,11 +653,14 @@ void MainWindow::on_pbNew_clicked()
     AInterfaceRuleHub::getInstance().clearRules();
 
     AParticleSimHub::getInstance().clear();
+    PartSimWin->onNewConfigStartedInGui();
 
     APhotonSimHub::getInstance().clear();
+    PhotSimWin->onNewConfigStartedInGui();
 
-    // Reconstruction
-    // LRFs
+    AParticleAnalyzerHub::getInstance().clear();
+
+    APhotonFunctionalHub::getInstance().clearAllRecords();
 
     AGeoConsts::getInstance().clearConstants();
     AGeometryHub::getInstance().clearWorld();
@@ -772,6 +757,7 @@ void MainWindow::on_pbExamples_clicked()
     }
 
     ConfigExampleBrowser->show();
+    ConfigExampleBrowser->expandAll(false);
 }
 
 void MainWindow::onRequestLoadConfiguration(QString fileName)
@@ -783,6 +769,7 @@ void MainWindow::onRequestLoadConfiguration(QString fileName)
 }
 
 #include "TROOT.h"
+#include "ageant4inspectormanager.h"
 void MainWindow::on_actionVersions_triggered()
 {
     int majVer = ANTS3_MAJOR;
@@ -793,6 +780,11 @@ void MainWindow::on_actionVersions_triggered()
 
     QString qv = QT_VERSION_STR;
 
+    qApp->processEvents();
+    AGeant4InspectorManager & G4Inspector = AGeant4InspectorManager::getInstance();
+    QString g4version = "NA";
+    G4Inspector.requestVersion(g4version);
+
     QString out = "ANTS3\n"
                   "   version:  " + mav + "." + miv + "\n"
                   "   build date:  " + QString::fromLocal8Bit(__DATE__) + "\n"
@@ -800,6 +792,8 @@ void MainWindow::on_actionVersions_triggered()
                   "Qt version:  " + qv + "\n"
                   "\n"
                   "ROOT version:  " + gROOT->GetVersion() + "\n"
+                  "\n"
+                  "Local Geant4 version:  " + g4version + "\n"
                   "\n"
                   "Optional components:\n"
                   "  Python scripting: "
@@ -845,3 +839,9 @@ void MainWindow::on_pbLoadConfig_customContextMenuRequested(const QPoint &)
 {
     on_actionLoad_last_config_triggered();
 }
+
+void MainWindow::on_actionDataTransport_demo_triggered()
+{
+    DemoWin->onMainWinButtonClicked(true);
+}
+

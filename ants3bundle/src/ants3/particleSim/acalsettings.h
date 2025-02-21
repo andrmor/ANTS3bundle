@@ -42,7 +42,9 @@ public:
     bool isSameDepoDoseProperties(const ACalorimeterProperties & other) const;
     bool isSameEventDepoProperties(const ACalorimeterProperties & other) const;
 
-    enum EDataType {Energy, Dose};
+    enum EDataType {DepoPerEvent, Energy, Dose};
+
+    bool IncludeHostedVolumes = false;
 
     EDataType DataType = Energy;
     bool RandomizeBin = false;
@@ -50,10 +52,10 @@ public:
     std::array<double, 3> Step   = { 1,  1,  1};
     std::array<int,    3> Bins   = {10, 10,  10};
 
-    bool CollectDepoOverEvent = false;
+    //bool CollectDepoOverEvent = false;
     int EventDepoBins = 190;
-    double EventDepoFrom = 0.1;
-    double EventDepoTo = 2.0;
+    double EventDepoFrom = 100;
+    double EventDepoTo = 2000;
 
 #ifndef JSON11
     //ants3 side: text fields to be used with Geo Constants
@@ -95,6 +97,8 @@ public:
 #endif
 
     std::vector<ACalSetRecord> Calorimeters;
+
+    std::vector<std::string> DelegatingCalorimeters;
 
     void clear();
 };

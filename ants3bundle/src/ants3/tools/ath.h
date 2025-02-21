@@ -15,7 +15,7 @@ public:
     ATH1D(const char *name, const char *title, int bins, double from, double to);
     ATH1D(const TH1D & other);
 
-    QString Import(double from, double to, const std::vector<double> & binContent, const std::vector<double> & stats); // empty srtring if no error
+    QString Import(double from, double to, const std::vector<double> & binContent, const std::vector<double> & stats); // empty string if no error
 
     bool mergeIdentical(const TH1D & other);
 
@@ -23,6 +23,8 @@ public:
     void setStats(const std::array<double,5> & statsArray);
 
     static void merge(TH1D* & to, TH1D* const & from);
+
+    void mergeFrom(const ATH1D * other);
 
 private:
     void SetStatistic(const std::vector<double> & stats);

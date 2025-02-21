@@ -1,7 +1,7 @@
 #include "abasicinterfacerule.h"
 #include "aphoton.h"
 #include "amaterial.h"
-#include "amaterialhub.h"
+//#include "amaterialhub.h"
 #include "arandomhub.h"
 //#include "asimulationstatistics.h"
 #include "ajsontools.h"
@@ -13,10 +13,10 @@
 ABasicInterfaceRule::ABasicInterfaceRule(int MatFrom, int MatTo)
     : AInterfaceRule(MatFrom, MatTo)
 {
-    SurfaceSettings.Model = ASurfaceSettings::Polished; // !!!*** set default to Polished, and for rough surface rule to Glisur
+    SurfaceSettings.Model = ASurfaceSettings::Polished;
 }
 
-AInterfaceRule::OpticalOverrideResultEnum ABasicInterfaceRule::calculate(APhoton * Photon, const double * NormalVector)
+AInterfaceRule::EInterfaceRuleResult ABasicInterfaceRule::calculate(APhoton * Photon, const double * NormalVector)
 {
     double rnd = RandomHub.uniform();
 
@@ -31,14 +31,23 @@ AInterfaceRule::OpticalOverrideResultEnum ABasicInterfaceRule::calculate(APhoton
 
     // specular reflection?
     rnd -= Spec;
-    if (rnd<0)
+    if (rnd < 0)
     {
         // qDebug()<<"Override: specular reflection!";
         //rotating the vector: K = K - 2*(NK)*N
-        double NK = NormalVector[0]*Photon->v[0]; NK += NormalVector[1]*Photon->v[1];  NK += NormalVector[2]*Photon->v[2];
-        Photon->v[0] -= 2.0*NK*NormalVector[0]; Photon->v[1] -= 2.0*NK*NormalVector[1]; Photon->v[2] -= 2.0*NK*NormalVector[2];
-
-        Status = SpikeReflection;
+        if (SurfaceSettings.isPolished())
+        {
+            double NK = NormalVector[0]*Photon->v[0]; NK += NormalVector[1]*Photon->v[1];  NK += NormalVector[2]*Photon->v[2];
+            Photon->v[0] -= 2.0*NK*NormalVector[0]; Photon->v[1] -= 2.0*NK*NormalVector[1]; Photon->v[2] -= 2.0*NK*NormalVector[2];
+            Status = SpikeReflection;
+        }
+        else
+        {
+            calculateLocalNormal(NormalVector, Photon->v);
+            double NK = LocalNormal[0]*Photon->v[0]; NK += LocalNormal[1]*Photon->v[1];  NK += LocalNormal[2]*Photon->v[2];
+            Photon->v[0] -= 2.0*NK*LocalNormal[0]; Photon->v[1] -= 2.0*NK*LocalNormal[1]; Photon->v[2] -= 2.0*NK*LocalNormal[2];
+            Status = LobeReflection;
+        }
         return Back;
     }
 
@@ -165,6 +174,22 @@ QString ABasicInterfaceRule::getLongReportLine() const
     double fres = 1.0 - Abs - Spec - Scat;
     if (fres > 0) s += QString("Fresnel: %1%").arg(100.0 * fres);
     return s;
+}
+
+QString ABasicInterfaceRule::getDescription() const
+{
+    QString txt = "This interface defines three wavelength-independent parameters:\n"
+                  "1) Absorption - the probability the photon is killed\n"
+                  "2) Specuar reflection - the probability of specular reflection (flat or rough surface: see below)\n"
+                  "3) Scattering\n"
+                  "    3a) Lambertian back in 2Pi\n"
+                  "    3b) Lambertian forward in 2Pi\n"
+                  "    3c) Isotropic scattering in 4Pi\n"
+                  "All values must be in the range from 0 to 1\n"
+                  "If the sum does not ammounts to 1, the remaining fraction is the \"normal\" Freshnel/Snell physics\n"
+                  "\n"
+                  "The rough surface settings only affect specular reflection!";
+    return txt;
 }
 
 void ABasicInterfaceRule::doWriteToJson(QJsonObject & json) const

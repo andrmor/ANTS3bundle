@@ -331,6 +331,7 @@ public:
     QString getGenerationString(bool useStrings) const override;
     QString getScriptString(bool useStrings) const override;
     double maxSize() const override;
+    double minSize() const override;
 
     void writeToJson(QJsonObject& json) const override;
     void readFromJson(const QJsonObject& json) override;
@@ -391,6 +392,7 @@ public:
     QString getGenerationString(bool useStrings) const override;
     QString getScriptString(bool useStrings) const override;
     double maxSize() const override;
+    double minSize() const override;
 
     void writeToJson(QJsonObject& json) const override;
     void readFromJson(const QJsonObject& json) override;
@@ -415,7 +417,6 @@ public:
     QString getHelp() const override;
 
     void introduceGeoConstValues(QString & errorStr) override;
-
 
     bool isGeoConstInUse(const QRegularExpression & nameRegExp) const override;
     void replaceGeoConstName(const QRegularExpression & nameRegExp, const QString & newName) override;
