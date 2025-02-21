@@ -24,13 +24,12 @@
    * 
 # Status of the development
 
-* Particle simulation part is ready  
-* Optical simulation part is in late beta
-* GUI is mostly ready
-* Scripting system is ready, slight tweaking is ongoing
+* Particle and optical simulation parts are ready  
+* GUI is ready
+* Scripting system is ready
 * Computer farm support is in early alpha
 * Infrastructure for help system for scripting method is ready, help text is in the process of filling
-* Warning: ANTS3 documentation is not ready!
+* Warning: work on ANTS3 documentation has not yet started!
 
 ---
 
