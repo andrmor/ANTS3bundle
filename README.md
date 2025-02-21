@@ -36,7 +36,7 @@
 
 # Installation instructions
 * [Ubuntu 24.04 Mate](https://github.com/andrmor/ANTS3bundle/wiki/Install_Ubuntu24.04_Qt6)
-* [Outdated: Ubuntu 24.04 Mate with Qt5](https://github.com/andrmor/ANTS3bundle/wiki/Install_Ubuntu24.04)
+* [Outdated: Ubuntu 24.04 Mate with Qt5](https://github.com/andrmor/ANTS3bundle/wiki/Install_Ubuntu22.04_Qt5)
 * [Outdated: Ubuntu 22.04 Mate](https://github.com/andrmor/ANTS3bundle/wiki/Install_Ubuntu22.04)
  
  ---
