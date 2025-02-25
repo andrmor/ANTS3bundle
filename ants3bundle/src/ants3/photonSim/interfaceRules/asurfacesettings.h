@@ -16,9 +16,9 @@ public:
     ASurfaceSettings();
 
     bool isPolished()    const {return Model == Polished;}
-    bool isNotPolished() const {return Model != Polished;}
+    bool isNotPolished() const {return Model != Polished;} // !!!*** rename to isRough()
 
-    QString checkRuntimeData(); // also populates NormalDistributionHist
+    QString checkRuntimeData(); // also populates NormalDistributionHist   !!!*** separate funcionality: check vs updateRuntimeProperties
 
     QString getDescription() const;
 
@@ -32,9 +32,9 @@ public:
 
     // CustomNormal settings
     std::vector<std::pair<double,double>> NormalDeviation;
-    bool OrientationProbabilityCorrection = true;
 
     // General settings
+    bool OrientationProbabilityCorrection = true;
     bool KillPhotonsRefractedBackward = false; // affects nly rough surface. There is a possibility for a photon to refract through a microfacet in the backward direction
 
     void writeToJson(QJsonObject & json) const;

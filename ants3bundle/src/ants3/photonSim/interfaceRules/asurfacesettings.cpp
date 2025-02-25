@@ -81,6 +81,7 @@ QString ASurfaceSettings::getDescription() const
 void ASurfaceSettings::writeToJson(QJsonObject & json) const
 {
     json["KillPhotonsRefractedBackward"] = KillPhotonsRefractedBackward;
+    json["OrientationProbabilityCorrection"] = OrientationProbabilityCorrection;
 
     QString str;
     switch (Model)
@@ -104,7 +105,6 @@ void ASurfaceSettings::writeToJson(QJsonObject & json) const
             jstools::writeDPairVectorToArray(NormalDeviation, ar);
             json["NormalDeviation"] = ar;
         }
-        json["OrientationProbabilityCorrection"] = OrientationProbabilityCorrection;
         break;
     }
     json["Model"] = str;
@@ -113,6 +113,7 @@ void ASurfaceSettings::writeToJson(QJsonObject & json) const
 void ASurfaceSettings::readFromJson(const QJsonObject & json)
 {
     jstools::parseJson(json, "KillPhotonsRefractedBackward", KillPhotonsRefractedBackward);
+    jstools::parseJson(json, "OrientationProbabilityCorrection", OrientationProbabilityCorrection);
 
     QString str;
     jstools::parseJson(json, "Model", str);
@@ -135,7 +136,6 @@ void ASurfaceSettings::readFromJson(const QJsonObject & json)
             jstools::parseJson(json, "NormalDeviation", ar);
             jstools::readDPairVectorFromArray(ar, NormalDeviation);
         }
-        jstools::parseJson(json, "OrientationProbabilityCorrection", OrientationProbabilityCorrection);
     }
     else
     {
