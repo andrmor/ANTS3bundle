@@ -258,3 +258,41 @@ QVariantList APhotonSim_SI::getMonitorXY(int monitorIndex)
 
     return vl;
 }
+
+#include "aphotonstatistics.h"
+#include "astatisticshub.h"
+void APhotonSim_SI::loadStatistics(QString fileName)
+{
+    QJsonObject json;
+    bool ok = jstools::loadJsonFromFile(json, fileName);
+    if (!ok)
+    {
+        abort("Could not open file with photon statistics: " + fileName);
+        return;
+    }
+
+    APhotonStatistics & Stat = AStatisticsHub::getInstance().SimStat;
+    Stat.clear();
+    Stat.readFromJson(json);
+}
+
+QVariantList APhotonSim_SI::getStatistics_SensorAngular()
+{
+    QVariantList vl;
+    APhotonStatistics & Stat = AStatisticsHub::getInstance().SimStat;
+    if (!Stat.AngularDistr)
+    {
+        abort("Angular distribution is not loaded!");
+        return vl;
+    }
+
+    TH1D * data = Stat.AngularDistr;
+    const int numX = data->GetXaxis()->GetNbins();
+    for (int ix = 0; ix < numX; ix++)
+    {
+        double point = data->GetXaxis()->GetBinCenter(ix+1);
+        vl.push_back( QVariantList{point, data->GetBinContent(ix+1)} );
+    }
+
+    return vl;
+}
