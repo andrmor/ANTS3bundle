@@ -13,11 +13,13 @@
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QInputDialog>
+#include <QDoubleValidator>
 
 #include <algorithm>
 
 #include "TObject.h"
 #include "TCanvas.h"
+#include "TPad.h"
 
 AMultiGraphDesigner::AMultiGraphDesigner(ABasketManager & Basket, QWidget *parent) :
     QMainWindow(parent), Basket(Basket),
@@ -36,6 +38,12 @@ AMultiGraphDesigner::AMultiGraphDesigner(ABasketManager & Basket, QWidget *paren
 
     connect(lwBasket,     &ABasketListWidget::itemDoubleClicked, this, &AMultiGraphDesigner::onBasketItemDoubleClicked);
     connect(ui->lwCoords, &QListWidget::itemDoubleClicked,       this, &AMultiGraphDesigner::onCoordItemDoubleClicked);
+
+    QDoubleValidator* dv = new QDoubleValidator(this);
+    dv->setNotation(QDoubleValidator::ScientificNotation);
+    QList<QLineEdit*> list = findChildren<QLineEdit*>();
+    for (QLineEdit * w : qAsConst(list)) if (w->objectName().startsWith("led"))
+            w->setValidator(dv);
 
     updateBasketGUI();
 }
@@ -207,6 +215,20 @@ void AMultiGraphDesigner::updateCanvas()
                 const QVector<ADrawObject> DrawObjects = Basket.getCopy(iBasketIndex);
                 pad.tPad->cd();
                 drawGraph(DrawObjects, pad);
+                if (!DrawObjects.isEmpty())
+                {
+                    pad.tPad->SetLogx(DrawObjects.front().bLogScaleX);
+                    pad.tPad->SetLogy(DrawObjects.front().bLogScaleY);
+
+                    if (ui->cbEnforceMargins->isChecked())
+                    {
+                        float left = ui->ledLeft->text().toFloat();
+                        float right = ui->ledRight->text().toFloat();
+                        float top = ui->ledTop->text().toFloat();
+                        float bot = ui->ledBottom->text().toFloat();
+                        pad.tPad->SetMargin(left, right, bot, top);
+                    }
+                }
             }
         }
     }
@@ -402,3 +424,42 @@ void AMultiGraphDesigner::on_pbClear_clicked()
     clearGraphs();
     updateGUI();
 }
+
+void AMultiGraphDesigner::on_cbEnforceMargins_clicked()
+{
+    updateCanvas();
+}
+
+void AMultiGraphDesigner::checkMargin(QLineEdit * le)
+{
+    float val = le->text().toFloat();
+    if (val < 0 || val > 1)
+    {
+        le->setText("0.1");
+        guitools::message("The margin value should be in th erange of 0..1", this);
+        return;
+    }
+
+    if (ui->cbEnforceMargins->isChecked()) updateCanvas();
+}
+
+void AMultiGraphDesigner::on_ledLeft_editingFinished()
+{
+    checkMargin(ui->ledLeft);
+}
+
+void AMultiGraphDesigner::on_ledRight_editingFinished()
+{
+    checkMargin(ui->ledRight);
+}
+
+void AMultiGraphDesigner::on_ledTop_editingFinished()
+{
+    checkMargin(ui->ledTop);
+}
+
+void AMultiGraphDesigner::on_ledBottom_editingFinished()
+{
+    checkMargin(ui->ledBottom);
+}
+

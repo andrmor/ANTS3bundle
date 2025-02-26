@@ -7,8 +7,6 @@
 #include <QMainWindow>
 #include <QVector>
 
-#include "TPad.h"
-
 class ABasketManager;
 class RasterWindowBaseClass;
 class ABasketListWidget;
@@ -16,6 +14,7 @@ class ADrawObject;
 class QJsonObject;
 class QListWidget;
 class QListWidgetItem;
+class QLineEdit;
 
 namespace Ui {
 class AMultiGraphDesigner;
@@ -45,9 +44,15 @@ private slots:
     void onCoordItemDoubleClicked(QListWidgetItem *);
     void onBasketItemDoubleClicked(QListWidgetItem *);
 
+    void on_cbEnforceMargins_clicked();
+    void on_ledLeft_editingFinished();
+    void on_ledRight_editingFinished();
+    void on_ledTop_editingFinished();
+    void on_ledBottom_editingFinished();
+
 protected:
     bool event(QEvent * event) override;
-    void closeEvent(QCloseEvent *event);
+    void closeEvent(QCloseEvent * event) override;
 
 signals:
     void basketChanged();
@@ -73,7 +78,8 @@ private:
     void writeToJson(QJsonObject &json);
     QString readFromJson(const QJsonObject &json);
     QString PadsToString();
-    void addDraw(QListWidget *lw);
+    void addDraw(QListWidget * lw);
+    void checkMargin(QLineEdit * le);
 };
 
 #endif // AMULTIGRAPHDESIGNER_H
