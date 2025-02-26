@@ -42,6 +42,9 @@
        <enum>QFrame::Shadow::Raised</enum>
       </property>
       <layout class="QVBoxLayout" name="lay3">
+       <property name="spacing">
+        <number>3</number>
+       </property>
        <property name="leftMargin">
         <number>2</number>
        </property>
@@ -180,7 +183,77 @@
         </widget>
        </item>
        <item>
-        <widget class="QFrame" name="frame_4">
+        <widget class="Line" name="line">
+         <property name="orientation">
+          <enum>Qt::Orientation::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <layout class="QFormLayout" name="formLayout">
+         <item row="0" column="0">
+          <widget class="QCheckBox" name="cbScaleLabels">
+           <property name="text">
+            <string>Scale all labels by:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QLineEdit" name="ledScaleFactorForlabel">
+           <property name="text">
+            <string>1.0</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QCheckBox" name="cbScaleXoffsets">
+           <property name="text">
+            <string>Scale X offsets by:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QLineEdit" name="ledScaleFactorForXoffset">
+           <property name="text">
+            <string>1.0</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QCheckBox" name="cbScaleYoffsets">
+           <property name="text">
+            <string>Scale Y offsets by:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QLineEdit" name="ledScaleFactorForYoffset">
+           <property name="text">
+            <string>1.0</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <widget class="Line" name="line_2">
+         <property name="orientation">
+          <enum>Qt::Orientation::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="cbEnforceMargins">
+         <property name="text">
+          <string>Enforce margins:</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QFrame" name="frMargins">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
          <property name="minimumSize">
           <size>
            <width>0</width>
@@ -188,7 +261,7 @@
           </size>
          </property>
          <property name="frameShape">
-          <enum>QFrame::Shape::StyledPanel</enum>
+          <enum>QFrame::Shape::NoFrame</enum>
          </property>
          <property name="frameShadow">
           <enum>QFrame::Shadow::Raised</enum>
@@ -210,18 +283,11 @@
            <number>3</number>
           </property>
           <item>
-           <widget class="QCheckBox" name="cbEnforceMargins">
-            <property name="text">
-             <string>Enforce margins:</string>
-            </property>
-           </widget>
-          </item>
-          <item>
            <layout class="QGridLayout" name="gridLayout">
             <item row="0" column="0">
              <widget class="QLabel" name="label">
               <property name="text">
-               <string>Left:</string>
+               <string> Left:</string>
               </property>
              </widget>
             </item>
@@ -249,7 +315,7 @@
             <item row="1" column="0">
              <widget class="QLabel" name="label_5">
               <property name="text">
-               <string>Top:</string>
+               <string> Top:</string>
               </property>
              </widget>
             </item>
@@ -331,5 +397,22 @@
   </action>
  </widget>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>cbEnforceMargins</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>frMargins</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>404</x>
+     <y>506</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>363</x>
+     <y>521</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

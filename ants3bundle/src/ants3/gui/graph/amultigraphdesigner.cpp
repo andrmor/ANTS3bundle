@@ -197,6 +197,8 @@ void AMultiGraphDesigner::drawGraph(const QVector<ADrawObject> DrawObjects, APad
     }
 }
 
+#include "TGraph.h"
+#include "TH1.h"
 void AMultiGraphDesigner::updateCanvas()
 {
     TCanvas * canvas = RasterWindow->fCanvas;
@@ -214,7 +216,7 @@ void AMultiGraphDesigner::updateCanvas()
             {
                 const QVector<ADrawObject> DrawObjects = Basket.getCopy(iBasketIndex);
                 pad.tPad->cd();
-                drawGraph(DrawObjects, pad);
+
                 if (!DrawObjects.isEmpty())
                 {
                     pad.tPad->SetLogx(DrawObjects.front().bLogScaleX);
@@ -228,6 +230,60 @@ void AMultiGraphDesigner::updateCanvas()
                         float bot = ui->ledBottom->text().toFloat();
                         pad.tPad->SetMargin(left, right, bot, top);
                     }
+
+                    TAxis * xAxis = nullptr;
+                    TAxis * yAxis = nullptr;
+                    TGraph * gr = dynamic_cast<TGraph*>(DrawObjects.front().Pointer);
+                    if (gr)
+                    {
+                        xAxis = gr->GetXaxis();
+                        yAxis = gr->GetYaxis();
+                    }
+                    else
+                    {
+                        TH1 * h = dynamic_cast<TH1*>(DrawObjects.front().Pointer);
+                        if (h)
+                        {
+                            xAxis = h->GetXaxis();
+                            yAxis = h->GetYaxis();
+                        }
+                    }
+                    std::vector<TAxis*> axes = {xAxis, yAxis};
+
+                    if (ui->cbScaleLabels->isChecked())
+                    {
+                        double factor = ui->ledScaleFactorForlabel->text().toDouble();
+                        for (TAxis * axis : axes)
+                            if (axis)
+                            {
+                                //axis.SetTitleOffset(grAxis.GetTitleOffset());
+                                axis->SetTitleSize(axis->GetTitleSize()*factor);
+
+                                //axis.SetLabelOffset(grAxis.GetLabelOffset());
+                                axis->SetLabelSize(axis->GetLabelSize()*factor);
+                            }
+                    }
+
+                    if (ui->cbScaleXoffsets->isChecked())
+                    {
+                        double factor = ui->ledScaleFactorForXoffset->text().toDouble();
+                        if (xAxis)
+                        {
+                            xAxis->SetTitleOffset(xAxis->GetTitleOffset()*factor);
+                            //axis.SetLabelOffset(grAxis.GetLabelOffset());
+                        }
+                    }
+                    if (ui->cbScaleYoffsets->isChecked())
+                    {
+                        double factor = ui->ledScaleFactorForYoffset->text().toDouble();
+                        if (yAxis)
+                        {
+                            yAxis->SetTitleOffset(yAxis->GetTitleOffset()*factor);
+                            //axis.SetLabelOffset(grAxis.GetLabelOffset());
+                        }
+                    }
+
+                    drawGraph(DrawObjects, pad);
                 }
             }
         }
@@ -461,5 +517,35 @@ void AMultiGraphDesigner::on_ledTop_editingFinished()
 void AMultiGraphDesigner::on_ledBottom_editingFinished()
 {
     checkMargin(ui->ledBottom);
+}
+
+void AMultiGraphDesigner::on_cbScaleLabels_clicked()
+{
+    updateCanvas();
+}
+
+void AMultiGraphDesigner::on_ledScaleFactorForlabel_editingFinished()
+{
+    if (ui->cbScaleLabels->isChecked()) updateCanvas();
+}
+
+void AMultiGraphDesigner::on_cbScaleXoffsets_clicked()
+{
+    updateCanvas();
+}
+
+void AMultiGraphDesigner::on_cbScaleYoffsets_clicked()
+{
+    updateCanvas();
+}
+
+void AMultiGraphDesigner::on_ledScaleFactorForXoffset_editingFinished()
+{
+    if (ui->cbScaleXoffsets->isChecked()) updateCanvas();
+}
+
+void AMultiGraphDesigner::on_ledScaleFactorForYoffset_editingFinished()
+{
+    if (ui->cbScaleYoffsets->isChecked()) updateCanvas();
 }
 

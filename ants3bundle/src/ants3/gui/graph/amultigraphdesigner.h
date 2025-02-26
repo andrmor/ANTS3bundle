@@ -50,6 +50,18 @@ private slots:
     void on_ledTop_editingFinished();
     void on_ledBottom_editingFinished();
 
+    void on_cbScaleLabels_clicked();
+
+    void on_ledScaleFactorForlabel_editingFinished();
+
+    void on_cbScaleXoffsets_clicked();
+
+    void on_cbScaleYoffsets_clicked();
+
+    void on_ledScaleFactorForXoffset_editingFinished();
+
+    void on_ledScaleFactorForYoffset_editingFinished();
+
 protected:
     bool event(QEvent * event) override;
     void closeEvent(QCloseEvent * event) override;
