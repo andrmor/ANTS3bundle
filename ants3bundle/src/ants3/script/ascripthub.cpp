@@ -7,6 +7,10 @@
     #include "aminipython_si.h"
 #endif
 
+#ifdef WEBSOCKETS
+    #include "awebsocket_si.h"
+#endif
+
 // SI
 #include "ademo_si.h"
 #include "acore_si.h"
@@ -186,6 +190,10 @@ AScriptHub::AScriptHub()
     addCommonInterface(new ARootStyle_SI(),    "root");
     addCommonInterface(new APet_si(),          "pet");
     addCommonInterface(new ADemo_SI(),         "demo");
+
+#ifdef WEBSOCKETS
+    addCommonInterface(new AWebSocket_SI(),    "websocket");
+#endif
 
     JavaScriptM->registerInterface(new AMiniJS_SI(), "mini");
 #ifdef ANTS3_PYTHON

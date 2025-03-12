@@ -240,6 +240,7 @@ SOURCES += \
     script/ScriptInterfaces/apet_si.cpp \
     script/ScriptInterfaces/arootstyle_si.cpp \
     script/ScriptInterfaces/asensor_si.cpp \
+    script/ScriptInterfaces/awebsocket_si.cpp \
     script/ajscriptmanager.cpp \
     script/ajscriptworker.cpp \
     script/apeakfinder.cpp \
@@ -482,6 +483,7 @@ HEADERS += \
     script/ScriptInterfaces/asensor_si.h \
     rec/PET/apetcoincidencefinder.h \
     rec/PET/apeteventbuilder.h \
+    script/ScriptInterfaces/awebsocket_si.h \
     script/arootgraphrecord.h \
     script/aroothistrecord.h \
     script/arootobjbase.h \
