@@ -59,10 +59,8 @@ public:
     QJsonObject TrackVisAttributes;
 
     // WebSocket server
-    /*
-    int DefaultWebSocketPort = 1234;
+    int     DefaultWebSocketPort = 1234;
     QString DefaultWebSocketIP = "127.0.0.1";
-    */
 
     void    init();
     bool    checkExchangeDir();

@@ -240,7 +240,6 @@ SOURCES += \
     script/ScriptInterfaces/apet_si.cpp \
     script/ScriptInterfaces/arootstyle_si.cpp \
     script/ScriptInterfaces/asensor_si.cpp \
-    script/ScriptInterfaces/awebsocket_si.cpp \
     script/ajscriptmanager.cpp \
     script/ajscriptworker.cpp \
     script/apeakfinder.cpp \
@@ -483,7 +482,6 @@ HEADERS += \
     script/ScriptInterfaces/asensor_si.h \
     rec/PET/apetcoincidencefinder.h \
     rec/PET/apeteventbuilder.h \
-    script/ScriptInterfaces/awebsocket_si.h \
     script/arootgraphrecord.h \
     script/aroothistrecord.h \
     script/arootobjbase.h \
@@ -659,12 +657,18 @@ ants3_FARM {
     DEFINES += WEBSOCKETS
 
     SOURCES += \
+    script/ScriptInterfaces/awebsocket_si.cpp \
+    script/ScriptInterfaces/awebserver_si.cpp \
+    net/awebsocketserver.cpp \
     ../dispatcher/awebsocketsessionserver.cpp \
     ../dispatcher/awebsocketsession.cpp \
     ../dispatcher/a3remotehandler.cpp \
     ../dispatcher/a3wsclient.cpp
 
     HEADERS += \
+    script/ScriptInterfaces/awebsocket_si.h \
+    script/ScriptInterfaces/awebserver_si.h \
+    net/awebsocketserver.h \
     ../dispatcher/awebsocketsessionserver.h \
     ../dispatcher/awebsocketsession.h \
     ../dispatcher/a3remotehandler.h \

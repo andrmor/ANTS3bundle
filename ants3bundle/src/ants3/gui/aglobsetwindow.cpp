@@ -85,7 +85,6 @@ void AGlobSetWindow::updateGui()
 
 void AGlobSetWindow::updateNetGui()
 {
-/*
     ui->leWebSocketIP->setText(GlobSet.DefaultWebSocketIP);
     ui->leWebSocketPort->setText(QString::number(GlobSet.DefaultWebSocketPort));
 
@@ -99,7 +98,6 @@ void AGlobSetWindow::updateNetGui()
         ui->leWebSocketPort->setText(QString::number(port));
         ui->leWebSocketURL->setText(Net->getWebSocketServerURL());
     }
-*/
 
 #ifdef USE_ROOT_HTML
     ARootHttpServer & ser = ARootHttpServer::getInstance();

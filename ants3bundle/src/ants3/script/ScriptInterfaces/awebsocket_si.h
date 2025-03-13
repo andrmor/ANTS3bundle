@@ -9,6 +9,8 @@
 
 class AWebSocketSession;
 
+// !!!!! Careful, AWebSocketSession is used by the Dispatcher infrastructure !!!!!
+// If significant changes have to be done, it is better to make a dedicated copy of AWebSocketSession class
 class AWebSocket_SI: public AScriptInterface
 {
   Q_OBJECT

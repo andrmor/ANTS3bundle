@@ -112,8 +112,12 @@ void A3Global::saveConfig()
     json["NewGeoObjectAddedLast"] = NewGeoObjectAddedLast;
 
     // Web server
-    //js["DefaultWebSocketPort"] = DefaultWebSocketPort;
-    //js["DefaultWebSocketIP"] = DefaultWebSocketIP;
+    {
+        QJsonObject js;
+            js["DefaultPort"] = DefaultWebSocketPort;
+            js["DefaultIP"] = DefaultWebSocketIP;
+        json["WebServer"] = js;
+    }
 
     // Root server
 #ifdef USE_ROOT_HTML
@@ -181,6 +185,17 @@ void A3Global::loadConfig()
     jstools::parseJson(json, "TrackVisAttributes", TrackVisAttributes);
 
     jstools::parseJson(json, "NewGeoObjectAddedLast", NewGeoObjectAddedLast);
+
+    // Web server
+    {
+        QJsonObject js;
+        bool ok = jstools::parseJson(json, "WebServer", js);
+        if (ok)
+        {
+            jstools::parseJson(js, "DefaultPort", DefaultWebSocketPort);
+            jstools::parseJson(js, "DefaultIP", DefaultWebSocketIP);
+        }
+    }
 
     // Root server
 #ifdef USE_ROOT_HTML
