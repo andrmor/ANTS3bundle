@@ -142,7 +142,7 @@ void AGlobSetWindow::showNetSettings()
 {
     showNormal();
     activateWindow();
-    setTab(5);
+    setTab(3);
 }
 
 bool AGlobSetWindow::event(QEvent *event)
@@ -283,34 +283,7 @@ void AGlobSetWindow::on_sbNumSegments_editingFinished()
 {
     GlobSet.NumSegmentsTGeo = ui->sbNumSegments->value();
     AGeometryHub::getInstance().GeoManager->SetNsegments(GlobSet.NumSegmentsTGeo);
-    //GeometryWindow->ShowGeometry(false); // !!!*** need?
 }
-
-/*
-void AGlobSetWindow::on_sbNumPointsFunctionX_editingFinished()
-{
-    GlobSet.FunctionPointsX = ui->sbNumPointsFunctionX->value();
-}
-void AGlobSetWindow::on_sbNumPointsFunctionY_editingFinished()
-{
-    GlobSet.FunctionPointsY = ui->sbNumPointsFunctionY->value();
-}
-*/
-
-/*
-void AGlobSetWindow::on_cbSaveRecAsTree_IncludePMsignals_clicked(bool checked)
-{
-    GlobSet.RecTreeSave_IncludePMsignals = checked;
-}
-void AGlobSetWindow::on_cbSaveRecAsTree_IncludeRho_clicked(bool checked)
-{
-    GlobSet.RecTreeSave_IncludeRho = checked;
-}
-void AGlobSetWindow::on_cbSaveRecAsTree_IncludeTrue_clicked(bool checked)
-{
-    GlobSet.RecTreeSave_IncludeTrue = checked;
-}
-*/
 
 #ifdef WEBSOCKETS
 void AGlobSetWindow::on_cbRunWebSocketServer_clicked(bool checked)
@@ -357,17 +330,6 @@ void AGlobSetWindow::on_cbRunWebSocketServer_toggled(bool checked)
     if (!checked) ui->leWebSocketURL->clear();
 }
 #endif
-
-/*
-void AGlobSetWindow::on_cbSaveSimAsText_IncludeNumPhotons_clicked(bool checked)
-{
-    GlobSet.SimTextSave_IncludeNumPhotons = checked;
-}
-void AGlobSetWindow::on_cbSaveSimAsText_IncludePositions_clicked(bool checked)
-{
-    GlobSet.SimTextSave_IncludePositions = checked;
-}
-*/
 
 #ifdef USE_ROOT_HTML
 void AGlobSetWindow::on_cbAutoRunRootServer_clicked()
@@ -481,4 +443,3 @@ void AGlobSetWindow::on_sbTabInSpaces_valueChanged(int arg1)
 {
     GlobSet.TabInSpaces = arg1;
 }
-
