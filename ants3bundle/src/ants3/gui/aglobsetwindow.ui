@@ -889,7 +889,7 @@
              <item>
               <widget class="QLineEdit" name="leWebSocketURL">
                <property name="enabled">
-                <bool>false</bool>
+                <bool>true</bool>
                </property>
                <property name="readOnly">
                 <bool>true</bool>

@@ -25,8 +25,6 @@ private:
     ARootHttpServer& operator=(ARootHttpServer&&)      = delete;
 
 public:
-    ARootHttpServer(unsigned int port, QString OptionalUrlJsRoot = "");
-
     bool start();
     void stop();
 

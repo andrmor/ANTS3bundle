@@ -13,10 +13,10 @@ class AWebServerInterface: public AScriptInterface
   Q_OBJECT
 
 public:
-    AWebServerInterface(AWebSocketServer & Server);
+    AWebServerInterface();
     ~AWebServerInterface() {}
 
-    AScriptInterface * cloneBase() const override {return new AWebServerInterface(Server);}
+    AScriptInterface * cloneBase() const override {return new AWebServerInterface();}
 
     //void abortRun() override;
 

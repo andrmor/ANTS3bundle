@@ -8,8 +8,13 @@
 #include <QFile>
 #include <QHostAddress>
 
-AWebSocketServer::AWebSocketServer(QObject * parent) :
-    QObject(parent),
+AWebSocketServer &AWebSocketServer::getInstance()
+{
+    static AWebSocketServer instance;
+    return instance;
+}
+
+AWebSocketServer::AWebSocketServer() :
     Server(new QWebSocketServer(QStringLiteral("ANTS3"), QWebSocketServer::NonSecureMode, this))
 {
     connect(Server, &QWebSocketServer::newConnection, this, &AWebSocketServer::onNewConnection);
@@ -44,6 +49,7 @@ bool AWebSocketServer::startListen(QHostAddress ip, quint16 port)
 void AWebSocketServer::stopListen()
 {
     Server->close();
+    qDebug() << "WebSocket server stopped";
     emit reportToGUI("< Server is not listening\n");
 }
 
@@ -199,6 +205,10 @@ void AWebSocketServer::onNewConnection()
     }
 }
 
+#include "ascripthub.h"
+#include "ajscriptmanager.h"
+#include <QApplication>
+#include <QThread>
 void AWebSocketServer::onTextMessageReceived(const QString &message)
 {    
     bReplied = false;
@@ -211,9 +221,55 @@ void AWebSocketServer::onTextMessageReceived(const QString &message)
     {
         if (Client)
             Client->sendTextMessage("PONG"); //used for watchdogs
+        return;
+    }
+
+    //emit textMessageReceived(message);
+
+    qDebug() << "-->Evaluating as JavaScript";
+
+    AScriptHub & ScriptHub = AScriptHub::getInstance();
+    AJScriptManager & ScriptManager = ScriptHub.getJScriptManager();
+
+    bool ok = ScriptManager.evaluate(message);
+    if (!ok)
+    {
+        qDebug() << "-->Failed to start script evaluation (worker is busy)";
+        sendError( QString("Failed to start script evaluation, worker is busy") );
+        return;
+    }
+
+    do
+    {
+        QApplication::processEvents();
+        QThread::usleep(100);
+        //if (AbortRequestTmp) ScriptManager.abort();
+    }
+    while ( !ScriptManager.isAborted() && !ScriptManager.isFinished());
+    //qDebug() << ScriptManager.isAborted() << ScriptManager.isFinished();
+
+    if (ScriptManager.isError())
+    {
+        qDebug() << "-->Evaluation error:" << ScriptManager.getErrorDescription() << "in line" << ScriptManager.getErrorLineNumber();
+        sendError( QString("Script error -> %0 in line %1").arg(ScriptManager.getErrorDescription()).arg(ScriptManager.getErrorLineNumber()) );
+    }
+    else if (ScriptManager.isAborted())
+    {
+        qDebug() << "-->Evaluation aborted";
+        sendError( QString("Script eval aborted") );
     }
     else
-       emit textMessageReceived(message);
+    {
+        qDebug() << "-->Evaluation success";
+        if ( !isReplied() )
+        {
+            qDebug() << "-->Generating reply";
+            QVariant res = ScriptManager.getResult();
+            qDebug() << "-->Result:" << res;
+            replyWithText("{ \"result\" : true, \"evaluation\" : \"" + res.toString() + "\" }");
+        }
+        else qDebug() << "-->Not need to reply, script already generated one";
+    }
 }
 
 void AWebSocketServer::onBinaryMessageReceived(const QByteArray & message)

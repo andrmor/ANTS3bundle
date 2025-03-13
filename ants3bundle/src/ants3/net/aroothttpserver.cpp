@@ -1,6 +1,6 @@
 #include "aroothttpserver.h"
 #include "ajsontools.h"
-#include "a3global.h"
+//#include "a3global.h"
 
 #include <QDebug>
 

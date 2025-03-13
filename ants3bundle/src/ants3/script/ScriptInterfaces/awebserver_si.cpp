@@ -6,8 +6,8 @@
 #include <QJsonDocument>
 #include <QFile>
 
-AWebServerInterface::AWebServerInterface(AWebSocketServer & Server) :
-    AScriptInterface(), Server(Server)
+AWebServerInterface::AWebServerInterface() :
+    AScriptInterface(), Server(AWebSocketServer::getInstance())
 {
     QObject::connect(&Server, &AWebSocketServer::requestAbort, this, &AWebServerInterface::abort);
 }

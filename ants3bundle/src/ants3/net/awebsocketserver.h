@@ -15,10 +15,20 @@ class QHostAddress;
 class AWebSocketServer : public QObject
 {
     Q_OBJECT
+
 public:
-    explicit AWebSocketServer(QObject * parent = nullptr);
+    static AWebSocketServer & getInstance();
+
+private:
+    AWebSocketServer();
     ~AWebSocketServer();
 
+    AWebSocketServer(const AWebSocketServer&)            = delete;
+    AWebSocketServer(AWebSocketServer&&)                 = delete;
+    AWebSocketServer& operator=(const AWebSocketServer&) = delete;
+    AWebSocketServer& operator=(AWebSocketServer&&)      = delete;
+
+public:
     bool startListen(QHostAddress ip, quint16 port);
     void stopListen();
     bool isRunning();
@@ -57,7 +67,7 @@ private slots:
     void onSocketDisconnected();
 
 signals:
-    void textMessageReceived(const QString &message);
+    //void textMessageReceived(const QString & message);
     void clientDisconnected();
     void closed();
     void reportToGUI(const QString & text);
