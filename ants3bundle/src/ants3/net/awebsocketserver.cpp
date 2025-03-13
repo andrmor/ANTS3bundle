@@ -123,7 +123,7 @@ void AWebSocketServer::replyWithBinaryObject(const QVariantMap & object)
 {
     if ( !assureCanReply() ) return;
 
-    qDebug() << "Binary reply from object";
+    qDebug() << "Binary reply: transferring object";
 
     QJsonObject js = QJsonObject::fromVariantMap(object);
     QJsonDocument doc(js);

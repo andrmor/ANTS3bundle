@@ -8,15 +8,15 @@
 
 class AWebSocketServer;
 
-class AWebServerInterface: public AScriptInterface
+class AWebServer_SI: public AScriptInterface
 {
   Q_OBJECT
 
 public:
-    AWebServerInterface();
-    ~AWebServerInterface() {}
+    AWebServer_SI();
+    ~AWebServer_SI() {}
 
-    AScriptInterface * cloneBase() const override {return new AWebServerInterface();}
+    AScriptInterface * cloneBase() const override {return new AWebServer_SI();}
 
     //void abortRun() override;
 

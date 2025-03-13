@@ -6,43 +6,60 @@
 #include <QJsonDocument>
 #include <QFile>
 
-AWebServerInterface::AWebServerInterface() :
+AWebServer_SI::AWebServer_SI() :
     AScriptInterface(), Server(AWebSocketServer::getInstance())
 {
-    QObject::connect(&Server, &AWebSocketServer::requestAbort, this, &AWebServerInterface::abort);
+    QObject::connect(&Server, &AWebSocketServer::requestAbort, this, &AWebServer_SI::abort);
 }
 
-void AWebServerInterface::sendText(QString message)
+#include <QTimer>
+void AWebServer_SI::sendText(QString message)
 {
-    Server.replyWithText(message);
+    //Server.replyWithText(message);
+    QTimer::singleShot(0, &Server, [this, message]()
+    {
+        Server.replyWithText(message);
+    } );
 }
 
-void AWebServerInterface::sendFile(QString fileName)
+void AWebServer_SI::sendFile(QString fileName)
 {
-    Server.replyWithBinaryFile(fileName);
+    //Server.replyWithBinaryFile(fileName);
+    QTimer::singleShot(0, &Server, [this, fileName]()
+    {
+        Server.replyWithBinaryFile(fileName);
+    } );
 }
 
-void AWebServerInterface::sendObject(QVariantMap object)
+void AWebServer_SI::sendObject(QVariantMap object)
 {
-    Server.replyWithBinaryObject(object);
+    //Server.replyWithBinaryObject(object);
+    QTimer::singleShot(0, &Server, [this, object]()
+    {
+        Server.replyWithBinaryObject(object);
+    } );
 }
 
-void AWebServerInterface::sendObjectAsJSON(QVariantMap object)
+void AWebServer_SI::sendObjectAsJSON(QVariantMap object)
 {
-    Server.replyWithBinaryObject_asJSON(object);
+    //Server.replyWithBinaryObject_asJSON(object);
+    QTimer::singleShot(0, &Server, [this, object]()
+    {
+        Server.replyWithBinaryObject_asJSON(object);
+    } );
 }
 
-bool AWebServerInterface::isBufferEmpty()
+bool AWebServer_SI::isBufferEmpty()
 {
     return Server.isBinaryEmpty();
 }
 
-void AWebServerInterface::clearBuffer()
+void AWebServer_SI::clearBuffer()
 {
     Server.clearBinary();
 }
 
-QVariantMap AWebServerInterface::getBufferAsObject() const
+QVariantMap AWebServer_SI::getBufferAsObject() const
 {
     const QByteArray& ba = Server.getBinary();
     QJsonDocument doc =  QJsonDocument::fromJson(ba);
@@ -52,7 +69,7 @@ QVariantMap AWebServerInterface::getBufferAsObject() const
     return vm;
 }
 
-bool AWebServerInterface::saveBufferToFile(QString fileName)
+bool AWebServer_SI::saveBufferToFile(QString fileName)
 {
     const QByteArray& ba = Server.getBinary();
     qDebug() << "Preparing to save, ba size = " << ba.size();
@@ -68,12 +85,12 @@ bool AWebServerInterface::saveBufferToFile(QString fileName)
     return true;
 }
 
-void AWebServerInterface::sendProgressReport(int percents)
+void AWebServer_SI::sendProgressReport(int percents)
 {
     Server.replyProgress(percents);
 }
 
-void AWebServerInterface::setAcceptExternalProgressReport(bool flag)
+void AWebServer_SI::setAcceptExternalProgressReport(bool flag)
 {
     Server.setCanRetranslateProgress(flag);
 }
