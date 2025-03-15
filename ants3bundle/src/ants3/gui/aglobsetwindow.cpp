@@ -3,8 +3,14 @@
 #include "a3global.h"
 #include "ascriptwindow.h"
 #include "guitools.h"
-#include "aroothttpserver.h"
-//#include "agstyle_si.h"
+
+#ifdef USE_ROOT_HTML
+    #include "aroothttpserver.h"
+#endif
+
+#ifdef WEBSOCKETS
+    #include "awebsocketserver.h"
+#endif
 
 //Qt
 #include <QFileDialog>
@@ -12,10 +18,10 @@
 #include <QDebug>
 #include <QHostAddress>
 #include <QStyleFactory>
+#include <QToolTip>
 
 #include "TGeoManager.h"
 
-#include <QToolTip>
 AGlobSetWindow::AGlobSetWindow(QWidget * parent) :
     AGuiWindow("Glob", parent),
     GlobSet(A3Global::getInstance()),
@@ -85,21 +91,22 @@ void AGlobSetWindow::updateGui()
 
 void AGlobSetWindow::updateNetGui()
 {
-/*
     ui->leWebSocketIP->setText(GlobSet.DefaultWebSocketIP);
     ui->leWebSocketPort->setText(QString::number(GlobSet.DefaultWebSocketPort));
+#ifdef WEBSOCKETS
+    AWebSocketServer & WebServer = AWebSocketServer::getInstance();
 
-    ANetworkModule* Net = GlobSet.getNetworkModule();
-
-    bool fWebSocketRunning = Net->isWebSocketServerRunning();
+    bool fWebSocketRunning = WebServer.isRunning();
     ui->cbRunWebSocketServer->setChecked( fWebSocketRunning );
     if (fWebSocketRunning)
     {
-        int port = Net->getWebSocketPort();
-        ui->leWebSocketPort->setText(QString::number(port));
-        ui->leWebSocketURL->setText(Net->getWebSocketServerURL());
+        ui->leWebSocketPort->setText(QString::number(WebServer.getPort()));
+        ui->leWebSocketURL->setText(WebServer.getUrl());
     }
-*/
+#else
+    ui->cbRunWebSocketServer->setChecked(false);
+    ui->cbRunWebSocketServer->setEnabled(false);
+#endif
 
 #ifdef USE_ROOT_HTML
     ARootHttpServer & ser = ARootHttpServer::getInstance();
@@ -135,7 +142,7 @@ void AGlobSetWindow::showNetSettings()
 {
     showNormal();
     activateWindow();
-    setTab(5);
+    setTab(3);
 }
 
 bool AGlobSetWindow::event(QEvent *event)
@@ -276,43 +283,17 @@ void AGlobSetWindow::on_sbNumSegments_editingFinished()
 {
     GlobSet.NumSegmentsTGeo = ui->sbNumSegments->value();
     AGeometryHub::getInstance().GeoManager->SetNsegments(GlobSet.NumSegmentsTGeo);
-    //GeometryWindow->ShowGeometry(false); // !!!*** need?
 }
 
-/*
-void AGlobSetWindow::on_sbNumPointsFunctionX_editingFinished()
-{
-    GlobSet.FunctionPointsX = ui->sbNumPointsFunctionX->value();
-}
-void AGlobSetWindow::on_sbNumPointsFunctionY_editingFinished()
-{
-    GlobSet.FunctionPointsY = ui->sbNumPointsFunctionY->value();
-}
-*/
-
-/*
-void AGlobSetWindow::on_cbSaveRecAsTree_IncludePMsignals_clicked(bool checked)
-{
-    GlobSet.RecTreeSave_IncludePMsignals = checked;
-}
-void AGlobSetWindow::on_cbSaveRecAsTree_IncludeRho_clicked(bool checked)
-{
-    GlobSet.RecTreeSave_IncludeRho = checked;
-}
-void AGlobSetWindow::on_cbSaveRecAsTree_IncludeTrue_clicked(bool checked)
-{
-    GlobSet.RecTreeSave_IncludeTrue = checked;
-}
-*/
-
-/*
+#ifdef WEBSOCKETS
 void AGlobSetWindow::on_cbRunWebSocketServer_clicked(bool checked)
 {
-    ANetworkModule* Net = GlobSet.getNetworkModule();
-    Net->StopWebSocketServer();
+    AWebSocketServer & WebServer = AWebSocketServer::getInstance();
+    WebServer.stopListen();
 
-    if (checked)
-        Net->StartWebSocketServer(QHostAddress(GlobSet.DefaultWebSocketIP), GlobSet.DefaultWebSocketPort);
+    if (checked) WebServer.startListen(QHostAddress(GlobSet.DefaultWebSocketIP), GlobSet.DefaultWebSocketPort);
+
+    updateNetGui();
 }
 void AGlobSetWindow::on_leWebSocketPort_editingFinished()
 {
@@ -336,7 +317,7 @@ void AGlobSetWindow::on_leWebSocketIP_editingFinished()
     if (ip.isNull())
     {
         ui->leWebSocketIP->setText(GlobSet.DefaultWebSocketIP);
-        message("Bad format of IP: use, e.g., 127.0.0.1", this);
+        guitools::message("Bad format of IP: use, e.g., 127.0.0.1", this);
     }
     else
     {
@@ -348,18 +329,7 @@ void AGlobSetWindow::on_cbRunWebSocketServer_toggled(bool checked)
 {
     if (!checked) ui->leWebSocketURL->clear();
 }
-*/
-
-/*
-void AGlobSetWindow::on_cbSaveSimAsText_IncludeNumPhotons_clicked(bool checked)
-{
-    GlobSet.SimTextSave_IncludeNumPhotons = checked;
-}
-void AGlobSetWindow::on_cbSaveSimAsText_IncludePositions_clicked(bool checked)
-{
-    GlobSet.SimTextSave_IncludePositions = checked;
-}
-*/
+#endif
 
 #ifdef USE_ROOT_HTML
 void AGlobSetWindow::on_cbAutoRunRootServer_clicked()
@@ -473,4 +443,3 @@ void AGlobSetWindow::on_sbTabInSpaces_valueChanged(int arg1)
 {
     GlobSet.TabInSpaces = arg1;
 }
-

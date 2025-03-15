@@ -56,6 +56,7 @@ void AJScriptManager::start()
 
 void AJScriptManager::evalFinished(bool flag)
 {
+    bFinished = true;
     emit finished(flag);
 }
 
@@ -65,6 +66,7 @@ bool AJScriptManager::evaluate(const QString &script)
     if (Worker->isBusy()) return false;
 
     bAborted = false;
+    bFinished = false;
 
     emit doEval(script);
     return true;

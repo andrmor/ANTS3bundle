@@ -4,8 +4,6 @@
 #include "aguiwindow.h"
 
 class A3Global;
-class MainWindow;
-class ANetworkModule;
 class ARootStyle_SI;
 
 namespace Ui {
@@ -26,7 +24,7 @@ public:
     ARootStyle_SI * GStyleInterface = nullptr;  // if created -> owned by the script manager
 
 protected:
-    bool event(QEvent *event);
+    bool event(QEvent * event);
 
 public slots:
     void updateNetGui();
@@ -42,23 +40,19 @@ private slots:
 
     void on_cbOpenImageExternalEditor_clicked(bool checked);
 
-    void on_sbNumSegments_editingFinished();
+    void on_sbNumSegments_editingFinished();  // !!!*** move to graph window?
     void on_sbNumBinsHistogramsX_editingFinished();
     void on_sbNumBinsHistogramsY_editingFinished();
     void on_sbNumBinsHistogramsZ_editingFinished();
 
     void on_pbOpen_clicked();
 
-//    void on_sbNumPointsFunctionX_editingFinished();
-//    void on_sbNumPointsFunctionY_editingFinished();
-//    void on_cbSaveRecAsTree_IncludePMsignals_clicked(bool checked);
-//    void on_cbSaveRecAsTree_IncludeRho_clicked(bool checked);
-//    void on_cbSaveRecAsTree_IncludeTrue_clicked(bool checked);
-
-//    void on_cbRunWebSocketServer_clicked(bool checked);
-//    void on_leWebSocketPort_editingFinished();
-//    void on_leWebSocketIP_editingFinished();
-//    void on_cbRunWebSocketServer_toggled(bool checked);
+#ifdef WEBSOCKETS
+    void on_cbRunWebSocketServer_clicked(bool checked);
+    void on_leWebSocketPort_editingFinished();
+    void on_leWebSocketIP_editingFinished();
+    void on_cbRunWebSocketServer_toggled(bool checked);
+#endif
 
 #ifdef USE_ROOT_HTML
     void on_cbAutoRunRootServer_clicked();
@@ -69,9 +63,6 @@ private slots:
 #ifdef __USE_ANTS_JSROOT__
     void on_leJSROOT_editingFinished();
 #endif
-
-//    void on_cbSaveSimAsText_IncludeNumPhotons_clicked(bool checked);
-//    void on_cbSaveSimAsText_IncludePositions_clicked(bool checked);
 
     //void on_cobColorPalette_activated(int index);
 

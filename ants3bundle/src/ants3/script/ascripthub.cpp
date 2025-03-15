@@ -9,6 +9,7 @@
 
 #ifdef WEBSOCKETS
     #include "awebsocket_si.h"
+    #include "awebserver_si.h"
 #endif
 
 // SI
@@ -193,6 +194,7 @@ AScriptHub::AScriptHub()
 
 #ifdef WEBSOCKETS
     addCommonInterface(new AWebSocket_SI(),    "websocket");
+    addCommonInterface(new AWebServer_SI(),    "webserver");
 #endif
 
     JavaScriptM->registerInterface(new AMiniJS_SI(), "mini");

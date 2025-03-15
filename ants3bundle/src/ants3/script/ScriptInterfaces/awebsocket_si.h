@@ -9,6 +9,9 @@
 
 class AWebSocketSession;
 
+// !!!!! WARNING! !!!!!
+// The same AWebSocketSession is used by the Dispatcher infrastructure!
+// If modifications to the functionality have to be made, it is better to make a dedicated copy of the AWebSocketSession class for the script interface!
 class AWebSocket_SI: public AScriptInterface
 {
   Q_OBJECT
@@ -27,12 +30,12 @@ public slots:
 
     QString  sendText(QString message);
     QString  sendObject(QVariantMap object);
-    QString  sendFile(QString fileName, QString fileNameAtDestination);
+    QString  sendFile(QString fileName);
 
     QString  resumeWaitForAnswer();
 
-    QVariant getBinaryReplyAsObject();
-    bool     saveBinaryReplyToFile(QString fileName);
+    QVariantMap getBinaryReplyAsObject();
+    bool        saveBinaryReplyToFile(QString fileName);
 
     void     setTimeout(int milliseconds);
 
