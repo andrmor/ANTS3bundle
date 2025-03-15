@@ -96,7 +96,7 @@ void AWebSocketServer::replyWithTextFromObject(const QVariantMap & object)
     bReplied = true;
 }
 
-void AWebSocketServer::replyWithBinaryFile(const QString & fileName)
+void AWebSocketServer::replyWithBinary_File(const QString & fileName)
 {
     if ( !assureCanReply() ) return;
 
@@ -119,25 +119,7 @@ void AWebSocketServer::replyWithBinaryFile(const QString & fileName)
     bReplied = true;
 }
 
-void AWebSocketServer::replyWithBinaryObject(const QVariantMap & object)
-{
-    if ( !assureCanReply() ) return;
-
-    qDebug() << "Binary reply: transferring object";
-
-    QJsonObject js = QJsonObject::fromVariantMap(object);
-    QJsonDocument doc(js);
-    Client->sendBinaryMessage(doc.toJson());
-    Client->sendTextMessage("{ \"binary\" : \"object\" }");
-    //{
-    //    QString err = "Error: Reply with object failed";
-    //    qDebug() << err;
-    //    sendError("ReplyWithBinaryObject argument is not object");
-    //}
-    bReplied = true;
-}
-
-void AWebSocketServer::replyWithBinaryObject_asJSON(const QVariantMap & object)
+void AWebSocketServer::replyWithBinary_JSON(const QVariantMap & object)
 {
     if ( !assureCanReply() ) return;
 
@@ -149,7 +131,7 @@ void AWebSocketServer::replyWithBinaryObject_asJSON(const QVariantMap & object)
     Client->sendTextMessage("{ \"binary\" : \"json\" }");
     //{
     //    qDebug() << "Reply from object failed";
-    //    sendError("ReplyWithBinaryObject_asJSON argument is not object");
+    //    sendError("ReplyWithBinary_JSON argument is not object");
     //}
     bReplied = true;
 }
@@ -163,16 +145,6 @@ void AWebSocketServer::replyWithQByteArray(const QByteArray & ba)
     Client->sendBinaryMessage(ba);
     Client->sendTextMessage("{ \"binary\" : \"qbytearray\" }");
     bReplied = true;
-}
-
-void AWebSocketServer::replyProgress(int percents)
-{
-    if ( !assureCanReply() ) return;
-
-    QString s = QString::number(percents);
-    qDebug() << "Sending progress: " << s;
-
-    Client->sendTextMessage("{ \"progress\" : " + s + " }");
 }
 
 void AWebSocketServer::onNewConnection()
@@ -324,9 +296,4 @@ QString AWebSocketServer::getUrl() const
 int AWebSocketServer::getPort() const
 {
     return Server->serverPort();
-}
-
-void AWebSocketServer::onProgressChanged(int percents)
-{
-    if (bRetranslateProgress) replyProgress(percents);
 }

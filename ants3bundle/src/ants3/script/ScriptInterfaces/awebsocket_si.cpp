@@ -12,7 +12,28 @@ QJsonObject strToObject(const QString & s)
     return doc.object();
 }
 
-AWebSocket_SI::AWebSocket_SI() : AScriptInterface() {}
+AWebSocket_SI::AWebSocket_SI() :
+    AScriptInterface()
+{
+    Description = "Interface to the web socket client\n"""
+                  "If connecting to ANTS3 web socket server (see MainWindow->Settings->Servers),\n"
+                  "can be used together with the webserver script interface for two-directional communication";
+
+    Help["connect"] = "Connect to a web socket server";
+    Help["disconnect"] = "Break the establihsed connection";
+
+    Help["sendText"] = "Send text message, returns the reply text received from the server";
+    Help["sendObject"] = "Send script object to the input binary buffer of the server";
+    Help["sendFile"] = "Send file content to the input binary buffer of the server";
+
+    Help["resumeWaitForAnswer"] = "Resumes waiting for the text reply from the server, and returns the received text messeage";
+
+    Help["getBinaryReplyAsObject"] = "Get content of the binary input buffer as script object";
+    Help["saveBinaryReplyToFile"] = "Save content of the binary input buffer to a file";
+
+    Help["setTimeout"] = "Set timeout (in milliseconds) in wait for text reply from the server. Default value is 3000";
+
+}
 
 AWebSocket_SI::~AWebSocket_SI()
 {
@@ -118,7 +139,7 @@ QString AWebSocket_SI::sendQByteArray(const QByteArray &ba)
 }
 */
 
-QString AWebSocket_SI::sendFile(QString fileName, QString fileNameAtDestination)
+QString AWebSocket_SI::sendFile(QString fileName)
 {
     if (!Socket)
     {
@@ -126,7 +147,7 @@ QString AWebSocket_SI::sendFile(QString fileName, QString fileNameAtDestination)
         return "";
     }
 
-    bool bOK = Socket->sendFile(fileName, fileNameAtDestination);
+    bool bOK = Socket->sendFile(fileName, fileName);
     if (bOK)
         return Socket->getTextReply();
     else
@@ -154,18 +175,19 @@ QString AWebSocket_SI::resumeWaitForAnswer()
     }
 }
 
-QVariant AWebSocket_SI::getBinaryReplyAsObject()
+QVariantMap AWebSocket_SI::getBinaryReplyAsObject()
 {
+    QVariantMap vm;
     if (!Socket)
     {
         abort("Web socket was not connected");
-        return "";
+        return vm;
     }
-    const QByteArray& ba = Socket->getBinaryReply();
+    const QByteArray & ba = Socket->getBinaryReply();
     QJsonDocument doc = QJsonDocument::fromJson(ba);
     QJsonObject json = doc.object();
 
-    QVariantMap vm = json.toVariantMap();
+    vm = json.toVariantMap();
     return vm;
 }
 

@@ -10,7 +10,7 @@ class QWebSocket;
 class QHostAddress;
 
 // Note there is a similar AWebSocketSessionServer class in Dispatcher,
-// which is dedicated for doistributing ANTS3 work.
+// which is part of ANTS3 workload distribution.
 // This class (AWebSocketServer) is dedicated to the ANTS3 web server only
 class AWebSocketServer : public QObject
 {
@@ -35,13 +35,9 @@ public:
 
     void replyWithText(const QString & message);
     void replyWithTextFromObject(const QVariantMap & object);
-    void replyWithBinaryFile(const QString & fileName);
-    void replyWithBinaryObject(const QVariantMap & object);
-    void replyWithBinaryObject_asJSON(const QVariantMap & object);
+    void replyWithBinary_File(const QString & fileName);
+    void replyWithBinary_JSON(const QVariantMap & object);
     void replyWithQByteArray(const QByteArray & ba);
-
-    void replyProgress(int percents);
-    void setCanRetranslateProgress(bool flag) {bRetranslateProgress = flag;}
 
     bool isReplied() const {return bReplied;}
     bool isBinaryEmpty() const {return ReceivedBinary.isEmpty();}
@@ -56,9 +52,6 @@ public:
     void sendError(const QString& error);
 
     void disconnectClient();
-
-public slots:
-    void onProgressChanged(int percents);
 
 private slots:
     void onNewConnection();
@@ -82,7 +75,6 @@ private:
     QByteArray ReceivedBinary;
 
     bool bReplied = false;
-    bool bRetranslateProgress = false;
 
 private:
     bool assureCanReply();
