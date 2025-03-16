@@ -145,6 +145,7 @@ SOURCES += \
     gui/geom/aparticleanalyzerwidget.cpp \
     gui/geom/ashownumbersdialog.cpp \
     gui/graph/adrawmarginsrecord.cpp \
+    gui/graph/ahistoptstatdialog.cpp \
     gui/graph/asetmarginsdialog.cpp \
     gui/graph/aviewer3d.cpp \
     gui/graph/aviewer3dsettingsdialog.cpp \
@@ -369,6 +370,7 @@ HEADERS += \
     gui/atreedatabaseselectordialog.h \
     gui/geom/aparticleanalyzerwidget.h \
     gui/graph/adrawmarginsrecord.h \
+    gui/graph/ahistoptstatdialog.h \
     gui/graph/asetmarginsdialog.h \
     gui/graph/aviewer3dsettingsdialog.h \
     gui/materials/aabsorptiondataconverterdialog.h \
@@ -605,6 +607,7 @@ FORMS += \
         gui/geom/aparticleanalyzerwidget.ui \
         gui/geom/ashownumbersdialog.ui \
         gui/aglobsetwindow.ui \
+        gui/graph/ahistoptstatdialog.ui \
         gui/graph/asetmarginsdialog.ui \
         gui/graph/aviewer3d.ui \
         gui/graph/aviewer3dsettingsdialog.ui \

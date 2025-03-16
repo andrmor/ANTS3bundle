@@ -77,15 +77,6 @@ void AGlobSetWindow::updateGui()
 
     ui->sbNumSegments->setValue(GlobSet.NumSegmentsTGeo);
 
-    /*
-    ui->cbSaveRecAsTree_IncludePMsignals->setChecked(GlobSet.RecTreeSave_IncludePMsignals);
-    ui->cbSaveRecAsTree_IncludeRho->setChecked(GlobSet.RecTreeSave_IncludeRho);
-    ui->cbSaveRecAsTree_IncludeTrue->setChecked(GlobSet.RecTreeSave_IncludeTrue);
-
-    ui->cbSaveSimAsText_IncludeNumPhotons->setChecked(GlobSet.SimTextSave_IncludeNumPhotons);
-    ui->cbSaveSimAsText_IncludePositions->setChecked(GlobSet.SimTextSave_IncludePositions);
-    */
-
     updateNetGui();
 }
 
@@ -93,9 +84,9 @@ void AGlobSetWindow::updateNetGui()
 {
     ui->leWebSocketIP->setText(GlobSet.DefaultWebSocketIP);
     ui->leWebSocketPort->setText(QString::number(GlobSet.DefaultWebSocketPort));
+
 #ifdef WEBSOCKETS
     AWebSocketServer & WebServer = AWebSocketServer::getInstance();
-
     bool fWebSocketRunning = WebServer.isRunning();
     ui->cbRunWebSocketServer->setChecked( fWebSocketRunning );
     if (fWebSocketRunning)
@@ -150,54 +141,6 @@ bool AGlobSetWindow::event(QEvent *event)
     if (event->type() == QEvent::WindowActivate) updateGui();
 
     return QMainWindow::event(event);
-}
-
-void AGlobSetWindow::on_pbgStyleScript_clicked()
-{
-    /*
-    MW->extractGeometryOfLocalScriptWindow();
-    delete MW->GenScriptWindow; MW->GenScriptWindow = 0;
-
-    AJavaScriptManager* jsm = new AJavaScriptManager(MW->Detector->RandGen);
-    MW->GenScriptWindow = new AScriptWindow(jsm, true, this);
-
-    QString example = QString("//see https://root.cern.ch/doc/master/classTStyle.html\n"
-                              "\n"
-                              "//try, e.g.:\n"
-                              "//SetOptStat(\"ei\") //\"nemr\" is redault");
-    MW->GenScriptWindow->ConfigureForLightMode(&GlobSet.RootStyleScript,
-                                               "Script to set ROOT's gStyle",
-                                               example);
-
-    GStyleInterface = new AGStyle_SI();
-    MW->GenScriptWindow->RegisterInterfaceAsGlobal(GStyleInterface);
-    MW->GenScriptWindow->UpdateGui();
-
-    MW->recallGeometryOfLocalScriptWindow();
-    MW->GenScriptWindow->show();
-    */
-
-    /*
-  MW->extractGeometryOfLocalScriptWindow();
-  if (MW->GenScriptWindow) delete MW->GenScriptWindow;
-  MW->GenScriptWindow = new GenericScriptWindowClass(MW->Detector->RandGen);
-  MW->recallGeometryOfLocalScriptWindow();
-
-  //configure the script window and engine
-  GStyleInterface  = new  InterfaceToGStyleScript() ; //deleted by the GenScriptWindow
-  MW->GenScriptWindow->SetInterfaceObject(GStyleInterface);
-  //QString HelpText = "  Avalable commands: \nsee https://root.cern.ch/root/html/TStyle.html - all commands starting from \"Set\"\n";
-  MW->GenScriptWindow->SetExample("");
-  MW->GenScriptWindow->SetShowEvaluationResult(false); //do not show "undefined"
-  MW->GenScriptWindow->SetTitle("Script to set ROOT's gStyle");
-  MW->GenScriptWindow->SetScript(&GlobSet.RootStyleScript);
-  MW->GenScriptWindow->SetStarterDir(MW->GlobSet.LibScripts);
-
-  //define what to do on evaluation success
-  //connect(MW->GenScriptWindow, SIGNAL(success(QString)), this, SLOT(HolesScriptSuccess()));
-  //if needed. connect signals of the interface object with the required slots of any ANTS2 objects
-  MW->GenScriptWindow->show();
-  */
 }
 
 void AGlobSetWindow::on_pbChangeDataExchangeDir_clicked()

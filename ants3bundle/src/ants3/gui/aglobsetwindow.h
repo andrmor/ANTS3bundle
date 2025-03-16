@@ -32,8 +32,6 @@ public slots:
     void onRequestConfigureExchangeDir();
 
 private slots:
-    void on_pbgStyleScript_clicked();
-
     void on_pbChangeDataExchangeDir_clicked();
     void on_leDataExchangeDir_editingFinished();
     void on_pbChangeDataExchangeDir_customContextMenuRequested(const QPoint &pos);

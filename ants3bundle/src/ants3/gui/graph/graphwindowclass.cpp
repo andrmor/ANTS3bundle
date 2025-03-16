@@ -2408,17 +2408,6 @@ void GraphWindowClass::ClearBasket()
     UpdateBasketGUI();
 }
 
-void GraphWindowClass::on_actionSave_image_triggered()
-{
-    QString fileName = guitools::dialogSaveFile(this, "Save image as file", "png (*.png);;gif (*.gif);;Jpg (*.jpg)");
-    if (fileName.isEmpty()) return;
-
-    QFileInfo file(fileName);
-    if (file.suffix().isEmpty()) fileName += ".png";
-
-    GraphWindowClass::SaveGraph(fileName);
-}
-
 void GraphWindowClass::on_actionBasic_ROOT_triggered()
 {
     gStyle->SetPalette(1);
@@ -3069,14 +3058,38 @@ void GraphWindowClass::updateMargins(ADrawObject * obj)
 
 void GraphWindowClass::on_pbSaveImage_clicked()
 {
-    on_actionSave_image_triggered();
+    QString fileName = guitools::dialogSaveFile(this, "Save image as file", "png (*.png);;gif (*.gif);;Jpg (*.jpg)");
+    if (fileName.isEmpty()) return;
+
+    QFileInfo file(fileName);
+    if (file.suffix().isEmpty()) fileName += ".png";
+
+    GraphWindowClass::SaveGraph(fileName);
 }
 
 #include <QApplication>
 #include <QClipboard>
 void GraphWindowClass::on_pbSaveImage_customContextMenuRequested(const QPoint &)
 {
+    on_actionCopy_image_to_clipboard_triggered();
+}
+
+void GraphWindowClass::on_actionSave_image_2_triggered()
+{
+    on_pbSaveImage_clicked();
+}
+
+void GraphWindowClass::on_actionCopy_image_to_clipboard_triggered()
+{
     RasterWindow->SaveAs("tmpImage.png");
     QImage image("tmpImage.png");
     QApplication::clipboard()->setImage(image, QClipboard::Clipboard);
 }
+
+#include "ahistoptstatdialog.h"
+void GraphWindowClass::on_actionSet_histogram_stat_box_content_triggered()
+{
+    AHistOptStatDialog dia(this);
+    dia.exec();
+}
+

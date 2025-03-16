@@ -40,6 +40,7 @@ public:
     int  BinsY = 100;
     int  BinsZ = 100;
     bool OpenImageExternalEditor = true;
+    int  HistStatOpt = 1110;
 
     // Script window
     QJsonObject JavaScriptJson;

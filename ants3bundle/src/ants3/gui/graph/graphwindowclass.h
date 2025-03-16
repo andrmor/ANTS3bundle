@@ -210,7 +210,6 @@ private slots:
     void on_leOptions_editingFinished();
     void on_pbXprojection_clicked();
     void on_pbYprojection_clicked();
-    void on_actionSave_image_triggered();
     void on_actionBasic_ROOT_triggered();
     void on_actionDeep_sea_triggered();
     void on_actionGrey_scale_triggered();
@@ -320,6 +319,12 @@ private slots:
     void on_pbSaveImage_clicked();
 
     void on_pbSaveImage_customContextMenuRequested(const QPoint &pos);
+
+    void on_actionSave_image_2_triggered();
+
+    void on_actionCopy_image_to_clipboard_triggered();
+
+    void on_actionSet_histogram_stat_box_content_triggered();
 
 signals:
     void requestLocalDrawObject(TObject *obj, QString options, bool fFocus);

@@ -1,9 +1,13 @@
 #include "a3global.h"
 #include "ajsontools.h"
+#include "afarmhub.h"
+#include "aroothttpserver.h"
 
 #include <QDir>
 #include <QStandardPaths>
 #include <QDebug>
+
+#include "TStyle.h"
 
 A3Global & A3Global::getInstance()
 {
@@ -70,8 +74,6 @@ bool A3Global::checkExchangeDir()
     return true;
 }
 
-#include "afarmhub.h"
-#include "aroothttpserver.h"
 void A3Global::saveConfig()
 {
     QJsonObject json;
@@ -86,18 +88,11 @@ void A3Global::saveConfig()
     json["BinsY"] = BinsY;
     json["BinsZ"] = BinsZ;
     json["OpenImageExternalEditor"] = OpenImageExternalEditor;
+    json["HistStatOpt"] = gStyle->GetOptStat();
 
     QJsonObject jsMa;
-    DefaultDrawMargins.writeToJson(jsMa);
+        DefaultDrawMargins.writeToJson(jsMa);
     json["DefaultDrawMargins"] = jsMa;
-
-/*
-    js["RecTreeSave_IncludePMsignals"] = RecTreeSave_IncludePMsignals;
-    js["RecTreeSave_IncludeRho"] = RecTreeSave_IncludeRho;
-    js["RecTreeSave_IncludeTrue"] = RecTreeSave_IncludeTrue;
-    js["SimTextSave_IncludeNumPhotons"] = SimTextSave_IncludeNumPhotons;
-    js["SimTextSave_IncludePositions"] = SimTextSave_IncludePositions;
-*/
 
     json["JavaScriptJson"] = JavaScriptJson;
     json["PythonJson"]     = PythonJson;
@@ -169,6 +164,8 @@ void A3Global::loadConfig()
     jstools::parseJson(json, "BinsY", BinsY);
     jstools::parseJson(json, "BinsZ", BinsZ);
     jstools::parseJson(json, "OpenImageExternalEditor", OpenImageExternalEditor);
+    jstools::parseJson(json, "HistStatOpt", HistStatOpt);
+    gStyle->SetOptStat(HistStatOpt);
 
     QJsonObject jsMa;
     jstools::parseJson(json, "DefaultDrawMargins", jsMa);

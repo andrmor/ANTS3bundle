@@ -33,7 +33,7 @@
        <bool>true</bool>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="tabDirs">
        <attribute name="title">
@@ -226,7 +226,6 @@
        <zorder>label_188</zorder>
        <zorder>verticalSpacer_5</zorder>
        <zorder>verticalSpacer_6</zorder>
-       <zorder>horizontalLayoutWidget</zorder>
       </widget>
       <widget class="QWidget" name="tabGUI">
        <attribute name="title">
@@ -425,20 +424,6 @@
          <number>3</number>
         </property>
         <item>
-         <widget class="QPushButton" name="pbgStyleScript">
-          <property name="text">
-           <string>Configure gStyle script</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="Line" name="line">
-          <property name="orientation">
-           <enum>Qt::Orientation::Horizontal</enum>
-          </property>
-         </widget>
-        </item>
-        <item>
          <layout class="QGridLayout" name="gridLayout_2">
           <property name="spacing">
            <number>3</number>
@@ -562,8 +547,6 @@
          </spacer>
         </item>
        </layout>
-       <zorder>pbgStyleScript</zorder>
-       <zorder>line</zorder>
        <zorder>verticalSpacer_3</zorder>
       </widget>
       <widget class="QWidget" name="tabNest">

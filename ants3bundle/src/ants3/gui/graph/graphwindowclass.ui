@@ -1949,12 +1949,6 @@ in basket</string>
      <height>22</height>
     </rect>
    </property>
-   <widget class="QMenu" name="menuExport">
-    <property name="title">
-     <string>File</string>
-    </property>
-    <addaction name="actionSave_image"/>
-   </widget>
    <widget class="QMenu" name="menuPalette">
     <property name="title">
      <string>Palette</string>
@@ -2012,6 +2006,9 @@ in basket</string>
      <string>Do</string>
     </property>
     <addaction name="actionShow_first_drawn_object_context_menu"/>
+    <addaction name="actionSave_image_2"/>
+    <addaction name="actionCopy_image_to_clipboard"/>
+    <addaction name="actionSet_histogram_stat_box_content"/>
    </widget>
    <widget class="QMenu" name="menuMargins">
     <property name="title">
@@ -2020,7 +2017,6 @@ in basket</string>
     <addaction name="actionSet_default_margins"/>
    </widget>
    <addaction name="menuMainObject"/>
-   <addaction name="menuExport"/>
    <addaction name="menuView"/>
    <addaction name="menuMargins"/>
    <addaction name="menuPalette"/>
@@ -2158,6 +2154,21 @@ in basket</string>
   <action name="actionSet_default_margins">
    <property name="text">
     <string>Set default margins</string>
+   </property>
+  </action>
+  <action name="actionSave_image_2">
+   <property name="text">
+    <string>Save image</string>
+   </property>
+  </action>
+  <action name="actionCopy_image_to_clipboard">
+   <property name="text">
+    <string>Copy image to clipboard</string>
+   </property>
+  </action>
+  <action name="actionSet_histogram_stat_box_content">
+   <property name="text">
+    <string>Set histogram stat box content</string>
    </property>
   </action>
  </widget>
