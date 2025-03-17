@@ -36,9 +36,9 @@ public:
     // Misc controls
     bool AutoCheckGeometry = true;
     int  NumSegmentsTGeo = 20;
-    int  BinsX = 100;
-    int  BinsY = 100;
-    int  BinsZ = 100;
+    //int  BinsX = 100;
+    //int  BinsY = 100;
+    //int  BinsZ = 100;
     int  HistStatOpt = 1110;
 
     // Script window

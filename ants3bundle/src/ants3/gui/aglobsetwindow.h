@@ -32,9 +32,9 @@ private slots:
     void on_leDataExchangeDir_editingFinished();
     void on_pbChangeDataExchangeDir_customContextMenuRequested(const QPoint &pos);
 
-    void on_sbNumBinsHistogramsX_editingFinished();
-    void on_sbNumBinsHistogramsY_editingFinished();
-    void on_sbNumBinsHistogramsZ_editingFinished();
+    //void on_sbNumBinsHistogramsX_editingFinished();
+    //void on_sbNumBinsHistogramsY_editingFinished();
+    //void on_sbNumBinsHistogramsZ_editingFinished();
 
     void on_pbOpen_clicked();
 

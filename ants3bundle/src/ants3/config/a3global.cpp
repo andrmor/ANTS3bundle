@@ -84,9 +84,9 @@ void A3Global::saveConfig()
 
     json["AutoCheckGeometry"] = AutoCheckGeometry;
     json["NumSegmentsTGeo"]   = NumSegmentsTGeo;
-    json["BinsX"] = BinsX;
-    json["BinsY"] = BinsY;
-    json["BinsZ"] = BinsZ;
+    //json["BinsX"] = BinsX;
+    //json["BinsY"] = BinsY;
+    //json["BinsZ"] = BinsZ;
     json["HistStatOpt"] = gStyle->GetOptStat();
 
     QJsonObject jsMa;
@@ -159,9 +159,9 @@ void A3Global::loadConfig()
 
     jstools::parseJson(json, "AutoCheckGeometry", AutoCheckGeometry);
     jstools::parseJson(json, "NumSegmentsTGeo", NumSegmentsTGeo);
-    jstools::parseJson(json, "BinsX", BinsX);
-    jstools::parseJson(json, "BinsY", BinsY);
-    jstools::parseJson(json, "BinsZ", BinsZ);
+    //jstools::parseJson(json, "BinsX", BinsX);
+    //jstools::parseJson(json, "BinsY", BinsY);
+    //jstools::parseJson(json, "BinsZ", BinsZ);
     jstools::parseJson(json, "HistStatOpt", HistStatOpt);
     gStyle->SetOptStat(HistStatOpt);
 

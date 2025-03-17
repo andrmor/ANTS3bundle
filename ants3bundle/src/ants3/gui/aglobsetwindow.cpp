@@ -62,9 +62,9 @@ void AGlobSetWindow::updateGui()
 {
     ui->leDataExchangeDir->setText(GlobSet.ExchangeDir);
 
-    ui->sbNumBinsHistogramsX->setValue(GlobSet.BinsX);
-    ui->sbNumBinsHistogramsY->setValue(GlobSet.BinsY);
-    ui->sbNumBinsHistogramsZ->setValue(GlobSet.BinsZ);
+    //ui->sbNumBinsHistogramsX->setValue(GlobSet.BinsX);
+    //ui->sbNumBinsHistogramsY->setValue(GlobSet.BinsY);
+    //ui->sbNumBinsHistogramsZ->setValue(GlobSet.BinsZ);
 
     updateNetGui();
 }
@@ -157,20 +157,20 @@ void AGlobSetWindow::on_leDataExchangeDir_editingFinished()
     }
 }
 
+/*
 void AGlobSetWindow::on_sbNumBinsHistogramsX_editingFinished()
 {
     GlobSet.BinsX = ui->sbNumBinsHistogramsX->value();
 }
-
 void AGlobSetWindow::on_sbNumBinsHistogramsY_editingFinished()
 {
     GlobSet.BinsY = ui->sbNumBinsHistogramsY->value();
 }
-
 void AGlobSetWindow::on_sbNumBinsHistogramsZ_editingFinished()
 {
     GlobSet.BinsZ = ui->sbNumBinsHistogramsZ->value();
 }
+*/
 
 void AGlobSetWindow::on_pbChangeDataExchangeDir_customContextMenuRequested(const QPoint & /*pos*/)
 {
