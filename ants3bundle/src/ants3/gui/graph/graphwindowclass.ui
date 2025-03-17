@@ -1955,13 +1955,14 @@ in basket</string>
     </property>
     <addaction name="separator"/>
     <addaction name="actionBasic_ROOT"/>
-    <addaction name="actionDeep_sea"/>
     <addaction name="actionGrey_scale"/>
-    <addaction name="actionDark_body_radiator"/>
-    <addaction name="actionTwo_color_hue"/>
     <addaction name="actionRainbow"/>
+    <addaction name="actionDark_body_radiator"/>
     <addaction name="actionInverted_dark_body"/>
+    <addaction name="actionDeep_sea"/>
+    <addaction name="actionTwo_color_hue"/>
     <addaction name="separator"/>
+    <addaction name="actionSet_palette"/>
    </widget>
    <widget class="QMenu" name="menuView">
     <property name="title">
@@ -2031,7 +2032,7 @@ in basket</string>
   </action>
   <action name="actionBasic_ROOT">
    <property name="text">
-    <string>Basic ROOT</string>
+    <string>Default</string>
    </property>
   </action>
   <action name="actionDeep_sea">
@@ -2169,6 +2170,11 @@ in basket</string>
   <action name="actionSet_histogram_stat_box_content">
    <property name="text">
     <string>Set histogram stat box content</string>
+   </property>
+  </action>
+  <action name="actionSet_palette">
+   <property name="text">
+    <string>Set palette: full list</string>
    </property>
   </action>
  </widget>

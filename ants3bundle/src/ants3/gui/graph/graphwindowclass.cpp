@@ -2410,7 +2410,7 @@ void GraphWindowClass::ClearBasket()
 
 void GraphWindowClass::on_actionBasic_ROOT_triggered()
 {
-    gStyle->SetPalette(1);
+    gStyle->SetPalette(57);
     GraphWindowClass::RedrawAll();
 }
 
@@ -3090,6 +3090,14 @@ void GraphWindowClass::on_actionCopy_image_to_clipboard_triggered()
 void GraphWindowClass::on_actionSet_histogram_stat_box_content_triggered()
 {
     AHistOptStatDialog dia(this);
+    dia.exec();
+}
+
+#include "apaletteselectiondialog.h"
+void GraphWindowClass::on_actionSet_palette_triggered()
+{
+    APaletteSelectionDialog dia(this);
+    connect(&dia, &APaletteSelectionDialog::requestRedraw, this, &GraphWindowClass::RedrawAll);
     dia.exec();
 }
 

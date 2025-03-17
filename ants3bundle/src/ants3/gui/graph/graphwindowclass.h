@@ -326,6 +326,8 @@ private slots:
 
     void on_actionSet_histogram_stat_box_content_triggered();
 
+    void on_actionSet_palette_triggered();
+
 signals:
     void requestLocalDrawObject(TObject *obj, QString options, bool fFocus);
 };

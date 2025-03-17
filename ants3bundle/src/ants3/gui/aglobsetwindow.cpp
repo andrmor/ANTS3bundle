@@ -358,3 +358,17 @@ void AGlobSetWindow::on_cbUseStyleSystPalette_clicked(bool checked)
 {
     QApplication::setPalette(checked ? QApplication::style()->standardPalette() : QPalette());
 }
+
+/*
+In Qt 6.8.2 not yet implemented in Ubuntu
+#include <QStyleHints>
+void AGlobSetWindow::on_pbForceDark_clicked()
+{
+    qDebug() << QGuiApplication::styleHints()->colorScheme();
+    //QStyleHints::setColorScheme(Qt::ColorScheme scheme);
+    //QStyleHints::setColorScheme(Qt::ColorScheme::Dark);
+    QGuiApplication::styleHints()->setColorScheme(Qt::ColorScheme::Dark);
+    qDebug() << QGuiApplication::styleHints()->colorScheme();
+}
+*/
+

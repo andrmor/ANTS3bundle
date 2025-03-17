@@ -61,6 +61,8 @@ private slots:
 
     void on_cbUseStyleSystPalette_clicked(bool checked);
 
+    //void on_pbForceDark_clicked();
+
 private:
     A3Global & GlobSet;
     Ui::AGlobSetWindow * ui = nullptr;
