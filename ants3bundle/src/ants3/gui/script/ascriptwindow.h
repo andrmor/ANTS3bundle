@@ -247,8 +247,11 @@ private slots:
     void receivedOnAbort();
     void receivedOnSuccess(QString eval);
 
-    void on_aAlphabeticOrder_changed();
     void onCurrentItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *);
+    void on_actionSet_tab_equivalent_to_space_characters_triggered();
+
+    void on_aAlphabeticOrder_triggered();
+
 protected:
 //    void closeEvent(QCloseEvent * e) override;  // !!!*** does nothing with the script?
     bool event(QEvent * e) override; // !!!***

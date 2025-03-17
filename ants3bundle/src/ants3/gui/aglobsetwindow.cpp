@@ -20,8 +20,6 @@
 #include <QStyleFactory>
 #include <QToolTip>
 
-#include "TGeoManager.h"
-
 AGlobSetWindow::AGlobSetWindow(QWidget * parent) :
     AGuiWindow("Glob", parent),
     GlobSet(A3Global::getInstance()),
@@ -51,7 +49,6 @@ AGlobSetWindow::AGlobSetWindow(QWidget * parent) :
 #ifdef USE_ROOT_HTML
     ARootHttpServer & rs = ARootHttpServer::getInstance();
     QObject::connect(&rs, &ARootHttpServer::StatusChanged, this, &AGlobSetWindow::updateNetGui);
-
     if (rs.Autostart) rs.start();  //does nothing if compilation flag is not set
 #endif
 }
@@ -65,17 +62,9 @@ void AGlobSetWindow::updateGui()
 {
     ui->leDataExchangeDir->setText(GlobSet.ExchangeDir);
 
-    ui->sbTabInSpaces->setValue(GlobSet.TabInSpaces);
-    ui->cbOpenImageExternalEditor->setChecked(GlobSet.OpenImageExternalEditor);
-
     ui->sbNumBinsHistogramsX->setValue(GlobSet.BinsX);
     ui->sbNumBinsHistogramsY->setValue(GlobSet.BinsY);
     ui->sbNumBinsHistogramsZ->setValue(GlobSet.BinsZ);
-
-    //ui->sbNumPointsFunctionX->setValue(GlobSet.FunctionPointsX);
-    //ui->sbNumPointsFunctionY->setValue(GlobSet.FunctionPointsY);
-
-    ui->sbNumSegments->setValue(GlobSet.NumSegmentsTGeo);
 
     updateNetGui();
 }
@@ -133,7 +122,7 @@ void AGlobSetWindow::showNetSettings()
 {
     showNormal();
     activateWindow();
-    setTab(3);
+    setTab(1);
 }
 
 bool AGlobSetWindow::event(QEvent *event)
@@ -166,11 +155,6 @@ void AGlobSetWindow::on_leDataExchangeDir_editingFinished()
         ui->leDataExchangeDir->setText(GlobSet.ExchangeDir);
         guitools::message("Directory does not exist:\n" + dir + "\nReverting to previously used one!", this);
     }
-}
-
-void AGlobSetWindow::on_cbOpenImageExternalEditor_clicked(bool checked)
-{
-    GlobSet.OpenImageExternalEditor = checked;
 }
 
 void AGlobSetWindow::on_sbNumBinsHistogramsX_editingFinished()
@@ -219,13 +203,6 @@ void AGlobSetWindow::onRequestConfigureExchangeDir()
     showNormal();
     activateWindow();
     setTab(0);
-}
-
-#include "ageometryhub.h"
-void AGlobSetWindow::on_sbNumSegments_editingFinished()
-{
-    GlobSet.NumSegmentsTGeo = ui->sbNumSegments->value();
-    AGeometryHub::getInstance().GeoManager->SetNsegments(GlobSet.NumSegmentsTGeo);
 }
 
 #ifdef WEBSOCKETS
@@ -380,9 +357,4 @@ void AGlobSetWindow::on_cobStyle_textActivated(const QString & arg1)
 void AGlobSetWindow::on_cbUseStyleSystPalette_clicked(bool checked)
 {
     QApplication::setPalette(checked ? QApplication::style()->standardPalette() : QPalette());
-}
-
-void AGlobSetWindow::on_sbTabInSpaces_valueChanged(int arg1)
-{
-    GlobSet.TabInSpaces = arg1;
 }

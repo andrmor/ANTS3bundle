@@ -296,15 +296,9 @@ void AScriptWindow::registerInterfaces()
 
 void AScriptWindow::updateMethodHelp()
 {
-    ListOfMethods.clear();
     trwHelp->clear();
-    for (const AScriptInterface * inter : ScriptManager->getInterfaces())
-        fillHelper(inter);
-}
-
-void AScriptWindow::on_aAlphabeticOrder_changed()
-{
-    updateMethodHelp();
+    ListOfMethods.clear();
+    for (const AScriptInterface * inter : ScriptManager->getInterfaces()) fillHelper(inter);
 }
 
 void AScriptWindow::updateRemovedAndDeprecatedMethods()
@@ -998,6 +992,7 @@ void AScriptWindow::onFunctionClicked(QTreeWidgetItem *item, int /*column*/)
 
 void AScriptWindow::onCurrentItemChanged(QTreeWidgetItem * current, QTreeWidgetItem *)
 {
+    if (!current) return;
     onFunctionClicked(current, 1);
 }
 
@@ -2408,3 +2403,14 @@ void AScriptWindow::on_pbFileName_customContextMenuRequested(const QPoint & pos)
         clipboard->setText(txt);
     }
 }
+
+void AScriptWindow::on_actionSet_tab_equivalent_to_space_characters_triggered()
+{
+    guitools::inputInteger("Pressing tab feeds in this number of space characters:", GlobSet.TabInSpaces, 1, 100, this);
+}
+
+void AScriptWindow::on_aAlphabeticOrder_triggered()
+{
+    updateMethodHelp();
+}
+

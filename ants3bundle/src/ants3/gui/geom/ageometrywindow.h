@@ -152,6 +152,8 @@ private slots:
 
     void on_pbSaveAs_customContextMenuRequested(const QPoint &pos);
 
+    void on_actionSet_number_of_segments_triggered();
+
 private:
     bool                    UseJSRoot = false;
     AGeometryHub          & Geometry;

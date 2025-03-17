@@ -87,7 +87,6 @@ void A3Global::saveConfig()
     json["BinsX"] = BinsX;
     json["BinsY"] = BinsY;
     json["BinsZ"] = BinsZ;
-    json["OpenImageExternalEditor"] = OpenImageExternalEditor;
     json["HistStatOpt"] = gStyle->GetOptStat();
 
     QJsonObject jsMa;
@@ -163,7 +162,6 @@ void A3Global::loadConfig()
     jstools::parseJson(json, "BinsX", BinsX);
     jstools::parseJson(json, "BinsY", BinsY);
     jstools::parseJson(json, "BinsZ", BinsZ);
-    jstools::parseJson(json, "OpenImageExternalEditor", OpenImageExternalEditor);
     jstools::parseJson(json, "HistStatOpt", HistStatOpt);
     gStyle->SetOptStat(HistStatOpt);
 

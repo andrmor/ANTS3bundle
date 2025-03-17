@@ -1493,7 +1493,6 @@ void AGeometryWindow::on_pushButton_clicked()
 }
 */
 
-#include "amaterial.h"
 #include "amaterialhub.h"
 #include "TColor.h"
 #include "TROOT.h"
@@ -1542,4 +1541,10 @@ void AGeometryWindow::on_cbLimitVisibility_toggled(bool checked)
     QFont font = ui->cbLimitVisibility->font();
     font.setBold(checked);
     ui->cbLimitVisibility->setFont(font);
+}
+
+void AGeometryWindow::on_actionSet_number_of_segments_triggered()
+{
+    guitools::inputInteger("Number of segments in TGeo viewer", A3Global::getInstance().NumSegmentsTGeo, 3, 1000, this);
+    on_pbShowGeometry_clicked();
 }

@@ -4,7 +4,6 @@
 #include "aguiwindow.h"
 
 class A3Global;
-class ARootStyle_SI;
 
 namespace Ui {
 class AGlobSetWindow;
@@ -19,9 +18,6 @@ public:
     ~AGlobSetWindow();
 
     void updateGui();
-    void setTab(int iTab);
-
-    ARootStyle_SI * GStyleInterface = nullptr;  // if created -> owned by the script manager
 
 protected:
     bool event(QEvent * event);
@@ -36,9 +32,6 @@ private slots:
     void on_leDataExchangeDir_editingFinished();
     void on_pbChangeDataExchangeDir_customContextMenuRequested(const QPoint &pos);
 
-    void on_cbOpenImageExternalEditor_clicked(bool checked);
-
-    void on_sbNumSegments_editingFinished();  // !!!*** move to graph window?
     void on_sbNumBinsHistogramsX_editingFinished();
     void on_sbNumBinsHistogramsY_editingFinished();
     void on_sbNumBinsHistogramsZ_editingFinished();
@@ -68,11 +61,11 @@ private slots:
 
     void on_cbUseStyleSystPalette_clicked(bool checked);
 
-    void on_sbTabInSpaces_valueChanged(int arg1);
-
 private:
     A3Global & GlobSet;
     Ui::AGlobSetWindow * ui = nullptr;
+
+    void setTab(int iTab);
 };
 
 #endif // AGLOBSETWINDOW_H
