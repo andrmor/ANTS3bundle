@@ -357,7 +357,7 @@ void ADrawExplorerWidget::rename(ADrawObject & obj)
     if (tobj) tobj->SetTitle(text.toLatin1().data());
 
     GraphWindow.ClearCopyOfDrawObjects();
-    GraphWindow.RedrawAll();
+    GraphWindow.redrawAll();
     GraphWindow.HighlightUpdateBasketButton(true);
     updateGui();
 }
@@ -367,7 +367,7 @@ void ADrawExplorerWidget::toggleEnable(ADrawObject & obj)
     obj.bEnabled = !obj.bEnabled;
 
     GraphWindow.ClearCopyOfDrawObjects();
-    GraphWindow.RedrawAll();
+    GraphWindow.redrawAll();
     GraphWindow.HighlightUpdateBasketButton(true);
 }
 
@@ -383,7 +383,7 @@ void ADrawExplorerWidget::remove(int index)
         DrawObjects.first().Options.remove("same", Qt::CaseInsensitive);
     }
 
-    GraphWindow.RedrawAll();
+    GraphWindow.redrawAll();
     GraphWindow.HighlightUpdateBasketButton(true);
 }
 
@@ -396,10 +396,10 @@ void ADrawExplorerWidget::setAttributes(int index)
     if (Type == "TLegend") return;
 
     ALineMarkerFillDialog D(obj, (index == 0), this);
-    connect(&D, &ALineMarkerFillDialog::requestRedraw, &GraphWindow, &AGraphWindow::RedrawAll);
+    connect(&D, &ALineMarkerFillDialog::requestRedraw, &GraphWindow, &AGraphWindow::redrawAll);
     D.exec();
 
-    GraphWindow.RedrawAll();
+    GraphWindow.redrawAll();
     GraphWindow.HighlightUpdateBasketButton(true);
 }
 
@@ -516,7 +516,7 @@ void ADrawExplorerWidget::doScale(ADrawObject &obj, double sf)
     }
     obj.Pointer = tobj;
 
-    GraphWindow.RedrawAll();
+    GraphWindow.redrawAll();
     GraphWindow.HighlightUpdateBasketButton(true);
 }
 
@@ -716,7 +716,7 @@ void ADrawExplorerWidget::shift(ADrawObject &obj)
     }
     obj.Pointer = tobj;
 
-    GraphWindow.RedrawAll();
+    GraphWindow.redrawAll();
     GraphWindow.HighlightUpdateBasketButton(true);
 }
 
@@ -786,7 +786,7 @@ void ADrawExplorerWidget::drawIntegral(ADrawObject &obj)
     if (hi) addToDrawObjectsAndRegister(hi, "hist");
     else    addToDrawObjectsAndRegister(gi, "APL");
 
-    GraphWindow.RedrawAll();
+    GraphWindow.redrawAll();
 }
 
 void ADrawExplorerWidget::fraction(ADrawObject &obj)
@@ -1015,7 +1015,7 @@ void ADrawExplorerWidget::fwhm(int index)
     GraphWindow.RegisterTObject(la);
     DrawObjects.insert(index+3, ADrawObject(la, "same"));
 
-    GraphWindow.RedrawAll();
+    GraphWindow.redrawAll();
     GraphWindow.HighlightUpdateBasketButton(true);
 }
 
@@ -1095,7 +1095,7 @@ void ADrawExplorerWidget::linFit(int index)
     GraphWindow.RegisterTObject(la);
     DrawObjects.insert(index+2, ADrawObject(la, "same"));
 
-    GraphWindow.RedrawAll();
+    GraphWindow.redrawAll();
     GraphWindow.HighlightUpdateBasketButton(true);
 }
 
@@ -1173,7 +1173,7 @@ void ADrawExplorerWidget::expFit(int index)
     GraphWindow.RegisterTObject(la);
     DrawObjects.insert(index+2, ADrawObject(la, "same"));
 
-    GraphWindow.RedrawAll();
+    GraphWindow.redrawAll();
     GraphWindow.HighlightUpdateBasketButton(true);
 }
 
@@ -1263,7 +1263,7 @@ void ADrawExplorerWidget::gauss2Fit(int index)
     GraphWindow.RegisterTObject(la);
     DrawObjects.insert(index+2, ADrawObject(la, "same"));
 
-    GraphWindow.RedrawAll();
+    GraphWindow.redrawAll();
     GraphWindow.HighlightUpdateBasketButton(true);
 }
 
@@ -1325,7 +1325,7 @@ void ADrawExplorerWidget::interpolate(ADrawObject &obj)
         DrawObjects.clear();
         addToDrawObjectsAndRegister(hi, "hist");
 
-        GraphWindow.RedrawAll();
+        GraphWindow.redrawAll();
         GraphWindow.HighlightUpdateBasketButton(true);
 
         d.accept();
@@ -1402,7 +1402,7 @@ void ADrawExplorerWidget::median(ADrawObject &obj)
         DrawObjects.clear();
         addToDrawObjectsAndRegister(hc, "hist");
 
-        GraphWindow.RedrawAll();
+        GraphWindow.redrawAll();
 
         d.accept();
     }
@@ -1437,7 +1437,7 @@ void ADrawExplorerWidget::projection(ADrawObject &obj, int axis)
             DrawObjects.clear();
             addToDrawObjectsAndRegister((TH2D*)proj, "colz");
 
-            GraphWindow.RedrawAll();
+            GraphWindow.redrawAll();
         }
         return;
     }
@@ -1464,7 +1464,7 @@ void ADrawExplorerWidget::projection(ADrawObject &obj, int axis)
         DrawObjects.clear();
         addToDrawObjectsAndRegister(proj, "hist");
 
-        GraphWindow.RedrawAll();
+        GraphWindow.redrawAll();
     }
 }
 
@@ -1560,10 +1560,10 @@ void ADrawExplorerWidget::editAxis(ADrawObject &obj, int axisIndex)
     }
 
     AAxesDialog D(axes, axisIndex, this);
-    connect(&D, &AAxesDialog::requestRedraw, &GraphWindow, &AGraphWindow::RedrawAll);
+    connect(&D, &AAxesDialog::requestRedraw, &GraphWindow, &AGraphWindow::redrawAll);
     D.exec();
 
-    GraphWindow.RedrawAll();
+    GraphWindow.redrawAll();
     GraphWindow.HighlightUpdateBasketButton(true);
 }
 
@@ -1817,7 +1817,7 @@ void ADrawExplorerWidget::addAxis(int axisIndex)
     const QString opt = generateOptionForSecondaryAxis(axisIndex, 0, 1.0);
     DrawObjects << ADrawObject(axis, opt);
 
-    GraphWindow.RedrawAll();
+    GraphWindow.redrawAll();
     GraphWindow.HighlightUpdateBasketButton(true);
 }
 
@@ -1965,7 +1965,7 @@ void ADrawExplorerWidget::extract(ADrawObject &obj)
     DrawObjects.clear();
     DrawObjects << thisObj;
 
-    GraphWindow.RedrawAll();
+    GraphWindow.redrawAll();
 }
 
 #include "TPaveText.h"
@@ -1982,10 +1982,10 @@ void ADrawExplorerWidget::editPave(ADrawObject &obj)
         obj.Pointer = PaveCopy;
 
         ATextPaveDialog D(*PaveCopy);
-        connect(&D, &ATextPaveDialog::requestRedraw, &GraphWindow, &AGraphWindow::RedrawAll);
+        connect(&D, &ATextPaveDialog::requestRedraw, &GraphWindow, &AGraphWindow::redrawAll);
 
         D.exec();
-        GraphWindow.RedrawAll();
+        GraphWindow.redrawAll();
         GraphWindow.HighlightUpdateBasketButton(true);
     }
 }
@@ -2067,7 +2067,7 @@ void ADrawExplorerWidget::editTGaxis(ADrawObject &obj)
 
             copyAxisProperties(axis, *grAxis);
 
-            GraphWindow.RedrawAll();
+            GraphWindow.redrawAll();
         };
         connect(leMin, &QLineEdit::editingFinished, UpdateTAxis);
         connect(leMax, &QLineEdit::editingFinished, UpdateTAxis);
@@ -2103,7 +2103,7 @@ void ADrawExplorerWidget::linDraw(int index)
     ln->SetLineStyle(2);
     DrawObjects.insert(index+1, ADrawObject(ln, "same"));
 
-    GraphWindow.RedrawAll();
+    GraphWindow.redrawAll();
     GraphWindow.HighlightUpdateBasketButton(true);
 }
 
@@ -2129,7 +2129,7 @@ void ADrawExplorerWidget::boxDraw(int index)
     bx->SetFillStyle(0);
     DrawObjects.insert(index+1, ADrawObject(bx, "same"));
 
-    GraphWindow.RedrawAll();
+    GraphWindow.redrawAll();
     GraphWindow.HighlightUpdateBasketButton(true);
 }
 
@@ -2156,7 +2156,7 @@ void ADrawExplorerWidget::ellipseDraw(int index)
     el->SetFillStyle(0);
     DrawObjects.insert(index+1, ADrawObject(el, "same"));
 
-    GraphWindow.RedrawAll();
+    GraphWindow.redrawAll();
     GraphWindow.HighlightUpdateBasketButton(true);
 }
 //kira <--

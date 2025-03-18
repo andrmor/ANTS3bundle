@@ -572,7 +572,7 @@ void MainWindow::closeEvent(QCloseEvent *)
     qDebug() << "<Preparing graph window for shutdown";
     GraphWin->close3DviewWindow();
     GraphWin->close();
-    GraphWin->ClearDrawObjects_OnShutDown(); //to avoid any attempts to redraw deleted objects
+    GraphWin->clearDrawObjects_OnShutDown(); //to avoid any attempts to redraw deleted objects
 
     qDebug() << "<Saving JavaScript scipts";
     JScriptWin->WriteToJson();
