@@ -70,8 +70,6 @@ public:
     void OnBusyOn();
     void OnBusyOff();
 
-    bool Extraction(); // !!!!!!************
-
     TObject * GetMainPlottedObject();
     void SaveGraph(const QString & fileName);
     void EnforceOverlayOff();

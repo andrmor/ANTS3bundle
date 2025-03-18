@@ -2501,20 +2501,6 @@ void AGraphWindow::TriggerGlobalBusy(bool flag)
 //    else      MW->WindowNavigator->BusyOff(); !!!***
 }
 
-bool AGraphWindow::Extraction()
-{
-    do
-    {
-        qApp->processEvents();
-        if (RasterWindow->ExtractionCanceled) break;
-    }
-    while (!RasterWindow->IsExtractionComplete() );
-
-//    MW->WindowNavigator->BusyOff(false); !!!***
-
-    return !RasterWindow->ExtractionCanceled;  //returns false = canceled
-}
-
 void AGraphWindow::on_ledAngle_customContextMenuRequested(const QPoint &pos)
 {
     QMenu Menu;

@@ -541,6 +541,20 @@ void RasterWindowGraphClass::DrawEllipse()
   fCanvas->Update();
 }
 
+bool RasterWindowGraphClass::waitForExtractionFinished()
+{
+    do
+    {
+        qApp->processEvents();
+        if (ExtractionCanceled) break;
+    }
+    while (!IsExtractionComplete() );
+
+    //    MW->WindowNavigator->BusyOff(false); !!!***
+
+    return !ExtractionCanceled;  //returns false = canceled
+}
+
 void RasterWindowGraphClass::ExtractX()
 {
     ExtractionCanceled = false;

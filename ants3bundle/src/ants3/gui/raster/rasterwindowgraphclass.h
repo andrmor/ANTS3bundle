@@ -36,6 +36,8 @@ public:
   void setExtractionComplete(bool flag) {ExtractionComplete = flag;}
   //void setShowCursorPosition(bool flag);
 
+  bool waitForExtractionFinished(); // returns false if canceled
+
   void ExtractX();          //start extraction of X coordinate from a 1D graph/histogram using mouse
   void Extract2DLine();     //start extraction of ABC line coordinate from a 2D graph/histogram using mouse
   void Extract2DEllipse();  //start extraction of (T)ellipse from a 2D graph/histogram using mouse
@@ -59,7 +61,7 @@ public:
 
   void drawCrassHair(double x, double y);
 
-protected:
+  protected:
   bool event(QEvent *event);
   void mousePressEvent(QMouseEvent *event);
   void mouseMoveEvent(QMouseEvent *event);

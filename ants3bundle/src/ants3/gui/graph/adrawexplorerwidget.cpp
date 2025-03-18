@@ -573,7 +573,7 @@ void ADrawExplorerWidget::scaleCDR(ADrawObject &obj)
     GraphWindow.TriggerGlobalBusy(true);
 
     Raster.Extract2DLine();
-    if (!GraphWindow.Extraction()) return; //cancel
+    if (!Raster.waitForExtractionFinished()) return; //cancel
 
     double startY = Raster.Line2DstartY; // extracted2DLineYstart;
     double stopY  = Raster.Line2DstopY;  // extracted2DLineYstop;
@@ -924,7 +924,7 @@ void ADrawExplorerWidget::fwhm(int index)
     GraphWindow.TriggerGlobalBusy(true);
 
     Raster.Extract2DLine();
-    if (!GraphWindow.Extraction()) return; //cancel
+    if (!Raster.waitForExtractionFinished()) return; //cancel
 
     double startX = Raster.Line2DstartX; // extracted2DLineXstart();
     double stopX  = Raster.Line2DstopX;  // extracted2DLineXstop();
@@ -1046,7 +1046,7 @@ void ADrawExplorerWidget::linFit(int index)
     GraphWindow.TriggerGlobalBusy(true);
 
     Raster.Extract2DLine();
-    if (!GraphWindow.Extraction()) return; //cancel
+    if (!Raster.waitForExtractionFinished()) return; //cancel
 
     double startX = Raster.Line2DstartX; // extracted2DLineXstart();
     double stopX  = Raster.Line2DstopX;  // extracted2DLineXstop();
@@ -1126,7 +1126,7 @@ void ADrawExplorerWidget::expFit(int index)
     GraphWindow.TriggerGlobalBusy(true);
 
     Raster.Extract2DLine();
-    if (!GraphWindow.Extraction()) return; //cancel
+    if (!Raster.waitForExtractionFinished()) return; //cancel
 
     double startX = Raster.Line2DstartX; // extracted2DLineXstart();
     double startY = Raster.Line2DstartY; // extracted2DLineYstart();
@@ -1201,7 +1201,7 @@ void ADrawExplorerWidget::gauss2Fit(int index)
     GraphWindow.TriggerGlobalBusy(true);
 
     Raster.Extract2DBox();
-    if (!GraphWindow.Extraction()) return; //cancel
+    if (!Raster.waitForExtractionFinished()) return; //cancel
 
     double X1 = Raster.extractedX1;
     double X2 = Raster.extractedX2;
@@ -2087,7 +2087,7 @@ void ADrawExplorerWidget::linDraw(int index)
     GraphWindow.TriggerGlobalBusy(true);
 
     Raster.Extract2DLine();
-    if (!GraphWindow.Extraction()) return; //cancel
+    if (!Raster.waitForExtractionFinished()) return; //cancel
 
     double startX = Raster.Line2DstartX; // extracted2DLineXstart();
     double stopX  = Raster.Line2DstopX;  // extracted2DLineXstop();
@@ -2112,7 +2112,7 @@ void ADrawExplorerWidget::boxDraw(int index)
     GraphWindow.TriggerGlobalBusy(true);
 
     Raster.Extract2DBox();
-    if (!GraphWindow.Extraction()) return; //cancel
+    if (!Raster.waitForExtractionFinished()) return; //cancel
 
     double startX = Raster.extractedX1;
     double stopX  = Raster.extractedX2;
@@ -2139,7 +2139,7 @@ void ADrawExplorerWidget::ellipseDraw(int index)
     GraphWindow.TriggerGlobalBusy(true);
 
     Raster.Extract2DEllipse();
-    if (!GraphWindow.Extraction()) return; //cancel
+    if (!Raster.waitForExtractionFinished()) return; //cancel
 
     double centerX = Raster.extracted2DEllipseX;
     double centerY = Raster.extracted2DEllipseY;
