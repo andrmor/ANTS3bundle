@@ -2,14 +2,10 @@
 #include "ageoobject.h"
 #include "ageotype.h"
 #include "ajsontools.h"
-#include "ajsontoolsroot.h"
-#include "aroothistappenders.h"
 #include "aerrorhub.h"
 #include "ath.h"
 
 #include <QDebug>
-
-#include "TString.h"
 
 ACalorimeter::ACalorimeter(const AGeoObject * CalorimeterGeoObject)
 {
@@ -47,9 +43,6 @@ bool ACalorimeter::readFromGeoObject(const AGeoObject * geoObj)
     }
 
     Properties = *props;
-
-    //Name = geoObj->Name;
-
     return true;
 }
 

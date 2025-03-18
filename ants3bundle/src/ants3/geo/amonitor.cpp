@@ -7,6 +7,8 @@
 
 #include <QDebug>
 
+#include <vector>
+
 #include "TH1D.h"
 #include "TH2D.h"
 #include "TString.h"
@@ -181,7 +183,6 @@ void AMonitor::initEnergyHist()
     energy->SetXTitle(title);
 }
 
-//#include "ahistogram.h"
 #include "ath.h"
 #include <QJsonObject>
 #include <QJsonArray>
