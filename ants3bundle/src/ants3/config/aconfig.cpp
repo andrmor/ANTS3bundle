@@ -9,6 +9,7 @@
 #include "aerrorhub.h"
 #include "a3global.h"
 #include "aphotonfunctionalhub.h"
+#include "aparticleanalyzerhub.h"
 
 #include <QDebug>
 #include <QFile>
@@ -77,9 +78,6 @@ void AConfig::writeToJson(QJsonObject & json, bool addRuntimeExport) const
 
     AParticleSimHub::getConstInstance().writeToJson(json, addRuntimeExport);
     APhotonSimHub::getConstInstance().writeToJson(json, addRuntimeExport);
-
-    // Reconstruction
-    // LRFs
 }
 
 QString AConfig::readFromJson(const QJsonObject & json, bool updateGui)
@@ -108,7 +106,6 @@ void AConfig::replaceEmptyOutputDirsWithTemporary()
     if (particleSimOutputDir.empty()) particleSimOutputDir = A3Global::getConstInstance().TmpOutputDir.toLatin1().data();
 }
 
-#include "aparticleanalyzerhub.h"
 QString AConfig::tryReadFromJson(const QJsonObject & json)
 {
     bool ok = jstools::parseJson(json, "ConfigName",        ConfigName);
@@ -140,9 +137,6 @@ QString AConfig::tryReadFromJson(const QJsonObject & json)
     // error handling! !!!***
 
     AParticleAnalyzerHub::getInstance().clear(); // clear loaded data
-
-    // Reconstruction
-    // LRFs
 
     return "";
 }

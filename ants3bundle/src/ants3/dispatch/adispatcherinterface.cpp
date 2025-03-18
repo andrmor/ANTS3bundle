@@ -1,14 +1,14 @@
 #include "adispatcherinterface.h"
 #include "a3dispatcher.h"
-#include "a3global.h"
 #include "a3workdistrconfig.h"
-#include "ajsontools.h"
+#include "afarmhub.h"
 
 #include <QDebug>
 #include <QThread>
 #include <QCoreApplication>
 #include <QJsonObject>
 #include <QJsonArray>
+#include <QFile>
 
 #include <cmath>
 
@@ -20,7 +20,6 @@ ADispatcherInterface & ADispatcherInterface::getInstance()
 
 ADispatcherInterface::ADispatcherInterface() : QObject(nullptr)
 {
-    //connect(this, &A3DispInterface::sendMessage, this, &A3DispInterface::onSendMessage, Qt::QueuedConnection);
     Dispatcher = new A3Dispatcher("127.0.0.1", 0, 4);
     connect(this,       &ADispatcherInterface::sendCommand, Dispatcher, &A3Dispatcher::executeLocalCommand,        Qt::QueuedConnection);
     connect(Dispatcher, &A3Dispatcher::workFinished,        this,       &ADispatcherInterface::onWorkFinsihed,     Qt::QueuedConnection);
@@ -40,7 +39,6 @@ ADispatcherInterface::~ADispatcherInterface()
     qDebug() << "Destr for DispInterface";
 }
 
-#include "afarmhub.h"
 QString ADispatcherInterface::fillRunPlan(std::vector<AFarmNodeRecord> & runPlan, int numEvents, int overrideLocalProcesses)
 {
     runPlan.clear();
@@ -143,7 +141,7 @@ QJsonObject ADispatcherInterface::performTask(const A3WorkDistrConfig & Request)
 
 void ADispatcherInterface::waitForReply()
 {
-    // TODO: filter reply! error?
+    // !!!*** TODO: filter reply! error?
 
     while (Reply.isEmpty())
     {
@@ -170,14 +168,12 @@ void ADispatcherInterface::onProgressReceived(double progress)
     emit updateProgress(val); // to GUI if present
 }
 
-#include <memory>
 void ADispatcherInterface::onWorkFinsihed(QJsonObject result)
 {
     const std::lock_guard<std::mutex> lock(ReplyMutex);
     Reply = result;
 }
 
-#include <QFile>
 void ADispatcherInterface::clearOutputFiles(const A3WorkDistrConfig & Request)
 {
     for (const A3WorkNodeConfig & node : Request.Nodes)
