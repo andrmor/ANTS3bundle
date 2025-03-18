@@ -14,7 +14,7 @@ class ASensorWindow;
 class APhotonTunnelWindow;
 class APhotSimWin;
 class AInterfaceRuleWin;
-class GraphWindowClass;
+class AGraphWindow;
 class ARemoteWindow;
 class AParticleSimWin;
 class AScriptWindow;
@@ -48,7 +48,7 @@ private:
     APhotonTunnelWindow  * PhotFunWin = nullptr;
     APhotSimWin       * PhotSimWin = nullptr;
     AInterfaceRuleWin * RuleWin    = nullptr;
-    GraphWindowClass  * GraphWin   = nullptr;
+    AGraphWindow  * GraphWin   = nullptr;
     ARemoteWindow     * FarmWin    = nullptr;
     AParticleSimWin   * PartSimWin = nullptr;
     AScriptWindow     * JScriptWin = nullptr;

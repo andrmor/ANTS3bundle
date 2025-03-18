@@ -13,7 +13,7 @@
 #include "aphotontunnelwindow.h"
 #include "aphotsimwin.h"
 #include "ainterfacerulewin.h"
-#include "graphwindowclass.h"
+#include "agraphwindow.h"
 #include "aremotewindow.h"
 #include "aparticlesimwin.h"
 #include "ascripthub.h"
@@ -61,33 +61,33 @@ MainWindow::MainWindow() :
     // WARNING! signal / slots for GeoWin have to be connected in the connectSignalSlotsForGeoWin() method below
     // the reason is that the window has to be re-created if viewer is changed to JSROOT
 
-    GraphWin = new GraphWindowClass(this);
+    GraphWin = new AGraphWindow(this);
     //GraphWindowClass::connectScriptUnitDrawRequests is used to connect draw requests
-    connect(GeoTreeWin, &AGeoTreeWin::requestDraw, GraphWin, &GraphWindowClass::onDrawRequest);
+    connect(GeoTreeWin, &AGeoTreeWin::requestDraw, GraphWin, &AGraphWindow::onDrawRequest);
 
     MatWin = new AMatWin(this);
     MatWin->initWindow();
     connect(MatWin, &AMatWin::requestRebuildDetector, this,     &MainWindow::onRebuildGeometryRequested);
-    connect(MatWin, &AMatWin::requestDraw,            GraphWin, &GraphWindowClass::onDrawRequest);
+    connect(MatWin, &AMatWin::requestDraw,            GraphWin, &AGraphWindow::onDrawRequest);
 
     RuleWin = new AInterfaceRuleWin(this);
-    connect(RuleWin, &AInterfaceRuleWin::requestDraw,       GraphWin, &GraphWindowClass::onDrawRequest);
-    connect(RuleWin, &AInterfaceRuleWin::requestDrawLegend, GraphWin, &GraphWindowClass::drawLegend);
+    connect(RuleWin, &AInterfaceRuleWin::requestDraw,       GraphWin, &AGraphWindow::onDrawRequest);
+    connect(RuleWin, &AInterfaceRuleWin::requestDrawLegend, GraphWin, &AGraphWindow::drawLegend);
 
     SensWin = new ASensorWindow(this);
-    connect(SensWin, &ASensorWindow::requestDraw, GraphWin, &GraphWindowClass::onDrawRequest);
+    connect(SensWin, &ASensorWindow::requestDraw, GraphWin, &AGraphWindow::onDrawRequest);
 
     PhotFunWin = new APhotonTunnelWindow(this);
-    connect(PhotFunWin, &APhotonTunnelWindow::requestDraw,  GraphWin, &GraphWindowClass::onDrawRequest);
+    connect(PhotFunWin, &APhotonTunnelWindow::requestDraw,  GraphWin, &AGraphWindow::onDrawRequest);
 
     PhotSimWin = new APhotSimWin(this);
-    connect(PhotSimWin, &APhotSimWin::requestDraw, GraphWin, &GraphWindowClass::onDrawRequest);
+    connect(PhotSimWin, &APhotSimWin::requestDraw, GraphWin, &AGraphWindow::onDrawRequest);
 
     FarmWin = new ARemoteWindow(this);
 
     PartSimWin = new AParticleSimWin(nullptr); // Qt::WindowModality for the source dialog requires another parent for the window!
-    connect(PartSimWin, &AParticleSimWin::requestDraw,                  GraphWin,   &GraphWindowClass::onDrawRequest);
-    connect(PartSimWin, &AParticleSimWin::requestAddToBasket,           GraphWin,   &GraphWindowClass::addCurrentToBasket);
+    connect(PartSimWin, &AParticleSimWin::requestDraw,                  GraphWin,   &AGraphWindow::onDrawRequest);
+    connect(PartSimWin, &AParticleSimWin::requestAddToBasket,           GraphWin,   &AGraphWindow::addCurrentToBasket);
     connect(PartSimWin, &AParticleSimWin::requestShowGeoObjectDelegate, GeoTreeWin, &AGeoTreeWin::UpdateGeoTree);
 
     AScriptHub * ScriptHub = &AScriptHub::getInstance();

@@ -1,5 +1,5 @@
-#ifndef GRAPHWINDOWCLASS_H
-#define GRAPHWINDOWCLASS_H
+#ifndef AGRAPHWINDOW_H
+#define AGRAPHWINDOW_H
 
 #include "aguiwindow.h"
 #include "adrawobject.h"
@@ -26,16 +26,16 @@ class AScriptInterface;
 class AViewer3D;
 
 namespace Ui {
-class GraphWindowClass;
+class AGraphWindow;
 }
 
-class GraphWindowClass : public AGuiWindow
+class AGraphWindow : public AGuiWindow
 {
     Q_OBJECT
 
 public:
-    explicit GraphWindowClass(QWidget * parent);
-    ~GraphWindowClass();
+    explicit AGraphWindow(QWidget * parent);
+    ~AGraphWindow();
     friend class ADrawExplorerWidget;
 
     //Drawing
@@ -109,10 +109,10 @@ public:
     void ClearDrawObjects_OnShutDown(); //precvents crash on shut down
     void RegisterTObject(TObject* obj);
 
-    void SetStatPanelVisible(bool flag);
-    void TriggerGlobalBusy(bool flag);
+    void SetStatPanelVisible(bool flag); // script interface
+    void TriggerGlobalBusy(bool flag); // !!!*** not implemented!
 
-    void MakeCopyOfDrawObjects(); // !!!***
+    void MakeCopyOfDrawObjects(); // !!!*** infamous "gcc optimizer fix:"
     void ClearCopyOfDrawObjects();
 
     void ClearBasketActiveId();
@@ -248,7 +248,7 @@ private slots:
     void onExternalBasketChange();
 
 private:
-    Ui::GraphWindowClass * ui;
+    Ui::AGraphWindow       * ui = nullptr;
 
     ABasketManager         * Basket       = nullptr;
     ADrawExplorerWidget    * Explorer     = nullptr;
@@ -323,4 +323,4 @@ signals:
     void requestLocalDrawObject(TObject *obj, QString options, bool fFocus);
 };
 
-#endif // GRAPHWINDOWCLASS_H
+#endif // AGRAPHWINDOW_H

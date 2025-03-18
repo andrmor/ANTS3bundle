@@ -145,6 +145,7 @@ SOURCES += \
     gui/geom/aparticleanalyzerwidget.cpp \
     gui/geom/ashownumbersdialog.cpp \
     gui/graph/adrawmarginsrecord.cpp \
+    gui/graph/agraphwindow.cpp \
     gui/graph/ahistoptstatdialog.cpp \
     gui/graph/apaletteselectiondialog.cpp \
     gui/graph/asetmarginsdialog.cpp \
@@ -196,7 +197,6 @@ SOURCES += \
     gui/graph/atextpavedialog.cpp \
     gui/graph/atoolboxscene.cpp \
     gui/graph/graphicsruler.cpp \
-    gui/graph/graphwindowclass.cpp \
     gui/graph/shapeablerectitem.cpp \
     gui/particleSim/aparticlesimoutputdialog.cpp \
     gui/particleSim/aparticlesimwin.cpp \
@@ -371,6 +371,7 @@ HEADERS += \
     gui/atreedatabaseselectordialog.h \
     gui/geom/aparticleanalyzerwidget.h \
     gui/graph/adrawmarginsrecord.h \
+    gui/graph/agraphwindow.h \
     gui/graph/ahistoptstatdialog.h \
     gui/graph/apaletteselectiondialog.h \
     gui/graph/asetmarginsdialog.h \
@@ -446,7 +447,6 @@ HEADERS += \
     gui/graph/atlegend.h.autosave \
     gui/graph/atoolboxscene.h \
     gui/graph/graphicsruler.h \
-    gui/graph/graphwindowclass.h \
     gui/graph/shapeablerectitem.h \
     gui/particleSim/aparticlesimoutputdialog.h \
     gui/particleSim/aparticlesimwin.h \
@@ -609,6 +609,7 @@ FORMS += \
         gui/geom/aparticleanalyzerwidget.ui \
         gui/geom/ashownumbersdialog.ui \
         gui/aglobsetwindow.ui \
+        gui/graph/agraphwindow.ui \
         gui/graph/ahistoptstatdialog.ui \
         gui/graph/apaletteselectiondialog.ui \
         gui/graph/asetmarginsdialog.ui \
@@ -639,7 +640,6 @@ FORMS += \
         gui/graph/arootcolorselectordialog.ui \
         gui/graph/atemplateselectiondialog.ui \
         gui/graph/atextpavedialog.ui \
-        gui/graph/graphwindowclass.ui \
         gui/particleSim/aparticlesimoutputdialog.ui \
         gui/particleSim/aparticlesimwin.ui \
         gui/particleSim/aparticlesourcedialog.ui \

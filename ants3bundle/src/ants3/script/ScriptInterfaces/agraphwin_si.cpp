@@ -1,10 +1,10 @@
 #include "agraphwin_si.h"
-#include "graphwindowclass.h"
+#include "agraphwindow.h"
 
 #include <QApplication>
 #include <QDebug>
 
-AGraphWin_SI::AGraphWin_SI(GraphWindowClass * graphWin) :
+AGraphWin_SI::AGraphWin_SI(AGraphWindow * graphWin) :
     AWindowInterfaceBase(graphWin), GraphWindow(graphWin)
 {
     Description = "Access to the Graph window";
@@ -48,18 +48,18 @@ AGraphWin_SI::AGraphWin_SI(GraphWindowClass * graphWin) :
 
     Help["getContent"] = "Return the data content of the first drawn 1D histogram or 1D graph. It is an array with sub-arrays of coordinate and value pairs";
 
-    connect(this, &AGraphWin_SI::requestShow3D, GraphWindow, &GraphWindowClass::show3D, Qt::QueuedConnection);
+    connect(this, &AGraphWin_SI::requestShow3D, GraphWindow, &AGraphWindow::show3D, Qt::QueuedConnection);
 
     // the rest of the methods to look like that:
-    connect(this, &AGraphWin_SI::requestAddToBasket,         graphWin, &GraphWindowClass::addCurrentToBasket,  Qt::QueuedConnection);
-    connect(this, &AGraphWin_SI::requestClearBasket,         graphWin, &GraphWindowClass::ClearBasket,         Qt::QueuedConnection);
-    connect(this, &AGraphWin_SI::requestSetLog,              graphWin, &GraphWindowClass::SetLog,              Qt::QueuedConnection);
-    connect(this, &AGraphWin_SI::requestSetStatPanelVisible, graphWin, &GraphWindowClass::SetStatPanelVisible, Qt::QueuedConnection);
-    connect(this, &AGraphWin_SI::requestAddLegend,           graphWin, &GraphWindowClass::drawLegend,          Qt::QueuedConnection);
-    connect(this, &AGraphWin_SI::requestSetLegendBorder,     graphWin, &GraphWindowClass::SetLegendBorder,     Qt::QueuedConnection);
-    connect(this, &AGraphWin_SI::requestAddText,             graphWin, &GraphWindowClass::ShowTextPanel,       Qt::QueuedConnection);
-    connect(this, &AGraphWin_SI::requestAddLine,             graphWin, &GraphWindowClass::AddLine,             Qt::QueuedConnection);
-    connect(this, &AGraphWin_SI::requestAddArrow,            graphWin, &GraphWindowClass::AddArrow,            Qt::QueuedConnection);
+    connect(this, &AGraphWin_SI::requestAddToBasket,         graphWin, &AGraphWindow::addCurrentToBasket,  Qt::QueuedConnection);
+    connect(this, &AGraphWin_SI::requestClearBasket,         graphWin, &AGraphWindow::ClearBasket,         Qt::QueuedConnection);
+    connect(this, &AGraphWin_SI::requestSetLog,              graphWin, &AGraphWindow::SetLog,              Qt::QueuedConnection);
+    connect(this, &AGraphWin_SI::requestSetStatPanelVisible, graphWin, &AGraphWindow::SetStatPanelVisible, Qt::QueuedConnection);
+    connect(this, &AGraphWin_SI::requestAddLegend,           graphWin, &AGraphWindow::drawLegend,          Qt::QueuedConnection);
+    connect(this, &AGraphWin_SI::requestSetLegendBorder,     graphWin, &AGraphWindow::SetLegendBorder,     Qt::QueuedConnection);
+    connect(this, &AGraphWin_SI::requestAddText,             graphWin, &AGraphWindow::ShowTextPanel,       Qt::QueuedConnection);
+    connect(this, &AGraphWin_SI::requestAddLine,             graphWin, &AGraphWindow::AddLine,             Qt::QueuedConnection);
+    connect(this, &AGraphWin_SI::requestAddArrow,            graphWin, &AGraphWindow::AddArrow,            Qt::QueuedConnection);
 
 }
 

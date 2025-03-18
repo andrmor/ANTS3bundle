@@ -5,7 +5,7 @@
 
 #include <QTreeWidget>
 
-class GraphWindowClass;
+class AGraphWindow;
 class QTreeWidgetItem;
 class TObject;
 class TH2;
@@ -21,7 +21,7 @@ class ADrawExplorerWidget : public QTreeWidget
 {
     Q_OBJECT
 public:
-    ADrawExplorerWidget(GraphWindowClass & GraphWindow, QVector<ADrawObject> & DrawObjects);
+    ADrawExplorerWidget(AGraphWindow & GraphWindow, QVector<ADrawObject> & DrawObjects);
 
     void updateGui();
 
@@ -38,7 +38,7 @@ private slots:
     void onItemDoubleClicked(QTreeWidgetItem *item, int column);
 
 private:
-    GraphWindowClass & GraphWindow;
+    AGraphWindow & GraphWindow;
     QVector<ADrawObject> & DrawObjects;
 
 private:

@@ -2,9 +2,10 @@
 #include "arootmarkerconfigurator.h"
 #include "arootlineconfigurator.h"
 #include "guitools.h"
-#include "graphwindowclass.h"
+#include "agraphwindow.h"
 #include "afiletools.h"
 #include "alinemarkerfilldialog.h"
+#include "rasterwindowgraphclass.h"
 
 #ifdef USE_EIGEN
     #include "curvefit.h"
@@ -42,7 +43,7 @@
 #include "TROOT.h"
 #include "TFile.h"
 
-ADrawExplorerWidget::ADrawExplorerWidget(GraphWindowClass & GraphWindow, QVector<ADrawObject> & DrawObjects) :
+ADrawExplorerWidget::ADrawExplorerWidget(AGraphWindow & GraphWindow, QVector<ADrawObject> & DrawObjects) :
     GraphWindow(GraphWindow), DrawObjects(DrawObjects)
 {
     setHeaderHidden(true);
@@ -396,7 +397,7 @@ void ADrawExplorerWidget::setAttributes(int index)
     if (Type == "TLegend") return;
 
     ALineMarkerFillDialog D(obj, (index == 0), this);
-    connect(&D, &ALineMarkerFillDialog::requestRedraw, &GraphWindow, &GraphWindowClass::RedrawAll);
+    connect(&D, &ALineMarkerFillDialog::requestRedraw, &GraphWindow, &AGraphWindow::RedrawAll);
     D.exec();
 
     GraphWindow.RedrawAll();
@@ -1045,7 +1046,7 @@ void ADrawExplorerWidget::linFit(int index)
 
     GraphWindow.TriggerGlobalBusy(true);
 
-    GraphWindow.Extract2DLine();
+    GraphWindow.RasterWindow->Extract2DLine();
     if (!GraphWindow.Extraction()) return; //cancel
 
     double startX = GraphWindow.extracted2DLineXstart();
@@ -1559,7 +1560,7 @@ void ADrawExplorerWidget::editAxis(ADrawObject &obj, int axisIndex)
     }
 
     AAxesDialog D(axes, axisIndex, this);
-    connect(&D, &AAxesDialog::requestRedraw, &GraphWindow, &GraphWindowClass::RedrawAll);
+    connect(&D, &AAxesDialog::requestRedraw, &GraphWindow, &AGraphWindow::RedrawAll);
     D.exec();
 
     GraphWindow.RedrawAll();
@@ -1981,7 +1982,7 @@ void ADrawExplorerWidget::editPave(ADrawObject &obj)
         obj.Pointer = PaveCopy;
 
         ATextPaveDialog D(*PaveCopy);
-        connect(&D, &ATextPaveDialog::requestRedraw, &GraphWindow, &GraphWindowClass::RedrawAll);
+        connect(&D, &ATextPaveDialog::requestRedraw, &GraphWindow, &AGraphWindow::RedrawAll);
 
         D.exec();
         GraphWindow.RedrawAll();
