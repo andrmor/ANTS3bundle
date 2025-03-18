@@ -5,7 +5,6 @@
 #include "ui_graphwindowclass.h"
 #include "rasterwindowgraphclass.h"
 #include "guitools.h"
-#include "afiletools.h"
 #include "shapeablerectitem.h"
 #include "graphicsruler.h"
 #include "arootlineconfigurator.h"
@@ -25,7 +24,6 @@
 #endif
 
 #include <QtGui>
-#include <QFileDialog>
 #include <QGraphicsView>
 #include <QGraphicsScene>
 #include <QGraphicsItem>
@@ -34,16 +32,10 @@
 #include <QMenu>
 #include <QInputDialog>
 #include <QMessageBox>
-#include <QGraphicsSceneMouseEvent>
-#include <QVBoxLayout>
 #include <QHBoxLayout>
-#include <QPlainTextEdit>
 #include <QVariant>
 #include <QVariantList>
 #include <QShortcut>
-#include <QPolygonF>
-#include <QButtonGroup>
-#include <QElapsedTimer>
 #include <QFileInfo>
 
 #include "TMath.h"
@@ -52,28 +44,22 @@
 #include "TH1.h"
 #include "TH2.h"
 #include "TH3.h"
-#include "TH1D.h"
-#include "TSystem.h"
 #include "TStyle.h"
 #include "TF1.h"
 #include "TF2.h"
 #include "TView.h"
 #include "TMultiGraph.h"
-#include "TGraphErrors.h"
 #include "TProfile.h"
 #include "TProfile2D.h"
 #include "TStyle.h"
-#include "TEllipse.h"
 #include "TLine.h"
-#include "TFile.h"
 #include "TAxis.h"
 #include "TAttLine.h"
 #include "TLegend.h"
-#include "TVectorD.h"
 #include "TTree.h"
-#include "TPavesText.h"
 #include "TGaxis.h"
 #include "TFrame.h"
+#include "TPaveText.h"
 
 GraphWindowClass::GraphWindowClass(QWidget * parent) :
     AGuiWindow("Graph", parent),
@@ -91,16 +77,6 @@ GraphWindowClass::GraphWindowClass(QWidget * parent) :
 
     ui->labX->setText(QChar(8596));
     ui->labY->setText(QChar(8597));
-
-    //window flags
-    /*
-    Qt::WindowFlags windowFlags = (Qt::Window | Qt::CustomizeWindowHint);
-    windowFlags |= Qt::WindowCloseButtonHint;
-    windowFlags |= Qt::WindowMinimizeButtonHint;
-    windowFlags |= Qt::WindowMaximizeButtonHint;
-    //windowFlags |= Qt::Tool;
-    setWindowFlags( windowFlags );
-    */
 
     //DrawListWidget init
     Explorer = new ADrawExplorerWidget(*this, DrawObjects);
@@ -2036,6 +2012,7 @@ void GraphWindowClass::SetLegendBorder(int color, int style, int size)
     qDebug() << "Legend object was not found!";
 }
 
+/*
 void GraphWindowClass::ExportTH2AsText(QString fileName)
 {
     TObject *obj = DrawObjects.first().Pointer;
@@ -2065,7 +2042,8 @@ void GraphWindowClass::ExportTH2AsText(QString fileName)
     QString err = ftools::saveDoubleVectorsToFile({&x, &y, &f}, fileName);
     if (!err.isEmpty()) guitools::message(err, this); // !!!*** was GraphWindow as parent
 }
-
+*/
+/*
 QVector<double> GraphWindowClass::Get2DArray()
 {
     TObject *obj = DrawObjects.first().Pointer;
@@ -2086,6 +2064,7 @@ QVector<double> GraphWindowClass::Get2DArray()
         }
     return arr;
 }
+*/
 
 void GraphWindowClass::UpdateBasketGUI()
 {

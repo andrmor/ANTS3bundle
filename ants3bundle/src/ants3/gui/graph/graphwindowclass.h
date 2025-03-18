@@ -3,7 +3,6 @@
 
 #include "aguiwindow.h"
 #include "adrawobject.h"
-#include "abasketitem.h"
 #include "adrawtemplate.h"
 
 #include <QVector>
@@ -11,13 +10,7 @@
 #include <QMouseEvent>
 #include <QCloseEvent>
 
-#include "TMathBase.h"
-
-class MainWindow;
 class RasterWindowGraphClass;
-class TH2;
-class TGraph;
-class TGraph2D;
 class QGraphicsView;
 class AToolboxScene;
 class QListWidgetItem;
@@ -152,9 +145,8 @@ public slots:
                        double x1=0.15, double y1=0.75, double x2=0.5, double y2=0.85, const QString opt = "NDC");
     void SetLegendBorder(int color, int style, int size);
     void on_pbAddLegend_clicked();
-    void ExportTH2AsText(QString fileName); //for temporary script command
-
-    QVector<double> Get2DArray(); //for temporary script command
+    //void ExportTH2AsText(QString fileName); //for temporary script command
+    //QVector<double> Get2DArray(); //for temporary script command
 
     void DrawStrOpt(TObject* obj, QString options = "", bool DoUpdate = true);
     void onDrawRequest(TObject* obj, QString options, bool transferOwnership, bool focusWindow);
@@ -266,7 +258,6 @@ private:
     AToolboxScene          * scene        = nullptr;
     AMultiGraphDesigner    * MGDesigner   = nullptr;
     AViewer3D              * Viewer3D     = nullptr;
-    //std::vector<AViewer3D*>  Viewers3D; // standalone copies
 
     QVector<ADrawObject>     DrawObjects;  //always local objects -> can have a copy from the Basket
     QVector<ADrawObject>     PreviousDrawObjects; //last draw made from outside of the graph window
