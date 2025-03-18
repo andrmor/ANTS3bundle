@@ -41,10 +41,9 @@
 #include "TGaxis.h"
 #include "TColor.h"
 #include "TROOT.h"
-#include "TFile.h"
 
 ADrawExplorerWidget::ADrawExplorerWidget(AGraphWindow & GraphWindow, QVector<ADrawObject> & DrawObjects) :
-    GraphWindow(GraphWindow), DrawObjects(DrawObjects)
+    GraphWindow(GraphWindow), Raster(*GraphWindow.RasterWindow), DrawObjects(DrawObjects)
 {
     setHeaderHidden(true);
     setContextMenuPolicy(Qt::CustomContextMenu);
@@ -573,11 +572,11 @@ void ADrawExplorerWidget::scaleCDR(ADrawObject &obj)
 
     GraphWindow.TriggerGlobalBusy(true);
 
-    GraphWindow.Extract2DLine();
+    Raster.Extract2DLine();
     if (!GraphWindow.Extraction()) return; //cancel
 
-    double startY = GraphWindow.extracted2DLineYstart();
-    double stopY  = GraphWindow.extracted2DLineYstop();
+    double startY = Raster.Line2DstartY; // extracted2DLineYstart;
+    double stopY  = Raster.Line2DstopY;  // extracted2DLineYstop;
 
     if (startY == 0)  // can be very small on log canvas
     {
@@ -924,17 +923,17 @@ void ADrawExplorerWidget::fwhm(int index)
 
     GraphWindow.TriggerGlobalBusy(true);
 
-    GraphWindow.Extract2DLine();
+    Raster.Extract2DLine();
     if (!GraphWindow.Extraction()) return; //cancel
 
-    double startX = GraphWindow.extracted2DLineXstart();
-    double stopX = GraphWindow.extracted2DLineXstop();
+    double startX = Raster.Line2DstartX; // extracted2DLineXstart();
+    double stopX  = Raster.Line2DstopX;  // extracted2DLineXstop();
     if (startX > stopX) std::swap(startX, stopX);
     //qDebug() << startX << stopX;
 
-    double a = GraphWindow.extracted2DLineA();
-    double b = GraphWindow.extracted2DLineB();
-    double c = GraphWindow.extracted2DLineC();
+    double a = Raster.extracted2DLineA;
+    double b = Raster.extracted2DLineB;
+    double c = Raster.extracted2DLineC;
     if (fabs(b) < 1.0e-10)
     {
         guitools::message("Bad base line, cannot fit", &GraphWindow);
@@ -1046,16 +1045,16 @@ void ADrawExplorerWidget::linFit(int index)
 
     GraphWindow.TriggerGlobalBusy(true);
 
-    GraphWindow.RasterWindow->Extract2DLine();
+    Raster.Extract2DLine();
     if (!GraphWindow.Extraction()) return; //cancel
 
-    double startX = GraphWindow.extracted2DLineXstart();
-    double stopX = GraphWindow.extracted2DLineXstop();
+    double startX = Raster.Line2DstartX; // extracted2DLineXstart();
+    double stopX  = Raster.Line2DstopX;  // extracted2DLineXstop();
     if (startX > stopX) std::swap(startX, stopX);
 
-    double a = GraphWindow.extracted2DLineA();
-    double b = GraphWindow.extracted2DLineB();
-    double c = GraphWindow.extracted2DLineC();
+    double a = Raster.extracted2DLineA;
+    double b = Raster.extracted2DLineB;
+    double c = Raster.extracted2DLineC;
     if (fabs(b) < 1.0e-10)
     {
         guitools::message("Bad line, cannot fit", &GraphWindow);
@@ -1126,13 +1125,13 @@ void ADrawExplorerWidget::expFit(int index)
 
     GraphWindow.TriggerGlobalBusy(true);
 
-    GraphWindow.Extract2DLine();
+    Raster.Extract2DLine();
     if (!GraphWindow.Extraction()) return; //cancel
 
-    double startX = GraphWindow.extracted2DLineXstart();
-    double startY = GraphWindow.extracted2DLineYstart();
-    double stopX = GraphWindow.extracted2DLineXstop();
-    double stopY = GraphWindow.extracted2DLineYstop();
+    double startX = Raster.Line2DstartX; // extracted2DLineXstart();
+    double startY = Raster.Line2DstartY; // extracted2DLineYstart();
+    double stopX  = Raster.Line2DstopX;  // extracted2DLineXstop();
+    double stopY  = Raster.Line2DstopY;  // extracted2DLineYstop();
     if (startX > stopX)
     {
         std::swap(startX, stopX);
@@ -1201,14 +1200,14 @@ void ADrawExplorerWidget::gauss2Fit(int index)
 
     GraphWindow.TriggerGlobalBusy(true);
 
-    GraphWindow.Extract2DBox();
+    Raster.Extract2DBox();
     if (!GraphWindow.Extraction()) return; //cancel
 
-    double X1 = GraphWindow.extractedX1();
-    double X2 = GraphWindow.extractedX2();
+    double X1 = Raster.extractedX1;
+    double X2 = Raster.extractedX2;
     if (X1 > X2) std::swap(X1, X2);
-    double Y1 = GraphWindow.extractedY1();
-    double Y2 = GraphWindow.extractedY2();
+    double Y1 = Raster.extractedY1;
+    double Y2 = Raster.extractedY2;
     if (Y1 > Y2) std::swap(Y1, Y2);
 
     TH2 * h = static_cast<TH2*>(obj.Pointer);
@@ -1527,7 +1526,8 @@ void ADrawExplorerWidget::splineFit(int index)
         GraphWindow.RedrawAll();
     }
 #else
-    guitools::message("This option is supported only when ANTS2 is compliled with Eigen library enabled", &GraphWindow);
+    guitools::message("Not implemented yet", &GraphWindow);
+    //guitools::message("This option is supported only when ANTS3 is compliled with Eigen library enabled", &GraphWindow);
 #endif
 }
 
@@ -2086,13 +2086,13 @@ void ADrawExplorerWidget::linDraw(int index)
 {
     GraphWindow.TriggerGlobalBusy(true);
 
-    GraphWindow.Extract2DLine();
+    Raster.Extract2DLine();
     if (!GraphWindow.Extraction()) return; //cancel
 
-    double startX = GraphWindow.extracted2DLineXstart();
-    double stopX = GraphWindow.extracted2DLineXstop();
-    double startY = GraphWindow.extracted2DLineYstart();
-    double stopY = GraphWindow.extracted2DLineYstop();
+    double startX = Raster.Line2DstartX; // extracted2DLineXstart();
+    double stopX  = Raster.Line2DstopX;  // extracted2DLineXstop();
+    double startY = Raster.Line2DstartY; // extracted2DLineYstart();
+    double stopY  = Raster.Line2DstopY;  // extracted2DLineYstop();
 
     GraphWindow.MakeCopyOfDrawObjects();
     GraphWindow.MakeCopyOfActiveBasketId();
@@ -2111,13 +2111,13 @@ void ADrawExplorerWidget::boxDraw(int index)
 {
     GraphWindow.TriggerGlobalBusy(true);
 
-    GraphWindow.Extract2DBox();
+    Raster.Extract2DBox();
     if (!GraphWindow.Extraction()) return; //cancel
 
-    double startX = GraphWindow.extractedX1();
-    double stopX  = GraphWindow.extractedX2();
-    double startY = GraphWindow.extractedY1();
-    double stopY  = GraphWindow.extractedY2();
+    double startX = Raster.extractedX1;
+    double stopX  = Raster.extractedX2;
+    double startY = Raster.extractedY1;
+    double stopY  = Raster.extractedY2;
 
     GraphWindow.MakeCopyOfDrawObjects();
     GraphWindow.MakeCopyOfActiveBasketId();
@@ -2138,15 +2138,14 @@ void ADrawExplorerWidget::ellipseDraw(int index)
 {
     GraphWindow.TriggerGlobalBusy(true);
 
-    GraphWindow.Extract2DEllipse();
+    Raster.Extract2DEllipse();
     if (!GraphWindow.Extraction()) return; //cancel
 
-    double centerX = GraphWindow.extracted2DEllipseX();
-    double centerY = GraphWindow.extracted2DEllipseY();
-    double r1 = GraphWindow.extracted2DEllipseR1();
-    double r2 = GraphWindow.extracted2DEllipseR2();
-    double theta = GraphWindow.extracted2DEllipseTheta();
-
+    double centerX = Raster.extracted2DEllipseX;
+    double centerY = Raster.extracted2DEllipseY;
+    double r1      = Raster.extracted2DEllipseR1;
+    double r2      = Raster.extracted2DEllipseR2;
+    double theta   = Raster.extracted2DEllipseTheta;
 
     GraphWindow.MakeCopyOfDrawObjects();
     GraphWindow.MakeCopyOfActiveBasketId();

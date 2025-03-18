@@ -79,6 +79,13 @@ AGraphWindow::AGraphWindow(QWidget * parent) :
     ui->labX->setText(QChar(8596));
     ui->labY->setText(QChar(8597));
 
+    //Raster window init
+    RasterWindow = new RasterWindowGraphClass(this);
+    RasterWindow->resize(400, 400);
+    RasterWindow->ForceResize();
+    connect(RasterWindow, &RasterWindowGraphClass::LeftMouseButtonReleased, this, &AGraphWindow::UpdateControls);
+    connect(RasterWindow, &RasterWindowGraphClass::reportCursorPosition,    this, &AGraphWindow::onCursorPositionReceived);
+
     //DrawListWidget init
     Explorer = new ADrawExplorerWidget(*this, DrawObjects);
     ui->layExplorer->insertWidget(2, Explorer);
@@ -109,13 +116,6 @@ AGraphWindow::AGraphWindow(QWidget * parent) :
     //QIntValidator* iv  = new QIntValidator(this);
     //iv->setBottom(1);
     //ui->leiBinsX->setValidator(iv);
-
-    //starting QWindow
-    RasterWindow = new RasterWindowGraphClass(this);
-    RasterWindow->resize(400, 400);
-    RasterWindow->ForceResize();
-    connect(RasterWindow, &RasterWindowGraphClass::LeftMouseButtonReleased, this, &AGraphWindow::UpdateControls);
-    connect(RasterWindow, &RasterWindowGraphClass::reportCursorPosition, this, &AGraphWindow::onCursorPositionReceived);
 
     updateMargins();
 
@@ -322,131 +322,6 @@ double AGraphWindow::getMinZ(bool *ok)
 double AGraphWindow::getMaxZ(bool *ok)
 {
     return ui->ledZto->text().toDouble(ok);
-}
-
-bool AGraphWindow::IsExtractionComplete()
-{
-    return RasterWindow->IsExtractionComplete();
-}
-
-void AGraphWindow::ExtractX()
-{
-    ExtractionCanceled = false;
-    RasterWindow->ExtractX();
-}
-
-void AGraphWindow::Extract2DLine()
-{
-    ExtractionCanceled = false;
-    RasterWindow->Extract2DLine();
-}
-
-void AGraphWindow::Extract2DEllipse()
-{
-    ExtractionCanceled = false;
-    RasterWindow->Extract2DEllipse();
-}
-
-void AGraphWindow::Extract2DBox()
-{
-    ExtractionCanceled = false;
-    RasterWindow->Extract2DBox();
-}
-
-void AGraphWindow::Extract2DPolygon()
-{
-    ExtractionCanceled = false;
-    RasterWindow->Extract2DPolygon();
-}
-
-double AGraphWindow::extractedX()
-{
-    return RasterWindow->extractedX;
-}
-
-double AGraphWindow::extracted2DLineA()
-{
-    return RasterWindow->extracted2DLineA;
-}
-
-double AGraphWindow::extracted2DLineB()
-{
-    return RasterWindow->extracted2DLineB;
-}
-
-double AGraphWindow::extracted2DLineC()
-{
-    return RasterWindow->extracted2DLineC;
-}
-
-double AGraphWindow::extracted2DLineXstart()
-{
-    return RasterWindow->Line2DstartX;
-}
-
-double AGraphWindow::extracted2DLineXstop()
-{
-    return RasterWindow->Line2DstopX;
-}
-
-double AGraphWindow::extracted2DLineYstart()
-{
-    return RasterWindow->Line2DstartY;
-}
-
-double AGraphWindow::extracted2DLineYstop()
-{
-    return RasterWindow->Line2DstopY;
-}
-
-double AGraphWindow::extracted2DEllipseX()
-{
-    return RasterWindow->extracted2DEllipseX;
-}
-
-double AGraphWindow::extracted2DEllipseY()
-{
-    return RasterWindow->extracted2DEllipseY;
-}
-
-double AGraphWindow::extracted2DEllipseR1()
-{
-    return RasterWindow->extracted2DEllipseR1;
-}
-
-double AGraphWindow::extracted2DEllipseR2()
-{
-    return RasterWindow->extracted2DEllipseR2;
-}
-
-double AGraphWindow::extracted2DEllipseTheta()
-{
-    return RasterWindow->extracted2DEllipseTheta;
-}
-
-double AGraphWindow::extractedX1()
-{
-    return RasterWindow->extractedX1;
-}
-
-double AGraphWindow::extractedY1()
-{
-    return RasterWindow->extractedY1;
-}
-
-double AGraphWindow::extractedX2()
-{
-    return RasterWindow->extractedX2;
-}
-
-double AGraphWindow::extractedY2()
-{
-    return RasterWindow->extractedY2;
-}
-
-QList<double> AGraphWindow::extractedPolygon()
-{
-    return RasterWindow->extractedPolygon;
 }
 
 void AGraphWindow::Draw(TObject *obj, const char *options, bool DoUpdate, bool TransferOwnership)
@@ -675,17 +550,11 @@ bool AGraphWindow::event(QEvent *event)
 void AGraphWindow::closeEvent(QCloseEvent * event)
 {
     //qDebug() << "Graph win close event";
-    ExtractionCanceled = true;
+    RasterWindow->ExtractionCanceled = true;
     RasterWindow->setExtractionComplete(true);
     event->ignore();
 
     hide();
-
-    //DrawObjects.clear();
-    //PreviousDrawObjects.clear();
-    //RedrawAll();
-    //RasterWindow->setShowCursorPosition(false);
-    //LastDistributionShown = "";
 }
 
 void AGraphWindow::on_cbGridX_toggled(bool checked)
@@ -960,23 +829,23 @@ void AGraphWindow::on_pbZoom_clicked()
             )
     {
 //        MW->WindowNavigator->BusyOn();  !!!***
-        AGraphWindow::Extract2DBox();
+        RasterWindow->Extract2DBox();
         do
         {
             qApp->processEvents();
-            if (ExtractionCanceled)
+            if (RasterWindow->ExtractionCanceled)
             {
 //                MW->WindowNavigator->BusyOff(false);   !!!***
                 return;
             }
         }
-        while (!IsExtractionComplete());
+        while (!RasterWindow->IsExtractionComplete());
 //        MW->WindowNavigator->BusyOff(false);   !!!***
 
-        ui->ledXfrom->setText(QString::number(extractedX1(), 'g', 4));
-        ui->ledXto->setText(QString::number(extractedX2(), 'g', 4));
-        ui->ledYfrom->setText(QString::number(extractedY1(), 'g', 4));
-        ui->ledYto->setText(QString::number(extractedY2(), 'g', 4));
+        ui->ledXfrom->setText(QString::number(RasterWindow->extractedX1, 'g', 4));
+        ui->ledXto->  setText(QString::number(RasterWindow->extractedX2, 'g', 4));
+        ui->ledYfrom->setText(QString::number(RasterWindow->extractedY1, 'g', 4));
+        ui->ledYto->  setText(QString::number(RasterWindow->extractedY2, 'g', 4));
 
         AGraphWindow::Reshape();
     }
@@ -2637,13 +2506,13 @@ bool AGraphWindow::Extraction()
     do
     {
         qApp->processEvents();
-        if (IsExtractionCanceled()) break;
+        if (RasterWindow->ExtractionCanceled) break;
     }
-    while (!IsExtractionComplete() );
+    while (!RasterWindow->IsExtractionComplete() );
 
 //    MW->WindowNavigator->BusyOff(false); !!!***
 
-    return !IsExtractionCanceled();  //returns false = canceled
+    return !RasterWindow->ExtractionCanceled;  //returns false = canceled
 }
 
 void AGraphWindow::on_ledAngle_customContextMenuRequested(const QPoint &pos)

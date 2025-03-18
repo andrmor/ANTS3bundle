@@ -15,10 +15,11 @@ class RasterWindowGraphClass : public RasterWindowBaseClass
 {
     Q_OBJECT
 
-public:  
+public:
   explicit RasterWindowGraphClass(QMainWindow *MasterWindow);
   ~RasterWindowGraphClass();
 
+  bool ExtractionCanceled = false;
   double extractedX = 0;
   double extracted2DLineA, extracted2DLineB, extracted2DLineC;
   double Line2DstartX, Line2DstopX, Line2DstartY, Line2DstopY;
@@ -35,10 +36,10 @@ public:
   void setExtractionComplete(bool flag) {ExtractionComplete = flag;}
   //void setShowCursorPosition(bool flag);
 
-  void ExtractX();  //start extraction of X coordinate from a 1D graph/histogram using mouse
-  void Extract2DLine();  //start extraction of ABC line coordinate from a 2D graph/histogram using mouse
+  void ExtractX();          //start extraction of X coordinate from a 1D graph/histogram using mouse
+  void Extract2DLine();     //start extraction of ABC line coordinate from a 2D graph/histogram using mouse
   void Extract2DEllipse();  //start extraction of (T)ellipse from a 2D graph/histogram using mouse
-  void Extract2DBox();  //start extraction of 2D box (2 opposite corners)
+  void Extract2DBox();      //start extraction of 2D box (2 opposite corners)
   void Extract2DPolygon();  //start extraction of 2D polygon, extraction ends by right click (or doubleclick?)
 
   double getCanvasMinX();

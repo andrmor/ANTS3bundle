@@ -64,44 +64,13 @@ public:
     double getMinZ(bool *ok);
     double getMaxZ(bool *ok);
 
-    //extraction of coordinates from graph
-    bool IsExtractionComplete();
-    bool IsExtractionCanceled() {return ExtractionCanceled;}
-
-    //commands to start extraction of shapes on canvas
-    void ExtractX();  //start extraction of X coordinate from a 1D graph/histogram using mouse
-    void Extract2DLine();  //start extraction of ABC line coordinate from a 2D graph/histogram using mouse
-    void Extract2DEllipse();  //start extraction of (T)ellipse from a 2D graph/histogram using mouse
-    void Extract2DBox();  //start extraction of 2D box (2 opposite corners)
-    void Extract2DPolygon();  //start extraction of 2D polygon, extraction ends by right click (or doubleclick?)
-
-    //commands to get results of extraction
-    double extractedX();
-    double extracted2DLineA();
-    double extracted2DLineB();
-    double extracted2DLineC();
-    double extracted2DLineXstart();
-    double extracted2DLineXstop();
-    double extracted2DLineYstart();
-    double extracted2DLineYstop();
-    double extracted2DEllipseX();
-    double extracted2DEllipseY();
-    double extracted2DEllipseR1();
-    double extracted2DEllipseR2();
-    double extracted2DEllipseTheta();
-    double extractedX1();
-    double extractedY1();
-    double extractedX2();
-    double extractedY2();
-    QList<double> extractedPolygon();
-
     void AddLine(double x1, double y1, double x2, double y2, int color, int width, int style);
     void AddArrow(double x1, double y1, double x2, double y2, int color, int width, int style);
 
     void OnBusyOn();
     void OnBusyOff();
 
-    bool Extraction();
+    bool Extraction(); // !!!!!!************
 
     TObject * GetMainPlottedObject();
     void SaveGraph(const QString & fileName);
@@ -197,7 +166,7 @@ private slots:
     void on_ledZfrom_editingFinished();
     void on_ledZto_editingFinished();
     void on_cbShowLegend_toggled(bool checked);
-    void on_pbZoom_clicked();
+    void on_pbZoom_clicked();  // !!!*** extraction refactor!
     void on_pbUnzoom_clicked();
     void on_leOptions_editingFinished();
     void on_pbXprojection_clicked();
@@ -268,7 +237,6 @@ private:
 
     int  ActiveBasketItem         = -1; //-1 - Basket is off; 0+ -> basket loaded, can be updated
     int  PreviousActiveBasketItem = -1; //-1 - Basket is off; 0+ -> basket loaded, can be updated
-    bool ExtractionCanceled       = false;
     int  LastOptStat              = 1111;
     bool TMPignore                = false; //temporarily forbid updates - need for bulk update to avoid cross-modification
     bool ColdStart                = true;

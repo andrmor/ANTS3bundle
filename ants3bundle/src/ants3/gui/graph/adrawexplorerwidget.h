@@ -16,6 +16,7 @@ class QIcon;
 class TAttLine;
 class TAttMarker;
 class TAttFill;
+class RasterWindowGraphClass;
 
 class ADrawExplorerWidget : public QTreeWidget
 {
@@ -38,7 +39,9 @@ private slots:
     void onItemDoubleClicked(QTreeWidgetItem *item, int column);
 
 private:
-    AGraphWindow & GraphWindow;
+    AGraphWindow           & GraphWindow;
+    RasterWindowGraphClass & Raster;
+
     QVector<ADrawObject> & DrawObjects;
 
 private:

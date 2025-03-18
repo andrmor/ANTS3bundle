@@ -543,30 +543,34 @@ void RasterWindowGraphClass::DrawEllipse()
 
 void RasterWindowGraphClass::ExtractX()
 {
-  ExtractionComplete = false;
-  ExtractionOfXStarted = false;
-  ExtractionOfXPending = true;
+    ExtractionCanceled = false;
+    ExtractionComplete = false;
+    ExtractionOfXStarted = false;
+    ExtractionOfXPending = true;
 }
 
 void RasterWindowGraphClass::Extract2DLine()
 {
-  ExtractionComplete = false;
-  ExtractionOf2DLineStarted = false;
-  ExtractionOf2DLinePending = true;
+    ExtractionCanceled = false;
+    ExtractionComplete = false;
+    ExtractionOf2DLineStarted = false;
+    ExtractionOf2DLinePending = true;
 }
 
 void RasterWindowGraphClass::Extract2DEllipse()
 {
-  ExtractionComplete = false;
-  ExtractionOf2DEllipsePhase = 0;
-  ExtractionOf2DEllipsePending = true;
+    ExtractionCanceled = false;
+    ExtractionComplete = false;
+    ExtractionOf2DEllipsePhase = 0;
+    ExtractionOf2DEllipsePending = true;
 }
 
 void RasterWindowGraphClass::Extract2DBox()
 {
-  ExtractionComplete = false; 
-  ExtractionOf2DBoxStarted = false;
-  ExtractionOf2DBoxPending = true;
+    ExtractionCanceled = false;
+    ExtractionComplete = false;
+    ExtractionOf2DBoxStarted = false;
+    ExtractionOf2DBoxPending = true;
 }
 
 void RasterWindowGraphClass::Extract2DPolygon()
