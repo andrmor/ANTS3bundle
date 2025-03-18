@@ -5,7 +5,6 @@
 #include "ageometryhub.h"
 #include "guitools.h"
 #include "ajsontools.h"
-//#include "afiletools.h"
 #include "ageotreewin.h"
 #include "ageometrywindow.h"
 #include "ageometryhub.h"
@@ -24,13 +23,19 @@
 #include "escriptlanguage.h"
 #include "ageowin_si.h"
 #include "aguifromscrwin.h"
+#include "amaterialhub.h"
+#include "asensorhub.h"
+#include "ainterfacerulehub.h"
+#include "aparticlesimhub.h"
+#include "aphotonsimhub.h"
+#include "ageoconsts.h"
+#include "aparticleanalyzerhub.h"
+#include "aphotonfunctionalhub.h"
 
 #include <QDebug>
 #include <QTimer>
 #include <QFile>
 #include <QString>
-
-//#include "TObject.h"
 
 MainWindow::MainWindow() :
     AGuiWindow("Main", nullptr),
@@ -398,7 +403,6 @@ void MainWindow::updateAllGuiFromConfig()
     updateGui();
 
     GeoTreeWin->updateGui();
-    //MatWin->initWindow();
     MatWin->updateGui();
     SensWin->updateGui();
     RuleWin->updateGui();
@@ -406,13 +410,6 @@ void MainWindow::updateAllGuiFromConfig()
 
     PhotSimWin->updateGui();
     PartSimWin->updateGui();
-
-    /*
-    JScriptWin->updateGui();
-#ifdef ANTS3_PYTHON
-    PythonWin->updateGui();
-#endif
-    */
 
     QJsonObject json = AConfig::getInstance().JSON["gui"].toObject();
     // Geometry
@@ -633,14 +630,6 @@ void MainWindow::loadWindowGeometries()
     for (auto * w : wins) w->restoreGeomStatus();
 }
 
-#include "amaterialhub.h"
-#include "asensorhub.h"
-#include "ainterfacerulehub.h"
-#include "aparticlesimhub.h"
-#include "aphotonsimhub.h"
-#include "ageoconsts.h"
-#include "aparticleanalyzerhub.h"
-#include "aphotonfunctionalhub.h"
 void MainWindow::on_pbNew_clicked()
 {
     bool ok = guitools::confirm("Start a new configuration?\nUnsaved changes will be lost", this);
@@ -803,33 +792,27 @@ void MainWindow::on_actionVersions_triggered()
                   "off"
 #endif
                   "\n"
-                  "  ROOT html server: "
+                  "  ROOT html server infrastructure: "
 #ifdef USE_ROOT_HTML
                   "on"
 #else
                   "off"
 #endif
                   "\n"
-                  "  JSROOT: "
+                  "  JSROOT infrastructure: "
 #ifdef __USE_ANTS_JSROOT__
                   "on"
 #else
                   "off"
 #endif
                   "\n"
-                  "  Farm: "
+                  "  Farm infrastructure: "
 #ifdef WEBSOCKETS
                   "on"
 #else
                   "off"
 #endif
                   "\n"
-/*
-#ifdef __USE_ANTS_NCRYSTAL__
-#else
-#endif
-" - NCrystal library (neutron scattering)   \n"
-*/
                   "";
 
     guitools::message(out, this);
