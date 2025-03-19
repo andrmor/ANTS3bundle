@@ -756,14 +756,14 @@ void ADrawExplorerWidget::drawIntegral(ADrawObject &obj)
         const int points = g->GetN();
         double sum = 0;
         double x, y;
-        QVector<double> X; X.reserve(points);
-        QVector<double> Y; Y.reserve(points);
+        std::vector<double> X; X.reserve(points);
+        std::vector<double> Y; Y.reserve(points);
         for (int i=0; i<points; i++)
         {
             g->GetPoint(i, x, y);
-            X << x;
+            X.push_back(x);
             sum += y;
-            Y << sum;
+            Y.push_back(sum);
         }
 
         gi = new TGraph(points, X.data(), Y.data());
@@ -1368,15 +1368,15 @@ void ADrawExplorerWidget::median(ADrawObject &obj)
         int deltaLeft  = ( span % 2 == 0 ? span / 2 - 1 : span / 2 );
         int deltaRight = span / 2;
 
-        QVector<double> Filtered;
+        std::vector<double> Filtered;
         int num = hist->GetNbinsX();
         for (int iThisBin = 1; iThisBin <= num; iThisBin++)  // 0-> underflow; num+1 -> overflow
         {
-            QVector<double> content;
+            std::vector<double> content;
             for (int i = iThisBin - deltaLeft; i <= iThisBin + deltaRight; i++)
             {
                 if (i < 1 || i > num) continue;
-                content << hist->GetBinContent(i);
+                content.push_back( hist->GetBinContent(i) );
             }
 
             std::sort(content.begin(), content.end());
@@ -1385,7 +1385,7 @@ void ADrawExplorerWidget::median(ADrawObject &obj)
             if (size == 0) val = 0;
             else val = ( size % 2 == 0 ? (content[size / 2 - 1] + content[size / 2]) / 2 : content[size / 2] );
 
-            Filtered.append(val);
+            Filtered.push_back(val);
         }
 
         TH1 * hc = dynamic_cast<TH1*>(hist->Clone());
@@ -1537,25 +1537,24 @@ void ADrawExplorerWidget::splineFit(int index)
 
 #include "aaxesdialog.h"
 #include "TGraph2D.h"
-void ADrawExplorerWidget::editAxis(ADrawObject &obj, int axisIndex)
+void ADrawExplorerWidget::editAxis(ADrawObject & obj, int axisIndex)
 {
-    QVector<TAxis*> axes;
+    std::vector<TAxis*> axes;
 
-    // !!!*** refactor
     if (dynamic_cast<TGraph*>(obj.Pointer))
     {
         TGraph * g = dynamic_cast<TGraph*>(obj.Pointer);
-        axes << g->GetXaxis() << g->GetYaxis() << nullptr;
+        axes = { g->GetXaxis(), g->GetYaxis(), nullptr };
     }
     else if (dynamic_cast<TH1*>(obj.Pointer))
     {
         TH1* h = dynamic_cast<TH1*>(obj.Pointer);
-        axes << h->GetXaxis() << h->GetYaxis() << h->GetZaxis();
+        axes = { h->GetXaxis(), h->GetYaxis(), h->GetZaxis() };
     }
     else if (dynamic_cast<TGraph2D*>(obj.Pointer))
     {
         TGraph2D * g = dynamic_cast<TGraph2D*>(obj.Pointer);
-        axes << g->GetXaxis() << g->GetYaxis() << g->GetZaxis();
+        axes = { g->GetXaxis(), g->GetYaxis(), g->GetZaxis() };
     }
     else
     {
@@ -1594,7 +1593,7 @@ void ADrawExplorerWidget::setCustomMargins(ADrawObject & obj)
     GraphWindow.highlightUpdateBasketButton(true);
 }
 
-const QString ADrawExplorerWidget::generateOptionForSecondaryAxis(int axisIndex, double u1, double u2)
+QString ADrawExplorerWidget::generateOptionForSecondaryAxis(int axisIndex, double u1, double u2)
 {
     double cx1 = GraphWindow.getCanvasMinX();
     double cx2 = GraphWindow.getCanvasMaxX();
@@ -1845,7 +1844,7 @@ void ADrawExplorerWidget::saveRoot(ADrawObject &obj)
     tobj->SaveAs(fileName.toLatin1().data());  // sometimes crashes on load!
 }
 
-void ADrawExplorerWidget::saveAsTxt(ADrawObject &obj, bool fUseBinCenters)
+void ADrawExplorerWidget::saveAsTxt(ADrawObject & obj, bool fUseBinCenters)
 {
     TObject * tobj = obj.Pointer;
     QString cn = tobj->ClassName();
@@ -1872,21 +1871,21 @@ void ADrawExplorerWidget::saveAsTxt(ADrawObject &obj, bool fUseBinCenters)
     TH2 * h2 = dynamic_cast<TH2*>(tobj);
     if (h2)
     {
-        QVector<double> x, y, f;
+        std::vector<double> x, y, f;
         for (int iX=1; iX<h2->GetNbinsX()+1; iX++)
             for (int iY=1; iY<h2->GetNbinsY()+1; iY++)
             {
                 const double X = (fUseBinCenters ? h2->GetXaxis()->GetBinCenter(iX) : h2->GetXaxis()->GetBinLowEdge(iX));
                 const double Y = (fUseBinCenters ? h2->GetYaxis()->GetBinCenter(iY) : h2->GetYaxis()->GetBinLowEdge(iY));
-                x.append(X);
-                y.append(Y);
+                x.push_back(X);
+                y.push_back(Y);
 
                 int iBin = h2->GetBin(iX, iY);
                 double F = h2->GetBinContent(iBin);
-                f.append(F);
+                f.push_back(F);
             }
 
-        QVector<QVector<double> *> V = {&x, &y, &f};
+        std::vector<std::vector<double> *> V = {&x, &y, &f};
         ftools::saveDoubleVectorsToFile(V, fileName);
         return;
     }
@@ -1894,21 +1893,21 @@ void ADrawExplorerWidget::saveAsTxt(ADrawObject &obj, bool fUseBinCenters)
     TH1 * h1 = dynamic_cast<TH1*>(tobj);
     if (h1)
     {
-        QVector<double> x,y;
+        std::vector<double> x,y;
         if (fUseBinCenters)
         {
             for (int i=1; i<h1->GetNbinsX()+1; i++)
             {
-                x.append(h1->GetBinCenter(i));
-                y.append(h1->GetBinContent(i));
+                x.push_back(h1->GetBinCenter(i));
+                y.push_back(h1->GetBinContent(i));
             }
         }
         else
         { //bin starts
             for (int i=1; i<h1->GetNbinsX()+2; i++)  // *** should it be +2?
             {
-                x.append(h1->GetBinLowEdge(i));
-                y.append(h1->GetBinContent(i));
+                x.push_back(h1->GetBinLowEdge(i));
+                y.push_back(h1->GetBinContent(i));
             }
         }
 
@@ -1921,15 +1920,15 @@ void ADrawExplorerWidget::saveAsTxt(ADrawObject &obj, bool fUseBinCenters)
     TGraph* g = dynamic_cast<TGraph*>(tobj);
     if (g)
     {
-        QVector<double> x,y;
+        std::vector<double> x,y;
         for (int i = 0; i < g->GetN(); i++)
         {
             double xx, yy;
             int ok = g->GetPoint(i, xx, yy);
             if (ok != -1)
             {
-                x.append(xx);
-                y.append(yy);
+                x.push_back(xx);
+                y.push_back(yy);
             }
         }
         //SaveDoubleVectorsToFile(fileName, &x, &y);
@@ -2040,8 +2039,8 @@ void ADrawExplorerWidget::editTGaxis(ADrawObject &obj)
         TAxis axis;
         copyAxisProperties(*grAxis, axis);
 
-        QVector<TAxis *> vec;
-        vec << &axis;
+        std::vector<TAxis *> vec;
+        vec.push_back( &axis );
         AAxesDialog D(vec, 0, this);
 
         QHBoxLayout * lay = new QHBoxLayout();

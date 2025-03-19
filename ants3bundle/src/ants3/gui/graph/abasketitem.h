@@ -2,8 +2,10 @@
 #define ABASKETITEM_H
 
 #include "adrawobject.h"
+
 #include <QString>
-#include <QVector>
+
+#include <vector>
 
 class ABasketItem
 {
@@ -11,9 +13,9 @@ public:
     ~ABasketItem();
 
 public:
-    QVector<ADrawObject> DrawObjects;
+    std::vector<ADrawObject> DrawObjects;
     QString Name;
-    QString Type;  // ***kill?
+    QString Type;
 
     void clearObjects();
 

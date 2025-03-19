@@ -222,7 +222,6 @@ QString ftools::loadMatrix(const QString & fileName, std::vector<std::vector<dou
 
     if (data.empty()) return "Nothing was loaded";
     return "";
-
 }
 
 QString ftools::loadDoubleVectorsFromFile(const QString & FileName, QVector<double> * x, QVector<double> * y, QString * header, int numLines)
@@ -356,11 +355,11 @@ QString ftools::loadDoubleVectorsFromFile(const QString & fileName, std::vector<
     return "";
 }
 
-QString ftools::saveDoubleVectorsToFile(const QVector<QVector<double> *> & V, const QString & FileName)
+QString ftools::saveDoubleVectorsToFile(const std::vector<std::vector<double> *> & V, const QString & FileName)
 {
-    if (V.isEmpty()) return "No data to save!";
-    const int size = V.first()->size();
-    for (int i = 1; i < V.size(); i++)
+    if (V.empty()) return "No data to save!";
+    const size_t size = V.front()->size();
+    for (size_t i = 1; i < V.size(); i++)
         if (V[i]->size() != size) return "Mismatch in vector size";
 
     QFile outFile(FileName);
@@ -369,9 +368,9 @@ QString ftools::saveDoubleVectorsToFile(const QVector<QVector<double> *> & V, co
 
     QTextStream outStream(&outFile);
 
-    for (int iLine = 0; iLine < size; iLine++)
+    for (size_t iLine = 0; iLine < size; iLine++)
     {
-         for (int iVec = 0; iVec < V.size(); iVec++)
+         for (size_t iVec = 0; iVec < V.size(); iVec++)
          {
              if (iVec != 0) outStream << ' ';
              outStream << (*V[iVec])[iLine];

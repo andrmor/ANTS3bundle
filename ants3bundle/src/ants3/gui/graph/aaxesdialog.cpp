@@ -7,10 +7,10 @@
 #include <QDoubleValidator>
 
 #include "TAxis.h"
-#include "TAttAxis.h"
-#include "TString.h"
+//#include "TAttAxis.h"
+//#include "TString.h"
 
-AAxesDialog::AAxesDialog(QVector<TAxis *> & axes, int axisIndex, QWidget * parent) :
+AAxesDialog::AAxesDialog(std::vector<TAxis *> &axes, int axisIndex, QWidget * parent) :
     QDialog(parent), ui(new Ui::AAxesDialog),
     Axes(axes), AxisIndex(axisIndex)
 {

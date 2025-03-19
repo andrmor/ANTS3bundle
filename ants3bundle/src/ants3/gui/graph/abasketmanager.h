@@ -4,8 +4,9 @@
 #include "abasketitem.h"
 
 #include <QString>
-#include <QVector>
 #include <QStringList>
+
+#include <vector>
 
 class ABasketManager
 {
@@ -41,10 +42,10 @@ public:
     QString             mergeHistograms(const std::vector<int> & indexes);
 
 private:
-    QVector<ABasketItem> Basket;
+    std::vector<ABasketItem> Basket;
 
 private:
-    int                 findPointerInDrawObjects(const QVector<ADrawObject> & DrawObjects, TObject * obj) const;
+    int                 findPointerInDrawObjects(const std::vector<ADrawObject> & drawObjects, TObject * obj) const;
 };
 
 #endif // ABASKETMANAGER_H
