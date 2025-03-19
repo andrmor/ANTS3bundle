@@ -11,38 +11,38 @@
 #include <QMessageBox>
 #endif
 
-bool ftools::loadTextFromFile(QString & Text, const QString & FileName)
+bool ftools::loadTextFromFile(QString & text, const QString & fileName)
 {
-    QFile file(FileName);
+    QFile file(fileName);
     if (!file.open(QIODevice::ReadOnly | QFile::Text)) return false;
 
     QTextStream in(&file);
-    Text = in.readAll();
+    text = in.readAll();
     file.close();
     return true;
 }
 
-bool ftools::saveTextToFile(const QString & Text, const QString & FileName)
+bool ftools::saveTextToFile(const QString & text, const QString & fileName)
 {
-    QFile file(FileName);
+    QFile file(fileName);
     if (!file.open(QIODevice::WriteOnly | QFile::Text)) return false;
 
     QTextStream out(&file);
-    out << Text;
+    out << text;
     file.close();
     return true;
 }
 
 
-QString ftools::mergeTextFiles(const std::vector<QString> & FilesToMerge, QString FileName)
+QString ftools::mergeTextFiles(const std::vector<QString> & filesToMerge, QString fileName)
 {
-    QFile ofile(FileName);
-    if (!ofile.open(QIODevice::WriteOnly | QFile::Text)) return "Cannot open output file:\n" + FileName;
+    QFile ofile(fileName);
+    if (!ofile.open(QIODevice::WriteOnly | QFile::Text)) return "Cannot open output file:\n" + fileName;
     QTextStream out(&ofile);
 
     QByteArray buffer;
     buffer.reserve(1000);
-    for (const QString & fn : FilesToMerge)
+    for (const QString & fn : filesToMerge)
     {
         QFile file(fn);
         if (!file.open(QIODevice::ReadOnly | QFile::Text)) return "Cannot open input file:\n" + fn;
@@ -224,6 +224,7 @@ QString ftools::loadMatrix(const QString & fileName, std::vector<std::vector<dou
     return "";
 }
 
+/*
 QString ftools::loadDoubleVectorsFromFile(const QString & FileName, QVector<double> * x, QVector<double> * y, QString * header, int numLines)
 {
     bool bGetHeader = (header && !header->isEmpty());
@@ -315,6 +316,7 @@ QString ftools::loadDoubleVectorsFromFile(const QString & FileName, QVector<QVec
 
     return "";
 }
+*/
 
 QString ftools::loadDoubleVectorsFromFile(const QString & fileName, std::vector< std::vector<double>* > & vec)
 {
@@ -355,25 +357,25 @@ QString ftools::loadDoubleVectorsFromFile(const QString & fileName, std::vector<
     return "";
 }
 
-QString ftools::saveDoubleVectorsToFile(const std::vector<std::vector<double> *> & V, const QString & FileName)
+QString ftools::saveDoubleVectorsToFile(const std::vector<std::vector<double> *> & vec, const QString & fileName)
 {
-    if (V.empty()) return "No data to save!";
-    const size_t size = V.front()->size();
-    for (size_t i = 1; i < V.size(); i++)
-        if (V[i]->size() != size) return "Mismatch in vector size";
+    if (vec.empty()) return "No data to save!";
+    const size_t size = vec.front()->size();
+    for (size_t i = 1; i < vec.size(); i++)
+        if (vec[i]->size() != size) return "Mismatch in vector size";
 
-    QFile outFile(FileName);
+    QFile outFile(fileName);
     outFile.open(QIODevice::WriteOnly);
-    if (!outFile.isOpen()) return "Cannot open file " + FileName + " for output";
+    if (!outFile.isOpen()) return "Cannot open file " + fileName + " for output";
 
     QTextStream outStream(&outFile);
 
     for (size_t iLine = 0; iLine < size; iLine++)
     {
-         for (size_t iVec = 0; iVec < V.size(); iVec++)
+         for (size_t iVec = 0; iVec < vec.size(); iVec++)
          {
              if (iVec != 0) outStream << ' ';
-             outStream << (*V[iVec])[iLine];
+             outStream << (*vec[iVec])[iLine];
          }
          outStream << '\n';
     }
