@@ -185,9 +185,9 @@ void AMultiGraphDesigner::updateGUI()
     updateNumbers();
 }
 
-void AMultiGraphDesigner::drawGraph(const QVector<ADrawObject> DrawObjects, APadProperties & pad)
+void AMultiGraphDesigner::drawGraph(const std::vector<ADrawObject> DrawObjects, APadProperties & pad)
 {
-    for (int i=0; i<DrawObjects.length(); i++)
+    for (int i=0; i<DrawObjects.size(); i++)
     {
         const ADrawObject & drObj = DrawObjects.at(i);
         TObject * tObj = drObj.Pointer;
@@ -214,10 +214,10 @@ void AMultiGraphDesigner::updateCanvas()
             int iBasketIndex = DrawOrder.at(iPad);
             if (iBasketIndex < Basket.size() && iBasketIndex >= 0)
             {
-                const QVector<ADrawObject> DrawObjects = Basket.getCopy(iBasketIndex);
+                const std::vector<ADrawObject> DrawObjects = Basket.getCopy(iBasketIndex);
                 pad.tPad->cd();
 
-                if (!DrawObjects.isEmpty())
+                if (!DrawObjects.empty())
                 {
                     pad.tPad->SetLogx(DrawObjects.front().bLogScaleX);
                     pad.tPad->SetLogy(DrawObjects.front().bLogScaleY);

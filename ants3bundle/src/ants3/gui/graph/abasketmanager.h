@@ -12,10 +12,10 @@ class ABasketManager
 public:
     ~ABasketManager();
 
-    void                add(const QString & name, const QVector<ADrawObject> & drawObjects); //makes deep copy
-    void                update(int index, const QVector<ADrawObject> & drawObjects);         //makes deep copy
+    void                add(const QString & name, const std::vector<ADrawObject> & drawObjects); //makes deep copy
+    void                update(int index, const std::vector<ADrawObject> & drawObjects);         //makes deep copy
 
-    QVector<ADrawObject> getCopy(int index) const;  //returns deep copy
+    std::vector<ADrawObject> getCopy(int index) const;  //returns deep copy
 
     void                clear();
     void                remove(int index);

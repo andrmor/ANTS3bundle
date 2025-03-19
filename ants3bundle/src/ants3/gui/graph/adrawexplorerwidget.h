@@ -5,6 +5,8 @@
 
 #include <QTreeWidget>
 
+#include <vector>
+
 class AGraphWindow;
 class QTreeWidgetItem;
 class TObject;
@@ -22,7 +24,7 @@ class ADrawExplorerWidget : public QTreeWidget
 {
     Q_OBJECT
 public:
-    ADrawExplorerWidget(AGraphWindow & GraphWindow, QVector<ADrawObject> & DrawObjects);
+    ADrawExplorerWidget(AGraphWindow & GraphWindow, std::vector<ADrawObject> & DrawObjects);
 
     void updateGui();
 
@@ -39,10 +41,10 @@ private slots:
     void onItemDoubleClicked(QTreeWidgetItem *item, int column);
 
 private:
-    AGraphWindow           & GraphWindow;
-    RasterWindowGraphClass & Raster;
+    AGraphWindow             & GraphWindow;
+    RasterWindowGraphClass   & Raster;
 
-    QVector<ADrawObject> & DrawObjects;
+    std::vector<ADrawObject> & DrawObjects;
 
 private:
     void addToDrawObjectsAndRegister(TObject * pointer, const QString & options);

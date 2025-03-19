@@ -85,7 +85,7 @@ private:
     void updateCanvas();
     void updateNumbers();
 
-    void drawGraph(const QVector<ADrawObject> DrawObjects, APadProperties & pad);
+    void drawGraph(const std::vector<ADrawObject> DrawObjects, APadProperties & pad); // !!!*** to ref?
     void fillOutBasicLayout(int numX, int numY);
     void writeToJson(QJsonObject &json);
     QString readFromJson(const QJsonObject &json);

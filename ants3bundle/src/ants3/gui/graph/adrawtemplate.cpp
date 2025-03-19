@@ -23,15 +23,15 @@ ADrawTemplate::~ADrawTemplate()
     clearSelection();
 }
 
-void ADrawTemplate::createFrom(const QVector<ADrawObject> & DrawObjects, const QVector<QPair<double, double> > & XYZ_ranges)
+void ADrawTemplate::createFrom(const std::vector<ADrawObject> & DrawObjects, const QVector<QPair<double, double> > & XYZ_ranges)
 {
-    if (DrawObjects.isEmpty()) return;
+    if (DrawObjects.empty()) return;
 
-    TObject * tobj = DrawObjects.first().Pointer;
+    TObject * tobj = DrawObjects.front().Pointer;
     if (!tobj) return;
 
     //draw options and attibutes
-    DrawOption = DrawObjects.first().Options;
+    DrawOption = DrawObjects.front().Options;
     //DrawAttributes.fillProperties(tobj);
 
     //axes
@@ -59,10 +59,10 @@ void ADrawTemplate::createFrom(const QVector<ADrawObject> & DrawObjects, const Q
     }
 }
 
-void ADrawTemplate::applyTo(QVector<ADrawObject> & DrawObjects, QVector<QPair<double,double>> & XYZ_ranges, bool bAll)
+void ADrawTemplate::applyTo(std::vector<ADrawObject> & DrawObjects, QVector<QPair<double,double>> & XYZ_ranges, bool bAll)
 {
-    if (DrawObjects.isEmpty()) return;
-    TObject * tobj = DrawObjects.first().Pointer;
+    if (DrawObjects.empty()) return;
+    TObject * tobj = DrawObjects.front().Pointer;
     if (!tobj) return;
 
     bIgnoreSelection = bAll;
@@ -119,14 +119,17 @@ void ADrawTemplate::applyTo(QVector<ADrawObject> & DrawObjects, QVector<QPair<do
             if (!Legend) //paranoic -> Legend is created before calling this method
             {
                 Legend = new TLegend(0.1,0.1, 0.5,0.5); //not fully functional if created here! position is not set by read properties method
-                DrawObjects << ADrawObject(Legend, "same");
+                DrawObjects.push_back( ADrawObject(Legend, "same") );
             }
 
             if (iLegend != LegendIndex)
             {
                 if (iLegend > LegendIndex)
                 {
-                    DrawObjects.move(iLegend, LegendIndex);
+                    //DrawObjects.move(iLegend, LegendIndex);
+                    ADrawObject tmp = DrawObjects[iLegend];
+                    DrawObjects.erase(DrawObjects.begin() + iLegend);
+                    DrawObjects.insert(DrawObjects.begin() + LegendIndex, tmp);
                     iLegend = LegendIndex;
                 }
             }

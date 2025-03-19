@@ -37,11 +37,11 @@ TGraph * HistToGraph(TH1 * h)
     return new TGraph(x.size(), x.data(), f.data());
 }
 
-void ABasketManager::add(const QString & name, const QVector<ADrawObject> & drawObjects)
+void ABasketManager::add(const QString & name, const std::vector<ADrawObject> & drawObjects)
 {
     ABasketItem item;
     item.Name = name;
-    item.Type = drawObjects.first().Pointer->ClassName();
+    item.Type = drawObjects.front().Pointer->ClassName();
 
     QMap<TObject*, TObject*> OldToNew;
     TLegend * Legend = nullptr;
@@ -154,7 +154,7 @@ void ABasketManager::add(const QString & name, const QVector<ADrawObject> & draw
     Basket << item;
 }
 
-void ABasketManager::update(int index, const QVector<ADrawObject> & drawObjects)
+void ABasketManager::update(int index, const std::vector<ADrawObject> & drawObjects)
 {
     if (index < 0 || index >= Basket.size()) return;
 
@@ -164,9 +164,9 @@ void ABasketManager::update(int index, const QVector<ADrawObject> & drawObjects)
     Basket.remove(Basket.size()-1);
 }
 
-QVector<ADrawObject> ABasketManager::getCopy(int index) const
+std::vector<ADrawObject> ABasketManager::getCopy(int index) const
 {
-    QVector<ADrawObject> res;
+    std::vector<ADrawObject> res;
 
     QMap<TObject*, TObject*> OldToNew;
     TLegend * Legend = nullptr;
@@ -193,7 +193,7 @@ QVector<ADrawObject> ABasketManager::getCopy(int index) const
 
             ADrawObject newObj(clone, obj.Options, obj.bEnabled, obj.bLogScaleX, obj.bLogScaleY);
             newObj.CustomMargins = obj.CustomMargins;
-            res << newObj;
+            res.push_back(newObj);
         }
 
         if (Legend)
@@ -686,8 +686,8 @@ QString ABasketManager::mergeHistograms(const std::vector<int> & indexes)
     }
     name.chop(1);
 
-    QVector<ADrawObject> drawObjects;
-    drawObjects << ADrawObject(hist, "hist");
+    std::vector<ADrawObject> drawObjects;
+    drawObjects.push_back( ADrawObject(hist, "hist") );
     add(name, drawObjects);
 
     delete hist;

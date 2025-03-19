@@ -195,8 +195,8 @@ private:
     AMultiGraphDesigner    * MGDesigner   = nullptr;
     AViewer3D              * Viewer3D     = nullptr;
 
-    QVector<ADrawObject>     DrawObjects;         //always local objects -> can have a copy from the Basket
-    QVector<ADrawObject>     PreviousDrawObjects; //last draw made from outside of the graph window
+    std::vector<ADrawObject> DrawObjects;         //always local objects -> can have a copy from the Basket
+    std::vector<ADrawObject> PreviousDrawObjects; //last draw made from outside of the graph window
 
     std::vector<TObject*>    RegisteredTObjects;
 
@@ -238,7 +238,7 @@ private:
     void showHintInStatus();
     void setShowCursorPosition(bool flag);
     void fixGraphFrame();
-    void updateLogScaleFlags(QVector<ADrawObject> & drawObjects) const;
+    void updateLogScaleFlags(std::vector<ADrawObject> & drawObjects) const;
     void createMGDesigner();
     void connectScriptUnitDrawRequests(const std::vector<AScriptInterface *> interfaces);
     void updateMargins(ADrawObject * obj = nullptr);

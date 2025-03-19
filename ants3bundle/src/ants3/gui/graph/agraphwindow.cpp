@@ -347,7 +347,7 @@ void AGraphWindow::draw(TObject * obj, QString options, bool update, bool transf
 
         DrawObjects.clear();
     }
-    DrawObjects.append(ADrawObject(obj, options));
+    DrawObjects.push_back( ADrawObject(obj, options) );
 
     if (DrawObjects.size() == 1) updateMargins(&DrawObjects.front());
 
@@ -412,7 +412,7 @@ void AGraphWindow::drawSingleObject(TObject * obj, QString options, bool update)
     if (update) RasterWindow->fCanvas->Update();
 
     Explorer->updateGui();
-    ui->pbBackToLast->setVisible( !PreviousDrawObjects.isEmpty() );
+    ui->pbBackToLast->setVisible( !PreviousDrawObjects.empty() );
 
     if (!options.contains("same", Qt::CaseInsensitive))
         updateGuiControlsForMainObject(obj->ClassName(), options);
@@ -612,8 +612,8 @@ void AGraphWindow::on_ledZto_editingFinished()
 
 TObject * AGraphWindow::getMainPlottedObject()
 {
-    if (DrawObjects.isEmpty()) return nullptr;
-    return DrawObjects.first().Pointer;
+    if (DrawObjects.empty()) return nullptr;
+    return DrawObjects.front().Pointer;
 }
 
 #include "TView3D.h"
@@ -625,9 +625,9 @@ void AGraphWindow::reshape()
     //    qDebug()<<"GraphWindow  -> Reshape triggered; objects:"<<DrawObjects.size();
 
     //if (DrawObjects.isEmpty()) return;
-    if (DrawObjects.isEmpty()) return;
+    if (DrawObjects.empty()) return;
 
-    TObject * tobj = DrawObjects.first().Pointer;
+    TObject * tobj = DrawObjects.front().Pointer;
 
     //double xmin, xmax, ymin, ymax, zmin, zmax;
     xmin = ui->ledXfrom->text().toDouble();
@@ -742,7 +742,7 @@ void AGraphWindow::redrawAll()
     enforceOverlayOff();
     updateBasketGUI();
 
-    if (DrawObjects.isEmpty())
+    if (DrawObjects.empty())
     {
         clearRootCanvas();
         updateRootCanvas();
@@ -789,10 +789,10 @@ void AGraphWindow::on_cbShowLegend_toggled(bool checked)
 
 void AGraphWindow::on_pbZoom_clicked()
 {
-    if (DrawObjects.isEmpty()) return;
-    TObject* obj = DrawObjects.first().Pointer;
+    if (DrawObjects.empty()) return;
+    TObject* obj = DrawObjects.front().Pointer;
     QString PlotType = obj->ClassName();
-    QString opt = DrawObjects.first().Options;
+    QString opt = DrawObjects.front().Options;
     //qDebug()<<"  Class name/PlotOptions/opt:"<<PlotType<<opt;
     if (
             PlotType == "TGraph" ||
@@ -820,9 +820,9 @@ void AGraphWindow::on_pbZoom_clicked()
 
 void AGraphWindow::on_pbUnzoom_clicked()
 {
-    if (DrawObjects.isEmpty()) return;
+    if (DrawObjects.empty()) return;
 
-    TObject* obj = DrawObjects.first().Pointer;
+    TObject* obj = DrawObjects.front().Pointer;
 
     TH1 * h = dynamic_cast<TH1*>(obj);
     if (h)
@@ -868,10 +868,10 @@ void AGraphWindow::on_leOptions_editingFinished()
 {   
     const QString newOptions = ui->leOptions->text();
 
-    if (DrawObjects.isEmpty()) return;
-    if (DrawObjects.first().Options != newOptions)
+    if (DrawObjects.empty()) return;
+    if (DrawObjects.front().Options != newOptions)
     {
-        DrawObjects.first().Options = newOptions;
+        DrawObjects.front().Options = newOptions;
         redrawAll();
     }
 }
@@ -883,7 +883,7 @@ void AGraphWindow::saveGraph(const QString & fileName)
 
 void AGraphWindow::updateControls()
 {
-    if (DrawObjects.isEmpty()) return;
+    if (DrawObjects.empty()) return;
 
     //qDebug()<<"  GraphWindow: updating indication of ranges";
     TMPignore = true;
@@ -894,14 +894,14 @@ void AGraphWindow::updateControls()
     ui->cbGridX->setChecked(c->GetGridx());
     ui->cbGridY->setChecked(c->GetGridy());
 
-    TObject* obj = DrawObjects.first().Pointer;
+    TObject* obj = DrawObjects.front().Pointer;
     if (!obj)
     {
         qWarning() << "Cannot update graph window rang controls - object does not exist";
         return;
     }
     QString PlotType = obj->ClassName();
-    QString opt = DrawObjects.first().Options;
+    QString opt = DrawObjects.front().Options;
     //qDebug() << "PlotType:"<< PlotType << "Opt:"<<opt;
 
     zmin = 0; zmax = 0;
@@ -1694,7 +1694,7 @@ void AGraphWindow::showProjection(QString type)
 
     DrawObjects.clear();
     registerTObject(hProjection);
-    DrawObjects  << ADrawObject(hProjection, "hist");
+    DrawObjects.push_back( ADrawObject(hProjection, "hist") );
 
     redrawAll();
 
@@ -1709,7 +1709,7 @@ void AGraphWindow::enforceOverlayOff()
 
 void AGraphWindow::on_pbAddToBasket_clicked()
 {   
-    if (DrawObjects.isEmpty()) return;
+    if (DrawObjects.empty()) return;
 
     bool ok;
     int row = Basket->size();
@@ -1724,14 +1724,14 @@ void AGraphWindow::on_pbAddToBasket_clicked()
 
 void AGraphWindow::addCurrentToBasket(const QString & name)
 {
-    if (DrawObjects.isEmpty()) return;
+    if (DrawObjects.empty()) return;
     updateLogScaleFlags(DrawObjects);
     Basket->add(name.simplified(), DrawObjects);
     ui->actionToggle_Explorer_Basket->setChecked(true);
     updateBasketGUI();
 }
 
-void AGraphWindow::updateLogScaleFlags(QVector<ADrawObject> & drawObjects) const
+void AGraphWindow::updateLogScaleFlags(std::vector<ADrawObject> & drawObjects) const
 {
     for (ADrawObject & drObj : drawObjects)
     {
@@ -1745,7 +1745,7 @@ void AGraphWindow::drawLegend(double x1, double y1, double x2, double y2, QStrin
     TLegend* leg = RasterWindow->fCanvas->BuildLegend(x1, y1, x2, y2, title.toLatin1());
 
     registerTObject(leg);
-    DrawObjects.append(ADrawObject(leg, "same"));
+    DrawObjects.push_back(ADrawObject(leg, "same"));
 
     redrawAll();
 }
@@ -1821,8 +1821,8 @@ void AGraphWindow::makeCopyOfDrawObjects()
     PreviousDrawObjects = DrawObjects;
 
     // without this fix cloning of legend objects is broken
-    if (!PreviousDrawObjects.isEmpty())
-        qDebug() << "gcc optimizer fix:" << PreviousDrawObjects.first().Pointer;
+    //if (!PreviousDrawObjects.isEmpty())
+    //    qDebug() << "gcc optimizer fix:" << PreviousDrawObjects.first().Pointer;
 }
 
 void AGraphWindow::clearCopyOfDrawObjects()
@@ -1923,7 +1923,7 @@ void AGraphWindow::onBasketCustomContextMenuRequested(const QPoint &pos)
     }
     else if (selectedItem == append)
     {
-        bool bDrawEmpty = DrawObjects.isEmpty();
+        bool bDrawEmpty = DrawObjects.empty();
         const QString fileName = guitools::dialogLoadFile(this, "Append all from a basket file", "Root files (*.root)");
         if (!fileName.isEmpty())
         {
@@ -2130,13 +2130,13 @@ void AGraphWindow::on_actionInverted_dark_body_triggered()
 void AGraphWindow::basket_DrawOnTop(int row)
 {
     if (row == -1) return;
-    if (DrawObjects.isEmpty()) return;
+    if (DrawObjects.empty()) return;
 
     makeCopyOfDrawObjects();
     makeCopyOfActiveBasketId();
 
     //qDebug() << "Basket item"<<row<<"was requested to be drawn on top of the current draw";
-    const QVector<ADrawObject> DeepCopyBasketDrawObjects = Basket->getCopy(row);
+    const std::vector<ADrawObject> DeepCopyBasketDrawObjects = Basket->getCopy(row);
 
     for (int iObj = 0; iObj < DeepCopyBasketDrawObjects.size(); iObj++)
     {
@@ -2153,7 +2153,7 @@ void AGraphWindow::basket_DrawOnTop(int row)
         TString safe = "same";
         safe += options.toLatin1().data();
         //qDebug() << "New options:"<<safe;
-        DrawObjects.append(ADrawObject(DeepCopyBasketDrawObjects[iObj].Pointer, safe));
+        DrawObjects.push_back( ADrawObject(DeepCopyBasketDrawObjects[iObj].Pointer, safe) );
     }
 
     ActiveBasketItem = -1;
@@ -2190,8 +2190,8 @@ void AGraphWindow::on_actionToggle_toolbar_triggered(bool checked)
 
 void AGraphWindow::on_actionEqualize_scale_XY_triggered()
 {
-    if (DrawObjects.isEmpty()) return;
-    QString ClassName = DrawObjects.first().Pointer->ClassName();
+    if (DrawObjects.empty()) return;
+    QString ClassName = DrawObjects.front().Pointer->ClassName();
     if (!ClassName.startsWith("TH2") && !ClassName.startsWith("TF2") && !ClassName.startsWith("TGraph2D"))
     {
         guitools::message("Supported only for 2D view", this);
@@ -2252,7 +2252,7 @@ TLegend * AGraphWindow::addLegend()
 {
     TLegend * leg = RasterWindow->fCanvas->BuildLegend();
     registerTObject(leg);
-    DrawObjects.append(ADrawObject(leg, "same"));
+    DrawObjects.push_back( ADrawObject(leg, "same") );
     redrawAll();
     return leg;
 }
@@ -2265,7 +2265,7 @@ void AGraphWindow::on_pbAddLegend_clicked()
 #include "alegenddialog.h"
 void AGraphWindow::showAddLegendDialog()
 {
-    if (DrawObjects.isEmpty()) return;
+    if (DrawObjects.empty()) return;
 
     TLegend * leg = nullptr;
     for (int i=0; i<DrawObjects.size(); i++)
@@ -2295,7 +2295,8 @@ void AGraphWindow::on_pbRemoveLegend_clicked()
         QString cn = DrawObjects[i].Pointer->ClassName();
         if (cn == "TLegend")
         {
-            DrawObjects.remove(i);
+            //DrawObjects.remove(i);
+            DrawObjects.erase(DrawObjects.begin()+i);
             redrawAll();
             break;
         }
@@ -2385,10 +2386,10 @@ void AGraphWindow::switchToBasket(int index)
     DrawObjects = Basket->getCopy(index);
     redrawAll();
 
-    if (!DrawObjects.isEmpty())
+    if (!DrawObjects.empty())
     {
-        ui->cbLogX->setChecked(DrawObjects.first().bLogScaleX);
-        ui->cbLogY->setChecked(DrawObjects.first().bLogScaleY);
+        ui->cbLogX->setChecked(DrawObjects.front().bLogScaleX);
+        ui->cbLogY->setChecked(DrawObjects.front().bLogScaleY);
     }
 
     ActiveBasketItem = index;
@@ -2452,7 +2453,7 @@ void AGraphWindow::on_actionMake_square_triggered()
 
 void AGraphWindow::on_actionCreate_template_triggered()
 {
-    if (DrawObjects.isEmpty()) return;
+    if (DrawObjects.empty()) return;
 
     QVector<QPair<double,double>> Limits = {QPair<double,double>(xmin, xmax), QPair<double,double>(ymin, ymax), QPair<double,double>(zmin, zmax)};
     DrawTemplate.createFrom(DrawObjects, Limits); // it seems TH1 does not contain data on the shown range for Y (and Z) axes ... -> using inidcated range!
@@ -2465,7 +2466,7 @@ void AGraphWindow::on_actionApply_template_triggered()
 
 void AGraphWindow::applyTemplate(bool bAll)
 {
-    if (DrawObjects.isEmpty()) return;
+    if (DrawObjects.empty()) return;
 
     if (DrawTemplate.hasLegend())
     {
@@ -2528,7 +2529,7 @@ void AGraphWindow::highlightUpdateBasketButton(bool flag)
 
 QString AGraphWindow::useProjectionTool(const QString & option)
 {
-    if (DrawObjects.isEmpty()) return "Graph window is empty";
+    if (DrawObjects.empty()) return "Graph window is empty";
     TH2 * hist = dynamic_cast<TH2*>(DrawObjects[0].Pointer);
     if (!hist) return "Currently drawn object has to be TH2";
 
@@ -2568,7 +2569,7 @@ void AGraphWindow::on_actionApply_selective_triggered()
 
 void AGraphWindow::on_actionShow_first_drawn_object_context_menu_triggered()
 {
-    if (DrawObjects.isEmpty())
+    if (DrawObjects.empty())
     {
         guitools::message("Nothing is drawn!", this);
         return;
@@ -2614,8 +2615,8 @@ void AGraphWindow::addObjectToBasket(TObject * obj, QString options, QString nam
 {
     qDebug() << "Requested to add object" << obj << "with options" << options << "as" << name;
 
-    QVector<ADrawObject> tmp;
-    tmp.push_back(ADrawObject(obj, options.toLatin1().data()));
+    std::vector<ADrawObject> tmp;
+    tmp.push_back( ADrawObject(obj, options) );
     updateLogScaleFlags(tmp);
     Basket->add(name.simplified(), tmp);
     ui->actionToggle_Explorer_Basket->setChecked(true);

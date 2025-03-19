@@ -4,6 +4,8 @@
 #include <QDialog>
 #include <QVector>
 
+#include <vector>
+
 #include "TLegend.h"
 
 namespace Ui {
@@ -55,7 +57,7 @@ class ALegendDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit ALegendDialog(TLegend & Legend, const QVector<ADrawObject> & DrawObjects, QWidget * parent);
+    explicit ALegendDialog(TLegend & Legend, const std::vector<ADrawObject> & DrawObjects, QWidget * parent);
     ~ALegendDialog();
 
 private slots:
@@ -72,7 +74,7 @@ private:
     Ui::ALegendDialog *ui;
     ABasketListWidget * lwList;
     TLegend & Legend;
-    const QVector<ADrawObject> & DrawObjects;
+    const std::vector<ADrawObject> & DrawObjects;
 
     ALegendData CurrentModel;
     ALegendData OriginalModel;

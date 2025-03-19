@@ -47,8 +47,8 @@ public:
     ADrawTemplate();
     virtual ~ADrawTemplate();
 
-    void createFrom(const QVector<ADrawObject> &DrawObjects, const QVector<QPair<double,double>> & XYZ_ranges);
-    void applyTo(QVector<ADrawObject> & DrawObjects, QVector<QPair<double,double>> & XYZ_ranges, bool bAll);
+    void createFrom(const std::vector<ADrawObject> & DrawObjects, const QVector<QPair<double,double>> & XYZ_ranges);
+    void applyTo(std::vector<ADrawObject> & DrawObjects, QVector<QPair<double,double>> & XYZ_ranges, bool bAll);
 
     const ATemplateSelectionRecord * findRecord(const QString & Label, const ATemplateSelectionRecord * ParentRecord) const;
     bool hasLegend() const {return (LegendIndex != -1);}

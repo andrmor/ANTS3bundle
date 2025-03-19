@@ -23,7 +23,7 @@
 
 #include <QVBoxLayout>
 
-ALegendDialog::ALegendDialog(TLegend & Legend, const QVector<ADrawObject> & DrawObjects, QWidget * parent) :
+ALegendDialog::ALegendDialog(TLegend & Legend, const std::vector<ADrawObject> &DrawObjects, QWidget * parent) :
     QDialog(parent), ui(new Ui::ALegendDialog),
     Legend(Legend), DrawObjects(DrawObjects)
 {

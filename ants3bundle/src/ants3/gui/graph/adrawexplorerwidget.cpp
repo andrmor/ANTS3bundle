@@ -6,6 +6,7 @@
 #include "afiletools.h"
 #include "alinemarkerfilldialog.h"
 #include "rasterwindowgraphclass.h"
+#include "atextpavedialog.h"
 
 #ifdef USE_EIGEN
     #include "curvefit.h"
@@ -28,6 +29,7 @@
 #include <QColor>
 
 #include "TObject.h"
+#include "TPaveText.h"
 #include "TNamed.h"
 #include "TAttMarker.h"
 #include "TAttLine.h"
@@ -42,7 +44,7 @@
 #include "TColor.h"
 #include "TROOT.h"
 
-ADrawExplorerWidget::ADrawExplorerWidget(AGraphWindow & GraphWindow, QVector<ADrawObject> & DrawObjects) :
+ADrawExplorerWidget::ADrawExplorerWidget(AGraphWindow & GraphWindow, std::vector<ADrawObject> &DrawObjects) :
     GraphWindow(GraphWindow), Raster(*GraphWindow.RasterWindow), DrawObjects(DrawObjects)
 {
     setHeaderHidden(true);
@@ -342,7 +344,7 @@ void ADrawExplorerWidget::activateCustomGuiForItem(int index)
 
 void ADrawExplorerWidget::addToDrawObjectsAndRegister(TObject * pointer, const QString & options)
 {
-    DrawObjects << ADrawObject(pointer, options);
+    DrawObjects.push_back( ADrawObject(pointer, options) );
     GraphWindow.registerTObject(pointer);
 }
 
@@ -375,12 +377,12 @@ void ADrawExplorerWidget::remove(int index)
 {
     GraphWindow.makeCopyOfDrawObjects();
 
-    DrawObjects.remove(index); // do not delete - GraphWindow handles garbage collection!
+    DrawObjects.erase(DrawObjects.begin() + index); // do not delete - GraphWindow handles garbage collection!
 
-    if (index == 0 && !DrawObjects.isEmpty())
+    if (index == 0 && !DrawObjects.empty())
     {
         //remove "same" from the options line for the new leading object
-        DrawObjects.first().Options.remove("same", Qt::CaseInsensitive);
+        DrawObjects.front().Options.remove("same", Qt::CaseInsensitive);
     }
 
     GraphWindow.redrawAll();
@@ -993,14 +995,14 @@ void ADrawExplorerWidget::fwhm(int index)
     double rel = FWHM/mid;
 
     //draw fit line
-    DrawObjects.insert(index+1, ADrawObject(f, "same"));
+    DrawObjects.insert(DrawObjects.begin()+index+1, ADrawObject(f, "same"));
     //draw base line
     TF1 *fl = new TF1("line", "pol1", startX, stopX);
     fl->SetTitle("Baseline");
     GraphWindow.registerTObject(fl);
     fl->SetLineStyle(2);
     fl->SetParameters(c/b, -a/b);
-    DrawObjects.insert(index+2, ADrawObject(fl, "same"));
+    DrawObjects.insert(DrawObjects.begin()+index+2, ADrawObject(fl, "same"));
 
     //box with results
     TPaveText * la = new TPaveText(0.15, 0.75, 0.5, 0.85, "NDC");
@@ -1013,7 +1015,7 @@ void ADrawExplorerWidget::fwhm(int index)
     QStringList sl = text.split("\n");
     for (QString s : sl) la->AddText(s.toLatin1());
     GraphWindow.registerTObject(la);
-    DrawObjects.insert(index+3, ADrawObject(la, "same"));
+    DrawObjects.insert(DrawObjects.begin()+index+3, ADrawObject(la, "same"));
 
     GraphWindow.redrawAll();
     GraphWindow.highlightUpdateBasketButton(true);
@@ -1081,7 +1083,7 @@ void ADrawExplorerWidget::linFit(int index)
     double B = f->GetParameter(0);
     double A = f->GetParameter(1);
 
-    DrawObjects.insert(index+1, ADrawObject(f, "same"));
+    DrawObjects.insert(DrawObjects.begin()+index+1, ADrawObject(f, "same"));
 
     QString text = QString("y = Ax + B\nA = %1, B = %2\nx range: %3 -> %4").arg(A).arg(B).arg(startX).arg(stopX);
     if (A != 0) text += QString("\ny=0 at %1").arg(-B/A);
@@ -1093,7 +1095,7 @@ void ADrawExplorerWidget::linFit(int index)
     QStringList sl = text.split("\n");
     for (QString s : sl) la->AddText(s.toLatin1());
     GraphWindow.registerTObject(la);
-    DrawObjects.insert(index+2, ADrawObject(la, "same"));
+    DrawObjects.insert(DrawObjects.begin()+index+2, ADrawObject(la, "same"));
 
     GraphWindow.redrawAll();
     GraphWindow.highlightUpdateBasketButton(true);
@@ -1160,7 +1162,7 @@ void ADrawExplorerWidget::expFit(int index)
     double A = f->GetParameter(0);
     double T = f->GetParameter(1);
 
-    DrawObjects.insert(index+1, ADrawObject(f, "same"));
+    DrawObjects.insert(DrawObjects.begin()+index+1, ADrawObject(f, "same"));
 
     QString text = QString("y = A*exp{-(t-t0)/T)}\nT = %1, A = %2, t0 = %3\nx range: %3 -> %4").arg(T).arg(A).arg(startX).arg(stopX);
     TPaveText* la = new TPaveText(0.15, 0.75, 0.5, 0.85, "NDC");
@@ -1171,7 +1173,7 @@ void ADrawExplorerWidget::expFit(int index)
     QStringList sl = text.split("\n");
     for (QString s : sl) la->AddText(s.toLatin1());
     GraphWindow.registerTObject(la);
-    DrawObjects.insert(index+2, ADrawObject(la, "same"));
+    DrawObjects.insert(DrawObjects.begin()+index+2, ADrawObject(la, "same"));
 
     GraphWindow.redrawAll();
     GraphWindow.highlightUpdateBasketButton(true);
@@ -1249,7 +1251,7 @@ void ADrawExplorerWidget::gauss2Fit(int index)
     double y0    = f->GetParameter(2); double dy0    = f->GetParError(2);
     double Sigma = f->GetParameter(3); double dSigma = f->GetParError(3);
 
-    DrawObjects.insert(index+1, ADrawObject(f, "same"));
+    DrawObjects.insert(DrawObjects.begin()+index+1, ADrawObject(f, "same"));
 
     QString text = QString("MeanX: %0 #pm %1\nMeanY: %2 #pm %3\nSigma: %4 #pm %5\nScaling: %6 #pm %7")
                           .arg(x0).arg(dx0).arg(y0).arg(dy0).arg(Sigma).arg(dSigma).arg(A).arg(dA);
@@ -1261,7 +1263,7 @@ void ADrawExplorerWidget::gauss2Fit(int index)
     QStringList sl = text.split("\n");
     for (const QString & s : sl) la->AddText(s.toLatin1());
     GraphWindow.registerTObject(la);
-    DrawObjects.insert(index+2, ADrawObject(la, "same"));
+    DrawObjects.insert(DrawObjects.begin()+index+2, ADrawObject(la, "same"));
 
     GraphWindow.redrawAll();
     GraphWindow.highlightUpdateBasketButton(true);
@@ -1762,7 +1764,7 @@ void ADrawExplorerWidget::construct1DIcon(QIcon & icon, const TAttLine * line, c
         Painter.drawEllipse( 0.5*IconWidth - 0.5*Diameter, 0.5*IconHeight - 0.5*Diameter, Diameter, Diameter );
     }
 
-    icon = std::move(QIcon(pm));
+    icon = QIcon(pm);
 }
 
 void ADrawExplorerWidget::construct2DIcon(QIcon &icon)
@@ -1805,7 +1807,7 @@ void ADrawExplorerWidget::construct2DIcon(QIcon &icon)
         Painter.drawEllipse( 0.5*IconWidth - 0.5*w, 0.5*IconHeight - 0.5*h, w, h );
     }
 
-    icon = std::move(QIcon(pm));
+    icon = QIcon(pm);
 }
 
 void ADrawExplorerWidget::addAxis(int axisIndex)
@@ -1815,7 +1817,7 @@ void ADrawExplorerWidget::addAxis(int axisIndex)
     axis->SetTextFont(42);
     axis->SetLabelSize(0.035);
     const QString opt = generateOptionForSecondaryAxis(axisIndex, 0, 1.0);
-    DrawObjects << ADrawObject(axis, opt);
+    DrawObjects.push_back( ADrawObject(axis, opt) );
 
     GraphWindow.redrawAll();
     GraphWindow.highlightUpdateBasketButton(true);
@@ -1963,13 +1965,11 @@ void ADrawExplorerWidget::extract(ADrawObject &obj)
     GraphWindow.registerTObject(thisObj.Pointer);
 
     DrawObjects.clear();
-    DrawObjects << thisObj;
+    DrawObjects.push_back( thisObj );
 
     GraphWindow.redrawAll();
 }
 
-#include "TPaveText.h"
-#include "atextpavedialog.h"
 void ADrawExplorerWidget::editPave(ADrawObject &obj)
 {
     TPaveText * Pave = dynamic_cast<TPaveText*>(obj.Pointer);
@@ -2101,7 +2101,7 @@ void ADrawExplorerWidget::linDraw(int index)
     TLine *ln = new TLine(startX, startY, stopX, stopY);
     GraphWindow.registerTObject(ln);
     ln->SetLineStyle(2);
-    DrawObjects.insert(index+1, ADrawObject(ln, "same"));
+    DrawObjects.insert(DrawObjects.begin()+index+1, ADrawObject(ln, "same"));
 
     GraphWindow.redrawAll();
     GraphWindow.highlightUpdateBasketButton(true);
@@ -2127,7 +2127,7 @@ void ADrawExplorerWidget::boxDraw(int index)
     GraphWindow.registerTObject(bx);
     bx->SetLineStyle(2);
     bx->SetFillStyle(0);
-    DrawObjects.insert(index+1, ADrawObject(bx, "same"));
+    DrawObjects.insert(DrawObjects.begin()+index+1, ADrawObject(bx, "same"));
 
     GraphWindow.redrawAll();
     GraphWindow.highlightUpdateBasketButton(true);
@@ -2154,7 +2154,7 @@ void ADrawExplorerWidget::ellipseDraw(int index)
     GraphWindow.registerTObject(el);
     el->SetLineStyle(2);
     el->SetFillStyle(0);
-    DrawObjects.insert(index+1, ADrawObject(el, "same"));
+    DrawObjects.insert(DrawObjects.begin()+index+1, ADrawObject(el, "same"));
 
     GraphWindow.redrawAll();
     GraphWindow.highlightUpdateBasketButton(true);
