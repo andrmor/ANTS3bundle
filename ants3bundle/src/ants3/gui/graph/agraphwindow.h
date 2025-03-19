@@ -190,12 +190,12 @@ private:
     ADrawExplorerWidget    * Explorer     = nullptr;
     ABasketListWidget      * lwBasket     = nullptr;
     RasterWindowGraphClass * RasterWindow = nullptr;
-    QGraphicsView          * gvOver       = nullptr;
-    AToolboxScene          * scene        = nullptr;
+    QGraphicsView          * gvOverlay    = nullptr;
+    AToolboxScene          * ToolBoxScene = nullptr;
     AMultiGraphDesigner    * MGDesigner   = nullptr;
     AViewer3D              * Viewer3D     = nullptr;
 
-    QVector<ADrawObject>     DrawObjects;  //always local objects -> can have a copy from the Basket
+    QVector<ADrawObject>     DrawObjects;         //always local objects -> can have a copy from the Basket
     QVector<ADrawObject>     PreviousDrawObjects; //last draw made from outside of the graph window
 
     std::vector<TObject*>    RegisteredTObjects;

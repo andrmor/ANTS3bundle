@@ -19,9 +19,9 @@ void ABasketListWidget::dropEvent(QDropEvent * event)
 {
     //qDebug() << "Basket: Drop detected";
 
-    QList<QListWidgetItem*> sel = selectedItems();
+    const QList<QListWidgetItem*> sel = selectedItems();
     QVector<int> indexes;
-    for (QListWidgetItem* item : qAsConst(sel))
+    for (const QListWidgetItem * item : sel)
         indexes << row(item);
     //qDebug() << "   Indexes to be moved:" << indexes;
 

@@ -125,22 +125,22 @@ AGraphWindow::AGraphWindow(QWidget * parent) :
     else guitools::message("Unexpected layout!", this);
 
     //overlay to show selection box, later scale tool too
-    gvOver = new QGraphicsView(this);
-    gvOver->setFrameStyle(0);
-    gvOver->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    gvOver->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    gvOverlay = new QGraphicsView(this);
+    gvOverlay->setFrameStyle(0);
+    gvOverlay->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    gvOverlay->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
-    scene = new AToolboxScene(this);
-    gvOver->setScene(scene);
-    gvOver->hide();
+    ToolBoxScene = new AToolboxScene(this);
+    gvOverlay->setScene(ToolBoxScene);
+    gvOverlay->hide();
 
     //toolbox graphics scene
-    connect(scene->getSelBox(), &ShapeableRectItem::geometryChanged, this, &AGraphWindow::selBoxGeometryChanged);
-    connect(scene->getSelBox(), &ShapeableRectItem::requestResetGeometry, this, &AGraphWindow::selBoxResetGeometry);
-    connect(ui->cbSelBoxShowBG, &QCheckBox::toggled, scene->getSelBox(), &ShapeableRectItem::setShowContrast);
-    connect(scene->getRuler(), &GraphicsRuler::geometryChanged, this, &AGraphWindow::rulerGeometryChanged);
-    connect(ui->cbRulerTicksLength, &QCheckBox::toggled, scene->getRuler(), &GraphicsRuler::setShowTicks);
-    connect(ui->cbRulerShowBG, &QCheckBox::toggled, scene->getRuler(), &GraphicsRuler::setShowContrast);
+    connect(ToolBoxScene->getSelBox(), &ShapeableRectItem::geometryChanged, this, &AGraphWindow::selBoxGeometryChanged);
+    connect(ToolBoxScene->getSelBox(), &ShapeableRectItem::requestResetGeometry, this, &AGraphWindow::selBoxResetGeometry);
+    connect(ui->cbSelBoxShowBG, &QCheckBox::toggled, ToolBoxScene->getSelBox(), &ShapeableRectItem::setShowContrast);
+    connect(ToolBoxScene->getRuler(), &GraphicsRuler::geometryChanged, this, &AGraphWindow::rulerGeometryChanged);
+    connect(ui->cbRulerTicksLength, &QCheckBox::toggled, ToolBoxScene->getRuler(), &GraphicsRuler::setShowTicks);
+    connect(ui->cbRulerShowBG, &QCheckBox::toggled, ToolBoxScene->getRuler(), &GraphicsRuler::setShowContrast);
 
     //new QShortcut(QKeySequence(Qt::Key_Delete), this, SLOT(onBasketDeleteShortcutActivated()));
     new QShortcut(QKeySequence(Qt::Key_Delete), this, this, &AGraphWindow::onBasketDeleteShortcutActivated);
@@ -160,8 +160,8 @@ AGraphWindow::~AGraphWindow()
 
     clearRegisteredTObjects();
 
-    delete scene; scene =  nullptr;
-    delete gvOver; gvOver = nullptr;
+    delete ToolBoxScene; ToolBoxScene =  nullptr;
+    delete gvOverlay; gvOverlay = nullptr;
 
     delete Basket; Basket = nullptr;
 }
@@ -1338,33 +1338,33 @@ void AGraphWindow::changeOverlayMode(bool bOn)
 
     if (bOn)
     {
-        if (!gvOver->isVisible())
+        if (!gvOverlay->isVisible())
         {
             QPixmap map = qApp->screens().first()->grabWindow(RasterWindow->winId());//QApplication::desktop()->winId());
-            gvOver->resize(RasterWindow->width(), RasterWindow->height());
-            gvOver->move(RasterWindow->x(), menuBar()->height());
-            scene->setSceneRect(0, 0, RasterWindow->width(), RasterWindow->height());
-            scene->setBackgroundBrush(map);
+            gvOverlay->resize(RasterWindow->width(), RasterWindow->height());
+            gvOverlay->move(RasterWindow->x(), menuBar()->height());
+            ToolBoxScene->setSceneRect(0, 0, RasterWindow->width(), RasterWindow->height());
+            ToolBoxScene->setBackgroundBrush(map);
 
             QPointF origin;
             RasterWindow->PixelToXY(0, 0, origin.rx(), origin.ry());
-            GraphicsRuler *ruler = scene->getRuler();
+            GraphicsRuler *ruler = ToolBoxScene->getRuler();
             ruler->setOrigin(origin);
             ruler->setScale(RasterWindow->getXperPixel(), RasterWindow->getYperPixel());
 
-            scene->moveToolToVisible();
+            ToolBoxScene->moveToolToVisible();
             setFixedSize(this->size());
-            gvOver->show();
+            gvOverlay->show();
         }
-        scene->moveToolToVisible();
-        scene->update(scene->sceneRect());
-        gvOver->update();
+        ToolBoxScene->moveToolToVisible();
+        ToolBoxScene->update(ToolBoxScene->sceneRect());
+        gvOverlay->update();
     }
     else
     {
-        if (gvOver->isVisible())
+        if (gvOverlay->isVisible())
         {
-            gvOver->hide();
+            gvOverlay->hide();
             setFixedSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX);
             RasterWindow->fCanvas->Update();
         }
@@ -1373,14 +1373,14 @@ void AGraphWindow::changeOverlayMode(bool bOn)
 
 void AGraphWindow::on_pbShowRuler_clicked()
 {
-    scene->setActiveTool(AToolboxScene::ToolRuler);
+    ToolBoxScene->setActiveTool(AToolboxScene::ToolRuler);
     ui->swToolBox->setCurrentIndex(0);
     changeOverlayMode(true);
 }
 
 void AGraphWindow::showProjectionTool()
 {
-    scene->setActiveTool(AToolboxScene::ToolSelBox);
+    ToolBoxScene->setActiveTool(AToolboxScene::ToolSelBox);
     ui->swToolBox->setCurrentIndex(1);
     changeOverlayMode(true);
 }
@@ -1393,9 +1393,9 @@ void AGraphWindow::on_pbExitToolMode_clicked()
 void AGraphWindow::on_pbToolboxDragMode_clicked()
 {
     ui->ledAngle->setText("0");
-    ShapeableRectItem *SelBox = scene->getSelBox();
+    ShapeableRectItem *SelBox = ToolBoxScene->getSelBox();
     SelBox->setTrueAngle(0);
-    scene->activateItemDrag();
+    ToolBoxScene->activateItemDrag();
 }
 
 void AGraphWindow::on_pbToolboxDragMode_2_clicked()
@@ -1406,7 +1406,7 @@ void AGraphWindow::on_pbToolboxDragMode_2_clicked()
 void AGraphWindow::selBoxGeometryChanged()
 {
     //qDebug() << "selBoxGeometryChanged";
-    ShapeableRectItem *SelBox = scene->getSelBox();
+    ShapeableRectItem *SelBox = ToolBoxScene->getSelBox();
 
     double scaleX = RasterWindow->getXperPixel();
     double scaleY = RasterWindow->getYperPixel();
@@ -1422,8 +1422,8 @@ void AGraphWindow::selBoxGeometryChanged()
     ui->ledYcenter->setText(QString::number(y0, 'f', 2));
 
     //SelBox->update(SelBox->boundingRect());
-    scene->update(scene->sceneRect());
-    gvOver->update();
+    ToolBoxScene->update(ToolBoxScene->sceneRect());
+    gvOverlay->update();
 }
 
 void AGraphWindow::selBoxResetGeometry(double halfW, double halfH)
@@ -1436,7 +1436,7 @@ void AGraphWindow::selBoxResetGeometry(double halfW, double halfH)
     double trueW = 0.5 * fabs(x0 - xc);
     double trueH = 0.5 * fabs(y0 - yc);
 
-    ShapeableRectItem *SelBox = scene->getSelBox();
+    ShapeableRectItem *SelBox = ToolBoxScene->getSelBox();
     SelBox->setTrueRectangle(trueW, trueH);
     SelBox->setPos(halfW, halfH);
     SelBox->setTrueAngle(0);
@@ -1456,7 +1456,7 @@ void AGraphWindow::selBoxControlsUpdated()
     double scaleX = RasterWindow->getXperPixel();
     double scaleY = RasterWindow->getYperPixel();
 
-    ShapeableRectItem *SelBox = scene->getSelBox();
+    ShapeableRectItem *SelBox = ToolBoxScene->getSelBox();
     SelBox->setScale(scaleX, scaleY);
     SelBox->setTrueAngle(angle);
     SelBox->setTrueRectangle(dx, dy);      //-0.5*DX, -0.5*DY, DX, DY);
@@ -1465,18 +1465,18 @@ void AGraphWindow::selBoxControlsUpdated()
     RasterWindow->XYtoPixel(x0, y0, ix, iy);
     SelBox->setPos(ix, iy);
 
-    scene->update(scene->sceneRect());
-    gvOver->update();
+    ToolBoxScene->update(ToolBoxScene->sceneRect());
+    gvOverlay->update();
 }
 
 void AGraphWindow::on_pbSelBoxToCenter_clicked()
 {
-    scene->resetTool(AToolboxScene::ToolSelBox);
+    ToolBoxScene->resetTool(AToolboxScene::ToolSelBox);
 }
 
 void AGraphWindow::on_pbSelBoxFGColor_clicked()
 {
-    ShapeableRectItem *selbox = scene->getSelBox();
+    ShapeableRectItem *selbox = ToolBoxScene->getSelBox();
     QColor fg = QColorDialog::getColor(selbox->getForegroundColor(), this, "Choose the projection box's foreground color", QColorDialog::ShowAlphaChannel);
     if(fg.isValid())
         selbox->setForegroundColor(fg);
@@ -1484,7 +1484,7 @@ void AGraphWindow::on_pbSelBoxFGColor_clicked()
 
 void AGraphWindow::on_pbSelBoxBGColor_clicked()
 {
-    ShapeableRectItem *selbox = scene->getSelBox();
+    ShapeableRectItem *selbox = ToolBoxScene->getSelBox();
     QColor bg = QColorDialog::getColor(selbox->getBackgroundColor(), this, "Choose the projection box's background color", QColorDialog::ShowAlphaChannel);
     if(bg.isValid())
         selbox->setBackgroundColor(bg);
@@ -1493,7 +1493,7 @@ void AGraphWindow::on_pbSelBoxBGColor_clicked()
 
 void AGraphWindow::rulerGeometryChanged()
 {
-    const GraphicsRuler *ruler = scene->getRuler();
+    const GraphicsRuler *ruler = ToolBoxScene->getRuler();
     QPointF p1 = ruler->getP1();
     QPointF p2 = ruler->getP2();
 
@@ -1510,43 +1510,43 @@ void AGraphWindow::rulerGeometryChanged()
 
 void AGraphWindow::rulerControlsP1Updated()
 {
-    scene->getRuler()->setP1(QPointF(ui->ledRulerX->text().toDouble(), ui->ledRulerY->text().toDouble()));
+    ToolBoxScene->getRuler()->setP1(QPointF(ui->ledRulerX->text().toDouble(), ui->ledRulerY->text().toDouble()));
 }
 
 void AGraphWindow::rulerControlsP2Updated()
 {
-    scene->getRuler()->setP2(QPointF(ui->ledRulerX2->text().toDouble(), ui->ledRulerY2->text().toDouble()));
+    ToolBoxScene->getRuler()->setP2(QPointF(ui->ledRulerX2->text().toDouble(), ui->ledRulerY2->text().toDouble()));
 }
 
 void AGraphWindow::rulerControlsLenAngleUpdated()
 {    
-    GraphicsRuler * ruler = scene->getRuler();
+    GraphicsRuler * ruler = ToolBoxScene->getRuler();
     ruler->setAngle(ui->ledRulerAngle->text().toDouble() * M_PI/180);
     ruler->setLength(ui->ledRulerLen->text().toDouble());
 }
 
 void AGraphWindow::on_ledRulerTicksLength_editingFinished()
 {
-    scene->getRuler()->setTickLength(ui->ledRulerTicksLength->text().toDouble());
+    ToolBoxScene->getRuler()->setTickLength(ui->ledRulerTicksLength->text().toDouble());
 }
 
 void AGraphWindow::on_pbRulerFGColor_clicked()
 {
-    GraphicsRuler *ruler = scene->getRuler();
+    GraphicsRuler *ruler = ToolBoxScene->getRuler();
     QColor fg = QColorDialog::getColor(ruler->getForegroundColor(), this, "Choose the ruler's foreground color", QColorDialog::ShowAlphaChannel);
     if (fg.isValid()) ruler->setForegroundColor(fg);
 }
 
 void AGraphWindow::on_pbRulerBGColor_clicked()
 {
-    GraphicsRuler *ruler = scene->getRuler();
+    GraphicsRuler *ruler = ToolBoxScene->getRuler();
     QColor bg = QColorDialog::getColor(ruler->getBackgroundColor(), this, "Choose the ruler's background color", QColorDialog::ShowAlphaChannel);
     if (bg.isValid()) ruler->setBackgroundColor(bg);
 }
 
 void AGraphWindow::on_pbResetRuler_clicked()
 {
-    scene->resetTool(AToolboxScene::ToolRuler);
+    ToolBoxScene->resetTool(AToolboxScene::ToolRuler);
 }
 
 void AGraphWindow::on_pbXprojection_clicked()
@@ -1589,7 +1589,7 @@ void AGraphWindow::showProjection(QString type)
     double dx = 0.5*ui->ledWidth->text().toDouble();
     double dy = 0.5*ui->ledHeight->text().toDouble();
 
-    const ShapeableRectItem *SelBox = scene->getSelBox();
+    const ShapeableRectItem *SelBox = ToolBoxScene->getSelBox();
     double angle = SelBox->getTrueAngle();
     angle *= 3.1415926535/180.0;
     double cosa = cos(angle);
@@ -2232,13 +2232,13 @@ void AGraphWindow::on_actionEqualize_scale_XY_triggered()
 
 void AGraphWindow::on_ledRulerDX_editingFinished()
 {
-    GraphicsRuler *ruler = scene->getRuler();
+    GraphicsRuler *ruler = ToolBoxScene->getRuler();
     ruler->setDX(ui->ledRulerDX->text().toDouble());
 }
 
 void AGraphWindow::on_ledRulerDY_editingFinished()
 {
-    GraphicsRuler *ruler = scene->getRuler();
+    GraphicsRuler *ruler = ToolBoxScene->getRuler();
     ruler->setDY(ui->ledRulerDY->text().toDouble());
 }
 
@@ -2344,7 +2344,7 @@ void AGraphWindow::on_ledAngle_customContextMenuRequested(const QPoint &pos)
     QAction* selectedItem = Menu.exec(ui->ledAngle->mapToGlobal(pos));
     if (!selectedItem) return; //nothing was selected
 
-    double angle = scene->getRuler()->getAngle() *180.0/M_PI;
+    double angle = ToolBoxScene->getRuler()->getAngle() *180.0/M_PI;
 
     if (selectedItem == alignXWithRuler)
     {
