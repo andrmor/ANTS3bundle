@@ -2,7 +2,6 @@
 #define ALEGENDDIALOG_H
 
 #include <QDialog>
-#include <QVector>
 
 #include <vector>
 
@@ -41,7 +40,7 @@ public:
 class ALegendData
 {
 public:
-    QVector<ALegendEntryRecord> Model;
+    std::vector<ALegendEntryRecord> Model;
     int NumColumns = 1;
 
     double    Xfrom, Xto, Yfrom, Yto;

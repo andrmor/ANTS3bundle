@@ -182,7 +182,7 @@ void ADrawExplorerWidget::showObjectContextMenu(const QPoint &pos, int index)
         QAction * linFitA    = fitMenu->addAction("Linear (use click-drag)");     linFitA->setEnabled(Type.startsWith("TH1") || Type == "TProfile" || Type.startsWith("TGraph"));
         QAction * fwhmA      = fitMenu->addAction("Gauss (use click-frag)");      fwhmA->  setEnabled(Type.startsWith("TH1") || Type == "TProfile" || Type.startsWith("TGraph"));
         QAction * expA       = fitMenu->addAction("Exp. decay (use click-drag)"); expA->   setEnabled(Type.startsWith("TH1") || Type == "TProfile" || Type.startsWith("TGraph"));
-        QAction * splineFitA = fitMenu->addAction("B-spline"); splineFitA->setEnabled(Type == "TGraph" || Type == "TGraphErrors");   //*** implement for TH1 too!
+        //QAction * splineFitA = fitMenu->addAction("B-spline"); splineFitA->setEnabled(Type == "TGraph" || Type == "TGraphErrors");   //*** implement for TH1 too!
         fitMenu->addSeparator();
         QAction * gauss2FitA = fitMenu->addAction("Symmetric Gauss (use click-drag)"); gauss2FitA->setEnabled(Type.startsWith("TH2"));
                   gauss2FitA->setToolTip("Select a rectangular area indicating the fitting range.\nIf fit fails, try to center the area at the expected mean position");
@@ -241,7 +241,7 @@ void ADrawExplorerWidget::showObjectContextMenu(const QPoint &pos, int index)
     else if (si == addAxisRight) addAxis(1);
     else if (si == shiftA)       shift(obj);
     else if (si == medianA)      median(obj);
-    else if (si == splineFitA)   splineFit(index);
+    //else if (si == splineFitA)   splineFit(index);
     else if (si == projX)        projection(obj, 0);
     else if (si == projY)        projection(obj, 1);
     else if (si == projZ)        projection(obj, 2);
@@ -1483,6 +1483,7 @@ void ADrawExplorerWidget::customProjection(ADrawObject & obj)
     GraphWindow.showProjectionTool();
 }
 
+/*
 void ADrawExplorerWidget::splineFit(int index)
 {
 #ifdef USE_EIGEN
@@ -1532,6 +1533,7 @@ void ADrawExplorerWidget::splineFit(int index)
     //guitools::message("This option is supported only when ANTS3 is compliled with Eigen library enabled", &GraphWindow);
 #endif
 }
+*/
 
 #include "aaxesdialog.h"
 #include "TGraph2D.h"
