@@ -209,6 +209,8 @@ SOURCES += \
     ademomanager.cpp \
     gui/photsim/asensorgview.cpp \
     gui/photsim/asensorwindow.cpp \
+    gui/raster/agraphrasterwindow.cpp \
+    gui/raster/arasterwindow.cpp \
     gui/script/aargumentcounter.cpp \
     gui/script/ageoscriptmaker.cpp \
     gui/script/aguifromscrwin.cpp \
@@ -319,8 +321,6 @@ SOURCES += \
     gui/geom/amonitordelegateform.cpp \
     gui/geom/aonelinetextedit.cpp \
     gui/raster/acameracontroldialog.cpp \
-    gui/raster/rasterwindowbaseclass.cpp \
-    gui/raster/rasterwindowgraphclass.cpp \
     main.cpp \
     materials/amaterial.cpp \
     config/a3global.cpp \
@@ -382,6 +382,8 @@ HEADERS += \
     gui/photsim/afunctionalmodelwidget.h \
     gui/photsim/aphotonlogsettingsform.h \
     gui/photsim/aphotontunnelwindow.h \
+    gui/raster/agraphrasterwindow.h \
+    gui/raster/arasterwindow.h \
     gui/script/aargumentcounter.h \
     gui/script/ascriptexampleexplorer.h \
     particleSim/aorthopositroniumgammagenerator.h \
@@ -580,8 +582,6 @@ HEADERS += \
     gui/geom/amonitordelegateform.h \
     gui/geom/aonelinetextedit.h \
     gui/raster/acameracontroldialog.h \
-    gui/raster/rasterwindowbaseclass.h \
-    gui/raster/rasterwindowgraphclass.h \
     materials/amaterialhub.h \
     materials/amaterial.h \
     config/a3global.h \

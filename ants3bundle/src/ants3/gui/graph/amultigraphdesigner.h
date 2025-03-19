@@ -9,7 +9,7 @@
 #include <vector>
 
 class ABasketManager;
-class RasterWindowBaseClass;
+class ARasterWindow;
 class ABasketListWidget;
 class ADrawObject;
 class QJsonObject;
@@ -74,7 +74,7 @@ private:
     ABasketManager & Basket;
 
     Ui::AMultiGraphDesigner * ui;
-    RasterWindowBaseClass   * RasterWindow = nullptr;
+    ARasterWindow   * RasterWindow = nullptr;
     ABasketListWidget       * lwBasket     = nullptr;
 
     std::vector<APadProperties> Pads;

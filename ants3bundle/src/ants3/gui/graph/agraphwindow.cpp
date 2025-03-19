@@ -3,7 +3,7 @@
 
 #include "agraphwindow.h"
 #include "ui_agraphwindow.h"
-#include "rasterwindowgraphclass.h"
+#include "agraphrasterwindow.h"
 #include "guitools.h"
 #include "shapeablerectitem.h"
 #include "graphicsruler.h"
@@ -84,11 +84,11 @@ AGraphWindow::AGraphWindow(QWidget * parent) :
     ui->labY->setText(QChar(8597));
 
     // Raster window
-    RasterWindow = new RasterWindowGraphClass(this);
+    RasterWindow = new AGraphRasterWindow(this);
     RasterWindow->resize(400, 400);
-    RasterWindow->ForceResize();
-    connect(RasterWindow, &RasterWindowGraphClass::LeftMouseButtonReleased, this, &AGraphWindow::updateControls);
-    connect(RasterWindow, &RasterWindowGraphClass::reportCursorPosition,    this, &AGraphWindow::onCursorPositionReceived);
+    RasterWindow->forceResize();
+    connect(RasterWindow, &AGraphRasterWindow::LeftMouseButtonReleased, this, &AGraphWindow::updateControls);
+    connect(RasterWindow, &AGraphRasterWindow::reportCursorPosition,    this, &AGraphWindow::onCursorPositionReceived);
 
     // Draw explorer widget
     Explorer = new ADrawExplorerWidget(*this, DrawObjects);
@@ -252,7 +252,7 @@ void AGraphWindow::clearRootCanvas()
 
 void AGraphWindow::updateRootCanvas()
 {
-    RasterWindow->UpdateRootCanvas();
+    RasterWindow->updateRootCanvas();
 }
 
 void AGraphWindow::setModifiedFlag()
@@ -509,7 +509,7 @@ bool AGraphWindow::event(QEvent *event)
 {
     if (event->type() == QEvent::WindowActivate)
     {
-        RasterWindow->UpdateRootCanvas();
+        RasterWindow->updateRootCanvas();
         showHintInStatus(); // sometimes it is hidden by its own
     }
 
@@ -526,7 +526,7 @@ bool AGraphWindow::event(QEvent *event)
         {
             //qDebug() << "Graph win show event";
             //RasterWindow->UpdateRootCanvas();
-            QTimer::singleShot(100, RasterWindow, [this](){RasterWindow->UpdateRootCanvas();}); // without delay canvas is not shown in Qt 5.9.5
+            QTimer::singleShot(100, RasterWindow, [this](){RasterWindow->updateRootCanvas();}); // without delay canvas is not shown in Qt 5.9.5
         }
     }
 
@@ -878,7 +878,7 @@ void AGraphWindow::on_leOptions_editingFinished()
 
 void AGraphWindow::saveGraph(const QString & fileName)
 {
-    RasterWindow->SaveAs(fileName);
+    RasterWindow->saveAs(fileName);
 }
 
 void AGraphWindow::updateControls()
@@ -2281,7 +2281,7 @@ void AGraphWindow::showAddLegendDialog()
         leg = addLegend();
 
     ALegendDialog Dialog(*leg, DrawObjects, this);
-    connect(&Dialog, &ALegendDialog::requestCanvasUpdate, RasterWindow, &RasterWindowBaseClass::UpdateRootCanvas);
+    connect(&Dialog, &ALegendDialog::requestCanvasUpdate, RasterWindow, &ARasterWindow::updateRootCanvas);
     Dialog.exec();
 }
 
@@ -2749,7 +2749,7 @@ void AGraphWindow::on_actionSave_image_2_triggered()
 
 void AGraphWindow::on_actionCopy_image_to_clipboard_triggered()
 {
-    RasterWindow->SaveAs("tmpImage.png");
+    RasterWindow->saveAs("tmpImage.png");
     QImage image("tmpImage.png");
     QApplication::clipboard()->setImage(image, QClipboard::Clipboard);
 }

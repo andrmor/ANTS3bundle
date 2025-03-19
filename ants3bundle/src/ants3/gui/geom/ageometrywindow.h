@@ -9,7 +9,7 @@
 #include "TMathBase.h"
 
 class AGeometryHub;
-class RasterWindowBaseClass;
+class ARasterWindow;
 class QWebEngineView;
 class QWebEngineDownloadItem;
 class TGeoVolume;
@@ -160,7 +160,7 @@ private:
 
     Ui::AGeometryWindow   * ui = nullptr;
 
-    RasterWindowBaseClass * RasterWindow = nullptr;
+    ARasterWindow * RasterWindow = nullptr;
 #ifdef __USE_ANTS_JSROOT__
     QWebEngineView * WebView = nullptr;
 #endif

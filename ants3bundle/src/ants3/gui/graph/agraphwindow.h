@@ -9,7 +9,7 @@
 
 #include <vector>
 
-class RasterWindowGraphClass;
+class AGraphRasterWindow;
 class QGraphicsView;
 class AToolboxScene;
 class QListWidgetItem;
@@ -186,7 +186,7 @@ private:
     ABasketManager         * Basket       = nullptr;
     ADrawExplorerWidget    * Explorer     = nullptr;
     ABasketListWidget      * lwBasket     = nullptr;
-    RasterWindowGraphClass * RasterWindow = nullptr;
+    AGraphRasterWindow * RasterWindow = nullptr;
     QGraphicsView          * gvOverlay    = nullptr;
     AToolboxScene          * ToolBoxScene = nullptr;
     AMultiGraphDesigner    * MGDesigner   = nullptr;

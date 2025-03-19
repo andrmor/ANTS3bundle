@@ -1,6 +1,6 @@
 #include "amultigraphdesigner.h"
 #include "ui_amultigraphdesigner.h"
-#include "rasterwindowbaseclass.h"
+#include "arasterwindow.h"
 #include "guitools.h"
 #include "abasketlistwidget.h"
 #include "abasketmanager.h"
@@ -27,9 +27,9 @@ AMultiGraphDesigner::AMultiGraphDesigner(ABasketManager & Basket, QWidget *paren
 {
     ui->setupUi(this);
 
-    RasterWindow = new RasterWindowBaseClass(0);
+    RasterWindow = new ARasterWindow(0);
     RasterWindow->resize(400, 400);
-    RasterWindow->ForceResize();
+    RasterWindow->forceResize();
     ui->lMainLayout->insertWidget(0, RasterWindow);
 
     lwBasket = new ABasketListWidget();
@@ -90,7 +90,7 @@ void AMultiGraphDesigner::on_actionAs_pdf_triggered()
     QString fileName = QFileDialog::getSaveFileName(this, "Export multigraph\nFile suffix defines the file type", "");
     if (fileName.isEmpty()) return;
 
-    RasterWindow->SaveAs(fileName);
+    RasterWindow->saveAs(fileName);
 }
 
 void AMultiGraphDesigner::on_actionSave_triggered()
@@ -445,7 +445,7 @@ bool AMultiGraphDesigner::event(QEvent *event)
 {
     if (event->type() == QEvent::WindowActivate)
     {
-        RasterWindow->UpdateRootCanvas();
+        RasterWindow->updateRootCanvas();
     }
 
     if (event->type() == QEvent::Show)
@@ -462,7 +462,7 @@ bool AMultiGraphDesigner::event(QEvent *event)
             //qDebug() << "Graph win show event";
             //updateGUI();
             //RasterWindow->UpdateRootCanvas();
-            QTimer::singleShot(100, RasterWindow, [this](){RasterWindow->UpdateRootCanvas();}); // without delay canvas is not shown in Qt 5.9.5
+            QTimer::singleShot(100, RasterWindow, [this](){RasterWindow->updateRootCanvas();}); // without delay canvas is not shown in Qt 5.9.5
         }
     }
 

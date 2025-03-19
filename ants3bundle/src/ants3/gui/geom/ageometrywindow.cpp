@@ -4,7 +4,7 @@
 #include "ageometryhub.h"
 #include "asensorhub.h"
 #include "amonitorhub.h"
-#include "rasterwindowbaseclass.h"
+#include "arasterwindow.h"
 #include "a3global.h"
 #include "ajsontools.h"
 #include "ageomarkerclass.h"
@@ -67,9 +67,9 @@ AGeometryWindow::AGeometryWindow(bool jsrootViewer, QWidget * parent) :
 
     if (!UseJSRoot)
     {
-        RasterWindow = new RasterWindowBaseClass(this);
+        RasterWindow = new ARasterWindow(this);
         ui->hlMain->addWidget(RasterWindow);
-        connect(RasterWindow, &RasterWindowBaseClass::userChangedWindow, this, &AGeometryWindow::onRasterWindowChange);
+        connect(RasterWindow, &ARasterWindow::userChangedWindow, this, &AGeometryWindow::onRasterWindowChange);
 
         ui->cbWireFrame->setVisible(false);
         CameraControl = new ACameraControlDialog(RasterWindow, this);
@@ -450,12 +450,12 @@ void AGeometryWindow::onNewConfigLoaded()
 void AGeometryWindow::UpdateRootCanvas()
 {
     if (UseJSRoot) qDebug() << "UpdateRootCanvas called in JSRoot mode!!!";
-    else RasterWindow->UpdateRootCanvas();
+    else RasterWindow->updateRootCanvas();
 }
 
 void AGeometryWindow::SaveAs(const QString & filename)
 {
-    RasterWindow->SaveAs(filename);
+    RasterWindow->saveAs(filename);
 }
 
 void AGeometryWindow::ResetView()
@@ -541,7 +541,7 @@ void AGeometryWindow::readFromJson(const QJsonObject & json)
         ui->sbLimitVisibility->setValue(level);
     }
 
-    if (!UseJSRoot) RasterWindow->ForceResize();
+    if (!UseJSRoot) RasterWindow->forceResize();
 }
 
 bool AGeometryWindow::event(QEvent *event)
@@ -549,7 +549,7 @@ bool AGeometryWindow::event(QEvent *event)
     if (event->type() == QEvent::WindowActivate)
     {
         if (UseJSRoot) ; // !!!***
-        else RasterWindow->UpdateRootCanvas();
+        else RasterWindow->updateRootCanvas();
     }
 
     return AGuiWindow::event(event);
@@ -1050,7 +1050,7 @@ void AGeometryWindow::Zoom(bool update)
     if (ZoomLevel != 0) v->ZoomView(0, zoomFactor);
     if (update)
     {
-        RasterWindow->ForceResize();
+        RasterWindow->forceResize();
         //fRecallWindow = false;
         UpdateRootCanvas();
     }
@@ -1290,7 +1290,7 @@ void AGeometryWindow::on_pbSaveAs_customContextMenuRequested(const QPoint &)
     int Mode = ui->cobViewer->currentIndex(); // 0 - standard, 1 - jsroot
     if (Mode == 0)
     {
-        RasterWindow->SaveAs("tmpImage.png");
+        RasterWindow->saveAs("tmpImage.png");
         QImage image("tmpImage.png");
         QApplication::clipboard()->setImage(image, QClipboard::Clipboard);
     }

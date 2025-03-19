@@ -5,7 +5,7 @@
 #include "agraphwindow.h"
 #include "afiletools.h"
 #include "alinemarkerfilldialog.h"
-#include "rasterwindowgraphclass.h"
+#include "agraphrasterwindow.h"
 #include "atextpavedialog.h"
 
 #ifdef USE_EIGEN
