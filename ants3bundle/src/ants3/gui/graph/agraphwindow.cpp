@@ -218,7 +218,7 @@ void AGraphWindow::addLine(double x1, double y1, double x2, double y2, int color
     l->SetLineWidth(width);
     l->SetLineStyle(style);
 
-    DrawWithoutFocus(l, "SAME");
+    draw(l, "SAME");
 }
 
 #include "TArrow.h"
@@ -229,7 +229,7 @@ void AGraphWindow::addArrow(double x1, double y1, double x2, double y2, int colo
     l->SetLineWidth(width);
     l->SetLineStyle(style);
 
-    DrawWithoutFocus(l, ">SAME");
+    draw(l, ">SAME");
 }
 
 void AGraphWindow::showAndFocus()
@@ -322,13 +322,7 @@ double AGraphWindow::getMaxZ(bool *ok)
     return ui->ledZto->text().toDouble(ok);
 }
 
-void AGraphWindow::Draw(TObject *obj, const char *options, bool DoUpdate, bool TransferOwnership)
-{
-    showAndFocus();
-    DrawWithoutFocus(obj, options, DoUpdate, TransferOwnership);
-}
-
-void AGraphWindow::DrawWithoutFocus(TObject *obj, const char *options, bool DoUpdate, bool TransferOwnership)
+void AGraphWindow::draw(TObject * obj, const char * options, bool update, bool transferOwnership)
 {
     QString opt = options;
 
@@ -359,9 +353,9 @@ void AGraphWindow::DrawWithoutFocus(TObject *obj, const char *options, bool DoUp
 
     if (DrawObjects.size() == 1) updateMargins(&DrawObjects.front());
 
-    doDraw(obj, opt.toLatin1().data(), DoUpdate);
+    drawSingleObject(obj, opt.toLatin1().data(), update);
 
-    if (TransferOwnership) registerTObject(obj);
+    if (transferOwnership) registerTObject(obj);
 
     enforceOverlayOff();
     updateControls();
@@ -400,7 +394,7 @@ void AGraphWindow::registerTObject(TObject * obj)
     RegisteredTObjects.push_back(obj);
 }
 
-void AGraphWindow::doDraw(TObject *obj, const char *opt, bool DoUpdate)
+void AGraphWindow::drawSingleObject(TObject * obj, const char * opt, bool update)
 {
     if (!obj)
     {
@@ -417,7 +411,7 @@ void AGraphWindow::doDraw(TObject *obj, const char *opt, bool DoUpdate)
     if (gaxis) updateSecondaryAxis(gaxis, opt);
 
     obj->Draw(opt);
-    if (DoUpdate) RasterWindow->fCanvas->Update();
+    if (update) RasterWindow->fCanvas->Update();
 
     Explorer->updateGui();
     ui->pbBackToLast->setVisible( !PreviousDrawObjects.isEmpty() );
@@ -768,7 +762,7 @@ void AGraphWindow::redrawAll()
 
         if (!obj.Options.contains("same", Qt::CaseInsensitive)) updateMargins(&obj);
 
-        if (obj.bEnabled) doDraw(obj.Pointer, options, false);
+        if (obj.bEnabled) drawSingleObject(obj.Pointer, options, false);
     }
 
     qApp->processEvents();
@@ -1071,9 +1065,12 @@ void AGraphWindow::updateControls()
 void AGraphWindow::onDrawRequest(TObject * obj, QString options, bool transferOwnership, bool focusWindow)
 {
     if (focusWindow)
-        Draw(obj, options.toLatin1().data(), true, transferOwnership);
+    {
+        showAndFocus();
+        draw(obj, options.toLatin1().data(), true, transferOwnership);
+    }
     else
-        DrawWithoutFocus(obj, options.toLatin1().data(), true, transferOwnership);
+        draw(obj, options.toLatin1().data(), true, transferOwnership);
 
     lwBasket->clearFocus();
 }
@@ -1095,7 +1092,7 @@ void AGraphWindow::processScriptDrawRequest(TObject *obj, QString options, bool 
 {
     //always drawing a copy, so always need to register the object
     if (fFocus) showAndFocus();
-    DrawWithoutFocus(obj, options.toLatin1().data(), true, true);
+    draw(obj, options.toLatin1().data(), true, true);
 }
 
 void SetMarkerAttributes(TAttMarker* m, const QVariantList& vl)
@@ -1284,7 +1281,8 @@ bool AGraphWindow::onScriptDrawTree(TTree * tree, QString what, QString cond, QS
 
                 if ( !How.Contains("same", TString::kIgnoreCase) ) How = "A," + How;
                 setAsActiveRootWindow();
-                Draw(clone, How);
+                showAndFocus();
+                draw(clone, How);
             }
             else
             {
@@ -1323,7 +1321,8 @@ bool AGraphWindow::onScriptDrawTree(TTree * tree, QString what, QString cond, QS
 
         SetMarkerAttributes(static_cast<TAttMarker*>(h), vlML.at(0).toList());
         SetLineAttributes(static_cast<TAttLine*>(h), vlML.at(1).toList());
-        Draw(h, How, true, false);
+        showAndFocus();
+        draw(h, How, true, false);
     }
 
     if (result) *result = "";
@@ -2325,7 +2324,7 @@ void AGraphWindow::addTextPanel(QString text, bool bShowFrame, int alignLeftCent
     const QStringList sl = text.split("\n");
     for (const QString & s : sl) la->AddText(s.toLatin1());
 
-    DrawWithoutFocus(la, "same", true, false); //it seems the Paveltext is owned by drawn object - registration causes crash if used with non-registered object (e.g. script)
+    draw(la, "same", true, false); //it seems the Paveltext is owned by drawn object - registration causes crash if used with non-registered object (e.g. script)
 }
 
 void AGraphWindow::setStatPanelVisible(bool flag)

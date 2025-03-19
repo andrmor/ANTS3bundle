@@ -10,6 +10,8 @@
 
 #include <vector>
 
+// !!!*** replace QVector with std::vector, not trivial (many dependencies)
+
 class RasterWindowGraphClass;
 class QGraphicsView;
 class AToolboxScene;
@@ -37,6 +39,8 @@ class AGraphWindow : public AGuiWindow
 public:
     explicit AGraphWindow(QWidget * parent);
     ~AGraphWindow();
+
+    void draw(TObject * obj, const char * options = "", bool update = true, bool transferOwnership = true);
 
 public slots:
     void onDrawRequest(TObject * obj, QString options, bool transferOwnership, bool focusWindow);
@@ -221,7 +225,7 @@ private:
     double getCanvasMinY();
     double getCanvasMaxY();
 
-    TLegend * addLegend();
+    void drawSingleObject(TObject * obj, const char * opt, bool update);
     void registerTObject(TObject * obj);
     void clearRegisteredTObjects();
     void requestMultidraw();
@@ -238,6 +242,7 @@ private:
     void createMGDesigner();
     void connectScriptUnitDrawRequests(const std::vector<AScriptInterface *> interfaces);
     void updateMargins(ADrawObject * obj = nullptr);
+    TLegend * addLegend();
 
     void makeCopyOfDrawObjects(); // !!!*** infamous "gcc optimizer fix:"
     void clearCopyOfDrawObjects();
@@ -263,10 +268,6 @@ private:
     void onBusyOn();
     void onBusyOff();
 
-    // !!!*** refactor to minimize the number of draw methods
-    void doDraw(TObject *obj, const char *opt, bool DoUpdate); //actual drawing, does not have window focussing - done to avoid refocussing issues leading to bugs
-    void Draw(TObject* obj, const char* options = "", bool DoUpdate = true, bool TransferOwnership = true);  //registration should be skipped only for scripts!
-    void DrawWithoutFocus(TObject* obj, const char* options = "", bool DoUpdate = true, bool TransferOwnership = true);  //registration should be skipped only for scripts!
 
 signals:
     void requestLocalDrawObject(TObject *obj, QString options, bool fFocus);
