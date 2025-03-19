@@ -2455,8 +2455,8 @@ void AGraphWindow::on_actionCreate_template_triggered()
 {
     if (DrawObjects.empty()) return;
 
-    QVector<QPair<double,double>> Limits = {QPair<double,double>(xmin, xmax), QPair<double,double>(ymin, ymax), QPair<double,double>(zmin, zmax)};
-    DrawTemplate.createFrom(DrawObjects, Limits); // it seems TH1 does not contain data on the shown range for Y (and Z) axes ... -> using inidcated range!
+    std::vector<std::pair<double,double>> limits = {std::pair<double,double>(xmin, xmax), std::pair<double,double>(ymin, ymax), std::pair<double,double>(zmin, zmax)};
+    DrawTemplate.createFrom(DrawObjects, limits); // it seems TH1 does not contain data on the shown range for Y (and Z) axes ... -> using inidcated range!
 }
 
 void AGraphWindow::on_actionApply_template_triggered()
@@ -2484,7 +2484,7 @@ void AGraphWindow::applyTemplate(bool bAll)
         }
     }
 
-    QVector<QPair<double,double>> XYZ_ranges;
+    std::vector<std::pair<double,double>> XYZ_ranges;
     DrawTemplate.applyTo(DrawObjects, XYZ_ranges, bAll);
     redrawAll();
 

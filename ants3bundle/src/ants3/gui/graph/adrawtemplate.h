@@ -3,10 +3,11 @@
 
 #include "atemplateselectionrecord.h"
 
-#include <QVector>
 #include <QPair>
 #include <QString>
 #include <QJsonObject>
+
+#include <vector>
 
 class ADrawObject;
 class TObject;
@@ -47,8 +48,8 @@ public:
     ADrawTemplate();
     virtual ~ADrawTemplate();
 
-    void createFrom(const std::vector<ADrawObject> & DrawObjects, const QVector<QPair<double,double>> & XYZ_ranges);
-    void applyTo(std::vector<ADrawObject> & DrawObjects, QVector<QPair<double,double>> & XYZ_ranges, bool bAll);
+    void createFrom(const std::vector<ADrawObject> & drawObjects, const std::vector<std::pair<double, double>> & XYZ_ranges);
+    void applyTo(std::vector<ADrawObject> & drawObjects, std::vector<std::pair<double,double>> & XYZ_ranges, bool bAll);
 
     const ATemplateSelectionRecord * findRecord(const QString & Label, const ATemplateSelectionRecord * ParentRecord) const;
     bool hasLegend() const {return (LegendIndex != -1);}
@@ -56,8 +57,8 @@ public:
 private:
     QString DrawOption;
     ADrawTemplate_Axis  AxisProperties[3];
-    QVector<QPair<double, double>> XYZranges;
-    QVector<QJsonObject> ObjectAttributes;
+    std::vector<QPair<double, double>> XYZranges;
+    std::vector<QJsonObject> ObjectAttributes;
 
     int LegendIndex = -1;
 

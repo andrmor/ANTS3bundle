@@ -23,16 +23,15 @@ ADrawTemplate::~ADrawTemplate()
     clearSelection();
 }
 
-void ADrawTemplate::createFrom(const std::vector<ADrawObject> & DrawObjects, const QVector<QPair<double, double> > & XYZ_ranges)
+void ADrawTemplate::createFrom(const std::vector<ADrawObject> & drawObjects, const std::vector<std::pair<double, double> > & XYZ_ranges)
 {
-    if (DrawObjects.empty()) return;
+    if (drawObjects.empty()) return;
 
-    TObject * tobj = DrawObjects.front().Pointer;
+    TObject * tobj = drawObjects.front().Pointer;
     if (!tobj) return;
 
     //draw options and attibutes
-    DrawOption = DrawObjects.front().Options;
-    //DrawAttributes.fillProperties(tobj);
+    DrawOption = drawObjects.front().Options;
 
     //axes
     for (int i = 0; i < 3; i++)
@@ -47,22 +46,22 @@ void ADrawTemplate::createFrom(const std::vector<ADrawObject> & DrawObjects, con
     //draw properties
     ObjectAttributes.clear();
     LegendIndex = -1;
-    for (int iObj = 0; iObj < DrawObjects.size(); iObj++)
+    for (int iObj = 0; iObj < drawObjects.size(); iObj++)
     {
-        const ADrawObject & obj = DrawObjects.at(iObj);
+        const ADrawObject & obj = drawObjects.at(iObj);
         QJsonObject json;
         ARootJson::toJson(obj, json);
-        ObjectAttributes << json;
+        ObjectAttributes.push_back(json);
 
         const TLegend * Leg = dynamic_cast<const TLegend*>(obj.Pointer);
         if (Leg) LegendIndex = iObj;
     }
 }
 
-void ADrawTemplate::applyTo(std::vector<ADrawObject> & DrawObjects, QVector<QPair<double,double>> & XYZ_ranges, bool bAll)
+void ADrawTemplate::applyTo(std::vector<ADrawObject> & drawObjects, std::vector<std::pair<double, double>> & XYZ_ranges, bool bAll)
 {
-    if (DrawObjects.empty()) return;
-    TObject * tobj = DrawObjects.front().Pointer;
+    if (drawObjects.empty()) return;
+    TObject * tobj = drawObjects.front().Pointer;
     if (!tobj) return;
 
     bIgnoreSelection = bAll;
@@ -99,9 +98,9 @@ void ADrawTemplate::applyTo(std::vector<ADrawObject> & DrawObjects, QVector<QPai
     //if template has a Legend, assure that the DrawObjects have TLegend, preferably at the same index
     int iLegend = -1;
     TLegend * Legend = nullptr;
-    for (int iObj = 0; iObj < DrawObjects.size(); iObj++)
+    for (int iObj = 0; iObj < drawObjects.size(); iObj++)
     {
-        Legend = dynamic_cast<TLegend*>(DrawObjects[iObj].Pointer);
+        Legend = dynamic_cast<TLegend*>(drawObjects[iObj].Pointer);
         if (Legend)
         {
             iLegend = iObj;
@@ -119,7 +118,7 @@ void ADrawTemplate::applyTo(std::vector<ADrawObject> & DrawObjects, QVector<QPai
             if (!Legend) //paranoic -> Legend is created before calling this method
             {
                 Legend = new TLegend(0.1,0.1, 0.5,0.5); //not fully functional if created here! position is not set by read properties method
-                DrawObjects.push_back( ADrawObject(Legend, "same") );
+                drawObjects.push_back( ADrawObject(Legend, "same") );
             }
 
             if (iLegend != LegendIndex)
@@ -127,9 +126,9 @@ void ADrawTemplate::applyTo(std::vector<ADrawObject> & DrawObjects, QVector<QPai
                 if (iLegend > LegendIndex)
                 {
                     //DrawObjects.move(iLegend, LegendIndex);
-                    ADrawObject tmp = DrawObjects[iLegend];
-                    DrawObjects.erase(DrawObjects.begin() + iLegend);
-                    DrawObjects.insert(DrawObjects.begin() + LegendIndex, tmp);
+                    ADrawObject tmp = drawObjects[iLegend];
+                    drawObjects.erase(drawObjects.begin() + iLegend);
+                    drawObjects.insert(drawObjects.begin() + LegendIndex, tmp);
                     iLegend = LegendIndex;
                 }
             }
@@ -142,7 +141,7 @@ void ADrawTemplate::applyTo(std::vector<ADrawObject> & DrawObjects, QVector<QPai
     {
         for (int i=0; i<ObjectAttributes.size(); i++)
         {
-            if (i >= DrawObjects.size()) break;
+            if (i >= drawObjects.size()) break;
             const QJsonObject & json = ObjectAttributes.at(i);
 
             if (i == LegendIndex)
@@ -160,7 +159,7 @@ void ADrawTemplate::applyTo(std::vector<ADrawObject> & DrawObjects, QVector<QPai
             {
                 if (i == iLegend) continue;
 
-                bool bOK = ARootJson::fromJson(DrawObjects[i], json);
+                bool bOK = ARootJson::fromJson(drawObjects[i], json);
                 if (!bOK) break;
             }
         }
@@ -170,7 +169,7 @@ void ADrawTemplate::applyTo(std::vector<ADrawObject> & DrawObjects, QVector<QPai
     if (iLegend >= 0 && bApplyLegend)
     {
         const QJsonObject & json = ObjectAttributes.at(LegendIndex);
-        bool bOK = ARootJson::fromJson(DrawObjects[iLegend], json);
+        bool bOK = ARootJson::fromJson(drawObjects[iLegend], json);
         if (!bOK) qWarning() << "Error applying TLegend properties from the template";
     }
 }
