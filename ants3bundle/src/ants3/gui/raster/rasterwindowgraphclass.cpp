@@ -550,8 +550,6 @@ bool RasterWindowGraphClass::waitForExtractionFinished()
     }
     while (!IsExtractionComplete() );
 
-    //    MW->WindowNavigator->BusyOff(false); !!!***
-
     return !ExtractionCanceled;  //returns false = canceled
 }
 

@@ -87,7 +87,7 @@ AGraphWindow::AGraphWindow(QWidget * parent) :
     RasterWindow = new RasterWindowGraphClass(this);
     RasterWindow->resize(400, 400);
     RasterWindow->ForceResize();
-    connect(RasterWindow, &RasterWindowGraphClass::LeftMouseButtonReleased, this, &AGraphWindow::UpdateControls);
+    connect(RasterWindow, &RasterWindowGraphClass::LeftMouseButtonReleased, this, &AGraphWindow::updateControls);
     connect(RasterWindow, &RasterWindowGraphClass::reportCursorPosition,    this, &AGraphWindow::onCursorPositionReceived);
 
     // Draw explorer widget
@@ -100,9 +100,9 @@ AGraphWindow::AGraphWindow(QWidget * parent) :
     // Basket list widget
     lwBasket = new ABasketListWidget(this);
     ui->layBasket->addWidget(lwBasket);
-    connect(lwBasket, &ABasketListWidget::customContextMenuRequested, this, &AGraphWindow::BasketCustomContextMenuRequested);
+    connect(lwBasket, &ABasketListWidget::customContextMenuRequested, this, &AGraphWindow::onBasketCustomContextMenuRequested);
     connect(lwBasket, &ABasketListWidget::itemDoubleClicked, this, &AGraphWindow::onBasketItemDoubleClicked);
-    connect(lwBasket, &ABasketListWidget::requestReorder, this, &AGraphWindow::BasketReorderRequested);
+    connect(lwBasket, &ABasketListWidget::requestReorder, this, &AGraphWindow::onBasketReorderRequested);
 
     connectScriptUnitDrawRequests(AScriptHub::getInstance().getJScriptManager().getInterfaces());
 #ifdef ANTS3_PYTHON
@@ -147,7 +147,8 @@ AGraphWindow::AGraphWindow(QWidget * parent) :
     connect(ui->cbRulerTicksLength, &QCheckBox::toggled, scene->getRuler(), &GraphicsRuler::setShowTicks);
     connect(ui->cbRulerShowBG, &QCheckBox::toggled, scene->getRuler(), &GraphicsRuler::setShowContrast);
 
-    new QShortcut(QKeySequence(Qt::Key_Delete), this, SLOT(deletePressed()));
+    //new QShortcut(QKeySequence(Qt::Key_Delete), this, SLOT(onBasketDeleteShortcutActivated()));
+    new QShortcut(QKeySequence(Qt::Key_Delete), this, this, &AGraphWindow::onBasketDeleteShortcutActivated);
 
     DrawTemplate.Selection.bExpanded = true;
 
@@ -162,7 +163,7 @@ AGraphWindow::~AGraphWindow()
 
     delete ui;
 
-    clearTmpTObjects();
+    clearRegisteredTObjects();
 
     delete scene; scene =  nullptr;
     delete gvOver; gvOver = nullptr;
@@ -347,16 +348,16 @@ void AGraphWindow::DrawWithoutFocus(TObject *obj, const char *options, bool DoUp
 
     if (opt.contains("same", Qt::CaseInsensitive))
     {
-        MakeCopyOfDrawObjects();
+        makeCopyOfDrawObjects();
     }
     else
     {
         //this is new main object
-        clearTmpTObjects();             //delete all TObjects previously drawn
-        ClearCopyOfDrawObjects();       //"go back" is not possible anymore
-        ClearCopyOfActiveBasketId();    //restore basket current item is not possible anymore
+        clearRegisteredTObjects();             //delete all TObjects previously drawn
+        clearCopyOfDrawObjects();       //"go back" is not possible anymore
+        clearCopyOfActiveBasketId();    //restore basket current item is not possible anymore
         ActiveBasketItem = -1;
-        UpdateBasketGUI();
+        updateBasketGUI();
 
         DrawObjects.clear();
     }
@@ -366,21 +367,21 @@ void AGraphWindow::DrawWithoutFocus(TObject *obj, const char *options, bool DoUp
 
     doDraw(obj, opt.toLatin1().data(), DoUpdate);
 
-    if (TransferOwnership) RegisterTObject(obj);
+    if (TransferOwnership) registerTObject(obj);
 
-    EnforceOverlayOff();
-    UpdateControls();
+    enforceOverlayOff();
+    updateControls();
 
     DrawFinished = true;
 }
 
-void AGraphWindow::UpdateGuiControlsForMainObject(const QString & ClassName, const QString & options)
+void AGraphWindow::updateGuiControlsForMainObject(const QString & className, const QString & options)
 {
     //3D control
     bool flag3D = false;
-    if (ClassName.startsWith("TH3") || ClassName.startsWith("TProfile2D") || ClassName.startsWith("TH2") || ClassName.startsWith("TF2") || ClassName.startsWith("TGraph2D"))
+    if (className.startsWith("TH3") || className.startsWith("TProfile2D") || className.startsWith("TH2") || className.startsWith("TF2") || className.startsWith("TGraph2D"))
         flag3D = true;
-    if ((ClassName.startsWith("TH2") || ClassName.startsWith("TProfile2D")) && ( options.contains("col",Qt::CaseInsensitive) || options.contains("prof", Qt::CaseInsensitive) || (options.isEmpty())) )
+    if ((className.startsWith("TH2") || className.startsWith("TProfile2D")) && ( options.contains("col",Qt::CaseInsensitive) || options.contains("prof", Qt::CaseInsensitive) || (options.isEmpty())) )
         flag3D = false;
     //      qDebug()<<"3D flag:"<<flag3D;
 
@@ -389,21 +390,20 @@ void AGraphWindow::UpdateGuiControlsForMainObject(const QString & ClassName, con
 
     ui->leOptions->setText(options);
 
-    if ( ClassName.startsWith("TH1") || ClassName == "TF1" )
+    if ( className.startsWith("TH1") || className == "TF1" )
     {
         ui->fZrange->setEnabled(false);
         ui->cbRulerTicksLength->setChecked(false);
     }
-    else if ( ClassName.startsWith("TH2") )
+    else if ( className.startsWith("TH2") )
     {
         ui->fZrange->setEnabled(true);
     }
 }
 
-void AGraphWindow::RegisterTObject(TObject *obj)
+void AGraphWindow::registerTObject(TObject * obj)
 {
-    //qDebug() << "Registered:"<<obj<<obj->ClassName();
-    tmpTObjects.append(obj);
+    RegisteredTObjects.push_back(obj);
 }
 
 void AGraphWindow::doDraw(TObject *obj, const char *opt, bool DoUpdate)
@@ -430,7 +430,7 @@ void AGraphWindow::doDraw(TObject *obj, const char *opt, bool DoUpdate)
 
     QString options(opt);
     if (!options.contains("same", Qt::CaseInsensitive))
-        UpdateGuiControlsForMainObject(obj->ClassName(), options);
+        updateGuiControlsForMainObject(obj->ClassName(), options);
 
     fixGraphFrame();
 }
@@ -579,7 +579,7 @@ void AGraphWindow::on_cbLogX_toggled(bool checked)
     if (TMPignore) return;
     RasterWindow->fCanvas->SetLogx(checked);
     RasterWindow->fCanvas->Update();
-    UpdateControls();
+    updateControls();
 }
 
 void AGraphWindow::on_cbLogY_toggled(bool checked)
@@ -587,49 +587,49 @@ void AGraphWindow::on_cbLogY_toggled(bool checked)
     if (TMPignore) return;
     RasterWindow->fCanvas->SetLogy(checked);
     RasterWindow->fCanvas->Update();
-    UpdateControls();
+    updateControls();
 }
 
 void AGraphWindow::on_ledXfrom_editingFinished()
 {
     //ui->pbUnzoom->setFocus();
     if (xmin == ui->ledXfrom->text().toDouble()) return;
-    AGraphWindow::Reshape();
+    AGraphWindow::reshape();
 }
 
 void AGraphWindow::on_ledXto_editingFinished()
 {
     //ui->pbUnzoom->setFocus();
     if (xmax == ui->ledXto->text().toDouble()) return;
-    AGraphWindow::Reshape();
+    AGraphWindow::reshape();
 }
 
 void AGraphWindow::on_ledYfrom_editingFinished()
 {
     //ui->pbUnzoom->setFocus();
     if (ymin == ui->ledYfrom->text().toDouble()) return;
-    AGraphWindow::Reshape();
+    AGraphWindow::reshape();
 }
 
 void AGraphWindow::on_ledYto_editingFinished()
 {
     //ui->pbUnzoom->setFocus();
     if (ymax == ui->ledYto->text().toDouble()) return;
-    AGraphWindow::Reshape();
+    AGraphWindow::reshape();
 }
 
 void AGraphWindow::on_ledZfrom_editingFinished()
 {
     //ui->pbUnzoom->setFocus();
     if (zmin == ui->ledZfrom->text().toDouble()) return;
-    AGraphWindow::Reshape();
+    AGraphWindow::reshape();
 }
 
 void AGraphWindow::on_ledZto_editingFinished()
 {
     //ui->pbUnzoom->setFocus();
     if (zmax == ui->ledZto->text().toDouble()) return;
-    AGraphWindow::Reshape();
+    AGraphWindow::reshape();
 }
 
 TObject * AGraphWindow::getMainPlottedObject()
@@ -640,7 +640,7 @@ TObject * AGraphWindow::getMainPlottedObject()
 }
 
 #include "TView3D.h"
-void AGraphWindow::Reshape()
+void AGraphWindow::reshape()
 {    
     //qDebug() << "Reshape triggered";
     qApp->processEvents();
@@ -663,7 +663,6 @@ void AGraphWindow::Reshape()
     zmax = ui->ledZto->text().toDouble(&OKzmax);
 
     //Reshaping the main (first) object
-    //QString PlotType = DrawObjects.first().Pointer->ClassName();
     QString PlotType = tobj->ClassName();
     //    QString PlotOptions = DrawObjects.first().Options;
     //    qDebug()<<"  main object name/options:"<<PlotType<<PlotOptions;
@@ -764,8 +763,8 @@ void AGraphWindow::Reshape()
 void AGraphWindow::redrawAll()
 {  
     //qDebug()<<"---Redraw all triggered"
-    EnforceOverlayOff();
-    UpdateBasketGUI();
+    enforceOverlayOff();
+    updateBasketGUI();
 
     if (DrawObjects.isEmpty())
     {
@@ -788,15 +787,15 @@ void AGraphWindow::redrawAll()
 
     qApp->processEvents();
     RasterWindow->fCanvas->Update();
-    UpdateControls();
+    updateControls();
 
     fixGraphFrame();
 }
 
-void AGraphWindow::clearTmpTObjects()
+void AGraphWindow::clearRegisteredTObjects()
 {
-    for (int i=0; i<tmpTObjects.size(); i++) delete tmpTObjects[i];
-    tmpTObjects.clear();
+    for (TObject * obj : RegisteredTObjects) delete obj;
+    RegisteredTObjects.clear();
 }
 
 void AGraphWindow::on_cbShowLegend_toggled(bool checked)
@@ -815,13 +814,10 @@ void AGraphWindow::on_cbShowLegend_toggled(bool checked)
 void AGraphWindow::on_pbZoom_clicked()
 {
     if (DrawObjects.isEmpty()) return;
-
-    //qDebug()<<"Zoom clicked";
     TObject* obj = DrawObjects.first().Pointer;
     QString PlotType = obj->ClassName();
     QString opt = DrawObjects.first().Options;
     //qDebug()<<"  Class name/PlotOptions/opt:"<<PlotType<<opt;
-
     if (
             PlotType == "TGraph" ||
             PlotType == "TMultiGraph" ||
@@ -829,81 +825,21 @@ void AGraphWindow::on_pbZoom_clicked()
             PlotType.startsWith("TH1") ||
             PlotType == "TProfile" ||
             ( (PlotType.startsWith("TH2") || PlotType == "TProfile2D") && (opt == "" || opt.contains("col", Qt::CaseInsensitive) || opt.contains("prof", Qt::CaseInsensitive)) )
-            )
+        )
     {
-//        MW->WindowNavigator->BusyOn();  !!!***
         RasterWindow->Extract2DBox();
-        do
-        {
-            qApp->processEvents();
-            if (RasterWindow->ExtractionCanceled)
-            {
-//                MW->WindowNavigator->BusyOff(false);   !!!***
-                return;
-            }
-        }
-        while (!RasterWindow->IsExtractionComplete());
-//        MW->WindowNavigator->BusyOff(false);   !!!***
+        bool ok = RasterWindow->waitForExtractionFinished();
+        if (!ok) return;
 
         ui->ledXfrom->setText(QString::number(RasterWindow->extractedX1, 'g', 4));
         ui->ledXto->  setText(QString::number(RasterWindow->extractedX2, 'g', 4));
         ui->ledYfrom->setText(QString::number(RasterWindow->extractedY1, 'g', 4));
         ui->ledYto->  setText(QString::number(RasterWindow->extractedY2, 'g', 4));
 
-        AGraphWindow::Reshape();
+        reshape();
     }
 
-    /*
-  if (PlotType.startsWith("TH2") || PlotType == "TProfile2D")
-   if (opt == "" || opt.contains("col", Qt::CaseInsensitive) || opt.contains("prof", Qt::CaseInsensitive))
-     {
-      MW->WindowNavigator->BusyOn();
-      GraphWindowClass::Extract2DBox();
-      do
-        {
-          qApp->processEvents();
-          if (ExtractionCanceled)
-            {
-              MW->WindowNavigator->BusyOff();
-              return;
-            }
-        }
-      while (!MW->GraphWindow->IsExtractionComplete());
-      MW->WindowNavigator->BusyOff();
-
-      ui->ledXfrom->setText(QString::number(extractedX1(), 'g', 4));
-      ui->ledXto->setText(QString::number(extractedX2(), 'g', 4));
-      ui->ledYfrom->setText(QString::number(extractedY1(), 'g', 4));
-      ui->ledYto->setText(QString::number(extractedY2(), 'g', 4));
-
-      GraphWindowClass::Reshape();
-    }
-  if (PlotType == "TGraph" || PlotType.startsWith("TMultiGraph"))
-    {
-      MW->WindowNavigator->BusyOn();
-      GraphWindowClass::Extract2DBox();
-      do
-        {
-          qApp->processEvents();
-          if (ExtractionCanceled)
-            {
-              MW->WindowNavigator->BusyOff();
-              return;
-            }
-        }
-      while (!MW->GraphWindow->IsExtractionComplete());
-      MW->WindowNavigator->BusyOff();
-
-      ui->ledXfrom->setText(QString::number(extractedX1(), 'g', 4));
-      ui->ledXto->setText(QString::number(extractedX2(), 'g', 4));
-      ui->ledYfrom->setText(QString::number(extractedY1(), 'g', 4));
-      ui->ledYto->setText(QString::number(extractedY2(), 'g', 4));
-
-      GraphWindowClass::Reshape();
-    }
-    */
-
-    AGraphWindow::UpdateControls();
+    updateControls();
 }
 
 void AGraphWindow::on_pbUnzoom_clicked()
@@ -949,7 +885,7 @@ void AGraphWindow::on_pbUnzoom_clicked()
 
     RasterWindow->fCanvas->Modified();
     RasterWindow->fCanvas->Update();
-    UpdateControls();
+    updateControls();
 }
 
 void AGraphWindow::on_leOptions_editingFinished()
@@ -970,7 +906,7 @@ void AGraphWindow::saveGraph(const QString & fileName)
     RasterWindow->SaveAs(fileName);
 }
 
-void AGraphWindow::UpdateControls()
+void AGraphWindow::updateControls()
 {
 //    if (MW->ShutDown) return;  !!!***
     if (DrawObjects.isEmpty()) return;
@@ -1485,7 +1421,7 @@ void AGraphWindow::on_pbShowRuler_clicked()
     changeOverlayMode(true);
 }
 
-void AGraphWindow::ShowProjectionTool()
+void AGraphWindow::showProjectionTool()
 {
     scene->setActiveTool(AToolboxScene::ToolSelBox);
     ui->swToolBox->setCurrentIndex(1);
@@ -1662,30 +1598,30 @@ void AGraphWindow::on_pbResetRuler_clicked()
 
 void AGraphWindow::on_pbXprojection_clicked()
 {
-    ShowProjection("x");
+    showProjection("x");
 }
 
 void AGraphWindow::on_pbYprojection_clicked()
 {
-    ShowProjection("y");
+    showProjection("y");
 }
 
 void AGraphWindow::on_pbDensityDistribution_clicked()
 {
-    ShowProjection("dens");
+    showProjection("dens");
 }
 
 void AGraphWindow::on_pbXaveraged_clicked()
 {
-    ShowProjection("xAv");
+    showProjection("xAv");
 }
 
 void AGraphWindow::on_pbYaveraged_clicked()
 {
-    ShowProjection("yAv");
+    showProjection("yAv");
 }
 
-void AGraphWindow::ShowProjection(QString type)
+void AGraphWindow::showProjection(QString type)
 {
     TH2 * h = Explorer->getObjectForCustomProjection();
     if (!h) return;
@@ -1798,13 +1734,13 @@ void AGraphWindow::ShowProjection(QString type)
     else if (type == "dens") hProjection->GetXaxis()->SetTitle("Density, counts");
     if (type == "xAv" || type == "yAv") *hProjection = *hProjection / *hWeights;
 
-    MakeCopyOfDrawObjects();
-    MakeCopyOfActiveBasketId();
+    makeCopyOfDrawObjects();
+    makeCopyOfActiveBasketId();
 
-    ClearBasketActiveId();
+    clearBasketActiveId();
 
     DrawObjects.clear();
-    RegisterTObject(hProjection);
+    registerTObject(hProjection);
     DrawObjects  << ADrawObject(hProjection, "hist");
 
     redrawAll();
@@ -1813,7 +1749,7 @@ void AGraphWindow::ShowProjection(QString type)
     TriggerGlobalBusy(false);
 }
 
-void AGraphWindow::EnforceOverlayOff()
+void AGraphWindow::enforceOverlayOff()
 {
     changeOverlayMode(false);
 }
@@ -1839,7 +1775,7 @@ void AGraphWindow::addCurrentToBasket(const QString & name)
     updateLogScaleFlags(DrawObjects);
     Basket->add(name.simplified(), DrawObjects);
     ui->actionToggle_Explorer_Basket->setChecked(true);
-    UpdateBasketGUI();
+    updateBasketGUI();
 }
 
 void AGraphWindow::updateLogScaleFlags(QVector<ADrawObject> & drawObjects) const
@@ -1855,7 +1791,7 @@ void AGraphWindow::drawLegend(double x1, double y1, double x2, double y2, QStrin
 {
     TLegend* leg = RasterWindow->fCanvas->BuildLegend(x1, y1, x2, y2, title.toLatin1());
 
-    RegisterTObject(leg);
+    registerTObject(leg);
     DrawObjects.append(ADrawObject(leg, "same"));
 
     redrawAll();
@@ -1935,7 +1871,7 @@ QVector<double> AGraphWindow::Get2DArray()
 }
 */
 
-void AGraphWindow::UpdateBasketGUI()
+void AGraphWindow::updateBasketGUI()
 {
     lwBasket->clear();
     lwBasket->addItems(Basket->getItemNames());
@@ -1958,7 +1894,7 @@ void AGraphWindow::UpdateBasketGUI()
     }
     ui->pbUpdateInBasket->setEnabled(ActiveBasketItem >= 0);
 
-    if (ActiveBasketItem < 0) HighlightUpdateBasketButton(false);
+    if (ActiveBasketItem < 0) highlightUpdateBasketButton(false);
 
     if (MGDesigner) MGDesigner->updateBasketGUI();
 }
@@ -1969,12 +1905,10 @@ void AGraphWindow::onBasketItemDoubleClicked(QListWidgetItem *)
     switchToBasket(lwBasket->currentRow());
 }
 
-void AGraphWindow::deletePressed()
+void AGraphWindow::onBasketDeleteShortcutActivated()
 {
     if ((lwBasket->rect().contains(lwBasket->mapFromGlobal(QCursor::pos()))))
-    {
         removeAllSelectedBasketItems();
-    }
 }
 
 void AGraphWindow::onCursorPositionReceived(double x, double y, bool bOn)
@@ -1983,7 +1917,7 @@ void AGraphWindow::onCursorPositionReceived(double x, double y, bool bOn)
     ui->labCursorY->setText(bOn ? QString::number(y, 'g', 4) : "--");
 }
 
-void AGraphWindow::MakeCopyOfDrawObjects()
+void AGraphWindow::makeCopyOfDrawObjects()
 {
     PreviousDrawObjects = DrawObjects;
 
@@ -1992,33 +1926,33 @@ void AGraphWindow::MakeCopyOfDrawObjects()
         qDebug() << "gcc optimizer fix:" << PreviousDrawObjects.first().Pointer;
 }
 
-void AGraphWindow::ClearCopyOfDrawObjects()
+void AGraphWindow::clearCopyOfDrawObjects()
 {
     PreviousDrawObjects.clear();
     //ui->pbBackToLast->setVisible(false);
 }
 
-void AGraphWindow::ClearBasketActiveId()
+void AGraphWindow::clearBasketActiveId()
 {
     ActiveBasketItem = -1;
 }
 
-void AGraphWindow::MakeCopyOfActiveBasketId()
+void AGraphWindow::makeCopyOfActiveBasketId()
 {
     PreviousActiveBasketItem = ActiveBasketItem;
 }
 
-void AGraphWindow::RestoreBasketActiveId()
+void AGraphWindow::restoreBasketActiveId()
 {
     ActiveBasketItem = PreviousActiveBasketItem;
 }
 
-void AGraphWindow::ClearCopyOfActiveBasketId()
+void AGraphWindow::clearCopyOfActiveBasketId()
 {
     PreviousActiveBasketItem = -1;
 }
 
-void AGraphWindow::BasketCustomContextMenuRequested(const QPoint &pos)
+void AGraphWindow::onBasketCustomContextMenuRequested(const QPoint &pos)
 {
     if (lwBasket->selectedItems().size() > 1)
     {
@@ -2097,7 +2031,7 @@ void AGraphWindow::BasketCustomContextMenuRequested(const QPoint &pos)
         {
             QString err = Basket->appendBasket(fileName);
             if (!err.isEmpty()) guitools::message(err, this);
-            UpdateBasketGUI();
+            updateBasketGUI();
             if (bDrawEmpty) switchToBasket(0);
         }
     }
@@ -2107,7 +2041,7 @@ void AGraphWindow::BasketCustomContextMenuRequested(const QPoint &pos)
         if (!fileName.isEmpty())
         {
             Basket->appendRootHistGraphs(fileName);
-            UpdateBasketGUI();
+            updateBasketGUI();
         }
     }
     else if (selectedItem == appendTxt)
@@ -2132,8 +2066,8 @@ void AGraphWindow::BasketCustomContextMenuRequested(const QPoint &pos)
     {
         Basket->remove(row);
         ActiveBasketItem = -1;
-        ClearCopyOfActiveBasketId();
-        UpdateBasketGUI();
+        clearCopyOfActiveBasketId();
+        updateBasketGUI();
     }
     else if (selectedItem == rename)
     {
@@ -2144,18 +2078,18 @@ void AGraphWindow::BasketCustomContextMenuRequested(const QPoint &pos)
                                              Basket->getName(row), &ok);
         if (ok && !text.isEmpty())
             Basket->rename(row, text.simplified());
-        UpdateBasketGUI();
+        updateBasketGUI();
     }
     else if (selectedItem == onTop)
-        Basket_DrawOnTop(row);
+        basket_DrawOnTop(row);
 }
 
-void AGraphWindow::BasketReorderRequested(const QVector<int> &indexes, int toRow)
+void AGraphWindow::onBasketReorderRequested(const QVector<int> &indexes, int toRow)
 {
     Basket->reorder(indexes, toRow);
     ActiveBasketItem = -1;
-    ClearCopyOfActiveBasketId();
-    UpdateBasketGUI();
+    clearCopyOfActiveBasketId();
+    updateBasketGUI();
 }
 
 void AGraphWindow::contextMenuForBasketMultipleSelection(const QPoint & pos)
@@ -2193,15 +2127,15 @@ void AGraphWindow::removeAllSelectedBasketItems()
         Basket->remove(indexes.at(i));
 
     ActiveBasketItem = -1;
-    ClearCopyOfActiveBasketId();
-    UpdateBasketGUI();
+    clearCopyOfActiveBasketId();
+    updateBasketGUI();
 }
 
 void AGraphWindow::onExternalBasketChange()
 {
     ActiveBasketItem = -1;
-    ClearCopyOfActiveBasketId();
-    UpdateBasketGUI();
+    clearCopyOfActiveBasketId();
+    updateBasketGUI();
 }
 
 void AGraphWindow::createMGDesigner()
@@ -2252,8 +2186,8 @@ void AGraphWindow::clearBasket()
 {
     Basket->clear();
     ActiveBasketItem = -1;
-    ClearCopyOfActiveBasketId();
-    UpdateBasketGUI();
+    clearCopyOfActiveBasketId();
+    updateBasketGUI();
 }
 
 void AGraphWindow::on_actionBasic_ROOT_triggered()
@@ -2298,13 +2232,13 @@ void AGraphWindow::on_actionInverted_dark_body_triggered()
     AGraphWindow::redrawAll();
 }
 
-void AGraphWindow::Basket_DrawOnTop(int row)
+void AGraphWindow::basket_DrawOnTop(int row)
 {
     if (row == -1) return;
     if (DrawObjects.isEmpty()) return;
 
-    MakeCopyOfDrawObjects();
-    MakeCopyOfActiveBasketId();
+    makeCopyOfDrawObjects();
+    makeCopyOfActiveBasketId();
 
     //qDebug() << "Basket item"<<row<<"was requested to be drawn on top of the current draw";
     const QVector<ADrawObject> DeepCopyBasketDrawObjects = Basket->getCopy(row);
@@ -2328,7 +2262,7 @@ void AGraphWindow::Basket_DrawOnTop(int row)
     }
 
     ActiveBasketItem = -1;
-    UpdateBasketGUI();
+    updateBasketGUI();
 
     redrawAll();
 }
@@ -2422,7 +2356,7 @@ void AGraphWindow::on_cbShowFitParameters_toggled(bool checked)
 TLegend * AGraphWindow::addLegend()
 {
     TLegend * leg = RasterWindow->fCanvas->BuildLegend();
-    RegisterTObject(leg);
+    registerTObject(leg);
     DrawObjects.append(ADrawObject(leg, "same"));
     redrawAll();
     return leg;
@@ -2537,7 +2471,7 @@ void AGraphWindow::on_pbBackToLast_clicked()
     PreviousActiveBasketItem = -1;
 
     redrawAll();
-    UpdateBasketGUI();
+    updateBasketGUI();
 }
 
 void AGraphWindow::on_actionToggle_Explorer_Basket_toggled(bool arg1)
@@ -2563,15 +2497,15 @@ void AGraphWindow::switchToBasket(int index)
     }
 
     ActiveBasketItem = index;
-    ClearCopyOfActiveBasketId();
-    ClearCopyOfDrawObjects();
-    UpdateBasketGUI();
-    HighlightUpdateBasketButton(false);
+    clearCopyOfActiveBasketId();
+    clearCopyOfDrawObjects();
+    updateBasketGUI();
+    highlightUpdateBasketButton(false);
 }
 
 void AGraphWindow::on_pbUpdateInBasket_clicked()
 {
-    HighlightUpdateBasketButton(false);
+    highlightUpdateBasketButton(false);
 
     if (ActiveBasketItem < 0 || ActiveBasketItem >= Basket->size()) return;
     updateLogScaleFlags(DrawObjects);
@@ -2683,13 +2617,13 @@ void AGraphWindow::applyTemplate(bool bAll)
                 ui->ledZto->  setText( QString::number(XYZ_ranges[2].second, 'g', 4) );
             }
         }
-        Reshape();
+        reshape();
     }
 
-    HighlightUpdateBasketButton(true);
+    highlightUpdateBasketButton(true);
 }
 
-void AGraphWindow::HighlightUpdateBasketButton(bool flag)
+void AGraphWindow::highlightUpdateBasketButton(bool flag)
 {
     QIcon icon;
     if (flag && ui->pbUpdateInBasket->isEnabled())
@@ -2697,18 +2631,18 @@ void AGraphWindow::HighlightUpdateBasketButton(bool flag)
     ui->pbUpdateInBasket->setIcon(icon);
 }
 
-QString AGraphWindow::UseProjectionTool(const QString & option)
+QString AGraphWindow::useProjectionTool(const QString & option)
 {
     if (DrawObjects.isEmpty()) return "Graph window is empty";
     TH2 * hist = dynamic_cast<TH2*>(DrawObjects[0].Pointer);
     if (!hist) return "Currently drawn object has to be TH2";
 
     Explorer->customProjection(DrawObjects[0]);
-    ShowProjection(option);
+    showProjection(option);
     return "";
 }
 
-void AGraphWindow::ConfigureProjectionTool(double x0, double y0, double dx, double dy, double angle)
+void AGraphWindow::configureProjectionTool(double x0, double y0, double dx, double dy, double angle)
 {
     ui->ledXcenter->setText(QString::number(x0));
     ui->ledYcenter->setText(QString::number(y0));
@@ -2790,7 +2724,7 @@ void AGraphWindow::addObjectToBasket(TObject * obj, QString options, QString nam
     updateLogScaleFlags(tmp);
     Basket->add(name.simplified(), tmp);
     ui->actionToggle_Explorer_Basket->setChecked(true);
-    UpdateBasketGUI();
+    updateBasketGUI();
 }
 
 #include "aviewer3dsettings.h"

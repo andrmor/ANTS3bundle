@@ -55,47 +55,6 @@ public slots:
 
     void addObjectToBasket(TObject * obj, QString options, QString name); // called from viewer3D. Maybe drop?
 
-private:
-    // Canvas control
-    void showAndFocus();
-    void setAsActiveRootWindow();
-    void clearRootCanvas();
-    void updateRootCanvas();
-    void setModifiedFlag();
-
-    // Canvas size in actual coordinates of plotted data
-    double getCanvasMinX();
-    double getCanvasMaxX();
-    double getCanvasMinY();
-    double getCanvasMaxY();
-
-
-
-
-    void OnBusyOn();
-    void OnBusyOff();
-
-    void EnforceOverlayOff();
-    void RegisterTObject(TObject* obj);
-
-    void TriggerGlobalBusy(bool flag); // !!!*** not implemented!
-
-    void MakeCopyOfDrawObjects(); // !!!*** infamous "gcc optimizer fix:"
-    void ClearCopyOfDrawObjects();
-
-    void ClearBasketActiveId();
-    void MakeCopyOfActiveBasketId();
-    void RestoreBasketActiveId();
-    void ClearCopyOfActiveBasketId();
-    void ShowProjectionTool();
-    TLegend * addLegend();
-    void HighlightUpdateBasketButton(bool flag);
-
-    QString UseProjectionTool(const QString & option);
-    void    ConfigureProjectionTool(double x0, double y0, double dx, double dy, double angle);
-
-    void doRedrawOnUpdateMargins();
-
 public:
     TObject * getMainPlottedObject();        // direct access in script interface
     void      clearDrawObjects_OnShutDown(); // prevents crash on shutdown
@@ -116,7 +75,32 @@ protected:
     void closeEvent(QCloseEvent * event);
 
 private slots:
-    // custom
+    // range control
+    void updateControls(); //updates visualisation of the current master graph parameters   !!!*** need refactor and improvement for hist objects
+    void reshape();
+    // basket-related
+    void onBasketCustomContextMenuRequested(const QPoint & pos);
+    void onBasketItemDoubleClicked(QListWidgetItem * item);
+    void onBasketReorderRequested(const QVector<int> & indexes, int toRow);
+    void onBasketDeleteShortcutActivated();
+    // script related
+    void onScriptDrawRequest(TObject * obj, QString options, bool fFocus);      // these two work together (QueuedConnection to enable calls from another thread)
+    void processScriptDrawRequest(TObject * obj, QString options, bool fFocus); // these two work together (QueuedConnection to enable calls from another thread)
+    // !!!*** next needs serious refactor! Old comment: similarly to two above, modify draw tree from script
+    bool onScriptDrawTree(TTree * tree, QString what, QString cond, QString how,
+                          QVariantList binsAndRanges = QVariantList(), QVariantList markersAndLines = QVariantList(), QString * result = nullptr);
+    // selection box and ruler
+    void selBoxGeometryChanged();
+    void selBoxResetGeometry(double halfW, double halfH);
+    void selBoxControlsUpdated();
+    void rulerGeometryChanged();
+    void rulerControlsP1Updated();
+    void rulerControlsP2Updated();
+    void rulerControlsLenAngleUpdated();
+    // misc
+    void onCursorPositionReceived(double x, double y, bool bOn);
+    void onRequestMakeCopyViewer3D(AViewer3D * ptr);
+    void onExternalBasketChange();
 
     // on user interaction with GUI elements
     void on_pbAddLegend_clicked();
@@ -145,6 +129,7 @@ private slots:
     void on_pbYprojection_clicked();
     void on_pbDensityDistribution_clicked();
     void on_pbToolboxDragMode_2_clicked();
+    void on_pbZoom_clicked();
     void on_pbUnzoom_clicked();
     void on_ledRulerDX_editingFinished();
     void on_ledRulerDY_editingFinished();
@@ -192,32 +177,6 @@ private slots:
     void on_actionSet_histogram_stat_box_content_triggered();
     void on_actionSet_palette_triggered();
 
-
-
-
-    void UpdateControls(); //updates visualisation of the current master graph parameters   !!!***
-    void onScriptDrawRequest(TObject * obj, QString options, bool fFocus);
-    void processScriptDrawRequest(TObject * obj, QString options, bool fFocus);
-    // !!!*** TODO: similarly to two above, modify draw tree from script
-    bool onScriptDrawTree(TTree * tree, QString what, QString cond, QString how,
-                          QVariantList binsAndRanges = QVariantList(), QVariantList markersAndLines = QVariantList(), QString * result = nullptr);
-    void Reshape();
-    void BasketCustomContextMenuRequested(const QPoint &pos);
-    void onBasketItemDoubleClicked(QListWidgetItem *item);
-    void BasketReorderRequested(const QVector<int> & indexes, int toRow);
-    void deletePressed();
-    void onCursorPositionReceived(double x, double y, bool bOn);
-    void selBoxGeometryChanged();
-    void selBoxResetGeometry(double halfW, double halfH);
-    void selBoxControlsUpdated();
-    void rulerGeometryChanged();
-    void rulerControlsP1Updated();
-    void rulerControlsP2Updated();
-    void rulerControlsLenAngleUpdated();
-    void on_pbZoom_clicked();  // !!!*** extraction refactor!
-    void onRequestMakeCopyViewer3D(AViewer3D * ptr);
-    void onExternalBasketChange();
-
 private:
     Ui::AGraphWindow       * ui = nullptr;
 
@@ -233,9 +192,9 @@ private:
     QVector<ADrawObject>     DrawObjects;  //always local objects -> can have a copy from the Basket
     QVector<ADrawObject>     PreviousDrawObjects; //last draw made from outside of the graph window
 
-    QVector<TObject*>       tmpTObjects;
+    std::vector<TObject*>    RegisteredTObjects;
 
-    ADrawTemplate           DrawTemplate;
+    ADrawTemplate            DrawTemplate;
 
     int  ActiveBasketItem         = -1; //-1 - Basket is off; 0+ -> basket loaded, can be updated
     int  PreviousActiveBasketItem = -1; //-1 - Basket is off; 0+ -> basket loaded, can be updated
@@ -246,21 +205,27 @@ private:
 
     double xmin, xmax, ymin, ymax, zmin, zmax;
 
-    // !!!*** refactor to minimize the number of draw methods
-    void doDraw(TObject *obj, const char *opt, bool DoUpdate); //actual drawing, does not have window focussing - done to avoid refocussing issues leading to bugs
-    void Draw(TObject* obj, const char* options = "", bool DoUpdate = true, bool TransferOwnership = true);  //registration should be skipped only for scripts!
-    void DrawWithoutFocus(TObject* obj, const char* options = "", bool DoUpdate = true, bool TransferOwnership = true);  //registration should be skipped only for scripts!
+private:
+    // Canvas control
+    void showAndFocus();
+    void setAsActiveRootWindow();
+    void clearRootCanvas();
+    void updateRootCanvas();
+    void setModifiedFlag();
 
-    void clearTmpTObjects();   //enable qDebugs inside for diagnostics of cleanup!
-    void changeOverlayMode(bool bOn);
-    void switchToBasket(int index);
-    void UpdateBasketGUI();
-    void Basket_DrawOnTop(int row);
-    void ShowProjection(QString type);
-    void UpdateGuiControlsForMainObject(const QString &ClassName, const QString & options);
-    void contextMenuForBasketMultipleSelection(const QPoint &pos);
-    void removeAllSelectedBasketItems();
+    // Canvas size in actual coordinates of plotted data
+    double getCanvasMinX();
+    double getCanvasMaxX();
+    double getCanvasMinY();
+    double getCanvasMaxY();
+
+    TLegend * addLegend();
+    void registerTObject(TObject * obj);
+    void clearRegisteredTObjects();
     void requestMultidraw();
+    void doRedrawOnUpdateMargins();
+    void updateGuiControlsForMainObject(const QString & className, const QString & options);
+    void showProjection(QString type);
     void requestMergeHistograms();
     void applyTemplate(bool bAll);
     void updateSecondaryAxis(TGaxis *gaxis, const char *opt);
@@ -271,6 +236,37 @@ private:
     void createMGDesigner();
     void connectScriptUnitDrawRequests(const std::vector<AScriptInterface *> interfaces);
     void updateMargins(ADrawObject * obj = nullptr);
+
+    void makeCopyOfDrawObjects(); // !!!*** infamous "gcc optimizer fix:"
+    void clearCopyOfDrawObjects();
+
+    void updateBasketGUI();
+    void switchToBasket(int index);
+    void basket_DrawOnTop(int row);
+    void highlightUpdateBasketButton(bool flag);
+    void contextMenuForBasketMultipleSelection(const QPoint & pos);
+    void removeAllSelectedBasketItems();
+    void clearBasketActiveId();
+    void makeCopyOfActiveBasketId();
+    void restoreBasketActiveId();
+    void clearCopyOfActiveBasketId();
+
+    QString useProjectionTool(const QString & option);
+    void    configureProjectionTool(double x0, double y0, double dx, double dy, double angle);
+    void changeOverlayMode(bool bOn);
+    void enforceOverlayOff();
+    void showProjectionTool();
+
+
+    // !!!*** not implemented
+    void OnBusyOn();
+    void OnBusyOff();
+    void TriggerGlobalBusy(bool flag);
+
+    // !!!*** refactor to minimize the number of draw methods
+    void doDraw(TObject *obj, const char *opt, bool DoUpdate); //actual drawing, does not have window focussing - done to avoid refocussing issues leading to bugs
+    void Draw(TObject* obj, const char* options = "", bool DoUpdate = true, bool TransferOwnership = true);  //registration should be skipped only for scripts!
+    void DrawWithoutFocus(TObject* obj, const char* options = "", bool DoUpdate = true, bool TransferOwnership = true);  //registration should be skipped only for scripts!
 
 signals:
     void requestLocalDrawObject(TObject *obj, QString options, bool fFocus);

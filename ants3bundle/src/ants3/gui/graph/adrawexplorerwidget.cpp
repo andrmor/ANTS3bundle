@@ -343,7 +343,7 @@ void ADrawExplorerWidget::activateCustomGuiForItem(int index)
 void ADrawExplorerWidget::addToDrawObjectsAndRegister(TObject * pointer, const QString & options)
 {
     DrawObjects << ADrawObject(pointer, options);
-    GraphWindow.RegisterTObject(pointer);
+    GraphWindow.registerTObject(pointer);
 }
 
 void ADrawExplorerWidget::rename(ADrawObject & obj)
@@ -356,9 +356,9 @@ void ADrawExplorerWidget::rename(ADrawObject & obj)
     TNamed * tobj = dynamic_cast<TNamed*>(obj.Pointer);
     if (tobj) tobj->SetTitle(text.toLatin1().data());
 
-    GraphWindow.ClearCopyOfDrawObjects();
+    GraphWindow.clearCopyOfDrawObjects();
     GraphWindow.redrawAll();
-    GraphWindow.HighlightUpdateBasketButton(true);
+    GraphWindow.highlightUpdateBasketButton(true);
     updateGui();
 }
 
@@ -366,14 +366,14 @@ void ADrawExplorerWidget::toggleEnable(ADrawObject & obj)
 {
     obj.bEnabled = !obj.bEnabled;
 
-    GraphWindow.ClearCopyOfDrawObjects();
+    GraphWindow.clearCopyOfDrawObjects();
     GraphWindow.redrawAll();
-    GraphWindow.HighlightUpdateBasketButton(true);
+    GraphWindow.highlightUpdateBasketButton(true);
 }
 
 void ADrawExplorerWidget::remove(int index)
 {
-    GraphWindow.MakeCopyOfDrawObjects();
+    GraphWindow.makeCopyOfDrawObjects();
 
     DrawObjects.remove(index); // do not delete - GraphWindow handles garbage collection!
 
@@ -384,7 +384,7 @@ void ADrawExplorerWidget::remove(int index)
     }
 
     GraphWindow.redrawAll();
-    GraphWindow.HighlightUpdateBasketButton(true);
+    GraphWindow.highlightUpdateBasketButton(true);
 }
 
 void ADrawExplorerWidget::setAttributes(int index)
@@ -400,7 +400,7 @@ void ADrawExplorerWidget::setAttributes(int index)
     D.exec();
 
     GraphWindow.redrawAll();
-    GraphWindow.HighlightUpdateBasketButton(true);
+    GraphWindow.highlightUpdateBasketButton(true);
 }
 
 void ADrawExplorerWidget::showPanel(ADrawObject &obj)
@@ -482,9 +482,9 @@ bool ADrawExplorerWidget::canScale(ADrawObject & obj)
 
 void ADrawExplorerWidget::doScale(ADrawObject &obj, double sf)
 {
-    GraphWindow.MakeCopyOfDrawObjects();
+    GraphWindow.makeCopyOfDrawObjects();
     TObject * tobj = obj.Pointer->Clone();
-    GraphWindow.RegisterTObject(tobj);
+    GraphWindow.registerTObject(tobj);
 
     const QString name = obj.Pointer->ClassName();
     if (name == "TGraph")
@@ -517,7 +517,7 @@ void ADrawExplorerWidget::doScale(ADrawObject &obj, double sf)
     obj.Pointer = tobj;
 
     GraphWindow.redrawAll();
-    GraphWindow.HighlightUpdateBasketButton(true);
+    GraphWindow.highlightUpdateBasketButton(true);
 }
 
 void ADrawExplorerWidget::scale(ADrawObject &obj)
@@ -682,9 +682,9 @@ void ADrawExplorerWidget::shift(ADrawObject &obj)
     const QPair<double, double> val = runShiftDialog(&GraphWindow);
     if (val.first == 1.0 && val.second == 0) return;
 
-    GraphWindow.MakeCopyOfDrawObjects();
+    GraphWindow.makeCopyOfDrawObjects();
     TObject * tobj = obj.Pointer->Clone();
-    GraphWindow.RegisterTObject(tobj);
+    GraphWindow.registerTObject(tobj);
 
     if (name.startsWith("TGraph"))
     {
@@ -717,7 +717,7 @@ void ADrawExplorerWidget::shift(ADrawObject &obj)
     obj.Pointer = tobj;
 
     GraphWindow.redrawAll();
-    GraphWindow.HighlightUpdateBasketButton(true);
+    GraphWindow.highlightUpdateBasketButton(true);
 }
 
 void ADrawExplorerWidget::drawIntegral(ADrawObject &obj)
@@ -778,9 +778,9 @@ void ADrawExplorerWidget::drawIntegral(ADrawObject &obj)
         return;
     }
 
-    GraphWindow.MakeCopyOfDrawObjects();
-    GraphWindow.MakeCopyOfActiveBasketId();
-    GraphWindow.ClearBasketActiveId();
+    GraphWindow.makeCopyOfDrawObjects();
+    GraphWindow.makeCopyOfActiveBasketId();
+    GraphWindow.clearBasketActiveId();
 
     DrawObjects.clear();
     if (hi) addToDrawObjectsAndRegister(hi, "hist");
@@ -942,7 +942,7 @@ void ADrawExplorerWidget::fwhm(int index)
                                                                    //  S  * exp( -0.5/s2 * (x   -m )^2) +  A *x +  B
     TF1 * f = new TF1("myfunc", GauseWithBase, startX, stopX, 5);  //  [0] * exp(    [1]  * (x + [2])^2) + [3]*x + [4]
     f->SetTitle("Gauss fit");
-    GraphWindow.RegisterTObject(f);
+    GraphWindow.registerTObject(f);
 
     double initMid = startX + 0.5*(stopX - startX);
     //qDebug() << "Initial mid:"<<initMid;
@@ -983,8 +983,8 @@ void ADrawExplorerWidget::fwhm(int index)
         return;
     }
 
-    GraphWindow.MakeCopyOfDrawObjects();
-    GraphWindow.MakeCopyOfActiveBasketId();
+    GraphWindow.makeCopyOfDrawObjects();
+    GraphWindow.makeCopyOfActiveBasketId();
 
     double mid = -f->GetParameter(2);
     double sigma = TMath::Sqrt(-0.5/f->GetParameter(1));
@@ -997,7 +997,7 @@ void ADrawExplorerWidget::fwhm(int index)
     //draw base line
     TF1 *fl = new TF1("line", "pol1", startX, stopX);
     fl->SetTitle("Baseline");
-    GraphWindow.RegisterTObject(fl);
+    GraphWindow.registerTObject(fl);
     fl->SetLineStyle(2);
     fl->SetParameters(c/b, -a/b);
     DrawObjects.insert(index+2, ADrawObject(fl, "same"));
@@ -1012,11 +1012,11 @@ void ADrawExplorerWidget::fwhm(int index)
     QString text = QString("Mean: %0  Sigma: %1\nfwhm: %2  fwhm/mean: %3").arg(mid).arg(sigma).arg(FWHM).arg(rel);
     QStringList sl = text.split("\n");
     for (QString s : sl) la->AddText(s.toLatin1());
-    GraphWindow.RegisterTObject(la);
+    GraphWindow.registerTObject(la);
     DrawObjects.insert(index+3, ADrawObject(la, "same"));
 
     GraphWindow.redrawAll();
-    GraphWindow.HighlightUpdateBasketButton(true);
+    GraphWindow.highlightUpdateBasketButton(true);
 }
 
 void ADrawExplorerWidget::linFit(int index)
@@ -1063,7 +1063,7 @@ void ADrawExplorerWidget::linFit(int index)
 
     TF1 * f = new TF1("line", "pol1", startX, stopX);
     f->SetTitle("Linear fit");
-    GraphWindow.RegisterTObject(f);
+    GraphWindow.registerTObject(f);
 
     f->SetParameter(0, c/b);
     f->SetParameter(1, -a/b);
@@ -1075,8 +1075,8 @@ void ADrawExplorerWidget::linFit(int index)
         return;
     }
 
-    GraphWindow.MakeCopyOfDrawObjects();
-    GraphWindow.MakeCopyOfActiveBasketId();
+    GraphWindow.makeCopyOfDrawObjects();
+    GraphWindow.makeCopyOfActiveBasketId();
 
     double B = f->GetParameter(0);
     double A = f->GetParameter(1);
@@ -1092,11 +1092,11 @@ void ADrawExplorerWidget::linFit(int index)
     la->SetTextAlign( (0 + 1) * 10 + 2);
     QStringList sl = text.split("\n");
     for (QString s : sl) la->AddText(s.toLatin1());
-    GraphWindow.RegisterTObject(la);
+    GraphWindow.registerTObject(la);
     DrawObjects.insert(index+2, ADrawObject(la, "same"));
 
     GraphWindow.redrawAll();
-    GraphWindow.HighlightUpdateBasketButton(true);
+    GraphWindow.highlightUpdateBasketButton(true);
 }
 
 void ADrawExplorerWidget::expFit(int index)
@@ -1140,7 +1140,7 @@ void ADrawExplorerWidget::expFit(int index)
 
     TF1 * f = new TF1("expDecay", "[0]*exp(-(x-[2])/[1])", startX, stopX);
     f->SetTitle("Exp decay fit");
-    GraphWindow.RegisterTObject(f);
+    GraphWindow.registerTObject(f);
 
     f->SetParameter(0, startY);
     f->SetParameter(1, stopX - startX);
@@ -1154,8 +1154,8 @@ void ADrawExplorerWidget::expFit(int index)
         return;
     }
 
-    GraphWindow.MakeCopyOfDrawObjects();
-    GraphWindow.MakeCopyOfActiveBasketId();
+    GraphWindow.makeCopyOfDrawObjects();
+    GraphWindow.makeCopyOfActiveBasketId();
 
     double A = f->GetParameter(0);
     double T = f->GetParameter(1);
@@ -1170,11 +1170,11 @@ void ADrawExplorerWidget::expFit(int index)
     la->SetTextAlign( (0 + 1) * 10 + 2);
     QStringList sl = text.split("\n");
     for (QString s : sl) la->AddText(s.toLatin1());
-    GraphWindow.RegisterTObject(la);
+    GraphWindow.registerTObject(la);
     DrawObjects.insert(index+2, ADrawObject(la, "same"));
 
     GraphWindow.redrawAll();
-    GraphWindow.HighlightUpdateBasketButton(true);
+    GraphWindow.highlightUpdateBasketButton(true);
 }
 
 double gauss2D(double * x, double * par)
@@ -1225,7 +1225,7 @@ void ADrawExplorerWidget::gauss2Fit(int index)
     //TF2 * f = new TF2("myfunc", gauss2Dsymmetric, xmin, xmax, ymin, ymax, 4);
     TF2 * f = new TF2("myfunc", gauss2Dsymmetric, X1, X2, Y1, Y2, 4);
     f->SetTitle("2D Gauss fit");
-    GraphWindow.RegisterTObject(f);
+    GraphWindow.registerTObject(f);
 
     f->SetParameter(0, A0);
     f->SetParameter(1, xmean);
@@ -1241,8 +1241,8 @@ void ADrawExplorerWidget::gauss2Fit(int index)
         return;
     }
 
-    GraphWindow.MakeCopyOfDrawObjects();
-    GraphWindow.MakeCopyOfActiveBasketId();
+    GraphWindow.makeCopyOfDrawObjects();
+    GraphWindow.makeCopyOfActiveBasketId();
 
     double A     = f->GetParameter(0); double dA     = f->GetParError(0);
     double x0    = f->GetParameter(1); double dx0    = f->GetParError(1);
@@ -1260,11 +1260,11 @@ void ADrawExplorerWidget::gauss2Fit(int index)
     la->SetTextAlign( (0 + 1) * 10 + 2);
     QStringList sl = text.split("\n");
     for (const QString & s : sl) la->AddText(s.toLatin1());
-    GraphWindow.RegisterTObject(la);
+    GraphWindow.registerTObject(la);
     DrawObjects.insert(index+2, ADrawObject(la, "same"));
 
     GraphWindow.redrawAll();
-    GraphWindow.HighlightUpdateBasketButton(true);
+    GraphWindow.highlightUpdateBasketButton(true);
 }
 
 void ADrawExplorerWidget::interpolate(ADrawObject &obj)
@@ -1318,15 +1318,15 @@ void ADrawExplorerWidget::interpolate(ADrawObject &obj)
         QString Xtitle = hist->GetXaxis()->GetTitle();
         if (!Xtitle.isEmpty()) hi->GetXaxis()->SetTitle(Xtitle.toLocal8Bit().data());
 
-        GraphWindow.MakeCopyOfDrawObjects();
-        GraphWindow.MakeCopyOfActiveBasketId();
-        GraphWindow.ClearBasketActiveId();
+        GraphWindow.makeCopyOfDrawObjects();
+        GraphWindow.makeCopyOfActiveBasketId();
+        GraphWindow.clearBasketActiveId();
 
         DrawObjects.clear();
         addToDrawObjectsAndRegister(hi, "hist");
 
         GraphWindow.redrawAll();
-        GraphWindow.HighlightUpdateBasketButton(true);
+        GraphWindow.highlightUpdateBasketButton(true);
 
         d.accept();
     }
@@ -1395,9 +1395,9 @@ void ADrawExplorerWidget::median(ADrawObject &obj)
         for (int iThisBin = 1; iThisBin <= num; iThisBin++)
             hc->SetBinContent(iThisBin, Filtered.at(iThisBin-1));
 
-        GraphWindow.MakeCopyOfDrawObjects();
-        GraphWindow.MakeCopyOfActiveBasketId();
-        GraphWindow.ClearBasketActiveId();
+        GraphWindow.makeCopyOfDrawObjects();
+        GraphWindow.makeCopyOfActiveBasketId();
+        GraphWindow.clearBasketActiveId();
 
         DrawObjects.clear();
         addToDrawObjectsAndRegister(hc, "hist");
@@ -1430,9 +1430,9 @@ void ADrawExplorerWidget::projection(ADrawObject &obj, int axis)
 
         if (proj)
         {
-            GraphWindow.MakeCopyOfDrawObjects();
-            GraphWindow.MakeCopyOfActiveBasketId();
-            GraphWindow.ClearBasketActiveId();
+            GraphWindow.makeCopyOfDrawObjects();
+            GraphWindow.makeCopyOfActiveBasketId();
+            GraphWindow.clearBasketActiveId();
 
             DrawObjects.clear();
             addToDrawObjectsAndRegister((TH2D*)proj, "colz");
@@ -1457,9 +1457,9 @@ void ADrawExplorerWidget::projection(ADrawObject &obj, int axis)
 
     if (proj)
     {
-        GraphWindow.MakeCopyOfDrawObjects();
-        GraphWindow.MakeCopyOfActiveBasketId();
-        GraphWindow.ClearBasketActiveId();
+        GraphWindow.makeCopyOfDrawObjects();
+        GraphWindow.makeCopyOfActiveBasketId();
+        GraphWindow.clearBasketActiveId();
 
         DrawObjects.clear();
         addToDrawObjectsAndRegister(proj, "hist");
@@ -1478,7 +1478,7 @@ void ADrawExplorerWidget::customProjection(ADrawObject & obj)
     }
 
     objForCustomProjection = hist;  // tried safer approach  with clone, but got random error in ROOT on clone attempt
-    GraphWindow.ShowProjectionTool();
+    GraphWindow.showProjectionTool();
 }
 
 void ADrawExplorerWidget::splineFit(int index)
@@ -1564,7 +1564,7 @@ void ADrawExplorerWidget::editAxis(ADrawObject &obj, int axisIndex)
     D.exec();
 
     GraphWindow.redrawAll();
-    GraphWindow.HighlightUpdateBasketButton(true);
+    GraphWindow.highlightUpdateBasketButton(true);
 }
 
 #include "asetmarginsdialog.h"
@@ -1587,7 +1587,7 @@ void ADrawExplorerWidget::setCustomMargins(ADrawObject & obj)
 
     GraphWindow.updateMargins(&obj);
     GraphWindow.doRedrawOnUpdateMargins();
-    GraphWindow.HighlightUpdateBasketButton(true);
+    GraphWindow.highlightUpdateBasketButton(true);
 }
 
 const QString ADrawExplorerWidget::generateOptionForSecondaryAxis(int axisIndex, double u1, double u2)
@@ -1818,7 +1818,7 @@ void ADrawExplorerWidget::addAxis(int axisIndex)
     DrawObjects << ADrawObject(axis, opt);
 
     GraphWindow.redrawAll();
-    GraphWindow.HighlightUpdateBasketButton(true);
+    GraphWindow.highlightUpdateBasketButton(true);
 }
 
 void ADrawExplorerWidget::saveRoot(ADrawObject &obj)
@@ -1948,9 +1948,9 @@ void ADrawExplorerWidget::extract(ADrawObject &obj)
         return;
     }
 
-    GraphWindow.MakeCopyOfDrawObjects();
-    GraphWindow.MakeCopyOfActiveBasketId();
-    GraphWindow.ClearBasketActiveId();
+    GraphWindow.makeCopyOfDrawObjects();
+    GraphWindow.makeCopyOfActiveBasketId();
+    GraphWindow.clearBasketActiveId();
 
     ADrawObject thisObj = obj;
 
@@ -1960,7 +1960,7 @@ void ADrawExplorerWidget::extract(ADrawObject &obj)
         thisObj.Options += "A";
 
     thisObj.Pointer = thisObj.Pointer->Clone();
-    GraphWindow.RegisterTObject(thisObj.Pointer);
+    GraphWindow.registerTObject(thisObj.Pointer);
 
     DrawObjects.clear();
     DrawObjects << thisObj;
@@ -1975,10 +1975,10 @@ void ADrawExplorerWidget::editPave(ADrawObject &obj)
     TPaveText * Pave = dynamic_cast<TPaveText*>(obj.Pointer);
     if (Pave)
     {
-        GraphWindow.MakeCopyOfDrawObjects();
+        GraphWindow.makeCopyOfDrawObjects();
 
         TPaveText * PaveCopy = new TPaveText(*Pave);
-        GraphWindow.RegisterTObject(PaveCopy);
+        GraphWindow.registerTObject(PaveCopy);
         obj.Pointer = PaveCopy;
 
         ATextPaveDialog D(*PaveCopy);
@@ -1986,7 +1986,7 @@ void ADrawExplorerWidget::editPave(ADrawObject &obj)
 
         D.exec();
         GraphWindow.redrawAll();
-        GraphWindow.HighlightUpdateBasketButton(true);
+        GraphWindow.highlightUpdateBasketButton(true);
     }
 }
 
@@ -2077,7 +2077,7 @@ void ADrawExplorerWidget::editTGaxis(ADrawObject &obj)
 
         UpdateTAxis();
 
-        GraphWindow.HighlightUpdateBasketButton(true);
+        GraphWindow.highlightUpdateBasketButton(true);
     }
 }
 
@@ -2094,17 +2094,17 @@ void ADrawExplorerWidget::linDraw(int index)
     double startY = Raster.Line2DstartY; // extracted2DLineYstart();
     double stopY  = Raster.Line2DstopY;  // extracted2DLineYstop();
 
-    GraphWindow.MakeCopyOfDrawObjects();
-    GraphWindow.MakeCopyOfActiveBasketId();
+    GraphWindow.makeCopyOfDrawObjects();
+    GraphWindow.makeCopyOfActiveBasketId();
 
     //draw line
     TLine *ln = new TLine(startX, startY, stopX, stopY);
-    GraphWindow.RegisterTObject(ln);
+    GraphWindow.registerTObject(ln);
     ln->SetLineStyle(2);
     DrawObjects.insert(index+1, ADrawObject(ln, "same"));
 
     GraphWindow.redrawAll();
-    GraphWindow.HighlightUpdateBasketButton(true);
+    GraphWindow.highlightUpdateBasketButton(true);
 }
 
 void ADrawExplorerWidget::boxDraw(int index)
@@ -2119,18 +2119,18 @@ void ADrawExplorerWidget::boxDraw(int index)
     double startY = Raster.extractedY1;
     double stopY  = Raster.extractedY2;
 
-    GraphWindow.MakeCopyOfDrawObjects();
-    GraphWindow.MakeCopyOfActiveBasketId();
+    GraphWindow.makeCopyOfDrawObjects();
+    GraphWindow.makeCopyOfActiveBasketId();
 
     //draw box
     TBox *bx = new TBox(startX, startY, stopX, stopY);
-    GraphWindow.RegisterTObject(bx);
+    GraphWindow.registerTObject(bx);
     bx->SetLineStyle(2);
     bx->SetFillStyle(0);
     DrawObjects.insert(index+1, ADrawObject(bx, "same"));
 
     GraphWindow.redrawAll();
-    GraphWindow.HighlightUpdateBasketButton(true);
+    GraphWindow.highlightUpdateBasketButton(true);
 }
 
 #include "TEllipse.h"
@@ -2147,16 +2147,16 @@ void ADrawExplorerWidget::ellipseDraw(int index)
     double r2      = Raster.extracted2DEllipseR2;
     double theta   = Raster.extracted2DEllipseTheta;
 
-    GraphWindow.MakeCopyOfDrawObjects();
-    GraphWindow.MakeCopyOfActiveBasketId();
+    GraphWindow.makeCopyOfDrawObjects();
+    GraphWindow.makeCopyOfActiveBasketId();
 
     TEllipse *el = new TEllipse(centerX, centerY, r1, r2, 0, 360, theta);
-    GraphWindow.RegisterTObject(el);
+    GraphWindow.registerTObject(el);
     el->SetLineStyle(2);
     el->SetFillStyle(0);
     DrawObjects.insert(index+1, ADrawObject(el, "same"));
 
     GraphWindow.redrawAll();
-    GraphWindow.HighlightUpdateBasketButton(true);
+    GraphWindow.highlightUpdateBasketButton(true);
 }
 //kira <--
