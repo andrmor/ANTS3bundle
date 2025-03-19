@@ -8,6 +8,8 @@
 #include <QVector>
 #include <QVariantList>
 
+#include <vector>
+
 class RasterWindowGraphClass;
 class QGraphicsView;
 class AToolboxScene;
@@ -257,11 +259,9 @@ private:
     void enforceOverlayOff();
     void showProjectionTool();
 
-
-    // !!!*** not implemented
-    void OnBusyOn();
-    void OnBusyOff();
-    void TriggerGlobalBusy(bool flag);
+    void triggerGlobalBusy(bool flag); // currently disabled - do we need it? One option is trigger inside local busy
+    void onBusyOn();
+    void onBusyOff();
 
     // !!!*** refactor to minimize the number of draw methods
     void doDraw(TObject *obj, const char *opt, bool DoUpdate); //actual drawing, does not have window focussing - done to avoid refocussing issues leading to bugs

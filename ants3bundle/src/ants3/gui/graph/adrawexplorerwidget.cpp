@@ -570,7 +570,7 @@ void ADrawExplorerWidget::scaleCDR(ADrawObject &obj)
 {
     if (!canScale(obj)) return;
 
-    GraphWindow.TriggerGlobalBusy(true);
+    GraphWindow.triggerGlobalBusy(true);
 
     Raster.Extract2DLine();
     if (!Raster.waitForExtractionFinished()) return; //cancel
@@ -921,7 +921,7 @@ void ADrawExplorerWidget::fwhm(int index)
         return;
     }
 
-    GraphWindow.TriggerGlobalBusy(true);
+    GraphWindow.triggerGlobalBusy(true);
 
     Raster.Extract2DLine();
     if (!Raster.waitForExtractionFinished()) return; //cancel
@@ -1043,7 +1043,7 @@ void ADrawExplorerWidget::linFit(int index)
         return;
     }
 
-    GraphWindow.TriggerGlobalBusy(true);
+    GraphWindow.triggerGlobalBusy(true);
 
     Raster.Extract2DLine();
     if (!Raster.waitForExtractionFinished()) return; //cancel
@@ -1123,7 +1123,7 @@ void ADrawExplorerWidget::expFit(int index)
         return;
     }
 
-    GraphWindow.TriggerGlobalBusy(true);
+    GraphWindow.triggerGlobalBusy(true);
 
     Raster.Extract2DLine();
     if (!Raster.waitForExtractionFinished()) return; //cancel
@@ -1198,7 +1198,7 @@ void ADrawExplorerWidget::gauss2Fit(int index)
         return;
     }
 
-    GraphWindow.TriggerGlobalBusy(true);
+    GraphWindow.triggerGlobalBusy(true);
 
     Raster.Extract2DBox();
     if (!Raster.waitForExtractionFinished()) return; //cancel
@@ -2084,7 +2084,7 @@ void ADrawExplorerWidget::editTGaxis(ADrawObject &obj)
 //kira-->
 void ADrawExplorerWidget::linDraw(int index)
 {
-    GraphWindow.TriggerGlobalBusy(true);
+    GraphWindow.triggerGlobalBusy(true);
 
     Raster.Extract2DLine();
     if (!Raster.waitForExtractionFinished()) return; //cancel
@@ -2109,7 +2109,7 @@ void ADrawExplorerWidget::linDraw(int index)
 
 void ADrawExplorerWidget::boxDraw(int index)
 {
-    GraphWindow.TriggerGlobalBusy(true);
+    GraphWindow.triggerGlobalBusy(true);
 
     Raster.Extract2DBox();
     if (!Raster.waitForExtractionFinished()) return; //cancel
@@ -2136,7 +2136,7 @@ void ADrawExplorerWidget::boxDraw(int index)
 #include "TEllipse.h"
 void ADrawExplorerWidget::ellipseDraw(int index)
 {
-    GraphWindow.TriggerGlobalBusy(true);
+    GraphWindow.triggerGlobalBusy(true);
 
     Raster.Extract2DEllipse();
     if (!Raster.waitForExtractionFinished()) return; //cancel

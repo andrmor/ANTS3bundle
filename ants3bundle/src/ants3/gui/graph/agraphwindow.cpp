@@ -116,13 +116,8 @@ AGraphWindow::AGraphWindow(QWidget * parent) :
     dv->setNotation(QDoubleValidator::ScientificNotation);
     QList<QLineEdit*> list = this->findChildren<QLineEdit *>();
     foreach(QLineEdit *w, list) if (w->objectName().startsWith("led")) w->setValidator(dv);
-    //
-    //QIntValidator* iv  = new QIntValidator(this);
-    //iv->setBottom(1);
-    //ui->leiBinsX->setValidator(iv);
 
     updateMargins();
-
     setShowCursorPosition(false);
 
     QHBoxLayout* l = dynamic_cast<QHBoxLayout*>(centralWidget()->layout());
@@ -274,7 +269,6 @@ void AGraphWindow::setLogScale(bool X, bool Y)
 void AGraphWindow::clearDrawObjects_OnShutDown()
 {
     DrawObjects.clear();
-    // ui->pbHideBar->setFocus(); //to avoid triggering "on edit finished"
     RasterWindow->fCanvas->Clear();
 }
 
@@ -504,13 +498,13 @@ void AGraphWindow::on_cbShowCross_toggled(bool checked)
     if (!checked) redrawAll();
 }
 
-void AGraphWindow::OnBusyOn()
+void AGraphWindow::onBusyOn()
 {
     ui->fUIbox->setEnabled(false);
     ui->fBasket->setEnabled(false);
 }
 
-void AGraphWindow::OnBusyOff()
+void AGraphWindow::onBusyOff()
 {
     ui->fUIbox->setEnabled(true);
     ui->fBasket->setEnabled(true);
@@ -592,42 +586,36 @@ void AGraphWindow::on_cbLogY_toggled(bool checked)
 
 void AGraphWindow::on_ledXfrom_editingFinished()
 {
-    //ui->pbUnzoom->setFocus();
     if (xmin == ui->ledXfrom->text().toDouble()) return;
     AGraphWindow::reshape();
 }
 
 void AGraphWindow::on_ledXto_editingFinished()
 {
-    //ui->pbUnzoom->setFocus();
     if (xmax == ui->ledXto->text().toDouble()) return;
     AGraphWindow::reshape();
 }
 
 void AGraphWindow::on_ledYfrom_editingFinished()
 {
-    //ui->pbUnzoom->setFocus();
     if (ymin == ui->ledYfrom->text().toDouble()) return;
     AGraphWindow::reshape();
 }
 
 void AGraphWindow::on_ledYto_editingFinished()
 {
-    //ui->pbUnzoom->setFocus();
     if (ymax == ui->ledYto->text().toDouble()) return;
     AGraphWindow::reshape();
 }
 
 void AGraphWindow::on_ledZfrom_editingFinished()
 {
-    //ui->pbUnzoom->setFocus();
     if (zmin == ui->ledZfrom->text().toDouble()) return;
     AGraphWindow::reshape();
 }
 
 void AGraphWindow::on_ledZto_editingFinished()
 {
-    //ui->pbUnzoom->setFocus();
     if (zmax == ui->ledZto->text().toDouble()) return;
     AGraphWindow::reshape();
 }
@@ -635,7 +623,6 @@ void AGraphWindow::on_ledZto_editingFinished()
 TObject * AGraphWindow::getMainPlottedObject()
 {
     if (DrawObjects.isEmpty()) return nullptr;
-
     return DrawObjects.first().Pointer;
 }
 
@@ -762,7 +749,6 @@ void AGraphWindow::reshape()
 
 void AGraphWindow::redrawAll()
 {  
-    //qDebug()<<"---Redraw all triggered"
     enforceOverlayOff();
     updateBasketGUI();
 
@@ -890,7 +876,6 @@ void AGraphWindow::on_pbUnzoom_clicked()
 
 void AGraphWindow::on_leOptions_editingFinished()
 {   
-    //ui->pbUnzoom->setFocus();
     const QString newOptions = ui->leOptions->text();
 
     if (DrawObjects.isEmpty()) return;
@@ -908,7 +893,6 @@ void AGraphWindow::saveGraph(const QString & fileName)
 
 void AGraphWindow::updateControls()
 {
-//    if (MW->ShutDown) return;  !!!***
     if (DrawObjects.isEmpty()) return;
 
     //qDebug()<<"  GraphWindow: updating indication of ranges";
@@ -1080,30 +1064,9 @@ void AGraphWindow::updateControls()
     zmin = ui->ledZfrom->text().toDouble();
     zmax = ui->ledZto->text().toDouble();
 
-    //  if (fFirstTime)
-    //  {
-    //      xmin0 = xmin; xmax0 = xmax;
-    //      ymin0 = ymin; ymax0 = ymax;
-    //      zmin0 = zmin; zmax0 = zmax;
-    //      //qDebug() << "minmax0 XYZ"<<xmin0<<xmax0<<ymin0<<ymax0<<zmin0<<zmax0;
-    //  }
-
     TMPignore = false;
     //qDebug()<<"  GraphWindow: updating toolbar done";
 }
-
-/*
-void AGraphWindow::DrawStrOpt(TObject *obj, QString options, bool DoUpdate)
-{
-    if (!obj)
-    {
-        //TGraph is bad, it needs update to show the title axes :)
-        RedrawAll();
-        return;
-    }
-    Draw(obj, options.toLatin1().data(), DoUpdate, true); // changed to register - now hist/graph scripts make a copy to draw
-}
-*/
 
 void AGraphWindow::onDrawRequest(TObject * obj, QString options, bool transferOwnership, bool focusWindow)
 {
@@ -1166,9 +1129,8 @@ bool AGraphWindow::onScriptDrawTree(TTree * tree, QString what, QString cond, QS
     }
 
     QString howProc = how;
-    QVector<QString> vDisreguard;
-    vDisreguard << "func" << "same" << "pfc" << "plc" << "pmc" << "lego" << "col" << "candle" << "violin" << "cont" << "list" << "cyl" << "pol" << "scat";
-    for (const QString& s : qAsConst(vDisreguard)) howProc.remove(s, Qt::CaseInsensitive);
+    const std::vector<QString> vDisreguard = {"func", "same", "pfc", "plc", "pmc", "lego", "col", "candle", "violin", "cont", "list", "cyl", "pol", "scat"};
+    for (const QString & s : vDisreguard) howProc.remove(s, Qt::CaseInsensitive);
     bool bHistToGraph = ( num == 2 && ( howProc.contains("L") || howProc.contains("C") ) );
     qDebug() << "Graph instead of hist?"<< bHistToGraph;
 
@@ -1563,11 +1525,9 @@ void AGraphWindow::rulerControlsP2Updated()
 
 void AGraphWindow::rulerControlsLenAngleUpdated()
 {    
-    GraphicsRuler *ruler = scene->getRuler();
-    double l = ui->ledRulerLen->text().toDouble();
-    ruler->setAngle(ui->ledRulerAngle->text().toDouble()*M_PI/180);
-    //ruler->setLength(ui->ledRulerLen->text().toDouble()); //haha Raimundo
-    ruler->setLength(l);
+    GraphicsRuler * ruler = scene->getRuler();
+    ruler->setAngle(ui->ledRulerAngle->text().toDouble() * M_PI/180);
+    ruler->setLength(ui->ledRulerLen->text().toDouble());
 }
 
 void AGraphWindow::on_ledRulerTicksLength_editingFinished()
@@ -1579,16 +1539,14 @@ void AGraphWindow::on_pbRulerFGColor_clicked()
 {
     GraphicsRuler *ruler = scene->getRuler();
     QColor fg = QColorDialog::getColor(ruler->getForegroundColor(), this, "Choose the ruler's foreground color", QColorDialog::ShowAlphaChannel);
-    if(fg.isValid())
-        ruler->setForegroundColor(fg);
+    if (fg.isValid()) ruler->setForegroundColor(fg);
 }
 
 void AGraphWindow::on_pbRulerBGColor_clicked()
 {
     GraphicsRuler *ruler = scene->getRuler();
     QColor bg = QColorDialog::getColor(ruler->getBackgroundColor(), this, "Choose the ruler's background color", QColorDialog::ShowAlphaChannel);
-    if(bg.isValid())
-        ruler->setBackgroundColor(bg);
+    if (bg.isValid()) ruler->setBackgroundColor(bg);
 }
 
 void AGraphWindow::on_pbResetRuler_clicked()
@@ -1627,7 +1585,7 @@ void AGraphWindow::showProjection(QString type)
     if (!h) return;
 
     selBoxControlsUpdated();
-    TriggerGlobalBusy(true);
+    triggerGlobalBusy(true);
 
     const int nBinsX = h->GetXaxis()->GetNbins();
     const int nBinsY = h->GetYaxis()->GetNbins();
@@ -1687,7 +1645,7 @@ void AGraphWindow::showProjection(QString type)
         hProjection = new TH1D("DensDistr","Density distribution", ui->sProjBins->value(), 0, 0);
     else
     {
-        TriggerGlobalBusy(false);
+        triggerGlobalBusy(false);
         return;
     }
 
@@ -1746,7 +1704,7 @@ void AGraphWindow::showProjection(QString type)
     redrawAll();
 
     delete hWeights;
-    TriggerGlobalBusy(false);
+    triggerGlobalBusy(false);
 }
 
 void AGraphWindow::enforceOverlayOff()
@@ -1817,60 +1775,6 @@ void AGraphWindow::configureLegendBorder(int color, int style, int size)
     qDebug() << "Legend object was not found!";
 }
 
-/*
-void AGraphWindow::ExportTH2AsText(QString fileName)
-{
-    TObject *obj = DrawObjects.first().Pointer;
-    if (!obj) return;
-
-    QString cn = obj->ClassName();
-    if (!cn.startsWith("TH2")) return;
-    TH2* h = static_cast<TH2*>(obj);
-
-    //qDebug() << "Data size:"<< h->GetNbinsX() << "by" << h->GetNbinsY();
-    QVector<double> x, y, f;
-    for (int iY=1; iY<h->GetNbinsY()+1; iY++)
-        for (int iX=1; iX<h->GetNbinsX()+1; iX++)
-        {
-            double X = h->GetXaxis()->GetBinCenter(iX);
-            double Y = h->GetYaxis()->GetBinCenter(iY);
-            x.append(X);
-            y.append(Y);
-
-            int iBin = h->GetBin(iX, iY);
-            double F = h->GetBinContent(iBin);
-            f.append(F);
-            //qDebug() << iX<<iY<<iBin << "coords:" << X << Y << "val:" << F;
-        }
-
-    //SaveDoubleVectorsToFile(fileName, &x, &y, &f);
-    QString err = ftools::saveDoubleVectorsToFile({&x, &y, &f}, fileName);
-    if (!err.isEmpty()) guitools::message(err, this); // !!!*** was GraphWindow as parent
-}
-*/
-/*
-QVector<double> AGraphWindow::Get2DArray()
-{
-    TObject *obj = DrawObjects.first().Pointer;
-    if (!obj) return QVector<double>();
-
-    QString cn = obj->ClassName();
-    if (!cn.startsWith("TH2")) return QVector<double>();
-    TH2* h = static_cast<TH2*>(obj);
-
-    //qDebug() << "Data size:"<< h->GetNbinsX() << "by" << h->GetNbinsY();
-    QVector<double> arr;
-    for (int iY=1; iY<h->GetNbinsX()+1; iY++)
-        for (int iX=1; iX<h->GetNbinsX()+1; iX++)
-        {
-            int iBin = h->GetBin(iX, iY);
-            double F = h->GetBinContent(iBin);
-            arr << F;
-        }
-    return arr;
-}
-*/
-
 void AGraphWindow::updateBasketGUI()
 {
     lwBasket->clear();
@@ -1929,7 +1833,6 @@ void AGraphWindow::makeCopyOfDrawObjects()
 void AGraphWindow::clearCopyOfDrawObjects()
 {
     PreviousDrawObjects.clear();
-    //ui->pbBackToLast->setVisible(false);
 }
 
 void AGraphWindow::clearBasketActiveId()
@@ -1965,10 +1868,10 @@ void AGraphWindow::onBasketCustomContextMenuRequested(const QPoint &pos)
     int row = -1;
     QListWidgetItem* temp = lwBasket->itemAt(pos);
 
-    QAction* switchToThis = 0;
-    QAction* onTop = 0;
-    QAction* del = 0;
-    QAction* rename = 0;
+    QAction * switchToThis = nullptr;
+    QAction * onTop = nullptr;
+    QAction * del = nullptr;
+    QAction * rename = nullptr;
 
     if (temp)
     {
@@ -2110,7 +2013,7 @@ void AGraphWindow::contextMenuForBasketMultipleSelection(const QPoint & pos)
 
 void AGraphWindow::removeAllSelectedBasketItems()
 {
-    QList<QListWidgetItem*> selection = lwBasket->selectedItems();
+    const QList<QListWidgetItem*> selection = lwBasket->selectedItems();
     const int size = selection.size();
     if (size == 0) return;
 
@@ -2119,12 +2022,12 @@ void AGraphWindow::removeAllSelectedBasketItems()
         bConfirm = guitools::confirm(QString("Remove selected %1 item%2 from the basket?").arg(size).arg(size == 1 ? "" : "s"), this);
     if (!bConfirm) return;
 
-    QVector<int> indexes;
-    for (QListWidgetItem * item : qAsConst(selection))
-        indexes << lwBasket->row(item);
+    std::vector<int> indexes;
+    for (const QListWidgetItem * item : selection)
+        indexes.push_back(lwBasket->row(item));
     std::sort(indexes.begin(), indexes.end());
     for (int i = indexes.size() - 1; i >= 0; i--)
-        Basket->remove(indexes.at(i));
+        Basket->remove(indexes[i]);
 
     ActiveBasketItem = -1;
     clearCopyOfActiveBasketId();
@@ -2149,10 +2052,10 @@ void AGraphWindow::createMGDesigner()
 
 void AGraphWindow::requestMultidraw()
 {
-    QList<QListWidgetItem*> selection = lwBasket->selectedItems();
+    const QList<QListWidgetItem*> selection = lwBasket->selectedItems();
 
     QVector<int> indexes;
-    for (const QListWidgetItem * const item : qAsConst(selection))
+    for (const QListWidgetItem * const item : selection)
         indexes << lwBasket->row(item);
 
     if (!MGDesigner) createMGDesigner();
@@ -2163,23 +2066,20 @@ void AGraphWindow::requestMultidraw()
 
 void AGraphWindow::requestMergeHistograms()
 {
-    QList<QListWidgetItem*> selection = lwBasket->selectedItems();
+    const QList<QListWidgetItem*> selection = lwBasket->selectedItems();
 
     std::vector<int> indexes;
-    for (const QListWidgetItem * const item : qAsConst(selection))
+    for (const QListWidgetItem * const item : selection)
         indexes.push_back(lwBasket->row(item));
 
     if (indexes.size() < 2) return;
 
-    QString err = Basket->mergeHistograms(indexes);//std::vector<int> indexes;
+    QString err = Basket->mergeHistograms(indexes);
 
     if (!err.isEmpty())
         guitools::message(err, this);
     else
         switchToBasket(Basket->size() - 1);
-    //ActiveBasketItem = -1;
-    //ClearCopyOfActiveBasketId();
-    //UpdateBasketGUI();
 }
 
 void AGraphWindow::clearBasket()
@@ -2422,8 +2322,8 @@ void AGraphWindow::addTextPanel(QString text, bool bShowFrame, int alignLeftCent
     la->SetLineColor(1);
     la->SetTextAlign( (alignLeftCenterRight + 1) * 10 + 2);
 
-    QStringList sl = text.split("\n");
-    for (const QString & s : qAsConst(sl)) la->AddText(s.toLatin1());
+    const QStringList sl = text.split("\n");
+    for (const QString & s : sl) la->AddText(s.toLatin1());
 
     DrawWithoutFocus(la, "same", true, false); //it seems the Paveltext is owned by drawn object - registration causes crash if used with non-registered object (e.g. script)
 }
@@ -2433,7 +2333,7 @@ void AGraphWindow::setStatPanelVisible(bool flag)
     ui->cbShowLegend->setChecked(flag);
 }
 
-void AGraphWindow::TriggerGlobalBusy(bool flag)
+void AGraphWindow::triggerGlobalBusy(bool flag)
 {
 //    if (flag) MW->WindowNavigator->BusyOn();  !!!***
 //    else      MW->WindowNavigator->BusyOff(); !!!***
@@ -2478,7 +2378,7 @@ void AGraphWindow::on_actionToggle_Explorer_Basket_toggled(bool arg1)
 {
     int w = ui->fBasket->width();
     if (!arg1) w = -w;
-    this->resize(this->width()+w, this->height());
+    resize(this->width() + w, this->height());
 
     ui->fBasket->setVisible(arg1);
 }
@@ -2544,12 +2444,12 @@ void AGraphWindow::on_actionMake_square_triggered()
         CanvasWidth = RasterWindow->width();
         CanvasHeight = RasterWindow->height();
 
-        if (CanvasWidth > CanvasHeight) this->resize(this->width()-1, this->height());
-        else this->resize(this->width()+1, this->height());
+        if (CanvasWidth > CanvasHeight) resize(width() - 1, height());
+        else resize(width()+1, height());
         updateRootCanvas();
         qApp->processEvents();
 
-        if (width() < 200 || width()>2000) break;
+        if (width() < 200 || width() > 2000) break;
         protectionCounter++;
         if (protectionCounter > 100) break;
     }
@@ -2873,3 +2773,56 @@ void AGraphWindow::on_actionSet_palette_triggered()
     dia.exec();
 }
 
+/*
+void AGraphWindow::ExportTH2AsText(QString fileName)
+{
+    TObject *obj = DrawObjects.first().Pointer;
+    if (!obj) return;
+
+    QString cn = obj->ClassName();
+    if (!cn.startsWith("TH2")) return;
+    TH2* h = static_cast<TH2*>(obj);
+
+    //qDebug() << "Data size:"<< h->GetNbinsX() << "by" << h->GetNbinsY();
+    QVector<double> x, y, f;
+    for (int iY=1; iY<h->GetNbinsY()+1; iY++)
+        for (int iX=1; iX<h->GetNbinsX()+1; iX++)
+        {
+            double X = h->GetXaxis()->GetBinCenter(iX);
+            double Y = h->GetYaxis()->GetBinCenter(iY);
+            x.append(X);
+            y.append(Y);
+
+            int iBin = h->GetBin(iX, iY);
+            double F = h->GetBinContent(iBin);
+            f.append(F);
+            //qDebug() << iX<<iY<<iBin << "coords:" << X << Y << "val:" << F;
+        }
+
+    //SaveDoubleVectorsToFile(fileName, &x, &y, &f);
+    QString err = ftools::saveDoubleVectorsToFile({&x, &y, &f}, fileName);
+    if (!err.isEmpty()) guitools::message(err, this); // !!!*** was GraphWindow as parent
+}
+*/
+/*
+QVector<double> AGraphWindow::Get2DArray()
+{
+    TObject *obj = DrawObjects.first().Pointer;
+    if (!obj) return QVector<double>();
+
+    QString cn = obj->ClassName();
+    if (!cn.startsWith("TH2")) return QVector<double>();
+    TH2* h = static_cast<TH2*>(obj);
+
+    //qDebug() << "Data size:"<< h->GetNbinsX() << "by" << h->GetNbinsY();
+    QVector<double> arr;
+    for (int iY=1; iY<h->GetNbinsX()+1; iY++)
+        for (int iX=1; iX<h->GetNbinsX()+1; iX++)
+        {
+            int iBin = h->GetBin(iX, iY);
+            double F = h->GetBinContent(iBin);
+            arr << F;
+        }
+    return arr;
+}
+*/
