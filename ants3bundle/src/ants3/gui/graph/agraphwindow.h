@@ -40,7 +40,7 @@ public:
     explicit AGraphWindow(QWidget * parent);
     ~AGraphWindow();
 
-    void draw(TObject * obj, const char * options = "", bool update = true, bool transferOwnership = true);
+    void draw(TObject * obj, QString options, bool update = true, bool transferOwnership = true);
 
 public slots:
     void onDrawRequest(TObject * obj, QString options, bool transferOwnership, bool focusWindow);
@@ -225,7 +225,7 @@ private:
     double getCanvasMinY();
     double getCanvasMaxY();
 
-    void drawSingleObject(TObject * obj, const char * opt, bool update);
+    void drawSingleObject(TObject * obj, QString options, bool update);
     void registerTObject(TObject * obj);
     void clearRegisteredTObjects();
     void requestMultidraw();
@@ -234,7 +234,7 @@ private:
     void showProjection(QString type);
     void requestMergeHistograms();
     void applyTemplate(bool bAll);
-    void updateSecondaryAxis(TGaxis *gaxis, const char *opt);
+    void updateSecondaryAxis(TGaxis * gaxis, QString options);
     void showHintInStatus();
     void setShowCursorPosition(bool flag);
     void fixGraphFrame();

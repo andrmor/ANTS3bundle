@@ -322,19 +322,17 @@ double AGraphWindow::getMaxZ(bool *ok)
     return ui->ledZto->text().toDouble(ok);
 }
 
-void AGraphWindow::draw(TObject * obj, const char * options, bool update, bool transferOwnership)
+void AGraphWindow::draw(TObject * obj, QString options, bool update, bool transferOwnership)
 {
-    QString opt = options;
-
-    QString optNoSame = (opt.simplified()).remove("same", Qt::CaseInsensitive);
+    QString optNoSame = (options.simplified()).remove("same", Qt::CaseInsensitive);
     if (obj && optNoSame.isEmpty())
     {
         QString Type = obj->ClassName();
-        if (Type.startsWith("TH1") || Type == "TProfile") opt += "hist";
+        if (Type.startsWith("TH1") || Type == "TProfile") options += "hist";
         //else if (Type.startsWith("TH2")) opt += "colz";
     }
 
-    if (opt.contains("same", Qt::CaseInsensitive))
+    if (options.contains("same", Qt::CaseInsensitive))
     {
         makeCopyOfDrawObjects();
     }
@@ -349,11 +347,11 @@ void AGraphWindow::draw(TObject * obj, const char * options, bool update, bool t
 
         DrawObjects.clear();
     }
-    DrawObjects.append(ADrawObject(obj, opt));
+    DrawObjects.append(ADrawObject(obj, options));
 
     if (DrawObjects.size() == 1) updateMargins(&DrawObjects.front());
 
-    drawSingleObject(obj, opt.toLatin1().data(), update);
+    drawSingleObject(obj, options.toLatin1().data(), update);
 
     if (transferOwnership) registerTObject(obj);
 
@@ -394,7 +392,7 @@ void AGraphWindow::registerTObject(TObject * obj)
     RegisteredTObjects.push_back(obj);
 }
 
-void AGraphWindow::drawSingleObject(TObject * obj, const char * opt, bool update)
+void AGraphWindow::drawSingleObject(TObject * obj, QString options, bool update)
 {
     if (!obj)
     {
@@ -408,15 +406,14 @@ void AGraphWindow::drawSingleObject(TObject * obj, const char * opt, bool update
     if (h) h->SetStats(ui->cbShowLegend->isChecked());
 
     TGaxis * gaxis = dynamic_cast<TGaxis*>(obj);
-    if (gaxis) updateSecondaryAxis(gaxis, opt);
+    if (gaxis) updateSecondaryAxis(gaxis, options);
 
-    obj->Draw(opt);
+    obj->Draw(options.toLatin1().data());
     if (update) RasterWindow->fCanvas->Update();
 
     Explorer->updateGui();
     ui->pbBackToLast->setVisible( !PreviousDrawObjects.isEmpty() );
 
-    QString options(opt);
     if (!options.contains("same", Qt::CaseInsensitive))
         updateGuiControlsForMainObject(obj->ClassName(), options);
 
@@ -433,13 +430,12 @@ void AGraphWindow::fixGraphFrame()
     }
 }
 
-void AGraphWindow::updateSecondaryAxis(TGaxis * gaxis, const char *opt)
+void AGraphWindow::updateSecondaryAxis(TGaxis * gaxis, QString options)
 {
     updateRootCanvas();   // need to update canvas to request min/max info
 
-    QString Options(opt);
-    bool bRight = Options.contains("Y");
-    bool bTop   = Options.contains("X");
+    bool bRight = options.contains("Y");
+    bool bTop   = options.contains("X");
 
     if (bRight || bTop)
     {
@@ -454,7 +450,7 @@ void AGraphWindow::updateSecondaryAxis(TGaxis * gaxis, const char *opt)
         gaxis->SetY1(bRight ? yMin : yMax);
         gaxis->SetY2(yMax);
 
-        QStringList sl = Options.split(';', Qt::SkipEmptyParts);
+        QStringList sl = options.split(';', Qt::SkipEmptyParts);
         if (sl.size() > 3)
         {
             QString sA = sl.at(2);
@@ -1067,10 +1063,10 @@ void AGraphWindow::onDrawRequest(TObject * obj, QString options, bool transferOw
     if (focusWindow)
     {
         showAndFocus();
-        draw(obj, options.toLatin1().data(), true, transferOwnership);
+        draw(obj, options, true, transferOwnership);
     }
     else
-        draw(obj, options.toLatin1().data(), true, transferOwnership);
+        draw(obj, options, true, transferOwnership);
 
     lwBasket->clearFocus();
 }
@@ -1282,7 +1278,7 @@ bool AGraphWindow::onScriptDrawTree(TTree * tree, QString what, QString cond, QS
                 if ( !How.Contains("same", TString::kIgnoreCase) ) How = "A," + How;
                 setAsActiveRootWindow();
                 showAndFocus();
-                draw(clone, How);
+                draw(clone, How.Data());
             }
             else
             {
@@ -1322,7 +1318,7 @@ bool AGraphWindow::onScriptDrawTree(TTree * tree, QString what, QString cond, QS
         SetMarkerAttributes(static_cast<TAttMarker*>(h), vlML.at(0).toList());
         SetLineAttributes(static_cast<TAttLine*>(h), vlML.at(1).toList());
         showAndFocus();
-        draw(h, How, true, false);
+        draw(h, How.Data(), true, false);
     }
 
     if (result) *result = "";

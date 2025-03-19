@@ -163,6 +163,7 @@ void A3Global::loadConfig()
     //jstools::parseJson(json, "BinsY", BinsY);
     //jstools::parseJson(json, "BinsZ", BinsZ);
     jstools::parseJson(json, "HistStatOpt", HistStatOpt);
+    if (HistStatOpt == 0) HistStatOpt = 1110;
     gStyle->SetOptStat(HistStatOpt);
 
     QJsonObject jsMa;
