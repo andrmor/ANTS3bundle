@@ -20,9 +20,9 @@ void ABasketListWidget::dropEvent(QDropEvent * event)
     //qDebug() << "Basket: Drop detected";
 
     const QList<QListWidgetItem*> sel = selectedItems();
-    QVector<int> indexes;
+    std::vector<int> indexes;
     for (const QListWidgetItem * item : sel)
-        indexes << row(item);
+        indexes.push_back( row(item) );
     //qDebug() << "   Indexes to be moved:" << indexes;
 
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)

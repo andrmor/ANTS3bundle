@@ -36,7 +36,7 @@ public:
     QString             appendTxtAsGraphErrors(const QString & fileName);
     void                appendRootHistGraphs(const QString & fileName);
 
-    void                reorder(const QVector<int> &indexes, int to);
+    void                reorder(const std::vector<int> & indexes, int to);
 
     QString             mergeHistograms(const std::vector<int> & indexes);
 

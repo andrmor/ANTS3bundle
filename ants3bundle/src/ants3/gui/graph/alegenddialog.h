@@ -65,7 +65,7 @@ private slots:
     void onFocusChanged(QWidget * oldW, QWidget * newW );
     void onEntrySelectionChanged();
     void onEntryWasEdited(int index, const QString & label, bool line, bool mark, bool fill);
-    void onReorderEntriesRequested(const QVector<int> &indexes, int toRow);
+    void onReorderEntriesRequested(const std::vector<int> & indexes, int toRow);
     void on_twTree_itemDoubleClicked(QTreeWidgetItem *item, int column);
     void setNumberOfColumns();
     void onHelpTriggered();

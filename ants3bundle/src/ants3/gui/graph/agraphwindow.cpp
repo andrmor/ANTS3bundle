@@ -1982,7 +1982,7 @@ void AGraphWindow::onBasketCustomContextMenuRequested(const QPoint &pos)
         basket_DrawOnTop(row);
 }
 
-void AGraphWindow::onBasketReorderRequested(const QVector<int> &indexes, int toRow)
+void AGraphWindow::onBasketReorderRequested(const std::vector<int> & indexes, int toRow)
 {
     Basket->reorder(indexes, toRow);
     ActiveBasketItem = -1;
@@ -2049,9 +2049,9 @@ void AGraphWindow::requestMultidraw()
 {
     const QList<QListWidgetItem*> selection = lwBasket->selectedItems();
 
-    QVector<int> indexes;
+    std::vector<int> indexes;
     for (const QListWidgetItem * const item : selection)
-        indexes << lwBasket->row(item);
+        indexes.push_back( lwBasket->row(item) );
 
     if (!MGDesigner) createMGDesigner();
     MGDesigner->showNormal();

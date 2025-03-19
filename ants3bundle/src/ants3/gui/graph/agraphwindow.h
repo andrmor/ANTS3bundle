@@ -5,12 +5,9 @@
 #include "adrawobject.h"
 #include "adrawtemplate.h"
 
-#include <QVector>
 #include <QVariantList>
 
 #include <vector>
-
-// !!!*** replace QVector with std::vector, not trivial (many dependencies)
 
 class RasterWindowGraphClass;
 class QGraphicsView;
@@ -87,7 +84,7 @@ private slots:
     // basket-related
     void onBasketCustomContextMenuRequested(const QPoint & pos);
     void onBasketItemDoubleClicked(QListWidgetItem * item);
-    void onBasketReorderRequested(const QVector<int> & indexes, int toRow);
+    void onBasketReorderRequested(const std::vector<int> & indexes, int toRow);
     void onBasketDeleteShortcutActivated();
     // script related
     void onScriptDrawRequest(TObject * obj, QString options, bool fFocus);      // these two work together (QueuedConnection to enable calls from another thread)

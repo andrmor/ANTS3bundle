@@ -295,12 +295,12 @@ void ALegendDialog::onEntryWasEdited(int index, const QString &label, bool line,
     updateLegend();
 }
 
-void ALegendDialog::onReorderEntriesRequested(const QVector<int> &indexes, int toRow)
+void ALegendDialog::onReorderEntriesRequested(const std::vector<int> & indexes, int toRow)
 {
     QVector< ALegendEntryRecord > ItemsToMove;
     for (int i = 0; i < indexes.size(); i++)
     {
-        const int index = indexes.at(i);
+        const int index = indexes[i];
         ItemsToMove << CurrentModel.Model.at(index);
         CurrentModel.Model[index]._flag = true;       // mark to be deleted
     }

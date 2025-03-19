@@ -5,7 +5,8 @@
 #include "apadproperties.h"
 
 #include <QMainWindow>
-#include <QVector>
+
+#include <vector>
 
 class ABasketManager;
 class RasterWindowBaseClass;
@@ -29,7 +30,7 @@ public:
     ~AMultiGraphDesigner();
 
     void updateBasketGUI();  // triggered from GraphWindow::UpdatebasketGui()
-    void requestAutoconfigureAndDraw(const QVector<int> & basketItems);
+    void requestAutoconfigureAndDraw(const std::vector<int> & basketItems);
 
     void updateGUI();
 
@@ -76,8 +77,8 @@ private:
     RasterWindowBaseClass   * RasterWindow = nullptr;
     ABasketListWidget       * lwBasket     = nullptr;
 
-    QVector<APadProperties> Pads;
-    QVector<int> DrawOrder;
+    std::vector<APadProperties> Pads;
+    std::vector<int>            DrawOrder;
     bool bColdStart = true;
 
     void clearGraphs();

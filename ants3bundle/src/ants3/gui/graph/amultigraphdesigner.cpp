@@ -70,7 +70,7 @@ void AMultiGraphDesigner::updateBasketGUI()
     }
 }
 
-void AMultiGraphDesigner::requestAutoconfigureAndDraw(const QVector<int> & basketItems)
+void AMultiGraphDesigner::requestAutoconfigureAndDraw(const std::vector<int> & basketItems)
 {
     clearGraphs();
 
@@ -147,11 +147,12 @@ void AMultiGraphDesigner::addDraw(QListWidget * lw)
 {
     const int currentRow = lw->currentRow();
 
-    if (DrawOrder.contains(currentRow))
+    //if (DrawOrder.contains(currentRow))
+    if (std::find(DrawOrder.begin(), DrawOrder.end(), currentRow) != DrawOrder.end())
         guitools::message("Already drawn!", lwBasket);
     else
     {
-        DrawOrder << currentRow;
+        DrawOrder.push_back(currentRow);
         on_pbRefactor_clicked();
     }
 }
@@ -354,7 +355,7 @@ void AMultiGraphDesigner::fillOutBasicLayout(int numX, int numY)
             TPad * ipad = new TPad(padName.toLatin1().data(), "", x1, y1, x2, y2);
             APadProperties apad(ipad);
 
-            Pads << apad;
+            Pads.push_back(apad);
         }
     }
 
@@ -398,7 +399,7 @@ QString AMultiGraphDesigner::readFromJson(const QJsonObject & json)
 
         APadProperties newPad;
         newPad.readFromJson(js);
-        Pads << newPad;
+        Pads.push_back(newPad);
     }
 
     int numX = 2, numY = 1;
@@ -409,7 +410,8 @@ QString AMultiGraphDesigner::readFromJson(const QJsonObject & json)
 
     QJsonArray arI;
     jstools::parseJson(json, "DrawOrder", arI);
-    for (int i = 0; i < arI.size(); i++) DrawOrder << arI.at(i).toInt();
+    for (int i = 0; i < arI.size(); i++)
+        DrawOrder.push_back( arI[i].toInt() );
 
     int w = 600, h = 400;
     jstools::parseJson(json, "WinWidth", w);
