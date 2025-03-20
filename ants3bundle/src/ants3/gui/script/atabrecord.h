@@ -4,7 +4,7 @@
 #include "escriptlanguage.h"
 
 #include <QObject>
-#include <QVector>
+#include <QList>
 
 class ATextEdit;
 class QCompleter;
@@ -33,7 +33,7 @@ public:
     QStringListModel  * CompletitionModel;
     AHighlighter      * Highlighter = nullptr;
 
-    QVector<int>        VisitedLines;   // !!!*** to std::vector
+    QList<int>          VisitedLines; // access from both sides
     int                 IndexVisitedLines = 0;
     int                 MaxLineNumbers    = 20;
 

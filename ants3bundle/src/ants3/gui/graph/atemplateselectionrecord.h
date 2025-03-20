@@ -2,7 +2,8 @@
 #define ATEMPLATESELECTIONRECORD_H
 
 #include <QString>
-#include <QVector>
+
+#include <vector>
 
 class QTreeWidgetItem;
 
@@ -14,7 +15,7 @@ public:
     bool bExpanded = false;
 
     ATemplateSelectionRecord * Parent = nullptr;
-    QVector<ATemplateSelectionRecord *> Children;
+    std::vector<ATemplateSelectionRecord*> Children;
 
     QTreeWidgetItem * Item = nullptr;
 

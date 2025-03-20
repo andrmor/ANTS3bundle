@@ -2,7 +2,8 @@
 #define AROOTCOLORSELECTORDIALOG_H
 
 #include <QDialog>
-#include <QVector>
+
+#include <vector>
 
 namespace Ui {
 class ARootColorSelectorDialog;
@@ -27,12 +28,12 @@ private slots:
     void on_sbColor_editingFinished();
 
 private:
-    Ui::ARootColorSelectorDialog *ui;
+    Ui::ARootColorSelectorDialog * ui = nullptr;
     int & Color;
-    int ColorOnStart = 1;
+    int   ColorOnStart = 1;
 
     int SquareSize = 30;
-    QVector<int> BaseColors;
+    std::vector<int> BaseColors;
 
 private:
     bool validateColor();
