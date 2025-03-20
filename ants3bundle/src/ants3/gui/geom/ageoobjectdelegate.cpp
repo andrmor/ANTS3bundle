@@ -2641,7 +2641,7 @@ void AGeoPconDelegate::readGui() const
             Section->str2rmin = edits[1];
             Section->str2rmax = edits[2];
 
-            pcon->Sections.append(*Section);
+            pcon->Sections.push_back(*Section);
         }
     }
     else qWarning() << "Read delegate: PolyCone shape not found!";
@@ -2731,7 +2731,7 @@ void AGeoPconDelegate::onAddAbove()
             if (!newSection.strZ.isEmpty()) newSection.strZ += "-10";
         }
         else newSection.strZ = QString("%1").arg((pcon->Sections[row].z + pcon->Sections[row-1].z)/2);
-        pcon->Sections.insert(row, newSection);
+        pcon->Sections.insert(pcon->Sections.begin() + row, newSection);
 
     }
     updateTableW(pcon);
@@ -2759,7 +2759,7 @@ void AGeoPconDelegate::onAddBellow()
         }
         else newSection.strZ = QString("%1").arg((pcon->Sections[row].z + pcon->Sections[row+1].z)/2);
         //qDebug() <<"new section" <<newSection.z;
-        pcon->Sections.insert(row+1, newSection);
+        pcon->Sections.insert(pcon->Sections.begin() + row + 1, newSection);
     }
     updateTableW(pcon);
 }

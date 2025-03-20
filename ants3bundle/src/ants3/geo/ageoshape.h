@@ -403,7 +403,7 @@ public:
 
     double phi, dphi;
     QString strPhi, strdPhi;
-    QVector<APolyCGsection> Sections;
+    std::vector<APolyCGsection> Sections;
 };
 
 class AGeoPgon : public AGeoPcon
