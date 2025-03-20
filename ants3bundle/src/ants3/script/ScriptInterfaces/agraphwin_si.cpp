@@ -199,6 +199,7 @@ QVariantList AGraphWin_SI::getAxisRanges()
 #include "TObject.h"
 #include "TGraphErrors.h"
 #include "TH1.h"
+#include "TH2.h"
 QVariantList AGraphWin_SI::getContent()
 {
     QVariantList vl;
@@ -235,6 +236,25 @@ QVariantList AGraphWin_SI::getContent()
                     el << x << y;
                     vl.push_back(el);
                 }
+            }
+        }
+        else if (ClName.startsWith("TH2"))
+        {
+            TH2 * h = dynamic_cast<TH2*>(obj);
+            if (h)
+            {
+                const int numX = h->GetNbinsX();
+                const int numY = h->GetNbinsY();
+                for (int iy = 1; iy <= numY; iy++)
+                    for (int ix = 1; ix <= numX; ix++)
+                    {
+                        double x = h->GetXaxis()->GetBinCenter(ix);
+                        double y = h->GetYaxis()->GetBinCenter(iy);
+                        double val = h->GetBinContent(ix, iy);
+                        QVariantList el;
+                        el << x << y << val;
+                        vl.push_back(el);
+                    }
             }
         }
     }
