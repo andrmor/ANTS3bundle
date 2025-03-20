@@ -4,9 +4,9 @@
 #include "aguiwindow.h"
 #include "ageowriter.h"
 
-#include <QVector>
+#include <vector>
 
-#include "TMathBase.h"
+//#include "TMathBase.h"
 
 class AGeometryHub;
 class ARasterWindow;
@@ -46,8 +46,8 @@ public:
     void PostDraw();
     void Zoom(bool update = false);
 
-    void AddLineToGeometry(QPointF &start, QPointF &end, Color_t color = 1, int width = 1);
-    void AddPolygonfToGeometry(QPolygonF &poly, Color_t color, int width);
+    void AddLineToGeometry(QPointF & start, QPointF & end, short color = 1, int width = 1); // not used
+    void AddPolygonfToGeometry(QPolygonF &poly, short color, int width); // not used
 
     void onBusyOn();
     void onBusyOff();

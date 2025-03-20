@@ -619,7 +619,7 @@ void AGeometryWindow::AddLineToGeometry(QPointF& start, QPointF& end, Color_t co
     track->AddPoint(end.x(), end.y(), 0, 0);
 }
 
-void AGeometryWindow::AddPolygonfToGeometry(QPolygonF& poly, Color_t color, int width)
+void AGeometryWindow::AddPolygonfToGeometry(QPolygonF& poly, short color, int width)
 {
     if (poly.size()<2) return;
     for (int i=0; i<poly.size()-1; i++)
