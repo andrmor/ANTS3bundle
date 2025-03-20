@@ -609,12 +609,12 @@ bool AGeoObjectDelegate::updateObject(AGeoObject * obj) const  //react to false 
             return false;
         }
 
-        QVector<double> old;
-        old << obj->Position[0]    << obj->Position[1]    << obj->Position[2]
-            << obj->Orientation[0] << obj->Orientation[1] << obj->Orientation[2];
+        //std::vector<double> old =
+        //{ obj->Position[0],    obj->Position[1],    obj->Position[2],
+        //  obj->Orientation[0], obj->Orientation[1], obj->Orientation[2] };
 
-        QVector<QString> tempStrs(6);
-        QVector<double> tempDoubles(6);
+        std::vector<QString> tempStrs(6);
+        std::vector<double> tempDoubles(6);
         bool ok = true;
         ok = ok && processEditBox("X position", ledX,     tempDoubles[0],    tempStrs[0],    ParentWidget);
         ok = ok && processEditBox("Y position", ledY,     tempDoubles[1],    tempStrs[1],    ParentWidget);
@@ -624,9 +624,9 @@ bool AGeoObjectDelegate::updateObject(AGeoObject * obj) const  //react to false 
         if (ledPsi->isEnabled())   ok = ok && processEditBox("Psi orientation",   ledPsi,   tempDoubles[5], tempStrs[5], ParentWidget);
         if (!ok) return false;
 
-        std::vector<double> calDouble(6); calDouble = {-5.0, -5.0, -5.0, 1.0, 1.0, 1.0};
+        std::vector<double>  calDouble(6); calDouble = {-5.0, -5.0, -5.0, 1.0, 1.0, 1.0};
         std::vector<QString> calDoubleStr(6);
-        std::vector<int>    calInt(3); calInt = {10,10,10};
+        std::vector<int>     calInt(3); calInt = {10,10,10};
         std::vector<QString> calIntStr(3);
         int calEventDepoBins = 190; QString calEventDepoBinsStr;
         double calEventDepoFrom = 100.0; QString calEventDepoFromStr;
@@ -2679,7 +2679,7 @@ void AGeoPconDelegate::updateTableW(AGeoPcon * pcon)
     {
         const APolyCGsection & Section = pcon->Sections.at(iP);
 
-        QVector<AOneLineTextEdit*> le(3, nullptr);
+        std::vector<AOneLineTextEdit*> le(3, nullptr);
         for (int i = 0; i < 3; i++)
         {
             le[i] = new AOneLineTextEdit("", tab);
@@ -3161,7 +3161,7 @@ AGeoArrayDelegate::AGeoArrayDelegate(const QStringList &materials, QWidget *pare
 
     addLocalLayout(lVer);
 
-    QVector<AOneLineTextEdit*> l = {ledNumX, ledNumY, ledNumZ, ledStepX, ledStepY, ledStepZ, ledStartIndex};
+    std::vector<AOneLineTextEdit*> l = {ledNumX, ledNumY, ledNumZ, ledStepX, ledStepY, ledStepZ, ledStartIndex};
     for (AOneLineTextEdit * le : l)
     {
         //le->setMaximumWidth(75);
@@ -3293,7 +3293,7 @@ AGeoCircularArrayDelegate::AGeoCircularArrayDelegate(const QStringList &material
 
     addLocalLayout(lVer);
 
-    QVector<AOneLineTextEdit*> l = {ledNum, ledAngularStep, ledRadius, ledStartIndex};
+    std::vector<AOneLineTextEdit*> l = {ledNum, ledAngularStep, ledRadius, ledStartIndex};
     for (AOneLineTextEdit * le : l)
     {
         //le->setMaximumWidth(75);
@@ -3432,7 +3432,7 @@ AGeoHexagonalArrayDelegate::AGeoHexagonalArrayDelegate(const QStringList & mater
 
     addLocalLayout(lVer);
 
-    QVector<AOneLineTextEdit*> l = {ledStep, ledNumRings, ledNumX, ledNumY, ledStartIndex};
+    std::vector<AOneLineTextEdit*> l = {ledStep, ledNumRings, ledNumX, ledNumY, ledStartIndex};
     for (AOneLineTextEdit * le : l)
     {
         //le->setMaximumWidth(75);
