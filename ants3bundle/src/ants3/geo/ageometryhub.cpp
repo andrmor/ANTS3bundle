@@ -1455,7 +1455,7 @@ TVector3 euler(TMatrixD R)  // !!!*** need?
     return TVector3(thetaZ0, thetaX, thetaZ1);
 }
 
-void processNonComposite(QString Name, TGeoShape* Tshape, const TGeoMatrix* Matrix, QVector<AGeoObject*>& LogicalObjects)
+void processNonComposite(QString Name, TGeoShape * Tshape, const TGeoMatrix * Matrix, std::vector<AGeoObject*> & LogicalObjects)
 {
     //qDebug() << Name;
     TGeoTranslation trans(*Matrix);
@@ -1481,19 +1481,19 @@ void processNonComposite(QString Name, TGeoShape* Tshape, const TGeoMatrix* Matr
         qWarning() << "Not implemented: import data from"<<Tshape->ClassName()<< "to ANTS2 object";
         GeoObj->Shape = new AGeoBox();
     }
-    LogicalObjects << GeoObj;
+    LogicalObjects.push_back(GeoObj);
 }
 
-bool isLogicalObjectsHaveName(const QVector<AGeoObject*>& LogicalObjects, const QString name)
+bool isLogicalObjectsHaveName(const std::vector<AGeoObject*> & LogicalObjects, const QString name)
 {
-    for (AGeoObject* obj : LogicalObjects)
+    for (AGeoObject * obj : LogicalObjects)
         if (obj->Name == name) return true;
     return false;
 }
 
 #include "TGeoBoolNode.h"
 #include "TGeoCompositeShape.h"
-void processTCompositeShape(TGeoCompositeShape* Tshape, QVector<AGeoObject*>& LogicalObjects, QString& GenerationString )
+void processTCompositeShape(TGeoCompositeShape * Tshape, std::vector<AGeoObject*> & LogicalObjects, QString & GenerationString )
 {
     TGeoBoolNode* n = Tshape->GetBoolNode();
     if (!n)
@@ -1596,7 +1596,7 @@ void readGeoObjectTree(AGeoObject * obj, const TGeoNode * node)
             delete logicals->Type; logicals->Type = new ATypeCompositeContainerObject();
             obj->addObjectFirst(logicals);
 
-            QVector<AGeoObject*> AllLogicalObjects;
+            std::vector<AGeoObject*> AllLogicalObjects;
             QString GenerationString;
             processTCompositeShape(tshape, AllLogicalObjects, GenerationString);
             AGeoComposite* cshape = static_cast<AGeoComposite*>(Ashape);
