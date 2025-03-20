@@ -2,7 +2,6 @@
 #define AGEOSHAPE_H
 
 #include <QString>
-#include <QVector>
 #include <QList>
 #include <QStringList>
 
