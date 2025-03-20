@@ -13,7 +13,7 @@
 AGeoBaseDelegate::AGeoBaseDelegate(QWidget *ParentWidget) :
     ParentWidget(ParentWidget) {}
 
-bool AGeoBaseDelegate::isLeEmpty(const QVector<AOneLineTextEdit *> & v) const
+bool AGeoBaseDelegate::isLeEmpty(const std::vector<AOneLineTextEdit*> & v) const
 {
     for (AOneLineTextEdit * a : v)
         if (a->text().isEmpty()) return true;
