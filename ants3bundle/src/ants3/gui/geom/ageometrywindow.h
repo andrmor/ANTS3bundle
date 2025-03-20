@@ -55,7 +55,7 @@ public:
     void writeToJson(QJsonObject & json) const;
     void readFromJson(const QJsonObject & json);
 
-    void ShowPMsignals(const QVector<float> &Event, bool bFullCycle = true); // !!!***
+    void ShowPMsignals(const std::vector<float> & event, bool bFullCycle = true); // !!!*** not used yet!
     void ShowTracksAndMarkers();
 
     void ClearTracks(bool bRefreshWindow = true);

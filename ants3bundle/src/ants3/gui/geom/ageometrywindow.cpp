@@ -626,10 +626,10 @@ void AGeometryWindow::AddPolygonfToGeometry(QPolygonF& poly, Color_t color, int 
         AddLineToGeometry(poly[i], poly[i+1], color, width);
 }
 
-void AGeometryWindow::ShowPMsignals(const QVector<float> & Event, bool bFullCycle)
+void AGeometryWindow::ShowPMsignals(const std::vector<float> & event, bool bFullCycle)
 {
     std::vector<QString> tmp;
-    for (const float & f : Event)
+    for (const float & f : event)
         tmp.push_back( QString::number(f) );
     showText(tmp, kBlack, AGeoWriter::Sensors, bFullCycle);
 }
