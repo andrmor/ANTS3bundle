@@ -2,7 +2,8 @@
 #define AROOTTEXTCONFIGURATOR_H
 
 #include <QDialog>
-#include <QVector>
+
+#include <vector>
 
 namespace Ui {
 class ARootTextConfigurator;
@@ -23,7 +24,7 @@ protected:
 protected:
     Ui::ARootTextConfigurator *ui;
     int SquareSize = 30;
-    QVector<int> BaseColors;
+    std::vector<int> BaseColors;
 
     int   & color;
     int   & align;
