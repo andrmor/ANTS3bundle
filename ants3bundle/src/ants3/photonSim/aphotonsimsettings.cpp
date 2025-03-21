@@ -135,43 +135,6 @@ std::vector<double> AWaveResSettings::getVectorOfIndexes() const
     return indexes;
 }
 
-double AWaveResSettings::getInterpolatedValue(double val, const QVector<double> *X, const QVector<double> *F) const
-{
-    if (val < X->first())
-    {
-        //  qWarning()<<"Interpolation: value is out of the data range:"<<val<< " < " << X->first();
-        return F->first();
-    }
-    if (val > X->last())
-    {
-        //  qWarning()<<"Interpolation: value is out of the data range:"<<val<< " > " << X->last();
-        return F->last();
-    }
-
-    QVector<double>::const_iterator it;
-    it = std::lower_bound(X->begin(), X->end(), val);
-    int index = X->indexOf(*it);
-    //      qDebug()<<"energy:"<<energy<<"index"<<index;//<<*it;
-    if (index < 1)
-    {
-        //qWarning()<<"Interpolation: value out (or on the border) of the interaction data range!";
-        return F->first();
-    }
-
-    double Less = F->at(index-1);
-    double More = F->at(index);
-    //      qDebug()<<" Less/More"<<Less<<More;
-    double EnergyLess = X->at(index-1);
-    double EnergyMore = X->at(index);
-    //      qDebug()<<" Energy Less/More"<<EnergyLess<<EnergyMore;
-
-    double InterpolationValue;
-    if (EnergyLess == EnergyMore) InterpolationValue = More;
-    else                          InterpolationValue = Less + (More-Less)*(val-EnergyLess)/(EnergyMore-EnergyLess);
-    //      qDebug()<<"energy / interValue"<<energy<<InteractValue;
-    return InterpolationValue;
-}
-
 double AWaveResSettings::getInterpolatedValue(double val, const std::vector<double> & X, const std::vector<double> & F)
 {
     if (X.size() == 0) return 0;

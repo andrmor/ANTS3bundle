@@ -46,9 +46,6 @@ public:
     void   getWavelengthBins(std::vector<double> & wavelength) const;
     std::vector<double> getVectorOfIndexes() const;
 
-private:
-    double getInterpolatedValue(double val, const QVector<double> *X, const QVector<double> *F) const;
-
 public:
     static double getInterpolatedValue(double val, const std::vector<double> & X, const std::vector<double> & F);  // !!!*** consider moving to some tool header
     static double getInterpolatedValue(double val, const std::vector<std::pair<double,double>> & F);  // !!!*** consider moving to some tool header
