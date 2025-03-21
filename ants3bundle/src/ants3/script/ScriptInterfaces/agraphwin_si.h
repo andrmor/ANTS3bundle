@@ -42,12 +42,6 @@ public slots:
 
     void show3D(QString castorFileName);
 
-    /*
-    QVariant GetProjection();
-    void ConfigureProjectionTool(double x0, double y0, double dx, double dy, double angle);
-    void UseProjectionTool(QString option);
-    */
-
 signals:
     void requestShow3D(QString fileName, bool keepSettings = false);
 

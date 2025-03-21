@@ -236,7 +236,7 @@ void AParticleSourceDialog::on_pbGunTest_clicked()
 
 void AParticleSourceDialog::on_cobGunSourceType_currentIndexChanged(int index)
 {
-    QVector<QString> s;
+    QList<QString> s;
     switch (index)
     {
     default: qWarning() << "Unknown source type!";

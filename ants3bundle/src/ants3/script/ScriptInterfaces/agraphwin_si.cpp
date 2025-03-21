@@ -150,29 +150,6 @@ void AGraphWin_SI::show3D(QString castorFileName)
     emit requestShow3D(castorFileName);
 }
 
-/*
-QVariant AGraphWin_SI::GetProjection()
-{
-    QVector<double> vec = GraphWindow->Get2DArray();
-    QJsonArray arr;
-    for (auto v : vec) arr << v;
-    QJsonValue jv = arr;
-    QVariant res = jv.toVariant();
-    return res;
-}
-
-void AGraphWin_SI::UseProjectionTool(QString option)
-{
-    QString res = GraphWindow->UseProjectionTool(option);
-    if (!res.isEmpty()) abort(res);
-}
-
-void AGraphWin_SI::ConfigureProjectionTool(double x0, double y0, double dx, double dy, double angle)
-{
-    GraphWindow->ConfigureProjectionTool(x0, y0, dx, dy, angle);
-}
-*/
-
 QVariantList AGraphWin_SI::getAxisRanges()
 {
     QVariantList vl;

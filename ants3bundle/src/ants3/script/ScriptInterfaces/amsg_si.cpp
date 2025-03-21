@@ -1,5 +1,4 @@
 #include "amsg_si.h"
-//#include "ajavascriptmanager.h"
 #include "atextoutputwindow.h"
 
 #include <QTimer>

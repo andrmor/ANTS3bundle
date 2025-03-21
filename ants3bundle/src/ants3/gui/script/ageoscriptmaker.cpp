@@ -1,6 +1,5 @@
 #include "ageoscriptmaker.h"
 #include "amaterialhub.h"
-#include "amaterial.h"
 #include "ageometryhub.h"
 #include "ageoconsts.h"
 #include "ageoobject.h"
@@ -11,6 +10,8 @@
 #include <QJsonObject>
 #include <QJsonDocument>
 #include <QDebug>
+
+#include <vector>
 
 AGeoScriptMaker::AGeoScriptMaker(ELanguage lang) : Language(lang)
 {
@@ -36,14 +37,6 @@ void AGeoScriptMaker::createScript(QString & script)
 
     int indent = 0;
     QString indentStr;
-
-    /*
-    if (Python == Language)     // for now
-    {
-        script += "true = True\n";
-        script += "false = False\n\n";
-    }
-    */
 
     script += indentStr + CommentStr + "Defined materials:\n";
     const QStringList mn = MatHub.getListOfMaterialNames();
@@ -362,8 +355,8 @@ QString AGeoScriptMaker::makeScriptString_instanceObject(AGeoObject * obj) const
         return "Error accessing object as instance!";
     }
 
-    QVector<QString> posStrs(3);
-    QVector<QString> oriStrs(3);
+    std::vector<QString> posStrs(3);
+    std::vector<QString> oriStrs(3);
     for (int i = 0; i < 3; i++)
     {
         posStrs[i] = ( obj->PositionStr[i].isEmpty()    ? QString::number(obj->Position[i])    : obj->PositionStr[i] );
