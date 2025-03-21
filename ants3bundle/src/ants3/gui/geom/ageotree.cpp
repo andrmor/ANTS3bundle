@@ -4,12 +4,11 @@
 #include "ageodelegatewidget.h"
 #include "ageobasedelegate.h"
 #include "ageoobjectdelegate.h"
-#include "amonitordelegate.h"
+//#include "amonitordelegate.h"
 #include "agridelementdelegate.h"
 #include "ageoobject.h"
 #include "ageoshape.h"
 #include "ageotype.h"
-//#include "ashapehelpdialog.h"
 #include "arootlineconfigurator.h"
 #include "agridelementdialog.h"
 #include "amonitordelegateform.h"
@@ -34,7 +33,7 @@
 
 #include <vector>
 
-#include "TMath.h"
+//#include "TMath.h"
 #include "TGeoShape.h"
 
 AGeoTree::AGeoTree() :
@@ -474,12 +473,12 @@ void AGeoTree::customMenuRequested(const QPoint &pos)
   menu.addSeparator();
 
   QMenu * addInstanceMenu = menu.addMenu("Add instance of");
-    QVector< QPair<QAction*, QString> > addInstanceA;
+    std::vector<std::pair<QAction*, QString>> addInstanceA;
     if (Prototypes->HostedObjects.empty())
         Action(*addInstanceMenu, "There are no defined prototypes");
     else
         for (AGeoObject * protoObj : Prototypes->HostedObjects)
-            addInstanceA << QPair<QAction*, QString>(addInstanceMenu->addAction(protoObj->Name), protoObj->Name);
+            addInstanceA.push_back( {addInstanceMenu->addAction(protoObj->Name), protoObj->Name} );
 
   menu.addSeparator();
 
@@ -608,7 +607,7 @@ void AGeoTree::customMenuRequested(const QPoint &pos)
 
   else
   {
-      for (auto & pair : addInstanceA)
+      for (const auto & pair : addInstanceA)
           if (SelectedAction == pair.first)  menuActionAddInstance(obj, pair.second);
   }
 }
