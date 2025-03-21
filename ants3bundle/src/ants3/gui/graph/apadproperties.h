@@ -3,31 +3,32 @@
 
 #include "apadgeometry.h"
 
-#include <QVector>
-#include <QJsonObject>
+#include <QString>
 
-#include "TPad.h"
+#include <vector>
 
 class TObject;
+class QJsonObject;
+class TPad;
 
 class APadProperties
 {
 public:
     APadProperties();
-    APadProperties(TPad *pad);
+    APadProperties(TPad * pad);
 
     void updatePadGeometry();
     void applyPadGeometry();
 
-    void writeToJson(QJsonObject &json) const;
-    void readFromJson(const QJsonObject &json);
+    void writeToJson(QJsonObject & json) const;
+    void readFromJson(const QJsonObject & json);
 
     QString toString() const;
 
     TPad * tPad = nullptr;
     APadGeometry padGeo;
 
-    QVector<TObject*> tmpObjects;
+    std::vector<TObject*> tmpObjects;
 };
 
 #endif // APADPROPERTIES_H

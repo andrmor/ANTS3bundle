@@ -172,7 +172,7 @@ void AMultiGraphDesigner::clearGraphs()
     TCanvas *c1 = RasterWindow->fCanvas;
     c1->Clear();
 
-    for (const APadProperties & pad : qAsConst(Pads))
+    for (const APadProperties & pad : Pads)
         for (const TObject * obj : pad.tmpObjects)
             delete obj;
 
@@ -186,15 +186,13 @@ void AMultiGraphDesigner::updateGUI()
     updateNumbers();
 }
 
-void AMultiGraphDesigner::drawGraph(const std::vector<ADrawObject> DrawObjects, APadProperties & pad)
+void AMultiGraphDesigner::drawGraph(const std::vector<ADrawObject> & DrawObjects, APadProperties & pad)
 {
-    for (int i=0; i<DrawObjects.size(); i++)
+    for (const ADrawObject & drObj : DrawObjects)
     {
-        const ADrawObject & drObj = DrawObjects.at(i);
         TObject * tObj = drObj.Pointer;
-
         tObj->Draw(drObj.Options.toLatin1().data());
-        pad.tmpObjects.append(tObj);
+        pad.tmpObjects.push_back(tObj);
     }
 }
 
@@ -204,7 +202,7 @@ void AMultiGraphDesigner::updateCanvas()
 {
     TCanvas * canvas = RasterWindow->fCanvas;
 
-    for (int iPad = 0; iPad < Pads.size(); iPad++)
+    for (size_t iPad = 0; iPad < Pads.size(); iPad++)
     {
         APadProperties & pad = Pads[iPad];
         canvas->cd();
@@ -378,7 +376,7 @@ void AMultiGraphDesigner::writeToJson(QJsonObject & json)
     json["Pads"] = ar;
 
     QJsonArray arI;
-    for (int i : qAsConst(DrawOrder)) arI << i;
+    for (int i : DrawOrder) arI << i;
     json["DrawOrder"] = arI;
 
     json["WinWidth"]  = width();
@@ -424,7 +422,7 @@ QString AMultiGraphDesigner::readFromJson(const QJsonObject & json)
 QString AMultiGraphDesigner::PadsToString()
 {
     QString str;
-    for (const APadProperties & pad : qAsConst(Pads))
+    for (const APadProperties & pad : Pads)
     {
         str += "{";
         str += pad.toString();
