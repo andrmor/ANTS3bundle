@@ -68,29 +68,6 @@ int AWaveResSettings::toIndexFast(double wavelength) const
     return round( (wavelength - From) / Step );
 }
 
-void AWaveResSettings::toStandardBins(const QVector<double>* wavelength, const QVector<double>* value, QVector<double>* binnedValue) const
-{
-    binnedValue->clear();
-
-    double wave, binned;
-    const int points = countNodes();
-    for (int iP = 0; iP < points; iP++)
-    {
-        wave = From + Step * iP;
-        if (wave <= wavelength->at(0)) binned = value->at(0);
-        else
-        {
-            if (wave >= wavelength->at(wavelength->size()-1)) binned = value->at(wavelength->size()-1);
-            else
-            {
-                binned = getInterpolatedValue(wave, wavelength, value); //reusing interpolation function
-                if (binned<0) binned = 0;
-            }
-        }
-        binnedValue->append(binned);
-    }
-}
-
 void AWaveResSettings::toStandardBins(const std::vector<double> & wavelength, const std::vector<double> & value, std::vector<double> & binnedValue) const
 {
     binnedValue.clear();
