@@ -2,8 +2,8 @@
 #include "arandomhub.h"
 
 #include <QDebug>
-#include <QVector>
 
+#include <vector>
 #include <cmath>
 
 AMath_SI::AMath_SI() :
@@ -329,7 +329,7 @@ QVariantList AMath_SI::fit1D(QVariantList array, QString tformula, QVariantList 
     //qDebug() << "TFormula accepted, #par = " << numPars;
 
     bool bParVals = false;
-    QVector<double> ParValues;
+    std::vector<double> ParValues;
     bool ok1, ok2;
     if (!startParValues.isEmpty())
     {
@@ -348,7 +348,7 @@ QVariantList AMath_SI::fit1D(QVariantList array, QString tformula, QVariantList 
                 abort("Format error in range");
                 return res;
             }
-            ParValues << v;
+            ParValues.push_back(v);
         }
         bParVals = true;
         //qDebug() << "Initial values:" << ParValues;
@@ -387,8 +387,8 @@ QVariantList AMath_SI::fit1D(QVariantList array, QString tformula, QVariantList 
         abort("Array is empty!");
         return res;
     }
-    QVector<double> xx; xx.reserve(arSize);
-    QVector<double> yy; yy.reserve(arSize);
+    std::vector<double> xx; xx.reserve(arSize);
+    std::vector<double> yy; yy.reserve(arSize);
     //qDebug() << "Vectors are initialized";
 
     for (int i=0; i<arSize; i++)
@@ -401,8 +401,8 @@ QVariantList AMath_SI::fit1D(QVariantList array, QString tformula, QVariantList 
             return res;
         }
 
-        xx << el[0].toDouble(&ok1);
-        yy << el[1].toDouble(&ok2);
+        xx.push_back( el[0].toDouble(&ok1) );
+        yy.push_back( el[1].toDouble(&ok2) );
         if (!ok1 || !ok2)
         {
             delete f;
