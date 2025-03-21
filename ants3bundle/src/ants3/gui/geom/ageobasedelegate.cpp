@@ -96,13 +96,13 @@ void AGeoBaseDelegate::configureHighligherAndCompleter(AOneLineTextEdit * edit, 
 
         rule.pattern = QRegularExpression("\\b" + name + "\\b");
         rule.format = GeoConstantFormat;
-        highlighter->HighlightingRules.append(rule);
+        highlighter->HighlightingRules.push_back(rule);
         sl << name;
     }
     // !!!***
     rule.pattern = QRegularExpression("\\bParentIndex\\b");
     rule.format = GeoConstantFormat;
-    highlighter->HighlightingRules.append(rule);
+    highlighter->HighlightingRules.push_back(rule);
     sl << "ParentIndex";
     //
 
@@ -115,7 +115,7 @@ void AGeoBaseDelegate::configureHighligherAndCompleter(AOneLineTextEdit * edit, 
     {
         rule.pattern = QRegularExpression("\\b" + word + "\\b");
         rule.format = FormulaFormat;
-        highlighter->HighlightingRules.append(rule);
+        highlighter->HighlightingRules.push_back(rule);
     }
 
     edit->Completer = new QCompleter(sl, edit);
