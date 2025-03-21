@@ -8,7 +8,13 @@
 #include <QVariant>
 #include <QDebug>
 
-#include "TMathBase.h"
+//#include "TMathBase.h"
+
+bool ABranchBuffer::isValidType(const QString & codeName)
+{
+    static const QStringList allTypes = {"C","I","F","D","O","AC","AI","AF","AD","AO"};
+    return allTypes.contains(codeName);
+}
 
 ABranchBuffer::ABranchBuffer(const QString &branchName, const QString &branchType, TTree *tree) :
     name(branchName), type(branchType), treePtr(tree)
@@ -57,7 +63,7 @@ ABranchBuffer::ABranchBuffer(const QString &branchName, const QString &branchTyp
 
     if (type.size() == 1)
     {
-        if ( ABranchBuffer::getAllTypes().contains(type) )
+        if ( ABranchBuffer::isValidType(type) )
         {
             //this is one of the basic types
             bVector = false;
@@ -113,7 +119,7 @@ ABranchBuffer::ABranchBuffer(const QString &branchName, const QString &branchTyp
                 bCanFill = false; // cannot fill new entries!
 
                 bVector = true;
-                if (bOK && ABranchBuffer::getAllTypes().contains(type))
+                if (bOK && ABranchBuffer::isValidType(type))
                 {
                     qDebug() << type << cType << size;
                     branchPtr = branch; // non 0 -> indicates that the branch is valid
@@ -200,21 +206,21 @@ const QVariant ABranchBuffer::read()
     return 0;
 }
 
-ARootTreeRecord::ARootTreeRecord(TObject *tree, const QString &name) :
+ARootTreeRecord::ARootTreeRecord(TObject * tree, const QString & name) :
     ARootObjBase(tree, name, "") {}
 
 ARootTreeRecord::~ARootTreeRecord()
 {
     if (file)
     {
-        TTree* t = dynamic_cast<TTree*>(Object);
+        TTree * t = dynamic_cast<TTree*>(Object);
         if (t)
         {
             t->AutoSave();
-            delete t; Object = 0;
+            delete t; Object = nullptr;
         }
         file->Close();
-        delete file; file = 0;
+        delete file; file = nullptr;
     }
 
     for (ABranchBuffer* bb : Branches) delete bb;
