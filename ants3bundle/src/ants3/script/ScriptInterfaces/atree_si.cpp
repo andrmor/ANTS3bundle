@@ -75,7 +75,7 @@ void ATree_SI::newTree(QString TreeName, QVariantList HeadersOfBranches,
         return;
     }
 
-    QVector<QPair<QString, QString>> h;
+    std::vector<std::pair<QString, QString>> h;
     for (int ibranch = 0; ibranch < HeadersOfBranches.size(); ibranch++)
     {
         QVariantList th = HeadersOfBranches.at(ibranch).toList();
@@ -93,7 +93,7 @@ void ATree_SI::newTree(QString TreeName, QVariantList HeadersOfBranches,
             return;
         }
 
-        h << QPair<QString, QString>(Bname, Btype);
+        h.push_back( std::pair<QString, QString>(Bname, Btype) );
     }
 
     ARootTreeRecord* rec = new ARootTreeRecord(0, TreeName);

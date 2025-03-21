@@ -223,7 +223,7 @@ ARootTreeRecord::~ARootTreeRecord()
 }
 
 #include "TFile.h"
-bool ARootTreeRecord::createTree(const QString &name, const QVector<QPair<QString, QString> > &branches,
+bool ARootTreeRecord::createTree(const QString & name, const std::vector<std::pair<QString,QString>> & branches,
                                  const QString fileName, int autosaveNum)
 {
     QMutexLocker locker(&Mutex);
@@ -247,10 +247,10 @@ bool ARootTreeRecord::createTree(const QString &name, const QVector<QPair<QStrin
 
     for (int ib = 0; ib < branches.size(); ib++)
     {
-        const QString& Bname = branches.at(ib).first;
-        const QString& Btype = branches.at(ib).second;
+        const QString & Bname = branches.at(ib).first;
+        const QString & Btype = branches.at(ib).second;
 
-        ABranchBuffer* bb = new ABranchBuffer(Bname, Btype, t);
+        ABranchBuffer * bb = new ABranchBuffer(Bname, Btype, t);
         if (bb->isValid())
         {
             Branches[ib] = bb;
@@ -395,7 +395,7 @@ QString ARootTreeRecord::resetTreeRecords()
         ABranchBuffer* bb = new ABranchBuffer(branchName, branchType, branchPtr);
         if (bb->isValid())
         {
-            Branches << bb;
+            Branches.push_back(bb);
             MapOfBranches.insert( branchName, bb );
             if (!bb->canFill()) canAddEntries = false;
         }
@@ -419,7 +419,7 @@ int ARootTreeRecord::countBranches() const
 QStringList ARootTreeRecord::getBranchNames() const
 {
     QStringList sl;
-    for (ABranchBuffer* bb : Branches)
+    for (ABranchBuffer * bb : Branches)
     {
         if (!bb->branchPtr) return QStringList();
         sl << bb->name;
@@ -430,7 +430,7 @@ QStringList ARootTreeRecord::getBranchNames() const
 QStringList ARootTreeRecord::getBranchTypes() const
 {
     QStringList sl;
-    for (ABranchBuffer* bb : Branches)
+    for (ABranchBuffer * bb : Branches)
     {
         if (!bb->branchPtr) return QStringList();
         sl << bb->type;
@@ -445,7 +445,7 @@ int ARootTreeRecord::countEntries() const
     return static_cast<TTree*>(Object)->GetEntries();
 }
 
-bool ARootTreeRecord::fillSingle(const QVariantList &vl)
+bool ARootTreeRecord::fillSingle(const QVariantList & vl)
 {
     QMutexLocker locker(&Mutex);
 
