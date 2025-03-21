@@ -325,7 +325,6 @@ SOURCES += \
     materials/amaterial.cpp \
     config/a3global.cpp \
     dispatch/a3workdistrconfig.cpp \
-    photonSim/acommonfunctions.cpp \
     photonSim/aphoton.cpp \
     photonSim/aphotonsimmanager.cpp \
     photonSim/aphotonsimsettings.cpp \
@@ -545,7 +544,6 @@ HEADERS += \
     photonSim/aphotonfilehandler.h \
     photonSim/aphotonsimhub.h \
     photonSim/amonitorconfig.h \
-    photonSim/acommonfunctions.h \
     photonSim/aphoton.h \
     photonSim/aphotonsimmanager.h \
     photonSim/aphotonsimsettings.h \

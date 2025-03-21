@@ -7,7 +7,6 @@
 #include "ajsontools.h"
 #include "afiletools.h"
 #include "guitools.h"
-//#include "acommonfunctions.h"
 #include "ageometrywindow.h"
 #include "agraphbuilder.h"
 #include "ageant4inspectormanager.h"
@@ -35,8 +34,6 @@
 #include "TH1.h"
 #include "TAxis.h"
 #include "TGeoManager.h"
-//#include "TAttLine.h"
-//#include "TAttMarker.h"
 
 AMatWin::AMatWin(QWidget * parent) :
     AGuiWindow("Mat", parent),

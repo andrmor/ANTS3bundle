@@ -1483,58 +1483,6 @@ void ADrawExplorerWidget::customProjection(ADrawObject & obj)
     GraphWindow.showProjectionTool();
 }
 
-/*
-void ADrawExplorerWidget::splineFit(int index)
-{
-#ifdef USE_EIGEN
-    ADrawObject & obj = DrawObjects[index];
-    TGraph* g = dynamic_cast<TGraph*>(obj.Pointer);
-    if (!g)
-    {
-        guitools::message("Suppoted only for TGraph-based ROOT objects", &GraphWindow);
-        return;
-    }
-
-    bool ok;
-    int numNodes = QInputDialog::getInt(&GraphWindow, "", "Enter number of nodes:", 6, 2, 1000, 1, &ok);
-    if (ok)
-    {
-        int numPoints = g->GetN();
-        if (numPoints < numNodes)
-        {
-            guitools::message("Not enough points in the graph for the selected number of nodes", &GraphWindow);
-            return;
-        }
-
-        QVector<double> x(numPoints), y(numPoints), f(numPoints);
-        for (int i=0; i<numPoints; i++)
-            g->GetPoint(i, x[i], y[i]);
-
-        CurveFit cf(x.first(), x.last(), numNodes, x, y);
-
-        TGraph* fg = new TGraph();
-        fg->SetTitle("SplineFit");
-        for (int i=0; i<numPoints; i++)
-        {
-            const double& xx = x.at(i);
-            fg->SetPoint(i, xx, cf.eval(xx));
-        }
-
-        GraphWindow.MakeCopyOfDrawObjects();
-        GraphWindow.MakeCopyOfActiveBasketId();
-
-        DrawObjects.insert(index+1, ADrawObject(fg, "Csame"));
-        GraphWindow.RegisterTObject(fg);
-
-        GraphWindow.RedrawAll();
-    }
-#else
-    guitools::message("Not implemented yet", &GraphWindow);
-    //guitools::message("This option is supported only when ANTS3 is compliled with Eigen library enabled", &GraphWindow);
-#endif
-}
-*/
-
 #include "aaxesdialog.h"
 #include "TGraph2D.h"
 void ADrawExplorerWidget::editAxis(ADrawObject & obj, int axisIndex)
