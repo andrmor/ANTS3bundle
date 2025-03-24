@@ -279,7 +279,6 @@ QFrame * AGeoObjectDelegate::createCalorimeterGui()
             layType->addWidget(cbCalIncludeHosted);
         layMain->addLayout(layType);
 
-            //cbCalEventStat = new QCheckBox("Dep. over event"); // !!!*** tmp
         QFrame * frOverEvents = new QFrame();
             QHBoxLayout * layOverEvents = new QHBoxLayout(); layOverEvents->setContentsMargins(0,0,0,0);
                 layOverEvents->addWidget(new QLabel("Bins:"));
