@@ -47,7 +47,6 @@ AServerDelegate::AServerDelegate(AFarmNodeRecord * modelRecord) : QFrame(), mode
             leIP->setMaximumWidth(100);
             leIP->setMinimumWidth(100);
             QString ipRange = "(?:[0-1]?[0-9]?[0-9]|2[0-4][0-9]|25[0-5])";
-            // !!!*** convert to QRegularExpression
             QRegularExpression ipRegex ("^" + ipRange
                          + "\\." + ipRange
                          + "\\." + ipRange

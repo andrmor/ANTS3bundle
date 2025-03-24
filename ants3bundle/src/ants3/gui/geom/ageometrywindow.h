@@ -109,9 +109,6 @@ public slots:
     void onRequestShowAllConnections();
 
 private slots:
-    void onDownloadPngRequested(QWebEngineDownloadItem *item); // !!!*** temprary commented away
-
-private slots:
     void on_cobViewer_currentIndexChanged(int index);
     void on_pbShowGeometry_clicked();
     void on_cbColor_toggled(bool checked);

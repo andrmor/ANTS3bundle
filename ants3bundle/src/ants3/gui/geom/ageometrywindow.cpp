@@ -80,14 +80,7 @@ AGeometryWindow::AGeometryWindow(bool jsrootViewer, QWidget * parent) :
 #ifdef __USE_ANTS_JSROOT__
         WebView = new QWebEngineView(this);
         ui->hlMain->addWidget(WebView);
-        //WebView->load(QUrl("http://localhost:8080/?nobrowser&item=Objects/GeoWorld/world&opt=dray;all;tracks;transp50"));
-
-        // !!!*** to fix:
-        //QWebEngineProfile::defaultProfile()->connect(QWebEngineProfile::defaultProfile(), &QWebEngineProfile::downloadRequested,
-        //                                                 this, &AGeometryWindow::onDownloadPngRequested);
-
         ui->pbCameraDialog->setVisible(false);
-
         redrawWebView();
 #endif
     }
@@ -1302,22 +1295,6 @@ void AGeometryWindow::on_pbSaveAs_customContextMenuRequested(const QPoint &)
         QApplication::clipboard()->setImage(image, QClipboard::Clipboard);
 #endif
     }
-}
-
-void AGeometryWindow::onDownloadPngRequested(QWebEngineDownloadItem *item)
-{
-/*
-#ifdef __USE_ANTS_JSROOT__
-    QString fileName = QFileDialog::getSaveFileName(this, "Select file name to safe image");
-    if (fileName.isEmpty())
-    {
-        item->cancel();
-        return;
-    }
-    item->setPath(fileName);
-    item->accept();
-#endif
-*/
 }
 
 void AGeometryWindow::on_pbCameraDialog_clicked()
