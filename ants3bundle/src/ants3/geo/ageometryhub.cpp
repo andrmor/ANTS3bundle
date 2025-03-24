@@ -370,7 +370,7 @@ void AGeometryHub::addMonitorNode(AGeoObject * obj, TGeoVolume * vol, TGeoVolume
     AMonitorHub & MonitorHub = AMonitorHub::getInstance();
     const int MonitorCounter = MonitorHub.countMonitors(MonType);
 
-    monTobj->index = MonitorCounter; // !!!*** need?
+    monTobj->index = MonitorCounter;
     parent->AddNode(vol, MonitorCounter, lTrans);
 
     TString fixedName = vol->GetName();
@@ -1275,9 +1275,7 @@ void AGeometryHub::colorVolumes(int scheme, int id)
         QString name = vol->GetName();
         switch (scheme)
         {
-        case 0:  //default color volumes for PMs and dPMs otherwise color from AGeoObject
-            if      (name.startsWith("PM"))  vol->SetLineColor(kGreen);  // !!!*** obsolete?
-            else
+        case 0:
             {
                 const AGeoObject * obj = World->findObjectByName(name); // !!!*** can be very slow for large detectors!
                 if (obj)
@@ -1423,15 +1421,15 @@ QString AGeometryHub::readGDMLtoTGeo(const QString & fileName)
     return "";
 }
 
+/*
 #include <TVector3.h>
 #include <TMatrixD.h>
 #include <TMath.h>
-
 // input: R - rotation matrix
 // return: vector of Euler angles in X-convention (Z0, X, Z1)
 // based on the pseudocode by David Eberly from
 // https://www.geometrictools.com/Documentation/EulerAngles.pdf
-TVector3 euler(TMatrixD R)  // !!!*** need?
+TVector3 euler(TMatrixD R)
 {
     double tol = 1e-6; // tolerance to detect special cases
     double Pi = TMath::Pi();
@@ -1454,6 +1452,7 @@ TVector3 euler(TMatrixD R)  // !!!*** need?
     }
     return TVector3(thetaZ0, thetaX, thetaZ1);
 }
+*/
 
 void processNonComposite(QString Name, TGeoShape * Tshape, const TGeoMatrix * Matrix, std::vector<AGeoObject*> & LogicalObjects)
 {

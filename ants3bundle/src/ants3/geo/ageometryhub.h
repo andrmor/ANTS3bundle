@@ -64,11 +64,11 @@ public:
     void         aboutToQuit();
 
     bool         isMaterialInUse(int imat, QString & volName) const;
-    void         onMaterialRemoved(int imat);  // !!!*** add signal
+    void         onMaterialRemoved(int imat);
 
     bool         isVolumeExistAndActive(const QString & name) const;
 
-    void         colorVolumes(int scheme, int id = 0);  // !!!*** to geometry window? consider jsroot  !!!*** redo, can be very slow
+    void         colorVolumes(int scheme, int id = 0);  // !!!*** consider jsroot  !!!*** redo, can be very slow
     void         changeLineWidthOfVolumes(int delta);
 
     bool         isWorldSizeFixed() const;

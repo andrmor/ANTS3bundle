@@ -359,7 +359,7 @@ void AGeoObject::readFromJson(const QJsonObject & json)
         Shape = AGeoShape::GeoShapeFactory(ShapeType);
         Shape->readFromJson(js);
 
-        //composite: cannot update memebers at this phase - HostedObjects are not set yet!  INVESTIGATE !!!***
+        //composite: cannot update memebers at this phase - HostedObjects are not set yet
     }
 
     //Type
@@ -1106,7 +1106,7 @@ bool AGeoObject::isMaterialInUse(int imat, QString & volName) const
 
     if (Material == imat)
     {
-        if ( !Type->isGridElement() && !Type->isCompositeContainer() ) // !!!*** need it?
+        if ( !Type->isGridElement() && !Type->isCompositeContainer() )
         {
             volName = Name;
             return true;
@@ -1485,7 +1485,7 @@ bool AGeoObject::checkCompatibleWithGeant4() const
 }
 
 #include <QRandomGenerator>
-QString randomString(int lettLength, int numLength)  // !!!*** RandomHub
+QString randomString(int lettLength, int numLength)
 {
     //const QString possibleLett("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz");
     const QString possibleLett("ABCDEFGHIJKLMNOPQRSTUVWXYZ");

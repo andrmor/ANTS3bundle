@@ -4067,18 +4067,6 @@ bool AGeoScaledShape::isCompatibleWithGeant4() const
 {
     return true;
     // checked with root 6.30.06, my request for scaled compatibility with Geant4 seems to be fully implemented
-    // !!!*** after tests remove compatibility check infrastructure alltogether
-
-    /*
-    if (!BaseShape) return false;
-
-    if (scaleX == 1.0 && scaleY == 1.0 && scaleZ == 1.0) return true;
-
-    const QString baseShapeType = BaseShape->getShapeType();
-    if (baseShapeType == "TGeoCone") return true;
-    //if (baseShapeType == "TGeoSphere") return true;
-    return false;
-    */
 }
 
 QString AGeoTorus::getHelp() const
