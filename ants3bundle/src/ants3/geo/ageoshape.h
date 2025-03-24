@@ -50,7 +50,7 @@ public:
 
     virtual AGeoShape * clone() const; // uses GeoShapeFactory and save/load to/from json
 
-    virtual void scale(double factor) {} // !!!*** = 0
+    virtual void scale(double factor) = 0;
 
     virtual bool isCompatibleWithGeant4() const {return true;}
 
@@ -165,7 +165,7 @@ public:
     double getRelativePosZofCenter() const override;
     void setHeight(double dz) override;
     QString getGenerationString(bool useStrings) const override;
-    QString getScriptString(bool useStrings) const; // returns script string for the base shape!
+    QString getScriptString(bool useStrings) const override; // returns script string for the base shape!
     QString getScriptString_Scaled(bool useStrings) const;
     double maxSize() const override;
 
@@ -647,8 +647,8 @@ public:
     bool isGeoConstInUse (const QRegularExpression & nameRegExp) const override;
     void replaceGeoConstName (const QRegularExpression & nameRegExp, const QString & newName) override;
 
-    virtual bool readFromString(QString GenerationString);
-    virtual TGeoShape* createGeoShape(const QString shapeName = "");
+    bool readFromString(QString GenerationString) override;
+    TGeoShape* createGeoShape(const QString shapeName = "") override;
 
     double getHeight() const override {return rmax;}
     void setHeight(double dz) override {rmax = dz;}
@@ -759,14 +759,16 @@ public:
     QString getShapeTemplate() const override {return "TGeoCompositeShape( (A + B) * (C - D) )";}
     QString getHelp() const override;
 
-    virtual bool readFromString(QString GenerationString);
-    virtual TGeoShape* createGeoShape(const QString shapeName = "");
+    void scale(double /*factor*/) override {};
+
+    bool readFromString(QString GenerationString) override;
+    TGeoShape* createGeoShape(const QString shapeName = "") override;
 
     bool isGeoConstInUse(const QRegularExpression & /*nameRegExp*/) const override {return false;}
 
     QString getGenerationString(bool) const override {return GenerationString;}
     QString getScriptString(bool) const override;
-    double maxSize() const {return 0;} // have to ask AGeoObject
+    double maxSize() const override {return 0;} // have to ask AGeoObject
 
     void writeToJson(QJsonObject& json) const override;
     void readFromJson(const QJsonObject& json) override;
