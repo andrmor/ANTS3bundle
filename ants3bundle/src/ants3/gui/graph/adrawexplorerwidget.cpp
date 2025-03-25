@@ -171,9 +171,11 @@ void ADrawExplorerWidget::showObjectContextMenu(const QPoint &pos, int index)
         QAction * projCustom = projectMenu->addAction("Show projection tool");
 
     Menu.addSeparator();
-    QMenu * calcMenu      = Menu.addMenu("Calculate");
-        QAction * integralA = calcMenu->addAction("Draw integral");                   integralA->setEnabled(Type.startsWith("TH1") || Type == "TProfile" || Type == "TGraph" || Type == "TGraphError");
-        QAction * fractionA = calcMenu->addAction("Calculate fraction before/after"); fractionA->setEnabled(Type.startsWith("TH1") || Type == "TProfile");
+    //QMenu * calcMenu      = Menu.addMenu("Calculate");
+    //    QAction * integralA = calcMenu->addAction("Draw integral");                   integralA->setEnabled(Type.startsWith("TH1") || Type == "TProfile" || Type == "TGraph" || Type == "TGraphError");
+    //    QAction * fractionA = calcMenu->addAction("Calculate fraction before/after"); fractionA->setEnabled(Type.startsWith("TH1") || Type == "TProfile");
+    QAction * integralA = Menu.addAction("Draw integral");                  integralA->setEnabled(Type.startsWith("TH1") || Type == "TProfile" || Type == "TGraph" || Type == "TGraphError");
+    QAction * fractionA = Menu.addAction("Compute fractions before/after"); fractionA->setEnabled(Type.startsWith("TH1") || Type == "TProfile");
 
     Menu.addSeparator();
     QMenu * fitMenu       = Menu.addMenu("Fit");
@@ -197,7 +199,7 @@ void ADrawExplorerWidget::showObjectContextMenu(const QPoint &pos, int index)
         ( options.contains("col",Qt::CaseInsensitive) || options.contains("prof", Qt::CaseInsensitive) || (options.isEmpty())) )
         flag3D = false;
     //qDebug() << "flag 3D" << flag3D << Type;//options.contains("col",Qt::CaseInsensitive);
-    QMenu * drawMenu = Menu.addMenu("Draw");        drawMenu->setEnabled(!flag3D);
+    QMenu * drawMenu = Menu.addMenu("Add to draw");        drawMenu->setEnabled(!flag3D);
         QAction* linDrawA     = drawMenu->addAction("Line (use click-drag)");    // linDrawA->setEnabled(Type.startsWith("TH1") || Type == "TProfile" || Type.startsWith("TGraph"));
         QAction* boxDrawA     = drawMenu->addAction("Box (use click-drag)");     // linDrawA->setEnabled(Type.startsWith("TH1") || Type == "TProfile" || Type.startsWith("TGraph"));
         QAction* ellipseDrawA = drawMenu->addAction("Elypse (use click-drag)");  // linDrawA->setEnabled(Type.startsWith("TH1") || Type == "TProfile" || Type.startsWith("TGraph"));
