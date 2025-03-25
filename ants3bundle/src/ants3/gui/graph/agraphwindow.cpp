@@ -2244,8 +2244,8 @@ void AGraphWindow::on_ledRulerDY_editingFinished()
 
 void AGraphWindow::on_cbShowFitParameters_toggled(bool checked)
 {
-    if (checked) gStyle->SetOptFit(0111);
-    else gStyle->SetOptFit(0000);
+    if (checked) gStyle->SetOptFit(1);
+    else gStyle->SetOptFit(0);
 }
 
 TLegend * AGraphWindow::addLegend()

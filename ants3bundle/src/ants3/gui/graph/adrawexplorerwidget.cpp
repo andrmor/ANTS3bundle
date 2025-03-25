@@ -180,9 +180,12 @@ void ADrawExplorerWidget::showObjectContextMenu(const QPoint &pos, int index)
     Menu.addSeparator();
     QMenu * fitMenu       = Menu.addMenu("Fit");
         fitMenu->setToolTipsVisible(true);
-        QAction * linFitA    = fitMenu->addAction("Linear (use click-drag)");     linFitA->setEnabled(Type.startsWith("TH1") || Type == "TProfile" || Type.startsWith("TGraph"));
-        QAction * fwhmA      = fitMenu->addAction("Gauss (use click-frag)");      fwhmA->  setEnabled(Type.startsWith("TH1") || Type == "TProfile" || Type.startsWith("TGraph"));
-        QAction * expA       = fitMenu->addAction("Exp. decay (use click-drag)"); expA->   setEnabled(Type.startsWith("TH1") || Type == "TProfile" || Type.startsWith("TGraph"));
+        QAction * linFitA    = fitMenu->addAction("Linear (use click-drag along the line to define range)");
+            linFitA->setEnabled(Type.startsWith("TH1") || Type == "TProfile" || Type.startsWith("TGraph"));
+        QAction * fwhmA      = fitMenu->addAction("Gauss with base line (use click-drag to define baseline and range)");
+            fwhmA->  setEnabled(Type.startsWith("TH1") || Type == "TProfile" || Type.startsWith("TGraph"));
+        QAction * expA       = fitMenu->addAction("Exp. decay (use click-drag along the line to define range)");
+            expA->setEnabled(Type.startsWith("TH1") || Type == "TProfile" || Type.startsWith("TGraph"));
         //QAction * splineFitA = fitMenu->addAction("B-spline"); splineFitA->setEnabled(Type == "TGraph" || Type == "TGraphErrors");   //*** implement for TH1 too!
         fitMenu->addSeparator();
         QAction * gauss2FitA = fitMenu->addAction("Symmetric Gauss (use click-drag)"); gauss2FitA->setEnabled(Type.startsWith("TH2"));
@@ -1134,8 +1137,8 @@ void ADrawExplorerWidget::fwhm(int index)
     la->SetTextAlign( (0 + 1) * 10 + 2);
     //QString text = QString("FWHM = %1\nmean = %2\nfwhm/mean = %3").arg(FWHM).arg(mid).arg(rel);
     QString text = QString("Mean: %0  Sigma: %1\nfwhm: %2  fwhm/mean: %3").arg(mid).arg(sigma).arg(FWHM).arg(rel);
-    QStringList sl = text.split("\n");
-    for (QString s : sl) la->AddText(s.toLatin1());
+    const QStringList sl = text.split("\n");
+    for (const QString & s : sl) la->AddText(s.toLatin1());
     GraphWindow.registerTObject(la);
     DrawObjects.insert(DrawObjects.begin()+index+3, ADrawObject(la, "same"));
 
