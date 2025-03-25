@@ -3,7 +3,6 @@
 
 #include "atemplateselectionrecord.h"
 
-#include <QPair>
 #include <QString>
 #include <QJsonObject>
 
@@ -57,7 +56,7 @@ public:
 private:
     QString DrawOption;
     ADrawTemplate_Axis  AxisProperties[3];
-    std::vector<QPair<double, double>> XYZranges;
+    std::vector<std::pair<double, double>> XYZranges;
     std::vector<QJsonObject> ObjectAttributes;
 
     int LegendIndex = -1;

@@ -110,10 +110,9 @@ AHighlighterJS::AHighlighterJS(QTextDocument * parent) :
                     << "\\belse\\b" << "\\breturn\\b" << "\\bswitch\\b"
                     << "\\bthrow\\b" << "\\btry\\b"
                     << "\\blet\\b" << "\\bconst\\b" << "\\bvar\\b"
-                    << "\\Array\\b"  // !!!***
                     << "\\bpush\\b" << "\\btypeof\\b"
                     << "\\bsplice\\b"
-                    << "\\bMath\\s*.\\b" << "\\bArray\\s*.\\b" << "\\bString\\s*.\\b";
+                    << "\\bMath\\s*.\\b" << "\\bArray\\s*.\\b" << "\\bString\\s*.\\b" << "\\bJSON\\s*.\\b";
     for (const QString & pattern : keywordPatterns)
     {
         rule.Pattern = QRegularExpression(pattern);

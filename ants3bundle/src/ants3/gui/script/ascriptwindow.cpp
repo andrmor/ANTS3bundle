@@ -779,50 +779,6 @@ void AScriptWindow::on_pbExample_clicked()
     if (ExampleExplorer) ExampleExplorer->showNormal();
 }
 
-/*
-void AScriptWindow::fillHelper(const AScriptInterface * io)
-{
-    const QString module = io->Name;
-
-    QStringList functions = getListOfMethods(io, module, true);
-    if (ui->aAlphabeticOrder->isChecked()) functions.sort();
-
-    QTreeWidgetItem * objItem = new QTreeWidgetItem(trwHelp);
-    objItem->setText(0, module);
-    QFont f = objItem->font(0);
-    f.setBold(true);
-    objItem->setFont(0, f);
-    objItem->setToolTip(0, io->Description);
-    bool bAlreadyAdded = false; // TMP!!!
-    for (int i = 0; i < functions.size(); i++)
-    {
-        QStringList sl = functions.at(i).split("_:_");
-        QString Fshort = sl.first();
-        QString Flong  = sl.last();
-        functionList << Flong;
-
-        QString methodName = QString(Fshort).remove(QRegularExpression("\\((.*)\\)"));
-        methodName.remove(0, module.length() + 1); //remove module name and '.'
-
-        // TMP!!! !!!***
-        if (methodName == "print")
-        {
-            if (bAlreadyAdded) continue;
-            Fshort = "core.print( m1, ... )";
-            Flong  = "void core.print( QVariant m1, ... )";
-            bAlreadyAdded = true;
-        }
-
-        QTreeWidgetItem * fItem = new QTreeWidgetItem(objItem);
-        fItem->setText(0, Fshort);
-        fItem->setText(1, Flong);
-
-        const QString & str = io->getMethodHelp(methodName, -1);
-        fItem->setToolTip(0, str);
-    }
-}
-*/
-
 void AScriptWindow::fillHelper(const AScriptInterface * io)
 {
     const QString module = io->Name;
