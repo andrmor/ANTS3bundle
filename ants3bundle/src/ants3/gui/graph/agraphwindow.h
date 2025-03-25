@@ -180,6 +180,8 @@ private slots:
     void on_actionSet_histogram_stat_box_content_triggered();
     void on_actionSet_palette_triggered();
 
+    void on_pbRemoveTextBox_clicked();
+
 private:
     Ui::AGraphWindow       * ui = nullptr;
 

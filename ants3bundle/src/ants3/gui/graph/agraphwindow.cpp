@@ -2315,6 +2315,24 @@ void AGraphWindow::on_pbRemoveLegend_clicked()
     }
 }
 
+void AGraphWindow::on_pbRemoveTextBox_clicked()
+{
+    bool bOK = guitools::confirm("Remove text box?", this);
+    if (!bOK) return;
+
+    for (size_t i = DrawObjects.size() - 1; i > 0; i--)
+    {
+        QString cn = DrawObjects[i].Pointer->ClassName();
+        if (cn == "TPaveText")
+        {
+            DrawObjects.erase(DrawObjects.begin()+i);
+            redrawAll();
+            if (ActiveBasketItem != -1) highlightUpdateBasketButton(true);
+            break;
+        }
+    }
+}
+
 void AGraphWindow::on_pbAddText_clicked()
 {
     addTextPanel("Text", true, 0);
@@ -2781,3 +2799,4 @@ void AGraphWindow::on_actionSet_palette_triggered()
     connect(&dia, &APaletteSelectionDialog::requestRedraw, this, &AGraphWindow::redrawAll);
     dia.exec();
 }
+
