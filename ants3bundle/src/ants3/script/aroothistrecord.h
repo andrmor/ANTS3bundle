@@ -3,7 +3,6 @@
 
 #include "arootobjbase.h"
 
-#include <QVector>
 #include <QString>
 #include <QMutex>
 

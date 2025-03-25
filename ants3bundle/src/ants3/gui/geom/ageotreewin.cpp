@@ -13,12 +13,12 @@
 #include "aconfig.h"
 #include "a3global.h"
 #include "ageometrytester.h"
-#include "ajsontools.h"
-#include "afiletools.h"
+//#include "ajsontools.h"
+//#include "afiletools.h"
 #include "guitools.h"
 #include "alineeditwithescape.h"
 #include "aerrorhub.h"
-#include "aonelinetextedit.h"
+//#include "aonelinetextedit.h"
 #include "ageobasedelegate.h"
 #include "amonitorhub.h"
 #include "amonitor.h"
@@ -69,12 +69,7 @@ AGeoTreeWin::AGeoTreeWin(QWidget * parent) :
     connect(twGeo, &AGeoTree::RequestShowAllInstances, this, &AGeoTreeWin::showAllInstances);
     connect(twGeo, &AGeoTree::requestDraw,             this, &AGeoTreeWin::requestDraw);
     connect(twGeo->GetEditWidget(), &AGeoDelegateWidget::requestEnableGeoConstWidget, this, &AGeoTreeWin::onRequestEnableGeoConstWidget);
-    // !!!***
-    //  connect(twGeo, &AGeoTree::RequestNormalDetectorDraw, MW, &MainWindow::ShowGeometrySlot);
     connect(twGeo, &AGeoTree::RequestShowPrototypeList, this, &AGeoTreeWin::onRequestShowPrototypeList);
-    // !!!***
-    //  connect(Detector->Sandwich, &ASandwich::RequestGuiUpdate, this, &A3GeoConWin::onSandwichRebuild);
-
     connect(this, &AGeoTreeWin::requestDelayedRebuildAndRestoreDelegate, twGeo, &AGeoTree::rebuildDetectorAndRestoreCurrentDelegate, Qt::QueuedConnection);
 
     ui->pteTP->setReadOnly(true);
@@ -824,30 +819,20 @@ void AGeoTreeWin::on_tabwConstants_customContextMenuRequested(const QPoint &pos)
     }
     else if (selected == removeAllA)
     {
-        int inUse = 0;
         for (int iC = GC.countConstants()-1; iC >=0 ; iC--)
         {
             QString name = GC.getName(iC);
             if (!name.isEmpty())
             {
                 QString constUsingIt = GC.isGeoConstInUse(QRegularExpression("\\b"+name+"\\b"), iC);
-                if (!constUsingIt.isEmpty())
-                {
-                    inUse++;
-                    continue;
-                }
+                if (!constUsingIt.isEmpty()) continue;
                 const AGeoObject * obj = Geometry.World->isGeoConstInUseRecursive(QRegularExpression("\\b"+name+"\\b"));
-                if (obj)
-                {
-                    inUse++;
-                    continue;
-                }
+                if (obj) continue;
             }
 
             GC.removeConstant(iC);
         }
 
-        //if (inUse > 0)guitools::message("The constants in use cannot be removed", this);
         updateGeoConstsIndication();
         emit requestDelayedRebuildAndRestoreDelegate();
     }

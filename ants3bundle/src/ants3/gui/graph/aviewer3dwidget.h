@@ -6,7 +6,7 @@
 #include <QWidget>
 
 //class RasterWindowBaseClass;
-class RasterWindowGraphClass;
+class AGraphRasterWindow;
 class TH2D;
 
 namespace Ui {
@@ -57,7 +57,7 @@ private:
     Ui::AViewer3DWidget * ui = nullptr;
 
     //RasterWindowBaseClass * RasterWindow = nullptr;
-    RasterWindowGraphClass * RasterWindow = nullptr;
+    AGraphRasterWindow * RasterWindow = nullptr;
 
     TH2D * Hist = nullptr;
 

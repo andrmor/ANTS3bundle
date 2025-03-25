@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>GraphWindowClass</class>
- <widget class="QMainWindow" name="GraphWindowClass">
+ <class>AGraphWindow</class>
+ <widget class="QMainWindow" name="AGraphWindow">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -2231,7 +2231,7 @@ in basket</string>
   <connection>
    <sender>ledXcenter</sender>
    <signal>editingFinished()</signal>
-   <receiver>GraphWindowClass</receiver>
+   <receiver>AGraphWindow</receiver>
    <slot>selBoxControlsUpdated()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -2247,7 +2247,7 @@ in basket</string>
   <connection>
    <sender>ledWidth</sender>
    <signal>editingFinished()</signal>
-   <receiver>GraphWindowClass</receiver>
+   <receiver>AGraphWindow</receiver>
    <slot>selBoxControlsUpdated()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -2263,7 +2263,7 @@ in basket</string>
   <connection>
    <sender>ledYcenter</sender>
    <signal>editingFinished()</signal>
-   <receiver>GraphWindowClass</receiver>
+   <receiver>AGraphWindow</receiver>
    <slot>selBoxControlsUpdated()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -2279,7 +2279,7 @@ in basket</string>
   <connection>
    <sender>ledHeight</sender>
    <signal>editingFinished()</signal>
-   <receiver>GraphWindowClass</receiver>
+   <receiver>AGraphWindow</receiver>
    <slot>selBoxControlsUpdated()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -2295,7 +2295,7 @@ in basket</string>
   <connection>
    <sender>ledAngle</sender>
    <signal>editingFinished()</signal>
-   <receiver>GraphWindowClass</receiver>
+   <receiver>AGraphWindow</receiver>
    <slot>selBoxControlsUpdated()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -2311,7 +2311,7 @@ in basket</string>
   <connection>
    <sender>ledRulerX</sender>
    <signal>editingFinished()</signal>
-   <receiver>GraphWindowClass</receiver>
+   <receiver>AGraphWindow</receiver>
    <slot>rulerControlsP1Updated()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -2327,7 +2327,7 @@ in basket</string>
   <connection>
    <sender>ledRulerY</sender>
    <signal>editingFinished()</signal>
-   <receiver>GraphWindowClass</receiver>
+   <receiver>AGraphWindow</receiver>
    <slot>rulerControlsP1Updated()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -2343,7 +2343,7 @@ in basket</string>
   <connection>
    <sender>ledRulerLen</sender>
    <signal>editingFinished()</signal>
-   <receiver>GraphWindowClass</receiver>
+   <receiver>AGraphWindow</receiver>
    <slot>rulerControlsLenAngleUpdated()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -2359,7 +2359,7 @@ in basket</string>
   <connection>
    <sender>ledRulerAngle</sender>
    <signal>editingFinished()</signal>
-   <receiver>GraphWindowClass</receiver>
+   <receiver>AGraphWindow</receiver>
    <slot>rulerControlsLenAngleUpdated()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -2375,7 +2375,7 @@ in basket</string>
   <connection>
    <sender>ledRulerX2</sender>
    <signal>editingFinished()</signal>
-   <receiver>GraphWindowClass</receiver>
+   <receiver>AGraphWindow</receiver>
    <slot>rulerControlsP2Updated()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -2391,7 +2391,7 @@ in basket</string>
   <connection>
    <sender>ledRulerY2</sender>
    <signal>editingFinished()</signal>
-   <receiver>GraphWindowClass</receiver>
+   <receiver>AGraphWindow</receiver>
    <slot>rulerControlsP2Updated()</slot>
    <hints>
     <hint type="sourcelabel">

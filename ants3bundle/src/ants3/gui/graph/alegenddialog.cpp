@@ -17,13 +17,12 @@
 #include <QCheckBox>
 #include <QMenuBar>
 #include <QStatusBar>
+#include <QVBoxLayout>
 
 #include "TLegendEntry.h"
 #include "TList.h"
 
-#include <QVBoxLayout>
-
-ALegendDialog::ALegendDialog(TLegend & Legend, const QVector<ADrawObject> & DrawObjects, QWidget * parent) :
+ALegendDialog::ALegendDialog(TLegend & Legend, const std::vector<ADrawObject> &DrawObjects, QWidget * parent) :
     QDialog(parent), ui(new Ui::ALegendDialog),
     Legend(Legend), DrawObjects(DrawObjects)
 {
@@ -90,7 +89,7 @@ void ALegendDialog::updateModel(TLegend & legend)
     {
         TLegendEntry * en = static_cast<TLegendEntry*>( (*elist).At(ie) );
 
-        CurrentModel.Model << ALegendEntryRecord(en->GetLabel(), en->GetObject(), en->GetOption());
+        CurrentModel.Model.push_back( ALegendEntryRecord(en->GetLabel(), en->GetObject(), en->GetOption()) );
 
         if (en->GetTextAlign() == 0)
         {
@@ -102,7 +101,7 @@ void ALegendDialog::updateModel(TLegend & legend)
                  en->GetTextFont()  != CurrentModel.DefaultTextFont  ||
                  en->GetTextSize()  != CurrentModel.DefaultTextSize)
         {
-            ALegendEntryRecord & m = CurrentModel.Model.last();
+            ALegendEntryRecord & m = CurrentModel.Model.back();
             m.bAttributeOverride = true;
             m.TextColor = en->GetTextColor();
             m.TextAlign = en->GetTextAlign();
@@ -215,12 +214,13 @@ void ALegendDialog::removeAllSelectedEntries()
          bConfirm = guitools::confirm(QString("Remove %1 selected entr%2?").arg(size).arg(size == 1 ? "y" : "is"), this);
     if (!bConfirm) return;
 
-    QVector<int> indexes;
+    std::vector<int> indexes;
     for (QListWidgetItem * item : selection)
-        indexes << lwList->row(item);
+        indexes.push_back( lwList->row(item) );
     std::sort(indexes.begin(), indexes.end());
     for (int i = indexes.size() - 1; i >= 0; i--)
-        CurrentModel.Model.remove(indexes.at(i));
+        //CurrentModel.Model.remove(indexes[i]);
+        CurrentModel.Model.erase(CurrentModel.Model.begin() + indexes[i]);
 
     updateMainGui();
     updateLegend();
@@ -295,25 +295,27 @@ void ALegendDialog::onEntryWasEdited(int index, const QString &label, bool line,
     updateLegend();
 }
 
-void ALegendDialog::onReorderEntriesRequested(const QVector<int> &indexes, int toRow)
+void ALegendDialog::onReorderEntriesRequested(const std::vector<int> & indexes, int toRow)
 {
-    QVector< ALegendEntryRecord > ItemsToMove;
+    std::vector< ALegendEntryRecord > ItemsToMove;
     for (int i = 0; i < indexes.size(); i++)
     {
-        const int index = indexes.at(i);
-        ItemsToMove << CurrentModel.Model.at(index);
+        const int index = indexes[i];
+        ItemsToMove.push_back( CurrentModel.Model.at(index) );
         CurrentModel.Model[index]._flag = true;       // mark to be deleted
     }
 
     for (int i = 0; i < ItemsToMove.size(); i++)
     {
-        CurrentModel.Model.insert(toRow, ItemsToMove.at(i));
+        //CurrentModel.Model.insert(toRow, ItemsToMove[i]);
+        CurrentModel.Model.insert(CurrentModel.Model.begin() + toRow, ItemsToMove[i]);
         toRow++;
     }
 
     for (int i = CurrentModel.Model.size()-1; i >= 0; i--)
-        if (CurrentModel.Model.at(i)._flag)
-            CurrentModel.Model.remove(i);
+        if (CurrentModel.Model[i]._flag)
+            //CurrentModel.Model.remove(i);
+            CurrentModel.Model.erase(CurrentModel.Model.begin() + i);
 
     updateMainGui();
     updateLegend();
@@ -350,13 +352,13 @@ void ALegendDialog::deleteSelectedEntry()
     int row = lwList->currentRow();
     if (row == -1) return;
 
-    CurrentModel.Model.remove(row);
+    CurrentModel.Model.erase(CurrentModel.Model.begin() + row);
     updateMainGui();
 }
 
 void ALegendDialog::addText()
 {
-    CurrentModel.Model << ALegendEntryRecord("Text", nullptr, "");
+    CurrentModel.Model.push_back( ALegendEntryRecord("Text", nullptr, "") );
     //CurrentModel.Model.last().Options += "h";
     updateMainGui();
     updateLegend();
@@ -391,7 +393,7 @@ void ALegendDialog::on_twTree_itemDoubleClicked(QTreeWidgetItem *item, int)
         return;
     }
 
-    CurrentModel.Model << ALegendEntryRecord(DrawObjects[index].Name, obj, "lpf");
+    CurrentModel.Model.push_back( ALegendEntryRecord(DrawObjects[index].Name, obj, "lpf") );
     updateMainGui();
     updateLegend();
 }

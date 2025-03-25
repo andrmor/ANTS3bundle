@@ -5,10 +5,11 @@
 #include "apadproperties.h"
 
 #include <QMainWindow>
-#include <QVector>
+
+#include <vector>
 
 class ABasketManager;
-class RasterWindowBaseClass;
+class ARasterWindow;
 class ABasketListWidget;
 class ADrawObject;
 class QJsonObject;
@@ -29,7 +30,7 @@ public:
     ~AMultiGraphDesigner();
 
     void updateBasketGUI();  // triggered from GraphWindow::UpdatebasketGui()
-    void requestAutoconfigureAndDraw(const QVector<int> & basketItems);
+    void requestAutoconfigureAndDraw(const std::vector<int> & basketItems);
 
     void updateGUI();
 
@@ -73,11 +74,11 @@ private:
     ABasketManager & Basket;
 
     Ui::AMultiGraphDesigner * ui;
-    RasterWindowBaseClass   * RasterWindow = nullptr;
+    ARasterWindow   * RasterWindow = nullptr;
     ABasketListWidget       * lwBasket     = nullptr;
 
-    QVector<APadProperties> Pads;
-    QVector<int> DrawOrder;
+    std::vector<APadProperties> Pads;
+    std::vector<int>            DrawOrder;
     bool bColdStart = true;
 
     void clearGraphs();
@@ -85,7 +86,7 @@ private:
     void updateCanvas();
     void updateNumbers();
 
-    void drawGraph(const QVector<ADrawObject> DrawObjects, APadProperties & pad);
+    void drawGraph(const std::vector<ADrawObject> & DrawObjects, APadProperties & pad);
     void fillOutBasicLayout(int numX, int numY);
     void writeToJson(QJsonObject &json);
     QString readFromJson(const QJsonObject &json);

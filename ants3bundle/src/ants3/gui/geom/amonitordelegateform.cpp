@@ -9,6 +9,8 @@
 
 #include <QDebug>
 
+#include <vector>
+
 AMonitorDelegateForm::AMonitorDelegateForm(QWidget * parent) :
     QWidget(parent),
     ui(new Ui::AMonitorDelegateForm)
@@ -162,8 +164,8 @@ bool AMonitorDelegateForm::updateObject(AGeoObject * obj)
         return false;
     }
 
-    QVector<QString> tempStrs(6);
-    QVector<double>  tempDoubles(6);
+    std::vector<QString> tempStrs(6);
+    std::vector<double>  tempDoubles(6);
     ok = true;
     ok = ok && AGeoBaseDelegate::processEditBox("X position",      leX,     tempDoubles[0], tempStrs[0], this->parentWidget());
     ok = ok && AGeoBaseDelegate::processEditBox("Y position",      leY,     tempDoubles[1], tempStrs[1], this->parentWidget());

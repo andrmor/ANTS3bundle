@@ -11,7 +11,7 @@ AScriptExampleDatabase::AScriptExampleDatabase(QString configText)
         AScriptExample example;
         if (example.readFromRecord(list.at(i)))
         {
-            Examples.append(example);
+            Examples.push_back(example);
             for (int j = 0; j < example.Tags.size(); j++)
                 if (!Tags.contains(example.Tags.at(j))) Tags.append(example.Tags.at(j));
         }

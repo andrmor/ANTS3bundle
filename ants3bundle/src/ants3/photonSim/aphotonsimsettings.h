@@ -12,7 +12,7 @@
 
 #include "TString.h"
 
-// !!!*** implement usage of AErrorHub
+// !!!*** AErrorHub
 
 class QJsonObject;
 
@@ -38,17 +38,13 @@ public:
     void   toWavelength(std::vector<std::pair<double, double>> & waveIndex_I_pairs) const;
     int    toIndex(double wavelength) const;   // TODO: compare with fast method!
     int    toIndexFast(double wavelength) const; //not safe
-    // TODO: refactor:
-    void   toStandardBins(const QVector<double> *wavelength, const QVector<double> *value, QVector<double>* binnedValue) const;
+
     void   toStandardBins(const std::vector<double> & wavelength, const std::vector<double> & value, std::vector<double> & binnedValue) const;
     void   toStandardBins(const std::vector<std::pair<double,double>> & waveAndData, std::vector<double> & binnedValue) const;
     void   toStandardBins(const std::vector<std::pair<double,std::complex<double>>> & waveReIm, std::vector<std::complex<double>> & reIm) const;
 
     void   getWavelengthBins(std::vector<double> & wavelength) const;
     std::vector<double> getVectorOfIndexes() const;
-
-private:
-    double getInterpolatedValue(double val, const QVector<double> *X, const QVector<double> *F) const;
 
 public:
     static double getInterpolatedValue(double val, const std::vector<double> & X, const std::vector<double> & F);  // !!!*** consider moving to some tool header

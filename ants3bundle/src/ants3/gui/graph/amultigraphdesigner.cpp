@@ -1,6 +1,6 @@
 #include "amultigraphdesigner.h"
 #include "ui_amultigraphdesigner.h"
-#include "rasterwindowbaseclass.h"
+#include "arasterwindow.h"
 #include "guitools.h"
 #include "abasketlistwidget.h"
 #include "abasketmanager.h"
@@ -27,9 +27,9 @@ AMultiGraphDesigner::AMultiGraphDesigner(ABasketManager & Basket, QWidget *paren
 {
     ui->setupUi(this);
 
-    RasterWindow = new RasterWindowBaseClass(0);
+    RasterWindow = new ARasterWindow(0);
     RasterWindow->resize(400, 400);
-    RasterWindow->ForceResize();
+    RasterWindow->forceResize();
     ui->lMainLayout->insertWidget(0, RasterWindow);
 
     lwBasket = new ABasketListWidget();
@@ -70,7 +70,7 @@ void AMultiGraphDesigner::updateBasketGUI()
     }
 }
 
-void AMultiGraphDesigner::requestAutoconfigureAndDraw(const QVector<int> & basketItems)
+void AMultiGraphDesigner::requestAutoconfigureAndDraw(const std::vector<int> & basketItems)
 {
     clearGraphs();
 
@@ -90,7 +90,7 @@ void AMultiGraphDesigner::on_actionAs_pdf_triggered()
     QString fileName = QFileDialog::getSaveFileName(this, "Export multigraph\nFile suffix defines the file type", "");
     if (fileName.isEmpty()) return;
 
-    RasterWindow->SaveAs(fileName);
+    RasterWindow->saveAs(fileName);
 }
 
 void AMultiGraphDesigner::on_actionSave_triggered()
@@ -147,11 +147,12 @@ void AMultiGraphDesigner::addDraw(QListWidget * lw)
 {
     const int currentRow = lw->currentRow();
 
-    if (DrawOrder.contains(currentRow))
+    //if (DrawOrder.contains(currentRow))
+    if (std::find(DrawOrder.begin(), DrawOrder.end(), currentRow) != DrawOrder.end())
         guitools::message("Already drawn!", lwBasket);
     else
     {
-        DrawOrder << currentRow;
+        DrawOrder.push_back(currentRow);
         on_pbRefactor_clicked();
     }
 }
@@ -171,7 +172,7 @@ void AMultiGraphDesigner::clearGraphs()
     TCanvas *c1 = RasterWindow->fCanvas;
     c1->Clear();
 
-    for (const APadProperties & pad : qAsConst(Pads))
+    for (const APadProperties & pad : Pads)
         for (const TObject * obj : pad.tmpObjects)
             delete obj;
 
@@ -185,15 +186,13 @@ void AMultiGraphDesigner::updateGUI()
     updateNumbers();
 }
 
-void AMultiGraphDesigner::drawGraph(const QVector<ADrawObject> DrawObjects, APadProperties & pad)
+void AMultiGraphDesigner::drawGraph(const std::vector<ADrawObject> & DrawObjects, APadProperties & pad)
 {
-    for (int i=0; i<DrawObjects.length(); i++)
+    for (const ADrawObject & drObj : DrawObjects)
     {
-        const ADrawObject & drObj = DrawObjects.at(i);
         TObject * tObj = drObj.Pointer;
-
         tObj->Draw(drObj.Options.toLatin1().data());
-        pad.tmpObjects.append(tObj);
+        pad.tmpObjects.push_back(tObj);
     }
 }
 
@@ -203,7 +202,7 @@ void AMultiGraphDesigner::updateCanvas()
 {
     TCanvas * canvas = RasterWindow->fCanvas;
 
-    for (int iPad = 0; iPad < Pads.size(); iPad++)
+    for (size_t iPad = 0; iPad < Pads.size(); iPad++)
     {
         APadProperties & pad = Pads[iPad];
         canvas->cd();
@@ -214,10 +213,10 @@ void AMultiGraphDesigner::updateCanvas()
             int iBasketIndex = DrawOrder.at(iPad);
             if (iBasketIndex < Basket.size() && iBasketIndex >= 0)
             {
-                const QVector<ADrawObject> DrawObjects = Basket.getCopy(iBasketIndex);
+                const std::vector<ADrawObject> DrawObjects = Basket.getCopy(iBasketIndex);
                 pad.tPad->cd();
 
-                if (!DrawObjects.isEmpty())
+                if (!DrawObjects.empty())
                 {
                     pad.tPad->SetLogx(DrawObjects.front().bLogScaleX);
                     pad.tPad->SetLogy(DrawObjects.front().bLogScaleY);
@@ -354,7 +353,7 @@ void AMultiGraphDesigner::fillOutBasicLayout(int numX, int numY)
             TPad * ipad = new TPad(padName.toLatin1().data(), "", x1, y1, x2, y2);
             APadProperties apad(ipad);
 
-            Pads << apad;
+            Pads.push_back(apad);
         }
     }
 
@@ -377,7 +376,7 @@ void AMultiGraphDesigner::writeToJson(QJsonObject & json)
     json["Pads"] = ar;
 
     QJsonArray arI;
-    for (int i : qAsConst(DrawOrder)) arI << i;
+    for (int i : DrawOrder) arI << i;
     json["DrawOrder"] = arI;
 
     json["WinWidth"]  = width();
@@ -398,7 +397,7 @@ QString AMultiGraphDesigner::readFromJson(const QJsonObject & json)
 
         APadProperties newPad;
         newPad.readFromJson(js);
-        Pads << newPad;
+        Pads.push_back(newPad);
     }
 
     int numX = 2, numY = 1;
@@ -409,7 +408,8 @@ QString AMultiGraphDesigner::readFromJson(const QJsonObject & json)
 
     QJsonArray arI;
     jstools::parseJson(json, "DrawOrder", arI);
-    for (int i = 0; i < arI.size(); i++) DrawOrder << arI.at(i).toInt();
+    for (int i = 0; i < arI.size(); i++)
+        DrawOrder.push_back( arI[i].toInt() );
 
     int w = 600, h = 400;
     jstools::parseJson(json, "WinWidth", w);
@@ -422,7 +422,7 @@ QString AMultiGraphDesigner::readFromJson(const QJsonObject & json)
 QString AMultiGraphDesigner::PadsToString()
 {
     QString str;
-    for (const APadProperties & pad : qAsConst(Pads))
+    for (const APadProperties & pad : Pads)
     {
         str += "{";
         str += pad.toString();
@@ -443,7 +443,7 @@ bool AMultiGraphDesigner::event(QEvent *event)
 {
     if (event->type() == QEvent::WindowActivate)
     {
-        RasterWindow->UpdateRootCanvas();
+        RasterWindow->updateRootCanvas();
     }
 
     if (event->type() == QEvent::Show)
@@ -460,7 +460,7 @@ bool AMultiGraphDesigner::event(QEvent *event)
             //qDebug() << "Graph win show event";
             //updateGUI();
             //RasterWindow->UpdateRootCanvas();
-            QTimer::singleShot(100, RasterWindow, [this](){RasterWindow->UpdateRootCanvas();}); // without delay canvas is not shown in Qt 5.9.5
+            QTimer::singleShot(100, RasterWindow, [this](){RasterWindow->updateRootCanvas();}); // without delay canvas is not shown in Qt 5.9.5
         }
     }
 

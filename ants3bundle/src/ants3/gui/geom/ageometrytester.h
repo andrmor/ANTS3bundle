@@ -2,7 +2,8 @@
 #define AGEOMETRYTESTER_H
 
 #include <QString>
-#include <QVector>
+
+#include <vector>
 
 class AGeometryTesterReportRecord;
 class TGeoManager;
@@ -13,11 +14,11 @@ public:
     AGeometryTester(TGeoManager* GeoManager) : GeoManager(GeoManager) {}
     void Test(double* start, double* direction);
 
-    QVector<AGeometryTesterReportRecord> Record;
+    std::vector<AGeometryTesterReportRecord> Record;
     double escapeX, escapeY, escapeZ;
 
 private:
-   TGeoManager* GeoManager;
+   TGeoManager * GeoManager = nullptr;
 };
 
 class AGeometryTesterReportRecord

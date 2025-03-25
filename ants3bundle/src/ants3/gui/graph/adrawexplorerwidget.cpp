@@ -2,9 +2,11 @@
 #include "arootmarkerconfigurator.h"
 #include "arootlineconfigurator.h"
 #include "guitools.h"
-#include "graphwindowclass.h"
+#include "agraphwindow.h"
 #include "afiletools.h"
 #include "alinemarkerfilldialog.h"
+#include "agraphrasterwindow.h"
+#include "atextpavedialog.h"
 
 #ifdef USE_EIGEN
     #include "curvefit.h"
@@ -27,6 +29,7 @@
 #include <QColor>
 
 #include "TObject.h"
+#include "TPaveText.h"
 #include "TNamed.h"
 #include "TAttMarker.h"
 #include "TAttLine.h"
@@ -40,10 +43,9 @@
 #include "TGaxis.h"
 #include "TColor.h"
 #include "TROOT.h"
-#include "TFile.h"
 
-ADrawExplorerWidget::ADrawExplorerWidget(GraphWindowClass & GraphWindow, QVector<ADrawObject> & DrawObjects) :
-    GraphWindow(GraphWindow), DrawObjects(DrawObjects)
+ADrawExplorerWidget::ADrawExplorerWidget(AGraphWindow & GraphWindow, std::vector<ADrawObject> &DrawObjects) :
+    GraphWindow(GraphWindow), Raster(*GraphWindow.RasterWindow), DrawObjects(DrawObjects)
 {
     setHeaderHidden(true);
     setContextMenuPolicy(Qt::CustomContextMenu);
@@ -180,7 +182,7 @@ void ADrawExplorerWidget::showObjectContextMenu(const QPoint &pos, int index)
         QAction * linFitA    = fitMenu->addAction("Linear (use click-drag)");     linFitA->setEnabled(Type.startsWith("TH1") || Type == "TProfile" || Type.startsWith("TGraph"));
         QAction * fwhmA      = fitMenu->addAction("Gauss (use click-frag)");      fwhmA->  setEnabled(Type.startsWith("TH1") || Type == "TProfile" || Type.startsWith("TGraph"));
         QAction * expA       = fitMenu->addAction("Exp. decay (use click-drag)"); expA->   setEnabled(Type.startsWith("TH1") || Type == "TProfile" || Type.startsWith("TGraph"));
-        QAction * splineFitA = fitMenu->addAction("B-spline"); splineFitA->setEnabled(Type == "TGraph" || Type == "TGraphErrors");   //*** implement for TH1 too!
+        //QAction * splineFitA = fitMenu->addAction("B-spline"); splineFitA->setEnabled(Type == "TGraph" || Type == "TGraphErrors");   //*** implement for TH1 too!
         fitMenu->addSeparator();
         QAction * gauss2FitA = fitMenu->addAction("Symmetric Gauss (use click-drag)"); gauss2FitA->setEnabled(Type.startsWith("TH2"));
                   gauss2FitA->setToolTip("Select a rectangular area indicating the fitting range.\nIf fit fails, try to center the area at the expected mean position");
@@ -239,7 +241,7 @@ void ADrawExplorerWidget::showObjectContextMenu(const QPoint &pos, int index)
     else if (si == addAxisRight) addAxis(1);
     else if (si == shiftA)       shift(obj);
     else if (si == medianA)      median(obj);
-    else if (si == splineFitA)   splineFit(index);
+    //else if (si == splineFitA)   splineFit(index);
     else if (si == projX)        projection(obj, 0);
     else if (si == projY)        projection(obj, 1);
     else if (si == projZ)        projection(obj, 2);
@@ -342,8 +344,8 @@ void ADrawExplorerWidget::activateCustomGuiForItem(int index)
 
 void ADrawExplorerWidget::addToDrawObjectsAndRegister(TObject * pointer, const QString & options)
 {
-    DrawObjects << ADrawObject(pointer, options);
-    GraphWindow.RegisterTObject(pointer);
+    DrawObjects.push_back( ADrawObject(pointer, options) );
+    GraphWindow.registerTObject(pointer);
 }
 
 void ADrawExplorerWidget::rename(ADrawObject & obj)
@@ -356,9 +358,9 @@ void ADrawExplorerWidget::rename(ADrawObject & obj)
     TNamed * tobj = dynamic_cast<TNamed*>(obj.Pointer);
     if (tobj) tobj->SetTitle(text.toLatin1().data());
 
-    GraphWindow.ClearCopyOfDrawObjects();
-    GraphWindow.RedrawAll();
-    GraphWindow.HighlightUpdateBasketButton(true);
+    GraphWindow.clearCopyOfDrawObjects();
+    GraphWindow.redrawAll();
+    GraphWindow.highlightUpdateBasketButton(true);
     updateGui();
 }
 
@@ -366,25 +368,25 @@ void ADrawExplorerWidget::toggleEnable(ADrawObject & obj)
 {
     obj.bEnabled = !obj.bEnabled;
 
-    GraphWindow.ClearCopyOfDrawObjects();
-    GraphWindow.RedrawAll();
-    GraphWindow.HighlightUpdateBasketButton(true);
+    GraphWindow.clearCopyOfDrawObjects();
+    GraphWindow.redrawAll();
+    GraphWindow.highlightUpdateBasketButton(true);
 }
 
 void ADrawExplorerWidget::remove(int index)
 {
-    GraphWindow.MakeCopyOfDrawObjects();
+    GraphWindow.makeCopyOfDrawObjects();
 
-    DrawObjects.remove(index); // do not delete - GraphWindow handles garbage collection!
+    DrawObjects.erase(DrawObjects.begin() + index); // do not delete - GraphWindow handles garbage collection!
 
-    if (index == 0 && !DrawObjects.isEmpty())
+    if (index == 0 && !DrawObjects.empty())
     {
         //remove "same" from the options line for the new leading object
-        DrawObjects.first().Options.remove("same", Qt::CaseInsensitive);
+        DrawObjects.front().Options.remove("same", Qt::CaseInsensitive);
     }
 
-    GraphWindow.RedrawAll();
-    GraphWindow.HighlightUpdateBasketButton(true);
+    GraphWindow.redrawAll();
+    GraphWindow.highlightUpdateBasketButton(true);
 }
 
 void ADrawExplorerWidget::setAttributes(int index)
@@ -396,11 +398,11 @@ void ADrawExplorerWidget::setAttributes(int index)
     if (Type == "TLegend") return;
 
     ALineMarkerFillDialog D(obj, (index == 0), this);
-    connect(&D, &ALineMarkerFillDialog::requestRedraw, &GraphWindow, &GraphWindowClass::RedrawAll);
+    connect(&D, &ALineMarkerFillDialog::requestRedraw, &GraphWindow, &AGraphWindow::redrawAll);
     D.exec();
 
-    GraphWindow.RedrawAll();
-    GraphWindow.HighlightUpdateBasketButton(true);
+    GraphWindow.redrawAll();
+    GraphWindow.highlightUpdateBasketButton(true);
 }
 
 void ADrawExplorerWidget::showPanel(ADrawObject &obj)
@@ -482,9 +484,9 @@ bool ADrawExplorerWidget::canScale(ADrawObject & obj)
 
 void ADrawExplorerWidget::doScale(ADrawObject &obj, double sf)
 {
-    GraphWindow.MakeCopyOfDrawObjects();
+    GraphWindow.makeCopyOfDrawObjects();
     TObject * tobj = obj.Pointer->Clone();
-    GraphWindow.RegisterTObject(tobj);
+    GraphWindow.registerTObject(tobj);
 
     const QString name = obj.Pointer->ClassName();
     if (name == "TGraph")
@@ -516,8 +518,8 @@ void ADrawExplorerWidget::doScale(ADrawObject &obj, double sf)
     }
     obj.Pointer = tobj;
 
-    GraphWindow.RedrawAll();
-    GraphWindow.HighlightUpdateBasketButton(true);
+    GraphWindow.redrawAll();
+    GraphWindow.highlightUpdateBasketButton(true);
 }
 
 void ADrawExplorerWidget::scale(ADrawObject &obj)
@@ -570,13 +572,13 @@ void ADrawExplorerWidget::scaleCDR(ADrawObject &obj)
 {
     if (!canScale(obj)) return;
 
-    GraphWindow.TriggerGlobalBusy(true);
+    GraphWindow.triggerGlobalBusy(true);
 
-    GraphWindow.Extract2DLine();
-    if (!GraphWindow.Extraction()) return; //cancel
+    Raster.Extract2DLine();
+    if (!Raster.waitForExtractionFinished()) return; //cancel
 
-    double startY = GraphWindow.extracted2DLineYstart();
-    double stopY  = GraphWindow.extracted2DLineYstop();
+    double startY = Raster.Line2DstartY; // extracted2DLineYstart;
+    double stopY  = Raster.Line2DstopY;  // extracted2DLineYstop;
 
     if (startY == 0)  // can be very small on log canvas
     {
@@ -682,9 +684,9 @@ void ADrawExplorerWidget::shift(ADrawObject &obj)
     const QPair<double, double> val = runShiftDialog(&GraphWindow);
     if (val.first == 1.0 && val.second == 0) return;
 
-    GraphWindow.MakeCopyOfDrawObjects();
+    GraphWindow.makeCopyOfDrawObjects();
     TObject * tobj = obj.Pointer->Clone();
-    GraphWindow.RegisterTObject(tobj);
+    GraphWindow.registerTObject(tobj);
 
     if (name.startsWith("TGraph"))
     {
@@ -716,8 +718,8 @@ void ADrawExplorerWidget::shift(ADrawObject &obj)
     }
     obj.Pointer = tobj;
 
-    GraphWindow.RedrawAll();
-    GraphWindow.HighlightUpdateBasketButton(true);
+    GraphWindow.redrawAll();
+    GraphWindow.highlightUpdateBasketButton(true);
 }
 
 void ADrawExplorerWidget::drawIntegral(ADrawObject &obj)
@@ -754,14 +756,14 @@ void ADrawExplorerWidget::drawIntegral(ADrawObject &obj)
         const int points = g->GetN();
         double sum = 0;
         double x, y;
-        QVector<double> X; X.reserve(points);
-        QVector<double> Y; Y.reserve(points);
+        std::vector<double> X; X.reserve(points);
+        std::vector<double> Y; Y.reserve(points);
         for (int i=0; i<points; i++)
         {
             g->GetPoint(i, x, y);
-            X << x;
+            X.push_back(x);
             sum += y;
-            Y << sum;
+            Y.push_back(sum);
         }
 
         gi = new TGraph(points, X.data(), Y.data());
@@ -778,15 +780,15 @@ void ADrawExplorerWidget::drawIntegral(ADrawObject &obj)
         return;
     }
 
-    GraphWindow.MakeCopyOfDrawObjects();
-    GraphWindow.MakeCopyOfActiveBasketId();
-    GraphWindow.ClearBasketActiveId();
+    GraphWindow.makeCopyOfDrawObjects();
+    GraphWindow.makeCopyOfActiveBasketId();
+    GraphWindow.clearBasketActiveId();
 
     DrawObjects.clear();
     if (hi) addToDrawObjectsAndRegister(hi, "hist");
     else    addToDrawObjectsAndRegister(gi, "APL");
 
-    GraphWindow.RedrawAll();
+    GraphWindow.redrawAll();
 }
 
 void ADrawExplorerWidget::fraction(ADrawObject &obj)
@@ -921,19 +923,19 @@ void ADrawExplorerWidget::fwhm(int index)
         return;
     }
 
-    GraphWindow.TriggerGlobalBusy(true);
+    GraphWindow.triggerGlobalBusy(true);
 
-    GraphWindow.Extract2DLine();
-    if (!GraphWindow.Extraction()) return; //cancel
+    Raster.Extract2DLine();
+    if (!Raster.waitForExtractionFinished()) return; //cancel
 
-    double startX = GraphWindow.extracted2DLineXstart();
-    double stopX = GraphWindow.extracted2DLineXstop();
+    double startX = Raster.Line2DstartX; // extracted2DLineXstart();
+    double stopX  = Raster.Line2DstopX;  // extracted2DLineXstop();
     if (startX > stopX) std::swap(startX, stopX);
     //qDebug() << startX << stopX;
 
-    double a = GraphWindow.extracted2DLineA();
-    double b = GraphWindow.extracted2DLineB();
-    double c = GraphWindow.extracted2DLineC();
+    double a = Raster.extracted2DLineA;
+    double b = Raster.extracted2DLineB;
+    double c = Raster.extracted2DLineC;
     if (fabs(b) < 1.0e-10)
     {
         guitools::message("Bad base line, cannot fit", &GraphWindow);
@@ -942,7 +944,7 @@ void ADrawExplorerWidget::fwhm(int index)
                                                                    //  S  * exp( -0.5/s2 * (x   -m )^2) +  A *x +  B
     TF1 * f = new TF1("myfunc", GauseWithBase, startX, stopX, 5);  //  [0] * exp(    [1]  * (x + [2])^2) + [3]*x + [4]
     f->SetTitle("Gauss fit");
-    GraphWindow.RegisterTObject(f);
+    GraphWindow.registerTObject(f);
 
     double initMid = startX + 0.5*(stopX - startX);
     //qDebug() << "Initial mid:"<<initMid;
@@ -983,8 +985,8 @@ void ADrawExplorerWidget::fwhm(int index)
         return;
     }
 
-    GraphWindow.MakeCopyOfDrawObjects();
-    GraphWindow.MakeCopyOfActiveBasketId();
+    GraphWindow.makeCopyOfDrawObjects();
+    GraphWindow.makeCopyOfActiveBasketId();
 
     double mid = -f->GetParameter(2);
     double sigma = TMath::Sqrt(-0.5/f->GetParameter(1));
@@ -993,14 +995,14 @@ void ADrawExplorerWidget::fwhm(int index)
     double rel = FWHM/mid;
 
     //draw fit line
-    DrawObjects.insert(index+1, ADrawObject(f, "same"));
+    DrawObjects.insert(DrawObjects.begin()+index+1, ADrawObject(f, "same"));
     //draw base line
     TF1 *fl = new TF1("line", "pol1", startX, stopX);
     fl->SetTitle("Baseline");
-    GraphWindow.RegisterTObject(fl);
+    GraphWindow.registerTObject(fl);
     fl->SetLineStyle(2);
     fl->SetParameters(c/b, -a/b);
-    DrawObjects.insert(index+2, ADrawObject(fl, "same"));
+    DrawObjects.insert(DrawObjects.begin()+index+2, ADrawObject(fl, "same"));
 
     //box with results
     TPaveText * la = new TPaveText(0.15, 0.75, 0.5, 0.85, "NDC");
@@ -1012,11 +1014,11 @@ void ADrawExplorerWidget::fwhm(int index)
     QString text = QString("Mean: %0  Sigma: %1\nfwhm: %2  fwhm/mean: %3").arg(mid).arg(sigma).arg(FWHM).arg(rel);
     QStringList sl = text.split("\n");
     for (QString s : sl) la->AddText(s.toLatin1());
-    GraphWindow.RegisterTObject(la);
-    DrawObjects.insert(index+3, ADrawObject(la, "same"));
+    GraphWindow.registerTObject(la);
+    DrawObjects.insert(DrawObjects.begin()+index+3, ADrawObject(la, "same"));
 
-    GraphWindow.RedrawAll();
-    GraphWindow.HighlightUpdateBasketButton(true);
+    GraphWindow.redrawAll();
+    GraphWindow.highlightUpdateBasketButton(true);
 }
 
 void ADrawExplorerWidget::linFit(int index)
@@ -1043,18 +1045,18 @@ void ADrawExplorerWidget::linFit(int index)
         return;
     }
 
-    GraphWindow.TriggerGlobalBusy(true);
+    GraphWindow.triggerGlobalBusy(true);
 
-    GraphWindow.Extract2DLine();
-    if (!GraphWindow.Extraction()) return; //cancel
+    Raster.Extract2DLine();
+    if (!Raster.waitForExtractionFinished()) return; //cancel
 
-    double startX = GraphWindow.extracted2DLineXstart();
-    double stopX = GraphWindow.extracted2DLineXstop();
+    double startX = Raster.Line2DstartX; // extracted2DLineXstart();
+    double stopX  = Raster.Line2DstopX;  // extracted2DLineXstop();
     if (startX > stopX) std::swap(startX, stopX);
 
-    double a = GraphWindow.extracted2DLineA();
-    double b = GraphWindow.extracted2DLineB();
-    double c = GraphWindow.extracted2DLineC();
+    double a = Raster.extracted2DLineA;
+    double b = Raster.extracted2DLineB;
+    double c = Raster.extracted2DLineC;
     if (fabs(b) < 1.0e-10)
     {
         guitools::message("Bad line, cannot fit", &GraphWindow);
@@ -1063,7 +1065,7 @@ void ADrawExplorerWidget::linFit(int index)
 
     TF1 * f = new TF1("line", "pol1", startX, stopX);
     f->SetTitle("Linear fit");
-    GraphWindow.RegisterTObject(f);
+    GraphWindow.registerTObject(f);
 
     f->SetParameter(0, c/b);
     f->SetParameter(1, -a/b);
@@ -1075,13 +1077,13 @@ void ADrawExplorerWidget::linFit(int index)
         return;
     }
 
-    GraphWindow.MakeCopyOfDrawObjects();
-    GraphWindow.MakeCopyOfActiveBasketId();
+    GraphWindow.makeCopyOfDrawObjects();
+    GraphWindow.makeCopyOfActiveBasketId();
 
     double B = f->GetParameter(0);
     double A = f->GetParameter(1);
 
-    DrawObjects.insert(index+1, ADrawObject(f, "same"));
+    DrawObjects.insert(DrawObjects.begin()+index+1, ADrawObject(f, "same"));
 
     QString text = QString("y = Ax + B\nA = %1, B = %2\nx range: %3 -> %4").arg(A).arg(B).arg(startX).arg(stopX);
     if (A != 0) text += QString("\ny=0 at %1").arg(-B/A);
@@ -1092,11 +1094,11 @@ void ADrawExplorerWidget::linFit(int index)
     la->SetTextAlign( (0 + 1) * 10 + 2);
     QStringList sl = text.split("\n");
     for (QString s : sl) la->AddText(s.toLatin1());
-    GraphWindow.RegisterTObject(la);
-    DrawObjects.insert(index+2, ADrawObject(la, "same"));
+    GraphWindow.registerTObject(la);
+    DrawObjects.insert(DrawObjects.begin()+index+2, ADrawObject(la, "same"));
 
-    GraphWindow.RedrawAll();
-    GraphWindow.HighlightUpdateBasketButton(true);
+    GraphWindow.redrawAll();
+    GraphWindow.highlightUpdateBasketButton(true);
 }
 
 void ADrawExplorerWidget::expFit(int index)
@@ -1123,15 +1125,15 @@ void ADrawExplorerWidget::expFit(int index)
         return;
     }
 
-    GraphWindow.TriggerGlobalBusy(true);
+    GraphWindow.triggerGlobalBusy(true);
 
-    GraphWindow.Extract2DLine();
-    if (!GraphWindow.Extraction()) return; //cancel
+    Raster.Extract2DLine();
+    if (!Raster.waitForExtractionFinished()) return; //cancel
 
-    double startX = GraphWindow.extracted2DLineXstart();
-    double startY = GraphWindow.extracted2DLineYstart();
-    double stopX = GraphWindow.extracted2DLineXstop();
-    double stopY = GraphWindow.extracted2DLineYstop();
+    double startX = Raster.Line2DstartX; // extracted2DLineXstart();
+    double startY = Raster.Line2DstartY; // extracted2DLineYstart();
+    double stopX  = Raster.Line2DstopX;  // extracted2DLineXstop();
+    double stopY  = Raster.Line2DstopY;  // extracted2DLineYstop();
     if (startX > stopX)
     {
         std::swap(startX, stopX);
@@ -1140,7 +1142,7 @@ void ADrawExplorerWidget::expFit(int index)
 
     TF1 * f = new TF1("expDecay", "[0]*exp(-(x-[2])/[1])", startX, stopX);
     f->SetTitle("Exp decay fit");
-    GraphWindow.RegisterTObject(f);
+    GraphWindow.registerTObject(f);
 
     f->SetParameter(0, startY);
     f->SetParameter(1, stopX - startX);
@@ -1154,13 +1156,13 @@ void ADrawExplorerWidget::expFit(int index)
         return;
     }
 
-    GraphWindow.MakeCopyOfDrawObjects();
-    GraphWindow.MakeCopyOfActiveBasketId();
+    GraphWindow.makeCopyOfDrawObjects();
+    GraphWindow.makeCopyOfActiveBasketId();
 
     double A = f->GetParameter(0);
     double T = f->GetParameter(1);
 
-    DrawObjects.insert(index+1, ADrawObject(f, "same"));
+    DrawObjects.insert(DrawObjects.begin()+index+1, ADrawObject(f, "same"));
 
     QString text = QString("y = A*exp{-(t-t0)/T)}\nT = %1, A = %2, t0 = %3\nx range: %3 -> %4").arg(T).arg(A).arg(startX).arg(stopX);
     TPaveText* la = new TPaveText(0.15, 0.75, 0.5, 0.85, "NDC");
@@ -1170,11 +1172,11 @@ void ADrawExplorerWidget::expFit(int index)
     la->SetTextAlign( (0 + 1) * 10 + 2);
     QStringList sl = text.split("\n");
     for (QString s : sl) la->AddText(s.toLatin1());
-    GraphWindow.RegisterTObject(la);
-    DrawObjects.insert(index+2, ADrawObject(la, "same"));
+    GraphWindow.registerTObject(la);
+    DrawObjects.insert(DrawObjects.begin()+index+2, ADrawObject(la, "same"));
 
-    GraphWindow.RedrawAll();
-    GraphWindow.HighlightUpdateBasketButton(true);
+    GraphWindow.redrawAll();
+    GraphWindow.highlightUpdateBasketButton(true);
 }
 
 double gauss2D(double * x, double * par)
@@ -1198,16 +1200,16 @@ void ADrawExplorerWidget::gauss2Fit(int index)
         return;
     }
 
-    GraphWindow.TriggerGlobalBusy(true);
+    GraphWindow.triggerGlobalBusy(true);
 
-    GraphWindow.Extract2DBox();
-    if (!GraphWindow.Extraction()) return; //cancel
+    Raster.Extract2DBox();
+    if (!Raster.waitForExtractionFinished()) return; //cancel
 
-    double X1 = GraphWindow.extractedX1();
-    double X2 = GraphWindow.extractedX2();
+    double X1 = Raster.extractedX1;
+    double X2 = Raster.extractedX2;
     if (X1 > X2) std::swap(X1, X2);
-    double Y1 = GraphWindow.extractedY1();
-    double Y2 = GraphWindow.extractedY2();
+    double Y1 = Raster.extractedY1;
+    double Y2 = Raster.extractedY2;
     if (Y1 > Y2) std::swap(Y1, Y2);
 
     TH2 * h = static_cast<TH2*>(obj.Pointer);
@@ -1225,7 +1227,7 @@ void ADrawExplorerWidget::gauss2Fit(int index)
     //TF2 * f = new TF2("myfunc", gauss2Dsymmetric, xmin, xmax, ymin, ymax, 4);
     TF2 * f = new TF2("myfunc", gauss2Dsymmetric, X1, X2, Y1, Y2, 4);
     f->SetTitle("2D Gauss fit");
-    GraphWindow.RegisterTObject(f);
+    GraphWindow.registerTObject(f);
 
     f->SetParameter(0, A0);
     f->SetParameter(1, xmean);
@@ -1241,15 +1243,15 @@ void ADrawExplorerWidget::gauss2Fit(int index)
         return;
     }
 
-    GraphWindow.MakeCopyOfDrawObjects();
-    GraphWindow.MakeCopyOfActiveBasketId();
+    GraphWindow.makeCopyOfDrawObjects();
+    GraphWindow.makeCopyOfActiveBasketId();
 
     double A     = f->GetParameter(0); double dA     = f->GetParError(0);
     double x0    = f->GetParameter(1); double dx0    = f->GetParError(1);
     double y0    = f->GetParameter(2); double dy0    = f->GetParError(2);
     double Sigma = f->GetParameter(3); double dSigma = f->GetParError(3);
 
-    DrawObjects.insert(index+1, ADrawObject(f, "same"));
+    DrawObjects.insert(DrawObjects.begin()+index+1, ADrawObject(f, "same"));
 
     QString text = QString("MeanX: %0 #pm %1\nMeanY: %2 #pm %3\nSigma: %4 #pm %5\nScaling: %6 #pm %7")
                           .arg(x0).arg(dx0).arg(y0).arg(dy0).arg(Sigma).arg(dSigma).arg(A).arg(dA);
@@ -1260,11 +1262,11 @@ void ADrawExplorerWidget::gauss2Fit(int index)
     la->SetTextAlign( (0 + 1) * 10 + 2);
     QStringList sl = text.split("\n");
     for (const QString & s : sl) la->AddText(s.toLatin1());
-    GraphWindow.RegisterTObject(la);
-    DrawObjects.insert(index+2, ADrawObject(la, "same"));
+    GraphWindow.registerTObject(la);
+    DrawObjects.insert(DrawObjects.begin()+index+2, ADrawObject(la, "same"));
 
-    GraphWindow.RedrawAll();
-    GraphWindow.HighlightUpdateBasketButton(true);
+    GraphWindow.redrawAll();
+    GraphWindow.highlightUpdateBasketButton(true);
 }
 
 void ADrawExplorerWidget::interpolate(ADrawObject &obj)
@@ -1318,15 +1320,15 @@ void ADrawExplorerWidget::interpolate(ADrawObject &obj)
         QString Xtitle = hist->GetXaxis()->GetTitle();
         if (!Xtitle.isEmpty()) hi->GetXaxis()->SetTitle(Xtitle.toLocal8Bit().data());
 
-        GraphWindow.MakeCopyOfDrawObjects();
-        GraphWindow.MakeCopyOfActiveBasketId();
-        GraphWindow.ClearBasketActiveId();
+        GraphWindow.makeCopyOfDrawObjects();
+        GraphWindow.makeCopyOfActiveBasketId();
+        GraphWindow.clearBasketActiveId();
 
         DrawObjects.clear();
         addToDrawObjectsAndRegister(hi, "hist");
 
-        GraphWindow.RedrawAll();
-        GraphWindow.HighlightUpdateBasketButton(true);
+        GraphWindow.redrawAll();
+        GraphWindow.highlightUpdateBasketButton(true);
 
         d.accept();
     }
@@ -1366,15 +1368,15 @@ void ADrawExplorerWidget::median(ADrawObject &obj)
         int deltaLeft  = ( span % 2 == 0 ? span / 2 - 1 : span / 2 );
         int deltaRight = span / 2;
 
-        QVector<double> Filtered;
+        std::vector<double> Filtered;
         int num = hist->GetNbinsX();
         for (int iThisBin = 1; iThisBin <= num; iThisBin++)  // 0-> underflow; num+1 -> overflow
         {
-            QVector<double> content;
+            std::vector<double> content;
             for (int i = iThisBin - deltaLeft; i <= iThisBin + deltaRight; i++)
             {
                 if (i < 1 || i > num) continue;
-                content << hist->GetBinContent(i);
+                content.push_back( hist->GetBinContent(i) );
             }
 
             std::sort(content.begin(), content.end());
@@ -1383,7 +1385,7 @@ void ADrawExplorerWidget::median(ADrawObject &obj)
             if (size == 0) val = 0;
             else val = ( size % 2 == 0 ? (content[size / 2 - 1] + content[size / 2]) / 2 : content[size / 2] );
 
-            Filtered.append(val);
+            Filtered.push_back(val);
         }
 
         TH1 * hc = dynamic_cast<TH1*>(hist->Clone());
@@ -1395,14 +1397,14 @@ void ADrawExplorerWidget::median(ADrawObject &obj)
         for (int iThisBin = 1; iThisBin <= num; iThisBin++)
             hc->SetBinContent(iThisBin, Filtered.at(iThisBin-1));
 
-        GraphWindow.MakeCopyOfDrawObjects();
-        GraphWindow.MakeCopyOfActiveBasketId();
-        GraphWindow.ClearBasketActiveId();
+        GraphWindow.makeCopyOfDrawObjects();
+        GraphWindow.makeCopyOfActiveBasketId();
+        GraphWindow.clearBasketActiveId();
 
         DrawObjects.clear();
         addToDrawObjectsAndRegister(hc, "hist");
 
-        GraphWindow.RedrawAll();
+        GraphWindow.redrawAll();
 
         d.accept();
     }
@@ -1430,14 +1432,14 @@ void ADrawExplorerWidget::projection(ADrawObject &obj, int axis)
 
         if (proj)
         {
-            GraphWindow.MakeCopyOfDrawObjects();
-            GraphWindow.MakeCopyOfActiveBasketId();
-            GraphWindow.ClearBasketActiveId();
+            GraphWindow.makeCopyOfDrawObjects();
+            GraphWindow.makeCopyOfActiveBasketId();
+            GraphWindow.clearBasketActiveId();
 
             DrawObjects.clear();
             addToDrawObjectsAndRegister((TH2D*)proj, "colz");
 
-            GraphWindow.RedrawAll();
+            GraphWindow.redrawAll();
         }
         return;
     }
@@ -1457,14 +1459,14 @@ void ADrawExplorerWidget::projection(ADrawObject &obj, int axis)
 
     if (proj)
     {
-        GraphWindow.MakeCopyOfDrawObjects();
-        GraphWindow.MakeCopyOfActiveBasketId();
-        GraphWindow.ClearBasketActiveId();
+        GraphWindow.makeCopyOfDrawObjects();
+        GraphWindow.makeCopyOfActiveBasketId();
+        GraphWindow.clearBasketActiveId();
 
         DrawObjects.clear();
         addToDrawObjectsAndRegister(proj, "hist");
 
-        GraphWindow.RedrawAll();
+        GraphWindow.redrawAll();
     }
 }
 
@@ -1478,79 +1480,29 @@ void ADrawExplorerWidget::customProjection(ADrawObject & obj)
     }
 
     objForCustomProjection = hist;  // tried safer approach  with clone, but got random error in ROOT on clone attempt
-    GraphWindow.ShowProjectionTool();
-}
-
-void ADrawExplorerWidget::splineFit(int index)
-{
-#ifdef USE_EIGEN
-    ADrawObject & obj = DrawObjects[index];
-    TGraph* g = dynamic_cast<TGraph*>(obj.Pointer);
-    if (!g)
-    {
-        guitools::message("Suppoted only for TGraph-based ROOT objects", &GraphWindow);
-        return;
-    }
-
-    bool ok;
-    int numNodes = QInputDialog::getInt(&GraphWindow, "", "Enter number of nodes:", 6, 2, 1000, 1, &ok);
-    if (ok)
-    {
-        int numPoints = g->GetN();
-        if (numPoints < numNodes)
-        {
-            guitools::message("Not enough points in the graph for the selected number of nodes", &GraphWindow);
-            return;
-        }
-
-        QVector<double> x(numPoints), y(numPoints), f(numPoints);
-        for (int i=0; i<numPoints; i++)
-            g->GetPoint(i, x[i], y[i]);
-
-        CurveFit cf(x.first(), x.last(), numNodes, x, y);
-
-        TGraph* fg = new TGraph();
-        fg->SetTitle("SplineFit");
-        for (int i=0; i<numPoints; i++)
-        {
-            const double& xx = x.at(i);
-            fg->SetPoint(i, xx, cf.eval(xx));
-        }
-
-        GraphWindow.MakeCopyOfDrawObjects();
-        GraphWindow.MakeCopyOfActiveBasketId();
-
-        DrawObjects.insert(index+1, ADrawObject(fg, "Csame"));
-        GraphWindow.RegisterTObject(fg);
-
-        GraphWindow.RedrawAll();
-    }
-#else
-    guitools::message("This option is supported only when ANTS2 is compliled with Eigen library enabled", &GraphWindow);
-#endif
+    GraphWindow.showProjectionTool();
 }
 
 #include "aaxesdialog.h"
 #include "TGraph2D.h"
-void ADrawExplorerWidget::editAxis(ADrawObject &obj, int axisIndex)
+void ADrawExplorerWidget::editAxis(ADrawObject & obj, int axisIndex)
 {
-    QVector<TAxis*> axes;
+    std::vector<TAxis*> axes;
 
-    // !!!*** refactor
     if (dynamic_cast<TGraph*>(obj.Pointer))
     {
         TGraph * g = dynamic_cast<TGraph*>(obj.Pointer);
-        axes << g->GetXaxis() << g->GetYaxis() << nullptr;
+        axes = { g->GetXaxis(), g->GetYaxis(), nullptr };
     }
     else if (dynamic_cast<TH1*>(obj.Pointer))
     {
         TH1* h = dynamic_cast<TH1*>(obj.Pointer);
-        axes << h->GetXaxis() << h->GetYaxis() << h->GetZaxis();
+        axes = { h->GetXaxis(), h->GetYaxis(), h->GetZaxis() };
     }
     else if (dynamic_cast<TGraph2D*>(obj.Pointer))
     {
         TGraph2D * g = dynamic_cast<TGraph2D*>(obj.Pointer);
-        axes << g->GetXaxis() << g->GetYaxis() << g->GetZaxis();
+        axes = { g->GetXaxis(), g->GetYaxis(), g->GetZaxis() };
     }
     else
     {
@@ -1559,11 +1511,11 @@ void ADrawExplorerWidget::editAxis(ADrawObject &obj, int axisIndex)
     }
 
     AAxesDialog D(axes, axisIndex, this);
-    connect(&D, &AAxesDialog::requestRedraw, &GraphWindow, &GraphWindowClass::RedrawAll);
+    connect(&D, &AAxesDialog::requestRedraw, &GraphWindow, &AGraphWindow::redrawAll);
     D.exec();
 
-    GraphWindow.RedrawAll();
-    GraphWindow.HighlightUpdateBasketButton(true);
+    GraphWindow.redrawAll();
+    GraphWindow.highlightUpdateBasketButton(true);
 }
 
 #include "asetmarginsdialog.h"
@@ -1586,10 +1538,10 @@ void ADrawExplorerWidget::setCustomMargins(ADrawObject & obj)
 
     GraphWindow.updateMargins(&obj);
     GraphWindow.doRedrawOnUpdateMargins();
-    GraphWindow.HighlightUpdateBasketButton(true);
+    GraphWindow.highlightUpdateBasketButton(true);
 }
 
-const QString ADrawExplorerWidget::generateOptionForSecondaryAxis(int axisIndex, double u1, double u2)
+QString ADrawExplorerWidget::generateOptionForSecondaryAxis(int axisIndex, double u1, double u2)
 {
     double cx1 = GraphWindow.getCanvasMinX();
     double cx2 = GraphWindow.getCanvasMaxX();
@@ -1761,7 +1713,7 @@ void ADrawExplorerWidget::construct1DIcon(QIcon & icon, const TAttLine * line, c
         Painter.drawEllipse( 0.5*IconWidth - 0.5*Diameter, 0.5*IconHeight - 0.5*Diameter, Diameter, Diameter );
     }
 
-    icon = std::move(QIcon(pm));
+    icon = QIcon(pm);
 }
 
 void ADrawExplorerWidget::construct2DIcon(QIcon &icon)
@@ -1804,7 +1756,7 @@ void ADrawExplorerWidget::construct2DIcon(QIcon &icon)
         Painter.drawEllipse( 0.5*IconWidth - 0.5*w, 0.5*IconHeight - 0.5*h, w, h );
     }
 
-    icon = std::move(QIcon(pm));
+    icon = QIcon(pm);
 }
 
 void ADrawExplorerWidget::addAxis(int axisIndex)
@@ -1814,10 +1766,10 @@ void ADrawExplorerWidget::addAxis(int axisIndex)
     axis->SetTextFont(42);
     axis->SetLabelSize(0.035);
     const QString opt = generateOptionForSecondaryAxis(axisIndex, 0, 1.0);
-    DrawObjects << ADrawObject(axis, opt);
+    DrawObjects.push_back( ADrawObject(axis, opt) );
 
-    GraphWindow.RedrawAll();
-    GraphWindow.HighlightUpdateBasketButton(true);
+    GraphWindow.redrawAll();
+    GraphWindow.highlightUpdateBasketButton(true);
 }
 
 void ADrawExplorerWidget::saveRoot(ADrawObject &obj)
@@ -1840,7 +1792,7 @@ void ADrawExplorerWidget::saveRoot(ADrawObject &obj)
     tobj->SaveAs(fileName.toLatin1().data());  // sometimes crashes on load!
 }
 
-void ADrawExplorerWidget::saveAsTxt(ADrawObject &obj, bool fUseBinCenters)
+void ADrawExplorerWidget::saveAsTxt(ADrawObject & obj, bool fUseBinCenters)
 {
     TObject * tobj = obj.Pointer;
     QString cn = tobj->ClassName();
@@ -1867,21 +1819,21 @@ void ADrawExplorerWidget::saveAsTxt(ADrawObject &obj, bool fUseBinCenters)
     TH2 * h2 = dynamic_cast<TH2*>(tobj);
     if (h2)
     {
-        QVector<double> x, y, f;
+        std::vector<double> x, y, f;
         for (int iX=1; iX<h2->GetNbinsX()+1; iX++)
             for (int iY=1; iY<h2->GetNbinsY()+1; iY++)
             {
                 const double X = (fUseBinCenters ? h2->GetXaxis()->GetBinCenter(iX) : h2->GetXaxis()->GetBinLowEdge(iX));
                 const double Y = (fUseBinCenters ? h2->GetYaxis()->GetBinCenter(iY) : h2->GetYaxis()->GetBinLowEdge(iY));
-                x.append(X);
-                y.append(Y);
+                x.push_back(X);
+                y.push_back(Y);
 
                 int iBin = h2->GetBin(iX, iY);
                 double F = h2->GetBinContent(iBin);
-                f.append(F);
+                f.push_back(F);
             }
 
-        QVector<QVector<double> *> V = {&x, &y, &f};
+        std::vector<std::vector<double> *> V = {&x, &y, &f};
         ftools::saveDoubleVectorsToFile(V, fileName);
         return;
     }
@@ -1889,21 +1841,21 @@ void ADrawExplorerWidget::saveAsTxt(ADrawObject &obj, bool fUseBinCenters)
     TH1 * h1 = dynamic_cast<TH1*>(tobj);
     if (h1)
     {
-        QVector<double> x,y;
+        std::vector<double> x,y;
         if (fUseBinCenters)
         {
             for (int i=1; i<h1->GetNbinsX()+1; i++)
             {
-                x.append(h1->GetBinCenter(i));
-                y.append(h1->GetBinContent(i));
+                x.push_back(h1->GetBinCenter(i));
+                y.push_back(h1->GetBinContent(i));
             }
         }
         else
         { //bin starts
             for (int i=1; i<h1->GetNbinsX()+2; i++)  // *** should it be +2?
             {
-                x.append(h1->GetBinLowEdge(i));
-                y.append(h1->GetBinContent(i));
+                x.push_back(h1->GetBinLowEdge(i));
+                y.push_back(h1->GetBinContent(i));
             }
         }
 
@@ -1916,15 +1868,15 @@ void ADrawExplorerWidget::saveAsTxt(ADrawObject &obj, bool fUseBinCenters)
     TGraph* g = dynamic_cast<TGraph*>(tobj);
     if (g)
     {
-        QVector<double> x,y;
+        std::vector<double> x,y;
         for (int i = 0; i < g->GetN(); i++)
         {
             double xx, yy;
             int ok = g->GetPoint(i, xx, yy);
             if (ok != -1)
             {
-                x.append(xx);
-                y.append(yy);
+                x.push_back(xx);
+                y.push_back(yy);
             }
         }
         //SaveDoubleVectorsToFile(fileName, &x, &y);
@@ -1947,9 +1899,9 @@ void ADrawExplorerWidget::extract(ADrawObject &obj)
         return;
     }
 
-    GraphWindow.MakeCopyOfDrawObjects();
-    GraphWindow.MakeCopyOfActiveBasketId();
-    GraphWindow.ClearBasketActiveId();
+    GraphWindow.makeCopyOfDrawObjects();
+    GraphWindow.makeCopyOfActiveBasketId();
+    GraphWindow.clearBasketActiveId();
 
     ADrawObject thisObj = obj;
 
@@ -1959,33 +1911,31 @@ void ADrawExplorerWidget::extract(ADrawObject &obj)
         thisObj.Options += "A";
 
     thisObj.Pointer = thisObj.Pointer->Clone();
-    GraphWindow.RegisterTObject(thisObj.Pointer);
+    GraphWindow.registerTObject(thisObj.Pointer);
 
     DrawObjects.clear();
-    DrawObjects << thisObj;
+    DrawObjects.push_back( thisObj );
 
-    GraphWindow.RedrawAll();
+    GraphWindow.redrawAll();
 }
 
-#include "TPaveText.h"
-#include "atextpavedialog.h"
 void ADrawExplorerWidget::editPave(ADrawObject &obj)
 {
     TPaveText * Pave = dynamic_cast<TPaveText*>(obj.Pointer);
     if (Pave)
     {
-        GraphWindow.MakeCopyOfDrawObjects();
+        GraphWindow.makeCopyOfDrawObjects();
 
         TPaveText * PaveCopy = new TPaveText(*Pave);
-        GraphWindow.RegisterTObject(PaveCopy);
+        GraphWindow.registerTObject(PaveCopy);
         obj.Pointer = PaveCopy;
 
         ATextPaveDialog D(*PaveCopy);
-        connect(&D, &ATextPaveDialog::requestRedraw, &GraphWindow, &GraphWindowClass::RedrawAll);
+        connect(&D, &ATextPaveDialog::requestRedraw, &GraphWindow, &AGraphWindow::redrawAll);
 
         D.exec();
-        GraphWindow.RedrawAll();
-        GraphWindow.HighlightUpdateBasketButton(true);
+        GraphWindow.redrawAll();
+        GraphWindow.highlightUpdateBasketButton(true);
     }
 }
 
@@ -2037,8 +1987,8 @@ void ADrawExplorerWidget::editTGaxis(ADrawObject &obj)
         TAxis axis;
         copyAxisProperties(*grAxis, axis);
 
-        QVector<TAxis *> vec;
-        vec << &axis;
+        std::vector<TAxis *> vec;
+        vec.push_back( &axis );
         AAxesDialog D(vec, 0, this);
 
         QHBoxLayout * lay = new QHBoxLayout();
@@ -2066,7 +2016,7 @@ void ADrawExplorerWidget::editTGaxis(ADrawObject &obj)
 
             copyAxisProperties(axis, *grAxis);
 
-            GraphWindow.RedrawAll();
+            GraphWindow.redrawAll();
         };
         connect(leMin, &QLineEdit::editingFinished, UpdateTAxis);
         connect(leMax, &QLineEdit::editingFinished, UpdateTAxis);
@@ -2076,87 +2026,86 @@ void ADrawExplorerWidget::editTGaxis(ADrawObject &obj)
 
         UpdateTAxis();
 
-        GraphWindow.HighlightUpdateBasketButton(true);
+        GraphWindow.highlightUpdateBasketButton(true);
     }
 }
 
 //kira-->
 void ADrawExplorerWidget::linDraw(int index)
 {
-    GraphWindow.TriggerGlobalBusy(true);
+    GraphWindow.triggerGlobalBusy(true);
 
-    GraphWindow.Extract2DLine();
-    if (!GraphWindow.Extraction()) return; //cancel
+    Raster.Extract2DLine();
+    if (!Raster.waitForExtractionFinished()) return; //cancel
 
-    double startX = GraphWindow.extracted2DLineXstart();
-    double stopX = GraphWindow.extracted2DLineXstop();
-    double startY = GraphWindow.extracted2DLineYstart();
-    double stopY = GraphWindow.extracted2DLineYstop();
+    double startX = Raster.Line2DstartX; // extracted2DLineXstart();
+    double stopX  = Raster.Line2DstopX;  // extracted2DLineXstop();
+    double startY = Raster.Line2DstartY; // extracted2DLineYstart();
+    double stopY  = Raster.Line2DstopY;  // extracted2DLineYstop();
 
-    GraphWindow.MakeCopyOfDrawObjects();
-    GraphWindow.MakeCopyOfActiveBasketId();
+    GraphWindow.makeCopyOfDrawObjects();
+    GraphWindow.makeCopyOfActiveBasketId();
 
     //draw line
     TLine *ln = new TLine(startX, startY, stopX, stopY);
-    GraphWindow.RegisterTObject(ln);
+    GraphWindow.registerTObject(ln);
     ln->SetLineStyle(2);
-    DrawObjects.insert(index+1, ADrawObject(ln, "same"));
+    DrawObjects.insert(DrawObjects.begin()+index+1, ADrawObject(ln, "same"));
 
-    GraphWindow.RedrawAll();
-    GraphWindow.HighlightUpdateBasketButton(true);
+    GraphWindow.redrawAll();
+    GraphWindow.highlightUpdateBasketButton(true);
 }
 
 void ADrawExplorerWidget::boxDraw(int index)
 {
-    GraphWindow.TriggerGlobalBusy(true);
+    GraphWindow.triggerGlobalBusy(true);
 
-    GraphWindow.Extract2DBox();
-    if (!GraphWindow.Extraction()) return; //cancel
+    Raster.Extract2DBox();
+    if (!Raster.waitForExtractionFinished()) return; //cancel
 
-    double startX = GraphWindow.extractedX1();
-    double stopX  = GraphWindow.extractedX2();
-    double startY = GraphWindow.extractedY1();
-    double stopY  = GraphWindow.extractedY2();
+    double startX = Raster.extractedX1;
+    double stopX  = Raster.extractedX2;
+    double startY = Raster.extractedY1;
+    double stopY  = Raster.extractedY2;
 
-    GraphWindow.MakeCopyOfDrawObjects();
-    GraphWindow.MakeCopyOfActiveBasketId();
+    GraphWindow.makeCopyOfDrawObjects();
+    GraphWindow.makeCopyOfActiveBasketId();
 
     //draw box
     TBox *bx = new TBox(startX, startY, stopX, stopY);
-    GraphWindow.RegisterTObject(bx);
+    GraphWindow.registerTObject(bx);
     bx->SetLineStyle(2);
     bx->SetFillStyle(0);
-    DrawObjects.insert(index+1, ADrawObject(bx, "same"));
+    DrawObjects.insert(DrawObjects.begin()+index+1, ADrawObject(bx, "same"));
 
-    GraphWindow.RedrawAll();
-    GraphWindow.HighlightUpdateBasketButton(true);
+    GraphWindow.redrawAll();
+    GraphWindow.highlightUpdateBasketButton(true);
 }
 
 #include "TEllipse.h"
 void ADrawExplorerWidget::ellipseDraw(int index)
 {
-    GraphWindow.TriggerGlobalBusy(true);
+    GraphWindow.triggerGlobalBusy(true);
 
-    GraphWindow.Extract2DEllipse();
-    if (!GraphWindow.Extraction()) return; //cancel
+    Raster.Extract2DEllipse();
+    if (!Raster.waitForExtractionFinished()) return; //cancel
 
-    double centerX = GraphWindow.extracted2DEllipseX();
-    double centerY = GraphWindow.extracted2DEllipseY();
-    double r1 = GraphWindow.extracted2DEllipseR1();
-    double r2 = GraphWindow.extracted2DEllipseR2();
-    double theta = GraphWindow.extracted2DEllipseTheta();
+    double centerX = Raster.extracted2DEllipseX;
+    double centerY = Raster.extracted2DEllipseY;
+    double r1      = Raster.extracted2DEllipseR1;
+    double r2      = Raster.extracted2DEllipseR2;
+    double theta   = Raster.extracted2DEllipseTheta;
 
-
-    GraphWindow.MakeCopyOfDrawObjects();
-    GraphWindow.MakeCopyOfActiveBasketId();
+    GraphWindow.makeCopyOfDrawObjects();
+    GraphWindow.makeCopyOfActiveBasketId();
 
     TEllipse *el = new TEllipse(centerX, centerY, r1, r2, 0, 360, theta);
-    GraphWindow.RegisterTObject(el);
+    GraphWindow.registerTObject(el);
     el->SetLineStyle(2);
     el->SetFillStyle(0);
-    DrawObjects.insert(index+1, ADrawObject(el, "same"));
+    DrawObjects.insert(DrawObjects.begin()+index+1, ADrawObject(el, "same"));
 
-    GraphWindow.RedrawAll();
-    GraphWindow.HighlightUpdateBasketButton(true);
+    GraphWindow.redrawAll();
+    GraphWindow.highlightUpdateBasketButton(true);
 }
 //kira <--

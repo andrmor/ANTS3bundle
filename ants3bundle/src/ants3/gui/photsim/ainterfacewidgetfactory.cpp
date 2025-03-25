@@ -10,7 +10,7 @@
 #include "guitools.h"
 #include "aphotonsimhub.h"
 #include "agraphbuilder.h"
-#include "graphwindowclass.h"
+#include "agraphwindow.h"
 
 #include <QObject>
 #include <QDebug>

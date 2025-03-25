@@ -75,7 +75,7 @@ void ATree_SI::newTree(QString TreeName, QVariantList HeadersOfBranches,
         return;
     }
 
-    QVector<QPair<QString, QString>> h;
+    std::vector<std::pair<QString, QString>> h;
     for (int ibranch = 0; ibranch < HeadersOfBranches.size(); ibranch++)
     {
         QVariantList th = HeadersOfBranches.at(ibranch).toList();
@@ -87,16 +87,16 @@ void ATree_SI::newTree(QString TreeName, QVariantList HeadersOfBranches,
 
         QString Bname = th.at(0).toString();
         QString Btype = th.at(1).toString();
-        if (!ABranchBuffer::getAllTypes().contains(Btype))
+        if (!ABranchBuffer::isValidType(Btype))
         {
             abort("CreateTree() header contain unknown branch type: " + Btype );
             return;
         }
 
-        h << QPair<QString, QString>(Bname, Btype);
+        h.push_back( std::pair<QString, QString>(Bname, Btype) );
     }
 
-    ARootTreeRecord* rec = new ARootTreeRecord(0, TreeName);
+    ARootTreeRecord* rec = new ARootTreeRecord(nullptr, TreeName);
     bool bOK = rec->createTree(TreeName, h, StoreInFileName, AutosaveAfterEntriesAdded);
     if (bOK)
     {

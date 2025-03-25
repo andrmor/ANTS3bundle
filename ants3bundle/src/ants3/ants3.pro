@@ -145,6 +145,7 @@ SOURCES += \
     gui/geom/aparticleanalyzerwidget.cpp \
     gui/geom/ashownumbersdialog.cpp \
     gui/graph/adrawmarginsrecord.cpp \
+    gui/graph/agraphwindow.cpp \
     gui/graph/ahistoptstatdialog.cpp \
     gui/graph/apaletteselectiondialog.cpp \
     gui/graph/asetmarginsdialog.cpp \
@@ -196,7 +197,6 @@ SOURCES += \
     gui/graph/atextpavedialog.cpp \
     gui/graph/atoolboxscene.cpp \
     gui/graph/graphicsruler.cpp \
-    gui/graph/graphwindowclass.cpp \
     gui/graph/shapeablerectitem.cpp \
     gui/particleSim/aparticlesimoutputdialog.cpp \
     gui/particleSim/aparticlesimwin.cpp \
@@ -209,6 +209,8 @@ SOURCES += \
     ademomanager.cpp \
     gui/photsim/asensorgview.cpp \
     gui/photsim/asensorwindow.cpp \
+    gui/raster/agraphrasterwindow.cpp \
+    gui/raster/arasterwindow.cpp \
     gui/script/aargumentcounter.cpp \
     gui/script/ageoscriptmaker.cpp \
     gui/script/aguifromscrwin.cpp \
@@ -319,13 +321,10 @@ SOURCES += \
     gui/geom/amonitordelegateform.cpp \
     gui/geom/aonelinetextedit.cpp \
     gui/raster/acameracontroldialog.cpp \
-    gui/raster/rasterwindowbaseclass.cpp \
-    gui/raster/rasterwindowgraphclass.cpp \
     main.cpp \
     materials/amaterial.cpp \
     config/a3global.cpp \
     dispatch/a3workdistrconfig.cpp \
-    photonSim/acommonfunctions.cpp \
     photonSim/aphoton.cpp \
     photonSim/aphotonsimmanager.cpp \
     photonSim/aphotonsimsettings.cpp \
@@ -371,6 +370,7 @@ HEADERS += \
     gui/atreedatabaseselectordialog.h \
     gui/geom/aparticleanalyzerwidget.h \
     gui/graph/adrawmarginsrecord.h \
+    gui/graph/agraphwindow.h \
     gui/graph/ahistoptstatdialog.h \
     gui/graph/apaletteselectiondialog.h \
     gui/graph/asetmarginsdialog.h \
@@ -381,6 +381,8 @@ HEADERS += \
     gui/photsim/afunctionalmodelwidget.h \
     gui/photsim/aphotonlogsettingsform.h \
     gui/photsim/aphotontunnelwindow.h \
+    gui/raster/agraphrasterwindow.h \
+    gui/raster/arasterwindow.h \
     gui/script/aargumentcounter.h \
     gui/script/ascriptexampleexplorer.h \
     particleSim/aorthopositroniumgammagenerator.h \
@@ -446,7 +448,6 @@ HEADERS += \
     gui/graph/atlegend.h.autosave \
     gui/graph/atoolboxscene.h \
     gui/graph/graphicsruler.h \
-    gui/graph/graphwindowclass.h \
     gui/graph/shapeablerectitem.h \
     gui/particleSim/aparticlesimoutputdialog.h \
     gui/particleSim/aparticlesimwin.h \
@@ -543,7 +544,6 @@ HEADERS += \
     photonSim/aphotonfilehandler.h \
     photonSim/aphotonsimhub.h \
     photonSim/amonitorconfig.h \
-    photonSim/acommonfunctions.h \
     photonSim/aphoton.h \
     photonSim/aphotonsimmanager.h \
     photonSim/aphotonsimsettings.h \
@@ -580,8 +580,6 @@ HEADERS += \
     gui/geom/amonitordelegateform.h \
     gui/geom/aonelinetextedit.h \
     gui/raster/acameracontroldialog.h \
-    gui/raster/rasterwindowbaseclass.h \
-    gui/raster/rasterwindowgraphclass.h \
     materials/amaterialhub.h \
     materials/amaterial.h \
     config/a3global.h \
@@ -609,6 +607,7 @@ FORMS += \
         gui/geom/aparticleanalyzerwidget.ui \
         gui/geom/ashownumbersdialog.ui \
         gui/aglobsetwindow.ui \
+        gui/graph/agraphwindow.ui \
         gui/graph/ahistoptstatdialog.ui \
         gui/graph/apaletteselectiondialog.ui \
         gui/graph/asetmarginsdialog.ui \
@@ -639,7 +638,6 @@ FORMS += \
         gui/graph/arootcolorselectordialog.ui \
         gui/graph/atemplateselectiondialog.ui \
         gui/graph/atextpavedialog.ui \
-        gui/graph/graphwindowclass.ui \
         gui/particleSim/aparticlesimoutputdialog.ui \
         gui/particleSim/aparticlesimwin.ui \
         gui/particleSim/aparticlesourcedialog.ui \

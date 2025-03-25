@@ -53,13 +53,13 @@ QString ADispatcherInterface::fillRunPlan(std::vector<AFarmNodeRecord> & runPlan
             numLocalsProcesses = FarmHub.LocalProcesses;
     }
 
-    QVector<AFarmNodeRecord> tmpPlan;
+    std::vector<AFarmNodeRecord> tmpPlan;
     int    num      = 0;
     double totSpeed = 0;
 
     if (numLocalsProcesses > 0)
     {
-        tmpPlan << AFarmNodeRecord("", 0, numLocalsProcesses);
+        tmpPlan.push_back( AFarmNodeRecord("", 0, numLocalsProcesses) );
         num      += numLocalsProcesses;
         totSpeed += 1.0 * numLocalsProcesses;
     }
@@ -70,7 +70,7 @@ QString ADispatcherInterface::fillRunPlan(std::vector<AFarmNodeRecord> & runPlan
         for (const AFarmNodeRecord * FarmNode : FarmNodes)
             if (FarmNode->Enabled)
             {
-                tmpPlan << *FarmNode;
+                tmpPlan.push_back( *FarmNode );
                 num      += FarmNode->Processes;
                 totSpeed += FarmNode->SpeedFactor * FarmNode->Processes;
             }

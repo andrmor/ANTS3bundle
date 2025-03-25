@@ -31,7 +31,7 @@ ARootTextConfigurator::ARootTextConfigurator(int & color, int & align, int & fon
     dummy->setDefault(true);
     dummy->setVisible(false);
 
-    BaseColors << 880 << 900 << 800 << 820 << 840 << 860 << 9;
+    BaseColors = {880, 900, 800, 820, 840, 860, 9};
     ui->frColorPanel->setFixedSize(SquareSize * 20, SquareSize * BaseColors.size());
     ui->frCol->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     ui->frCol->setFixedSize(30, 30);

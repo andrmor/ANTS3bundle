@@ -4,12 +4,12 @@
 #include "aguiwindow.h"
 #include "ageowriter.h"
 
-#include <QVector>
+#include <vector>
 
-#include "TMathBase.h"
+//#include "TMathBase.h"
 
 class AGeometryHub;
-class RasterWindowBaseClass;
+class ARasterWindow;
 class QWebEngineView;
 class QWebEngineDownloadItem;
 class TGeoVolume;
@@ -46,8 +46,8 @@ public:
     void PostDraw();
     void Zoom(bool update = false);
 
-    void AddLineToGeometry(QPointF &start, QPointF &end, Color_t color = 1, int width = 1);
-    void AddPolygonfToGeometry(QPolygonF &poly, Color_t color, int width);
+    void AddLineToGeometry(QPointF & start, QPointF & end, short color = 1, int width = 1); // not used
+    void AddPolygonfToGeometry(QPolygonF &poly, short color, int width); // not used
 
     void onBusyOn();
     void onBusyOff();
@@ -55,7 +55,7 @@ public:
     void writeToJson(QJsonObject & json) const;
     void readFromJson(const QJsonObject & json);
 
-    void ShowPMsignals(const QVector<float> &Event, bool bFullCycle = true); // !!!***
+    void ShowPMsignals(const std::vector<float> & event, bool bFullCycle = true); // !!!*** not used yet!
     void ShowTracksAndMarkers();
 
     void ClearTracks(bool bRefreshWindow = true);
@@ -109,9 +109,6 @@ public slots:
     void onRequestShowAllConnections();
 
 private slots:
-    void onDownloadPngRequested(QWebEngineDownloadItem *item); // !!!*** temprary commented away
-
-private slots:
     void on_cobViewer_currentIndexChanged(int index);
     void on_pbShowGeometry_clicked();
     void on_cbColor_toggled(bool checked);
@@ -160,7 +157,7 @@ private:
 
     Ui::AGeometryWindow   * ui = nullptr;
 
-    RasterWindowBaseClass * RasterWindow = nullptr;
+    ARasterWindow * RasterWindow = nullptr;
 #ifdef __USE_ANTS_JSROOT__
     QWebEngineView * WebView = nullptr;
 #endif

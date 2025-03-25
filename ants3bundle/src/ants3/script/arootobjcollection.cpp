@@ -3,7 +3,8 @@
 
 ARootObjCollection::~ARootObjCollection()
 {
-    clear();
+    //clear();
+    // clear is called from AScriptObjStore: at the moment Trees.clear() causes crash on exit of ANTS3
 }
 
 bool ARootObjCollection::append(const QString &name, ARootObjBase* record, bool bAbortIfExists)

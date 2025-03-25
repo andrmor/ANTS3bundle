@@ -5,7 +5,9 @@
 
 #include <QTreeWidget>
 
-class GraphWindowClass;
+#include <vector>
+
+class AGraphWindow;
 class QTreeWidgetItem;
 class TObject;
 class TH2;
@@ -16,12 +18,13 @@ class QIcon;
 class TAttLine;
 class TAttMarker;
 class TAttFill;
+class AGraphRasterWindow;
 
 class ADrawExplorerWidget : public QTreeWidget
 {
     Q_OBJECT
 public:
-    ADrawExplorerWidget(GraphWindowClass & GraphWindow, QVector<ADrawObject> & DrawObjects);
+    ADrawExplorerWidget(AGraphWindow & GraphWindow, std::vector<ADrawObject> & DrawObjects);
 
     void updateGui();
 
@@ -38,8 +41,10 @@ private slots:
     void onItemDoubleClicked(QTreeWidgetItem *item, int column);
 
 private:
-    GraphWindowClass & GraphWindow;
-    QVector<ADrawObject> & DrawObjects;
+    AGraphWindow             & GraphWindow;
+    AGraphRasterWindow   & Raster;
+
+    std::vector<ADrawObject> & DrawObjects;
 
 private:
     void addToDrawObjectsAndRegister(TObject * pointer, const QString & options);
@@ -69,7 +74,7 @@ private:
     void interpolate(ADrawObject &obj);
     void median(ADrawObject &obj);
     void projection(ADrawObject &obj, int axis);
-    void splineFit(int index);
+    //void splineFit(int index);
     void editAxis(ADrawObject &obj, int axisIndex);
     void setCustomMargins(ADrawObject & obj);
     void addAxis(int axisIndex);
@@ -84,7 +89,7 @@ private:
     bool getDrawMax(ADrawObject &obj, double &max);
     void copyAxisProperties(TGaxis & grAxis, TAxis  & axis);
     void copyAxisProperties(TAxis  & axis,   TGaxis & grAxis);
-    const QString generateOptionForSecondaryAxis(int axisIndex, double u1, double u2);
+    QString generateOptionForSecondaryAxis(int axisIndex, double u1, double u2);
 
     void constructIconForObject(QIcon & icon, const ADrawObject & drObj);
     void construct1DIcon(QIcon & icon, const TAttLine *line, const TAttMarker *marker, const TAttFill *fill);

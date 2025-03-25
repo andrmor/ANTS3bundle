@@ -10,6 +10,8 @@
 #include <QFrame>
 #include <QPushButton>
 
+#include <vector>
+
 #include "TROOT.h"
 #include "TColor.h"
 
@@ -77,12 +79,12 @@ ARootMarkerConfigurator::ARootMarkerConfigurator(int* Color, int* Size, int* Sty
     comStyle->setMinimumHeight(20);
     comStyle->setMinimumWidth(150);
 
-    QVector<int> map;
-    for (int i=1; i<9; i++) map << i;
-    for (int i=9; i<20; i++) map << 8;
-    for (int i=20; i<31; i++) map << 9 + i -20;
-    map << 3;
-    for (int i=32; i<35; i++) map << 20 + i - 32;
+    std::vector<int> map;
+    for (int i=1; i<9; i++) map.push_back(i);
+    for (int i=9; i<20; i++) map.push_back(8);
+    for (int i=20; i<31; i++) map.push_back(9 + i -20);
+    map.push_back(3);
+    for (int i=32; i<35; i++) map.push_back(20 + i - 32);
 
       //for (int i=0; i<map.size(); i++) qDebug() << i+1 << map[i];
 

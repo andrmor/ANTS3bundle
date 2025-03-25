@@ -11,6 +11,7 @@ public:
 
 private:
     AScriptObjStore(){}
+    ~AScriptObjStore();
 
     AScriptObjStore(const AScriptObjStore &)            = delete;
     AScriptObjStore(AScriptObjStore &&)                 = delete;

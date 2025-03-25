@@ -4,7 +4,7 @@
 #include "ageometryhub.h"
 #include "asensorhub.h"
 #include "amonitorhub.h"
-#include "rasterwindowbaseclass.h"
+#include "arasterwindow.h"
 #include "a3global.h"
 #include "ajsontools.h"
 #include "ageomarkerclass.h"
@@ -67,9 +67,9 @@ AGeometryWindow::AGeometryWindow(bool jsrootViewer, QWidget * parent) :
 
     if (!UseJSRoot)
     {
-        RasterWindow = new RasterWindowBaseClass(this);
+        RasterWindow = new ARasterWindow(this);
         ui->hlMain->addWidget(RasterWindow);
-        connect(RasterWindow, &RasterWindowBaseClass::userChangedWindow, this, &AGeometryWindow::onRasterWindowChange);
+        connect(RasterWindow, &ARasterWindow::userChangedWindow, this, &AGeometryWindow::onRasterWindowChange);
 
         ui->cbWireFrame->setVisible(false);
         CameraControl = new ACameraControlDialog(RasterWindow, this);
@@ -80,14 +80,7 @@ AGeometryWindow::AGeometryWindow(bool jsrootViewer, QWidget * parent) :
 #ifdef __USE_ANTS_JSROOT__
         WebView = new QWebEngineView(this);
         ui->hlMain->addWidget(WebView);
-        //WebView->load(QUrl("http://localhost:8080/?nobrowser&item=Objects/GeoWorld/world&opt=dray;all;tracks;transp50"));
-
-        // !!!*** to fix:
-        //QWebEngineProfile::defaultProfile()->connect(QWebEngineProfile::defaultProfile(), &QWebEngineProfile::downloadRequested,
-        //                                                 this, &AGeometryWindow::onDownloadPngRequested);
-
         ui->pbCameraDialog->setVisible(false);
-
         redrawWebView();
 #endif
     }
@@ -450,12 +443,12 @@ void AGeometryWindow::onNewConfigLoaded()
 void AGeometryWindow::UpdateRootCanvas()
 {
     if (UseJSRoot) qDebug() << "UpdateRootCanvas called in JSRoot mode!!!";
-    else RasterWindow->UpdateRootCanvas();
+    else RasterWindow->updateRootCanvas();
 }
 
 void AGeometryWindow::SaveAs(const QString & filename)
 {
-    RasterWindow->SaveAs(filename);
+    RasterWindow->saveAs(filename);
 }
 
 void AGeometryWindow::ResetView()
@@ -541,7 +534,7 @@ void AGeometryWindow::readFromJson(const QJsonObject & json)
         ui->sbLimitVisibility->setValue(level);
     }
 
-    if (!UseJSRoot) RasterWindow->ForceResize();
+    if (!UseJSRoot) RasterWindow->forceResize();
 }
 
 bool AGeometryWindow::event(QEvent *event)
@@ -549,7 +542,7 @@ bool AGeometryWindow::event(QEvent *event)
     if (event->type() == QEvent::WindowActivate)
     {
         if (UseJSRoot) ; // !!!***
-        else RasterWindow->UpdateRootCanvas();
+        else RasterWindow->updateRootCanvas();
     }
 
     return AGuiWindow::event(event);
@@ -619,17 +612,17 @@ void AGeometryWindow::AddLineToGeometry(QPointF& start, QPointF& end, Color_t co
     track->AddPoint(end.x(), end.y(), 0, 0);
 }
 
-void AGeometryWindow::AddPolygonfToGeometry(QPolygonF& poly, Color_t color, int width)
+void AGeometryWindow::AddPolygonfToGeometry(QPolygonF& poly, short color, int width)
 {
     if (poly.size()<2) return;
     for (int i=0; i<poly.size()-1; i++)
         AddLineToGeometry(poly[i], poly[i+1], color, width);
 }
 
-void AGeometryWindow::ShowPMsignals(const QVector<float> & Event, bool bFullCycle)
+void AGeometryWindow::ShowPMsignals(const std::vector<float> & event, bool bFullCycle)
 {
     std::vector<QString> tmp;
-    for (const float & f : Event)
+    for (const float & f : event)
         tmp.push_back( QString::number(f) );
     showText(tmp, kBlack, AGeoWriter::Sensors, bFullCycle);
 }
@@ -1050,7 +1043,7 @@ void AGeometryWindow::Zoom(bool update)
     if (ZoomLevel != 0) v->ZoomView(0, zoomFactor);
     if (update)
     {
-        RasterWindow->ForceResize();
+        RasterWindow->forceResize();
         //fRecallWindow = false;
         UpdateRootCanvas();
     }
@@ -1290,7 +1283,7 @@ void AGeometryWindow::on_pbSaveAs_customContextMenuRequested(const QPoint &)
     int Mode = ui->cobViewer->currentIndex(); // 0 - standard, 1 - jsroot
     if (Mode == 0)
     {
-        RasterWindow->SaveAs("tmpImage.png");
+        RasterWindow->saveAs("tmpImage.png");
         QImage image("tmpImage.png");
         QApplication::clipboard()->setImage(image, QClipboard::Clipboard);
     }
@@ -1302,22 +1295,6 @@ void AGeometryWindow::on_pbSaveAs_customContextMenuRequested(const QPoint &)
         QApplication::clipboard()->setImage(image, QClipboard::Clipboard);
 #endif
     }
-}
-
-void AGeometryWindow::onDownloadPngRequested(QWebEngineDownloadItem *item)
-{
-/*
-#ifdef __USE_ANTS_JSROOT__
-    QString fileName = QFileDialog::getSaveFileName(this, "Select file name to safe image");
-    if (fileName.isEmpty())
-    {
-        item->cancel();
-        return;
-    }
-    item->setPath(fileName);
-    item->accept();
-#endif
-*/
 }
 
 void AGeometryWindow::on_pbCameraDialog_clicked()

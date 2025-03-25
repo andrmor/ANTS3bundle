@@ -43,7 +43,7 @@ void AGeometryTester::Test(double * start, double * direction)
 
        navigator->FindNextBoundaryAndStep();
 
-       Record.append(r);
+       Record.push_back(r);
     }
 
     escapeX = navigator->GetCurrentPoint()[0];

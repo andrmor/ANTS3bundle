@@ -279,7 +279,6 @@ QFrame * AGeoObjectDelegate::createCalorimeterGui()
             layType->addWidget(cbCalIncludeHosted);
         layMain->addLayout(layType);
 
-            //cbCalEventStat = new QCheckBox("Dep. over event"); // !!!*** tmp
         QFrame * frOverEvents = new QFrame();
             QHBoxLayout * layOverEvents = new QHBoxLayout(); layOverEvents->setContentsMargins(0,0,0,0);
                 layOverEvents->addWidget(new QLabel("Bins:"));
@@ -609,12 +608,12 @@ bool AGeoObjectDelegate::updateObject(AGeoObject * obj) const  //react to false 
             return false;
         }
 
-        QVector<double> old;
-        old << obj->Position[0]    << obj->Position[1]    << obj->Position[2]
-            << obj->Orientation[0] << obj->Orientation[1] << obj->Orientation[2];
+        //std::vector<double> old =
+        //{ obj->Position[0],    obj->Position[1],    obj->Position[2],
+        //  obj->Orientation[0], obj->Orientation[1], obj->Orientation[2] };
 
-        QVector<QString> tempStrs(6);
-        QVector<double> tempDoubles(6);
+        std::vector<QString> tempStrs(6);
+        std::vector<double> tempDoubles(6);
         bool ok = true;
         ok = ok && processEditBox("X position", ledX,     tempDoubles[0],    tempStrs[0],    ParentWidget);
         ok = ok && processEditBox("Y position", ledY,     tempDoubles[1],    tempStrs[1],    ParentWidget);
@@ -624,9 +623,9 @@ bool AGeoObjectDelegate::updateObject(AGeoObject * obj) const  //react to false 
         if (ledPsi->isEnabled())   ok = ok && processEditBox("Psi orientation",   ledPsi,   tempDoubles[5], tempStrs[5], ParentWidget);
         if (!ok) return false;
 
-        std::vector<double> calDouble(6); calDouble = {-5.0, -5.0, -5.0, 1.0, 1.0, 1.0};
+        std::vector<double>  calDouble(6); calDouble = {-5.0, -5.0, -5.0, 1.0, 1.0, 1.0};
         std::vector<QString> calDoubleStr(6);
-        std::vector<int>    calInt(3); calInt = {10,10,10};
+        std::vector<int>     calInt(3); calInt = {10,10,10};
         std::vector<QString> calIntStr(3);
         int calEventDepoBins = 190; QString calEventDepoBinsStr;
         double calEventDepoFrom = 100.0; QString calEventDepoFromStr;
@@ -1234,7 +1233,7 @@ AGeoBoxDelegate::AGeoBoxDelegate(const QStringList &materials, QWidget *parent)
 
     addLocalLayout(gr);
 
-    QVector<AOneLineTextEdit*> l = {ex, ey, ez};
+    std::vector<AOneLineTextEdit*> l = {ex, ey, ez};
     for (AOneLineTextEdit * le : l)
     {
         configureHighligherAndCompleter(le);
@@ -1244,7 +1243,7 @@ AGeoBoxDelegate::AGeoBoxDelegate(const QStringList &materials, QWidget *parent)
 
 bool AGeoBoxDelegate::updateObject(AGeoObject *obj) const
 {
-    QVector<AOneLineTextEdit*> v = {ex, ey, ez};
+    std::vector<AOneLineTextEdit*> v = {ex, ey, ez};
     if (isLeEmpty(v))
     {
         QMessageBox::warning(this->ParentWidget, "", "Empty line!");
@@ -1321,7 +1320,7 @@ AGeoTubeDelegate::AGeoTubeDelegate(const QStringList & materials, QWidget *paren
 
     addLocalLayout(gr);
 
-    QVector<AOneLineTextEdit*> l = {ei, eo, ez};
+    std::vector<AOneLineTextEdit*> l = {ei, eo, ez};
     for (AOneLineTextEdit * le : l)
     {
         configureHighligherAndCompleter(le);
@@ -1331,7 +1330,7 @@ AGeoTubeDelegate::AGeoTubeDelegate(const QStringList & materials, QWidget *paren
 
 bool AGeoTubeDelegate::updateObject(AGeoObject *obj) const
 {
-    QVector<AOneLineTextEdit*> v = {ei, eo, ez};
+    std::vector<AOneLineTextEdit*> v = {ei, eo, ez};
     if (isLeEmpty(v))
     {
         QMessageBox::warning(this->ParentWidget, "", "Empty line!");
@@ -1397,7 +1396,7 @@ AGeoTubeSegDelegate::AGeoTubeSegDelegate(const QStringList & materials, QWidget 
     gr->addWidget(new QLabel("°"), 3, 2);
     gr->addWidget(new QLabel("°"), 4, 2);
 
-    QVector<AOneLineTextEdit*> l = {ep1, ep2};
+    std::vector<AOneLineTextEdit*> l = {ep1, ep2};
     for (AOneLineTextEdit * le : l)
     {
         configureHighligherAndCompleter(le);
@@ -1407,7 +1406,7 @@ AGeoTubeSegDelegate::AGeoTubeSegDelegate(const QStringList & materials, QWidget 
 
 bool AGeoTubeSegDelegate::updateObject(AGeoObject *obj) const
 {
-    QVector<AOneLineTextEdit*> v = {ei, eo, ez, ep1, ep2};
+    std::vector<AOneLineTextEdit*> v = {ei, eo, ez, ep1, ep2};
     if (isLeEmpty(v))
     {
         QMessageBox::warning(this->ParentWidget, "", "Empty line!");
@@ -1496,7 +1495,7 @@ AGeoTubeSegCutDelegate::AGeoTubeSegCutDelegate(const QStringList &materials, QWi
 
 bool AGeoTubeSegCutDelegate::updateObject(AGeoObject *obj) const
 {
-    QVector<AOneLineTextEdit*> v = {elnx, elny, elnz, eunx, euny, eunz};
+    std::vector<AOneLineTextEdit*> v = {elnx, elny, elnz, eunx, euny, eunz};
     if (isLeEmpty(v))
     {
         QMessageBox::warning(this->ParentWidget, "", "Empty line!");
@@ -1595,7 +1594,7 @@ AGeoParaDelegate::AGeoParaDelegate(const QStringList & materials, QWidget *paren
 
     addLocalLayout(gr);
 
-    QVector<AOneLineTextEdit*> l = {ex, ey, ez, ea, et, ep};
+    std::vector<AOneLineTextEdit*> l = {ex, ey, ez, ea, et, ep};
     for (AOneLineTextEdit * le : l)
     {
         configureHighligherAndCompleter(le);
@@ -1605,7 +1604,7 @@ AGeoParaDelegate::AGeoParaDelegate(const QStringList & materials, QWidget *paren
 
 bool AGeoParaDelegate::updateObject(AGeoObject *obj) const
 {
-    QVector<AOneLineTextEdit*> v = {ex, ey, ez, ea, et, ep};
+    std::vector<AOneLineTextEdit*> v = {ex, ey, ez, ea, et, ep};
     if (isLeEmpty(v))
     {
         QMessageBox::warning(this->ParentWidget, "", "Empty line!");
@@ -1700,7 +1699,7 @@ AGeoSphereDelegate::AGeoSphereDelegate(const QStringList & materials, QWidget *p
 
     addLocalLayout(gr);
 
-    QVector<AOneLineTextEdit*> l = {eod, eid, et1, et2, ep1, ep2};
+    std::vector<AOneLineTextEdit*> l = {eod, eid, et1, et2, ep1, ep2};
     for (AOneLineTextEdit * le : l)
     {
         configureHighligherAndCompleter(le);
@@ -1710,7 +1709,7 @@ AGeoSphereDelegate::AGeoSphereDelegate(const QStringList & materials, QWidget *p
 
 bool AGeoSphereDelegate::updateObject(AGeoObject *obj) const
 {
-    QVector<AOneLineTextEdit*> v = {eod, eid, et1, et2, ep1, ep2};
+    std::vector<AOneLineTextEdit*> v = {eod, eid, et1, et2, ep1, ep2};
     if (isLeEmpty(v))
     {
         QMessageBox::warning(this->ParentWidget, "", "Empty line!");
@@ -1808,7 +1807,7 @@ AGeoConeDelegate::AGeoConeDelegate(const QStringList &materials, QWidget *parent
 
 bool AGeoConeDelegate::updateObject(AGeoObject *obj) const
 {
-    QVector<AOneLineTextEdit*> v = {ez, eli, elo, eui, euo};
+    std::vector<AOneLineTextEdit*> v = {ez, eli, elo, eui, euo};
     if (isLeEmpty(v))
     {
         QMessageBox::warning(this->ParentWidget, "", "Empty line!");
@@ -1886,7 +1885,7 @@ AGeoConeSegDelegate::AGeoConeSegDelegate(const QStringList &materials, QWidget *
     gr->addWidget(new QLabel("°"), 5, 2);
     gr->addWidget(new QLabel("°"), 6, 2);
 
-    QVector<AOneLineTextEdit*> l = {ep1, ep2};
+    std::vector<AOneLineTextEdit*> l = {ep1, ep2};
     for (AOneLineTextEdit * le : l)
     {
         configureHighligherAndCompleter(le);
@@ -1896,7 +1895,7 @@ AGeoConeSegDelegate::AGeoConeSegDelegate(const QStringList &materials, QWidget *
 
 bool AGeoConeSegDelegate::updateObject(AGeoObject *obj) const
 {
-    QVector<AOneLineTextEdit*> v = {ep1, ep2};
+    std::vector<AOneLineTextEdit*> v = {ep1, ep2};
     if (isLeEmpty(v))
     {
         QMessageBox::warning(this->ParentWidget, "", "Empty line!");
@@ -1970,7 +1969,7 @@ AGeoElTubeDelegate::AGeoElTubeDelegate(const QStringList &materials, QWidget *pa
 
     addLocalLayout(gr);
 
-    QVector<AOneLineTextEdit*> l = {ex, ey, ez};
+    std::vector<AOneLineTextEdit*> l = {ex, ey, ez};
     for (AOneLineTextEdit * le : l)
     {
         configureHighligherAndCompleter(le);
@@ -1980,7 +1979,7 @@ AGeoElTubeDelegate::AGeoElTubeDelegate(const QStringList &materials, QWidget *pa
 
 bool AGeoElTubeDelegate::updateObject(AGeoObject *obj) const
 {
-    QVector<AOneLineTextEdit*> v = {ex, ey, ez};
+    std::vector<AOneLineTextEdit*> v = {ex, ey, ez};
     if (isLeEmpty(v))
     {
         QMessageBox::warning(this->ParentWidget, "", "Empty line!");
@@ -2057,7 +2056,7 @@ AGeoTrapXDelegate::AGeoTrapXDelegate(const QStringList &materials, QWidget *pare
 
     addLocalLayout(gr);
 
-    QVector<AOneLineTextEdit*> l = {exl, exu, ey, ez};
+    std::vector<AOneLineTextEdit*> l = {exl, exu, ey, ez};
     for (AOneLineTextEdit * le : l)
     {
         configureHighligherAndCompleter(le);
@@ -2067,7 +2066,7 @@ AGeoTrapXDelegate::AGeoTrapXDelegate(const QStringList &materials, QWidget *pare
 
 bool AGeoTrapXDelegate::updateObject(AGeoObject *obj) const
 {
-    QVector<AOneLineTextEdit*> v = {exl, exu, ey, ez};
+    std::vector<AOneLineTextEdit*> v = {exl, exu, ey, ez};
     if (isLeEmpty(v))
     {
         QMessageBox::warning(this->ParentWidget, "", "Empty line!");
@@ -2160,7 +2159,7 @@ AGeoTrapXYDelegate::AGeoTrapXYDelegate(const QStringList &materials, QWidget *pa
 
 bool AGeoTrapXYDelegate::updateObject(AGeoObject *obj) const
 {
-    QVector<AOneLineTextEdit*> v = {exl, exu, eyl, eyu, ez};
+    std::vector<AOneLineTextEdit*> v = {exl, exu, eyl, eyu, ez};
     if (isLeEmpty(v))
     {
         QMessageBox::warning(this->ParentWidget, "", "Empty line!");
@@ -2246,7 +2245,7 @@ AGeoParaboloidDelegate::AGeoParaboloidDelegate(const QStringList &materials, QWi
 
     addLocalLayout(gr);
 
-    QVector<AOneLineTextEdit*> l = {el, eu, ez};
+    std::vector<AOneLineTextEdit*> l = {el, eu, ez};
     for (AOneLineTextEdit * le : l)
     {
         configureHighligherAndCompleter(le);
@@ -2256,7 +2255,7 @@ AGeoParaboloidDelegate::AGeoParaboloidDelegate(const QStringList &materials, QWi
 
 bool AGeoParaboloidDelegate::updateObject(AGeoObject *obj) const
 {
-    QVector<AOneLineTextEdit*> v = {el, eu, ez};
+    std::vector<AOneLineTextEdit*> v = {el, eu, ez};
     if (isLeEmpty(v))
     {
         QMessageBox::warning(this->ParentWidget, "", "Empty line!");
@@ -2346,7 +2345,7 @@ AGeoTorusDelegate::AGeoTorusDelegate(const QStringList &materials, QWidget *pare
 
 bool AGeoTorusDelegate::updateObject(AGeoObject *obj) const
 {
-    QVector<AOneLineTextEdit*> v = {ead, edi, edo, ep0, epe};
+    std::vector<AOneLineTextEdit*> v = {ead, edi, edo, ep0, epe};
     if (isLeEmpty(v))
     {
         QMessageBox::warning(this->ParentWidget, "", "Empty line!");
@@ -2449,7 +2448,7 @@ AGeoPolygonDelegate::AGeoPolygonDelegate(const QStringList &materials, QWidget *
 
 bool AGeoPolygonDelegate::updateObject(AGeoObject *obj) const
 {
-    QVector<AOneLineTextEdit*> v = {en, edp, ez, eli, elo, eui, euo};
+    std::vector<AOneLineTextEdit*> v = {en, edp, ez, eli, elo, eui, euo};
     if (isLeEmpty(v))
     {
         QMessageBox::warning(this->ParentWidget, "", "Empty line!");
@@ -2600,7 +2599,7 @@ void AGeoPconDelegate::addOneLineTextEdits(int row)
 
 void AGeoPconDelegate::readGui() const
 {
-    QVector<AOneLineTextEdit*> v = {ep0, epe};
+    std::vector<AOneLineTextEdit*> v = {ep0, epe};
     if (isLeEmpty(v))
     {
         QMessageBox::warning(this->ParentWidget, "", "Empty line!");
@@ -2623,11 +2622,11 @@ void AGeoPconDelegate::readGui() const
         pcon->Sections.clear();
         for (int ir = 0; ir < rows; ir++)
         {
-            QVector<QString> edits;
+            std::vector<QString> edits;
             for (int ic = 0; ic < 3; ic++)
             {
                 AOneLineTextEdit * edit = static_cast<AOneLineTextEdit *>(tab->cellWidget(ir, ic));
-                edits.append(edit->text());
+                edits.push_back(edit->text());
             }
             //if (edits[0].isEmpty() || edits[1].isEmpty()|| edits[2].isEmpty() ) continue;
             if (edits[0].isEmpty() || edits[1].isEmpty()|| edits[2].isEmpty() )
@@ -2641,7 +2640,7 @@ void AGeoPconDelegate::readGui() const
             Section->str2rmin = edits[1];
             Section->str2rmax = edits[2];
 
-            pcon->Sections.append(*Section);
+            pcon->Sections.push_back(*Section);
         }
     }
     else qWarning() << "Read delegate: PolyCone shape not found!";
@@ -2679,7 +2678,7 @@ void AGeoPconDelegate::updateTableW(AGeoPcon * pcon)
     {
         const APolyCGsection & Section = pcon->Sections.at(iP);
 
-        QVector<AOneLineTextEdit*> le(3, nullptr);
+        std::vector<AOneLineTextEdit*> le(3, nullptr);
         for (int i = 0; i < 3; i++)
         {
             le[i] = new AOneLineTextEdit("", tab);
@@ -2731,7 +2730,7 @@ void AGeoPconDelegate::onAddAbove()
             if (!newSection.strZ.isEmpty()) newSection.strZ += "-10";
         }
         else newSection.strZ = QString("%1").arg((pcon->Sections[row].z + pcon->Sections[row-1].z)/2);
-        pcon->Sections.insert(row, newSection);
+        pcon->Sections.insert(pcon->Sections.begin() + row, newSection);
 
     }
     updateTableW(pcon);
@@ -2759,7 +2758,7 @@ void AGeoPconDelegate::onAddBellow()
         }
         else newSection.strZ = QString("%1").arg((pcon->Sections[row].z + pcon->Sections[row+1].z)/2);
         //qDebug() <<"new section" <<newSection.z;
-        pcon->Sections.insert(row+1, newSection);
+        pcon->Sections.insert(pcon->Sections.begin() + row + 1, newSection);
     }
     updateTableW(pcon);
 }
@@ -2826,7 +2825,7 @@ AGeoPgonDelegate::AGeoPgonDelegate(const QStringList &materials, QWidget *parent
 
 bool AGeoPgonDelegate::updateObject(AGeoObject *obj) const
 {
-    QVector<AOneLineTextEdit*> v = {eed};
+    std::vector<AOneLineTextEdit*> v = {eed};
     if (isLeEmpty(v))
     {
         QMessageBox::warning(this->ParentWidget, "", "Empty line!");
@@ -2999,13 +2998,13 @@ AGeoArb8Delegate::AGeoArb8Delegate(const QStringList &materials, QWidget *parent
     {
         v->addWidget(new QLabel(iul == 0 ? "Lower plane (positions clockwise!):" : "Upper plane (positions clockwise!):"));
 
-        QVector<AEditEdit> tmpV(4);
+        std::vector<AEditEdit> tmpV(4);
 
         QGridLayout * gri = new QGridLayout();
         gri->setContentsMargins(0, 0, 0, 0);
         gri->setVerticalSpacing(3);
 
-        for (int i=0; i < 4; i++)
+        for (int i = 0; i < 4; i++)
         {
             gri->addWidget(new QLabel("  x:"),    i, 0);
             tmpV[i].X = new AOneLineTextEdit;
@@ -3025,9 +3024,9 @@ AGeoArb8Delegate::AGeoArb8Delegate(const QStringList &materials, QWidget *parent
     addLocalLayout(v);
 }
 
-bool AGeoArb8Delegate::updateObject(AGeoObject *obj) const
+bool AGeoArb8Delegate::updateObject(AGeoObject * obj) const
 {
-    QVector<AOneLineTextEdit*> v = {ez};
+    std::vector<AOneLineTextEdit*> v = {ez};
     if (isLeEmpty(v))
     {
         QMessageBox::warning(this->ParentWidget, "", "Empty line!");
@@ -3049,7 +3048,7 @@ bool AGeoArb8Delegate::updateObject(AGeoObject *obj) const
         {
             for (int i=0; i < 4; i++)
             {
-                QVector<AOneLineTextEdit*> v = {ve[iul][i].X, ve[iul][i].Y};
+                std::vector<AOneLineTextEdit*> v = {ve[iul][i].X, ve[iul][i].Y};
                 if (isLeEmpty(v))
                 {
                     QMessageBox::warning(this->ParentWidget, "", "Empty line!");
@@ -3161,7 +3160,7 @@ AGeoArrayDelegate::AGeoArrayDelegate(const QStringList &materials, QWidget *pare
 
     addLocalLayout(lVer);
 
-    QVector<AOneLineTextEdit*> l = {ledNumX, ledNumY, ledNumZ, ledStepX, ledStepY, ledStepZ, ledStartIndex};
+    std::vector<AOneLineTextEdit*> l = {ledNumX, ledNumY, ledNumZ, ledStepX, ledStepY, ledStepZ, ledStartIndex};
     for (AOneLineTextEdit * le : l)
     {
         //le->setMaximumWidth(75);
@@ -3203,7 +3202,7 @@ void AGeoArrayDelegate::updateArrayStepEnable(AOneLineTextEdit * editNum, AOneLi
 
 bool AGeoArrayDelegate::updateObject(AGeoObject * obj) const
 {
-    QVector<AOneLineTextEdit*> v = {ledNumX, ledNumY, ledNumZ, ledStepX, ledStepY, ledStepZ, ledStartIndex};
+    std::vector<AOneLineTextEdit*> v = {ledNumX, ledNumY, ledNumZ, ledStepX, ledStepY, ledStepZ, ledStartIndex};
     if (isLeEmpty(v))
     {
         QMessageBox::warning(this->ParentWidget, "", "Empty line!");
@@ -3293,7 +3292,7 @@ AGeoCircularArrayDelegate::AGeoCircularArrayDelegate(const QStringList &material
 
     addLocalLayout(lVer);
 
-    QVector<AOneLineTextEdit*> l = {ledNum, ledAngularStep, ledRadius, ledStartIndex};
+    std::vector<AOneLineTextEdit*> l = {ledNum, ledAngularStep, ledRadius, ledStartIndex};
     for (AOneLineTextEdit * le : l)
     {
         //le->setMaximumWidth(75);
@@ -3318,7 +3317,7 @@ AGeoCircularArrayDelegate::AGeoCircularArrayDelegate(const QStringList &material
 
 bool AGeoCircularArrayDelegate::updateObject(AGeoObject *obj) const
 {
-    QVector<AOneLineTextEdit*> v = {ledNum, ledAngularStep, ledRadius, ledStartIndex};
+    std::vector<AOneLineTextEdit*> v = {ledNum, ledAngularStep, ledRadius, ledStartIndex};
     if (isLeEmpty(v))
     {
         QMessageBox::warning(this->ParentWidget, "", "Empty line!");
@@ -3432,7 +3431,7 @@ AGeoHexagonalArrayDelegate::AGeoHexagonalArrayDelegate(const QStringList & mater
 
     addLocalLayout(lVer);
 
-    QVector<AOneLineTextEdit*> l = {ledStep, ledNumRings, ledNumX, ledNumY, ledStartIndex};
+    std::vector<AOneLineTextEdit*> l = {ledStep, ledNumRings, ledNumX, ledNumY, ledStartIndex};
     for (AOneLineTextEdit * le : l)
     {
         //le->setMaximumWidth(75);
@@ -3453,7 +3452,7 @@ AGeoHexagonalArrayDelegate::AGeoHexagonalArrayDelegate(const QStringList & mater
 
 bool AGeoHexagonalArrayDelegate::updateObject(AGeoObject *obj) const
 {
-    QVector<AOneLineTextEdit*> v = {ledStep, ledNumRings, ledNumX, ledNumY, ledStartIndex};
+    std::vector<AOneLineTextEdit*> v = {ledStep, ledNumRings, ledNumX, ledNumY, ledStartIndex};
     if (isLeEmpty(v))
     {
         QMessageBox::warning(this->ParentWidget, "", "Empty line!");
@@ -3628,7 +3627,7 @@ QString AWorldDelegate::getName() const
 
 bool AWorldDelegate::updateObject(AGeoObject * obj) const
 {
-    QVector<AOneLineTextEdit*> v = {ledSizeXY, ledSizeZ};
+    std::vector<AOneLineTextEdit*> v = {ledSizeXY, ledSizeZ};
     if (isLeEmpty(v))
     {
         QMessageBox::warning(this->ParentWidget, "", "Empty line!");

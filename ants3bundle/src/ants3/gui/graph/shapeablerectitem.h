@@ -78,7 +78,6 @@ private:
     QColor    backgroundColor;
     int       backgroundWidth;
 
-    //void      commonConstructor();
     Location  getMouseLocationOnBox(QPointF mpos) const;
     QPointF   makePoint(double trueX, double trueY);
     double    TrueAngleFromApparent(double apparentAngle);

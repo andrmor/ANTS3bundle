@@ -1,10 +1,10 @@
 #include "agraphwin_si.h"
-#include "graphwindowclass.h"
+#include "agraphwindow.h"
 
 #include <QApplication>
 #include <QDebug>
 
-AGraphWin_SI::AGraphWin_SI(GraphWindowClass * graphWin) :
+AGraphWin_SI::AGraphWin_SI(AGraphWindow * graphWin) :
     AWindowInterfaceBase(graphWin), GraphWindow(graphWin)
 {
     Description = "Access to the Graph window";
@@ -48,18 +48,18 @@ AGraphWin_SI::AGraphWin_SI(GraphWindowClass * graphWin) :
 
     Help["getContent"] = "Return the data content of the first drawn 1D histogram or 1D graph. It is an array with sub-arrays of coordinate and value pairs";
 
-    connect(this, &AGraphWin_SI::requestShow3D, GraphWindow, &GraphWindowClass::show3D, Qt::QueuedConnection);
+    connect(this, &AGraphWin_SI::requestShow3D, GraphWindow, &AGraphWindow::show3D, Qt::QueuedConnection);
 
     // the rest of the methods to look like that:
-    connect(this, &AGraphWin_SI::requestAddToBasket,         graphWin, &GraphWindowClass::addCurrentToBasket,  Qt::QueuedConnection);
-    connect(this, &AGraphWin_SI::requestClearBasket,         graphWin, &GraphWindowClass::ClearBasket,         Qt::QueuedConnection);
-    connect(this, &AGraphWin_SI::requestSetLog,              graphWin, &GraphWindowClass::SetLog,              Qt::QueuedConnection);
-    connect(this, &AGraphWin_SI::requestSetStatPanelVisible, graphWin, &GraphWindowClass::SetStatPanelVisible, Qt::QueuedConnection);
-    connect(this, &AGraphWin_SI::requestAddLegend,           graphWin, &GraphWindowClass::drawLegend,          Qt::QueuedConnection);
-    connect(this, &AGraphWin_SI::requestSetLegendBorder,     graphWin, &GraphWindowClass::SetLegendBorder,     Qt::QueuedConnection);
-    connect(this, &AGraphWin_SI::requestAddText,             graphWin, &GraphWindowClass::ShowTextPanel,       Qt::QueuedConnection);
-    connect(this, &AGraphWin_SI::requestAddLine,             graphWin, &GraphWindowClass::AddLine,             Qt::QueuedConnection);
-    connect(this, &AGraphWin_SI::requestAddArrow,            graphWin, &GraphWindowClass::AddArrow,            Qt::QueuedConnection);
+    connect(this, &AGraphWin_SI::requestAddToBasket,         graphWin, &AGraphWindow::addCurrentToBasket,    Qt::QueuedConnection);
+    connect(this, &AGraphWin_SI::requestClearBasket,         graphWin, &AGraphWindow::clearBasket,           Qt::QueuedConnection);
+    connect(this, &AGraphWin_SI::requestSetLog,              graphWin, &AGraphWindow::setLogScale,           Qt::QueuedConnection);
+    connect(this, &AGraphWin_SI::requestSetStatPanelVisible, graphWin, &AGraphWindow::setStatPanelVisible,   Qt::QueuedConnection);
+    connect(this, &AGraphWin_SI::requestAddLegend,           graphWin, &AGraphWindow::drawLegend,            Qt::QueuedConnection);
+    connect(this, &AGraphWin_SI::requestSetLegendBorder,     graphWin, &AGraphWindow::configureLegendBorder, Qt::QueuedConnection);
+    connect(this, &AGraphWin_SI::requestAddText,             graphWin, &AGraphWindow::addTextPanel,         Qt::QueuedConnection);
+    connect(this, &AGraphWin_SI::requestAddLine,             graphWin, &AGraphWindow::addLine,               Qt::QueuedConnection);
+    connect(this, &AGraphWin_SI::requestAddArrow,            graphWin, &AGraphWindow::addArrow,              Qt::QueuedConnection);
 
 }
 
@@ -142,36 +142,13 @@ void AGraphWin_SI::clearBasket()
 
 void AGraphWin_SI::saveImage(QString fileName)
 {
-    GraphWindow->SaveGraph(fileName);
+    GraphWindow->saveGraph(fileName);
 }
 
 void AGraphWin_SI::show3D(QString castorFileName)
 {
     emit requestShow3D(castorFileName);
 }
-
-/*
-QVariant AGraphWin_SI::GetProjection()
-{
-    QVector<double> vec = GraphWindow->Get2DArray();
-    QJsonArray arr;
-    for (auto v : vec) arr << v;
-    QJsonValue jv = arr;
-    QVariant res = jv.toVariant();
-    return res;
-}
-
-void AGraphWin_SI::UseProjectionTool(QString option)
-{
-    QString res = GraphWindow->UseProjectionTool(option);
-    if (!res.isEmpty()) abort(res);
-}
-
-void AGraphWin_SI::ConfigureProjectionTool(double x0, double y0, double dx, double dy, double angle)
-{
-    GraphWindow->ConfigureProjectionTool(x0, y0, dx, dy, angle);
-}
-*/
 
 QVariantList AGraphWin_SI::getAxisRanges()
 {
@@ -199,11 +176,12 @@ QVariantList AGraphWin_SI::getAxisRanges()
 #include "TObject.h"
 #include "TGraphErrors.h"
 #include "TH1.h"
+#include "TH2.h"
 QVariantList AGraphWin_SI::getContent()
 {
     QVariantList vl;
 
-    TObject * obj = GraphWindow->GetMainPlottedObject();
+    TObject * obj = GraphWindow->getMainPlottedObject();
     if (obj)
     {
         QString ClName = obj->ClassName();
@@ -235,6 +213,25 @@ QVariantList AGraphWin_SI::getContent()
                     el << x << y;
                     vl.push_back(el);
                 }
+            }
+        }
+        else if (ClName.startsWith("TH2"))
+        {
+            TH2 * h = dynamic_cast<TH2*>(obj);
+            if (h)
+            {
+                const int numX = h->GetNbinsX();
+                const int numY = h->GetNbinsY();
+                for (int iy = 1; iy <= numY; iy++)
+                    for (int ix = 1; ix <= numX; ix++)
+                    {
+                        double x = h->GetXaxis()->GetBinCenter(ix);
+                        double y = h->GetYaxis()->GetBinCenter(iy);
+                        double val = h->GetBinContent(ix, iy);
+                        QVariantList el;
+                        el << x << y << val;
+                        vl.push_back(el);
+                    }
             }
         }
     }

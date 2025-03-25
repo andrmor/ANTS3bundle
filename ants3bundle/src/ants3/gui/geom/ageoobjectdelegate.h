@@ -4,8 +4,9 @@
 #include "ageobasedelegate.h"
 
 #include <QString>
-#include <QVector>
 #include <QStringList>
+
+#include <vector>
 
 class AGeoObject;
 class AGeoShape;
@@ -506,7 +507,7 @@ public:
 protected:
     AOneLineTextEdit * ez = nullptr;
 
-    QVector<QVector<AEditEdit>> ve; //[0..1][0..3] - upper/lower, 4 points
+    std::vector<std::vector<AEditEdit>> ve; //[0..1][0..3] - upper/lower, 4 points
 };
 
 class AGeoArrayDelegate : public AGeoObjectDelegate

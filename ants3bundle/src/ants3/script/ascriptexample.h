@@ -2,7 +2,7 @@
 #define ASCRIPTEXAMPLE_H
 
 #include <QString>
-#include <QVector>
+#include <QStringList>
 
 class AScriptExample
 {
@@ -10,7 +10,7 @@ public:
     bool readFromRecord(QString text);
 
     QString FileName;
-    QVector<QString> Tags;  // !!!*** to std::vector
+    QStringList Tags;
     QString Description;
 
     bool Selected = true;

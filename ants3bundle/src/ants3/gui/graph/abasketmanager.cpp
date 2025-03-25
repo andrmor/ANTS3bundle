@@ -28,27 +28,27 @@ ABasketManager::~ABasketManager()
 TGraph * HistToGraph(TH1 * h)
 {
     if (!h) return nullptr;
-    QVector<double> x, f;
+    std::vector<double> x, f;
     for (int i=1; i<h->GetXaxis()->GetNbins()-1; i++)
     {
-        x.append(h->GetBinCenter(i));
-        f.append(h->GetBinContent(i));
+        x.push_back(h->GetBinCenter(i));
+        f.push_back(h->GetBinContent(i));
     }
     return new TGraph(x.size(), x.data(), f.data());
 }
 
-void ABasketManager::add(const QString & name, const QVector<ADrawObject> & drawObjects)
+void ABasketManager::add(const QString & name, const std::vector<ADrawObject> & drawObjects)
 {
     ABasketItem item;
     item.Name = name;
-    item.Type = drawObjects.first().Pointer->ClassName();
+    item.Type = drawObjects.front().Pointer->ClassName();
 
     QMap<TObject*, TObject*> OldToNew;
     TLegend * Legend = nullptr;
 
-    for (int i = 0; i < drawObjects.size(); i++)
+    for (size_t i = 0; i < drawObjects.size(); i++)
     {
-        const ADrawObject & drObj = drawObjects.at(i);
+        const ADrawObject & drObj = drawObjects[i];
 
         QString type = drObj.Pointer->ClassName();
         QString options = drObj.Options;
@@ -119,7 +119,7 @@ void ABasketManager::add(const QString & name, const QVector<ADrawObject> & draw
 
         ADrawObject newObj = ADrawObject(clone, options, drObj.bEnabled, drObj.bLogScaleX, drObj.bLogScaleY);
         newObj.CustomMargins = drObj.CustomMargins;
-        item.DrawObjects.append(newObj);
+        item.DrawObjects.push_back(newObj);
     }
 
     if (Legend)
@@ -139,7 +139,7 @@ void ABasketManager::add(const QString & name, const QVector<ADrawObject> & draw
     // it is convinient if title-less objects will be named the same as their basket entry - less problems with a TLegend
     if (item.DrawObjects.size() > 0)
     {
-        TNamed * named = dynamic_cast<TNamed*>(item.DrawObjects.first().Pointer);
+        TNamed * named = dynamic_cast<TNamed*>(item.DrawObjects.front().Pointer);
         if (named)
         {
             const TString title = named->GetTitle();
@@ -151,24 +151,23 @@ void ABasketManager::add(const QString & name, const QVector<ADrawObject> & draw
         }
     }
 
-    Basket << item;
+    Basket.push_back(item);
 }
 
-void ABasketManager::update(int index, const QVector<ADrawObject> & drawObjects)
+void ABasketManager::update(int index, const std::vector<ADrawObject> & drawObjects)
 {
     if (index < 0 || index >= Basket.size()) return;
 
     add(Basket[index].Name, drawObjects);
-    std::swap(Basket[index], Basket.last());
-
-    Basket.remove(Basket.size()-1);
+    std::swap(Basket[index], Basket.back());
+    Basket.pop_back();
 }
 
-QVector<ADrawObject> ABasketManager::getCopy(int index) const
+std::vector<ADrawObject> ABasketManager::getCopy(int index) const
 {
-    QVector<ADrawObject> res;
+    std::vector<ADrawObject> res;
 
-    QMap<TObject*, TObject*> OldToNew;
+    QMap<TObject*, TObject*> oldToNew;
     TLegend * Legend = nullptr;
 
     if (index >= 0 && index < Basket.size())
@@ -187,13 +186,13 @@ QVector<ADrawObject> ABasketManager::getCopy(int index) const
                 TGraph2D * g2 = dynamic_cast<TGraph2D*>(obj.Pointer);
                 if (g2) clone = new TGraph2D(*g2); //clone unzooms to full range
                 else    clone = obj.Pointer->Clone();
-                OldToNew[obj.Pointer] = clone;
+                oldToNew[obj.Pointer] = clone;
                 //qDebug() << "From basket, old-->cloned" << obj.Pointer << "-->" << clone;
             }
 
             ADrawObject newObj(clone, obj.Options, obj.bEnabled, obj.bLogScaleX, obj.bLogScaleY);
             newObj.CustomMargins = obj.CustomMargins;
-            res << newObj;
+            res.push_back(newObj);
         }
 
         if (Legend)
@@ -204,8 +203,8 @@ QVector<ADrawObject> ABasketManager::getCopy(int index) const
             {
                 TLegendEntry * en = static_cast<TLegendEntry*>( (*elist).At(ie) );
                 QString text = en->GetLabel();
-                //qDebug() << "Old entry obj:"<< en->GetObject() << " found?" << OldToNew[ en->GetObject() ];
-                en->SetObject( OldToNew[ en->GetObject() ] ); // will override the label
+                //qDebug() << "Old entry obj:"<< en->GetObject() << " found?" << oldToNew[ en->GetObject() ];
+                en->SetObject( oldToNew[ en->GetObject() ] ); // will override the label
                 en->SetLabel(text.toLatin1().data());
             }
         }
@@ -216,8 +215,7 @@ QVector<ADrawObject> ABasketManager::getCopy(int index) const
 
 void ABasketManager::clear()
 {
-    for (int ib=0; ib<Basket.size(); ib++)
-        Basket[ib].clearObjects();
+    for (ABasketItem & bi : Basket) bi.clearObjects();
     Basket.clear();
 }
 
@@ -225,7 +223,7 @@ void ABasketManager::remove(int index)
 {
     if (index < 0 || index >= Basket.size()) return;
     Basket[index].clearObjects();
-    Basket.remove(index);
+    Basket.erase(Basket.begin() + index);
 }
 
 QString ABasketManager::getType(int index) const
@@ -252,7 +250,7 @@ void ABasketManager::rename(int index, const QString & newName)
     // it is convinient if title-less objects are named the same as their basket entry - less problems with a TLegend
     if (Basket[index].DrawObjects.size() > 0)
     {
-        TNamed * named = dynamic_cast<TNamed*>(Basket[index].DrawObjects.first().Pointer);
+        TNamed * named = dynamic_cast<TNamed*>(Basket[index].DrawObjects.front().Pointer);
         if (named)
         {
             const TString title = named->GetTitle();
@@ -278,14 +276,14 @@ void ABasketManager::saveAll(const QString & fileName)
 
     int objectIndex = 0;
     QJsonArray BasketArray;
-    for (int ib = 0; ib < Basket.size(); ib++)
+    for (size_t ib = 0; ib < Basket.size(); ib++)
     {
         QJsonObject ItemJson;
         ItemJson["ItemName"] = Basket.at(ib).Name;
 
         QJsonArray ItemArray;
-        const QVector<ADrawObject> & DrawObjects = Basket.at(ib).DrawObjects;
-        for (int io = 0; io < DrawObjects.size(); io++)
+        const std::vector<ADrawObject> & DrawObjects = Basket[ib].DrawObjects;
+        for (size_t io = 0; io < DrawObjects.size(); io++)
         {
             const ADrawObject & obj = DrawObjects.at(io);
             TString KeyName = "#";
@@ -369,7 +367,7 @@ QString ABasketManager::appendBasket(const QString & fileName)
             QJsonArray ItemArray = ItemJson["ItemObjects"].toArray();
             int        ItemSize  = ItemArray.size();
 
-            QVector<ADrawObject> drawObjects;
+            std::vector<ADrawObject> drawObjects;
             int LegendIndex = -1;
             QJsonArray LegendLinks;
             for (int iDrawObj = 0; iDrawObj < ItemSize; iDrawObj++)
@@ -392,7 +390,7 @@ QString ABasketManager::appendBasket(const QString & fileName)
                     Obj.bEnabled = bEnabled;
                     Obj.bLogScaleX = bLogX;
                     Obj.bLogScaleY = bLogY;
-                    drawObjects << Obj;
+                    drawObjects.push_back(Obj);
 
                     TLegend * Legend = dynamic_cast<TLegend*>(p);
                     if (Legend)
@@ -427,13 +425,13 @@ QString ABasketManager::appendBasket(const QString & fileName)
                 }
             }
 
-            if (!drawObjects.isEmpty())
+            if (!drawObjects.empty())
             {
                 ABasketItem item;
                 item.Name = ItemName;
                 item.DrawObjects = drawObjects;
-                item.Type = drawObjects.first().Pointer->ClassName();
-                Basket << item;
+                item.Type = drawObjects.front().Pointer->ClassName();
+                Basket.push_back(item);
                 drawObjects.clear();
             }
         }
@@ -489,7 +487,7 @@ QString ABasketManager::appendBasket(const QString & fileName)
 
                     //qDebug() << "Name:"<< name << "objects:"<< numObj;
 
-                    QVector<ADrawObject> drawObjects;
+                    std::vector<ADrawObject> drawObjects;
                     for (int iDrawObj = 0; iDrawObj < numObj; iDrawObj++)
                     {
                         TKey *key = (TKey*)f.GetListOfKeys()->At(indexFileObject++);
@@ -499,7 +497,7 @@ QString ABasketManager::appendBasket(const QString & fileName)
                         //qDebug() << "-->"<< iDrawObj <<"   "<<objName<<"  "<<type<<"   "<<fields[iDrawObj+1];
 
                         TObject * p = key->ReadObj();
-                        if (p) drawObjects << ADrawObject(p, fields[iDrawObj+1]);
+                        if (p) drawObjects.push_back( ADrawObject(p, fields[iDrawObj+1]) );
                         //qDebug() << p;
 
                         /*
@@ -517,13 +515,13 @@ QString ABasketManager::appendBasket(const QString & fileName)
                     */
                     }
 
-                    if (!drawObjects.isEmpty())
+                    if (!drawObjects.empty())
                     {
                         ABasketItem item;
                         item.Name = name;
                         item.DrawObjects = drawObjects;
-                        item.Type = drawObjects.first().Pointer->ClassName();
-                        Basket << item;
+                        item.Type = drawObjects.front().Pointer->ClassName();
+                        Basket.push_back(item);
                         drawObjects.clear();
                     }
                 }
@@ -544,36 +542,36 @@ QString ABasketManager::appendBasket(const QString & fileName)
 
 QString ABasketManager::appendTxtAsGraph(const QString & fileName)
 {
-    QVector<double> x, y;
-    QVector<QVector<double> *> V = {&x, &y};
-    const QString res = ftools::loadDoubleVectorsFromFile(fileName, V);
+    std::vector<double> x, y;
+    std::vector<std::vector<double> *> V = {&x, &y};
+    QString res = ftools::loadDoubleVectorsFromFile(fileName, V);
     if (!res.isEmpty()) return res;
 
     TGraph* gr = new TGraph(x.size(), x.data(), y.data());
     gr->SetMarkerStyle(20);
     ABasketItem item;
     item.Name = "Graph";
-    item.DrawObjects << ADrawObject(gr, "APL");
+    item.DrawObjects.push_back( ADrawObject(gr, "APL") );
     item.Type = gr->ClassName();
-    Basket << item;
+    Basket.push_back(item);
 
     return "";
 }
 
 QString ABasketManager::appendTxtAsGraphErrors(const QString &fileName)
 {
-    QVector<double> x, y, err;
-    QVector<QVector<double> *> V = {&x, &y, &err};
-    const QString res = ftools::loadDoubleVectorsFromFile(fileName, V);
+    std::vector<double> x, y, err;
+    std::vector<std::vector<double> *> V = {&x, &y, &err};
+    QString res = ftools::loadDoubleVectorsFromFile(fileName, V);
     if (!res.isEmpty()) return res;
 
     TGraphErrors* gr = new TGraphErrors(x.size(), x.data(), y.data(), 0, err.data());
     gr->SetMarkerStyle(20);
     ABasketItem item;
     item.Name = "GraphErrors";
-    item.DrawObjects << ADrawObject(gr, "APL");
+    item.DrawObjects.push_back( ADrawObject(gr, "APL") );
     item.Type = gr->ClassName();
-    Basket << item;
+    Basket.push_back(item);
 
     return "";
 }
@@ -601,10 +599,10 @@ void ABasketManager::appendRootHistGraphs(const QString & fileName)
             {
                 ABasketItem item;
                     item.Name = Name;
-                    item.DrawObjects << ADrawObject(p, "");
+                    item.DrawObjects.push_back( ADrawObject(p, "") );
                     item.Type = p->ClassName();
                     if (item.Name.isEmpty()) item.Name = QString("%1#%2").arg(item.Type).arg(i);
-                Basket << item;
+                Basket.push_back(item);
                 //qDebug() << "  appended";
             }
             else qWarning() << "Failed to read object of type" << Type << "from file " << fileName;
@@ -615,25 +613,25 @@ void ABasketManager::appendRootHistGraphs(const QString & fileName)
     f->Close();
 }
 
-void ABasketManager::reorder(const QVector<int> &indexes, int to)
+void ABasketManager::reorder(const std::vector<int> & indexes, int to)
 {
-    QVector< ABasketItem > ItemsToMove;
-    for (int i = 0; i < indexes.size(); i++)
+    std::vector<ABasketItem> ItemsToMove;
+    for (size_t i = 0; i < indexes.size(); i++)
     {
-        const int index = indexes.at(i);
-        ItemsToMove << Basket.at(index);
+        const int index = indexes[i];
+        ItemsToMove.push_back( Basket[index] );
         Basket[index]._flag = true;       // mark to be deleted
     }
 
-    for (int i = 0; i < ItemsToMove.size(); i++)
+    for (size_t i = 0; i < ItemsToMove.size(); i++)
     {
-        Basket.insert(to, ItemsToMove.at(i));
+        Basket.insert(Basket.begin() + to, ItemsToMove[i]);
         to++;
     }
 
     for (int i = Basket.size()-1; i >= 0; i--)
-        if (Basket.at(i)._flag)
-            Basket.remove(i);
+        if (Basket[i]._flag)
+            Basket.erase(Basket.begin() + i);
 }
 
 #include "aroothistappenders.h"
@@ -686,8 +684,8 @@ QString ABasketManager::mergeHistograms(const std::vector<int> & indexes)
     }
     name.chop(1);
 
-    QVector<ADrawObject> drawObjects;
-    drawObjects << ADrawObject(hist, "hist");
+    std::vector<ADrawObject> drawObjects;
+    drawObjects.push_back( ADrawObject(hist, "hist") );
     add(name, drawObjects);
 
     delete hist;
@@ -695,9 +693,9 @@ QString ABasketManager::mergeHistograms(const std::vector<int> & indexes)
     return "";
 }
 
-int ABasketManager::findPointerInDrawObjects(const QVector<ADrawObject> &DrawObjects, TObject *obj) const
+int ABasketManager::findPointerInDrawObjects(const std::vector<ADrawObject> & drawObjects, TObject * obj) const
 {
-    for (int i=0; i<DrawObjects.size(); i++)
-        if (DrawObjects.at(i).Pointer == obj) return i;
+    for (size_t i = 0; i < drawObjects.size(); i++)
+        if (drawObjects[i].Pointer == obj) return i;
     return -1;
 }

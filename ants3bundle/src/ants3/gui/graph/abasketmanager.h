@@ -4,18 +4,19 @@
 #include "abasketitem.h"
 
 #include <QString>
-#include <QVector>
 #include <QStringList>
+
+#include <vector>
 
 class ABasketManager
 {
 public:
     ~ABasketManager();
 
-    void                add(const QString & name, const QVector<ADrawObject> & drawObjects); //makes deep copy
-    void                update(int index, const QVector<ADrawObject> & drawObjects);         //makes deep copy
+    void                add(const QString & name, const std::vector<ADrawObject> & drawObjects); //makes deep copy
+    void                update(int index, const std::vector<ADrawObject> & drawObjects);         //makes deep copy
 
-    QVector<ADrawObject> getCopy(int index) const;  //returns deep copy
+    std::vector<ADrawObject> getCopy(int index) const;  //returns deep copy
 
     void                clear();
     void                remove(int index);
@@ -36,15 +37,15 @@ public:
     QString             appendTxtAsGraphErrors(const QString & fileName);
     void                appendRootHistGraphs(const QString & fileName);
 
-    void                reorder(const QVector<int> &indexes, int to);
+    void                reorder(const std::vector<int> & indexes, int to);
 
     QString             mergeHistograms(const std::vector<int> & indexes);
 
 private:
-    QVector<ABasketItem> Basket;
+    std::vector<ABasketItem> Basket;
 
 private:
-    int                 findPointerInDrawObjects(const QVector<ADrawObject> & DrawObjects, TObject * obj) const;
+    int                 findPointerInDrawObjects(const std::vector<ADrawObject> & drawObjects, TObject * obj) const;
 };
 
 #endif // ABASKETMANAGER_H
