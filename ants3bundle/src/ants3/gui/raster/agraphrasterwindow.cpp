@@ -117,7 +117,7 @@ void AGraphRasterWindow::mousePressEvent(QMouseEvent *event)
 
         if (ExtractionOf2DEllipsePending)
         {
-            //first will do a line to extract the angle
+            //first will do a line to extract the center + angle
             ExtractionOf2DEllipsePending = false;
 
             Line2DstartX = x;
@@ -221,24 +221,17 @@ void AGraphRasterWindow::mouseMoveEvent(QMouseEvent *event)
     if (fCanvas->GetLogx()) x = TMath::Power(10.0, x);
     if (fCanvas->GetLogy()) y = TMath::Power(10.0, y);
 
-    if (ShowCursorPosition)
-    {
-        //QString str = "Cursor coordinates: " + QString::number(x, 'g', 4);
-        //str += " : " + QString::number(y, 'g', 4);
-        //MasterWindow->setWindowTitle(str);
-        emit reportCursorPosition(x, y, true);
-    }
-    else emit reportCursorPosition(0, 0, false);
+    emit reportCursorPosition(x, y, ShowCursorPosition);
 
     //first block - if does not matter buttons are pressed or not
     if (ExtractionOf2DEllipsePhase == 2)
     {
-        //resizeingthe ellipse - do not care if a button is pressed
+        //resizeing the ellipse - do not care if a button is pressed
         double dx = extracted2DEllipseX - x;
         double dy = extracted2DEllipseY - y;
 
-        double sinA = sin(-extracted2DEllipseTheta*3.1415926535/180.);
-        double cosA = cos(-extracted2DEllipseTheta*3.1415926535/180.);
+        double sinA = sin(-extracted2DEllipseTheta * 3.1415926535/180.0);
+        double cosA = cos(-extracted2DEllipseTheta * 3.1415926535/180.0);
         extracted2DEllipseR1 = fabs(dx * cosA - dy * sinA);
         extracted2DEllipseR2 = fabs(dx * sinA + dy * cosA);
         //        qDebug()<<"current R1 and R2:"<<extracted2DEllipseR1<<extracted2DEllipseR2;
@@ -420,13 +413,13 @@ void AGraphRasterWindow::mouseReleaseEvent(QMouseEvent *event)
             //calculating ellipse angle
             double dx = Line2DstopX - Line2DstartX;
             double dy = Line2DstopY - Line2DstartY;
-            qDebug()<<" dx, dy -- "<<dx<<dy;
+            qDebug()<<" dx, dy -> "<<dx<<dy;
             if ( fabs(dx) < 1.0e-10) extracted2DEllipseTheta = 90.0;
-            else extracted2DEllipseTheta = TMath::ATan(dy/dx) *180.0/3.1415926535;
+            else extracted2DEllipseTheta = atan(dy/dx) * 180.0 / 3.1415926535;
             qDebug()<<"Angle obtained:"<<extracted2DEllipseTheta;
 
-            double sinA = sin(-extracted2DEllipseTheta*3.1415926535/180.0);
-            double cosA = cos(-extracted2DEllipseTheta*3.1415926535/180.0);
+            double sinA = sin(-extracted2DEllipseTheta * 3.1415926535 / 180.0);
+            double cosA = cos(-extracted2DEllipseTheta * 3.1415926535 / 180.0);
             extracted2DEllipseR1 = fabs(dx * cosA - dy * sinA);
             extracted2DEllipseR2 = fabs(dx * sinA + dy * cosA);
             qDebug()<<"R1 and R2 obtained:"<<extracted2DEllipseR1<<extracted2DEllipseR2;
@@ -435,17 +428,15 @@ void AGraphRasterWindow::mouseReleaseEvent(QMouseEvent *event)
             AGraphRasterWindow::DrawEllipse();
             ExtractionOf2DEllipsePhase = 2; //starting resize of the ellipse
             //              qDebug()<<"Ellipse resize mode";
-
             return;
         }
 
         if (ExtractionOf2DEllipsePhase == 3)
         {
-            //              qDebug()<<"Ellipse done";
             double dx = extracted2DEllipseX - x;
             double dy = extracted2DEllipseY - y;
-            double sinA = sin(-extracted2DEllipseTheta*3.1415926535/180.);
-            double cosA = cos(-extracted2DEllipseTheta*3.1415926535/180.);
+            double sinA = sin(-extracted2DEllipseTheta * 3.1415926535/180.);
+            double cosA = cos(-extracted2DEllipseTheta * 3.1415926535/180.);
             extracted2DEllipseR1 = fabs(dx * cosA - dy * sinA);
             extracted2DEllipseR2 = fabs(dx * sinA + dy * cosA);
 
@@ -455,7 +446,7 @@ void AGraphRasterWindow::mouseReleaseEvent(QMouseEvent *event)
             fCanvas->Update();
 
             ExtractionOf2DEllipsePhase = 0;
-            ExtractionComplete = true; //ready
+            ExtractionComplete = true;
             return;
         }
 

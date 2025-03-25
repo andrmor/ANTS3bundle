@@ -2155,23 +2155,21 @@ void ADrawExplorerWidget::editTGaxis(ADrawObject &obj)
     }
 }
 
-//kira-->
 void ADrawExplorerWidget::linDraw(int index)
 {
     GraphWindow.triggerGlobalBusy(true);
 
     Raster.Extract2DLine();
-    if (!Raster.waitForExtractionFinished()) return; //cancel
+    if (!Raster.waitForExtractionFinished()) return;
 
-    double startX = Raster.Line2DstartX; // extracted2DLineXstart();
-    double stopX  = Raster.Line2DstopX;  // extracted2DLineXstop();
-    double startY = Raster.Line2DstartY; // extracted2DLineYstart();
-    double stopY  = Raster.Line2DstopY;  // extracted2DLineYstop();
+    double startX = Raster.Line2DstartX;
+    double stopX  = Raster.Line2DstopX;
+    double startY = Raster.Line2DstartY;
+    double stopY  = Raster.Line2DstopY;
 
     GraphWindow.makeCopyOfDrawObjects();
     GraphWindow.makeCopyOfActiveBasketId();
 
-    //draw line
     TLine *ln = new TLine(startX, startY, stopX, stopY);
     GraphWindow.registerTObject(ln);
     ln->SetLineStyle(2);
@@ -2196,7 +2194,6 @@ void ADrawExplorerWidget::boxDraw(int index)
     GraphWindow.makeCopyOfDrawObjects();
     GraphWindow.makeCopyOfActiveBasketId();
 
-    //draw box
     TBox *bx = new TBox(startX, startY, stopX, stopY);
     GraphWindow.registerTObject(bx);
     bx->SetLineStyle(2);
@@ -2213,7 +2210,7 @@ void ADrawExplorerWidget::ellipseDraw(int index)
     GraphWindow.triggerGlobalBusy(true);
 
     Raster.Extract2DEllipse();
-    if (!Raster.waitForExtractionFinished()) return; //cancel
+    if (!Raster.waitForExtractionFinished()) return;
 
     double centerX = Raster.extracted2DEllipseX;
     double centerY = Raster.extracted2DEllipseY;
@@ -2233,4 +2230,3 @@ void ADrawExplorerWidget::ellipseDraw(int index)
     GraphWindow.redrawAll();
     GraphWindow.highlightUpdateBasketButton(true);
 }
-//kira <--
