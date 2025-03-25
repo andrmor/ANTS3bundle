@@ -6,8 +6,6 @@
 
 #include <vector>
 
-//#include "TMathBase.h"
-
 class AGeometryHub;
 class ARasterWindow;
 class QWebEngineView;
@@ -94,7 +92,7 @@ public slots:
     void showText(const std::vector<QString> & textVec, int color, AGeoWriter::EDraw onWhat, bool bFullCycle = true);
 
     void onRasterWindowChange();
-    void readRasterWindowProperties();   // !*!
+    void readRasterWindowProperties();
 
     void on_pbShowTracks_clicked();
     void on_pbClearTracks_clicked();
@@ -194,7 +192,6 @@ private:
 signals:
     void requestChangeGeoViewer(bool useJSRoot);
     void requestUpdateRegisteredGeoManager(); // Geometry.notifyRootServerGeometryChanged();
-    //void requestUpdateMaterialListWidget();   // ants2 MainWindow could have material list colored
     void requestShowNetSettings();
     void taskRequestedFromScriptCompleted();
 };

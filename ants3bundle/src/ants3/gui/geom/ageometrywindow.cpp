@@ -13,7 +13,6 @@
 #include "acameracontroldialog.h"
 #include "guitools.h"
 #include "ascripthub.h"
-//#include "ageowin_si.h"
 
 #include <vector>
 
@@ -952,7 +951,7 @@ void AGeometryWindow::onRasterWindowChange()
 void AGeometryWindow::readRasterWindowProperties()
 {
     fRecallWindow = true;
-    RasterWindow->ViewParameters.read(RasterWindow->fCanvas);   // !*! method
+    RasterWindow->ViewParameters.read(RasterWindow->fCanvas);
 }
 
 void AGeometryWindow::on_cbShowAxes_toggled(bool /*checked*/)
