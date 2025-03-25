@@ -183,8 +183,6 @@ void AParticleSimManager::doPreSimChecks()
 #include "amaterialhub.h"
 void AParticleSimManager::checkG4Settings()
 {
-    // TODO: no sensitive volumes but photon sim scheduled
-
     // TODO: optical grids will not be expanded
 
     //reformat !!!***

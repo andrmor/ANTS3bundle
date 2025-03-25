@@ -35,7 +35,7 @@ signals:
     void reportProgress(double eventsDone);
 
 protected:
-    QString       IP;
+    QString       IP = "127.0.0.1";
     quint16       WebSocketPort = 0;
     int           MaxNumberProcesses = 4;
 

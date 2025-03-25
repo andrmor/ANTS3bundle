@@ -4,7 +4,6 @@
 #include "aparticlerecord.h"
 #include "aerrorhub.h"
 
-//#include <QDebug> //temporary! !!!***
 #ifdef GEANT4
     #include "SessionManager.hh"  // needed for particle name -> geant4 particle definition, plan to move to separate class !!!***
 #else

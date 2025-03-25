@@ -365,7 +365,7 @@ void AMaterialHub::checkReadyForGeant4Sim(QString & Errors) const
         if (mat->UseG4Material && mat->G4MaterialName.isEmpty())
             Errors += QString("\nGeant4 material use activated for %1, but G4 name not selected\n").arg(mat->Name);
 
-        // !!!*** check material here, which shoul cinclude check of composition
+        // !!!*** check material here, which should include check of composition
         //if (!mat->Composition.isDefined() && !mat->UseNistMaterial)
         //    Errors += QString("\nComposition not defined for material %1\n").arg(mat->Name);
     }
