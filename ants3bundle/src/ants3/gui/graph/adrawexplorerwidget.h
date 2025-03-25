@@ -60,6 +60,7 @@ private:
     void scaleToUnity(ADrawObject &obj);
     void scaleCDR(ADrawObject &obj);
     void scaleAllSameMax();
+    void scaleAllIntegralsToUnity();
     void shift(ADrawObject &obj);
     void drawIntegral(ADrawObject &obj);
     void fraction(ADrawObject &obj);

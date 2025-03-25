@@ -114,8 +114,7 @@ void ADrawExplorerWidget::onContextMenuRequested(const QPoint &pos)
 
 void ADrawExplorerWidget::showObjectContextMenu(const QPoint &pos, int index)
 {
-    if (index < 0 || index >= DrawObjects.size())
-        return;
+    if (index < 0 || index >= DrawObjects.size()) return;
 
     ADrawObject & obj = DrawObjects[index];
     const QString Type = obj.Pointer->ClassName();
@@ -283,8 +282,10 @@ void ADrawExplorerWidget::manipulateTriggered()
         QAction * addAxisTop   = Menu.addAction("Add axis on Top");
 
         Menu.addSeparator();
-        QAction * scale        = Menu.addAction("Scale all graphs/histograms to have max of unity"); scale->setEnabled(Type.startsWith("TH") || Type.startsWith("TGraph") || Type.startsWith("TProfile"));
-        // !!!*** scale to integral of unity
+        QAction * scale        = Menu.addAction("Scale all graphs/histograms to max of unity");
+            scale->setEnabled(Type.startsWith("TH") || Type.startsWith("TGraph") || Type.startsWith("TProfile"));
+        QAction * scaleInte1   = Menu.addAction("Scale all graphs/histograms to integral of unity");
+            scaleInte1->setEnabled(Type.startsWith("TH") || Type.startsWith("TGraph") || Type.startsWith("TProfile"));
         // !!!***  QAction * shiftA = scaleMenu->addAction("Shift X scale for all");
 
         Menu.addSeparator();
@@ -313,6 +314,7 @@ void ADrawExplorerWidget::manipulateTriggered()
         else if (si == addAxisTop)   addAxis(0);
         else if (si == addAxisRight) addAxis(1);
         else if (si == scale)        scaleAllSameMax();
+        else if (si == scaleInte1)   scaleAllIntegralsToUnity();
         else if (si == linDrawA)     linDraw(size-1);
         else if (si == boxDrawA)     boxDraw(size-1);
         else if (si == ellipseDrawA) ellipseDraw(size-1);
@@ -535,13 +537,17 @@ void ADrawExplorerWidget::scale(ADrawObject &obj)
 void ADrawExplorerWidget::scaleIntegralToUnity(ADrawObject & obj)
 {
     if (!canScale(obj)) return;
-    double factor = 1.0;
+    double factor = 0;
 
     const QString name = obj.Pointer->ClassName();
     if (name.startsWith("TGraph"))
     {
         TGraph * gr = static_cast<TGraph*>(obj.Pointer);
-        factor = gr->Integral();
+        //factor = gr->Integral(); // cannot use: calculates the polygon area!
+        const int size = gr->GetN();
+        double * ar = gr->GetY();
+        for (int i = 0; i < size; i++)
+            factor += ar[i];
     }
     else if (name.startsWith("TH1"))
     {
@@ -625,14 +631,51 @@ void ADrawExplorerWidget::scaleAllSameMax()
     ADrawObject & mainObj = DrawObjects[0];
     if (!canScale(mainObj)) return;
 
-    for (int i=0; i<size; i++)
+    for (ADrawObject & obj : DrawObjects)
     {
-        ADrawObject & obj = DrawObjects[i];
-
         double thisMax = 0;
         getDrawMax(obj, thisMax);
         if (thisMax == 0) continue;
         doScale(obj, 1.0/thisMax);
+    }
+}
+
+void ADrawExplorerWidget::scaleAllIntegralsToUnity()
+{
+    const int size = DrawObjects.size();
+    if (size == 0) return;
+
+    ADrawObject & mainObj = DrawObjects[0];
+    if (!canScale(mainObj)) return;
+
+    for (ADrawObject & obj : DrawObjects)
+    {
+        double factor = 0;
+
+        const QString name = obj.Pointer->ClassName();
+        if (name.startsWith("TGraph"))
+        {
+            TGraph * gr = static_cast<TGraph*>(obj.Pointer);
+            //factor = gr->Integral(); // cannot use: calculates the polygon area!
+            const int size = gr->GetN();
+            double * ar = gr->GetY();
+            for (int i = 0; i < size; i++)
+                factor += ar[i];
+        }
+        else if (name.startsWith("TH1"))
+        {
+            TH1* h = static_cast<TH1*>(obj.Pointer);
+            factor = h->Integral();
+        }
+        else if (name.startsWith("TH2"))
+        {
+            TH2* h = static_cast<TH2*>(obj.Pointer);
+            factor = h->Integral();
+        }
+
+        if (factor == 0 || factor == 1.0) return;
+        factor = 1.0 / factor;
+        doScale(obj, factor);
     }
 }
 

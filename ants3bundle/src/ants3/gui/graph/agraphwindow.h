@@ -186,7 +186,7 @@ private:
     ABasketManager         * Basket       = nullptr;
     ADrawExplorerWidget    * Explorer     = nullptr;
     ABasketListWidget      * lwBasket     = nullptr;
-    AGraphRasterWindow * RasterWindow = nullptr;
+    AGraphRasterWindow     * RasterWindow = nullptr;
     QGraphicsView          * gvOverlay    = nullptr;
     AToolboxScene          * ToolBoxScene = nullptr;
     AMultiGraphDesigner    * MGDesigner   = nullptr;
@@ -264,7 +264,6 @@ private:
     void triggerGlobalBusy(bool flag); // currently disabled - do we need it? One option is trigger inside local busy
     void onBusyOn();
     void onBusyOff();
-
 
 signals:
     void requestLocalDrawObject(TObject *obj, QString options, bool fFocus);
