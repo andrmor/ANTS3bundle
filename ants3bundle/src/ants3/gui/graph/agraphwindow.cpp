@@ -578,36 +578,42 @@ void AGraphWindow::on_ledXfrom_editingFinished()
 {
     if (xmin == ui->ledXfrom->text().toDouble()) return;
     AGraphWindow::reshape();
+    if (ActiveBasketItem != -1) highlightUpdateBasketButton(true);
 }
 
 void AGraphWindow::on_ledXto_editingFinished()
 {
     if (xmax == ui->ledXto->text().toDouble()) return;
     AGraphWindow::reshape();
+    if (ActiveBasketItem != -1) highlightUpdateBasketButton(true);
 }
 
 void AGraphWindow::on_ledYfrom_editingFinished()
 {
     if (ymin == ui->ledYfrom->text().toDouble()) return;
     AGraphWindow::reshape();
+    if (ActiveBasketItem != -1) highlightUpdateBasketButton(true);
 }
 
 void AGraphWindow::on_ledYto_editingFinished()
 {
     if (ymax == ui->ledYto->text().toDouble()) return;
     AGraphWindow::reshape();
+    if (ActiveBasketItem != -1) highlightUpdateBasketButton(true);
 }
 
 void AGraphWindow::on_ledZfrom_editingFinished()
 {
     if (zmin == ui->ledZfrom->text().toDouble()) return;
     AGraphWindow::reshape();
+    if (ActiveBasketItem != -1) highlightUpdateBasketButton(true);
 }
 
 void AGraphWindow::on_ledZto_editingFinished()
 {
     if (zmax == ui->ledZto->text().toDouble()) return;
     AGraphWindow::reshape();
+    if (ActiveBasketItem != -1) highlightUpdateBasketButton(true);
 }
 
 TObject * AGraphWindow::getMainPlottedObject()
@@ -813,6 +819,7 @@ void AGraphWindow::on_pbZoom_clicked()
         ui->ledYto->  setText(QString::number(RasterWindow->extractedY2, 'g', 4));
 
         reshape();
+        if (ActiveBasketItem != -1) highlightUpdateBasketButton(true);
     }
 
     updateControls();
@@ -829,6 +836,7 @@ void AGraphWindow::on_pbUnzoom_clicked()
     {
         h->GetXaxis()->UnZoom();
         h->GetYaxis()->UnZoom();
+        if (ActiveBasketItem != -1) highlightUpdateBasketButton(true);
     }
     else
     {
@@ -837,6 +845,7 @@ void AGraphWindow::on_pbUnzoom_clicked()
         {
             gr->GetXaxis()->UnZoom(); //does not work!
             gr->GetYaxis()->UnZoom();
+            if (ActiveBasketItem != -1) highlightUpdateBasketButton(true);
         }
     }
 
@@ -873,6 +882,8 @@ void AGraphWindow::on_leOptions_editingFinished()
     {
         DrawObjects.front().Options = newOptions;
         redrawAll();
+
+        if (ActiveBasketItem != -1) highlightUpdateBasketButton(true);
     }
 }
 
@@ -2268,7 +2279,7 @@ void AGraphWindow::showAddLegendDialog()
     if (DrawObjects.empty()) return;
 
     TLegend * leg = nullptr;
-    for (int i=0; i<DrawObjects.size(); i++)
+    for (size_t i = 0; i < DrawObjects.size(); i++)
     {
         QString cn = DrawObjects[i].Pointer->ClassName();
         if (cn == "TLegend")
@@ -2277,12 +2288,13 @@ void AGraphWindow::showAddLegendDialog()
             break;
         }
     }
-    if (!leg )
-        leg = addLegend();
+
+    if (!leg ) leg = addLegend();
 
     ALegendDialog Dialog(*leg, DrawObjects, this);
     connect(&Dialog, &ALegendDialog::requestCanvasUpdate, RasterWindow, &ARasterWindow::updateRootCanvas);
     Dialog.exec();
+    if (ActiveBasketItem != -1) highlightUpdateBasketButton(true);
 }
 
 void AGraphWindow::on_pbRemoveLegend_clicked()
@@ -2290,14 +2302,14 @@ void AGraphWindow::on_pbRemoveLegend_clicked()
     bool bOK = guitools::confirm("Remove legend?", this);
     if (!bOK) return;
 
-    for (int i=0; i<DrawObjects.size(); i++)
+    for (size_t i = 0; i < DrawObjects.size(); i++)
     {
         QString cn = DrawObjects[i].Pointer->ClassName();
         if (cn == "TLegend")
         {
-            //DrawObjects.remove(i);
             DrawObjects.erase(DrawObjects.begin()+i);
             redrawAll();
+            if (ActiveBasketItem != -1) highlightUpdateBasketButton(true);
             break;
         }
     }
@@ -2306,7 +2318,8 @@ void AGraphWindow::on_pbRemoveLegend_clicked()
 void AGraphWindow::on_pbAddText_clicked()
 {
     addTextPanel("Text", true, 0);
-    Explorer->activateCustomGuiForItem(DrawObjects.size()-1);
+    Explorer->activateCustomGuiForItem(DrawObjects.size() - 1);
+    if (ActiveBasketItem != -1) highlightUpdateBasketButton(true);
 }
 
 void AGraphWindow::addTextPanel(QString text, bool bShowFrame, int alignLeftCenterRight,
