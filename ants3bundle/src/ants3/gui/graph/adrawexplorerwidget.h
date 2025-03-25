@@ -56,12 +56,14 @@ private:
     void showPanel(ADrawObject &obj);
     void fitPanel(ADrawObject &obj);
     void scale(ADrawObject &obj);
+    void scale(std::vector<ADrawObject> & drawObjects);
     void scaleIntegralToUnity(ADrawObject &obj);
     void scaleToUnity(ADrawObject &obj);
     void scaleCDR(ADrawObject &obj);
     void scaleAllSameMax();
     void scaleAllIntegralsToUnity();
     void shift(ADrawObject &obj);
+    void shift(std::vector<ADrawObject> & drawObjects);
     void drawIntegral(ADrawObject &obj);
     void fraction(ADrawObject &obj);
     void fwhm(int index);
