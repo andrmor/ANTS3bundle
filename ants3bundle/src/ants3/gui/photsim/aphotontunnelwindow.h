@@ -50,6 +50,8 @@ private slots:
 
     void on_actionCheck_all_records_triggered();
 
+    void on_pbHelp_clicked();
+
 private:
     APhotonFunctionalHub & PhFunHub;
     const AGeometryHub & GeoHub;

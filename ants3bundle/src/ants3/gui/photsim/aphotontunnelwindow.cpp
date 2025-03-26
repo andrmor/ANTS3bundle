@@ -8,7 +8,7 @@
 
 #include <QDebug>
 
-#include "TObject.h"
+//#include "TObject.h"
 
 APhotonTunnelWindow::APhotonTunnelWindow(QWidget * parent) :
     AGuiWindow("PhotFun", parent),
@@ -307,5 +307,27 @@ void APhotonTunnelWindow::on_actionCheck_all_records_triggered()
     QString txt = "No errors were detected";
     if (!error.isEmpty()) txt = "Error detected!\n" + error;
     guitools::message(txt, this);
+}
+
+void APhotonTunnelWindow::on_pbHelp_clicked()
+{
+    QString txt =
+        "A functional model offers a possibility to directly modify optical photon properties such as direction, position, time and waveindex.\n"
+        "A model can be attributed to any non-logical geometry volume:\n"
+        "see 'Special role' control of the volume editor at the geometry design window or through 'geo' script.\n"
+        "\n"
+        "\n"
+        "The model is triggered for each photon entering the corresponding volume, then the tracing continues normally.\n"
+        "\n"
+        "Currently the following models are implemented:\n"
+        "Filter:\n\tgray of band pass filter;\n"
+        "ThinLens:\n\tthin lense with the focal length which can depend on the photon wavelength;\n"
+        "OpticalFiber:\n\tphoton 'teleporter', which transports photons from the entrance to the exit volume.\n"
+        "\n"
+        "At this window it is possible to override the default model (or modify the model parameters) for configurations in which the model "
+        "is attributed to an array of volumes.\n"
+        "Also, if an 'OpticalFiber' model is selected, the fiber enterance and exit volumes have to be connected here.";
+
+    guitools::message1(txt, "Functional model help", this);
 }
 
