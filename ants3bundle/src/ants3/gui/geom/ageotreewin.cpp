@@ -101,7 +101,7 @@ AGeoTreeWin::~AGeoTreeWin()
 
 void AGeoTreeWin::onRebuildDetectorRequest()
 {
-    qDebug() << "A3GeoConWin->onRebuildDetectorRequest triggered";
+    //qDebug() << "A3GeoConWin->onRebuildDetectorRequest triggered";
 
     AErrorHub::clear();
     emit requestRebuildGeometry();

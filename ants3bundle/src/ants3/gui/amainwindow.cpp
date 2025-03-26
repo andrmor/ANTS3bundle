@@ -193,6 +193,7 @@ void AMainWindow::onRebuildGeometryRequested()
     SensWin->onMaterialsChanged();
     emit GeoTreeWin->requestClearGeoMarkers(0);
     if (GeoWin->isVisible()) GeoWin->ShowGeometry(false);
+    PhotFunWin->updateGui();
 }
 
 void AMainWindow::on_pbGeometry_clicked()
