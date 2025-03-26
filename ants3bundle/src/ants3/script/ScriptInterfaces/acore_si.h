@@ -67,7 +67,6 @@ public slots:
     void         appendText(QString text, QString fileName);
     QString      loadText(QString fileName);
     QString      loadText(QString fileName, int numLines);
-    // !!!*** read a specific line from file
 
     // Ascii array
     void         saveArray(QVariantList array, QString fileName, bool append = false);

@@ -20,7 +20,7 @@ bool ADemo_SI::afterRun()
 
 void ADemo_SI::abortRun()
 {
-    ADemoManager::getInstance().abortedByScript(); // !!!*** more universal way in ADemomanager: like ask Dispatcher hub about abort status?
+    ADemoManager::getInstance().abortedByScript();
 }
 
 bool ADemo_SI::run(int numLocalProc)

@@ -22,7 +22,7 @@ public:
 
 public slots:
     void         newTree(QString TreeName, QVariantList HeadersOfBranches,
-                         QString StoreInFileName = "", int AutosaveAfterEntriesAdded = 10000); // !!!*** to std::vector inside
+                         QString StoreInFileName = "", int AutosaveAfterEntriesAdded = 10000);
     void         loadTree(QString TreeName, QString FileName, QString TreeNameInFile = ""); //one leaf per branch!
 
     void         fill(QString TreeName, QVariantList Array);
