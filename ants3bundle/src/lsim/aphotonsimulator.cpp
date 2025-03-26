@@ -151,7 +151,7 @@ QString APhotonSimulator::openOutput()
         StreamSensorLog = new QTextStream(FileSensorLog);
     }
 
-    if (SimSet.RunSet.PhotonLogSet.Save)
+    if (SimSet.RunSet.PhotonLogSet.Enabled)
     {
         FilePhotonLog = new QFile(WorkingDir + '/' + SimSet.RunSet.PhotonLogSet.FileName, this);
         if (!FilePhotonLog->open(QIODevice::WriteOnly | QFile::Text)) return "Cannot open file to save photon log: " + SimSet.RunSet.PhotonLogSet.FileName;

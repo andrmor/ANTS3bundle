@@ -1013,7 +1013,7 @@ void APhotonAdvancedSettings::readFromJson(const QJsonObject &json)
 
 void APhotonLogSettings::writeToJson(QJsonObject & json) const
 {
-    json["Enabled"]  = Save;
+    json["Enabled"]  = Enabled;
     json["FileName"] = FileName;
 
     json["MaxNumber"] = MaxNumber;
@@ -1051,7 +1051,7 @@ void APhotonLogSettings::writeToJson(QJsonObject & json) const
 
 void APhotonLogSettings::readFromJson(const QJsonObject & json)
 {
-    jstools::parseJson(json, "Enabled", Save);
+    jstools::parseJson(json, "Enabled", Enabled);
     jstools::parseJson(json, "FileName", FileName);
 
     jstools::parseJson(json, "MaxNumber", MaxNumber);
@@ -1099,7 +1099,7 @@ void APhotonLogSettings::readFromJson(const QJsonObject & json)
 
 void APhotonLogSettings::clear()
 {
-    Save     = false;
+    Enabled  = false;
     FileName = "PhotonLog.txt";
 
     MustNotInclude_Processes.clear();

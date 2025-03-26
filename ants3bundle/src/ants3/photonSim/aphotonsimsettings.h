@@ -213,7 +213,7 @@ public:
 class APhotonLogSettings
 {
 public:
-    bool    Save     = false;  // !!!*** rename!
+    bool    Enabled  = false;
     QString FileName = "PhotonLog.txt";
 
     int MaxNumber = 1000;

@@ -63,7 +63,7 @@ void APhotonTracer::initPhotonLog()
     PhLog.clear();
     if (AddedLogs >= SimSet.RunSet.PhotonLogSet.MaxNumber)
     {
-        APhotonSimHub::getInstance().Settings.RunSet.PhotonLogSet.Save = false;
+        APhotonSimHub::getInstance().Settings.RunSet.PhotonLogSet.Enabled = false;
     }
     else
     {
@@ -95,7 +95,7 @@ bool APhotonTracer::initBeforeTracing(const APhoton & phot)
     Photon.copyFrom(phot);
 
     if (SimSet.RunSet.SaveTracks) initTracks();
-    SaveLog = SimSet.RunSet.PhotonLogSet.Save;
+    SaveLog = SimSet.RunSet.PhotonLogSet.Enabled;
     if (SaveLog) initPhotonLog();
 
 //    qDebug()<<"Photon starts from:";

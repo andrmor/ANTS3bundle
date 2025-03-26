@@ -203,7 +203,7 @@ private:
 
     void updateAdvancedBombIndicator();
 
-    void setGuiEnabled(bool flag); // !!!*** make it public to use in global disable/enable?
+    void setGuiEnabled(bool flag); // make it public to use in global disable/enable?
 
     void doShowEvent();
 
