@@ -55,7 +55,7 @@ APhotonSimOutputDialog::APhotonSimOutputDialog(QWidget *parent) :
     ui->cbSaveConfig->setChecked(RunSet.SaveConfig);
 
     PhotonLog->updateGui(RunSet.PhotonLogSet);
-    PhotonLog->setEnabled(false);
+    PhotonLog->setEnabled(RunSet.PhotonLogSet.Save);
 }
 
 APhotonSimOutputDialog::~APhotonSimOutputDialog()

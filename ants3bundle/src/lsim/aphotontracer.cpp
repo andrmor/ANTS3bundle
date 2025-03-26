@@ -34,8 +34,7 @@ APhotonTracer::APhotonTracer(ALightSensorEvent & event, QTextStream* & streamTra
     Event(event),
     StreamTracks(streamTracks),
     StreamSensorLog(streamSensorLog),
-    StreamPhotonLog(streamPhotonLog),
-    SaveLog(SimSet.RunSet.PhotonLogSet.Save)
+    StreamPhotonLog(streamPhotonLog)
 {}
 
 void APhotonTracer::configureTracer()
@@ -95,7 +94,8 @@ bool APhotonTracer::initBeforeTracing(const APhoton & phot)
 
     Photon.copyFrom(phot);
 
-    if (SimSet.RunSet.SaveTracks)        initTracks();
+    if (SimSet.RunSet.SaveTracks) initTracks();
+    SaveLog = SimSet.RunSet.PhotonLogSet.Save;
     if (SaveLog) initPhotonLog();
 
 //    qDebug()<<"Photon starts from:";

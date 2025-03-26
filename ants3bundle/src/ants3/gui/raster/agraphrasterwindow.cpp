@@ -72,7 +72,7 @@ void AGraphRasterWindow::mousePressEvent(QMouseEvent *event)
     double x = fCanvas->AbsPixeltoX(event->pos().x());
     double y = fCanvas->AbsPixeltoY(event->pos().y());
 #else
-    double x = fCanvas->AbsPixeltoX(event->position().x()); // !!!*** Round()?
+    double x = fCanvas->AbsPixeltoX(event->position().x());
     double y = fCanvas->AbsPixeltoY(event->position().y());
 #endif
 
@@ -215,7 +215,7 @@ void AGraphRasterWindow::mouseMoveEvent(QMouseEvent *event)
     double x = fCanvas->AbsPixeltoX(event->pos().x());
     double y = fCanvas->AbsPixeltoY(event->pos().y());
 #else
-    double x = fCanvas->AbsPixeltoX(event->position().x()); // !!!*** Round()?
+    double x = fCanvas->AbsPixeltoX(event->position().x());
     double y = fCanvas->AbsPixeltoY(event->position().y());
 #endif
     if (fCanvas->GetLogx()) x = TMath::Power(10.0, x);
@@ -332,7 +332,7 @@ void AGraphRasterWindow::mouseReleaseEvent(QMouseEvent *event)
     double x = fCanvas->AbsPixeltoX(event->pos().x());
     double y = fCanvas->AbsPixeltoY(event->pos().y());
 #else
-    double x = fCanvas->AbsPixeltoX(event->position().x()); // !!!*** Round()?
+    double x = fCanvas->AbsPixeltoX(event->position().x());
     double y = fCanvas->AbsPixeltoY(event->position().y());
 #endif
 

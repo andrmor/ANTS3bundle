@@ -47,7 +47,7 @@ ARasterWindow::~ARasterWindow()
     delete fCanvas; fCanvas = nullptr;
     //qDebug()<<"        canvas deleted";
 
-    //gVirtualX->RemoveWindow(wid); //causes strange warnings !!!***
+    //gVirtualX->RemoveWindow(wid); //causes strange warnings
     //qDebug()<<"        window unregistered in Root";
     //qDebug()<< "  <-Done";
 }
@@ -94,7 +94,7 @@ void ARasterWindow::mouseMoveEvent(QMouseEvent *event)
         if (fInvertedXYforDrag) fCanvas->HandleInput(kButton1Motion, event->pos().y(), event->pos().x());
         else                    fCanvas->HandleInput(kButton1Motion, event->pos().x(), event->pos().y());
 #else
-        if (InvertedXYforDrag) fCanvas->HandleInput(kButton1Motion, event->position().y(), event->position().x()); // !!!*** Round()?
+        if (InvertedXYforDrag) fCanvas->HandleInput(kButton1Motion, event->position().y(), event->position().x());
         else                    fCanvas->HandleInput(kButton1Motion, event->position().x(), event->position().y());
 #endif
 
@@ -118,7 +118,7 @@ void ARasterWindow::mouseMoveEvent(QMouseEvent *event)
         int x = event->pos().x();
         int y = event->pos().y();
 #else
-        int x = event->position().x(); // !!!*** Round()?
+        int x = event->position().x();
         int y = event->position().y();
 #endif
 
@@ -141,7 +141,7 @@ void ARasterWindow::mouseMoveEvent(QMouseEvent *event)
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
         fCanvas->HandleInput(kMouseMotion, event->pos().x(), event->pos().y());
 #else
-        fCanvas->HandleInput(kMouseMotion, event->position().x(), event->position().y()); // !!!*** Round()?
+        fCanvas->HandleInput(kMouseMotion, event->position().x(), event->position().y());
 #endif
     }
     //qDebug() << "done";
@@ -159,7 +159,7 @@ void ARasterWindow::mousePressEvent(QMouseEvent *event)
     if (event->button() == Qt::LeftButton)  fCanvas->HandleInput(kButton1Down, event->pos().x(), event->pos().y());
     if (event->button() == Qt::RightButton) fCanvas->HandleInput(kButton3Down, event->pos().x(), event->pos().y());
 #else
-    if (event->button() == Qt::LeftButton)  fCanvas->HandleInput(kButton1Down, event->position().x(), event->position().y()); // !!!*** Round()?
+    if (event->button() == Qt::LeftButton)  fCanvas->HandleInput(kButton1Down, event->position().x(), event->position().y());
     if (event->button() == Qt::RightButton) fCanvas->HandleInput(kButton3Down, event->position().x(), event->position().y());
 #endif
 
@@ -171,7 +171,7 @@ void ARasterWindow::mousePressEvent(QMouseEvent *event)
         lastX = event->pos().x();
         lastY = event->pos().y();
 #else
-        LastX = event->position().x(); // !!!***
+        LastX = event->position().x();
         LastY = event->position().y();
 #endif
         Double_t viewSizeX, viewSizeY;
@@ -198,14 +198,14 @@ void ARasterWindow::mouseReleaseEvent(QMouseEvent *event)
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
         fCanvas->HandleInput(kButton1Up, event->pos().x(), event->pos().y());
 #else
-        fCanvas->HandleInput(kButton1Up, event->position().x(), event->position().y()); // !!!***
+        fCanvas->HandleInput(kButton1Up, event->position().x(), event->position().y());
 #endif
         emit LeftMouseButtonReleased();
     }
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     else if (event->button() == Qt::RightButton) fCanvas->HandleInput(kButton3Up, event->pos().x(), event->pos().y());
 #else
-    else if (event->button() == Qt::RightButton) fCanvas->HandleInput(kButton3Up, event->position().x(), event->position().y()); // !!!***
+    else if (event->button() == Qt::RightButton) fCanvas->HandleInput(kButton3Up, event->position().x(), event->position().y());
 #endif
     else if (event->button() == Qt::MiddleButton) QTimer::singleShot(300, this, &ARasterWindow::releaseZoomBlock);
 }
