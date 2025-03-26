@@ -132,6 +132,9 @@ AGeoObject * ASensorHub::getGeoObject(int iSensor) const
 
 bool ASensorHub::updateRuntimeProperties()
 {
+    for (ASensorModel & model : Models)
+        model.updateRuntimeProperties();
+
     for (ASensorData & sd : SensorData)
     {
         const int & index = sd.ModelIndex;
@@ -141,8 +144,6 @@ bool ASensorHub::updateRuntimeProperties()
             qCritical() << "Bad sensor model index:" << index;
             exit(222);
         }
-        ASensorModel & model = Models[index];
-        model.updateRuntimeProperties();
     }
     return true;
 }
@@ -151,11 +152,6 @@ void ASensorHub::exitPersistentMode()
 {
     PersistentModelAssignment = false;
     LoadedModelAssignment.clear();
-}
-
-double ASensorHub::getMaxQE(bool waveResolved, int iWave) const
-{
-    return 1.0;
 }
 
 void ASensorHub::writeToJson(QJsonObject & json) const
