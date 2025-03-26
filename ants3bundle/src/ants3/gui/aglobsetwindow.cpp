@@ -257,7 +257,7 @@ void AGlobSetWindow::on_cbAutoRunRootServer_clicked()
     ARootHttpServer & ser = ARootHttpServer::getInstance();
     ser.Autostart = ui->cbAutoRunRootServer->isChecked();
 }
-void AGlobSetWindow::on_leRootServerPort_editingFinished()  // !!!*** stop when changed? restart?
+void AGlobSetWindow::on_leRootServerPort_editingFinished()
 {
     ARootHttpServer & ser = ARootHttpServer::getInstance();
     int oldp = ser.Port;
@@ -279,7 +279,7 @@ void AGlobSetWindow::on_cbRunRootServer_clicked(bool checked)
 #endif
 
 #ifdef __USE_ANTS_JSROOT__
-void AGlobSetWindow::on_leJSROOT_editingFinished()   // !!!*** stop when changed? restart?
+void AGlobSetWindow::on_leJSROOT_editingFinished()
 {
     ARootHttpServer & ser = ARootHttpServer::getInstance();
     const QString newa = ui->leJSROOT->text();

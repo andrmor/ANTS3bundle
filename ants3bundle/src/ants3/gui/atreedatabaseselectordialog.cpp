@@ -31,6 +31,7 @@ ATreeDatabaseSelectorDialog::ATreeDatabaseSelectorDialog(const QString & title, 
     QVBoxLayout * main = new QVBoxLayout(this);
 
     TreeWidget = new QTreeWidget(this);
+    TreeWidget->setHeaderHidden(true);
     main->addWidget(TreeWidget);
 
     TextField = new QPlainTextEdit(this);
