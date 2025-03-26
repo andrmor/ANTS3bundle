@@ -53,9 +53,8 @@ public:
     AVector3 getPosition(int iSensor) const;
     AVector3 getPositionFast(int iSensor) const;
 
-    // !!!*** obsolete!
-    double   getMinSize(int iSensor) const;
-    double   getMinSizeFast(int iSensor) const;
+    double   getMinSize(int iSensor) const;     // obsolete
+    double   getMinSizeFast(int iSensor) const; // obsolete
 
     AGeoObject * getGeoObject(int iSensor) const;
 
