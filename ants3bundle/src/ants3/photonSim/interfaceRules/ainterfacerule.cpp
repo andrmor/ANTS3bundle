@@ -103,7 +103,7 @@ void AInterfaceRule::reverseMaterialsFromTo()
 
 QString AInterfaceRule::checkOverrideData()
 {
-    if (isNotPolishedSurface())
+    if (isRoughSurface())
     {
         if (!canHaveRoughSurface()) return "This interface rule type cannot have rough optical surface";
         QString err = SurfaceSettings.checkRuntimeData();

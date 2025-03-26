@@ -244,7 +244,7 @@ EInterfaceResult APhotonTracer::processInterface()
     do
     {
         const AInterfaceRule::EInterfaceRuleResult res = tryInterfaceRule();
-        bUseLocalNormal = (InterfaceRule && InterfaceRule->isNotPolishedSurface());
+        bUseLocalNormal = (InterfaceRule && InterfaceRule->isRoughSurface());
 
         bool bDoFresnel;
         switch (res)

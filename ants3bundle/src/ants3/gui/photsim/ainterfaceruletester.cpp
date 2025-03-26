@@ -532,7 +532,7 @@ bool AInterfaceRuleTester::beforeRun()
     }
 
     delete ReverseRule; ReverseRule = nullptr;
-    if (Rule->isNotPolishedSurface() && !Rule->SurfaceSettings.KillPhotonsRefractedBackward)
+    if (Rule->isRoughSurface() && !Rule->SurfaceSettings.KillPhotonsRefractedBackward)
     {
         QJsonObject json;
         Rule->writeToJson(json);

@@ -174,7 +174,7 @@ void APetEventRecord::print()
 void APetCoincidenceFinder::find(std::vector<APetEventRecord> & events, std::vector<APetCoincidencePair> & pairs)
 {
     size_t numSingles    = 0;
-    size_t numBadAngular = 0;
+    //size_t numBadAngular = 0;
 
     qDebug() << "Events to process:" << events.size();
     for (size_t iCurrentEvent = 0; iCurrentEvent < events.size() - 1; iCurrentEvent++)
@@ -206,12 +206,10 @@ void APetCoincidenceFinder::find(std::vector<APetEventRecord> & events, std::vec
         size_t iCheckEvent = iNextEvent + 1;
         if (iCheckEvent >= events.size() || events[iCheckEvent].Time > thisEvent.Time + Config.CoincidenceWindow)
         {
-            //if (RejectSameHead)  // !!!*** TODO
-            {
-                //found a good coincidence!
-                pairs.push_back(APetCoincidencePair(thisEvent, nextEvent));
-            }
-            //else numBadAngular++;
+            //if (RejectSameHead) { ... --> numBadAngular++; } else
+
+            //found a good coincidence!
+            pairs.push_back(APetCoincidencePair(thisEvent, nextEvent));
 
             iCurrentEvent = iNextEvent; // will be auto-incremented by the cycle
             continue;
@@ -223,7 +221,7 @@ void APetCoincidenceFinder::find(std::vector<APetEventRecord> & events, std::vec
 
     qDebug() << "Found"<< pairs.size()<<"coincidences";
     qDebug() << "  Num singles:"<< numSingles;
-    qDebug() << "  Num rejected based on detector head:"<< numBadAngular;
+    //qDebug() << "  Num rejected based on detector head:"<< numBadAngular;
 }
 
 size_t APetCoincidenceFinder::findNextEventOutsideCoinsidenceWindow(std::vector<APetEventRecord> & events, size_t iCurrentEvent)

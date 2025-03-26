@@ -15,8 +15,8 @@ public:
 
     ASurfaceSettings();
 
-    bool isPolished()    const {return Model == Polished;}
-    bool isNotPolished() const {return Model != Polished;} // !!!*** rename to isRough()
+    bool isPolished() const {return Model == Polished;}
+    bool isRough() const {return Model != Polished;}
 
     QString checkRuntimeData(); // also populates NormalDistributionHist   !!!*** separate funcionality: check vs updateRuntimeProperties
 

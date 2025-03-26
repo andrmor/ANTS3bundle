@@ -217,7 +217,7 @@ void AInterfaceRuleDialog::on_pbTestOverride_clicked()
         return;
     }
 
-    if (Rule && Rule->SurfaceSettings.isNotPolished())
+    if (Rule && Rule->SurfaceSettings.isRough())
     {
         if (!Rule->Symmetric && !Rule->SurfaceSettings.KillPhotonsRefractedBackward)
         {

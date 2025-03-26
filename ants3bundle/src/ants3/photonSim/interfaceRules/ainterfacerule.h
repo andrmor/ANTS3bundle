@@ -69,7 +69,7 @@ public:
 
     virtual bool canHaveRoughSurface() const {return false;}
     bool isPolishedSurface() const    {return SurfaceSettings.isPolished();}
-    bool isNotPolishedSurface() const {return SurfaceSettings.isNotPolished();}
+    bool isRoughSurface() const {return SurfaceSettings.isRough();}
     double LocalNormal[3];
     ASurfaceSettings SurfaceSettings;
 

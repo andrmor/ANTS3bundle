@@ -36,8 +36,8 @@ public:
     bool ConserveEnergy = false;
 
 protected:
-    void doWriteToJson(QJsonObject & json) const override;  // !!!***
-    bool doReadFromJson(const QJsonObject & json) override; // !!!***
+    void doWriteToJson(QJsonObject & json) const override;
+    bool doReadFromJson(const QJsonObject & json) override;
 
     QString doCheckOverrideData() override;
 
