@@ -84,7 +84,7 @@ bool APetCoincidenceFinder::read(std::vector<APetEventRecord> & events, bool bEn
         const bool binary = pair.second;
         qDebug() << "Input file:"<< fileName << "  binary?" << binary;
 
-        std::ifstream * inStream;  // !!!*** drop pointer
+        std::ifstream * inStream;
         if (binary) inStream = new std::ifstream(fileName.toLatin1().data(), std::ios::in | std::ios::binary);
         else        inStream = new std::ifstream(fileName.toLatin1().data());
 
@@ -240,13 +240,12 @@ size_t APetCoincidenceFinder::findNextEventOutsideCoinsidenceWindow(std::vector<
 #include "afiletools.h"
 double APetCoincidenceFinder::write(std::vector<APetCoincidencePair> & pairs, bool writeToF, const QString & dir, const QString & headerFileName, const QString & binFileName)
 {
-    std::ofstream * outDataStream = new std::ofstream;  // !!!*** remove pointer
     const QString binNameWithPath = dir + "/" + binFileName;
-    outDataStream->open(binNameWithPath.toLatin1().data(), std::ios::out | std::ios::binary);
-    if (!outDataStream->is_open())
+    std::ofstream outDataStream;
+    outDataStream.open(binNameWithPath.toLatin1().data(), std::ios::out | std::ios::binary);
+    if (!outDataStream.is_open())
     {
         ErrorString = "Cannot open file " + binNameWithPath + " for writing coincidence binary data";
-        delete outDataStream; outDataStream = nullptr;
         return 0;
     }
 
@@ -263,14 +262,13 @@ double APetCoincidenceFinder::write(std::vector<APetCoincidencePair> & pairs, bo
         // t1[ms]   i1   i2
         // t1-t2 is saved as float, the rest are uint32_t
 
-        outDataStream->write((char*)&iTime, sizeof(uint32_t));
-        if (writeToF) outDataStream->write((char*)&deltaT, sizeof(float));
-        outDataStream->write((char*)&iScint1, sizeof(uint32_t));
-        outDataStream->write((char*)&iScint2, sizeof(uint32_t));
+        outDataStream.write((char*)&iTime, sizeof(uint32_t));
+        if (writeToF) outDataStream.write((char*)&deltaT, sizeof(float));
+        outDataStream.write((char*)&iScint1, sizeof(uint32_t));
+        outDataStream.write((char*)&iScint2, sizeof(uint32_t));
     }
 
-    outDataStream->close();
-    delete outDataStream;
+    outDataStream.close();
 
     qDebug() << "Writing the header file...";
 

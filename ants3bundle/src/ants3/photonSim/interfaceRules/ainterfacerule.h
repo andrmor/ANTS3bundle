@@ -32,7 +32,6 @@ public:
     AInterfaceRule(int MatFrom, int MatTo);
     virtual ~AInterfaceRule();
 
-    // !!!*** to reference
     // assuming that if LocalNormalInEffect is set once by calculateLocalNormal(), this flag will always remain =true
     virtual EInterfaceRuleResult calculate(APhoton * Photon, const double * NormalVector) = 0; //unitary vectors! iWave = -1 if not wavelength-resolved
 
