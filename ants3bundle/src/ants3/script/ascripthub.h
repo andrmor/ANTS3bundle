@@ -23,7 +23,6 @@ class AScriptHub : public QObject
 
 public:
     static AScriptHub      & getInstance();
-    static AJScriptManager & manager(); // !!!*** to kill
 
     static void              abort(const QString & message, EScriptLanguage lang);
     static bool              isAborted(EScriptLanguage lang);

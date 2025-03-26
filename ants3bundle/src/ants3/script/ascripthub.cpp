@@ -37,11 +37,6 @@ AScriptHub & AScriptHub::getInstance()
     return instance;
 }
 
-AJScriptManager & AScriptHub::manager()
-{
-    return getInstance().getJScriptManager();
-}
-
 #include <QTimer>
 void AScriptHub::abort(const QString & message, EScriptLanguage lang)
 {
