@@ -101,7 +101,6 @@ AMainWindow::AMainWindow() :
     connect(ScriptHub,  &AScriptHub::outputHtml_JS,         JScriptWin, &AScriptWindow::outputHtml, Qt::QueuedConnection);
     connect(ScriptHub,  &AScriptHub::outputFromBuffer_JS,   JScriptWin, &AScriptWindow::outputFromBuffer, Qt::QueuedConnection);
     connect(ScriptHub,  &AScriptHub::reportProgress_JS,     JScriptWin, &AScriptWindow::onProgressChanged, Qt::QueuedConnection);
-    connect(ScriptHub,  &AScriptHub::showAbortMessage_JS,   JScriptWin, &AScriptWindow::outputAbortMessage);
     connect(JScriptWin, &AScriptWindow::requestUpdateGui,   this,       &AMainWindow::updateAllGuiFromConfig);
     connect(GeoTreeWin, &AGeoTreeWin::requestAddJavaScript, JScriptWin, &AScriptWindow::onRequestAddScript);
     JScriptWin->updateGui();
@@ -115,7 +114,6 @@ AMainWindow::AMainWindow() :
     connect(ScriptHub,  &AScriptHub::outputHtml_P,            PythonWin, &AScriptWindow::outputHtml);
     connect(ScriptHub,  &AScriptHub::outputFromBuffer_P,      PythonWin, &AScriptWindow::outputFromBuffer);
     connect(ScriptHub,  &AScriptHub::reportProgress_P,        PythonWin, &AScriptWindow::onProgressChanged);
-    connect(ScriptHub,  &AScriptHub::showAbortMessage_P,      PythonWin, &AScriptWindow::outputAbortMessage);
     connect(PythonWin,  &AScriptWindow::requestUpdateGui,     this,      &AMainWindow::updateAllGuiFromConfig);
     connect(GeoTreeWin, &AGeoTreeWin::requestAddPythonScript, PythonWin, &AScriptWindow::onRequestAddScript);
     PythonWin->updateGui();

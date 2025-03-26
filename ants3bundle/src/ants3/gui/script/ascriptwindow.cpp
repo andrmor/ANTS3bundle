@@ -485,12 +485,6 @@ void AScriptWindow::outputFromBuffer(std::vector<std::pair<bool, QString>> buffe
     }
 }
 
-void AScriptWindow::outputAbortMessage(QString text)
-{
-    pteOut->appendHtml("<p style='color:red;'>Aborted: " + text + "</p>");
-    qApp->processEvents();
-}
-
 void AScriptWindow::onRequestAddScript(const QString & script)
 {
     showNormal();

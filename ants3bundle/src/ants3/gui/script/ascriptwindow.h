@@ -161,7 +161,6 @@ public slots:
     void outputHtml(QString text);
     void outputText(QString text);
     void outputFromBuffer(std::vector<std::pair<bool, QString>> buffer);
-    void outputAbortMessage(QString text);
 
     void onRequestAddScript(const QString & script);
     void onLoadFromFileRequested(const QString & fileName);

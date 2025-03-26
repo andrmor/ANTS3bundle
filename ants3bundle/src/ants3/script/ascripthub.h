@@ -65,8 +65,6 @@ signals:
     void outputHtml_P(QString);
     void outputFromBuffer_JS(std::vector<std::pair<bool,QString>> Buffer);
     void outputFromBuffer_P(std::vector<std::pair<bool,QString>> Buffer);
-    void showAbortMessage_JS(QString message); // !!!*** remove, use outputHtml
-    void showAbortMessage_P(QString message);
     void clearOutput_JS();
     void clearOutput_P();
     void requestUpdateGui();
