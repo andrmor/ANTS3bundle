@@ -64,7 +64,7 @@ private:
     QTimer * RootUpdateTimer = nullptr;
 
 private slots:
-    void onRebuildGeometryRequested(); // !!!*** refactor?
+    void onRebuildGeometryRequested();
     void updateAllGuiFromConfig();
     void onRequestSaveGuiSettings();
     void onRequestChangeGeoViewer(bool useJSRoot);

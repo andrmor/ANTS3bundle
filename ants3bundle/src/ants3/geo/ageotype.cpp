@@ -171,7 +171,7 @@ void ATypeArrayObject::introduceGeoConstValues(QString & errorStr)
     ok = GC.updateDoubleParameter(errorStr, strStepY, stepY, true, false, false) ; if (!ok) errorStr += " in Y Step\n";
     ok = GC.updateDoubleParameter(errorStr, strStepZ, stepZ, true, false, false) ; if (!ok) errorStr += " in Z Setp\n";
 
-    if (strStartIndex.contains("ParentIndex")) // !!!***
+    if (strStartIndex.contains("ParentIndex"))
     {
         QString tmp = strStartIndex;
         tmp.replace("ParentIndex", "0");

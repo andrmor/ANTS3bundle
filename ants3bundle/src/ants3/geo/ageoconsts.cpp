@@ -143,7 +143,7 @@ bool AGeoConsts::evaluateFormula(QString & error, QString str, double & returnVa
 {
     if (to == -1) to = Records.size();
 
-    if (str.contains("ParentIndex")) str.replace("ParentIndex", "0"); // !!!***
+    if (str.contains("ParentIndex")) str.replace("ParentIndex", "0");
 
     for (int i = 0; i < to; i++)
         str.replace(Records.at(i).RegExp, Records.at(i).Index);
