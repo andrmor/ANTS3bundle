@@ -11,7 +11,7 @@ class AGeoTreeWin;
 class AGeometryWindow;
 class AMatWin;
 class ASensorWindow;
-class APhotonTunnelWindow;
+class APhotFunctWindow;
 class APhotSimWin;
 class AInterfaceRuleWin;
 class AGraphWindow;
@@ -45,7 +45,7 @@ private:
     AGeometryWindow   * GeoWin     = nullptr;
     AMatWin           * MatWin     = nullptr;
     ASensorWindow     * SensWin    = nullptr;
-    APhotonTunnelWindow * PhotFunWin = nullptr;
+    APhotFunctWindow * PhotFunWin = nullptr;
     APhotSimWin       * PhotSimWin = nullptr;
     AInterfaceRuleWin * RuleWin    = nullptr;
     AGraphWindow      * GraphWin   = nullptr;

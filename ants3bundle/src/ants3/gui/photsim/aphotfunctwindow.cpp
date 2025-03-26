@@ -1,5 +1,5 @@
-#include "aphotontunnelwindow.h"
-#include "ui_aphotontunnelwindow.h"
+#include "aphotfunctwindow.h"
+#include "ui_aphotfunctwindow.h"
 #include "aphotonfunctionalhub.h"
 #include "aphotonfunctionalmodel.h"
 #include "afunctionalmodelwidget.h"
@@ -10,11 +10,11 @@
 
 //#include "TObject.h"
 
-APhotonTunnelWindow::APhotonTunnelWindow(QWidget * parent) :
+APhotFunctWindow::APhotFunctWindow(QWidget * parent) :
     AGuiWindow("PhotFun", parent),
     PhFunHub(APhotonFunctionalHub::getInstance()),
     GeoHub(AGeometryHub::getConstInstance()),
-    ui(new Ui::APhotonTunnelWindow)
+    ui(new Ui::APhotFunctWindow)
 {
     ui->setupUi(this);
 
@@ -23,7 +23,7 @@ APhotonTunnelWindow::APhotonTunnelWindow(QWidget * parent) :
     //ui->tabwConnections->setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContents);
     ui->tabwConnections->horizontalHeader()->setStretchLastSection(true);
     //setSectionResizeMode(QHeaderView.Stretch)
-    connect(ui->tabwConnections->horizontalHeader(), &QHeaderView::sectionClicked, this, &APhotonTunnelWindow::onHeaderClicked);
+    connect(ui->tabwConnections->horizontalHeader(), &QHeaderView::sectionClicked, this, &APhotFunctWindow::onHeaderClicked);
 
     APFM_Dummy dm;
     LastWidget = new AFunctionalModelWidget_Dummy(&dm, this);
@@ -41,12 +41,12 @@ APhotonTunnelWindow::APhotonTunnelWindow(QWidget * parent) :
     DefaultBrush = item.foreground();
 }
 
-APhotonTunnelWindow::~APhotonTunnelWindow()
+APhotFunctWindow::~APhotFunctWindow()
 {
     delete ui;
 }
 
-void APhotonTunnelWindow::fillCell(int iRow, int iColumn, const QString & txt, bool markNotValid, bool bold)
+void APhotFunctWindow::fillCell(int iRow, int iColumn, const QString & txt, bool markNotValid, bool bold)
 {
     QTableWidgetItem * item = ui->tabwConnections->item(iRow, iColumn);
     if (!item)
@@ -62,7 +62,7 @@ void APhotonTunnelWindow::fillCell(int iRow, int iColumn, const QString & txt, b
 }
 
 #include "ageoobject.h"
-void APhotonTunnelWindow::updateGui()
+void APhotFunctWindow::updateGui()
 {
     ui->tabwConnections->clearContents();
 
@@ -121,7 +121,7 @@ void APhotonTunnelWindow::updateGui()
     onModelChanged();
 }
 
-void APhotonTunnelWindow::onHeaderClicked(int index)
+void APhotFunctWindow::onHeaderClicked(int index)
 {
     if (SortByColumnIndex == index) AscendingSortOrder = !AscendingSortOrder;
     else SortByColumnIndex = index;
@@ -129,7 +129,7 @@ void APhotonTunnelWindow::onHeaderClicked(int index)
     updateGui();
 }
 
-void APhotonTunnelWindow::onModelChanged()
+void APhotFunctWindow::onModelChanged()
 {
     QString type;
     if (LocalModel) type = LocalModel->getType();
@@ -143,7 +143,7 @@ void APhotonTunnelWindow::onModelChanged()
 
         LastWidget = AFunctionalModelWidget::factory(LocalModel, this);
         connect(LastWidget, &AFunctionalModelWidget::modified, this, [this](){setModifiedStatus(true);});
-        connect(LastWidget, &AFunctionalModelWidget::requestDraw, this, &APhotonTunnelWindow::requestDraw);
+        connect(LastWidget, &AFunctionalModelWidget::requestDraw, this, &APhotFunctWindow::requestDraw);
         lay->insertWidget(2, LastWidget);
     }
 
@@ -153,7 +153,7 @@ void APhotonTunnelWindow::onModelChanged()
     ui->cbShowConnection->setEnabled(bLink);
 }
 
-void APhotonTunnelWindow::on_pbAddModify_clicked()
+void APhotFunctWindow::on_pbAddModify_clicked()
 {
     if (!LocalModel || !LastWidget)
     {
@@ -181,7 +181,7 @@ void APhotonTunnelWindow::on_pbAddModify_clicked()
     else guitools::message(err, this);
 }
 
-void APhotonTunnelWindow::on_pbResetToDefault_clicked()
+void APhotFunctWindow::on_pbResetToDefault_clicked()
 {
     bool ok = guitools::confirm("Reset this record to default?", this);
     if (!ok) return;
@@ -194,7 +194,7 @@ void APhotonTunnelWindow::on_pbResetToDefault_clicked()
     setModifiedStatus(false);
 }
 
-void APhotonTunnelWindow::on_tabwConnections_cellClicked(int row, int)
+void APhotFunctWindow::on_tabwConnections_cellClicked(int row, int)
 {
     int from = ui->tabwConnections->item(row, 0)->text().toInt();
     ui->sbFrom->setValue(from);
@@ -227,7 +227,7 @@ void APhotonTunnelWindow::on_tabwConnections_cellClicked(int row, int)
 
 /*
 #include "atreedatabaseselectordialog.h"
-void APhotonTunnelWindow::on_pbSelectModel_clicked()
+void APhotFunctWindow::on_pbSelectModel_clicked()
 {
     ATreeDatabaseSelectorDialog dialog("Select model", this);
     QString err = dialog.readData(AFunctionalModelWidget::getModelDatabase());
@@ -249,12 +249,12 @@ void APhotonTunnelWindow::on_pbSelectModel_clicked()
 }
 */
 
-void APhotonTunnelWindow::on_actionShow_all_linked_pairs_triggered()
+void APhotFunctWindow::on_actionShow_all_linked_pairs_triggered()
 {
     emit requestShowAllConnections();
 }
 
-void APhotonTunnelWindow::on_cbShowConnection_clicked(bool checked)
+void APhotFunctWindow::on_cbShowConnection_clicked(bool checked)
 {
     if (checked)
     {
@@ -263,31 +263,31 @@ void APhotonTunnelWindow::on_cbShowConnection_clicked(bool checked)
     }
 }
 
-void APhotonTunnelWindow::setModifiedStatus(bool flag)
+void APhotFunctWindow::setModifiedStatus(bool flag)
 {
     ui->pbAddModify->setIcon(flag ? RedCircle : QPixmap());
 }
 
-void APhotonTunnelWindow::on_sbTo_textChanged(const QString &)
+void APhotFunctWindow::on_sbTo_textChanged(const QString &)
 {
     setModifiedStatus(true);
 }
-void APhotonTunnelWindow::on_sbFrom_textChanged(const QString &)
+void APhotFunctWindow::on_sbFrom_textChanged(const QString &)
 {
     setModifiedStatus(true);
 }
-void APhotonTunnelWindow::on_leModelTypeName_textChanged(const QString &)
+void APhotFunctWindow::on_leModelTypeName_textChanged(const QString &)
 {
     setModifiedStatus(true);
 }
 
-void APhotonTunnelWindow::on_actionReset_all_to_default_triggered()
+void APhotFunctWindow::on_actionReset_all_to_default_triggered()
 {
     PhFunHub.clearAllRecords();
     updateGui();
 }
 
-void APhotonTunnelWindow::on_actionRemove_records_with_invalid_index_triggered()
+void APhotFunctWindow::on_actionRemove_records_with_invalid_index_triggered()
 {
     const size_t numDefault = GeoHub.PhotonFunctionals.size();
 
@@ -301,7 +301,7 @@ void APhotonTunnelWindow::on_actionRemove_records_with_invalid_index_triggered()
     updateGui();
 }
 
-void APhotonTunnelWindow::on_actionCheck_all_records_triggered()
+void APhotFunctWindow::on_actionCheck_all_records_triggered()
 {
     QString error = PhFunHub.checkRecordsReadyForRun();
     QString txt = "No errors were detected";
@@ -309,7 +309,7 @@ void APhotonTunnelWindow::on_actionCheck_all_records_triggered()
     guitools::message(txt, this);
 }
 
-void APhotonTunnelWindow::on_pbHelp_clicked()
+void APhotFunctWindow::on_pbHelp_clicked()
 {
     QString txt =
         "A functional model offers a possibility to directly modify optical photon properties such as direction, position, time and waveindex.\n"

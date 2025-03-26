@@ -10,7 +10,7 @@
 #include "ageometryhub.h"
 #include "amatwin.h"
 #include "asensorwindow.h"
-#include "aphotontunnelwindow.h"
+#include "aphotfunctwindow.h"
 #include "aphotsimwin.h"
 #include "ainterfacerulewin.h"
 #include "agraphwindow.h"
@@ -77,8 +77,8 @@ AMainWindow::AMainWindow() :
     SensWin = new ASensorWindow(this);
     connect(SensWin, &ASensorWindow::requestDraw, GraphWin, &AGraphWindow::onDrawRequest);
 
-    PhotFunWin = new APhotonTunnelWindow(this);
-    connect(PhotFunWin, &APhotonTunnelWindow::requestDraw,  GraphWin, &AGraphWindow::onDrawRequest);
+    PhotFunWin = new APhotFunctWindow(this);
+    connect(PhotFunWin, &APhotFunctWindow::requestDraw,  GraphWin, &AGraphWindow::onDrawRequest);
 
     PhotSimWin = new APhotSimWin(this);
     connect(PhotSimWin, &APhotSimWin::requestDraw, GraphWin, &AGraphWindow::onDrawRequest);
@@ -526,8 +526,8 @@ void AMainWindow::connectSignalSlotsForGeoWin()
     connect(PartSimWin, &AParticleSimWin::requestClearMarkers,          GeoWin, &AGeometryWindow::clearGeoMarkers);
     connect(PartSimWin, &AParticleSimWin::requestCenterView,            GeoWin, &AGeometryWindow::CenterView);
 
-    connect(PhotFunWin, &APhotonTunnelWindow::requestShowConnection,     GeoWin, &AGeometryWindow::onRequestShowConnection);
-    connect(PhotFunWin, &APhotonTunnelWindow::requestShowAllConnections, GeoWin, &AGeometryWindow::onRequestShowAllConnections);
+    connect(PhotFunWin, &APhotFunctWindow::requestShowConnection,     GeoWin, &AGeometryWindow::onRequestShowConnection);
+    connect(PhotFunWin, &APhotFunctWindow::requestShowAllConnections, GeoWin, &AGeometryWindow::onRequestShowAllConnections);
 }
 
 void AMainWindow::on_leConfigName_editingFinished()

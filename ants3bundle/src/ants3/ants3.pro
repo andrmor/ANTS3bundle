@@ -164,8 +164,8 @@ SOURCES += \
     gui/particleSim/aworldsizewarningdialog.cpp \
     gui/photsim/afunctionalmodelwidget.cpp \
     gui/photsim/ainterfaceruletester.cpp \
+    gui/photsim/aphotfunctwindow.cpp \
     gui/photsim/aphotonlogsettingsform.cpp \
-    gui/photsim/aphotontunnelwindow.cpp \
     gui/photsim/aphotsimwin.cpp \
     gui/photsim/asensordrawwidget.cpp \
     config/aconfig.cpp \
@@ -380,8 +380,8 @@ HEADERS += \
     gui/materials/aopticaldataimportdialog.h \
     gui/materials/arefractiveindeximportdialog.h \
     gui/photsim/afunctionalmodelwidget.h \
+    gui/photsim/aphotfunctwindow.h \
     gui/photsim/aphotonlogsettingsform.h \
-    gui/photsim/aphotontunnelwindow.h \
     gui/raster/agraphrasterwindow.h \
     gui/raster/arasterwindow.h \
     gui/script/aargumentcounter.h \
@@ -621,8 +621,8 @@ FORMS += \
         gui/particleSim/atrackdrawdialog.ui \
         gui/particleSim/aworldsizewarningdialog.ui \
         gui/photsim/ainterfaceruletester.ui \
+        gui/photsim/aphotfunctwindow.ui \
         gui/photsim/aphotonlogsettingsform.ui \
-        gui/photsim/aphotontunnelwindow.ui \
         gui/photsim/aphotsimwin.ui \
         gui/photsim/asensordrawwidget.ui \
         gui/ademowindow.ui \
