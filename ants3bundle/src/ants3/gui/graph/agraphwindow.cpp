@@ -530,7 +530,7 @@ bool AGraphWindow::event(QEvent *event)
         }
     }
 
-    //  return AGuiWindow::event(event);  // !!!***
+    //  return AGuiWindow::event(event);
     return QMainWindow::event(event);
 }
 
@@ -945,7 +945,7 @@ void AGraphWindow::updateControls()
                 //3D plot
                 float min[3], max[3];
                 TView* v = c->GetView();
-//                if (v && !MW->ShutDown)     !!!***
+//                if (v && !MW->ShutDown)
                 if (v)
                 {
                     v->GetRange(min, max);
@@ -2209,7 +2209,7 @@ void AGraphWindow::on_actionEqualize_scale_XY_triggered()
         return;
     }
 
-//    MW->WindowNavigator->BusyOn();  !!!***
+//    MW->WindowNavigator->BusyOn();
 
     double XperP = fabs(RasterWindow->getXperPixel());
     double YperP = fabs(RasterWindow->getYperPixel());
@@ -2238,7 +2238,7 @@ void AGraphWindow::on_actionEqualize_scale_XY_triggered()
         while ( isVisible() && width()>200 && width()<2000);
     }
 
-//    MW->WindowNavigator->BusyOff();  !!!***
+//    MW->WindowNavigator->BusyOff();
 }
 
 void AGraphWindow::on_ledRulerDX_editingFinished()

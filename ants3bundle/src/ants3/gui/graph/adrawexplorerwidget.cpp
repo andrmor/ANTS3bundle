@@ -1792,7 +1792,7 @@ void ADrawExplorerWidget::construct1DIcon(QIcon & icon, const TAttLine * line, c
     Painter.setRenderHint(QPainter::Antialiasing, false);
     Painter.setRenderHint(QPainter::TextAntialiasing, false);
     Painter.setRenderHint(QPainter::SmoothPixmapTransform, false);
-//    Painter.setRenderHint(QPainter::HighQualityAntialiasing, false);   // !!!***
+//    Painter.setRenderHint(QPainter::HighQualityAntialiasing, false);
     QColor Color;
 
     // Background of FillColor
@@ -1848,7 +1848,7 @@ void ADrawExplorerWidget::construct2DIcon(QIcon &icon)
     Painter.setRenderHint(QPainter::Antialiasing, false);
     Painter.setRenderHint(QPainter::TextAntialiasing, false);
     Painter.setRenderHint(QPainter::SmoothPixmapTransform, false);
-//    Painter.setRenderHint(QPainter::HighQualityAntialiasing, false);  // !!!***
+//    Painter.setRenderHint(QPainter::HighQualityAntialiasing, false);
     QColor Color;
 
     static const TArrayI & Palette = TColor::GetPalette();
@@ -1986,7 +1986,7 @@ void ADrawExplorerWidget::saveAsTxt(ADrawObject & obj, bool fUseBinCenters)
 
         //SaveDoubleVectorsToFile(fileName, &x, &y);
         QString err = ftools::saveDoubleVectorsToFile( {&x, &y}, fileName );
-        if (!err.isEmpty()) guitools::message(err, this); // !!!*** was GraphWindow as parent
+        if (!err.isEmpty()) guitools::message(err, this); // before GraphWindow was the parent
         return;
     }
 
@@ -2006,7 +2006,7 @@ void ADrawExplorerWidget::saveAsTxt(ADrawObject & obj, bool fUseBinCenters)
         }
         //SaveDoubleVectorsToFile(fileName, &x, &y);
         QString err = ftools::saveDoubleVectorsToFile( {&x, &y}, fileName );
-        if (!err.isEmpty()) guitools::message(err, this); // !!!*** was GraphWindow as parent
+        if (!err.isEmpty()) guitools::message(err, this); // before GraphWindow was the parent
         return;
     }
 

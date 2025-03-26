@@ -57,7 +57,7 @@ void ARootColorSelectorDialog::mousePressEvent(QMouseEvent *e)
     int row = e->pos().y() / SquareSize;
     int num = e->pos().x() / SquareSize;
 #else
-    int row = e->position().y() / SquareSize;  // !!!*** use round?
+    int row = e->position().y() / SquareSize;  // use round?
     int num = e->position().x() / SquareSize;
 #endif
 

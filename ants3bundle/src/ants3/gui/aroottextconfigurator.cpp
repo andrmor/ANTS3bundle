@@ -74,7 +74,7 @@ void ARootTextConfigurator::mousePressEvent(QMouseEvent *e)
     int row = e->pos().y() / SquareSize;
     int num = e->pos().x() / SquareSize;
 #else
-    int row = e->position().y() / SquareSize; // !!!*** Round()?
+    int row = e->position().y() / SquareSize;
     int num = e->position().x() / SquareSize;
 #endif
 
