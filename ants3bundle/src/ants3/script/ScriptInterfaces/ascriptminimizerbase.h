@@ -9,9 +9,6 @@
 #include <QObject>
 #include <QVariant>
 
-#include <string>
-
-class MainWindow;
 class AScriptManager;
 class AJavaScriptManager;
 class AFunctorBase;

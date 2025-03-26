@@ -10,7 +10,7 @@
 
 #ifdef GUI
     #include <QApplication>
-    #include "mainwindow.h"
+    #include "amainwindow.h"
     #include "aproxystyle.h"
 #else
     #include <QCoreApplication>
@@ -75,7 +75,7 @@ int main(int argc, char *argv[])
         QCoreApplication::setOrganizationName("ants3");
         QCoreApplication::setApplicationName("winpos");
 
-        MainWindow * w = new MainWindow();
+        AMainWindow * w = new AMainWindow();
         w->show();
         app->exec();
         delete w;

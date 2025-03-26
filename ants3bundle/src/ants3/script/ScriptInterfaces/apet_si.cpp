@@ -64,6 +64,14 @@ APet_si::APet_si() :
                         "Note that for visualization a special option is provided: use grwin.show3D(fileName), which opens a dedicated 3D graph viewer";
 }
 
+void APet_si::abortRun()
+{
+    // !!!***
+    // abort APetEventBuilder.makeEvents()
+    // abort APetCoincidenceFinder.findCoincidences()
+    // if (Process) abort it
+}
+
 void APet_si::createScanner(QString scannerName, double scannerRadius, double crystalDepth, double crystalSize, double minAngle_deg)
 {
     QString castorStr;

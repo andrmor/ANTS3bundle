@@ -1,6 +1,6 @@
 #include "amatwin.h"
 #include "ui_amatwin.h"
-#include "mainwindow.h"
+#include "amainwindow.h"
 #include "amaterialhub.h"
 #include "ageometryhub.h"
 #include "a3global.h"

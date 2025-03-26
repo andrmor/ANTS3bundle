@@ -3,7 +3,7 @@
 #include "ageometryhub.h"
 #include "ageoconsts.h"
 #include "amaterialhub.h"
-#include "mainwindow.h"
+#include "amainwindow.h"
 #include "ageotree.h"
 #include "ageobasetreewidget.h"
 #include "ageodelegatewidget.h"

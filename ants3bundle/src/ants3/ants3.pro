@@ -139,6 +139,7 @@ SOURCES += \
     gui/aitemselectiondialog.cpp \
     gui/alineedit.cpp \
     gui/alineeditwithescape.cpp \
+    gui/amainwindow.cpp \
     gui/atreedatabaseselectordialog.cpp \
     gui/geom/ageoconstexpressiondialog.cpp \
     gui/geom/ageotreewin.cpp \
@@ -349,7 +350,6 @@ SOURCES += \
     tools/agraphbuilder.cpp \
     tools/ajsontools.cpp \
     tools/afiletools.cpp \
-    gui/mainwindow.cpp \
     gui/guitools.cpp \
     tools/arandomhub.cpp \
     tools/ath.cpp \
@@ -367,6 +367,7 @@ HEADERS += \
     ademomanager.h \
     aviewer3dsettings.h \
     gui/aitemselectiondialog.h \
+    gui/amainwindow.h \
     gui/atreedatabaseselectordialog.h \
     gui/geom/aparticleanalyzerwidget.h \
     gui/graph/adrawmarginsrecord.h \
@@ -593,7 +594,6 @@ HEADERS += \
     tools/agraphbuilder.h \
     tools/ajsontools.h \
     tools/afiletools.h \
-    gui/mainwindow.h \
     gui/guitools.h \
     tools/arandomhub.h \
     tools/ath.h \
