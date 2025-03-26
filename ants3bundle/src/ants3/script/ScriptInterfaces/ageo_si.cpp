@@ -1693,6 +1693,20 @@ void AGeo_SI::setScintillator(QString Object)
     delete obj->Role; obj->Role = new AGeoScint();
 }
 
+void setScintRecursive(AGeoObject * obj, const QString & objectNameStartsWith)
+{
+    if (obj)
+    {
+        if (obj->Name.startsWith(objectNameStartsWith, Qt::CaseSensitive))
+        {
+            delete obj->Role; obj->Role = new AGeoScint();
+        }
+
+        for (AGeoObject * hobj : obj->HostedObjects)
+            setScintRecursive(hobj, objectNameStartsWith);
+    }
+}
+
 void AGeo_SI::setScintillatorByName(QString ObjectNameStartsWith)
 {
     for (AGeoObject * obj : GeoObjects)
@@ -1701,12 +1715,13 @@ void AGeo_SI::setScintillatorByName(QString ObjectNameStartsWith)
             delete obj->Role; obj->Role = new AGeoScint();
         }
 
-    std::vector<AGeoObject*> objAr;
-    AGeometryHub::getInstance().World->findObjectsByWildcard(ObjectNameStartsWith, objAr);
-    for (AGeoObject * obj : objAr)
-    {
-        delete obj->Role; obj->Role = new AGeoScint();
-    }
+    //std::vector<AGeoObject*> objAr;
+    //AGeometryHub::getInstance().World->findObjectsByWildcard(ObjectNameStartsWith, objAr);
+    //for (AGeoObject * obj : objAr)
+    //{
+    //    delete obj->Role; obj->Role = new AGeoScint();
+    //}
+    setScintRecursive(AGeometryHub::getInstance().World, ObjectNameStartsWith);
 }
 
 void AGeo_SI::setSecondaryScintillator(QString Object)
