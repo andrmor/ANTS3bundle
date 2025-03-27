@@ -15,7 +15,7 @@ class QJsonObject;
 struct ASensorData
 {
     AGeoObject * GeoObj     = nullptr;
-    int          ModelIndex = 0;  // !!!*** consider adding ASensorModel* directly
+    int          ModelIndex = 0;
     AVector3     Position   = {0, 0, 0};
 };
 
@@ -61,7 +61,7 @@ public:
     bool    isPersistentModelAssignment() const {return PersistentModelAssignment;}
     void    exitPersistentMode();
 
-    bool    updateRuntimeProperties();
+    QString updateRuntimeProperties(); // returns error
 
     void    writeToJson(QJsonObject & json) const;
     QString readFromJson(const QJsonObject & json);

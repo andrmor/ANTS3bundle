@@ -128,7 +128,7 @@ void APhotonSimulator::setupCommonProperties()
 
     AMaterialHub::getInstance().updateRuntimeProperties();
     AInterfaceRuleHub::getInstance().updateRuntimeProperties();
-    ASensorHub::getInstance().updateRuntimeProperties();
+    QString err = ASensorHub::getInstance().updateRuntimeProperties();
     AStatisticsHub::getInstance().SimStat.init();
 
     Event->init();

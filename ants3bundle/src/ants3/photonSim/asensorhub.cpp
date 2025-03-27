@@ -130,22 +130,22 @@ AGeoObject * ASensorHub::getGeoObject(int iSensor) const
     return SensorData[iSensor].GeoObj;
 }
 
-bool ASensorHub::updateRuntimeProperties()
+QString ASensorHub::updateRuntimeProperties()
 {
     for (ASensorModel & model : Models)
-        model.updateRuntimeProperties();
+    {
+        QString err = model.updateRuntimeProperties();
+        if (!err.isEmpty()) return err;
+    }
 
     for (ASensorData & sd : SensorData)
     {
         const int & index = sd.ModelIndex;
         if (index < 0 || index >= (int)Models.size())
-        {
-            // !!!*** error reporting
-            qCritical() << "Bad sensor model index:" << index;
-            exit(222);
-        }
+            return QString("Light sensor is assigned an invalid model index (%0)").arg(index);
     }
-    return true;
+
+    return "";
 }
 
 void ASensorHub::exitPersistentMode()

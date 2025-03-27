@@ -53,14 +53,13 @@ public:
     std::vector<std::pair<double,double>> SinglePhElPHS;
     double  convertHitsToSignal(double phel) const;
 
-    void    updateRuntimeProperties();
+    QString updateRuntimeProperties();
 
     void    clear();
 
     void    writeToJson(QJsonObject & json) const;
     QString readFromJson(const QJsonObject & json);
 
-    //check-ups !!!*** to combine to code performed before sim start!
     QString checkPDE_spectral() const;
     QString checkAngularFactors() const;
     QString checkAreaFactors() const;

@@ -339,7 +339,7 @@ double ASensorModel::getMaxQE(bool bWaveRes) const
     return maxQE;
 }
 
-void ASensorModel::updateRuntimeProperties()
+QString ASensorModel::updateRuntimeProperties()
 {
     if (SiPM)
     {
@@ -361,6 +361,9 @@ void ASensorModel::updateRuntimeProperties()
     _MaxPDE_spectral = 1.0;
     if (!PDE_spectral.empty())
     {
+        QString err = checkPDE_spectral();
+        if (!err.isEmpty()) return err;
+
         SimSet.WaveSet.toStandardBins(PDE_spectral, PDEbinned);
         _MaxPDE_spectral = *std::max_element(PDEbinned.begin(), PDEbinned.end());
     }
@@ -368,6 +371,9 @@ void ASensorModel::updateRuntimeProperties()
     if (AngularFactors.empty()) _MaxAngularFactor = 1.0;
     else
     {
+        QString err = checkAngularFactors();
+        if (!err.isEmpty()) return err;
+
         AngularBinned.reserve(91);
         _MaxAngularFactor = 0;
         for (int i = 0; i < 91; i++)
@@ -381,6 +387,9 @@ void ASensorModel::updateRuntimeProperties()
     if (AreaFactors.empty()) _MaxAreaFactor = 1.0;
     else
     {
+        QString err = checkAreaFactors();
+        if (!err.isEmpty()) return err;
+
         _MaxAreaFactor = 0;
         for (const std::vector<double> & vec : AreaFactors)
             for (double val : vec)
@@ -388,15 +397,10 @@ void ASensorModel::updateRuntimeProperties()
     }
 
     delete _PHS; _PHS = nullptr;
-    const int size = SinglePhElPHS.size();
-    if (size > 1)
+    if (PhElToSignalModel == Custom)
     {
-        //_PHS = new TH1D("", "", size, SinglePhElPHS.front().first, SinglePhElPHS.back().first);  // bad, cannot take phs WITH irregular intervals
-
-        //std::vector<double> xx;  // bad, random is area-based
-        //std::for_each(SinglePhElPHS.begin(), SinglePhElPHS.end(), [&xx](const std::pair<double,double> & el){xx.push_back(el.first);});
-        //_PHS = new TH1D("", "", size, xx.data());
-        //for (int j = 1; j < size+1; j++) _PHS->SetBinContent(j, SinglePhElPHS[j-1].second);
+        QString err = checkPhElToSignals();
+        if (!err.isEmpty()) return err;
 
         const int bins = 1000;
         const double start = SinglePhElPHS.front().first;
@@ -412,6 +416,8 @@ void ASensorModel::updateRuntimeProperties()
 
         _PHS->GetIntegral();
     }
+
+    return "";
 }
 
 double ASensorModel::convertHitsToSignal(double phel) const
