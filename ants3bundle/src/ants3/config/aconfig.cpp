@@ -136,7 +136,7 @@ QString AConfig::tryReadFromJson(const QJsonObject & json)
     APhotonFunctionalHub::getInstance().readFromJson(json);
     // error handling! !!!***
 
-    AParticleAnalyzerHub::getInstance().clear(); // clear loaded data
+    AParticleAnalyzerHub::getInstance().clear(); // only need to clear loaded data, the config is in the geometry tree
 
     return "";
 }

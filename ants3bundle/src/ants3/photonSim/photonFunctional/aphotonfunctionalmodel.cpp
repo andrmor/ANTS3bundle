@@ -7,6 +7,13 @@
 
 #include "TGeoNode.h"
 
+// synchronize with APhotonFunctionalModel::factory !!!
+QStringList APhotonFunctionalModel::getKnownModels()
+{
+    return {"Dummy", "ThinLens", "OpticalFiber", "Filter"};
+}
+
+// synchronize with APhotonFunctionalModel::getKnownModels !!!
 APhotonFunctionalModel * APhotonFunctionalModel::factory(const QString & type)
 {
     if (type == "Dummy")        return new APFM_Dummy();
