@@ -1505,7 +1505,7 @@ void processTCompositeShape(TGeoCompositeShape * Tshape, std::vector<AGeoObject*
     switch (operation)
     {
     default:
-        qCritical() << "Unknown EGeoBoolType, assuming it is kGeoUnion";
+        qCritical() << "Unknown EGeoBoolType, assuming it is kGeoUnion"; // !!!***
     case TGeoBoolNode::kGeoUnion:
         operationStr = " + "; break;
     case TGeoBoolNode::kGeoIntersection:

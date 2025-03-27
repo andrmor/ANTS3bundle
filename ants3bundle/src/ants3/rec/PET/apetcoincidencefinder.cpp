@@ -31,8 +31,6 @@ double APetCoincidenceFinder::findCoincidences(const QString & coincFileName, bo
 
     //Lut LUT(Config.WorkingDirectory + '/' + Config.LutFileName);
 
-    double numCoins = 0;
-
     QFileInfo fi(coincFileName);
     if (fi.suffix() == "bin" )
     {

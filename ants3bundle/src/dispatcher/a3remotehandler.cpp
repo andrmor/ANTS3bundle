@@ -1,6 +1,6 @@
 #include "a3remotehandler.h"
 #include "a3wsclient.h"
-#include "ajsontools.h"
+//#include "ajsontools.h"
 
 #include <QDebug>
 #include <QThread>
@@ -41,7 +41,7 @@ bool A3RemoteHandler::isRunning()
     return bRunning;
 }
 
-void A3RemoteHandler::sendMessage(QString txt)
+void A3RemoteHandler::sendMessage(QString /*txt*/)
 {
     //Client->SendText(txt, false);
 }

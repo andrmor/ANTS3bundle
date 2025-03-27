@@ -879,8 +879,8 @@ void AGeoTree::menuActionRemoveKeepContent(QTreeWidget * treeWidget)
                                        : "Remove selected objects?" );
   //str += "                                             ";
   msgBox.setText(str);
-  QPushButton *remove = msgBox.addButton(QMessageBox::Yes);
-  QPushButton *cancel = msgBox.addButton(QMessageBox::Cancel);
+  QPushButton * remove = msgBox.addButton(QMessageBox::Yes);
+  msgBox.addButton(QMessageBox::Cancel);
   msgBox.setDefaultButton(remove);
 
   msgBox.exec();
@@ -923,7 +923,7 @@ void AGeoTree::menuActionRemoveWithContent(QTreeWidget * treeWidget)
                                          : "Remove selected objects?" );
     msgBox.setText(str);
     QPushButton *remove = msgBox.addButton(QMessageBox::Yes);
-    QPushButton *cancel = msgBox.addButton(QMessageBox::Cancel);
+    msgBox.addButton(QMessageBox::Cancel);
     msgBox.setDefaultButton(remove);
 
     msgBox.exec();

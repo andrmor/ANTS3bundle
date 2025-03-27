@@ -20,7 +20,7 @@ public:
 
   GraphicsRuler *getRuler() { return &ruler; }
   ShapeableRectItem *getSelBox() { return &selBox; }
-  QGraphicsItem *getTool(Tool tool = ToolActive);
+  QGraphicsItem *getTool(Tool tool = ToolActive); // !!!*** can return nullptr
 
   void setActiveTool(Tool tool);
 

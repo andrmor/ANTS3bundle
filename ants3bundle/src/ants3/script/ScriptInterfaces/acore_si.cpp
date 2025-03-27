@@ -236,7 +236,6 @@ double ACore_SI::testVFormula(QString formula, QVariantList varNames, QVariantLi
         return 0;
     }
 
-    /*
 // timed run
     //std::cout << "Timed run\n";
     //auto start = std::chrono::high_resolution_clock::now();
