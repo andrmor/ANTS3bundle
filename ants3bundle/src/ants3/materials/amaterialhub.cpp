@@ -70,7 +70,7 @@ double AMaterialHub::getDiffusionSigmaTransverse(int iMat, double length_mm) con
 
 void AMaterialHub::updateRuntimeProperties()
 {
-    for (AMaterial * mat : Materials) mat->updateRuntimeProperties();
+    for (AMaterial * mat : Materials) mat->updateRuntimeOpticalProperties();
 }
 
 QString AMaterialHub::getMaterialName(int matIndex) const

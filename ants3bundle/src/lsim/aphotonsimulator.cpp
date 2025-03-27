@@ -79,9 +79,8 @@ APhotonSimulator::~APhotonSimulator()
 
 void APhotonSimulator::start()
 {
-    loadConfig();
-
-    setupCommonProperties();
+    loadConfig(); // terminates with report if error if found
+    setupCommonProperties(); // terminates with report if error if found
     openOutput();
 
     switch (SimSet.SimType)
@@ -127,8 +126,12 @@ void APhotonSimulator::setupCommonProperties()
     RandomHub.setSeed(SimSet.RunSet.Seed);
 
     AMaterialHub::getInstance().updateRuntimeProperties();
-    AInterfaceRuleHub::getInstance().updateRuntimeProperties();
+
+    AInterfaceRuleHub::getInstance().updateRuntimeProperties(); // seems does not need error check
+
     QString err = ASensorHub::getInstance().updateRuntimeProperties();
+    if (!err.isEmpty()) terminate(err);
+
     AStatisticsHub::getInstance().SimStat.init();
 
     Event->init();
