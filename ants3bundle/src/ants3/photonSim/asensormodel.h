@@ -58,7 +58,7 @@ public:
     void    clear();
 
     void    writeToJson(QJsonObject & json) const;
-    bool    readFromJson(const QJsonObject & json); // !!!***
+    QString readFromJson(const QJsonObject & json);
 
     //check-ups !!!*** to combine to code performed before sim start!
     QString checkPDE_spectral() const;

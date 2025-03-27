@@ -719,38 +719,31 @@ void APhotonSimulator::loadConfig()
     LOG << "Loaded materials: " << AMaterialHub::getInstance().countMaterials() << '\n';
     LOG.flush();
 
-    Error         = AInterfaceRuleHub::getInstance().readFromJson(json);
+    Error = AInterfaceRuleHub::getInstance().readFromJson(json);
     if (!Error.isEmpty()) terminate(Error);
     Error = AInterfaceRuleHub::getInstance().checkAll();
     if (!Error.isEmpty()) terminate(Error);
     LOG << "Loaded optical rules" << '\n';
     LOG.flush();
 
-    Error         = AGeometryHub::getInstance().readFromJson(json);
+    Error = AGeometryHub::getInstance().readFromJson(json);
     if (!Error.isEmpty()) terminate(Error);
     LOG << "Geometry loaded\n";
     LOG << "World: " << AGeometryHub::getInstance().World << "\n";
     LOG << "GeoManager: " << AGeometryHub::getInstance().GeoManager << "\n";
     LOG.flush();
 
-    Error         = ASensorHub::getInstance().readFromJson(json);
+    Error = ASensorHub::getInstance().readFromJson(json);
     if (!Error.isEmpty()) terminate(Error);
     LOG << "Loaded sensor hub. Defined models: " << ASensorHub::getInstance().countModels() << " Defined sensors:" << ASensorHub::getInstance().countSensors() << '\n';
     LOG.flush();
 
-    Error         = APhotonFunctionalHub::getInstance().readFromJson(json);
+    Error = APhotonFunctionalHub::getInstance().readFromJson(json);
     if (!Error.isEmpty()) terminate(Error);
     LOG << "Loaded photon tunnel hub.";// Defined models: " << ASensorHub::getInstance().countModels() << " Defined sensors:" << ASensorHub::getInstance().countSensors() << '\n';
     bool ok = APhotonFunctionalHub::getInstance().updateRuntimeProperties();
     if (!ok) terminate(AErrorHub::getQError());
     LOG.flush();
-
-    /*
-    Error = APhotonSimHub::getInstance().readFromJson(json);
-    if (!Error.isEmpty()) terminate(Error);
-    LOG << "Loaded sim  settings. Simulation type: " << (int)SimSet.SimType << "\n";
-    LOG.flush();
-    */
 }
 
 void APhotonSimulator::doBeforeEvent()
