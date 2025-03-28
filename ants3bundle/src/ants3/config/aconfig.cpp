@@ -108,6 +108,8 @@ void AConfig::replaceEmptyOutputDirsWithTemporary()
 
 QString AConfig::tryReadFromJson(const QJsonObject & json)
 {
+    AErrorHub::clear();
+
     bool ok = jstools::parseJson(json, "ConfigName",        ConfigName);
     if (!ok) return "Not a configuration file!";
     ok      = jstools::parseJson(json, "ConfigDescription", ConfigDescription);
@@ -123,6 +125,7 @@ QString AConfig::tryReadFromJson(const QJsonObject & json)
 
     Error = AGeometryHub::getInstance().readFromJson(json);
     if (!Error.isEmpty()) return Error;
+    if (AErrorHub::isError()) return AErrorHub::getQError();
 
     Error = AInterfaceRuleHub::getInstance().readFromJson(json);
     if (!Error.isEmpty()) return Error;

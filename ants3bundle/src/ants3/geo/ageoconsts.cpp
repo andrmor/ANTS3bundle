@@ -134,7 +134,7 @@ void AGeoConsts::readFromJsonArr(const QJsonArray & ar)
     for (int i = 0; i < size; i++)
     {
         bool ok = evaluateConstExpression(i);
-        if (!ok) qWarning() <<"something went really wrong";
+        if (!ok) qWarning() << "Something went wrong with Geo Const test, error is reported in AErrorHub";
     }
 }
 

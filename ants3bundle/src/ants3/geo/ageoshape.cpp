@@ -64,7 +64,7 @@ AGeoShape * AGeoShape::GeoShapeFactory(const QString ShapeType)
         return new AGeoComposite();
     else if (ShapeType == "TGeoScaledShape")
         return new AGeoScaledShape();
-    else return 0;
+    else return nullptr;
 }
 
 /*

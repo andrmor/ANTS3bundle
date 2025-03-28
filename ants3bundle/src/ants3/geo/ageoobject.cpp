@@ -357,7 +357,12 @@ void AGeoObject::readFromJson(const QJsonObject & json)
         QJsonObject js = json["ShapeSpecific"].toObject();
 
         Shape = AGeoShape::GeoShapeFactory(ShapeType);
-        Shape->readFromJson(js);
+        if (Shape) Shape->readFromJson(js);
+        else
+        {
+            Shape = new AGeoBox();
+            AErrorHub::addQError("Unknown shape " + ShapeType + " for object " + Name);
+        }
 
         //composite: cannot update memebers at this phase - HostedObjects are not set yet
     }
@@ -374,7 +379,7 @@ void AGeoObject::readFromJson(const QJsonObject & json)
             delete Type; Type = newType;
             Type->readFromJson(jj);
         }
-        else qDebug() << "Type read failed for object:" << Name << ", keeping default type";
+        else qDebug() << "Type read failed for object:" << Name << ", keeping default type"; // error added to AErrorHub
     }
     else qDebug() << "Type is empty for object:" << Name << ", keeping default type";
 

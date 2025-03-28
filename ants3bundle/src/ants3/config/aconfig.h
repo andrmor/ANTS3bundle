@@ -63,7 +63,7 @@ public:
     QString doRedo();
 
 private:
-    QString tryReadFromJson(const QJsonObject & json); // !!!*** error handling
+    QString tryReadFromJson(const QJsonObject & json); // resets error hub on call
     void replaceEmptyOutputDirsWithTemporary();
 
 signals:
