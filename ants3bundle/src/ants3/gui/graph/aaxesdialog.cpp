@@ -102,23 +102,37 @@ void AAxesDialog::on_pbTitleProperties_clicked()
     float size = Axis->GetTitleSize();
 
     ARootAxisTitleTextConfigurator D(color, align, font, size, this);
-    int res = D.exec();
-    if (res == QDialog::Accepted)
-    {
-        for (int i=0; i<3; i++)
-        {
-            TAxis * axis = Axes[i];
-            if (!axis) continue;
-            if (axis == Axis || ui->cbApplyTitleTextPropToAllAxes->isChecked())
+    connect(&D, &ARootAxisTitleTextConfigurator::propertiesChanged, this, [this](int color, int align, int font, float size)
             {
-                axis->SetTitleColor(color);
-                axis->SetTitleFont(font);
-                axis->CenterTitle( align == 1 );
-                axis->SetTitleSize(size);
-            }
+                for (int i=0; i<3; i++)
+                {
+                    TAxis * axis = Axes[i];
+                    if (!axis) continue;
+                    if (axis == Axis || ui->cbApplyTitleTextPropToAllAxes->isChecked())
+                    {
+                        axis->SetTitleColor(color);
+                        axis->SetTitleFont(font);
+                        axis->CenterTitle( align == 1 );
+                        axis->SetTitleSize(size);
+                    }
+                }
+                emit requestRedraw();
+            });
+    D.exec();
+
+    for (int i=0; i<3; i++)
+    {
+        TAxis * axis = Axes[i];
+        if (!axis) continue;
+        if (axis == Axis || ui->cbApplyTitleTextPropToAllAxes->isChecked())
+        {
+            axis->SetTitleColor(color);
+            axis->SetTitleFont(font);
+            axis->CenterTitle( align == 1 );
+            axis->SetTitleSize(size);
         }
-        emit requestRedraw();
     }
+    emit requestRedraw();
 }
 
 void AAxesDialog::on_pbAccept_clicked()
@@ -146,22 +160,35 @@ void AAxesDialog::on_pbLabelProperties_clicked()
     float size = Axis->GetLabelSize();
 
     ARootAxisLabelTextConfigurator D(color, align, font, size, this);
-    int res = D.exec();
-    if (res == QDialog::Accepted)
-    {
-        for (int i=0; i<3; i++)
-        {
-            TAxis * axis = Axes[i];
-            if (!axis) continue;
-            if (axis == Axis || ui->cbApplyLableTextPropToAllAxes->isChecked())
+    connect(&D, &ARootAxisTitleTextConfigurator::propertiesChanged, this, [this](int color, int align, int font, float size)
             {
-                axis->SetLabelColor(color);
-                axis->SetLabelFont(font);
-                axis->SetLabelSize(size);
-            }
+                for (int i=0; i<3; i++)
+                {
+                    TAxis * axis = Axes[i];
+                    if (!axis) continue;
+                    if (axis == Axis || ui->cbApplyLableTextPropToAllAxes->isChecked())
+                    {
+                        axis->SetLabelColor(color);
+                        axis->SetLabelFont(font);
+                        axis->SetLabelSize(size);
+                    }
+                }
+                emit requestRedraw();
+            });
+    D.exec();
+
+    for (int i=0; i<3; i++)
+    {
+        TAxis * axis = Axes[i];
+        if (!axis) continue;
+        if (axis == Axis || ui->cbApplyLableTextPropToAllAxes->isChecked())
+        {
+            axis->SetLabelColor(color);
+            axis->SetLabelFont(font);
+            axis->SetLabelSize(size);
         }
-        emit requestRedraw();
     }
+    emit requestRedraw();
 }
 
 void AAxesDialog::on_cobTickInsideOutside_activated(int index)
