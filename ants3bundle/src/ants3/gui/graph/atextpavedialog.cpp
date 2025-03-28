@@ -79,15 +79,21 @@ void ATextPaveDialog::on_pbTextAttributes_clicked()
     float size  = Pave.GetTextSize();
 
     ARootTextConfigurator D(color, align, font, size, this);
-    int res = D.exec();
-    if (res == QDialog::Accepted)
-    {
-        Pave.SetTextColor(color);
-        Pave.SetTextAlign(align);
-        Pave.SetTextFont(font);
-        Pave.SetTextSize(size);
-        updatePave();
-    }
+    connect(&D, &ARootTextConfigurator::propertiesChanged, this, [this](int color, int align, int font, float size)
+            {
+                Pave.SetTextColor(color);
+                Pave.SetTextAlign(align);
+                Pave.SetTextFont(font);
+                Pave.SetTextSize(size);
+                updatePave();
+            });
+    D.exec();
+
+    Pave.SetTextColor(color);
+    Pave.SetTextAlign(align);
+    Pave.SetTextFont(font);
+    Pave.SetTextSize(size);
+    updatePave();
 }
 
 void ATextPaveDialog::on_pbConfigureFrame_clicked()
