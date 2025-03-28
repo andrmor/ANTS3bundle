@@ -119,9 +119,11 @@ QString AConfig::tryReadFromJson(const QJsonObject & json)
 
     Error = AMaterialHub::getInstance().readFromJson(json);
     if (!Error.isEmpty()) return Error;
+    if (AErrorHub::isError()) return AErrorHub::getQError();
 
     Error = ASensorHub::getInstance().readFromJson(json); // Sensors should be read before geometry
     if (!Error.isEmpty()) return Error;
+    if (AErrorHub::isError()) return AErrorHub::getQError();
 
     Error = AGeometryHub::getInstance().readFromJson(json);
     if (!Error.isEmpty()) return Error;
@@ -129,15 +131,17 @@ QString AConfig::tryReadFromJson(const QJsonObject & json)
 
     Error = AInterfaceRuleHub::getInstance().readFromJson(json);
     if (!Error.isEmpty()) return Error;
+    if (AErrorHub::isError()) return AErrorHub::getQError();
 
     Error = APhotonSimHub::getInstance().readFromJson(json);
     if (!Error.isEmpty()) return Error;
+    if (AErrorHub::isError()) return AErrorHub::getQError();
 
     AParticleSimHub::getInstance().readFromJson(json);
-    // error handling! !!!***
+    if (AErrorHub::isError()) return AErrorHub::getQError();
 
     APhotonFunctionalHub::getInstance().readFromJson(json);
-    // error handling! !!!***
+    if (AErrorHub::isError()) return AErrorHub::getQError();
 
     AParticleAnalyzerHub::getInstance().clear(); // only need to clear loaded data, the config is in the geometry tree
 

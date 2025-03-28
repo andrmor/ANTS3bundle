@@ -4,6 +4,7 @@
 #include "aphotonsimhub.h"
 #include "avector.h"
 #include "ageometryhub.h"
+#include "aerrorhub.h"
 
 #include "TGeoNode.h"
 
@@ -21,6 +22,7 @@ APhotonFunctionalModel * APhotonFunctionalModel::factory(const QString & type)
     if (type == "OpticalFiber") return new APFM_OpticalFiber();
     if (type == "Filter")       return new APFM_Filter();
 
+    AErrorHub::addQError("Unknown photom functional model type: " + type);
     qWarning() << "Photom functional model type (" << type << ") is unknown, returning Dummy model";
     return new APFM_Dummy();
 }

@@ -1,11 +1,11 @@
 #include "acalsettings.h"
+#include "aerrorhub.h"
 
 #ifdef JSON11
 #else
     #include "acalorimeterhub.h"
-#include "acalorimeter.h"
+    #include "acalorimeter.h"
     #include "ajsontools.h"
-    #include "aerrorhub.h"
 #endif
 
 #include <cmath>
@@ -162,8 +162,7 @@ void ACalorimeterProperties::readFromJson(const json11::Json::object & json)
     else if (dataTypeStr == "Dose")         DataType = Dose;
     else
     {
-        // !!!*** error control
-        // "Unknown string for calorimeter DataType, setting it to 'Energy'";
+        AErrorHub::addError( "Unknown DataType of a calorimeter: " + dataTypeStr );
         DataType = DepoPerEvent;
     }
 
@@ -205,7 +204,7 @@ void ACalorimeterProperties::readFromJson(const QJsonObject & json)
     else if (dataTypeStr == "Dose")         DataType = Dose;
     else
     {
-        // !!!*** error control
+        AErrorHub::addError( "Unknown DataType of a calorimeter: " + std::string(dataTypeStr.toLatin1().data()) );
         qWarning() << "Unknown string for calorimeter DataType, setting it to 'Energy'";
         DataType = DepoPerEvent;
     }
