@@ -1260,7 +1260,7 @@ void AGeoTree::SetLineAttributes(AGeoObject * obj)
 {
     if (!obj) return;
 
-    ARootLineConfigurator* rlc = new ARootLineConfigurator(&obj->color, &obj->width, &obj->style, twGeoTree);
+    ARootLineConfigurator* rlc = new ARootLineConfigurator(obj->color, obj->width, obj->style, twGeoTree);
     int res = rlc->exec();
     if (res != 0)
     {

@@ -95,15 +95,21 @@ void ATextPaveDialog::on_pbConfigureFrame_clicked()
     int color = Pave.GetLineColor();
     int width = Pave.GetLineWidth();
     int style = Pave.GetLineStyle();
-    ARootLineConfigurator RC(&color, &width, &style, this);
-    int res = RC.exec();
-    if (res == QDialog::Accepted)
-    {
-        Pave.SetLineColor(color);
-        Pave.SetLineWidth(width);
-        Pave.SetLineStyle(style);
-        updatePave();
-    }
+
+    ARootLineConfigurator RC(color, width, style, this);
+    connect(&RC, &ARootLineConfigurator::propertiesChanged, this, [this](int color, int width, int style)
+            {
+                Pave.SetLineColor(color);
+                Pave.SetLineWidth(width);
+                Pave.SetLineStyle(style);
+                updatePave();
+            });
+
+    RC.exec();
+    Pave.SetLineColor(color);
+    Pave.SetLineWidth(width);
+    Pave.SetLineStyle(style);
+    updatePave();
 }
 
 void ATextPaveDialog::updatePave()

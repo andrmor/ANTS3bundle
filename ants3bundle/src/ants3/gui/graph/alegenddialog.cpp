@@ -415,15 +415,21 @@ void ALegendDialog::on_pbConfigureFrame_clicked()
     int color = Legend.GetLineColor();
     int width = Legend.GetLineWidth();
     int style = Legend.GetLineStyle();
-    ARootLineConfigurator RC(&color, &width, &style, this);
-    int res = RC.exec();
-    if (res == QDialog::Accepted)
-    {
-        Legend.SetLineColor(color);
-        Legend.SetLineWidth(width);
-        Legend.SetLineStyle(style);
-        updateLegend();
-    }
+
+    ARootLineConfigurator RC(color, width, style, this);
+    connect(&RC, &ARootLineConfigurator::propertiesChanged, this, [this](int color, int width, int style)
+            {
+                Legend.SetLineColor(color);
+                Legend.SetLineWidth(width);
+                Legend.SetLineStyle(style);
+                updateLegend();
+            });
+
+    RC.exec();
+    Legend.SetLineColor(color);
+    Legend.SetLineWidth(width);
+    Legend.SetLineStyle(style);
+    updateLegend();
 }
 
 ALegendEntryDelegate::ALegendEntryDelegate(const ALegendEntryRecord & record, int index) : QFrame(), Index(index)

@@ -75,9 +75,9 @@ void ATrackDrawDialog::updateParticleAttributes()
 
 void ATrackDrawDialog::on_pbDefaultParticleAtt_clicked()
 {
-    ARootLineConfigurator * rlc = new ARootLineConfigurator(&settings.DefaultAttributes.Color,
-                                                           &settings.DefaultAttributes.Width,
-                                                           &settings.DefaultAttributes.Style, this);
+    ARootLineConfigurator * rlc = new ARootLineConfigurator(settings.DefaultAttributes.Color,
+                                                            settings.DefaultAttributes.Width,
+                                                            settings.DefaultAttributes.Style, this);
     rlc->exec();
 }
 
@@ -86,9 +86,9 @@ void ATrackDrawDialog::on_pbEditCustom_clicked()
     const QString & particle = ui->cobParticle->currentText();
 
     ATrackAttributes * s = settings.getAttributesForParticle(particle);
-    ARootLineConfigurator * rlc = new ARootLineConfigurator(&s->Color,
-                                                           &s->Width,
-                                                           &s->Style, this);
+    ARootLineConfigurator * rlc = new ARootLineConfigurator(s->Color,
+                                                            s->Width,
+                                                            s->Style, this);
     rlc->exec();
 
     updateParticleAttributes();
