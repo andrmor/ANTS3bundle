@@ -185,12 +185,12 @@ private slots:
     void onBookTabMoved(int from, int to);
 
     //gui buttons
-    void on_pbRunScript_clicked();  // !!!***
-    void on_pbStop_clicked();       // !!!***
+    void on_pbRunScript_clicked();
+    void on_pbStop_clicked();
     void on_pbLoad_clicked();
     void on_pbSave_clicked();
     void on_pbSaveAs_clicked();
-    void on_pbExample_clicked();  // !!!***
+    void on_pbExample_clicked();
     void on_pbConfig_toggled(bool checked);
     void on_pbHelp_toggled(bool checked);
     void on_pbFileName_clicked();
@@ -252,8 +252,8 @@ private slots:
     void on_aAlphabeticOrder_triggered();
 
 protected:
-//    void closeEvent(QCloseEvent * e) override;  // !!!*** does nothing with the script?
-    bool event(QEvent * e) override; // !!!***
+//    void closeEvent(QCloseEvent * e) override;  // does nothing with the script?
+    bool event(QEvent * e) override;
 
 signals:
     void WindowShown(QString);
@@ -261,9 +261,9 @@ signals:
     void RequestDraw(TObject* obj, QString options, bool fFocus);
     void onStart();
     void onAbort();
-//    void onFinish(bool bError); // !!!*** signal of the manager is enough?
-    void success(QString eval);   // !!!*** signal of the manager is enough?
-    void requestUpdateConfig();   // !!!***
+//    void onFinish(bool bError);
+    void success(QString eval);   // maybe signal of the manager is enough?
+    void requestUpdateConfig();
 
     void requestUpdateGui();
 

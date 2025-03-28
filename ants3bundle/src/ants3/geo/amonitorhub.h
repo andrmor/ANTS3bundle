@@ -49,8 +49,8 @@ public:
 
     std::vector<const AMonitorData*> getMonitors(const AGeoObject * obj) const;  // returns nullptr if not found
 
-    void mergePhotonMonitorFiles(const std::vector<QString> & inFiles, const QString & outFile);   // !!!*** error handling
-    void mergeParticleMonitorFiles(const std::vector<QString> & inFiles, const QString & outFile); // !!!*** error handling
+    void mergePhotonMonitorFiles(const std::vector<QString> & inFiles, const QString & outFile);   // !!!*** check error handling in caller
+    void mergeParticleMonitorFiles(const std::vector<QString> & inFiles, const QString & outFile); // !!!*** check error handling in caller
 
     void writeDataToJson(EType type, QJsonObject & json) const;
 

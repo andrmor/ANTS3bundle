@@ -500,7 +500,6 @@ void AScriptWindow::clearOutput()
     qApp->processEvents();
 }
 
-//#include "acore_si.h"
 void AScriptWindow::on_pbRunScript_clicked()
 {
     lHelp->hide();
@@ -1112,11 +1111,9 @@ bool AScriptWindow::event(QEvent *e)
 /*
     case QEvent::Hide :
         //qDebug() << "Script window: hide event";
-        ScriptManager->hideMsgDialogs();
         break;
     case QEvent::Show :
         //qDebug() << "Script window: show event";
-        ScriptManager->restoreMsgDialogs();
         break;
 */
     default:;
