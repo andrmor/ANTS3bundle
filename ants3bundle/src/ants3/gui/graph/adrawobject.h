@@ -6,12 +6,14 @@
 #include <QString>
 
 class TObject;
+class AMultidrawRecord;
 
 class ADrawObject
 {
 public:
     ADrawObject() {}
-    ~ADrawObject() {} //does not own TObject!
+    virtual ~ADrawObject() {} //does not own TObject!
+
     ADrawObject(TObject * pointer, const char* options);
     ADrawObject(TObject * pointer, const QString & options, bool enabled = true);
     ADrawObject(TObject * pointer, const QString & options, bool enabled, bool bLogScaleX, bool bLogScaleY);
@@ -24,6 +26,8 @@ public:
     bool    bLogScaleY = false;
 
     ADrawMarginsRecord CustomMargins;
+
+    AMultidrawRecord * Multidraw = nullptr;
 
 private:
     void extractName();

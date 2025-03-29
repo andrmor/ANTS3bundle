@@ -149,6 +149,13 @@ bool ACore_SI::beforeRun()
     return true;
 }
 
+#include <chrono>
+void ACore_SI::test()
+{
+    size_t a = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+    qDebug() << a;
+}
+
 /*
 void ACore_SI::fun0()
 {

@@ -21,6 +21,7 @@
 #include "aviewer3d.h"
 #include "asetmarginsdialog.h"
 #include "a3global.h"
+#include "amultidrawrecord.h"
 #ifdef ANTS3_PYTHON
     #include "apythonscriptmanager.h"
 #endif
@@ -756,6 +757,12 @@ void AGraphWindow::redrawAll()
         return;
     }
 
+    if (DrawObjects.front().Multidraw)
+    {
+        redrawAll_Multidraw(DrawObjects.front());
+        return;
+    }
+
     for (ADrawObject & obj : DrawObjects)
     {
         QString opt = obj.Options;
@@ -772,6 +779,150 @@ void AGraphWindow::redrawAll()
     updateControls();
 
     fixGraphFrame();
+}
+
+void AGraphWindow::redrawAll_Multidraw(ADrawObject & drawObj)
+{
+    AMultidrawRecord & rec = *drawObj.Multidraw;
+
+    //fillOutBasicLayout(int numX, int numY){
+    if (rec.NumX < 1) rec.NumX = 1;
+    if (rec.NumY < 1) rec.NumY = 1;
+    //    ui->sbNumX->setValue(numX);
+    //    ui->sbNumY->setValue(numY);
+    double margin = 0;
+    double padY   = 1.0 / rec.NumY;
+    double padX   = 1.0 / rec.NumX;
+    for (int iY = 0; iY < rec.NumY; iY++)
+    {
+        double y2 = 1.0 - (iY * padY);
+        double y1 = y2 - padY;
+
+        if (iY == 0)        y2 = 1 - margin;
+        if (iY == rec.NumY - 1) y1 = margin;
+
+        for (int iX = 0; iX < rec.NumX; iX++)
+        {
+            double x1 = iX * padX;
+            double x2 = x1 + padX;
+
+            if (iX == 0)        x1 = margin;
+            if (iX == rec.NumX - 1) x2 = 1.0 - margin;
+
+            QString padName = "pad" + QString::number(iX) + "_" + QString::number(iY);
+
+            TPad * ipad = new TPad(padName.toLatin1().data(), "", x1, y1, x2, y2);
+            APadProperties apad(ipad);
+
+            Pads.push_back(apad);
+        }
+    }
+
+    //updateCanvas()
+    {
+        TCanvas * canvas = RasterWindow->fCanvas;
+
+        for (size_t iPad = 0; iPad < Pads.size(); iPad++)
+        {
+            APadProperties & pad = Pads[iPad];
+            canvas->cd();
+            pad.tPad->Draw();
+
+            if (iPad < rec.BasketItems.size())
+            {
+                int iBasketIndex = rec.BasketItems[iPad];
+                if (iBasketIndex < Basket->size() && iBasketIndex >= 0)
+                {
+                    const std::vector<ADrawObject> DrawObjects = Basket->getCopy(iBasketIndex);
+                    pad.tPad->cd();
+
+                    if (!DrawObjects.empty())
+                    {
+                        pad.tPad->SetLogx(DrawObjects.front().bLogScaleX);
+                        pad.tPad->SetLogy(DrawObjects.front().bLogScaleY);
+
+                        /*
+                        if (ui->cbEnforceMargins->isChecked())
+                        {
+                            float left = ui->ledLeft->text().toFloat();
+                            float right = ui->ledRight->text().toFloat();
+                            float top = ui->ledTop->text().toFloat();
+                            float bot = ui->ledBottom->text().toFloat();
+                            pad.tPad->SetMargin(left, right, bot, top);
+                        }
+                        */
+
+                        TAxis * xAxis = nullptr;
+                        TAxis * yAxis = nullptr;
+                        TGraph * gr = dynamic_cast<TGraph*>(DrawObjects.front().Pointer);
+                        if (gr)
+                        {
+                            xAxis = gr->GetXaxis();
+                            yAxis = gr->GetYaxis();
+                        }
+                        else
+                        {
+                            TH1 * h = dynamic_cast<TH1*>(DrawObjects.front().Pointer);
+                            if (h)
+                            {
+                                xAxis = h->GetXaxis();
+                                yAxis = h->GetYaxis();
+                            }
+                        }
+                        std::vector<TAxis*> axes = {xAxis, yAxis};
+
+                        /*
+                        if (ui->cbScaleLabels->isChecked())
+                        {
+                            double factor = ui->ledScaleFactorForlabel->text().toDouble();
+                            for (TAxis * axis : axes)
+                                if (axis)
+                                {
+                                    //axis.SetTitleOffset(grAxis.GetTitleOffset());
+                                    axis->SetTitleSize(axis->GetTitleSize()*factor);
+
+                                    //axis.SetLabelOffset(grAxis.GetLabelOffset());
+                                    axis->SetLabelSize(axis->GetLabelSize()*factor);
+                                }
+                        }
+*/
+                        /*
+                        if (ui->cbScaleXoffsets->isChecked())
+                        {
+                            double factor = ui->ledScaleFactorForXoffset->text().toDouble();
+                            if (xAxis)
+                            {
+                                xAxis->SetTitleOffset(xAxis->GetTitleOffset()*factor);
+                                //axis.SetLabelOffset(grAxis.GetLabelOffset());
+                            }
+                        }
+                        if (ui->cbScaleYoffsets->isChecked())
+                        {
+                            double factor = ui->ledScaleFactorForYoffset->text().toDouble();
+                            if (yAxis)
+                            {
+                                yAxis->SetTitleOffset(yAxis->GetTitleOffset()*factor);
+                                //axis.SetLabelOffset(grAxis.GetLabelOffset());
+                            }
+                        }
+                        */
+
+                        //drawGraph(DrawObjects, pad);
+                        //drawGraph(const std::vector<ADrawObject> & DrawObjects, APadProperties & pad){
+                        for (const ADrawObject & drObj : DrawObjects)
+                        {
+                            TObject * tObj = drObj.Pointer;
+                            tObj->Draw(drObj.Options.toLatin1().data());
+                            pad.tmpObjects.push_back(tObj);
+                        }
+                        //
+                    }
+                }
+            }
+        }
+        canvas->Modified();
+        canvas->Update();
+    }
 }
 
 void AGraphWindow::clearRegisteredTObjects()
@@ -2004,6 +2155,7 @@ void AGraphWindow::onBasketReorderRequested(const std::vector<int> & indexes, in
 void AGraphWindow::contextMenuForBasketMultipleSelection(const QPoint & pos)
 {
     QMenu Menu;
+    QAction * multidrawNewA = Menu.addAction("Make multidraw new");
     QAction * multidrawA = Menu.addAction("Make multidraw");
     QAction * mergeA = Menu.addAction("Merge histograms");
     QAction * removeAllSelected = Menu.addAction("Remove all selected");
@@ -2015,6 +2167,7 @@ void AGraphWindow::contextMenuForBasketMultipleSelection(const QPoint & pos)
     if      (selectedItem == removeAllSelected) removeAllSelectedBasketItems();
     else if (selectedItem == multidrawA)        requestMultidraw();
     else if (selectedItem == mergeA)            requestMergeHistograms();
+    else if (selectedItem == multidrawNewA)     requestMultidrawNew();
 }
 
 void AGraphWindow::removeAllSelectedBasketItems()
@@ -2068,6 +2221,26 @@ void AGraphWindow::requestMultidraw()
     MGDesigner->showNormal();
     MGDesigner->activateWindow();
     MGDesigner->requestAutoconfigureAndDraw(indexes);
+}
+
+void AGraphWindow::requestMultidrawNew()
+{
+    const QList<QListWidgetItem*> selection = lwBasket->selectedItems();
+
+    ADrawObject obj;
+    obj.Multidraw = new AMultidrawRecord();
+
+    for (const QListWidgetItem * const item : selection)
+    {
+        int index = lwBasket->row(item);
+        obj.Multidraw->BasketItems.push_back(index);
+    }
+    obj.Multidraw->init();
+
+    std::vector<ADrawObject> tmp = {obj};
+    Basket->add("DummyMulti", tmp);
+
+    switchToBasket(Basket->size() - 1);
 }
 
 void AGraphWindow::requestMergeHistograms()

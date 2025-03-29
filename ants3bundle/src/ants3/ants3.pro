@@ -148,6 +148,7 @@ SOURCES += \
     gui/graph/adrawmarginsrecord.cpp \
     gui/graph/agraphwindow.cpp \
     gui/graph/ahistoptstatdialog.cpp \
+    gui/graph/amultidrawrecord.cpp \
     gui/graph/apaletteselectiondialog.cpp \
     gui/graph/asetmarginsdialog.cpp \
     gui/graph/aviewer3d.cpp \
@@ -373,6 +374,7 @@ HEADERS += \
     gui/graph/adrawmarginsrecord.h \
     gui/graph/agraphwindow.h \
     gui/graph/ahistoptstatdialog.h \
+    gui/graph/amultidrawrecord.h \
     gui/graph/apaletteselectiondialog.h \
     gui/graph/asetmarginsdialog.h \
     gui/graph/aviewer3dsettingsdialog.h \

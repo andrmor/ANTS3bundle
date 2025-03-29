@@ -1,6 +1,7 @@
 #include "abasketmanager.h"
 #include "afiletools.h"
 #include "ajsontools.h"
+#include "amultidrawrecord.h"
 
 #include <QJsonDocument>
 #include <QDebug>
@@ -39,8 +40,19 @@ TGraph * HistToGraph(TH1 * h)
 
 void ABasketManager::add(const QString & name, const std::vector<ADrawObject> & drawObjects)
 {
+    if (drawObjects.empty()) return;
+
     ABasketItem item;
     item.Name = name;
+
+    if (drawObjects.front().Multidraw)
+    {
+        item.DrawObjects.push_back(drawObjects.front());
+        item.Type = "Multidraw";
+        Basket.push_back(item);
+        return;
+    }
+
     item.Type = drawObjects.front().Pointer->ClassName();
 
     QMap<TObject*, TObject*> OldToNew;
@@ -167,10 +179,17 @@ std::vector<ADrawObject> ABasketManager::getCopy(int index) const
 {
     std::vector<ADrawObject> res;
 
+    if (index < 0 || index >= Basket.size()) return res;
+
+    if (!Basket[index].DrawObjects.empty() && Basket[index].DrawObjects.front().Multidraw)
+    {
+        res.push_back(Basket[index].DrawObjects.front());
+        return res;
+    }
+
     QMap<TObject*, TObject*> oldToNew;
     TLegend * Legend = nullptr;
 
-    if (index >= 0 && index < Basket.size())
     {
         for (const ADrawObject & obj : Basket.at(index).DrawObjects)
         {

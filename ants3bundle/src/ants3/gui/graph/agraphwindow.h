@@ -4,6 +4,7 @@
 #include "aguiwindow.h"
 #include "adrawobject.h"
 #include "adrawtemplate.h"
+#include "apadproperties.h"
 
 #include <QVariantList>
 
@@ -210,6 +211,9 @@ private:
 
     double xmin, xmax, ymin, ymax, zmin, zmax;
 
+    // Multidraw
+    std::vector<APadProperties> Pads;
+
 private:
     // Canvas control
     void showAndFocus();
@@ -228,6 +232,7 @@ private:
     void registerTObject(TObject * obj);
     void clearRegisteredTObjects();
     void requestMultidraw();
+    void requestMultidrawNew();
     void doRedrawOnUpdateMargins();
     void updateGuiControlsForMainObject(const QString & className, const QString & options);
     void showProjection(QString type);
@@ -267,6 +272,7 @@ private:
     void onBusyOn();
     void onBusyOff();
 
+    void redrawAll_Multidraw(ADrawObject & drawObj);
 signals:
     void requestLocalDrawObject(TObject *obj, QString options, bool fFocus);
 };
