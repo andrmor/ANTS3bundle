@@ -744,8 +744,21 @@ void AGraphWindow::reshape()
     //qDebug() << "reshape done";
 }
 
+void AGraphWindow::clearPads()
+{
+    TCanvas *c1 = RasterWindow->fCanvas;
+    c1->Clear();
+
+    for (const APadProperties & pad : Pads)
+        for (const TObject * obj : pad.tmpObjects)
+            delete obj;
+
+    Pads.clear();
+}
+
 void AGraphWindow::redrawAll()
-{  
+{
+    clearPads(); // !!!!!!!
     enforceOverlayOff();
     updateBasketGUI();
 
@@ -816,6 +829,8 @@ void AGraphWindow::redrawAll_Multidraw(ADrawObject & drawObj)
 
             Pads.push_back(apad);
         }
+
+        Explorer->updateGui();
     }
 
     //updateCanvas()
@@ -1952,6 +1967,15 @@ void AGraphWindow::updateBasketGUI()
             item->setForeground(QBrush(Qt::black));
             item->setBackground(QBrush(Qt::white));
         }
+
+        if (Basket->isMultidraw(i))
+        {
+            QFont font = item->font();
+            font.setBold(true);
+            font.setItalic(true);
+            font.setWeight(QFont::Medium);//DemiBold);
+            item->setFont(font);
+        }
     }
     ui->pbUpdateInBasket->setEnabled(ActiveBasketItem >= 0);
 
@@ -2155,7 +2179,7 @@ void AGraphWindow::onBasketReorderRequested(const std::vector<int> & indexes, in
 void AGraphWindow::contextMenuForBasketMultipleSelection(const QPoint & pos)
 {
     QMenu Menu;
-    QAction * multidrawNewA = Menu.addAction("Make multidraw new");
+    QAction * multidrawNewA = Menu.addAction("Make multidraw (create basket item)");
     QAction * multidrawA = Menu.addAction("Make multidraw");
     QAction * mergeA = Menu.addAction("Merge histograms");
     QAction * removeAllSelected = Menu.addAction("Remove all selected");

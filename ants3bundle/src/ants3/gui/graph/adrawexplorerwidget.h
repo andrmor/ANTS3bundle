@@ -41,7 +41,7 @@ private slots:
     void onItemDoubleClicked(QTreeWidgetItem *item, int column);
 
 private:
-    AGraphWindow             & GraphWindow;
+    AGraphWindow         & GraphWindow;
     AGraphRasterWindow   & Raster;
 
     std::vector<ADrawObject> & DrawObjects;
@@ -98,6 +98,8 @@ private:
     void construct1DIcon(QIcon & icon, const TAttLine *line, const TAttMarker *marker, const TAttFill *fill);
     void construct2DIcon(QIcon & icon);
     void convertRootColoToQtColor(int rootColor, QColor & qtColor);
+
+    void updateGui_multidrawMode(); // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 private:
     TH2 * objForCustomProjection = nullptr;

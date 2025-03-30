@@ -29,6 +29,8 @@ public:
     void                rename(int index, const QString & newName);
     QStringList         getItemNames() const;
 
+    bool                isMultidraw(int index) const;
+
     void                saveAll(const QString & fileName);
 
     QString             appendBasket(const QString & fileName);

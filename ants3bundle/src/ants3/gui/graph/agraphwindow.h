@@ -213,6 +213,7 @@ private:
 
     // Multidraw
     std::vector<APadProperties> Pads;
+    void clearPads();
 
 private:
     // Canvas control
@@ -232,7 +233,7 @@ private:
     void registerTObject(TObject * obj);
     void clearRegisteredTObjects();
     void requestMultidraw();
-    void requestMultidrawNew();
+    void requestMultidrawNew();  // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     void doRedrawOnUpdateMargins();
     void updateGuiControlsForMainObject(const QString & className, const QString & options);
     void showProjection(QString type);
@@ -248,14 +249,14 @@ private:
     void updateMargins(ADrawObject * obj = nullptr);
     TLegend * addLegend();
 
-    void makeCopyOfDrawObjects(); // !!!*** infamous "gcc optimizer fix:"
+    void makeCopyOfDrawObjects(); // old message was here: "gcc optimizer fix:"
     void clearCopyOfDrawObjects();
 
     void updateBasketGUI();
     void switchToBasket(int index);
     void basket_DrawOnTop(int row);
     void highlightUpdateBasketButton(bool flag);
-    void contextMenuForBasketMultipleSelection(const QPoint & pos);
+    void contextMenuForBasketMultipleSelection(const QPoint & pos); // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     void removeAllSelectedBasketItems();
     void clearBasketActiveId();
     void makeCopyOfActiveBasketId();
@@ -272,7 +273,8 @@ private:
     void onBusyOn();
     void onBusyOff();
 
-    void redrawAll_Multidraw(ADrawObject & drawObj);
+    void redrawAll_Multidraw(ADrawObject & drawObj); // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 signals:
     void requestLocalDrawObject(TObject *obj, QString options, bool fFocus);
 };

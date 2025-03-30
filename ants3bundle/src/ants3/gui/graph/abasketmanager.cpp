@@ -289,6 +289,13 @@ QStringList ABasketManager::getItemNames() const
     return res;
 }
 
+bool ABasketManager::isMultidraw(int index) const
+{
+    if (index < 0 || index >= Basket.size()) return false;
+    if (Basket[index].DrawObjects.empty()) return false;
+    return Basket[index].DrawObjects.front().Multidraw;
+}
+
 void ABasketManager::saveAll(const QString & fileName)
 {
     TFile f(fileName.toLocal8Bit(), "RECREATE");

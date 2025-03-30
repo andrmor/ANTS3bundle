@@ -7,6 +7,7 @@
 #include "alinemarkerfilldialog.h"
 #include "agraphrasterwindow.h"
 #include "atextpavedialog.h"
+#include "amultidrawrecord.h"
 
 #ifdef USE_EIGEN
     #include "curvefit.h"
@@ -58,6 +59,13 @@ ADrawExplorerWidget::ADrawExplorerWidget(AGraphWindow & GraphWindow, std::vector
 void ADrawExplorerWidget::updateGui()
 {
     clear();
+    objForCustomProjection = nullptr;
+
+    if (!DrawObjects.empty() && DrawObjects.front().Multidraw)
+    {
+        updateGui_multidrawMode();
+        return;
+    }
 
     for (int i = 0; i < DrawObjects.size(); i++)
     {
@@ -66,7 +74,6 @@ void ADrawExplorerWidget::updateGui()
 
         QTreeWidgetItem * item = new QTreeWidgetItem();
         QString name = drObj.Name;
-        //if (name.isEmpty()) name = "--";
 
         QString nameShort = name;
         if (nameShort.size() > 15)
@@ -93,8 +100,35 @@ void ADrawExplorerWidget::updateGui()
 
         addTopLevelItem(item);
     }
+}
 
-    objForCustomProjection = nullptr;
+#include "abasketmanager.h"
+void ADrawExplorerWidget::updateGui_multidrawMode()
+{
+    const AMultidrawRecord & rec = *DrawObjects.front().Multidraw;
+
+    for (size_t i = 0; i < rec.BasketItems.size(); i++)
+    {
+        QTreeWidgetItem * item = new QTreeWidgetItem();
+        QString name = GraphWindow.Basket->getName( rec.BasketItems[i] );
+
+        QString nameShort = name;
+        if (nameShort.size() > 18)
+        {
+            nameShort.truncate(18);
+            nameShort += "..";
+        }
+
+        item->setText(0, nameShort);
+        //item->setToolTip(0, QString("Name: %1\nClassName: %2\nDraw options: %3").arg(name).arg(className).arg(opt));
+        item->setText(1, QString::number(i));
+
+        //QIcon icon;
+        //constructIconForObject(icon, drObj);
+        //item->setIcon(0, icon);
+
+        addTopLevelItem(item);
+    }
 }
 
 void ADrawExplorerWidget::onContextMenuRequested(const QPoint &pos)
