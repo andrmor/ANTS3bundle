@@ -809,6 +809,14 @@ void AGraphWindow::redrawAll_Multidraw(ADrawObject & drawObj)
     ui->ledMultMarginRight-> setText(QString::number(rec.MarginRight));
     ui->ledMultMarginTop->   setText(QString::number(rec.MarginTop));
     ui->ledMultMarginBottom->setText(QString::number(rec.MarginBottom));
+    ui->cbMultScaleLabels->setChecked(rec.ScaleLabels);
+    ui->ledMultScaleLabels->setText(QString::number(rec.ScaleLabelsBy));
+    ui->cbMultScaleXoff->setChecked(rec.ScaleXoffset);
+    ui->ledMultScaleXoff->setText(QString::number(rec.ScaleXoffsetBy));
+    ui->cbMultScaleYoff->setChecked(rec.ScaleYoffset);
+    ui->ledMultScaleYoff->setText(QString::number(rec.ScaleYoffsetBy));
+    ui->cbMultScaleZoff->setChecked(rec.ScaleZoffset);
+    ui->ledMultScaleZoff->setText(QString::number(rec.ScaleZoffsetBy));
 
     double margin = 0;
     double padY   = 1.0 / rec.NumY;
@@ -868,11 +876,14 @@ void AGraphWindow::redrawAll_Multidraw(ADrawObject & drawObj)
 
                         TAxis * xAxis = nullptr;
                         TAxis * yAxis = nullptr;
+                        TAxis * zAxis = nullptr;
                         TGraph * gr = dynamic_cast<TGraph*>(DrawObjects.front().Pointer);
                         if (gr)
                         {
                             xAxis = gr->GetXaxis();
                             yAxis = gr->GetYaxis();
+                            TGraph2D * gr2D = dynamic_cast<TGraph2D*>(DrawObjects.front().Pointer);
+                            if (gr2D) zAxis = gr2D->GetZaxis();
                         }
                         else
                         {
@@ -881,55 +892,51 @@ void AGraphWindow::redrawAll_Multidraw(ADrawObject & drawObj)
                             {
                                 xAxis = h->GetXaxis();
                                 yAxis = h->GetYaxis();
+                                TH2 * h2D = dynamic_cast<TH2*>(DrawObjects.front().Pointer);
+                                if (h2D) zAxis = h2D->GetZaxis();
                             }
                         }
-                        std::vector<TAxis*> axes = {xAxis, yAxis};
 
-                        /*
-                        if (ui->cbScaleLabels->isChecked())
+                        std::vector<TAxis*> axes = {xAxis, yAxis};
+                        if (zAxis) axes.push_back(zAxis);
+
+                        if (rec.ScaleLabels)
                         {
-                            double factor = ui->ledScaleFactorForlabel->text().toDouble();
                             for (TAxis * axis : axes)
                                 if (axis)
                                 {
                                     //axis.SetTitleOffset(grAxis.GetTitleOffset());
-                                    axis->SetTitleSize(axis->GetTitleSize()*factor);
+                                    axis->SetTitleSize(axis->GetTitleSize() * rec.ScaleLabelsBy);
 
                                     //axis.SetLabelOffset(grAxis.GetLabelOffset());
-                                    axis->SetLabelSize(axis->GetLabelSize()*factor);
+                                    axis->SetLabelSize(axis->GetLabelSize() * rec.ScaleLabelsBy);
                                 }
                         }
-*/
-                        /*
-                        if (ui->cbScaleXoffsets->isChecked())
-                        {
-                            double factor = ui->ledScaleFactorForXoffset->text().toDouble();
-                            if (xAxis)
-                            {
-                                xAxis->SetTitleOffset(xAxis->GetTitleOffset()*factor);
-                                //axis.SetLabelOffset(grAxis.GetLabelOffset());
-                            }
-                        }
-                        if (ui->cbScaleYoffsets->isChecked())
-                        {
-                            double factor = ui->ledScaleFactorForYoffset->text().toDouble();
-                            if (yAxis)
-                            {
-                                yAxis->SetTitleOffset(yAxis->GetTitleOffset()*factor);
-                                //axis.SetLabelOffset(grAxis.GetLabelOffset());
-                            }
-                        }
-                        */
 
-                        //drawGraph(DrawObjects, pad);
-                        //drawGraph(const std::vector<ADrawObject> & DrawObjects, APadProperties & pad){
+                        if (rec.ScaleXoffset && xAxis)
+                        {
+                            xAxis->SetTitleOffset(xAxis->GetTitleOffset() * rec.ScaleXoffsetBy);
+                            //axis.SetLabelOffset(grAxis.GetLabelOffset());
+                        }
+                        if (rec.ScaleYoffset && yAxis)
+                        {
+                            yAxis->SetTitleOffset(yAxis->GetTitleOffset() * rec.ScaleYoffsetBy);
+                            //axis.SetLabelOffset(grAxis.GetLabelOffset());
+                        }
+                        if (rec.ScaleZoffset && zAxis)
+                        {
+                            yAxis->SetTitleOffset(zAxis->GetTitleOffset() * rec.ScaleZoffsetBy);
+                            //axis.SetLabelOffset(grAxis.GetLabelOffset());
+                        }
+
+                             //drawGraph(DrawObjects, pad);
+                             //drawGraph(const std::vector<ADrawObject> & DrawObjects, APadProperties & pad){
                         for (const ADrawObject & drObj : DrawObjects)
                         {
                             TObject * tObj = drObj.Pointer;
                             tObj->Draw(drObj.Options.toLatin1().data());
                             pad.tmpObjects.push_back(tObj);
                         }
-                        //
                     }
                 }
             }
@@ -3081,6 +3088,98 @@ void AGraphWindow::on_ledMultMarginBottom_editingFinished()
     if (val == DrawObjects.front().MultidrawSettings.MarginBottom) return;
 
     DrawObjects.front().MultidrawSettings.MarginBottom = val;
+    redrawAll();
+    highlightUpdateBasketButton(true);
+}
+
+
+void AGraphWindow::on_cbMultScaleLabels_clicked(bool checked)
+{
+    if (!isMultidrawModeOn()) return;
+
+    DrawObjects.front().MultidrawSettings.ScaleLabels = checked;
+    redrawAll();
+    highlightUpdateBasketButton(true);
+}
+
+
+void AGraphWindow::on_ledMultScaleLabels_editingFinished()
+{
+    if (!isMultidrawModeOn()) return;
+
+    const double val = ui->ledMultScaleLabels->text().toDouble();
+    if (val == DrawObjects.front().MultidrawSettings.ScaleLabelsBy) return;
+
+    DrawObjects.front().MultidrawSettings.ScaleLabelsBy = val;
+    redrawAll();
+    highlightUpdateBasketButton(true);
+}
+
+
+void AGraphWindow::on_cbMultScaleXoff_clicked(bool checked)
+{
+    if (!isMultidrawModeOn()) return;
+
+    DrawObjects.front().MultidrawSettings.ScaleXoffset = checked;
+    redrawAll();
+    highlightUpdateBasketButton(true);
+}
+
+
+void AGraphWindow::on_ledMultScaleXoff_editingFinished()
+{
+    if (!isMultidrawModeOn()) return;
+
+    const double val = ui->ledMultScaleXoff->text().toDouble();
+    if (val == DrawObjects.front().MultidrawSettings.ScaleXoffsetBy) return;
+
+    DrawObjects.front().MultidrawSettings.ScaleXoffsetBy = val;
+    redrawAll();
+    highlightUpdateBasketButton(true);
+}
+
+
+void AGraphWindow::on_cbMultScaleYoff_clicked(bool checked)
+{
+    if (!isMultidrawModeOn()) return;
+
+    DrawObjects.front().MultidrawSettings.ScaleYoffset = checked;
+    redrawAll();
+    highlightUpdateBasketButton(true);
+}
+
+
+void AGraphWindow::on_ledMultScaleYoff_editingFinished()
+{
+    if (!isMultidrawModeOn()) return;
+
+    const double val = ui->ledMultScaleYoff->text().toDouble();
+    if (val == DrawObjects.front().MultidrawSettings.ScaleYoffsetBy) return;
+
+    DrawObjects.front().MultidrawSettings.ScaleYoffsetBy = val;
+    redrawAll();
+    highlightUpdateBasketButton(true);
+}
+
+
+void AGraphWindow::on_cbMultScaleZoff_clicked(bool checked)
+{
+    if (!isMultidrawModeOn()) return;
+
+    DrawObjects.front().MultidrawSettings.ScaleZoffset = checked;
+    redrawAll();
+    highlightUpdateBasketButton(true);
+}
+
+
+void AGraphWindow::on_ledMultScaleZoff_editingFinished()
+{
+    if (!isMultidrawModeOn()) return;
+
+    const double val = ui->ledMultScaleZoff->text().toDouble();
+    if (val == DrawObjects.front().MultidrawSettings.ScaleZoffsetBy) return;
+
+    DrawObjects.front().MultidrawSettings.ScaleZoffsetBy = val;
     redrawAll();
     highlightUpdateBasketButton(true);
 }

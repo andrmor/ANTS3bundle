@@ -17,6 +17,16 @@ public:
     double MarginTop    = 0.1;
     double MarginBottom = 0.1;
 
+    bool   ScaleLabels = false;
+    double ScaleLabelsBy = 1.0;
+
+    bool   ScaleXoffset = false;
+    double ScaleXoffsetBy = 1.0;
+    bool   ScaleYoffset = false;
+    double ScaleYoffsetBy = 1.0;
+    bool   ScaleZoffset = false;
+    double ScaleZoffsetBy = 1.0;
+
     void init();
 };
 
