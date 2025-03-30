@@ -70,6 +70,8 @@ private:
     void linDraw(int index);
     void boxDraw(int index);
     void ellipseDraw(int index);
+    void onMoveUpAction(int index);
+    void onMoveDownAction(int index);
 
     void linFit(int index);
     void expFit(int index);
