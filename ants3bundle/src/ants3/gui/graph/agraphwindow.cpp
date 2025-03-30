@@ -796,13 +796,16 @@ void AGraphWindow::redrawAll()
 
 void AGraphWindow::redrawAll_Multidraw(ADrawObject & drawObj)
 {
+    ui->swToolBar->setCurrentIndex(1);
+
     AMultidrawRecord & rec = *drawObj.Multidraw;
 
-    //fillOutBasicLayout(int numX, int numY){
     if (rec.NumX < 1) rec.NumX = 1;
+    ui->sbMultNumX->setValue(rec.NumX);
+
     if (rec.NumY < 1) rec.NumY = 1;
-    //    ui->sbNumX->setValue(numX);
-    //    ui->sbNumY->setValue(numY);
+    ui->sbMultNumY->setValue(rec.NumY);
+
     double margin = 0;
     double padY   = 1.0 / rec.NumY;
     double padX   = 1.0 / rec.NumX;
@@ -1506,7 +1509,7 @@ bool AGraphWindow::onScriptDrawTree(TTree * tree, QString what, QString cond, QS
 void AGraphWindow::changeOverlayMode(bool bOn)
 {
     ui->swToolBox->setVisible(bOn);
-    ui->swToolBar->setCurrentIndex(bOn ? 1 : 0);
+    ui->swToolBar->setCurrentIndex(bOn ? 2 : 0);
     ui->fBasket->setEnabled(!bOn);
     ui->actionEqualize_scale_XY->setEnabled(!bOn);
     ui->menuPalette->setEnabled(!bOn);
@@ -2995,5 +2998,37 @@ void AGraphWindow::on_actionSet_palette_triggered()
     APaletteSelectionDialog dia(this);
     connect(&dia, &APaletteSelectionDialog::requestRedraw, this, &AGraphWindow::redrawAll);
     dia.exec();
+}
+
+// Multidraw
+
+bool AGraphWindow::isMultidrawModeOn()
+{
+    if (DrawObjects.empty()) return false;
+    return DrawObjects.front().Multidraw;
+}
+
+void AGraphWindow::on_sbMultNumX_editingFinished()
+{
+    if (!isMultidrawModeOn()) return;
+
+    const int num = ui->sbMultNumX->value();
+    if (num == DrawObjects.front().Multidraw->NumX) return;
+
+    DrawObjects.front().Multidraw->NumX = num;
+    redrawAll();
+    highlightUpdateBasketButton(true);
+}
+
+void AGraphWindow::on_sbMultNumY_editingFinished()
+{
+    if (!isMultidrawModeOn()) return;
+
+    const int num = ui->sbMultNumY->value();
+    if (num == DrawObjects.front().Multidraw->NumY) return;
+
+    DrawObjects.front().Multidraw->NumY = num;
+    redrawAll();
+    highlightUpdateBasketButton(true);
 }
 

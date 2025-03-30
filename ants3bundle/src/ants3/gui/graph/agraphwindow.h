@@ -183,6 +183,11 @@ private slots:
 
     void on_pbRemoveTextBox_clicked();
 
+    void on_sbMultNumX_editingFinished();
+
+
+    void on_sbMultNumY_editingFinished();
+
 private:
     Ui::AGraphWindow       * ui = nullptr;
 
@@ -274,6 +279,7 @@ private:
     void onBusyOff();
 
     void redrawAll_Multidraw(ADrawObject & drawObj); // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    bool isMultidrawModeOn();
 
 signals:
     void requestLocalDrawObject(TObject *obj, QString options, bool fFocus);

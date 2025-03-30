@@ -66,7 +66,7 @@
         </rect>
        </property>
        <property name="currentIndex">
-        <number>0</number>
+        <number>1</number>
        </property>
        <widget class="QWidget" name="page">
         <widget class="QFrame" name="fLog">
@@ -831,6 +831,94 @@
         <zorder>line_12</zorder>
         <zorder>pbSaveImage</zorder>
         <zorder>pbRemoveTextBox</zorder>
+       </widget>
+       <widget class="QWidget" name="page_5">
+        <widget class="QPushButton" name="pushButton">
+         <property name="geometry">
+          <rect>
+           <x>30</x>
+           <y>110</y>
+           <width>88</width>
+           <height>25</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>PushButton</string>
+         </property>
+        </widget>
+        <widget class="QSpinBox" name="sbMultNumX">
+         <property name="geometry">
+          <rect>
+           <x>80</x>
+           <y>30</y>
+           <width>50</width>
+           <height>26</height>
+          </rect>
+         </property>
+         <property name="minimum">
+          <number>1</number>
+         </property>
+        </widget>
+        <widget class="QSpinBox" name="sbMultNumY">
+         <property name="geometry">
+          <rect>
+           <x>80</x>
+           <y>56</y>
+           <width>50</width>
+           <height>26</height>
+          </rect>
+         </property>
+         <property name="minimum">
+          <number>1</number>
+         </property>
+        </widget>
+        <widget class="QLabel" name="label_14">
+         <property name="geometry">
+          <rect>
+           <x>9</x>
+           <y>34</y>
+           <width>66</width>
+           <height>17</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Num in X</string>
+         </property>
+        </widget>
+        <widget class="QLabel" name="label_29">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>60</y>
+           <width>66</width>
+           <height>17</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Num in Y</string>
+         </property>
+        </widget>
+        <widget class="QLabel" name="label_30">
+         <property name="geometry">
+          <rect>
+           <x>9</x>
+           <y>8</y>
+           <width>111</width>
+           <height>20</height>
+          </rect>
+         </property>
+         <property name="font">
+          <font>
+           <fontweight>DemiBold</fontweight>
+          </font>
+         </property>
+         <property name="text">
+          <string>Multipad draw</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignmentFlag::AlignCenter</set>
+         </property>
+        </widget>
        </widget>
        <widget class="QWidget" name="page_2">
         <widget class="QFrame" name="fToolBox">
@@ -1980,7 +2068,7 @@ in basket</string>
      <x>0</x>
      <y>0</y>
      <width>987</width>
-     <height>21</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuPalette">
