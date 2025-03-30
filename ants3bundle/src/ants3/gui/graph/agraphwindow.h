@@ -188,6 +188,16 @@ private slots:
 
     void on_sbMultNumY_editingFinished();
 
+    void on_cbMultEnforceMargins_clicked(bool checked);
+
+    void on_ledMultMarginLeft_editingFinished();
+
+    void on_ledMultMarginRight_editingFinished();
+
+    void on_ledMultMarginTop_editingFinished();
+
+    void on_ledMultMarginBottom_editingFinished();
+
 private:
     Ui::AGraphWindow       * ui = nullptr;
 

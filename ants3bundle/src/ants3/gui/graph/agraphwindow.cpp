@@ -802,9 +802,13 @@ void AGraphWindow::redrawAll_Multidraw(ADrawObject & drawObj)
 
     if (rec.NumX < 1) rec.NumX = 1;
     ui->sbMultNumX->setValue(rec.NumX);
-
     if (rec.NumY < 1) rec.NumY = 1;
     ui->sbMultNumY->setValue(rec.NumY);
+    ui->cbMultEnforceMargins->setChecked(rec.EnforceMargins);
+    ui->ledMultMarginLeft->  setText(QString::number(rec.MarginLeft));
+    ui->ledMultMarginRight-> setText(QString::number(rec.MarginRight));
+    ui->ledMultMarginTop->   setText(QString::number(rec.MarginTop));
+    ui->ledMultMarginBottom->setText(QString::number(rec.MarginBottom));
 
     double margin = 0;
     double padY   = 1.0 / rec.NumY;
@@ -859,16 +863,8 @@ void AGraphWindow::redrawAll_Multidraw(ADrawObject & drawObj)
                         pad.tPad->SetLogx(DrawObjects.front().bLogScaleX);
                         pad.tPad->SetLogy(DrawObjects.front().bLogScaleY);
 
-                        /*
-                        if (ui->cbEnforceMargins->isChecked())
-                        {
-                            float left = ui->ledLeft->text().toFloat();
-                            float right = ui->ledRight->text().toFloat();
-                            float top = ui->ledTop->text().toFloat();
-                            float bot = ui->ledBottom->text().toFloat();
-                            pad.tPad->SetMargin(left, right, bot, top);
-                        }
-                        */
+                        if (rec.EnforceMargins)
+                            pad.tPad->SetMargin(rec.MarginLeft, rec.MarginRight, rec.MarginBottom, rec.MarginTop);
 
                         TAxis * xAxis = nullptr;
                         TAxis * yAxis = nullptr;
@@ -3028,6 +3024,63 @@ void AGraphWindow::on_sbMultNumY_editingFinished()
     if (num == DrawObjects.front().MultidrawSettings.NumY) return;
 
     DrawObjects.front().MultidrawSettings.NumY = num;
+    redrawAll();
+    highlightUpdateBasketButton(true);
+}
+
+void AGraphWindow::on_cbMultEnforceMargins_clicked(bool checked)
+{
+    if (!isMultidrawModeOn()) return;
+
+    DrawObjects.front().MultidrawSettings.EnforceMargins = checked;
+    redrawAll();
+    highlightUpdateBasketButton(true);
+}
+
+void AGraphWindow::on_ledMultMarginLeft_editingFinished()
+{
+    if (!isMultidrawModeOn()) return;
+
+    const double val = ui->ledMultMarginLeft->text().toDouble();
+    if (val == DrawObjects.front().MultidrawSettings.MarginLeft) return;
+
+    DrawObjects.front().MultidrawSettings.MarginLeft = val;
+    redrawAll();
+    highlightUpdateBasketButton(true);
+}
+
+void AGraphWindow::on_ledMultMarginRight_editingFinished()
+{
+    if (!isMultidrawModeOn()) return;
+
+    const double val = ui->ledMultMarginRight->text().toDouble();
+    if (val == DrawObjects.front().MultidrawSettings.MarginRight) return;
+
+    DrawObjects.front().MultidrawSettings.MarginRight = val;
+    redrawAll();
+    highlightUpdateBasketButton(true);
+}
+
+void AGraphWindow::on_ledMultMarginTop_editingFinished()
+{
+    if (!isMultidrawModeOn()) return;
+
+    const double val = ui->ledMultMarginTop->text().toDouble();
+    if (val == DrawObjects.front().MultidrawSettings.MarginTop) return;
+
+    DrawObjects.front().MultidrawSettings.MarginTop = val;
+    redrawAll();
+    highlightUpdateBasketButton(true);
+}
+
+void AGraphWindow::on_ledMultMarginBottom_editingFinished()
+{
+    if (!isMultidrawModeOn()) return;
+
+    const double val = ui->ledMultMarginBottom->text().toDouble();
+    if (val == DrawObjects.front().MultidrawSettings.MarginBottom) return;
+
+    DrawObjects.front().MultidrawSettings.MarginBottom = val;
     redrawAll();
     highlightUpdateBasketButton(true);
 }

@@ -833,24 +833,11 @@
         <zorder>pbRemoveTextBox</zorder>
        </widget>
        <widget class="QWidget" name="page_5">
-        <widget class="QPushButton" name="pushButton">
-         <property name="geometry">
-          <rect>
-           <x>30</x>
-           <y>110</y>
-           <width>88</width>
-           <height>25</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>PushButton</string>
-         </property>
-        </widget>
         <widget class="QSpinBox" name="sbMultNumX">
          <property name="geometry">
           <rect>
            <x>80</x>
-           <y>30</y>
+           <y>36</y>
            <width>50</width>
            <height>26</height>
           </rect>
@@ -863,7 +850,7 @@
          <property name="geometry">
           <rect>
            <x>80</x>
-           <y>56</y>
+           <y>62</y>
            <width>50</width>
            <height>26</height>
           </rect>
@@ -876,7 +863,7 @@
          <property name="geometry">
           <rect>
            <x>9</x>
-           <y>34</y>
+           <y>40</y>
            <width>66</width>
            <height>17</height>
           </rect>
@@ -889,7 +876,7 @@
          <property name="geometry">
           <rect>
            <x>10</x>
-           <y>60</y>
+           <y>66</y>
            <width>66</width>
            <height>17</height>
           </rect>
@@ -917,6 +904,137 @@
          </property>
          <property name="alignment">
           <set>Qt::AlignmentFlag::AlignCenter</set>
+         </property>
+        </widget>
+        <widget class="Line" name="line_3">
+         <property name="geometry">
+          <rect>
+           <x>11</x>
+           <y>89</y>
+           <width>118</width>
+           <height>7</height>
+          </rect>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Orientation::Horizontal</enum>
+         </property>
+        </widget>
+        <widget class="Line" name="line_20">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>29</y>
+           <width>118</width>
+           <height>7</height>
+          </rect>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Orientation::Horizontal</enum>
+         </property>
+        </widget>
+        <widget class="QCheckBox" name="cbMultEnforceMargins">
+         <property name="geometry">
+          <rect>
+           <x>5</x>
+           <y>95</y>
+           <width>141</width>
+           <height>23</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Enforce margins</string>
+         </property>
+        </widget>
+        <widget class="QFrame" name="frMultMargins">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>119</y>
+           <width>121</width>
+           <height>111</height>
+          </rect>
+         </property>
+         <property name="frameShape">
+          <enum>QFrame::Shape::NoFrame</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Shadow::Raised</enum>
+         </property>
+         <layout class="QFormLayout" name="formLayout">
+          <property name="horizontalSpacing">
+           <number>1</number>
+          </property>
+          <property name="verticalSpacing">
+           <number>3</number>
+          </property>
+          <property name="leftMargin">
+           <number>1</number>
+          </property>
+          <property name="topMargin">
+           <number>1</number>
+          </property>
+          <property name="rightMargin">
+           <number>1</number>
+          </property>
+          <property name="bottomMargin">
+           <number>1</number>
+          </property>
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_31">
+            <property name="text">
+             <string>Left</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QLineEdit" name="ledMultMarginLeft"/>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="label_32">
+            <property name="text">
+             <string>Right</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QLineEdit" name="ledMultMarginRight"/>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="label_33">
+            <property name="text">
+             <string>Top</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QLineEdit" name="ledMultMarginTop"/>
+          </item>
+          <item row="3" column="0">
+           <widget class="QLabel" name="label_34">
+            <property name="text">
+             <string>Bottom</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <widget class="QLineEdit" name="ledMultMarginBottom"/>
+          </item>
+         </layout>
+        </widget>
+        <widget class="Line" name="line_21">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>233</y>
+           <width>118</width>
+           <height>7</height>
+          </rect>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Orientation::Horizontal</enum>
          </property>
         </widget>
        </widget>
@@ -2358,7 +2476,7 @@ in basket</string>
    <hints>
     <hint type="sourcelabel">
      <x>366</x>
-     <y>106</y>
+     <y>103</y>
     </hint>
     <hint type="destinationlabel">
      <x>387</x>
@@ -2374,7 +2492,7 @@ in basket</string>
    <hints>
     <hint type="sourcelabel">
      <x>366</x>
-     <y>127</y>
+     <y>124</y>
     </hint>
     <hint type="destinationlabel">
      <x>387</x>
@@ -2390,7 +2508,7 @@ in basket</string>
    <hints>
     <hint type="sourcelabel">
      <x>366</x>
-     <y>150</y>
+     <y>147</y>
     </hint>
     <hint type="destinationlabel">
      <x>387</x>
@@ -2406,7 +2524,7 @@ in basket</string>
    <hints>
     <hint type="sourcelabel">
      <x>366</x>
-     <y>171</y>
+     <y>168</y>
     </hint>
     <hint type="destinationlabel">
      <x>387</x>
@@ -2422,7 +2540,7 @@ in basket</string>
    <hints>
     <hint type="sourcelabel">
      <x>366</x>
-     <y>194</y>
+     <y>191</y>
     </hint>
     <hint type="destinationlabel">
      <x>387</x>
@@ -2534,11 +2652,11 @@ in basket</string>
    <hints>
     <hint type="sourcelabel">
      <x>292</x>
-     <y>233</y>
+     <y>230</y>
     </hint>
     <hint type="destinationlabel">
      <x>365</x>
-     <y>236</y>
+     <y>233</y>
     </hint>
    </hints>
   </connection>
@@ -2550,11 +2668,11 @@ in basket</string>
    <hints>
     <hint type="sourcelabel">
      <x>368</x>
-     <y>237</y>
+     <y>229</y>
     </hint>
     <hint type="destinationlabel">
      <x>369</x>
-     <y>257</y>
+     <y>249</y>
     </hint>
    </hints>
   </connection>
@@ -2571,6 +2689,22 @@ in basket</string>
     <hint type="destinationlabel">
      <x>349</x>
      <y>311</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cbMultEnforceMargins</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>frMultMargins</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>272</x>
+     <y>126</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>283</x>
+     <y>145</y>
     </hint>
    </hints>
   </connection>
