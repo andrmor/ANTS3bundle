@@ -798,7 +798,7 @@ void AGraphWindow::redrawAll_Multidraw(ADrawObject & drawObj)
 {
     ui->swToolBar->setCurrentIndex(1);
 
-    AMultidrawRecord & rec = *drawObj.Multidraw;
+    AMultidrawRecord & rec = drawObj.MultidrawSettings;
 
     if (rec.NumX < 1) rec.NumX = 1;
     ui->sbMultNumX->setValue(rec.NumX);
@@ -2255,14 +2255,14 @@ void AGraphWindow::requestMultidrawNew()
     const QList<QListWidgetItem*> selection = lwBasket->selectedItems();
 
     ADrawObject obj;
-    obj.Multidraw = new AMultidrawRecord();
+    obj.Multidraw = true;
 
     for (const QListWidgetItem * const item : selection)
     {
         int index = lwBasket->row(item);
-        obj.Multidraw->BasketItems.push_back(index);
+        obj.MultidrawSettings.BasketItems.push_back(index);
     }
-    obj.Multidraw->init();
+    obj.MultidrawSettings.init();
 
     std::vector<ADrawObject> tmp = {obj};
     Basket->add("DummyMulti", tmp);
@@ -3013,9 +3013,9 @@ void AGraphWindow::on_sbMultNumX_editingFinished()
     if (!isMultidrawModeOn()) return;
 
     const int num = ui->sbMultNumX->value();
-    if (num == DrawObjects.front().Multidraw->NumX) return;
+    if (num == DrawObjects.front().MultidrawSettings.NumX) return;
 
-    DrawObjects.front().Multidraw->NumX = num;
+    DrawObjects.front().MultidrawSettings.NumX = num;
     redrawAll();
     highlightUpdateBasketButton(true);
 }
@@ -3025,9 +3025,9 @@ void AGraphWindow::on_sbMultNumY_editingFinished()
     if (!isMultidrawModeOn()) return;
 
     const int num = ui->sbMultNumY->value();
-    if (num == DrawObjects.front().Multidraw->NumY) return;
+    if (num == DrawObjects.front().MultidrawSettings.NumY) return;
 
-    DrawObjects.front().Multidraw->NumY = num;
+    DrawObjects.front().MultidrawSettings.NumY = num;
     redrawAll();
     highlightUpdateBasketButton(true);
 }

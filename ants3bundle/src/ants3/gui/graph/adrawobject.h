@@ -2,6 +2,7 @@
 #define ADRAWOBJECT_H
 
 #include "adrawmarginsrecord.h"
+#include "amultidrawrecord.h"
 
 #include <QString>
 
@@ -18,16 +19,17 @@ public:
     ADrawObject(TObject * pointer, const QString & options, bool enabled = true);
     ADrawObject(TObject * pointer, const QString & options, bool enabled, bool bLogScaleX, bool bLogScaleY);
 
+    bool      Multidraw = false;
     TObject * Pointer = nullptr;
-    QString Name;
-    QString Options;
-    bool    bEnabled  = true;
-    bool    bLogScaleX = false;
-    bool    bLogScaleY = false;
+    QString   Name;
+    QString   Options;
+    bool      bEnabled  = true;
+    bool      bLogScaleX = false;
+    bool      bLogScaleY = false;
+
+    AMultidrawRecord MultidrawSettings;
 
     ADrawMarginsRecord CustomMargins;
-
-    AMultidrawRecord * Multidraw = nullptr;
 
 private:
     void extractName();

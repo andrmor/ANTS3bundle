@@ -105,7 +105,7 @@ void ADrawExplorerWidget::updateGui()
 #include "abasketmanager.h"
 void ADrawExplorerWidget::updateGui_multidrawMode()
 {
-    const AMultidrawRecord & rec = *DrawObjects.front().Multidraw;
+    const AMultidrawRecord & rec = DrawObjects.front().MultidrawSettings;
 
     for (size_t i = 0; i < rec.BasketItems.size(); i++)
     {
