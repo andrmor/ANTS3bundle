@@ -2110,7 +2110,7 @@ void AGraphWindow::onBasketCustomContextMenuRequested(const QPoint &pos)
         if (!fileName.isEmpty())
         {
             if (QFileInfo(fileName).suffix().isEmpty()) fileName += ".root";
-            Basket->saveAll(fileName);
+            Basket->saveBasket(fileName);
         }
     }
     else if (selectedItem == append)

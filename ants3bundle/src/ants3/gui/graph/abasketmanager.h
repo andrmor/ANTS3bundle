@@ -32,8 +32,7 @@ public:
     bool                isMultidraw(int index) const;
     bool                isMemberOfSpecificMultidraw(int index, int multidrawIndex);
 
-    void                saveAll(const QString & fileName);
-
+    void                saveBasket(const QString & fileName);
     QString             appendBasket(const QString & fileName);
 
     QString             appendTxtAsGraph(const QString & fileName);

@@ -102,7 +102,7 @@ void AMultiGraphDesigner::on_actionSave_triggered()
     writeToJson(js);
     jstools::saveJsonToFile(js, fileName);
 
-    Basket.saveAll(fileName+".basket");
+    Basket.saveBasket(fileName+".basket");
 }
 
 void AMultiGraphDesigner::on_actionLoad_triggered()
