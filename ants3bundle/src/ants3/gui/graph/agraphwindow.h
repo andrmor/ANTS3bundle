@@ -212,6 +212,12 @@ private slots:
 
     void on_ledMultAxisScaleZoff_editingFinished();
 
+    //void on_ledMultScaleAxesLines_editingFinished(); // not possible in ROOT... hrm
+
+    void on_ledMultScaleDrawLines_editingFinished();
+
+    void on_ledMultScaleMarkers_editingFinished();
+
 private:
     Ui::AGraphWindow       * ui = nullptr;
 

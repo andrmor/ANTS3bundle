@@ -821,6 +821,9 @@ void AGraphWindow::redrawAll_Multidraw(ADrawObject & drawObj)
     ui->ledMultAxisScaleYoff->setText(QString::number(rec.ScaleOffsetAxisY));
     ui->ledMultAxisScaleZoff->setText(QString::number(rec.ScaleOffsetAxisZ));
 
+    ui->ledMultScaleDrawLines->setText(QString::number(rec.ScaleDrawLines));
+    ui->ledMultScaleMarkers->setText(QString::number(rec.ScaleMarkers));
+
     double margin = 0;
     double padY   = 1.0 / rec.NumY;
     double padX   = 1.0 / rec.NumX;
@@ -921,9 +924,20 @@ void AGraphWindow::redrawAll_Multidraw(ADrawObject & drawObj)
                         if (rec.ScaleOffsetAxisY != 1.0 && yAxis) yAxis->SetLabelOffset(yAxis->GetLabelOffset() * rec.ScaleOffsetAxisY);
                         if (rec.ScaleOffsetAxisZ != 1.0 && zAxis) zAxis->SetLabelOffset(zAxis->GetLabelOffset() * rec.ScaleOffsetAxisZ);
 
+
                         for (const ADrawObject & drObj : DrawObjects)
                         {
                             TObject * tObj = drObj.Pointer;
+                            if (rec.ScaleDrawLines)
+                            {
+                                TAttLine * lineAtt = dynamic_cast<TAttLine*>(tObj);
+                                if (lineAtt) lineAtt->SetLineWidth(lineAtt->GetLineWidth() * rec.ScaleDrawLines);
+                            }
+                            if (rec.ScaleMarkers)
+                            {
+                                TAttMarker * markAtt = dynamic_cast<TAttMarker*>(tObj);
+                                if (markAtt) markAtt->SetMarkerSize(markAtt->GetMarkerSize() * rec.ScaleMarkers);
+                            }
                             tObj->Draw(drObj.Options.toLatin1().data());
                             pad.tmpObjects.push_back(tObj);
                         }
@@ -3175,6 +3189,44 @@ void AGraphWindow::on_ledMultAxisScaleZoff_editingFinished()
     if (val == DrawObjects.front().MultidrawSettings.ScaleOffsetAxisZ) return;
 
     DrawObjects.front().MultidrawSettings.ScaleOffsetAxisZ = val;
+    redrawAll();
+    highlightUpdateBasketButton(true);
+}
+
+/*
+void AGraphWindow::on_ledMultScaleAxesLines_editingFinished()
+{
+    if (!isMultidrawModeOn()) return;
+
+    const double val = ui->ledMultScaleAxesLines->text().toDouble();
+    if (val == DrawObjects.front().MultidrawSettings.ScaleAxesLines) return;
+
+    DrawObjects.front().MultidrawSettings.ScaleAxesLines = val;
+    redrawAll();
+    highlightUpdateBasketButton(true);
+}
+*/
+
+void AGraphWindow::on_ledMultScaleDrawLines_editingFinished()
+{
+    if (!isMultidrawModeOn()) return;
+
+    const double val = ui->ledMultScaleDrawLines->text().toDouble();
+    if (val == DrawObjects.front().MultidrawSettings.ScaleDrawLines) return;
+
+    DrawObjects.front().MultidrawSettings.ScaleDrawLines = val;
+    redrawAll();
+    highlightUpdateBasketButton(true);
+}
+
+void AGraphWindow::on_ledMultScaleMarkers_editingFinished()
+{
+    if (!isMultidrawModeOn()) return;
+
+    const double val = ui->ledMultScaleMarkers->text().toDouble();
+    if (val == DrawObjects.front().MultidrawSettings.ScaleMarkers) return;
+
+    DrawObjects.front().MultidrawSettings.ScaleMarkers = val;
     redrawAll();
     highlightUpdateBasketButton(true);
 }

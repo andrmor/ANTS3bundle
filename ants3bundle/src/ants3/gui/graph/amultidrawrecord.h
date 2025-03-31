@@ -29,6 +29,10 @@ public:
     double ScaleOffsetAxisY = 1.0;
     double ScaleOffsetAxisZ = 1.0;
 
+    //double ScaleAxesLines = 1.0;
+    double ScaleDrawLines = 1.0;
+    double ScaleMarkers   = 1.0;
+
     void init();
 
     void writeToJson(QJsonObject & json) const;

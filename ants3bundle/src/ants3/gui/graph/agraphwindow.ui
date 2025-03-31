@@ -941,6 +941,11 @@
            <height>23</height>
           </rect>
          </property>
+         <property name="font">
+          <font>
+           <fontweight>Medium</fontweight>
+          </font>
+         </property>
          <property name="text">
           <string>Enforce margins</string>
          </property>
@@ -1043,6 +1048,11 @@
            <height>17</height>
           </rect>
          </property>
+         <property name="font">
+          <font>
+           <fontweight>Medium</fontweight>
+          </font>
+         </property>
          <property name="text">
           <string>Scaling factors</string>
          </property>
@@ -1051,7 +1061,7 @@
          <property name="geometry">
           <rect>
            <x>10</x>
-           <y>680</y>
+           <y>614</y>
            <width>118</width>
            <height>7</height>
           </rect>
@@ -1074,7 +1084,7 @@
          <property name="geometry">
           <rect>
            <x>10</x>
-           <y>386</y>
+           <y>463</y>
            <width>118</width>
            <height>7</height>
           </rect>
@@ -1107,10 +1117,15 @@
          <property name="geometry">
           <rect>
            <x>9</x>
-           <y>524</y>
+           <y>469</y>
            <width>121</width>
            <height>23</height>
           </rect>
+         </property>
+         <property name="font">
+          <font>
+           <fontweight>Medium</fontweight>
+          </font>
          </property>
          <property name="text">
           <string>Add identifier</string>
@@ -1120,13 +1135,13 @@
          <property name="geometry">
           <rect>
            <x>3</x>
-           <y>545</y>
+           <y>490</y>
            <width>131</width>
-           <height>131</height>
+           <height>124</height>
           </rect>
          </property>
          <property name="frameShape">
-          <enum>QFrame::Shape::StyledPanel</enum>
+          <enum>QFrame::Shape::NoFrame</enum>
          </property>
          <property name="frameShadow">
           <enum>QFrame::Shadow::Raised</enum>
@@ -1160,14 +1175,14 @@
          <widget class="QPushButton" name="pushButton_2">
           <property name="geometry">
            <rect>
-            <x>90</x>
-            <y>100</y>
-            <width>31</width>
+            <x>79</x>
+            <y>95</y>
+            <width>45</width>
             <height>25</height>
            </rect>
           </property>
           <property name="text">
-           <string>PushButton</string>
+           <string>Set</string>
           </property>
          </widget>
          <widget class="QWidget" name="">
@@ -1249,6 +1264,19 @@
           <string>Label offsets:</string>
          </property>
         </widget>
+        <widget class="QLabel" name="label_47">
+         <property name="geometry">
+          <rect>
+           <x>15</x>
+           <y>386</y>
+           <width>91</width>
+           <height>17</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Width/size:</string>
+         </property>
+        </widget>
         <widget class="QWidget" name="">
          <property name="geometry">
           <rect>
@@ -1317,6 +1345,44 @@
           </item>
           <item row="3" column="2">
            <widget class="QLineEdit" name="ledMultAxisScaleZoff"/>
+          </item>
+         </layout>
+        </widget>
+        <widget class="QWidget" name="">
+         <property name="geometry">
+          <rect>
+           <x>5</x>
+           <y>407</y>
+           <width>131</width>
+           <height>61</height>
+          </rect>
+         </property>
+         <layout class="QFormLayout" name="formLayout">
+          <property name="horizontalSpacing">
+           <number>3</number>
+          </property>
+          <property name="verticalSpacing">
+           <number>3</number>
+          </property>
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_49">
+            <property name="text">
+             <string>Lines</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QLineEdit" name="ledMultScaleDrawLines"/>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="label_50">
+            <property name="text">
+             <string>Markers</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QLineEdit" name="ledMultScaleMarkers"/>
           </item>
          </layout>
         </widget>
@@ -2305,27 +2371,19 @@
         </widget>
        </widget>
       </widget>
-      <widget class="QCheckBox" name="checkBox">
-       <property name="geometry">
-        <rect>
-         <x>20</x>
-         <y>690</y>
-         <width>92</width>
-         <height>23</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>Show stats</string>
-       </property>
-      </widget>
       <widget class="QPushButton" name="pushButton">
        <property name="geometry">
         <rect>
-         <x>20</x>
-         <y>710</y>
+         <x>15</x>
+         <y>624</y>
          <width>111</width>
          <height>25</height>
         </rect>
+       </property>
+       <property name="font">
+        <font>
+         <fontweight>Medium</fontweight>
+        </font>
        </property>
        <property name="text">
         <string>Save image</string>

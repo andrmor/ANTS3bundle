@@ -37,6 +37,12 @@ void AMultidrawRecord::writeToJson(QJsonObject & json) const
     json["ScaleOffsetAxisX"] = ScaleOffsetAxisX;
     json["ScaleOffsetAxisY"] = ScaleOffsetAxisY;
     json["ScaleOffsetAxisZ"] = ScaleOffsetAxisZ;
+
+    //json["ScaleAxesLines"] = ScaleAxesLines;
+    json["ScaleDrawLines"] = ScaleDrawLines;
+    json["ScaleMarkers"]   = ScaleMarkers;
+
+
 }
 
 void AMultidrawRecord::readFronJson(const QJsonObject & json)
@@ -65,4 +71,8 @@ void AMultidrawRecord::readFronJson(const QJsonObject & json)
     jstools::parseJson(json, "ScaleOffsetAxisX", ScaleOffsetAxisX);
     jstools::parseJson(json, "ScaleOffsetAxisY", ScaleOffsetAxisY);
     jstools::parseJson(json, "ScaleOffsetAxisZ", ScaleOffsetAxisZ);
+
+    //jstools::parseJson(json, "ScaleAxesLines", ScaleAxesLines);
+    jstools::parseJson(json, "ScaleDrawLines", ScaleDrawLines);
+    jstools::parseJson(json, "ScaleMarkers",   ScaleMarkers);
 }
