@@ -804,19 +804,22 @@ void AGraphWindow::redrawAll_Multidraw(ADrawObject & drawObj)
     ui->sbMultNumX->setValue(rec.NumX);
     if (rec.NumY < 1) rec.NumY = 1;
     ui->sbMultNumY->setValue(rec.NumY);
+
     ui->cbMultEnforceMargins->setChecked(rec.EnforceMargins);
     ui->ledMultMarginLeft->  setText(QString::number(rec.MarginLeft));
     ui->ledMultMarginRight-> setText(QString::number(rec.MarginRight));
     ui->ledMultMarginTop->   setText(QString::number(rec.MarginTop));
     ui->ledMultMarginBottom->setText(QString::number(rec.MarginBottom));
-    ui->cbMultScaleLabels->setChecked(rec.ScaleLabels);
-    ui->ledMultScaleLabels->setText(QString::number(rec.ScaleLabelsBy));
-    ui->cbMultScaleXoff->setChecked(rec.ScaleXoffset);
-    ui->ledMultScaleXoff->setText(QString::number(rec.ScaleXoffsetBy));
-    ui->cbMultScaleYoff->setChecked(rec.ScaleYoffset);
-    ui->ledMultScaleYoff->setText(QString::number(rec.ScaleYoffsetBy));
-    ui->cbMultScaleZoff->setChecked(rec.ScaleZoffset);
-    ui->ledMultScaleZoff->setText(QString::number(rec.ScaleZoffsetBy));
+
+    ui->ledMultScaleLabels->setText(QString::number(rec.ScaleLabels));
+
+    ui->ledMultTitleScaleXoff->setText(QString::number(rec.ScaleOffsetTitleX));
+    ui->ledMultTitleScaleYoff->setText(QString::number(rec.ScaleOffsetTitleY));
+    ui->ledMultTitleScaleZoff->setText(QString::number(rec.ScaleOffsetTitleZ));
+
+    ui->ledMultAxisScaleXoff->setText(QString::number(rec.ScaleOffsetAxisX));
+    ui->ledMultAxisScaleYoff->setText(QString::number(rec.ScaleOffsetAxisY));
+    ui->ledMultAxisScaleZoff->setText(QString::number(rec.ScaleOffsetAxisZ));
 
     double margin = 0;
     double padY   = 1.0 / rec.NumY;
@@ -900,37 +903,24 @@ void AGraphWindow::redrawAll_Multidraw(ADrawObject & drawObj)
                         std::vector<TAxis*> axes = {xAxis, yAxis};
                         if (zAxis) axes.push_back(zAxis);
 
-                        if (rec.ScaleLabels)
+                        if (rec.ScaleLabels != 1.0)
                         {
                             for (TAxis * axis : axes)
                                 if (axis)
                                 {
-                                    //axis.SetTitleOffset(grAxis.GetTitleOffset());
-                                    axis->SetTitleSize(axis->GetTitleSize() * rec.ScaleLabelsBy);
-
-                                    //axis.SetLabelOffset(grAxis.GetLabelOffset());
-                                    axis->SetLabelSize(axis->GetLabelSize() * rec.ScaleLabelsBy);
+                                    axis->SetTitleSize(axis->GetTitleSize() * rec.ScaleLabels);
+                                    axis->SetLabelSize(axis->GetLabelSize() * rec.ScaleLabels);
                                 }
                         }
 
-                        if (rec.ScaleXoffset && xAxis)
-                        {
-                            xAxis->SetTitleOffset(xAxis->GetTitleOffset() * rec.ScaleXoffsetBy);
-                            //axis.SetLabelOffset(grAxis.GetLabelOffset());
-                        }
-                        if (rec.ScaleYoffset && yAxis)
-                        {
-                            yAxis->SetTitleOffset(yAxis->GetTitleOffset() * rec.ScaleYoffsetBy);
-                            //axis.SetLabelOffset(grAxis.GetLabelOffset());
-                        }
-                        if (rec.ScaleZoffset && zAxis)
-                        {
-                            yAxis->SetTitleOffset(zAxis->GetTitleOffset() * rec.ScaleZoffsetBy);
-                            //axis.SetLabelOffset(grAxis.GetLabelOffset());
-                        }
+                        if (rec.ScaleOffsetTitleX != 1.0 && xAxis) xAxis->SetTitleOffset(xAxis->GetTitleOffset() * rec.ScaleOffsetTitleX);
+                        if (rec.ScaleOffsetTitleY != 1.0 && yAxis) yAxis->SetTitleOffset(yAxis->GetTitleOffset() * rec.ScaleOffsetTitleY);
+                        if (rec.ScaleOffsetTitleZ != 1.0 && zAxis) zAxis->SetTitleOffset(zAxis->GetTitleOffset() * rec.ScaleOffsetTitleZ);
 
-                             //drawGraph(DrawObjects, pad);
-                             //drawGraph(const std::vector<ADrawObject> & DrawObjects, APadProperties & pad){
+                        if (rec.ScaleOffsetAxisX != 1.0 && xAxis) xAxis->SetLabelOffset(xAxis->GetLabelOffset() * rec.ScaleOffsetAxisX);
+                        if (rec.ScaleOffsetAxisY != 1.0 && yAxis) yAxis->SetLabelOffset(yAxis->GetLabelOffset() * rec.ScaleOffsetAxisY);
+                        if (rec.ScaleOffsetAxisZ != 1.0 && zAxis) zAxis->SetLabelOffset(zAxis->GetLabelOffset() * rec.ScaleOffsetAxisZ);
+
                         for (const ADrawObject & drObj : DrawObjects)
                         {
                             TObject * tObj = drObj.Pointer;
@@ -3101,94 +3091,90 @@ void AGraphWindow::on_ledMultMarginBottom_editingFinished()
     highlightUpdateBasketButton(true);
 }
 
-
-void AGraphWindow::on_cbMultScaleLabels_clicked(bool checked)
-{
-    if (!isMultidrawModeOn()) return;
-
-    DrawObjects.front().MultidrawSettings.ScaleLabels = checked;
-    redrawAll();
-    highlightUpdateBasketButton(true);
-}
-
-
 void AGraphWindow::on_ledMultScaleLabels_editingFinished()
 {
     if (!isMultidrawModeOn()) return;
 
     const double val = ui->ledMultScaleLabels->text().toDouble();
-    if (val == DrawObjects.front().MultidrawSettings.ScaleLabelsBy) return;
+    if (val == DrawObjects.front().MultidrawSettings.ScaleLabels) return;
 
-    DrawObjects.front().MultidrawSettings.ScaleLabelsBy = val;
+    DrawObjects.front().MultidrawSettings.ScaleLabels = val;
     redrawAll();
     highlightUpdateBasketButton(true);
 }
 
 
-void AGraphWindow::on_cbMultScaleXoff_clicked(bool checked)
+void AGraphWindow::on_ledMultTitleScaleXoff_editingFinished()
 {
     if (!isMultidrawModeOn()) return;
 
-    DrawObjects.front().MultidrawSettings.ScaleXoffset = checked;
+    const double val = ui->ledMultTitleScaleXoff->text().toDouble();
+    if (val == DrawObjects.front().MultidrawSettings.ScaleOffsetTitleX) return;
+
+    DrawObjects.front().MultidrawSettings.ScaleOffsetTitleX = val;
+    redrawAll();
+    highlightUpdateBasketButton(true);
+}
+
+void AGraphWindow::on_ledMultTitleScaleYoff_editingFinished()
+{
+    if (!isMultidrawModeOn()) return;
+
+    const double val = ui->ledMultTitleScaleYoff->text().toDouble();
+    if (val == DrawObjects.front().MultidrawSettings.ScaleOffsetTitleY) return;
+
+    DrawObjects.front().MultidrawSettings.ScaleOffsetTitleY = val;
+    redrawAll();
+    highlightUpdateBasketButton(true);
+}
+
+void AGraphWindow::on_ledMultTitleScaleZoff_editingFinished()
+{
+    if (!isMultidrawModeOn()) return;
+
+    const double val = ui->ledMultTitleScaleZoff->text().toDouble();
+    if (val == DrawObjects.front().MultidrawSettings.ScaleOffsetTitleZ) return;
+
+    DrawObjects.front().MultidrawSettings.ScaleOffsetTitleZ = val;
     redrawAll();
     highlightUpdateBasketButton(true);
 }
 
 
-void AGraphWindow::on_ledMultScaleXoff_editingFinished()
+void AGraphWindow::on_ledMultAxisScaleXoff_editingFinished()
 {
     if (!isMultidrawModeOn()) return;
 
-    const double val = ui->ledMultScaleXoff->text().toDouble();
-    if (val == DrawObjects.front().MultidrawSettings.ScaleXoffsetBy) return;
+    const double val = ui->ledMultAxisScaleXoff->text().toDouble();
+    if (val == DrawObjects.front().MultidrawSettings.ScaleOffsetAxisX) return;
 
-    DrawObjects.front().MultidrawSettings.ScaleXoffsetBy = val;
+    DrawObjects.front().MultidrawSettings.ScaleOffsetAxisX = val;
     redrawAll();
     highlightUpdateBasketButton(true);
 }
 
 
-void AGraphWindow::on_cbMultScaleYoff_clicked(bool checked)
+void AGraphWindow::on_ledMultAxisScaleYoff_editingFinished()
 {
     if (!isMultidrawModeOn()) return;
 
-    DrawObjects.front().MultidrawSettings.ScaleYoffset = checked;
+    const double val = ui->ledMultAxisScaleYoff->text().toDouble();
+    if (val == DrawObjects.front().MultidrawSettings.ScaleOffsetAxisY) return;
+
+    DrawObjects.front().MultidrawSettings.ScaleOffsetAxisY = val;
     redrawAll();
     highlightUpdateBasketButton(true);
 }
 
 
-void AGraphWindow::on_ledMultScaleYoff_editingFinished()
+void AGraphWindow::on_ledMultAxisScaleZoff_editingFinished()
 {
     if (!isMultidrawModeOn()) return;
 
-    const double val = ui->ledMultScaleYoff->text().toDouble();
-    if (val == DrawObjects.front().MultidrawSettings.ScaleYoffsetBy) return;
+    const double val = ui->ledMultAxisScaleZoff->text().toDouble();
+    if (val == DrawObjects.front().MultidrawSettings.ScaleOffsetAxisZ) return;
 
-    DrawObjects.front().MultidrawSettings.ScaleYoffsetBy = val;
-    redrawAll();
-    highlightUpdateBasketButton(true);
-}
-
-
-void AGraphWindow::on_cbMultScaleZoff_clicked(bool checked)
-{
-    if (!isMultidrawModeOn()) return;
-
-    DrawObjects.front().MultidrawSettings.ScaleZoffset = checked;
-    redrawAll();
-    highlightUpdateBasketButton(true);
-}
-
-
-void AGraphWindow::on_ledMultScaleZoff_editingFinished()
-{
-    if (!isMultidrawModeOn()) return;
-
-    const double val = ui->ledMultScaleZoff->text().toDouble();
-    if (val == DrawObjects.front().MultidrawSettings.ScaleZoffsetBy) return;
-
-    DrawObjects.front().MultidrawSettings.ScaleZoffsetBy = val;
+    DrawObjects.front().MultidrawSettings.ScaleOffsetAxisZ = val;
     redrawAll();
     highlightUpdateBasketButton(true);
 }

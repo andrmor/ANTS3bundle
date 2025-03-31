@@ -198,21 +198,19 @@ private slots:
 
     void on_ledMultMarginBottom_editingFinished();
 
-    void on_cbMultScaleLabels_clicked(bool checked);
-
     void on_ledMultScaleLabels_editingFinished();
 
-    void on_cbMultScaleXoff_clicked(bool checked);
+    void on_ledMultTitleScaleXoff_editingFinished();
 
-    void on_ledMultScaleXoff_editingFinished();
+    void on_ledMultTitleScaleYoff_editingFinished();
 
-    void on_cbMultScaleYoff_clicked(bool checked);
+    void on_ledMultTitleScaleZoff_editingFinished();
 
-    void on_ledMultScaleYoff_editingFinished();
+    void on_ledMultAxisScaleXoff_editingFinished();
 
-    void on_cbMultScaleZoff_clicked(bool checked);
+    void on_ledMultAxisScaleYoff_editingFinished();
 
-    void on_ledMultScaleZoff_editingFinished();
+    void on_ledMultAxisScaleZoff_editingFinished();
 
 private:
     Ui::AGraphWindow       * ui = nullptr;

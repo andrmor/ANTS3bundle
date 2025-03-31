@@ -28,15 +28,15 @@ void AMultidrawRecord::writeToJson(QJsonObject & json) const
     json["MarginTop"]      = MarginTop;
     json["MarginBottom"]   = MarginBottom;
 
-    json["ScaleLabels"]   = ScaleLabels;
-    json["ScaleLabelsBy"] = ScaleLabelsBy;
+    json["ScaleLabels"]    = ScaleLabels;
 
-    json["ScaleXoffset"]   = ScaleXoffset;
-    json["ScaleXoffsetBy"] = ScaleXoffsetBy;
-    json["ScaleYoffset"]   = ScaleYoffset;
-    json["ScaleYoffsetBy"] = ScaleYoffsetBy;
-    json["ScaleZoffset"]   = ScaleZoffset;
-    json["ScaleZoffsetBy"] = ScaleZoffsetBy;
+    json["ScaleOffsetTitleX"] = ScaleOffsetTitleX;
+    json["ScaleOffsetTitleY"] = ScaleOffsetTitleY;
+    json["ScaleOffsetTitleZ"] = ScaleOffsetTitleZ;
+
+    json["ScaleOffsetAxisX"] = ScaleOffsetAxisX;
+    json["ScaleOffsetAxisY"] = ScaleOffsetAxisY;
+    json["ScaleOffsetAxisZ"] = ScaleOffsetAxisZ;
 }
 
 void AMultidrawRecord::readFronJson(const QJsonObject & json)
@@ -57,12 +57,12 @@ void AMultidrawRecord::readFronJson(const QJsonObject & json)
     jstools::parseJson(json, "MarginBottom",   MarginBottom);
 
     jstools::parseJson(json, "ScaleLabels",    ScaleLabels);
-    jstools::parseJson(json, "ScaleLabelsBy",  ScaleLabelsBy);
 
-    jstools::parseJson(json, "ScaleXoffset",   ScaleXoffset);
-    jstools::parseJson(json, "ScaleXoffsetBy", ScaleXoffsetBy);
-    jstools::parseJson(json, "ScaleYoffset",   ScaleYoffset);
-    jstools::parseJson(json, "ScaleYoffsetBy", ScaleYoffsetBy);
-    jstools::parseJson(json, "ScaleZoffset",   ScaleZoffset);
-    jstools::parseJson(json, "ScaleZoffsetBy", ScaleZoffsetBy);
+    jstools::parseJson(json, "ScaleOffsetTitleX", ScaleOffsetTitleX);
+    jstools::parseJson(json, "ScaleOffsetTitleY", ScaleOffsetTitleY);
+    jstools::parseJson(json, "ScaleOffsetTitleZ", ScaleOffsetTitleZ);
+
+    jstools::parseJson(json, "ScaleOffsetAxisX", ScaleOffsetAxisX);
+    jstools::parseJson(json, "ScaleOffsetAxisY", ScaleOffsetAxisY);
+    jstools::parseJson(json, "ScaleOffsetAxisZ", ScaleOffsetAxisZ);
 }
