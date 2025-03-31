@@ -2154,7 +2154,12 @@ void AGraphWindow::onBasketCustomContextMenuRequested(const QPoint &pos)
     }
     else if (selectedItem == del)
     {
-        Basket->remove(row);
+        QString err = Basket->remove({row});
+        if (!err. isEmpty())
+        {
+            guitools::message(err, this);
+            return;
+        }
         ActiveBasketItem = -1;
         clearCopyOfActiveBasketId();
         updateBasketGUI();
@@ -2214,9 +2219,13 @@ void AGraphWindow::removeAllSelectedBasketItems()
     std::vector<int> indexes;
     for (const QListWidgetItem * item : selection)
         indexes.push_back(lwBasket->row(item));
-    std::sort(indexes.begin(), indexes.end());
-    for (int i = indexes.size() - 1; i >= 0; i--)
-        Basket->remove(indexes[i]);
+
+    QString err = Basket->remove(indexes);
+    if (!err.isEmpty())
+    {
+        guitools::message(err, this);
+        return;
+    }
 
     ActiveBasketItem = -1;
     clearCopyOfActiveBasketId();

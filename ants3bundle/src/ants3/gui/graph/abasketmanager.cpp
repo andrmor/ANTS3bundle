@@ -238,11 +238,81 @@ void ABasketManager::clear()
     Basket.clear();
 }
 
-void ABasketManager::remove(int index)
+std::vector<size_t> ABasketManager::getAllMultidrawsUsingIndex(size_t index)
 {
-    if (index < 0 || index >= Basket.size()) return;
-    Basket[index].clearObjects();
-    Basket.erase(Basket.begin() + index);
+    std::vector<size_t> ar;
+    for (size_t iM = 0; iM < Basket.size(); iM++)
+    {
+        if (!isMultidraw(iM)) continue;
+        if (isMemberOfSpecificMultidraw(index, iM)) ar.push_back(iM);
+    }
+    return ar;
+}
+
+QString ABasketManager::remove(std::vector<int> indexesToRemove)
+{
+    // check the possibility to remove the requested basket items
+    for (int iToRemove : indexesToRemove)
+    {
+        std::vector<size_t> arMultisUsingThis = getAllMultidrawsUsingIndex(iToRemove);
+        if (arMultisUsingThis.empty()) continue;
+
+        // if all multidraws using that index are also to be removed, do not block removal of the index
+        for (int iRem : indexesToRemove)
+        {
+            for (size_t i = 0; i < arMultisUsingThis.size(); i++)
+            {
+                const size_t iMult = arMultisUsingThis[i];
+                if (iMult == iRem) arMultisUsingThis.erase(arMultisUsingThis.begin() + i); // removing that multidraw, so not blocking
+            }
+        }
+        if (arMultisUsingThis.empty()) continue;
+
+        QString ret = QString("Basket item %0 cannot be removed.\nIt is used by multidraw%1").arg(getName(iToRemove)).arg(arMultisUsingThis.size() == 1 ? " " : "s:\n");
+        for (size_t i : arMultisUsingThis) ret += getName(i) + " ";
+        return ret;
+    }
+
+    std::sort(indexesToRemove.begin(), indexesToRemove.end());
+
+    // making mapping array to shift the entry indexes of the remaining multidraws
+    std::vector<size_t> mapping;
+    for (size_t i = 0; i < Basket.size(); i++) mapping.push_back(i);
+    const size_t oldSize = mapping.size();
+
+    // removing items
+    for (int i = indexesToRemove.size() - 1; i >= 0; i--)
+    {
+        int iToRemove = indexesToRemove[i];
+        if (iToRemove < 0 || iToRemove >= Basket.size()) continue;
+
+        Basket[iToRemove].clearObjects();
+        Basket.erase(Basket.begin() + iToRemove);
+        mapping.erase(mapping.begin() + iToRemove);
+    }
+
+    // inverting mapping array (will be newIndex[oldIndex])
+    std::vector<size_t> newIndexMap;
+    newIndexMap.resize(oldSize);
+    for (size_t iNewIndex = 0; iNewIndex < mapping.size(); iNewIndex++)  // [0,1,2,3,4] --> removed 1 and 3 --> mapping [0,2,4] --> old0 is 0; ol2 is 1; old 4 is 2
+    {
+        size_t oldIndex = mapping[iNewIndex];
+        newIndexMap[oldIndex] = iNewIndex;
+    }
+
+    // applying the shift in the multidraw indexing
+    for (ABasketItem & item : Basket)
+    {
+        if (item.DrawObjects.empty()) continue;
+        if (!item.DrawObjects.front().Multidraw) continue;
+
+        AMultidrawRecord & rec = item.DrawObjects.front().MultidrawSettings;
+
+        for (size_t i = 0; i < rec.BasketItems.size(); i++)
+            rec.BasketItems[i] = newIndexMap[rec.BasketItems[i]];
+    }
+
+    return "";
 }
 
 QString ABasketManager::getType(int index) const
@@ -294,6 +364,22 @@ bool ABasketManager::isMultidraw(int index) const
     if (index < 0 || index >= Basket.size()) return false;
     if (Basket[index].DrawObjects.empty()) return false;
     return Basket[index].DrawObjects.front().Multidraw;
+}
+
+bool ABasketManager::isMemberOfSpecificMultidraw(int index, int multidrawIndex)
+{
+    if (index < 0 || index >= Basket.size()) return false;
+    if (!isMultidraw(multidrawIndex)) return false;
+    if (Basket[multidrawIndex].DrawObjects.empty())
+    {
+        qWarning() << "Unexpected empty DrawObjects for a multidraw item";
+        return false;
+    }
+
+    for (int i : Basket[multidrawIndex].DrawObjects.front().MultidrawSettings.BasketItems)
+        if (i == index) return true;
+
+    return false;
 }
 
 void ABasketManager::saveAll(const QString & fileName)

@@ -19,7 +19,7 @@ public:
     std::vector<ADrawObject> getCopy(int index) const;  //returns deep copy
 
     void                clear();
-    void                remove(int index);
+    QString             remove(std::vector<int> indexesToRemove); // returns error if it was not possible to remove at least one item (part of a multidraw)
 
     QString             getType(int index) const;
 
@@ -30,6 +30,7 @@ public:
     QStringList         getItemNames() const;
 
     bool                isMultidraw(int index) const;
+    bool                isMemberOfSpecificMultidraw(int index, int multidrawIndex);
 
     void                saveAll(const QString & fileName);
 
@@ -48,6 +49,7 @@ private:
 
 private:
     int                 findPointerInDrawObjects(const std::vector<ADrawObject> & drawObjects, TObject * obj) const;
+    std::vector<size_t> getAllMultidrawsUsingIndex(size_t index);
 };
 
 #endif // ABASKETMANAGER_H
