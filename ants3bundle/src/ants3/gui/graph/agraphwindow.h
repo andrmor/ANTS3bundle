@@ -24,6 +24,7 @@ class TGaxis;
 class AMultiGraphDesigner;
 class AScriptInterface;
 class AViewer3D;
+class TPaveText;
 
 namespace Ui {
 class AGraphWindow;
@@ -184,39 +185,37 @@ private slots:
     void on_pbRemoveTextBox_clicked();
 
     void on_sbMultNumX_editingFinished();
-
-
     void on_sbMultNumY_editingFinished();
+    void on_cobXYorYX_activated(int index);
 
     void on_cbMultEnforceMargins_clicked(bool checked);
 
     void on_ledMultMarginLeft_editingFinished();
-
     void on_ledMultMarginRight_editingFinished();
-
     void on_ledMultMarginTop_editingFinished();
-
     void on_ledMultMarginBottom_editingFinished();
 
     void on_ledMultScaleLabels_editingFinished();
 
     void on_ledMultTitleScaleXoff_editingFinished();
-
     void on_ledMultTitleScaleYoff_editingFinished();
-
     void on_ledMultTitleScaleZoff_editingFinished();
 
     void on_ledMultAxisScaleXoff_editingFinished();
-
     void on_ledMultAxisScaleYoff_editingFinished();
-
     void on_ledMultAxisScaleZoff_editingFinished();
 
     //void on_ledMultScaleAxesLines_editingFinished(); // not possible in ROOT... hrm
 
     void on_ledMultScaleDrawLines_editingFinished();
-
     void on_ledMultScaleMarkers_editingFinished();
+
+    void on_cbMultiAddIdentifier_clicked(bool checked);
+
+
+    //void on_leMultiIdentifiers_editingFinished();
+
+    void on_pbMultiConfigureIdentifier_clicked();
 
 private:
     Ui::AGraphWindow       * ui = nullptr;
@@ -249,6 +248,7 @@ private:
     // Multidraw
     std::vector<APadProperties> Pads;
     void clearPads();
+    TPaveText * Pave = nullptr;
 
 private:
     // Canvas control
@@ -310,6 +310,8 @@ private:
 
     void redrawAll_Multidraw(ADrawObject & drawObj); // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     bool isMultidrawModeOn();
+    void onMultiIdentPaveChanged();
+    void onMultiIdentPaveTextChanged(QString text);
 
 signals:
     void requestLocalDrawObject(TObject *obj, QString options, bool fFocus);

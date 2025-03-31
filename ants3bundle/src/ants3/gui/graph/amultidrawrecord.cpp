@@ -22,6 +22,8 @@ void AMultidrawRecord::writeToJson(QJsonObject & json) const
     json["NumX"] = NumX;
     json["NumY"] = NumY;
 
+    json["XY"] = XY;
+
     json["EnforceMargins"] = EnforceMargins;
     json["MarginLeft"]     = MarginLeft;
     json["MarginRight"]    = MarginRight;
@@ -42,6 +44,14 @@ void AMultidrawRecord::writeToJson(QJsonObject & json) const
     json["ScaleDrawLines"] = ScaleDrawLines;
     json["ScaleMarkers"]   = ScaleMarkers;
 
+    json["ShowIdentifiers"] = ShowIdentifiers;
+    json["Identifiers"] = Identifiers;
+    json["IdentBoxX1"] = IdentBoxX1;
+    json["IdentBoxX2"] = IdentBoxX2;
+    json["IdentBoxY1"] = IdentBoxY1;
+    json["IdentBoxY2"] = IdentBoxY2;
+    json["IdentifiersShowFrame"] = IdentifiersShowFrame;
+    json["IdentifiersAlignment"] = IdentifiersAlignment;
 
 }
 
@@ -55,6 +65,8 @@ void AMultidrawRecord::readFronJson(const QJsonObject & json)
 
     jstools::parseJson(json, "NumX", NumX);
     jstools::parseJson(json, "NumY", NumY);
+
+    jstools::parseJson(json, "XY", XY);
 
     jstools::parseJson(json, "EnforceMargins", EnforceMargins);
     jstools::parseJson(json, "MarginLeft",     MarginLeft);
@@ -75,4 +87,14 @@ void AMultidrawRecord::readFronJson(const QJsonObject & json)
     //jstools::parseJson(json, "ScaleAxesLines", ScaleAxesLines);
     jstools::parseJson(json, "ScaleDrawLines", ScaleDrawLines);
     jstools::parseJson(json, "ScaleMarkers",   ScaleMarkers);
+
+    jstools::parseJson(json, "ShowIdentifiers", ShowIdentifiers);
+    jstools::parseJson(json, "Identifiers", Identifiers);
+    jstools::parseJson(json, "IdentBoxX1", IdentBoxX1);
+    jstools::parseJson(json, "IdentBoxX2", IdentBoxX2);
+    jstools::parseJson(json, "IdentBoxY1", IdentBoxY1);
+    jstools::parseJson(json, "IdentBoxY2", IdentBoxY2);
+    jstools::parseJson(json, "IdentifiersShowFrame", IdentifiersShowFrame);
+    jstools::parseJson(json, "IdentifiersAlignment", IdentifiersAlignment);
+
 }

@@ -1061,7 +1061,7 @@
          <property name="geometry">
           <rect>
            <x>10</x>
-           <y>614</y>
+           <y>519</y>
            <width>118</width>
            <height>7</height>
           </rect>
@@ -1113,7 +1113,7 @@
           </property>
          </item>
         </widget>
-        <widget class="QCheckBox" name="checkBox_2">
+        <widget class="QCheckBox" name="cbMultiAddIdentifier">
          <property name="geometry">
           <rect>
            <x>9</x>
@@ -1130,113 +1130,6 @@
          <property name="text">
           <string>Add identifier</string>
          </property>
-        </widget>
-        <widget class="QFrame" name="frame">
-         <property name="geometry">
-          <rect>
-           <x>3</x>
-           <y>490</y>
-           <width>131</width>
-           <height>124</height>
-          </rect>
-         </property>
-         <property name="frameShape">
-          <enum>QFrame::Shape::NoFrame</enum>
-         </property>
-         <property name="frameShadow">
-          <enum>QFrame::Shadow::Raised</enum>
-         </property>
-         <widget class="QLineEdit" name="lineEdit">
-          <property name="geometry">
-           <rect>
-            <x>3</x>
-            <y>3</y>
-            <width>125</width>
-            <height>25</height>
-           </rect>
-          </property>
-          <property name="text">
-           <string>A, B, C, D, E, F</string>
-          </property>
-         </widget>
-         <widget class="QCheckBox" name="checkBox_3">
-          <property name="geometry">
-           <rect>
-            <x>5</x>
-            <y>96</y>
-            <width>71</width>
-            <height>23</height>
-           </rect>
-          </property>
-          <property name="text">
-           <string>Border</string>
-          </property>
-         </widget>
-         <widget class="QPushButton" name="pushButton_2">
-          <property name="geometry">
-           <rect>
-            <x>79</x>
-            <y>95</y>
-            <width>45</width>
-            <height>25</height>
-           </rect>
-          </property>
-          <property name="text">
-           <string>Set</string>
-          </property>
-         </widget>
-         <widget class="QWidget" name="">
-          <property name="geometry">
-           <rect>
-            <x>4</x>
-            <y>33</y>
-            <width>121</width>
-            <height>58</height>
-           </rect>
-          </property>
-          <layout class="QGridLayout" name="gridLayout">
-           <item row="0" column="0">
-            <widget class="QLabel" name="label_38">
-             <property name="text">
-              <string>X0</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="1">
-            <widget class="QLineEdit" name="lineEdit_2"/>
-           </item>
-           <item row="0" column="2">
-            <widget class="QLabel" name="label_39">
-             <property name="text">
-              <string>Y</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="3">
-            <widget class="QLineEdit" name="lineEdit_3"/>
-           </item>
-           <item row="1" column="0">
-            <widget class="QLabel" name="label_41">
-             <property name="text">
-              <string>X</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="1">
-            <widget class="QLineEdit" name="lineEdit_5"/>
-           </item>
-           <item row="1" column="2">
-            <widget class="QLabel" name="label_40">
-             <property name="text">
-              <string>X</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="3">
-            <widget class="QLineEdit" name="lineEdit_4"/>
-           </item>
-          </layout>
-         </widget>
         </widget>
         <widget class="QLabel" name="label_31">
          <property name="geometry">
@@ -1275,6 +1168,19 @@
          </property>
          <property name="text">
           <string>Width/size:</string>
+         </property>
+        </widget>
+        <widget class="QPushButton" name="pbMultiConfigureIdentifier">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>492</y>
+           <width>111</width>
+           <height>25</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Configure</string>
          </property>
         </widget>
         <widget class="QWidget" name="">
@@ -2375,7 +2281,7 @@
        <property name="geometry">
         <rect>
          <x>15</x>
-         <y>624</y>
+         <y>528</y>
          <width>111</width>
          <height>25</height>
         </rect>

@@ -3,6 +3,8 @@
 
 #include <vector>
 
+#include <QString>
+
 class QJsonObject;
 
 class AMultidrawRecord
@@ -12,6 +14,8 @@ public:
 
     int    NumX = 2;
     int    NumY = 1;
+
+    bool   XY = true; // horizontal, else YX (vertical)
 
     bool   EnforceMargins = false;
     double MarginLeft   = 0.1;
@@ -32,6 +36,15 @@ public:
     //double ScaleAxesLines = 1.0;
     double ScaleDrawLines = 1.0;
     double ScaleMarkers   = 1.0;
+
+    bool   ShowIdentifiers = false;
+    QString Identifiers = "A,B,C,D,E,F,G,H";
+    double IdentBoxX1 = 0.2;
+    double IdentBoxX2 = 0.4;
+    double IdentBoxY1 = 0.75;
+    double IdentBoxY2 = 0.85;
+    bool   IdentifiersShowFrame = false;
+    int    IdentifiersAlignment = 0;
 
     void init();
 

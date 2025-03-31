@@ -805,6 +805,8 @@ void AGraphWindow::redrawAll_Multidraw(ADrawObject & drawObj)
     if (rec.NumY < 1) rec.NumY = 1;
     ui->sbMultNumY->setValue(rec.NumY);
 
+    ui->cobXYorYX->setCurrentIndex(rec.XY ? 0 : 1);
+
     ui->cbMultEnforceMargins->setChecked(rec.EnforceMargins);
     ui->ledMultMarginLeft->  setText(QString::number(rec.MarginLeft));
     ui->ledMultMarginRight-> setText(QString::number(rec.MarginRight));
@@ -823,6 +825,9 @@ void AGraphWindow::redrawAll_Multidraw(ADrawObject & drawObj)
 
     ui->ledMultScaleDrawLines->setText(QString::number(rec.ScaleDrawLines));
     ui->ledMultScaleMarkers->setText(QString::number(rec.ScaleMarkers));
+
+    ui->cbMultiAddIdentifier->setChecked(rec.ShowIdentifiers);
+    const QStringList idTexts = rec.Identifiers.split(',', Qt::SkipEmptyParts);
 
     double margin = 0;
     double padY   = 1.0 / rec.NumY;
@@ -928,6 +933,7 @@ void AGraphWindow::redrawAll_Multidraw(ADrawObject & drawObj)
                         for (const ADrawObject & drObj : DrawObjects)
                         {
                             TObject * tObj = drObj.Pointer;
+                            if (!tObj) continue;
                             if (rec.ScaleDrawLines)
                             {
                                 TAttLine * lineAtt = dynamic_cast<TAttLine*>(tObj);
@@ -938,8 +944,25 @@ void AGraphWindow::redrawAll_Multidraw(ADrawObject & drawObj)
                                 TAttMarker * markAtt = dynamic_cast<TAttMarker*>(tObj);
                                 if (markAtt) markAtt->SetMarkerSize(markAtt->GetMarkerSize() * rec.ScaleMarkers);
                             }
+
                             tObj->Draw(drObj.Options.toLatin1().data());
                             pad.tmpObjects.push_back(tObj);
+
+                            if (rec.ShowIdentifiers && iPad < idTexts.size())
+                            {
+                                TPaveText * idBox = new TPaveText;
+                                idBox->SetX1NDC(rec.IdentBoxX1);
+                                idBox->SetX2NDC(rec.IdentBoxX2);
+                                idBox->SetY1NDC(rec.IdentBoxY1);
+                                idBox->SetY2NDC(rec.IdentBoxY2);
+                                idBox->SetFillColor(0);
+                                //idBox->SetBorderSize(bShowFrame ? 1 : 0);
+                                idBox->SetLineColor(1);
+                                //idBox->SetTextAlign( (alignLeftCenterRight + 1) * 10 + 2);
+                                idBox->AddText(idTexts[iPad].simplified().toLatin1().data());
+                                idBox->Draw("same");
+                                pad.tmpObjects.push_back(idBox);
+                            }
                         }
                     }
                 }
@@ -3048,6 +3071,14 @@ void AGraphWindow::on_sbMultNumY_editingFinished()
     highlightUpdateBasketButton(true);
 }
 
+void AGraphWindow::on_cobXYorYX_activated(int index)
+{
+    if (!isMultidrawModeOn()) return;
+    DrawObjects.front().MultidrawSettings.XY = (index == 0 ? true : false);
+    redrawAll();
+    highlightUpdateBasketButton(true);
+}
+
 void AGraphWindow::on_cbMultEnforceMargins_clicked(bool checked)
 {
     if (!isMultidrawModeOn()) return;
@@ -3229,5 +3260,73 @@ void AGraphWindow::on_ledMultScaleMarkers_editingFinished()
     DrawObjects.front().MultidrawSettings.ScaleMarkers = val;
     redrawAll();
     highlightUpdateBasketButton(true);
+}
+
+void AGraphWindow::on_cbMultiAddIdentifier_clicked(bool checked)
+{
+    if (!isMultidrawModeOn()) return;
+    DrawObjects.front().MultidrawSettings.ShowIdentifiers = checked;
+    redrawAll();
+    highlightUpdateBasketButton(true);
+}
+
+/*
+void AGraphWindow::on_leMultiIdentifiers_editingFinished()
+{
+    if (!isMultidrawModeOn()) return;
+
+    const QString txt = ui->leMultiIdentifiers->text();
+    if (txt == DrawObjects.front().MultidrawSettings.Identifiers) return;
+
+    DrawObjects.front().MultidrawSettings.Identifiers = txt;
+    redrawAll();
+    highlightUpdateBasketButton(true);
+}
+*/
+
+void AGraphWindow::onMultiIdentPaveTextChanged(QString text)
+{
+    if (!isMultidrawModeOn()) return;
+    AMultidrawRecord & rec = DrawObjects.front().MultidrawSettings;
+    rec.Identifiers = text;
+    onMultiIdentPaveChanged();
+}
+
+void AGraphWindow::onMultiIdentPaveChanged()
+{
+    if (!isMultidrawModeOn()) return;
+    if (!Pave) return;
+
+    AMultidrawRecord & rec = DrawObjects.front().MultidrawSettings;
+    rec.IdentBoxX1 = Pave->GetX1NDC();
+    rec.IdentBoxX2 = Pave->GetX2NDC();
+    rec.IdentBoxY1 = Pave->GetY1NDC();
+    rec.IdentBoxY2 = Pave->GetY2NDC();
+
+    redrawAll();
+    highlightUpdateBasketButton(true);
+}
+
+#include "atextpavedialog.h"
+void AGraphWindow::on_pbMultiConfigureIdentifier_clicked()
+{
+    if (!isMultidrawModeOn()) return;
+
+    AMultidrawRecord & rec = DrawObjects.front().MultidrawSettings;
+    delete Pave; Pave = new TPaveText;
+    Pave->SetX1NDC(rec.IdentBoxX1);
+    Pave->SetX2NDC(rec.IdentBoxX2);
+    Pave->SetY1NDC(rec.IdentBoxY1);
+    Pave->SetY2NDC(rec.IdentBoxY2);
+    Pave->SetFillColor(0);
+    Pave->SetBorderSize(rec.IdentifiersShowFrame ? 1 : 0);
+    Pave->SetLineColor(1);
+    Pave->SetTextAlign( (rec.IdentifiersAlignment + 1) * 10 + 2);
+    Pave->AddText(rec.Identifiers.toLatin1().data());
+
+    ATextPaveDialog D(*Pave);
+    connect(&D, &ATextPaveDialog::requestRedraw, this, &AGraphWindow::onMultiIdentPaveChanged);
+    connect(&D, &ATextPaveDialog::textChanged,   this, &AGraphWindow::onMultiIdentPaveTextChanged);
+    D.exec();
 }
 
