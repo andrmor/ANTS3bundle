@@ -3,13 +3,15 @@
 
 #include <vector>
 
+class QJsonObject;
+
 class AMultidrawRecord
 {
 public:
     std::vector<int> BasketItems;
 
-    size_t NumX = 2;
-    size_t NumY = 1;
+    int    NumX = 2;
+    int    NumY = 1;
 
     bool   EnforceMargins = false;
     double MarginLeft   = 0.1;
@@ -28,6 +30,9 @@ public:
     double ScaleZoffsetBy = 1.0;
 
     void init();
+
+    void writeToJson(QJsonObject & json) const;
+    void readFronJson(const QJsonObject & json);
 };
 
 #endif // AMULTIDRAWRECORD_H

@@ -409,6 +409,7 @@ void ABasketManager::saveAll(const QString & fileName)
             js["Enabled"] = obj.bEnabled;
             js["LogX"] = obj.bLogScaleX;
             js["LogY"] = obj.bLogScaleY;
+
             TLegend * Legend = dynamic_cast<TLegend*>(obj.Pointer);
             if (Legend)
             {
@@ -459,10 +460,9 @@ QString ABasketManager::appendBasket(const QString & fileName)
 //    }
 
     bool ok = true;
-    TNamed* desc = (TNamed*)f.Get("BasketDescription_v2");
+    TNamed * desc = (TNamed*)f.Get("BasketDescription_v2");
     if (desc)
     {
-        //new system
         QString text = desc->GetTitle();
         QJsonDocument doc(QJsonDocument::fromJson(text.toLatin1().data()));
         QJsonArray BasketArray = doc.array();
@@ -550,101 +550,8 @@ QString ABasketManager::appendBasket(const QString & fileName)
     }
     else
     {
-        desc = (TNamed*)f.Get("BasketDescription");
-        if (desc)
-        {
-            //old system
-            QString text = desc->GetTitle();
-            //qDebug() << "Basket description:"<<text;
-            //qDebug() << "Number of keys:"<<f->GetListOfKeys()->GetEntries();
-
-            QStringList sl = text.split('\n', Qt::SkipEmptyParts);
-
-            int numLines = sl.size();
-            int basketSize =  numLines/2;
-            //qDebug() << "Description lists" << basketSize << "objects in the basket";
-
-
-            int indexFileObject = 0;
-            if (numLines % 2 == 0 ) // should be even number of lines
-            {
-                for (int iDrawObject = 0; iDrawObject < basketSize; iDrawObject++ )
-                {
-                    //qDebug() << ">>>>Object #"<< iDrawObject;
-                    QString name = sl[iDrawObject*2];
-                    bool ok;
-                    QStringList fields = sl[iDrawObject*2+1].split('|');
-                    if (fields.size()<2)
-                    {
-                        qWarning()<<"Too short descr line";
-                        ok=false;
-                        break;
-                    }
-
-                    const QString sNumber = fields[0];
-
-                    int numObj = sNumber.toInt(&ok);
-                    if (!ok)
-                    {
-                        qWarning() << "Num obj convertion error!";
-                        ok=false;
-                        break;
-                    }
-                    if (numObj != fields.size()-1)
-                    {
-                        qWarning()<<"Number of objects vs option strings mismatch:"<<numObj<<fields.size()-1;
-                        ok=false;
-                        break;
-                    }
-
-                    //qDebug() << "Name:"<< name << "objects:"<< numObj;
-
-                    std::vector<ADrawObject> drawObjects;
-                    for (int iDrawObj = 0; iDrawObj < numObj; iDrawObj++)
-                    {
-                        TKey *key = (TKey*)f.GetListOfKeys()->At(indexFileObject++);
-                        //key->SetMotherDir(0);
-                        //QString type = key->GetClassName();
-                        //TString objName = key->GetName();
-                        //qDebug() << "-->"<< iDrawObj <<"   "<<objName<<"  "<<type<<"   "<<fields[iDrawObj+1];
-
-                        TObject * p = key->ReadObj();
-                        if (p) drawObjects.push_back( ADrawObject(p, fields[iDrawObj+1]) );
-                        //qDebug() << p;
-
-                        /*
-                    TLegend * Legend = dynamic_cast<TLegend*>(p);
-                    if (Legend)
-                    {
-                        TList * elist = Legend->GetListOfPrimitives();
-                        int num = elist->GetEntries();
-                        for (int ie = 0; ie < num; ie++)
-                        {
-                            TLegendEntry * en = static_cast<TLegendEntry*>( (*elist).At(ie));
-                            qDebug() << "Entry obj:"<< en->GetObject();
-                        }
-                    }
-                    */
-                    }
-
-                    if (!drawObjects.empty())
-                    {
-                        ABasketItem item;
-                        item.Name = name;
-                        item.DrawObjects = drawObjects;
-                        item.Type = drawObjects.front().Pointer->ClassName();
-                        Basket.push_back(item);
-                        drawObjects.clear();
-                    }
-                }
-            }
-            else ok = false;
-        }
-        else
-        {
-            f.Close();
-            return QString("%1: this is not a valid ANTS2 basket file!").arg(fileName);
-        }
+        f.Close();
+        return QString("%1: this is not a valid ANTS3 basket file!").arg(fileName);
     }
 
     f.Close();

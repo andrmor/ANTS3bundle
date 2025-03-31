@@ -8,6 +8,7 @@
 
 class TObject;
 class AMultidrawRecord;
+class QJsonObject;
 
 class ADrawObject
 {
@@ -30,6 +31,9 @@ public:
     AMultidrawRecord MultidrawSettings;
 
     ADrawMarginsRecord CustomMargins;
+
+    void writeToJson(QJsonObject & json) const;
+    void readFromJson(const QJsonObject & json);
 
 private:
     void extractName();
