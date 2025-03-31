@@ -384,31 +384,33 @@ bool ABasketManager::isMemberOfSpecificMultidraw(int index, int multidrawIndex)
 
 void ABasketManager::saveAll(const QString & fileName)
 {
-    TFile f(fileName.toLocal8Bit(), "RECREATE");
+    TFile basketFile(fileName.toLocal8Bit().data(), "RECREATE");
 
     int objectIndex = 0;
-    QJsonArray BasketArray;
+    QJsonArray basketJAr;
     for (size_t ib = 0; ib < Basket.size(); ib++)
     {
-        QJsonObject ItemJson;
-        ItemJson["ItemName"] = Basket.at(ib).Name;
+        QJsonObject itemJson;
+        itemJson["ItemName"] = Basket[ib].Name;
 
-        QJsonArray ItemArray;
-        const std::vector<ADrawObject> & DrawObjects = Basket[ib].DrawObjects;
-        for (size_t io = 0; io < DrawObjects.size(); io++)
+        QJsonArray itemArray;
+        const std::vector<ADrawObject> & drawObjects = Basket[ib].DrawObjects;
+        for (size_t io = 0; io < drawObjects.size(); io++)
         {
-            const ADrawObject & obj = DrawObjects.at(io);
-            TString KeyName = "#";
-            KeyName += objectIndex;
+            const ADrawObject & obj = drawObjects[io];
+            TString keyName = "#";
+            keyName += objectIndex;
             objectIndex++;
-            obj.Pointer->Write(KeyName);
+
+            if (obj.Pointer) obj.Pointer->Write(keyName);
+            else
+            {
+                TNamed dummy("Dummy", "Dummy");
+                dummy.Write(keyName);
+            }
 
             QJsonObject js;
-            js["Name"] = obj.Name;
-            js["Options"] = obj.Options;
-            js["Enabled"] = obj.bEnabled;
-            js["LogX"] = obj.bLogScaleX;
-            js["LogY"] = obj.bLogScaleY;
+            obj.writeToJson(js);
 
             TLegend * Legend = dynamic_cast<TLegend*>(obj.Pointer);
             if (Legend)
@@ -420,27 +422,27 @@ void ABasketManager::saveAll(const QString & fileName)
                 {
                     TLegendEntry * en = static_cast<TLegendEntry*>( (*elist).At(ie));
                     //qDebug() << "Entry obj:"<< en->GetObject();
-                    links.append(findPointerInDrawObjects(DrawObjects, en->GetObject()));
+                    links.append(findPointerInDrawObjects(drawObjects, en->GetObject()));
                 }
                 js["LegendLinks"] = links;
             }
-            ItemArray.append(js);
+            itemArray.append(js);
         }
-        ItemJson["ItemObjects"] = ItemArray;
+        itemJson["ItemObjects"] = itemArray;
 
-        BasketArray.append(ItemJson);
+        basketJAr.append(itemJson);
     }
 
     QJsonDocument doc;
-    doc.setArray(BasketArray);
+    doc.setArray(basketJAr);
     QString descStr(doc.toJson());
-    qDebug() << descStr;
+    //qDebug() << descStr;
 
     TNamed desc;
     desc.SetTitle(descStr.toLocal8Bit().data());
     desc.Write("BasketDescription_v2");
 
-    f.Close();
+    basketFile.Close();
 }
 
 QString ABasketManager::appendBasket(const QString & fileName)
@@ -466,18 +468,16 @@ QString ABasketManager::appendBasket(const QString & fileName)
         QString text = desc->GetTitle();
         QJsonDocument doc(QJsonDocument::fromJson(text.toLatin1().data()));
         QJsonArray BasketArray = doc.array();
-        //qDebug() << BasketArray;
 
         int basketSize = BasketArray.size();
         int KeyIndex = 0;
         for (int iBasketItem = 0; iBasketItem < basketSize; iBasketItem++ )
         {
             QJsonObject ItemJson = BasketArray[iBasketItem].toObject();
-            //qDebug() << "Item"<<iBasketItem << ItemJson;
 
-            QString    ItemName  = ItemJson["ItemName"].toString();
-            QJsonArray ItemArray = ItemJson["ItemObjects"].toArray();
-            int        ItemSize  = ItemArray.size();
+            QString     ItemName  = ItemJson["ItemName"].toString();
+            QJsonArray  ItemArray = ItemJson["ItemObjects"].toArray();
+            int         ItemSize  = ItemArray.size();
 
             std::vector<ADrawObject> drawObjects;
             int LegendIndex = -1;
@@ -485,23 +485,16 @@ QString ABasketManager::appendBasket(const QString & fileName)
             for (int iDrawObj = 0; iDrawObj < ItemSize; iDrawObj++)
             {
                 QJsonObject js = ItemArray[iDrawObj].toObject();
-                QString Name     = js["Name"].toString();
-                QString Options  = js["Options"].toString();
-                bool    bEnabled = js["Enabled"].toBool();
-                bool    bLogX    = false; jstools::parseJson(js, "LogX", bLogX);
-                bool    bLogY    = false; jstools::parseJson(js, "LogY", bLogY);
 
-                TKey *key = (TKey*)f.GetListOfKeys()->At(KeyIndex);
+                QString name = js["Name"].toString();
+                TKey * key = (TKey*)f.GetListOfKeys()->At(KeyIndex);
                 KeyIndex++;
 
                 TObject * p = key->ReadObj();
                 if (p)
                 {
-                    ADrawObject Obj(p, Options);
-                    Obj.Name = Name;
-                    Obj.bEnabled = bEnabled;
-                    Obj.bLogScaleX = bLogX;
-                    Obj.bLogScaleY = bLogY;
+                    ADrawObject Obj(p, "");
+                    Obj.readFromJson(js);
                     drawObjects.push_back(Obj);
 
                     TLegend * Legend = dynamic_cast<TLegend*>(p);
@@ -513,9 +506,9 @@ QString ABasketManager::appendBasket(const QString & fileName)
                 }
                 else
                 {
-                    TString nm(QString("Corrupted_%1").arg(Name).toLatin1().data());
-                    p = new TNamed(nm , nm);
-                    qWarning() << "Corrupted TKey in basket file" << fileName << " object:" << Name;
+                    TString nm( QString("Corrupted_%1").arg(name).toLatin1().data() );
+                    p = new TNamed(nm, nm);
+                    qWarning() << "Corrupted TKey in basket file" << fileName << " object:" << name;
                 }
             }
 

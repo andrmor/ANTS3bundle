@@ -44,7 +44,7 @@ void ADrawObject::writeToJson(QJsonObject & json) const
     {
         QJsonObject js;
         MultidrawSettings.writeToJson(js);
-        js["Multidraw"] = js;
+        json["Multidraw"] = js;
     }
 }
 
