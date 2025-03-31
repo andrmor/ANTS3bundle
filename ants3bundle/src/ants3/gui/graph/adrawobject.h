@@ -35,6 +35,8 @@ public:
     void writeToJson(QJsonObject & json) const;
     void readFromJson(const QJsonObject & json);
 
+    void shiftMultidrawIndexesBy(int val);
+
 private:
     void extractName();
 };

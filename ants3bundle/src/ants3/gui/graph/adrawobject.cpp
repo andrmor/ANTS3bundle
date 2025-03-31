@@ -60,3 +60,9 @@ void ADrawObject::readFromJson(const QJsonObject & json)
     Multidraw = jstools::parseJson(json, "Multidraw", js);
     if (Multidraw) MultidrawSettings.readFronJson(js);
 }
+
+void ADrawObject::shiftMultidrawIndexesBy(int val)
+{
+    for (size_t i = 0; i < MultidrawSettings.BasketItems.size(); i++)
+        MultidrawSettings.BasketItems[i] += val;
+}

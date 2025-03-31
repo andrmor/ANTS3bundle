@@ -461,6 +461,8 @@ QString ABasketManager::appendBasket(const QString & fileName)
 //        qDebug() << title << ObjName << type;
 //    }
 
+    size_t oldBasketSize = Basket.size();
+
     TNamed * desc = (TNamed*)f.Get("BasketDescription_v2");
     if (!desc)
     {
@@ -498,6 +500,7 @@ QString ABasketManager::appendBasket(const QString & fileName)
             {
                 ADrawObject drawObj(tObj, "");
                 drawObj.readFromJson(js);
+                if (drawObj.Multidraw && oldBasketSize != 0) drawObj.shiftMultidrawIndexesBy(oldBasketSize);
                 drawObjects.push_back(drawObj);
 
                 TLegend * legend = dynamic_cast<TLegend*>(tObj);
