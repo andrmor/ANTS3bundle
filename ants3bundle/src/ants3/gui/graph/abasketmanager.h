@@ -39,7 +39,7 @@ public:
     QString             appendTxtAsGraphErrors(const QString & fileName);
     void                appendRootHistGraphs(const QString & fileName);
 
-    void                reorder(const std::vector<int> & indexes, int to);
+    void                reorder(const std::vector<int> & indexes, int to); // assume uniqueness of indexes
 
     QString             mergeHistograms(const std::vector<int> & indexes);
 

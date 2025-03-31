@@ -626,23 +626,69 @@ void ABasketManager::appendRootHistGraphs(const QString & fileName)
 
 void ABasketManager::reorder(const std::vector<int> & indexes, int to)
 {
-    std::vector<ABasketItem> ItemsToMove;
+    std::vector<ABasketItem> itemsToMove;
     for (size_t i = 0; i < indexes.size(); i++)
     {
         const int index = indexes[i];
-        ItemsToMove.push_back( Basket[index] );
-        Basket[index]._flag = true;       // mark to be deleted
+        itemsToMove.push_back( Basket[index] );
+        Basket[index]._toErase = true;
     }
 
-    for (size_t i = 0; i < ItemsToMove.size(); i++)
+    int toCopy = to;
+    for (size_t i = 0; i < itemsToMove.size(); i++)
     {
-        Basket.insert(Basket.begin() + to, ItemsToMove[i]);
+        Basket.insert(Basket.begin() + to, itemsToMove[i]);
         to++;
     }
 
     for (int i = Basket.size()-1; i >= 0; i--)
-        if (Basket[i]._flag)
+        if (Basket[i]._toErase)
             Basket.erase(Basket.begin() + i);
+
+    // creating mapping to update indexes of multidraw items
+    std::vector<int> mapping;
+    for (size_t i = 0; i < Basket.size(); i++) mapping.push_back(i);
+    for (size_t iMoved = 0; iMoved < indexes.size(); iMoved++)
+    {
+        int indexMoved = indexes[iMoved];
+        for (size_t i = 0; i < mapping.size(); i++)
+        {
+            if (mapping[i] == indexMoved)
+            {
+                mapping[i] = -1; // marker to be removed after insertion
+                break;
+            }
+        }
+    }
+    for (size_t iMoved = 0; iMoved < indexes.size(); iMoved++)
+    {
+        int indexMoved = indexes[iMoved];
+        mapping.insert(mapping.begin() + toCopy, indexMoved);
+        toCopy++;
+    }
+    for (int i = mapping.size()-1; i >= 0; i--)
+        if (mapping[i] == -1) mapping.erase(mapping.begin() + i);
+
+    // inverting mapping array (will be newIndex[oldIndex])
+    std::vector<size_t> newIndexMap;  // new[old], but mapping is the list of old indexes
+    newIndexMap.resize(mapping.size());
+    for (size_t iNewIndex = 0; iNewIndex < mapping.size(); iNewIndex++)  // similar to remove: [0,1,2,3,4] --> removed 1 and 3 --> mapping [0,2,4] --> old0 is 0; ol2 is 1; old 4 is 2
+    {
+        size_t oldIndex = mapping[iNewIndex];
+        newIndexMap[oldIndex] = iNewIndex;
+    }
+
+    // applying the shift in the multidraw indexing
+    for (ABasketItem & item : Basket)
+    {
+        if (item.DrawObjects.empty()) continue;
+        if (!item.DrawObjects.front().Multidraw) continue;
+
+        AMultidrawRecord & rec = item.DrawObjects.front().MultidrawSettings;
+
+        for (size_t i = 0; i < rec.BasketItems.size(); i++)
+            rec.BasketItems[i] = newIndexMap[rec.BasketItems[i]];
+    }
 }
 
 #include "aroothistappenders.h"
