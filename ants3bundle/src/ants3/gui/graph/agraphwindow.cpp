@@ -2329,6 +2329,16 @@ void AGraphWindow::requestMultidrawNew()
 {
     const QList<QListWidgetItem*> selection = lwBasket->selectedItems();
 
+    for (const QListWidgetItem * const item : selection)
+    {
+        int index = lwBasket->row(item);
+        if (Basket->isMultidraw(index))
+        {
+            guitools::message("Cannot form a multipad view:\nOne of the selected basket items is already a multipad view", this);
+            return;
+        }
+    }
+
     ADrawObject obj;
     obj.Multidraw = true;
 

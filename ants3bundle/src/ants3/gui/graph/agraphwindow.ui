@@ -51,7 +51,7 @@
        </size>
       </property>
       <property name="frameShape">
-       <enum>QFrame::Shape::Box</enum>
+       <enum>QFrame::Shape::NoFrame</enum>
       </property>
       <property name="frameShadow">
        <enum>QFrame::Shadow::Raised</enum>
@@ -891,7 +891,7 @@
         <widget class="QLabel" name="label_30">
          <property name="geometry">
           <rect>
-           <x>9</x>
+           <x>18</x>
            <y>8</y>
            <width>111</width>
            <height>20</height>
@@ -903,7 +903,7 @@
           </font>
          </property>
          <property name="text">
-          <string>Multipad draw</string>
+          <string>Multipad view</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignmentFlag::AlignCenter</set>
@@ -1355,7 +1355,7 @@
            <widget class="QFrame" name="fRuler">
             <property name="geometry">
              <rect>
-              <x>5</x>
+              <x>-1</x>
               <y>10</y>
               <width>150</width>
               <height>391</height>
