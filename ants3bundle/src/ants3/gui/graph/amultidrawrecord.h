@@ -43,8 +43,13 @@ public:
     double IdentBoxX2 = 0.4;
     double IdentBoxY1 = 0.75;
     double IdentBoxY2 = 0.85;
-    bool   IdentifiersShowFrame = false;
-    int    IdentifiersAlignment = 0;
+    int    IdentBoxTextColor = 1;
+    int    IdentBoxTextAlign = 1;
+    int    IdentBoxTextFont  = 42;
+    double IdentBoxTextSize  = 0.15;
+    int    IdentBoxBorderColor = 1;
+    int    IdentBoxBorderWidth = 0;
+    int    IdentBoxBorderStyle = 1;
 
     void init();
 

@@ -50,8 +50,13 @@ void AMultidrawRecord::writeToJson(QJsonObject & json) const
     json["IdentBoxX2"] = IdentBoxX2;
     json["IdentBoxY1"] = IdentBoxY1;
     json["IdentBoxY2"] = IdentBoxY2;
-    json["IdentifiersShowFrame"] = IdentifiersShowFrame;
-    json["IdentifiersAlignment"] = IdentifiersAlignment;
+    json["IdentBoxTextColor"] = IdentBoxTextColor;
+    json["IdentBoxTextAlign"] = IdentBoxTextAlign;
+    json["IdentBoxTextFont"]  = IdentBoxTextFont;
+    json["IdentBoxTextSize"]  = IdentBoxTextSize;
+    json["IdentBoxBorderColor"] = IdentBoxBorderColor;
+    json["IdentBoxBorderWidth"] = IdentBoxBorderWidth;
+    json["IdentBoxBorderStyle"] = IdentBoxBorderStyle;
 
 }
 
@@ -94,7 +99,13 @@ void AMultidrawRecord::readFronJson(const QJsonObject & json)
     jstools::parseJson(json, "IdentBoxX2", IdentBoxX2);
     jstools::parseJson(json, "IdentBoxY1", IdentBoxY1);
     jstools::parseJson(json, "IdentBoxY2", IdentBoxY2);
-    jstools::parseJson(json, "IdentifiersShowFrame", IdentifiersShowFrame);
-    jstools::parseJson(json, "IdentifiersAlignment", IdentifiersAlignment);
+
+    jstools::parseJson(json, "IdentBoxTextColor", IdentBoxTextColor);
+    jstools::parseJson(json, "IdentBoxTextAlign", IdentBoxTextAlign);
+    jstools::parseJson(json, "IdentBoxTextFont",  IdentBoxTextFont);
+    jstools::parseJson(json, "IdentBoxTextSize",  IdentBoxTextSize);
+    jstools::parseJson(json, "IdentBoxBorderColor", IdentBoxBorderColor);
+    jstools::parseJson(json, "IdentBoxBorderWidth", IdentBoxBorderWidth);
+    jstools::parseJson(json, "IdentBoxBorderStyle", IdentBoxBorderStyle);
 
 }

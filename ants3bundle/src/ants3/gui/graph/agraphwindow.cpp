@@ -984,11 +984,18 @@ void AGraphWindow::redrawAll_Multidraw(ADrawObject & drawObj)
                                 idBox->SetX2NDC(rec.IdentBoxX2);
                                 idBox->SetY1NDC(rec.IdentBoxY1);
                                 idBox->SetY2NDC(rec.IdentBoxY2);
-                                idBox->SetFillColor(0);
-                                //idBox->SetBorderSize(bShowFrame ? 1 : 0);
-                                idBox->SetLineColor(1);
-                                //idBox->SetTextAlign( (alignLeftCenterRight + 1) * 10 + 2);
+                                idBox->SetTextColor(rec.IdentBoxTextColor);
+                                //Pave->SetTextAlign(rec.IdentBoxTextAlign);
+                                idBox->SetTextAlign( (rec.IdentBoxTextAlign + 1) * 10 + 2 );
+                                idBox->SetTextFont(rec.IdentBoxTextFont);
+                                idBox->SetTextSize(rec.IdentBoxTextSize);
+                                //qDebug() << rec.IdentBoxTextFont<< rec.IdentBoxTextSize;
+                                idBox->SetLineColor(rec.IdentBoxBorderColor);
+                                idBox->SetLineWidth(rec.IdentBoxBorderWidth);
+                                idBox->SetLineStyle(rec.IdentBoxBorderStyle);
                                 idBox->AddText(idTexts[iPad].simplified().toLatin1().data());
+                                idBox->SetFillStyle(0);
+                                idBox->SetFillColor(0);
                                 idBox->Draw("same");
                                 pad.tmpObjects.push_back(idBox);
                             }
@@ -3318,6 +3325,15 @@ void AGraphWindow::onMultiIdentPaveChanged()
     rec.IdentBoxY1 = Pave->GetY1NDC();
     rec.IdentBoxY2 = Pave->GetY2NDC();
 
+    rec.IdentBoxTextColor = Pave->GetTextColor();
+    rec.IdentBoxTextAlign = (Pave->GetTextAlign() - 2) / 10 - 1; // reverse of (rec.IdentBoxTextAlign + 1) * 10 + 2
+    rec.IdentBoxTextFont  = Pave->GetTextFont();
+    rec.IdentBoxTextSize  = Pave->GetTextSize();
+
+    rec.IdentBoxBorderColor = Pave->GetLineColor();
+    rec.IdentBoxBorderWidth = Pave->GetLineWidth();
+    rec.IdentBoxBorderStyle = Pave->GetLineStyle();
+
     redrawAll();
     highlightUpdateBasketButton(true);
 }
@@ -3329,14 +3345,24 @@ void AGraphWindow::on_pbMultiConfigureIdentifier_clicked()
 
     AMultidrawRecord & rec = DrawObjects.front().MultidrawSettings;
     delete Pave; Pave = new TPaveText;
+
     Pave->SetX1NDC(rec.IdentBoxX1);
     Pave->SetX2NDC(rec.IdentBoxX2);
     Pave->SetY1NDC(rec.IdentBoxY1);
     Pave->SetY2NDC(rec.IdentBoxY2);
+
+    Pave->SetTextColor(rec.IdentBoxTextColor);
+    //Pave->SetTextAlign(rec.IdentBoxTextAlign);
+    Pave->SetTextAlign( (rec.IdentBoxTextAlign + 1) * 10 + 2 );
+    Pave->SetTextFont(rec.IdentBoxTextFont);
+    Pave->SetTextSize(rec.IdentBoxTextSize);
+
+    Pave->SetLineColor(rec.IdentBoxBorderColor);
+    Pave->SetLineWidth(rec.IdentBoxBorderWidth);
+    Pave->SetLineStyle(rec.IdentBoxBorderStyle);
+
     Pave->SetFillColor(0);
-    Pave->SetBorderSize(rec.IdentifiersShowFrame ? 1 : 0);
     Pave->SetLineColor(1);
-    Pave->SetTextAlign( (rec.IdentifiersAlignment + 1) * 10 + 2);
     Pave->AddText(rec.Identifiers.toLatin1().data());
 
     ATextPaveDialog D(*Pave);
