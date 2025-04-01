@@ -13,7 +13,6 @@
 #include "abasketmanager.h"
 #include "adrawexplorerwidget.h"
 #include "abasketlistwidget.h"
-#include "amultigraphdesigner.h"
 #include "adrawtemplate.h"
 #include "ascripthub.h"
 #include "agraphwin_si.h"
@@ -2049,8 +2048,6 @@ void AGraphWindow::updateBasketGUI()
     ui->pbUpdateInBasket->setEnabled(ActiveBasketItem >= 0);
 
     if (ActiveBasketItem < 0) highlightUpdateBasketButton(false);
-
-    if (MGDesigner) MGDesigner->updateBasketGUI();
 }
 
 void AGraphWindow::onBasketItemDoubleClicked(QListWidgetItem *)
@@ -2253,8 +2250,7 @@ void AGraphWindow::onBasketReorderRequested(const std::vector<int> & indexes, in
 void AGraphWindow::contextMenuForBasketMultipleSelection(const QPoint & pos)
 {
     QMenu Menu;
-    QAction * multidrawNewA = Menu.addAction("Make multidraw (create basket item)");
-    QAction * multidrawA = Menu.addAction("Make multidraw");
+    QAction * multidrawNewA = Menu.addAction("Make multipad view (creates and opens new basket item)");
     QAction * mergeA = Menu.addAction("Merge histograms");
     QAction * removeAllSelected = Menu.addAction("Remove all selected");
     removeAllSelected->setShortcut(Qt::Key_Delete);
@@ -2263,7 +2259,6 @@ void AGraphWindow::contextMenuForBasketMultipleSelection(const QPoint & pos)
     if (!selectedItem) return;
 
     if      (selectedItem == removeAllSelected) removeAllSelectedBasketItems();
-    else if (selectedItem == multidrawA)        requestMultidraw();
     else if (selectedItem == mergeA)            requestMergeHistograms();
     else if (selectedItem == multidrawNewA)     requestMultidrawNew();
 }
@@ -2302,29 +2297,6 @@ void AGraphWindow::onExternalBasketChange()
     updateBasketGUI();
 }
 
-void AGraphWindow::createMGDesigner()
-{
-    if (!MGDesigner)
-    {
-        MGDesigner = new AMultiGraphDesigner(*Basket, this);
-        connect(MGDesigner, &AMultiGraphDesigner::basketChanged, this, &AGraphWindow::onExternalBasketChange);
-    }
-}
-
-void AGraphWindow::requestMultidraw()
-{
-    const QList<QListWidgetItem*> selection = lwBasket->selectedItems();
-
-    std::vector<int> indexes;
-    for (const QListWidgetItem * const item : selection)
-        indexes.push_back( lwBasket->row(item) );
-
-    if (!MGDesigner) createMGDesigner();
-    MGDesigner->showNormal();
-    MGDesigner->activateWindow();
-    MGDesigner->requestAutoconfigureAndDraw(indexes);
-}
-
 void AGraphWindow::requestMultidrawNew()
 {
     const QList<QListWidgetItem*> selection = lwBasket->selectedItems();
@@ -2350,7 +2322,7 @@ void AGraphWindow::requestMultidrawNew()
     obj.MultidrawSettings.init();
 
     std::vector<ADrawObject> tmp = {obj};
-    Basket->add("DummyMulti", tmp);
+    Basket->add("NewMultipadView", tmp);
 
     switchToBasket(Basket->size() - 1);
 }
@@ -2898,14 +2870,6 @@ void AGraphWindow::on_actionShow_first_drawn_object_context_menu_triggered()
 void AGraphWindow::on_pbManipulate_clicked()
 {
     Explorer->manipulateTriggered();
-}
-
-void AGraphWindow::on_actionOpen_MultiGraphDesigner_triggered()
-{
-    if (!MGDesigner) createMGDesigner();
-    MGDesigner->showNormal();
-    MGDesigner->activateWindow();
-    //MGDesigner->updateGUI();
 }
 
 void AGraphWindow::show3D(QString castorFileName, bool keepSettings)

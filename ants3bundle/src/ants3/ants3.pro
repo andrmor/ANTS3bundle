@@ -190,7 +190,6 @@ SOURCES += \
     gui/graph/adrawtemplate.cpp \
     gui/graph/alegenddialog.cpp \
     gui/graph/alinemarkerfilldialog.cpp \
-    gui/graph/amultigraphdesigner.cpp \
     gui/graph/apadgeometry.cpp \
     gui/graph/apadproperties.cpp \
     gui/graph/arootcolorselectordialog.cpp \
@@ -441,7 +440,6 @@ HEADERS += \
     gui/graph/adrawtemplate.h \
     gui/graph/alegenddialog.h \
     gui/graph/alinemarkerfilldialog.h \
-    gui/graph/amultigraphdesigner.h \
     gui/graph/apadgeometry.h \
     gui/graph/apadproperties.h \
     gui/graph/arootcolorselectordialog.h \
@@ -636,7 +634,6 @@ FORMS += \
         gui/graph/aaxesdialog.ui \
         gui/graph/alegenddialog.ui \
         gui/graph/alinemarkerfilldialog.ui \
-        gui/graph/amultigraphdesigner.ui \
         gui/graph/arootcolorselectordialog.ui \
         gui/graph/atemplateselectiondialog.ui \
         gui/graph/atextpavedialog.ui \

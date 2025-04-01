@@ -21,7 +21,6 @@ class ADrawExplorerWidget;
 class ABasketListWidget;
 class TLegend;
 class TGaxis;
-class AMultiGraphDesigner;
 class AScriptInterface;
 class AViewer3D;
 class TPaveText;
@@ -175,7 +174,6 @@ private slots:
     void on_actionApply_template_triggered();
     void on_actionApply_selective_triggered();
     void on_actionShow_first_drawn_object_context_menu_triggered();
-    void on_actionOpen_MultiGraphDesigner_triggered();
     void on_actionSet_default_margins_triggered();
     void on_actionSave_image_2_triggered();
     void on_actionCopy_image_to_clipboard_triggered();
@@ -227,7 +225,6 @@ private:
     AGraphRasterWindow     * RasterWindow = nullptr;
     QGraphicsView          * gvOverlay    = nullptr;
     AToolboxScene          * ToolBoxScene = nullptr;
-    AMultiGraphDesigner    * MGDesigner   = nullptr;
     AViewer3D              * Viewer3D     = nullptr;
 
     std::vector<ADrawObject> DrawObjects;         //always local objects -> can have a copy from the Basket
@@ -268,7 +265,6 @@ private:
     void drawSingleObject(TObject * obj, QString options, bool update);
     void registerTObject(TObject * obj);
     void clearRegisteredTObjects();
-    void requestMultidraw();
     void requestMultidrawNew();  // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     void doRedrawOnUpdateMargins();
     void updateGuiControlsForMainObject(const QString & className, const QString & options);
@@ -280,7 +276,6 @@ private:
     void setShowCursorPosition(bool flag);
     void fixGraphFrame();
     void updateLogScaleFlags(std::vector<ADrawObject> & drawObjects) const;
-    void createMGDesigner();
     void connectScriptUnitDrawRequests(const std::vector<AScriptInterface *> interfaces);
     void updateMargins(ADrawObject * obj = nullptr);
     TLegend * addLegend();
