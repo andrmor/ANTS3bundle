@@ -3371,3 +3371,13 @@ void AGraphWindow::on_pbMultiConfigureIdentifier_clicked()
     D.exec();
 }
 
+void AGraphWindow::on_pbMultiSaveImage_clicked()
+{
+    on_pbSaveImage_clicked();
+}
+
+void AGraphWindow::on_pbMultiSaveImage_customContextMenuRequested(const QPoint &pos)
+{
+    on_pbSaveImage_customContextMenuRequested(pos);
+}
+
