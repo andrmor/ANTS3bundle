@@ -1183,7 +1183,7 @@
           <string>Configure</string>
          </property>
         </widget>
-        <widget class="QWidget" name="">
+        <widget class="QWidget" name="layoutWidget">
          <property name="geometry">
           <rect>
            <x>4</x>
@@ -1254,7 +1254,7 @@
           </item>
          </layout>
         </widget>
-        <widget class="QWidget" name="">
+        <widget class="QWidget" name="layoutWidget">
          <property name="geometry">
           <rect>
            <x>5</x>
@@ -1291,6 +1291,24 @@
            <widget class="QLineEdit" name="ledMultScaleMarkers"/>
           </item>
          </layout>
+        </widget>
+        <widget class="QPushButton" name="pushButton">
+         <property name="geometry">
+          <rect>
+           <x>11</x>
+           <y>525</y>
+           <width>111</width>
+           <height>25</height>
+          </rect>
+         </property>
+         <property name="font">
+          <font>
+           <fontweight>Medium</fontweight>
+          </font>
+         </property>
+         <property name="text">
+          <string>Save image</string>
+         </property>
         </widget>
        </widget>
        <widget class="QWidget" name="page_2">
@@ -2276,24 +2294,6 @@
          </widget>
         </widget>
        </widget>
-      </widget>
-      <widget class="QPushButton" name="pushButton">
-       <property name="geometry">
-        <rect>
-         <x>15</x>
-         <y>528</y>
-         <width>111</width>
-         <height>25</height>
-        </rect>
-       </property>
-       <property name="font">
-        <font>
-         <fontweight>Medium</fontweight>
-        </font>
-       </property>
-       <property name="text">
-        <string>Save image</string>
-       </property>
       </widget>
      </widget>
     </item>

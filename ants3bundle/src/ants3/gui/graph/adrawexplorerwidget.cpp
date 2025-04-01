@@ -107,20 +107,40 @@ void ADrawExplorerWidget::updateGui_multidrawMode()
 {
     const AMultidrawRecord & rec = DrawObjects.front().MultidrawSettings;
 
+    int ix = 0;
+    int iy = 0;
     for (size_t i = 0; i < rec.BasketItems.size(); i++)
     {
         QTreeWidgetItem * item = new QTreeWidgetItem();
         QString name = GraphWindow.Basket->getName( rec.BasketItems[i] );
 
-        QString nameShort = name;
-        if (nameShort.size() > 18)
+        if (name.size() > 15)
         {
-            nameShort.truncate(18);
-            nameShort += "..";
+            name.truncate(15);
+            name += "..";
+        }
+        name = QString("%0-%1 %2").arg(ix).arg(iy).arg(name);
+
+        if (rec.XY)
+        {
+            ix++;
+            if (ix == rec.NumX)
+            {
+                ix = 0;
+                iy++;
+            }
+        }
+        else
+        {
+            iy++;
+            if (iy == rec.NumY)
+            {
+                iy = 0;
+                ix++;
+            }
         }
 
-        item->setText(0, nameShort);
-        //item->setToolTip(0, QString("Name: %1\nClassName: %2\nDraw options: %3").arg(name).arg(className).arg(opt));
+        item->setText(0, name);
         item->setText(1, QString::number(i));
 
         //QIcon icon;

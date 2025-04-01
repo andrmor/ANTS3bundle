@@ -212,9 +212,6 @@ private slots:
 
     void on_cbMultiAddIdentifier_clicked(bool checked);
 
-
-    //void on_leMultiIdentifiers_editingFinished();
-
     void on_pbMultiConfigureIdentifier_clicked();
 
 private:

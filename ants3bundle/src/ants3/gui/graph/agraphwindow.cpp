@@ -832,32 +832,61 @@ void AGraphWindow::redrawAll_Multidraw(ADrawObject & drawObj)
     double margin = 0;
     double padY   = 1.0 / rec.NumY;
     double padX   = 1.0 / rec.NumX;
-    for (int iY = 0; iY < rec.NumY; iY++)
+    if (rec.XY)
     {
-        double y2 = 1.0 - (iY * padY);
-        double y1 = y2 - padY;
+        for (int iY = 0; iY < rec.NumY; iY++)
+        {
+            double y2 = 1.0 - (iY * padY);
+            double y1 = y2 - padY;
 
-        if (iY == 0)        y2 = 1 - margin;
-        if (iY == rec.NumY - 1) y1 = margin;
+            if (iY == 0)            y2 = 1 - margin;
+            if (iY == rec.NumY - 1) y1 = margin;
 
+            for (int iX = 0; iX < rec.NumX; iX++)
+            {
+                double x1 = iX * padX;
+                double x2 = x1 + padX;
+
+                if (iX == 0)            x1 = margin;
+                if (iX == rec.NumX - 1) x2 = 1.0 - margin;
+
+                QString padName = "pad" + QString::number(iX) + "_" + QString::number(iY);
+
+                TPad * ipad = new TPad(padName.toLatin1().data(), "", x1, y1, x2, y2);
+                APadProperties apad(ipad);
+
+                Pads.push_back(apad);
+            }
+        }
+    }
+    else
+    {
         for (int iX = 0; iX < rec.NumX; iX++)
         {
             double x1 = iX * padX;
             double x2 = x1 + padX;
 
-            if (iX == 0)        x1 = margin;
+            if (iX == 0)            x1 = margin;
             if (iX == rec.NumX - 1) x2 = 1.0 - margin;
 
-            QString padName = "pad" + QString::number(iX) + "_" + QString::number(iY);
+            for (int iY = 0; iY < rec.NumY; iY++)
+            {
+                double y2 = 1.0 - (iY * padY);
+                double y1 = y2 - padY;
 
-            TPad * ipad = new TPad(padName.toLatin1().data(), "", x1, y1, x2, y2);
-            APadProperties apad(ipad);
+                if (iY == 0)            y2 = 1 - margin;
+                if (iY == rec.NumY - 1) y1 = margin;
 
-            Pads.push_back(apad);
+                QString padName = "pad" + QString::number(iX) + "_" + QString::number(iY);
+
+                TPad * ipad = new TPad(padName.toLatin1().data(), "", x1, y1, x2, y2);
+                APadProperties apad(ipad);
+
+                Pads.push_back(apad);
+            }
         }
-
-        Explorer->updateGui();
     }
+    Explorer->updateGui();
 
     //updateCanvas()
     {
@@ -3270,20 +3299,6 @@ void AGraphWindow::on_cbMultiAddIdentifier_clicked(bool checked)
     highlightUpdateBasketButton(true);
 }
 
-/*
-void AGraphWindow::on_leMultiIdentifiers_editingFinished()
-{
-    if (!isMultidrawModeOn()) return;
-
-    const QString txt = ui->leMultiIdentifiers->text();
-    if (txt == DrawObjects.front().MultidrawSettings.Identifiers) return;
-
-    DrawObjects.front().MultidrawSettings.Identifiers = txt;
-    redrawAll();
-    highlightUpdateBasketButton(true);
-}
-*/
-
 void AGraphWindow::onMultiIdentPaveTextChanged(QString text)
 {
     if (!isMultidrawModeOn()) return;
@@ -3326,7 +3341,7 @@ void AGraphWindow::on_pbMultiConfigureIdentifier_clicked()
 
     ATextPaveDialog D(*Pave);
     connect(&D, &ATextPaveDialog::requestRedraw, this, &AGraphWindow::onMultiIdentPaveChanged);
-    connect(&D, &ATextPaveDialog::textChanged,   this, &AGraphWindow::onMultiIdentPaveTextChanged);
+    connect(&D, &ATextPaveDialog::textChanged,   this, &AGraphWindow::onMultiIdentPaveTextChanged); // need this since cannot read text back from TPaveText :(
     D.exec();
 }
 
