@@ -83,6 +83,11 @@ AGraphWindow::AGraphWindow(QWidget * parent) :
     ui->labX->setText(QChar(8596));
     ui->labY->setText(QChar(8597));
 
+    ui->lMultiMarLeft->setText(QChar(0x2190));
+    ui->lMultiMarRight->setText(QChar(0x2192));
+    ui->lMultiMarTop->setText(QChar(0x2191));
+    ui->lMultiMarBottom->setText(QChar(0x2193));
+
     // Raster window
     RasterWindow = new AGraphRasterWindow(this);
     RasterWindow->resize(400, 400);

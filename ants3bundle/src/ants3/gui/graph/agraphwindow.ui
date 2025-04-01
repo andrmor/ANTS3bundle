@@ -990,7 +990,7 @@
           <item row="0" column="0">
            <widget class="QLabel" name="lMultiMarLeft">
             <property name="text">
-             <string>⮜</string>
+             <string>L</string>
             </property>
            </widget>
           </item>
@@ -998,9 +998,9 @@
            <widget class="QLineEdit" name="ledMultMarginLeft"/>
           </item>
           <item row="0" column="2">
-           <widget class="QLabel" name="label_32">
+           <widget class="QLabel" name="lMultiMarRight">
             <property name="text">
-             <string>⮞</string>
+             <string>R</string>
             </property>
            </widget>
           </item>
@@ -1008,9 +1008,9 @@
            <widget class="QLineEdit" name="ledMultMarginRight"/>
           </item>
           <item row="1" column="0">
-           <widget class="QLabel" name="label_33">
+           <widget class="QLabel" name="lMultiMarTop">
             <property name="text">
-             <string>⮝</string>
+             <string>T</string>
             </property>
            </widget>
           </item>
@@ -1018,9 +1018,9 @@
            <widget class="QLineEdit" name="ledMultMarginTop"/>
           </item>
           <item row="1" column="2">
-           <widget class="QLabel" name="label_34">
+           <widget class="QLabel" name="lMultiMarBottom">
             <property name="text">
-             <string>⮟</string>
+             <string>B</string>
             </property>
            </widget>
           </item>
@@ -2385,13 +2385,6 @@
             </widget>
            </item>
            <item>
-            <widget class="QLabel" name="label_37">
-             <property name="text">
-              <string>Axis label offsets</string>
-             </property>
-            </widget>
-           </item>
-           <item>
             <widget class="QPushButton" name="pbBackToLast">
              <property name="text">
               <string>Back to last</string>
@@ -2478,7 +2471,7 @@ in basket</string>
      <x>0</x>
      <y>0</y>
      <width>987</width>
-     <height>22</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuPalette">
