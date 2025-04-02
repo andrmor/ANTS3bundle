@@ -2353,7 +2353,11 @@ void ADrawExplorerWidget::onMoveUpAction(int index)
     }
     else
     {
-        if (index == 1) return;  // !!!*** error message?
+        if (index == 1)
+        {
+            guitools::message("Cannot change the first draw object!", this);
+            return;
+        }
         std::swap( DrawObjects[index], DrawObjects[index-1] );
     }
 
@@ -2372,6 +2376,11 @@ void ADrawExplorerWidget::onMoveDownAction(int index)
     }
     else
     {
+        if (index == 0)
+        {
+            guitools::message("Cannot change the first draw object!", this);
+            return;
+        }
         if (index == DrawObjects.size()-1) return;
         std::swap( DrawObjects[index], DrawObjects[index+1] );
     }
