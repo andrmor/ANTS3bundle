@@ -2494,6 +2494,7 @@ in basket</string>
      <string>View</string>
     </property>
     <addaction name="separator"/>
+    <addaction name="actionShow_first_drawn_object_context_menu"/>
     <addaction name="actionShow_ROOT_attribute_panel"/>
     <addaction name="separator"/>
     <addaction name="actionToggle_toolbar"/>
@@ -2503,7 +2504,6 @@ in basket</string>
     <addaction name="actionSide"/>
     <addaction name="actionFront"/>
     <addaction name="separator"/>
-    <addaction name="actionOpen_MultiGraphDesigner"/>
    </widget>
    <widget class="QMenu" name="menuSize">
     <property name="title">
@@ -2529,24 +2529,25 @@ in basket</string>
    </widget>
    <widget class="QMenu" name="menuMainObject">
     <property name="title">
-     <string>Do</string>
+     <string>Settings</string>
     </property>
-    <addaction name="actionShow_first_drawn_object_context_menu"/>
+    <addaction name="actionSet_histogram_stat_box_content"/>
+    <addaction name="actionSet_default_margins"/>
+   </widget>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>File</string>
+    </property>
+    <addaction name="separator"/>
     <addaction name="actionSave_image_2"/>
     <addaction name="actionCopy_image_to_clipboard"/>
-    <addaction name="actionSet_histogram_stat_box_content"/>
+    <addaction name="separator"/>
     <addaction name="actionSave_multipad_view_settings"/>
     <addaction name="actionLoad_multipad_view_settings"/>
    </widget>
-   <widget class="QMenu" name="menuMargins">
-    <property name="title">
-     <string>Margins</string>
-    </property>
-    <addaction name="actionSet_default_margins"/>
-   </widget>
+   <addaction name="menuFile"/>
    <addaction name="menuMainObject"/>
    <addaction name="menuView"/>
-   <addaction name="menuMargins"/>
    <addaction name="menuPalette"/>
    <addaction name="menuSize"/>
    <addaction name="menuTemplate"/>
@@ -2672,11 +2673,6 @@ in basket</string>
   <action name="actionShow_first_drawn_object_context_menu">
    <property name="text">
     <string>Show context menu of the first drawn object</string>
-   </property>
-  </action>
-  <action name="actionOpen_MultiGraphDesigner">
-   <property name="text">
-    <string>Open MultiGraphDesigner</string>
    </property>
   </action>
   <action name="actionSet_default_margins">

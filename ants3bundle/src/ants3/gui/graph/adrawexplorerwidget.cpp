@@ -480,7 +480,7 @@ void ADrawExplorerWidget::dropEvent(QDropEvent * event)
     event->ignore();
     updateGui();
 
-    qDebug() << "   Indexes:" << iMoved << iTo;
+    //qDebug() << "   Indexes:" << iMoved << iTo;
     if (iMoved == iTo) return;
     if (DrawObjects.empty()) return;
     if (DrawObjects.front().Multidraw)
