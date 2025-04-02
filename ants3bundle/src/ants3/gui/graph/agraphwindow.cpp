@@ -2446,6 +2446,21 @@ void AGraphWindow::basket_DrawOnTop(int row)
     if (row == -1) return;
     if (DrawObjects.empty()) return;
 
+    if (Basket->isMultidraw(row))
+    {
+        guitools::message("Cannot draw multipad view on top of another plot", this);
+        return;
+    }
+    if (DrawObjects.front().Multidraw)
+    {
+        DrawObjects.front().MultidrawSettings.BasketItems.push_back(row);
+        //ActiveBasketItem = -1;
+        //updateBasketGUI();
+        redrawAll();
+        highlightUpdateBasketButton(true);
+        return;
+    }
+
     makeCopyOfDrawObjects();
     makeCopyOfActiveBasketId();
 
@@ -3399,5 +3414,50 @@ void AGraphWindow::on_pbMultiSaveImage_clicked()
 void AGraphWindow::on_pbMultiSaveImage_customContextMenuRequested(const QPoint &pos)
 {
     on_pbSaveImage_customContextMenuRequested(pos);
+}
+
+#include "ajsontools.h"
+void AGraphWindow::on_actionSave_multipad_view_settings_triggered()
+{
+    if (!isMultidrawModeOn())
+    {
+        guitools::message("A multipad view should be open to save its settings", this);
+        return;
+    }
+
+    QJsonObject json;
+    json["Width"]  = width();
+    json["Height"] = height();
+    DrawObjects.front().MultidrawSettings.writeToJson(json, false);
+
+    QString fn = guitools::dialogSaveFile(this, "Filename to save multidraw pad settings", "*.json");
+    if (fn.isEmpty()) return;
+    if (!fn.endsWith(".json")) fn = fn + ".json";
+    jstools::saveJsonToFile(json, fn);
+}
+
+void AGraphWindow::on_actionLoad_multipad_view_settings_triggered()
+{
+    if (!isMultidrawModeOn())
+    {
+        guitools::message("A multipad view should be open to apply loaded settings", this);
+        return;
+    }
+
+    QString fn = guitools::dialogLoadFile(this, "Filename to load multidraw pad settings", "*.json");
+    if (fn.isEmpty()) return;
+
+    QJsonObject json;
+    bool ok = jstools::loadJsonFromFile(json, fn);
+    if (!ok)
+    {
+        guitools::message("Failed to load json with multipad settings", this);
+        return;
+    }
+    DrawObjects.front().MultidrawSettings.readFromJson(json, false);
+    int width = 500;
+    int height = 500;
+    if (jstools::parseJson(json, "Width", width) && jstools::parseJson(json, "Height", height)) resize(width, height);
+    redrawAll();
 }
 

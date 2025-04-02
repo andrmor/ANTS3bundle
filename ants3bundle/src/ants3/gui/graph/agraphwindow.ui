@@ -2471,7 +2471,7 @@ in basket</string>
      <x>0</x>
      <y>0</y>
      <width>987</width>
-     <height>21</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuPalette">
@@ -2535,6 +2535,8 @@ in basket</string>
     <addaction name="actionSave_image_2"/>
     <addaction name="actionCopy_image_to_clipboard"/>
     <addaction name="actionSet_histogram_stat_box_content"/>
+    <addaction name="actionSave_multipad_view_settings"/>
+    <addaction name="actionLoad_multipad_view_settings"/>
    </widget>
    <widget class="QMenu" name="menuMargins">
     <property name="title">
@@ -2700,6 +2702,16 @@ in basket</string>
   <action name="actionSet_palette">
    <property name="text">
     <string>Set palette: full list</string>
+   </property>
+  </action>
+  <action name="actionSave_multipad_view_settings">
+   <property name="text">
+    <string>Save multipad view settings</string>
+   </property>
+  </action>
+  <action name="actionLoad_multipad_view_settings">
+   <property name="text">
+    <string>Load multipad view settings</string>
    </property>
   </action>
  </widget>

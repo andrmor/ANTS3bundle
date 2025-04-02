@@ -58,7 +58,7 @@ void ADrawObject::readFromJson(const QJsonObject & json)
 
     QJsonObject js;
     Multidraw = jstools::parseJson(json, "Multidraw", js);
-    if (Multidraw) MultidrawSettings.readFronJson(js);
+    if (Multidraw) MultidrawSettings.readFromJson(js);
 }
 
 void ADrawObject::shiftMultidrawIndexesBy(int val)

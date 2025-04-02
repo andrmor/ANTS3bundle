@@ -216,6 +216,10 @@ private slots:
 
     void on_pbMultiSaveImage_customContextMenuRequested(const QPoint &pos);
 
+    void on_actionSave_multipad_view_settings_triggered();
+
+    void on_actionLoad_multipad_view_settings_triggered();
+
 private:
     Ui::AGraphWindow       * ui = nullptr;
 

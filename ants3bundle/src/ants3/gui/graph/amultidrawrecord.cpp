@@ -13,11 +13,14 @@ void AMultidrawRecord::init()
     else                { NumX = 3; NumY = 3;}
 }
 
-void AMultidrawRecord::writeToJson(QJsonObject & json) const
+void AMultidrawRecord::writeToJson(QJsonObject & json, bool includeBasketItems) const
 {
-    QJsonArray ar;
-    for (int i : BasketItems) ar.push_back(i);
-    json["BasketItems"] = ar;
+    if (includeBasketItems)
+    {
+        QJsonArray ar;
+        for (int i : BasketItems) ar.push_back(i);
+        json["BasketItems"] = ar;
+    }
 
     json["NumX"] = NumX;
     json["NumY"] = NumY;
@@ -60,13 +63,16 @@ void AMultidrawRecord::writeToJson(QJsonObject & json) const
 
 }
 
-void AMultidrawRecord::readFronJson(const QJsonObject & json)
+void AMultidrawRecord::readFromJson(const QJsonObject & json, bool includeBasketItems)
 {
-    QJsonArray ar;
-    jstools::parseJson(json, "BasketItems", ar);
-    BasketItems.clear();
-    for (int i = 0; i < ar.size(); i++)
-        BasketItems.push_back(ar[i].toInt());
+    if (includeBasketItems)
+    {
+        QJsonArray ar;
+        jstools::parseJson(json, "BasketItems", ar);
+        BasketItems.clear();
+        for (int i = 0; i < ar.size(); i++)
+            BasketItems.push_back(ar[i].toInt());
+    }
 
     jstools::parseJson(json, "NumX", NumX);
     jstools::parseJson(json, "NumY", NumY);
