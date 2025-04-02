@@ -54,6 +54,13 @@ ADrawExplorerWidget::ADrawExplorerWidget(AGraphWindow & GraphWindow, std::vector
     connect(this, &ADrawExplorerWidget::itemDoubleClicked, this, &ADrawExplorerWidget::onItemDoubleClicked);
 
     setIndentation(0);
+
+    setSelectionMode(QAbstractItemView::SingleSelection);
+    //setContextMenuPolicy(Qt::CustomContextMenu);
+    setAcceptDrops(true);
+    setDragEnabled(true);
+    setDragDropMode(QAbstractItemView::InternalMove);
+    setDropIndicatorShown(true);
 }
 
 void ADrawExplorerWidget::updateGui()
@@ -448,6 +455,57 @@ void ADrawExplorerWidget::onItemDoubleClicked(QTreeWidgetItem * item, int)
     if (DrawObjects.front().Multidraw) return;
 
     activateCustomGuiForItem(item->text(1).toInt());
+}
+
+#include <QDropEvent>
+#include <QListWidgetItem>
+void ADrawExplorerWidget::dropEvent(QDropEvent * event)
+{
+    const QList<QTreeWidgetItem*> selected = selectedItems();
+    int iMoved = -1;
+    if (!selected.empty()) iMoved = selected.front()->text(1).toInt();
+
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+    QTreeWidgetItem * itemTo = this->itemAt(event->pos());
+#else
+    QTreeWidgetItem * itemTo = this->itemAt(event->position().toPoint());
+#endif
+    int iTo = -1;
+    if (itemTo)
+    {
+        iTo = itemTo->text(1).toInt();
+        if (dropIndicatorPosition() == QAbstractItemView::BelowItem) iTo++;
+    }
+
+    event->ignore();
+    updateGui();
+
+    qDebug() << "   Indexes:" << iMoved << iTo;
+    if (iMoved == iTo) return;
+    if (DrawObjects.empty()) return;
+    if (DrawObjects.front().Multidraw)
+    {
+        std::vector<int> & items = DrawObjects.front().MultidrawSettings.BasketItems;
+        if (iTo == items.size()) iTo--;
+        if (iMoved < 0 || iMoved >= items.size()) return;
+        if (iTo    < 0 || iTo    >= items.size()) return;
+        std::swap(items[iMoved], items[iTo]);
+    }
+    else
+    {
+        std::vector<ADrawObject> & items = DrawObjects;
+        if (iTo == items.size()) iTo--;
+        if (iMoved == 0 || iTo == 0)
+        {
+            guitools::message("Cannot change position of the first item", this);
+            return;
+        }
+        if (iMoved < 0 || iMoved >= items.size()) return;
+        if (iTo    < 0 || iTo    >= items.size()) return;
+        std::swap(items[iMoved], items[iTo]);
+    }
+
+    GraphWindow.redrawAll();
 }
 
 void ADrawExplorerWidget::activateCustomGuiForItem(int index)

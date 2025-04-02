@@ -40,6 +40,9 @@ private slots:
     void onContextMenuRequested(const QPoint & pos);
     void onItemDoubleClicked(QTreeWidgetItem *item, int column);
 
+protected:
+    void dropEvent(QDropEvent * event) override;
+
 private:
     AGraphWindow         & GraphWindow;
     AGraphRasterWindow   & Raster;
