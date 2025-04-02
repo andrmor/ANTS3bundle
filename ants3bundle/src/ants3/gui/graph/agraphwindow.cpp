@@ -2256,7 +2256,10 @@ void AGraphWindow::contextMenuForBasketMultipleSelection(const QPoint & pos)
 {
     QMenu Menu;
     QAction * multidrawNewA = Menu.addAction("Make multipad view (creates and opens new basket item)");
+    QAction * multidrawAddA = Menu.addAction("Add to multipad view (one of the selected items must be multipad)");
+    Menu.addSeparator();
     QAction * mergeA = Menu.addAction("Merge histograms");
+    Menu.addSeparator();
     QAction * removeAllSelected = Menu.addAction("Remove all selected");
     removeAllSelected->setShortcut(Qt::Key_Delete);
 
@@ -2266,6 +2269,7 @@ void AGraphWindow::contextMenuForBasketMultipleSelection(const QPoint & pos)
     if      (selectedItem == removeAllSelected) removeAllSelectedBasketItems();
     else if (selectedItem == mergeA)            requestMergeHistograms();
     else if (selectedItem == multidrawNewA)     requestMultidrawNew();
+    else if (selectedItem == multidrawAddA)     requestAddToMultidraw();
 }
 
 void AGraphWindow::removeAllSelectedBasketItems()
@@ -2330,6 +2334,43 @@ void AGraphWindow::requestMultidrawNew()
     Basket->add("NewMultipadView", tmp);
 
     switchToBasket(Basket->size() - 1);
+}
+
+void AGraphWindow::requestAddToMultidraw()
+{
+    const QList<QListWidgetItem*> selection = lwBasket->selectedItems();
+
+    int multiIndex = -1;
+    for (const QListWidgetItem * const item : selection)
+    {
+        int index = lwBasket->row(item);
+        if (Basket->isMultidraw(index))
+        {
+            if (multiIndex == -1) multiIndex = index;
+            else
+            {
+                guitools::message("Only one multipad view can be selected", this);
+                return;
+            }
+        }
+    }
+
+    if (multiIndex == -1)
+    {
+        guitools::message("One multipad view has to be selected", this);
+        return;
+    }
+
+    std::vector<ADrawObject> drawObjectAr = Basket->getCopy(multiIndex);
+    if (drawObjectAr.empty()) return; // paranoid
+    for (const QListWidgetItem * const item : selection)
+    {
+        int index = lwBasket->row(item);
+        if (index == multiIndex) continue;
+        drawObjectAr.front().MultidrawSettings.BasketItems.push_back(index);
+    }
+    Basket->update(multiIndex, drawObjectAr);
+    switchToBasket(multiIndex);
 }
 
 void AGraphWindow::requestMergeHistograms()

@@ -192,14 +192,27 @@ void ADrawExplorerWidget::showObjectContextMenu(const QPoint &pos, int index)
     {
         if (index < 0 || index >= DrawObjects.front().MultidrawSettings.BasketItems.size()) return;
 
-        QAction * moveUpA   = Menu.addAction("Move up");   //moveUpA->setEnabled(index > 1);
-        QAction * moveDownA = Menu.addAction("Move down"); //moveDownA->setEnabled(index != 0 && index != DrawObjects.size()-1);
+        QAction * moveUpA   = Menu.addAction("Move up");
+        QAction * moveDownA = Menu.addAction("Move down");
+        Menu.addSeparator();
+        QAction * removeA = Menu.addAction("Remove");
 
         QAction * si = Menu.exec(pos);
         if (!si) return;
 
-        if      (si == moveUpA)      onMoveUpAction(index);
-        else if (si == moveDownA)    onMoveDownAction(index);
+        if      (si == moveUpA)   onMoveUpAction(index);
+        else if (si == moveDownA) onMoveDownAction(index);
+        else if (si == removeA)
+        {
+            if (DrawObjects.front().MultidrawSettings.BasketItems.size() == 1)
+            {
+                guitools::message("Cannot remove the last item", this);
+                return;
+            }
+            DrawObjects.front().MultidrawSettings.BasketItems.erase(DrawObjects.front().MultidrawSettings.BasketItems.begin() + index);
+            GraphWindow.redrawAll();
+            GraphWindow.highlightUpdateBasketButton(true);
+        }
         return;
     }
 
