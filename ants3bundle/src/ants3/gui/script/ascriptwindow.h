@@ -238,7 +238,7 @@ private slots:
     void onFindSelected();
     void onReplaceSelected();
     void onFindFunction();
-    void onFindVariable();
+    void onFindVariable(); // !!!*** not python compatible
     void onBack();
     void onForward();
 

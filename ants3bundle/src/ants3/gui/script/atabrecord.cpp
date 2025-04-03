@@ -185,10 +185,11 @@ void ATabRecord::onLineNumberChanged(int lineNumber)
 void ATabRecord::onTextChanged()
 {
     //qDebug() << "Text changed!";
-    QTextDocument* d = TextEdit->document();
-    QRegularExpression re("(?<=var)\\s+\\w+\\b");
-
+    QTextDocument * d = TextEdit->document();
     QStringList Variables;
+
+    //QRegularExpression re("(?<=var)\\s+\\w+\\b");
+    const QRegularExpression re("(?<=(var|const|let))\\s+\\w+\\b");
     QTextCursor tc = d->find(re, 0);//, flags);
     while (!tc.isNull())
     {

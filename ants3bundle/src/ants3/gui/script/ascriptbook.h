@@ -22,7 +22,7 @@ public:
     //bool             readFromJson(const QJsonObject & json);  // too heavily relies on AScriptWindow, cannot be implemented here without major refactoring
 
     int                getCurrentTabIndex() const;
-    void               setCurrentTabIndex(int index); // !!!*** possible to use size_t?
+    void               setCurrentTabIndex(int index);
 
     void               setTabName(const QString & name, int index);
 
