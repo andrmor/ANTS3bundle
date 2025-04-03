@@ -35,6 +35,7 @@ public slots:
     //void fun0();
     //void fun1(int i);
     //void fun2(int i, double d);
+    void test();
 
     void         abort(QString message);
 

@@ -19,6 +19,8 @@ public:
 
     void updateGui();
 
+    QString CurrentText;
+
 private slots:
     void on_pbDummy_clicked();
     void on_pbConfirm_clicked();
@@ -44,8 +46,11 @@ private slots:
 
     void on_pbImport_clicked();
 
+    void on_pte_textChanged();
+
 signals:
     void requestRedraw();
+    void textChanged(QString txt);
 };
 
 #endif // ATEXTPAVEDIALOG_H

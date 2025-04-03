@@ -13,7 +13,6 @@
 #include "abasketmanager.h"
 #include "adrawexplorerwidget.h"
 #include "abasketlistwidget.h"
-#include "amultigraphdesigner.h"
 #include "adrawtemplate.h"
 #include "ascripthub.h"
 #include "agraphwin_si.h"
@@ -21,6 +20,7 @@
 #include "aviewer3d.h"
 #include "asetmarginsdialog.h"
 #include "a3global.h"
+#include "amultidrawrecord.h"
 #ifdef ANTS3_PYTHON
     #include "apythonscriptmanager.h"
 #endif
@@ -82,6 +82,11 @@ AGraphWindow::AGraphWindow(QWidget * parent) :
 
     ui->labX->setText(QChar(8596));
     ui->labY->setText(QChar(8597));
+
+    ui->lMultiMarLeft->setText(QChar(0x2190));
+    ui->lMultiMarRight->setText(QChar(0x2192));
+    ui->lMultiMarTop->setText(QChar(0x2191));
+    ui->lMultiMarBottom->setText(QChar(0x2193));
 
     // Raster window
     RasterWindow = new AGraphRasterWindow(this);
@@ -743,8 +748,21 @@ void AGraphWindow::reshape()
     //qDebug() << "reshape done";
 }
 
+void AGraphWindow::clearPads()
+{
+    TCanvas *c1 = RasterWindow->fCanvas;
+    c1->Clear();
+
+    for (const APadProperties & pad : Pads)
+        for (const TObject * obj : pad.tmpObjects)
+            delete obj;
+
+    Pads.clear();
+}
+
 void AGraphWindow::redrawAll()
-{  
+{
+    clearPads(); // !!!!!!!
     enforceOverlayOff();
     updateBasketGUI();
 
@@ -753,6 +771,12 @@ void AGraphWindow::redrawAll()
         clearRootCanvas();
         updateRootCanvas();
         Explorer->updateGui();
+        return;
+    }
+
+    if (DrawObjects.front().Multidraw)
+    {
+        redrawAll_Multidraw(DrawObjects.front());
         return;
     }
 
@@ -772,6 +796,221 @@ void AGraphWindow::redrawAll()
     updateControls();
 
     fixGraphFrame();
+}
+
+void AGraphWindow::redrawAll_Multidraw(ADrawObject & drawObj)
+{
+    ui->swToolBar->setCurrentIndex(1);
+
+    AMultidrawRecord & rec = drawObj.MultidrawSettings;
+
+    if (rec.NumX < 1) rec.NumX = 1;
+    ui->sbMultNumX->setValue(rec.NumX);
+    if (rec.NumY < 1) rec.NumY = 1;
+    ui->sbMultNumY->setValue(rec.NumY);
+
+    ui->cobXYorYX->setCurrentIndex(rec.XY ? 0 : 1);
+
+    ui->cbMultEnforceMargins->setChecked(rec.EnforceMargins);
+    ui->ledMultMarginLeft->  setText(QString::number(rec.MarginLeft));
+    ui->ledMultMarginRight-> setText(QString::number(rec.MarginRight));
+    ui->ledMultMarginTop->   setText(QString::number(rec.MarginTop));
+    ui->ledMultMarginBottom->setText(QString::number(rec.MarginBottom));
+
+    ui->ledMultScaleLabels->setText(QString::number(rec.ScaleLabels));
+
+    ui->ledMultTitleScaleXoff->setText(QString::number(rec.ScaleOffsetTitleX));
+    ui->ledMultTitleScaleYoff->setText(QString::number(rec.ScaleOffsetTitleY));
+    ui->ledMultTitleScaleZoff->setText(QString::number(rec.ScaleOffsetTitleZ));
+
+    ui->ledMultAxisScaleXoff->setText(QString::number(rec.ScaleOffsetAxisX));
+    ui->ledMultAxisScaleYoff->setText(QString::number(rec.ScaleOffsetAxisY));
+    ui->ledMultAxisScaleZoff->setText(QString::number(rec.ScaleOffsetAxisZ));
+
+    ui->ledMultScaleDrawLines->setText(QString::number(rec.ScaleDrawLines));
+    ui->ledMultScaleMarkers->setText(QString::number(rec.ScaleMarkers));
+
+    ui->cbMultiAddIdentifier->setChecked(rec.ShowIdentifiers);
+    const QStringList idTexts = rec.Identifiers.split(',', Qt::SkipEmptyParts);
+
+    double margin = 0;
+    double padY   = 1.0 / rec.NumY;
+    double padX   = 1.0 / rec.NumX;
+    if (rec.XY)
+    {
+        for (int iY = 0; iY < rec.NumY; iY++)
+        {
+            double y2 = 1.0 - (iY * padY);
+            double y1 = y2 - padY;
+
+            if (iY == 0)            y2 = 1 - margin;
+            if (iY == rec.NumY - 1) y1 = margin;
+
+            for (int iX = 0; iX < rec.NumX; iX++)
+            {
+                double x1 = iX * padX;
+                double x2 = x1 + padX;
+
+                if (iX == 0)            x1 = margin;
+                if (iX == rec.NumX - 1) x2 = 1.0 - margin;
+
+                QString padName = "pad" + QString::number(iX) + "_" + QString::number(iY);
+
+                TPad * ipad = new TPad(padName.toLatin1().data(), "", x1, y1, x2, y2);
+                APadProperties apad(ipad);
+
+                Pads.push_back(apad);
+            }
+        }
+    }
+    else
+    {
+        for (int iX = 0; iX < rec.NumX; iX++)
+        {
+            double x1 = iX * padX;
+            double x2 = x1 + padX;
+
+            if (iX == 0)            x1 = margin;
+            if (iX == rec.NumX - 1) x2 = 1.0 - margin;
+
+            for (int iY = 0; iY < rec.NumY; iY++)
+            {
+                double y2 = 1.0 - (iY * padY);
+                double y1 = y2 - padY;
+
+                if (iY == 0)            y2 = 1 - margin;
+                if (iY == rec.NumY - 1) y1 = margin;
+
+                QString padName = "pad" + QString::number(iX) + "_" + QString::number(iY);
+
+                TPad * ipad = new TPad(padName.toLatin1().data(), "", x1, y1, x2, y2);
+                APadProperties apad(ipad);
+
+                Pads.push_back(apad);
+            }
+        }
+    }
+    Explorer->updateGui();
+
+    //updateCanvas()
+    {
+        TCanvas * canvas = RasterWindow->fCanvas;
+
+        for (size_t iPad = 0; iPad < Pads.size(); iPad++)
+        {
+            APadProperties & pad = Pads[iPad];
+            canvas->cd();
+            pad.tPad->Draw();
+
+            if (iPad < rec.BasketItems.size())
+            {
+                int iBasketIndex = rec.BasketItems[iPad];
+                if (iBasketIndex < Basket->size() && iBasketIndex >= 0)
+                {
+                    const std::vector<ADrawObject> DrawObjects = Basket->getCopy(iBasketIndex);
+                    pad.tPad->cd();
+
+                    if (!DrawObjects.empty())
+                    {
+                        pad.tPad->SetLogx(DrawObjects.front().bLogScaleX);
+                        pad.tPad->SetLogy(DrawObjects.front().bLogScaleY);
+
+                        if (rec.EnforceMargins)
+                            pad.tPad->SetMargin(rec.MarginLeft, rec.MarginRight, rec.MarginBottom, rec.MarginTop);
+
+                        TAxis * xAxis = nullptr;
+                        TAxis * yAxis = nullptr;
+                        TAxis * zAxis = nullptr;
+                        TGraph * gr = dynamic_cast<TGraph*>(DrawObjects.front().Pointer);
+                        if (gr)
+                        {
+                            xAxis = gr->GetXaxis();
+                            yAxis = gr->GetYaxis();
+                            TGraph2D * gr2D = dynamic_cast<TGraph2D*>(DrawObjects.front().Pointer);
+                            if (gr2D) zAxis = gr2D->GetZaxis();
+                        }
+                        else
+                        {
+                            TH1 * h = dynamic_cast<TH1*>(DrawObjects.front().Pointer);
+                            if (h)
+                            {
+                                xAxis = h->GetXaxis();
+                                yAxis = h->GetYaxis();
+                                TH2 * h2D = dynamic_cast<TH2*>(DrawObjects.front().Pointer);
+                                if (h2D) zAxis = h2D->GetZaxis();
+                            }
+                        }
+
+                        std::vector<TAxis*> axes = {xAxis, yAxis};
+                        if (zAxis) axes.push_back(zAxis);
+
+                        if (rec.ScaleLabels != 1.0)
+                        {
+                            for (TAxis * axis : axes)
+                                if (axis)
+                                {
+                                    axis->SetTitleSize(axis->GetTitleSize() * rec.ScaleLabels);
+                                    axis->SetLabelSize(axis->GetLabelSize() * rec.ScaleLabels);
+                                }
+                        }
+
+                        if (rec.ScaleOffsetTitleX != 1.0 && xAxis) xAxis->SetTitleOffset(xAxis->GetTitleOffset() * rec.ScaleOffsetTitleX);
+                        if (rec.ScaleOffsetTitleY != 1.0 && yAxis) yAxis->SetTitleOffset(yAxis->GetTitleOffset() * rec.ScaleOffsetTitleY);
+                        if (rec.ScaleOffsetTitleZ != 1.0 && zAxis) zAxis->SetTitleOffset(zAxis->GetTitleOffset() * rec.ScaleOffsetTitleZ);
+
+                        if (rec.ScaleOffsetAxisX != 1.0 && xAxis) xAxis->SetLabelOffset(xAxis->GetLabelOffset() * rec.ScaleOffsetAxisX);
+                        if (rec.ScaleOffsetAxisY != 1.0 && yAxis) yAxis->SetLabelOffset(yAxis->GetLabelOffset() * rec.ScaleOffsetAxisY);
+                        if (rec.ScaleOffsetAxisZ != 1.0 && zAxis) zAxis->SetLabelOffset(zAxis->GetLabelOffset() * rec.ScaleOffsetAxisZ);
+
+
+                        for (const ADrawObject & drObj : DrawObjects)
+                        {
+                            TObject * tObj = drObj.Pointer;
+                            if (!tObj) continue;
+                            if (rec.ScaleDrawLines)
+                            {
+                                TAttLine * lineAtt = dynamic_cast<TAttLine*>(tObj);
+                                if (lineAtt) lineAtt->SetLineWidth(lineAtt->GetLineWidth() * rec.ScaleDrawLines);
+                            }
+                            if (rec.ScaleMarkers)
+                            {
+                                TAttMarker * markAtt = dynamic_cast<TAttMarker*>(tObj);
+                                if (markAtt) markAtt->SetMarkerSize(markAtt->GetMarkerSize() * rec.ScaleMarkers);
+                            }
+
+                            tObj->Draw(drObj.Options.toLatin1().data());
+                            pad.tmpObjects.push_back(tObj);
+
+                            if (rec.ShowIdentifiers && iPad < idTexts.size())
+                            {
+                                TPaveText * idBox = new TPaveText;
+                                idBox->SetX1NDC(rec.IdentBoxX1);
+                                idBox->SetX2NDC(rec.IdentBoxX2);
+                                idBox->SetY1NDC(rec.IdentBoxY1);
+                                idBox->SetY2NDC(rec.IdentBoxY2);
+                                idBox->SetTextColor(rec.IdentBoxTextColor);
+                                //Pave->SetTextAlign(rec.IdentBoxTextAlign);
+                                idBox->SetTextAlign( (rec.IdentBoxTextAlign + 1) * 10 + 2 );
+                                idBox->SetTextFont(rec.IdentBoxTextFont);
+                                idBox->SetTextSize(rec.IdentBoxTextSize);
+                                //qDebug() << rec.IdentBoxTextFont<< rec.IdentBoxTextSize;
+                                idBox->SetLineColor(rec.IdentBoxBorderColor);
+                                idBox->SetLineWidth(rec.IdentBoxBorderWidth);
+                                idBox->SetLineStyle(rec.IdentBoxBorderStyle);
+                                idBox->AddText(idTexts[iPad].simplified().toLatin1().data());
+                                idBox->SetFillStyle(0);
+                                idBox->SetFillColor(0);
+                                idBox->Draw("same");
+                                pad.tmpObjects.push_back(idBox);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        canvas->Modified();
+        canvas->Update();
+    }
 }
 
 void AGraphWindow::clearRegisteredTObjects()
@@ -1340,7 +1579,7 @@ bool AGraphWindow::onScriptDrawTree(TTree * tree, QString what, QString cond, QS
 void AGraphWindow::changeOverlayMode(bool bOn)
 {
     ui->swToolBox->setVisible(bOn);
-    ui->swToolBar->setCurrentIndex(bOn ? 1 : 0);
+    ui->swToolBar->setCurrentIndex(bOn ? 2 : 0);
     ui->fBasket->setEnabled(!bOn);
     ui->actionEqualize_scale_XY->setEnabled(!bOn);
     ui->menuPalette->setEnabled(!bOn);
@@ -1801,12 +2040,19 @@ void AGraphWindow::updateBasketGUI()
             item->setForeground(QBrush(Qt::black));
             item->setBackground(QBrush(Qt::white));
         }
+
+        if (Basket->isMultidraw(i))
+        {
+            QFont font = item->font();
+            font.setBold(true);
+            font.setItalic(true);
+            font.setWeight(QFont::Medium);//DemiBold);
+            item->setFont(font);
+        }
     }
     ui->pbUpdateInBasket->setEnabled(ActiveBasketItem >= 0);
 
     if (ActiveBasketItem < 0) highlightUpdateBasketButton(false);
-
-    if (MGDesigner) MGDesigner->updateBasketGUI();
 }
 
 void AGraphWindow::onBasketItemDoubleClicked(QListWidgetItem *)
@@ -1929,7 +2175,7 @@ void AGraphWindow::onBasketCustomContextMenuRequested(const QPoint &pos)
         if (!fileName.isEmpty())
         {
             if (QFileInfo(fileName).suffix().isEmpty()) fileName += ".root";
-            Basket->saveAll(fileName);
+            Basket->saveBasket(fileName);
         }
     }
     else if (selectedItem == append)
@@ -1973,7 +2219,12 @@ void AGraphWindow::onBasketCustomContextMenuRequested(const QPoint &pos)
     }
     else if (selectedItem == del)
     {
-        Basket->remove(row);
+        QString err = Basket->remove({row});
+        if (!err. isEmpty())
+        {
+            guitools::message(err, this);
+            return;
+        }
         ActiveBasketItem = -1;
         clearCopyOfActiveBasketId();
         updateBasketGUI();
@@ -2004,8 +2255,11 @@ void AGraphWindow::onBasketReorderRequested(const std::vector<int> & indexes, in
 void AGraphWindow::contextMenuForBasketMultipleSelection(const QPoint & pos)
 {
     QMenu Menu;
-    QAction * multidrawA = Menu.addAction("Make multidraw");
+    QAction * multidrawNewA = Menu.addAction("Make multipad view (creates and opens new basket item)");
+    QAction * multidrawAddA = Menu.addAction("Add to multipad view (one of the selected items must be multipad)");
+    Menu.addSeparator();
     QAction * mergeA = Menu.addAction("Merge histograms");
+    Menu.addSeparator();
     QAction * removeAllSelected = Menu.addAction("Remove all selected");
     removeAllSelected->setShortcut(Qt::Key_Delete);
 
@@ -2013,8 +2267,9 @@ void AGraphWindow::contextMenuForBasketMultipleSelection(const QPoint & pos)
     if (!selectedItem) return;
 
     if      (selectedItem == removeAllSelected) removeAllSelectedBasketItems();
-    else if (selectedItem == multidrawA)        requestMultidraw();
     else if (selectedItem == mergeA)            requestMergeHistograms();
+    else if (selectedItem == multidrawNewA)     requestMultidrawNew();
+    else if (selectedItem == multidrawAddA)     requestAddToMultidraw();
 }
 
 void AGraphWindow::removeAllSelectedBasketItems()
@@ -2031,9 +2286,13 @@ void AGraphWindow::removeAllSelectedBasketItems()
     std::vector<int> indexes;
     for (const QListWidgetItem * item : selection)
         indexes.push_back(lwBasket->row(item));
-    std::sort(indexes.begin(), indexes.end());
-    for (int i = indexes.size() - 1; i >= 0; i--)
-        Basket->remove(indexes[i]);
+
+    QString err = Basket->remove(indexes);
+    if (!err.isEmpty())
+    {
+        guitools::message(err, this);
+        return;
+    }
 
     ActiveBasketItem = -1;
     clearCopyOfActiveBasketId();
@@ -2047,27 +2306,71 @@ void AGraphWindow::onExternalBasketChange()
     updateBasketGUI();
 }
 
-void AGraphWindow::createMGDesigner()
-{
-    if (!MGDesigner)
-    {
-        MGDesigner = new AMultiGraphDesigner(*Basket, this);
-        connect(MGDesigner, &AMultiGraphDesigner::basketChanged, this, &AGraphWindow::onExternalBasketChange);
-    }
-}
-
-void AGraphWindow::requestMultidraw()
+void AGraphWindow::requestMultidrawNew()
 {
     const QList<QListWidgetItem*> selection = lwBasket->selectedItems();
 
-    std::vector<int> indexes;
     for (const QListWidgetItem * const item : selection)
-        indexes.push_back( lwBasket->row(item) );
+    {
+        int index = lwBasket->row(item);
+        if (Basket->isMultidraw(index))
+        {
+            guitools::message("Cannot form a multipad view:\nOne of the selected basket items is already a multipad view", this);
+            return;
+        }
+    }
 
-    if (!MGDesigner) createMGDesigner();
-    MGDesigner->showNormal();
-    MGDesigner->activateWindow();
-    MGDesigner->requestAutoconfigureAndDraw(indexes);
+    ADrawObject obj;
+    obj.Multidraw = true;
+
+    for (const QListWidgetItem * const item : selection)
+    {
+        int index = lwBasket->row(item);
+        obj.MultidrawSettings.BasketItems.push_back(index);
+    }
+    obj.MultidrawSettings.init();
+
+    std::vector<ADrawObject> tmp = {obj};
+    Basket->add("NewMultipadView", tmp);
+
+    switchToBasket(Basket->size() - 1);
+}
+
+void AGraphWindow::requestAddToMultidraw()
+{
+    const QList<QListWidgetItem*> selection = lwBasket->selectedItems();
+
+    int multiIndex = -1;
+    for (const QListWidgetItem * const item : selection)
+    {
+        int index = lwBasket->row(item);
+        if (Basket->isMultidraw(index))
+        {
+            if (multiIndex == -1) multiIndex = index;
+            else
+            {
+                guitools::message("Only one multipad view can be selected", this);
+                return;
+            }
+        }
+    }
+
+    if (multiIndex == -1)
+    {
+        guitools::message("One multipad view has to be selected", this);
+        return;
+    }
+
+    std::vector<ADrawObject> drawObjectAr = Basket->getCopy(multiIndex);
+    if (drawObjectAr.empty()) return; // paranoid
+    for (const QListWidgetItem * const item : selection)
+    {
+        int index = lwBasket->row(item);
+        if (index == multiIndex) continue;
+        drawObjectAr.front().MultidrawSettings.BasketItems.push_back(index);
+    }
+    Basket->update(multiIndex, drawObjectAr);
+    switchToBasket(multiIndex);
 }
 
 void AGraphWindow::requestMergeHistograms()
@@ -2142,6 +2445,21 @@ void AGraphWindow::basket_DrawOnTop(int row)
 {
     if (row == -1) return;
     if (DrawObjects.empty()) return;
+
+    if (Basket->isMultidraw(row))
+    {
+        guitools::message("Cannot draw multipad view on top of another plot", this);
+        return;
+    }
+    if (DrawObjects.front().Multidraw)
+    {
+        DrawObjects.front().MultidrawSettings.BasketItems.push_back(row);
+        //ActiveBasketItem = -1;
+        //updateBasketGUI();
+        redrawAll();
+        highlightUpdateBasketButton(true);
+        return;
+    }
 
     makeCopyOfDrawObjects();
     makeCopyOfActiveBasketId();
@@ -2485,6 +2803,11 @@ void AGraphWindow::on_actionMake_square_triggered()
 void AGraphWindow::on_actionCreate_template_triggered()
 {
     if (DrawObjects.empty()) return;
+    if (isMultidrawModeOn())
+    {
+        guitools::message("Cannot use this feature in multipad view mode", this);
+        return;
+    }
 
     std::vector<std::pair<double,double>> limits = {std::pair<double,double>(xmin, xmax), std::pair<double,double>(ymin, ymax), std::pair<double,double>(zmin, zmax)};
     DrawTemplate.createFrom(DrawObjects, limits); // it seems TH1 does not contain data on the shown range for Y (and Z) axes ... -> using inidcated range!
@@ -2498,6 +2821,11 @@ void AGraphWindow::on_actionApply_template_triggered()
 void AGraphWindow::applyTemplate(bool bAll)
 {
     if (DrawObjects.empty()) return;
+    if (isMultidrawModeOn())
+    {
+        guitools::message("Cannot use this feature in multipad view mode", this);
+        return;
+    }
 
     if (DrawTemplate.hasLegend())
     {
@@ -2598,11 +2926,50 @@ void AGraphWindow::on_actionApply_selective_triggered()
         applyTemplate(false);
 }
 
+void AGraphWindow::on_actionCreate_multipad_view_template_triggered()
+{
+    if (!isMultidrawModeOn())
+    {
+        guitools::message("Open a multipad view to use this feature", this);
+        return;
+    }
+    DrawObjects.front().MultidrawSettings.writeToJson(MultidrawTemplate, false);
+    MultidrawTemplate["Width"]  = width();
+    MultidrawTemplate["Height"] = height();
+}
+
+#include "ajsontools.h"
+void AGraphWindow::on_actionApply_multipad_view_template_triggered()
+{
+    if (!isMultidrawModeOn())
+    {
+        guitools::message("Open a multipad view to use this feature", this);
+        return;
+    }
+
+    if (!MultidrawTemplate.contains("NumX"))
+    {
+        guitools::message("Template was not yet created during this session", this);
+        return;
+    }
+    DrawObjects.front().MultidrawSettings.readFromJson(MultidrawTemplate, false);
+    int width = 500;
+    int height = 500;
+    if (jstools::parseJson(MultidrawTemplate, "Width", width) && jstools::parseJson(MultidrawTemplate, "Height", height))
+        resize(width, height);
+    redrawAll();
+}
+
 void AGraphWindow::on_actionShow_first_drawn_object_context_menu_triggered()
 {
     if (DrawObjects.empty())
     {
         guitools::message("Nothing is drawn!", this);
+        return;
+    }
+    if (isMultidrawModeOn())
+    {
+        guitools::message("Cannot use this feature in multipad view mode", this);
         return;
     }
 
@@ -2612,15 +2979,12 @@ void AGraphWindow::on_actionShow_first_drawn_object_context_menu_triggered()
 
 void AGraphWindow::on_pbManipulate_clicked()
 {
+    if (isMultidrawModeOn())
+    {
+        guitools::message("Cannot use this feature in multipad view mode", this);
+        return;
+    }
     Explorer->manipulateTriggered();
-}
-
-void AGraphWindow::on_actionOpen_MultiGraphDesigner_triggered()
-{
-    if (!MGDesigner) createMGDesigner();
-    MGDesigner->showNormal();
-    MGDesigner->activateWindow();
-    //MGDesigner->updateGUI();
 }
 
 void AGraphWindow::show3D(QString castorFileName, bool keepSettings)
@@ -2798,5 +3162,356 @@ void AGraphWindow::on_actionSet_palette_triggered()
     APaletteSelectionDialog dia(this);
     connect(&dia, &APaletteSelectionDialog::requestRedraw, this, &AGraphWindow::redrawAll);
     dia.exec();
+}
+
+// Multidraw
+
+bool AGraphWindow::isMultidrawModeOn()
+{
+    if (DrawObjects.empty()) return false;
+    return DrawObjects.front().Multidraw;
+}
+
+void AGraphWindow::on_sbMultNumX_editingFinished()
+{
+    if (!isMultidrawModeOn()) return;
+
+    const int num = ui->sbMultNumX->value();
+    if (num == DrawObjects.front().MultidrawSettings.NumX) return;
+
+    DrawObjects.front().MultidrawSettings.NumX = num;
+    redrawAll();
+    highlightUpdateBasketButton(true);
+}
+
+void AGraphWindow::on_sbMultNumY_editingFinished()
+{
+    if (!isMultidrawModeOn()) return;
+
+    const int num = ui->sbMultNumY->value();
+    if (num == DrawObjects.front().MultidrawSettings.NumY) return;
+
+    DrawObjects.front().MultidrawSettings.NumY = num;
+    redrawAll();
+    highlightUpdateBasketButton(true);
+}
+
+void AGraphWindow::on_cobXYorYX_activated(int index)
+{
+    if (!isMultidrawModeOn()) return;
+    DrawObjects.front().MultidrawSettings.XY = (index == 0 ? true : false);
+    redrawAll();
+    highlightUpdateBasketButton(true);
+}
+
+void AGraphWindow::on_cbMultEnforceMargins_clicked(bool checked)
+{
+    if (!isMultidrawModeOn()) return;
+
+    DrawObjects.front().MultidrawSettings.EnforceMargins = checked;
+    redrawAll();
+    highlightUpdateBasketButton(true);
+}
+
+void AGraphWindow::on_ledMultMarginLeft_editingFinished()
+{
+    if (!isMultidrawModeOn()) return;
+
+    const double val = ui->ledMultMarginLeft->text().toDouble();
+    if (val == DrawObjects.front().MultidrawSettings.MarginLeft) return;
+
+    DrawObjects.front().MultidrawSettings.MarginLeft = val;
+    redrawAll();
+    highlightUpdateBasketButton(true);
+}
+
+void AGraphWindow::on_ledMultMarginRight_editingFinished()
+{
+    if (!isMultidrawModeOn()) return;
+
+    const double val = ui->ledMultMarginRight->text().toDouble();
+    if (val == DrawObjects.front().MultidrawSettings.MarginRight) return;
+
+    DrawObjects.front().MultidrawSettings.MarginRight = val;
+    redrawAll();
+    highlightUpdateBasketButton(true);
+}
+
+void AGraphWindow::on_ledMultMarginTop_editingFinished()
+{
+    if (!isMultidrawModeOn()) return;
+
+    const double val = ui->ledMultMarginTop->text().toDouble();
+    if (val == DrawObjects.front().MultidrawSettings.MarginTop) return;
+
+    DrawObjects.front().MultidrawSettings.MarginTop = val;
+    redrawAll();
+    highlightUpdateBasketButton(true);
+}
+
+void AGraphWindow::on_ledMultMarginBottom_editingFinished()
+{
+    if (!isMultidrawModeOn()) return;
+
+    const double val = ui->ledMultMarginBottom->text().toDouble();
+    if (val == DrawObjects.front().MultidrawSettings.MarginBottom) return;
+
+    DrawObjects.front().MultidrawSettings.MarginBottom = val;
+    redrawAll();
+    highlightUpdateBasketButton(true);
+}
+
+void AGraphWindow::on_ledMultScaleLabels_editingFinished()
+{
+    if (!isMultidrawModeOn()) return;
+
+    const double val = ui->ledMultScaleLabels->text().toDouble();
+    if (val == DrawObjects.front().MultidrawSettings.ScaleLabels) return;
+
+    DrawObjects.front().MultidrawSettings.ScaleLabels = val;
+    redrawAll();
+    highlightUpdateBasketButton(true);
+}
+
+
+void AGraphWindow::on_ledMultTitleScaleXoff_editingFinished()
+{
+    if (!isMultidrawModeOn()) return;
+
+    const double val = ui->ledMultTitleScaleXoff->text().toDouble();
+    if (val == DrawObjects.front().MultidrawSettings.ScaleOffsetTitleX) return;
+
+    DrawObjects.front().MultidrawSettings.ScaleOffsetTitleX = val;
+    redrawAll();
+    highlightUpdateBasketButton(true);
+}
+
+void AGraphWindow::on_ledMultTitleScaleYoff_editingFinished()
+{
+    if (!isMultidrawModeOn()) return;
+
+    const double val = ui->ledMultTitleScaleYoff->text().toDouble();
+    if (val == DrawObjects.front().MultidrawSettings.ScaleOffsetTitleY) return;
+
+    DrawObjects.front().MultidrawSettings.ScaleOffsetTitleY = val;
+    redrawAll();
+    highlightUpdateBasketButton(true);
+}
+
+void AGraphWindow::on_ledMultTitleScaleZoff_editingFinished()
+{
+    if (!isMultidrawModeOn()) return;
+
+    const double val = ui->ledMultTitleScaleZoff->text().toDouble();
+    if (val == DrawObjects.front().MultidrawSettings.ScaleOffsetTitleZ) return;
+
+    DrawObjects.front().MultidrawSettings.ScaleOffsetTitleZ = val;
+    redrawAll();
+    highlightUpdateBasketButton(true);
+}
+
+
+void AGraphWindow::on_ledMultAxisScaleXoff_editingFinished()
+{
+    if (!isMultidrawModeOn()) return;
+
+    const double val = ui->ledMultAxisScaleXoff->text().toDouble();
+    if (val == DrawObjects.front().MultidrawSettings.ScaleOffsetAxisX) return;
+
+    DrawObjects.front().MultidrawSettings.ScaleOffsetAxisX = val;
+    redrawAll();
+    highlightUpdateBasketButton(true);
+}
+
+
+void AGraphWindow::on_ledMultAxisScaleYoff_editingFinished()
+{
+    if (!isMultidrawModeOn()) return;
+
+    const double val = ui->ledMultAxisScaleYoff->text().toDouble();
+    if (val == DrawObjects.front().MultidrawSettings.ScaleOffsetAxisY) return;
+
+    DrawObjects.front().MultidrawSettings.ScaleOffsetAxisY = val;
+    redrawAll();
+    highlightUpdateBasketButton(true);
+}
+
+
+void AGraphWindow::on_ledMultAxisScaleZoff_editingFinished()
+{
+    if (!isMultidrawModeOn()) return;
+
+    const double val = ui->ledMultAxisScaleZoff->text().toDouble();
+    if (val == DrawObjects.front().MultidrawSettings.ScaleOffsetAxisZ) return;
+
+    DrawObjects.front().MultidrawSettings.ScaleOffsetAxisZ = val;
+    redrawAll();
+    highlightUpdateBasketButton(true);
+}
+
+/*
+void AGraphWindow::on_ledMultScaleAxesLines_editingFinished()
+{
+    if (!isMultidrawModeOn()) return;
+
+    const double val = ui->ledMultScaleAxesLines->text().toDouble();
+    if (val == DrawObjects.front().MultidrawSettings.ScaleAxesLines) return;
+
+    DrawObjects.front().MultidrawSettings.ScaleAxesLines = val;
+    redrawAll();
+    highlightUpdateBasketButton(true);
+}
+*/
+
+void AGraphWindow::on_ledMultScaleDrawLines_editingFinished()
+{
+    if (!isMultidrawModeOn()) return;
+
+    const double val = ui->ledMultScaleDrawLines->text().toDouble();
+    if (val == DrawObjects.front().MultidrawSettings.ScaleDrawLines) return;
+
+    DrawObjects.front().MultidrawSettings.ScaleDrawLines = val;
+    redrawAll();
+    highlightUpdateBasketButton(true);
+}
+
+void AGraphWindow::on_ledMultScaleMarkers_editingFinished()
+{
+    if (!isMultidrawModeOn()) return;
+
+    const double val = ui->ledMultScaleMarkers->text().toDouble();
+    if (val == DrawObjects.front().MultidrawSettings.ScaleMarkers) return;
+
+    DrawObjects.front().MultidrawSettings.ScaleMarkers = val;
+    redrawAll();
+    highlightUpdateBasketButton(true);
+}
+
+void AGraphWindow::on_cbMultiAddIdentifier_clicked(bool checked)
+{
+    if (!isMultidrawModeOn()) return;
+    DrawObjects.front().MultidrawSettings.ShowIdentifiers = checked;
+    redrawAll();
+    highlightUpdateBasketButton(true);
+}
+
+void AGraphWindow::onMultiIdentPaveTextChanged(QString text)
+{
+    if (!isMultidrawModeOn()) return;
+    AMultidrawRecord & rec = DrawObjects.front().MultidrawSettings;
+    rec.Identifiers = text;
+    onMultiIdentPaveChanged();
+}
+
+void AGraphWindow::onMultiIdentPaveChanged()
+{
+    if (!isMultidrawModeOn()) return;
+    if (!Pave) return;
+
+    AMultidrawRecord & rec = DrawObjects.front().MultidrawSettings;
+    rec.IdentBoxX1 = Pave->GetX1NDC();
+    rec.IdentBoxX2 = Pave->GetX2NDC();
+    rec.IdentBoxY1 = Pave->GetY1NDC();
+    rec.IdentBoxY2 = Pave->GetY2NDC();
+
+    rec.IdentBoxTextColor = Pave->GetTextColor();
+    rec.IdentBoxTextAlign = (Pave->GetTextAlign() - 2) / 10 - 1; // reverse of (rec.IdentBoxTextAlign + 1) * 10 + 2
+    rec.IdentBoxTextFont  = Pave->GetTextFont();
+    rec.IdentBoxTextSize  = Pave->GetTextSize();
+
+    rec.IdentBoxBorderColor = Pave->GetLineColor();
+    rec.IdentBoxBorderWidth = Pave->GetLineWidth();
+    rec.IdentBoxBorderStyle = Pave->GetLineStyle();
+
+    redrawAll();
+    highlightUpdateBasketButton(true);
+}
+
+#include "atextpavedialog.h"
+void AGraphWindow::on_pbMultiConfigureIdentifier_clicked()
+{
+    if (!isMultidrawModeOn()) return;
+
+    AMultidrawRecord & rec = DrawObjects.front().MultidrawSettings;
+    delete Pave; Pave = new TPaveText;
+
+    Pave->SetX1NDC(rec.IdentBoxX1);
+    Pave->SetX2NDC(rec.IdentBoxX2);
+    Pave->SetY1NDC(rec.IdentBoxY1);
+    Pave->SetY2NDC(rec.IdentBoxY2);
+
+    Pave->SetTextColor(rec.IdentBoxTextColor);
+    //Pave->SetTextAlign(rec.IdentBoxTextAlign);
+    Pave->SetTextAlign( (rec.IdentBoxTextAlign + 1) * 10 + 2 );
+    Pave->SetTextFont(rec.IdentBoxTextFont);
+    Pave->SetTextSize(rec.IdentBoxTextSize);
+
+    Pave->SetLineColor(rec.IdentBoxBorderColor);
+    Pave->SetLineWidth(rec.IdentBoxBorderWidth);
+    Pave->SetLineStyle(rec.IdentBoxBorderStyle);
+
+    Pave->SetFillColor(0);
+    Pave->SetLineColor(1);
+    Pave->AddText(rec.Identifiers.toLatin1().data());
+
+    ATextPaveDialog D(*Pave);
+    connect(&D, &ATextPaveDialog::requestRedraw, this, &AGraphWindow::onMultiIdentPaveChanged);
+    connect(&D, &ATextPaveDialog::textChanged,   this, &AGraphWindow::onMultiIdentPaveTextChanged); // need this since cannot read text back from TPaveText :(
+    D.exec();
+}
+
+void AGraphWindow::on_pbMultiSaveImage_clicked()
+{
+    on_pbSaveImage_clicked();
+}
+
+void AGraphWindow::on_pbMultiSaveImage_customContextMenuRequested(const QPoint &pos)
+{
+    on_pbSaveImage_customContextMenuRequested(pos);
+}
+
+#include "ajsontools.h"
+void AGraphWindow::on_actionSave_multipad_view_settings_triggered()
+{
+    if (!isMultidrawModeOn())
+    {
+        guitools::message("A multipad view should be open to save its settings", this);
+        return;
+    }
+
+    QJsonObject json;
+    json["Width"]  = width();
+    json["Height"] = height();
+    DrawObjects.front().MultidrawSettings.writeToJson(json, false);
+
+    QString fn = guitools::dialogSaveFile(this, "Filename to save multidraw pad settings", "*.json");
+    if (fn.isEmpty()) return;
+    if (!fn.endsWith(".json")) fn = fn + ".json";
+    jstools::saveJsonToFile(json, fn);
+}
+
+void AGraphWindow::on_actionLoad_multipad_view_settings_triggered()
+{
+    if (!isMultidrawModeOn())
+    {
+        guitools::message("A multipad view should be open to apply loaded settings", this);
+        return;
+    }
+
+    QString fn = guitools::dialogLoadFile(this, "Filename to load multidraw pad settings", "*.json");
+    if (fn.isEmpty()) return;
+
+    QJsonObject json;
+    bool ok = jstools::loadJsonFromFile(json, fn);
+    if (!ok)
+    {
+        guitools::message("Failed to load json with multipad settings", this);
+        return;
+    }
+    DrawObjects.front().MultidrawSettings.readFromJson(json, false);
+    int width = 500;
+    int height = 500;
+    if (jstools::parseJson(json, "Width", width) && jstools::parseJson(json, "Height", height)) resize(width, height);
+    redrawAll();
 }
 

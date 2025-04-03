@@ -1,6 +1,7 @@
 #include "abasketmanager.h"
 #include "afiletools.h"
 #include "ajsontools.h"
+#include "amultidrawrecord.h"
 
 #include <QJsonDocument>
 #include <QDebug>
@@ -39,8 +40,19 @@ TGraph * HistToGraph(TH1 * h)
 
 void ABasketManager::add(const QString & name, const std::vector<ADrawObject> & drawObjects)
 {
+    if (drawObjects.empty()) return;
+
     ABasketItem item;
     item.Name = name;
+
+    if (drawObjects.front().Multidraw)
+    {
+        item.DrawObjects.push_back(drawObjects.front());
+        item.Type = "Multidraw";
+        Basket.push_back(item);
+        return;
+    }
+
     item.Type = drawObjects.front().Pointer->ClassName();
 
     QMap<TObject*, TObject*> OldToNew;
@@ -167,10 +179,17 @@ std::vector<ADrawObject> ABasketManager::getCopy(int index) const
 {
     std::vector<ADrawObject> res;
 
+    if (index < 0 || index >= Basket.size()) return res;
+
+    if (!Basket[index].DrawObjects.empty() && Basket[index].DrawObjects.front().Multidraw)
+    {
+        res.push_back(Basket[index].DrawObjects.front());
+        return res;
+    }
+
     QMap<TObject*, TObject*> oldToNew;
     TLegend * Legend = nullptr;
 
-    if (index >= 0 && index < Basket.size())
     {
         for (const ADrawObject & obj : Basket.at(index).DrawObjects)
         {
@@ -219,11 +238,81 @@ void ABasketManager::clear()
     Basket.clear();
 }
 
-void ABasketManager::remove(int index)
+std::vector<size_t> ABasketManager::getAllMultidrawsUsingIndex(size_t index)
 {
-    if (index < 0 || index >= Basket.size()) return;
-    Basket[index].clearObjects();
-    Basket.erase(Basket.begin() + index);
+    std::vector<size_t> ar;
+    for (size_t iM = 0; iM < Basket.size(); iM++)
+    {
+        if (!isMultidraw(iM)) continue;
+        if (isMemberOfSpecificMultidraw(index, iM)) ar.push_back(iM);
+    }
+    return ar;
+}
+
+QString ABasketManager::remove(std::vector<int> indexesToRemove)
+{
+    // check the possibility to remove the requested basket items
+    for (int iToRemove : indexesToRemove)
+    {
+        std::vector<size_t> arMultisUsingThis = getAllMultidrawsUsingIndex(iToRemove);
+        if (arMultisUsingThis.empty()) continue;
+
+        // if all multidraws using that index are also to be removed, do not block removal of the index
+        for (int iRem : indexesToRemove)
+        {
+            for (size_t i = 0; i < arMultisUsingThis.size(); i++)
+            {
+                const size_t iMult = arMultisUsingThis[i];
+                if (iMult == iRem) arMultisUsingThis.erase(arMultisUsingThis.begin() + i); // removing that multidraw, so not blocking
+            }
+        }
+        if (arMultisUsingThis.empty()) continue;
+
+        QString ret = QString("Basket item %0 cannot be removed.\nIt is used by multidraw%1").arg(getName(iToRemove)).arg(arMultisUsingThis.size() == 1 ? " " : "s:\n");
+        for (size_t i : arMultisUsingThis) ret += getName(i) + " ";
+        return ret;
+    }
+
+    std::sort(indexesToRemove.begin(), indexesToRemove.end());
+
+    // making mapping array to shift the entry indexes of the remaining multidraws
+    std::vector<size_t> mapping;
+    for (size_t i = 0; i < Basket.size(); i++) mapping.push_back(i);
+    const size_t oldSize = mapping.size();
+
+    // removing items
+    for (int i = indexesToRemove.size() - 1; i >= 0; i--)
+    {
+        int iToRemove = indexesToRemove[i];
+        if (iToRemove < 0 || iToRemove >= Basket.size()) continue;
+
+        Basket[iToRemove].clearObjects();
+        Basket.erase(Basket.begin() + iToRemove);
+        mapping.erase(mapping.begin() + iToRemove);
+    }
+
+    // inverting mapping array (will be newIndex[oldIndex])
+    std::vector<size_t> newIndexMap;
+    newIndexMap.resize(oldSize);
+    for (size_t iNewIndex = 0; iNewIndex < mapping.size(); iNewIndex++)  // [0,1,2,3,4] --> removed 1 and 3 --> mapping [0,2,4] --> old0 is 0; ol2 is 1; old 4 is 2
+    {
+        size_t oldIndex = mapping[iNewIndex];
+        newIndexMap[oldIndex] = iNewIndex;
+    }
+
+    // applying the shift in the multidraw indexing
+    for (ABasketItem & item : Basket)
+    {
+        if (item.DrawObjects.empty()) continue;
+        if (!item.DrawObjects.front().Multidraw) continue;
+
+        AMultidrawRecord & rec = item.DrawObjects.front().MultidrawSettings;
+
+        for (size_t i = 0; i < rec.BasketItems.size(); i++)
+            rec.BasketItems[i] = newIndexMap[rec.BasketItems[i]];
+    }
+
+    return "";
 }
 
 QString ABasketManager::getType(int index) const
@@ -270,33 +359,59 @@ QStringList ABasketManager::getItemNames() const
     return res;
 }
 
-void ABasketManager::saveAll(const QString & fileName)
+bool ABasketManager::isMultidraw(int index) const
 {
-    TFile f(fileName.toLocal8Bit(), "RECREATE");
+    if (index < 0 || index >= Basket.size()) return false;
+    if (Basket[index].DrawObjects.empty()) return false;
+    return Basket[index].DrawObjects.front().Multidraw;
+}
+
+bool ABasketManager::isMemberOfSpecificMultidraw(int index, int multidrawIndex)
+{
+    if (index < 0 || index >= Basket.size()) return false;
+    if (!isMultidraw(multidrawIndex)) return false;
+    if (Basket[multidrawIndex].DrawObjects.empty())
+    {
+        qWarning() << "Unexpected empty DrawObjects for a multidraw item";
+        return false;
+    }
+
+    for (int i : Basket[multidrawIndex].DrawObjects.front().MultidrawSettings.BasketItems)
+        if (i == index) return true;
+
+    return false;
+}
+
+void ABasketManager::saveBasket(const QString & fileName)
+{
+    TFile basketFile(fileName.toLocal8Bit().data(), "RECREATE");
 
     int objectIndex = 0;
-    QJsonArray BasketArray;
+    QJsonArray basketJAr;
     for (size_t ib = 0; ib < Basket.size(); ib++)
     {
-        QJsonObject ItemJson;
-        ItemJson["ItemName"] = Basket.at(ib).Name;
+        QJsonObject itemJson;
+        itemJson["ItemName"] = Basket[ib].Name;
 
-        QJsonArray ItemArray;
-        const std::vector<ADrawObject> & DrawObjects = Basket[ib].DrawObjects;
-        for (size_t io = 0; io < DrawObjects.size(); io++)
+        QJsonArray itemArray;
+        const std::vector<ADrawObject> & drawObjects = Basket[ib].DrawObjects;
+        for (size_t io = 0; io < drawObjects.size(); io++)
         {
-            const ADrawObject & obj = DrawObjects.at(io);
-            TString KeyName = "#";
-            KeyName += objectIndex;
+            const ADrawObject & obj = drawObjects[io];
+            TString keyName = "#";
+            keyName += objectIndex;
             objectIndex++;
-            obj.Pointer->Write(KeyName);
+
+            if (obj.Pointer) obj.Pointer->Write(keyName);
+            else
+            {
+                TNamed dummy("Dummy", "Dummy");
+                dummy.Write(keyName);
+            }
 
             QJsonObject js;
-            js["Name"] = obj.Name;
-            js["Options"] = obj.Options;
-            js["Enabled"] = obj.bEnabled;
-            js["LogX"] = obj.bLogScaleX;
-            js["LogY"] = obj.bLogScaleY;
+            obj.writeToJson(js);
+
             TLegend * Legend = dynamic_cast<TLegend*>(obj.Pointer);
             if (Legend)
             {
@@ -307,27 +422,27 @@ void ABasketManager::saveAll(const QString & fileName)
                 {
                     TLegendEntry * en = static_cast<TLegendEntry*>( (*elist).At(ie));
                     //qDebug() << "Entry obj:"<< en->GetObject();
-                    links.append(findPointerInDrawObjects(DrawObjects, en->GetObject()));
+                    links.append(findPointerInDrawObjects(drawObjects, en->GetObject()));
                 }
                 js["LegendLinks"] = links;
             }
-            ItemArray.append(js);
+            itemArray.append(js);
         }
-        ItemJson["ItemObjects"] = ItemArray;
+        itemJson["ItemObjects"] = itemArray;
 
-        BasketArray.append(ItemJson);
+        basketJAr.append(itemJson);
     }
 
     QJsonDocument doc;
-    doc.setArray(BasketArray);
+    doc.setArray(basketJAr);
     QString descStr(doc.toJson());
-    qDebug() << descStr;
+    //qDebug() << descStr;
 
     TNamed desc;
     desc.SetTitle(descStr.toLocal8Bit().data());
     desc.Write("BasketDescription_v2");
 
-    f.Close();
+    basketFile.Close();
 }
 
 QString ABasketManager::appendBasket(const QString & fileName)
@@ -346,197 +461,93 @@ QString ABasketManager::appendBasket(const QString & fileName)
 //        qDebug() << title << ObjName << type;
 //    }
 
-    bool ok = true;
-    TNamed* desc = (TNamed*)f.Get("BasketDescription_v2");
-    if (desc)
+    size_t oldBasketSize = Basket.size();
+
+    TNamed * desc = (TNamed*)f.Get("BasketDescription_v2");
+    if (!desc)
     {
-        //new system
-        QString text = desc->GetTitle();
-        QJsonDocument doc(QJsonDocument::fromJson(text.toLatin1().data()));
-        QJsonArray BasketArray = doc.array();
-        //qDebug() << BasketArray;
-
-        int basketSize = BasketArray.size();
-        int KeyIndex = 0;
-        for (int iBasketItem = 0; iBasketItem < basketSize; iBasketItem++ )
-        {
-            QJsonObject ItemJson = BasketArray[iBasketItem].toObject();
-            //qDebug() << "Item"<<iBasketItem << ItemJson;
-
-            QString    ItemName  = ItemJson["ItemName"].toString();
-            QJsonArray ItemArray = ItemJson["ItemObjects"].toArray();
-            int        ItemSize  = ItemArray.size();
-
-            std::vector<ADrawObject> drawObjects;
-            int LegendIndex = -1;
-            QJsonArray LegendLinks;
-            for (int iDrawObj = 0; iDrawObj < ItemSize; iDrawObj++)
-            {
-                QJsonObject js = ItemArray[iDrawObj].toObject();
-                QString Name     = js["Name"].toString();
-                QString Options  = js["Options"].toString();
-                bool    bEnabled = js["Enabled"].toBool();
-                bool    bLogX    = false; jstools::parseJson(js, "LogX", bLogX);
-                bool    bLogY    = false; jstools::parseJson(js, "LogY", bLogY);
-
-                TKey *key = (TKey*)f.GetListOfKeys()->At(KeyIndex);
-                KeyIndex++;
-
-                TObject * p = key->ReadObj();
-                if (p)
-                {
-                    ADrawObject Obj(p, Options);
-                    Obj.Name = Name;
-                    Obj.bEnabled = bEnabled;
-                    Obj.bLogScaleX = bLogX;
-                    Obj.bLogScaleY = bLogY;
-                    drawObjects.push_back(Obj);
-
-                    TLegend * Legend = dynamic_cast<TLegend*>(p);
-                    if (Legend)
-                    {
-                        LegendIndex = iDrawObj;
-                        LegendLinks = js["LegendLinks"].toArray();
-                    }
-                }
-                else
-                {
-                    TString nm(QString("Corrupted_%1").arg(Name).toLatin1().data());
-                    p = new TNamed(nm , nm);
-                    qWarning() << "Corrupted TKey in basket file" << fileName << " object:" << Name;
-                }
-            }
-
-            if (LegendIndex != -1)
-            {
-                TLegend * Legend = static_cast<TLegend*>(drawObjects[LegendIndex].Pointer);
-                TList * elist = Legend->GetListOfPrimitives();
-                int num = elist->GetEntries();
-                for (int ie = 0; ie < num; ie++)
-                {
-                    TLegendEntry * en = static_cast<TLegendEntry*>( (*elist).At(ie) );
-                    QString text = en->GetLabel();
-                    TObject * p = nullptr;
-                    int iObj = LegendLinks[ie].toInt();
-                    if (iObj >= 0 && iObj < drawObjects.size())
-                        p = drawObjects[iObj].Pointer;
-                    en->SetObject(p);                       // will override the label
-                    en->SetLabel(text.toLatin1().data());   // so restore it
-                }
-            }
-
-            if (!drawObjects.empty())
-            {
-                ABasketItem item;
-                item.Name = ItemName;
-                item.DrawObjects = drawObjects;
-                item.Type = drawObjects.front().Pointer->ClassName();
-                Basket.push_back(item);
-                drawObjects.clear();
-            }
-        }
+        f.Close();
+        return QString("%1: this is not a valid ANTS3 basket file!").arg(fileName);
     }
-    else
+
+    QString text = desc->GetTitle();
+    QJsonDocument doc(QJsonDocument::fromJson(text.toLatin1().data()));
+    QJsonArray basketArray = doc.array();
+
+    int basketSize = basketArray.size();
+    int keyIndex = 0;
+    for (int iBasketItem = 0; iBasketItem < basketSize; iBasketItem++ )
     {
-        desc = (TNamed*)f.Get("BasketDescription");
-        if (desc)
+        QJsonObject itemJson = basketArray[iBasketItem].toObject();
+
+        QString     itemName  = itemJson["ItemName"].toString();
+        QJsonArray  itemArray = itemJson["ItemObjects"].toArray();
+        const int   itemSize  = itemArray.size();
+
+        std::vector<ADrawObject> drawObjects;
+        int legendIndex = -1;
+        QJsonArray legendLinks;
+        for (int iDrawObj = 0; iDrawObj < itemSize; iDrawObj++)
         {
-            //old system
-            QString text = desc->GetTitle();
-            //qDebug() << "Basket description:"<<text;
-            //qDebug() << "Number of keys:"<<f->GetListOfKeys()->GetEntries();
+            QJsonObject js = itemArray[iDrawObj].toObject();
 
-            QStringList sl = text.split('\n', Qt::SkipEmptyParts);
+            QString name = js["Name"].toString();
+            TKey * key = (TKey*)f.GetListOfKeys()->At(keyIndex);
+            keyIndex++;
 
-            int numLines = sl.size();
-            int basketSize =  numLines/2;
-            //qDebug() << "Description lists" << basketSize << "objects in the basket";
-
-
-            int indexFileObject = 0;
-            if (numLines % 2 == 0 ) // should be even number of lines
+            TObject * tObj = key->ReadObj();
+            if (tObj)
             {
-                for (int iDrawObject = 0; iDrawObject < basketSize; iDrawObject++ )
+                ADrawObject drawObj(tObj, "");
+                drawObj.readFromJson(js);
+                if (drawObj.Multidraw && oldBasketSize != 0) drawObj.shiftMultidrawIndexesBy(oldBasketSize);
+                drawObjects.push_back(drawObj);
+
+                TLegend * legend = dynamic_cast<TLegend*>(tObj);
+                if (legend)
                 {
-                    //qDebug() << ">>>>Object #"<< iDrawObject;
-                    QString name = sl[iDrawObject*2];
-                    bool ok;
-                    QStringList fields = sl[iDrawObject*2+1].split('|');
-                    if (fields.size()<2)
-                    {
-                        qWarning()<<"Too short descr line";
-                        ok=false;
-                        break;
-                    }
-
-                    const QString sNumber = fields[0];
-
-                    int numObj = sNumber.toInt(&ok);
-                    if (!ok)
-                    {
-                        qWarning() << "Num obj convertion error!";
-                        ok=false;
-                        break;
-                    }
-                    if (numObj != fields.size()-1)
-                    {
-                        qWarning()<<"Number of objects vs option strings mismatch:"<<numObj<<fields.size()-1;
-                        ok=false;
-                        break;
-                    }
-
-                    //qDebug() << "Name:"<< name << "objects:"<< numObj;
-
-                    std::vector<ADrawObject> drawObjects;
-                    for (int iDrawObj = 0; iDrawObj < numObj; iDrawObj++)
-                    {
-                        TKey *key = (TKey*)f.GetListOfKeys()->At(indexFileObject++);
-                        //key->SetMotherDir(0);
-                        //QString type = key->GetClassName();
-                        //TString objName = key->GetName();
-                        //qDebug() << "-->"<< iDrawObj <<"   "<<objName<<"  "<<type<<"   "<<fields[iDrawObj+1];
-
-                        TObject * p = key->ReadObj();
-                        if (p) drawObjects.push_back( ADrawObject(p, fields[iDrawObj+1]) );
-                        //qDebug() << p;
-
-                        /*
-                    TLegend * Legend = dynamic_cast<TLegend*>(p);
-                    if (Legend)
-                    {
-                        TList * elist = Legend->GetListOfPrimitives();
-                        int num = elist->GetEntries();
-                        for (int ie = 0; ie < num; ie++)
-                        {
-                            TLegendEntry * en = static_cast<TLegendEntry*>( (*elist).At(ie));
-                            qDebug() << "Entry obj:"<< en->GetObject();
-                        }
-                    }
-                    */
-                    }
-
-                    if (!drawObjects.empty())
-                    {
-                        ABasketItem item;
-                        item.Name = name;
-                        item.DrawObjects = drawObjects;
-                        item.Type = drawObjects.front().Pointer->ClassName();
-                        Basket.push_back(item);
-                        drawObjects.clear();
-                    }
+                    legendIndex = iDrawObj;
+                    legendLinks = js["LegendLinks"].toArray();
                 }
             }
-            else ok = false;
+            else
+            {
+                TString nm( QString("Corrupted_%1").arg(name).toLatin1().data() );
+                tObj = new TNamed(nm, nm);
+                qWarning() << "Corrupted TKey in basket file" << fileName << " object:" << name;
+            }
         }
-        else
+
+        if (legendIndex != -1)
         {
-            f.Close();
-            return QString("%1: this is not a valid ANTS2 basket file!").arg(fileName);
+            TLegend * legend = static_cast<TLegend*>(drawObjects[legendIndex].Pointer);
+            TList * elist = legend->GetListOfPrimitives();
+            const int num = elist->GetEntries();
+            for (int ie = 0; ie < num; ie++)
+            {
+                TLegendEntry * en = static_cast<TLegendEntry*>( (*elist).At(ie) );
+                QString text = en->GetLabel();
+                TObject * tObj = nullptr;
+                int iObj = legendLinks[ie].toInt();
+                if (iObj >= 0 && iObj < drawObjects.size())
+                    tObj = drawObjects[iObj].Pointer;
+                en->SetObject(tObj);                    // will override the label
+                en->SetLabel(text.toLatin1().data());   // so restore it
+            }
+        }
+
+        if (!drawObjects.empty())
+        {
+            ABasketItem item;
+            item.Name = itemName;
+            item.DrawObjects = drawObjects;
+            item.Type = drawObjects.front().Pointer->ClassName();
+            Basket.push_back(item);
+            drawObjects.clear();
         }
     }
 
     f.Close();
-    if (!ok) return QString("%1: corrupted basket file").arg(fileName);
     return "";
 }
 
@@ -615,23 +626,69 @@ void ABasketManager::appendRootHistGraphs(const QString & fileName)
 
 void ABasketManager::reorder(const std::vector<int> & indexes, int to)
 {
-    std::vector<ABasketItem> ItemsToMove;
+    std::vector<ABasketItem> itemsToMove;
     for (size_t i = 0; i < indexes.size(); i++)
     {
         const int index = indexes[i];
-        ItemsToMove.push_back( Basket[index] );
-        Basket[index]._flag = true;       // mark to be deleted
+        itemsToMove.push_back( Basket[index] );
+        Basket[index]._toErase = true;
     }
 
-    for (size_t i = 0; i < ItemsToMove.size(); i++)
+    int toCopy = to;
+    for (size_t i = 0; i < itemsToMove.size(); i++)
     {
-        Basket.insert(Basket.begin() + to, ItemsToMove[i]);
+        Basket.insert(Basket.begin() + to, itemsToMove[i]);
         to++;
     }
 
     for (int i = Basket.size()-1; i >= 0; i--)
-        if (Basket[i]._flag)
+        if (Basket[i]._toErase)
             Basket.erase(Basket.begin() + i);
+
+    // creating mapping to update indexes of multidraw items
+    std::vector<int> mapping;
+    for (size_t i = 0; i < Basket.size(); i++) mapping.push_back(i);
+    for (size_t iMoved = 0; iMoved < indexes.size(); iMoved++)
+    {
+        int indexMoved = indexes[iMoved];
+        for (size_t i = 0; i < mapping.size(); i++)
+        {
+            if (mapping[i] == indexMoved)
+            {
+                mapping[i] = -1; // marker to be removed after insertion
+                break;
+            }
+        }
+    }
+    for (size_t iMoved = 0; iMoved < indexes.size(); iMoved++)
+    {
+        int indexMoved = indexes[iMoved];
+        mapping.insert(mapping.begin() + toCopy, indexMoved);
+        toCopy++;
+    }
+    for (int i = mapping.size()-1; i >= 0; i--)
+        if (mapping[i] == -1) mapping.erase(mapping.begin() + i);
+
+    // inverting mapping array (will be newIndex[oldIndex])
+    std::vector<size_t> newIndexMap;  // new[old], but mapping is the list of old indexes
+    newIndexMap.resize(mapping.size());
+    for (size_t iNewIndex = 0; iNewIndex < mapping.size(); iNewIndex++)  // similar to remove: [0,1,2,3,4] --> removed 1 and 3 --> mapping [0,2,4] --> old0 is 0; ol2 is 1; old 4 is 2
+    {
+        size_t oldIndex = mapping[iNewIndex];
+        newIndexMap[oldIndex] = iNewIndex;
+    }
+
+    // applying the shift in the multidraw indexing
+    for (ABasketItem & item : Basket)
+    {
+        if (item.DrawObjects.empty()) continue;
+        if (!item.DrawObjects.front().Multidraw) continue;
+
+        AMultidrawRecord & rec = item.DrawObjects.front().MultidrawSettings;
+
+        for (size_t i = 0; i < rec.BasketItems.size(); i++)
+            rec.BasketItems[i] = newIndexMap[rec.BasketItems[i]];
+    }
 }
 
 #include "aroothistappenders.h"

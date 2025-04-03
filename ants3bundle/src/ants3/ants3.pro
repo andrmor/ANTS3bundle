@@ -148,6 +148,7 @@ SOURCES += \
     gui/graph/adrawmarginsrecord.cpp \
     gui/graph/agraphwindow.cpp \
     gui/graph/ahistoptstatdialog.cpp \
+    gui/graph/amultidrawrecord.cpp \
     gui/graph/apaletteselectiondialog.cpp \
     gui/graph/asetmarginsdialog.cpp \
     gui/graph/aviewer3d.cpp \
@@ -189,7 +190,6 @@ SOURCES += \
     gui/graph/adrawtemplate.cpp \
     gui/graph/alegenddialog.cpp \
     gui/graph/alinemarkerfilldialog.cpp \
-    gui/graph/amultigraphdesigner.cpp \
     gui/graph/apadgeometry.cpp \
     gui/graph/apadproperties.cpp \
     gui/graph/arootcolorselectordialog.cpp \
@@ -373,6 +373,7 @@ HEADERS += \
     gui/graph/adrawmarginsrecord.h \
     gui/graph/agraphwindow.h \
     gui/graph/ahistoptstatdialog.h \
+    gui/graph/amultidrawrecord.h \
     gui/graph/apaletteselectiondialog.h \
     gui/graph/asetmarginsdialog.h \
     gui/graph/aviewer3dsettingsdialog.h \
@@ -439,7 +440,6 @@ HEADERS += \
     gui/graph/adrawtemplate.h \
     gui/graph/alegenddialog.h \
     gui/graph/alinemarkerfilldialog.h \
-    gui/graph/amultigraphdesigner.h \
     gui/graph/apadgeometry.h \
     gui/graph/apadproperties.h \
     gui/graph/arootcolorselectordialog.h \
@@ -634,7 +634,6 @@ FORMS += \
         gui/graph/aaxesdialog.ui \
         gui/graph/alegenddialog.ui \
         gui/graph/alinemarkerfilldialog.ui \
-        gui/graph/amultigraphdesigner.ui \
         gui/graph/arootcolorselectordialog.ui \
         gui/graph/atemplateselectiondialog.ui \
         gui/graph/atextpavedialog.ui \

@@ -40,8 +40,11 @@ private slots:
     void onContextMenuRequested(const QPoint & pos);
     void onItemDoubleClicked(QTreeWidgetItem *item, int column);
 
+protected:
+    void dropEvent(QDropEvent * event) override;
+
 private:
-    AGraphWindow             & GraphWindow;
+    AGraphWindow         & GraphWindow;
     AGraphRasterWindow   & Raster;
 
     std::vector<ADrawObject> & DrawObjects;
@@ -70,6 +73,8 @@ private:
     void linDraw(int index);
     void boxDraw(int index);
     void ellipseDraw(int index);
+    void onMoveUpAction(int index);
+    void onMoveDownAction(int index);
 
     void linFit(int index);
     void expFit(int index);
@@ -98,6 +103,8 @@ private:
     void construct1DIcon(QIcon & icon, const TAttLine *line, const TAttMarker *marker, const TAttFill *fill);
     void construct2DIcon(QIcon & icon);
     void convertRootColoToQtColor(int rootColor, QColor & qtColor);
+
+    void updateGui_multidrawMode(); // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 private:
     TH2 * objForCustomProjection = nullptr;

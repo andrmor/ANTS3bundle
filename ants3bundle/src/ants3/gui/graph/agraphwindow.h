@@ -4,6 +4,7 @@
 #include "aguiwindow.h"
 #include "adrawobject.h"
 #include "adrawtemplate.h"
+#include "apadproperties.h"
 
 #include <QVariantList>
 
@@ -20,9 +21,9 @@ class ADrawExplorerWidget;
 class ABasketListWidget;
 class TLegend;
 class TGaxis;
-class AMultiGraphDesigner;
 class AScriptInterface;
 class AViewer3D;
+class TPaveText;
 
 namespace Ui {
 class AGraphWindow;
@@ -172,8 +173,9 @@ private slots:
     void on_actionCreate_template_triggered();
     void on_actionApply_template_triggered();
     void on_actionApply_selective_triggered();
+    void on_actionCreate_multipad_view_template_triggered();
+    void on_actionApply_multipad_view_template_triggered();
     void on_actionShow_first_drawn_object_context_menu_triggered();
-    void on_actionOpen_MultiGraphDesigner_triggered();
     void on_actionSet_default_margins_triggered();
     void on_actionSave_image_2_triggered();
     void on_actionCopy_image_to_clipboard_triggered();
@@ -181,6 +183,45 @@ private slots:
     void on_actionSet_palette_triggered();
 
     void on_pbRemoveTextBox_clicked();
+
+    void on_sbMultNumX_editingFinished();
+    void on_sbMultNumY_editingFinished();
+    void on_cobXYorYX_activated(int index);
+
+    void on_cbMultEnforceMargins_clicked(bool checked);
+
+    void on_ledMultMarginLeft_editingFinished();
+    void on_ledMultMarginRight_editingFinished();
+    void on_ledMultMarginTop_editingFinished();
+    void on_ledMultMarginBottom_editingFinished();
+
+    void on_ledMultScaleLabels_editingFinished();
+
+    void on_ledMultTitleScaleXoff_editingFinished();
+    void on_ledMultTitleScaleYoff_editingFinished();
+    void on_ledMultTitleScaleZoff_editingFinished();
+
+    void on_ledMultAxisScaleXoff_editingFinished();
+    void on_ledMultAxisScaleYoff_editingFinished();
+    void on_ledMultAxisScaleZoff_editingFinished();
+
+    //void on_ledMultScaleAxesLines_editingFinished(); // not possible in ROOT... hrm
+
+    void on_ledMultScaleDrawLines_editingFinished();
+    void on_ledMultScaleMarkers_editingFinished();
+
+    void on_cbMultiAddIdentifier_clicked(bool checked);
+
+    void on_pbMultiConfigureIdentifier_clicked();
+
+    void on_pbMultiSaveImage_clicked();
+
+    void on_pbMultiSaveImage_customContextMenuRequested(const QPoint &pos);
+
+    void on_actionSave_multipad_view_settings_triggered();
+
+    void on_actionLoad_multipad_view_settings_triggered();
+
 
 private:
     Ui::AGraphWindow       * ui = nullptr;
@@ -191,7 +232,6 @@ private:
     AGraphRasterWindow     * RasterWindow = nullptr;
     QGraphicsView          * gvOverlay    = nullptr;
     AToolboxScene          * ToolBoxScene = nullptr;
-    AMultiGraphDesigner    * MGDesigner   = nullptr;
     AViewer3D              * Viewer3D     = nullptr;
 
     std::vector<ADrawObject> DrawObjects;         //always local objects -> can have a copy from the Basket
@@ -200,6 +240,7 @@ private:
     std::vector<TObject*>    RegisteredTObjects;
 
     ADrawTemplate            DrawTemplate;
+    QJsonObject              MultidrawTemplate;
 
     int  ActiveBasketItem         = -1; //-1 - Basket is off; 0+ -> basket loaded, can be updated
     int  PreviousActiveBasketItem = -1; //-1 - Basket is off; 0+ -> basket loaded, can be updated
@@ -209,6 +250,11 @@ private:
     bool DrawFinished             = false;
 
     double xmin, xmax, ymin, ymax, zmin, zmax;
+
+    // Multidraw
+    std::vector<APadProperties> Pads;
+    void clearPads();
+    TPaveText * Pave = nullptr;
 
 private:
     // Canvas control
@@ -227,7 +273,8 @@ private:
     void drawSingleObject(TObject * obj, QString options, bool update);
     void registerTObject(TObject * obj);
     void clearRegisteredTObjects();
-    void requestMultidraw();
+    void requestMultidrawNew();  // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    void requestAddToMultidraw();  // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     void doRedrawOnUpdateMargins();
     void updateGuiControlsForMainObject(const QString & className, const QString & options);
     void showProjection(QString type);
@@ -238,19 +285,18 @@ private:
     void setShowCursorPosition(bool flag);
     void fixGraphFrame();
     void updateLogScaleFlags(std::vector<ADrawObject> & drawObjects) const;
-    void createMGDesigner();
     void connectScriptUnitDrawRequests(const std::vector<AScriptInterface *> interfaces);
     void updateMargins(ADrawObject * obj = nullptr);
     TLegend * addLegend();
 
-    void makeCopyOfDrawObjects(); // !!!*** infamous "gcc optimizer fix:"
+    void makeCopyOfDrawObjects(); // old message was here: "gcc optimizer fix:"
     void clearCopyOfDrawObjects();
 
     void updateBasketGUI();
     void switchToBasket(int index);
     void basket_DrawOnTop(int row);
     void highlightUpdateBasketButton(bool flag);
-    void contextMenuForBasketMultipleSelection(const QPoint & pos);
+    void contextMenuForBasketMultipleSelection(const QPoint & pos); // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     void removeAllSelectedBasketItems();
     void clearBasketActiveId();
     void makeCopyOfActiveBasketId();
@@ -266,6 +312,11 @@ private:
     void triggerGlobalBusy(bool flag); // currently disabled - do we need it? One option is trigger inside local busy
     void onBusyOn();
     void onBusyOff();
+
+    void redrawAll_Multidraw(ADrawObject & drawObj); // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    bool isMultidrawModeOn();
+    void onMultiIdentPaveChanged();
+    void onMultiIdentPaveTextChanged(QString text);
 
 signals:
     void requestLocalDrawObject(TObject *obj, QString options, bool fFocus);

@@ -20,7 +20,7 @@ public:
     void clearObjects();
 
     //runtime properties
-    bool _flag = false; // used in rearrangment to flag items to remove
+    bool _toErase = false; // used in rearrangment to flag items to remove
 };
 
 #endif // ABASKETITEM_H

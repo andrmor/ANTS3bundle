@@ -197,3 +197,9 @@ void ATextPaveDialog::on_pbImport_clicked()
     emit requestRedraw();
 }
 
+void ATextPaveDialog::on_pte_textChanged()
+{
+    CurrentText = ui->pte->toPlainText();
+    emit textChanged(CurrentText);
+}
+

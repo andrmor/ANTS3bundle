@@ -53,7 +53,7 @@ public:
 private slots:
     void onCustomContextMenuRequested(const QPoint & pos);
     void onLineNumberChanged(int lineNumber);
-    void onTextChanged(); // !!!*** add "let" "const", also nod valid approach for Python
+    void onTextChanged(); // !!!*** not valid approach for Python!
 
 signals:
     void requestFindText();

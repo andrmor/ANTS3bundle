@@ -1774,7 +1774,8 @@ void AScriptWindow::onFindVariable()
 
     QStringList sl = name.split("(");
     if (sl.size() > 0) name = sl.first();
-    QRegularExpression sp("\\bvar\\s+" + name + "\\b");
+    //const QRegularExpression sp("\\bvar\\s+" + name + "\\b");
+    const QRegularExpression sp("\\b(var|let|const)\\s+" + name + "\\b");
     //qDebug() << "Looking for:"<<sp;
 
     QTextDocument::FindFlags flags = QTextDocument::FindCaseSensitively;

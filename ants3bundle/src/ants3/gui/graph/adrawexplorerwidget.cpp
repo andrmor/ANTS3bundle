@@ -7,6 +7,7 @@
 #include "alinemarkerfilldialog.h"
 #include "agraphrasterwindow.h"
 #include "atextpavedialog.h"
+#include "amultidrawrecord.h"
 
 #ifdef USE_EIGEN
     #include "curvefit.h"
@@ -53,11 +54,25 @@ ADrawExplorerWidget::ADrawExplorerWidget(AGraphWindow & GraphWindow, std::vector
     connect(this, &ADrawExplorerWidget::itemDoubleClicked, this, &ADrawExplorerWidget::onItemDoubleClicked);
 
     setIndentation(0);
+
+    setSelectionMode(QAbstractItemView::SingleSelection);
+    //setContextMenuPolicy(Qt::CustomContextMenu);
+    setAcceptDrops(true);
+    setDragEnabled(true);
+    setDragDropMode(QAbstractItemView::InternalMove);
+    setDropIndicatorShown(true);
 }
 
 void ADrawExplorerWidget::updateGui()
 {
     clear();
+    objForCustomProjection = nullptr;
+
+    if (!DrawObjects.empty() && DrawObjects.front().Multidraw)
+    {
+        updateGui_multidrawMode();
+        return;
+    }
 
     for (int i = 0; i < DrawObjects.size(); i++)
     {
@@ -66,7 +81,6 @@ void ADrawExplorerWidget::updateGui()
 
         QTreeWidgetItem * item = new QTreeWidgetItem();
         QString name = drObj.Name;
-        //if (name.isEmpty()) name = "--";
 
         QString nameShort = name;
         if (nameShort.size() > 15)
@@ -93,20 +107,81 @@ void ADrawExplorerWidget::updateGui()
 
         addTopLevelItem(item);
     }
+}
 
-    objForCustomProjection = nullptr;
+#include "abasketmanager.h"
+void ADrawExplorerWidget::updateGui_multidrawMode()
+{
+    const AMultidrawRecord & rec = DrawObjects.front().MultidrawSettings;
+
+    int ix = 0;
+    int iy = 0;
+    for (size_t i = 0; i < rec.BasketItems.size(); i++)
+    {
+        QTreeWidgetItem * item = new QTreeWidgetItem();
+        QString name = GraphWindow.Basket->getName( rec.BasketItems[i] );
+
+        if (name.size() > 15)
+        {
+            name.truncate(15);
+            name += "..";
+        }
+        name = QString("%0-%1 %2").arg(ix).arg(iy).arg(name);
+
+        if (rec.XY)
+        {
+            ix++;
+            if (ix == rec.NumX)
+            {
+                ix = 0;
+                iy++;
+            }
+        }
+        else
+        {
+            iy++;
+            if (iy == rec.NumY)
+            {
+                iy = 0;
+                ix++;
+            }
+        }
+
+        item->setText(0, name);
+        item->setText(1, QString::number(i));
+
+        //QIcon icon;
+        //constructIconForObject(icon, drObj);
+        //item->setIcon(0, icon);
+
+        addTopLevelItem(item);
+    }
 }
 
 void ADrawExplorerWidget::onContextMenuRequested(const QPoint &pos)
 {
+    if (DrawObjects.empty()) return;
+
     QTreeWidgetItem * item = currentItem();
     if (!item) return;
 
     int index = item->text(1).toInt();
-    if (index < 0 || index >= DrawObjects.size())
+
+    if (DrawObjects.front().Multidraw)
     {
-        qWarning() << "Corrupted model: invalid index extracted";
-        return;
+        if (index < 0 || index >= DrawObjects.front().MultidrawSettings.BasketItems.size())
+        {
+            qWarning() << "Corrupted model: invalid index extracted";
+            return;
+        }
+    }
+    else
+    {
+        if (index < 0 || index >= DrawObjects.size())
+        {
+            qWarning() << "Corrupted model: invalid index extracted";
+            return;
+        }
     }
 
     showObjectContextMenu(mapToGlobal(pos), index);
@@ -114,13 +189,45 @@ void ADrawExplorerWidget::onContextMenuRequested(const QPoint &pos)
 
 void ADrawExplorerWidget::showObjectContextMenu(const QPoint &pos, int index)
 {
+    if (DrawObjects.empty()) return;
+
+    QMenu Menu;
+    Menu.setToolTipsVisible(true);
+
+    bool multidraw = DrawObjects.front().Multidraw;
+    if (multidraw)
+    {
+        if (index < 0 || index >= DrawObjects.front().MultidrawSettings.BasketItems.size()) return;
+
+        QAction * moveUpA   = Menu.addAction("Move up");
+        QAction * moveDownA = Menu.addAction("Move down");
+        Menu.addSeparator();
+        QAction * removeA = Menu.addAction("Remove");
+
+        QAction * si = Menu.exec(pos);
+        if (!si) return;
+
+        if      (si == moveUpA)   onMoveUpAction(index);
+        else if (si == moveDownA) onMoveDownAction(index);
+        else if (si == removeA)
+        {
+            if (DrawObjects.front().MultidrawSettings.BasketItems.size() == 1)
+            {
+                guitools::message("Cannot remove the last item", this);
+                return;
+            }
+            DrawObjects.front().MultidrawSettings.BasketItems.erase(DrawObjects.front().MultidrawSettings.BasketItems.begin() + index);
+            GraphWindow.redrawAll();
+            GraphWindow.highlightUpdateBasketButton(true);
+        }
+        return;
+    }
+
     if (index < 0 || index >= DrawObjects.size()) return;
 
     ADrawObject & obj = DrawObjects[index];
     const QString Type = obj.Pointer->ClassName();
 
-    QMenu Menu;
-    Menu.setToolTipsVisible(true);
 
     QAction * editTextPave = ( Type == "TPaveText" ? Menu.addAction("Edit") : nullptr );
     if (editTextPave) Menu.addSeparator();
@@ -140,6 +247,11 @@ void ADrawExplorerWidget::showObjectContextMenu(const QPoint &pos, int index)
     QAction* axesX        = Menu.addAction("X axis");
     QAction* axesY        = Menu.addAction("Y axis");
     QAction* axesZ        = Menu.addAction("Z axis");
+
+    Menu.addSeparator();
+    QMenu * moveMenu     = Menu.addMenu("Move");
+        QAction * moveUpA   = moveMenu->addAction("Move up");   //moveUpA->setEnabled(index > 1);
+        QAction * moveDownA = moveMenu->addAction("Move down"); //moveDownA->setEnabled(index != 0 && index != DrawObjects.size()-1);
 
     Menu.addSeparator();
     QAction* marginsA     = Menu.addAction("Change margins");
@@ -219,7 +331,7 @@ void ADrawExplorerWidget::showObjectContextMenu(const QPoint &pos, int index)
 
     // ------ exec ------
 
-    QAction* si = Menu.exec(pos);
+    QAction * si = Menu.exec(pos);
     if (!si) return; //nothing was selected
 
     if      (si == renameA)      rename(obj);
@@ -259,6 +371,8 @@ void ADrawExplorerWidget::showObjectContextMenu(const QPoint &pos, int index)
     else if (si == linDrawA)     linDraw(index);
     else if (si == boxDrawA)     boxDraw(index);
     else if (si == ellipseDrawA) ellipseDraw(index);
+    else if (si == moveUpA)      onMoveUpAction(index);
+    else if (si == moveDownA)    onMoveDownAction(index);
 }
 
 void ADrawExplorerWidget::manipulateTriggered()
@@ -333,10 +447,65 @@ void ADrawExplorerWidget::manipulateTriggered()
     }
 }
 
-void ADrawExplorerWidget::onItemDoubleClicked(QTreeWidgetItem *item, int)
+void ADrawExplorerWidget::onItemDoubleClicked(QTreeWidgetItem * item, int)
 {
     if (!item) return;
+    if (DrawObjects.empty()) return;
+
+    if (DrawObjects.front().Multidraw) return;
+
     activateCustomGuiForItem(item->text(1).toInt());
+}
+
+#include <QDropEvent>
+#include <QListWidgetItem>
+void ADrawExplorerWidget::dropEvent(QDropEvent * event)
+{
+    const QList<QTreeWidgetItem*> selected = selectedItems();
+    int iMoved = -1;
+    if (!selected.empty()) iMoved = selected.front()->text(1).toInt();
+
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+    QTreeWidgetItem * itemTo = this->itemAt(event->pos());
+#else
+    QTreeWidgetItem * itemTo = this->itemAt(event->position().toPoint());
+#endif
+    int iTo = -1;
+    if (itemTo)
+    {
+        iTo = itemTo->text(1).toInt();
+        if (dropIndicatorPosition() == QAbstractItemView::BelowItem) iTo++;
+    }
+
+    event->ignore();
+    updateGui();
+
+    //qDebug() << "   Indexes:" << iMoved << iTo;
+    if (iMoved == iTo) return;
+    if (DrawObjects.empty()) return;
+    if (DrawObjects.front().Multidraw)
+    {
+        std::vector<int> & items = DrawObjects.front().MultidrawSettings.BasketItems;
+        if (iTo == items.size()) iTo--;
+        if (iMoved < 0 || iMoved >= items.size()) return;
+        if (iTo    < 0 || iTo    >= items.size()) return;
+        std::swap(items[iMoved], items[iTo]);
+    }
+    else
+    {
+        std::vector<ADrawObject> & items = DrawObjects;
+        if (iTo == items.size()) iTo--;
+        if (iMoved == 0 || iTo == 0)
+        {
+            guitools::message("Cannot change position of the first item", this);
+            return;
+        }
+        if (iMoved < 0 || iMoved >= items.size()) return;
+        if (iTo    < 0 || iTo    >= items.size()) return;
+        std::swap(items[iMoved], items[iTo]);
+    }
+
+    GraphWindow.redrawAll();
 }
 
 void ADrawExplorerWidget::activateCustomGuiForItem(int index)
@@ -2226,6 +2395,53 @@ void ADrawExplorerWidget::ellipseDraw(int index)
     el->SetLineStyle(2);
     el->SetFillStyle(0);
     DrawObjects.insert(DrawObjects.begin()+index+1, ADrawObject(el, "same"));
+
+    GraphWindow.redrawAll();
+    GraphWindow.highlightUpdateBasketButton(true);
+}
+
+void ADrawExplorerWidget::onMoveUpAction(int index)
+{
+    if (DrawObjects.empty()) return;
+    if (index == 0) return;
+
+    if (DrawObjects.front().Multidraw)
+    {
+        std::swap( DrawObjects.front().MultidrawSettings.BasketItems[index], DrawObjects.front().MultidrawSettings.BasketItems[index-1] );
+    }
+    else
+    {
+        if (index == 1)
+        {
+            guitools::message("Cannot change the first draw object!", this);
+            return;
+        }
+        std::swap( DrawObjects[index], DrawObjects[index-1] );
+    }
+
+    GraphWindow.redrawAll();
+    GraphWindow.highlightUpdateBasketButton(true);
+}
+
+void ADrawExplorerWidget::onMoveDownAction(int index)
+{
+    if (DrawObjects.empty()) return;
+
+    if (DrawObjects.front().Multidraw)
+    {
+        if (index == DrawObjects.front().MultidrawSettings.BasketItems.size()-1) return;
+        std::swap( DrawObjects.front().MultidrawSettings.BasketItems[index], DrawObjects.front().MultidrawSettings.BasketItems[index+1] );
+    }
+    else
+    {
+        if (index == 0)
+        {
+            guitools::message("Cannot change the first draw object!", this);
+            return;
+        }
+        if (index == DrawObjects.size()-1) return;
+        std::swap( DrawObjects[index], DrawObjects[index+1] );
+    }
 
     GraphWindow.redrawAll();
     GraphWindow.highlightUpdateBasketButton(true);

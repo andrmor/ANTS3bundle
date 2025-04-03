@@ -61,9 +61,12 @@
         <rect>
          <x>2</x>
          <y>1</y>
-         <width>151</width>
-         <height>561</height>
+         <width>145</width>
+         <height>741</height>
         </rect>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::Shape::NoFrame</enum>
        </property>
        <property name="currentIndex">
         <number>0</number>
@@ -832,6 +835,494 @@
         <zorder>pbSaveImage</zorder>
         <zorder>pbRemoveTextBox</zorder>
        </widget>
+       <widget class="QWidget" name="page_5">
+        <widget class="QSpinBox" name="sbMultNumX">
+         <property name="geometry">
+          <rect>
+           <x>80</x>
+           <y>36</y>
+           <width>57</width>
+           <height>26</height>
+          </rect>
+         </property>
+         <property name="minimum">
+          <number>1</number>
+         </property>
+        </widget>
+        <widget class="QSpinBox" name="sbMultNumY">
+         <property name="geometry">
+          <rect>
+           <x>80</x>
+           <y>62</y>
+           <width>57</width>
+           <height>26</height>
+          </rect>
+         </property>
+         <property name="minimum">
+          <number>1</number>
+         </property>
+        </widget>
+        <widget class="QLabel" name="label_14">
+         <property name="geometry">
+          <rect>
+           <x>9</x>
+           <y>40</y>
+           <width>66</width>
+           <height>17</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Num in X</string>
+         </property>
+        </widget>
+        <widget class="QLabel" name="label_29">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>66</y>
+           <width>66</width>
+           <height>17</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Num in Y</string>
+         </property>
+        </widget>
+        <widget class="QLabel" name="label_30">
+         <property name="geometry">
+          <rect>
+           <x>18</x>
+           <y>8</y>
+           <width>111</width>
+           <height>20</height>
+          </rect>
+         </property>
+         <property name="font">
+          <font>
+           <fontweight>DemiBold</fontweight>
+          </font>
+         </property>
+         <property name="text">
+          <string>Multipad view</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignmentFlag::AlignCenter</set>
+         </property>
+        </widget>
+        <widget class="Line" name="line_3">
+         <property name="geometry">
+          <rect>
+           <x>5</x>
+           <y>117</y>
+           <width>137</width>
+           <height>7</height>
+          </rect>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Orientation::Horizontal</enum>
+         </property>
+        </widget>
+        <widget class="Line" name="line_20">
+         <property name="geometry">
+          <rect>
+           <x>5</x>
+           <y>29</y>
+           <width>137</width>
+           <height>7</height>
+          </rect>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Orientation::Horizontal</enum>
+         </property>
+        </widget>
+        <widget class="QCheckBox" name="cbMultEnforceMargins">
+         <property name="geometry">
+          <rect>
+           <x>5</x>
+           <y>120</y>
+           <width>141</width>
+           <height>23</height>
+          </rect>
+         </property>
+         <property name="font">
+          <font>
+           <fontweight>Medium</fontweight>
+          </font>
+         </property>
+         <property name="text">
+          <string>Enforce margins</string>
+         </property>
+        </widget>
+        <widget class="QFrame" name="frMultMargins">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="geometry">
+          <rect>
+           <x>4</x>
+           <y>144</y>
+           <width>135</width>
+           <height>61</height>
+          </rect>
+         </property>
+         <property name="frameShape">
+          <enum>QFrame::Shape::NoFrame</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Shadow::Raised</enum>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_2">
+          <property name="leftMargin">
+           <number>0</number>
+          </property>
+          <property name="topMargin">
+           <number>0</number>
+          </property>
+          <property name="rightMargin">
+           <number>0</number>
+          </property>
+          <property name="bottomMargin">
+           <number>3</number>
+          </property>
+          <property name="spacing">
+           <number>3</number>
+          </property>
+          <item row="0" column="0">
+           <widget class="QLabel" name="lMultiMarLeft">
+            <property name="text">
+             <string>L</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QLineEdit" name="ledMultMarginLeft"/>
+          </item>
+          <item row="0" column="2">
+           <widget class="QLabel" name="lMultiMarRight">
+            <property name="text">
+             <string>R</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="3">
+           <widget class="QLineEdit" name="ledMultMarginRight"/>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="lMultiMarTop">
+            <property name="text">
+             <string>T</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QLineEdit" name="ledMultMarginTop"/>
+          </item>
+          <item row="1" column="2">
+           <widget class="QLabel" name="lMultiMarBottom">
+            <property name="text">
+             <string>B</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="3">
+           <widget class="QLineEdit" name="ledMultMarginBottom"/>
+          </item>
+         </layout>
+        </widget>
+        <widget class="Line" name="line_21">
+         <property name="geometry">
+          <rect>
+           <x>5</x>
+           <y>203</y>
+           <width>137</width>
+           <height>7</height>
+          </rect>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Orientation::Horizontal</enum>
+         </property>
+        </widget>
+        <widget class="QLabel" name="label_35">
+         <property name="geometry">
+          <rect>
+           <x>20</x>
+           <y>207</y>
+           <width>101</width>
+           <height>17</height>
+          </rect>
+         </property>
+         <property name="font">
+          <font>
+           <fontweight>Medium</fontweight>
+          </font>
+         </property>
+         <property name="text">
+          <string>Scaling factors</string>
+         </property>
+        </widget>
+        <widget class="Line" name="line_22">
+         <property name="geometry">
+          <rect>
+           <x>5</x>
+           <y>528</y>
+           <width>137</width>
+           <height>7</height>
+          </rect>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Orientation::Horizontal</enum>
+         </property>
+        </widget>
+        <widget class="QLineEdit" name="ledMultScaleLabels">
+         <property name="geometry">
+          <rect>
+           <x>77</x>
+           <y>226</y>
+           <width>61</width>
+           <height>25</height>
+          </rect>
+         </property>
+        </widget>
+        <widget class="Line" name="line_23">
+         <property name="geometry">
+          <rect>
+           <x>5</x>
+           <y>469</y>
+           <width>137</width>
+           <height>7</height>
+          </rect>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Orientation::Horizontal</enum>
+         </property>
+        </widget>
+        <widget class="QComboBox" name="cobXYorYX">
+         <property name="geometry">
+          <rect>
+           <x>24</x>
+           <y>90</y>
+           <width>101</width>
+           <height>25</height>
+          </rect>
+         </property>
+         <property name="toolTip">
+          <string>Fill order</string>
+         </property>
+         <item>
+          <property name="text">
+           <string>Horizontal</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Vertical</string>
+          </property>
+         </item>
+        </widget>
+        <widget class="QCheckBox" name="cbMultiAddIdentifier">
+         <property name="geometry">
+          <rect>
+           <x>9</x>
+           <y>475</y>
+           <width>121</width>
+           <height>23</height>
+          </rect>
+         </property>
+         <property name="font">
+          <font>
+           <fontweight>Medium</fontweight>
+          </font>
+         </property>
+         <property name="text">
+          <string>Add identifier</string>
+         </property>
+        </widget>
+        <widget class="QLabel" name="label_31">
+         <property name="geometry">
+          <rect>
+           <x>13</x>
+           <y>229</y>
+           <width>50</width>
+           <height>17</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Labels:</string>
+         </property>
+        </widget>
+        <widget class="QLabel" name="label_42">
+         <property name="geometry">
+          <rect>
+           <x>13</x>
+           <y>254</y>
+           <width>121</width>
+           <height>17</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Label offsets:</string>
+         </property>
+        </widget>
+        <widget class="QLabel" name="label_47">
+         <property name="geometry">
+          <rect>
+           <x>13</x>
+           <y>391</y>
+           <width>91</width>
+           <height>17</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Width/size:</string>
+         </property>
+        </widget>
+        <widget class="QPushButton" name="pbMultiConfigureIdentifier">
+         <property name="geometry">
+          <rect>
+           <x>27</x>
+           <y>500</y>
+           <width>90</width>
+           <height>25</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Configure</string>
+         </property>
+        </widget>
+        <widget class="QWidget" name="layoutWidget">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>275</y>
+           <width>133</width>
+           <height>112</height>
+          </rect>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_3">
+          <item row="0" column="1">
+           <widget class="QLabel" name="label_36">
+            <property name="text">
+             <string>Title</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignmentFlag::AlignCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="2">
+           <widget class="QLabel" name="label_44">
+            <property name="text">
+             <string>Axis</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignmentFlag::AlignCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="label_43">
+            <property name="text">
+             <string>X</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QLineEdit" name="ledMultTitleScaleXoff"/>
+          </item>
+          <item row="1" column="2">
+           <widget class="QLineEdit" name="ledMultAxisScaleXoff"/>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="label_45">
+            <property name="text">
+             <string>Y</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QLineEdit" name="ledMultTitleScaleYoff"/>
+          </item>
+          <item row="2" column="2">
+           <widget class="QLineEdit" name="ledMultAxisScaleYoff"/>
+          </item>
+          <item row="3" column="0">
+           <widget class="QLabel" name="label_46">
+            <property name="text">
+             <string>Z</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <widget class="QLineEdit" name="ledMultTitleScaleZoff"/>
+          </item>
+          <item row="3" column="2">
+           <widget class="QLineEdit" name="ledMultAxisScaleZoff"/>
+          </item>
+         </layout>
+        </widget>
+        <widget class="QWidget" name="layoutWidget">
+         <property name="geometry">
+          <rect>
+           <x>8</x>
+           <y>411</y>
+           <width>131</width>
+           <height>58</height>
+          </rect>
+         </property>
+         <layout class="QFormLayout" name="formLayout">
+          <property name="horizontalSpacing">
+           <number>3</number>
+          </property>
+          <property name="verticalSpacing">
+           <number>3</number>
+          </property>
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_49">
+            <property name="text">
+             <string>Lines</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QLineEdit" name="ledMultScaleDrawLines"/>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="label_50">
+            <property name="text">
+             <string>Markers</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QLineEdit" name="ledMultScaleMarkers"/>
+          </item>
+         </layout>
+        </widget>
+        <widget class="QPushButton" name="pbMultiSaveImage">
+         <property name="geometry">
+          <rect>
+           <x>18</x>
+           <y>536</y>
+           <width>111</width>
+           <height>25</height>
+          </rect>
+         </property>
+         <property name="font">
+          <font>
+           <fontweight>Medium</fontweight>
+          </font>
+         </property>
+         <property name="contextMenuPolicy">
+          <enum>Qt::ContextMenuPolicy::CustomContextMenu</enum>
+         </property>
+         <property name="toolTip">
+          <string>Right-click to copy to the clipboard</string>
+         </property>
+         <property name="text">
+          <string>Save image</string>
+         </property>
+        </widget>
+       </widget>
        <widget class="QWidget" name="page_2">
         <widget class="QFrame" name="fToolBox">
          <property name="geometry">
@@ -864,7 +1355,7 @@
            <widget class="QFrame" name="fRuler">
             <property name="geometry">
              <rect>
-              <x>0</x>
+              <x>-1</x>
               <y>10</y>
               <width>150</width>
               <height>391</height>
@@ -1980,7 +2471,7 @@ in basket</string>
      <x>0</x>
      <y>0</y>
      <width>987</width>
-     <height>21</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuPalette">
@@ -2003,6 +2494,7 @@ in basket</string>
      <string>View</string>
     </property>
     <addaction name="separator"/>
+    <addaction name="actionShow_first_drawn_object_context_menu"/>
     <addaction name="actionShow_ROOT_attribute_panel"/>
     <addaction name="separator"/>
     <addaction name="actionToggle_toolbar"/>
@@ -2012,7 +2504,6 @@ in basket</string>
     <addaction name="actionSide"/>
     <addaction name="actionFront"/>
     <addaction name="separator"/>
-    <addaction name="actionOpen_MultiGraphDesigner"/>
    </widget>
    <widget class="QMenu" name="menuSize">
     <property name="title">
@@ -2031,29 +2522,33 @@ in basket</string>
      <string>Template</string>
     </property>
     <addaction name="actionCreate_template"/>
-    <addaction name="separator"/>
     <addaction name="actionApply_template"/>
-    <addaction name="separator"/>
     <addaction name="actionApply_selective"/>
+    <addaction name="separator"/>
+    <addaction name="actionCreate_multipad_view_template"/>
+    <addaction name="actionApply_multipad_view_template"/>
    </widget>
    <widget class="QMenu" name="menuMainObject">
     <property name="title">
-     <string>Do</string>
+     <string>Settings</string>
     </property>
-    <addaction name="actionShow_first_drawn_object_context_menu"/>
-    <addaction name="actionSave_image_2"/>
-    <addaction name="actionCopy_image_to_clipboard"/>
     <addaction name="actionSet_histogram_stat_box_content"/>
-   </widget>
-   <widget class="QMenu" name="menuMargins">
-    <property name="title">
-     <string>Margins</string>
-    </property>
     <addaction name="actionSet_default_margins"/>
    </widget>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>File</string>
+    </property>
+    <addaction name="separator"/>
+    <addaction name="actionSave_image_2"/>
+    <addaction name="actionCopy_image_to_clipboard"/>
+    <addaction name="separator"/>
+    <addaction name="actionSave_multipad_view_settings"/>
+    <addaction name="actionLoad_multipad_view_settings"/>
+   </widget>
+   <addaction name="menuFile"/>
    <addaction name="menuMainObject"/>
    <addaction name="menuView"/>
-   <addaction name="menuMargins"/>
    <addaction name="menuPalette"/>
    <addaction name="menuSize"/>
    <addaction name="menuTemplate"/>
@@ -2181,11 +2676,6 @@ in basket</string>
     <string>Show context menu of the first drawn object</string>
    </property>
   </action>
-  <action name="actionOpen_MultiGraphDesigner">
-   <property name="text">
-    <string>Open MultiGraphDesigner</string>
-   </property>
-  </action>
   <action name="actionSet_default_margins">
    <property name="text">
     <string>Set default margins</string>
@@ -2209,6 +2699,26 @@ in basket</string>
   <action name="actionSet_palette">
    <property name="text">
     <string>Set palette: full list</string>
+   </property>
+  </action>
+  <action name="actionSave_multipad_view_settings">
+   <property name="text">
+    <string>Save multipad view settings</string>
+   </property>
+  </action>
+  <action name="actionLoad_multipad_view_settings">
+   <property name="text">
+    <string>Load multipad view settings</string>
+   </property>
+  </action>
+  <action name="actionCreate_multipad_view_template">
+   <property name="text">
+    <string>Create multipad view template</string>
+   </property>
+  </action>
+  <action name="actionApply_multipad_view_template">
+   <property name="text">
+    <string>Apply multipad view template</string>
    </property>
   </action>
  </widget>
@@ -2270,7 +2780,7 @@ in basket</string>
    <hints>
     <hint type="sourcelabel">
      <x>366</x>
-     <y>106</y>
+     <y>103</y>
     </hint>
     <hint type="destinationlabel">
      <x>387</x>
@@ -2286,7 +2796,7 @@ in basket</string>
    <hints>
     <hint type="sourcelabel">
      <x>366</x>
-     <y>127</y>
+     <y>124</y>
     </hint>
     <hint type="destinationlabel">
      <x>387</x>
@@ -2302,7 +2812,7 @@ in basket</string>
    <hints>
     <hint type="sourcelabel">
      <x>366</x>
-     <y>150</y>
+     <y>147</y>
     </hint>
     <hint type="destinationlabel">
      <x>387</x>
@@ -2318,7 +2828,7 @@ in basket</string>
    <hints>
     <hint type="sourcelabel">
      <x>366</x>
-     <y>171</y>
+     <y>168</y>
     </hint>
     <hint type="destinationlabel">
      <x>387</x>
@@ -2334,7 +2844,7 @@ in basket</string>
    <hints>
     <hint type="sourcelabel">
      <x>366</x>
-     <y>194</y>
+     <y>191</y>
     </hint>
     <hint type="destinationlabel">
      <x>387</x>
@@ -2446,11 +2956,11 @@ in basket</string>
    <hints>
     <hint type="sourcelabel">
      <x>292</x>
-     <y>233</y>
+     <y>230</y>
     </hint>
     <hint type="destinationlabel">
      <x>365</x>
-     <y>236</y>
+     <y>233</y>
     </hint>
    </hints>
   </connection>
@@ -2462,11 +2972,11 @@ in basket</string>
    <hints>
     <hint type="sourcelabel">
      <x>368</x>
-     <y>237</y>
+     <y>229</y>
     </hint>
     <hint type="destinationlabel">
      <x>369</x>
-     <y>257</y>
+     <y>249</y>
     </hint>
    </hints>
   </connection>
@@ -2483,6 +2993,22 @@ in basket</string>
     <hint type="destinationlabel">
      <x>349</x>
      <y>311</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cbMultEnforceMargins</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>frMultMargins</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>272</x>
+     <y>126</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>283</x>
+     <y>145</y>
     </hint>
    </hints>
   </connection>
