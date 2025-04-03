@@ -235,7 +235,7 @@ QString ftools::loadDoubleVectorsFromFile(const QString & fileName, std::vector<
     for (auto * v : vec) v->clear();
 
     QTextStream in(&file);
-    QRegularExpression rx("(\\ |\\,|\\:|\\t)"); //separators: ' ' or ',' or ':' or '\t'
+    const QRegularExpression rx("(\\ |\\,|\\:|\\t)"); //separators: ' ' or ',' or ':' or '\t'
     while (!in.atEnd())
     {
         const QStringList fields = in.readLine().split(rx, Qt::SkipEmptyParts);
