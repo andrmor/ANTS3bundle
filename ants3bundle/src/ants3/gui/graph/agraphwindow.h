@@ -173,6 +173,8 @@ private slots:
     void on_actionCreate_template_triggered();
     void on_actionApply_template_triggered();
     void on_actionApply_selective_triggered();
+    void on_actionCreate_multipad_view_template_triggered();
+    void on_actionApply_multipad_view_template_triggered();
     void on_actionShow_first_drawn_object_context_menu_triggered();
     void on_actionSet_default_margins_triggered();
     void on_actionSave_image_2_triggered();
@@ -220,6 +222,7 @@ private slots:
 
     void on_actionLoad_multipad_view_settings_triggered();
 
+
 private:
     Ui::AGraphWindow       * ui = nullptr;
 
@@ -237,6 +240,7 @@ private:
     std::vector<TObject*>    RegisteredTObjects;
 
     ADrawTemplate            DrawTemplate;
+    QJsonObject              MultidrawTemplate;
 
     int  ActiveBasketItem         = -1; //-1 - Basket is off; 0+ -> basket loaded, can be updated
     int  PreviousActiveBasketItem = -1; //-1 - Basket is off; 0+ -> basket loaded, can be updated

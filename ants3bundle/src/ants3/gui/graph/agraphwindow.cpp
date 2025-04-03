@@ -2803,6 +2803,11 @@ void AGraphWindow::on_actionMake_square_triggered()
 void AGraphWindow::on_actionCreate_template_triggered()
 {
     if (DrawObjects.empty()) return;
+    if (isMultidrawModeOn())
+    {
+        guitools::message("Cannot use this feature in multipad view mode", this);
+        return;
+    }
 
     std::vector<std::pair<double,double>> limits = {std::pair<double,double>(xmin, xmax), std::pair<double,double>(ymin, ymax), std::pair<double,double>(zmin, zmax)};
     DrawTemplate.createFrom(DrawObjects, limits); // it seems TH1 does not contain data on the shown range for Y (and Z) axes ... -> using inidcated range!
@@ -2816,6 +2821,11 @@ void AGraphWindow::on_actionApply_template_triggered()
 void AGraphWindow::applyTemplate(bool bAll)
 {
     if (DrawObjects.empty()) return;
+    if (isMultidrawModeOn())
+    {
+        guitools::message("Cannot use this feature in multipad view mode", this);
+        return;
+    }
 
     if (DrawTemplate.hasLegend())
     {
@@ -2916,11 +2926,50 @@ void AGraphWindow::on_actionApply_selective_triggered()
         applyTemplate(false);
 }
 
+void AGraphWindow::on_actionCreate_multipad_view_template_triggered()
+{
+    if (!isMultidrawModeOn())
+    {
+        guitools::message("Open a multipad view to use this feature", this);
+        return;
+    }
+    DrawObjects.front().MultidrawSettings.writeToJson(MultidrawTemplate, false);
+    MultidrawTemplate["Width"]  = width();
+    MultidrawTemplate["Height"] = height();
+}
+
+#include "ajsontools.h"
+void AGraphWindow::on_actionApply_multipad_view_template_triggered()
+{
+    if (!isMultidrawModeOn())
+    {
+        guitools::message("Open a multipad view to use this feature", this);
+        return;
+    }
+
+    if (!MultidrawTemplate.contains("NumX"))
+    {
+        guitools::message("Template was not yet created during this session", this);
+        return;
+    }
+    DrawObjects.front().MultidrawSettings.readFromJson(MultidrawTemplate, false);
+    int width = 500;
+    int height = 500;
+    if (jstools::parseJson(MultidrawTemplate, "Width", width) && jstools::parseJson(MultidrawTemplate, "Height", height))
+        resize(width, height);
+    redrawAll();
+}
+
 void AGraphWindow::on_actionShow_first_drawn_object_context_menu_triggered()
 {
     if (DrawObjects.empty())
     {
         guitools::message("Nothing is drawn!", this);
+        return;
+    }
+    if (isMultidrawModeOn())
+    {
+        guitools::message("Cannot use this feature in multipad view mode", this);
         return;
     }
 
@@ -2930,6 +2979,11 @@ void AGraphWindow::on_actionShow_first_drawn_object_context_menu_triggered()
 
 void AGraphWindow::on_pbManipulate_clicked()
 {
+    if (isMultidrawModeOn())
+    {
+        guitools::message("Cannot use this feature in multipad view mode", this);
+        return;
+    }
     Explorer->manipulateTriggered();
 }
 
