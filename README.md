@@ -27,9 +27,10 @@
 * Particle and optical simulation parts are ready  
 * GUI is ready
 * Scripting system is ready
-* Computer farm support is in early alpha
+* Computer farm support is ready (to be refactored later)
 * Infrastructure for help system for scripting method is ready, help text is in the process of filling
 * Warning: work on ANTS3 documentation has not yet started!
+* Working on the paper desribing ANTS3
 
 ---
 
@@ -38,6 +39,15 @@
 * [Outdated: Ubuntu 24.04 Mate with Qt5](https://github.com/andrmor/ANTS3bundle/wiki/Install_Ubuntu22.04_Qt5)
 * [Outdated: Ubuntu 22.04 Mate](https://github.com/andrmor/ANTS3bundle/wiki/Install_Ubuntu22.04)
  
+ ---
+
+# Farm mode instruction
+* On every farm node computer start dispatcher executable from a terminal, suppling three parameters: IP address, port, maxNumberOfProcesses
+  * For example (use proper IP insead of 'x'es!): /home/andr/ANTS3/ANTS3bundle/ants3bundle/build/Desktop_Qt_6_8_2-Debug/bin/dispatcher xxx.xxx.xxx.xxx 12344 6
+* At the main window of ANTS3 click "Workload"
+* Check "Use farm" box
+* Click "New" and fill the IP and port for every farm node
+* The simulations in ANTS3 will be automatically distributed over the farm nodes
  ---
 
  # Latest tested software versions
