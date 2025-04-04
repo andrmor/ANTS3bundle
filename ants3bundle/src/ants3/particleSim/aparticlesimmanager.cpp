@@ -372,7 +372,7 @@ bool AParticleSimManager::configureGDML(A3WorkDistrConfig & Request, const QStri
     SimSet.RunSet.GDML = "detector.gdml";
 
     const QString LocalGdmlName = ExchangeDir + "/" + SimSet.RunSet.GDML.data();
-    Request.CommonFiles.push_back(LocalGdmlName);
+    Request.CommonFiles.push_back(SimSet.RunSet.GDML.data()); // no exchange dir here, just file name!
     //QString err = Geometry.exportToGDML(LocalGdmlName);
     QString err = AGeometryHub::getInstance().exportGeometry(LocalGdmlName);
 
