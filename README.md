@@ -27,9 +27,10 @@
 * Particle and optical simulation parts are ready  
 * GUI is ready
 * Scripting system is ready
-* Computer farm support is in early alpha
+* Computer farm support is ready (to be refactored later)
 * Infrastructure for help system for scripting method is ready, help text is in the process of filling
 * Warning: work on ANTS3 documentation has not yet started!
+* Working on the paper desribing ANTS3
 
 ---
 
@@ -40,9 +41,20 @@
  
  ---
 
+# Farm mode instructions
+* On every farm node computer start dispatcher executable from a terminal, suppling three parameters: IP address, port, maxNumberOfProcesses
+  * For example (replace the 'x'es by the actual IP!):
+    
+   /ants3bundle/build/Desktop_Qt_6_8_2-Debug/bin/dispatcher xxx.xxx.xxx.xxx 12344 6
+* At the main window of ANTS3 click "Workload"
+* Check "Use farm" box
+* Click "New" and fill the IP and port for every farm node
+* The simulations in ANTS3 will be automatically distributed over the farm nodes
+ ---
+
  # Latest tested software versions
 
-* 21 February 2025 --> Ubuntu 24.04 Mate, Qt 6.8.0, CERN ROOT 6.32.06, Geant4 11.3.0
+* 22 February 2025 --> Ubuntu 24.04 Mate, Qt 6.8.2, CERN ROOT 6.32.10, Geant4 11.3.0
 * 21 October 2024 --> Ubuntu 24.04 Mate, Qt 6.8.0, CERN ROOT 6.32.04, Geant4 11.2.2
 * 27 June 2024 --> Ubuntu 24.04 Mate, Qt 6.6.3, CERN ROOT 6.32.02, Geant4 11.2.2
 
