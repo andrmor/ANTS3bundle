@@ -4,7 +4,7 @@
 #include <QObject>
 #include <QString>
 
-#include <array>
+//#include <array>
 #include <vector>
 
 class AGeoObject;
@@ -23,8 +23,8 @@ public:
     virtual ~AGeoBaseDelegate(){}
 
     virtual QString getName() const = 0;
-    virtual bool updateObject(AGeoObject * obj) const = 0;
-    virtual void Update(const AGeoObject * obj) = 0;
+    virtual bool    updateObject(AGeoObject * obj) const = 0;
+    virtual void    updateGui(const AGeoObject * obj) = 0;
 
     bool isLeEmpty(const std::vector<AOneLineTextEdit*> & v) const;
 

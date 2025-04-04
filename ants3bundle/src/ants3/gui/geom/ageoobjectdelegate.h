@@ -40,9 +40,9 @@ public:
 
     QString getName() const override;
 
-    bool updateObject(AGeoObject * obj) const override;
+    bool    updateObject(AGeoObject * obj) const override;
 
-    void Update(const AGeoObject * obj) override;  // !!!*** need to refactor!
+    void    updateGui(const AGeoObject * obj) override;
 
 protected:
     QVBoxLayout * lMF = nullptr;      //main layout
@@ -139,7 +139,7 @@ public:
 
     bool updateObject(AGeoObject * obj) const override;
 
-    void Update(const AGeoObject * obj) override;
+    void updateGui(const AGeoObject * obj) override;
 
 protected:
     AOneLineTextEdit * ex = nullptr;
@@ -158,7 +158,7 @@ public:
 
     QString getName() const override;
 
-    void Update(const AGeoObject * obj) override;
+    void updateGui(const AGeoObject * obj) override;
 
 protected:
     QComboBox        * cobMat      = nullptr;
@@ -176,7 +176,7 @@ public:
 
     bool updateObject(AGeoObject * obj) const override;
 
-    void Update(const AGeoObject * obj) override;
+    void updateGui(const AGeoObject * obj) override;
 
 protected:
     AOneLineTextEdit * ei = nullptr;
@@ -197,7 +197,7 @@ public:
 
     bool updateObject(AGeoObject * obj) const override;
 
-    void Update(const AGeoObject * obj) override;
+    void updateGui(const AGeoObject * obj) override;
 
 protected:
     AOneLineTextEdit * ep1 = nullptr;
@@ -213,7 +213,7 @@ public:
 
     bool updateObject(AGeoObject * obj) const override;
 
-    void Update(const AGeoObject * obj) override;
+    void updateGui(const AGeoObject * obj) override;
 
 protected:
     AOneLineTextEdit * elnx = nullptr;
@@ -233,7 +233,7 @@ public:
 
     bool updateObject(AGeoObject * obj) const override;
 
-    void Update(const AGeoObject * obj) override;
+    void updateGui(const AGeoObject * obj) override;
 
 protected:
     AOneLineTextEdit * ex = nullptr;
@@ -252,7 +252,7 @@ public:
 
     bool updateObject(AGeoObject * obj) const override;
 
-    void Update(const AGeoObject * obj) override;
+    void updateGui(const AGeoObject * obj) override;
 
 protected:
     AOneLineTextEdit * ex = nullptr;
@@ -272,7 +272,7 @@ public:
 
     bool updateObject(AGeoObject * obj) const override;
 
-    void Update(const AGeoObject * obj) override;
+    void updateGui(const AGeoObject * obj) override;
 
 protected:
     AOneLineTextEdit * eod = nullptr;
@@ -292,7 +292,7 @@ public:
 
     bool updateObject(AGeoObject * obj) const override;
 
-    void Update(const AGeoObject * obj) override;
+    void updateGui(const AGeoObject * obj) override;
 
 protected:
     AOneLineTextEdit * ez  = nullptr;
@@ -313,7 +313,7 @@ public:
 
     bool updateObject(AGeoObject * obj) const override;
 
-    void Update(const AGeoObject * obj) override;
+    void updateGui(const AGeoObject * obj) override;
 
 protected:
     AOneLineTextEdit * ep1 = nullptr;
@@ -329,7 +329,7 @@ public:
 
     bool updateObject(AGeoObject * obj) const override;
 
-    void Update(const AGeoObject * obj) override;
+    void updateGui(const AGeoObject * obj) override;
 
 protected:
     AOneLineTextEdit * exl = nullptr;
@@ -347,7 +347,7 @@ public:
 
     bool updateObject(AGeoObject * obj) const override;
 
-    void Update(const AGeoObject * obj) override;
+    void updateGui(const AGeoObject * obj) override;
 
 protected:
     AOneLineTextEdit * exl = nullptr;
@@ -366,7 +366,7 @@ public:
 
     bool updateObject(AGeoObject * obj) const override;
 
-    void Update(const AGeoObject * obj) override;
+    void updateGui(const AGeoObject * obj) override;
 
 protected:
     AOneLineTextEdit * el = nullptr;
@@ -383,7 +383,7 @@ public:
 
     bool updateObject(AGeoObject * obj) const override;
 
-    void Update(const AGeoObject * obj) override;
+    void updateGui(const AGeoObject * obj) override;
 
 protected:
     AOneLineTextEdit * ead = nullptr;
@@ -402,7 +402,7 @@ public:
 
     bool updateObject(AGeoObject * obj) const override;
 
-    virtual void Update(const AGeoObject * obj) override;
+    virtual void updateGui(const AGeoObject * obj) override;
 
 protected:
     AOneLineTextEdit  * en = nullptr;
@@ -435,7 +435,7 @@ public:
 
     bool updateObject(AGeoObject * obj) const override;
 
-    void Update(const AGeoObject * obj) override;
+    void updateGui(const AGeoObject * obj) override;
 
 protected:
     AOneLineTextEdit * ep0 = nullptr;
@@ -466,7 +466,7 @@ public:
 
     bool updateObject(AGeoObject * obj) const override;
 
-    void Update(const AGeoObject * obj) override;
+    void updateGui(const AGeoObject * obj) override;
 
 protected:
     AOneLineTextEdit  * eed = nullptr;
@@ -481,7 +481,7 @@ public:
 
     bool updateObject(AGeoObject * obj) const override;
 
-    void Update(const AGeoObject * obj) override;
+    void updateGui(const AGeoObject * obj) override;
 
 protected:
     QPlainTextEdit * te = nullptr;
@@ -502,7 +502,7 @@ public:
 
     bool updateObject(AGeoObject * obj) const override;
 
-    void Update(const AGeoObject * obj) override;
+    void updateGui(const AGeoObject * obj) override;
 
 protected:
     AOneLineTextEdit * ez = nullptr;
@@ -519,7 +519,7 @@ public:
 
     bool updateObject(AGeoObject * obj) const override;
 
-    void Update(const AGeoObject * obj) override;
+    void updateGui(const AGeoObject * obj) override;
 
 protected:
     AOneLineTextEdit *ledNumX, *ledNumY, *ledNumZ;
@@ -540,7 +540,7 @@ public:
 
     bool updateObject(AGeoObject * obj) const override;
 
-    void Update(const AGeoObject * obj) override;
+    void updateGui(const AGeoObject * obj) override;
 
 protected:
     AOneLineTextEdit *ledNum;
@@ -558,7 +558,7 @@ public:
 
     bool updateObject(AGeoObject * obj) const override;
 
-    void Update(const AGeoObject * obj) override;
+    void updateGui(const AGeoObject * obj) override;
 
 protected:
     QComboBox        * cobShape;
@@ -579,7 +579,7 @@ class AGeoSetDelegate : public AGeoObjectDelegate
 public:
     AGeoSetDelegate(const QStringList & materials, QWidget * parent);
 
-    void Update(const AGeoObject * obj) override;
+    void updateGui(const AGeoObject * obj) override;
 };
 
 class AGeoInstanceDelegate : public AGeoObjectDelegate
@@ -591,7 +591,7 @@ public:
 
     bool updateObject(AGeoObject * obj) const override;
 
-    void Update(const AGeoObject * obj) override;
+    void updateGui(const AGeoObject * obj) override;
 
 protected:
     QLineEdit * leInstanceOf = nullptr;

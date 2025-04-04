@@ -61,7 +61,7 @@ bool AMonitorDelegate::updateObject(AGeoObject *obj) const
 
 #include "ageotype.h"
 #include "ageoobject.h"
-void AMonitorDelegate::Update(const AGeoObject * obj)
+void AMonitorDelegate::updateGui(const AGeoObject * obj)
 {
     ATypeMonitorObject * tmo = dynamic_cast<ATypeMonitorObject*>(obj->Type);
     QString txt;

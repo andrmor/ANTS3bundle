@@ -145,7 +145,7 @@ void AGridElementDelegate::updateVisibility()
     }
 }
 
-void AGridElementDelegate::Update(const AGeoObject *obj)
+void AGridElementDelegate::updateGui(const AGeoObject *obj)
 {
     ATypeGridElementObject * GE = dynamic_cast<ATypeGridElementObject*>(obj->Type);
     if (!GE)

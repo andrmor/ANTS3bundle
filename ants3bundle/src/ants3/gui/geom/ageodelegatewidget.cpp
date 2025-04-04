@@ -126,7 +126,7 @@ void AGeoDelegateWidget::UpdateGui()
     else
         GeoDelegate = createAndAddGeoObjectDelegate();
 
-    GeoDelegate->Update(CurrentObject);
+    GeoDelegate->updateGui(CurrentObject);
     GeoDelegate->postUpdate();
 
     GeoDelegate->Widget->setEnabled(!CurrentObject->fLocked);
