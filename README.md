@@ -41,9 +41,11 @@
  
  ---
 
-# Farm mode instruction
+# Farm mode instructions
 * On every farm node computer start dispatcher executable from a terminal, suppling three parameters: IP address, port, maxNumberOfProcesses
-  * For example (use proper IP insead of 'x'es!): /home/andr/ANTS3/ANTS3bundle/ants3bundle/build/Desktop_Qt_6_8_2-Debug/bin/dispatcher xxx.xxx.xxx.xxx 12344 6
+  * For example (replace the 'x'es by the actual IP!):
+    
+   /ants3bundle/build/Desktop_Qt_6_8_2-Debug/bin/dispatcher xxx.xxx.xxx.xxx 12344 6
 * At the main window of ANTS3 click "Workload"
 * Check "Use farm" box
 * Click "New" and fill the IP and port for every farm node
