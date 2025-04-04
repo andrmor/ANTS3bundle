@@ -221,8 +221,6 @@ QSize AOneLineTextEdit::sizeHint() const
     int w = fm.horizontalAdvance(QLatin1Char('x')) * 17 + 4;//fm.horizontalAdvance(QLatin1Char('x')) * 17 + 2 * QLineEditPrivate::horizontalMargin + tm.left() + tm.right() + d->leftmargin + d->rightmargin; // "some"
     QStyleOptionFrame opt;
     initStyleOption(&opt);
-    // !!!***
-    //return (style()->sizeFromContents(QStyle::CT_LineEdit, &opt, QSize(w, h).expandedTo(QApplication::globalStrut()), this));
     return (style()->sizeFromContents(QStyle::CT_LineEdit, &opt, QSize(w, h).expandedTo(QSize(10, 10)), this));
 }
 
@@ -230,20 +228,7 @@ QSize AOneLineTextEdit::sizeHint() const
 
 void ABasicHighlighter::highlightBlock(const QString & text)
 {
-    /*
-    for (const AHighlightingRule & rule : qAsConst(HighlightingRules))
-    {
-        const QRegularExpression & expression = rule.pattern;
-        int index = rule.pattern.indexIn(text);
-        while (index >= 0)
-        {
-            int length = expression.matchedLength();
-            setFormat(index, length, rule.format);
-            index = expression.indexIn(text, index + length);
-        }
-    }
-    */
-    for (const AHighlightingRule & rule : qAsConst(HighlightingRules))
+    for (const AHighlightingRule & rule : HighlightingRules)
     {
             QRegularExpressionMatchIterator matchIterator = rule.pattern.globalMatch(text);
             while (matchIterator.hasNext())

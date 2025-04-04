@@ -44,6 +44,8 @@ AGeoSpecial * GeoRoleFactory::make(const QJsonObject & json)
         return pa;
     }
 
+    AErrorHub::addQError("Found unknown special role (" + Type + ") of a geo object");
+
     return nullptr;
 }
 

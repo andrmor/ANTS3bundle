@@ -575,6 +575,8 @@ void APhotSimWin::on_pbLoadAllResults_clicked()
 
     ui->leLogFile->setText(Set.PhotonLogSet.FileName);
     delete LogHandler; LogHandler = nullptr;
+
+    ui->pteLog->clear();
 }
 
 void APhotSimWin::reshapeSensorSignalTable()

@@ -1,20 +1,19 @@
-#include "mainwindow.h"
+#include "amainwindow.h"
 #include "ui_mainwindow.h"
 #include "a3global.h"
 #include "aconfig.h"
 #include "ageometryhub.h"
 #include "guitools.h"
 #include "ajsontools.h"
-//#include "afiletools.h"
 #include "ageotreewin.h"
 #include "ageometrywindow.h"
 #include "ageometryhub.h"
 #include "amatwin.h"
 #include "asensorwindow.h"
-#include "aphotontunnelwindow.h"
+#include "aphotfunctwindow.h"
 #include "aphotsimwin.h"
 #include "ainterfacerulewin.h"
-#include "graphwindowclass.h"
+#include "agraphwindow.h"
 #include "aremotewindow.h"
 #include "aparticlesimwin.h"
 #include "ascripthub.h"
@@ -24,15 +23,21 @@
 #include "escriptlanguage.h"
 #include "ageowin_si.h"
 #include "aguifromscrwin.h"
+#include "amaterialhub.h"
+#include "asensorhub.h"
+#include "ainterfacerulehub.h"
+#include "aparticlesimhub.h"
+#include "aphotonsimhub.h"
+#include "ageoconsts.h"
+#include "aparticleanalyzerhub.h"
+#include "aphotonfunctionalhub.h"
 
 #include <QDebug>
 #include <QTimer>
 #include <QFile>
 #include <QString>
 
-//#include "TObject.h"
-
-MainWindow::MainWindow() :
+AMainWindow::AMainWindow() :
     AGuiWindow("Main", nullptr),
     Config(AConfig::getInstance()),
     GlobSet(A3Global::getInstance()),
@@ -44,45 +49,45 @@ MainWindow::MainWindow() :
     AGeometryHub::getInstance().populateGeoManager();
 
   // Main signal->slot lines
-    connect(&Config, &AConfig::configLoaded,           this, &MainWindow::updateAllGuiFromConfig);
-    connect(&Config, &AConfig::requestSaveGuiSettings, this, &MainWindow::onRequestSaveGuiSettings);
+    connect(&Config, &AConfig::configLoaded,           this, &AMainWindow::updateAllGuiFromConfig);
+    connect(&Config, &AConfig::requestSaveGuiSettings, this, &AMainWindow::onRequestSaveGuiSettings);
 
   // Create and configure windows
     GeoTreeWin = new AGeoTreeWin(this);
-    connect(GeoTreeWin, &AGeoTreeWin::requestRebuildGeometry, this,   &MainWindow::onRebuildGeometryRequested);
+    connect(GeoTreeWin, &AGeoTreeWin::requestRebuildGeometry, this,   &AMainWindow::onRebuildGeometryRequested);
 
     GeoWin = new AGeometryWindow(false, this);
     AScriptHub::getInstance().addCommonInterface(new AGeoWin_SI(GeoWin), "geowin");
     // WARNING! signal / slots for GeoWin have to be connected in the connectSignalSlotsForGeoWin() method below
     // the reason is that the window has to be re-created if viewer is changed to JSROOT
 
-    GraphWin = new GraphWindowClass(this);
+    GraphWin = new AGraphWindow(this);
     //GraphWindowClass::connectScriptUnitDrawRequests is used to connect draw requests
-    connect(GeoTreeWin, &AGeoTreeWin::requestDraw, GraphWin, &GraphWindowClass::onDrawRequest);
+    connect(GeoTreeWin, &AGeoTreeWin::requestDraw, GraphWin, &AGraphWindow::onDrawRequest);
 
     MatWin = new AMatWin(this);
     MatWin->initWindow();
-    connect(MatWin, &AMatWin::requestRebuildDetector, this,     &MainWindow::onRebuildGeometryRequested);
-    connect(MatWin, &AMatWin::requestDraw,            GraphWin, &GraphWindowClass::onDrawRequest);
+    connect(MatWin, &AMatWin::requestRebuildDetector, this,     &AMainWindow::onRebuildGeometryRequested);
+    connect(MatWin, &AMatWin::requestDraw,            GraphWin, &AGraphWindow::onDrawRequest);
 
     RuleWin = new AInterfaceRuleWin(this);
-    connect(RuleWin, &AInterfaceRuleWin::requestDraw,       GraphWin, &GraphWindowClass::onDrawRequest);
-    connect(RuleWin, &AInterfaceRuleWin::requestDrawLegend, GraphWin, &GraphWindowClass::drawLegend);
+    connect(RuleWin, &AInterfaceRuleWin::requestDraw,       GraphWin, &AGraphWindow::onDrawRequest);
+    connect(RuleWin, &AInterfaceRuleWin::requestDrawLegend, GraphWin, &AGraphWindow::drawLegend);
 
     SensWin = new ASensorWindow(this);
-    connect(SensWin, &ASensorWindow::requestDraw, GraphWin, &GraphWindowClass::onDrawRequest);
+    connect(SensWin, &ASensorWindow::requestDraw, GraphWin, &AGraphWindow::onDrawRequest);
 
-    PhotFunWin = new APhotonTunnelWindow(this);
-    connect(PhotFunWin, &APhotonTunnelWindow::requestDraw,  GraphWin, &GraphWindowClass::onDrawRequest);
+    PhotFunWin = new APhotFunctWindow(this);
+    connect(PhotFunWin, &APhotFunctWindow::requestDraw,  GraphWin, &AGraphWindow::onDrawRequest);
 
     PhotSimWin = new APhotSimWin(this);
-    connect(PhotSimWin, &APhotSimWin::requestDraw, GraphWin, &GraphWindowClass::onDrawRequest);
+    connect(PhotSimWin, &APhotSimWin::requestDraw, GraphWin, &AGraphWindow::onDrawRequest);
 
     FarmWin = new ARemoteWindow(this);
 
     PartSimWin = new AParticleSimWin(nullptr); // Qt::WindowModality for the source dialog requires another parent for the window!
-    connect(PartSimWin, &AParticleSimWin::requestDraw,                  GraphWin,   &GraphWindowClass::onDrawRequest);
-    connect(PartSimWin, &AParticleSimWin::requestAddToBasket,           GraphWin,   &GraphWindowClass::addCurrentToBasket);
+    connect(PartSimWin, &AParticleSimWin::requestDraw,                  GraphWin,   &AGraphWindow::onDrawRequest);
+    connect(PartSimWin, &AParticleSimWin::requestAddToBasket,           GraphWin,   &AGraphWindow::addCurrentToBasket);
     connect(PartSimWin, &AParticleSimWin::requestShowGeoObjectDelegate, GeoTreeWin, &AGeoTreeWin::UpdateGeoTree);
 
     AScriptHub * ScriptHub = &AScriptHub::getInstance();
@@ -96,8 +101,7 @@ MainWindow::MainWindow() :
     connect(ScriptHub,  &AScriptHub::outputHtml_JS,         JScriptWin, &AScriptWindow::outputHtml, Qt::QueuedConnection);
     connect(ScriptHub,  &AScriptHub::outputFromBuffer_JS,   JScriptWin, &AScriptWindow::outputFromBuffer, Qt::QueuedConnection);
     connect(ScriptHub,  &AScriptHub::reportProgress_JS,     JScriptWin, &AScriptWindow::onProgressChanged, Qt::QueuedConnection);
-    connect(ScriptHub,  &AScriptHub::showAbortMessage_JS,   JScriptWin, &AScriptWindow::outputAbortMessage);
-    connect(JScriptWin, &AScriptWindow::requestUpdateGui,   this,       &MainWindow::updateAllGuiFromConfig);
+    connect(JScriptWin, &AScriptWindow::requestUpdateGui,   this,       &AMainWindow::updateAllGuiFromConfig);
     connect(GeoTreeWin, &AGeoTreeWin::requestAddJavaScript, JScriptWin, &AScriptWindow::onRequestAddScript);
     JScriptWin->updateGui();
 
@@ -110,8 +114,7 @@ MainWindow::MainWindow() :
     connect(ScriptHub,  &AScriptHub::outputHtml_P,            PythonWin, &AScriptWindow::outputHtml);
     connect(ScriptHub,  &AScriptHub::outputFromBuffer_P,      PythonWin, &AScriptWindow::outputFromBuffer);
     connect(ScriptHub,  &AScriptHub::reportProgress_P,        PythonWin, &AScriptWindow::onProgressChanged);
-    connect(ScriptHub,  &AScriptHub::showAbortMessage_P,      PythonWin, &AScriptWindow::outputAbortMessage);
-    connect(PythonWin,  &AScriptWindow::requestUpdateGui,     this,      &MainWindow::updateAllGuiFromConfig);
+    connect(PythonWin,  &AScriptWindow::requestUpdateGui,     this,      &AMainWindow::updateAllGuiFromConfig);
     connect(GeoTreeWin, &AGeoTreeWin::requestAddPythonScript, PythonWin, &AScriptWindow::onRequestAddScript);
     PythonWin->updateGui();
 #endif
@@ -122,7 +125,7 @@ MainWindow::MainWindow() :
 
     DemoWin = new ADemoWindow(this);
 
-    connect(&AScriptHub::getInstance(), &AScriptHub::requestUpdateGui, this, &MainWindow::updateAllGuiFromConfig);
+    connect(&AScriptHub::getInstance(), &AScriptHub::requestUpdateGui, this, &AMainWindow::updateAllGuiFromConfig);
 
     // called where all windows connecting to GeoWin are already defined
     connectSignalSlotsForGeoWin();
@@ -139,7 +142,7 @@ MainWindow::MainWindow() :
   // Start ROOT update cycle
     RootUpdateTimer = new QTimer(this);
     RootUpdateTimer->setInterval(100);
-    QObject::connect(RootUpdateTimer, &QTimer::timeout, this, &MainWindow::rootTimerTimeout);
+    QObject::connect(RootUpdateTimer, &QTimer::timeout, this, &AMainWindow::rootTimerTimeout);
     RootUpdateTimer->start();
     qDebug()<<">Timer to refresh Root events started";
 
@@ -156,18 +159,18 @@ MainWindow::MainWindow() :
     if (!bShown) GeoWin->hide(); // has to be last, if before updateAllGuiFromConfig() and window is hidden --> dark on open
 }
 
-MainWindow::~MainWindow()
+AMainWindow::~AMainWindow()
 {
     delete ui;
 }
 
 #include "TSystem.h"
-void MainWindow::rootTimerTimeout()
+void AMainWindow::rootTimerTimeout()
 {
     gSystem->ProcessEvents();
 }
 
-void MainWindow::updateGui()
+void AMainWindow::updateGui()
 {
     ui->leConfigName->setText(Config.ConfigName);
 
@@ -177,7 +180,7 @@ void MainWindow::updateGui()
     ui->pteConfigDescription->blockSignals(false);
 }
 
-void MainWindow::onRebuildGeometryRequested()
+void AMainWindow::onRebuildGeometryRequested()
 {
     AGeometryHub & geom = AGeometryHub::getInstance();
     geom.populateGeoManager();
@@ -188,108 +191,109 @@ void MainWindow::onRebuildGeometryRequested()
     SensWin->onMaterialsChanged();
     emit GeoTreeWin->requestClearGeoMarkers(0);
     if (GeoWin->isVisible()) GeoWin->ShowGeometry(false);
+    PhotFunWin->updateGui();
 }
 
-void MainWindow::on_pbGeometry_clicked()
+void AMainWindow::on_pbGeometry_clicked()
 {
     GeoTreeWin->onMainWinButtonClicked(true);
     GeoTreeWin->updateGui();
 }
-void MainWindow::on_pbGeometry_customContextMenuRequested(const QPoint &)
+void AMainWindow::on_pbGeometry_customContextMenuRequested(const QPoint &)
 {
     GeoTreeWin->onMainWinButtonClicked(false);
 }
 
-void MainWindow::on_pbGeoWin_clicked()
+void AMainWindow::on_pbGeoWin_clicked()
 {
     GeoWin->onMainWinButtonClicked(true);
     GeoWin->ShowGeometry();
 }
-void MainWindow::on_pbGeoWin_customContextMenuRequested(const QPoint &)
+void AMainWindow::on_pbGeoWin_customContextMenuRequested(const QPoint &)
 {
     GeoWin->onMainWinButtonClicked(false);
 }
 
-void MainWindow::on_pbMaterials_clicked()
+void AMainWindow::on_pbMaterials_clicked()
 {
     MatWin->onMainWinButtonClicked(true);
     //MatWin->update(); // why no update?
 }
-void MainWindow::on_pbMaterials_customContextMenuRequested(const QPoint &)
+void AMainWindow::on_pbMaterials_customContextMenuRequested(const QPoint &)
 {
     MatWin->onMainWinButtonClicked(false);
 }
 
-void MainWindow::on_pbPhotSim_clicked()
+void AMainWindow::on_pbPhotSim_clicked()
 {
     PhotSimWin->onMainWinButtonClicked(true);
     PhotSimWin->updateGui();
 }
-void MainWindow::on_pbPhotSim_customContextMenuRequested(const QPoint &)
+void AMainWindow::on_pbPhotSim_customContextMenuRequested(const QPoint &)
 {
     PhotSimWin->onMainWinButtonClicked(false);
 }
 
-void MainWindow::on_pbInterfaceRules_clicked()
+void AMainWindow::on_pbInterfaceRules_clicked()
 {
     RuleWin->onMainWinButtonClicked(true);
     RuleWin->updateGui();
 }
-void MainWindow::on_pbInterfaceRules_customContextMenuRequested(const QPoint &)
+void AMainWindow::on_pbInterfaceRules_customContextMenuRequested(const QPoint &)
 {
     RuleWin->onMainWinButtonClicked(false);
 }
 
-void MainWindow::on_pbGraphWin_clicked()
+void AMainWindow::on_pbGraphWin_clicked()
 {
     GraphWin->onMainWinButtonClicked(true);
 }
-void MainWindow::on_pbGraphWin_customContextMenuRequested(const QPoint &)
+void AMainWindow::on_pbGraphWin_customContextMenuRequested(const QPoint &)
 {
     GraphWin->onMainWinButtonClicked(false);
 }
 
-void MainWindow::on_pbFarm_clicked()
+void AMainWindow::on_pbFarm_clicked()
 {
     FarmWin->onMainWinButtonClicked(true);
     FarmWin->updateGui();
 }
-void MainWindow::on_pbFarm_customContextMenuRequested(const QPoint &)
+void AMainWindow::on_pbFarm_customContextMenuRequested(const QPoint &)
 {
     FarmWin->onMainWinButtonClicked(false);
 }
 
-void MainWindow::on_pbGlobSet_clicked()
+void AMainWindow::on_pbGlobSet_clicked()
 {
     GlobSetWin->onMainWinButtonClicked(true);
     GlobSetWin->updateGui();
 }
-void MainWindow::on_pbGlobSet_customContextMenuRequested(const QPoint &)
+void AMainWindow::on_pbGlobSet_customContextMenuRequested(const QPoint &)
 {
     GlobSetWin->onMainWinButtonClicked(false);
 }
 
-void MainWindow::on_pbParticleSim_clicked()
+void AMainWindow::on_pbParticleSim_clicked()
 {
     PartSimWin->onMainWinButtonClicked(true);
     PartSimWin->updateGui();
 }
-void MainWindow::on_pbParticleSim_customContextMenuRequested(const QPoint &)
+void AMainWindow::on_pbParticleSim_customContextMenuRequested(const QPoint &)
 {
     PartSimWin->onMainWinButtonClicked(false);
 }
 
-void MainWindow::on_pbJavaScript_clicked()
+void AMainWindow::on_pbJavaScript_clicked()
 {
     JScriptWin->onMainWinButtonClicked(true);
     JScriptWin->updateGui();
 }
-void MainWindow::on_pbJavaScript_customContextMenuRequested(const QPoint &)
+void AMainWindow::on_pbJavaScript_customContextMenuRequested(const QPoint &)
 {
     JScriptWin->onMainWinButtonClicked(false);
 }
 
-void MainWindow::on_pbPython_clicked()
+void AMainWindow::on_pbPython_clicked()
 {
 #ifdef ANTS3_PYTHON
     PythonWin->onMainWinButtonClicked(true);
@@ -298,24 +302,24 @@ void MainWindow::on_pbPython_clicked()
     guitools::message("Ants3 was compiled without Python support.\nIt can be enabled in ants3.pro by uncommenting:\n#CONFIG += ants3_Python", this);
 #endif
 }
-void MainWindow::on_pbPython_customContextMenuRequested(const QPoint &)
+void AMainWindow::on_pbPython_customContextMenuRequested(const QPoint &)
 {
 #ifdef ANTS3_PYTHON
     PythonWin->onMainWinButtonClicked(false);
 #endif
 }
 
-void MainWindow::on_pbLoadConfig_clicked()
+void AMainWindow::on_pbLoadConfig_clicked()
 {
     on_actionLoad_configuration_triggered();
 }
 
-void MainWindow::on_pbSaveConfig_clicked()
+void AMainWindow::on_pbSaveConfig_clicked()
 {
     on_actionSave_configuration_triggered();
 }
 
-void MainWindow::on_actionSave_configuration_triggered()
+void AMainWindow::on_actionSave_configuration_triggered()
 {
     QString fileName = guitools::dialogSaveFile(this, "Save configuration file", "Json files (*.json);;All files (*.*)");
     if (fileName.isEmpty()) return;
@@ -325,7 +329,7 @@ void MainWindow::on_actionSave_configuration_triggered()
     if (!err.isEmpty()) guitools::message(err, this);
 }
 
-void MainWindow::on_actionLoad_configuration_triggered()
+void AMainWindow::on_actionLoad_configuration_triggered()
 {
     QString fileName = guitools::dialogLoadFile(this, "Load configuration file", "Json files (*.json);;All files (*.*)");
     if (fileName.isEmpty()) return;
@@ -339,7 +343,7 @@ void MainWindow::on_actionLoad_configuration_triggered()
     // gui is updated in updateAllGuiFromConfig() slot triggered from Config hub, since script also can load config
 }
 
-void MainWindow::on_actionLoad_last_config_triggered()
+void AMainWindow::on_actionLoad_last_config_triggered()
 {
     const QString fileName = GlobSet.getQuickFileName(0);
     if (!QFile::exists(fileName)) return;
@@ -347,22 +351,22 @@ void MainWindow::on_actionLoad_last_config_triggered()
     AConfig::getInstance().load(fileName, true);
 }
 
-void MainWindow::on_actionQuickSave_slot_1_triggered()
+void AMainWindow::on_actionQuickSave_slot_1_triggered()
 {
     Config.save(GlobSet.getQuickFileName(1));
 }
 
-void MainWindow::on_actionQuickSave_slot_2_triggered()
+void AMainWindow::on_actionQuickSave_slot_2_triggered()
 {
     Config.save(GlobSet.getQuickFileName(2));
 }
 
-void MainWindow::on_actionQuickSave_slot_3_triggered()
+void AMainWindow::on_actionQuickSave_slot_3_triggered()
 {
     Config.save(GlobSet.getQuickFileName(1));
 }
 
-void MainWindow::on_actionQuickLoad_slot_1_triggered()
+void AMainWindow::on_actionQuickLoad_slot_1_triggered()
 {
     const QString fileName = GlobSet.getQuickFileName(1);
     if (!QFile::exists(fileName)) return;
@@ -370,7 +374,7 @@ void MainWindow::on_actionQuickLoad_slot_1_triggered()
     Config.load(fileName, true);
 }
 
-void MainWindow::on_actionQuickLoad_slot_2_triggered()
+void AMainWindow::on_actionQuickLoad_slot_2_triggered()
 {
     const QString fileName = GlobSet.getQuickFileName(2);
     if (!QFile::exists(fileName)) return;
@@ -378,7 +382,7 @@ void MainWindow::on_actionQuickLoad_slot_2_triggered()
     Config.load(fileName, true);
 }
 
-void MainWindow::on_actionQuickLoad_slot_3_triggered()
+void AMainWindow::on_actionQuickLoad_slot_3_triggered()
 {
     const QString fileName = GlobSet.getQuickFileName(3);
     if (!QFile::exists(fileName)) return;
@@ -386,19 +390,18 @@ void MainWindow::on_actionQuickLoad_slot_3_triggered()
     Config.load(fileName, true);
 }
 
-void MainWindow::on_actionClose_ants3_triggered()
+void AMainWindow::on_actionClose_ants3_triggered()
 {
     close();
 }
 
 // ---
 
-void MainWindow::updateAllGuiFromConfig()
+void AMainWindow::updateAllGuiFromConfig()
 {
     updateGui();
 
     GeoTreeWin->updateGui();
-    //MatWin->initWindow();
     MatWin->updateGui();
     SensWin->updateGui();
     RuleWin->updateGui();
@@ -406,13 +409,6 @@ void MainWindow::updateAllGuiFromConfig()
 
     PhotSimWin->updateGui();
     PartSimWin->updateGui();
-
-    /*
-    JScriptWin->updateGui();
-#ifdef ANTS3_PYTHON
-    PythonWin->updateGui();
-#endif
-    */
 
     QJsonObject json = AConfig::getInstance().JSON["gui"].toObject();
     // Geometry
@@ -439,7 +435,7 @@ void MainWindow::updateAllGuiFromConfig()
     GeoWin->ShowTracks();
 }
 
-void MainWindow::onRequestSaveGuiSettings()
+void AMainWindow::onRequestSaveGuiSettings()
 {
     QJsonObject & JSON = AConfig::getInstance().JSON;
 
@@ -467,7 +463,7 @@ void MainWindow::onRequestSaveGuiSettings()
     JSON["gui"] = json;
 }
 
-void MainWindow::onRequestChangeGeoViewer(bool useJSRoot)
+void AMainWindow::onRequestChangeGeoViewer(bool useJSRoot)
 {
     QTimer::singleShot(0, this,
                        [useJSRoot, this]()
@@ -476,7 +472,7 @@ void MainWindow::onRequestChangeGeoViewer(bool useJSRoot)
                        } );
 }
 
-void MainWindow::changeGeoViewer(bool useJSRoot)
+void AMainWindow::changeGeoViewer(bool useJSRoot)
 {
     delete GeoWin; GeoWin = new AGeometryWindow(useJSRoot, this);
     GeoWin->restoreGeomStatus();
@@ -494,11 +490,11 @@ void MainWindow::changeGeoViewer(bool useJSRoot)
     AScriptHub::getInstance().updateGeoWin(GeoWin);
 }
 
-void MainWindow::connectSignalSlotsForGeoWin()
+void AMainWindow::connectSignalSlotsForGeoWin()
 {
     connect(&Config, &AConfig::configLoaded,                            GeoWin, &AGeometryWindow::onNewConfigLoaded);
 
-    connect(GeoWin,     &AGeometryWindow::requestChangeGeoViewer,       this,   &MainWindow::onRequestChangeGeoViewer);
+    connect(GeoWin,     &AGeometryWindow::requestChangeGeoViewer,       this,   &AMainWindow::onRequestChangeGeoViewer);
 
     connect(GeoTreeWin, &AGeoTreeWin::requestShowGeometry,              GeoWin, &AGeometryWindow::ShowGeometry);
     connect(GeoTreeWin, &AGeoTreeWin::requestShowRecursive,             GeoWin, &AGeometryWindow::showRecursive);
@@ -528,43 +524,43 @@ void MainWindow::connectSignalSlotsForGeoWin()
     connect(PartSimWin, &AParticleSimWin::requestClearMarkers,          GeoWin, &AGeometryWindow::clearGeoMarkers);
     connect(PartSimWin, &AParticleSimWin::requestCenterView,            GeoWin, &AGeometryWindow::CenterView);
 
-    connect(PhotFunWin, &APhotonTunnelWindow::requestShowConnection,     GeoWin, &AGeometryWindow::onRequestShowConnection);
-    connect(PhotFunWin, &APhotonTunnelWindow::requestShowAllConnections, GeoWin, &AGeometryWindow::onRequestShowAllConnections);
+    connect(PhotFunWin, &APhotFunctWindow::requestShowConnection,     GeoWin, &AGeometryWindow::onRequestShowConnection);
+    connect(PhotFunWin, &APhotFunctWindow::requestShowAllConnections, GeoWin, &AGeometryWindow::onRequestShowAllConnections);
 }
 
-void MainWindow::on_leConfigName_editingFinished()
+void AMainWindow::on_leConfigName_editingFinished()
 {
     Config.ConfigName = ui->leConfigName->text();
 }
 
-void MainWindow::on_pteConfigDescription_textChanged()
+void AMainWindow::on_pteConfigDescription_textChanged()
 {
     Config.ConfigDescription = ui->pteConfigDescription->document()->toPlainText();
 }
 
-void MainWindow::on_pbSensors_clicked()
+void AMainWindow::on_pbSensors_clicked()
 {
     SensWin->onMainWinButtonClicked(true);
     SensWin->updateGui();
 }
-void MainWindow::on_pbSensors_customContextMenuRequested(const QPoint &)
+void AMainWindow::on_pbSensors_customContextMenuRequested(const QPoint &)
 {
     SensWin->onMainWinButtonClicked(false);
 }
 
-void MainWindow::on_pbFunctionalModels_clicked()
+void AMainWindow::on_pbFunctionalModels_clicked()
 {
     PhotFunWin->onMainWinButtonClicked(true);
     PhotFunWin->updateGui();
 }
 
-void MainWindow::on_pbFunctionalModels_customContextMenuRequested(const QPoint &)
+void AMainWindow::on_pbFunctionalModels_customContextMenuRequested(const QPoint &)
 {
     PhotFunWin->onMainWinButtonClicked(false);
 }
 
 #include <QThread>
-void MainWindow::closeEvent(QCloseEvent *)
+void AMainWindow::closeEvent(QCloseEvent *)
 {
     qDebug() << "\n<MainWindow shutdown initiated";
     clearFocus();
@@ -575,7 +571,7 @@ void MainWindow::closeEvent(QCloseEvent *)
     qDebug() << "<Preparing graph window for shutdown";
     GraphWin->close3DviewWindow();
     GraphWin->close();
-    GraphWin->ClearDrawObjects_OnShutDown(); //to avoid any attempts to redraw deleted objects
+    GraphWin->clearDrawObjects_OnShutDown(); //to avoid any attempts to redraw deleted objects
 
     qDebug() << "<Saving JavaScript scipts";
     JScriptWin->WriteToJson();
@@ -592,7 +588,7 @@ void MainWindow::closeEvent(QCloseEvent *)
 
     qDebug() << "<Stopping Root update timer-based cycle";
     RootUpdateTimer->stop();
-    disconnect(RootUpdateTimer, &QTimer::timeout, this, &MainWindow::rootTimerTimeout);
+    disconnect(RootUpdateTimer, &QTimer::timeout, this, &AMainWindow::rootTimerTimeout);
     QThread::msleep(110);
 
     std::vector<AGuiWindow*> wins{ GeoTreeWin, GeoWin, MatWin, SensWin, PhotFunWin, PhotSimWin,
@@ -606,7 +602,7 @@ void MainWindow::closeEvent(QCloseEvent *)
     qDebug() << "<MainWindow close event processing finished";
 }
 
-void MainWindow::saveWindowGeometries()
+void AMainWindow::saveWindowGeometries()
 {
     std::vector<AGuiWindow*> wins{ this, GeoTreeWin, GeoWin, MatWin, SensWin, PhotFunWin, PhotSimWin,
                                    RuleWin, GraphWin, FarmWin, PartSimWin, JScriptWin, JScriptWin->ScriptMsgWin,
@@ -620,7 +616,7 @@ void MainWindow::saveWindowGeometries()
     for (auto * w : wins) w->storeGeomStatus();
 }
 
-void MainWindow::loadWindowGeometries()
+void AMainWindow::loadWindowGeometries()
 {
     std::vector<AGuiWindow*> wins{ this, GeoTreeWin, GeoWin, MatWin, SensWin, PhotFunWin, PhotSimWin,
                                    RuleWin, GraphWin,  FarmWin, PartSimWin, JScriptWin, JScriptWin->ScriptMsgWin,
@@ -633,15 +629,7 @@ void MainWindow::loadWindowGeometries()
     for (auto * w : wins) w->restoreGeomStatus();
 }
 
-#include "amaterialhub.h"
-#include "asensorhub.h"
-#include "ainterfacerulehub.h"
-#include "aparticlesimhub.h"
-#include "aphotonsimhub.h"
-#include "ageoconsts.h"
-#include "aparticleanalyzerhub.h"
-#include "aphotonfunctionalhub.h"
-void MainWindow::on_pbNew_clicked()
+void AMainWindow::on_pbNew_clicked()
 {
     bool ok = guitools::confirm("Start a new configuration?\nUnsaved changes will be lost", this);
     if (!ok) return;
@@ -674,28 +662,28 @@ void MainWindow::on_pbNew_clicked()
     updateAllGuiFromConfig();
 }
 
-void MainWindow::on_actionQuickLoad_slot_1_hovered()
+void AMainWindow::on_actionQuickLoad_slot_1_hovered()
 {
     ui->actionQuickLoad_slot_1->setToolTip(getQuickLoadMessage(1));
 }
 
-void MainWindow::on_actionQuickLoad_slot_2_hovered()
+void AMainWindow::on_actionQuickLoad_slot_2_hovered()
 {
     ui->actionQuickLoad_slot_2->setToolTip(getQuickLoadMessage(2));
 }
 
-void MainWindow::on_actionQuickLoad_slot_3_hovered()
+void AMainWindow::on_actionQuickLoad_slot_3_hovered()
 {
     ui->actionQuickLoad_slot_3->setToolTip(getQuickLoadMessage(3));
 }
 
-void MainWindow::on_actionLoad_last_config_hovered()
+void AMainWindow::on_actionLoad_last_config_hovered()
 {
     ui->actionLoad_last_config->setToolTip(getQuickLoadMessage(0));
 }
 
 #include <QFileInfo>
-QString MainWindow::getQuickLoadMessage(int index)
+QString AMainWindow::getQuickLoadMessage(int index)
 {
     QString txt;
     if ((index < 0) || index > 3) return txt;
@@ -736,7 +724,7 @@ QString MainWindow::getQuickLoadMessage(int index)
     return ret;
 }
 
-void MainWindow::on_actionShow_hints_triggered()
+void AMainWindow::on_actionShow_hints_triggered()
 {
     QString str = ""
                   "Mouse right-button click on a window button closes that window.\n\n"
@@ -747,20 +735,20 @@ void MainWindow::on_actionShow_hints_triggered()
 }
 
 #include "aconfigexamplebrowser.h"
-void MainWindow::on_pbExamples_clicked()
+void AMainWindow::on_pbExamples_clicked()
 {
     if (!ConfigExampleBrowser)
     {
         ConfigExampleBrowser = new AConfigExampleBrowser(this);
         ConfigExampleBrowser->setWindowModality(Qt::ApplicationModal);
-        connect(ConfigExampleBrowser, &AConfigExampleBrowser::requestLoadFile, this, &MainWindow::onRequestLoadConfiguration);
+        connect(ConfigExampleBrowser, &AConfigExampleBrowser::requestLoadFile, this, &AMainWindow::onRequestLoadConfiguration);
     }
 
     ConfigExampleBrowser->show();
     ConfigExampleBrowser->expandAll(false);
 }
 
-void MainWindow::onRequestLoadConfiguration(QString fileName)
+void AMainWindow::onRequestLoadConfiguration(QString fileName)
 {
     fileName = GlobSet.ExamplesDir + "/configs/" + fileName;
     qDebug() << "Loading configuration from file" << fileName;
@@ -770,7 +758,7 @@ void MainWindow::onRequestLoadConfiguration(QString fileName)
 
 #include "TROOT.h"
 #include "ageant4inspectormanager.h"
-void MainWindow::on_actionVersions_triggered()
+void AMainWindow::on_actionVersions_triggered()
 {
     int majVer = ANTS3_MAJOR;
     QString mav = QString::number(majVer);
@@ -803,44 +791,38 @@ void MainWindow::on_actionVersions_triggered()
                   "off"
 #endif
                   "\n"
-                  "  ROOT html server: "
+                  "  ROOT html server infrastructure: "
 #ifdef USE_ROOT_HTML
                   "on"
 #else
                   "off"
 #endif
                   "\n"
-                  "  JSROOT: "
+                  "  JSROOT infrastructure: "
 #ifdef __USE_ANTS_JSROOT__
                   "on"
 #else
                   "off"
 #endif
                   "\n"
-                  "  Farm: "
+                  "  Farm infrastructure: "
 #ifdef WEBSOCKETS
                   "on"
 #else
                   "off"
 #endif
                   "\n"
-/*
-#ifdef __USE_ANTS_NCRYSTAL__
-#else
-#endif
-" - NCrystal library (neutron scattering)   \n"
-*/
                   "";
 
     guitools::message(out, this);
 }
 
-void MainWindow::on_pbLoadConfig_customContextMenuRequested(const QPoint &)
+void AMainWindow::on_pbLoadConfig_customContextMenuRequested(const QPoint &)
 {
     on_actionLoad_last_config_triggered();
 }
 
-void MainWindow::on_actionDataTransport_demo_triggered()
+void AMainWindow::on_actionDataTransport_demo_triggered()
 {
     DemoWin->onMainWinButtonClicked(true);
 }

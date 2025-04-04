@@ -9,7 +9,7 @@ ABasketItem::~ABasketItem()
 
 void ABasketItem::clearObjects()
 {
-   for (int i=0; i<DrawObjects.size(); i++)
-       delete DrawObjects[i].Pointer;
+   for (ADrawObject & obj : DrawObjects)
+       delete obj.Pointer;
    DrawObjects.clear();
 }

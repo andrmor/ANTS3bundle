@@ -4,12 +4,11 @@
 #include "ageodelegatewidget.h"
 #include "ageobasedelegate.h"
 #include "ageoobjectdelegate.h"
-#include "amonitordelegate.h"
+//#include "amonitordelegate.h"
 #include "agridelementdelegate.h"
 #include "ageoobject.h"
 #include "ageoshape.h"
 #include "ageotype.h"
-//#include "ashapehelpdialog.h"
 #include "arootlineconfigurator.h"
 #include "agridelementdialog.h"
 #include "amonitordelegateform.h"
@@ -34,7 +33,7 @@
 
 #include <vector>
 
-#include "TMath.h"
+//#include "TMath.h"
 #include "TGeoShape.h"
 
 AGeoTree::AGeoTree() :
@@ -474,12 +473,12 @@ void AGeoTree::customMenuRequested(const QPoint &pos)
   menu.addSeparator();
 
   QMenu * addInstanceMenu = menu.addMenu("Add instance of");
-    QVector< QPair<QAction*, QString> > addInstanceA;
+    std::vector<std::pair<QAction*, QString>> addInstanceA;
     if (Prototypes->HostedObjects.empty())
         Action(*addInstanceMenu, "There are no defined prototypes");
     else
         for (AGeoObject * protoObj : Prototypes->HostedObjects)
-            addInstanceA << QPair<QAction*, QString>(addInstanceMenu->addAction(protoObj->Name), protoObj->Name);
+            addInstanceA.push_back( {addInstanceMenu->addAction(protoObj->Name), protoObj->Name} );
 
   menu.addSeparator();
 
@@ -608,7 +607,7 @@ void AGeoTree::customMenuRequested(const QPoint &pos)
 
   else
   {
-      for (auto & pair : addInstanceA)
+      for (const auto & pair : addInstanceA)
           if (SelectedAction == pair.first)  menuActionAddInstance(obj, pair.second);
   }
 }
@@ -880,8 +879,8 @@ void AGeoTree::menuActionRemoveKeepContent(QTreeWidget * treeWidget)
                                        : "Remove selected objects?" );
   //str += "                                             ";
   msgBox.setText(str);
-  QPushButton *remove = msgBox.addButton(QMessageBox::Yes);
-  QPushButton *cancel = msgBox.addButton(QMessageBox::Cancel);
+  QPushButton * remove = msgBox.addButton(QMessageBox::Yes);
+  msgBox.addButton(QMessageBox::Cancel);
   msgBox.setDefaultButton(remove);
 
   msgBox.exec();
@@ -924,7 +923,7 @@ void AGeoTree::menuActionRemoveWithContent(QTreeWidget * treeWidget)
                                          : "Remove selected objects?" );
     msgBox.setText(str);
     QPushButton *remove = msgBox.addButton(QMessageBox::Yes);
-    QPushButton *cancel = msgBox.addButton(QMessageBox::Cancel);
+    msgBox.addButton(QMessageBox::Cancel);
     msgBox.setDefaultButton(remove);
 
     msgBox.exec();
@@ -1261,7 +1260,7 @@ void AGeoTree::SetLineAttributes(AGeoObject * obj)
 {
     if (!obj) return;
 
-    ARootLineConfigurator* rlc = new ARootLineConfigurator(&obj->color, &obj->width, &obj->style, twGeoTree);
+    ARootLineConfigurator* rlc = new ARootLineConfigurator(obj->color, obj->width, obj->style, twGeoTree);
     int res = rlc->exec();
     if (res != 0)
     {

@@ -121,7 +121,7 @@ double ASensorHub::getMinSize(int iSensor) const
 
 double ASensorHub::getMinSizeFast(int iSensor) const
 {
-    return SensorData[iSensor].GeoObj->Shape->minSize();    // !!!*** add minSize for all shapes!!!
+    return SensorData[iSensor].GeoObj->Shape->minSize();
 }
 
 AGeoObject * ASensorHub::getGeoObject(int iSensor) const
@@ -130,32 +130,28 @@ AGeoObject * ASensorHub::getGeoObject(int iSensor) const
     return SensorData[iSensor].GeoObj;
 }
 
-bool ASensorHub::updateRuntimeProperties()
+QString ASensorHub::updateRuntimeProperties()
 {
+    for (ASensorModel & model : Models)
+    {
+        QString err = model.updateRuntimeProperties();
+        if (!err.isEmpty()) return err;
+    }
+
     for (ASensorData & sd : SensorData)
     {
         const int & index = sd.ModelIndex;
         if (index < 0 || index >= (int)Models.size())
-        {
-            // !!!*** error reporting
-            qCritical() << "Bad sensor model index:" << index;
-            exit(222);
-        }
-        ASensorModel & model = Models[index];
-        model.updateRuntimeProperties();
+            return QString("Light sensor is assigned an invalid model index (%0)").arg(index);
     }
-    return true;
+
+    return "";
 }
 
 void ASensorHub::exitPersistentMode()
 {
     PersistentModelAssignment = false;
     LoadedModelAssignment.clear();
-}
-
-double ASensorHub::getMaxQE(bool waveResolved, int iWave) const
-{
-    return 1.0;
 }
 
 void ASensorHub::writeToJson(QJsonObject & json) const
@@ -184,13 +180,11 @@ QString ASensorHub::readFromJson(const QJsonObject & json)
     PersistentModelAssignment = false;
     LoadedModelAssignment.clear();
 
-    QString err;
-
     QJsonObject mainJs;
     bool ok = jstools::parseJson(json, "Sensors", mainJs);
     if (!ok)
     {
-        qWarning() << "No sensor data, adding a dummy sensor";
+        qWarning() << "No sensor models are defined, adding an ideal PMT"; // runtime check will catch
         Models.push_back(ASensorModel());
     }
     else
@@ -203,12 +197,8 @@ QString ASensorHub::readFromJson(const QJsonObject & json)
         {
             const QJsonObject js = ar[i].toObject();
             ASensorModel model;
-            bool ok = model.readFromJson(js);
-            if (!ok)
-            {
-                if (!err.isEmpty()) err += "\n";
-                err += QString("Bad format of sensor model %0 json").arg(i);
-            }
+            QString err = model.readFromJson(js);
+            if (!err.isEmpty()) return err;
             Models.push_back(model);
         }
     }
@@ -231,14 +221,10 @@ QString ASensorHub::readFromJson(const QJsonObject & json)
             }
             LoadedModelAssignment.push_back(iMod);
         }
-        if (bFoundInvalidModelIndex)
-        {
-            if (!err.isEmpty()) err += "\n";
-            err += "Bad model index(es) in loaded ModelAssignment, replaced with 0";
-        }
+        if (bFoundInvalidModelIndex) return "Bad model index(es) in loaded ModelAssignment";
     }
 
-    return err;
+    return "";
 }
 
 void ASensorHub::clear()

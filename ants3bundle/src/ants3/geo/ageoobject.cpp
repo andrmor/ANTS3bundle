@@ -357,9 +357,14 @@ void AGeoObject::readFromJson(const QJsonObject & json)
         QJsonObject js = json["ShapeSpecific"].toObject();
 
         Shape = AGeoShape::GeoShapeFactory(ShapeType);
-        Shape->readFromJson(js);
+        if (Shape) Shape->readFromJson(js);
+        else
+        {
+            Shape = new AGeoBox();
+            AErrorHub::addQError("Unknown shape " + ShapeType + " for object " + Name);
+        }
 
-        //composite: cannot update memebers at this phase - HostedObjects are not set yet!  INVESTIGATE !!!***
+        //composite: cannot update memebers at this phase - HostedObjects are not set yet
     }
 
     //Type
@@ -374,7 +379,7 @@ void AGeoObject::readFromJson(const QJsonObject & json)
             delete Type; Type = newType;
             Type->readFromJson(jj);
         }
-        else qDebug() << "Type read failed for object:" << Name << ", keeping default type";
+        else qDebug() << "Type read failed for object:" << Name << ", keeping default type"; // error added to AErrorHub
     }
     else qDebug() << "Type is empty for object:" << Name << ", keeping default type";
 
@@ -1106,7 +1111,7 @@ bool AGeoObject::isMaterialInUse(int imat, QString & volName) const
 
     if (Material == imat)
     {
-        if ( !Type->isGridElement() && !Type->isCompositeContainer() ) // !!!*** need it?
+        if ( !Type->isGridElement() && !Type->isCompositeContainer() )
         {
             volName = Name;
             return true;
@@ -1485,7 +1490,7 @@ bool AGeoObject::checkCompatibleWithGeant4() const
 }
 
 #include <QRandomGenerator>
-QString randomString(int lettLength, int numLength)  // !!!*** RandomHub
+QString randomString(int lettLength, int numLength)
 {
     //const QString possibleLett("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz");
     const QString possibleLett("ABCDEFGHIJKLMNOPQRSTUVWXYZ");

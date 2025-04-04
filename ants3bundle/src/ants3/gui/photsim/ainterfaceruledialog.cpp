@@ -217,7 +217,7 @@ void AInterfaceRuleDialog::on_pbTestOverride_clicked()
         return;
     }
 
-    if (Rule && Rule->SurfaceSettings.isNotPolished())
+    if (Rule && Rule->SurfaceSettings.isRough())
     {
         if (!Rule->Symmetric && !Rule->SurfaceSettings.KillPhotonsRefractedBackward)
         {
@@ -245,6 +245,7 @@ void AInterfaceRuleDialog::on_cobSurfaceModel_currentIndexChanged(int index)
     ui->swSurfaceModel->setCurrentIndex(index);
     ui->swSurfaceModel->setVisible(index != 0);
     ui->cbKillBackRefracted->setVisible(index != 0);
+    ui->cbCustNorm_CorrectForOrientation->setVisible(index == 2 || index == 3);
 }
 
 void AInterfaceRuleDialog::on_cobSurfaceModel_activated(int index)
@@ -400,6 +401,7 @@ void AInterfaceRuleDialog::on_pbInfo_clicked()
 void AInterfaceRuleDialog::on_cobType_currentIndexChanged(int index)
 {
     ui->frSurfaceModel->setVisible(index != 0);
+    on_cobSurfaceModel_currentIndexChanged(ui->cobSurfaceModel->currentIndex());
 }
 
 void AInterfaceRuleDialog::on_cbCustNorm_CorrectForOrientation_clicked(bool checked)

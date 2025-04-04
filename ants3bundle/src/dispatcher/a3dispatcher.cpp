@@ -66,7 +66,7 @@ void A3Dispatcher::start()
 {
 #ifdef WEBSOCKETS
     if (WebSocketPort != 0)
-        WebSocketServer->startListen(QHostAddress("127.0.0.1"), WebSocketPort); // TODO -> IP from startup arguments !!!***
+        WebSocketServer->startListen(QHostAddress(IP), WebSocketPort);
 #endif
 }
 

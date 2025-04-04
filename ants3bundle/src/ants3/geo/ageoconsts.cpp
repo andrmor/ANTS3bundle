@@ -134,7 +134,7 @@ void AGeoConsts::readFromJsonArr(const QJsonArray & ar)
     for (int i = 0; i < size; i++)
     {
         bool ok = evaluateConstExpression(i);
-        if (!ok) qWarning() <<"something went really wrong";
+        if (!ok) qWarning() << "Something went wrong with Geo Const test, error is reported in AErrorHub";
     }
 }
 
@@ -143,7 +143,7 @@ bool AGeoConsts::evaluateFormula(QString & error, QString str, double & returnVa
 {
     if (to == -1) to = Records.size();
 
-    if (str.contains("ParentIndex")) str.replace("ParentIndex", "0"); // !!!***
+    if (str.contains("ParentIndex")) str.replace("ParentIndex", "0");
 
     for (int i = 0; i < to; i++)
         str.replace(Records.at(i).RegExp, Records.at(i).Index);

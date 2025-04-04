@@ -296,15 +296,9 @@ void AScriptWindow::registerInterfaces()
 
 void AScriptWindow::updateMethodHelp()
 {
-    ListOfMethods.clear();
     trwHelp->clear();
-    for (const AScriptInterface * inter : ScriptManager->getInterfaces())
-        fillHelper(inter);
-}
-
-void AScriptWindow::on_aAlphabeticOrder_changed()
-{
-    updateMethodHelp();
+    ListOfMethods.clear();
+    for (const AScriptInterface * inter : ScriptManager->getInterfaces()) fillHelper(inter);
 }
 
 void AScriptWindow::updateRemovedAndDeprecatedMethods()
@@ -491,12 +485,6 @@ void AScriptWindow::outputFromBuffer(std::vector<std::pair<bool, QString>> buffe
     }
 }
 
-void AScriptWindow::outputAbortMessage(QString text)
-{
-    pteOut->appendHtml("<p style='color:red;'>Aborted: " + text + "</p>");
-    qApp->processEvents();
-}
-
 void AScriptWindow::onRequestAddScript(const QString & script)
 {
     showNormal();
@@ -512,7 +500,6 @@ void AScriptWindow::clearOutput()
     qApp->processEvents();
 }
 
-//#include "acore_si.h"
 void AScriptWindow::on_pbRunScript_clicked()
 {
     lHelp->hide();
@@ -785,50 +772,6 @@ void AScriptWindow::on_pbExample_clicked()
     if (ExampleExplorer) ExampleExplorer->showNormal();
 }
 
-/*
-void AScriptWindow::fillHelper(const AScriptInterface * io)
-{
-    const QString module = io->Name;
-
-    QStringList functions = getListOfMethods(io, module, true);
-    if (ui->aAlphabeticOrder->isChecked()) functions.sort();
-
-    QTreeWidgetItem * objItem = new QTreeWidgetItem(trwHelp);
-    objItem->setText(0, module);
-    QFont f = objItem->font(0);
-    f.setBold(true);
-    objItem->setFont(0, f);
-    objItem->setToolTip(0, io->Description);
-    bool bAlreadyAdded = false; // TMP!!!
-    for (int i = 0; i < functions.size(); i++)
-    {
-        QStringList sl = functions.at(i).split("_:_");
-        QString Fshort = sl.first();
-        QString Flong  = sl.last();
-        functionList << Flong;
-
-        QString methodName = QString(Fshort).remove(QRegularExpression("\\((.*)\\)"));
-        methodName.remove(0, module.length() + 1); //remove module name and '.'
-
-        // TMP!!! !!!***
-        if (methodName == "print")
-        {
-            if (bAlreadyAdded) continue;
-            Fshort = "core.print( m1, ... )";
-            Flong  = "void core.print( QVariant m1, ... )";
-            bAlreadyAdded = true;
-        }
-
-        QTreeWidgetItem * fItem = new QTreeWidgetItem(objItem);
-        fItem->setText(0, Fshort);
-        fItem->setText(1, Flong);
-
-        const QString & str = io->getMethodHelp(methodName, -1);
-        fItem->setToolTip(0, str);
-    }
-}
-*/
-
 void AScriptWindow::fillHelper(const AScriptInterface * io)
 {
     const QString module = io->Name;
@@ -998,6 +941,7 @@ void AScriptWindow::onFunctionClicked(QTreeWidgetItem *item, int /*column*/)
 
 void AScriptWindow::onCurrentItemChanged(QTreeWidgetItem * current, QTreeWidgetItem *)
 {
+    if (!current) return;
     onFunctionClicked(current, 1);
 }
 
@@ -1167,11 +1111,9 @@ bool AScriptWindow::event(QEvent *e)
 /*
     case QEvent::Hide :
         //qDebug() << "Script window: hide event";
-        ScriptManager->hideMsgDialogs();
         break;
     case QEvent::Show :
         //qDebug() << "Script window: show event";
-        ScriptManager->restoreMsgDialogs();
         break;
 */
     default:;
@@ -1832,7 +1774,8 @@ void AScriptWindow::onFindVariable()
 
     QStringList sl = name.split("(");
     if (sl.size() > 0) name = sl.first();
-    QRegularExpression sp("\\bvar\\s+" + name + "\\b");
+    //const QRegularExpression sp("\\bvar\\s+" + name + "\\b");
+    const QRegularExpression sp("\\b(var|let|const)\\s+" + name + "\\b");
     //qDebug() << "Looking for:"<<sp;
 
     QTextDocument::FindFlags flags = QTextDocument::FindCaseSensitively;
@@ -2408,3 +2351,14 @@ void AScriptWindow::on_pbFileName_customContextMenuRequested(const QPoint & pos)
         clipboard->setText(txt);
     }
 }
+
+void AScriptWindow::on_actionSet_tab_equivalent_to_space_characters_triggered()
+{
+    guitools::inputInteger("Pressing tab feeds in this number of space characters:", GlobSet.TabInSpaces, 1, 100, this);
+}
+
+void AScriptWindow::on_aAlphabeticOrder_triggered()
+{
+    updateMethodHelp();
+}
+

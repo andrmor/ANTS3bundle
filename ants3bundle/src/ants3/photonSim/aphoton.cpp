@@ -5,8 +5,6 @@
 #include <QStringList>
 #include <QTextStream>
 
-#include "TMath.h"   // !!!*** remove?
-
 APhoton::APhoton() {}
 
 APhoton::APhoton(double * pos, double * dir, int waveIndex, double time) :
@@ -39,7 +37,7 @@ void APhoton::ensureUnitaryLength()
         mod += ( v[i] * v[i] );
 
     if (mod == 1.0) return;
-    mod = TMath::Sqrt(mod);
+    mod = sqrt(mod);
 
     if (mod != 0)
         for (int i=0; i<3; i++) v[i] /= mod;
@@ -63,7 +61,7 @@ void APhoton::generateRandomDir()
         b  = RandomHub.uniform() - 0.5;
         r2 = a*a + b*b;
     }
-    double scale = 8.0 * TMath::Sqrt(0.25 - r2);
+    double scale = 8.0 * sqrt(0.25 - r2);
     v[0] = a * scale;
     v[1] = b * scale;
     v[2] = ( -1.0 + 8.0 * r2 );

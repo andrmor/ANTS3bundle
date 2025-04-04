@@ -25,6 +25,7 @@ public:
     int   ping();
 
     bool  sendText(const QString & message, bool bWaitReply = true);
+    bool  sendJsonObject(const QJsonObject & json);
     bool  sendFile(const QString & fileName, const QString & remoteFileName);
 
     bool  requestFile(const QString & RemoteFileName, const QString & SaveAs);
@@ -33,10 +34,12 @@ public:
 
     void  clearReply();
 
-    const QString&    getError() const {return Error;}
-    const QString&    getTextReply() const {return TextReply;}
-    const QByteArray& getBinaryReply() const {return BinaryReply;}
-    bool              isBinaryReplyEmpty() const {return BinaryReply.isEmpty();}
+    const QString    & getError() const {return Error;}
+    const QString    & getTextReply() const {return TextReply;}
+    const QByteArray & getBinaryReply() const {return BinaryReply;}
+    bool               isBinaryReplyEmpty() const {return BinaryReply.isEmpty();}
+
+    void setTimeout(int timeout) {Timeout = timeout;}
 
 public slots:
     void  onSendMessageRequest(QString txt);

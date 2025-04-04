@@ -35,6 +35,7 @@ public slots:
     //void fun0();
     //void fun1(int i);
     //void fun2(int i, double d);
+    void test();
 
     void         abort(QString message);
 
@@ -67,7 +68,6 @@ public slots:
     void         appendText(QString text, QString fileName);
     QString      loadText(QString fileName);
     QString      loadText(QString fileName, int numLines);
-    // !!!*** read a specific line from file
 
     // Ascii array
     void         saveArray(QVariantList array, QString fileName, bool append = false);

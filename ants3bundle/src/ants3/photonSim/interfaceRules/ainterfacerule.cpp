@@ -103,7 +103,7 @@ void AInterfaceRule::reverseMaterialsFromTo()
 
 QString AInterfaceRule::checkOverrideData()
 {
-    if (isNotPolishedSurface())
+    if (isRoughSurface())
     {
         if (!canHaveRoughSurface()) return "This interface rule type cannot have rough optical surface";
         QString err = SurfaceSettings.checkRuntimeData();
@@ -225,9 +225,17 @@ void AInterfaceRule::calculateLocalNormal(const double * globalNormal, const dou
 
                 nk = 0;
                 for (int i = 0; i < 3; i++) nk += photonDirection[i] * FacetNormal[i];
+
+                if (nk <= 0.0) continue;
+                if (SurfaceSettings.OrientationProbabilityCorrection)
+                {
+                    if (nk <= RandomHub.uniform()) continue;
+                }
+                break;
             }
+            while (true);
             //while (Momentum * FacetNormal >= 0.0);
-            while (nk <= 0.0);
+            //while (nk <= 0.0);
 
             for (int i = 0; i < 3; i++) LocalNormal[i] = FacetNormal[i];
 

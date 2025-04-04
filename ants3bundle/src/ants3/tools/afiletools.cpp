@@ -1,5 +1,4 @@
 #include "afiletools.h"
-//#include "amessage.h"
 
 #include <QStringList>
 #include <QFile>
@@ -11,38 +10,38 @@
 #include <QMessageBox>
 #endif
 
-bool ftools::loadTextFromFile(QString & Text, const QString & FileName)
+bool ftools::loadTextFromFile(QString & text, const QString & fileName)
 {
-    QFile file(FileName);
+    QFile file(fileName);
     if (!file.open(QIODevice::ReadOnly | QFile::Text)) return false;
 
     QTextStream in(&file);
-    Text = in.readAll();
+    text = in.readAll();
     file.close();
     return true;
 }
 
-bool ftools::saveTextToFile(const QString & Text, const QString & FileName)
+bool ftools::saveTextToFile(const QString & text, const QString & fileName)
 {
-    QFile file(FileName);
+    QFile file(fileName);
     if (!file.open(QIODevice::WriteOnly | QFile::Text)) return false;
 
     QTextStream out(&file);
-    out << Text;
+    out << text;
     file.close();
     return true;
 }
 
 
-QString ftools::mergeTextFiles(const std::vector<QString> & FilesToMerge, QString FileName)
+QString ftools::mergeTextFiles(const std::vector<QString> & filesToMerge, QString fileName)
 {
-    QFile ofile(FileName);
-    if (!ofile.open(QIODevice::WriteOnly | QFile::Text)) return "Cannot open output file:\n" + FileName;
+    QFile ofile(fileName);
+    if (!ofile.open(QIODevice::WriteOnly | QFile::Text)) return "Cannot open output file:\n" + fileName;
     QTextStream out(&ofile);
 
     QByteArray buffer;
     buffer.reserve(1000);
-    for (const QString & fn : FilesToMerge)
+    for (const QString & fn : filesToMerge)
     {
         QFile file(fn);
         if (!file.open(QIODevice::ReadOnly | QFile::Text)) return "Cannot open input file:\n" + fn;
@@ -222,99 +221,6 @@ QString ftools::loadMatrix(const QString & fileName, std::vector<std::vector<dou
 
     if (data.empty()) return "Nothing was loaded";
     return "";
-
-}
-
-QString ftools::loadDoubleVectorsFromFile(const QString & FileName, QVector<double> * x, QVector<double> * y, QString * header, int numLines)
-{
-    bool bGetHeader = (header && !header->isEmpty());
-    QString HeaderId;
-    if (bGetHeader)
-    {
-        HeaderId = *header;
-        header->clear();
-    }
-
-    if (FileName.isEmpty()) return "Error: empty name was given to file loader!";
-
-    QFile file(FileName);
-    if(!file.open(QIODevice::ReadOnly | QFile::Text)) return "Could not open: " + FileName;
-
-    QTextStream in(&file);
-    QRegularExpression rx("(\\ |\\,|\\:|\\t)"); //separators: ' ' or ',' or ':' or '\t'
-    x->resize(0);
-    y->resize(0);
-    while(!in.atEnd())
-    {
-        QString line = in.readLine();
-
-        if (bGetHeader && line.startsWith(HeaderId) && numLines > 0)
-        {
-            if ( !header->isEmpty() ) *header += "\n";
-            *header += line.remove(0, HeaderId.length());
-            numLines--;
-            continue;
-        }
-
-        QStringList fields = line.split(rx, Qt::SkipEmptyParts);
-
-        bool ok1=false, ok2;
-        double xx, yy;
-        if (fields.size() > 1 )
-        {
-            xx = fields[0].toDouble(&ok1);  // potential problem with decimal separator!
-            yy = fields[1].toDouble(&ok2);
-        }
-        if (ok1 && ok2)
-        {
-            x->append(xx);
-            y->append(yy);
-        }
-    }
-    file.close();
-
-    if (x->isEmpty()) return "Error: Wrong format - read failed for file: " + FileName;
-
-    return "";
-}
-
-QString ftools::loadDoubleVectorsFromFile(const QString & FileName, QVector<QVector<double> *> & V)
-{
-    if (FileName.isEmpty()) return("File name not provided");
-
-    QFile file(FileName);
-    if(!file.open(QIODevice::ReadOnly | QFile::Text)) return QString("Could not open file %1").arg(FileName);
-
-    const int Vsize = V.size();
-    if (Vsize == 0) return "Received no vectors to load";
-    for (QVector<double>* v : V) v->clear();
-
-    QTextStream in(&file);
-    QRegularExpression rx("(\\ |\\,|\\:|\\t)"); //separators: ' ' or ',' or ':' or '\t'
-    while (!in.atEnd())
-    {
-        const QString line = in.readLine();
-        QStringList fields = line.split(rx, Qt::SkipEmptyParts);
-
-        bool fOK = true;
-        QVector<double> tmp;
-        if (fields.size() >= Vsize )
-        {
-            for (int i = 0; i < Vsize; i++)
-            {
-                double x = fields.at(i).toDouble(&fOK);
-                if (!fOK) break;
-                tmp << x;
-            }
-        }
-        if (fOK && tmp.size() == Vsize)
-            for (int i=0; i<Vsize; i++) V[i]->append( tmp.at(i) );
-    }
-    file.close();
-
-    if (V.first()->isEmpty()) return QString("File %1 has invalid format").arg(FileName);
-
-    return "";
 }
 
 QString ftools::loadDoubleVectorsFromFile(const QString & fileName, std::vector< std::vector<double>* > & vec)
@@ -329,7 +235,7 @@ QString ftools::loadDoubleVectorsFromFile(const QString & fileName, std::vector<
     for (auto * v : vec) v->clear();
 
     QTextStream in(&file);
-    QRegularExpression rx("(\\ |\\,|\\:|\\t)"); //separators: ' ' or ',' or ':' or '\t'
+    const QRegularExpression rx("(\\ |\\,|\\:|\\t)"); //separators: ' ' or ',' or ':' or '\t'
     while (!in.atEnd())
     {
         const QStringList fields = in.readLine().split(rx, Qt::SkipEmptyParts);
@@ -356,25 +262,25 @@ QString ftools::loadDoubleVectorsFromFile(const QString & fileName, std::vector<
     return "";
 }
 
-QString ftools::saveDoubleVectorsToFile(const QVector<QVector<double> *> & V, const QString & FileName)
+QString ftools::saveDoubleVectorsToFile(const std::vector<std::vector<double> *> & vec, const QString & fileName)
 {
-    if (V.isEmpty()) return "No data to save!";
-    const int size = V.first()->size();
-    for (int i = 1; i < V.size(); i++)
-        if (V[i]->size() != size) return "Mismatch in vector size";
+    if (vec.empty()) return "No data to save!";
+    const size_t size = vec.front()->size();
+    for (size_t i = 1; i < vec.size(); i++)
+        if (vec[i]->size() != size) return "Mismatch in vector size";
 
-    QFile outFile(FileName);
+    QFile outFile(fileName);
     outFile.open(QIODevice::WriteOnly);
-    if (!outFile.isOpen()) return "Cannot open file " + FileName + " for output";
+    if (!outFile.isOpen()) return "Cannot open file " + fileName + " for output";
 
     QTextStream outStream(&outFile);
 
-    for (int iLine = 0; iLine < size; iLine++)
+    for (size_t iLine = 0; iLine < size; iLine++)
     {
-         for (int iVec = 0; iVec < V.size(); iVec++)
+         for (size_t iVec = 0; iVec < vec.size(); iVec++)
          {
              if (iVec != 0) outStream << ' ';
-             outStream << (*V[iVec])[iLine];
+             outStream << (*vec[iVec])[iLine];
          }
          outStream << '\n';
     }
@@ -382,303 +288,3 @@ QString ftools::saveDoubleVectorsToFile(const QVector<QVector<double> *> & V, co
     outFile.close();
     return "";
 }
-
-// ==============================================================================================
-
-
-/*
-int LoadDoubleVectorsFromFile(QString FileName, QVector<double>* x)
-{
-  if (FileName.isEmpty())
-      {
-          message("Error: empty name was given to file loader!");
-          return 1;
-      }
-
-  QFile file(FileName);
-  if(!file.open(QIODevice::ReadOnly | QFile::Text))
-    {
-      message("Could not open: "+FileName);
-      return 2;
-    }
-
-  QTextStream in(&file);
-  QRegExp rx("(\\ |\\,|\\:|\\t)"); //separators: ' ' or ',' or ':' or '\t'
-  x->resize(0);
-  while(!in.atEnd())
-       {
-          QString line = in.readLine();
-          QStringList fields = line.split(rx, QString::SkipEmptyParts);
-
-          bool ok1= false;
-          double xx;
-          if (fields.size()>0) xx = fields[0].toDouble(&ok1);  //potential problem with decimal separator!
-
-          if (ok1)
-            {
-              x->append(xx);
-            }
-        }
-   file.close();
-
-   if (x->isEmpty())
-   {
-       message("Error: Wrong format - nothing was red: "+FileName);
-       return 3;
-   }
-
-   return 0;
-}
-
-int LoadDoubleVectorsFromFile(QString FileName, QVector<double>* x, QVector<double>* y, QVector<double>* z)
-{
-  if (FileName.isEmpty())
-  {
-      message("Error: empty name was given to file loader!");
-      return 1;
-  }
-
-  QFile file(FileName);
-  if(!file.open(QIODevice::ReadOnly | QFile::Text))
-    {
-      message("Could not open: "+FileName);
-      return 2;
-    }
-
-  QTextStream in(&file);
-  QRegExp rx("(\\ |\\,|\\:|\\t)"); //separators: ' ' or ',' or ':' or '\t'
-  x->resize(0);
-  y->resize(0);
-  z->resize(0);
-  while(!in.atEnd())
-       {
-          QString line = in.readLine();
-          QStringList fields = line.split(rx, QString::SkipEmptyParts);
-
-          bool ok1=false, ok2, ok3;
-          double xx, yy, zz;
-          if (fields.size() > 2 )
-            {
-               xx = fields[0].toDouble(&ok1);  // potential problem with decimal separator!
-               yy = fields[1].toDouble(&ok2);
-               zz = fields[2].toDouble(&ok3);
-            }
-          if (ok1 && ok2 && ok3)
-            {
-              x->append(xx);
-              y->append(yy);
-              z->append(zz);
-            }
-        }
-   file.close();
-
-   if (x->isEmpty())
-   {
-       message("Error: Wrong format - nothing was red: "+FileName);
-       return 3;
-   }
-
-  return 0;
-}
-
-int SaveDoubleVectorsToFile(QString FileName, const QVector<double>* x, int count)
-{
-  if (count == -1) count = x->size();
-  QFile outFile( FileName );
-  outFile.open(QIODevice::WriteOnly);
-  if(!outFile.isOpen())
-    {
-      qDebug() << "- Error, unable to open" << FileName << "for output";
-#ifdef GUI
-      QMessageBox mb;
-      mb.setText("Unable to open file " +FileName+ " for writing!");
-      mb.exec();
-#endif
-      return 1;
-    }
-  QTextStream outStream(&outFile);
-
-  for (int i=0; i<count; i++)
-    outStream << x->at(i) <<"\r\n";
-  outFile.close();
-  return 0;
-}
-
-int SaveDoubleVectorsToFile(QString FileName, const QVector<double> *x, const QVector<double> *y, int count)
-{
-  if (count == -1) count = x->size();
-  QFile outFile( FileName );
-  outFile.open(QIODevice::WriteOnly);
-  if(!outFile.isOpen())
-    {
-      qDebug() << "- Error, unable to open" << FileName << "for output";
- #ifdef GUI
-      QMessageBox mb;
-      mb.setText("Unable to open file " +FileName+ " for writing!");
-      mb.exec();
- #endif
-      return 1;
-    }
-  QTextStream outStream(&outFile);
-
-  for (int i=0; i<count; i++)
-    outStream << x->at(i) << " " << y->at(i) <<"\r\n";
-  outFile.close();
-  return 0;
-}
-
-int SaveDoubleVectorsToFile(QString FileName, const QVector<double> *x, const QVector<double> *y, const QVector<double> *z, int count)
-{
-  if (count == -1) count = x->size();
-  QFile outFile( FileName );
-  outFile.open(QIODevice::WriteOnly);
-  if(!outFile.isOpen())
-    {
-      qDebug() << "- Error, unable to open" << FileName << "for output";
- #ifdef GUI
-      QMessageBox mb;
-      mb.setText("Unable to open file " +FileName+ " for writing!");
-      mb.exec();
- #endif
-      return 1;
-    }
-  QTextStream outStream(&outFile);
-
-  for (int i=0; i<count; i++)
-    outStream << x->at(i) << " " << y->at(i) << " " << z->at(i) << "\r\n";
-  outFile.close();
-  return 0;
-}
-
-int LoadIntVectorsFromFile(QString FileName, QVector<int>* x)
-{
-  if (FileName.isEmpty())
-      {
-          message("Empty file: "+FileName);
-          return 1;
-      }
-
-  QFile file(FileName);
-  if(!file.open(QIODevice::ReadOnly | QFile::Text))
-    {
-      message("Could not open: "+FileName);
-      return 2;
-    }
-
-  QTextStream in(&file);
-  QRegExp rx("(\\ |\\,|\\:|\\t)"); //separators: ' ' or ',' or ':' or '\t'
-  x->resize(0);
-  while(!in.atEnd())
-       {
-          QString line = in.readLine();
-          QStringList fields = line.split(rx);
-
-          bool ok1;
-          int xx = fields[0].toInt(&ok1);
-          if (ok1)
-            {
-              x->append(xx);
-            }
-        }
-   file.close();
-
-   if (x->isEmpty())
-   {
-       message("Error: Wrong format - nothing was red: "+FileName);
-       return 3;
-   }
-
-   return 0;
-}
-
-int LoadIntVectorsFromFile(QString FileName, QVector<int> *x, QVector<int> *y)
-{
-  if (FileName.isEmpty())
-      {
-          message("Empty file: "+FileName);
-          return 1;
-      }
-
-  QFile file(FileName);
-  if(!file.open(QIODevice::ReadOnly | QFile::Text))
-    {
-      message("Could not open: "+FileName);
-      return 2;
-    }
-
-  QTextStream in(&file);
-  QRegExp rx("(\\ |\\,|\\:|\\t)"); //separators: ' ' or ',' or ':' or '\t'
-  x->resize(0);
-  y->resize(0);
-  while(!in.atEnd())
-       {
-          QString line = in.readLine();
-          QStringList fields = line.split(rx);
-
-          bool ok1, ok2;
-          int xx = fields[0].toInt(&ok1);
-          int yy = fields[1].toInt(&ok2);
-          if (ok1 && ok2)
-            {
-              x->append(xx);
-              y->append(yy);
-            }
-        }
-   file.close();
-
-   if (x->isEmpty())
-   {
-       message("Error: Wrong format - nothing was red: "+FileName);
-       return 3;
-   }
-
-   return 0;
-}
-
-int SaveIntVectorsToFile(QString FileName, const QVector<int> *x, int count)
-{
-  if (count == -1) count = x->size();
-  QFile outFile( FileName );
-  outFile.open(QIODevice::WriteOnly);
-  if(!outFile.isOpen())
-    {
-      qDebug() << "- Error, unable to open" << FileName << "for output";
- #ifdef GUI
-      QMessageBox mb;
-      mb.setText("Unable to open file " +FileName+ " for writing!");
-      mb.exec();
- #endif
-      return 1;
-    }
-  QTextStream outStream(&outFile);
-
-  for (int i=0; i<count; i++)
-    outStream << x->at(i) <<"\r\n";
-  outFile.close();
-  return 0;
-}
-
-int SaveIntVectorsToFile(QString FileName, const QVector<int> *x, const QVector<int> *y, int count)
-{
-  if (count == -1) count = x->size();
-  QFile outFile( FileName );
-  outFile.open(QIODevice::WriteOnly);
-  if(!outFile.isOpen())
-    {
-      qDebug() << "- Error, unable to open" << FileName << "for output";
- #ifdef GUI
-      QMessageBox mb;
-      mb.setText("Unable to open file " +FileName+ " for writing!");
-      mb.exec();
- #endif
-      return 1;
-    }
-  QTextStream outStream(&outFile);
-
-  for (int i=0; i<count; i++)
-    outStream << x->at(i) << " " << y->at(i) <<"\r\n";
-  outFile.close();
-  return 0;
-}
-
-*/

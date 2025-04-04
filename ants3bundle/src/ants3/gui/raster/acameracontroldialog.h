@@ -3,7 +3,7 @@
 
 #include <QDialog>
 
-class RasterWindowBaseClass;
+class ARasterWindow;
 class AGeometryHub;
 class QLineEdit;
 class QJsonObject;
@@ -17,7 +17,7 @@ class ACameraControlDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit ACameraControlDialog(RasterWindowBaseClass * RasterWin, QWidget * parent = nullptr);
+    explicit ACameraControlDialog(ARasterWindow * RasterWin, QWidget * parent = nullptr);
     ~ACameraControlDialog();
 
     void showAndUpdate();
@@ -52,7 +52,7 @@ protected:
     void closeEvent(QCloseEvent *);
 
 private:
-    RasterWindowBaseClass * RW = nullptr;
+    ARasterWindow * RW = nullptr;
     const AGeometryHub & Geometry;
 
     Ui::ACameraControlDialog * ui;

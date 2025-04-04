@@ -356,17 +356,17 @@ bool ARootHistRecord::medianFilter(int span, int spanRight)
     {
         int numX = h2->GetNbinsX();
         int numY = h2->GetNbinsY();
-        QVector<QVector<double>> Filtered(numX+1, QVector<double>(numY+1));
+        std::vector<std::vector<double>> Filtered(numX+1, std::vector<double>(numY+1));
 
         for (int iThisBinX = 1; iThisBinX <= numX; iThisBinX++)  // 0-> underflow; num+1 -> overflow
             for (int iThisBinY = 1; iThisBinY <= numY; iThisBinY++)  // 0-> underflow; num+1 -> overflow
             {
-                QVector<double> content;
+                std::vector<double> content;
                 for (int iX = iThisBinX - deltaLeft; iX <= iThisBinX + deltaRight; iX++)
                     for (int iY = iThisBinY - deltaLeft; iY <= iThisBinY + deltaRight; iY++)
                     {
                         if (iX < 1 || iX > numX || iY < 1 || iY > numY) continue;
-                        content << h2->GetBinContent(iX, iY);
+                        content.push_back( h2->GetBinContent(iX, iY) );
                     }
 
                 std::sort(content.begin(), content.end());
@@ -388,15 +388,15 @@ bool ARootHistRecord::medianFilter(int span, int spanRight)
     TH1* h = dynamic_cast<TH1*>(Object);
     if (!h) return false;
 
-    QVector<double> Filtered;
+    std::vector<double> Filtered;
     int num = h->GetNbinsX();
     for (int iThisBin = 1; iThisBin <= num; iThisBin++)  // 0-> underflow; num+1 -> overflow
     {
-        QVector<double> content;
+        std::vector<double> content;
         for (int i = iThisBin - deltaLeft; i <= iThisBin + deltaRight; i++)
         {
             if (i < 1 || i > num) continue;
-            content << h->GetBinContent(i);
+            content.push_back( h->GetBinContent(i) );
         }
 
         std::sort(content.begin(), content.end());
@@ -405,7 +405,7 @@ bool ARootHistRecord::medianFilter(int span, int spanRight)
         if (size == 0) val = 0;
         else val = ( size % 2 == 0 ? (content[size / 2 - 1] + content[size / 2]) / 2 : content[size / 2] );
 
-        Filtered.append(val);
+        Filtered.push_back(val);
     }
     //qDebug() << "Result:" << Filtered;
 

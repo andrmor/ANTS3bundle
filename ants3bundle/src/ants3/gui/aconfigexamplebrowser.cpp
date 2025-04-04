@@ -117,7 +117,7 @@ QString AConfigExampleBrowser::extractItem(const QString &line, AConfigExampleBr
                 iChar++;
             }
             if (tag.endsWith(' ')) tag.chop(1);
-            if (!tag.isEmpty()) item.Tags.push_back(tag); // !!!*** check uniqness?
+            if (!tag.isEmpty()) item.Tags.push_back(tag); // check uniqness
         }
 
     //qDebug() << item.FileName << item.Description << item.Tags;

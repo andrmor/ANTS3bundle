@@ -1,12 +1,13 @@
 #include "shapeablerectitem.h"
-#include <cmath>
+
 #include <QDebug>
 #include <QCursor>
 #include <QGraphicsSceneMouseEvent>
 #include <QGraphicsRectItem>
 #include <QGraphicsTextItem>
 #include <QPainter>
-//#include <QGraphicsScene>
+
+#include <cmath>
 
 #ifndef M_PI
 #define M_PI		3.14159265358979323846264338327	/* pi */
@@ -124,7 +125,7 @@ void ShapeableRectItem::setTrueRectangle(double trueWidth, double trueHeight)
     TrueWidth = trueWidth;
     TrueHeight = trueHeight;
 
-    QVector<QPointF> vec;
+    QList<QPointF> vec;
     vec << makePoint(-0.5*trueWidth, -0.5*trueHeight);
     vec << makePoint(+0.5*trueWidth, -0.5*trueHeight);
     vec << makePoint(+0.5*trueWidth, +0.5*trueHeight);
@@ -181,8 +182,8 @@ ShapeableRectItem::Location ShapeableRectItem::getMouseLocationOnBox(QPointF mpo
     QPolygonF p = this->getPolygon();
     int loc = Center;
 
-    QVector<bool> corner(4, false); //corners: TL, TR, BR, BL corners
-    QVector<bool> side(4, false);   //on side: T, R, B, L
+    QList<bool> corner(4, false); //corners: TL, TR, BR, BL corners
+    QList<bool> side(4, false);   //on side: T, R, B, L
 
     //  qDebug() << "\n";
     int ii = 0;

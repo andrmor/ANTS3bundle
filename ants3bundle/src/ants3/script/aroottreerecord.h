@@ -6,8 +6,6 @@
 #include <QObject>
 #include <QVector>
 #include <QMap>
-#include <QPair>
-#include <QPair>
 #include <QString>
 #include <QMutex>
 
@@ -58,7 +56,8 @@ private:
     bool bCanFill = true;              //fixed array type can be loaded from TFile but new entries cannot be added to these trees
 
 public:
-    static QVector<QString> getAllTypes() {QVector<QString> s; s<<"C"<<"I"<<"F"<<"D"<<"O"<<"AC"<<"AI"<<"AF"<<"AD"<<"AO";return s;}
+    static bool isValidType(const QString & codeName); // {"C","I","F","D","O","AC","AI","AF","AD","AO"};
+
 };
 
 class TFile;
@@ -66,11 +65,11 @@ class TFile;
 class ARootTreeRecord : public ARootObjBase
 {
 public:
-    ARootTreeRecord(TObject* tree, const QString& name);
+    ARootTreeRecord(TObject* tree, const QString & name);
     ~ARootTreeRecord();
 
     // Protected by Mutex
-    bool               createTree(const QString& name, const QVector<QPair<QString, QString>>& branches,
+    bool               createTree(const QString & name, const std::vector<std::pair<QString, QString>> & branches,
                                   const QString fileName = "", int autosaveNum = 10000);
     QString            loadTree(const QString& fileName, const QString treeNameInFile = ""); //report error ("" if fine)
     QString            resetTreeRecords(); // need to call it after save!
@@ -95,10 +94,10 @@ public:
     //void               scan(const QString& arg1, const QString& arg2, const QString& arg3);
 
 private:
-    QVector<ABranchBuffer*> Branches;
+    std::vector<ABranchBuffer*> Branches;
     QMap<QString, ABranchBuffer*> MapOfBranches;
 
-    TFile* file = 0;
+    TFile * file = nullptr;
 
     bool  canAddEntries = true;  //some trees can be loaded, but due to conversion fo data, cannot be filled with new entries
 

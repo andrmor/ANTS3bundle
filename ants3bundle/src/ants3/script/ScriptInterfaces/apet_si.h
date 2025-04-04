@@ -17,7 +17,9 @@ class APet_si : public AScriptInterface
 public:
     APet_si();
 
-    AScriptInterface * cloneBase() const {return new APet_si();}
+    AScriptInterface * cloneBase() const override {return new APet_si();}
+
+    void abortRun() override; // !!!*** TODO
 
 public slots:
     void createScanner(QString scannerName, double scannerRadius, double crystalDepth, double crystalSize, double minAngle_deg);

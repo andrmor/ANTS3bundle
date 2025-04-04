@@ -2,7 +2,8 @@
 #define AAXESDIALOG_H
 
 #include <QDialog>
-#include <QVector>
+
+#include <vector>
 
 namespace Ui {
 class AAxesDialog;
@@ -16,7 +17,7 @@ class AAxesDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit AAxesDialog(QVector<TAxis*> & axes, int axisIndex, QWidget *parent = nullptr);
+    explicit AAxesDialog(std::vector<TAxis*> & axes, int axisIndex, QWidget * parent = nullptr);
     ~AAxesDialog();
 
     int exec() override;
@@ -40,7 +41,7 @@ private:
 
 private:
     Ui::AAxesDialog * ui;
-    QVector<TAxis*> & Axes;
+    std::vector<TAxis*> & Axes;
     int AxisIndex = 0;
     TAxis * Axis = nullptr;
 

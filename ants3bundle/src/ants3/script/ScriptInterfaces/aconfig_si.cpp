@@ -348,7 +348,7 @@ bool AConfig_SI::modifyJsonValue(QJsonObject &obj, const QString &path, const QJ
     }
     else
     { // it is an array
-        QVector<QJsonArray> arrays;
+        QList<QJsonArray> arrays;
         arrays << subValue.toArray();
         for (size_t i = 0; i < indexes.size()-1; i++)  //except the last one - it has special treatment
         {

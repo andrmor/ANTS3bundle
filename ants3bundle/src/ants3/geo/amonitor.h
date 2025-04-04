@@ -4,7 +4,6 @@
 #include "amonitorconfig.h"
 
 #include <QString>
-#include <vector>
 
 class TH1D;
 class ATH1D;

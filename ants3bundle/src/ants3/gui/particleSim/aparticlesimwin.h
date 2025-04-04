@@ -33,7 +33,7 @@ class AParticleSimWin : public AGuiWindow
     Q_OBJECT
 
 public:
-    explicit AParticleSimWin(QWidget * parent = nullptr);  // !!!*** add validators
+    explicit AParticleSimWin(QWidget * parent = nullptr);
     ~AParticleSimWin();
 
     void writeToJson(QJsonObject & json) const;

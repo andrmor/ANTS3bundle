@@ -64,7 +64,7 @@ AGeoShape * AGeoShape::GeoShapeFactory(const QString ShapeType)
         return new AGeoComposite();
     else if (ShapeType == "TGeoScaledShape")
         return new AGeoScaledShape();
-    else return 0;
+    else return nullptr;
 }
 
 /*
@@ -1824,23 +1824,23 @@ bool AGeoPgon::readFromString(QString GenerationString)
             qWarning() << "Syntax error found during extracting parameters of TGeoPgon";
             return false;
         }
-        Sections << section;
+        Sections.push_back(section);
     }
 
     bool bInc = true;
-    for (int i=1; i<Sections.size(); i++)
+    for (size_t i = 1; i < Sections.size(); i++)
     {
         if (i == 1)
-            if (Sections.first().z > Sections.at(1).z)
+            if (Sections[0].z > Sections[1].z)
                 bInc = false;
 
-        if (Sections.at(i).z <= Sections.at(i-1).z && bInc)
+        if (Sections[i].z <= Sections[i-1].z && bInc)
         {
             qWarning() << "Non consistent positions of polygon planes";
             return false;
         }
 
-        if (Sections.at(i).z >= Sections.at(i-1).z && !bInc)
+        if (Sections[i].z >= Sections[i-1].z && !bInc)
         {
             qWarning() << "Non consistent positions of polygon planes";
             return false;
@@ -1951,7 +1951,7 @@ bool AGeoPgon::readFromTShape(TGeoShape *Tshape)
 
     Sections.clear();
     for (int i=0; i<pg->GetNz(); i++)
-        Sections << APolyCGsection(pg->GetZ()[i], pg->GetRmin()[i], pg->GetRmax()[i]);
+        Sections.push_back( APolyCGsection(pg->GetZ()[i], pg->GetRmin()[i], pg->GetRmax()[i]) );
 
     //qDebug() << "Pgone loaded from TShape..."<<phi<<dphi<<nedges;
     //for (int i=0; i<Sections.size(); i++) qDebug() << Sections.at(i).toString();
@@ -3027,7 +3027,7 @@ void AGeoArb8::init()
 AGeoPcon::AGeoPcon()
     : phi(0), dphi(360)
 {
-    Sections << APolyCGsection(-5, 10, 20) <<  APolyCGsection(5, 20, 40);
+    Sections = { APolyCGsection(-5, 10, 20), APolyCGsection(5, 20, 40) };
 }
 
 QString AGeoPcon::getHelp() const
@@ -3133,7 +3133,7 @@ bool AGeoPcon::readFromString(QString GenerationString)
             qWarning() << "Syntax error found during extracting parameters of TGeoPcon";
             return false;
         }
-        Sections << section;
+        Sections.push_back(section);
     }
     //qDebug() << phi<<dphi;
     //for (int i=0; i<Sections.size(); i++) qDebug() << Sections.at(i).toString();
@@ -3221,9 +3221,9 @@ QString AGeoPcon::getScriptString(bool useStrings) const
 
 double AGeoPcon::maxSize() const
 {
-    double m = 0.5*fabs(Sections.at(0).z - Sections.last().z);
-    for (int i=0; i<Sections.size(); i++)
-        m = std::max(m, Sections.at(i).rmax);
+    double m = 0.5*fabs(Sections.front().z - Sections.back().z);
+    for (size_t i = 0; i < Sections.size(); i++)
+        m = std::max(m, Sections[i].rmax);
     return sqrt(3.0)*m;
 }
 
@@ -3277,7 +3277,7 @@ void AGeoPcon::readFromJson(const QJsonObject &json)
         QJsonObject js = ar[i].toObject();
         APolyCGsection s;
         s.readFromJson(js);
-        Sections << s;
+        Sections.push_back(s);
     }
     if (Sections.size()<2)
     {
@@ -3296,7 +3296,7 @@ bool AGeoPcon::readFromTShape(TGeoShape *Tshape)
 
     Sections.clear();
     for (int i=0; i<pc->GetNz(); i++)
-        Sections << APolyCGsection(pc->GetZ()[i], pc->GetRmin()[i], pc->GetRmax()[i]);
+        Sections.push_back( APolyCGsection(pc->GetZ()[i], pc->GetRmin()[i], pc->GetRmax()[i]) );
 
     //qDebug() << "Pcone loaded from TShape..."<<phi<<dphi;
     //for (int i=0; i<Sections.size(); i++) qDebug() << Sections.at(i).toString();
@@ -4067,18 +4067,6 @@ bool AGeoScaledShape::isCompatibleWithGeant4() const
 {
     return true;
     // checked with root 6.30.06, my request for scaled compatibility with Geant4 seems to be fully implemented
-    // !!!*** after tests remove compatibility check infrastructure alltogether
-
-    /*
-    if (!BaseShape) return false;
-
-    if (scaleX == 1.0 && scaleY == 1.0 && scaleZ == 1.0) return true;
-
-    const QString baseShapeType = BaseShape->getShapeType();
-    if (baseShapeType == "TGeoCone") return true;
-    //if (baseShapeType == "TGeoSphere") return true;
-    return false;
-    */
 }
 
 QString AGeoTorus::getHelp() const

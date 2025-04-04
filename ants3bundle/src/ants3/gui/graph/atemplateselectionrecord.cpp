@@ -14,7 +14,7 @@ ATemplateSelectionRecord::~ATemplateSelectionRecord()
 
 void ATemplateSelectionRecord::addChild(ATemplateSelectionRecord * rec)
 {
-    Children << rec;
+    Children.push_back(rec);
 }
 
 ATemplateSelectionRecord *ATemplateSelectionRecord::findChild(const QString & Label) const

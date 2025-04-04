@@ -5,6 +5,7 @@
 #include <QString>
 
 #include <array>
+#include <vector>
 
 class AGeoObject;
 class QPushButton;
@@ -25,7 +26,7 @@ public:
     virtual bool updateObject(AGeoObject * obj) const = 0;
     virtual void Update(const AGeoObject * obj) = 0;
 
-    bool isLeEmpty(const QVector<AOneLineTextEdit*> & v) const;  // !!!***
+    bool isLeEmpty(const std::vector<AOneLineTextEdit*> & v) const;
 
     void postUpdate();
 
@@ -58,7 +59,7 @@ public slots:
     void onContentChangedBase();
 
 public:
-    static void configureHighligherAndCompleter(AOneLineTextEdit * edit, int iUntilIndex = -1); // -1 == all   //!!!***
+    static void configureHighligherAndCompleter(AOneLineTextEdit * edit, int iUntilIndex = -1); // -1 == all
     static bool processEditBox(const QString & whatIsIt, AOneLineTextEdit * lineEdit, double & val, QString & str, QWidget * parent);
 };
 

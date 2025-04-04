@@ -415,8 +415,6 @@ bool AViewer3D::doLoadCastorImage(const QString & fileName)
     if (!Settings.ApplyScaling) Settings.ScalingFactor = GlobalMaximum;
     //qDebug() << "Global max in the defined filed of view fraction:" << GlobalMaximum;
 
-    // !!!*** error control
-
     return true;
 }
 

@@ -24,10 +24,6 @@ public:
     EGenMode GenerationMode = Sources;
     double   Events         = 1;
 
-    //bool    bDoS1           = true;
-    //bool    bDoS2           = false;
-    //bool    bIgnoreNoDepo   = false;
-
     bool    bClusterMerge   = false;
     double  ClusterRadius   = 0.1;
     double  ClusterTime     = 1.0;

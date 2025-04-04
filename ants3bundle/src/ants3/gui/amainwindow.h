@@ -1,5 +1,5 @@
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#ifndef AMAINWINDOW_H
+#define AMAINWINDOW_H
 
 #include "aguiwindow.h"
 
@@ -11,10 +11,10 @@ class AGeoTreeWin;
 class AGeometryWindow;
 class AMatWin;
 class ASensorWindow;
-class APhotonTunnelWindow;
+class APhotFunctWindow;
 class APhotSimWin;
 class AInterfaceRuleWin;
-class GraphWindowClass;
+class AGraphWindow;
 class ARemoteWindow;
 class AParticleSimWin;
 class AScriptWindow;
@@ -25,13 +25,13 @@ class A3Global;
 class AConfigExampleBrowser;
 class AGuiFromScrWin;
 
-class MainWindow : public AGuiWindow
+class AMainWindow : public AGuiWindow
 {
     Q_OBJECT
 
 public:
-    explicit MainWindow();
-    ~MainWindow();
+    explicit AMainWindow();
+    ~AMainWindow();
 
     void updateGui();
 
@@ -41,14 +41,14 @@ private:
 
     Ui::MainWindow    * ui = nullptr;
 
-    AGeoTreeWin       * GeoTreeWin  = nullptr;
+    AGeoTreeWin       * GeoTreeWin = nullptr;
     AGeometryWindow   * GeoWin     = nullptr;
     AMatWin           * MatWin     = nullptr;
     ASensorWindow     * SensWin    = nullptr;
-    APhotonTunnelWindow  * PhotFunWin = nullptr;
+    APhotFunctWindow * PhotFunWin = nullptr;
     APhotSimWin       * PhotSimWin = nullptr;
     AInterfaceRuleWin * RuleWin    = nullptr;
-    GraphWindowClass  * GraphWin   = nullptr;
+    AGraphWindow      * GraphWin   = nullptr;
     ARemoteWindow     * FarmWin    = nullptr;
     AParticleSimWin   * PartSimWin = nullptr;
     AScriptWindow     * JScriptWin = nullptr;
@@ -64,7 +64,7 @@ private:
     QTimer * RootUpdateTimer = nullptr;
 
 private slots:
-    void onRebuildGeometryRequested(); // !!!*** refactor?
+    void onRebuildGeometryRequested();
     void updateAllGuiFromConfig();
     void onRequestSaveGuiSettings();
     void onRequestChangeGeoViewer(bool useJSRoot);
@@ -143,4 +143,4 @@ private:
 
 };
 
-#endif // MAINWINDOW_H
+#endif // AMAINWINDOW_H

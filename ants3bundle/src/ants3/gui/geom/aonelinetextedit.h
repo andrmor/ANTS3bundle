@@ -4,6 +4,8 @@
 #include <QPlainTextEdit>
 #include <QSize>
 
+#include <vector>
+
 class QCompleter;
 
 class AOneLineTextEdit : public QPlainTextEdit
@@ -57,7 +59,7 @@ class ABasicHighlighter : public QSyntaxHighlighter
 public:
     ABasicHighlighter(QTextDocument * textDoc) : QSyntaxHighlighter(textDoc){}
 
-    QVector<AHighlightingRule> HighlightingRules;
+    std::vector<AHighlightingRule> HighlightingRules;
 
 protected:
     void highlightBlock(const QString & text) override;

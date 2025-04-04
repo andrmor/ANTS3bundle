@@ -782,8 +782,12 @@ void ASensorWindow::on_pbTestPhElSignal_clicked()
     ASensorModel * mod = SensHub.model(iModel);
     if (!mod) return;
 
-    // !!!*** check for errors
-    mod->updateRuntimeProperties();
+    QString err = mod->updateRuntimeProperties();
+    if (!err.isEmpty())
+    {
+        guitools::message(err, this);
+        return;
+    }
 
     QDialog * dialog = new QDialog(this);
     dialog->setWindowTitle("Ph.e-  to signal convertion tester");

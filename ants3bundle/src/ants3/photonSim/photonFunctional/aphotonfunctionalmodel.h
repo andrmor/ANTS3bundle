@@ -42,6 +42,7 @@ public:
     // photonData on call contains Trigger data, on return should return data for Target
     // true = continue tracing; false = kill this photon
 
+    static QStringList getKnownModels();
     static APhotonFunctionalModel * factory(const QString & type);
     static APhotonFunctionalModel * factory(QJsonObject & json);
     static APhotonFunctionalModel * clone(const APhotonFunctionalModel * other);

@@ -1,7 +1,7 @@
 #include "aviewer3dwidget.h"
 #include "ui_aviewer3dwidget.h"
 //#include "rasterwindowbaseclass.h"
-#include "rasterwindowgraphclass.h"
+#include "agraphrasterwindow.h"
 
 #include "TH2D.h"
 #include "TCanvas.h"
@@ -15,18 +15,18 @@ AViewer3DWidget::AViewer3DWidget(AViewer3D * viewer, EViewType viewType) :
     ui->pbRedraw->setVisible(false);
 
     //RasterWindow = new RasterWindowBaseClass(nullptr);
-    RasterWindow = new RasterWindowGraphClass(nullptr);
+    RasterWindow = new AGraphRasterWindow(nullptr);
     RasterWindow->resize(400, 400);
     ui->horizontalLayout->insertWidget(0, RasterWindow);
-    RasterWindow->ForceResize();
+    RasterWindow->forceResize();
     RasterWindow->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
     RasterWindow->fCanvas->SetRightMargin(0.15);
     RasterWindow->fCanvas->SetTopMargin(0.05);
     //RasterWindow->fCanvas->SetBottomMargin(0.1);
 
-    connect(RasterWindow, &RasterWindowGraphClass::reportCursorPosition, this, &AViewer3DWidget::onRasterCursorPositionChanged);
-    connect(RasterWindow, &RasterWindowGraphClass::cursorLeftBoundaries, this, &AViewer3DWidget::onCursorLeftRaster);
+    connect(RasterWindow, &AGraphRasterWindow::reportCursorPosition, this, &AViewer3DWidget::onRasterCursorPositionChanged);
+    connect(RasterWindow, &AGraphRasterWindow::cursorLeftBoundaries, this, &AViewer3DWidget::onCursorLeftRaster);
 }
 
 AViewer3DWidget::~AViewer3DWidget()
@@ -122,7 +122,7 @@ void AViewer3DWidget::readFromJson(const QJsonObject & json)
 
 void AViewer3DWidget::saveImage(const QString & fileName)
 {
-    RasterWindow->SaveAs(fileName);
+    RasterWindow->saveAs(fileName);
 }
 
 void AViewer3DWidget::saveRoot(const QString & fileName)

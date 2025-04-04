@@ -4,7 +4,6 @@
 #include "awindowinterfacebase.h"
 
 #include <QObject>
-#include <QVector>
 #include <QString>
 
 class AScriptManager;

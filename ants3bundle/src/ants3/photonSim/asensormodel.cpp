@@ -112,13 +112,13 @@ void ASensorModel::writeToJson(QJsonObject & json) const
     }
 }
 
-bool ASensorModel::readFromJson(const QJsonObject & json)
+QString ASensorModel::readFromJson(const QJsonObject & json)
 {
     clear();
 
-    if (!json.contains("Name") || !json.contains("SiPM")) return false; // simple check of format
+    if (!json.contains("Name") || !json.contains("SiPM")) return "Bad json for a sensor model"; // simple check of format
 
-    jstools::parseJson(json, "Name",          Name);
+    jstools::parseJson(json, "Name", Name);
 
     {
         QJsonObject js = json["SiPM"].toObject();
@@ -131,13 +131,17 @@ bool ASensorModel::readFromJson(const QJsonObject & json)
         jstools::parseJson(js, "PixelSpacingY", PixelSpacingY);
     }
 
+    QString errStub = "Sensor model " + Name + " : ";
+
     {
         QJsonObject js = json["PDE"].toObject();
         jstools::parseJson(js, "Effective", PDE_effective);
         QJsonArray ar;
         jstools::parseJson(js, "Spectral", ar);
         bool ok = jstools::readDPairVectorFromArray(ar, PDE_spectral);
-        if (!ok) return false; // !!!***
+        if (!ok) return errStub + "Failed to read the array with PDE data for a sensor model";
+        QString err = checkPDE_spectral();
+        if (!err.isEmpty()) return errStub + err;
     }
 
     {
@@ -145,7 +149,9 @@ bool ASensorModel::readFromJson(const QJsonObject & json)
         QJsonArray ar;
         jstools::parseJson(js, "Data", ar);
         bool ok = jstools::readDPairVectorFromArray(ar, AngularFactors);
-        if (!ok) return false; // !!!***
+        if (!ok) return errStub + "Failed to the array with angular response";
+        QString err = checkAngularFactors();
+        if (!err.isEmpty()) return errStub + err;
     }
 
     {
@@ -155,7 +161,9 @@ bool ASensorModel::readFromJson(const QJsonObject & json)
         QJsonArray ar;
         jstools::parseJson(js, "Data", ar);
         bool ok = jstools::readDVectorOfVectorsFromArray(ar, AreaFactors);
-        if (!ok) return false; // !!!***
+        if (!ok) return errStub + "Failed to read the file with area response factors";
+        QString err = checkAreaFactors();
+        if (!err.isEmpty()) return errStub + err;
     }
 
     jstools::parseJson(json, "DarkCountRate", DarkCountRate);
@@ -172,21 +180,19 @@ bool ASensorModel::readFromJson(const QJsonObject & json)
         else if (str == "Normal")   PhElToSignalModel = Normal;
         else if (str == "Gamma")    PhElToSignalModel = Gamma;
         else if (str == "Custom")   PhElToSignalModel = Custom;
-        else
-        {
-            qWarning() << "Unknown model of PhEl to signal convertion:" << str;  // !!!***
-            PhElToSignalModel = Constant;
-        }
+        else return errStub + "Unknown model of PhEl to signal convertion: " + str;
         jstools::parseJson(js, "AverageSignalPerPhEl", AverageSignalPerPhEl);
         jstools::parseJson(js, "NormalSigma", NormalSigma);
         jstools::parseJson(js, "GammaShape", GammaShape);
         QJsonArray ar;
         jstools::parseJson(js, "SinglePhElPHS", ar);
         bool ok = jstools::readDPairVectorFromArray(ar, SinglePhElPHS);
-        if (!ok) return false; // !!!***
+        if (!ok) return errStub + "Failed to read the array with SinglePhElPHS";
+        QString err = checkPhElToSignals();
+        if (!err.isEmpty()) return errStub + err;
     }
 
-    return true;
+    return "";
 }
 
 QString ASensorModel::checkPDE_spectral() const
@@ -333,7 +339,7 @@ double ASensorModel::getMaxQE(bool bWaveRes) const
     return maxQE;
 }
 
-void ASensorModel::updateRuntimeProperties()
+QString ASensorModel::updateRuntimeProperties()
 {
     if (SiPM)
     {
@@ -355,6 +361,9 @@ void ASensorModel::updateRuntimeProperties()
     _MaxPDE_spectral = 1.0;
     if (!PDE_spectral.empty())
     {
+        QString err = checkPDE_spectral();
+        if (!err.isEmpty()) return err;
+
         SimSet.WaveSet.toStandardBins(PDE_spectral, PDEbinned);
         _MaxPDE_spectral = *std::max_element(PDEbinned.begin(), PDEbinned.end());
     }
@@ -362,6 +371,9 @@ void ASensorModel::updateRuntimeProperties()
     if (AngularFactors.empty()) _MaxAngularFactor = 1.0;
     else
     {
+        QString err = checkAngularFactors();
+        if (!err.isEmpty()) return err;
+
         AngularBinned.reserve(91);
         _MaxAngularFactor = 0;
         for (int i = 0; i < 91; i++)
@@ -375,6 +387,9 @@ void ASensorModel::updateRuntimeProperties()
     if (AreaFactors.empty()) _MaxAreaFactor = 1.0;
     else
     {
+        QString err = checkAreaFactors();
+        if (!err.isEmpty()) return err;
+
         _MaxAreaFactor = 0;
         for (const std::vector<double> & vec : AreaFactors)
             for (double val : vec)
@@ -382,15 +397,10 @@ void ASensorModel::updateRuntimeProperties()
     }
 
     delete _PHS; _PHS = nullptr;
-    const int size = SinglePhElPHS.size();
-    if (size > 1)
+    if (PhElToSignalModel == Custom)
     {
-        //_PHS = new TH1D("", "", size, SinglePhElPHS.front().first, SinglePhElPHS.back().first);  // bad, cannot take phs WITH irregular intervals
-
-        //std::vector<double> xx;  // bad, random is area-based
-        //std::for_each(SinglePhElPHS.begin(), SinglePhElPHS.end(), [&xx](const std::pair<double,double> & el){xx.push_back(el.first);});
-        //_PHS = new TH1D("", "", size, xx.data());
-        //for (int j = 1; j < size+1; j++) _PHS->SetBinContent(j, SinglePhElPHS[j-1].second);
+        QString err = checkPhElToSignals();
+        if (!err.isEmpty()) return err;
 
         const int bins = 1000;
         const double start = SinglePhElPHS.front().first;
@@ -406,6 +416,8 @@ void ASensorModel::updateRuntimeProperties()
 
         _PHS->GetIntegral();
     }
+
+    return "";
 }
 
 double ASensorModel::convertHitsToSignal(double phel) const

@@ -13,7 +13,7 @@
 AGeoBaseDelegate::AGeoBaseDelegate(QWidget *ParentWidget) :
     ParentWidget(ParentWidget) {}
 
-bool AGeoBaseDelegate::isLeEmpty(const QVector<AOneLineTextEdit *> & v) const
+bool AGeoBaseDelegate::isLeEmpty(const std::vector<AOneLineTextEdit*> & v) const
 {
     for (AOneLineTextEdit * a : v)
         if (a->text().isEmpty()) return true;
@@ -96,15 +96,14 @@ void AGeoBaseDelegate::configureHighligherAndCompleter(AOneLineTextEdit * edit, 
 
         rule.pattern = QRegularExpression("\\b" + name + "\\b");
         rule.format = GeoConstantFormat;
-        highlighter->HighlightingRules.append(rule);
+        highlighter->HighlightingRules.push_back(rule);
         sl << name;
     }
-    // !!!***
+
     rule.pattern = QRegularExpression("\\bParentIndex\\b");
     rule.format = GeoConstantFormat;
-    highlighter->HighlightingRules.append(rule);
+    highlighter->HighlightingRules.push_back(rule);
     sl << "ParentIndex";
-    //
 
     QTextCharFormat FormulaFormat;
     FormulaFormat.setForeground(Qt::blue);
@@ -115,7 +114,7 @@ void AGeoBaseDelegate::configureHighligherAndCompleter(AOneLineTextEdit * edit, 
     {
         rule.pattern = QRegularExpression("\\b" + word + "\\b");
         rule.format = FormulaFormat;
-        highlighter->HighlightingRules.append(rule);
+        highlighter->HighlightingRules.push_back(rule);
     }
 
     edit->Completer = new QCompleter(sl, edit);

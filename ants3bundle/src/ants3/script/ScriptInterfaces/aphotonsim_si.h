@@ -33,6 +33,8 @@ public slots:
     QVariantList getMonitorAngle(int monitorIndex);
     QVariantList getMonitorXY(int monitorIndex);
 
+    void loadStatistics(QString fileName);
+    QVariantList getStatistics_SensorAngular();
 
 
 private:

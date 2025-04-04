@@ -71,7 +71,7 @@ public:
     void    clearDynamicProperties();
 
     QString convertPressureToDensity();
-    void    updateRuntimeProperties();
+    void    updateRuntimeOpticalProperties();
 
     void    generateTGeoMat();
     double  generatePrimScintTime(ARandomHub & Random) const; // use Random as argument just to show that there is external dependence

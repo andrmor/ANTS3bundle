@@ -70,7 +70,7 @@ ants3_GUI {
 
 # ANTS3 version
 DEFINES += ANTS3_MAJOR=1
-DEFINES += ANTS3_MINOR=2
+DEFINES += ANTS3_MINOR=4
 
 QT += qml   #this is for qjsengine
 
@@ -139,12 +139,17 @@ SOURCES += \
     gui/aitemselectiondialog.cpp \
     gui/alineedit.cpp \
     gui/alineeditwithescape.cpp \
+    gui/amainwindow.cpp \
     gui/atreedatabaseselectordialog.cpp \
     gui/geom/ageoconstexpressiondialog.cpp \
     gui/geom/ageotreewin.cpp \
     gui/geom/aparticleanalyzerwidget.cpp \
     gui/geom/ashownumbersdialog.cpp \
     gui/graph/adrawmarginsrecord.cpp \
+    gui/graph/agraphwindow.cpp \
+    gui/graph/ahistoptstatdialog.cpp \
+    gui/graph/amultidrawrecord.cpp \
+    gui/graph/apaletteselectiondialog.cpp \
     gui/graph/asetmarginsdialog.cpp \
     gui/graph/aviewer3d.cpp \
     gui/graph/aviewer3dsettingsdialog.cpp \
@@ -160,8 +165,8 @@ SOURCES += \
     gui/particleSim/aworldsizewarningdialog.cpp \
     gui/photsim/afunctionalmodelwidget.cpp \
     gui/photsim/ainterfaceruletester.cpp \
+    gui/photsim/aphotfunctwindow.cpp \
     gui/photsim/aphotonlogsettingsform.cpp \
-    gui/photsim/aphotontunnelwindow.cpp \
     gui/photsim/aphotsimwin.cpp \
     gui/photsim/asensordrawwidget.cpp \
     config/aconfig.cpp \
@@ -185,7 +190,6 @@ SOURCES += \
     gui/graph/adrawtemplate.cpp \
     gui/graph/alegenddialog.cpp \
     gui/graph/alinemarkerfilldialog.cpp \
-    gui/graph/amultigraphdesigner.cpp \
     gui/graph/apadgeometry.cpp \
     gui/graph/apadproperties.cpp \
     gui/graph/arootcolorselectordialog.cpp \
@@ -194,7 +198,6 @@ SOURCES += \
     gui/graph/atextpavedialog.cpp \
     gui/graph/atoolboxscene.cpp \
     gui/graph/graphicsruler.cpp \
-    gui/graph/graphwindowclass.cpp \
     gui/graph/shapeablerectitem.cpp \
     gui/particleSim/aparticlesimoutputdialog.cpp \
     gui/particleSim/aparticlesimwin.cpp \
@@ -207,6 +210,8 @@ SOURCES += \
     ademomanager.cpp \
     gui/photsim/asensorgview.cpp \
     gui/photsim/asensorwindow.cpp \
+    gui/raster/agraphrasterwindow.cpp \
+    gui/raster/arasterwindow.cpp \
     gui/script/aargumentcounter.cpp \
     gui/script/ageoscriptmaker.cpp \
     gui/script/aguifromscrwin.cpp \
@@ -317,13 +322,10 @@ SOURCES += \
     gui/geom/amonitordelegateform.cpp \
     gui/geom/aonelinetextedit.cpp \
     gui/raster/acameracontroldialog.cpp \
-    gui/raster/rasterwindowbaseclass.cpp \
-    gui/raster/rasterwindowgraphclass.cpp \
     main.cpp \
     materials/amaterial.cpp \
     config/a3global.cpp \
     dispatch/a3workdistrconfig.cpp \
-    photonSim/acommonfunctions.cpp \
     photonSim/aphoton.cpp \
     photonSim/aphotonsimmanager.cpp \
     photonSim/aphotonsimsettings.cpp \
@@ -348,7 +350,6 @@ SOURCES += \
     tools/agraphbuilder.cpp \
     tools/ajsontools.cpp \
     tools/afiletools.cpp \
-    gui/mainwindow.cpp \
     gui/guitools.cpp \
     tools/arandomhub.cpp \
     tools/ath.cpp \
@@ -366,17 +367,24 @@ HEADERS += \
     ademomanager.h \
     aviewer3dsettings.h \
     gui/aitemselectiondialog.h \
+    gui/amainwindow.h \
     gui/atreedatabaseselectordialog.h \
     gui/geom/aparticleanalyzerwidget.h \
     gui/graph/adrawmarginsrecord.h \
+    gui/graph/agraphwindow.h \
+    gui/graph/ahistoptstatdialog.h \
+    gui/graph/amultidrawrecord.h \
+    gui/graph/apaletteselectiondialog.h \
     gui/graph/asetmarginsdialog.h \
     gui/graph/aviewer3dsettingsdialog.h \
     gui/materials/aabsorptiondataconverterdialog.h \
     gui/materials/aopticaldataimportdialog.h \
     gui/materials/arefractiveindeximportdialog.h \
     gui/photsim/afunctionalmodelwidget.h \
+    gui/photsim/aphotfunctwindow.h \
     gui/photsim/aphotonlogsettingsform.h \
-    gui/photsim/aphotontunnelwindow.h \
+    gui/raster/agraphrasterwindow.h \
+    gui/raster/arasterwindow.h \
     gui/script/aargumentcounter.h \
     gui/script/ascriptexampleexplorer.h \
     particleSim/aorthopositroniumgammagenerator.h \
@@ -432,7 +440,6 @@ HEADERS += \
     gui/graph/adrawtemplate.h \
     gui/graph/alegenddialog.h \
     gui/graph/alinemarkerfilldialog.h \
-    gui/graph/amultigraphdesigner.h \
     gui/graph/apadgeometry.h \
     gui/graph/apadproperties.h \
     gui/graph/arootcolorselectordialog.h \
@@ -442,7 +449,6 @@ HEADERS += \
     gui/graph/atlegend.h.autosave \
     gui/graph/atoolboxscene.h \
     gui/graph/graphicsruler.h \
-    gui/graph/graphwindowclass.h \
     gui/graph/shapeablerectitem.h \
     gui/particleSim/aparticlesimoutputdialog.h \
     gui/particleSim/aparticlesimwin.h \
@@ -539,7 +545,6 @@ HEADERS += \
     photonSim/aphotonfilehandler.h \
     photonSim/aphotonsimhub.h \
     photonSim/amonitorconfig.h \
-    photonSim/acommonfunctions.h \
     photonSim/aphoton.h \
     photonSim/aphotonsimmanager.h \
     photonSim/aphotonsimsettings.h \
@@ -576,8 +581,6 @@ HEADERS += \
     gui/geom/amonitordelegateform.h \
     gui/geom/aonelinetextedit.h \
     gui/raster/acameracontroldialog.h \
-    gui/raster/rasterwindowbaseclass.h \
-    gui/raster/rasterwindowgraphclass.h \
     materials/amaterialhub.h \
     materials/amaterial.h \
     config/a3global.h \
@@ -591,7 +594,6 @@ HEADERS += \
     tools/agraphbuilder.h \
     tools/ajsontools.h \
     tools/afiletools.h \
-    gui/mainwindow.h \
     gui/guitools.h \
     tools/arandomhub.h \
     tools/ath.h \
@@ -605,6 +607,9 @@ FORMS += \
         gui/geom/aparticleanalyzerwidget.ui \
         gui/geom/ashownumbersdialog.ui \
         gui/aglobsetwindow.ui \
+        gui/graph/agraphwindow.ui \
+        gui/graph/ahistoptstatdialog.ui \
+        gui/graph/apaletteselectiondialog.ui \
         gui/graph/asetmarginsdialog.ui \
         gui/graph/aviewer3d.ui \
         gui/graph/aviewer3dsettingsdialog.ui \
@@ -616,8 +621,8 @@ FORMS += \
         gui/particleSim/atrackdrawdialog.ui \
         gui/particleSim/aworldsizewarningdialog.ui \
         gui/photsim/ainterfaceruletester.ui \
+        gui/photsim/aphotfunctwindow.ui \
         gui/photsim/aphotonlogsettingsform.ui \
-        gui/photsim/aphotontunnelwindow.ui \
         gui/photsim/aphotsimwin.ui \
         gui/photsim/asensordrawwidget.ui \
         gui/ademowindow.ui \
@@ -629,11 +634,9 @@ FORMS += \
         gui/graph/aaxesdialog.ui \
         gui/graph/alegenddialog.ui \
         gui/graph/alinemarkerfilldialog.ui \
-        gui/graph/amultigraphdesigner.ui \
         gui/graph/arootcolorselectordialog.ui \
         gui/graph/atemplateselectiondialog.ui \
         gui/graph/atextpavedialog.ui \
-        gui/graph/graphwindowclass.ui \
         gui/particleSim/aparticlesimoutputdialog.ui \
         gui/particleSim/aparticlesimwin.ui \
         gui/particleSim/aparticlesourcedialog.ui \
@@ -657,12 +660,18 @@ ants3_FARM {
     DEFINES += WEBSOCKETS
 
     SOURCES += \
+    script/ScriptInterfaces/awebsocket_si.cpp \
+    script/ScriptInterfaces/awebserver_si.cpp \
+    net/awebsocketserver.cpp \
     ../dispatcher/awebsocketsessionserver.cpp \
     ../dispatcher/awebsocketsession.cpp \
     ../dispatcher/a3remotehandler.cpp \
     ../dispatcher/a3wsclient.cpp
 
     HEADERS += \
+    script/ScriptInterfaces/awebsocket_si.h \
+    script/ScriptInterfaces/awebserver_si.h \
+    net/awebsocketserver.h \
     ../dispatcher/awebsocketsessionserver.h \
     ../dispatcher/awebsocketsession.h \
     ../dispatcher/a3remotehandler.h \

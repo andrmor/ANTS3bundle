@@ -149,6 +149,13 @@ bool ACore_SI::beforeRun()
     return true;
 }
 
+#include <chrono>
+void ACore_SI::test()
+{
+    size_t a = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+    qDebug() << a;
+}
+
 /*
 void ACore_SI::fun0()
 {
@@ -236,7 +243,6 @@ double ACore_SI::testVFormula(QString formula, QVariantList varNames, QVariantLi
         return 0;
     }
 
-    /*
 // timed run
     //std::cout << "Timed run\n";
     //auto start = std::chrono::high_resolution_clock::now();
@@ -597,7 +603,7 @@ QVariantList ACore_SI::loadNumericArray(QString fileName)
     }
 
     QTextStream in(&file);
-    QRegularExpression rx("(\\ |\\,|\\:|\\t)"); //separators: ' ' or ',' or ':' or '\t'
+    const QRegularExpression rx("(\\ |\\,|\\:|\\t)"); //separators: ' ' or ',' or ':' or '\t'
 
     while (!in.atEnd())
     {
@@ -719,7 +725,7 @@ QVariantList ACore_SI::loadArray(QString fileName, QVariantList format, int from
     }
 
     QTextStream in(&file);
-    QRegularExpression rx("(\\ |\\,|\\:|\\t)"); //separators: ' ' or ',' or ':' or '\t'
+    const QRegularExpression rx("(\\ |\\,|\\:|\\t)"); //separators: ' ' or ',' or ':' or '\t'
 
     const int numEl = FormatSelector.size();
     int iLine = -1;
@@ -776,7 +782,7 @@ QVariantList ACore_SI::load3DArray(QString fileName, QString topSeparator, QVari
     }
 
     QTextStream in(&file);
-    QRegularExpression rx("(\\ |\\,|\\:|\\t)"); //separators: ' ' or ',' or ':' or '\t'
+    const QRegularExpression rx("(\\ |\\,|\\:|\\t)"); //separators: ' ' or ',' or ':' or '\t'
 
     const int numEl = FormatSelector.size();
     int iEvent = -1;
@@ -1200,7 +1206,7 @@ QVariant ACore_SI::loadArrayFromWeb(QString url, int msTimeout)
     }
     //  qDebug() << Reply;
 
-    QRegularExpression rx("(\\ |\\,|\\:|\\t)"); //separators: ' ' or ',' or ':' or '\t'
+    const QRegularExpression rx("(\\ |\\,|\\:|\\t)"); //separators: ' ' or ',' or ':' or '\t'
     QVariantList vl;
 
     QStringList sl = Reply.split(QRegExp("[\r\n]"), QString::SkipEmptyParts);

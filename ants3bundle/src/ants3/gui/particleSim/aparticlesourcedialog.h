@@ -10,7 +10,6 @@ namespace Ui {
 class AParticleSourceDialog;
 }
 
-class MainWindow;
 class TObject;
 class QLineEdit;
 class QComboBox;

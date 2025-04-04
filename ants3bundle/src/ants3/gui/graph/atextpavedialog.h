@@ -17,6 +17,10 @@ public:
     explicit ATextPaveDialog(TPaveText & Pave, QWidget *parent = 0);
     ~ATextPaveDialog();
 
+    void updateGui();
+
+    QString CurrentText;
+
 private slots:
     void on_pbDummy_clicked();
     void on_pbConfirm_clicked();
@@ -30,8 +34,23 @@ private:
 private slots:
     void updatePave();
 
+    void on_ledX0_editingFinished();
+
+    void on_ledX1_editingFinished();
+
+    void on_ledY0_editingFinished();
+
+    void on_ledY1_editingFinished();
+
+    void on_pbExport_clicked();
+
+    void on_pbImport_clicked();
+
+    void on_pte_textChanged();
+
 signals:
     void requestRedraw();
+    void textChanged(QString txt);
 };
 
 #endif // ATEXTPAVEDIALOG_H

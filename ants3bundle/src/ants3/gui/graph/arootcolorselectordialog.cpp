@@ -18,7 +18,7 @@ ARootColorSelectorDialog::ARootColorSelectorDialog(int &color, QWidget *parent) 
     ui->pbDummy->setDefault(true);
     ui->pbDummy->setVisible(false);
 
-    BaseColors << 880 << 900 << 800 << 820 << 840 << 860 << 9;
+    BaseColors = {880, 900, 800, 820, 840, 860, 9};
     ui->frColorPanel->setFixedSize(SquareSize * 20, SquareSize * BaseColors.size());
     ui->frCol->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     ui->frCol->setFixedSize(30, 30);
@@ -57,7 +57,7 @@ void ARootColorSelectorDialog::mousePressEvent(QMouseEvent *e)
     int row = e->pos().y() / SquareSize;
     int num = e->pos().x() / SquareSize;
 #else
-    int row = e->position().y() / SquareSize;  // !!!*** use round?
+    int row = e->position().y() / SquareSize;  // use round?
     int num = e->position().x() / SquareSize;
 #endif
 

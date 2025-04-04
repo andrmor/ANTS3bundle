@@ -13,7 +13,7 @@ class AConfigExampleItem
 public:
     QString FileName;
     QString Description;
-    std::vector<QString> Tags;
+    std::vector<QString> Tags; // not implemented, seems no need
 };
 
 class AConfigExampleBranch

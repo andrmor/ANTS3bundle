@@ -7,9 +7,6 @@ void AParticleSimSettings::clearSettings()
     GenerationMode = Sources;
     Events         = 1;
 
-    //bDoS1          = true;
-    //bDoS2          = false;
-    //bIgnoreNoDepo  = false;
     bClusterMerge  = false;
     ClusterRadius  = 0.1;
     ClusterTime    = 1.0;
@@ -110,9 +107,6 @@ void AParticleSimSettings::readFromJson(const QJsonObject & json)
 
     jstools::parseJson(json, "Events", Events);
 
-    //jstools::parseJson(json, "DoS1", bDoS1);
-    //jstools::parseJson(json, "DoS2", bDoS2);
-    //jstools::parseJson(json, "IgnoreNoDepoEvents", bIgnoreNoDepo);
     jstools::parseJson(json, "ClusterMerge", bClusterMerge);
     jstools::parseJson(json, "ClusterMergeRadius", ClusterRadius);
     jstools::parseJson(json, "ClusterMergeTime", ClusterTime);

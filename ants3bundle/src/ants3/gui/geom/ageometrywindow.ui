@@ -387,10 +387,17 @@
     <addaction name="actionOpen_GL_viewer"/>
     <addaction name="actionJSROOT_in_browser"/>
    </widget>
+   <widget class="QMenu" name="menuSettings">
+    <property name="title">
+     <string>Settings</string>
+    </property>
+    <addaction name="actionSet_number_of_segments"/>
+   </widget>
    <addaction name="menuView"/>
    <addaction name="menuMarkers"/>
    <addaction name="menuLines"/>
    <addaction name="menuZoom"/>
+   <addaction name="menuSettings"/>
   </widget>
   <action name="actionSmall_dot">
    <property name="checkable">
@@ -501,6 +508,11 @@
   <action name="actionCalorimeters">
    <property name="text">
     <string>Calorimeters</string>
+   </property>
+  </action>
+  <action name="actionSet_number_of_segments">
+   <property name="text">
+    <string>Set number of segments</string>
    </property>
   </action>
  </widget>

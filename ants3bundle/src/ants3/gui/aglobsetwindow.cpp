@@ -3,8 +3,14 @@
 #include "a3global.h"
 #include "ascriptwindow.h"
 #include "guitools.h"
-#include "aroothttpserver.h"
-//#include "agstyle_si.h"
+
+#ifdef USE_ROOT_HTML
+    #include "aroothttpserver.h"
+#endif
+
+#ifdef WEBSOCKETS
+    #include "awebsocketserver.h"
+#endif
 
 //Qt
 #include <QFileDialog>
@@ -12,10 +18,8 @@
 #include <QDebug>
 #include <QHostAddress>
 #include <QStyleFactory>
-
-#include "TGeoManager.h"
-
 #include <QToolTip>
+
 AGlobSetWindow::AGlobSetWindow(QWidget * parent) :
     AGuiWindow("Glob", parent),
     GlobSet(A3Global::getInstance()),
@@ -45,7 +49,6 @@ AGlobSetWindow::AGlobSetWindow(QWidget * parent) :
 #ifdef USE_ROOT_HTML
     ARootHttpServer & rs = ARootHttpServer::getInstance();
     QObject::connect(&rs, &ARootHttpServer::StatusChanged, this, &AGlobSetWindow::updateNetGui);
-
     if (rs.Autostart) rs.start();  //does nothing if compilation flag is not set
 #endif
 }
@@ -59,47 +62,31 @@ void AGlobSetWindow::updateGui()
 {
     ui->leDataExchangeDir->setText(GlobSet.ExchangeDir);
 
-    ui->sbTabInSpaces->setValue(GlobSet.TabInSpaces);
-    ui->cbOpenImageExternalEditor->setChecked(GlobSet.OpenImageExternalEditor);
-
-    ui->sbNumBinsHistogramsX->setValue(GlobSet.BinsX);
-    ui->sbNumBinsHistogramsY->setValue(GlobSet.BinsY);
-    ui->sbNumBinsHistogramsZ->setValue(GlobSet.BinsZ);
-
-    //ui->sbNumPointsFunctionX->setValue(GlobSet.FunctionPointsX);
-    //ui->sbNumPointsFunctionY->setValue(GlobSet.FunctionPointsY);
-
-    ui->sbNumSegments->setValue(GlobSet.NumSegmentsTGeo);
-
-    /*
-    ui->cbSaveRecAsTree_IncludePMsignals->setChecked(GlobSet.RecTreeSave_IncludePMsignals);
-    ui->cbSaveRecAsTree_IncludeRho->setChecked(GlobSet.RecTreeSave_IncludeRho);
-    ui->cbSaveRecAsTree_IncludeTrue->setChecked(GlobSet.RecTreeSave_IncludeTrue);
-
-    ui->cbSaveSimAsText_IncludeNumPhotons->setChecked(GlobSet.SimTextSave_IncludeNumPhotons);
-    ui->cbSaveSimAsText_IncludePositions->setChecked(GlobSet.SimTextSave_IncludePositions);
-    */
+    //ui->sbNumBinsHistogramsX->setValue(GlobSet.BinsX);
+    //ui->sbNumBinsHistogramsY->setValue(GlobSet.BinsY);
+    //ui->sbNumBinsHistogramsZ->setValue(GlobSet.BinsZ);
 
     updateNetGui();
 }
 
 void AGlobSetWindow::updateNetGui()
 {
-/*
     ui->leWebSocketIP->setText(GlobSet.DefaultWebSocketIP);
     ui->leWebSocketPort->setText(QString::number(GlobSet.DefaultWebSocketPort));
 
-    ANetworkModule* Net = GlobSet.getNetworkModule();
-
-    bool fWebSocketRunning = Net->isWebSocketServerRunning();
+#ifdef WEBSOCKETS
+    AWebSocketServer & WebServer = AWebSocketServer::getInstance();
+    bool fWebSocketRunning = WebServer.isRunning();
     ui->cbRunWebSocketServer->setChecked( fWebSocketRunning );
     if (fWebSocketRunning)
     {
-        int port = Net->getWebSocketPort();
-        ui->leWebSocketPort->setText(QString::number(port));
-        ui->leWebSocketURL->setText(Net->getWebSocketServerURL());
+        ui->leWebSocketPort->setText(QString::number(WebServer.getPort()));
+        ui->leWebSocketURL->setText(WebServer.getUrl());
     }
-*/
+#else
+    ui->cbRunWebSocketServer->setChecked(false);
+    ui->cbRunWebSocketServer->setEnabled(false);
+#endif
 
 #ifdef USE_ROOT_HTML
     ARootHttpServer & ser = ARootHttpServer::getInstance();
@@ -135,7 +122,7 @@ void AGlobSetWindow::showNetSettings()
 {
     showNormal();
     activateWindow();
-    setTab(5);
+    setTab(1);
 }
 
 bool AGlobSetWindow::event(QEvent *event)
@@ -143,54 +130,6 @@ bool AGlobSetWindow::event(QEvent *event)
     if (event->type() == QEvent::WindowActivate) updateGui();
 
     return QMainWindow::event(event);
-}
-
-void AGlobSetWindow::on_pbgStyleScript_clicked()
-{
-    /*
-    MW->extractGeometryOfLocalScriptWindow();
-    delete MW->GenScriptWindow; MW->GenScriptWindow = 0;
-
-    AJavaScriptManager* jsm = new AJavaScriptManager(MW->Detector->RandGen);
-    MW->GenScriptWindow = new AScriptWindow(jsm, true, this);
-
-    QString example = QString("//see https://root.cern.ch/doc/master/classTStyle.html\n"
-                              "\n"
-                              "//try, e.g.:\n"
-                              "//SetOptStat(\"ei\") //\"nemr\" is redault");
-    MW->GenScriptWindow->ConfigureForLightMode(&GlobSet.RootStyleScript,
-                                               "Script to set ROOT's gStyle",
-                                               example);
-
-    GStyleInterface = new AGStyle_SI();
-    MW->GenScriptWindow->RegisterInterfaceAsGlobal(GStyleInterface);
-    MW->GenScriptWindow->UpdateGui();
-
-    MW->recallGeometryOfLocalScriptWindow();
-    MW->GenScriptWindow->show();
-    */
-
-    /*
-  MW->extractGeometryOfLocalScriptWindow();
-  if (MW->GenScriptWindow) delete MW->GenScriptWindow;
-  MW->GenScriptWindow = new GenericScriptWindowClass(MW->Detector->RandGen);
-  MW->recallGeometryOfLocalScriptWindow();
-
-  //configure the script window and engine
-  GStyleInterface  = new  InterfaceToGStyleScript() ; //deleted by the GenScriptWindow
-  MW->GenScriptWindow->SetInterfaceObject(GStyleInterface);
-  //QString HelpText = "  Avalable commands: \nsee https://root.cern.ch/root/html/TStyle.html - all commands starting from \"Set\"\n";
-  MW->GenScriptWindow->SetExample("");
-  MW->GenScriptWindow->SetShowEvaluationResult(false); //do not show "undefined"
-  MW->GenScriptWindow->SetTitle("Script to set ROOT's gStyle");
-  MW->GenScriptWindow->SetScript(&GlobSet.RootStyleScript);
-  MW->GenScriptWindow->SetStarterDir(MW->GlobSet.LibScripts);
-
-  //define what to do on evaluation success
-  //connect(MW->GenScriptWindow, SIGNAL(success(QString)), this, SLOT(HolesScriptSuccess()));
-  //if needed. connect signals of the interface object with the required slots of any ANTS2 objects
-  MW->GenScriptWindow->show();
-  */
 }
 
 void AGlobSetWindow::on_pbChangeDataExchangeDir_clicked()
@@ -218,25 +157,20 @@ void AGlobSetWindow::on_leDataExchangeDir_editingFinished()
     }
 }
 
-void AGlobSetWindow::on_cbOpenImageExternalEditor_clicked(bool checked)
-{
-    GlobSet.OpenImageExternalEditor = checked;
-}
-
+/*
 void AGlobSetWindow::on_sbNumBinsHistogramsX_editingFinished()
 {
     GlobSet.BinsX = ui->sbNumBinsHistogramsX->value();
 }
-
 void AGlobSetWindow::on_sbNumBinsHistogramsY_editingFinished()
 {
     GlobSet.BinsY = ui->sbNumBinsHistogramsY->value();
 }
-
 void AGlobSetWindow::on_sbNumBinsHistogramsZ_editingFinished()
 {
     GlobSet.BinsZ = ui->sbNumBinsHistogramsZ->value();
 }
+*/
 
 void AGlobSetWindow::on_pbChangeDataExchangeDir_customContextMenuRequested(const QPoint & /*pos*/)
 {
@@ -271,48 +205,15 @@ void AGlobSetWindow::onRequestConfigureExchangeDir()
     setTab(0);
 }
 
-#include "ageometryhub.h"
-void AGlobSetWindow::on_sbNumSegments_editingFinished()
-{
-    GlobSet.NumSegmentsTGeo = ui->sbNumSegments->value();
-    AGeometryHub::getInstance().GeoManager->SetNsegments(GlobSet.NumSegmentsTGeo);
-    //GeometryWindow->ShowGeometry(false); // !!!*** need?
-}
-
-/*
-void AGlobSetWindow::on_sbNumPointsFunctionX_editingFinished()
-{
-    GlobSet.FunctionPointsX = ui->sbNumPointsFunctionX->value();
-}
-void AGlobSetWindow::on_sbNumPointsFunctionY_editingFinished()
-{
-    GlobSet.FunctionPointsY = ui->sbNumPointsFunctionY->value();
-}
-*/
-
-/*
-void AGlobSetWindow::on_cbSaveRecAsTree_IncludePMsignals_clicked(bool checked)
-{
-    GlobSet.RecTreeSave_IncludePMsignals = checked;
-}
-void AGlobSetWindow::on_cbSaveRecAsTree_IncludeRho_clicked(bool checked)
-{
-    GlobSet.RecTreeSave_IncludeRho = checked;
-}
-void AGlobSetWindow::on_cbSaveRecAsTree_IncludeTrue_clicked(bool checked)
-{
-    GlobSet.RecTreeSave_IncludeTrue = checked;
-}
-*/
-
-/*
+#ifdef WEBSOCKETS
 void AGlobSetWindow::on_cbRunWebSocketServer_clicked(bool checked)
 {
-    ANetworkModule* Net = GlobSet.getNetworkModule();
-    Net->StopWebSocketServer();
+    AWebSocketServer & WebServer = AWebSocketServer::getInstance();
+    WebServer.stopListen();
 
-    if (checked)
-        Net->StartWebSocketServer(QHostAddress(GlobSet.DefaultWebSocketIP), GlobSet.DefaultWebSocketPort);
+    if (checked) WebServer.startListen(QHostAddress(GlobSet.DefaultWebSocketIP), GlobSet.DefaultWebSocketPort);
+
+    updateNetGui();
 }
 void AGlobSetWindow::on_leWebSocketPort_editingFinished()
 {
@@ -336,7 +237,7 @@ void AGlobSetWindow::on_leWebSocketIP_editingFinished()
     if (ip.isNull())
     {
         ui->leWebSocketIP->setText(GlobSet.DefaultWebSocketIP);
-        message("Bad format of IP: use, e.g., 127.0.0.1", this);
+        guitools::message("Bad format of IP: use, e.g., 127.0.0.1", this);
     }
     else
     {
@@ -348,18 +249,7 @@ void AGlobSetWindow::on_cbRunWebSocketServer_toggled(bool checked)
 {
     if (!checked) ui->leWebSocketURL->clear();
 }
-*/
-
-/*
-void AGlobSetWindow::on_cbSaveSimAsText_IncludeNumPhotons_clicked(bool checked)
-{
-    GlobSet.SimTextSave_IncludeNumPhotons = checked;
-}
-void AGlobSetWindow::on_cbSaveSimAsText_IncludePositions_clicked(bool checked)
-{
-    GlobSet.SimTextSave_IncludePositions = checked;
-}
-*/
+#endif
 
 #ifdef USE_ROOT_HTML
 void AGlobSetWindow::on_cbAutoRunRootServer_clicked()
@@ -367,7 +257,7 @@ void AGlobSetWindow::on_cbAutoRunRootServer_clicked()
     ARootHttpServer & ser = ARootHttpServer::getInstance();
     ser.Autostart = ui->cbAutoRunRootServer->isChecked();
 }
-void AGlobSetWindow::on_leRootServerPort_editingFinished()  // !!!*** stop when changed? restart?
+void AGlobSetWindow::on_leRootServerPort_editingFinished()
 {
     ARootHttpServer & ser = ARootHttpServer::getInstance();
     int oldp = ser.Port;
@@ -389,7 +279,7 @@ void AGlobSetWindow::on_cbRunRootServer_clicked(bool checked)
 #endif
 
 #ifdef __USE_ANTS_JSROOT__
-void AGlobSetWindow::on_leJSROOT_editingFinished()   // !!!*** stop when changed? restart?
+void AGlobSetWindow::on_leJSROOT_editingFinished()
 {
     ARootHttpServer & ser = ARootHttpServer::getInstance();
     const QString newa = ui->leJSROOT->text();
@@ -469,8 +359,16 @@ void AGlobSetWindow::on_cbUseStyleSystPalette_clicked(bool checked)
     QApplication::setPalette(checked ? QApplication::style()->standardPalette() : QPalette());
 }
 
-void AGlobSetWindow::on_sbTabInSpaces_valueChanged(int arg1)
+/*
+In Qt 6.8.2 not yet implemented in Ubuntu
+#include <QStyleHints>
+void AGlobSetWindow::on_pbForceDark_clicked()
 {
-    GlobSet.TabInSpaces = arg1;
+    qDebug() << QGuiApplication::styleHints()->colorScheme();
+    //QStyleHints::setColorScheme(Qt::ColorScheme scheme);
+    //QStyleHints::setColorScheme(Qt::ColorScheme::Dark);
+    QGuiApplication::styleHints()->setColorScheme(Qt::ColorScheme::Dark);
+    qDebug() << QGuiApplication::styleHints()->colorScheme();
 }
+*/
 

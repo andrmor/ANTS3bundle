@@ -21,7 +21,7 @@ public:
     bool start() override;
     void abort() override;
     bool isRunning() override;
-    void sendMessage(QString txt) override;
+    void sendMessage(QString txt) override; // not implemented
 
 private slots:
     void onRemoteWorkFinished(QString message);

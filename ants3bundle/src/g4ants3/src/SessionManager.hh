@@ -78,7 +78,7 @@ class SessionManager
         int  getPredictedTrackID() const;
 
         void findExitVolume();
-        G4ParticleDefinition * findGeant4Particle(const std::string & particleName);  // !!!*** to separate class
+        G4ParticleDefinition * findGeant4Particle(const std::string & particleName);
 
         void saveParticle(const G4String & particle, double energy, double time, double * PosDir);
 

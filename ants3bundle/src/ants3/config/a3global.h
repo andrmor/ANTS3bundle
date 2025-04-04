@@ -36,10 +36,10 @@ public:
     // Misc controls
     bool AutoCheckGeometry = true;
     int  NumSegmentsTGeo = 20;
-    int  BinsX = 100;
-    int  BinsY = 100;
-    int  BinsZ = 100;
-    bool OpenImageExternalEditor = true;
+    //int  BinsX = 100;
+    //int  BinsY = 100;
+    //int  BinsZ = 100;
+    int  HistStatOpt = 1110;
 
     // Script window
     QJsonObject JavaScriptJson;
@@ -59,10 +59,8 @@ public:
     QJsonObject TrackVisAttributes;
 
     // WebSocket server
-    /*
-    int DefaultWebSocketPort = 1234;
+    int     DefaultWebSocketPort = 1234;
     QString DefaultWebSocketIP = "127.0.0.1";
-    */
 
     void    init();
     bool    checkExchangeDir();

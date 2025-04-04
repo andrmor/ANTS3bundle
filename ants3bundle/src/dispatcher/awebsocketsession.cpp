@@ -188,7 +188,19 @@ bool AWebSocketSession::sendText(const QString &message, bool bWaitReply)
     else return true;
 }
 
-bool AWebSocketSession::sendFile(const QString &fileName, const QString & remoteFileName)
+bool AWebSocketSession::sendJsonObject(const QJsonObject & json)
+{
+    if ( !confirmSendPossible() ) return false;
+
+    QJsonDocument doc(json);
+    QByteArray ba = doc.toJson();
+
+    Socket->sendBinaryMessage(ba);
+
+    return waitForReply();
+}
+
+bool AWebSocketSession::sendFile(const QString & fileName, const QString & remoteFileName)
 {
     if ( !confirmSendPossible() ) return false;
 

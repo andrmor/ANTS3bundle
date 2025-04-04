@@ -15,7 +15,7 @@
 ARootTextConfigurator::ARootTextConfigurator(int & color, int & align, int & font, float &size, QWidget * parent) :
     QDialog(parent),
     ui(new Ui::ARootTextConfigurator),
-    color(color), align(align), font(font), size(size)
+    Color(color), Align(align), Font(font), Size(size)
 {
     ui->setupUi(this);
 
@@ -31,7 +31,7 @@ ARootTextConfigurator::ARootTextConfigurator(int & color, int & align, int & fon
     dummy->setDefault(true);
     dummy->setVisible(false);
 
-    BaseColors << 880 << 900 << 800 << 820 << 840 << 860 << 9;
+    BaseColors = {880, 900, 800, 820, 840, 860, 9};
     ui->frColorPanel->setFixedSize(SquareSize * 20, SquareSize * BaseColors.size());
     ui->frCol->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     ui->frCol->setFixedSize(30, 30);
@@ -47,6 +47,8 @@ ARootTextConfigurator::ARootTextConfigurator(int & color, int & align, int & fon
     ui->ledSize->setText( QString::number(size) );
 
     updateColorFrame();
+
+    connect(ui->sbFont, &QSpinBox::valueChanged, this, &ARootTextConfigurator::onUserAction); // here and not automatic to avoid trigger on fill
 }
 
 ARootTextConfigurator::~ARootTextConfigurator()
@@ -74,7 +76,7 @@ void ARootTextConfigurator::mousePressEvent(QMouseEvent *e)
     int row = e->pos().y() / SquareSize;
     int num = e->pos().x() / SquareSize;
 #else
-    int row = e->position().y() / SquareSize; // !!!*** Round()?
+    int row = e->position().y() / SquareSize;
     int num = e->position().x() / SquareSize;
 #endif
 
@@ -84,20 +86,21 @@ void ARootTextConfigurator::mousePressEvent(QMouseEvent *e)
     ui->sbColor->setValue(color);
 
     updateColorFrame();
+    onUserAction();
 }
 
 void ARootTextConfigurator::setupAlignmentControls()
 {
-    int vert = align % 10;
-    int hor  = align / 10.0;
+    int vert = Align % 10;
+    int hor  = Align / 10.0;
     //qDebug() << align << hor << vert;
     ui->cobHorizontalAlignment->setCurrentIndex(hor-1);
     ui->cobVerticalAlignment->setCurrentIndex(vert-1);
 }
 
-void ARootTextConfigurator::readAlignment()
+int ARootTextConfigurator::readAlignment()
 {
-    align = 10 * (1 + ui->cobHorizontalAlignment->currentIndex()) + (1 + ui->cobVerticalAlignment->currentIndex());
+    return 10 * (1 + ui->cobHorizontalAlignment->currentIndex()) + (1 + ui->cobVerticalAlignment->currentIndex());
 }
 
 void ARootTextConfigurator::PaintColorRow(QPainter *p, int row, int colorBase)
@@ -144,12 +147,21 @@ void ARootTextConfigurator::previewColor()
     ui->frCol->setStyleSheet(  QString("background-color:rgb(%1,%2,%3)").arg(red).arg(green).arg(blue)  );
 }
 
+void ARootTextConfigurator::onUserAction()
+{
+    emit propertiesChanged(ui->sbColor->value(),
+                           readAlignment(),
+                           ui->sbFont->value() * 10 + (ui->cobFontType->currentIndex() == 1 ? 3 : 2),
+                           ui->ledSize->text().toFloat());
+}
+
 void ARootTextConfigurator::on_pbAccept_clicked()
 {
-    color = ui->sbColor->value();
-    font = ui->sbFont->value() * 10 + (ui->cobFontType->currentIndex() == 1 ? 3 : 2);
-    size = ui->ledSize->text().toFloat();
-    readAlignment();
+    Color = ui->sbColor->value();
+    Font  = ui->sbFont->value() * 10 + (ui->cobFontType->currentIndex() == 1 ? 3 : 2);
+    Size  = ui->ledSize->text().toFloat();
+    Align = readAlignment();
+
     accept();
 }
 
@@ -171,12 +183,12 @@ void ARootAxisTitleTextConfigurator::setupAlignmentControls()
     ui->cobHorizontalAlignment->clear();
     ui->cobHorizontalAlignment->addItems({"Right", "Center"});
 
-    ui->cobHorizontalAlignment->setCurrentIndex(align == 0);
+    ui->cobHorizontalAlignment->setCurrentIndex(Align == 0);
 }
 
-void ARootAxisTitleTextConfigurator::readAlignment()
+int ARootAxisTitleTextConfigurator::readAlignment()
 {
-    align = ui->cobHorizontalAlignment->currentIndex();
+    return ui->cobHorizontalAlignment->currentIndex();
 }
 
 ARootAxisLabelTextConfigurator::ARootAxisLabelTextConfigurator(int &color, int &align, int &font, float &size, QWidget *parent) :
@@ -194,7 +206,29 @@ void ARootAxisLabelTextConfigurator::setupAlignmentControls()
     ui->lineAlign->setVisible(false);
 }
 
-void ARootAxisLabelTextConfigurator::readAlignment()
+int ARootAxisLabelTextConfigurator::readAlignment()
 {
     // nothing to do
+    return 0;
 }
+
+void ARootTextConfigurator::on_cobHorizontalAlignment_activated(int)
+{
+    onUserAction();
+}
+
+void ARootTextConfigurator::on_cobVerticalAlignment_activated(int)
+{
+    onUserAction();
+}
+
+void ARootTextConfigurator::on_ledSize_editingFinished()
+{
+    onUserAction();
+}
+
+void ARootTextConfigurator::on_cobFontType_activated(int)
+{
+    onUserAction();
+}
+

@@ -42,7 +42,7 @@ public slots:
 
 protected:
     bool event(QEvent *event) override;
-    void leaveEvent(QEvent *event);
+    void leaveEvent(QEvent *event) override;
     void mouseReleaseEvent(QMouseEvent *e) override;
     void keyPressEvent(QKeyEvent *e) override;
     void focusInEvent(QFocusEvent *e) override;
@@ -53,7 +53,7 @@ protected:
 
 private slots:
     void insertCompletion(const QString &completion);
-    void onCursorPositionChanged(); // !!!***
+    void onCursorPositionChanged(); // many potential improvements!!!
     void updateLineNumberAreaWidth();
     void updateLineNumberArea(const QRect &rect, int dy);
 
@@ -80,7 +80,7 @@ private:
     QString selectObjFunctUnderCursor(const QTextCursor & cursor, int & functEndPosition) const;
     QString SelectTextToLeft(QTextCursor cursor, int num) const;
     bool InsertClosingBracket() const;
-    void findMatchingMethods(const QString & text, std::vector<std::pair<QString,int>> & pairs) const;  // !!!*** add to search in deprecated & removed !!!*** optimize
+    void findMatchingMethods(const QString & text, std::vector<std::pair<QString,int>> & pairs) const;  // !!!*** add to search in deprecated & removed, optimize
     void setFontSizeAndEmitSignal(int size);
 
     void paintLeftField(QPaintEvent *event); // !!!*** make compatible with dark theme
@@ -105,7 +105,6 @@ private:
     int findMathcingMethodsForCursor(const QTextCursor & cursor, std::vector<std::pair<QString, int>> & matchingMethods, bool & cursorIsInArguments);
 
 signals:
-    //void requestHelp(QString); // !!!*** to be removed
     void requestHelpWithArgs(std::pair<QString,int> methodNumArgsPair);
     void editingFinished();
     void fontSizeChanged(int size);

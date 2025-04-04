@@ -1,6 +1,10 @@
 #include "apadproperties.h"
-#include "ajsontools.h"
+//#include "ajsontools.h"
+
+#include <QJsonObject>
 #include <QDebug>
+
+#include "TPad.h"
 
 APadProperties::APadProperties()
 {

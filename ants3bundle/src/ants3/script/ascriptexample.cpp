@@ -30,7 +30,7 @@ bool AScriptExample::readFromRecord(QString text)
             {
                 QStringList t2 = t1[1].split(":");
                 for (int j = 0; j < t2.size(); j++)
-                    Tags.append(t2.at(j));
+                    Tags << t2.at(j);
             }
         }
         else if (r.startsWith("info"))

@@ -25,7 +25,7 @@ class AVector3
 public:
     AVector3(const double * pos);
     AVector3(double x, double y, double z);
-    AVector3(const AVector3 &) = default;
+    //AVector3(const AVector3 &) = default;
     AVector3() {}
 
     double * data() {return r;}

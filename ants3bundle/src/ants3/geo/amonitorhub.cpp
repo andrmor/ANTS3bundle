@@ -3,6 +3,7 @@
 #include "ageometryhub.h"
 #include "ageoobject.h"
 #include "ajsontools.h"
+#include "aerrorhub.h"
 
 AMonitorHub & AMonitorHub::getInstance()
 {
@@ -125,8 +126,8 @@ void AMonitorHub::mergeParticleMonitorFiles(const std::vector<QString> & inFiles
         bool ok = jstools::loadJsonArrayFromFile(ar, FN);
         if (!ok)
         {
-            // !!!*** errorhub!
-            qWarning() << "failed to read particle monitor file:" << FN;
+            AErrorHub::addQError("Failed to read particle monitor file: " + FN);
+            qWarning() << "Failed to read particle monitor file:" << FN;
             return;
         }
 
@@ -137,14 +138,14 @@ void AMonitorHub::mergeParticleMonitorFiles(const std::vector<QString> & inFiles
             bool bOK = jstools::parseJson(json, "MonitorIndex", iMon);
             if (!bOK)
             {
-                // !!!*** errorhub!
+                AErrorHub::addQError("Failed to read monitor data: MonitorIndex entry in json not found");
                 qWarning() << "Failed to read monitor data: Monitor index not found";
                 return;
             }
             if (iMon < 0 || iMon >= numMon)
             {
-                // !!!*** errorhub!
-                qWarning() << "Failed to read monitor data: Bad monitor index";
+                AErrorHub::addQError( QString("Failed to read monitor data: invalid monitor index %0").arg(iMon) );
+                qWarning() << "Failed to read monitor data: Invalid monitor index" << iMon;
                 return;
             }
 

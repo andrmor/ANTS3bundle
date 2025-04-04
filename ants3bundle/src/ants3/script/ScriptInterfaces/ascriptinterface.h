@@ -31,7 +31,6 @@ public:
     QString                    Name;
     QString                    Description;
 
-    //std::map<QString, QString> Help;
     std::map<QString, AScriptHelpEntry> Help;
 
     std::map<QString, QString> DeprecatedMethods;

@@ -32,7 +32,6 @@ public:
     AInterfaceRule(int MatFrom, int MatTo);
     virtual ~AInterfaceRule();
 
-    // !!!*** to reference
     // assuming that if LocalNormalInEffect is set once by calculateLocalNormal(), this flag will always remain =true
     virtual EInterfaceRuleResult calculate(APhoton * Photon, const double * NormalVector) = 0; //unitary vectors! iWave = -1 if not wavelength-resolved
 
@@ -69,7 +68,7 @@ public:
 
     virtual bool canHaveRoughSurface() const {return false;}
     bool isPolishedSurface() const    {return SurfaceSettings.isPolished();}
-    bool isNotPolishedSurface() const {return SurfaceSettings.isNotPolished();}
+    bool isRoughSurface() const {return SurfaceSettings.isRough();}
     double LocalNormal[3];
     ASurfaceSettings SurfaceSettings;
 

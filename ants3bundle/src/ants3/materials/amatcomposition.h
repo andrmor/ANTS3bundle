@@ -62,7 +62,7 @@ public:
     TGeoMaterial * constructGeoMaterial(const QString & name);
 
     void writeToJson(QJsonObject & json) const;
-    bool readFromJson(const QJsonObject & json); // !!!*** error control
+    bool readFromJson(const QJsonObject & json);
 
     bool importComposition(TGeoMaterial * mat);
 

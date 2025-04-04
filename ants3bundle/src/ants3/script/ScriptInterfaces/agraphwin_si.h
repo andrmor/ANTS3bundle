@@ -7,14 +7,14 @@
 #include <QVariant>
 #include <QVariantList>
 
-class GraphWindowClass;
+class AGraphWindow;
 
 class AGraphWin_SI : public AWindowInterfaceBase
 {
     Q_OBJECT
 
 public:
-    AGraphWin_SI(GraphWindowClass * graphWin);
+    AGraphWin_SI(AGraphWindow * graphWin);
 
     AScriptInterface * cloneBase() const {return new AGraphWin_SI(GraphWindow);}
 
@@ -42,12 +42,6 @@ public slots:
 
     void show3D(QString castorFileName);
 
-    /*
-    QVariant GetProjection();
-    void ConfigureProjectionTool(double x0, double y0, double dx, double dy, double angle);
-    void UseProjectionTool(QString option);
-    */
-
 signals:
     void requestShow3D(QString fileName, bool keepSettings = false);
 
@@ -62,7 +56,7 @@ signals:
     void requestAddArrow(double x1, double y1, double x2, double y2, int color, int width, int style);
 
 private:
-    GraphWindowClass * GraphWindow = nullptr;
+    AGraphWindow * GraphWindow = nullptr;
 };
 
 #endif // AGRAPHWIN_SI_H

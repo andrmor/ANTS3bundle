@@ -1693,6 +1693,20 @@ void AGeo_SI::setScintillator(QString Object)
     delete obj->Role; obj->Role = new AGeoScint();
 }
 
+void setScintRecursive(AGeoObject * obj, const QString & objectNameStartsWith)
+{
+    if (obj)
+    {
+        if (obj->Name.startsWith(objectNameStartsWith, Qt::CaseSensitive))
+        {
+            delete obj->Role; obj->Role = new AGeoScint();
+        }
+
+        for (AGeoObject * hobj : obj->HostedObjects)
+            setScintRecursive(hobj, objectNameStartsWith);
+    }
+}
+
 void AGeo_SI::setScintillatorByName(QString ObjectNameStartsWith)
 {
     for (AGeoObject * obj : GeoObjects)
@@ -1701,12 +1715,13 @@ void AGeo_SI::setScintillatorByName(QString ObjectNameStartsWith)
             delete obj->Role; obj->Role = new AGeoScint();
         }
 
-    std::vector<AGeoObject*> objAr;
-    AGeometryHub::getInstance().World->findObjectsByWildcard(ObjectNameStartsWith, objAr);
-    for (AGeoObject * obj : objAr)
-    {
-        delete obj->Role; obj->Role = new AGeoScint();
-    }
+    //std::vector<AGeoObject*> objAr;
+    //AGeometryHub::getInstance().World->findObjectsByWildcard(ObjectNameStartsWith, objAr);
+    //for (AGeoObject * obj : objAr)
+    //{
+    //    delete obj->Role; obj->Role = new AGeoScint();
+    //}
+    setScintRecursive(AGeometryHub::getInstance().World, ObjectNameStartsWith);
 }
 
 void AGeo_SI::setSecondaryScintillator(QString Object)
@@ -2083,29 +2098,6 @@ void AGeo_SI::clearGeoObjects()
     for (AGeoObject * obj : GeoObjects) delete obj;
     GeoObjects.clear();
 }
-
-/*
-#include "aopticaloverride.h"
-QString AGeo_SI::printOverrides()
-{
-    QString s("");
-    int nmat = Detector->MpCollection->countMaterials();
-    s += QString("%1\n").arg(nmat);
-
-    for (int i=0; i<nmat; i++) {
-        QVector<AOpticalOverride*> VecOvr = (*(Detector->MpCollection))[i]->OpticalOverrides;
-        if (VecOvr.size() > 0)
-            for (int j=0; j<VecOvr.size(); j++) {
-                if (VecOvr[j]) {
-                    s = s + QString("%1 ").arg(i) + QString("%1 ").arg(j);
-                    //                  s = s + VecOvr[j]->getType() + " "
-                    s = s + VecOvr[j]->getReportLine() + QString("\n");
-                }
-            }
-    }
-    return s;
-}
-*/
 
 #include "TGeoManager.h"
 QVariantList AGeo_SI::trackAndGetPassedVoulumes(QVariantList startXYZ, QVariantList startVxVyVz)

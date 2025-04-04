@@ -4,12 +4,10 @@
 #include "aguiwindow.h"
 #include "ageowriter.h"
 
-#include <QVector>
-
-#include "TMathBase.h"
+#include <vector>
 
 class AGeometryHub;
-class RasterWindowBaseClass;
+class ARasterWindow;
 class QWebEngineView;
 class QWebEngineDownloadItem;
 class TGeoVolume;
@@ -46,8 +44,8 @@ public:
     void PostDraw();
     void Zoom(bool update = false);
 
-    void AddLineToGeometry(QPointF &start, QPointF &end, Color_t color = 1, int width = 1);
-    void AddPolygonfToGeometry(QPolygonF &poly, Color_t color, int width);
+    void AddLineToGeometry(QPointF & start, QPointF & end, short color = 1, int width = 1); // not used
+    void AddPolygonfToGeometry(QPolygonF &poly, short color, int width); // not used
 
     void onBusyOn();
     void onBusyOff();
@@ -55,7 +53,7 @@ public:
     void writeToJson(QJsonObject & json) const;
     void readFromJson(const QJsonObject & json);
 
-    void ShowPMsignals(const QVector<float> &Event, bool bFullCycle = true); // !!!***
+    void ShowPMsignals(const std::vector<float> & event, bool bFullCycle = true); // not used
     void ShowTracksAndMarkers();
 
     void ClearTracks(bool bRefreshWindow = true);
@@ -94,7 +92,7 @@ public slots:
     void showText(const std::vector<QString> & textVec, int color, AGeoWriter::EDraw onWhat, bool bFullCycle = true);
 
     void onRasterWindowChange();
-    void readRasterWindowProperties();   // !*!
+    void readRasterWindowProperties();
 
     void on_pbShowTracks_clicked();
     void on_pbClearTracks_clicked();
@@ -107,9 +105,6 @@ public slots:
 
     void onRequestShowConnection(int from, int to);
     void onRequestShowAllConnections();
-
-private slots:
-    void onDownloadPngRequested(QWebEngineDownloadItem *item); // !!!*** temprary commented away
 
 private slots:
     void on_cobViewer_currentIndexChanged(int index);
@@ -152,13 +147,15 @@ private slots:
 
     void on_pbSaveAs_customContextMenuRequested(const QPoint &pos);
 
+    void on_actionSet_number_of_segments_triggered();
+
 private:
     bool                    UseJSRoot = false;
     AGeometryHub          & Geometry;
 
     Ui::AGeometryWindow   * ui = nullptr;
 
-    RasterWindowBaseClass * RasterWindow = nullptr;
+    ARasterWindow * RasterWindow = nullptr;
 #ifdef __USE_ANTS_JSROOT__
     QWebEngineView * WebView = nullptr;
 #endif
@@ -195,7 +192,6 @@ private:
 signals:
     void requestChangeGeoViewer(bool useJSRoot);
     void requestUpdateRegisteredGeoManager(); // Geometry.notifyRootServerGeometryChanged();
-    //void requestUpdateMaterialListWidget();   // ants2 MainWindow could have material list colored
     void requestShowNetSettings();
     void taskRequestedFromScriptCompleted();
 };

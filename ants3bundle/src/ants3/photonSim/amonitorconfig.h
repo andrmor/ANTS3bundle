@@ -16,7 +16,7 @@ public:
     QString str2size1;            // full size!
     QString str2size2;            // full size!
 
-    int    PhotonOrParticle = 0;  //0 - photon, 1 - particle  // !!!*** to enum
+    int    PhotonOrParticle = 0;  //0 - photon, 1 - particle
     bool   bUpper = true;         // direction: z>0 is upper, z<0 is lower
     bool   bLower = true;
     bool   bStopTracking = false;

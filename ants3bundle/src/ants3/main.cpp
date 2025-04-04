@@ -6,10 +6,11 @@
 #include "ascripthub.h"
 #include "ajscriptmanager.h"
 #include "ascriptinterface.h"
+#include "ascriptobjstore.h"
 
 #ifdef GUI
     #include <QApplication>
-    #include "mainwindow.h"
+    #include "amainwindow.h"
     #include "aproxystyle.h"
 #else
     #include <QCoreApplication>
@@ -74,7 +75,7 @@ int main(int argc, char *argv[])
         QCoreApplication::setOrganizationName("ants3");
         QCoreApplication::setApplicationName("winpos");
 
-        MainWindow * w = new MainWindow();
+        AMainWindow * w = new AMainWindow();
         w->show();
         app->exec();
         delete w;
@@ -90,6 +91,7 @@ int main(int argc, char *argv[])
         app->exec();
     }
 
+    AScriptObjStore::getInstance().Trees.clear();
     AGeometryHub::getInstance().aboutToQuit();
 
     GlobSet.saveConfig();

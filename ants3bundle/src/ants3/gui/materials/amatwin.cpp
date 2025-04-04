@@ -1,13 +1,12 @@
 #include "amatwin.h"
 #include "ui_amatwin.h"
-#include "mainwindow.h"
+#include "amainwindow.h"
 #include "amaterialhub.h"
 #include "ageometryhub.h"
 #include "a3global.h"
 #include "ajsontools.h"
 #include "afiletools.h"
 #include "guitools.h"
-//#include "acommonfunctions.h"
 #include "ageometrywindow.h"
 #include "agraphbuilder.h"
 #include "ageant4inspectormanager.h"
@@ -35,8 +34,6 @@
 #include "TH1.h"
 #include "TAxis.h"
 #include "TGeoManager.h"
-//#include "TAttLine.h"
-//#include "TAttMarker.h"
 
 AMatWin::AMatWin(QWidget * parent) :
     AGuiWindow("Mat", parent),
@@ -634,7 +631,7 @@ void AMatWin::on_pbShowPrimSpectrum_clicked()
 
 void AMatWin::on_pbShowPrimSpectrum_customContextMenuRequested(const QPoint &)
 {
-    tmpMaterial.updateRuntimeProperties();
+    tmpMaterial.updateRuntimeOpticalProperties();
     if (!tmpMaterial._PrimarySpectrumHist) return;
     tmpMaterial._PrimarySpectrumHist->GetXaxis()->SetTitle("Wavelength, nm");
     tmpMaterial._PrimarySpectrumHist->SetLineColor(2);
@@ -684,7 +681,7 @@ void AMatWin::on_pbShowSecSpectrum_clicked()
 
 void AMatWin::on_pbShowSecSpectrum_customContextMenuRequested(const QPoint &)
 {
-    tmpMaterial.updateRuntimeProperties();
+    tmpMaterial.updateRuntimeOpticalProperties();
     if (!tmpMaterial._SecondarySpectrumHist) return;
     tmpMaterial._SecondarySpectrumHist->GetXaxis()->SetTitle("Wavelength, nm");
     tmpMaterial._SecondarySpectrumHist->SetLineColor(2);
@@ -786,7 +783,7 @@ void AMatWin::on_pbShowABSlambda_clicked()
 
 void AMatWin::on_pbShowABSlambda_customContextMenuRequested(const QPoint &)
 {
-    tmpMaterial.updateRuntimeProperties();
+    tmpMaterial.updateRuntimeOpticalProperties();
     const AWaveResSettings & WaveSet = APhotonSimHub::getInstance().Settings.WaveSet;
     std::vector<double> indexes = WaveSet.getVectorOfIndexes();
     TGraph * g = AGraphBuilder::graph(indexes, tmpMaterial._AbsCoeff_WaveBinned);
@@ -818,7 +815,7 @@ void AMatWin::on_pbShowReemProbLambda_clicked()
 
 void AMatWin::on_pbShowReemProbLambda_customContextMenuRequested(const QPoint &)
 {
-    tmpMaterial.updateRuntimeProperties();
+    tmpMaterial.updateRuntimeOpticalProperties();
     const AWaveResSettings & WaveSet = APhotonSimHub::getInstance().Settings.WaveSet;
     std::vector<double> indexes = WaveSet.getVectorOfIndexes();
     TGraph * g = AGraphBuilder::graph(indexes, tmpMaterial._ReemissionProb_WaveBinned);
@@ -1139,7 +1136,7 @@ void AMatWin::on_pbPriThelp_clicked()
 #include "arandomhub.h"
 void AMatWin::on_pbPriT_test_clicked()
 {
-    tmpMaterial.updateRuntimeProperties(); //to update sum of stat weights
+    tmpMaterial.updateRuntimeOpticalProperties(); //to update sum of stat weights
 
     TH1D * h = new TH1D("h1", "", 1000, 0, 0);
     for (int i = 0; i < 1000000; i++)

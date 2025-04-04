@@ -147,7 +147,7 @@ double AMaterial::generatePrimScintTime(ARandomHub & Random) const
 }
 
 #include "aphotonsimhub.h"
-void AMaterial::updateRuntimeProperties()
+void AMaterial::updateRuntimeOpticalProperties()
 {
     //RefIndex_Complex = {ReN, (ImN > 0 ? -ImN : ImN) };
     //if (!Dielectric) Abs_FromComplex = fabs(4.0 * 3.1415926535 * ImN / ComplexEffectiveWave * 1e6); // [mm-1]

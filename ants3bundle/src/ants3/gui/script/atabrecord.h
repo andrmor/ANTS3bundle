@@ -4,7 +4,7 @@
 #include "escriptlanguage.h"
 
 #include <QObject>
-#include <QVector>
+#include <QList>
 
 class ATextEdit;
 class QCompleter;
@@ -33,7 +33,7 @@ public:
     QStringListModel  * CompletitionModel;
     AHighlighter      * Highlighter = nullptr;
 
-    QVector<int>        VisitedLines;   // !!!*** to std::vector
+    QList<int>          VisitedLines; // access from both sides
     int                 IndexVisitedLines = 0;
     int                 MaxLineNumbers    = 20;
 
@@ -53,7 +53,7 @@ public:
 private slots:
     void onCustomContextMenuRequested(const QPoint & pos);
     void onLineNumberChanged(int lineNumber);
-    void onTextChanged(); // !!!*** add "let" "const", also nod valid approach for Python
+    void onTextChanged(); // !!!*** not valid approach for Python!
 
 signals:
     void requestFindText();

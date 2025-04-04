@@ -7,6 +7,11 @@
     #include "aminipython_si.h"
 #endif
 
+#ifdef WEBSOCKETS
+    #include "awebsocket_si.h"
+    #include "awebserver_si.h"
+#endif
+
 // SI
 #include "ademo_si.h"
 #include "acore_si.h"
@@ -32,11 +37,6 @@ AScriptHub & AScriptHub::getInstance()
     return instance;
 }
 
-AJScriptManager & AScriptHub::manager()
-{
-    return getInstance().getJScriptManager();
-}
-
 #include <QTimer>
 void AScriptHub::abort(const QString & message, EScriptLanguage lang)
 {
@@ -48,12 +48,11 @@ void AScriptHub::abort(const QString & message, EScriptLanguage lang)
 
     ADispatcherInterface::getInstance().abortTask();
 
+    QString str = "<p style='color:red;'>Aborted: " + message + "</p>";
 #ifdef ANTS3_PYTHON
-    //if (lang == EScriptLanguage::Python)     emit hub.showAbortMessage_P(message);
-    if (lang == EScriptLanguage::Python)     QTimer::singleShot(2, [message](){ emit AScriptHub::getInstance().showAbortMessage_P(message); } );
+    if (lang == EScriptLanguage::Python)     QTimer::singleShot(2, [str](){ emit AScriptHub::getInstance().outputHtml_P(str); } );
 #endif
-    //if (lang == EScriptLanguage::JavaScript) emit hub.showAbortMessage_JS(message);
-    if (lang == EScriptLanguage::JavaScript) QTimer::singleShot(2, [message](){ emit AScriptHub::getInstance().showAbortMessage_JS(message); } );
+    if (lang == EScriptLanguage::JavaScript) QTimer::singleShot(2, [str](){ emit AScriptHub::getInstance().outputHtml_JS(str); } );
 }
 
 bool AScriptHub::isAborted(EScriptLanguage lang)
@@ -186,6 +185,11 @@ AScriptHub::AScriptHub()
     addCommonInterface(new ARootStyle_SI(),    "root");
     addCommonInterface(new APet_si(),          "pet");
     addCommonInterface(new ADemo_SI(),         "demo");
+
+#ifdef WEBSOCKETS
+    addCommonInterface(new AWebSocket_SI(),    "websocket");
+    addCommonInterface(new AWebServer_SI(),    "webserver");
+#endif
 
     JavaScriptM->registerInterface(new AMiniJS_SI(), "mini");
 #ifdef ANTS3_PYTHON

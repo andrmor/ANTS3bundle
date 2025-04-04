@@ -1,6 +1,6 @@
 #include "acameracontroldialog.h"
 #include "ui_acameracontroldialog.h"
-#include "rasterwindowbaseclass.h"
+#include "arasterwindow.h"
 #include "guitools.h"
 #include "ageometryhub.h"
 #include "ageoobject.h"
@@ -12,7 +12,7 @@
 #include "TCanvas.h"
 #include "TView3D.h"
 
-ACameraControlDialog::ACameraControlDialog(RasterWindowBaseClass * RasterWin, QWidget * parent) :
+ACameraControlDialog::ACameraControlDialog(ARasterWindow * RasterWin, QWidget * parent) :
     QDialog(parent), RW(RasterWin), Geometry(AGeometryHub::getInstance()),
     ui(new Ui::ACameraControlDialog)
 {

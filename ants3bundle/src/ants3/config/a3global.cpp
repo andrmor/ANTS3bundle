@@ -1,9 +1,13 @@
 #include "a3global.h"
 #include "ajsontools.h"
+#include "afarmhub.h"
+#include "aroothttpserver.h"
 
 #include <QDir>
 #include <QStandardPaths>
 #include <QDebug>
+
+#include "TStyle.h"
 
 A3Global & A3Global::getInstance()
 {
@@ -70,8 +74,6 @@ bool A3Global::checkExchangeDir()
     return true;
 }
 
-#include "afarmhub.h"
-#include "aroothttpserver.h"
 void A3Global::saveConfig()
 {
     QJsonObject json;
@@ -82,22 +84,14 @@ void A3Global::saveConfig()
 
     json["AutoCheckGeometry"] = AutoCheckGeometry;
     json["NumSegmentsTGeo"]   = NumSegmentsTGeo;
-    json["BinsX"] = BinsX;
-    json["BinsY"] = BinsY;
-    json["BinsZ"] = BinsZ;
-    json["OpenImageExternalEditor"] = OpenImageExternalEditor;
+    //json["BinsX"] = BinsX;
+    //json["BinsY"] = BinsY;
+    //json["BinsZ"] = BinsZ;
+    json["HistStatOpt"] = gStyle->GetOptStat();
 
     QJsonObject jsMa;
-    DefaultDrawMargins.writeToJson(jsMa);
+        DefaultDrawMargins.writeToJson(jsMa);
     json["DefaultDrawMargins"] = jsMa;
-
-/*
-    js["RecTreeSave_IncludePMsignals"] = RecTreeSave_IncludePMsignals;
-    js["RecTreeSave_IncludeRho"] = RecTreeSave_IncludeRho;
-    js["RecTreeSave_IncludeTrue"] = RecTreeSave_IncludeTrue;
-    js["SimTextSave_IncludeNumPhotons"] = SimTextSave_IncludeNumPhotons;
-    js["SimTextSave_IncludePositions"] = SimTextSave_IncludePositions;
-*/
 
     json["JavaScriptJson"] = JavaScriptJson;
     json["PythonJson"]     = PythonJson;
@@ -112,8 +106,12 @@ void A3Global::saveConfig()
     json["NewGeoObjectAddedLast"] = NewGeoObjectAddedLast;
 
     // Web server
-    //js["DefaultWebSocketPort"] = DefaultWebSocketPort;
-    //js["DefaultWebSocketIP"] = DefaultWebSocketIP;
+    {
+        QJsonObject js;
+            js["DefaultPort"] = DefaultWebSocketPort;
+            js["DefaultIP"] = DefaultWebSocketIP;
+        json["WebServer"] = js;
+    }
 
     // Root server
 #ifdef USE_ROOT_HTML
@@ -161,10 +159,12 @@ void A3Global::loadConfig()
 
     jstools::parseJson(json, "AutoCheckGeometry", AutoCheckGeometry);
     jstools::parseJson(json, "NumSegmentsTGeo", NumSegmentsTGeo);
-    jstools::parseJson(json, "BinsX", BinsX);
-    jstools::parseJson(json, "BinsY", BinsY);
-    jstools::parseJson(json, "BinsZ", BinsZ);
-    jstools::parseJson(json, "OpenImageExternalEditor", OpenImageExternalEditor);
+    //jstools::parseJson(json, "BinsX", BinsX);
+    //jstools::parseJson(json, "BinsY", BinsY);
+    //jstools::parseJson(json, "BinsZ", BinsZ);
+    jstools::parseJson(json, "HistStatOpt", HistStatOpt);
+    if (HistStatOpt == 0) HistStatOpt = 1110;
+    gStyle->SetOptStat(HistStatOpt);
 
     QJsonObject jsMa;
     jstools::parseJson(json, "DefaultDrawMargins", jsMa);
@@ -181,6 +181,17 @@ void A3Global::loadConfig()
     jstools::parseJson(json, "TrackVisAttributes", TrackVisAttributes);
 
     jstools::parseJson(json, "NewGeoObjectAddedLast", NewGeoObjectAddedLast);
+
+    // Web server
+    {
+        QJsonObject js;
+        bool ok = jstools::parseJson(json, "WebServer", js);
+        if (ok)
+        {
+            jstools::parseJson(js, "DefaultPort", DefaultWebSocketPort);
+            jstools::parseJson(js, "DefaultIP", DefaultWebSocketIP);
+        }
+    }
 
     // Root server
 #ifdef USE_ROOT_HTML

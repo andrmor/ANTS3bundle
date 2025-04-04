@@ -9,6 +9,7 @@
 #include "aerrorhub.h"
 #include "a3global.h"
 #include "aphotonfunctionalhub.h"
+#include "aparticleanalyzerhub.h"
 
 #include <QDebug>
 #include <QFile>
@@ -77,9 +78,6 @@ void AConfig::writeToJson(QJsonObject & json, bool addRuntimeExport) const
 
     AParticleSimHub::getConstInstance().writeToJson(json, addRuntimeExport);
     APhotonSimHub::getConstInstance().writeToJson(json, addRuntimeExport);
-
-    // Reconstruction
-    // LRFs
 }
 
 QString AConfig::readFromJson(const QJsonObject & json, bool updateGui)
@@ -108,9 +106,10 @@ void AConfig::replaceEmptyOutputDirsWithTemporary()
     if (particleSimOutputDir.empty()) particleSimOutputDir = A3Global::getConstInstance().TmpOutputDir.toLatin1().data();
 }
 
-#include "aparticleanalyzerhub.h"
 QString AConfig::tryReadFromJson(const QJsonObject & json)
 {
+    AErrorHub::clear();
+
     bool ok = jstools::parseJson(json, "ConfigName",        ConfigName);
     if (!ok) return "Not a configuration file!";
     ok      = jstools::parseJson(json, "ConfigDescription", ConfigDescription);
@@ -120,29 +119,31 @@ QString AConfig::tryReadFromJson(const QJsonObject & json)
 
     Error = AMaterialHub::getInstance().readFromJson(json);
     if (!Error.isEmpty()) return Error;
+    if (AErrorHub::isError()) return AErrorHub::getQError();
 
     Error = ASensorHub::getInstance().readFromJson(json); // Sensors should be read before geometry
     if (!Error.isEmpty()) return Error;
+    if (AErrorHub::isError()) return AErrorHub::getQError();
 
     Error = AGeometryHub::getInstance().readFromJson(json);
     if (!Error.isEmpty()) return Error;
+    if (AErrorHub::isError()) return AErrorHub::getQError();
 
     Error = AInterfaceRuleHub::getInstance().readFromJson(json);
     if (!Error.isEmpty()) return Error;
+    if (AErrorHub::isError()) return AErrorHub::getQError();
 
     Error = APhotonSimHub::getInstance().readFromJson(json);
     if (!Error.isEmpty()) return Error;
+    if (AErrorHub::isError()) return AErrorHub::getQError();
 
     AParticleSimHub::getInstance().readFromJson(json);
-    // error handling! !!!***
+    if (AErrorHub::isError()) return AErrorHub::getQError();
 
     APhotonFunctionalHub::getInstance().readFromJson(json);
-    // error handling! !!!***
+    if (AErrorHub::isError()) return AErrorHub::getQError();
 
-    AParticleAnalyzerHub::getInstance().clear(); // clear loaded data
-
-    // Reconstruction
-    // LRFs
+    AParticleAnalyzerHub::getInstance().clear(); // only need to clear loaded data, the config is in the geometry tree
 
     return "";
 }

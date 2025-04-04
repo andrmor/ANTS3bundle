@@ -34,15 +34,12 @@ public:
     // ParticleSim config is handled by AParticleSimHub singleton
     // PhotonSim   config is handled by APhotonSimHub   singleton
 
-    // Reconstruction
-    // AReconHub      -> TODO
-
     QJsonObject JSON;
 
     QString     ConfigName = "--";
     QString     ConfigDescription = "Description is empty";
 
-    // Temporary:
+    // Temporary (demo)
     QString     from = "b";
     QString     to   = "B";
     QString     lines;
@@ -66,7 +63,7 @@ public:
     QString doRedo();
 
 private:
-    QString tryReadFromJson(const QJsonObject & json); // !!!***
+    QString tryReadFromJson(const QJsonObject & json); // resets error hub on call
     void replaceEmptyOutputDirsWithTemporary();
 
 signals:

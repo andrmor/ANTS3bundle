@@ -5,24 +5,7 @@
 #include "TAxis.h"
 #include "TVectorD.h"
 
-TGraph * AGraphBuilder::graph(const QVector<double> & x, const QVector<double> & y)
-{
-    int numEl = x.size();
-    TVectorD xx(numEl);
-    TVectorD yy(numEl);
-    for (int i=0; i < numEl; i++)
-    {
-        xx[i] = x.at(i);
-        yy[i] = y.at(i);
-    }
-
-    TGraph* gr = new TGraph(xx,yy);
-    gr->SetFillStyle(0);
-    gr->SetFillColor(0);
-    return gr;
-}
-
-TGraph *AGraphBuilder::graph(const std::vector<double> &x, const std::vector<double> &y)
+TGraph * AGraphBuilder::graph(const std::vector<double> &x, const std::vector<double> &y)
 {
     int numEl = (int)x.size();
     TVectorD xx(numEl);
@@ -34,8 +17,7 @@ TGraph *AGraphBuilder::graph(const std::vector<double> &x, const std::vector<dou
     }
 
     TGraph * gr = new TGraph(xx,yy);
-    gr->SetFillStyle(0);
-    gr->SetFillColor(0);
+    applyDefaults(gr);
     return gr;
 }
 
@@ -51,87 +33,8 @@ TGraph * AGraphBuilder::graph(const std::vector<float> &x, const std::vector<flo
     }
 
     TGraph* gr = new TGraph(xx,yy);
-    gr->SetFillStyle(0);
-    gr->SetFillColor(0);
+    applyDefaults(gr);
     return gr;
-}
-
-TGraph * AGraphBuilder::graph(const QVector<double> &x, const QVector<double> &y,
-                                          const char *Title, const char *XTitle, const char *YTitle,
-                                          short MarkerColor, int MarkerStyle, int MarkerSize,
-                                          short LineColor,   int LineStyle,   int LineWidth)
-{
-    TGraph* gr = graph(x,y);
-    gr->SetTitle(Title); gr->GetXaxis()->SetTitle(XTitle); gr->GetYaxis()->SetTitle(YTitle);
-    gr->SetMarkerStyle(MarkerStyle); gr->SetMarkerColor(MarkerColor); gr->SetMarkerSize(MarkerSize);
-    gr->SetEditable(false); gr->GetYaxis()->SetTitleOffset((Float_t)1.30);
-    gr->SetLineWidth(LineWidth); gr->SetLineColor(LineColor); gr->SetLineStyle(LineStyle);
-    return gr;
-}
-
-TGraph * AGraphBuilder::graph(const QVector<double> &x, const QVector<double> &y,
-                                          const QString &Title, const QString &XTitle, const QString &YTitle,
-                                          short MarkerColor, int MarkerStyle, int MarkerSize,
-                                          short LineColor,   int LineStyle,   int LineWidth)
-{
-    TGraph* gr = graph(x,y);
-    gr->SetTitle(Title.toLatin1().data()); gr->GetXaxis()->SetTitle(XTitle.toLatin1().data()); gr->GetYaxis()->SetTitle(YTitle.toLatin1().data());
-    gr->SetMarkerStyle(MarkerStyle); gr->SetMarkerColor(MarkerColor); gr->SetMarkerSize(MarkerSize);
-    gr->SetEditable(false); gr->GetYaxis()->SetTitleOffset((Float_t)1.30);
-    gr->SetLineWidth(LineWidth); gr->SetLineColor(LineColor); gr->SetLineStyle(LineStyle);
-    return gr;
-}
-
-TGraph * AGraphBuilder::graph(const std::vector<float> &x, const std::vector<float> &y,
-                                          const char *Title, const char *XTitle, const char *YTitle,
-                                          short MarkerColor, int MarkerStyle, int MarkerSize,
-                                          short LineColor,   int LineStyle,   int LineWidth)
-{
-    TGraph* gr = graph(x,y);
-    gr->SetTitle(Title); gr->GetXaxis()->SetTitle(XTitle); gr->GetYaxis()->SetTitle(YTitle);
-    gr->SetMarkerStyle(MarkerStyle); gr->SetMarkerColor(MarkerColor); gr->SetMarkerSize(MarkerSize);
-    gr->SetEditable(false); gr->GetYaxis()->SetTitleOffset(1.30f);
-    gr->SetLineWidth(LineWidth); gr->SetLineColor(LineColor); gr->SetLineStyle(LineStyle);
-    return gr;
-}
-
-TGraph2D * AGraphBuilder::graph(const QVector<double> &x, const QVector<double> &y, const QVector<double> &z)
-{
-    int numEl = x.size();
-    TGraph2D* gr = new TGraph2D(numEl, (double*)x.data(), (double*)y.data(), (double*)z.data());
-    gr->SetFillStyle(0);
-    gr->SetFillColor(0);
-    return gr;
-}
-
-TGraph2D * AGraphBuilder::graph(const QVector<double>& x, const QVector<double>& y, const QVector<double>& z,
-                                              const char *Title, const char *XTitle, const char *YTitle, const char *ZTitle,
-                                              short MarkerColor, int MarkerStyle, int MarkerSize,
-                                              short LineColor, int LineStyle, int LineWidth)
-{
-    TGraph2D* gr = graph(x,y,z);
-    gr->SetTitle(Title); gr->GetXaxis()->SetTitle(XTitle); gr->GetYaxis()->SetTitle(YTitle); gr->GetZaxis()->SetTitle(ZTitle);
-    gr->SetMarkerStyle(MarkerStyle); gr->SetMarkerColor(MarkerColor); gr->SetMarkerSize(MarkerSize);
-    gr->GetYaxis()->SetTitleOffset((Float_t)1.30);
-    gr->SetLineWidth(LineWidth); gr->SetLineColor(LineColor); gr->SetLineStyle(LineStyle);
-    return gr;
-}
-
-void AGraphBuilder::configure(TGraph * graph, const QString & GraphTitle,
-                                      const QString & XTitle, const QString & YTitle,
-                                      int MarkerColor, int MarkerStyle, double MarkerSize,
-                                      int LineColor,   int LineStyle, int LineWidth)
-{
-    graph->SetTitle(GraphTitle.toLatin1().data());
-
-    graph->GetXaxis()->SetTitle(XTitle.toLatin1().data());
-    graph->GetYaxis()->SetTitle(YTitle.toLatin1().data());
-
-    graph->SetMarkerColor(MarkerColor); graph->SetMarkerStyle(MarkerStyle); graph->SetMarkerSize(MarkerSize);
-    graph->SetLineColor(LineColor);     graph->SetLineStyle(LineStyle);     graph->SetLineWidth(LineWidth);
-
-    graph->SetEditable(false);
-    graph->GetYaxis()->SetTitleOffset(1.30f);
 }
 
 TGraph * AGraphBuilder::graph(const std::vector<std::pair<double, double>> & data)
@@ -146,8 +49,7 @@ TGraph * AGraphBuilder::graph(const std::vector<std::pair<double, double>> & dat
     }
 
     TGraph * gr = new TGraph(xx,yy);
-    gr->SetFillStyle(0);
-    gr->SetFillColor(0);
+    applyDefaults(gr);
     return gr;
 }
 
@@ -163,8 +65,7 @@ TGraph * AGraphBuilder::graph(const std::vector<std::pair<int, double>> & data)
     }
 
     TGraph * gr = new TGraph(xx,yy);
-    gr->SetFillStyle(0);
-    gr->SetFillColor(0);
+    applyDefaults(gr);
     return gr;
 }
 
@@ -180,10 +81,58 @@ TGraph * AGraphBuilder::graph(const std::vector<std::pair<double, std::complex<d
     }
 
     TGraph * gr = new TGraph(xx,yy);
-    gr->SetFillStyle(0);
-    gr->SetFillColor(0);
+    applyDefaults(gr);
     return gr;
 }
+
+// -----
+
+void AGraphBuilder::applyDefaults(TGraph * graph)
+{
+    graph->SetFillStyle(0);
+    graph->SetFillColor(0);
+    graph->SetEditable(false);
+    graph->GetYaxis()->SetTitleOffset(1.30f);
+}
+
+// -----
+
+void AGraphBuilder::configure(TGraph * graph, const QString & graphTitle,
+                              const QString & xTitle, const QString & yTitle,
+                              int markerColor, int markerStyle, double markerSize,
+                              int lineColor,   int lineStyle, int lineWidth)
+{
+    graph->SetTitle(graphTitle.toLatin1().data());
+
+    graph->GetXaxis()->SetTitle(xTitle.toLatin1().data());
+    graph->GetYaxis()->SetTitle(yTitle.toLatin1().data());
+
+    graph->SetMarkerColor(markerColor); graph->SetMarkerStyle(markerStyle); graph->SetMarkerSize(markerSize);
+    graph->SetLineColor(lineColor);     graph->SetLineStyle(lineStyle);     graph->SetLineWidth(lineWidth);
+}
+
+void AGraphBuilder::configureTitles(TGraph * graph, const QString &graphTitle, const QString &xTitle, const QString &yTitle)
+{
+    graph->SetTitle(graphTitle.toLatin1().data());
+    graph->GetXaxis()->SetTitle(xTitle.toLatin1().data());
+    graph->GetYaxis()->SetTitle(yTitle.toLatin1().data());
+}
+
+void AGraphBuilder::configureMarkers(TGraph * graph, int markerColor, int markerStyle, double markerSize)
+{
+    graph->SetMarkerColor(markerColor);
+    graph->SetMarkerStyle(markerStyle);
+    graph->SetMarkerSize(markerSize);
+}
+
+void AGraphBuilder::configureLine(TGraph *graph, int lineColor, int lineStyle, int lineWidth)
+{
+    graph->SetLineColor(lineColor);
+    graph->SetLineStyle(lineStyle);
+    graph->SetLineWidth(lineWidth);
+}
+
+// -----
 
 void AGraphBuilder::shift(TGraph * g, double multiply, double add)
 {
@@ -198,7 +147,7 @@ void AGraphBuilder::shift(TGraph * g, double multiply, double add)
     }
 }
 
-void AGraphBuilder::scale(TGraph *g, double multiply, double add)
+void AGraphBuilder::scale(TGraph * g, double multiply, double add)
 {
     int numPoints = g->GetN();
 

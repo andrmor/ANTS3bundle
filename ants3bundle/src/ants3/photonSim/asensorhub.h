@@ -15,7 +15,7 @@ class QJsonObject;
 struct ASensorData
 {
     AGeoObject * GeoObj     = nullptr;
-    int          ModelIndex = 0;  // !!!*** consider adding ASensorModel* directly
+    int          ModelIndex = 0;
     AVector3     Position   = {0, 0, 0};
 };
 
@@ -53,18 +53,15 @@ public:
     AVector3 getPosition(int iSensor) const;
     AVector3 getPositionFast(int iSensor) const;
 
-    // !!!*** obsolete!
-    double   getMinSize(int iSensor) const;
-    double   getMinSizeFast(int iSensor) const;
+    double   getMinSize(int iSensor) const;     // obsolete
+    double   getMinSizeFast(int iSensor) const; // obsolete
 
     AGeoObject * getGeoObject(int iSensor) const;
-
-    double  getMaxQE(bool waveResolved, int iWave) const; // !!!***
 
     bool    isPersistentModelAssignment() const {return PersistentModelAssignment;}
     void    exitPersistentMode();
 
-    bool    updateRuntimeProperties();
+    QString updateRuntimeProperties(); // returns error
 
     void    writeToJson(QJsonObject & json) const;
     QString readFromJson(const QJsonObject & json);

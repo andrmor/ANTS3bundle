@@ -18,13 +18,13 @@ AToolboxScene::~AToolboxScene()
     if(toolptr) removeItem(toolptr);
 }
 
-QGraphicsItem *AToolboxScene::getTool(AToolboxScene::Tool tool)
+QGraphicsItem * AToolboxScene::getTool(AToolboxScene::Tool tool)
 {
     switch(tool)
     {
     default: qWarning()<<"ToolboxScene::getTool(): unknown Tool!";
-    case ToolNone: return 0;
-    case ToolRuler: return &ruler;
+    case ToolNone:   return nullptr;
+    case ToolRuler:  return &ruler;
     case ToolSelBox: return &selBox;
     case ToolActive: return getTool(this->activeTool);
     }

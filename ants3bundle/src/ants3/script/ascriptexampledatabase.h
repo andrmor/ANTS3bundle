@@ -4,8 +4,9 @@
 #include "ascriptexample.h"
 
 #include <QString>
-#include <QVector>
 #include <QStringList>
+
+#include <vector>
 
 class AScriptExampleDatabase
 {
@@ -17,7 +18,7 @@ public:
     int  size() const;
     int  find(const QString & fileName) const;
 
-    QVector<AScriptExample> Examples;  // to std::vector
+    std::vector<AScriptExample> Examples;
     QStringList Tags;
 };
 

@@ -68,29 +68,6 @@ int AWaveResSettings::toIndexFast(double wavelength) const
     return round( (wavelength - From) / Step );
 }
 
-void AWaveResSettings::toStandardBins(const QVector<double>* wavelength, const QVector<double>* value, QVector<double>* binnedValue) const
-{
-    binnedValue->clear();
-
-    double wave, binned;
-    const int points = countNodes();
-    for (int iP = 0; iP < points; iP++)
-    {
-        wave = From + Step * iP;
-        if (wave <= wavelength->at(0)) binned = value->at(0);
-        else
-        {
-            if (wave >= wavelength->at(wavelength->size()-1)) binned = value->at(wavelength->size()-1);
-            else
-            {
-                binned = getInterpolatedValue(wave, wavelength, value); //reusing interpolation function
-                if (binned<0) binned = 0;
-            }
-        }
-        binnedValue->append(binned);
-    }
-}
-
 void AWaveResSettings::toStandardBins(const std::vector<double> & wavelength, const std::vector<double> & value, std::vector<double> & binnedValue) const
 {
     binnedValue.clear();
@@ -156,43 +133,6 @@ std::vector<double> AWaveResSettings::getVectorOfIndexes() const
     std::vector<double> indexes(nodes);
     for (int i = 0; i < nodes; i++) indexes[i] = i;
     return indexes;
-}
-
-double AWaveResSettings::getInterpolatedValue(double val, const QVector<double> *X, const QVector<double> *F) const
-{
-    if (val < X->first())
-    {
-        //  qWarning()<<"Interpolation: value is out of the data range:"<<val<< " < " << X->first();
-        return F->first();
-    }
-    if (val > X->last())
-    {
-        //  qWarning()<<"Interpolation: value is out of the data range:"<<val<< " > " << X->last();
-        return F->last();
-    }
-
-    QVector<double>::const_iterator it;
-    it = std::lower_bound(X->begin(), X->end(), val);
-    int index = X->indexOf(*it);
-    //      qDebug()<<"energy:"<<energy<<"index"<<index;//<<*it;
-    if (index < 1)
-    {
-        //qWarning()<<"Interpolation: value out (or on the border) of the interaction data range!";
-        return F->first();
-    }
-
-    double Less = F->at(index-1);
-    double More = F->at(index);
-    //      qDebug()<<" Less/More"<<Less<<More;
-    double EnergyLess = X->at(index-1);
-    double EnergyMore = X->at(index);
-    //      qDebug()<<" Energy Less/More"<<EnergyLess<<EnergyMore;
-
-    double InterpolationValue;
-    if (EnergyLess == EnergyMore) InterpolationValue = More;
-    else                          InterpolationValue = Less + (More-Less)*(val-EnergyLess)/(EnergyMore-EnergyLess);
-    //      qDebug()<<"energy / interValue"<<energy<<InteractValue;
-    return InterpolationValue;
 }
 
 double AWaveResSettings::getInterpolatedValue(double val, const std::vector<double> & X, const std::vector<double> & F)
@@ -1073,7 +1013,7 @@ void APhotonAdvancedSettings::readFromJson(const QJsonObject &json)
 
 void APhotonLogSettings::writeToJson(QJsonObject & json) const
 {
-    json["Enabled"]  = Save;
+    json["Enabled"]  = Enabled;
     json["FileName"] = FileName;
 
     json["MaxNumber"] = MaxNumber;
@@ -1111,7 +1051,7 @@ void APhotonLogSettings::writeToJson(QJsonObject & json) const
 
 void APhotonLogSettings::readFromJson(const QJsonObject & json)
 {
-    jstools::parseJson(json, "Enabled", Save);
+    jstools::parseJson(json, "Enabled", Enabled);
     jstools::parseJson(json, "FileName", FileName);
 
     jstools::parseJson(json, "MaxNumber", MaxNumber);
@@ -1159,7 +1099,7 @@ void APhotonLogSettings::readFromJson(const QJsonObject & json)
 
 void APhotonLogSettings::clear()
 {
-    Save     = false;
+    Enabled  = false;
     FileName = "PhotonLog.txt";
 
     MustNotInclude_Processes.clear();

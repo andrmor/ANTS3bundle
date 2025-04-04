@@ -8,7 +8,7 @@
 
 double AFunctorJS::operator()(const double * p)
 {
-    AJScriptManager & ScriptManager = AScriptHub::manager();
+    AJScriptManager & ScriptManager = AScriptHub::getInstance().getJScriptManager();
     if (ScriptManager.isAborted()) return 1e30;
 
         QString str;
@@ -32,25 +32,25 @@ AMiniJS_SI::~AMiniJS_SI()
 
 bool AMiniJS_SI::wasAborted() const
 {
-    AJScriptManager & SM = AScriptHub::manager();
+    AJScriptManager & SM = AScriptHub::getInstance().getJScriptManager();
     return SM.isAborted();
 }
 
 void AMiniJS_SI::setFunctorName(const QString & name)
 {
-    AJScriptManager & SM = AScriptHub::manager();
+    AJScriptManager & SM = AScriptHub::getInstance().getJScriptManager();
     SM.MiniFunctionName = name;
 }
 
 void AMiniJS_SI::configureNumVariables(int num)
 {
-    AJScriptManager & SM = AScriptHub::manager();
+    AJScriptManager & SM = AScriptHub::getInstance().getJScriptManager();
     SM.MiniNumVariables = num;
 }
 
 ROOT::Math::Functor * AMiniJS_SI::configureFunctor()
 {
-    AJScriptManager & ScriptManager = AScriptHub::manager();
+    AJScriptManager & ScriptManager = AScriptHub::getInstance().getJScriptManager();
 
     bool ok = ScriptManager.testMinimizationFunction();
     if (!ok) return nullptr;

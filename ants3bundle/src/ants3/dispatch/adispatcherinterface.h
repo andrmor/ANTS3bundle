@@ -31,10 +31,9 @@ private:
 
 public:
     QString     fillRunPlan(std::vector<AFarmNodeRecord> & runPlan, int numEvents, int overrideLocalCores = -1); //returns error, otherwise ""
-    // !!!*** change int to double?
 
     QJsonObject performTask(const A3WorkDistrConfig & Request);
-    void        waitForReply();
+    void        waitForReply(); // !!!***
 
     void        abortTask();
     bool        isAborted() const;

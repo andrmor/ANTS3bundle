@@ -2,7 +2,8 @@
 #define ALEGENDDIALOG_H
 
 #include <QDialog>
-#include <QVector>
+
+#include <vector>
 
 #include "TLegend.h"
 
@@ -39,7 +40,7 @@ public:
 class ALegendData
 {
 public:
-    QVector<ALegendEntryRecord> Model;
+    std::vector<ALegendEntryRecord> Model;
     int NumColumns = 1;
 
     double    Xfrom, Xto, Yfrom, Yto;
@@ -55,7 +56,7 @@ class ALegendDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit ALegendDialog(TLegend & Legend, const QVector<ADrawObject> & DrawObjects, QWidget * parent);
+    explicit ALegendDialog(TLegend & Legend, const std::vector<ADrawObject> & DrawObjects, QWidget * parent);
     ~ALegendDialog();
 
 private slots:
@@ -63,7 +64,7 @@ private slots:
     void onFocusChanged(QWidget * oldW, QWidget * newW );
     void onEntrySelectionChanged();
     void onEntryWasEdited(int index, const QString & label, bool line, bool mark, bool fill);
-    void onReorderEntriesRequested(const QVector<int> &indexes, int toRow);
+    void onReorderEntriesRequested(const std::vector<int> & indexes, int toRow);
     void on_twTree_itemDoubleClicked(QTreeWidgetItem *item, int column);
     void setNumberOfColumns();
     void onHelpTriggered();
@@ -72,7 +73,7 @@ private:
     Ui::ALegendDialog *ui;
     ABasketListWidget * lwList;
     TLegend & Legend;
-    const QVector<ADrawObject> & DrawObjects;
+    const std::vector<ADrawObject> & DrawObjects;
 
     ALegendData CurrentModel;
     ALegendData OriginalModel;
