@@ -314,13 +314,17 @@ void AScriptWindow::updateAutocompleterAndHeighlighter()
     UnitNames.clear();
     Methods.clear();
 
+    std::vector<std::pair<QString,int>> vec;
+    vec.reserve(24);
     for (const AScriptInterface * inter : ScriptManager->getInterfaces())
     {
         const QString & name = inter->Name;
         UnitNames << name;
-        QStringList methodsions = getListOfMethods(inter, name, false);
-        for (int i = 0; i < methodsions.size(); i++) methodsions[i] += "()";
-        Methods << methodsions;
+
+        vec.clear();
+        getListOfMethods(inter, vec, false);
+        for (const std::pair<QString,int> & pair : vec)
+            Methods.push_back(pair.first + "()");
     }
 }
 
@@ -776,7 +780,9 @@ void AScriptWindow::fillHelper(const AScriptInterface * io)
 {
     const QString module = io->Name;
 
-    std::vector<std::pair<QString,int>> methods = getListOfMethodsWithNumArgs(io);
+    std::vector<std::pair<QString,int>> methods;
+    methods.reserve(20);
+    getListOfMethods(io, methods, true);
     if (ui->aAlphabeticOrder->isChecked()) std::sort(methods.begin(), methods.end(), [](const auto & lhs, const auto & rhs){return (lhs.first < rhs.first);});
 
     QTreeWidgetItem * objItem = new QTreeWidgetItem(trwHelp);
@@ -793,7 +799,8 @@ void AScriptWindow::fillHelper(const AScriptInterface * io)
         QString Flong  = sl.last();
         ListOfMethods.push_back( {Flong, methods[iMet].second} );
 
-        QString methodName = QString(Fshort).remove(QRegularExpression("\\((.*)\\)"));
+        const QRegularExpression reg("\\((.*)\\)");
+        QString methodName = QString(Fshort).remove(reg);
         methodName.remove(0, module.length() + 1); //remove module name and '.'
 
         if (methodName == "print")
@@ -1152,61 +1159,6 @@ void AScriptWindow::onProgressChanged(int percent)
     qApp->processEvents();
 }
 
-QStringList AScriptWindow::getListOfMethods(const QObject * obj, QString ObjName, bool fWithArguments)
-{
-    QStringList methods;
-    if (!obj) return methods;
-
-    const int numMethods = obj->metaObject()->methodCount();
-    for (int iMet = 0; iMet < numMethods; iMet++)
-    {
-        const QMetaMethod & m = obj->metaObject()->method(iMet);
-        bool bSlot   = (m.methodType() == QMetaMethod::Slot);
-        bool bPublic = (m.access() == QMetaMethod::Public);
-        QString candidate, extra;
-        if (bSlot && bPublic)
-        {
-            if (m.name() == "deleteLater") continue;
-            if (m.name() == "help") continue;
-
-            if (ObjName.isEmpty()) candidate = m.name();
-            else                   candidate = ObjName + "." + m.name();
-
-            if (fWithArguments)
-            {
-                candidate += "(";
-                extra = candidate;
-
-                int args = m.parameterCount();
-                for (int i = 0; i < args; i++)
-                {
-                    QString typ = m.parameterTypes().at(i);
-                    //if (typ == "QString") typ = "string";
-                    //else if (typ == "QVariantList") typ = "array";
-                    typ = getQTypeAlias(typ);
-                    extra += " " + typ + " " + m.parameterNames().at(i);
-                    candidate     += " " + m.parameterNames().at(i);
-                    if (i != args-1)
-                    {
-                        candidate += ", ";
-                        extra += ", ";
-                    }
-                }
-                candidate += " )";
-                extra += " )";
-                //extra = QString() + m.typeName() + " " + extra;
-                extra = QString() + getQTypeAlias(m.typeName()) + " " + extra;
-
-                candidate += "_:_" + extra;
-            }
-
-            if (methods.isEmpty() || methods.last() != candidate)
-                methods << candidate;
-        }
-    }
-    return methods;
-}
-
 QString AScriptWindow::getQTypeAlias(QString type)
 {
     if (type == "QString")      return "string";
@@ -1220,11 +1172,12 @@ QString AScriptWindow::getQTypeAlias(QString type)
     return type;
 }
 
-std::vector<std::pair<QString, int>> AScriptWindow::getListOfMethodsWithNumArgs(const AScriptInterface * interface)
+void AScriptWindow::getListOfMethods(const AScriptInterface * interface, std::vector<std::pair<QString,int>> & vec, bool withArguments)
 {
-    std::vector<std::pair<QString, int>> vec;
-    if (!interface) return vec;
+    if (!interface) return;
 
+    vec.clear();
+    vec.reserve(20);
     const int numMethods = interface->metaObject()->methodCount();
     for (int iMet = 0; iMet < numMethods; iMet++)
     {
@@ -1240,7 +1193,7 @@ std::vector<std::pair<QString, int>> AScriptWindow::getListOfMethodsWithNumArgs(
             QString candidate = interface->Name + "." + m.name();
             int args = m.parameterCount();
 
-            if (true) // fWithArguments)
+            if (withArguments)
             {
                 candidate += "(";
                 QString extra = candidate;
@@ -1271,8 +1224,6 @@ std::vector<std::pair<QString, int>> AScriptWindow::getListOfMethodsWithNumArgs(
                 vec.push_back( {candidate, args} );
         }
     }
-
-    return vec;
 }
 
 void AScriptWindow::appendDeprecatedAndRemovedMethods(const AScriptInterface * obj)
