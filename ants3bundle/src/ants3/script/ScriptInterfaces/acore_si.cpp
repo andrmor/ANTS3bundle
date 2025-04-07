@@ -149,12 +149,14 @@ bool ACore_SI::beforeRun()
     return true;
 }
 
+/*
 #include <chrono>
 void ACore_SI::test()
 {
     size_t a = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
     qDebug() << a;
 }
+*/
 
 /*
 void ACore_SI::fun0()
@@ -1085,8 +1087,8 @@ void ACore_SI::save3DArray(QVariantList array, QString fileName, QString topLeve
     }
 }
 
-QVariantList ACore_SI::load3DBinaryArray(const QString &fileName, char dataId, const QVariantList &dataFormat,
-                                         char separatorId, const QVariantList &separatorFormat,
+QVariantList ACore_SI::load3DBinaryArray(QString fileName, char dataId, QVariantList dataFormat,
+                                         char separatorId, QVariantList separatorFormat,
                                          int recordsFrom, int recordsUntil, bool skipEmpty)
 {
     QVariantList vl1;
@@ -1171,6 +1173,100 @@ QVariantList ACore_SI::load3DBinaryArray(const QString &fileName, char dataId, c
 
     inStream.close();
     return vl1;
+}
+
+void ACore_SI::save3DBinaryArray(QVariantList data, QString fileName, char dataId, QVariantList dataFormat, char separatorId, bool append)
+{
+    save3DBinaryArray(data, fileName, dataId, dataFormat, separatorId, QVariantList(), QVariantList(), append);
+}
+
+void ACore_SI::save3DBinaryArray(QVariantList data, QString fileName, char dataId, QVariantList dataFormat,
+                                 char separatorId, QVariantList topLevelLabels, QVariantList separatorFormat, bool append)
+{
+    QVariantList vl1;
+
+    std::vector<EArrayFormat> DataFormatSelector;
+    bool bFormatOK = readFormat(dataFormat, DataFormatSelector, false, false);
+    if (!bFormatOK)
+    {
+        abort("Parameter 'dataFormat' should be an array of 's', 'i', 'd', 'f' or 'c' markers (string, int, double, float and char, respectively)");
+        return;
+    }
+
+
+    if (append && !QFileInfo::exists(fileName))
+    {
+        abort("File does not exist: " + fileName);
+        return;
+    }
+
+    std::ofstream outStream(fileName.toLatin1().data(), std::ios::out | std::ios::binary);
+    if (!outStream.is_open())
+    {
+        abort("Cannot open file: " + fileName + " for binary save");
+        return;
+    }
+
+    std::vector<EArrayFormat> SeparatorFormatSelector;
+    bool haveLabels = !topLevelLabels.isEmpty();
+    if (haveLabels)
+    {
+        if (data.size() != topLevelLabels.size())
+        {
+            abort("Size mismatch for the data and label arrays");
+            return;
+        }
+        bFormatOK = readFormat(separatorFormat, SeparatorFormatSelector, false, false);
+        if (!bFormatOK)
+        {
+            abort("Parameter 'separatorFormat' should be an array of 's', 'i', 'd', 'f' or 'c' markers (string, int, double, float and char, respectively)");
+            return;
+        }
+    }
+
+    QString err;
+    for (int i0 = 0; i0 < data.size(); i0++)
+    {
+        outStream << char(separatorId);
+
+        if (haveLabels)
+        {
+            QVariantList el = topLevelLabels[i0].toList();
+            if (el.size() > SeparatorFormatSelector.size())
+            {
+                abort( QString("Mismatch in size of top level labels and separator format for top index of %0").arg(i0) );
+                return;
+            }
+            bool ok = writeFormattedBinaryLine(outStream, SeparatorFormatSelector, el, err);
+            if (!ok)
+            {
+                abort(err);
+                return;
+            }
+        }
+
+        QVariantList lev1array = data[i0].toList();
+        for (int i1 = 0; i1 < lev1array.size(); i1++)
+        {
+            outStream << char(dataId);
+
+            QVariantList lev2array = lev1array[i1].toList();
+
+            qDebug() << lev2array << DataFormatSelector;
+
+            if (lev2array.size() > DataFormatSelector.size())
+            {
+                abort( QString("Mismatch in size of data array and separator format for index [%0][%1]").arg(i0).arg(i1) );
+                return;
+            }
+            bool ok = writeFormattedBinaryLine(outStream, DataFormatSelector, lev2array, err);
+            if (!ok)
+            {
+                abort(err);
+                return;
+            }
+        }
+    }
 }
 
 QVariantMap ACore_SI::loadObject(QString fileName)

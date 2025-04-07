@@ -105,16 +105,13 @@ private:
 
     void createGuiElements();
     void findText(bool bForward);
-    void applyTextFindState();  // !!!*** refactor
-    void fillSubObject(QTreeWidgetItem* parent, const QJsonObject& obj);
-    void fillSubArray(QTreeWidgetItem* parent, const QJsonArray& arr);
-    QString getDesc(const QJsonValue &ref);
-    void fillHelper(const AScriptInterface * io);  // !!!*** optimize --> do not add unit name, transfer to interface base class
-    QString getKeyPath(QTreeWidgetItem *item);
-
-    // !!!*** refactor:
-    QStringList getListOfMethods(const QObject *obj, QString ObjName, bool fWithArguments = false);  // !!!*** no need name, convert to AScriptInterface
-    std::vector<std::pair<QString,int>> getListOfMethodsWithNumArgs(const AScriptInterface * interface);
+    void applyTextFindState();
+    void fillSubObject(QTreeWidgetItem * parent, const QJsonObject& obj);
+    void fillSubArray(QTreeWidgetItem * parent, const QJsonArray& arr);
+    QString getDesc(const QJsonValue & ref);
+    void fillHelper(const AScriptInterface * io);
+    QString getKeyPath(QTreeWidgetItem * item);
+    void getListOfMethods(const AScriptInterface * interface, std::vector<std::pair<QString,int>> & vec, bool withArguments);
 
     void appendDeprecatedAndRemovedMethods(const AScriptInterface *obj); // !!!***
 
@@ -272,6 +269,7 @@ private:
     void updateRemovedAndDeprecatedMethods();
     void updateAutocompleterAndHeighlighter();
     void addScript(const QString & script);
+    QString getQTypeAlias(QString type); // e.g. QString --> string; QVariantList --> array
 };
 
 #endif // ASCRIPTWINDOW_H

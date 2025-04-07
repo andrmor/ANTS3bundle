@@ -16,7 +16,7 @@ public:
 
     QString getName() const override;
     bool updateObject(AGeoObject * obj) const override;
-    void Update(const AGeoObject * obj) override;
+    void updateGui(const AGeoObject * obj) override;
 
 private:
     AMonitorDelegateForm * del = nullptr;

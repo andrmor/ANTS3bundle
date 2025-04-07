@@ -1061,7 +1061,7 @@ void AGeoObjectDelegate::onHelpRequested()
 }
 
 #include <QJsonObject>
-void AGeoObjectDelegate::Update(const AGeoObject *obj)
+void AGeoObjectDelegate::updateGui(const AGeoObject *obj)
 {
     //qDebug() << "update----------------" << obj->Name;
     CurrentObject = obj;
@@ -1268,9 +1268,9 @@ bool AGeoBoxDelegate::updateObject(AGeoObject *obj) const
     return AGeoObjectDelegate::updateObject(obj);
 }
 
-void AGeoBoxDelegate::Update(const AGeoObject *obj)
+void AGeoBoxDelegate::updateGui(const AGeoObject *obj)
 {
-    AGeoObjectDelegate::Update(obj);
+    AGeoObjectDelegate::updateGui(obj);
 
     AGeoBox * box = dynamic_cast<AGeoBox*>(ShapeCopy);
     if (!box)
@@ -1354,9 +1354,9 @@ bool AGeoTubeDelegate::updateObject(AGeoObject *obj) const
     return AGeoObjectDelegate::updateObject(obj);
 }
 
-void AGeoTubeDelegate::Update(const AGeoObject *obj)
+void AGeoTubeDelegate::updateGui(const AGeoObject *obj)
 {
-    AGeoObjectDelegate::Update(obj);
+    AGeoObjectDelegate::updateGui(obj);
 
     AGeoTube * tube = dynamic_cast<AGeoTube*>(ShapeCopy);
     if (!tube)
@@ -1433,9 +1433,9 @@ bool AGeoTubeSegDelegate::updateObject(AGeoObject *obj) const
     return AGeoObjectDelegate::updateObject(obj);
 }
 
-void AGeoTubeSegDelegate::Update(const AGeoObject *obj)
+void AGeoTubeSegDelegate::updateGui(const AGeoObject *obj)
 {
-    AGeoObjectDelegate::Update(obj);
+    AGeoObjectDelegate::updateGui(obj);
 
     AGeoTubeSeg * tubeSeg = dynamic_cast<AGeoTubeSeg*>(ShapeCopy);
     if (!tubeSeg)
@@ -1523,9 +1523,9 @@ bool AGeoTubeSegCutDelegate::updateObject(AGeoObject *obj) const
     return AGeoTubeSegDelegate::updateObject(obj); // AGeoTubeSeg for the rest of the properties
 }
 
-void AGeoTubeSegCutDelegate::Update(const AGeoObject *obj)
+void AGeoTubeSegCutDelegate::updateGui(const AGeoObject *obj)
 {
-    AGeoTubeSegDelegate::Update(obj);
+    AGeoTubeSegDelegate::updateGui(obj);
 
     AGeoCtub * ctube = dynamic_cast<AGeoCtub*>(ShapeCopy);
     if (!ctube)
@@ -1632,9 +1632,9 @@ bool AGeoParaDelegate::updateObject(AGeoObject *obj) const
     return AGeoObjectDelegate::updateObject(obj);
 }
 
-void AGeoParaDelegate::Update(const AGeoObject *obj)
+void AGeoParaDelegate::updateGui(const AGeoObject *obj)
 {
-    AGeoObjectDelegate::Update(obj);
+    AGeoObjectDelegate::updateGui(obj);
 
     AGeoPara * para = dynamic_cast<AGeoPara*>(ShapeCopy);
     if (!para)
@@ -1736,9 +1736,9 @@ bool AGeoSphereDelegate::updateObject(AGeoObject *obj) const
     return AGeoObjectDelegate::updateObject(obj);
 }
 
-void AGeoSphereDelegate::Update(const AGeoObject *obj)
+void AGeoSphereDelegate::updateGui(const AGeoObject *obj)
 {
-    AGeoObjectDelegate::Update(obj);
+    AGeoObjectDelegate::updateGui(obj);
 
     AGeoSphere * sphere = dynamic_cast<AGeoSphere*>(ShapeCopy);
     if (!sphere)
@@ -1834,9 +1834,9 @@ bool AGeoConeDelegate::updateObject(AGeoObject *obj) const
     return AGeoObjectDelegate::updateObject(obj);
 }
 
-void AGeoConeDelegate::Update(const AGeoObject *obj)
+void AGeoConeDelegate::updateGui(const AGeoObject *obj)
 {
-    AGeoObjectDelegate::Update(obj);
+    AGeoObjectDelegate::updateGui(obj);
 
     AGeoCone * cone = dynamic_cast<AGeoCone*>(ShapeCopy);
     if (!cone)
@@ -1919,9 +1919,9 @@ bool AGeoConeSegDelegate::updateObject(AGeoObject *obj) const
     return AGeoConeDelegate::updateObject(obj); // cone delegate to update the rest of the propertires!
 }
 
-void AGeoConeSegDelegate::Update(const AGeoObject *obj)
+void AGeoConeSegDelegate::updateGui(const AGeoObject *obj)
 {
-    AGeoConeDelegate::Update(obj);
+    AGeoConeDelegate::updateGui(obj);
 
     AGeoConeSeg * coneSeg = dynamic_cast<AGeoConeSeg*>(ShapeCopy);
     if (!coneSeg)
@@ -2003,9 +2003,9 @@ bool AGeoElTubeDelegate::updateObject(AGeoObject *obj) const
     return AGeoObjectDelegate::updateObject(obj);
 }
 
-void AGeoElTubeDelegate::Update(const AGeoObject *obj)
+void AGeoElTubeDelegate::updateGui(const AGeoObject *obj)
 {
-    AGeoObjectDelegate::Update(obj);
+    AGeoObjectDelegate::updateGui(obj);
 
     AGeoEltu * elTube = dynamic_cast<AGeoEltu*> (ShapeCopy);
     if (!elTube)
@@ -2092,9 +2092,9 @@ bool AGeoTrapXDelegate::updateObject(AGeoObject *obj) const
     return AGeoObjectDelegate::updateObject(obj);
 }
 
-void AGeoTrapXDelegate::Update(const AGeoObject *obj)
+void AGeoTrapXDelegate::updateGui(const AGeoObject *obj)
 {
-    AGeoObjectDelegate::Update(obj);
+    AGeoObjectDelegate::updateGui(obj);
 
     AGeoTrd1 * trap = dynamic_cast<AGeoTrd1*>(ShapeCopy);
         if (!trap)
@@ -2186,9 +2186,9 @@ bool AGeoTrapXYDelegate::updateObject(AGeoObject *obj) const
     return AGeoObjectDelegate::updateObject(obj);
 }
 
-void AGeoTrapXYDelegate::Update(const AGeoObject *obj)
+void AGeoTrapXYDelegate::updateGui(const AGeoObject *obj)
 {
-    AGeoObjectDelegate::Update(obj);
+    AGeoObjectDelegate::updateGui(obj);
 
     AGeoTrd2 * trapxy = dynamic_cast<AGeoTrd2*>(ShapeCopy);
     if (!trapxy)
@@ -2279,9 +2279,9 @@ bool AGeoParaboloidDelegate::updateObject(AGeoObject *obj) const
     return AGeoObjectDelegate::updateObject(obj);
 }
 
-void AGeoParaboloidDelegate::Update(const AGeoObject *obj)
+void AGeoParaboloidDelegate::updateGui(const AGeoObject *obj)
 {
-    AGeoObjectDelegate::Update(obj);
+    AGeoObjectDelegate::updateGui(obj);
 
     AGeoParaboloid * paraboloid = dynamic_cast<AGeoParaboloid*>(ShapeCopy);
     if (!paraboloid)
@@ -2371,9 +2371,9 @@ bool AGeoTorusDelegate::updateObject(AGeoObject *obj) const
     return AGeoObjectDelegate::updateObject(obj);
 }
 
-void AGeoTorusDelegate::Update(const AGeoObject *obj)
+void AGeoTorusDelegate::updateGui(const AGeoObject *obj)
 {
-    AGeoObjectDelegate::Update(obj);
+    AGeoObjectDelegate::updateGui(obj);
 
     AGeoTorus * torus = dynamic_cast<AGeoTorus*>(ShapeCopy);
     if (!torus)
@@ -2477,9 +2477,9 @@ bool AGeoPolygonDelegate::updateObject(AGeoObject *obj) const
     return AGeoObjectDelegate::updateObject(obj);
 }
 
-void AGeoPolygonDelegate::Update(const AGeoObject *obj)
+void AGeoPolygonDelegate::updateGui(const AGeoObject *obj)
 {
-    AGeoObjectDelegate::Update(obj);
+    AGeoObjectDelegate::updateGui(obj);
 
     AGeoPolygon * polygon = dynamic_cast<AGeoPolygon*>(ShapeCopy);
     if (!polygon)
@@ -2646,9 +2646,9 @@ void AGeoPconDelegate::readGui() const
     else qWarning() << "Read delegate: PolyCone shape not found!";
 }
 
-void AGeoPconDelegate::Update(const AGeoObject *obj)
+void AGeoPconDelegate::updateGui(const AGeoObject *obj)
 {
-    AGeoObjectDelegate::Update(obj);
+    AGeoObjectDelegate::updateGui(obj);
 
     AGeoPcon * pcon = dynamic_cast<AGeoPcon*>(ShapeCopy);
     if (!pcon)
@@ -2845,9 +2845,9 @@ bool AGeoPgonDelegate::updateObject(AGeoObject *obj) const
     return AGeoPconDelegate::updateObject(obj); // AGeoPcon for the rest of parameters!
 }
 
-void AGeoPgonDelegate::Update(const AGeoObject *obj)
+void AGeoPgonDelegate::updateGui(const AGeoObject *obj)
 {
-    AGeoPconDelegate::Update(obj);
+    AGeoPconDelegate::updateGui(obj);
 
     AGeoPgon * pgon = dynamic_cast<AGeoPgon*>(ShapeCopy);
     if (!pgon)
@@ -2922,9 +2922,9 @@ bool AGeoCompositeDelegate::updateObject(AGeoObject *obj) const
     return AGeoObjectDelegate::updateObject(obj);
 }
 
-void AGeoCompositeDelegate::Update(const AGeoObject *obj)
+void AGeoCompositeDelegate::updateGui(const AGeoObject *obj)
 {
-    AGeoObjectDelegate::Update(obj);
+    AGeoObjectDelegate::updateGui(obj);
 
     AGeoComposite * comp = dynamic_cast<AGeoComposite*>(ShapeCopy);
     if (!comp)
@@ -3066,9 +3066,9 @@ bool AGeoArb8Delegate::updateObject(AGeoObject * obj) const
     return AGeoObjectDelegate::updateObject(obj);
 }
 
-void AGeoArb8Delegate::Update(const AGeoObject *obj)
+void AGeoArb8Delegate::updateGui(const AGeoObject *obj)
 {
-    AGeoObjectDelegate::Update(obj);
+    AGeoObjectDelegate::updateGui(obj);
 
     AGeoArb8 * arb8 = dynamic_cast<AGeoArb8*>(ShapeCopy);
     if (!arb8)
@@ -3235,9 +3235,9 @@ bool AGeoArrayDelegate::updateObject(AGeoObject * obj) const
     return AGeoObjectDelegate::updateObject(obj);
 }
 
-void AGeoArrayDelegate::Update(const AGeoObject * obj)
+void AGeoArrayDelegate::updateGui(const AGeoObject * obj)
 {
-    AGeoObjectDelegate::Update(obj);
+    AGeoObjectDelegate::updateGui(obj);
 
     if (obj->Type->isArray())
     {
@@ -3346,9 +3346,9 @@ bool AGeoCircularArrayDelegate::updateObject(AGeoObject *obj) const
     return AGeoObjectDelegate::updateObject(obj);
 }
 
-void AGeoCircularArrayDelegate::Update(const AGeoObject *obj)
+void AGeoCircularArrayDelegate::updateGui(const AGeoObject *obj)
 {
-    AGeoObjectDelegate::Update(obj);
+    AGeoObjectDelegate::updateGui(obj);
 
     ATypeCircularArrayObject * array = dynamic_cast<ATypeCircularArrayObject*>(obj->Type);
 
@@ -3486,9 +3486,9 @@ bool AGeoHexagonalArrayDelegate::updateObject(AGeoObject *obj) const
     return AGeoObjectDelegate::updateObject(obj);
 }
 
-void AGeoHexagonalArrayDelegate::Update(const AGeoObject *obj)
+void AGeoHexagonalArrayDelegate::updateGui(const AGeoObject *obj)
 {
-    AGeoObjectDelegate::Update(obj);
+    AGeoObjectDelegate::updateGui(obj);
 
     ATypeHexagonalArrayObject * array = dynamic_cast<ATypeHexagonalArrayObject*>(obj->Type);
 
@@ -3518,7 +3518,7 @@ AGeoSetDelegate::AGeoSetDelegate(const QStringList &materials, QWidget *parent)
      cbScale->setVisible(false);
 }
 
-void AGeoSetDelegate::Update(const AGeoObject *obj)
+void AGeoSetDelegate::updateGui(const AGeoObject *obj)
 {
     if (obj->Type->isCompositeContainer())
     {
@@ -3539,7 +3539,7 @@ void AGeoSetDelegate::Update(const AGeoObject *obj)
     }
     else qWarning() << "Unexpected object type in AGeoSetDelegate::Update()";
 
-    AGeoObjectDelegate::Update(obj);
+    AGeoObjectDelegate::updateGui(obj);
 }
 
 AWorldDelegate::AWorldDelegate(const QStringList & materials, QWidget * ParentWidget) :
@@ -3675,7 +3675,7 @@ bool AWorldDelegate::updateObject(AGeoObject * obj) const
     return true;
 }
 
-void AWorldDelegate::Update(const AGeoObject *obj)
+void AWorldDelegate::updateGui(const AGeoObject *obj)
 {
     int imat = obj->Material;
     if (imat < 0 || imat >= cobMat->count())
@@ -3749,9 +3749,9 @@ bool AGeoInstanceDelegate::updateObject(AGeoObject * obj) const
     return AGeoObjectDelegate::updateObject(obj);
 }
 
-void AGeoInstanceDelegate::Update(const AGeoObject * obj)
+void AGeoInstanceDelegate::updateGui(const AGeoObject * obj)
 {
-    AGeoObjectDelegate::Update(obj);
+    AGeoObjectDelegate::updateGui(obj);
 
     ATypeInstanceObject * inst = dynamic_cast<ATypeInstanceObject*>(obj->Type);
     if (inst) leInstanceOf->setText(inst->PrototypeName);

@@ -35,7 +35,7 @@ public slots:
     //void fun0();
     //void fun1(int i);
     //void fun2(int i, double d);
-    void test();
+    //void test();
 
     void         abort(QString message);
 
@@ -84,8 +84,9 @@ public slots:
     QVariantList load3DArray(QString fileName, QString topSeparator, QVariantList format,
                              bool skipEmpty = true, bool allowIncomplete = false, int recordsFrom = 0, int recordsUntil = 2147483647);
 
-    // !!!*** add save3DBinaryArray
-    QVariantList load3DBinaryArray(const QString &fileName, char dataId, const QVariantList &dataFormat, char separatorId, const QVariantList &separatorFormat, int recordsFrom = 0, int recordsUntil = 1e6, bool skipEmpty = false);
+    QVariantList load3DBinaryArray(QString fileName, char dataId, QVariantList dataFormat, char separatorId, QVariantList separatorFormat, int recordsFrom = 0, int recordsUntil = 1e6, bool skipEmpty = false);
+    void         save3DBinaryArray(QVariantList data, QString fileName, char dataId, QVariantList dataFormat, char separatorId, bool append = false);
+    void         save3DBinaryArray(QVariantList data, QString fileName, char dataId, QVariantList dataFormat, char separatorId, QVariantList topLevelLabels, QVariantList separatorFormat, bool append = false);
 
     // Object
     void        saveObject(QVariantMap Object, QString FileName);
