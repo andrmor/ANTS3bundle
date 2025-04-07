@@ -1181,7 +1181,9 @@ QStringList AScriptWindow::getListOfMethods(const QObject * obj, QString ObjName
                 for (int i = 0; i < args; i++)
                 {
                     QString typ = m.parameterTypes().at(i);
-                    if (typ == "QString") typ = "string";
+                    //if (typ == "QString") typ = "string";
+                    //else if (typ == "QVariantList") typ = "array";
+                    typ = getQTypeAlias(typ);
                     extra += " " + typ + " " + m.parameterNames().at(i);
                     candidate     += " " + m.parameterNames().at(i);
                     if (i != args-1)
@@ -1192,7 +1194,8 @@ QStringList AScriptWindow::getListOfMethods(const QObject * obj, QString ObjName
                 }
                 candidate += " )";
                 extra += " )";
-                extra = QString() + m.typeName() + " " + extra;
+                //extra = QString() + m.typeName() + " " + extra;
+                extra = QString() + getQTypeAlias(m.typeName()) + " " + extra;
 
                 candidate += "_:_" + extra;
             }
@@ -1202,6 +1205,19 @@ QStringList AScriptWindow::getListOfMethods(const QObject * obj, QString ObjName
         }
     }
     return methods;
+}
+
+QString AScriptWindow::getQTypeAlias(QString type)
+{
+    if (type == "QString")      return "string";
+    if (type == "QVariantList") return "array";
+    if (type == "QVariant")     return "variant";
+    if (type == "QVariantMap")
+    {
+        if (ScriptLanguage == EScriptLanguage::JavaScript) return "object";
+        else return "dictionary";
+    }
+    return type;
 }
 
 std::vector<std::pair<QString, int>> AScriptWindow::getListOfMethodsWithNumArgs(const AScriptInterface * interface)
@@ -1232,7 +1248,9 @@ std::vector<std::pair<QString, int>> AScriptWindow::getListOfMethodsWithNumArgs(
                 for (int i = 0; i < args; i++)
                 {
                     QString typ = m.parameterTypes().at(i);
-                    if (typ == "QString") typ = "string";
+                    //if (typ == "QString") typ = "string";
+                    //else if (typ == "QVariantList") typ = "array";
+                    typ = getQTypeAlias(typ);
                     extra += " " + typ + " " + m.parameterNames().at(i);
                     candidate     += " " + m.parameterNames().at(i);
                     if (i != args-1)
@@ -1243,7 +1261,8 @@ std::vector<std::pair<QString, int>> AScriptWindow::getListOfMethodsWithNumArgs(
                 }
                 candidate += " )";
                 extra += " )";
-                extra = QString() + m.typeName() + " " + extra;
+                //extra = QString() + m.typeName() + " " + extra;
+                extra = QString() + getQTypeAlias(m.typeName()) + " " + extra;
 
                 candidate += "_:_" + extra;
             }

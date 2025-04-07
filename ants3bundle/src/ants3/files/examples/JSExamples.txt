@@ -69,3 +69,12 @@ Calorimeter:Detection efficiency
 #info
 Compute detection effeciency for 10B-RPC neutron detector examples
 #end
+
+#file
+SaveLoad3DBinaryArray.txt
+#tags
+Array:File:Binary
+#info
+Save / load a 3D binary array with top index markers
+#end
+

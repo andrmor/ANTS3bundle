@@ -272,6 +272,7 @@ private:
     void updateRemovedAndDeprecatedMethods();
     void updateAutocompleterAndHeighlighter();
     void addScript(const QString & script);
+    QString getQTypeAlias(QString type); // e.g. QString --> string; QVariantList --> array
 };
 
 #endif // ASCRIPTWINDOW_H
