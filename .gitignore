@@ -51,22 +51,10 @@ compile_commands.json
 # QtCreator local machine specific files for imported projects
 *creator.user*
 
-ants3bundle/build/Desktop_Qt_6_7_1-Debug/
-
-ants3bundle/build/Desktop_Qt_6_7_2-Debug/
+ants3bundle/build/
 
 *.idx
 
 *.stash
 
-ants3bundle/build/Desktop_Qt_6_8_0-Release/bin/
 
-ants3bundle/build/Desktop_Qt_5_15_2_GCC_64bit-Debug/bin/
-
-ants3bundle/build/Desktop_Qt_6_8_0-Debug/bin/
-
-ants3bundle/build/Desktop_Qt_6_8_2-Debug/.qtc_clangd/.cache/clangd/index/
-
-ants3bundle/build/Desktop_Qt_6_8_2-Debug/bin/
-
-ants3bundle/build/Desktop_Qt_6_8_2-Release/bin/

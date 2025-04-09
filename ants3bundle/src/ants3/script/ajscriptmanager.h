@@ -55,6 +55,7 @@ signals:
     void doEval(const QString & script);
     void doExit();
     void doRegisterInterface(AScriptInterface * interface, QString name);
+    void requestGarbageCollection();
 
 protected:
     QThread        * Thread = nullptr;

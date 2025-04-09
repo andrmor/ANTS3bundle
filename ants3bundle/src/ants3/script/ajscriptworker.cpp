@@ -48,11 +48,6 @@ void AJScriptWorker::abort()
     Engine->setInterrupted(true);
 }
 
-void AJScriptWorker::collectGarbage()
-{
-    Engine->collectGarbage();
-}
-
 bool AJScriptWorker::isError() const
 {
     return Result.isError();
@@ -131,4 +126,13 @@ void AJScriptWorker::exit()
     do {} while (!Engine->isInterrupted());
 
 //    emit stopped();
+}
+
+void AJScriptWorker::onRequestGarbageCollection()
+{
+    if (bBusy) return;
+
+    bBusy = true;
+    Engine->collectGarbage();
+    bBusy = false;
 }
