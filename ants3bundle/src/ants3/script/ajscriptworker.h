@@ -22,8 +22,6 @@ public:
     bool isBusy() const {return bBusy;}
     void abort();
 
-    void collectGarbage();
-
     QJSValue getResult() const {return Result;}
 
     bool     isError() const;
@@ -42,6 +40,7 @@ public slots:
     void onRegisterInterface(AScriptInterface * interface, QString name);
     void evaluate(const QString & script);
     void exit();
+    void onRequestGarbageCollection();
 
 signals:
     void evalFinished(bool bSuccess);

@@ -40,13 +40,13 @@ void AJScriptManager::start()
     Worker = new AJScriptWorker();
     Worker->moveToThread(Thread);
 
-    connect(Thread, &QThread::started,             Worker, &AJScriptWorker::initialize);
-    connect(this,   &AJScriptManager::doEval,      Worker, &AJScriptWorker::evaluate);
-    connect(this,   &AJScriptManager::doExit,      Worker, &AJScriptWorker::exit);
-    connect(Worker, &AJScriptWorker::evalFinished, this,   &AJScriptManager::evalFinished);
+    connect(Thread, &QThread::started,                          Worker, &AJScriptWorker::initialize);
+    connect(this,   &AJScriptManager::doEval,                   Worker, &AJScriptWorker::evaluate);
+    connect(this,   &AJScriptManager::requestGarbageCollection, Worker, &AJScriptWorker::onRequestGarbageCollection);
+    connect(this,   &AJScriptManager::doExit,                   Worker, &AJScriptWorker::exit);
+    connect(Worker, &AJScriptWorker::evalFinished,              this,   &AJScriptManager::evalFinished);
 
     connect(Worker, &AJScriptWorker::stopped,     Thread, &QThread::quit);
-//    connect(Worker, &AJScriptWorker::stopped,     Worker, &AJScriptWorker::deleteLater);
     connect(Thread, &QThread::finished,           Thread, &QThread::deleteLater);
 
     connect(this, &AJScriptManager::doRegisterInterface, Worker, &AJScriptWorker::onRegisterInterface);
@@ -125,5 +125,5 @@ QString AJScriptManager::getErrorDescription() const
 
 void AJScriptManager::collectGarbage()
 {
-    Worker->collectGarbage();
+    emit requestGarbageCollection();
 }
