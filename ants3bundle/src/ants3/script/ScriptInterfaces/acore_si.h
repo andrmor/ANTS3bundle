@@ -60,6 +60,7 @@ public slots:
     QString      getCurrentDir();
 
     QVariantList getDirectories(QString dir, QString dirNamePattern);
+    QVariantList getFiles(QString dir, QString fileNamePattern);
     QVariantList setNewFileFinder(QString dir, QString fileNamePattern);
     QVariantList getNewFiles();
 
