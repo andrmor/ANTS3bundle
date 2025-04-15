@@ -847,6 +847,7 @@ void AGeometryWindow::ShowPoint(double * r, bool keepTracks)
     ShowGeometry(false);
     if (keepTracks) ShowTracks();
 
+    showNormal();
     activateWindow();
 }
 
