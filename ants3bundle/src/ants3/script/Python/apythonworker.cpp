@@ -10,7 +10,7 @@ APythonWorker::APythonWorker(QObject *parent)
 
 APythonWorker::~APythonWorker()
 {
-    qDebug() << "Destr for PythonWorker";
+    //qDebug() << "Destr for PythonWorker";
     delete PyInterface;
 
     // JS does not need the following step due to QObject paranting, this does:
@@ -145,6 +145,7 @@ void APythonWorker::checkSignals()
 
 void APythonWorker::initialize()
 {
+    //qDebug() << "Py worker init ";
     PyInterface = new APythonInterface();
 }
 
@@ -185,7 +186,7 @@ void APythonWorker::evaluate(const QString &script)
 
 void APythonWorker::exit()
 {
-    qDebug() << "Python Worker exit triggered";
+    //qDebug() << "Python Worker exit triggered";
     emit stopped();
     //if (bBusy) PyInterface->abort();
 }

@@ -197,6 +197,17 @@ QString AScriptHub::evaluateScriptAndWaitToFinish(const QString & fileName, EScr
 #endif
 }
 
+void AScriptHub::aboutToQuit()
+{
+    if (JavaScriptM->isRunning()) JavaScriptM->abort();
+    emit JavaScriptM->doExit();
+
+#ifdef ANTS3_PYTHON
+    if (PythonM->isRunning()) PythonM->abort();
+    emit PythonM->doExit();
+#endif
+}
+
 AScriptHub::AScriptHub()
 {
     //qDebug() << ">Creating AJScriptManager and Generating/registering script units";
@@ -241,7 +252,7 @@ AScriptHub::AScriptHub()
 
 AScriptHub::~AScriptHub()
 {
-    qDebug() << "Destr for ScriptHub";
+    //qDebug() << "Destr for ScriptHub";
 #ifdef ANTS3_PYTHON
     delete PythonM; PythonM = nullptr;
 #endif

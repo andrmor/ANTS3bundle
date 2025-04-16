@@ -10,8 +10,6 @@
 APythonScriptManager::APythonScriptManager(QObject *parent)
     : AVirtualScriptManager{parent}
 {
-    //PyInterface = new APythonInterface();
-
     //qDebug() << "Starting script worlker"<< QThread::currentThreadId();
     Thread = new QThread();
     Worker = new APythonWorker();
@@ -34,14 +32,7 @@ APythonScriptManager::APythonScriptManager(QObject *parent)
 
 APythonScriptManager::~APythonScriptManager()
 {
-    // !!!*** to do: crashes on exit if script is running (same with JS)
-    qDebug() << "Destr for PythonManager";
-    Worker->abort();
-    emit doExit();
-    //Worker->exit();
-    //Thread->exit();
-    //delete Worker;
-    //delete Thread;
+    //qDebug() << "Destr for PythonManager";
 }
 
 void APythonScriptManager::registerInterface(AScriptInterface * interface, QString name)

@@ -35,7 +35,7 @@ APythonInterface::APythonInterface()
 
 APythonInterface::~APythonInterface()
 {
-    qDebug() << "Destr for PythonInterface";
+    //qDebug() << "Destr for PythonInterface";
     Py_FinalizeEx();
 }
 

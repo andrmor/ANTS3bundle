@@ -54,7 +54,7 @@ A3Global::A3Global()
 #include "TStyle.h"
 void A3Global::init()
 {
-    qDebug() << "Init of global config";
+    //qDebug() << "Init of global config";
     gStyle->SetOptTitle(0);  // disables drawing of the title of ROOT histograms / graphs
 }
 

@@ -50,6 +50,8 @@ public:
 
     QString evaluateScriptAndWaitToFinish(const QString & fileName, EScriptLanguage lang);
 
+    void aboutToQuit();
+
 private:
     AScriptHub();
     ~AScriptHub();

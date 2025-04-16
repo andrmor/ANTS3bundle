@@ -28,7 +28,7 @@ ADispatcherInterface::ADispatcherInterface() : QObject(nullptr)
 
 void ADispatcherInterface::aboutToQuit()
 {
-    qDebug() << "AboutToExit for DispInterface";
+    //qDebug() << "AboutToExit for DispInterface";
     //emit sendMessage("$$EXIT\n");
     Dispatcher->deleteLater();
     Dispatcher = nullptr;
@@ -36,7 +36,7 @@ void ADispatcherInterface::aboutToQuit()
 
 ADispatcherInterface::~ADispatcherInterface()
 {
-    qDebug() << "Destr for DispInterface";
+    //qDebug() << "Destr for DispInterface";
 }
 
 QString ADispatcherInterface::fillRunPlan(std::vector<AFarmNodeRecord> & runPlan, int numEvents, int overrideLocalProcesses)

@@ -133,7 +133,7 @@ int main(int argc, char *argv[])
                 qDebug() << err;
                 qDebug() << "";
             }
-            else qDebug() << "Script evaluation finished";
+            else qDebug() << QString("Finished at %1").arg(QTime::currentTime().toString());
         }
         else if ( parser.isSet(pythonOption) )
         {
@@ -146,7 +146,7 @@ int main(int argc, char *argv[])
                 qDebug() << err;
                 qDebug() << "";
             }
-            else qDebug() << "Script evaluation finished";
+            else qDebug() << QString("Finished at %1").arg(QTime::currentTime().toString());
         }
         else if ( parser.isSet(serverOption) )
         {
@@ -174,12 +174,18 @@ int main(int argc, char *argv[])
         else
         {
             qDebug() << "Unknown ANTS3 mode! Try ants3 -h";
+            // need to start app to properly finish destruction of worker threads
+            QTimer::singleShot(50, [](){QCoreApplication::exit();});
+            app->exec();
         }
     }
 
-    qDebug() << "About to quit...";
+    //qDebug() << "About to quit...";
     AScriptObjStore::getInstance().Trees.clear(); // crash if clear is in the destr
     AGeometryHub::getInstance().aboutToQuit();
+    AScriptHub::getInstance().aboutToQuit();
+    app->processEvents();
+    QThread::usleep(100);
 
     return 0;
 }

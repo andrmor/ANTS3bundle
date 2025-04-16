@@ -12,7 +12,7 @@
 
 ARasterWindow::ARasterWindow(QMainWindow *MasterWindow) : QWidget(MasterWindow)
 {
-    qDebug()<<"->Creating raster window";
+    //qDebug()<<"->Creating raster window";
 
     // set options needed to properly update the canvas when resizing the widget
     // and to properly handle context menus and mouse move events
