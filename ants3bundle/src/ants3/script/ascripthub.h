@@ -48,6 +48,8 @@ public:
 
     QString getPythonVersion();
 
+    QString evaluateScriptAndWaitToFinish(const QString & fileName, EScriptLanguage lang);
+
 private:
     AScriptHub();
     ~AScriptHub();

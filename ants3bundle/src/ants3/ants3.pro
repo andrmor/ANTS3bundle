@@ -175,7 +175,6 @@ SOURCES += \
     geo/ageospecial.cpp \
     geo/amonitorhub.cpp \
     gui/ademowindow.cpp \
-    gui/aproxystyle.cpp \
     gui/arootmarkerconfigurator.cpp \
     gui/aroottextconfigurator.cpp \
     gui/farm/aremotewindow.cpp \
@@ -425,7 +424,6 @@ HEADERS += \
     geo/ageospecial.h \
     geo/amonitorhub.h \
     gui/ademowindow.h \
-    gui/aproxystyle.h \
     gui/arootmarkerconfigurator.h \
     gui/aroottextconfigurator.h \
     gui/farm/aremotewindow.h \

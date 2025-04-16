@@ -34,7 +34,7 @@ APythonScriptManager::APythonScriptManager(QObject *parent)
 
 APythonScriptManager::~APythonScriptManager()
 {
-    // !!!*** to do: crashes on exit i script is running (same with JS)
+    // !!!*** to do: crashes on exit if script is running (same with JS)
     qDebug() << "Destr for PythonManager";
     Worker->abort();
     emit doExit();
@@ -102,6 +102,7 @@ void APythonScriptManager::checkSignals()
 
 void APythonScriptManager::evalFinished(bool flag)
 {
+    bFinished = true;
     emit finished(flag);
 }
 
@@ -117,6 +118,7 @@ bool APythonScriptManager::evaluate(const QString & script)
     if (Worker->isBusy()) return false;
 
     bAborted = false;
+    bFinished = false;
 
     emit doEval(script);
 

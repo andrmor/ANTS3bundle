@@ -45,9 +45,6 @@ AMainWindow::AMainWindow() :
 {
     ui->setupUi(this);
 
-  // Start-up
-    AGeometryHub::getInstance().populateGeoManager();
-
   // Main signal->slot lines
     connect(&Config, &AConfig::configLoaded,           this, &AMainWindow::updateAllGuiFromConfig);
     connect(&Config, &AConfig::requestSaveGuiSettings, this, &AMainWindow::onRequestSaveGuiSettings);

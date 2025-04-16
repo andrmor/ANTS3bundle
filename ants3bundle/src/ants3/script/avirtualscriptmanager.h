@@ -23,6 +23,7 @@ public:
 
     virtual bool isRunning() const = 0;
     virtual bool isAborted() const = 0;
+    bool         isEvalFinished() const {return bFinished;}
 
     virtual QVariant getResult() = 0;
 
@@ -38,6 +39,8 @@ public:
     QString          MiniFunctionName;
     int              MiniNumVariables  = 0;
     double           MiniBestResult    = 1e30;
+
+    bool bFinished = true;
 };
 
 #endif // AVIRTUALSCRIPTMANAGER_H

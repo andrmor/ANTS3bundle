@@ -6,10 +6,6 @@
 #include <QDebug>
 #include <QRegularExpression>
 
-#ifdef GUI
-#include <QMessageBox>
-#endif
-
 bool ftools::loadTextFromFile(QString & text, const QString & fileName)
 {
     QFile file(fileName);
@@ -225,7 +221,7 @@ QString ftools::loadMatrix(const QString & fileName, std::vector<std::vector<dou
 
 QString ftools::loadDoubleVectorsFromFile(const QString & fileName, std::vector< std::vector<double>* > & vec)
 {
-    if (fileName.isEmpty()) return("File name not provided");
+    if (fileName.isEmpty()) return "File name not provided";
 
     QFile file(fileName);
     if(!file.open(QIODevice::ReadOnly | QFile::Text)) return QString("Could not open file %1").arg(fileName);

@@ -20,7 +20,7 @@ APythonWorker::~APythonWorker()
 
 void APythonWorker::abort()
 {
-    //qDebug() << "Python Worker abort triggered";
+    qDebug() << "Python Worker abort triggered";
     PyInterface->abort();
 
     for (AScriptInterface * inter : Interfaces)

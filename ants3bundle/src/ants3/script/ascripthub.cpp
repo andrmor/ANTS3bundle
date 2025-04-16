@@ -155,6 +155,46 @@ QString AScriptHub::getPythonVersion()
 #endif
 }
 
+#include <QFile>
+#include <QFileInfo>
+#include <QDir>
+#include <QThread>
+#include "afiletools.h"
+QString AScriptHub::evaluateScriptAndWaitToFinish(const QString & fileName, EScriptLanguage lang)
+{
+    if (!QFile(fileName).exists()) return "Script file not found: " + fileName;
+
+    QString script;
+    bool ok = ftools::loadTextFromFile(script, fileName);
+    if (!ok) return "Failed to read script from file " + fileName;
+
+    QString path = QFileInfo(fileName).absolutePath();
+    QDir::setCurrent(path);
+
+    if (lang == EScriptLanguage::JavaScript)
+    {
+        JavaScriptM->evaluate(script);
+        while (!JavaScriptM->isEvalFinished())
+        {
+            QThread::msleep(100);
+            QCoreApplication::processEvents();
+        }
+        return "";
+    }
+
+#ifdef ANTS3_PYTHON
+    PythonM->evaluate(script);
+    while (!PythonM->isEvalFinished())
+    {
+        QThread::msleep(100);
+        QCoreApplication::processEvents();
+    }
+    return "";
+#else
+    return "Ants3 was compiled without Python interface";
+#endif
+}
+
 AScriptHub::AScriptHub()
 {
     //qDebug() << ">Creating AJScriptManager and Generating/registering script units";
