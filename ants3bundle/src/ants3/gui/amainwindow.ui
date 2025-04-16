@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>MainWindow</class>
- <widget class="QMainWindow" name="MainWindow">
+ <class>AMainWindow</class>
+ <widget class="QMainWindow" name="AMainWindow">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -299,7 +299,7 @@
          <item>
           <widget class="QLabel" name="label_3">
            <property name="text">
-            <string>Config</string>
+            <string>Globals</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignmentFlag::AlignCenter</set>

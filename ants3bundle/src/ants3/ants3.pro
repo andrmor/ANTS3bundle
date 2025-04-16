@@ -604,6 +604,7 @@ HEADERS += \
 FORMS += \
         gui/aconfigexamplebrowser.ui \
         gui/aitemselectiondialog.ui \
+        gui/amainwindow.ui \
         gui/geom/aparticleanalyzerwidget.ui \
         gui/geom/ashownumbersdialog.ui \
         gui/aglobsetwindow.ui \
@@ -645,7 +646,6 @@ FORMS += \
         gui/geom/agridelementdialog.ui \
         gui/geom/amonitordelegateform.ui \
         gui/geom/ageometrywindow.ui \
-        gui/mainwindow.ui \
         gui/materials/amatwin.ui \
         gui/photsim/ainterfacerulewin.ui \
         gui/photsim/ainterfaceruledialog.ui \

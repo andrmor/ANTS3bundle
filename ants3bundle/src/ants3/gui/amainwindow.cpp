@@ -1,5 +1,5 @@
 #include "amainwindow.h"
-#include "ui_mainwindow.h"
+#include "ui_amainwindow.h"
 #include "a3global.h"
 #include "aconfig.h"
 #include "ageometryhub.h"
@@ -41,7 +41,7 @@ AMainWindow::AMainWindow() :
     AGuiWindow("Main", nullptr),
     Config(AConfig::getInstance()),
     GlobSet(A3Global::getInstance()),
-    ui(new Ui::MainWindow)
+    ui(new Ui::AMainWindow)
 {
     ui->setupUi(this);
 
