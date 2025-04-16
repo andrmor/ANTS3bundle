@@ -179,6 +179,7 @@ QString AScriptHub::evaluateScriptAndWaitToFinish(const QString & fileName, EScr
             QThread::msleep(100);
             QCoreApplication::processEvents();
         }
+        if (JavaScriptM->isError()) return JavaScriptM->getErrorDescription() + " in line " + QString::number(JavaScriptM->getErrorLineNumber());
         return "";
     }
 
@@ -189,6 +190,7 @@ QString AScriptHub::evaluateScriptAndWaitToFinish(const QString & fileName, EScr
         QThread::msleep(100);
         QCoreApplication::processEvents();
     }
+    if (PythonM->isError()) return PythonM->getErrorDescription();
     return "";
 #else
     return "Ants3 was compiled without Python interface";

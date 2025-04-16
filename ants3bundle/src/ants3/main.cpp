@@ -126,14 +126,26 @@ int main(int argc, char *argv[])
         {
             QString fileName = parser.value(javascriptOption);
             QString err = AScriptHub::getInstance().evaluateScriptAndWaitToFinish(fileName, EScriptLanguage::JavaScript);
-            if (!err.isEmpty()) qDebug() << err;
+            if (!err.isEmpty())
+            {
+                qDebug() << "";
+                qDebug() << "Script reports an error:";
+                qDebug() << err;
+                qDebug() << "";
+            }
             else qDebug() << "Script evaluation finished";
         }
         else if ( parser.isSet(pythonOption) )
         {
             QString fileName = parser.value(pythonOption);
             QString err = AScriptHub::getInstance().evaluateScriptAndWaitToFinish(fileName, EScriptLanguage::Python);
-            if (!err.isEmpty()) qDebug() << err;
+            if (!err.isEmpty())
+            {
+                qDebug() << "";
+                qDebug() << "Script reports an error:";
+                qDebug() << err;
+                qDebug() << "";
+            }
             else qDebug() << "Script evaluation finished";
         }
         else if ( parser.isSet(serverOption) )
