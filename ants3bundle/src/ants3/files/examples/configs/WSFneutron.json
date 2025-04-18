@@ -969,8 +969,11 @@
                 "ScatMode": 1,
                 "Spec": 0.95,
                 "SurfaceProperties": {
-                    "Model": "Polished"
-                }
+                    "KillPhotonsRefractedBackward": false,
+                    "Model": "Polished",
+                    "OrientationProbabilityCorrection": true
+                },
+                "Symmetric": false
             },
             {
                 "Abs": 0.05,
@@ -981,8 +984,11 @@
                 "ScatMode": 1,
                 "Spec": 0.95,
                 "SurfaceProperties": {
-                    "Model": "Polished"
-                }
+                    "KillPhotonsRefractedBackward": false,
+                    "Model": "Polished",
+                    "OrientationProbabilityCorrection": true
+                },
+                "Symmetric": false
             }
         ],
         "VolumeRules": [
@@ -1045,6 +1051,8 @@
             ],
             "RefIndexComplex_Wave": [
             ],
+            "RefIndexImporter": {
+            },
             "RefIndexWave": [
             ],
             "SecScintSpectrum": [
@@ -1111,6 +1119,8 @@
             ],
             "RefIndexComplex_Wave": [
             ],
+            "RefIndexImporter": {
+            },
             "RefIndexWave": [
             ],
             "SecScintSpectrum": [
@@ -2273,6 +2283,8 @@
             ],
             "RefIndexComplex_Wave": [
             ],
+            "RefIndexImporter": {
+            },
             "RefIndexWave": [
             ],
             "SecScintSpectrum": [
@@ -2339,6 +2351,8 @@
             ],
             "RefIndexComplex_Wave": [
             ],
+            "RefIndexImporter": {
+            },
             "RefIndexWave": [
             ],
             "SecScintSpectrum": [
@@ -2405,6 +2419,8 @@
             ],
             "RefIndexComplex_Wave": [
             ],
+            "RefIndexImporter": {
+            },
             "RefIndexWave": [
             ],
             "SecScintSpectrum": [
@@ -2627,6 +2643,8 @@
             ],
             "RefIndexComplex_Wave": [
             ],
+            "RefIndexImporter": {
+            },
             "RefIndexWave": [
             ],
             "SecScintSpectrum": [
@@ -2693,6 +2711,8 @@
             ],
             "RefIndexComplex_Wave": [
             ],
+            "RefIndexImporter": {
+            },
             "RefIndexWave": [
             ],
             "SecScintSpectrum": [
@@ -2842,12 +2862,14 @@
                 "FileName": "Calorimeters.json"
             },
             "FileNameDeposition": "Deposition.dat",
+            "FileNameSaveConfig": "Config_ParticleSim.json",
             "FileNameTrackingHistory": "TrackingData.dat",
             "MonitorSettings": {
                 "Enabled": false,
                 "FileName": "ParticleMonitors.json"
             },
-            "OutputDirectory": "/home/andr/WORK/WSFexample/Output",
+            "OutputDirectory": "",
+            "SaveConfig": false,
             "SaveDeposition": true,
             "SaveParticles": {
                 "Enabled": false,
@@ -15571,10 +15593,12 @@
             "Advanced": {
                 "Direction": {
                     "ConeAngle": 5,
-                    "DirDX": 1,
-                    "DirDY": 0,
-                    "DirDZ": 0,
-                    "DirectionMode": "Fixed"
+                    "DirectionMode": "Fixed",
+                    "DirectionVector": [
+                        0,
+                        0,
+                        1
+                    ]
                 },
                 "SkipBombs": {
                     "EnableOnlyMat": false,
@@ -15589,7 +15613,7 @@
                 },
                 "Wave": {
                     "Enabled": false,
-                    "WaveIndex": -1
+                    "FixedWavelength": 550
                 }
             },
             "File": {
@@ -15673,6 +15697,7 @@
         },
         "Run": {
             "BinaryFormat": false,
+            "FileNameConfig": "Config_OpticalSim.json",
             "FileNameMonitors": "PhotonMonitors.txt",
             "FileNamePhotonBombs": "PhotonBombs.txt",
             "FileNameReceipt": "DummyReceipt.txt",
@@ -15681,7 +15706,7 @@
             "FileNameStatistics": "PhotonStatistics.json",
             "FileNameTracks": "PhotonTracks.txt",
             "MaxTracks": 10000,
-            "OutputDirectory": "/home/andr/WORK/WSFexample/Output",
+            "OutputDirectory": "",
             "PhotonLog": {
                 "Enabled": false,
                 "FileName": "PhotonLog.txt",
@@ -15696,6 +15721,7 @@
                 "MustNotInclude_Volumes": [
                 ]
             },
+            "SaveConfig": false,
             "SaveMonitors": false,
             "SavePhotonBombs": false,
             "SaveSensorLog": false,
