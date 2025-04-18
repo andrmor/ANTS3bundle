@@ -149,6 +149,8 @@ AMainWindow::AMainWindow() :
     ui->menuFile->setToolTipsVisible(true);
     ui->menuFile->setToolTipDuration(1000);
 
+    Config.replaceEmptyOutputDirsWithTemporary();
+
   // Finalizing
     updateAllGuiFromConfig(); //updateGui();
     ScriptHub->finalizeInit();
@@ -653,6 +655,8 @@ void AMainWindow::on_pbNew_clicked()
 
     Config.ConfigName = "";
     Config.ConfigDescription = "";
+
+    Config.replaceEmptyOutputDirsWithTemporary();
 
     AConfig::getInstance().updateJSONfromConfig();
 

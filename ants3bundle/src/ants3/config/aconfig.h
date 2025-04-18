@@ -62,9 +62,11 @@ public:
     QString doUndo();
     QString doRedo();
 
+    void replaceEmptyOutputDirsWithTemporary();
+    void clearTemporaryOutputDirs();
+
 private:
     QString tryReadFromJson(const QJsonObject & json); // resets error hub on call
-    void replaceEmptyOutputDirsWithTemporary();
 
 signals:
     void configLoaded();  // signal to GUI
