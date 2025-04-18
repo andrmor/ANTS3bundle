@@ -49,8 +49,8 @@ ACore_SI::ACore_SI() : AScriptInterface()
     Help["deleteFile"] = "Delete the file. Abort if not successful";
     Help["isFileExist"] = "Return true if the file exists, false otherwise";
 
-    Help["getDirectories"] = "Return list of directories matching the provided pattern (e.g. '*' for all) for the given path";
-    Help["getFiles"] = "Return list of files matching the provided pattern (e.g. '*.txt' for files with suffix txt) for the given path";
+    Help["getDirectories"] = "Return list of directories for the given path; if the second argument is provided, only select ones matching the provided pattern (e.g. 'A*' for all starting with letter A)";
+    Help["getFiles"] = "Return list of files for the given path; if the second argument is provided, only select ones matching the provided pattern (e.g. '*.txt' for all files with suffix txt)";
     Help["setNewFileFinder"] = "Configurer for getNewFiles() method. dir is the search directory, fileNamePattern: e.g. *.dat for all dat files. Return all filenames mathcing the pattern";
     Help["getNewFiles"] = "Get array of names of the new files appeared in the directory configured with setNewFileFinder() method";
 
