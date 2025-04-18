@@ -2737,8 +2737,6 @@
             "PhysicsList": "QGSP_BIC_HP",
             "ScintSensitiveVolumes": [
                 "ScintFront",
-                "ScintBack",
-                "ScintFront",
                 "ScintBack"
             ],
             "SensitiveVolumes": [
@@ -15578,9 +15576,9 @@
     },
     "PhotonSim": {
         "Deposition": {
-            "FileFormat": "Undefined",
-            "FileName": "/home/andr/WORK/WSFexample/Output/Deposition.dat",
-            "LastModified": 1729519304933,
+            "FileFormat": "Ascii",
+            "FileName": "/home/andr/.config/ants3/TmpOutput/Deposition.dat",
+            "LastModified": 1744972182260,
             "NumEvents": 1,
             "Primary": true,
             "Secondary": false
