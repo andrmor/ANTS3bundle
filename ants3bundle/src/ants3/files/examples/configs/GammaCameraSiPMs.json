@@ -410,8 +410,11 @@
                 "ScatMode": 1,
                 "Spec": 0,
                 "SurfaceProperties": {
-                    "Model": "Polished"
-                }
+                    "KillPhotonsRefractedBackward": false,
+                    "Model": "Polished",
+                    "OrientationProbabilityCorrection": true
+                },
+                "Symmetric": false
             },
             {
                 "Abs": 0.3,
@@ -422,8 +425,11 @@
                 "ScatMode": 1,
                 "Spec": 0.6,
                 "SurfaceProperties": {
-                    "Model": "Polished"
-                }
+                    "KillPhotonsRefractedBackward": false,
+                    "Model": "Polished",
+                    "OrientationProbabilityCorrection": true
+                },
+                "Symmetric": false
             },
             {
                 "Abs": 0.95,
@@ -434,8 +440,11 @@
                 "ScatMode": 1,
                 "Spec": 0,
                 "SurfaceProperties": {
-                    "Model": "Polished"
-                }
+                    "KillPhotonsRefractedBackward": false,
+                    "Model": "Polished",
+                    "OrientationProbabilityCorrection": true
+                },
+                "Symmetric": false
             },
             {
                 "Abs": 0.9,
@@ -446,8 +455,11 @@
                 "ScatMode": 1,
                 "Spec": 0,
                 "SurfaceProperties": {
-                    "Model": "Polished"
-                }
+                    "KillPhotonsRefractedBackward": false,
+                    "Model": "Polished",
+                    "OrientationProbabilityCorrection": true
+                },
+                "Symmetric": false
             },
             {
                 "Abs": 0.9,
@@ -458,8 +470,11 @@
                 "ScatMode": 1,
                 "Spec": 0,
                 "SurfaceProperties": {
-                    "Model": "Polished"
-                }
+                    "KillPhotonsRefractedBackward": false,
+                    "Model": "Polished",
+                    "OrientationProbabilityCorrection": true
+                },
+                "Symmetric": false
             }
         ],
         "VolumeRules": [
@@ -1450,12 +1465,14 @@
                 "FileName": "Calorimeters.json"
             },
             "FileNameDeposition": "Deposition.dat",
+            "FileNameSaveConfig": "Config_ParticleSim.json",
             "FileNameTrackingHistory": "TrackingData.dat",
             "MonitorSettings": {
                 "Enabled": false,
                 "FileName": "ParticleMonitors.json"
             },
-            "OutputDirectory": "/home/andr/WORK/GammaSiPM/Out",
+            "OutputDirectory": "",
+            "SaveConfig": false,
             "SaveDeposition": true,
             "SaveParticles": {
                 "Enabled": false,
@@ -1476,9 +1493,9 @@
     },
     "PhotonSim": {
         "Deposition": {
-            "FileFormat": "Undefined",
-            "FileName": "/home/andr/WORK/GammaSiPM/Out/Deposition.dat",
-            "LastModified": 1730911192008,
+            "FileFormat": "Ascii",
+            "FileName": "/home/andr/.config/ants3/TmpOutput/Deposition.dat",
+            "LastModified": 1744972629034,
             "NumEvents": 100,
             "Primary": true,
             "Secondary": false
@@ -1595,6 +1612,7 @@
         },
         "Run": {
             "BinaryFormat": false,
+            "FileNameConfig": "Config_OpticalSim.json",
             "FileNameMonitors": "PhotonMonitors.txt",
             "FileNamePhotonBombs": "PhotonBombs.txt",
             "FileNameReceipt": "DummyReceipt.txt",
@@ -1603,7 +1621,7 @@
             "FileNameStatistics": "PhotonStatistics.json",
             "FileNameTracks": "PhotonTracks.txt",
             "MaxTracks": 1000,
-            "OutputDirectory": "/home/andr/WORK/GammaSiPM/Out",
+            "OutputDirectory": "",
             "PhotonLog": {
                 "Enabled": false,
                 "FileName": "PhotonLog.txt",
@@ -1617,6 +1635,7 @@
                 "MustNotInclude_Volumes": [
                 ]
             },
+            "SaveConfig": false,
             "SaveMonitors": false,
             "SavePhotonBombs": false,
             "SaveSensorLog": false,
