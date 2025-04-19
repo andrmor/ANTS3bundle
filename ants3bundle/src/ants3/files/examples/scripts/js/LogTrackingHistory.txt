@@ -41,7 +41,7 @@ for (var iEv=0; iEv<numEvents; iEv++)
 {
        core.print("\n==> EVENT #" + iEv)
        tracks.setEvent(iEv)
-       var numPrim = tracks.countPrimaries(iEv)
+       var numPrim = tracks.countPrimaries()
        for (var iPr=0; iPr<numPrim; iPr++)
        {
               core.print("--> Primary #" + iPr)
