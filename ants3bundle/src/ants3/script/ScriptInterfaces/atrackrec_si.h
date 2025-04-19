@@ -51,11 +51,11 @@ public slots:
 
     QVariantList getPreStepRecord();
     QVariantList getPostStepRecord();
-    QVariantList getDirectionApproximate();
-    bool         hadPriorInteraction();    // !!!*** suspicious step index of 2
+    QVariantList getDirectionsApproximation();
+    bool         hadPriorInteraction();
 
     void enterSecondary(int indexOfSecondary);
-    bool exitSecondary();
+    void exitSecondary();
 
 private:
     QString FileName;
