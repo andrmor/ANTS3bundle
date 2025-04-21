@@ -1,47 +1,42 @@
-# ANTS3 mission
-
-* The toolkit was created to greatly facilitate particle and optical photon simulations for the students
-   * Interactive graphical interface and scrpting interface (Python and Javascript) for Geant4
- * Quick (and not so dirty) simulations during initial stahges of the development of position-sensitive detectors
- * Many features which are missing in "vanilla" Geant4 are added to make life simpler
-
 # ANTS3 highlights
 
 * Monte Carlo particle simulations: an adavanced frontend for Geant4 toolkit
-   * Multi-process simulation
+   * Multi-process simulation with computer farm support
    * Interactive GUI for configuration and visualisation of the results
-   * Custom scoring infrastructure
-   * Flexible options for generation of primary particles
-   * Direct Interface from energy deposition to optical photon generation
- * Custom optical tracer based on CERN ROOT 3D navigation
-   * Fresnel-based tracing combined with
-   * Custom rules for optical interfaces
-   * Possibility to add "functional objects" in photon tracing, allowing to easlily connect Monte Carlo tracing and formula-driven transport (e.g. thin lense, optical fiber)
-   * Flexible scoring and history recording
- * Detector configuration, simulations and processing of results (integrated CERN ROOT) are possible  to conduct either in GUI or using scripts
+   * Custom "convinience" objects in geometry definition: stacks, arrays, protoype/instances etc
+   * Custom scoring infrastructure (monitors, calorimeters, particle analyzers etc)
+   * Flexible options for generation of primary particles (sources, files, multiple-stage simulations)
+   * Direct interface from energy deposition to optical photon generation
+ * Custom optical tracer based on CERN ROOT 3D navigation module
+   * Fresnel-based photon tracing 
+   * Custom rules for optical interfaces, rough surfaces, interface tester infrastructure
+   * Possibility to add "functional objects": complement Monte Carlo tracing with matematical expression-driven transport (e.g. thin lense, optical fiber)
+   * Flexible scoring and tracing history recording
+ * Scripting support with full access to configuration, simulation and processing of the results
    * Python interface
    * JavaScript interface
-   * 
+ * Unsupervised optimization of the detector parameters based on scripting system involving Simplex minimizer
+ * WebSocket server for creating custom extensions
+     
 # Status of the development
 
-* Particle and optical simulation parts are ready  
-* GUI is ready
-* Scripting system is ready
-* Computer farm support is ready (to be refactored later)
-* Infrastructure for help system for scripting method is ready, help text is in the process of filling
-* Warning: work on ANTS3 documentation has not yet started!
-* Working on the paper desribing ANTS3
+* Full code released
+* Team is working on the ANTS3 paper, to be submitted in early June 2025
+
+# Next steps
+
+* Popularting the ANTS3 wiki
+* Adding more examples (config and scripts)
+* Filling material and source libraries
 
 ---
 
 # Installation instructions
 * [Ubuntu 24.04 Mate](https://github.com/andrmor/ANTS3bundle/wiki/Install_Ubuntu24.04_Qt6)
 * [Outdated: Ubuntu 24.04 Mate with Qt5](https://github.com/andrmor/ANTS3bundle/wiki/Install_Ubuntu22.04_Qt5)
-* [Outdated: Ubuntu 22.04 Mate](https://github.com/andrmor/ANTS3bundle/wiki/Install_Ubuntu22.04)
- 
- ---
+* [Outdated: Ubuntu 22.04 Mate](https://github.com/andrmor/ANTS3bundle/wiki/Install_Ubuntu22.04)«
 
-# Farm mode instructions
+# How to use Farm mode
 * On every farm node computer start dispatcher executable from a terminal, suppling three parameters: IP address, port, maxNumberOfProcesses
   * For example (replace the 'x'es by the actual IP!):
     
@@ -50,10 +45,12 @@
 * Check "Use farm" box
 * Click "New" and fill the IP and port for every farm node
 * The simulations in ANTS3 will be automatically distributed over the farm nodes
+
  ---
 
  # Latest tested software versions
 
+* 21 April 2025 --> Ubuntu 24.04 Mate, Qt 6.9.0, CERN ROOT 6.32.10, Geant4 11.3.0
 * 22 February 2025 --> Ubuntu 24.04 Mate, Qt 6.8.2, CERN ROOT 6.32.10, Geant4 11.3.0
 * 21 October 2024 --> Ubuntu 24.04 Mate, Qt 6.8.0, CERN ROOT 6.32.04, Geant4 11.2.2
 * 27 June 2024 --> Ubuntu 24.04 Mate, Qt 6.6.3, CERN ROOT 6.32.02, Geant4 11.2.2
