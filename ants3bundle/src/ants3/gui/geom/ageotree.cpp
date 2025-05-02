@@ -318,11 +318,13 @@ void AGeoTree::populateTreeWidget(QTreeWidgetItem * parent, AGeoObject * Contain
         else
         {
             updateIcon(item, obj);
-            if (obj->isStackReference())
-            {
-                item->setFlags(item->flags() & ~Qt::ItemIsDragEnabled);
-                QFont f = item->font(0); f.setBold(true); item->setFont(0, f);
-            }
+
+            //if (obj->isStackReference())
+            //{
+            //    item->setFlags(item->flags() & ~Qt::ItemIsDragEnabled);
+            //    QFont f = item->font(0); f.setBold(true); item->setFont(0, f);
+            //}
+
             //item->setBackgroundColor(0, BackgroundColor);
         }
 
@@ -1335,11 +1337,11 @@ void AGeoTree::menuActionEnableDisable(AGeoObject * obj)
         obj->enableUp();
     else
     {
-        if (obj->isStackReference())
-        {
-            guitools::message("Cannot disable stack reference object!", EditWidget);
-            return;
-        }
+        //if (obj->isStackReference())
+        //{
+        //    guitools::message("Cannot disable stack reference object!", EditWidget);
+        //    return;
+        //}
         obj->fActive = false;
     }
 
@@ -1379,11 +1381,11 @@ void AGeoTree::menuActionFormStack(QList<QTreeWidgetItem*> selected)
             guitools::message("Composite objects (and optical grids) cannot be a member of a stack", twGeoTree);
             return;
         }
-        if (obj->Type->isHandlingSet() || obj->Type->isLogical())
-        {
-            guitools::message("Stacks/groups cannot be a member of a stack", twGeoTree);
-            return;
-        }
+        //if (obj->Type->isHandlingSet() || obj->Type->isLogical())
+        //{
+        //    guitools::message("Stacks cannot be a member of a stack", twGeoTree);
+        //    return;
+        //}
         if (obj->Type->isPrototype() || obj->Type->isInstance())
         {
             guitools::message("Prototypes and instances cannot be a member of a stack", twGeoTree);

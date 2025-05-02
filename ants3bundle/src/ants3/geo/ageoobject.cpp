@@ -995,7 +995,6 @@ void AGeoObject::updateStack()
         if (!obj->fActive) continue;
         const double halfHeight = obj->Shape->getHeight();
         thickness += 2.0 * halfHeight;
-        qDebug() << "->" << obj->Name;
     }
 
     double Edge = 0;
@@ -1021,10 +1020,7 @@ void AGeoObject::updateStack()
     }
 
     // Stack shape is by default AGeoBox, store stack thickness there, can be used by stack-of-stacks
-
-    qDebug() << "!!!!" << Name << Type->isStack();
     AGeoBox * box = dynamic_cast<AGeoBox*>(Shape);
-    qDebug() << box;
     if (!box)
     {
         box = new AGeoBox();
@@ -1077,9 +1073,8 @@ void AGeoObject::updateStack()
 
 void AGeoObject::updateAllStacks()
 {
-    if (Type && Type->isStack()) updateStack();
-
     for (AGeoObject * obj : HostedObjects) obj->updateAllStacks();
+    if (Type && Type->isStack()) updateStack();
 }
 
 void AGeoObject::updateAllMonitors()
