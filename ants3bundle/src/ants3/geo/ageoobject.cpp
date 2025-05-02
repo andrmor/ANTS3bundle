@@ -1004,7 +1004,7 @@ void AGeoObject::updateStack()
         if (!obj->fActive) continue;
         obj->Orientation[0] = 0; obj->OrientationStr[0].clear();
         obj->Orientation[1] = 0; obj->OrientationStr[1].clear();
-        obj->Orientation[2] = 0; obj->OrientationStr[2].clear();
+        //obj->Orientation[2] = 0; obj->OrientationStr[2].clear();
 
         const double halfHeight = obj->Shape->getHeight();
         //double relPosrefobj = RefObj->Shape->getRelativePosZofCenter();

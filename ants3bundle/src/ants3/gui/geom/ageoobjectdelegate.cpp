@@ -986,11 +986,14 @@ void AGeoObjectDelegate::updateControlUI()
         ledPhi->setText("0");
         ledTheta->setText("0");
 
+        /* old system
         if (!CurrentObject->isStackReference())
         {
             for (AOneLineTextEdit * ole : {ledX, ledY, ledZ, ledPsi})
             ole->setEnabled(false);
         }
+        */
+        ledZ->setEnabled(false);
     }
 
     if (CurrentObject->isCompositeMemeber())
