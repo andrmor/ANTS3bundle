@@ -3161,7 +3161,7 @@ double AGeoPcon::getHeight() const
 
 double AGeoPcon::getRelativePosZofCenter() const
 {
-    double res = Sections.at(0).z + getHeight();
+    double res = Sections[0].z + getHeight();
 
     return res;
 }

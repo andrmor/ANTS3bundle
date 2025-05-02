@@ -980,15 +980,63 @@ void AGeoObject::lockRecursively()
 void AGeoObject::unlockAllInside()
 {
     fLocked = false;
-    //if it is a grouped object, unlock group buddies  ***!!!
-
-    //for individual:
     for (AGeoObject * obj : HostedObjects)
         obj->unlockAllInside();
 }
 
 void AGeoObject::updateStack()
 {
+    //qDebug() << Shape << Shape->getShapeType();
+
+    // Caluclate total thickness of the stack
+    double thickness = 0;
+    for (AGeoObject * obj : HostedObjects)
+    {
+        if (!obj->fActive) continue;
+        const double halfHeight = obj->Shape->getHeight();
+        thickness += 2.0 * halfHeight;
+        qDebug() << "->" << obj->Name;
+    }
+
+    double Edge = 0;
+    for (AGeoObject * obj : HostedObjects)
+    {
+        if (!obj->fActive) continue;
+        obj->Orientation[0] = 0; obj->OrientationStr[0].clear();
+        obj->Orientation[1] = 0; obj->OrientationStr[1].clear();
+        obj->Orientation[2] = 0; obj->OrientationStr[2].clear();
+
+        const double halfHeight = obj->Shape->getHeight();
+        //double relPosrefobj = RefObj->Shape->getRelativePosZofCenter();
+
+        obj->Position[2] = Edge - halfHeight; obj->PositionStr[2].clear();
+        Edge -= 2.0 * halfHeight;
+    }
+
+    const double dZ = 0.5 * thickness;
+    for (AGeoObject * obj : HostedObjects)
+    {
+        if (!obj->fActive) continue;
+        obj->Position[2] += dZ;
+    }
+
+    // Stack shape is by default AGeoBox, store stack thickness there, can be used by stack-of-stacks
+
+    qDebug() << "!!!!" << Name << Type->isStack();
+    AGeoBox * box = dynamic_cast<AGeoBox*>(Shape);
+    qDebug() << box;
+    if (!box)
+    {
+        box = new AGeoBox();
+        delete Shape; Shape = box;
+    }
+    box->dz = 0.5 * thickness;
+
+    return;
+
+
+   // -----old system-----
+   {
     AGeoObject * RefObj = getOrMakeStackReferenceVolume();
     if (!RefObj) return;
 
@@ -1024,6 +1072,7 @@ void AGeoObject::updateStack()
         if (!obj->fActive) continue;
         if (obj != RefObj) obj->Position[2] -= dZ;
     }
+   }
 }
 
 void AGeoObject::updateAllStacks()

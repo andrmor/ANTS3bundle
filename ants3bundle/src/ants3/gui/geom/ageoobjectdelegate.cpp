@@ -728,7 +728,7 @@ bool AGeoObjectDelegate::updateObject(AGeoObject * obj) const  //react to false 
             ATypeStackContainerObject * StackTypeObj = static_cast<ATypeStackContainerObject*>(obj->Container->Type);
             if (oldName == StackTypeObj->ReferenceVolume)
                 StackTypeObj->ReferenceVolume = newName;
-            obj->updateStack();
+            obj->Container->updateStack();
         }
 
         // special role
@@ -3531,10 +3531,17 @@ void AGeoSetDelegate::updateGui(const AGeoObject *obj)
     {
         DelegateTypeName = "Stack";
 
+        QString thick = "--";
+        AGeoBox * box = nullptr;
+        if (obj->Shape) box = dynamic_cast<AGeoBox*>(obj->Shape);
+        if (box) thick = QString::number(2*box->dz);
+
         QVBoxLayout * lay = new QVBoxLayout();
         lay->setAlignment(Qt::AlignHCenter);
         lay->addWidget(new QLabel(" "));
-        lay->addWidget(new QLabel("Rotation in respect to the center of the stack reference object"));
+        lay->addWidget(new QLabel(QString("Stack thickness: %0 mm").arg(thick)));
+        lay->addWidget(new QLabel(" "));
+        lay->addWidget(new QLabel("Rotation in respect to the center of the stack!"));
         addLocalLayout(lay);
     }
     else qWarning() << "Unexpected object type in AGeoSetDelegate::Update()";

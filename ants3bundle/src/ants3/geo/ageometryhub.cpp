@@ -1060,6 +1060,23 @@ void AGeometryHub::positionStackElement(AGeoObject * el, const AGeoObject * RefO
 
     //Position
     double local[3], master[3];
+    local[0] = el->Position[0];// - RefObj->Position[0];
+    local[1] = el->Position[1];// - RefObj->Position[1];
+    local[2] = el->Position[2];// - RefObj->Position[2];
+    TGeoRotation StackRot("0", Stack->Orientation[0], Stack->Orientation[1], Stack->Orientation[2]);
+    if (Stack->TrueRot)
+    {
+        Stack->TrueRot->LocalToMaster(local, master);
+        for (int i = 0; i < 3; i++)
+            el->TruePos[i] = master[i] + Stack->TruePos[i];
+    }
+    else
+    {
+        StackRot.LocalToMaster(local, master);
+        for (int i = 0; i < 3; i++)
+            el->TruePos[i] = master[i] + Stack->Position[i];
+    }
+    /* old
     local[0] = el->Position[0] - RefObj->Position[0];
     local[1] = el->Position[1] - RefObj->Position[1];
     local[2] = el->Position[2] - RefObj->Position[2];
@@ -1076,6 +1093,7 @@ void AGeometryHub::positionStackElement(AGeoObject * el, const AGeoObject * RefO
         for (int i = 0; i < 3; i++)
             el->TruePos[i] = master[i] + RefObj->Position[i] + Stack->Position[i];
     }
+    */
 
     //Orientation
     TGeoRotation elRot("1", el->Orientation[0], el->Orientation[1], el->Orientation[2]);
