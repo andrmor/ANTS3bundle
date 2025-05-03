@@ -3542,9 +3542,25 @@ void AGeoSetDelegate::updateGui(const AGeoObject *obj)
         QVBoxLayout * lay = new QVBoxLayout();
         lay->setAlignment(Qt::AlignHCenter);
         lay->addWidget(new QLabel(" "));
-        lay->addWidget(new QLabel(QString("Stack thickness: %0 mm").arg(thick)));
+            QHBoxLayout * hl = new QHBoxLayout();
+            hl->addStretch();
+            hl->addWidget(new QLabel(QString("Stack thickness: %0 mm").arg(thick)));
+            QPushButton * bInfo = new QPushButton("Info");
+            connect(bInfo, &QPushButton::clicked, this, [this]()
+                    {
+                        QString txt = ""
+                        "Stack is a logical object: it does not appear in the tracking.\n"
+                        "The containing volumes are auto-positioned to be touching in Z direction.\n"
+                        "The stack is placed inside the mother volume at the user defined center position.\n"
+                        "The rotation is in respect to the center.\n"
+                        "The stack elements can be shifted lateraly and rotated around the axis.";
+                        guitools::message(txt, this->ParentWidget);
+                    });
+            hl->addWidget(bInfo);
+            hl->addStretch();
+        lay->addLayout(hl);
         lay->addWidget(new QLabel(" "));
-        lay->addWidget(new QLabel("Rotation in respect to the center of the stack!"));
+        //lay->addWidget(new QLabel("Rotation in respect to the center of the stack!"));
         addLocalLayout(lay);
     }
     else qWarning() << "Unexpected object type in AGeoSetDelegate::Update()";
