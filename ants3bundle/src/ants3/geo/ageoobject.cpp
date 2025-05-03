@@ -986,9 +986,6 @@ void AGeoObject::unlockAllInside()
 
 void AGeoObject::updateStack()
 {
-    //qDebug() << Shape << Shape->getShapeType();
-
-    // Caluclate total thickness of the stack
     double thickness = 0;
     for (AGeoObject * obj : HostedObjects)
     {
@@ -1003,12 +1000,11 @@ void AGeoObject::updateStack()
         if (!obj->fActive) continue;
         obj->Orientation[0] = 0; obj->OrientationStr[0].clear();
         obj->Orientation[1] = 0; obj->OrientationStr[1].clear();
-        //obj->Orientation[2] = 0; obj->OrientationStr[2].clear();
 
         const double halfHeight = obj->Shape->getHeight();
-        //double relPosrefobj = RefObj->Shape->getRelativePosZofCenter();
+        double relPosrefobj = obj->Shape->getRelativePosZofCenter();
 
-        obj->Position[2] = Edge - halfHeight; obj->PositionStr[2].clear();
+        obj->Position[2] = Edge - halfHeight - relPosrefobj; obj->PositionStr[2].clear();
         Edge -= 2.0 * halfHeight;
     }
 

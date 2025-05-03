@@ -650,7 +650,8 @@ public:
     bool readFromString(QString GenerationString) override;
     TGeoShape* createGeoShape(const QString shapeName = "") override;
 
-    double getHeight() const override {return rmax;}
+    double getHeight() const override;
+    double getRelativePosZofCenter() const override;
     void setHeight(double dz) override {rmax = dz;}
     QString getGenerationString(bool useStrings) const override;
     QString getScriptString(bool useStrings) const override;

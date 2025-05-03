@@ -663,6 +663,32 @@ TGeoShape *AGeoSphere::createGeoShape(const QString shapeName)
     return (shapeName.isEmpty()) ? new TGeoSphere(rmin, rmax, theta1, theta2, phi1,  phi2) : new TGeoSphere(shapeName.toLatin1().data(), rmin, rmax, theta1, theta2, phi1,  phi2);
 }
 
+double AGeoSphere::getHeight() const
+{
+    if (theta1 == 0 && theta2 == 180) return rmax;
+
+    double sizeUp = 0;
+    if (theta1 < 90.0) sizeUp = cos(theta1 * M_PI / 180.0);
+
+    double sizeDown = 0;
+    if (theta2 > 90.0) sizeDown = cos( (180.0 - theta2) * M_PI / 180.0 );
+
+    return 0.5 * rmax * (sizeUp + sizeDown);
+}
+
+double AGeoSphere::getRelativePosZofCenter() const
+{
+    if (theta1 == 0 && theta2 == 180) return 0;
+
+    double sizeUp = 0;
+    if (theta1 < 90.0) sizeUp = cos(theta1 * M_PI / 180.0);
+
+    double sizeDown = 0;
+    if (theta2 > 90.0) sizeDown = cos( (180.0 - theta2) * M_PI / 180.0 );
+
+    return 0.5 * rmax * (sizeUp - sizeDown);
+}
+
 QString AGeoSphere::getGenerationString(bool useStrings) const
 {
     QString str;
