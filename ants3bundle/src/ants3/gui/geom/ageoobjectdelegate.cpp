@@ -722,7 +722,7 @@ bool AGeoObjectDelegate::updateObject(AGeoObject * obj) const  //react to false 
             obj->Orientation[i] = tempDoubles[i+3];
         }
 
-        //for stack members:
+        /*
         if (obj->Container && obj->Container->Type->isStack())
         {
             ATypeStackContainerObject * StackTypeObj = static_cast<ATypeStackContainerObject*>(obj->Container->Type);
@@ -730,6 +730,7 @@ bool AGeoObjectDelegate::updateObject(AGeoObject * obj) const  //react to false 
                 StackTypeObj->ReferenceVolume = newName;
             obj->Container->updateStack();
         }
+        */
 
         // special role
         delete obj->Role; obj->Role = nullptr;

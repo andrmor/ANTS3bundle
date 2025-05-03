@@ -114,12 +114,12 @@ ATypeStackContainerObject::ATypeStackContainerObject() {pType = &Stack;}
 
 void ATypeStackContainerObject::doWriteToJson(QJsonObject & json) const
 {
-    json["ReferenceVolume"] = ReferenceVolume;
+    //json["ReferenceVolume"] = ReferenceVolume;
 }
 
 void ATypeStackContainerObject::readFromJson(const QJsonObject & json)
 {
-    jstools::parseJson(json, "ReferenceVolume", ReferenceVolume);
+    //jstools::parseJson(json, "ReferenceVolume", ReferenceVolume);
 }
 
 // ---

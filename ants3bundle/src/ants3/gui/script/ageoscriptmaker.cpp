@@ -133,12 +133,12 @@ void AGeoScriptMaker::objectToScript(AGeoObject * obj, QString & script, int ide
     {
         script += "\n" + QString(" ").repeated(ident)+ makeScriptString_stackObjectStart(obj);
         script += "\n" + QString(" ").repeated(ident)+ CommentStr + "-->-- stack elements for " + obj->Name;
-        script += "\n" + QString(" ").repeated(ident)+ CommentStr + " Values of x, y, z only matter for the stack element, refered to at InitializeStack below";
-        script += "\n" + QString(" ").repeated(ident)+ CommentStr + " For the rest of elements they are calculated automatically";
+        //script += "\n" + QString(" ").repeated(ident)+ CommentStr + " Values of z, phi and theta will be ignored!";
+        //script += "\n" + QString(" ").repeated(ident)+ CommentStr + " For the rest of elements they are calculated automatically";
         objectMembersToScript(obj, script, medIdent, useStrings, bRecursive);
         script += "\n" + QString(" ").repeated(ident)+ CommentStr + "--<-- stack elements end for " + obj->Name;
-        if (!obj->HostedObjects.empty())
-            script += "\n" + QString(" ").repeated(ident)+ makeScriptString_stackObjectEnd(obj);
+        //if (!obj->HostedObjects.empty())
+        //    script += "\n" + QString(" ").repeated(ident)+ makeScriptString_stackObjectEnd(obj);
     }
     else if (obj->Type->isGrid())
     {
@@ -492,12 +492,15 @@ QString AGeoScriptMaker::makeScriptString_stackObjectStart(AGeoObject * obj) con
             .arg(obj->OrientationStr[2].isEmpty() ? QString::number(obj->Orientation[2]) : obj->OrientationStr[2]);
 }
 
+/*
 QString AGeoScriptMaker::makeScriptString_stackObjectEnd(AGeoObject * obj) const
 {
     return QString("geo.initializeStack( ") +
                    "'" + obj->Name + "',  " +
-                   "'" + obj->getOrMakeStackReferenceVolume()->Name + "' )";
+//                   "'" + obj->getOrMakeStackReferenceVolume()->Name + "' )";
+                   "'" + "dummy" + "' )";
 }
+*/
 
 QString AGeoScriptMaker::makeLinePropertiesString(AGeoObject * obj) const
 {

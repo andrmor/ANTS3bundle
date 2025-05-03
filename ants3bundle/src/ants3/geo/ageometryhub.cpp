@@ -838,22 +838,8 @@ void AGeometryHub::positionArray(AGeoObject * obj, TGeoVolume * vol, int parentN
 
 void AGeometryHub::positionStack(AGeoObject * obj, TGeoVolume * vol, int forcedNodeNumber)
 {
-    const ATypeStackContainerObject * stack = static_cast<const ATypeStackContainerObject*>(obj->Type);
-    const QString & RefObjName = stack->ReferenceVolume;
-    const AGeoObject * RefObj = nullptr;
-    for (const AGeoObject * el : obj->HostedObjects)
-        if (el->Name == RefObjName)
-        {
-            RefObj = el;
-            break;
-        }
-
-    if (RefObj)
-    {
-        for (AGeoObject * el : obj->HostedObjects)
-            positionStackElement(el, RefObj, vol, forcedNodeNumber);
-    }
-    else qWarning() << "Error: Reference object not found for stack" << obj->Name;
+    for (AGeoObject * el : obj->HostedObjects)
+        positionStackElement(el, vol, forcedNodeNumber);
 }
 
 void AGeometryHub::positionInstance(AGeoObject * obj, TGeoVolume * vol, int forcedNodeNumber)
@@ -1054,7 +1040,8 @@ void AGeometryHub::positionHexArrayRing(int iR, AGeoObject *el, AGeoObject *arra
     }
 }
 
-void AGeometryHub::positionStackElement(AGeoObject * el, const AGeoObject * RefObj, TGeoVolume *parent, int forcedNodeNumber)
+//void AGeometryHub::positionStackElement(AGeoObject * el, const AGeoObject * RefObj, TGeoVolume *parent, int forcedNodeNumber)
+void AGeometryHub::positionStackElement(AGeoObject * el, TGeoVolume *parent, int forcedNodeNumber)
 {
     AGeoObject * Stack = el->Container;
 
@@ -1076,6 +1063,7 @@ void AGeometryHub::positionStackElement(AGeoObject * el, const AGeoObject * RefO
         for (int i = 0; i < 3; i++)
             el->TruePos[i] = master[i] + Stack->Position[i];
     }
+
     /* old
     local[0] = el->Position[0] - RefObj->Position[0];
     local[1] = el->Position[1] - RefObj->Position[1];

@@ -109,8 +109,8 @@ public:
 
   // stacks
   bool isStackMember() const;
-  bool isStackReference() const;  // !!!*** obsolete
-  AGeoObject * getOrMakeStackReferenceVolume();  // for stack container or members
+  //bool isStackReference() const;
+  //AGeoObject * getOrMakeStackReferenceVolume();  // for stack container or members
   void updateStack();  //called on one object of the set - it is used to calculate positions of other members!
   void updateAllStacks();
 

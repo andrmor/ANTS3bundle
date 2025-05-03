@@ -79,7 +79,7 @@ private:
   void updateExpandState(QTreeWidgetItem * item, bool bPrototypes); //recursive!
   void updateIcon(QTreeWidgetItem *item, AGeoObject *obj);
   void menuActionFormStack(QList<QTreeWidgetItem *> selected);
-  void markAsStackRefVolume(AGeoObject * obj);
+  //void markAsStackRefVolume(AGeoObject * obj);
   void updatePrototypeTreeGui();
 
   void menuActionMoveObject(AGeoObject * obj, int option); //0 1 2 3 = top up down bottom

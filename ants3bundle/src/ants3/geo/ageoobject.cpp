@@ -667,6 +667,7 @@ bool AGeoObject::isStackMember() const
     return Container->Type->isStack();
 }
 
+/*
 bool AGeoObject::isStackReference() const
 {
     if (!Container || !Container->Type) return false;
@@ -675,7 +676,9 @@ bool AGeoObject::isStackReference() const
     if (sc && sc->ReferenceVolume == Name) return true;
     return false;
 }
+*/
 
+/*
 AGeoObject * AGeoObject::getOrMakeStackReferenceVolume()
 {
     AGeoObject * Stack;
@@ -717,6 +720,7 @@ AGeoObject * AGeoObject::getOrMakeStackReferenceVolume()
     }
     return RefVolume;
 }
+*/
 
 AGeoObject * AGeoObject::findObjectByName(const QString & name)
 {
@@ -1024,11 +1028,8 @@ void AGeoObject::updateStack()
     }
     box->dz = 0.5 * thickness;
 
-    return;
-
-
-   // -----old system-----
-   {
+    // -----old system-----
+    /*
     AGeoObject * RefObj = getOrMakeStackReferenceVolume();
     if (!RefObj) return;
 
@@ -1064,7 +1065,7 @@ void AGeoObject::updateStack()
         if (!obj->fActive) continue;
         if (obj != RefObj) obj->Position[2] -= dZ;
     }
-   }
+   */
 }
 
 void AGeoObject::updateAllStacks()
@@ -1303,12 +1304,14 @@ void AGeoObject::enforceUniqueNameForCloneRecursive(AGeoObject * World, AGeoObje
     while (World->isNameExists(newName) || tmpContainer.isNameExists(newName))
         newName = generateCloneObjName(newName);
 
+    /*
     if (Container && Container->Type->isStack())
     {
         ATypeStackContainerObject * Stack = static_cast<ATypeStackContainerObject*>(Container->Type);
         if (Stack->ReferenceVolume == Name)
             Stack->ReferenceVolume = newName;
     }
+    */
 
     if (isCompositeMemeber())
         updateNameOfLogicalMember(Name, newName);
@@ -1324,12 +1327,15 @@ void AGeoObject::addSuffixToNameRecursive(const QString & suffix)
 {
     const QString newName = Name + "_at_" + suffix;
 
+    /*
     if (Container && Container->Type->isStack())
     {
         ATypeStackContainerObject * Stack = static_cast<ATypeStackContainerObject*>(Container->Type);
         if (Stack->ReferenceVolume == Name)
             Stack->ReferenceVolume = newName;
     }
+    */
+
     if (isCompositeMemeber()) updateNameOfLogicalMember(Name, newName);
 
     NameWithoutSuffix = Name;

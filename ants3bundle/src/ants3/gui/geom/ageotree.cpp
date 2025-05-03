@@ -497,7 +497,7 @@ void AGeoTree::customMenuRequested(const QPoint &pos)
   menu.addSeparator();
 
   QAction* stackA = Action(menu, "Form a stack");
-  QAction* stackRefA = Action(menu, "Mark as the stack reference volume");
+  //QAction* stackRefA = Action(menu, "Mark as the stack reference volume");
 
   menu.addSeparator();
 
@@ -541,7 +541,7 @@ void AGeoTree::customMenuRequested(const QPoint &pos)
       showA->setEnabled(true);
       showAonly->setEnabled(true);
       showAdown->setEnabled(true);
-      stackRefA->setEnabled(obj->isStackMember());
+      //stackRefA->setEnabled(obj->isStackMember());
       prototypeA->setEnabled(obj->isPossiblePrototype());
   }
   else
@@ -600,7 +600,7 @@ void AGeoTree::customMenuRequested(const QPoint &pos)
   else if (SelectedAction == newParticleMonitorA)  menuActionAddNewMonitor(obj, false);
   else if (SelectedAction == cloneA)         menuActionCloneObject(obj);
   else if (SelectedAction == stackA)         menuActionFormStack(selected);
-  else if (SelectedAction == stackRefA)      markAsStackRefVolume(obj);
+  //else if (SelectedAction == stackRefA)      markAsStackRefVolume(obj);
   else if (SelectedAction == removeKeepContA)menuActionRemoveKeepContent(twGeoTree);
   else if (SelectedAction == removeWithContA)menuActionRemoveWithContent(twGeoTree);
   else if (SelectedAction == removeHostedA)  menuActionRemoveHostedObjects(obj);
@@ -688,7 +688,7 @@ void AGeoTree::customProtoMenuRequested(const QPoint & pos)
     menu.addSeparator();
 
     QAction* stackA = Action(menu, "Form a stack");
-    QAction* stackRefA = Action(menu, "Mark as the stack reference volume");
+    //QAction* stackRefA = Action(menu, "Mark as the stack reference volume");
 
     menu.addSeparator();
 
@@ -717,7 +717,7 @@ void AGeoTree::customProtoMenuRequested(const QPoint & pos)
         removeHostedA->setEnabled(bNotGridNotMonitor);
         removeWithContA->setEnabled(true);
         removeKeepContA->setEnabled(!bIsPrototype);
-        stackRefA->setEnabled(obj->isStackMember());
+        //stackRefA->setEnabled(obj->isStackMember());
         moveToWorldA->setEnabled(bIsPrototype);
     }
     else
@@ -767,7 +767,7 @@ void AGeoTree::customProtoMenuRequested(const QPoint & pos)
 
     else if (SelectedAction == cloneA)         menuActionCloneObject(obj);
     else if (SelectedAction == stackA)         menuActionFormStack(selected);
-    else if (SelectedAction == stackRefA)      markAsStackRefVolume(obj);
+    //else if (SelectedAction == stackRefA)      markAsStackRefVolume(obj);
 
     else if (SelectedAction == removeKeepContA)menuActionRemoveKeepContent(twPrototypes);
     else if (SelectedAction == removeWithContA)menuActionRemoveWithContent(twPrototypes);
@@ -1406,7 +1406,7 @@ void AGeoTree::menuActionFormStack(QList<QTreeWidgetItem*> selected)
 
     delete stackObj->Type; stackObj->Type = new ATypeStackContainerObject();
 
-    static_cast<ATypeStackContainerObject*>(stackObj->Type)->ReferenceVolume = objs.front()->Name;
+    //static_cast<ATypeStackContainerObject*>(stackObj->Type)->ReferenceVolume = objs.front()->Name;
 
     AGeoObject * contObj = objs.front()->Container; // All selected objects always have the same container!
     stackObj->Container = contObj;
@@ -1423,6 +1423,7 @@ void AGeoTree::menuActionFormStack(QList<QTreeWidgetItem*> selected)
     UpdateGui(name);
 }
 
+/*
 void AGeoTree::markAsStackRefVolume(AGeoObject * obj)
 {
     if (!obj)
@@ -1440,6 +1441,7 @@ void AGeoTree::markAsStackRefVolume(AGeoObject * obj)
     emit RequestRebuildDetector();
     UpdateGui(name);
 }
+*/
 
 QImage createImageWithOverlay(const QImage& base, const QImage& overlay)
 {

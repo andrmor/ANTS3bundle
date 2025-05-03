@@ -1342,9 +1342,8 @@ void AGeo_SI::stack(QString name, QString container, QVariantList position, QVar
     bool ok = checkPosOri(position, orientation, pos, ori);
     if (!ok) return;
 
-    AGeoObject * o = new AGeoObject(name, container, 0, nullptr, pos[0],pos[1],pos[2], ori[0],ori[1],ori[2]);
-    delete o->Type;
-    o->Type = new ATypeStackContainerObject();
+    AGeoObject * o = new AGeoObject(name, container, 0, new AGeoBox(), pos[0],pos[1],pos[2], ori[0],ori[1],ori[2]);
+    delete o->Type; o->Type = new ATypeStackContainerObject();
     GeoObjects.push_back(o);
 }
 
@@ -1385,8 +1384,8 @@ void AGeo_SI::initializeStack(QString StackName, QString MemberName_StackReferen
     }
 
     origin_obj->Container = StackObj;
-    static_cast<ATypeStackContainerObject*>(StackObj->Type)->ReferenceVolume = origin_obj->Name;
-    origin_obj->updateStack();
+    //static_cast<ATypeStackContainerObject*>(StackObj->Type)->ReferenceVolume = origin_obj->Name;
+    origin_obj->Container->updateStack();
 
     origin_obj->Container = nullptr;
     StackObj->HostedObjects.clear();
