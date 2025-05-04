@@ -3522,6 +3522,7 @@ AGeoSetDelegate::AGeoSetDelegate(const QStringList &materials, QWidget *parent)
      cbScale->setVisible(false);
 }
 
+#include <QClipboard>
 void AGeoSetDelegate::updateGui(const AGeoObject *obj)
 {
     if (obj->Type->isCompositeContainer())
@@ -3557,6 +3558,27 @@ void AGeoSetDelegate::updateGui(const AGeoObject *obj)
                         "The stack elements can be shifted lateraly and rotated around the axis.";
                         guitools::message(txt, this->ParentWidget);
                     });
+            if (thick != "--")
+            {
+                QPushButton * bCopyNumber = new QPushButton("Copy");
+                bCopyNumber->setContextMenuPolicy(Qt::CustomContextMenu);
+                bCopyNumber->setToolTip("Left click: numerical value; right click: expression (if available)");
+                connect(bCopyNumber, &QPushButton::clicked, this, [obj]()
+                {
+                    QClipboard * clipboard = QGuiApplication::clipboard();
+                    QString txt = "n.a.";
+                    if (obj->Shape) txt = QString::number(2.0 * obj->Shape->getHeight());
+                    clipboard->setText(txt);
+                });
+                connect(bCopyNumber, &QPushButton::customContextMenuRequested, this, [obj]()
+                {
+                    QClipboard * clipboard = QGuiApplication::clipboard();
+                    QString txt = "n.a.";
+                    if (obj->Shape) txt = obj->Shape->getFullHeightString();
+                    clipboard->setText(txt);
+                });
+                hl->addWidget(bCopyNumber);
+            }
             hl->addWidget(bInfo);
             hl->addStretch();
         lay->addLayout(hl);

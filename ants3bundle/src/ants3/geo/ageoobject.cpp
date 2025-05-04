@@ -990,12 +990,22 @@ void AGeoObject::unlockAllInside()
 
 void AGeoObject::updateStack()
 {
-    double thickness = 0;
+    double  thickness = 0;
+    QString thicknessString;
+    double  thicknessNotInString = 0;
     for (AGeoObject * obj : HostedObjects)
     {
         if (!obj->fActive) continue;
         const double halfHeight = obj->Shape->getHeight();
         thickness += 2.0 * halfHeight;
+
+        QString txt = obj->Shape->getFullHeightString();
+        if (txt.isEmpty()) thicknessNotInString += 2.0 * halfHeight;
+        else
+        {
+            if (!thicknessString.isEmpty()) thicknessString += " + ";
+            thicknessString += txt;
+        }
     }
 
     double Edge = 0;
@@ -1027,6 +1037,13 @@ void AGeoObject::updateStack()
         delete Shape; Shape = box;
     }
     box->dz = 0.5 * thickness;
+    box->str2dz = thicknessString;
+    if (thicknessNotInString != 0)
+    {
+        if (!box->str2dz.isEmpty()) box->str2dz += " + ";
+        box->str2dz += QString::number(thicknessNotInString);
+    }
+
 
     // -----old system-----
     /*

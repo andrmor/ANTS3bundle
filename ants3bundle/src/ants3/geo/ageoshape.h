@@ -30,7 +30,8 @@ public:
 
     virtual QString getScriptString(bool /*useStrings*/) const {return QString();}
 
-    virtual double getHeight() const {return 0;}   //for stacks; if 0, cannot be used in a stack
+    virtual double getHeight() const {return 0;}   //half height, implemented for stacks; if 0, cannot be used in a stack
+    virtual QString getFullHeightString() {return "";} //full height string for stacks; returns empty string if geo height is not given using an expression
     virtual double getRelativePosZofCenter() const {return 0;} //for polycones and polygons in stacks
     virtual void   setHeight(double /*dz*/) {}     //for stacks
     virtual double maxSize() const = 0;            //used for world size evaluation
@@ -84,6 +85,7 @@ public:
     TGeoShape* createGeoShape(const QString shapeName = "") override;
 
     double getHeight() const override {return dz;}
+    QString getFullHeightString() override {return str2dz;}
     void setHeight(double dz) override {this->dz = dz;}
     QString getGenerationString(bool useStrings) const override;
     QString getScriptString(bool useStrings) const override;
@@ -122,6 +124,7 @@ public:
     TGeoShape* createGeoShape(const QString shapeName = "") override;
 
     double getHeight() const override {return dz;}
+    QString getFullHeightString() override {return str2dz;}
     void setHeight(double dz) override {this->dz = dz;}
     QString getGenerationString(bool useStrings) const override;
     QString getScriptString(bool useStrings) const override;
@@ -162,6 +165,7 @@ public:
     TGeoShape* createGeoShape(const QString shapeName = "") override;
 
     double getHeight() const override;
+    QString getFullHeightString() override;
     double getRelativePosZofCenter() const override;
     void setHeight(double dz) override;
     QString getGenerationString(bool useStrings) const override;

@@ -3919,6 +3919,16 @@ double AGeoScaledShape::getHeight() const
     return BaseShape->getHeight() * scaleZ;
 }
 
+QString AGeoScaledShape::getFullHeightString()
+{
+    if (!BaseShape) return "";
+
+    QString txt = BaseShape->getFullHeightString();
+    if (txt.isEmpty()) return "";
+
+    return QString("%0*(%1)").arg(scaleZ).arg(txt);
+}
+
 double AGeoScaledShape::getRelativePosZofCenter() const
 {
     if (!BaseShape) return 0;
