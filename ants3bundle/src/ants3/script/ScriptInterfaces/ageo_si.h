@@ -86,7 +86,7 @@ public slots:
 
     //void stack(QString name, QString container, double x, double y, double z, double phi, double theta, double psi);
     void stack(QString name, QString container, QVariantList position, QVariantList orientation);
-    void initializeStack(QString StackName, QString MemberName_StackReference);
+    //void initializeStack(QString StackName, QString MemberName_StackReference); // obsolete
 
     //void array(QString name, int numX, int numY, int numZ, double stepX, double stepY, double stepZ, QString container, double x, double y, double z, double phi, double theta, double psi, bool centerSymmetric, int startIndex);
     void array(QString name, QVariantList numXYZ, QVariantList stepXYZ, QString container, QVariantList position, QVariantList orientation, bool centerSymmetric, int startIndex);
@@ -136,7 +136,7 @@ public slots:
     void exportToGDML(QString fileName);
     void exportToROOT(QString fileName);
 
-// !!!*** make AMaterial_SI and migrate there
+// consider makeing AMaterial_SI and migrate there
     /*
     QString getMaterialName(int materialIndex);
     double  getMaterialDensity(int materialIndex);
