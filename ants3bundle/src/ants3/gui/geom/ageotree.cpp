@@ -1402,13 +1402,13 @@ void AGeoTree::menuActionFormStack(QList<QTreeWidgetItem*> selected)
     }
 
     const QString name = Geometry.generateObjectName("Stack");
-    AGeoObject * stackObj = new AGeoObject(name, nullptr);
+    AGeoObject * stackObj = new AGeoObject(name, new AGeoBox());
 
     delete stackObj->Type; stackObj->Type = new ATypeStackContainerObject();
 
     //static_cast<ATypeStackContainerObject*>(stackObj->Type)->ReferenceVolume = objs.front()->Name;
 
-    AGeoObject * contObj = objs.front()->Container; // All selected objects always have the same container!
+    AGeoObject * contObj = objs.front()->Container; // All selected objects are forced to have the same container!
     stackObj->Container = contObj;
 
     for (AGeoObject * obj : objs)
@@ -1416,8 +1416,19 @@ void AGeoTree::menuActionFormStack(QList<QTreeWidgetItem*> selected)
         contObj->removeHostedObject(obj);
         obj->Container = stackObj;
         stackObj->HostedObjects.push_back(obj);
+
+        obj->Position[0] = 0; obj->PositionStr[0].clear();
+        obj->Position[1] = 0; obj->PositionStr[1].clear();
+
+        obj->Orientation[0] = 0; obj->OrientationStr[0].clear();
+        obj->Orientation[1] = 0; obj->OrientationStr[1].clear();
     }
-    contObj->HostedObjects.insert(contObj->HostedObjects.begin(), stackObj);
+
+    bool addLast = A3Global::getInstance().NewGeoObjectAddedLast;
+    if (addLast)
+        contObj->HostedObjects.push_back(stackObj);
+    else
+        contObj->HostedObjects.insert(contObj->HostedObjects.begin(), stackObj);
 
     emit RequestRebuildDetector();  // automatically calculates stack positions there
     UpdateGui(name);
