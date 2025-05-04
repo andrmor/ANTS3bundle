@@ -676,6 +676,12 @@ double AGeoSphere::getHeight() const
     return 0.5 * rmax * (sizeUp + sizeDown);
 }
 
+QString AGeoSphere::getFullHeightString()
+{
+    return "";
+    //if (str2rmax.isEmpty() && strTheta1.isEmpty() && strTheta2.isEmpty()) return "";
+}
+
 double AGeoSphere::getRelativePosZofCenter() const
 {
     if (theta1 == 0 && theta2 == 180) return 0;
@@ -3183,6 +3189,11 @@ double AGeoPcon::getHeight() const
     double res = Sections.at(Sections.size()-1).z - Sections.at(0).z;
     res *=0.5;
     return res;
+}
+
+QString AGeoPcon::getFullHeightString()
+{
+    return "";
 }
 
 double AGeoPcon::getRelativePosZofCenter() const
