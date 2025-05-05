@@ -121,9 +121,7 @@ void AGeoTree::UpdateGui(QString ObjectName)
     //World
     QTreeWidgetItem * topItem = new QTreeWidgetItem(twGeoTree);
     topItem->setText(0, "World");
-    QFont f = topItem->font(0);
-    f.setBold(true);
-    topItem->setFont(0, f);
+    //QFont f = topItem->font(0); f.setBold(true); topItem->setFont(0, f);
     topItem->setSizeHint(0, QSize(50, 20));
     topItem->setFlags(topItem->flags() & ~Qt::ItemIsDragEnabled);// & ~Qt::ItemIsSelectable);
     //w->setBackgroundColor(0, BackgroundColor);
