@@ -717,7 +717,57 @@ double AGeoSphere::getHeight() const
 QString AGeoSphere::getFullHeightString()
 {
     return "";
-    //if (str2rmax.isEmpty() && strTheta1.isEmpty() && strTheta2.isEmpty()) return "";
+
+    /*
+    // bad idea: the formula changes depending on the parameter values!
+    if (str2rmax.isEmpty() && strTheta1.isEmpty() && strTheta2.isEmpty()) return "";
+
+    QString up, down;
+
+    QString R = (str2rmax.isEmpty() ? QString::number(rmax) : "0.5*"+str2rmax);
+    QString r = (str2rmin.isEmpty() ? QString::number(rmin) : "0.5*"+str2rmin);
+
+    QString t1 = (strTheta1.isEmpty() ? QString::number(theta1) : strTheta1);
+    QString t2 = (strTheta2.isEmpty() ? QString::number(theta2) : strTheta2);
+
+    if (theta2 <= 90) // both less= 90
+    {
+        if (theta1 == 0)
+            up = R;
+        else
+            up = R + "*cos("+t1+"*pi/180.0)";
+
+        if (theta2 == 90.0 || rmin == 0)
+            down = "0";
+        else
+            down = r + "*cos("+t2+"*pi/180.0)";
+    }
+    else if (theta1 < 90.0 && theta2 > 90) // first less than 90, the second is larger than 90
+    {
+        if (theta1 == 0)
+            up = R;
+        else
+            up = R + "*cos("+t1+"*pi/180.0)";
+
+        if (theta2 == 180.0)
+            down = "-"+R;
+        else
+            down = "-" + R + "*cos((180.0-"+t2+")*pi/180.0)";
+    }
+    else // both above= 90
+    {
+        if (theta1 == 90.0 || rmin == 0)
+            up = "0";
+        else
+            up = "-" + r + "*cos((180.0-" + t1 + ")*pi/180.0)";
+
+        if (theta2 == 180.0)
+            down = "-" + R;
+        else
+            down = "-" + R + "*cos((180.0-" + t2 + ")*pi/180.0)";
+    }
+    return QString("(%0-%1)").arg(up).arg(down);
+    */
 }
 
 double AGeoSphere::getRelativePosZofCenter() const
