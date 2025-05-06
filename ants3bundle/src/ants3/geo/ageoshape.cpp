@@ -3186,14 +3186,22 @@ TGeoShape *AGeoPcon::createGeoShape(const QString shapeName)
 
 double AGeoPcon::getHeight() const
 {
-    double res = Sections.at(Sections.size()-1).z - Sections.at(0).z;
+    double res = Sections[Sections.size()-1].z - Sections[0].z;
     res *=0.5;
     return res;
 }
 
 QString AGeoPcon::getFullHeightString()
 {
-    return "";
+    const APolyCGsection & botSec = Sections.front();
+    const APolyCGsection & topSec = Sections.back();
+
+    if (botSec.strZ.isEmpty() && topSec.strZ.isEmpty()) return "";
+
+    QString strBot = (botSec.strZ.isEmpty() ? QString::number(botSec.z) : botSec.strZ);
+    QString strTop = (topSec.strZ.isEmpty() ? QString::number(topSec.z) : topSec.strZ);
+
+    return QString("(%0 - %1)").arg(strTop).arg(strBot);
 }
 
 double AGeoPcon::getRelativePosZofCenter() const
