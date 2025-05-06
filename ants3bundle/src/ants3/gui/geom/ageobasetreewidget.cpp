@@ -158,7 +158,7 @@ void AGeoBaseTreeWidget::dropEvent(QDropEvent * event)
             }
             if (!ContainerTo->Type->isPrototype() &&
                 ContainerTo->Type->isHandlingSet() &&
-                !obj->Type->isSingle())
+                !(obj->Type->isSingle() || obj->Type->isStack()))
             {
                 event->ignore();
                 QMessageBox::information(this, "", "Can insert only elementary objects to sets!");
