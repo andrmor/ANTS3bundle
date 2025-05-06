@@ -663,17 +663,55 @@ TGeoShape *AGeoSphere::createGeoShape(const QString shapeName)
     return (shapeName.isEmpty()) ? new TGeoSphere(rmin, rmax, theta1, theta2, phi1,  phi2) : new TGeoSphere(shapeName.toLatin1().data(), rmin, rmax, theta1, theta2, phi1,  phi2);
 }
 
+void AGeoSphere::computeZupZdown(double & Zup, double & Zdown) const
+{
+    if (theta2 <= 90) // both less= 90
+    {
+        if (theta1 == 0)
+            Zup = rmax;
+        else
+            Zup = rmax * cos(theta1 * M_PI / 180.0);
+
+        if (theta2 == 90.0 || rmin == 0)
+            Zdown = 0;
+        else
+            Zdown = rmin * cos(theta2 * M_PI / 180.0);
+    }
+    else if (theta1 < 90.0 && theta2 > 90) // first less than 90, the second is larger than 90
+    {
+        if (theta1 == 0)
+            Zup = rmax;
+        else
+            Zup = rmax * cos(theta1 * M_PI / 180.0);
+
+        if (theta2 == 180.0)
+            Zdown = -rmax;
+        else
+            Zdown = -rmax * cos( (180.0 - theta2) * M_PI / 180.0);
+    }
+    else // both above= 90
+    {
+        if (theta1 == 90.0 || rmin == 0)
+            Zup = 0;
+        else
+            Zup = -rmin * cos( (180.0 - theta1) * M_PI / 180.0);
+
+        if (theta2 == 180.0)
+            Zdown = -rmax;
+        else
+            Zdown = -rmax * cos( (180.0 - theta2) * M_PI / 180.0);
+    }
+}
+
 double AGeoSphere::getHeight() const
 {
     if (theta1 == 0 && theta2 == 180) return rmax;
 
-    double sizeUp = 0;
-    if (theta1 < 90.0) sizeUp = cos(theta1 * M_PI / 180.0);
+    double Zup = 0;
+    double Zdown = 0;
+    computeZupZdown(Zup, Zdown);
 
-    double sizeDown = 0;
-    if (theta2 > 90.0) sizeDown = cos( (180.0 - theta2) * M_PI / 180.0 );
-
-    return 0.5 * rmax * (sizeUp + sizeDown);
+    return 0.5 * (Zup - Zdown);
 }
 
 QString AGeoSphere::getFullHeightString()
@@ -686,13 +724,11 @@ double AGeoSphere::getRelativePosZofCenter() const
 {
     if (theta1 == 0 && theta2 == 180) return 0;
 
-    double sizeUp = 0;
-    if (theta1 < 90.0) sizeUp = cos(theta1 * M_PI / 180.0);
+    double Zup = 0;
+    double Zdown = 0;
+    computeZupZdown(Zup, Zdown);
 
-    double sizeDown = 0;
-    if (theta2 > 90.0) sizeDown = cos( (180.0 - theta2) * M_PI / 180.0 );
-
-    return 0.5 * rmax * (sizeUp - sizeDown);
+    return 0.5 * (Zup + Zdown);
 }
 
 QString AGeoSphere::getGenerationString(bool useStrings) const

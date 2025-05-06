@@ -681,6 +681,9 @@ public:
 
     double      rmin,     rmax,    theta1,    theta2,    phi1,    phi2;
     QString str2rmin, str2rmax, strTheta1, strTheta2, strPhi1, strPhi2;
+
+private:
+    void computeZupZdown(double & Zup, double & Zdown) const;
 };
 
 class AGeoPara : public AGeoShape
