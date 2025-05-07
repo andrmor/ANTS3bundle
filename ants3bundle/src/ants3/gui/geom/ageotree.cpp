@@ -130,7 +130,6 @@ void AGeoTree::UpdateGui(QString ObjectName)
     updateExpandState(topItem, false);
     updatePrototypeTreeGui();
 
-
     // restoring delegate for the last shown obeject if possible, otherwise showing delegate for the World
     if (ObjectName.isEmpty())
     {
@@ -308,10 +307,13 @@ void AGeoTree::populateTreeWidget(QTreeWidgetItem * parent, AGeoObject * Contain
             updateIcon(item, obj);
         }
         else if (obj->Type->isHandlingSet() || obj->Type->isHandlingArray() || obj->Type->isGridElement())
-        { //group or stack or array or gridElement
-            QFont f = item->font(0); f.setItalic(true); item->setFont(0, f);
+        {
+            QFont f = item->font(0);
+            f.setItalic(true);
+            if (obj->isStackReference()) f.setBold(true); // stack can be a reference obj of another stack
+            item->setFont(0, f);
+
             updateIcon(item, obj);
-            //item->setBackgroundColor(0, BackgroundColor);
         }
         else
         {
@@ -322,8 +324,6 @@ void AGeoTree::populateTreeWidget(QTreeWidgetItem * parent, AGeoObject * Contain
                 item->setFlags(item->flags() & ~Qt::ItemIsDragEnabled);
                 QFont f = item->font(0); f.setBold(true); item->setFont(0, f);
             }
-
-            //item->setBackgroundColor(0, BackgroundColor);
         }
 
         populateTreeWidget(item, obj, fDisabledLocal);

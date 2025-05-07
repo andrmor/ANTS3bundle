@@ -1029,6 +1029,8 @@ void AGeoObject::updateStack()
     }
 
     double Edge = 0;
+    double refObjectX = 0; // x and y corrections are applied only if stack is updated to assign new ref object
+    double refObjectY = 0;
     double refObjectZ = 0;
     for (AGeoObject * obj : HostedObjects)
     {
@@ -1044,6 +1046,8 @@ void AGeoObject::updateStack()
 
         if (obj == refObject)
         {
+            refObjectX = obj->Position[0];
+            refObjectY = obj->Position[1];
             refObjectZ = obj->Position[2];
 
             obj->Position[0] = 0;
@@ -1056,6 +1060,12 @@ void AGeoObject::updateStack()
     {
         if (!obj->fActive) continue;
         obj->Position[2] += dZ;
+
+        if (refObject && obj != refObject)
+        {
+            obj->Position[0] -= refObjectX;
+            obj->Position[1] -= refObjectY;
+        }
     }
 
     AStackDummyShape * shape = dynamic_cast<AStackDummyShape*>(Shape);

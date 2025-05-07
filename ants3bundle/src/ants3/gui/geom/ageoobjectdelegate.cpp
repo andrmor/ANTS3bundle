@@ -3547,12 +3547,17 @@ void AGeoSetDelegate::updateGui(const AGeoObject *obj)
             connect(bInfo, &QPushButton::clicked, this, [this]()
                     {
                         QString txt = ""
-                        "Stack is a logical object: it does not appear in the tracking.\n"
-                        "The containing volumes are auto-positioned to be touching in Z direction.\n"
-                        "The stack is placed inside the mother volume at the user defined center position.\n"
-                        "The rotation is in respect to the center.\n"
+                        "Stack is a logical object: it does not appear in the tracking.\n\n"
+                        "The containing volumes are auto-positioned to be 'in contact' in Z direction.\n\n"
+                        "The stack is placed inside the mother volume at the user defined 'center' position.\n"
+                        "There are two options for controlling the stack center:\n"
+                        "1. The stack reference volume is NOT defined:\n"
+                        "  In this case the center of the stack is the middle point of the stack thickness.\n"
+                        "2. A stack reference point is defined:\n"
+                        "  In this case the center of the stack is the cneter of the reference volume.\n\n"
+                        "The stack rotation is in respect to the stack center.\n"
                         "The stack elements can be shifted lateraly and rotated around the axis.";
-                        guitools::message(txt, this->ParentWidget);
+                        guitools::message1(txt, "info", this->ParentWidget);
                     });
             if (thick != "--")
             {
