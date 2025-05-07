@@ -3551,16 +3551,26 @@ void AGeoSetDelegate::updateGui(const AGeoObject *obj)
             connect(bInfo, &QPushButton::clicked, this, [this]()
                     {
                         QString txt = ""
-                        "Stack is a logical object: it does not appear in the tracking.\n\n"
-                        "The containing volumes are auto-positioned to be 'in contact' in Z direction.\n\n"
-                        "The stack is placed inside the mother volume at the user defined 'center' position.\n"
-                        "There are two options for controlling the stack center:\n"
+                        "Stack is a logical object: it does not appear in the constructed geometry directly.\n"
+                        "\n"
+                        "The containing objects are auto-positioned to be 'in contact' in Z direction.\n"
+                        "\n"
+                        "The stack is placed inside the mother volume at the 'center' position.\n"
+                        "There are two options which define where is the stack center:\n"
                         "1. The stack reference volume is NOT defined:\n"
-                        "  In this case the center of the stack is the middle point of the stack thickness.\n"
+                        "   In this case the center of the stack is the middle point of the stack total thickness.\n"
                         "2. A stack reference point is defined:\n"
-                        "  In this case the center of the stack is the cneter of the reference volume.\n\n"
+                        "   In this case the center of the stack is the center of the reference object.\n"
+                        "\n"
                         "The stack rotation is in respect to the stack center.\n"
-                        "The stack elements can be shifted lateraly and rotated around the axis.";
+                        "\n"
+                        "The stack elements can be shifted lateraly and rotated around the axis.\n"
+                        "\n"
+                        "The stack can contain elementary objects (except composite objects) and other stacks,\n"
+                        "but cannot host arrays or prototypes/instances.\n"
+                        "If an instance has to be 'stacked', put a box in the stack and place the instance inside.\n"
+                        ;
+
                         guitools::message1(txt, "info", this->ParentWidget);
                     });
             if (thick != "--")

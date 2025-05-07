@@ -743,10 +743,10 @@ void AMainWindow::on_pbExamples_clicked()
         ConfigExampleBrowser = new AConfigExampleBrowser(this);
         ConfigExampleBrowser->setWindowModality(Qt::ApplicationModal);
         connect(ConfigExampleBrowser, &AConfigExampleBrowser::requestLoadFile, this, &AMainWindow::onRequestLoadConfiguration);
+        ConfigExampleBrowser->expandAll(false);
     }
 
     ConfigExampleBrowser->show();
-    ConfigExampleBrowser->expandAll(false);
 }
 
 void AMainWindow::onRequestLoadConfiguration(QString fileName)
