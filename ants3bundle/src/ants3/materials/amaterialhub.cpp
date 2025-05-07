@@ -221,8 +221,8 @@ QString AMaterialHub::tryRemoveMaterial(int iMat)
 
     QString volName;
     bool bUsed = AGeometryHub::getInstance().isMaterialInUse(iMat, volName);
-    if (bUsed) return QString("Material is in used by at least one geometry volume.\n"
-                              "The first volume found: %0").arg(volName);
+    if (bUsed) return QString("Material is in used by at least one geometry object.\n"
+                              "The first object found: %0").arg(volName);
 
     removeMaterial(iMat);
     return "";
