@@ -982,19 +982,15 @@ void AGeoObjectDelegate::updateControlUI()
 
     if (CurrentObject->Container && CurrentObject->Container->Type->isStack())
     {
-        ledPhi->setEnabled(false);
-        ledTheta->setEnabled(false);
-        ledPhi->setText("0");
-        ledTheta->setText("0");
-
-        /* old system
-        if (!CurrentObject->isStackReference())
-        {
-            for (AOneLineTextEdit * ole : {ledX, ledY, ledZ, ledPsi})
-            ole->setEnabled(false);
-        }
-        */
+        ledPhi->setEnabled(false);   //ledPhi->setText("0");
+        ledTheta->setEnabled(false); //ledTheta->setText("0");
         ledZ->setEnabled(false);
+
+        if (CurrentObject->isStackReference())
+        {
+            ledX->setEnabled(false);
+            ledY->setEnabled(false);
+        }
     }
 
     if (CurrentObject->isCompositeMemeber())

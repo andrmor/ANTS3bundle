@@ -667,16 +667,32 @@ bool AGeoObject::isStackMember() const
     return Container->Type->isStack();
 }
 
-/*
+bool AGeoObject::stackHasReference() const
+{
+    ATypeStackContainerObject * stack = nullptr;
+    if (Type && Type->isStack())
+    {
+        stack = static_cast<ATypeStackContainerObject*>(Type);
+    }
+    else
+    {
+        if (Container && Container->Type && Container->Type->isStack())
+            stack = static_cast<ATypeStackContainerObject*>(Container->Type);
+    }
+
+    if (!stack) return false;
+    return !stack->ReferenceVolume.isEmpty();
+}
+
 bool AGeoObject::isStackReference() const
 {
     if (!Container || !Container->Type) return false;
+    if (!Container->Type->isStack()) return false;
 
-    ATypeStackContainerObject * sc = dynamic_cast<ATypeStackContainerObject*>(Container->Type);
-    if (sc && sc->ReferenceVolume == Name) return true;
-    return false;
+    ATypeStackContainerObject * sc = static_cast<ATypeStackContainerObject*>(Container->Type);
+    if (sc->ReferenceVolume != Name) return false;
+    return true;
 }
-*/
 
 /*
 AGeoObject * AGeoObject::getOrMakeStackReferenceVolume()
@@ -993,9 +1009,11 @@ void AGeoObject::updateStack()
     double  thickness = 0;
     QString thicknessString;
     double  thicknessNotInString = 0;
+    AGeoObject * refObject = nullptr; // can stay nullptr!
     for (AGeoObject * obj : HostedObjects)
     {
         if (!obj->fActive) continue;
+
         const double halfHeight = obj->Shape->getHeight();
         thickness += 2.0 * halfHeight;
 
@@ -1006,9 +1024,12 @@ void AGeoObject::updateStack()
             if (!thicknessString.isEmpty()) thicknessString += " + ";
             thicknessString += txt;
         }
+
+        if (obj->isStackReference()) refObject = obj;
     }
 
     double Edge = 0;
+    double refObjectZ = 0;
     for (AGeoObject * obj : HostedObjects)
     {
         if (!obj->fActive) continue;
@@ -1020,29 +1041,37 @@ void AGeoObject::updateStack()
 
         obj->Position[2] = Edge - halfHeight - relPosrefobj; obj->PositionStr[2].clear();
         Edge -= 2.0 * halfHeight;
+
+        if (obj == refObject)
+        {
+            refObjectZ = obj->Position[2];
+
+            obj->Position[0] = 0;
+            obj->Position[1] = 0;
+        }
     }
 
-    const double dZ = 0.5 * thickness;
+    const double dZ = (refObject ? -refObjectZ : 0.5 * thickness);
     for (AGeoObject * obj : HostedObjects)
     {
         if (!obj->fActive) continue;
         obj->Position[2] += dZ;
     }
 
-    // Stack shape is by default AGeoBox, store stack thickness there, can be used by stack-of-stacks
-    AGeoBox * box = dynamic_cast<AGeoBox*>(Shape);
-    if (!box)
+    AStackDummyShape * shape = dynamic_cast<AStackDummyShape*>(Shape);
+    if (!shape)
     {
-        box = new AGeoBox();
-        delete Shape; Shape = box;
+        shape = new AStackDummyShape();
+        delete Shape; Shape = shape;
     }
-    box->dz = 0.5 * thickness;
-    box->str2dz = thicknessString;
+    shape->dz = 0.5 * thickness;
+    shape->str2dz = thicknessString;
     if (thicknessNotInString != 0)
     {
-        if (!box->str2dz.isEmpty()) box->str2dz += " + ";
-        box->str2dz += QString::number(thicknessNotInString);
+        if (!shape->str2dz.isEmpty()) shape->str2dz += " + ";
+        shape->str2dz += QString::number(thicknessNotInString);
     }
+    shape->RelativePosZofCenter = (refObject ? -(refObjectZ + 0.5 * thickness) : 0);
 
 
     // -----old system-----

@@ -846,4 +846,14 @@ public:
     QString str2R, str2Rmin, str2Rmax, strPhi1, strDphi;
 };
 
+// --- Dummy shape for stack object: needed to implement stacks of stacks
+class AStackDummyShape : public AGeoBox
+{
+public:
+    //AStackDummyShape(){}
+    double getRelativePosZofCenter() const override {return RelativePosZofCenter;}
+
+    double RelativePosZofCenter = 0;
+};
+
 #endif // AGEOSHAPE_H

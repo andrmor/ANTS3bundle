@@ -91,10 +91,10 @@ class ATypeStackContainerObject : public AGeoType
 public:
     ATypeStackContainerObject();
 
-    //QString ReferenceVolume;
+    QString ReferenceVolume;
 
-    void doWriteToJson(QJsonObject & json) const override; // obsolete
-    void readFromJson(const QJsonObject & json) override;  // obsolete
+    void doWriteToJson(QJsonObject & json) const override;
+    void readFromJson(const QJsonObject & json) override;
 };
 
 class ATypeCompositeContainerObject : public AGeoType
