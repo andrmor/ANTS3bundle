@@ -964,7 +964,11 @@ void AGeoObjectDelegate::updateTypeLabel()
         if (CurrentObject->Container->Type->isHandlingSet())
         {
             if (CurrentObject->Container->Type->isStack())
+            {
                 DelegateTypeName += ",   stacked";
+                if (CurrentObject->isStackReference())
+                    DelegateTypeName += ",  stack reference";
+            }
         }
     }
 

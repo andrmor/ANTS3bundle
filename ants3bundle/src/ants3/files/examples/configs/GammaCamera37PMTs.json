@@ -95,14 +95,14 @@
                 "Psi": 0,
                 "Theta": 0,
                 "Type": {
+                    "ReferenceVolume": "Scintillator",
                     "Type": "Stack"
                 },
                 "X": 0,
                 "Y": 0,
-                "Z": 6.85,
+                "Z": 0,
                 "fActive": true,
-                "fExpanded": true,
-                "strZ": "0.5*(TotalZ - ScintZ)"
+                "fExpanded": true
             },
             {
                 "Container": "Stack",
@@ -124,7 +124,7 @@
                 },
                 "X": 0,
                 "Y": 0,
-                "Z": 12.6,
+                "Z": 19.45,
                 "color": 11,
                 "fActive": true,
                 "fExpanded": true,
@@ -211,7 +211,7 @@
                 },
                 "X": 0,
                 "Y": 0,
-                "Z": 12.049999999999999,
+                "Z": 18.9,
                 "color": 801,
                 "fActive": true,
                 "fExpanded": true,
@@ -238,7 +238,7 @@
                 },
                 "X": 0,
                 "Y": 0,
-                "Z": 5.75,
+                "Z": 12.6,
                 "color": 4,
                 "fActive": true,
                 "fExpanded": true,
@@ -265,7 +265,7 @@
                 },
                 "X": 0,
                 "Y": 0,
-                "Z": -0.5500000000000007,
+                "Z": 6.299999999999999,
                 "color": 801,
                 "fActive": true,
                 "fExpanded": true,
@@ -295,7 +295,7 @@
                 },
                 "X": 0,
                 "Y": 0,
-                "Z": -6.85,
+                "Z": 0,
                 "color": 2,
                 "fActive": true,
                 "fExpanded": true,
@@ -979,7 +979,7 @@
     },
     "PhotonSim": {
         "Deposition": {
-            "FileFormat": "Ascii",
+            "FileFormat": "Undefined",
             "FileName": "/home/andr/.config/ants3/TmpOutput/Deposition.dat",
             "LastModified": 1746462884688,
             "NumEvents": 100,
