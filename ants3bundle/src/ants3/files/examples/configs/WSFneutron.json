@@ -465,9 +465,10 @@
                 },
                 "X": 0,
                 "Y": 0,
-                "Z": 0,
+                "Z": 0.475,
                 "fActive": true,
-                "fExpanded": true
+                "fExpanded": true,
+                "strZ": "Gap+0.5*FiberDia+0.5*ScintZfront"
             },
             {
                 "Container": "FrontStack",
@@ -489,7 +490,7 @@
                 },
                 "X": 0,
                 "Y": 0,
-                "Z": 0.6499999999999999,
+                "Z": 0.175,
                 "color": 1,
                 "fActive": true,
                 "fExpanded": true,
@@ -520,11 +521,10 @@
                 },
                 "X": 0,
                 "Y": 0,
-                "Z": 0.475,
+                "Z": 0,
                 "color": 4,
                 "fActive": true,
                 "fExpanded": true,
-                "strZ": "Gap+0.5*FiberDia+0.5*ScintZfront",
                 "style": 1,
                 "width": 1
             },
@@ -641,9 +641,10 @@
                 },
                 "X": 0,
                 "Y": 0,
-                "Z": 0,
+                "Z": -0.575,
                 "fActive": true,
-                "fExpanded": true
+                "fExpanded": true,
+                "strZ": "-Gap-0.5*FiberDia-0.5*ScintZback"
             },
             {
                 "Container": "BackStack",
@@ -669,11 +670,10 @@
                 },
                 "X": 0,
                 "Y": 0,
-                "Z": -0.575,
+                "Z": 0,
                 "color": 4,
                 "fActive": true,
                 "fExpanded": true,
-                "strZ": "-Gap-0.5*FiberDia-0.5*ScintZback",
                 "style": 1,
                 "width": 1
             },
@@ -697,7 +697,7 @@
                 },
                 "X": 0,
                 "Y": 0,
-                "Z": -0.85,
+                "Z": -0.275,
                 "color": 1,
                 "fActive": true,
                 "fExpanded": true,
@@ -15576,7 +15576,7 @@
     },
     "PhotonSim": {
         "Deposition": {
-            "FileFormat": "Ascii",
+            "FileFormat": "Undefined",
             "FileName": "/home/andr/.config/ants3/TmpOutput/Deposition.dat",
             "LastModified": 1744972182260,
             "NumEvents": 1,

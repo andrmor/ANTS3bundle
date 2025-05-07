@@ -1025,7 +1025,21 @@ void AGeoObject::updateStack()
             thicknessString += txt;
         }
 
-        if (obj->isStackReference()) refObject = obj;
+        if (obj->isStackReference())
+        {
+            refObject = obj;
+
+            // temporary! fix for the old GeoStack system, which still can appear in the saves, can be removed after all examples are updated
+            for (size_t i = 0; i < 3; i++)
+            {
+                if (obj->Position[i] != 0) obj->Container->Position[i] += obj->Position[i];
+                if (!obj->PositionStr[i].isEmpty())
+                {
+                    if (!obj->Container->PositionStr[i].isEmpty()) obj->Container->PositionStr[i] += " + ";
+                    obj->Container->PositionStr[i] += obj->PositionStr[i];
+                }
+            }
+        }
     }
 
     double Edge = 0;
