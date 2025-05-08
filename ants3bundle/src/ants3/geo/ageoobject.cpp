@@ -1029,16 +1029,26 @@ void AGeoObject::updateStack()
         {
             refObject = obj;
 
-            // temporary! fix for the old GeoStack system, which still can appear in the saves, can be removed after all examples are updated
-            for (size_t i = 0; i < 3; i++)
-            {
-                if (obj->Position[i] != 0) obj->Container->Position[i] += obj->Position[i];
-                if (!obj->PositionStr[i].isEmpty())
-                {
-                    if (!obj->Container->PositionStr[i].isEmpty()) obj->Container->PositionStr[i] += " + ";
-                    obj->Container->PositionStr[i] += obj->PositionStr[i];
-                }
-            }
+            // detecting old GeoStack system, should be dropped after all examples are updated
+            // if (false)
+            // {
+            //     AGeoObject * stack = obj->Container;
+            //     for (size_t i = 0; i < 3; i++)
+            //     {
+            //         QString stackStr = stack->PositionStr[i];
+            //         if (stackStr.isEmpty() && stack->Position[i] != 0) stackStr = QString::number(stack->Position[i]);
+
+            //         QString refStr = obj->PositionStr[i];
+            //         if (refStr.isEmpty() && obj->Position[i] != 0) refStr = QString::number(obj->Position[i]);
+
+            //         if (!stackStr.isEmpty() && !refStr.isEmpty()) stackStr += " + ";
+            //         stackStr += refStr;
+
+            //         stack->PositionStr[i] = stackStr;
+
+            //         if (obj->Position[i] != 0) obj->Container->Position[i] += obj->Position[i];
+            //     }
+            // }
         }
     }
 
