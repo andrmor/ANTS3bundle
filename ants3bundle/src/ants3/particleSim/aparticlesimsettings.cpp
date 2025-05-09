@@ -7,9 +7,9 @@ void AParticleSimSettings::clearSettings()
     GenerationMode = Sources;
     Events         = 1;
 
-    bClusterMerge  = false;
-    ClusterRadius  = 0.1;
-    ClusterTime    = 1.0;
+    //bClusterMerge  = false;
+    //ClusterRadius  = 0.1;
+    //ClusterTime    = 1.0;
 
     SourceGenSettings.clear();
     FileGenSettings.clear();
@@ -48,9 +48,9 @@ void AParticleSimSettings::writeToJson(QJsonObject & json, bool exportSimulation
     //json["DoS1"] = bDoS1;
     //json["DoS2"] = bDoS2;
     //json["IgnoreNoDepoEvents"] = bIgnoreNoDepo;
-    json["ClusterMerge"] = bClusterMerge;
-    json["ClusterMergeRadius"] = ClusterRadius;
-    json["ClusterMergeTime"] = ClusterTime;
+    //json["ClusterMerge"] = bClusterMerge;
+    //json["ClusterMergeRadius"] = ClusterRadius;
+    //json["ClusterMergeTime"] = ClusterTime;
 
     if (!exportSimulation || GenerationMode == Sources)
     {
@@ -107,9 +107,9 @@ void AParticleSimSettings::readFromJson(const QJsonObject & json)
 
     jstools::parseJson(json, "Events", Events);
 
-    jstools::parseJson(json, "ClusterMerge", bClusterMerge);
-    jstools::parseJson(json, "ClusterMergeRadius", ClusterRadius);
-    jstools::parseJson(json, "ClusterMergeTime", ClusterTime);
+    //jstools::parseJson(json, "ClusterMerge", bClusterMerge);
+    //jstools::parseJson(json, "ClusterMergeRadius", ClusterRadius);
+    //jstools::parseJson(json, "ClusterMergeTime", ClusterTime);
 
     // sources
     {
