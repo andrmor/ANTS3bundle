@@ -30,7 +30,8 @@ public:
 
     virtual QString getScriptString(bool /*useStrings*/) const {return QString();}
 
-    virtual double getHeight() const {return 0;}   //for stacks; if 0, cannot be used in a stack
+    virtual double getHeight() const {return 0;}   //half height, implemented for stacks; if 0, cannot be used in a stack
+    virtual QString getFullHeightString() {return "";} //full height string for stacks; returns empty string if geo height is not given using an expression
     virtual double getRelativePosZofCenter() const {return 0;} //for polycones and polygons in stacks
     virtual void   setHeight(double /*dz*/) {}     //for stacks
     virtual double maxSize() const = 0;            //used for world size evaluation
@@ -84,6 +85,7 @@ public:
     TGeoShape* createGeoShape(const QString shapeName = "") override;
 
     double getHeight() const override {return dz;}
+    QString getFullHeightString() override {return str2dz;}
     void setHeight(double dz) override {this->dz = dz;}
     QString getGenerationString(bool useStrings) const override;
     QString getScriptString(bool useStrings) const override;
@@ -122,6 +124,7 @@ public:
     TGeoShape* createGeoShape(const QString shapeName = "") override;
 
     double getHeight() const override {return dz;}
+    QString getFullHeightString() override {return str2dz;}
     void setHeight(double dz) override {this->dz = dz;}
     QString getGenerationString(bool useStrings) const override;
     QString getScriptString(bool useStrings) const override;
@@ -162,6 +165,7 @@ public:
     TGeoShape* createGeoShape(const QString shapeName = "") override;
 
     double getHeight() const override;
+    QString getFullHeightString() override;
     double getRelativePosZofCenter() const override;
     void setHeight(double dz) override;
     QString getGenerationString(bool useStrings) const override;
@@ -210,6 +214,7 @@ public:
     TGeoShape* createGeoShape(const QString shapeName = "") override;
 
     double getHeight() const override {return dz;}
+    QString getFullHeightString() override {return str2dz;}
     void setHeight(double /*dz*/) override {}
     QString getGenerationString(bool useStrings) const override;
     QString getScriptString(bool useStrings) const override;
@@ -250,6 +255,7 @@ public:
     TGeoShape* createGeoShape(const QString shapeName = "") override;
 
     double getHeight() const override {return dz;}
+    QString getFullHeightString() override {return str2dz;}
     void setHeight(double dz) override {this->dz = dz;}
     QString getGenerationString(bool useStrings) const override;
     QString getScriptString(bool useStrings) const override;
@@ -288,6 +294,7 @@ public:
     TGeoShape* createGeoShape(const QString shapeName = "") override;
 
     double getHeight() const override {return dz;}
+    QString getFullHeightString() override {return str2dz;}
     void setHeight(double dz) override {this->dz = dz;}
     QString getGenerationString(bool useStrings) const override;
     QString getScriptString(bool useStrings) const override;
@@ -326,6 +333,7 @@ public:
     TGeoShape* createGeoShape(const QString shapeName = "") override;
 
     double getHeight() const override {return dz;}
+    QString getFullHeightString() override {return str2dz;}
     void setHeight(double dz) override {this->dz = dz;}
     QString getGenerationString(bool useStrings) const override;
     QString getScriptString(bool useStrings) const override;
@@ -387,6 +395,7 @@ public:
     TGeoShape* createGeoShape(const QString shapeName = "") override;
 
     double getHeight() const override;
+    QString getFullHeightString() override; // !!!***
     double getRelativePosZofCenter() const override;
     QString getGenerationString(bool useStrings) const override;
     QString getScriptString(bool useStrings) const override;
@@ -457,6 +466,7 @@ public:
     TGeoShape* createGeoShape(const QString shapeName = "") override;
 
     double getHeight() const override {return dz;}
+    QString getFullHeightString() override {return str2dz;}
     void setHeight(double dz) override {this->dz = dz;}
     QString getGenerationString(bool useStrings) const override;
     QString getScriptString(bool useStrings) const override;
@@ -495,6 +505,7 @@ public:
     TGeoShape* createGeoShape(const QString shapeName = "") override;
 
     double getHeight() const override {return dz;}
+    QString getFullHeightString() override {return str2dz;}
     void setHeight(double dz) override {this->dz = dz;}
     QString getGenerationString(bool useStrings) const override;
     QString getScriptString(bool useStrings) const override;
@@ -532,6 +543,7 @@ public:
     TGeoShape* createGeoShape(const QString shapeName = "") override;
 
     double getHeight() const override {return dz;}
+    QString getFullHeightString() override {return str2dz;}
     void setHeight(double dz) override {this->dz = dz;}
     QString getGenerationString(bool useStrings) const override;
     QString getScriptString(bool useStrings) const override;
@@ -576,7 +588,8 @@ public:
     bool readFromString(QString GenerationString) override;
     TGeoShape* createGeoShape(const QString shapeName = "") override;
 
-    double getHeight() const override {return dz;}
+    double getHeight() const override {return dz;}          // wrong!
+    QString getFullHeightString() override {return str2dz;} // wrong!
     void setHeight(double dz) override {this->dz = dz;}
     QString getGenerationString(bool useStrings) const override;
     QString getScriptString(bool useStrings) const override;
@@ -612,6 +625,7 @@ public:
     TGeoShape* createGeoShape(const QString shapeName = "") override;
 
     double getHeight() const override {return dz;}
+    QString getFullHeightString() override {return str2dz;}
     void setHeight(double dz) override {this->dz = dz;}
     QString getGenerationString(bool useStrings) const override;
     QString getScriptString(bool useStrings) const override;
@@ -650,7 +664,9 @@ public:
     bool readFromString(QString GenerationString) override;
     TGeoShape* createGeoShape(const QString shapeName = "") override;
 
-    double getHeight() const override {return rmax;}
+    double getHeight() const override;      // !!!*** wrong! consider rmin too
+    QString getFullHeightString() override; // !!!*** to do
+    double getRelativePosZofCenter() const override;
     void setHeight(double dz) override {rmax = dz;}
     QString getGenerationString(bool useStrings) const override;
     QString getScriptString(bool useStrings) const override;
@@ -665,6 +681,9 @@ public:
 
     double      rmin,     rmax,    theta1,    theta2,    phi1,    phi2;
     QString str2rmin, str2rmax, strTheta1, strTheta2, strPhi1, strPhi2;
+
+private:
+    void computeZupZdown(double & Zup, double & Zdown) const;
 };
 
 class AGeoPara : public AGeoShape
@@ -688,6 +707,7 @@ public:
     TGeoShape* createGeoShape(const QString shapeName = "") override;
 
     double getHeight() const override {return dz;}
+    QString getFullHeightString() override {return str2dz;}
     void setHeight(double dz) override {this->dz = dz;}
     QString getGenerationString(bool useStrings) const override;
     QString getScriptString(bool useStrings) const override;
@@ -725,6 +745,7 @@ public:
     TGeoShape* createGeoShape(const QString shapeName = "") override;
 
     double getHeight() const override {return dz;}
+    QString getFullHeightString() override {return str2dz;}
     void setHeight(double dz) override {this->dz = dz;}
     QString getGenerationString(bool useStrings) const override;
     QString getScriptString(bool useStrings) const override;
@@ -800,6 +821,7 @@ public:
     TGeoShape* createGeoShape(const QString shapeName = "") override;
 
     double getHeight() const override {return Rmax;}
+    QString getFullHeightString() override {return str2Rmax;}
     void setHeight(double dz) override {this->Rmax = dz;}
     QString getGenerationString(bool useStrings) const override;
     QString getScriptString(bool useStrings) const override;
@@ -822,6 +844,16 @@ public:
     double Phi1 = 0, Dphi = 360.0;
 
     QString str2R, str2Rmin, str2Rmax, strPhi1, strDphi;
+};
+
+// --- Dummy shape for stack object: needed to implement stacks of stacks
+class AStackDummyShape : public AGeoBox
+{
+public:
+    //AStackDummyShape(){}
+    double getRelativePosZofCenter() const override {return RelativePosZofCenter;}
+
+    double RelativePosZofCenter = 0;
 };
 
 #endif // AGEOSHAPE_H

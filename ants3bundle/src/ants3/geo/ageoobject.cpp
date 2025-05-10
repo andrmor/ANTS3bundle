@@ -667,15 +667,34 @@ bool AGeoObject::isStackMember() const
     return Container->Type->isStack();
 }
 
+bool AGeoObject::stackHasReference() const
+{
+    ATypeStackContainerObject * stack = nullptr;
+    if (Type && Type->isStack())
+    {
+        stack = static_cast<ATypeStackContainerObject*>(Type);
+    }
+    else
+    {
+        if (Container && Container->Type && Container->Type->isStack())
+            stack = static_cast<ATypeStackContainerObject*>(Container->Type);
+    }
+
+    if (!stack) return false;
+    return !stack->ReferenceVolume.isEmpty();
+}
+
 bool AGeoObject::isStackReference() const
 {
     if (!Container || !Container->Type) return false;
+    if (!Container->Type->isStack()) return false;
 
-    ATypeStackContainerObject * sc = dynamic_cast<ATypeStackContainerObject*>(Container->Type);
-    if (sc && sc->ReferenceVolume == Name) return true;
-    return false;
+    ATypeStackContainerObject * sc = static_cast<ATypeStackContainerObject*>(Container->Type);
+    if (sc->ReferenceVolume != Name) return false;
+    return true;
 }
 
+/*
 AGeoObject * AGeoObject::getOrMakeStackReferenceVolume()
 {
     AGeoObject * Stack;
@@ -717,6 +736,7 @@ AGeoObject * AGeoObject::getOrMakeStackReferenceVolume()
     }
     return RefVolume;
 }
+*/
 
 AGeoObject * AGeoObject::findObjectByName(const QString & name)
 {
@@ -980,15 +1000,116 @@ void AGeoObject::lockRecursively()
 void AGeoObject::unlockAllInside()
 {
     fLocked = false;
-    //if it is a grouped object, unlock group buddies  ***!!!
-
-    //for individual:
     for (AGeoObject * obj : HostedObjects)
         obj->unlockAllInside();
 }
 
 void AGeoObject::updateStack()
 {
+    double  thickness = 0;
+    QString thicknessString;
+    double  thicknessNotInString = 0;
+    AGeoObject * refObject = nullptr; // can stay nullptr!
+    for (AGeoObject * obj : HostedObjects)
+    {
+        if (!obj->fActive) continue;
+
+        const double halfHeight = obj->Shape->getHeight();
+        thickness += 2.0 * halfHeight;
+
+        QString txt = obj->Shape->getFullHeightString();
+        if (txt.isEmpty()) thicknessNotInString += 2.0 * halfHeight;
+        else
+        {
+            if (!thicknessString.isEmpty()) thicknessString += " + ";
+            thicknessString += txt;
+        }
+
+        if (obj->isStackReference())
+        {
+            refObject = obj;
+
+            // detecting old GeoStack system, should be dropped after all examples are updated
+            // if (false)
+            // {
+            //     AGeoObject * stack = obj->Container;
+            //     for (size_t i = 0; i < 3; i++)
+            //     {
+            //         QString stackStr = stack->PositionStr[i];
+            //         if (stackStr.isEmpty() && stack->Position[i] != 0) stackStr = QString::number(stack->Position[i]);
+
+            //         QString refStr = obj->PositionStr[i];
+            //         if (refStr.isEmpty() && obj->Position[i] != 0) refStr = QString::number(obj->Position[i]);
+
+            //         if (!stackStr.isEmpty() && !refStr.isEmpty()) stackStr += " + ";
+            //         stackStr += refStr;
+
+            //         stack->PositionStr[i] = stackStr;
+
+            //         if (obj->Position[i] != 0) obj->Container->Position[i] += obj->Position[i];
+            //     }
+            // }
+        }
+    }
+
+    double Edge = 0;
+    double refObjectX = 0; // x and y corrections are applied only if stack is updated to assign new ref object
+    double refObjectY = 0;
+    double refObjectZ = 0;
+    for (AGeoObject * obj : HostedObjects)
+    {
+        if (!obj->fActive) continue;
+        obj->Orientation[0] = 0; obj->OrientationStr[0].clear();
+        obj->Orientation[1] = 0; obj->OrientationStr[1].clear();
+
+        const double halfHeight = obj->Shape->getHeight();
+        double relPosrefobj = obj->Shape->getRelativePosZofCenter();
+
+        obj->Position[2] = Edge - halfHeight - relPosrefobj; obj->PositionStr[2].clear();
+        Edge -= 2.0 * halfHeight;
+
+        if (obj == refObject)
+        {
+            refObjectX = obj->Position[0];
+            refObjectY = obj->Position[1];
+            refObjectZ = obj->Position[2];
+
+            obj->Position[0] = 0;
+            obj->Position[1] = 0;
+        }
+    }
+
+    const double dZ = (refObject ? -refObjectZ : 0.5 * thickness);
+    for (AGeoObject * obj : HostedObjects)
+    {
+        if (!obj->fActive) continue;
+        obj->Position[2] += dZ;
+
+        if (refObject && obj != refObject)
+        {
+            obj->Position[0] -= refObjectX;
+            obj->Position[1] -= refObjectY;
+        }
+    }
+
+    AStackDummyShape * shape = dynamic_cast<AStackDummyShape*>(Shape);
+    if (!shape)
+    {
+        shape = new AStackDummyShape();
+        delete Shape; Shape = shape;
+    }
+    shape->dz = 0.5 * thickness;
+    shape->str2dz = thicknessString;
+    if (thicknessNotInString != 0)
+    {
+        if (!shape->str2dz.isEmpty()) shape->str2dz += " + ";
+        shape->str2dz += QString::number(thicknessNotInString);
+    }
+    shape->RelativePosZofCenter = (refObject ? -(refObjectZ + 0.5 * thickness) : 0);
+
+
+    // -----old system-----
+    /*
     AGeoObject * RefObj = getOrMakeStackReferenceVolume();
     if (!RefObj) return;
 
@@ -1024,13 +1145,13 @@ void AGeoObject::updateStack()
         if (!obj->fActive) continue;
         if (obj != RefObj) obj->Position[2] -= dZ;
     }
+   */
 }
 
 void AGeoObject::updateAllStacks()
 {
-    if (Type && Type->isStack()) updateStack();
-
     for (AGeoObject * obj : HostedObjects) obj->updateAllStacks();
+    if (Type && Type->isStack()) updateStack();
 }
 
 void AGeoObject::updateAllMonitors()
@@ -1103,12 +1224,6 @@ void AGeoObject::updateWorldSize(double & XYm, double & Zm)
 
 bool AGeoObject::isMaterialInUse(int imat, QString & volName) const
 {
-    if (Type->isMonitor())             return false; //monitors are always made of Container's material and cannot host objects
-    if (Type->isHandlingArray())       return false;
-    if (Type->isHandlingSet())         return false;
-    if (Type->isInstance())            return false;
-    if (Type->isPrototypeCollection()) return false;
-
     if (Material == imat)
     {
         if ( !Type->isGridElement() && !Type->isCompositeContainer() )
@@ -1263,12 +1378,14 @@ void AGeoObject::enforceUniqueNameForCloneRecursive(AGeoObject * World, AGeoObje
     while (World->isNameExists(newName) || tmpContainer.isNameExists(newName))
         newName = generateCloneObjName(newName);
 
+    /*
     if (Container && Container->Type->isStack())
     {
         ATypeStackContainerObject * Stack = static_cast<ATypeStackContainerObject*>(Container->Type);
         if (Stack->ReferenceVolume == Name)
             Stack->ReferenceVolume = newName;
     }
+    */
 
     if (isCompositeMemeber())
         updateNameOfLogicalMember(Name, newName);
@@ -1284,12 +1401,15 @@ void AGeoObject::addSuffixToNameRecursive(const QString & suffix)
 {
     const QString newName = Name + "_at_" + suffix;
 
+    /*
     if (Container && Container->Type->isStack())
     {
         ATypeStackContainerObject * Stack = static_cast<ATypeStackContainerObject*>(Container->Type);
         if (Stack->ReferenceVolume == Name)
             Stack->ReferenceVolume = newName;
     }
+    */
+
     if (isCompositeMemeber()) updateNameOfLogicalMember(Name, newName);
 
     NameWithoutSuffix = Name;

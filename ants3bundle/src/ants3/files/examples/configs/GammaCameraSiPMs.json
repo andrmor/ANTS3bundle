@@ -1493,7 +1493,7 @@
     },
     "PhotonSim": {
         "Deposition": {
-            "FileFormat": "Ascii",
+            "FileFormat": "Undefined",
             "FileName": "/home/andr/.config/ants3/TmpOutput/Deposition.dat",
             "LastModified": 1744972629034,
             "NumEvents": 100,
@@ -1649,7 +1649,7 @@
             "SensorLogXY": false,
             "UpperTimeLimit": 100
         },
-        "SimulationType": "depo",
+        "SimulationType": "bomb",
         "WaveResolved": {
             "Enabled": false,
             "From": 200,

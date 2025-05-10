@@ -838,22 +838,8 @@ void AGeometryHub::positionArray(AGeoObject * obj, TGeoVolume * vol, int parentN
 
 void AGeometryHub::positionStack(AGeoObject * obj, TGeoVolume * vol, int forcedNodeNumber)
 {
-    const ATypeStackContainerObject * stack = static_cast<const ATypeStackContainerObject*>(obj->Type);
-    const QString & RefObjName = stack->ReferenceVolume;
-    const AGeoObject * RefObj = nullptr;
-    for (const AGeoObject * el : obj->HostedObjects)
-        if (el->Name == RefObjName)
-        {
-            RefObj = el;
-            break;
-        }
-
-    if (RefObj)
-    {
-        for (AGeoObject * el : obj->HostedObjects)
-            positionStackElement(el, RefObj, vol, forcedNodeNumber);
-    }
-    else qWarning() << "Error: Reference object not found for stack" << obj->Name;
+    for (AGeoObject * el : obj->HostedObjects)
+        positionStackElement(el, vol, forcedNodeNumber);
 }
 
 void AGeometryHub::positionInstance(AGeoObject * obj, TGeoVolume * vol, int forcedNodeNumber)
@@ -1054,12 +1040,31 @@ void AGeometryHub::positionHexArrayRing(int iR, AGeoObject *el, AGeoObject *arra
     }
 }
 
-void AGeometryHub::positionStackElement(AGeoObject * el, const AGeoObject * RefObj, TGeoVolume *parent, int forcedNodeNumber)
+//void AGeometryHub::positionStackElement(AGeoObject * el, const AGeoObject * RefObj, TGeoVolume *parent, int forcedNodeNumber)
+void AGeometryHub::positionStackElement(AGeoObject * el, TGeoVolume *parent, int forcedNodeNumber)
 {
     AGeoObject * Stack = el->Container;
 
     //Position
     double local[3], master[3];
+    local[0] = el->Position[0];// - RefObj->Position[0];
+    local[1] = el->Position[1];// - RefObj->Position[1];
+    local[2] = el->Position[2];// - RefObj->Position[2];
+    TGeoRotation StackRot("0", Stack->Orientation[0], Stack->Orientation[1], Stack->Orientation[2]);
+    if (Stack->TrueRot)
+    {
+        Stack->TrueRot->LocalToMaster(local, master);
+        for (int i = 0; i < 3; i++)
+            el->TruePos[i] = master[i] + Stack->TruePos[i];
+    }
+    else
+    {
+        StackRot.LocalToMaster(local, master);
+        for (int i = 0; i < 3; i++)
+            el->TruePos[i] = master[i] + Stack->Position[i];
+    }
+
+    /* old
     local[0] = el->Position[0] - RefObj->Position[0];
     local[1] = el->Position[1] - RefObj->Position[1];
     local[2] = el->Position[2] - RefObj->Position[2];
@@ -1076,6 +1081,7 @@ void AGeometryHub::positionStackElement(AGeoObject * el, const AGeoObject * RefO
         for (int i = 0; i < 3; i++)
             el->TruePos[i] = master[i] + RefObj->Position[i] + Stack->Position[i];
     }
+    */
 
     //Orientation
     TGeoRotation elRot("1", el->Orientation[0], el->Orientation[1], el->Orientation[2]);

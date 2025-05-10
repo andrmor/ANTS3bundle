@@ -722,14 +722,15 @@ bool AGeoObjectDelegate::updateObject(AGeoObject * obj) const  //react to false 
             obj->Orientation[i] = tempDoubles[i+3];
         }
 
-        //for stack members:
+        /*
         if (obj->Container && obj->Container->Type->isStack())
         {
             ATypeStackContainerObject * StackTypeObj = static_cast<ATypeStackContainerObject*>(obj->Container->Type);
             if (oldName == StackTypeObj->ReferenceVolume)
                 StackTypeObj->ReferenceVolume = newName;
-            obj->updateStack();
+            obj->Container->updateStack();
         }
+        */
 
         // special role
         delete obj->Role; obj->Role = nullptr;
@@ -963,7 +964,11 @@ void AGeoObjectDelegate::updateTypeLabel()
         if (CurrentObject->Container->Type->isHandlingSet())
         {
             if (CurrentObject->Container->Type->isStack())
+            {
                 DelegateTypeName += ",   stacked";
+                if (CurrentObject->isStackReference())
+                    DelegateTypeName += ",  stack reference";
+            }
         }
     }
 
@@ -981,15 +986,14 @@ void AGeoObjectDelegate::updateControlUI()
 
     if (CurrentObject->Container && CurrentObject->Container->Type->isStack())
     {
-        ledPhi->setEnabled(false);
-        ledTheta->setEnabled(false);
-        ledPhi->setText("0");
-        ledTheta->setText("0");
+        ledPhi->setEnabled(false);   //ledPhi->setText("0");
+        ledTheta->setEnabled(false); //ledTheta->setText("0");
+        ledZ->setEnabled(false);
 
-        if (!CurrentObject->isStackReference())
+        if (CurrentObject->isStackReference())
         {
-            for (AOneLineTextEdit * ole : {ledX, ledY, ledZ, ledPsi})
-            ole->setEnabled(false);
+            ledX->setEnabled(false);
+            ledY->setEnabled(false);
         }
     }
 
@@ -3518,6 +3522,7 @@ AGeoSetDelegate::AGeoSetDelegate(const QStringList &materials, QWidget *parent)
      cbScale->setVisible(false);
 }
 
+#include <QClipboard>
 void AGeoSetDelegate::updateGui(const AGeoObject *obj)
 {
     if (obj->Type->isCompositeContainer())
@@ -3531,10 +3536,69 @@ void AGeoSetDelegate::updateGui(const AGeoObject *obj)
     {
         DelegateTypeName = "Stack";
 
+        QString thick = "--";
+        AGeoBox * box = nullptr;
+        if (obj->Shape) box = dynamic_cast<AGeoBox*>(obj->Shape);
+        if (box) thick = QString::number(2*box->dz);
+
         QVBoxLayout * lay = new QVBoxLayout();
         lay->setAlignment(Qt::AlignHCenter);
         lay->addWidget(new QLabel(" "));
-        lay->addWidget(new QLabel("Rotation in respect to the center of the stack reference object"));
+            QHBoxLayout * hl = new QHBoxLayout();
+            hl->addStretch();
+            hl->addWidget(new QLabel(QString("Stack thickness: %0 mm").arg(thick)));
+            QPushButton * bInfo = new QPushButton("Info");
+            connect(bInfo, &QPushButton::clicked, this, [this]()
+                    {
+                        QString txt = ""
+                        "Stack is a logical object: it does not appear in the constructed geometry directly.\n"
+                        "\n"
+                        "The containing objects are auto-positioned to be 'in contact' in Z direction.\n"
+                        "\n"
+                        "The stack is placed inside the mother volume at the 'center' position.\n"
+                        "There are two options which define where is the stack center:\n"
+                        "1. The stack reference volume is NOT defined:\n"
+                        "   In this case the center of the stack is the middle point of the stack total thickness.\n"
+                        "2. A stack reference point is defined:\n"
+                        "   In this case the center of the stack is the center of the reference object.\n"
+                        "\n"
+                        "The stack rotation is in respect to the stack center.\n"
+                        "\n"
+                        "The stack elements can be shifted lateraly and rotated around the axis.\n"
+                        "\n"
+                        "The stack can contain elementary objects (except composite objects) and other stacks,\n"
+                        "but cannot host arrays or prototypes/instances.\n"
+                        "If an instance has to be 'stacked', put a box in the stack and place the instance inside.\n"
+                        ;
+
+                        guitools::message1(txt, "info", this->ParentWidget);
+                    });
+            if (thick != "--")
+            {
+                QPushButton * bCopyNumber = new QPushButton("Copy");
+                bCopyNumber->setContextMenuPolicy(Qt::CustomContextMenu);
+                bCopyNumber->setToolTip("Left click: numerical value; right click: expression (if available)");
+                connect(bCopyNumber, &QPushButton::clicked, this, [obj]()
+                {
+                    QClipboard * clipboard = QGuiApplication::clipboard();
+                    QString txt = "n.a.";
+                    if (obj->Shape) txt = QString::number(2.0 * obj->Shape->getHeight());
+                    clipboard->setText(txt);
+                });
+                connect(bCopyNumber, &QPushButton::customContextMenuRequested, this, [obj]()
+                {
+                    QClipboard * clipboard = QGuiApplication::clipboard();
+                    QString txt = "n.a.";
+                    if (obj->Shape) txt = obj->Shape->getFullHeightString();
+                    clipboard->setText(txt);
+                });
+                hl->addWidget(bCopyNumber);
+            }
+            hl->addWidget(bInfo);
+            hl->addStretch();
+        lay->addLayout(hl);
+        lay->addWidget(new QLabel(" "));
+        //lay->addWidget(new QLabel("Rotation in respect to the center of the stack!"));
         addLocalLayout(lay);
     }
     else qWarning() << "Unexpected object type in AGeoSetDelegate::Update()";

@@ -14,7 +14,7 @@
 AGeo_SI::AGeo_SI() :
     AScriptInterface(), GeoHub(AGeometryHub::getInstance())
 {
-    Description = "Allows to configure detector geometry. Based on CERN ROOT TGeoManager";
+    Description = "Geometry configurator. Based on CERN ROOT TGeoManager";
 
     QString s = "It is filled with the given material (material index iMat)\n"
                 "and positioned inside 'container' object\n"
@@ -22,35 +22,35 @@ AGeo_SI::AGeo_SI() :
                 "in the local frame of the container;\n"
                 "Requires updateGeometry() to take effect!";
 
-    Help["box"] = "Adds to geometry a box 'name' with the sizes (sizeX,sizeY,sizeZ).\n" + s;
-    Help["cylinder"] = "Adds to geometry a cylinder 'name' with the given diameter and height.\n" + s;
-    Help["tube"] = "Adds to geometry a tube 'name' with the given outer and inner diameters and height.\n" + s;
-    Help["cone"] =  "Adds to geometry a cone 'name' with the given top and bottom diameters and height.\n" +s;
-    Help["polygone"] =  "Adds to geometry a polygon 'name' with the given number of edges, top and bottom diameters of the inscribed "
+    Help["box"] = "Add a box 'name' with the sizes (sizeX,sizeY,sizeZ).\n" + s;
+    Help["cylinder"] = "Add a cylinder 'name' with the given diameter and height.\n" + s;
+    Help["tube"] = "Add a tube 'name' with the given outer and inner diameters and height.\n" + s;
+    Help["cone"] =  "Add a cone 'name' with the given top and bottom diameters and height.\n" +s;
+    Help["polygone"] =  "Add a polygon 'name' with the given number of edges, top and bottom diameters of the inscribed "
                         "circles and height.\n" +s;
-    Help["sphere"] = "Adds to geometry a sphere 'name' with the given diameter.\n" + s;
-    Help["srb8"] = "Adds to geometry a TGeoArb8 object with name 'name' and the given height and two arrays,\n"
+    Help["sphere"] = "Add a sphere 'name' with the given diameter.\n" + s;
+    Help["srb8"] = "Add a TGeoArb8 object with name 'name' and the given height and two arrays,\n"
                    "containing X and Y coordinates of the nodes.\n"+ s;
-    Help["customTGeo"] = "Adds to geometry an object with name 'name' and the shape generated using the CERN ROOT geometry system.\n" + s +
+    Help["customTGeo"] = "Add an object with name 'name' and the shape generated using the CERN ROOT geometry system.\n" + s +
                    "\nFor example, to generate a box of (10,10,10) half sizes use the generation string \"TGeoBBox(10, 10, 10)\".\n"
                    "To generate a composite object, first create logical volumes (using TGeo command or \"Box\" etc), and then "
                    "create the composite using, e.g., the generation string \"TGeoCompositeShape( name1 + name2 )\". Note that the logical volume is removed "
                    "from the generation list after it was used by composite object generator!";
 
-    Help["setLineProperties"] = "Sets color, width and style of the line for visualisation of the object \"name\".";
-    Help["clearWorld"] = "Removes all objects and prototypes leaving only World";
+    Help["setLineProperties"] = "Set color, width and style of the line for visualisation of the object \"name\".";
+    Help["clearWorld"] = "Remove all objects and prototypes leaving only World";
 
-    Help["clearHosted"] = "Removes all objects hosted inside the given Object.\nRequires updateGeometry().";
-    Help["removeWithHosted"] = "Removes the Object and all objects hosted inside.\nRequires updateGeometry().";
+    Help["clearHosted"] = "Remove all objects hosted inside the given Object.\nRequires updateGeometry().";
+    Help["removeWithHosted"] = "Remove the object and all objects hosted inside.\nRequires updateGeometry().";
 
-    Help["updateGeometry"] = "Updates geometry and optionally check it for errors.\n"
+    Help["updateGeometry"] = "Update geometry and optionally run the geometry check for conflicts.\n"
                              "To update the view at the geometry window use geowin.redraw()";
 
-    Help["stack"] = "Adds empty stack object. Volumes can be added normally to this object, stating its name as the container.\n"
-                    "After the last element is added, call InitializeStack(StackName, Origin) function. "
-                    "It will automatically calculate x,y and z positions of all elements, keeping user-configured xyz position of the Origin element.";
-    Help["initializeStack"] = "Call this function after the last element has been added to the stack."
-                              "It will automatically calculate x,y and z positions of all elements, keeping user-configured xyz position of the Origin element.";
+    Help["stack"] = "Add empty stack. Objects can be added to the stack by giving the stack name as their container.";
+    //                "After the last element is added, call InitializeStack(StackName, Origin) function. "
+    //                "It will automatically calculate x,y and z positions of all elements, keeping user-configured xyz position of the Origin element.";
+    //Help["initializeStack"] = "Call this function after the last element has been added to the stack."
+    //                          "It will automatically calculate x,y and z positions of all elements, keeping user-configured xyz position of the Origin element.";
 
     Help["setEnabled"] = "Enable or disable the volume with the providfed name, or,\n"
                          "if the name ends with '*', all volumes with the name starting with the provided string.)\n"
@@ -1342,12 +1342,12 @@ void AGeo_SI::stack(QString name, QString container, QVariantList position, QVar
     bool ok = checkPosOri(position, orientation, pos, ori);
     if (!ok) return;
 
-    AGeoObject * o = new AGeoObject(name, container, 0, nullptr, pos[0],pos[1],pos[2], ori[0],ori[1],ori[2]);
-    delete o->Type;
-    o->Type = new ATypeStackContainerObject();
+    AGeoObject * o = new AGeoObject(name, container, 0, new AGeoBox(), pos[0],pos[1],pos[2], ori[0],ori[1],ori[2]);
+    delete o->Type; o->Type = new ATypeStackContainerObject();
     GeoObjects.push_back(o);
 }
 
+/*
 void AGeo_SI::initializeStack(QString StackName, QString MemberName_StackReference)
 {
     AGeoObject * StackObj = nullptr;
@@ -1385,12 +1385,13 @@ void AGeo_SI::initializeStack(QString StackName, QString MemberName_StackReferen
     }
 
     origin_obj->Container = StackObj;
-    static_cast<ATypeStackContainerObject*>(StackObj->Type)->ReferenceVolume = origin_obj->Name;
-    origin_obj->updateStack();
+    //static_cast<ATypeStackContainerObject*>(StackObj->Type)->ReferenceVolume = origin_obj->Name;
+    origin_obj->Container->updateStack();
 
     origin_obj->Container = nullptr;
     StackObj->HostedObjects.clear();
 }
+*/
 
 /*
 void AGeo_SI::array(QString name, int numX, int numY, int numZ, double stepX, double stepY, double stepZ, QString container, double x, double y, double z, double phi, double theta, double psi, bool centerSymmetric, int startIndex)

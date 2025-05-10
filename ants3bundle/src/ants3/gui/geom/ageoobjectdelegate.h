@@ -579,7 +579,7 @@ class AGeoSetDelegate : public AGeoObjectDelegate
 public:
     AGeoSetDelegate(const QStringList & materials, QWidget * parent);
 
-    void updateGui(const AGeoObject * obj) override;
+    void updateGui(const AGeoObject * obj) override; // !!!*** add button to copy thickness in Geo Consts
 };
 
 class AGeoInstanceDelegate : public AGeoObjectDelegate

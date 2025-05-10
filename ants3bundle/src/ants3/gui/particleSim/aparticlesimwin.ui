@@ -192,7 +192,7 @@ Experimental: Use &quot;Penelope&quot; to choose QGSP_BIC_HP phys list with EM p
            <widget class="QCheckBox" name="cbUseTSphys">
             <property name="toolTip">
              <string>Replaced neutron physics with HP + TS( &lt; 5 ev)
-To benefit from TS, materials like TS_POLYETHYLENE have to be used</string>
+To benefit from TS, materials like G4_POLYETHYLENE have to be used</string>
             </property>
             <property name="text">
              <string>Use TS neutron physics</string>

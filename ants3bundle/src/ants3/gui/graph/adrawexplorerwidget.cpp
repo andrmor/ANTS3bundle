@@ -1458,7 +1458,7 @@ void ADrawExplorerWidget::expFit(int index)
 
     DrawObjects.insert(DrawObjects.begin()+index+1, ADrawObject(f, "same"));
 
-    QString text = QString("y = A*exp{-(t-t0)/T)}\nT = %1, A = %2, t0 = %3\nx range: %3 -> %4").arg(T).arg(A).arg(startX).arg(stopX);
+    QString text = QString("y = A*exp{-(t-t0)/T)}\nT = %1, A = %2, t0 = %3\nHalf-life = %5\nx range: %3 -> %4").arg(T).arg(A).arg(startX).arg(stopX).arg(T*log(2));
     TPaveText* la = new TPaveText(0.15, 0.75, 0.5, 0.85, "NDC");
     la->SetFillColor(0);
     la->SetBorderSize(1);
