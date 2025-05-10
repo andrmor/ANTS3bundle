@@ -324,6 +324,7 @@ bool ASourceParticleGenerator::generateEvent(std::function<void(const AParticleR
         // generating linked particles
         std::vector<ALinkedParticle> & ThisLP = LinkedPartiles[iSource][iParticle];
         ThisLP.front().bWasGenerated = true;
+        ThisLP.front().TimeStamp = time;
         for (size_t ip = 1; ip < ThisLP.size(); ip++) // ThisLP starts from the particle itself, so skip the first record
         {
             const int thisParticle = ThisLP[ip].iParticle;
@@ -335,6 +336,7 @@ bool ASourceParticleGenerator::generateEvent(std::function<void(const AParticleR
                 if (ThisLP[index].iParticle == linkedTo)
                 {
                     parentWasGenerated = ThisLP[index].bWasGenerated;
+                    ThisLP[ip].TimeStamp = ThisLP[index].TimeStamp; // by default inherits parent's timestamp
                     break;
                 }
             }
@@ -363,6 +365,9 @@ bool ASourceParticleGenerator::generateEvent(std::function<void(const AParticleR
                 continue;
             }
 
+            double halfLife = Source.Particles[thisParticle].HalfLife;
+            if (halfLife != 0) ThisLP[ip].TimeStamp += RandomHub.getInstance().exp(halfLife/log(2));
+
             if (Source.UseCutOff && Source.Particles[thisParticle].Particle != "-") //direct deposition ("-") ignores direction and cut-off
             {
                 double inCutoffProbability = CollimationProbability[iSource];
@@ -377,7 +382,7 @@ bool ASourceParticleGenerator::generateEvent(std::function<void(const AParticleR
 
             ThisLP[ip].bWasGenerated = true;
 
-            addGeneratedParticle(iSource, thisParticle, position, time, true, handler);
+            addGeneratedParticle(iSource, thisParticle, position, ThisLP[ip].TimeStamp, true, handler);
         }
 
 #ifndef GEANT4

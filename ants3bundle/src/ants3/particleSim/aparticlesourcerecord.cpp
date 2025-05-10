@@ -64,18 +64,19 @@ void AGunParticle::writeToJson(QJsonObject & json) const
         JsonObject js;
 
             QString str;
-                switch (GenerationType)
-                {
+            switch (GenerationType)
+            {
                 case Independent           : str = "Independent";           break;
                 case Linked_IfGenerated    : str = "Linked_IfGenerated";    break;
                 case Linked_IfNotGenerated : str = "Linked_IfNotGenerated"; break;
                 default: qCritical() << "Not implemented AGunParticle type in writeToJson!"; exit(111);
-                }
+            }
             js["Type"] = str;
             js["BtBPair"]            = BtBPair;
             js["StatWeight"]         = StatWeight;
             js["LinkedTo"]           = LinkedTo;
             js["LinkingProbability"] = LinkedProb;
+            js["HalfLifeLinked"]     = HalfLife;
 
         json["Generation"] = js;
     }
@@ -143,6 +144,8 @@ bool AGunParticle::readFromJson(const JsonObject & json)
             jstools::parseJson(js, "StatWeight",         StatWeight);
             jstools::parseJson(js, "LinkedTo",           LinkedTo);
             jstools::parseJson(js, "LinkingProbability", LinkedProb);
+            HalfLife = 0;
+            jstools::parseJson(js, "HalfLifeLinked",     HalfLife);
     }
 
     // Energy properties

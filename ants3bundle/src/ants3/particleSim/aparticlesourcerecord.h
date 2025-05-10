@@ -27,6 +27,7 @@ struct AGunParticle
     double       StatWeight      = 1.0;
     int          LinkedTo        = 0;          // index of the "parent" particle
     double       LinkedProb      = 0;          // probability to be emitted if the parent particle is generated / not_generated
+    double       HalfLife        = 0;          // half-life for the time delay in the generated particle
 
     bool         BtBPair         = false;      // false = normal case (single particle), true = back-to-back pair of identical particles
 
@@ -41,7 +42,7 @@ struct AGunParticle
     std::string  configureEnergySampler();
     double       generateEnergy() const;
 
-    bool         isDirectDeposition() const; // !!!*** will return true on "special" particles too!
+    bool         isDirectDeposition() const;    // will return true on "special" particles too!
 
 #ifdef JSON11
     bool         readFromJson(const json11::Json::object & json);  // !!!***
