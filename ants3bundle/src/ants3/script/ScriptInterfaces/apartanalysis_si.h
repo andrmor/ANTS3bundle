@@ -40,6 +40,7 @@ public slots:
     void setMaterial(int matIndex);
     void setVolume(QString volumeName);
     void setVolumeIndex(int volumeIndex);
+    void setTimeWindow(double from_ns, double to_ns);
 
     void setFromMaterial(int matIndex);
     void setToMaterial(int matIndex);
