@@ -56,6 +56,9 @@ AParticleSim_SI::AParticleSim_SI() :
                                              "Use getAnalyzerPositionsByGlobalIndex() to get positions of analyzers by the global index";
     Help["getAnalyzerPositionsByGlobalIndex"] = "Returns array with global positions [x,y,z] of all analyzers\n"
                                                 "Non-unique analyzers cannot return position";
+
+    Help["getAnalyzerData"] = "Return array with the data for the unique analyzers with the given index. The array is [particleName, number, EnergyData], "
+                              "where EnergyData is an array of bins [Energy_centerOfBin_keV, Number], excluding under- and overflow";
     Help["getAnalyzerDataAll"] = "Return array with the data for all unique analyzers. The array element is an array of [particleName, number, EnergyData], "
                                  "where EnergyData is an array of bins [Energy_centerOfBin_keV, Number], excluding under- and overflow";
 
@@ -576,6 +579,51 @@ QVariantList AParticleSim_SI::getAnalyzerDataAll()
     }
 
     return allAnalayzersList;
+}
+
+QVariantList AParticleSim_SI::getAnalyzerData(int index)
+{
+    const AParticleAnalyzerHub & AnHub = AParticleAnalyzerHub::getInstance();
+
+    QVariantList oneAnalyzerList;
+
+    if (index < 0 || index >= AnHub.UniqueAnalyzers.size())
+    {
+        abort("Invalid analyzer index");
+        return oneAnalyzerList;
+    }
+
+    const AAnalyzerData & an = AnHub.UniqueAnalyzers[index];
+
+    const QString enUnits = an.EnergyDataUnits;
+    double energyFactor = 1.0;
+    if      (enUnits == "MeV") energyFactor = 1e3;
+    else if (enUnits == "eV")  energyFactor = 1e-3;
+    else if (enUnits == "meV")  energyFactor = 1e-6;
+
+    for (const auto & pair : an.ParticleMap)
+    {
+        QVariantList particleList;
+
+        const AAnalyzerParticle & particleRec = pair.second;
+        QVariantList histVL;
+        for (size_t i = 1; i < particleRec.EnergyBins+1; i++)
+        {
+            QVariantList el;
+            el.push_back(particleRec.EnergyHist->GetBinCenter(i));
+            el.push_back(particleRec.EnergyHist->GetBinContent(i) * energyFactor);
+            histVL.push_back(el);
+        }
+
+        // [name, number, [energyDataExcludingUnderOver:[E_center,Number]]]
+        particleList.push_back(pair.first);
+        particleList.push_back( (int)particleRec.getNumber() );
+        particleList.push_back(histVL);
+
+        oneAnalyzerList.push_back(particleList);
+    }
+
+    return oneAnalyzerList;
 }
 
 QVariantList AParticleSim_SI::getAnalyzerUniqueToGlobalIndex()
