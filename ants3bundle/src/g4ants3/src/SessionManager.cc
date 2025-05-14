@@ -124,6 +124,16 @@ void SessionManager::runSimulation()
 
 void SessionManager::onEventFinished()
 {
+    if (!DirectDepositionBuffer.empty())
+    {
+        // when particle gun is prepared, the Event action did not start yet so th event start marker is not yet saved
+        // the output is stored in the temporary buffer
+        for (TmpDepositionBuffer & rec : DirectDepositionBuffer)
+            saveDepoRecord(rec.Name, rec.iMat, rec.EDep, rec.Pos, rec.Time, rec.iCopyNumber);
+
+        DirectDepositionBuffer.clear();
+    }
+
     //EventId = NextEventId;
     CurrentEvent++;
 

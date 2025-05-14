@@ -32,6 +32,16 @@ struct ParticleRecord
     G4double Time = 0;
 };
 
+struct TmpDepositionBuffer
+{
+    std::string Name;
+    int    iMat;
+    double EDep;
+    double Pos[3];
+    double Time;
+    int    iCopyNumber;
+};
+
 class SessionManager
 {
     public:
@@ -104,6 +114,8 @@ public:
         std::vector<AAnalyzerUniqueInstance>              Analyzers;
 
         const G4String DepoLoggerSDName = "SD";
+
+        std::vector<TmpDepositionBuffer> DirectDepositionBuffer;
 
 private:
         void prepareParticleGun();

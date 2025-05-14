@@ -573,9 +573,13 @@ void ASourceParticleGenerator::addGeneratedParticle(int iSource, int iParticle, 
             if (logic && SM.isEnergyDepoLogger(logic))
             {
                 const int iMat = SM.findMaterial(vol->GetLogicalVolume()->GetMaterial()->GetName());
-                SM.saveDepoRecord("-", iMat, energy, position, time, vol->GetCopyNo());
+                //SM.saveDepoRecord("-", iMat, energy, position, time, vol->GetCopyNo()); // cannot do it: event action not triggered yet!
+                SM.DirectDepositionBuffer.push_back( {"-", iMat, energy, {position[0], position[1], position[2]}, time, vol->GetCopyNo()} );
             }
         }
+#else
+        AParticleRecord particle("-", position, time, energy);
+        handler(particle);
 #endif
     }
 }
