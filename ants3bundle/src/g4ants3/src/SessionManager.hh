@@ -113,7 +113,7 @@ public:
         std::vector<CalorimeterSensitiveDetectorWrapper*> Calorimeters;  // can contain nullptr!
         std::vector<AAnalyzerUniqueInstance>              Analyzers;
 
-        const G4String DepoLoggerSDName = "SD";
+        const G4String DepoLoggerSDName = "SD_Depo";
 
         std::vector<TmpDepositionBuffer> DirectDepositionBuffer;
 

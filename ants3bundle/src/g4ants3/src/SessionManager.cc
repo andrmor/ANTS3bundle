@@ -654,10 +654,18 @@ void SessionManager::saveParticle(const G4String &particle, double energy, doubl
 }
 
 #include "G4VSensitiveDetector.hh"
+#include "G4MultiSensitiveDetector.hh"
 bool SessionManager::isEnergyDepoLogger(G4LogicalVolume * vol)
 {
     G4VSensitiveDetector * sd = vol->GetSensitiveDetector();
-    return (sd && sd->GetName() == DepoLoggerSDName);
+    G4MultiSensitiveDetector * multi = dynamic_cast<G4MultiSensitiveDetector*>(sd);
+    if (!multi) return (sd && sd->GetName() == DepoLoggerSDName);
+
+    int numElements = multi->GetSize();
+    for (int i = 0; i < numElements; i++)
+        if (multi->GetSD(i)->GetName() == DepoLoggerSDName) return true;
+
+    return false;
 }
 
 #include "SensitiveDetector.hh"
