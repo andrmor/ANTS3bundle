@@ -25,6 +25,8 @@ public:
 
     void setNumber(int num);
 
+    void setNumberInvisible();
+
 private slots:
     void on_leProcessesMust_customContextMenuRequested(const QPoint &pos);
 
