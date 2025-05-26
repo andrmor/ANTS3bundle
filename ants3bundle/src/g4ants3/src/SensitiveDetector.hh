@@ -137,6 +137,8 @@ public:
     AnalyzerSensitiveDetector(const std::string & name);
 
     G4bool ProcessHits(G4Step * step, G4TouchableHistory * history) override;
+
+    bool AnalyzeCreated = false;
 };
 
 #endif // SensitiveDetector_h

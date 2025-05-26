@@ -512,12 +512,29 @@ AnalyzerSensitiveDetector::AnalyzerSensitiveDetector(const std::string & name) :
 
 G4bool AnalyzerSensitiveDetector::ProcessHits(G4Step * step, G4TouchableHistory *)
 {
+    if (!step->IsFirstStepInVolume()) return true;
+
     G4StepPoint * preStepPoint = step->GetPreStepPoint();
     const G4VProcess * proc = preStepPoint->GetProcessDefinedStep();
-    if (!proc) return true;
-    //std::cout << step->GetPreStepPoint()->GetProcessDefinedStep()->GetProcessName() << std::endl;
-    //std::cout << step->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName() << std::endl;
-    if (proc->GetProcessType() != fTransportation || preStepPoint->GetStepStatus() != fGeomBoundary) return true;
+    if (!proc)
+    {
+        //std::cout << step->GetPreStepPoint()->GetKineticEnergy() << "first?" << step->IsFirstStepInVolume() << std::endl;
+
+        // created inside
+        if (!AnalyzeCreated) return true;
+    }
+    else
+    {
+        //std::cout << step->GetPreStepPoint()->GetProcessDefinedStep()->GetProcessName() << std::endl;
+        //std::cout << step->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName() << std::endl;
+        //std::cout << step->GetPreStepPoint()->GetKineticEnergy() << " " <<  step->GetPostStepPoint()->GetKineticEnergy() << std::endl;
+        //std::cout << step->GetTrack()->GetKineticEnergy() << "first?" << step->IsFirstStepInVolume() << "<--\n";
+
+        if (proc->GetProcessType() != fTransportation || preStepPoint->GetStepStatus() != fGeomBoundary) return true;
+
+        // transported in
+        if (AnalyzeCreated) return true;
+    }
 
     int index = preStepPoint->GetPhysicalVolume()->GetCopyNo();
     // !!!*** error processing
