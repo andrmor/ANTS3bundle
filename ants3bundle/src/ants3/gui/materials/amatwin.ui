@@ -2063,7 +2063,7 @@ Wavelengths shoul be given in increasing order</string>
                   </font>
                  </property>
                  <property name="text">
-                  <string>Emission raise time:</string>
+                  <string>Emission rise time:</string>
                  </property>
                 </widget>
                </item>

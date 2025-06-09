@@ -1,8 +1,62 @@
 {
-    "ConfigDescription": "Anger camera with NaI scintillator and 37 PMTs\nFirst run a particle simulation, then follow with the optical one using the energy deposition data",
+    "ConfigDescription": "Anger camera with NaI scintillator and 37 PMTs;\nFor full cycle simulation, first run a particle simulation, then follow with the optical one using the energy deposition data (Deposition.dat)",
     "ConfigName": "Clinical gamma camera",
     "Geometry": {
         "GeoConsts": [
+            [
+                "ScintZ",
+                12.5,
+                "",
+                ""
+            ],
+            [
+                "ScintD",
+                470,
+                "",
+                ""
+            ],
+            [
+                "LightguideZ",
+                12.5,
+                "",
+                ""
+            ],
+            [
+                "LightguideD",
+                570,
+                "",
+                ""
+            ],
+            [
+                "PmtZ",
+                1,
+                "",
+                ""
+            ],
+            [
+                "PmtD",
+                76,
+                "",
+                ""
+            ],
+            [
+                "PmtGap",
+                2,
+                "",
+                ""
+            ],
+            [
+                "GreaseZ",
+                0.1,
+                "",
+                ""
+            ],
+            [
+                "TotalZ",
+                26.2,
+                "PmtZ + GreaseZ + LightguideZ + GreaseZ + ScintZ",
+                ""
+            ]
         ],
         "WorldTree": [
             {
@@ -60,7 +114,9 @@
                 "ShapeSpecific": {
                     "dz": 0.5,
                     "rmax": 285,
-                    "rmin": 0
+                    "rmin": 0,
+                    "str2dz": "PmtZ",
+                    "str2rmax": "LightguideD"
                 },
                 "Theta": 0,
                 "Type": {
@@ -68,7 +124,7 @@
                 },
                 "X": 0,
                 "Y": 0,
-                "Z": 19.85,
+                "Z": 19.45,
                 "color": 11,
                 "fActive": true,
                 "fExpanded": true,
@@ -90,7 +146,8 @@
                     "SkipOddLast": true,
                     "Step": 78,
                     "Type": "HexagonalArray",
-                    "startIndex": 0
+                    "startIndex": 0,
+                    "strStep": "PmtD + PmtGap"
                 },
                 "X": 0,
                 "Y": 0,
@@ -112,7 +169,10 @@
                     "rmaxL": 38,
                     "rmaxU": 38,
                     "rminL": 0,
-                    "rminU": 0
+                    "rminU": 0,
+                    "str2dz": "PmtZ",
+                    "str2rmaxL": "PmtD",
+                    "str2rmaxU": "PmtD"
                 },
                 "SpecialRole": {
                     "SensorModel": 0,
@@ -125,7 +185,7 @@
                 "X": 0,
                 "Y": 0,
                 "Z": 0,
-                "color": 1,
+                "color": 8,
                 "fActive": true,
                 "fExpanded": true,
                 "style": 1,
@@ -139,9 +199,11 @@
                 "Psi": 0,
                 "Shape": "TGeoTube",
                 "ShapeSpecific": {
-                    "dz": 0.15,
+                    "dz": 0.05,
                     "rmax": 285,
-                    "rmin": 0
+                    "rmin": 0,
+                    "str2dz": "GreaseZ",
+                    "str2rmax": "LightguideD"
                 },
                 "Theta": 0,
                 "Type": {
@@ -149,7 +211,7 @@
                 },
                 "X": 0,
                 "Y": 0,
-                "Z": 19.200000000000003,
+                "Z": 18.9,
                 "color": 801,
                 "fActive": true,
                 "fExpanded": true,
@@ -166,7 +228,9 @@
                 "ShapeSpecific": {
                     "dz": 6.25,
                     "rmax": 285,
-                    "rmin": 0
+                    "rmin": 0,
+                    "str2dz": "LightguideZ",
+                    "str2rmax": "LightguideD"
                 },
                 "Theta": 0,
                 "Type": {
@@ -174,7 +238,7 @@
                 },
                 "X": 0,
                 "Y": 0,
-                "Z": 12.8,
+                "Z": 12.6,
                 "color": 4,
                 "fActive": true,
                 "fExpanded": true,
@@ -189,9 +253,11 @@
                 "Psi": 0,
                 "Shape": "TGeoTube",
                 "ShapeSpecific": {
-                    "dz": 0.15,
+                    "dz": 0.05,
                     "rmax": 285,
-                    "rmin": 0
+                    "rmin": 0,
+                    "str2dz": "GreaseZ",
+                    "str2rmax": "LightguideD"
                 },
                 "Theta": 0,
                 "Type": {
@@ -199,7 +265,7 @@
                 },
                 "X": 0,
                 "Y": 0,
-                "Z": 6.4,
+                "Z": 6.299999999999999,
                 "color": 801,
                 "fActive": true,
                 "fExpanded": true,
@@ -216,7 +282,9 @@
                 "ShapeSpecific": {
                     "dz": 6.25,
                     "rmax": 235,
-                    "rmin": 0
+                    "rmin": 0,
+                    "str2dz": "ScintZ",
+                    "str2rmax": "ScintD"
                 },
                 "SpecialRole": {
                     "Type": "Scint"
@@ -247,8 +315,11 @@
                 "ScatMode": 1,
                 "Spec": 0,
                 "SurfaceProperties": {
-                    "Model": "Polished"
-                }
+                    "KillPhotonsRefractedBackward": false,
+                    "Model": "Polished",
+                    "OrientationProbabilityCorrection": true
+                },
+                "Symmetric": false
             },
             {
                 "Abs": 0.25,
@@ -259,8 +330,11 @@
                 "ScatMode": 1,
                 "Spec": 0,
                 "SurfaceProperties": {
-                    "Model": "Polished"
-                }
+                    "KillPhotonsRefractedBackward": false,
+                    "Model": "Polished",
+                    "OrientationProbabilityCorrection": true
+                },
+                "Symmetric": false
             },
             {
                 "Abs": 1,
@@ -271,8 +345,11 @@
                 "ScatMode": 1,
                 "Spec": 0,
                 "SurfaceProperties": {
-                    "Model": "Polished"
-                }
+                    "KillPhotonsRefractedBackward": false,
+                    "Model": "Polished",
+                    "OrientationProbabilityCorrection": true
+                },
+                "Symmetric": false
             }
         ],
         "VolumeRules": [
@@ -335,6 +412,8 @@
             ],
             "RefIndexComplex_Wave": [
             ],
+            "RefIndexImporter": {
+            },
             "RefIndexWave": [
             ],
             "SecScintSpectrum": [
@@ -401,6 +480,8 @@
             ],
             "RefIndexComplex_Wave": [
             ],
+            "RefIndexImporter": {
+            },
             "RefIndexWave": [
             ],
             "SecScintSpectrum": [
@@ -527,6 +608,8 @@
             ],
             "RefIndexComplex_Wave": [
             ],
+            "RefIndexImporter": {
+            },
             "RefIndexWave": [
             ],
             "SecScintSpectrum": [
@@ -593,6 +676,8 @@
             ],
             "RefIndexComplex_Wave": [
             ],
+            "RefIndexImporter": {
+            },
             "RefIndexWave": [
             ],
             "SecScintSpectrum": [
@@ -616,7 +701,6 @@
             ],
             "PhysicsList": "QGSP_BIC_HP",
             "ScintSensitiveVolumes": [
-                "Scintillator",
                 "Scintillator"
             ],
             "SensitiveVolumes": [
@@ -867,12 +951,14 @@
                 "FileName": "Calorimeters.json"
             },
             "FileNameDeposition": "Deposition.dat",
+            "FileNameSaveConfig": "Config_ParticleSim.json",
             "FileNameTrackingHistory": "TrackingData.dat",
             "MonitorSettings": {
                 "Enabled": false,
                 "FileName": "ParticleMonitors.json"
             },
-            "OutputDirectory": "/home/andr/WORK/GammaPMT/Out",
+            "OutputDirectory": "",
+            "SaveConfig": false,
             "SaveDeposition": true,
             "SaveParticles": {
                 "Enabled": false,
@@ -893,9 +979,9 @@
     },
     "PhotonSim": {
         "Deposition": {
-            "FileFormat": "Ascii",
-            "FileName": "/home/andr/WORK/GammaPMT/Out/Deposition.dat",
-            "LastModified": 1730803441073,
+            "FileFormat": "Undefined",
+            "FileName": "/home/andr/.config/ants3/TmpOutput/Deposition.dat",
+            "LastModified": 1746462884688,
             "NumEvents": 100,
             "Primary": true,
             "Secondary": false
@@ -908,10 +994,12 @@
             "Advanced": {
                 "Direction": {
                     "ConeAngle": 10,
-                    "DirDX": 0,
-                    "DirDY": 0,
-                    "DirDZ": 1,
-                    "DirectionMode": "Isotropic"
+                    "DirectionMode": "Isotropic",
+                    "DirectionVector": [
+                        0,
+                        0,
+                        1
+                    ]
                 },
                 "SkipBombs": {
                     "EnableOnlyMat": false,
@@ -926,7 +1014,7 @@
                 },
                 "Wave": {
                     "Enabled": false,
-                    "WaveIndex": -1
+                    "FixedWavelength": 550
                 }
             },
             "File": {
@@ -1010,6 +1098,7 @@
         },
         "Run": {
             "BinaryFormat": false,
+            "FileNameConfig": "Config_OpticalSim.json",
             "FileNameMonitors": "PhotonMonitors.txt",
             "FileNamePhotonBombs": "PhotonBombs.txt",
             "FileNameReceipt": "DummyReceipt.txt",
@@ -1018,7 +1107,7 @@
             "FileNameStatistics": "PhotonStatistics.json",
             "FileNameTracks": "PhotonTracks.txt",
             "MaxTracks": 1000,
-            "OutputDirectory": "/home/andr/WORK/GammaPMT/Out",
+            "OutputDirectory": "",
             "PhotonLog": {
                 "Enabled": false,
                 "FileName": "PhotonLog.txt",
@@ -1032,6 +1121,7 @@
                 "MustNotInclude_Volumes": [
                 ]
             },
+            "SaveConfig": false,
             "SaveMonitors": false,
             "SavePhotonBombs": false,
             "SaveSensorLog": false,
@@ -1045,7 +1135,7 @@
             "SensorLogXY": false,
             "UpperTimeLimit": 1000000000
         },
-        "SimulationType": "depo",
+        "SimulationType": "bomb",
         "WaveResolved": {
             "Enabled": false,
             "From": 200,

@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>622</width>
+    <width>623</width>
     <height>767</height>
    </rect>
   </property>
@@ -37,7 +37,7 @@
     <item>
      <widget class="QTabWidget" name="twMain">
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tabGeant4">
        <attribute name="title">
@@ -192,7 +192,7 @@ Experimental: Use &quot;Penelope&quot; to choose QGSP_BIC_HP phys list with EM p
            <widget class="QCheckBox" name="cbUseTSphys">
             <property name="toolTip">
              <string>Replaced neutron physics with HP + TS( &lt; 5 ev)
-To benefit from TS, materials like TS_POLYETHYLENE have to be used</string>
+To benefit from TS, materials like G4_POLYETHYLENE have to be used</string>
             </property>
             <property name="text">
              <string>Use TS neutron physics</string>
@@ -5450,7 +5450,7 @@ Please specify a valid range</string>
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>622</width>
+     <width>623</width>
      <height>22</height>
     </rect>
    </property>

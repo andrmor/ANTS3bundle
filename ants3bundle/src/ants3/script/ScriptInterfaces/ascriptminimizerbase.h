@@ -59,7 +59,7 @@ protected:
 
     bool            bHighPrecision = false;
     int             PrintVerbosity = -1;
-    int             Method = 0; // 0-Migrad, 1-Simplex
+    int             Method = 1; // 0-Migrad, 1-Simplex
     int             MaxCalls = 500;
     int             MaxIteration = 1000;
     double          Tolerance = 0.001;

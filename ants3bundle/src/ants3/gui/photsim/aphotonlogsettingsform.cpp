@@ -97,6 +97,12 @@ void APhotonLogSettingsForm::setNumber(int num)
     ui->sbMaxNumber->setValue(num);
 }
 
+void APhotonLogSettingsForm::setNumberInvisible()
+{
+    ui->sbMaxNumber->setVisible(false);
+    ui->labNumber->setVisible(false);
+}
+
 void APhotonLogSettingsForm::on_leProcessesMust_customContextMenuRequested(const QPoint &)
 {
     addProcess(ui->leProcessesMust);

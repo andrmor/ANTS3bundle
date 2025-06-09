@@ -29,7 +29,6 @@ public:
 
     bool isRunning() const override;
     bool isAborted() const override {return bAborted;}
-    bool isFinished() const {return bFinished;} // !!!*** make general?
 
     QVariant getResult() override;
 
@@ -62,7 +61,6 @@ protected:
     AJScriptWorker * Worker = nullptr;
 
     bool             bAborted = false;
-    bool             bFinished = false;
 
 };
 

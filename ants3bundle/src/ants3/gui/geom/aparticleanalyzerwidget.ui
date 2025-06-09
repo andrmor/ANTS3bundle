@@ -6,27 +6,70 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>488</width>
-    <height>124</height>
+    <width>502</width>
+    <height>122</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="spacing">
+    <number>3</number>
+   </property>
+   <property name="topMargin">
+    <number>3</number>
+   </property>
+   <property name="bottomMargin">
+    <number>1</number>
+   </property>
    <item>
-    <widget class="QLabel" name="label">
-     <property name="text">
-      <string>Energy distribution histogram</string>
+    <layout class="QHBoxLayout" name="horizontalLayout_4">
+     <property name="topMargin">
+      <number>0</number>
      </property>
-    </widget>
+     <item>
+      <widget class="QLabel" name="label_5">
+       <property name="text">
+        <string>Register particles:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QComboBox" name="cobScoringType">
+       <item>
+        <property name="text">
+         <string>Entering from outside</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Created inside</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Orientation::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
    </item>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_3">
      <item>
       <widget class="QLabel" name="label_2">
        <property name="text">
-        <string>    Bins</string>
+        <string>Energy bins</string>
        </property>
       </widget>
      </item>
@@ -128,7 +171,7 @@
      <item>
       <widget class="QCheckBox" name="cbStopTracking">
        <property name="text">
-        <string>Stop particle tracking</string>
+        <string>Kill recorded particle</string>
        </property>
       </widget>
      </item>
@@ -176,8 +219,8 @@
      <y>48</y>
     </hint>
     <hint type="destinationlabel">
-     <x>440</x>
-     <y>97</y>
+     <x>491</x>
+     <y>138</y>
     </hint>
    </hints>
   </connection>
@@ -188,12 +231,12 @@
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>227</x>
-     <y>35</y>
+     <x>307</x>
+     <y>69</y>
     </hint>
     <hint type="destinationlabel">
-     <x>463</x>
-     <y>97</y>
+     <x>491</x>
+     <y>138</y>
     </hint>
    </hints>
   </connection>
@@ -204,12 +247,12 @@
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>374</x>
-     <y>43</y>
+     <x>424</x>
+     <y>69</y>
     </hint>
     <hint type="destinationlabel">
-     <x>423</x>
-     <y>107</y>
+     <x>491</x>
+     <y>138</y>
     </hint>
    </hints>
   </connection>
@@ -224,8 +267,8 @@
      <y>50</y>
     </hint>
     <hint type="destinationlabel">
-     <x>453</x>
-     <y>107</y>
+     <x>491</x>
+     <y>138</y>
     </hint>
    </hints>
   </connection>
@@ -236,12 +279,12 @@
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>55</x>
-     <y>73</y>
+     <x>65</x>
+     <y>103</y>
     </hint>
     <hint type="destinationlabel">
-     <x>419</x>
-     <y>99</y>
+     <x>491</x>
+     <y>138</y>
     </hint>
    </hints>
   </connection>
@@ -252,12 +295,12 @@
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>262</x>
-     <y>70</y>
+     <x>304</x>
+     <y>104</y>
     </hint>
     <hint type="destinationlabel">
-     <x>419</x>
-     <y>96</y>
+     <x>491</x>
+     <y>138</y>
     </hint>
    </hints>
   </connection>
@@ -268,12 +311,12 @@
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>433</x>
-     <y>70</y>
+     <x>469</x>
+     <y>104</y>
     </hint>
     <hint type="destinationlabel">
-     <x>437</x>
-     <y>103</y>
+     <x>491</x>
+     <y>138</y>
     </hint>
    </hints>
   </connection>
@@ -284,12 +327,12 @@
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>67</x>
-     <y>104</y>
+     <x>77</x>
+     <y>137</y>
     </hint>
     <hint type="destinationlabel">
-     <x>422</x>
-     <y>109</y>
+     <x>491</x>
+     <y>138</y>
     </hint>
    </hints>
   </connection>
@@ -300,12 +343,12 @@
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>296</x>
-     <y>101</y>
+     <x>405</x>
+     <y>137</y>
     </hint>
     <hint type="destinationlabel">
-     <x>449</x>
-     <y>103</y>
+     <x>491</x>
+     <y>138</y>
     </hint>
    </hints>
   </connection>
@@ -316,12 +359,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>111</x>
-     <y>73</y>
+     <x>121</x>
+     <y>103</y>
     </hint>
     <hint type="destinationlabel">
-     <x>220</x>
-     <y>78</y>
+     <x>304</x>
+     <y>104</y>
     </hint>
    </hints>
   </connection>
@@ -332,12 +375,28 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>33</x>
-     <y>70</y>
+     <x>43</x>
+     <y>103</y>
     </hint>
     <hint type="destinationlabel">
-     <x>360</x>
-     <y>77</y>
+     <x>469</x>
+     <y>104</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cobScoringType</sender>
+   <signal>activated(int)</signal>
+   <receiver>pbChanged</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>186</x>
+     <y>23</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>454</x>
+     <y>124</y>
     </hint>
    </hints>
   </connection>

@@ -80,6 +80,7 @@ private:
   void updateIcon(QTreeWidgetItem *item, AGeoObject *obj);
   void menuActionFormStack(QList<QTreeWidgetItem *> selected);
   void markAsStackRefVolume(AGeoObject * obj);
+  void clearStackRefVolume(AGeoObject * obj);
   void updatePrototypeTreeGui();
 
   void menuActionMoveObject(AGeoObject * obj, int option); //0 1 2 3 = top up down bottom

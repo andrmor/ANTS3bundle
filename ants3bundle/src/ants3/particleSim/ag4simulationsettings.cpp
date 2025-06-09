@@ -140,8 +140,9 @@ void AG4SimulationSettings::clear()
 {
     PhysicsList = "QGSP_BERT_HP";
     UseTSphys = false;
-    Commands.clear();
-    SensitiveVolumes.clear();
     ScintSensitiveVolumes.clear();
+    AddScintillatorsToSensitiveVolumes = true;
+    SensitiveVolumes.clear();
+    Commands = {"/run/setCut 0.7 mm"};
     StepLimits.clear();
 }

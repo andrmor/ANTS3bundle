@@ -36,7 +36,7 @@ public slots:
     void onRegisterInterface(AScriptInterface * interface, QString name);
     void onFinalizeInit();
     void evaluate(const QString & script);
-    void exit();  // !!!***
+    void exit();
 
 signals:
     void evalFinished(bool bSuccess);

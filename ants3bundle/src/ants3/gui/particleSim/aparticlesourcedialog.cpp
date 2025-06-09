@@ -355,6 +355,7 @@ void AParticleSourceDialog::updateListWidget()
             str += " P=";
             str += QString::number(gps.LinkedProb);
             if (gps.BtBPair) str += " BtB pair";
+            if (gps.HalfLife != 0) str += " HL:" + QString::number(gps.HalfLife) + "ns";
         }
         ui->lwGunParticles->addItem(str);
     }
@@ -392,6 +393,8 @@ void AParticleSourceDialog::updateParticleInfo()
         ui->sbLinkedTo->setValue(gRec.LinkedTo);
         str.setNum(gRec.LinkedProb);
         ui->ledLinkingProbability->setText(str);
+        str.setNum(gRec.HalfLife);
+        ui->ledHalfLife->setText(str);
         ui->cbLinkingOpposite->setChecked(gRec.BtBPair);
 
         bool bFix = gRec.UseFixedEnergy;
@@ -540,6 +543,7 @@ void AParticleSourceDialog::on_pbUpdateRecord_clicked()
         }
         p.LinkedTo = ui->sbLinkedTo->value();
         p.LinkedProb = ui->ledLinkingProbability->text().toDouble();
+        p.HalfLife = ui->ledHalfLife->text().toDouble();
         p.BtBPair = ui->cbLinkingOpposite->isChecked();
 
         p.configureEnergySampler();
@@ -578,6 +582,17 @@ void AParticleSourceDialog::on_ledLinkingProbability_editingFinished()
     {
         ui->ledLinkingProbability->setText(0);
         guitools::message("Linking probability has to be within [0, 1] range. Setting to 0", this);
+    }
+    on_pbUpdateRecord_clicked();
+}
+
+void AParticleSourceDialog::on_ledHalfLife_editingFinished()
+{
+    double val = ui->ledHalfLife->text().toDouble();
+    if (val < 0)
+    {
+        ui->ledHalfLife->setText(0);
+        guitools::message("Half-life cannot be negative. Setting to 0", this);
     }
     on_pbUpdateRecord_clicked();
 }

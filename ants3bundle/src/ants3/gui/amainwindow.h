@@ -4,7 +4,7 @@
 #include "aguiwindow.h"
 
 namespace Ui {
-class MainWindow;
+class AMainWindow;
 }
 class AConfig;
 class AGeoTreeWin;
@@ -39,7 +39,7 @@ private:
     AConfig           & Config;
     A3Global          & GlobSet;
 
-    Ui::MainWindow    * ui = nullptr;
+    Ui::AMainWindow   * ui = nullptr;
 
     AGeoTreeWin       * GeoTreeWin = nullptr;
     AGeometryWindow   * GeoWin     = nullptr;

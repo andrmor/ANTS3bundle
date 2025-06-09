@@ -155,6 +155,59 @@ QString AScriptHub::getPythonVersion()
 #endif
 }
 
+#include <QFile>
+#include <QFileInfo>
+#include <QDir>
+#include <QThread>
+#include "afiletools.h"
+QString AScriptHub::evaluateScriptAndWaitToFinish(const QString & fileName, EScriptLanguage lang)
+{
+    if (!QFile(fileName).exists()) return "Script file not found: " + fileName;
+
+    QString script;
+    bool ok = ftools::loadTextFromFile(script, fileName);
+    if (!ok) return "Failed to read script from file " + fileName;
+
+    QString path = QFileInfo(fileName).absolutePath();
+    QDir::setCurrent(path);
+
+    if (lang == EScriptLanguage::JavaScript)
+    {
+        JavaScriptM->evaluate(script);
+        while (!JavaScriptM->isEvalFinished())
+        {
+            QThread::msleep(100);
+            QCoreApplication::processEvents();
+        }
+        if (JavaScriptM->isError()) return JavaScriptM->getErrorDescription() + " in line " + QString::number(JavaScriptM->getErrorLineNumber());
+        return "";
+    }
+
+#ifdef ANTS3_PYTHON
+    PythonM->evaluate(script);
+    while (!PythonM->isEvalFinished())
+    {
+        QThread::msleep(100);
+        QCoreApplication::processEvents();
+    }
+    if (PythonM->isError()) return PythonM->getErrorDescription();
+    return "";
+#else
+    return "Ants3 was compiled without Python interface";
+#endif
+}
+
+void AScriptHub::aboutToQuit()
+{
+    if (JavaScriptM->isRunning()) JavaScriptM->abort();
+    emit JavaScriptM->doExit();
+
+#ifdef ANTS3_PYTHON
+    if (PythonM->isRunning()) PythonM->abort();
+    emit PythonM->doExit();
+#endif
+}
+
 AScriptHub::AScriptHub()
 {
     //qDebug() << ">Creating AJScriptManager and Generating/registering script units";
@@ -199,7 +252,7 @@ AScriptHub::AScriptHub()
 
 AScriptHub::~AScriptHub()
 {
-    qDebug() << "Destr for ScriptHub";
+    //qDebug() << "Destr for ScriptHub";
 #ifdef ANTS3_PYTHON
     delete PythonM; PythonM = nullptr;
 #endif

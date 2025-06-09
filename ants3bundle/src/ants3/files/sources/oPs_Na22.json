@@ -23,6 +23,48 @@
                 "EnergySigma": 50,
                 "EnergySpectrum": [
                 ],
+                "FixedEnergy": 1274.58,
+                "PreferredSigmaUnits": "keV",
+                "PreferredUnits": "keV",
+                "UseFixedEnergy": true,
+                "UseGaussBlur": false
+            },
+            "Generation": {
+                "BtBPair": false,
+                "HalfLifeLinked": 0,
+                "LinkedTo": 0,
+                "LinkingProbability": 1,
+                "StatWeight": 0.1,
+                "Type": "Independent"
+            },
+            "Particle": "gamma"
+        },
+        {
+            "Energy": {
+                "EnergySigma": 50,
+                "EnergySpectrum": [
+                ],
+                "FixedEnergy": 1274.58,
+                "PreferredSigmaUnits": "keV",
+                "PreferredUnits": "keV",
+                "UseFixedEnergy": true,
+                "UseGaussBlur": false
+            },
+            "Generation": {
+                "BtBPair": false,
+                "HalfLifeLinked": 0,
+                "LinkedTo": 0,
+                "LinkingProbability": 1,
+                "StatWeight": 0.9,
+                "Type": "Independent"
+            },
+            "Particle": "gamma"
+        },
+        {
+            "Energy": {
+                "EnergySigma": 50,
+                "EnergySpectrum": [
+                ],
                 "FixedEnergy": 0,
                 "PreferredSigmaUnits": "keV",
                 "PreferredUnits": "keV",
@@ -31,10 +73,11 @@
             },
             "Generation": {
                 "BtBPair": false,
-                "LinkedTo": 0,
-                "LinkingProbability": 0,
-                "StatWeight": 0.01,
-                "Type": "Independent"
+                "HalfLifeLinked": 125,
+                "LinkedTo": 1,
+                "LinkingProbability": 0.01,
+                "StatWeight": 0.1,
+                "Type": "Linked_IfGenerated"
             },
             "Particle": "_oPs"
         },
@@ -51,50 +94,11 @@
             },
             "Generation": {
                 "BtBPair": true,
-                "LinkedTo": 0,
-                "LinkingProbability": 0.90326,
-                "StatWeight": 0.99,
-                "Type": "Independent"
-            },
-            "Particle": "gamma"
-        },
-        {
-            "Energy": {
-                "EnergySigma": 50,
-                "EnergySpectrum": [
-                ],
-                "FixedEnergy": 1274.58,
-                "PreferredSigmaUnits": "keV",
-                "PreferredUnits": "keV",
-                "UseFixedEnergy": true,
-                "UseGaussBlur": false
-            },
-            "Generation": {
-                "BtBPair": false,
-                "LinkedTo": 0,
+                "HalfLifeLinked": 0,
+                "LinkedTo": 2,
                 "LinkingProbability": 1,
-                "StatWeight": 1,
-                "Type": "Linked_IfGenerated"
-            },
-            "Particle": "gamma"
-        },
-        {
-            "Energy": {
-                "EnergySigma": 50,
-                "EnergySpectrum": [
-                ],
-                "FixedEnergy": 1274.58,
-                "PreferredSigmaUnits": "keV",
-                "PreferredUnits": "keV",
-                "UseFixedEnergy": true,
-                "UseGaussBlur": false
-            },
-            "Generation": {
-                "BtBPair": false,
-                "LinkedTo": 1,
-                "LinkingProbability": 1,
-                "StatWeight": 1,
-                "Type": "Linked_IfGenerated"
+                "StatWeight": 0.1,
+                "Type": "Linked_IfNotGenerated"
             },
             "Particle": "gamma"
         }
@@ -128,15 +132,20 @@
     },
     "Time": {
         "ByEventPeriod": 10,
+        "ByEventPeriodPrefUnit": "ns",
         "ByEventStart": 0,
+        "ByEventStartPrefUnit": "ns",
         "CustomDistribution": [
         ],
         "FixedOffset": 0,
+        "FixedOffsetPrefUnit": "ns",
         "HalfLifePreferUnit": "ns",
         "OffsetMode": "Fixed",
         "SpreadHalfLife": 100,
         "SpreadMode": "None",
         "SpreadSigma": 50,
-        "SpreadWidth": 100
+        "SpreadSigmaPrefUnit": "ns",
+        "SpreadWidth": 100,
+        "SpreadWidthPrefUnit": "ns"
     }
 }

@@ -13,6 +13,8 @@ class QJsonObject;
 class AParticleAnalyzerRecord
 {
 public:
+    bool        AnalyzeCreated = false; // if false, analysis of transported in particles
+
     int         EnergyBins  = 100;
     double      EnergyFrom  = 0;
     double      EnergyTo    = 1000.0;

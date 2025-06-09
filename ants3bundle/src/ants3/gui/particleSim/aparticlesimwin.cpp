@@ -394,6 +394,8 @@ void AParticleSimWin::on_pbAddNewStepLimit_clicked()
 void AParticleSimWin::showStepLimitDialog(const QString & volName, double limit)
 {
     QDialog d(this);
+    d.setMinimumWidth(500);
+    d.setWindowTitle("Tracking step limiter");
 
     QVBoxLayout * vl = new QVBoxLayout(&d);
 
@@ -406,6 +408,7 @@ void AParticleSimWin::showStepLimitDialog(const QString & volName, double limit)
         if (limit > 0) leStep->setText(QString::number(limit));
         QDoubleValidator * dv = new QDoubleValidator(&d);
         leStep->setValidator(dv);
+        hl->addWidget(new QLabel("mm"));
     vl->addLayout(hl);
 
     QPushButton * pbAccept = new QPushButton("Add this limit");
@@ -437,7 +440,6 @@ void AParticleSimWin::showStepLimitDialog(const QString & volName, double limit)
 
     int res = d.exec();
     if (res == QDialog::Rejected) return;
-
 
     G4SimSet.StepLimits[leVol->text().toLatin1().data()] = leStep->text().toDouble();
     updateG4Gui();

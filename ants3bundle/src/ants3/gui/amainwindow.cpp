@@ -1,5 +1,5 @@
 #include "amainwindow.h"
-#include "ui_mainwindow.h"
+#include "ui_amainwindow.h"
 #include "a3global.h"
 #include "aconfig.h"
 #include "ageometryhub.h"
@@ -41,12 +41,9 @@ AMainWindow::AMainWindow() :
     AGuiWindow("Main", nullptr),
     Config(AConfig::getInstance()),
     GlobSet(A3Global::getInstance()),
-    ui(new Ui::MainWindow)
+    ui(new Ui::AMainWindow)
 {
     ui->setupUi(this);
-
-  // Start-up
-    AGeometryHub::getInstance().populateGeoManager();
 
   // Main signal->slot lines
     connect(&Config, &AConfig::configLoaded,           this, &AMainWindow::updateAllGuiFromConfig);
@@ -93,7 +90,7 @@ AMainWindow::AMainWindow() :
     AScriptHub * ScriptHub = &AScriptHub::getInstance();
     GuiFromScrWin = new AGuiFromScrWin(this);
     ScriptHub->addGuiScriptUnit(GuiFromScrWin);
-    qDebug() << "Creating JScript window";
+    //qDebug() << "Creating JScript window";
     JScriptWin = new AScriptWindow(EScriptLanguage::JavaScript, this);
     JScriptWin->registerInterfaces();
     connect(ScriptHub,  &AScriptHub::clearOutput_JS,        JScriptWin, &AScriptWindow::clearOutput, Qt::QueuedConnection);
@@ -106,7 +103,7 @@ AMainWindow::AMainWindow() :
     JScriptWin->updateGui();
 
 #ifdef ANTS3_PYTHON
-    qDebug() << "Creating Python window";
+    //qDebug() << "Creating Python window";
     PythonWin = new AScriptWindow(EScriptLanguage::Python, this);
     PythonWin->registerInterfaces();
     connect(ScriptHub,  &AScriptHub::clearOutput_P,           PythonWin, &AScriptWindow::clearOutput);
@@ -151,6 +148,8 @@ AMainWindow::AMainWindow() :
     ui->menuFile->setStyleSheet(mss);
     ui->menuFile->setToolTipsVisible(true);
     ui->menuFile->setToolTipDuration(1000);
+
+    Config.replaceEmptyOutputDirsWithTemporary();
 
   // Finalizing
     updateAllGuiFromConfig(); //updateGui();
@@ -657,6 +656,8 @@ void AMainWindow::on_pbNew_clicked()
     Config.ConfigName = "";
     Config.ConfigDescription = "";
 
+    Config.replaceEmptyOutputDirsWithTemporary();
+
     AConfig::getInstance().updateJSONfromConfig();
 
     updateAllGuiFromConfig();
@@ -742,10 +743,10 @@ void AMainWindow::on_pbExamples_clicked()
         ConfigExampleBrowser = new AConfigExampleBrowser(this);
         ConfigExampleBrowser->setWindowModality(Qt::ApplicationModal);
         connect(ConfigExampleBrowser, &AConfigExampleBrowser::requestLoadFile, this, &AMainWindow::onRequestLoadConfiguration);
+        ConfigExampleBrowser->expandAll(false);
     }
 
     ConfigExampleBrowser->show();
-    ConfigExampleBrowser->expandAll(false);
 }
 
 void AMainWindow::onRequestLoadConfiguration(QString fileName)

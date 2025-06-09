@@ -663,6 +663,124 @@ TGeoShape *AGeoSphere::createGeoShape(const QString shapeName)
     return (shapeName.isEmpty()) ? new TGeoSphere(rmin, rmax, theta1, theta2, phi1,  phi2) : new TGeoSphere(shapeName.toLatin1().data(), rmin, rmax, theta1, theta2, phi1,  phi2);
 }
 
+void AGeoSphere::computeZupZdown(double & Zup, double & Zdown) const
+{
+    if (theta2 <= 90) // both less= 90
+    {
+        if (theta1 == 0)
+            Zup = rmax;
+        else
+            Zup = rmax * cos(theta1 * M_PI / 180.0);
+
+        if (theta2 == 90.0 || rmin == 0)
+            Zdown = 0;
+        else
+            Zdown = rmin * cos(theta2 * M_PI / 180.0);
+    }
+    else if (theta1 < 90.0 && theta2 > 90) // first less than 90, the second is larger than 90
+    {
+        if (theta1 == 0)
+            Zup = rmax;
+        else
+            Zup = rmax * cos(theta1 * M_PI / 180.0);
+
+        if (theta2 == 180.0)
+            Zdown = -rmax;
+        else
+            Zdown = -rmax * cos( (180.0 - theta2) * M_PI / 180.0);
+    }
+    else // both above= 90
+    {
+        if (theta1 == 90.0 || rmin == 0)
+            Zup = 0;
+        else
+            Zup = -rmin * cos( (180.0 - theta1) * M_PI / 180.0);
+
+        if (theta2 == 180.0)
+            Zdown = -rmax;
+        else
+            Zdown = -rmax * cos( (180.0 - theta2) * M_PI / 180.0);
+    }
+}
+
+double AGeoSphere::getHeight() const
+{
+    if (theta1 == 0 && theta2 == 180) return rmax;
+
+    double Zup = 0;
+    double Zdown = 0;
+    computeZupZdown(Zup, Zdown);
+
+    return 0.5 * (Zup - Zdown);
+}
+
+QString AGeoSphere::getFullHeightString()
+{
+    return "";
+
+    /*
+    // bad idea: the formula changes depending on the parameter values!
+    if (str2rmax.isEmpty() && strTheta1.isEmpty() && strTheta2.isEmpty()) return "";
+
+    QString up, down;
+
+    QString R = (str2rmax.isEmpty() ? QString::number(rmax) : "0.5*"+str2rmax);
+    QString r = (str2rmin.isEmpty() ? QString::number(rmin) : "0.5*"+str2rmin);
+
+    QString t1 = (strTheta1.isEmpty() ? QString::number(theta1) : strTheta1);
+    QString t2 = (strTheta2.isEmpty() ? QString::number(theta2) : strTheta2);
+
+    if (theta2 <= 90) // both less= 90
+    {
+        if (theta1 == 0)
+            up = R;
+        else
+            up = R + "*cos("+t1+"*pi/180.0)";
+
+        if (theta2 == 90.0 || rmin == 0)
+            down = "0";
+        else
+            down = r + "*cos("+t2+"*pi/180.0)";
+    }
+    else if (theta1 < 90.0 && theta2 > 90) // first less than 90, the second is larger than 90
+    {
+        if (theta1 == 0)
+            up = R;
+        else
+            up = R + "*cos("+t1+"*pi/180.0)";
+
+        if (theta2 == 180.0)
+            down = "-"+R;
+        else
+            down = "-" + R + "*cos((180.0-"+t2+")*pi/180.0)";
+    }
+    else // both above= 90
+    {
+        if (theta1 == 90.0 || rmin == 0)
+            up = "0";
+        else
+            up = "-" + r + "*cos((180.0-" + t1 + ")*pi/180.0)";
+
+        if (theta2 == 180.0)
+            down = "-" + R;
+        else
+            down = "-" + R + "*cos((180.0-" + t2 + ")*pi/180.0)";
+    }
+    return QString("(%0-%1)").arg(up).arg(down);
+    */
+}
+
+double AGeoSphere::getRelativePosZofCenter() const
+{
+    if (theta1 == 0 && theta2 == 180) return 0;
+
+    double Zup = 0;
+    double Zdown = 0;
+    computeZupZdown(Zup, Zdown);
+
+    return 0.5 * (Zup + Zdown);
+}
+
 QString AGeoSphere::getGenerationString(bool useStrings) const
 {
     QString str;
@@ -3154,14 +3272,27 @@ TGeoShape *AGeoPcon::createGeoShape(const QString shapeName)
 
 double AGeoPcon::getHeight() const
 {
-    double res = Sections.at(Sections.size()-1).z - Sections.at(0).z;
+    double res = Sections[Sections.size()-1].z - Sections[0].z;
     res *=0.5;
     return res;
 }
 
+QString AGeoPcon::getFullHeightString()
+{
+    const APolyCGsection & botSec = Sections.front();
+    const APolyCGsection & topSec = Sections.back();
+
+    if (botSec.strZ.isEmpty() && topSec.strZ.isEmpty()) return "";
+
+    QString strBot = (botSec.strZ.isEmpty() ? QString::number(botSec.z) : botSec.strZ);
+    QString strTop = (topSec.strZ.isEmpty() ? QString::number(topSec.z) : topSec.strZ);
+
+    return QString("(%0 - %1)").arg(strTop).arg(strBot);
+}
+
 double AGeoPcon::getRelativePosZofCenter() const
 {
-    double res = Sections.at(0).z + getHeight();
+    double res = Sections[0].z + getHeight();
 
     return res;
 }
@@ -3891,6 +4022,16 @@ double AGeoScaledShape::getHeight() const
 {
     if (!BaseShape) return 0;
     return BaseShape->getHeight() * scaleZ;
+}
+
+QString AGeoScaledShape::getFullHeightString()
+{
+    if (!BaseShape) return "";
+
+    QString txt = BaseShape->getFullHeightString();
+    if (txt.isEmpty()) return "";
+
+    return QString("%0*(%1)").arg(scaleZ).arg(txt);
 }
 
 double AGeoScaledShape::getRelativePosZofCenter() const

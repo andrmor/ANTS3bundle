@@ -70,7 +70,7 @@ ants3_GUI {
 
 # ANTS3 version
 DEFINES += ANTS3_MAJOR=1
-DEFINES += ANTS3_MINOR=4
+DEFINES += ANTS3_MINOR=5
 
 QT += qml   #this is for qjsengine
 
@@ -175,7 +175,6 @@ SOURCES += \
     geo/ageospecial.cpp \
     geo/amonitorhub.cpp \
     gui/ademowindow.cpp \
-    gui/aproxystyle.cpp \
     gui/arootmarkerconfigurator.cpp \
     gui/aroottextconfigurator.cpp \
     gui/farm/aremotewindow.cpp \
@@ -425,7 +424,6 @@ HEADERS += \
     geo/ageospecial.h \
     geo/amonitorhub.h \
     gui/ademowindow.h \
-    gui/aproxystyle.h \
     gui/arootmarkerconfigurator.h \
     gui/aroottextconfigurator.h \
     gui/farm/aremotewindow.h \
@@ -604,6 +602,7 @@ HEADERS += \
 FORMS += \
         gui/aconfigexamplebrowser.ui \
         gui/aitemselectiondialog.ui \
+        gui/amainwindow.ui \
         gui/geom/aparticleanalyzerwidget.ui \
         gui/geom/ashownumbersdialog.ui \
         gui/aglobsetwindow.ui \
@@ -645,7 +644,6 @@ FORMS += \
         gui/geom/agridelementdialog.ui \
         gui/geom/amonitordelegateform.ui \
         gui/geom/ageometrywindow.ui \
-        gui/mainwindow.ui \
         gui/materials/amatwin.ui \
         gui/photsim/ainterfacerulewin.ui \
         gui/photsim/ainterfaceruledialog.ui \

@@ -27,6 +27,7 @@ public:
 
     // Run-time
     bool bWasGenerated = false;
+    double TimeStamp = 0;
 };
 
 class ASourceParticleGenerator : public AParticleGun

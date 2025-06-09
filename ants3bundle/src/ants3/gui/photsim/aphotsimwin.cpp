@@ -82,7 +82,8 @@ APhotSimWin::APhotSimWin(QWidget * parent) :
     ui->verticalLayout_Log->insertWidget(4, LogForm);
     connect(ui->cbLogAdditionalFilters, &QCheckBox::toggled, LogForm, &APhotonLogSettingsForm::setVisible);
     LogForm->setVisible(ui->cbLogAdditionalFilters->isChecked());
-    LogForm->setNumber(100);
+    //LogForm->setNumber(100);
+    LogForm->setNumberInvisible();
 
     updateGui();
 }

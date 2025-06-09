@@ -24,9 +24,9 @@ public:
     EGenMode GenerationMode = Sources;
     double   Events         = 1;
 
-    bool    bClusterMerge   = false;
-    double  ClusterRadius   = 0.1;
-    double  ClusterTime     = 1.0;
+    //bool    bClusterMerge   = false;
+    //double  ClusterRadius   = 0.1;
+    //double  ClusterTime     = 1.0;
 
     ASourceGeneratorSettings SourceGenSettings;
     AFileGeneratorSettings   FileGenSettings;

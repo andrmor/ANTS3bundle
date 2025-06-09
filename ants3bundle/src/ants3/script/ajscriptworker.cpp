@@ -6,7 +6,7 @@
 
 AJScriptWorker::~AJScriptWorker()
 {
-    qDebug() << "Destr for JavaScriptWorker";
+    //qDebug() << "Destr for JavaScriptWorker";
     delete Engine;
 
     // do not delete script interfaces, it is automatic!
@@ -122,10 +122,12 @@ void AJScriptWorker::evaluate(const QString & script)
 
 void AJScriptWorker::exit()
 {
+    //qDebug() << "Exit triggered for JS worker!";
+
     Engine->setInterrupted(true);
     do {} while (!Engine->isInterrupted());
 
-//    emit stopped();
+    emit stopped();
 }
 
 void AJScriptWorker::onRequestGarbageCollection()

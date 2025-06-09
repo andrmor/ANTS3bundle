@@ -15,7 +15,7 @@ APhotonSim_SI::APhotonSim_SI() :
 
 APhotonSim_SI::~APhotonSim_SI()
 {
-    qDebug() << "Dest for APhotonSim_SI";
+    //qDebug() << "Destr for APhotonSim_SI";
 }
 
 void APhotonSim_SI::simulate()

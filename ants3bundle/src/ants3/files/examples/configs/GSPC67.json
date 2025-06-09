@@ -561,8 +561,11 @@
                 "ScatMode": 1,
                 "Spec": 0,
                 "SurfaceProperties": {
-                    "Model": "Polished"
-                }
+                    "KillPhotonsRefractedBackward": false,
+                    "Model": "Polished",
+                    "OrientationProbabilityCorrection": true
+                },
+                "Symmetric": false
             },
             {
                 "Abs": 0.2,
@@ -573,8 +576,11 @@
                 "ScatMode": 1,
                 "Spec": 0.7,
                 "SurfaceProperties": {
-                    "Model": "Polished"
-                }
+                    "KillPhotonsRefractedBackward": false,
+                    "Model": "Polished",
+                    "OrientationProbabilityCorrection": true
+                },
+                "Symmetric": false
             },
             {
                 "Abs": 0.1,
@@ -585,8 +591,11 @@
                 "ScatMode": 1,
                 "Spec": 0,
                 "SurfaceProperties": {
-                    "Model": "Polished"
-                }
+                    "KillPhotonsRefractedBackward": false,
+                    "Model": "Polished",
+                    "OrientationProbabilityCorrection": true
+                },
+                "Symmetric": false
             },
             {
                 "Abs": 0.2,
@@ -597,8 +606,11 @@
                 "ScatMode": 1,
                 "Spec": 0.7,
                 "SurfaceProperties": {
-                    "Model": "Polished"
-                }
+                    "KillPhotonsRefractedBackward": false,
+                    "Model": "Polished",
+                    "OrientationProbabilityCorrection": true
+                },
+                "Symmetric": false
             },
             {
                 "Abs": 0.4,
@@ -609,8 +621,11 @@
                 "ScatMode": 1,
                 "Spec": 0.3,
                 "SurfaceProperties": {
-                    "Model": "Polished"
-                }
+                    "KillPhotonsRefractedBackward": false,
+                    "Model": "Polished",
+                    "OrientationProbabilityCorrection": true
+                },
+                "Symmetric": false
             },
             {
                 "Abs": 0.9,
@@ -621,8 +636,11 @@
                 "ScatMode": 1,
                 "Spec": 0.1,
                 "SurfaceProperties": {
-                    "Model": "Polished"
-                }
+                    "KillPhotonsRefractedBackward": false,
+                    "Model": "Polished",
+                    "OrientationProbabilityCorrection": true
+                },
+                "Symmetric": false
             }
         ],
         "VolumeRules": [
@@ -685,6 +703,8 @@
             ],
             "RefIndexComplex_Wave": [
             ],
+            "RefIndexImporter": {
+            },
             "RefIndexWave": [
             ],
             "SecScintSpectrum": [
@@ -751,6 +771,8 @@
             ],
             "RefIndexComplex_Wave": [
             ],
+            "RefIndexImporter": {
+            },
             "RefIndexWave": [
             ],
             "SecScintSpectrum": [
@@ -817,6 +839,8 @@
             ],
             "RefIndexComplex_Wave": [
             ],
+            "RefIndexImporter": {
+            },
             "RefIndexWave": [
             ],
             "SecScintSpectrum": [
@@ -1367,6 +1391,8 @@
             ],
             "RefIndexComplex_Wave": [
             ],
+            "RefIndexImporter": {
+            },
             "RefIndexWave": [
                 [
                     200,
@@ -2265,6 +2291,8 @@
             ],
             "RefIndexComplex_Wave": [
             ],
+            "RefIndexImporter": {
+            },
             "RefIndexWave": [
             ],
             "SecScintSpectrum": [
@@ -2331,6 +2359,8 @@
             ],
             "RefIndexComplex_Wave": [
             ],
+            "RefIndexImporter": {
+            },
             "RefIndexWave": [
             ],
             "SecScintSpectrum": [
@@ -2397,6 +2427,8 @@
             ],
             "RefIndexComplex_Wave": [
             ],
+            "RefIndexImporter": {
+            },
             "RefIndexWave": [
             ],
             "SecScintSpectrum": [
@@ -3026,12 +3058,14 @@
                 "FileName": "Calorimeters.json"
             },
             "FileNameDeposition": "Deposition.dat",
+            "FileNameSaveConfig": "Config_ParticleSim.json",
             "FileNameTrackingHistory": "TrackingData.dat",
             "MonitorSettings": {
                 "Enabled": false,
                 "FileName": "ParticleMonitors.json"
             },
-            "OutputDirectory": "/home/andr/WORK/GSPC67example/Out",
+            "OutputDirectory": "",
+            "SaveConfig": false,
             "SaveDeposition": true,
             "SaveParticles": {
                 "Enabled": false,
@@ -3053,8 +3087,8 @@
     "PhotonSim": {
         "Deposition": {
             "FileFormat": "Ascii",
-            "FileName": "/home/andr/WORK/GSPC67example/Out/Deposition.dat",
-            "LastModified": 1730718351438,
+            "FileName": "/home/andr/.config/ants3/TmpOutput/Deposition.dat",
+            "LastModified": 1744972997624,
             "NumEvents": 100,
             "Primary": false,
             "Secondary": true
@@ -3067,10 +3101,12 @@
             "Advanced": {
                 "Direction": {
                     "ConeAngle": 10,
-                    "DirDX": 0,
-                    "DirDY": 0,
-                    "DirDZ": 1,
-                    "DirectionMode": "Isotropic"
+                    "DirectionMode": "Isotropic",
+                    "DirectionVector": [
+                        0,
+                        0,
+                        1
+                    ]
                 },
                 "SkipBombs": {
                     "EnableOnlyMat": false,
@@ -3085,7 +3121,7 @@
                 },
                 "Wave": {
                     "Enabled": false,
-                    "WaveIndex": -1
+                    "FixedWavelength": 550
                 }
             },
             "File": {
@@ -3169,6 +3205,7 @@
         },
         "Run": {
             "BinaryFormat": false,
+            "FileNameConfig": "Config_OpticalSim.json",
             "FileNameMonitors": "PhotonMonitors.txt",
             "FileNamePhotonBombs": "PhotonBombs.txt",
             "FileNameReceipt": "DummyReceipt.txt",
@@ -3177,7 +3214,7 @@
             "FileNameStatistics": "PhotonStatistics.json",
             "FileNameTracks": "PhotonTracks.txt",
             "MaxTracks": 1000,
-            "OutputDirectory": "/home/andr/WORK/WSFexample/Output",
+            "OutputDirectory": "",
             "PhotonLog": {
                 "Enabled": false,
                 "FileName": "PhotonLog.txt",
@@ -3191,6 +3228,7 @@
                 "MustNotInclude_Volumes": [
                 ]
             },
+            "SaveConfig": false,
             "SaveMonitors": false,
             "SavePhotonBombs": false,
             "SaveSensorLog": false,

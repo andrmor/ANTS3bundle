@@ -112,9 +112,12 @@ void DetectorConstruction::ConstructSDandField()
     // ---- Analyzers ----
     if (SM.Settings.RunSet.AnalyzerSettings.Enabled)
     {
-        AnalyzerSensitiveDetector * asd = new AnalyzerSensitiveDetector("AnSensDet");
+        AnalyzerSensitiveDetector * asd_entrance = new AnalyzerSensitiveDetector("AnSensDet_Ent"); asd_entrance->AnalyzeCreated = false;
+        AnalyzerSensitiveDetector * asd_creation = new AnalyzerSensitiveDetector("AnSensDet_Cre"); asd_creation->AnalyzeCreated = true;
+
         for (const AParticleAnalyzerRecord & rec : SM.Settings.RunSet.AnalyzerSettings.AnalyzerTypes)
         {
+            AnalyzerSensitiveDetector * asd = (rec.AnalyzeCreated ? asd_creation : asd_entrance);
             for (const std::string & name : rec.VolumeNames)
                 SetSensitiveDetector(name, asd, true);
         }

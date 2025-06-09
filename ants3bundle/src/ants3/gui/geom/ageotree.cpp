@@ -121,9 +121,7 @@ void AGeoTree::UpdateGui(QString ObjectName)
     //World
     QTreeWidgetItem * topItem = new QTreeWidgetItem(twGeoTree);
     topItem->setText(0, "World");
-    QFont f = topItem->font(0);
-    f.setBold(true);
-    topItem->setFont(0, f);
+    //QFont f = topItem->font(0); f.setBold(true); topItem->setFont(0, f);
     topItem->setSizeHint(0, QSize(50, 20));
     topItem->setFlags(topItem->flags() & ~Qt::ItemIsDragEnabled);// & ~Qt::ItemIsSelectable);
     //w->setBackgroundColor(0, BackgroundColor);
@@ -131,7 +129,6 @@ void AGeoTree::UpdateGui(QString ObjectName)
     populateTreeWidget(topItem, World);
     updateExpandState(topItem, false);
     updatePrototypeTreeGui();
-
 
     // restoring delegate for the last shown obeject if possible, otherwise showing delegate for the World
     if (ObjectName.isEmpty())
@@ -310,20 +307,23 @@ void AGeoTree::populateTreeWidget(QTreeWidgetItem * parent, AGeoObject * Contain
             updateIcon(item, obj);
         }
         else if (obj->Type->isHandlingSet() || obj->Type->isHandlingArray() || obj->Type->isGridElement())
-        { //group or stack or array or gridElement
-            QFont f = item->font(0); f.setItalic(true); item->setFont(0, f);
+        {
+            QFont f = item->font(0);
+            f.setItalic(true);
+            if (obj->isStackReference()) f.setBold(true); // stack can be a reference obj of another stack
+            item->setFont(0, f);
+
             updateIcon(item, obj);
-            //item->setBackgroundColor(0, BackgroundColor);
         }
         else
         {
             updateIcon(item, obj);
+
             if (obj->isStackReference())
             {
                 item->setFlags(item->flags() & ~Qt::ItemIsDragEnabled);
                 QFont f = item->font(0); f.setBold(true); item->setFont(0, f);
             }
-            //item->setBackgroundColor(0, BackgroundColor);
         }
 
         populateTreeWidget(item, obj, fDisabledLocal);
@@ -495,7 +495,8 @@ void AGeoTree::customMenuRequested(const QPoint &pos)
   menu.addSeparator();
 
   QAction* stackA = Action(menu, "Form a stack");
-  QAction* stackRefA = Action(menu, "Mark as the stack reference volume");
+  QAction* stackRefA = Action(menu, "Set as the stack reference");
+  QAction* stackClearRefA = Action(menu, "Clear stack reference");
 
   menu.addSeparator();
 
@@ -540,6 +541,7 @@ void AGeoTree::customMenuRequested(const QPoint &pos)
       showAonly->setEnabled(true);
       showAdown->setEnabled(true);
       stackRefA->setEnabled(obj->isStackMember());
+      stackClearRefA->setEnabled(obj->stackHasReference());
       prototypeA->setEnabled(obj->isPossiblePrototype());
   }
   else
@@ -597,8 +599,11 @@ void AGeoTree::customMenuRequested(const QPoint &pos)
   else if (SelectedAction == newPhotonMonitorA)    menuActionAddNewMonitor(obj, true);
   else if (SelectedAction == newParticleMonitorA)  menuActionAddNewMonitor(obj, false);
   else if (SelectedAction == cloneA)         menuActionCloneObject(obj);
+
   else if (SelectedAction == stackA)         menuActionFormStack(selected);
   else if (SelectedAction == stackRefA)      markAsStackRefVolume(obj);
+  else if (SelectedAction == stackClearRefA) clearStackRefVolume(obj);
+
   else if (SelectedAction == removeKeepContA)menuActionRemoveKeepContent(twGeoTree);
   else if (SelectedAction == removeWithContA)menuActionRemoveWithContent(twGeoTree);
   else if (SelectedAction == removeHostedA)  menuActionRemoveHostedObjects(obj);
@@ -687,6 +692,7 @@ void AGeoTree::customProtoMenuRequested(const QPoint & pos)
 
     QAction* stackA = Action(menu, "Form a stack");
     QAction* stackRefA = Action(menu, "Mark as the stack reference volume");
+    QAction* stackClearRefA = Action(menu, "Clear stack reference");
 
     menu.addSeparator();
 
@@ -716,6 +722,7 @@ void AGeoTree::customProtoMenuRequested(const QPoint & pos)
         removeWithContA->setEnabled(true);
         removeKeepContA->setEnabled(!bIsPrototype);
         stackRefA->setEnabled(obj->isStackMember());
+        stackClearRefA->setEnabled(obj->stackHasReference());
         moveToWorldA->setEnabled(bIsPrototype);
     }
     else
@@ -764,8 +771,10 @@ void AGeoTree::customProtoMenuRequested(const QPoint & pos)
     else if (SelectedAction == newParticleMonitorA) menuActionAddNewMonitor(obj, false);
 
     else if (SelectedAction == cloneA)         menuActionCloneObject(obj);
+
     else if (SelectedAction == stackA)         menuActionFormStack(selected);
     else if (SelectedAction == stackRefA)      markAsStackRefVolume(obj);
+    else if (SelectedAction == stackClearRefA) clearStackRefVolume(obj);
 
     else if (SelectedAction == removeKeepContA)menuActionRemoveKeepContent(twPrototypes);
     else if (SelectedAction == removeWithContA)menuActionRemoveWithContent(twPrototypes);
@@ -1335,11 +1344,11 @@ void AGeoTree::menuActionEnableDisable(AGeoObject * obj)
         obj->enableUp();
     else
     {
-        if (obj->isStackReference())
-        {
-            guitools::message("Cannot disable stack reference object!", EditWidget);
-            return;
-        }
+        //if (obj->isStackReference())
+        //{
+        //    guitools::message("Cannot disable stack reference object!", EditWidget);
+        //    return;
+        //}
         obj->fActive = false;
     }
 
@@ -1379,11 +1388,11 @@ void AGeoTree::menuActionFormStack(QList<QTreeWidgetItem*> selected)
             guitools::message("Composite objects (and optical grids) cannot be a member of a stack", twGeoTree);
             return;
         }
-        if (obj->Type->isHandlingSet() || obj->Type->isLogical())
-        {
-            guitools::message("Stacks/groups cannot be a member of a stack", twGeoTree);
-            return;
-        }
+        //if (obj->Type->isHandlingSet() || obj->Type->isLogical())
+        //{
+        //    guitools::message("Stacks cannot be a member of a stack", twGeoTree);
+        //    return;
+        //}
         if (obj->Type->isPrototype() || obj->Type->isInstance())
         {
             guitools::message("Prototypes and instances cannot be a member of a stack", twGeoTree);
@@ -1400,13 +1409,13 @@ void AGeoTree::menuActionFormStack(QList<QTreeWidgetItem*> selected)
     }
 
     const QString name = Geometry.generateObjectName("Stack");
-    AGeoObject * stackObj = new AGeoObject(name, nullptr);
+    AGeoObject * stackObj = new AGeoObject(name, new AGeoBox());
 
     delete stackObj->Type; stackObj->Type = new ATypeStackContainerObject();
 
-    static_cast<ATypeStackContainerObject*>(stackObj->Type)->ReferenceVolume = objs.front()->Name;
+    //static_cast<ATypeStackContainerObject*>(stackObj->Type)->ReferenceVolume = objs.front()->Name;
 
-    AGeoObject * contObj = objs.front()->Container; // All selected objects always have the same container!
+    AGeoObject * contObj = objs.front()->Container; // All selected objects are forced to have the same container!
     stackObj->Container = contObj;
 
     for (AGeoObject * obj : objs)
@@ -1414,8 +1423,19 @@ void AGeoTree::menuActionFormStack(QList<QTreeWidgetItem*> selected)
         contObj->removeHostedObject(obj);
         obj->Container = stackObj;
         stackObj->HostedObjects.push_back(obj);
+
+        obj->Position[0] = 0; obj->PositionStr[0].clear();
+        obj->Position[1] = 0; obj->PositionStr[1].clear();
+
+        obj->Orientation[0] = 0; obj->OrientationStr[0].clear();
+        obj->Orientation[1] = 0; obj->OrientationStr[1].clear();
     }
-    contObj->HostedObjects.insert(contObj->HostedObjects.begin(), stackObj);
+
+    bool addLast = A3Global::getInstance().NewGeoObjectAddedLast;
+    if (addLast)
+        contObj->HostedObjects.push_back(stackObj);
+    else
+        contObj->HostedObjects.insert(contObj->HostedObjects.begin(), stackObj);
 
     emit RequestRebuildDetector();  // automatically calculates stack positions there
     UpdateGui(name);
@@ -1428,15 +1448,35 @@ void AGeoTree::markAsStackRefVolume(AGeoObject * obj)
         qWarning() << "Attempting to set nullptr as the stack reference!";
         return;
     }
-    if (!obj->Container) return;
-    if (!obj->Container->Type) return;
-    ATypeStackContainerObject * sc = dynamic_cast<ATypeStackContainerObject*>(obj->Container->Type);
-    if (!sc) return;
+    if (!obj->Container || !obj->Container->Type) return;
+    if (!obj->Container->Type->isStack()) return;
+
+    ATypeStackContainerObject * sc = static_cast<ATypeStackContainerObject*>(obj->Container->Type);
     const QString name = obj->Name;
     sc->ReferenceVolume = name;
 
     emit RequestRebuildDetector();
     UpdateGui(name);
+}
+
+void AGeoTree::clearStackRefVolume(AGeoObject * obj)
+{
+    if (!obj) return;
+
+    ATypeStackContainerObject * stack = nullptr;
+    if (obj->Type && obj->Type->isStack())
+        stack = static_cast<ATypeStackContainerObject*>(obj->Type);
+    else if (obj->Container && obj->Container->Type && obj->Container->Type->isStack())
+        stack = static_cast<ATypeStackContainerObject*>(obj->Container->Type);
+
+    if (stack)
+    {
+        stack->ReferenceVolume.clear();
+
+        const QString name = obj->Name;
+        emit RequestRebuildDetector();
+        UpdateGui(name);
+    }
 }
 
 QImage createImageWithOverlay(const QImage& base, const QImage& overlay)

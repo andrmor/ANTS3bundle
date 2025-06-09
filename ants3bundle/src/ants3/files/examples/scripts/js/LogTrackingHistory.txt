@@ -2,7 +2,7 @@
 //  This script prints a lot of text. 
 // Recommended to start with < 100 events
 
-var dir = "/home/andr/tmp"
+var dir = "/home/andr/.config/ants3/TmpOutput"
 var fileName = "TrackingData.dat"
 tracks.open(dir + "/" + fileName)
 
@@ -34,14 +34,14 @@ var numEvents = tracks.countEvents()
 if (numEvents == 0) core.abort("No data!")
 
 core.clearOutput()
-core.print("Tracking step report format:\n[X, Y, Z], Time, [iMaterial, Volume, Index], EnergyAfterStep, DirectlyDepositedEnergy, Process, TragetIsotope, CreatedSecondaries\n")
-core.print("Custom process names:\n'C' - creation\n'T' - transportation\n'O' - exit outside defined geometry\n")
+core.print("Tracking (from ->- to) report format for 'from' and 'to':\n[X, Y, Z], Time, [iMaterial, Volume, Index], EnergyAfterStep, DirectlyDepositedEnergy, Process, TragetIsotope, CreatedSecondaries\n")
+core.print("Custom process names:\n'T' - transportation\n'O' - exit defined geometry\n")
 
 for (var iEv=0; iEv<numEvents; iEv++)
 {
        core.print("\n==> EVENT #" + iEv)
        tracks.setEvent(iEv)
-       var numPrim = tracks.countPrimaries(iEv)
+       var numPrim = tracks.countPrimaries()
        for (var iPr=0; iPr<numPrim; iPr++)
        {
               core.print("--> Primary #" + iPr)

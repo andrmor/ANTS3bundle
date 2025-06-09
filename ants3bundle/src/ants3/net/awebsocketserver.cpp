@@ -217,7 +217,7 @@ void AWebSocketServer::onTextMessageReceived(const QString &message)
         QThread::usleep(100);
         //if (AbortRequestTmp) ScriptManager.abort();
     }
-    while ( !ScriptManager.isAborted() && !ScriptManager.isFinished());
+    while ( !ScriptManager.isAborted() && !ScriptManager.isEvalFinished());
     //qDebug() << ScriptManager.isAborted() << ScriptManager.isFinished();
 
     if (ScriptManager.isError())

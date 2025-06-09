@@ -20,7 +20,6 @@ public:
     bool                     AddScintillatorsToSensitiveVolumes = true;
     std::vector<std::string> ScintSensitiveVolumes;  // filled automatically
     std::vector<std::string> Commands = {"/run/setCut 0.7 mm"};
-
     std::map<std::string, double> StepLimits;
 
 #ifdef JSON11

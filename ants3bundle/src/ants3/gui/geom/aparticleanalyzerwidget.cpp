@@ -4,7 +4,7 @@
 
 #include <QDoubleValidator>
 
-AParticleAnalyzerWidget::AParticleAnalyzerWidget(QWidget *parent) :
+AParticleAnalyzerWidget::AParticleAnalyzerWidget(QWidget * parent) :
     QWidget(parent), ui(new Ui::AParticleAnalyzerWidget)
 {
     ui->setupUi(this);
@@ -27,6 +27,8 @@ void AParticleAnalyzerWidget::updateGui(const AGeoParticleAnalyzer & pa)
 
     const AParticleAnalyzerRecord & prop = pa.Properties;
 
+    ui->cobScoringType->setCurrentIndex(pa.Properties.AnalyzeCreated ? 1 : 0);
+
     ui->sbEnergyBins->setValue(prop.EnergyBins);
     ui->ledEnergyFrom->setText(QString::number(prop.EnergyFrom));
     ui->ledEnergyTo->setText(QString::number(prop.EnergyTo));
@@ -47,6 +49,8 @@ void AParticleAnalyzerWidget::updateGui(const AGeoParticleAnalyzer & pa)
 void AParticleAnalyzerWidget::updateObject(AGeoParticleAnalyzer & pa) const
 {
     AParticleAnalyzerRecord & prop = pa.Properties;
+
+    prop.AnalyzeCreated = (ui->cobScoringType->currentIndex() == 1);
 
     prop.EnergyBins = ui->sbEnergyBins->value();
     prop.EnergyFrom = ui->ledEnergyFrom->text().toDouble();

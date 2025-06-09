@@ -42,6 +42,7 @@ private slots:
     void on_cobEnergySigmaUnits_activated(int index);
     void on_sbLinkedTo_editingFinished();
     void on_ledLinkingProbability_editingFinished();
+    void on_ledHalfLife_editingFinished();
 
     void on_pbGunShowSpectrum_clicked();
     void on_pbGunLoadSpectrum_clicked();

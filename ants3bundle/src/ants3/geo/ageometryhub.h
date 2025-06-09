@@ -106,7 +106,7 @@ public:
 private:
     void addTGeoVolumeRecursively(AGeoObject * obj, TGeoVolume * parent, int forcedNodeNumber = 0);
 
-    void positionArray(AGeoObject * obj, TGeoVolume * vol, int parentNodeIndex);  // !!!*** split to array types!
+    void positionArray(AGeoObject * obj, TGeoVolume * vol, int parentNodeIndex);  //possible refactor: split to array types
     void positionStack(AGeoObject * obj, TGeoVolume * vol, int forcedNodeNumber);
     void positionInstance(AGeoObject * obj, TGeoVolume * vol, int forcedNodeNumber);
 
@@ -114,7 +114,7 @@ private:
     void positionCircularArrayElement(int ia, AGeoObject * el, AGeoObject * arrayObj, TGeoVolume * parent, int arrayIndex);
     void positionHexArrayRing(int iR, AGeoObject * el, AGeoObject * arrayObj, TGeoVolume * parent, int & arrayIndex);
     void positionHexArrayElement(double localX, double localY, AGeoObject *el, AGeoObject *arrayObj, TGeoVolume *parent, int arrayIndex);
-    void positionStackElement(AGeoObject * el, const AGeoObject * RefObj, TGeoVolume * parent, int forcedNodeNumber);
+    void positionStackElement(AGeoObject * el, TGeoVolume * parent, int forcedNodeNumber);
 
     void expandPrototypeInstances();
     bool processCompositeObject(AGeoObject *obj);

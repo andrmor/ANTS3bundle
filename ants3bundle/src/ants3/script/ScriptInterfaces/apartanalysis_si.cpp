@@ -72,6 +72,13 @@ void APartAnalysis_SI::setVolumeIndex(int volumeIndex)
     Criteria->VolumeIndex = volumeIndex;
 }
 
+void APartAnalysis_SI::setTimeWindow(double from_ns, double to_ns)
+{
+    Criteria->TimeFrom = from_ns;
+    Criteria->TimeTo = to_ns;
+    Criteria->bTime = true;
+}
+
 void APartAnalysis_SI::setFromMaterial(int matIndex)
 {
     Criteria->bFromMat = true;

@@ -46,7 +46,8 @@ public slots:
     int countAnalyzers();
     QVariantList getAnalyzerUniqueToGlobalIndex();
     QVariantList getAnalyzerPositionsByGlobalIndex();
-    QVariantList getAnalyzerDataAll();
+    QVariantList getAnalyzerDataAll();        // refactor
+    QVariantList getAnalyzerData(int index);  // refactor
 
     void setTrackingHistoryFileName(QString fileName);
     void buildTracks(int maxTracks);

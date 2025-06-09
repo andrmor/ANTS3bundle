@@ -49,7 +49,8 @@ ACore_SI::ACore_SI() : AScriptInterface()
     Help["deleteFile"] = "Delete the file. Abort if not successful";
     Help["isFileExist"] = "Return true if the file exists, false otherwise";
 
-    Help["getDirectories"] = "Return list of directories matching the provided pattern for the given path";
+    Help["getDirectories"] = "Return list of directories for the given path; if the second argument is provided, only select ones matching the provided pattern (e.g. 'A*' for all starting with letter A)";
+    Help["getFiles"] = "Return list of files for the given path; if the second argument is provided, only select ones matching the provided pattern (e.g. '*.txt' for all files with suffix txt)";
     Help["setNewFileFinder"] = "Configurer for getNewFiles() method. dir is the search directory, fileNamePattern: e.g. *.dat for all dat files. Return all filenames mathcing the pattern";
     Help["getNewFiles"] = "Get array of names of the new files appeared in the directory configured with setNewFileFinder() method";
 
@@ -1343,11 +1344,11 @@ QVariantList ACore_SI::setNewFileFinder(QString dir, QString fileNamePattern)
     Finder_NamePattern = fileNamePattern;
 
     QDir d(dir);
-    QStringList files = d.entryList( QStringList(fileNamePattern), QDir::Files);
+    const QStringList files = d.entryList( QStringList(fileNamePattern), QDir::Files);
     //  qDebug() << files;
 
     QVariantList res;
-    for (auto& n : files)
+    for (const auto & n : files)
     {
         Finder_FileNames << n;
         res << n;
@@ -1372,9 +1373,10 @@ QVariantList ACore_SI::getNewFiles()
 QVariantList ACore_SI::getDirectories(QString dir, QString dirNamePattern)
 {
     QDir d(dir);
-    QStringList dl = d.entryList( QStringList(dirNamePattern), QDir::Dirs);
+    const QStringList dl = d.entryList( QStringList(dirNamePattern), QDir::Dirs);
 
     QVariantList Dirs;
+    Dirs.reserve(dl.size());
     for (const QString & s : dl)
     {
         if (s == ".") continue;
@@ -1382,6 +1384,17 @@ QVariantList ACore_SI::getDirectories(QString dir, QString dirNamePattern)
         Dirs << s;
     }
     return Dirs;
+}
+
+QVariantList ACore_SI::getFiles(QString dir, QString fileNamePattern)
+{
+    QDir d(dir);
+    const QStringList files = d.entryList( QStringList(fileNamePattern), QDir::Files);
+
+    QVariantList res;
+    res.reserve(files.size());
+    for (const auto & n : files) res << n;
+    return res;
 }
 
 QString ACore_SI::str(double value, int precision)
