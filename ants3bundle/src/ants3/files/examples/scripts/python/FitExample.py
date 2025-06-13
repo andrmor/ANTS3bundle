@@ -29,6 +29,7 @@ test = Functor(1.0, 0.5) #just to test the Functor explicitly and report syntax 
 
 mini.clear()
 mini.setFunctorName("Functor")
+mini.setMigrad() # recommended to use mini.setSimplex() when the cost function is computed based on the simulation results (affected by statistical fluctuations)
 mini.addVariable("fr", 1.0, 0.2)
 mini.addVariable("ph", 0.5, 0.2)
 success = mini.run()
