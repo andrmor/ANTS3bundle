@@ -151,14 +151,12 @@ private slots:
     void on_pbChooseSensorSigFile_clicked();
     void on_sbSensorTableColumns_editingFinished();
     void on_pbUpdateSensorIndication_clicked();
-
+    void on_pbSensorStatIndividual_clicked();
+    void on_pbSensorStatGroup_clicked();
 
     void on_pbSelectLogFile_clicked();
-
     void on_pbPhotonLog_first_clicked();
-
     void on_pbPhotonLog_next_clicked();
-
     void on_pbPhotonLog_ShowAll_clicked();
 
     void on_pbShowWaveDistr_customContextMenuRequested(const QPoint &pos);
@@ -190,6 +188,8 @@ private:
 
     bool bFreshDataLoaded = false;
 
+    std::vector<std::vector<float>> SensorSignals;
+
     void updatePhotBombGui();
     void updateDepoGui();
     void updateBombFileGui();
@@ -212,6 +212,7 @@ private:
     void showSensorSignalTable(const std::vector<float> & signalArray, const std::vector<int> & enabledSensors);
     void fillListEnabledSensors(std::vector<int> & enabledSensors);
     void reshapeSensorSignalTable();
+    void loadAllSensorSignals();
 
     void showBombSingleEvent();
     bool updateBombHandler();

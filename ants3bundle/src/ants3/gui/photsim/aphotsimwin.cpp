@@ -21,6 +21,7 @@
 #include "aphotonhistorylog.h"
 #include "aphotonloghandler.h"
 #include "aphotonlogsettingsform.h"
+#include "asensorsignalarray.h"
 
 #include <QDebug>
 #include <QLabel>
@@ -605,6 +606,117 @@ void APhotSimWin::on_sbSensorTableColumns_editingFinished()
 void APhotSimWin::on_pbUpdateSensorIndication_clicked()
 {
     showSensorSignals(false);
+}
+
+void APhotSimWin::loadAllSensorSignals()
+{
+    qDebug() << "Loading sensor signals";
+    SensorSignals.clear();
+    SensorSignals.reserve(1000);
+
+    QString name = ui->leSensorSigFileName->text();
+    if (!name.contains('/')) name = ui->leResultsWorkingDir->text() + '/' + name;
+
+    if (name.isEmpty())
+    {
+        guitools::message("File name for the sensor signal file is empty!", this);
+        return;
+    }
+
+    if (SignalsFileSettings->FileName != name || !SignalsFileHandler->isInitialized())
+    {
+        SignalsFileSettings->clear();
+
+        SignalsFileSettings->FileName = name;
+        AErrorHub::clear();
+        bool ok = SignalsFileHandler->init();
+        if (!ok)
+        {
+            guitools::message(AErrorHub::getQError(), this);
+            return;
+        }
+    }
+
+    ASensorSignalArray ar;
+    const int numSensors = ASensorHub::getConstInstance().countSensors();
+    ar.Signals.resize(numSensors);
+
+    AErrorHub::clear();
+    int iEvent = 0;
+    bool ok = SignalsFileHandler->gotoEvent(iEvent);
+    if (!ok)
+    {
+        guitools::message(AErrorHub::getQError(), this);
+        return;
+    }
+
+    ok = true;
+    while (ok)
+    {
+        ok = SignalsFileHandler->readNextRecordSameEvent(ar);
+        if (!ok)
+        {
+            guitools::message(AErrorHub::getQError(), this);
+            return;
+        }
+
+        SensorSignals.push_back(ar.Signals);
+
+        if (SignalsFileHandler->atEnd()) break;
+        iEvent++;
+        ok = SignalsFileHandler->gotoEvent(iEvent);
+    }
+
+    SignalsFileSettings->LastModified = QFileInfo(SignalsFileSettings->FileName).lastModified();
+}
+
+void APhotSimWin::on_pbSensorStatIndividual_clicked()
+{
+    QString name = ui->leSensorSigFileName->text();
+    if (!name.contains('/')) name = ui->leResultsWorkingDir->text() + '/' + name;
+    //qDebug() << SignalsFileSettings->FileName << name << SignalsFileSettings->LastModified << QFileInfo(SignalsFileSettings->FileName).lastModified();
+    if (SignalsFileSettings->FileName != name || SignalsFileSettings->LastModified != QFileInfo(SignalsFileSettings->FileName).lastModified() || !SignalsFileHandler->isInitialized())
+        loadAllSensorSignals();
+    if (SensorSignals.empty()) return;
+
+    int iSens = ui->sbSensorStatIndividual->value();
+    if (iSens >= SensorSignals.front().size())
+    {
+        guitools::message("Invalid sensor index", this);
+        return;
+    }
+
+    TH1D * h = new TH1D("", "", 100,0,0);
+    for (size_t iEvent = 0; iEvent < SensorSignals.size(); iEvent++)
+        h->Fill(SensorSignals[iEvent][iSens], 1);
+
+    emit requestDraw(h, "hist", true, true);
+}
+
+void APhotSimWin::on_pbSensorStatGroup_clicked()
+{
+    QString name = ui->leSensorSigFileName->text();
+    if (!name.contains('/')) name = ui->leResultsWorkingDir->text() + '/' + name;
+    if (SignalsFileSettings->FileName != name || SignalsFileSettings->LastModified != QFileInfo(SignalsFileSettings->FileName).lastModified() || !SignalsFileHandler->isInitialized())
+        loadAllSensorSignals();
+    if (SensorSignals.empty()) return;
+
+    std::vector<int> enabledSensors;
+    fillListEnabledSensors(enabledSensors);
+
+    const int numSensors = SensorSignals.front().size();
+    TH1D * h = new TH1D("", "", 100,0,0);
+
+    for (size_t iEvent = 0; iEvent < SensorSignals.size(); iEvent++)
+    {
+        double sum = 0;
+        for (int iSensorIndex : enabledSensors)
+            if (iSensorIndex < numSensors)
+                sum += SensorSignals[iEvent][iSensorIndex];
+        h->Fill(sum, 1);
+    }
+
+    emit requestDraw(h, "hist", true, true);
 }
 
 void APhotSimWin::on_sbFloodNumber_editingFinished()
@@ -1555,7 +1667,6 @@ void APhotSimWin::doShowEvent()
     }
 }
 
-#include "asensorsignalarray.h"
 void APhotSimWin::showSensorSignals(bool suppressMessage)
 {
     QString name = ui->leSensorSigFileName->text();
