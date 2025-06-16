@@ -686,7 +686,18 @@ void APhotSimWin::on_pbSensorStatIndividual_clicked()
         return;
     }
 
-    TH1D * h = new TH1D("", "", 100,0,0);
+    float max = 0;
+    for (size_t iEvent = 0; iEvent < SensorSignals.size(); iEvent++)
+        if (SensorSignals[iEvent][iSens] > max) max = SensorSignals[iEvent][iSens];
+
+    TH1D * h = nullptr;
+    if (max > 100)
+        h = new TH1D("", "", 100,0,0);
+    else
+    {
+        int imax = ceil(max) + 1;
+        h = new TH1D("", "", imax,0,imax);
+    }
     for (size_t iEvent = 0; iEvent < SensorSignals.size(); iEvent++)
         h->Fill(SensorSignals[iEvent][iSens], 1);
 
@@ -705,7 +716,25 @@ void APhotSimWin::on_pbSensorStatGroup_clicked()
     fillListEnabledSensors(enabledSensors);
 
     const int numSensors = SensorSignals.front().size();
-    TH1D * h = new TH1D("", "", 100,0,0);
+
+    float maxSum = 0;
+    for (size_t iEvent = 0; iEvent < SensorSignals.size(); iEvent++)
+    {
+        double sum = 0;
+        for (int iSensorIndex : enabledSensors)
+            if (iSensorIndex < numSensors)
+                sum += SensorSignals[iEvent][iSensorIndex];
+        if (sum > maxSum) maxSum = sum;
+    }
+
+    TH1D * h = nullptr;
+    if (maxSum > 100)
+        h = new TH1D("", "", 100,0,0);
+    else
+    {
+        int imax = ceil(maxSum) + 1;
+        h = new TH1D("", "", imax,0,imax);
+    }
 
     for (size_t iEvent = 0; iEvent < SensorSignals.size(); iEvent++)
     {
