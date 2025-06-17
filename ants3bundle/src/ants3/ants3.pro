@@ -74,7 +74,7 @@ DEFINES += ANTS3_MINOR=5
 
 QT += qml   #this is for qjsengine
 
-CONFIG += c++17 #c++11
+CONFIG += c++17
 
 QMAKE_CXXFLAGS += -march=native
 
