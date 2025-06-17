@@ -128,7 +128,7 @@ SOURCES += \
     ../lsim/anoderecord.cpp \
     ../lsim/aphotonhistorylog.cpp \
     ../lsim/aphotontracer.cpp \
-    aviewer3dsettings.cpp \
+    gui/aviewer3dsettings.cpp \
     farm/afarmnoderecord.cpp \
     geo/acalorimeter.cpp \
     geo/acalorimeterhub.cpp \
@@ -206,7 +206,7 @@ SOURCES += \
     gui/photsim/ainterfacerulewin.cpp \
     gui/photsim/ainterfacewidgetfactory.cpp \
     gui/photsim/aphotonsimoutputdialog.cpp \
-    ademomanager.cpp \
+    farm/ademomanager.cpp \
     gui/photsim/asensorgview.cpp \
     gui/photsim/asensorwindow.cpp \
     gui/raster/agraphrasterwindow.cpp \
@@ -363,8 +363,8 @@ HEADERS += \
     ../lsim/anoderecord.h \
     ../lsim/aphotonhistorylog.h \
     ../lsim/aphotontracer.h \
-    ademomanager.h \
-    aviewer3dsettings.h \
+    farm/ademomanager.h \
+    gui/aviewer3dsettings.h \
     gui/aitemselectiondialog.h \
     gui/amainwindow.h \
     gui/atreedatabaseselectordialog.h \

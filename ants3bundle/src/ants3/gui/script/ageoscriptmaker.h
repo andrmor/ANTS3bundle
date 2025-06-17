@@ -29,7 +29,7 @@ protected:
     QString makeScriptString_monitorBaseObject(const AGeoObject * obj) const;
     QString makeScriptString_monitorConfig(const AGeoObject * obj) const;
     QString makeScriptString_stackObjectStart(AGeoObject * obj) const;  // rename
-    //QString makeScriptString_stackObjectEnd(AGeoObject * obj) const;
+    QString makeScriptString_stackObjectRef(AGeoObject * obj) const;
     QString makeLinePropertiesString(AGeoObject * obj) const;
     QString makeScriptString_DisabledObject(AGeoObject * obj) const;
 

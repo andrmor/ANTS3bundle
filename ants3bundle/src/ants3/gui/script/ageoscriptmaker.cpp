@@ -137,8 +137,8 @@ void AGeoScriptMaker::objectToScript(AGeoObject * obj, QString & script, int ide
         //script += "\n" + QString(" ").repeated(ident)+ CommentStr + " For the rest of elements they are calculated automatically";
         objectMembersToScript(obj, script, medIdent, useStrings, bRecursive);
         script += "\n" + QString(" ").repeated(ident)+ CommentStr + "--<-- stack elements end for " + obj->Name;
-        //if (!obj->HostedObjects.empty())
-        //    script += "\n" + QString(" ").repeated(ident)+ makeScriptString_stackObjectEnd(obj);
+        if (obj->stackHasReference())
+            script += "\n" + QString(" ").repeated(ident)+ makeScriptString_stackObjectRef(obj);
     }
     else if (obj->Type->isGrid())
     {
@@ -492,15 +492,12 @@ QString AGeoScriptMaker::makeScriptString_stackObjectStart(AGeoObject * obj) con
             .arg(obj->OrientationStr[2].isEmpty() ? QString::number(obj->Orientation[2]) : obj->OrientationStr[2]);
 }
 
-/*
-QString AGeoScriptMaker::makeScriptString_stackObjectEnd(AGeoObject * obj) const
+QString AGeoScriptMaker::makeScriptString_stackObjectRef(AGeoObject * obj) const
 {
-    return QString("geo.initializeStack( ") +
+    return QString("geo.setStackReference( ") +
                    "'" + obj->Name + "',  " +
-//                   "'" + obj->getOrMakeStackReferenceVolume()->Name + "' )";
-                   "'" + "dummy" + "' )";
+                   "'" + obj->getStackReferenceName() + "' )";
 }
-*/
 
 QString AGeoScriptMaker::makeLinePropertiesString(AGeoObject * obj) const
 {

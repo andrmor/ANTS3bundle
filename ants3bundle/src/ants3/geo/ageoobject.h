@@ -111,7 +111,7 @@ public:
   bool isStackMember() const;
   bool stackHasReference() const; // can be called on a stack member or the stack object itself
   bool isStackReference() const;
-  //AGeoObject * getOrMakeStackReferenceVolume();  // for stack container or members
+  QString getStackReferenceName();
   void updateStack();  //called on one object of the set - it is used to calculate positions of other members!
   void updateAllStacks();
 

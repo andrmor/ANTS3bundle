@@ -1347,51 +1347,64 @@ void AGeo_SI::stack(QString name, QString container, QVariantList position, QVar
     GeoObjects.push_back(o);
 }
 
-/*
-void AGeo_SI::initializeStack(QString StackName, QString MemberName_StackReference)
+void AGeo_SI::setStackReference(QString stack, QString stackReferenceObject)
 {
-    AGeoObject * StackObj = nullptr;
+    AGeoObject * stackObj = nullptr;
     for (AGeoObject * obj : GeoObjects)
-        if (obj->Name == StackName && obj->Type->isStack())
+        if (obj->Name == stack && obj->Type->isStack())
         {
-            StackObj = obj;
+            stackObj = obj;
             break;
         }
 
-    if (!StackObj)
+    if (!stackObj)
     {
-        abort("Stack with name " + StackName + " not found!");
+        // could be already defined object in the geometry
+        stackObj = findObject(stack);
+        if (!stackObj) return; // abort already generated
+        if (!stackObj->Type->isStack())
+        {
+            abort("Stack with name " + stack + " not found!");
+            return;
+        }
+        for (AGeoObject * obj : stackObj->HostedObjects)
+        {
+            if (obj->Name == stackReferenceObject)
+            {
+                ATypeStackContainerObject * sc = static_cast<ATypeStackContainerObject*>(stackObj->Type);
+                sc->ReferenceVolume = stackReferenceObject;
+                return;
+            }
+        }
+        abort("Stack element with name " + stackReferenceObject + " not found!");
         return;
     }
 
     bool bFound = false;
-    AGeoObject * origin_obj = nullptr;
-    for (size_t io = 0; io < GeoObjects.size(); io++)
+    AGeoObject * referenceObj = nullptr;
+    for (AGeoObject * obj : GeoObjects)
     {
-        AGeoObject * obj = GeoObjects.at(io);
-        if (obj->Name == MemberName_StackReference)
+        if (obj->Name == stackReferenceObject)
         {
+            referenceObj = obj;
             bFound = true;
-            origin_obj = obj;
+            break;
         }
-        if (obj->tmpContName == StackName)
-            StackObj->HostedObjects.push_back(obj);
     }
 
-    if (!bFound)
+    if (!bFound || referenceObj->tmpContName != stack)
     {
-        abort("Stack element with name " + MemberName_StackReference + " not found!");
+        abort("Stack element with name " + stackReferenceObject + " not found!");
         return;
     }
 
-    origin_obj->Container = StackObj;
-    //static_cast<ATypeStackContainerObject*>(StackObj->Type)->ReferenceVolume = origin_obj->Name;
-    origin_obj->Container->updateStack();
+    referenceObj->Container = stackObj;
+    static_cast<ATypeStackContainerObject*>(stackObj->Type)->ReferenceVolume = stackReferenceObject;
 
-    origin_obj->Container = nullptr;
-    StackObj->HostedObjects.clear();
+    //referenceObj->Container->updateStack();
+    //referenceObj->Container = nullptr;
+    //stackObj->HostedObjects.clear();
 }
-*/
 
 /*
 void AGeo_SI::array(QString name, int numX, int numY, int numZ, double stepX, double stepY, double stepZ, QString container, double x, double y, double z, double phi, double theta, double psi, bool centerSymmetric, int startIndex)

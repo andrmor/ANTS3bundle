@@ -1618,6 +1618,11 @@ QString AGeoTrd1::getScriptString(bool useStrings) const
     return QString("geo.trap( $name$,  %0, %1, %2, %3,  ").arg(sx1, sx2, sy, sz);
 }
 
+double AGeoTrd1::minSize() const
+{
+    return std::min(dz, 0.5*(dx1 + dx2));
+}
+
 double AGeoTrd1::maxSize() const
 {
     double m = std::max(dx1, dx2);

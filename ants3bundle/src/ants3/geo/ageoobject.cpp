@@ -694,6 +694,16 @@ bool AGeoObject::isStackReference() const
     return true;
 }
 
+QString AGeoObject::getStackReferenceName()
+{
+    ATypeStackContainerObject * stack = nullptr;
+    if (Type && Type->isStack())
+        stack = static_cast<ATypeStackContainerObject*>(Type);
+    if (!stack) return "";
+
+    return stack->ReferenceVolume;
+}
+
 /*
 AGeoObject * AGeoObject::getOrMakeStackReferenceVolume()
 {

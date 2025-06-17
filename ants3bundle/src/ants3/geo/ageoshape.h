@@ -470,6 +470,7 @@ public:
     void setHeight(double dz) override {this->dz = dz;}
     QString getGenerationString(bool useStrings) const override;
     QString getScriptString(bool useStrings) const override;
+    double minSize() const override;
     double maxSize() const override;
 
     void writeToJson(QJsonObject& json) const override;

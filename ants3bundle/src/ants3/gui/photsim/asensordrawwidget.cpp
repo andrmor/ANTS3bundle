@@ -246,6 +246,30 @@ void ASensorDrawWidget::addSensorItems(float MaxSignal)
             double radius = tube->rmax * GVscale;
             item = scene->addEllipse( -radius, -radius, 2.0*radius, 2.0*radius, pen, brush);
         }
+        else if (shapeType == "TGeoTrd1")
+        {
+            AGeoTrd1 * trap = static_cast<AGeoTrd1*>(obj->Shape);
+            double height = trap->dz * GVscale;
+            double dx1 = trap->dx1 * GVscale;
+            double dx2 = trap->dx2 * GVscale;
+            double rot = (obj->Orientation[1] > 0 ? 180.0 : 0);
+            rot -= obj->Orientation[0];
+            rot *= 3.1415926535/180.0;
+            QPolygon polygon;
+            polygon << QPoint(-dx1, height);
+            polygon << QPoint(+dx1, height);
+            polygon << QPoint(+dx2, -height);
+            polygon << QPoint(-dx2, -height);
+            polygon << QPoint(-dx1, height);
+            for (QPoint & point : polygon)
+            {
+                double x = point.x() * cos(rot) - point.y() * sin(rot);
+                double y = point.x() * sin(rot) + point.y() * cos(rot);
+                point.setX(x);
+                point.setY(y);
+            }
+            item = scene->addPolygon(polygon, pen, brush);
+        }
         else if (shapeType == "TGeoPolygon")
         {
             AGeoPolygon * pgon = static_cast<AGeoPolygon*>(obj->Shape);
