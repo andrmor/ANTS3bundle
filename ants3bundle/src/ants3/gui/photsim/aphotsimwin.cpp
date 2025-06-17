@@ -698,6 +698,8 @@ void APhotSimWin::on_pbSensorStatIndividual_clicked()
         int imax = ceil(max) + 1;
         h = new TH1D("", "", imax,0,imax);
     }
+    h->GetXaxis()->SetTitle( (QString("Signal of sensor #%0").arg(iSens)).toLatin1().data() );
+    h->SetTitle( (QString("Sensor#%0").arg(iSens)).toLatin1().data() );
     for (size_t iEvent = 0; iEvent < SensorSignals.size(); iEvent++)
         h->Fill(SensorSignals[iEvent][iSens], 1);
 
@@ -735,6 +737,8 @@ void APhotSimWin::on_pbSensorStatGroup_clicked()
         int imax = ceil(maxSum) + 1;
         h = new TH1D("", "", imax,0,imax);
     }
+    h->GetXaxis()->SetTitle("Sum signal");
+    h->SetTitle("SensorSum");
 
     for (size_t iEvent = 0; iEvent < SensorSignals.size(); iEvent++)
     {

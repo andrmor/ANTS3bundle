@@ -90,6 +90,7 @@ void AG4SimulationSettings::readFromJson(const QJsonObject &json)
 
     jstools::parseJson(json, "AddScintillatorsToSensitiveVolumes", AddScintillatorsToSensitiveVolumes);
 
+    Commands.clear();
 #ifdef JSON11
     json11::Json::array arC;
 #else
