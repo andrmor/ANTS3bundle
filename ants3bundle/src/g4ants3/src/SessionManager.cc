@@ -41,6 +41,7 @@ SessionManager::~SessionManager()
     delete outStreamHistory;
 }
 
+#include "G4NCrystal/G4NCrystal.hh"
 void SessionManager::startSession()
 {
     prepareParticleGun();
@@ -63,6 +64,8 @@ void SessionManager::startSession()
     executeAdditionalCommands();
 
     if (Settings.RunSet.SaveSettings.Enabled) findExitVolume();
+
+    G4NCrystal::installOnDemand();
 }
 
 void SessionManager::prepareParticleGun()
@@ -310,7 +313,7 @@ void replaceMaterialRecursive(G4LogicalVolume * volLV, const G4String & matName,
 {
     if (volLV->GetMaterial()->GetName() == matName)
     {
-        //std::cout << "Replacing material for vol " << volLV->GetName() << '\n';
+        std::cout << "Replacing material for vol " << volLV->GetName() << '\n';
         volLV->SetMaterial(newMat);
     }
 
@@ -377,6 +380,14 @@ void SessionManager::updateMaterials()
 
         MaterialMap[G4Name] = MaterialMap[name];
     }
+
+
+    G4Material * newMat = G4NCrystal::createMaterial("Al_sg225.ncmat");
+    newMat->SetName("Al");
+    std::cout << "\n\n\n" << "Created new mat using NCrystal" << std::endl;
+    if (!newMat) terminateSession("NCrystal Al not created");
+    replaceMaterialRecursive(worldLV, "Al", newMat);
+
 }
 
 void SessionManager::replaceMatNameInMatLimitedSources(const G4String & name, const G4String & G4Name)
