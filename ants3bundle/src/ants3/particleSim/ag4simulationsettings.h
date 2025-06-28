@@ -16,6 +16,7 @@ class AG4SimulationSettings
 public:
     std::string              PhysicsList = "QGSP_BERT_HP";
     bool                     UseTSphys = false;
+    bool                     UseNCrystal = false;
     std::vector<std::string> SensitiveVolumes;
     bool                     AddScintillatorsToSensitiveVolumes = true;
     std::vector<std::string> ScintSensitiveVolumes;  // filled automatically

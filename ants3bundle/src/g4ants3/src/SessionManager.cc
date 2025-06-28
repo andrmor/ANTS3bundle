@@ -65,7 +65,7 @@ void SessionManager::startSession()
 
     if (Settings.RunSet.SaveSettings.Enabled) findExitVolume();
 
-    G4NCrystal::installOnDemand();
+    if (Settings.G4Set.UseNCrystal) G4NCrystal::installOnDemand();
 }
 
 void SessionManager::prepareParticleGun()

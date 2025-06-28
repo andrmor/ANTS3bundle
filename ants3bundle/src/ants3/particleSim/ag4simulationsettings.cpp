@@ -39,7 +39,8 @@ void AG4SimulationSettings::writeToJson(QJsonObject &json) const
     }
     json["StepLimits"] = arSL;
 
-    json["UseTSphys"]     = UseTSphys;
+    json["UseTSphys"] = UseTSphys;
+    json["UseNCrystal"] = UseNCrystal;
 }
 #endif
 
@@ -53,6 +54,7 @@ void AG4SimulationSettings::readFromJson(const QJsonObject &json)
 
     jstools::parseJson(json, "PhysicsList", PhysicsList);
     jstools::parseJson(json, "UseTSphys",   UseTSphys);
+    jstools::parseJson(json, "UseNCrystal", UseNCrystal);
 
 #ifdef JSON11
     json11::Json::array arSV;

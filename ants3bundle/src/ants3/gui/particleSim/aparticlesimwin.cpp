@@ -348,7 +348,8 @@ void AParticleSimWin::updateG4Gui()
     for (const auto & it : G4SimSet.StepLimits)
         ui->lwStepLimits->addItem( QString("%0 -> %1").arg(it.first.data(), QString::number(it.second)) );
 
-    ui->cbUseTSphys->setChecked(G4SimSet.UseTSphys);
+    //ui->cbUseTSphys->setChecked(G4SimSet.UseTSphys);
+    ui->cobThermalNeutronModel->setCurrentIndex( G4SimSet.UseNCrystal ? 2 : (G4SimSet.UseTSphys ? 1 : 0) );
 }
 
 // --- input ---
@@ -362,9 +363,14 @@ void AParticleSimWin::on_cobRefPhysLists_activated(int index)
      ui->lePhysicsList->setText( ui->cobRefPhysLists->itemText(index) );
      on_lePhysicsList_editingFinished();
 }
-void AParticleSimWin::on_cbUseTSphys_clicked(bool checked)
+//void AParticleSimWin::on_cbUseTSphys_clicked(bool checked)
+//{
+//    G4SimSet.UseTSphys = checked;
+//}
+void AParticleSimWin::on_cobThermalNeutronModel_activated(int index)
 {
-    G4SimSet.UseTSphys = checked;
+    G4SimSet.UseTSphys = (index == 1);
+    G4SimSet.UseNCrystal = (index == 2);
 }
 void AParticleSimWin::on_pteCommands_textChanged()
 {

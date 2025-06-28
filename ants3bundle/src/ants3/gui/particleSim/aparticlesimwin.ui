@@ -189,14 +189,49 @@ Experimental: Use &quot;Penelope&quot; to choose QGSP_BIC_HP phys list with EM p
            </widget>
           </item>
           <item>
-           <widget class="QCheckBox" name="cbUseTSphys">
-            <property name="toolTip">
-             <string>Replaced neutron physics with HP + TS( &lt; 5 ev)
-To benefit from TS, materials like G4_POLYETHYLENE have to be used</string>
+           <spacer name="horizontalSpacer_44">
+            <property name="orientation">
+             <enum>Qt::Orientation::Horizontal</enum>
             </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_75">
+          <property name="topMargin">
+           <number>0</number>
+          </property>
+          <item>
+           <widget class="QLabel" name="label_6">
             <property name="text">
-             <string>Use TS neutron physics</string>
+             <string>Thermal neutron model:</string>
             </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QComboBox" name="cobThermalNeutronModel">
+            <item>
+             <property name="text">
+              <string>Default in the slected Geant4 physics list</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Thermal library of Geant4</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>NCrystal (requires installation)</string>
+             </property>
+            </item>
            </widget>
           </item>
           <item>
@@ -5483,12 +5518,12 @@ Please specify a valid range</string>
    <slot>setVisible(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>109</x>
-     <y>153</y>
+     <x>110</x>
+     <y>208</y>
     </hint>
     <hint type="destinationlabel">
-     <x>115</x>
-     <y>161</y>
+     <x>117</x>
+     <y>216</y>
     </hint>
    </hints>
   </connection>
@@ -5499,12 +5534,12 @@ Please specify a valid range</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>175</x>
-     <y>145</y>
+     <x>177</x>
+     <y>199</y>
     </hint>
     <hint type="destinationlabel">
-     <x>87</x>
-     <y>144</y>
+     <x>88</x>
+     <y>198</y>
     </hint>
    </hints>
   </connection>
@@ -5515,12 +5550,12 @@ Please specify a valid range</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>48</x>
-     <y>144</y>
+     <x>49</x>
+     <y>198</y>
     </hint>
     <hint type="destinationlabel">
-     <x>87</x>
-     <y>144</y>
+     <x>88</x>
+     <y>198</y>
     </hint>
    </hints>
   </connection>
@@ -5531,12 +5566,12 @@ Please specify a valid range</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>104</x>
-     <y>144</y>
+     <x>105</x>
+     <y>199</y>
     </hint>
     <hint type="destinationlabel">
-     <x>87</x>
-     <y>144</y>
+     <x>88</x>
+     <y>198</y>
     </hint>
    </hints>
   </connection>
@@ -5547,12 +5582,12 @@ Please specify a valid range</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>48</x>
-     <y>144</y>
+     <x>49</x>
+     <y>198</y>
     </hint>
     <hint type="destinationlabel">
-     <x>87</x>
-     <y>144</y>
+     <x>88</x>
+     <y>198</y>
     </hint>
    </hints>
   </connection>
@@ -5563,12 +5598,12 @@ Please specify a valid range</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>95</x>
-     <y>145</y>
+     <x>96</x>
+     <y>199</y>
     </hint>
     <hint type="destinationlabel">
-     <x>87</x>
-     <y>144</y>
+     <x>88</x>
+     <y>198</y>
     </hint>
    </hints>
   </connection>
@@ -5579,12 +5614,12 @@ Please specify a valid range</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>175</x>
-     <y>145</y>
+     <x>177</x>
+     <y>199</y>
     </hint>
     <hint type="destinationlabel">
-     <x>87</x>
-     <y>144</y>
+     <x>88</x>
+     <y>198</y>
     </hint>
    </hints>
   </connection>
@@ -5595,12 +5630,12 @@ Please specify a valid range</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>95</x>
-     <y>145</y>
+     <x>96</x>
+     <y>199</y>
     </hint>
     <hint type="destinationlabel">
-     <x>87</x>
-     <y>144</y>
+     <x>88</x>
+     <y>198</y>
     </hint>
    </hints>
   </connection>
@@ -5611,12 +5646,12 @@ Please specify a valid range</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>77</x>
-     <y>144</y>
+     <x>78</x>
+     <y>198</y>
     </hint>
     <hint type="destinationlabel">
-     <x>87</x>
-     <y>144</y>
+     <x>88</x>
+     <y>198</y>
     </hint>
    </hints>
   </connection>
@@ -5627,12 +5662,12 @@ Please specify a valid range</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>48</x>
-     <y>144</y>
+     <x>49</x>
+     <y>198</y>
     </hint>
     <hint type="destinationlabel">
-     <x>87</x>
-     <y>144</y>
+     <x>88</x>
+     <y>198</y>
     </hint>
    </hints>
   </connection>
@@ -5643,12 +5678,12 @@ Please specify a valid range</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>66</x>
-     <y>145</y>
+     <x>68</x>
+     <y>199</y>
     </hint>
     <hint type="destinationlabel">
-     <x>87</x>
-     <y>144</y>
+     <x>88</x>
+     <y>198</y>
     </hint>
    </hints>
   </connection>
@@ -5659,12 +5694,12 @@ Please specify a valid range</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>146</x>
-     <y>145</y>
+     <x>149</x>
+     <y>199</y>
     </hint>
     <hint type="destinationlabel">
-     <x>87</x>
-     <y>144</y>
+     <x>88</x>
+     <y>198</y>
     </hint>
    </hints>
   </connection>
@@ -5675,12 +5710,12 @@ Please specify a valid range</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>77</x>
-     <y>144</y>
+     <x>78</x>
+     <y>198</y>
     </hint>
     <hint type="destinationlabel">
-     <x>87</x>
-     <y>144</y>
+     <x>88</x>
+     <y>198</y>
     </hint>
    </hints>
   </connection>
@@ -5691,12 +5726,12 @@ Please specify a valid range</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>64</x>
-     <y>140</y>
+     <x>66</x>
+     <y>195</y>
     </hint>
     <hint type="destinationlabel">
-     <x>108</x>
-     <y>139</y>
+     <x>109</x>
+     <y>194</y>
     </hint>
    </hints>
   </connection>
@@ -5707,12 +5742,12 @@ Please specify a valid range</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>67</x>
-     <y>166</y>
+     <x>69</x>
+     <y>221</y>
     </hint>
     <hint type="destinationlabel">
-     <x>111</x>
-     <y>166</y>
+     <x>112</x>
+     <y>221</y>
     </hint>
    </hints>
   </connection>
@@ -5723,12 +5758,12 @@ Please specify a valid range</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>67</x>
-     <y>168</y>
+     <x>69</x>
+     <y>223</y>
     </hint>
     <hint type="destinationlabel">
-     <x>111</x>
-     <y>168</y>
+     <x>112</x>
+     <y>223</y>
     </hint>
    </hints>
   </connection>
@@ -5739,12 +5774,12 @@ Please specify a valid range</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>67</x>
-     <y>169</y>
+     <x>69</x>
+     <y>224</y>
     </hint>
     <hint type="destinationlabel">
-     <x>111</x>
-     <y>169</y>
+     <x>112</x>
+     <y>224</y>
     </hint>
    </hints>
   </connection>
@@ -5755,12 +5790,12 @@ Please specify a valid range</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>46</x>
-     <y>167</y>
+     <x>47</x>
+     <y>222</y>
     </hint>
     <hint type="destinationlabel">
-     <x>65</x>
-     <y>167</y>
+     <x>66</x>
+     <y>222</y>
     </hint>
    </hints>
   </connection>
@@ -5771,12 +5806,12 @@ Please specify a valid range</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>46</x>
-     <y>169</y>
+     <x>47</x>
+     <y>225</y>
     </hint>
     <hint type="destinationlabel">
-     <x>65</x>
-     <y>169</y>
+     <x>66</x>
+     <y>225</y>
     </hint>
    </hints>
   </connection>
@@ -5787,12 +5822,12 @@ Please specify a valid range</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>46</x>
-     <y>171</y>
+     <x>47</x>
+     <y>227</y>
     </hint>
     <hint type="destinationlabel">
-     <x>65</x>
-     <y>171</y>
+     <x>66</x>
+     <y>227</y>
     </hint>
    </hints>
   </connection>
@@ -5803,12 +5838,12 @@ Please specify a valid range</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>92</x>
-     <y>167</y>
+     <x>93</x>
+     <y>222</y>
     </hint>
     <hint type="destinationlabel">
-     <x>111</x>
-     <y>167</y>
+     <x>112</x>
+     <y>222</y>
     </hint>
    </hints>
   </connection>
@@ -5819,12 +5854,12 @@ Please specify a valid range</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>92</x>
-     <y>169</y>
+     <x>93</x>
+     <y>225</y>
     </hint>
     <hint type="destinationlabel">
-     <x>111</x>
-     <y>169</y>
+     <x>112</x>
+     <y>225</y>
     </hint>
    </hints>
   </connection>
@@ -5835,12 +5870,12 @@ Please specify a valid range</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>92</x>
-     <y>171</y>
+     <x>93</x>
+     <y>227</y>
     </hint>
     <hint type="destinationlabel">
-     <x>111</x>
-     <y>171</y>
+     <x>112</x>
+     <y>227</y>
     </hint>
    </hints>
   </connection>
@@ -5851,12 +5886,12 @@ Please specify a valid range</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>87</x>
-     <y>158</y>
+     <x>88</x>
+     <y>213</y>
     </hint>
     <hint type="destinationlabel">
-     <x>114</x>
-     <y>158</y>
+     <x>116</x>
+     <y>213</y>
     </hint>
    </hints>
   </connection>
@@ -5867,12 +5902,12 @@ Please specify a valid range</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>50</x>
-     <y>164</y>
+     <x>51</x>
+     <y>220</y>
     </hint>
     <hint type="destinationlabel">
-     <x>80</x>
-     <y>164</y>
+     <x>81</x>
+     <y>220</y>
     </hint>
    </hints>
   </connection>
@@ -5883,12 +5918,12 @@ Please specify a valid range</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>50</x>
-     <y>164</y>
+     <x>51</x>
+     <y>220</y>
     </hint>
     <hint type="destinationlabel">
-     <x>109</x>
-     <y>164</y>
+     <x>111</x>
+     <y>220</y>
     </hint>
    </hints>
   </connection>
@@ -5899,12 +5934,12 @@ Please specify a valid range</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>50</x>
-     <y>164</y>
+     <x>51</x>
+     <y>220</y>
     </hint>
     <hint type="destinationlabel">
-     <x>80</x>
-     <y>164</y>
+     <x>81</x>
+     <y>220</y>
     </hint>
    </hints>
   </connection>
@@ -5915,12 +5950,12 @@ Please specify a valid range</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>50</x>
-     <y>164</y>
+     <x>51</x>
+     <y>220</y>
     </hint>
     <hint type="destinationlabel">
-     <x>109</x>
-     <y>164</y>
+     <x>111</x>
+     <y>220</y>
     </hint>
    </hints>
   </connection>
@@ -5931,12 +5966,12 @@ Please specify a valid range</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>51</x>
-     <y>164</y>
+     <x>52</x>
+     <y>220</y>
     </hint>
     <hint type="destinationlabel">
-     <x>80</x>
-     <y>164</y>
+     <x>82</x>
+     <y>220</y>
     </hint>
    </hints>
   </connection>
@@ -5947,12 +5982,12 @@ Please specify a valid range</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>44</x>
-     <y>165</y>
+     <x>45</x>
+     <y>221</y>
     </hint>
     <hint type="destinationlabel">
-     <x>66</x>
-     <y>165</y>
+     <x>67</x>
+     <y>221</y>
     </hint>
    </hints>
   </connection>
@@ -5963,12 +5998,12 @@ Please specify a valid range</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>88</x>
-     <y>165</y>
+     <x>90</x>
+     <y>221</y>
     </hint>
     <hint type="destinationlabel">
-     <x>110</x>
-     <y>165</y>
+     <x>112</x>
+     <y>221</y>
     </hint>
    </hints>
   </connection>
@@ -5979,12 +6014,12 @@ Please specify a valid range</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>50</x>
-     <y>164</y>
+     <x>51</x>
+     <y>220</y>
     </hint>
     <hint type="destinationlabel">
-     <x>110</x>
-     <y>164</y>
+     <x>112</x>
+     <y>220</y>
     </hint>
    </hints>
   </connection>
@@ -5995,12 +6030,12 @@ Please specify a valid range</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>50</x>
-     <y>164</y>
+     <x>51</x>
+     <y>220</y>
     </hint>
     <hint type="destinationlabel">
-     <x>110</x>
-     <y>164</y>
+     <x>112</x>
+     <y>220</y>
     </hint>
    </hints>
   </connection>
@@ -6011,12 +6046,12 @@ Please specify a valid range</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>51</x>
-     <y>164</y>
+     <x>52</x>
+     <y>220</y>
     </hint>
     <hint type="destinationlabel">
-     <x>110</x>
-     <y>164</y>
+     <x>112</x>
+     <y>220</y>
     </hint>
    </hints>
   </connection>
@@ -6027,12 +6062,12 @@ Please specify a valid range</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>44</x>
-     <y>165</y>
+     <x>45</x>
+     <y>221</y>
     </hint>
     <hint type="destinationlabel">
-     <x>110</x>
-     <y>164</y>
+     <x>112</x>
+     <y>220</y>
     </hint>
    </hints>
   </connection>
@@ -6043,12 +6078,12 @@ Please specify a valid range</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>88</x>
-     <y>165</y>
+     <x>90</x>
+     <y>221</y>
     </hint>
     <hint type="destinationlabel">
-     <x>110</x>
-     <y>164</y>
+     <x>112</x>
+     <y>220</y>
     </hint>
    </hints>
   </connection>
@@ -6059,12 +6094,12 @@ Please specify a valid range</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>77</x>
-     <y>142</y>
+     <x>80</x>
+     <y>197</y>
     </hint>
     <hint type="destinationlabel">
-     <x>85</x>
-     <y>142</y>
+     <x>87</x>
+     <y>197</y>
     </hint>
    </hints>
   </connection>
@@ -6075,12 +6110,12 @@ Please specify a valid range</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>77</x>
-     <y>142</y>
+     <x>80</x>
+     <y>197</y>
     </hint>
     <hint type="destinationlabel">
-     <x>100</x>
-     <y>142</y>
+     <x>101</x>
+     <y>197</y>
     </hint>
    </hints>
   </connection>
@@ -6091,12 +6126,12 @@ Please specify a valid range</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>46</x>
-     <y>241</y>
+     <x>57</x>
+     <y>303</y>
     </hint>
     <hint type="destinationlabel">
-     <x>90</x>
-     <y>270</y>
+     <x>78</x>
+     <y>334</y>
     </hint>
    </hints>
   </connection>
@@ -6107,12 +6142,12 @@ Please specify a valid range</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>51</x>
-     <y>241</y>
+     <x>59</x>
+     <y>303</y>
     </hint>
     <hint type="destinationlabel">
-     <x>90</x>
-     <y>270</y>
+     <x>78</x>
+     <y>334</y>
     </hint>
    </hints>
   </connection>
@@ -6123,12 +6158,12 @@ Please specify a valid range</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>46</x>
-     <y>272</y>
+     <x>57</x>
+     <y>337</y>
     </hint>
     <hint type="destinationlabel">
-     <x>90</x>
-     <y>270</y>
+     <x>78</x>
+     <y>334</y>
     </hint>
    </hints>
   </connection>
@@ -6139,12 +6174,12 @@ Please specify a valid range</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>51</x>
-     <y>272</y>
+     <x>59</x>
+     <y>337</y>
     </hint>
     <hint type="destinationlabel">
-     <x>90</x>
-     <y>270</y>
+     <x>78</x>
+     <y>334</y>
     </hint>
    </hints>
   </connection>
@@ -6155,12 +6190,12 @@ Please specify a valid range</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>46</x>
-     <y>303</y>
+     <x>57</x>
+     <y>371</y>
     </hint>
     <hint type="destinationlabel">
-     <x>90</x>
-     <y>270</y>
+     <x>78</x>
+     <y>334</y>
     </hint>
    </hints>
   </connection>
@@ -6171,12 +6206,12 @@ Please specify a valid range</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>51</x>
-     <y>303</y>
+     <x>59</x>
+     <y>371</y>
     </hint>
     <hint type="destinationlabel">
-     <x>90</x>
-     <y>270</y>
+     <x>78</x>
+     <y>334</y>
     </hint>
    </hints>
   </connection>
