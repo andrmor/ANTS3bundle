@@ -102,6 +102,15 @@ std::vector<std::pair<std::string, std::string>> AMaterialHub::getMaterialsFromN
     return v;
 }
 
+std::vector<std::pair<std::string, std::string> > AMaterialHub::getMaterialsFromNCrystal() const
+{
+    std::vector<std::pair<std::string, std::string>> v;
+    for (const AMaterial * m : Materials)
+        if (m->UseNCrystalMaterial)
+            v.push_back( {m->Name.toLatin1().data(), m->NCrystalMaterialName.toLatin1().data()} );
+    return v;
+}
+
 std::vector<std::pair<std::string, double>> AMaterialHub::getMaterialsMeanExEnergy() const
 {
     std::vector<std::pair<std::string, double>> v;

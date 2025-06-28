@@ -390,6 +390,7 @@ void AParticleSimManager::configureMaterials()
 
     SimSet.RunSet.Materials             = MatHub.getMaterialNames();
     SimSet.RunSet.MaterialsFromNist     = MatHub.getMaterialsFromNist();
+    SimSet.RunSet.MaterialsFromNCrystal = MatHub.getMaterialsFromNCrystal();
     SimSet.RunSet.MaterialsMeanExEnergy = MatHub.getMaterialsMeanExEnergy();
 }
 

@@ -358,6 +358,7 @@ void SessionManager::updateMaterials()
 
         G4Material * newMat = nullptr;
 
+        /*
         //is it custom G4ants override?
         if (G4Name == "G4_Al_TS")
         {
@@ -366,9 +367,8 @@ void SessionManager::updateMaterials()
             newMat->AddElement(alEle, 1);
         }
         else
-        {
-            newMat = man->FindOrBuildMaterial(G4Name);
-        }
+        */
+        newMat = man->FindOrBuildMaterial(G4Name);
 
         if (!newMat)
         {
@@ -381,13 +381,36 @@ void SessionManager::updateMaterials()
         MaterialMap[G4Name] = MaterialMap[name];
     }
 
-
+    // NCrystal
+    /*
     G4Material * newMat = G4NCrystal::createMaterial("Al_sg225.ncmat");
     newMat->SetName("Al");
     std::cout << "\n\n\n" << "Created new mat using NCrystal" << std::endl;
     if (!newMat) terminateSession("NCrystal Al not created");
     replaceMaterialRecursive(worldLV, "Al", newMat);
+    */
 
+    for (auto & pair : Settings.RunSet.MaterialsFromNCrystal)
+    {
+        G4String name   = pair.first;
+        G4String NCrystalName = pair.second;
+        //if (name == NCrystalName)
+        //{
+        //    terminateSession("Material " + name + ": cannot use the NCrystal name as the material name");
+        //    return;
+        //}
+
+        G4Material * newMat = G4NCrystal::createMaterial(NCrystalName);
+        if (!newMat)
+        {
+            terminateSession("Failed to build NCrystal material using string " + NCrystalName + " for material " + name);
+            return;
+        }
+        std::cout << "NCrystal material created for " << name << " using string " << NCrystalName;
+        newMat->SetName(name);
+
+        replaceMaterialRecursive(worldLV, name, newMat);
+    }
 }
 
 void SessionManager::replaceMatNameInMatLimitedSources(const G4String & name, const G4String & G4Name)
