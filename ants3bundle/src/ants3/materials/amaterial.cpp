@@ -233,6 +233,12 @@ void AMaterial::updateRuntimeOpticalProperties()
 void AMaterial::clear()
 {
     Name = "Undefined";
+
+    UseG4Material = false;
+    G4MaterialName.clear();
+    UseNCrystalMaterial = false;
+    NCrystalMaterialName.clear();
+
     RefIndex = 1.0;
     AbsCoeff = RayleighMFP = ReemissionProb = 0;
     IgnoreEnergyConservationInReemission = false;
@@ -295,6 +301,8 @@ void AMaterial::writeToJson(QJsonObject & json) const
         Composition.writeToJson(jsComp);
         jsComp["UseGeant4Material"] = UseG4Material;
         jsComp["Geant4Material"] = G4MaterialName;
+        jsComp["UseNCrystalMaterial"] = UseNCrystalMaterial;
+        jsComp["NCrystalMaterialName"] = NCrystalMaterialName;
     json["Composition"] = jsComp;
 
     json["RefIndex"] = RefIndex;
@@ -407,6 +415,8 @@ bool AMaterial::readFromJson(const QJsonObject & json)
         Composition.readFromJson(jsComp);
         jstools::parseJson(jsComp, "UseGeant4Material", UseG4Material);
         jstools::parseJson(jsComp, "Geant4Material",    G4MaterialName);
+        jstools::parseJson(jsComp, "UseNCrystalMaterial",  UseNCrystalMaterial);
+        jstools::parseJson(jsComp, "NCrystalMaterialName", NCrystalMaterialName);
 
     jstools::parseJson(json, "RefIndex", RefIndex);
     jstools::parseJson(json, "AbsCoeff", AbsCoeff);
@@ -528,6 +538,10 @@ QString AMaterial::checkMaterial() const
     if (UseG4Material)
     {
         if (G4MaterialName.isEmpty()) return Name + ": Geant4 material name is empty";
+    }
+    else if (UseNCrystalMaterial)
+    {
+        if (NCrystalMaterialName.isEmpty()) return Name + ": NCrystal material name is empty";
     }
     else
     {

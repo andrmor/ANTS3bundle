@@ -102,6 +102,8 @@ private slots:
 
     void on_pbImportNWave_clicked();
 
+    void on_pbListNCrystalMaterials_clicked();
+
 private:
     AGeometryHub & Geometry;
     AMaterialHub & MatHub;
@@ -120,6 +122,8 @@ private:
 
     int  LastShownMaterial    = -1;
 
+    QStringList NCrystalMaterialNames;
+
 private:
     void updateTmpMaterialGui();   // yield / EnRes  !!!***
     void switchToMaterial(int index);
@@ -128,10 +132,11 @@ private:
     void updateWaveButtons();
     bool parseDecayOrRaiseTime(bool decay_or_raise);
     void updateWarningIcons();   // !!!***
-    void updateG4RelatedGui();   // !!!*** empty
+    void compositionTypeChanged();   // !!!*** empty
     void configureG4Materials();
     bool checkCurrentMaterial();
     void fillElementInfo();
+    void configureNCrystalMaterials();
 
 signals:
     void requestRebuildDetector();

@@ -25,6 +25,8 @@ public:
     AMatComposition      Composition;
     bool                 UseG4Material = false;
     QString              G4MaterialName;
+    bool                 UseNCrystalMaterial = false;
+    QString              NCrystalMaterialName;
 
     // optics
     bool    Dielectric = true;    // not dielectric => metal => use complex refractive index on reflection from dielectric
