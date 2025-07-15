@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>592</width>
-    <height>690</height>
+    <width>631</width>
+    <height>734</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -306,6 +306,9 @@
             <layout class="QHBoxLayout" name="horizontalLayout_5">
              <item>
               <widget class="QComboBox" name="cobSensorType">
+               <property name="toolTip">
+                <string>Select SiPM only if the simulation should be aware of the dynamic range of sensor signals: the same pixel can register maximum of one photon per event</string>
+               </property>
                <item>
                 <property name="text">
                  <string>PMT</string>
@@ -717,6 +720,11 @@
              </item>
              <item>
               <widget class="QPushButton" name="pbLoadPDE">
+               <property name="toolTip">
+                <string>File format:
+Two columns, the first is wavelength[nm],  the second is PDE (0..1 range)
+Wavelengths should be given in increasing order</string>
+               </property>
                <property name="text">
                 <string>Load</string>
                </property>
@@ -794,6 +802,11 @@
              </item>
              <item>
               <widget class="QPushButton" name="pbLoadAngular">
+               <property name="toolTip">
+                <string>File format:
+Two columns, the first is angle[degrees],  the second is angular factor
+Angles should start from 0 and end at 90 degrees, in increasing order.</string>
+               </property>
                <property name="text">
                 <string>Load</string>
                </property>
@@ -865,6 +878,10 @@
              </item>
              <item>
               <widget class="QPushButton" name="pbLoadArea">
+               <property name="toolTip">
+                <string>Fie format:
+A matrix of area factors, lines and columns representing X and Y direction, respectively.</string>
+               </property>
                <property name="text">
                 <string>Load</string>
                </property>
@@ -1606,8 +1623,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>592</width>
-     <height>21</height>
+     <width>631</width>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
