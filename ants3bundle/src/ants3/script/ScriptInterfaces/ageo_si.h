@@ -133,6 +133,9 @@ public slots:
     void clearHosted(QString Object);
     void removeWithHosted(QString Object);
 
+    double getGeoConstValue(QString name);
+    void   setGeoConstValue(QString name, double value);
+
     void exportToGDML(QString fileName);
     void exportToROOT(QString fileName);
 

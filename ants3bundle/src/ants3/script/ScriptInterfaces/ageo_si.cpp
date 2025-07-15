@@ -59,6 +59,10 @@ AGeo_SI::AGeo_SI() :
     Help["getPassedVoulumes"] = "Go through the defined geometry in a straight line from startXYZ in the direction startVxVyVz\n"
                                 "and return array of [X Y Z MaterualIndex VolumeName NodeIndex] for all volumes on the way until final exit to the World\n"
                                 "the X Y Z are coordinates of the entrance points";
+
+    Help["getGeoConstValue"] = "Get value of the Geo Constant identified by the provided name";
+    Help["setGeoConstValue"] = "Set value of the Geo Constant identified by the provided name to the new value.\n"
+                               "Note that if an expression was previously defined for that Geo Constant, it will be cleared";
 }
 
 AGeo_SI::~AGeo_SI()
@@ -1638,6 +1642,35 @@ void AGeo_SI::removeWithHosted(QString Object)
         return;
     }
     obj->recursiveSuicide();
+}
+
+#include "ageoconsts.h"
+double AGeo_SI::getGeoConstValue(QString name)
+{
+    AGeoConsts & GC = AGeoConsts::getInstance();
+    int index = GC.getIndexByName(name);
+
+    if (index == -1)
+    {
+        abort("GeoConst with name " + name + " not found!");
+        return 0;
+    }
+
+    return GC.getValue(index);
+}
+
+void AGeo_SI::setGeoConstValue(QString name, double value)
+{
+    AGeoConsts & GC = AGeoConsts::getInstance();
+    int index = GC.getIndexByName(name);
+
+    if (index == -1)
+    {
+        abort("GeoConst with name " + name + " not found!");
+        return;
+    }
+
+    GC.setNewValue(index, value);
 }
 
 AGeoObject * AGeo_SI::findObject(const QString & Object)
