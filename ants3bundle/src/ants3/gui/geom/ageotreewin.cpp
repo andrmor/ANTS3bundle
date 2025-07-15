@@ -586,7 +586,7 @@ void AGeoTreeWin::updateGeoConstsIndication()
             const QString Expression = ( i == numConsts ? ""  : GC.getExpression(i) );
 
             QTableWidgetItem * newItem = new QTableWidgetItem(Name);
-            QString Comment = GC.getComment(i);
+            QString Comment = QString("#%0  %1").arg(i).arg(GC.getComment(i));
             newItem->setToolTip(Comment);
             ui->tabwConstants->setItem(i, 0, newItem);
 
@@ -809,8 +809,8 @@ void AGeoTreeWin::on_tabwConstants_customContextMenuRequested(const QPoint &pos)
     }
     else if (selected == setCommentA)
     {
-        QString txt;
-        guitools::inputString("New comment (empty to remove)", txt, this);
+        QString txt = GC.getComment(index);
+        guitools::inputString("Set/edit comment line (empty to remove)", txt, this);
         GC.setNewComment(index, txt);
         updateGeoConstsIndication();
     }
