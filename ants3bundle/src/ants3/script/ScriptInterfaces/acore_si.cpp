@@ -45,7 +45,7 @@ ACore_SI::ACore_SI() : AScriptInterface()
     Help["getDateTimeStamp"] = "Return text with the current date and time, in the format: hours:minutes:seconds Day Month Year";
 
     Help["createDir"] = "Create a new directory. Abort if not successful";
-    Help["createFile"] = "Create an empty file. Abort if not successful or file already exists";
+    Help["createFile"] = "Create an empty file. When the second argument is not provided or set to true, abort is triggered if a file with that name already exists";
     Help["deleteFile"] = "Delete the file. Abort if not successful";
     Help["isFileExist"] = "Return true if the file exists, false otherwise";
 
@@ -1424,10 +1424,10 @@ void ACore_SI::reportProgress(int percents)
     AScriptHub::getInstance().reportProgress(percents, Lang);
 }
 
-void ACore_SI::createFile(QString fileName)
+void ACore_SI::createFile(QString fileName, bool abortIfExists)
 {
     QFile file(fileName);
-    if (file.exists())
+    if (file.exists() && abortIfExists)
     {
         abort("File already exists: " + fileName);
         return;

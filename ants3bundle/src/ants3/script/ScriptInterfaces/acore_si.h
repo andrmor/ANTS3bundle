@@ -52,7 +52,7 @@ public slots:
 
     // Basic io
     void         createDir(QString path);
-    void         createFile(QString fileName);
+    void         createFile(QString fileName, bool abortIfExists = true);
     void         deleteFile(QString fileName);
     bool         isFileExist(QString fileName);
 
