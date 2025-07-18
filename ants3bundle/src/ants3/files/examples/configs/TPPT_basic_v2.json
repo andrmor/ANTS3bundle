@@ -1,5 +1,5 @@
 {
-    "ConfigDescription": "Scintillator configuration of the TPPT scanner, scintillators are hosted in logical assemblies",
+    "ConfigDescription": "Scintillator configuration of the TPPT scanner, scintillators are hosted in logical assemblies.\nAnnihilation gamma pairs are emitted from PMMA rods",
     "ConfigName": "TPPT basic v2",
     "Geometry": {
         "GeoConsts": [
@@ -62,12 +62,18 @@
                 49.5,
                 "AngularStep*(NumSectors-1)*0.5",
                 ""
+            ],
+            [
+                "RodDiameter",
+                2.5,
+                "",
+                ""
             ]
         ],
         "WorldTree": [
             {
                 "Container": "",
-                "Material": 3,
+                "Material": 2,
                 "Name": "World",
                 "Shape": "TGeoBBox",
                 "ShapeSpecific": {
@@ -163,7 +169,7 @@
             },
             {
                 "Container": "aRings",
-                "Material": 3,
+                "Material": 2,
                 "Name": "Encapsulation",
                 "Phi": 90,
                 "Psi": 0,
@@ -242,6 +248,56 @@
                 "Y": 0,
                 "Z": 0,
                 "color": 4,
+                "fActive": true,
+                "fExpanded": true,
+                "style": 1,
+                "width": 1
+            },
+            {
+                "Container": "World",
+                "Name": "HexArray1",
+                "Phi": 0,
+                "Psi": 0,
+                "Theta": 0,
+                "Type": {
+                    "NumX": 2,
+                    "NumY": 2,
+                    "Rings": 2,
+                    "Shape": "XY",
+                    "SkipEvenFirst": false,
+                    "SkipOddLast": true,
+                    "Step": 5,
+                    "Type": "HexagonalArray",
+                    "startIndex": 0,
+                    "strStep": "2*RodDiameter"
+                },
+                "X": 0,
+                "Y": 0,
+                "Z": 0,
+                "fActive": true,
+                "fExpanded": true
+            },
+            {
+                "Container": "HexArray1",
+                "Material": 3,
+                "Name": "PhantomRod",
+                "Phi": 0,
+                "Psi": 0,
+                "Shape": "TGeoTube",
+                "ShapeSpecific": {
+                    "dz": 52.5,
+                    "rmax": 1.25,
+                    "rmin": 0,
+                    "str2rmax": "RodDiameter"
+                },
+                "Theta": 0,
+                "Type": {
+                    "Type": "Single"
+                },
+                "X": 0,
+                "Y": 0,
+                "Z": 0,
+                "color": 1,
                 "fActive": true,
                 "fExpanded": true,
                 "style": 1,
@@ -393,74 +449,6 @@
             "W": 0
         },
         {
-            "*Name": "Water",
-            "AbsCoeff": 0,
-            "BulkAbsorptionWave": [
-            ],
-            "Comments": "",
-            "Composition": {
-                "CustomComposition": {
-                    "CompositionString": "H",
-                    "Density": 1e-24,
-                    "GasProperties": {
-                        "Gas": false,
-                        "PressureUnitsInGui": "bar",
-                        "Pressure_bar": 1
-                    },
-                    "MeanExcitationEnergy_eV": 0,
-                    "Temperature": 298,
-                    "UseMeanExcitationEnergy": false
-                },
-                "Geant4Material": "G4_WATER",
-                "UseGeant4Material": true
-            },
-            "CustomScatterMFP": 0,
-            "Dielectric": true,
-            "ElDiffusionL": 0,
-            "ElDiffusionT": 0,
-            "ElDriftVelo": 0,
-            "IgnoreEnergyConservationInReemission": false,
-            "IntrEnergyRes": 0,
-            "PhotonYield": 0,
-            "PrimScintDecay": [
-                [
-                    0,
-                    1
-                ]
-            ],
-            "PrimScintRaise": [
-                [
-                    0,
-                    1
-                ]
-            ],
-            "PrimScintSpectrum": [
-            ],
-            "RayleighMFP": 0,
-            "RayleighWave": 500,
-            "ReemissionProb": 0,
-            "ReemissionProbabilityWave": [
-            ],
-            "RefIndex": 1,
-            "RefIndexComplex": [
-                1,
-                0
-            ],
-            "RefIndexComplex_Wave": [
-            ],
-            "RefIndexImporter": {
-            },
-            "RefIndexWave": [
-            ],
-            "SecScintSpectrum": [
-            ],
-            "SecScint_PhYield": 0,
-            "SecScint_Tau": 0,
-            "Tags": [
-            ],
-            "W": 0
-        },
-        {
             "*Name": "Air",
             "AbsCoeff": 0,
             "BulkAbsorptionWave": [
@@ -529,75 +517,7 @@
             "W": 0
         },
         {
-            "*Name": "BaseMat_ABS",
-            "AbsCoeff": 0,
-            "BulkAbsorptionWave": [
-            ],
-            "Comments": "",
-            "Composition": {
-                "CustomComposition": {
-                    "CompositionString": "C15H17N1",
-                    "Density": 1.07,
-                    "GasProperties": {
-                        "Gas": false,
-                        "PressureUnitsInGui": "bar",
-                        "Pressure_bar": 1
-                    },
-                    "MeanExcitationEnergy_eV": 0,
-                    "Temperature": 298,
-                    "UseMeanExcitationEnergy": false
-                },
-                "Geant4Material": "",
-                "UseGeant4Material": false
-            },
-            "CustomScatterMFP": 0,
-            "Dielectric": true,
-            "ElDiffusionL": 0,
-            "ElDiffusionT": 0,
-            "ElDriftVelo": 0,
-            "IgnoreEnergyConservationInReemission": false,
-            "IntrEnergyRes": 0,
-            "PhotonYield": 0,
-            "PrimScintDecay": [
-                [
-                    0,
-                    1
-                ]
-            ],
-            "PrimScintRaise": [
-                [
-                    0,
-                    1
-                ]
-            ],
-            "PrimScintSpectrum": [
-            ],
-            "RayleighMFP": 0,
-            "RayleighWave": 500,
-            "ReemissionProb": 0,
-            "ReemissionProbabilityWave": [
-            ],
-            "RefIndex": 1,
-            "RefIndexComplex": [
-                1,
-                0
-            ],
-            "RefIndexComplex_Wave": [
-            ],
-            "RefIndexImporter": {
-            },
-            "RefIndexWave": [
-            ],
-            "SecScintSpectrum": [
-            ],
-            "SecScint_PhYield": 0,
-            "SecScint_Tau": 0,
-            "Tags": [
-            ],
-            "W": 0
-        },
-        {
-            "*Name": "Cu",
+            "*Name": "PMMA",
             "AbsCoeff": 0,
             "BulkAbsorptionWave": [
             ],
@@ -615,212 +535,8 @@
                     "Temperature": 298,
                     "UseMeanExcitationEnergy": false
                 },
-                "Geant4Material": "G4_Cu",
+                "Geant4Material": "G4_PLEXIGLASS",
                 "UseGeant4Material": true
-            },
-            "CustomScatterMFP": 0,
-            "Dielectric": true,
-            "ElDiffusionL": 0,
-            "ElDiffusionT": 0,
-            "ElDriftVelo": 0,
-            "IgnoreEnergyConservationInReemission": false,
-            "IntrEnergyRes": 0,
-            "PhotonYield": 0,
-            "PrimScintDecay": [
-                [
-                    0,
-                    1
-                ]
-            ],
-            "PrimScintRaise": [
-                [
-                    0,
-                    1
-                ]
-            ],
-            "PrimScintSpectrum": [
-            ],
-            "RayleighMFP": 0,
-            "RayleighWave": 500,
-            "ReemissionProb": 0,
-            "ReemissionProbabilityWave": [
-            ],
-            "RefIndex": 1,
-            "RefIndexComplex": [
-                1,
-                0
-            ],
-            "RefIndexComplex_Wave": [
-            ],
-            "RefIndexImporter": {
-            },
-            "RefIndexWave": [
-            ],
-            "SecScintSpectrum": [
-            ],
-            "SecScint_PhYield": 0,
-            "SecScint_Tau": 0,
-            "Tags": [
-            ],
-            "W": 0
-        },
-        {
-            "*Name": "CarbonFiber",
-            "AbsCoeff": 0,
-            "BulkAbsorptionWave": [
-            ],
-            "Comments": "",
-            "Composition": {
-                "CustomComposition": {
-                    "CompositionString": "H",
-                    "Density": 1e-24,
-                    "GasProperties": {
-                        "Gas": false,
-                        "PressureUnitsInGui": "bar",
-                        "Pressure_bar": 1
-                    },
-                    "MeanExcitationEnergy_eV": 0,
-                    "Temperature": 298,
-                    "UseMeanExcitationEnergy": false
-                },
-                "Geant4Material": "G4_C",
-                "UseGeant4Material": true
-            },
-            "CustomScatterMFP": 0,
-            "Dielectric": true,
-            "ElDiffusionL": 0,
-            "ElDiffusionT": 0,
-            "ElDriftVelo": 0,
-            "IgnoreEnergyConservationInReemission": false,
-            "IntrEnergyRes": 0,
-            "PhotonYield": 0,
-            "PrimScintDecay": [
-                [
-                    0,
-                    1
-                ]
-            ],
-            "PrimScintRaise": [
-                [
-                    0,
-                    1
-                ]
-            ],
-            "PrimScintSpectrum": [
-            ],
-            "RayleighMFP": 0,
-            "RayleighWave": 500,
-            "ReemissionProb": 0,
-            "ReemissionProbabilityWave": [
-            ],
-            "RefIndex": 1,
-            "RefIndexComplex": [
-                1,
-                0
-            ],
-            "RefIndexComplex_Wave": [
-            ],
-            "RefIndexImporter": {
-            },
-            "RefIndexWave": [
-            ],
-            "SecScintSpectrum": [
-            ],
-            "SecScint_PhYield": 0,
-            "SecScint_Tau": 0,
-            "Tags": [
-            ],
-            "W": 0
-        },
-        {
-            "*Name": "SiPMBoardMat",
-            "AbsCoeff": 0,
-            "BulkAbsorptionWave": [
-            ],
-            "Comments": "",
-            "Composition": {
-                "CustomComposition": {
-                    "CompositionString": "(C21H25ClO5/30 + SiO2/30 + Cu/30 + Fe/5 + Sn/5)/91 + Si/9",
-                    "Density": 4.2,
-                    "GasProperties": {
-                        "Gas": false,
-                        "PressureUnitsInGui": "bar",
-                        "Pressure_bar": 1
-                    },
-                    "MeanExcitationEnergy_eV": 0,
-                    "Temperature": 298,
-                    "UseMeanExcitationEnergy": false
-                },
-                "Geant4Material": "",
-                "UseGeant4Material": false
-            },
-            "CustomScatterMFP": 0,
-            "Dielectric": true,
-            "ElDiffusionL": 0,
-            "ElDiffusionT": 0,
-            "ElDriftVelo": 0,
-            "IgnoreEnergyConservationInReemission": false,
-            "IntrEnergyRes": 0,
-            "PhotonYield": 0,
-            "PrimScintDecay": [
-                [
-                    0,
-                    1
-                ]
-            ],
-            "PrimScintRaise": [
-                [
-                    0,
-                    1
-                ]
-            ],
-            "PrimScintSpectrum": [
-            ],
-            "RayleighMFP": 0,
-            "RayleighWave": 500,
-            "ReemissionProb": 0,
-            "ReemissionProbabilityWave": [
-            ],
-            "RefIndex": 1,
-            "RefIndexComplex": [
-                1,
-                0
-            ],
-            "RefIndexComplex_Wave": [
-            ],
-            "RefIndexImporter": {
-            },
-            "RefIndexWave": [
-            ],
-            "SecScintSpectrum": [
-            ],
-            "SecScint_PhYield": 0,
-            "SecScint_Tau": 0,
-            "Tags": [
-            ],
-            "W": 0
-        },
-        {
-            "*Name": "PCBmat",
-            "AbsCoeff": 0,
-            "BulkAbsorptionWave": [
-            ],
-            "Comments": "",
-            "Composition": {
-                "CustomComposition": {
-                    "CompositionString": "C21H25ClO5/30 + SiO2/30 + Cu/30 + Fe/5 + Sn/5",
-                    "Density": 4.57,
-                    "GasProperties": {
-                        "Gas": false,
-                        "PressureUnitsInGui": "bar",
-                        "Pressure_bar": 1
-                    },
-                    "MeanExcitationEnergy_eV": 0,
-                    "Temperature": 298,
-                    "UseMeanExcitationEnergy": false
-                },
-                "Geant4Material": "",
-                "UseGeant4Material": false
             },
             "CustomScatterMFP": 0,
             "Dielectric": true,
@@ -870,7 +586,7 @@
         }
     ],
     "ParticleSim": {
-        "Events": 10000,
+        "Events": 100,
         "Geant4Settings": {
             "AddScintillatorsToSensitiveVolumes": true,
             "Commands": [
@@ -950,8 +666,8 @@
                             "Type": "Gauss"
                         },
                         "MaterialLimited": {
-                            "Enabled": false,
-                            "Material": ""
+                            "Enabled": true,
+                            "Material": "PMMA"
                         },
                         "Orientation": [
                             0,
@@ -963,10 +679,10 @@
                             0,
                             0
                         ],
-                        "Shape": "Point",
-                        "Size1": 10,
+                        "Shape": "Cylinder",
+                        "Size1": 5,
                         "Size2": 10,
-                        "Size3": 10
+                        "Size3": 50
                     },
                     "Time": {
                         "ByEventPeriod": 10,
@@ -1090,7 +806,7 @@
                 "Zmode": "fixed",
                 "Zto": 0
             },
-            "GenerationMode": "single",
+            "GenerationMode": "flood",
             "Grid": {
                 "AxesData": [
                     {
