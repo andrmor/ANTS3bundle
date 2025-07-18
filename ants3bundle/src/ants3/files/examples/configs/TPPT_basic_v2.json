@@ -1,5 +1,5 @@
 {
-    "ConfigDescription": "Scintillator configuration of the TPPT scanner, scintillators are hosted in logical assemblies.\nAnnihilation gamma pairs are emitted from PMMA rods",
+    "ConfigDescription": "Scintillator configuration of the TPPT scanner, scintillators are hosted in logical assemblies.\nAnnihilation gamma pairs are emitted from PMMA rods\nSee PET_reconstruction script for CASToR-based reconstruction",
     "ConfigName": "TPPT basic v2",
     "Geometry": {
         "GeoConsts": [
@@ -586,7 +586,7 @@
         }
     ],
     "ParticleSim": {
-        "Events": 100,
+        "Events": 1000,
         "Geant4Settings": {
             "AddScintillatorsToSensitiveVolumes": true,
             "Commands": [
@@ -696,11 +696,11 @@
                         "HalfLifePreferUnit": "ns",
                         "OffsetMode": "Fixed",
                         "SpreadHalfLife": 100,
-                        "SpreadMode": "None",
+                        "SpreadMode": "Uniform",
                         "SpreadSigma": 50,
                         "SpreadSigmaPrefUnit": "ns",
-                        "SpreadWidth": 100,
-                        "SpreadWidthPrefUnit": "ns"
+                        "SpreadWidth": 30000000000,
+                        "SpreadWidthPrefUnit": "s"
                     }
                 }
             ]
@@ -711,7 +711,7 @@
                 "Enabled": false,
                 "FileName": "ParticleAnalyzers.json"
             },
-            "AsciiOutput": true,
+            "AsciiOutput": false,
             "AsciiPrecision": 6,
             "CalorimeterSettings": {
                 "Enabled": false,
