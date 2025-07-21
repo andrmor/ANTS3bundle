@@ -1,9 +1,9 @@
 #file
 BinarySaveLoad.txt
 #tags
-Array:File:Binary
+Array:File:Binary:Save:Load
 #info
-Log tracking history
+How to save and load binary files (1D, 2D or 3D)
 #end
 
 #file
@@ -73,7 +73,7 @@ Compute detection effeciency for 10B-RPC neutron detector examples
 #file
 SaveLoad3DBinaryArray.txt
 #tags
-Array:File:Binary
+Array:File:Binary:Save:Load
 #info
 Save / load a 3D binary array with top index markers
 #end

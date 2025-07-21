@@ -1,4 +1,12 @@
 #file
+BinarySaveLoad.txt
+#tags
+Array:File:Binary:Save:Load
+#info
+How to save and load binary files (1D, 2D or 3D)
+#end
+
+#file
 FitExample.py
 #tags
 Minimizer:Fit
@@ -6,3 +14,18 @@ Minimizer:Fit
 Use minimizer to fit a function
 #end
 
+#file
+LogTrackingHistory.txt
+#tags
+Analysis:TrackingHistory:Logging
+#info
+Log tracking history
+#end
+
+#file
+SaveLoad3DBinaryArray.txt
+#tags
+Array:File:Binary:Save:Load
+#info
+Save / load a 3D binary array with top index markers
+#end

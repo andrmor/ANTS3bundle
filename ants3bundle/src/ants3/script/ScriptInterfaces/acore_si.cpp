@@ -67,6 +67,14 @@ ACore_SI::ACore_SI() : AScriptInterface()
                             "In this case if the file does not exists, abort is triggered"}};
     Help["loadNumericArray"] = "Load an array of numerics (or an array of numeric arrays). One row corresponds to one line in the file. Separators can be space, tab, comma or colon. Lines starting with # or // are ignored.";
 
+    Help["load3DBinaryArray"] = "Load 3D binary array (typically, for Ants3 files, the array dimensions are [eventIndex][recordIndex][recordFields])\n"
+                                "dataIdChar and separatorIdChar are bytes indicating the begining of the new record and new event, respectively.\n"
+                                "Both format arguments are arrays of 's', 'i', 'd', 'f' or 'c' markers (string, int, double, float and char, respectively)";
+
+    Help["save3DBinaryArray"] = "Save 3D binary array (typically, for Ants3 files, the array dimensions are [eventIndex][recordIndex][recordFields])\n"
+                                "dataIdChar and separatorIdChar are bytes indicating the begining of the new record and new event, respectively.\n"
+                                "Both format arguments are arrays of 's', 'i', 'd', 'f' or 'c' markers (string, int, double, float and char, respectively)";
+
     {
         AScriptHelpEntry se;
         QString txt = "Load array of mixed-type arrays from file, with inner array read according to the array with format options:\n"
@@ -1088,11 +1096,14 @@ void ACore_SI::save3DArray(QVariantList array, QString fileName, QString topLeve
     }
 }
 
-QVariantList ACore_SI::load3DBinaryArray(QString fileName, char dataId, QVariantList dataFormat,
-                                         char separatorId, QVariantList separatorFormat,
+QVariantList ACore_SI::load3DBinaryArray(QString fileName, int idataId, QVariantList dataFormat,
+                                         int iSeparatorId, QVariantList separatorFormat,
                                          int recordsFrom, int recordsUntil, bool skipEmpty)
 {
     QVariantList vl1;
+
+    char dataId = idataId;
+    char separatorId = iSeparatorId;
 
     std::vector<EArrayFormat> DataFormatSelector;
     bool bFormatOK = readFormat(dataFormat, DataFormatSelector, false);
@@ -1176,15 +1187,18 @@ QVariantList ACore_SI::load3DBinaryArray(QString fileName, char dataId, QVariant
     return vl1;
 }
 
-void ACore_SI::save3DBinaryArray(QVariantList data, QString fileName, char dataId, QVariantList dataFormat, char separatorId, bool append)
+void ACore_SI::save3DBinaryArray(QVariantList data, QString fileName, int dataId, QVariantList dataFormat, int separatorId, bool append)
 {
     save3DBinaryArray(data, fileName, dataId, dataFormat, separatorId, QVariantList(), QVariantList(), append);
 }
 
-void ACore_SI::save3DBinaryArray(QVariantList data, QString fileName, char dataId, QVariantList dataFormat,
-                                 char separatorId, QVariantList topLevelLabels, QVariantList separatorFormat, bool append)
+void ACore_SI::save3DBinaryArray(QVariantList data, QString fileName, int iDataId, QVariantList dataFormat,
+                                 int iSeparatorId, QVariantList topLevelLabels, QVariantList separatorFormat, bool append)
 {
     QVariantList vl1;
+
+    char dataId = iDataId;
+    char separatorId = iSeparatorId;
 
     std::vector<EArrayFormat> DataFormatSelector;
     bool bFormatOK = readFormat(dataFormat, DataFormatSelector, false, false);
