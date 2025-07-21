@@ -25,9 +25,9 @@ Log tracking history
 #file
 FormattedOutput.txt
 #tags
-Output:Print:Colors
+Output:Colors
 #info
-Print objects/arrays etc in colors
+Print text/object/array with configurable color
 #end
 
 #file

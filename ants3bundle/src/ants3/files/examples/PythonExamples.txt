@@ -23,6 +23,30 @@ Log tracking history
 #end
 
 #file
+FormattedOutput.txt
+#tags
+Output:Colors
+#info
+Print text/object/array with configurable color
+#end
+
+#file
+FillAndDrawRootTree.txt
+#tags
+Tree:Draw
+#info
+Create, fill and draw ROOT tree
+#end
+
+#file
+FillHistogram.txt
+#tags
+Histogram:Optimisation
+#info
+Comparison of run time for filling a histogram by one point at a time or with an array
+#end
+
+#file
 SaveLoad3DBinaryArray.txt
 #tags
 Array:File:Binary:Save:Load

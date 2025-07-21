@@ -1,0 +1,11 @@
+
+tree.newTree("t", [ ["i", "I"], ["x", "D"], ["y", "D"] ])
+
+for i in range (0, 50000):
+    phi = 2 * 3.1415926 * Math.random()
+    r = Math.gauss(10, 1)
+    x = r * Math.cos(phi)
+    y = r * Math.sin(phi)
+    tree.fill("t", [i, x, y])
+
+tree.draw("t", "sqrt(x) : y", "y>-10 && i>1", "colz", [ [200,-15, 15], [200, -0.5, 4] ])
