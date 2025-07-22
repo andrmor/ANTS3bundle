@@ -33,7 +33,7 @@
     <item>
      <widget class="QLineEdit" name="leTitle">
       <property name="alignment">
-       <set>Qt::AlignCenter</set>
+       <set>Qt::AlignmentFlag::AlignCenter</set>
       </property>
      </widget>
     </item>
@@ -60,6 +60,7 @@
     <addaction name="actionSave_as_png_images"/>
     <addaction name="actionSave_as_TH2D_histograms"/>
     <addaction name="actionExport_to_basket_of_graph_window"/>
+    <addaction name="actionExport_projections_to_basket"/>
    </widget>
    <addaction name="menuShow"/>
   </widget>
@@ -82,6 +83,11 @@
   <action name="actionExport_to_basket_of_graph_window">
    <property name="text">
     <string>Export to basket of graph window</string>
+   </property>
+  </action>
+  <action name="actionExport_projections_to_basket">
+   <property name="text">
+    <string>Export projections to basket</string>
    </property>
   </action>
  </widget>
