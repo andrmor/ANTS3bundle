@@ -21,7 +21,7 @@
 # Status of the development
 
 * Full code released
-* Team is working on the ANTS3 paper, to be submitted in early June 2025
+* ANTS3 paper is submitted, the preprint: https://arxiv.org/abs/2506.07922
 
 # Next steps
 
