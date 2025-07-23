@@ -63,11 +63,19 @@ Script example book for configuring WSF neutron detector (config: WSFneutron.jso
 #end
 
 #file
-DE_Neutrons.txt
+DE_Neutrons_simple.txt
 #tags
-Calorimeter:Detection efficiency
+Calorimeter:Efficiency
 #info
 Compute detection effeciency for 10B-RPC neutron detector examples
+#end
+
+#file
+DE_Neutrons_withEnergyDep.txt
+#tags
+Calorimeter:Efficiency
+#info
+Compute detection effeciency for 10B-RPC neutron detector examples and show the distribution of the deposited energy per event
 #end
 
 #file

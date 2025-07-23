@@ -53,3 +53,11 @@ Array:File:Binary:Save:Load
 #info
 Save / load a 3D binary array with top index markers
 #end
+
+#file
+DE_Neutrons_simple.txt
+#tags
+Calorimeter:Efficiency
+#info
+Compute detection effeciency for 10B-RPC neutron detector examples
+#end

@@ -1,0 +1,24 @@
+# compute detection efficiency using the calorimeters' lsim.loadMonitorData()
+# designed to work with Neutrons/10B-RPC configuration examples
+# !!! modify the line below to indicate the directory with simulation data !!!
+dir = "/home/andr/.config/ants3/TmpOutput"
+
+numEvents = config.getKeyValue("ParticleSim.Events")
+if (numEvents == 0): core.abort("Number of events is zero")
+
+psim.loadCalorimeterData(dir + "/Calorimeters.json")
+num = psim.countCalorimeters()
+
+graph.new1DErr("g")
+DE = 0
+for iCa in range(0, num):
+   ar = psim.getCalorimeterOverEventData(iCa)
+   deltaDE = core.arraySum(ar)
+   DE += deltaDE
+   err = Math.sqrt(deltaDE)
+   graph.addPoint("g", iCa, deltaDE*100/numEvents, 0, err*100/numEvents)
+   
+graph.setMinimum("g", 0)
+graph.setAxisTitles("g", "Gas gap index", "Contribution to DE")
+graph.draw("g", "APL")
+print("Total detection efficiency:", 100.0*DE/numEvents, "%")
