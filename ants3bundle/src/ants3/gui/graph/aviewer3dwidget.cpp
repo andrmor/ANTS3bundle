@@ -243,8 +243,8 @@ void AViewer3DWidget::redraw()
 
     if (Settings.SuppressZero)
     {
-        Hist->SetMinimum(-1e-300);
-        if (Hist->GetMaximum() == 0) Hist->SetMaximum(1e-99);
+        Hist->SetMinimum(-1e-38);
+        if (Hist->GetMaximum() == 0) Hist->SetMaximum(1e-38);
     }
 
     RasterWindow->fCanvas->cd();

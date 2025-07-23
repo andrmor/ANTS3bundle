@@ -521,3 +521,29 @@ void AViewer3D::restoreGeomStatus()
     }
     settings.endGroup();
 }
+
+#include "a3global.h"
+void AViewer3D::on_actionMake_template_triggered()
+{
+    QJsonObject json;
+    Settings.writeToJson(json);
+    writeViewersToJson(json);
+    QString fn = A3Global::getConstInstance().ConfigDir + "/settingsViewer3D.json";
+    jstools::saveJsonToFile(json, fn);
+}
+
+void AViewer3D::on_actionApply_template_triggered()
+{
+    QString fn = A3Global::getConstInstance().ConfigDir + "/settingsViewer3D.json";
+    QJsonObject json;
+    bool ok = jstools::loadJsonFromFile(json, fn);
+    if (!ok)
+    {
+        guitools::message("Cannot read template file, probably it was not created yet", this);
+        return;
+    }
+
+    Settings.readFromJson(json);
+    readViewersFromJson(json);
+    updateGui();
+}

@@ -59,6 +59,8 @@ public:
 private slots:
     void on_actionMake_a_copy_triggered();
     void on_actionSave_as_png_images_triggered();
+    void on_actionMake_template_triggered();
+    void on_actionApply_template_triggered();
     void on_actionSave_as_TH2D_histograms_triggered();
     void on_actionExport_to_basket_of_graph_window_triggered();
     void on_actionExport_projections_to_basket_triggered();
@@ -66,7 +68,6 @@ private slots:
     void showSettings();
     void onCursorPositionChangedOnRasterWindow(double x, double y, double z, double val);
     void onCursorLeftRasterWindow();
-
 
 private:
     Ui::AViewer3D * ui = nullptr;
