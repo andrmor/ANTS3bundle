@@ -81,125 +81,18 @@
               <bold>true</bold>
              </font>
             </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
-        <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_3">
-          <property name="topMargin">
-           <number>0</number>
-          </property>
-          <item>
-           <spacer name="horizontalSpacer_7">
-            <property name="orientation">
-             <enum>Qt::Orientation::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item>
-           <widget class="QLabel" name="label_4">
-            <property name="text">
-             <string>Standard lists:</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QComboBox" name="cobRefPhysLists">
             <property name="toolTip">
              <string>AllHP list requires to download G4ENDL library and set environmental variable G4PARTICLEHPDATA
 Experimental: Use &quot;Penelope&quot; to choose QGSP_BIC_HP phys list with EM part replaced with G4EmPenelopePhysics</string>
             </property>
-            <item>
-             <property name="text">
-              <string>QGSP_BIC</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>QGSP_BIC_HP</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>QGSP_BIC_AllHP</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>QGSP_BERT</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>QGSP_BERT_HP</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>QGSP_FTFP_BERT</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>QGSP_INCLXX</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>QGSP_INCLXX_HP</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>FTFP_BERT</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>FTFP_BERT_ATL</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>FTFP_BERT_HP</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>FTFP_BERT_TRV</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>FTFP_INCLXX</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>FTFP_INCLXX_HP</string>
-             </property>
-            </item>
            </widget>
           </item>
           <item>
-           <spacer name="horizontalSpacer_44">
-            <property name="orientation">
-             <enum>Qt::Orientation::Horizontal</enum>
+           <widget class="QPushButton" name="pbOfferPhysLists">
+            <property name="text">
+             <string>Choose</string>
             </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
+           </widget>
           </item>
          </layout>
         </item>
@@ -211,7 +104,7 @@ Experimental: Use &quot;Penelope&quot; to choose QGSP_BIC_HP phys list with EM p
           <item>
            <widget class="QLabel" name="label_6">
             <property name="text">
-             <string>Thermal neutron model:</string>
+             <string>  Additional model for neutrons:</string>
             </property>
            </widget>
           </item>
@@ -219,7 +112,7 @@ Experimental: Use &quot;Penelope&quot; to choose QGSP_BIC_HP phys list with EM p
            <widget class="QComboBox" name="cobThermalNeutronModel">
             <item>
              <property name="text">
-              <string>Default in the slected Geant4 physics list</string>
+              <string>None</string>
              </property>
             </item>
             <item>

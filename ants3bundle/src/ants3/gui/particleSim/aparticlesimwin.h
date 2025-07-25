@@ -53,7 +53,6 @@ private slots:
     void on_pbSimulate_clicked();
 
     void on_lePhysicsList_editingFinished();
-    void on_cobRefPhysLists_activated(int index);
     //void on_cbUseTSphys_clicked(bool checked);
     void on_cobThermalNeutronModel_activated(int index);
     void on_pteCommands_textChanged();
@@ -305,6 +304,7 @@ private slots:
     void on_cobAnalyzerEnergyUnits_activated(int index);
     void on_pbHelpGetParticles_clicked();
 
+    void on_pbOfferPhysLists_clicked();
 };
 
 #endif // APARTICLESIMWIN_H

@@ -332,7 +332,6 @@ void AParticleSimWin::updateSimGui()
 void AParticleSimWin::updateG4Gui()
 {
     ui->lePhysicsList->setText(G4SimSet.PhysicsList.data());
-    ui->cobRefPhysLists->setCurrentIndex(-1);
 
     ui->pteCommands->clear();
     for (const auto & s : G4SimSet.Commands)
@@ -358,11 +357,7 @@ void AParticleSimWin::on_lePhysicsList_editingFinished()
 {
     G4SimSet.PhysicsList = ui->lePhysicsList->text().toLatin1().data();
 }
-void AParticleSimWin::on_cobRefPhysLists_activated(int index)
-{
-     ui->lePhysicsList->setText( ui->cobRefPhysLists->itemText(index) );
-     on_lePhysicsList_editingFinished();
-}
+
 //void AParticleSimWin::on_cbUseTSphys_clicked(bool checked)
 //{
 //    G4SimSet.UseTSphys = checked;
@@ -3688,5 +3683,29 @@ void AParticleSimWin::on_cobAnalyzerEnergyUnits_activated(int)
 void AParticleSimWin::on_pbHelpGetParticles_clicked()
 {
     guitools::message("Note that if one particle during tracking enters several times volume(s) which pass the selection criteria, it is counted only once!", this);
+}
+
+void AParticleSimWin::on_pbOfferPhysLists_clicked()
+{
+    QDialog D(this);
+    D.setWindowTitle("Select physics list");
+
+    QHBoxLayout * hl = new QHBoxLayout(&D);
+    hl->addWidget(new QLabel("Standard physics list:"));
+    QComboBox * cob = new QComboBox();
+    QStringList list{"FTFP_BERT","FTFP_BERT_ATL","FTFP_BERT_HP","FTFP_BERT_TRV","FTFP_INCLXX","FTFQGSP_BERT","FTF_BIC","LBE","NuBeam","QBBC","QBBC_ABLA","QGSP_BERT","QGSP_BERT_HP","QGSP_BIC","QGSP_BIC_AllHP","QGSP_BIC_HP","QGSP_BIC_HPT","QGSP_FTFP_BERT","QGSP_INCLXX","QGS_BIC","Shielding","ShieldingLEND"};
+    connect(cob, &QComboBox::activated, &D, &QDialog::accept);
+    cob->addItems(list);
+    hl->addWidget(cob);
+
+    QPoint toPos = mapToGlobal(ui->pbOfferPhysLists->pos());
+    toPos.setX(toPos.x() - 0.5*D.width());
+    toPos.setY(toPos.y() + 0.5*D.height());
+    D.move(toPos);
+    int res = D.exec();
+    if (res == QDialog::Rejected) return;
+
+    ui->lePhysicsList->setText( cob->currentText() );
+    on_lePhysicsList_editingFinished();
 }
 
