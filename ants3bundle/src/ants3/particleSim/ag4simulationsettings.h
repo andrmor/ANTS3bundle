@@ -14,7 +14,7 @@
 class AG4SimulationSettings
 {
 public:
-    std::string              PhysicsList = "QGSP_BERT_HP";
+    std::string              PhysicsList = "QGSP_BIC_HP";
     bool                     UseTSphys = false;
     bool                     UseNCrystal = false;
     std::vector<std::string> SensitiveVolumes;

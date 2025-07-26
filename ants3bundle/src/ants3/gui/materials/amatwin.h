@@ -104,6 +104,8 @@ private slots:
 
     void on_pbListNCrystalMaterials_clicked();
 
+    void on_pbInspectNCrystalMaterial_clicked();
+
 private:
     AGeometryHub & Geometry;
     AMaterialHub & MatHub;

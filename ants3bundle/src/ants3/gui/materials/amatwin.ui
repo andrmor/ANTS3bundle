@@ -820,6 +820,13 @@ To use Al with termal scattering, use G4_Al_TS</string>
                 </layout>
                </item>
                <item>
+                <widget class="QPushButton" name="pbInspectNCrystalMaterial">
+                 <property name="text">
+                  <string>Inspect material</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
                 <spacer name="verticalSpacer_10">
                  <property name="orientation">
                   <enum>Qt::Orientation::Vertical</enum>

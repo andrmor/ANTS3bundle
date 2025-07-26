@@ -97,7 +97,7 @@ std::vector<std::pair<std::string, std::string>> AMaterialHub::getMaterialsFromN
 {
     std::vector<std::pair<std::string, std::string>> v;
     for (const AMaterial * m : Materials)
-        if (m->UseG4Material)
+        if (m->CompositionType == AMaterial::Geant4Material)
             v.push_back( {m->Name.toLatin1().data(), m->G4MaterialName.toLatin1().data()} );
     return v;
 }
@@ -106,7 +106,7 @@ std::vector<std::pair<std::string, std::string> > AMaterialHub::getMaterialsFrom
 {
     std::vector<std::pair<std::string, std::string>> v;
     for (const AMaterial * m : Materials)
-        if (m->UseNCrystalMaterial)
+        if (m->CompositionType == AMaterial::NCrystalMaterial)
             v.push_back( {m->Name.toLatin1().data(), m->NCrystalMaterialName.toLatin1().data()} );
     return v;
 }
@@ -115,7 +115,8 @@ std::vector<std::pair<std::string, double>> AMaterialHub::getMaterialsMeanExEner
 {
     std::vector<std::pair<std::string, double>> v;
     for (const AMaterial * m : Materials)
-        if (!m->UseG4Material && m->Composition.UseCustomMeanExEnergy)
+        //if (!m->UseG4Material && m->Composition.UseCustomMeanExEnergy)
+        if (m->CompositionType==AMaterial::Direct && m->Composition.UseCustomMeanExEnergy)
             v.push_back( {m->Name.toLatin1().data(), m->Composition.MeanExEnergy} );
     return v;
 }
@@ -371,8 +372,10 @@ void AMaterialHub::checkReadyForGeant4Sim(QString & Errors) const
 
         const AMaterial * mat = Materials[iM];
 
-        if (mat->UseG4Material && mat->G4MaterialName.isEmpty())
+        if (mat->CompositionType == AMaterial::Geant4Material && mat->G4MaterialName.isEmpty())
             Errors += QString("\nGeant4 material use activated for %1, but G4 name not selected\n").arg(mat->Name);
+
+        // !!!*** check NCrystal?
 
         // !!!*** check material here, which should include check of composition
         //if (!mat->Composition.isDefined() && !mat->UseNistMaterial)

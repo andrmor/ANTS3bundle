@@ -22,10 +22,12 @@ public:
     QString Name;
 
     // composition
+    enum ECompositionType {Direct, Geant4Material, NCrystalMaterial};
+    ECompositionType     CompositionType = Direct;
     AMatComposition      Composition;
-    bool                 UseG4Material = false;
+    //bool                 UseG4Material = false;
     QString              G4MaterialName;
-    bool                 UseNCrystalMaterial = false;
+    //bool                 UseNCrystalMaterial = false;
     QString              NCrystalMaterialName;
 
     // optics

@@ -434,7 +434,15 @@ void AMatWin::updateTmpMaterialGui()
     ui->leComposition->setText( tmpMaterial.Composition.getCompositionString() );
     fillElementInfo();
 
-    ui->cobCompositionType->setCurrentIndex( tmpMaterial.UseNCrystalMaterial ? 2 : (tmpMaterial.UseG4Material ? 1 : 0) );
+    int index = 0;
+    switch (tmpMaterial.CompositionType)
+    {
+    case AMaterial::Direct           : index = 0; break;
+    case AMaterial::Geant4Material   : index = 1; break;
+    case AMaterial::NCrystalMaterial : index = 2; break;
+    default: qWarning() << "Not implemented type of material composition, selecting 'Direct'";
+    }
+    ui->cobCompositionType->setCurrentIndex(index);
     ui->leG4Material->setText(tmpMaterial.G4MaterialName);
     ui->leNCrystalMaterial->setText(tmpMaterial.NCrystalMaterialName);
     compositionTypeChanged();
@@ -552,10 +560,17 @@ void AMatWin::on_pbUpdateTmpMaterial_clicked()
 {  
     tmpMaterial.Name = ui->leName->text();
 
-    tmpMaterial.UseG4Material = (ui->cobCompositionType->currentIndex() == 1);
-    tmpMaterial.G4MaterialName = ui->leG4Material->text();
+    switch (ui->cobCompositionType->currentIndex())
+    {
+    case 0: tmpMaterial.CompositionType = AMaterial::Direct;           break;
+    case 1: tmpMaterial.CompositionType = AMaterial::Geant4Material;   break;
+    case 2: tmpMaterial.CompositionType = AMaterial::NCrystalMaterial; break;
+    default:
+        qWarning() << "Unknown composition type in cobCompositionType, assuming 'Direct'";
+        tmpMaterial.CompositionType = AMaterial::Direct;
+    }
 
-    tmpMaterial.UseNCrystalMaterial = (ui->cobCompositionType->currentIndex() == 2);
+    tmpMaterial.G4MaterialName = ui->leG4Material->text();
     tmpMaterial.NCrystalMaterialName = ui->leNCrystalMaterial->text();
 
     tmpMaterial.Composition.Density = ui->ledDensity->text().toDouble();
@@ -1574,5 +1589,36 @@ void AMatWin::on_pbListNCrystalMaterials_clicked()
     QString txt;
     txt = NCrystalMaterialNames.join('\n');
     guitools::message1(txt, "NCrystal materials", this);
+}
+
+void AMatWin::on_pbInspectNCrystalMaterial_clicked()
+{
+    //disableInterface(true);
+    qApp->processEvents();
+
+    AGeant4InspectorManager & G4Inspector = AGeant4InspectorManager::getInstance();
+    //ui->pbAbort->setEnabled(true);
+
+    AG4MaterialRecord reply;
+    G4Inspector.inspectMaterial(tmpMaterial.NCrystalMaterialName, reply);
+
+    if (!G4Inspector.ErrorString.isEmpty())
+        guitools::message(G4Inspector.ErrorString, this);
+    else
+    {
+        QString str;
+        str += "Name:\t\t"    + reply.Name + "\n\n";
+        str += "Density:\t\t" + QString::number(reply.Density) + " g/cm3" + "\n\n";
+        str += "Composition\n";
+        str += " by weight:\t\t" + reply.WeightFractions + '\n';
+        str += " by atoms:\t\t" + (reply.AtomFractions.isEmpty() ? "Not specified" : reply.AtomFractions) + "\n\n";
+        reply.Formula.remove('_');
+        str += "Formula:\t\t" + (reply.Formula.isEmpty() ? "Not specified" : reply.Formula);
+        str += "\n\n";
+        str += "Temperature:\t" + QString::number(reply.Temperature) + " K\n\n";
+        str += "Mean Excitation Energy:\t" + QString::number(reply.MeanExcitationEnergy) + " eV";
+
+        guitools::message1notModal(str, "Geant4 material", this);
+    }
 }
 

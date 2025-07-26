@@ -95,14 +95,16 @@ void AParticleRunSettings::writeToJson(QJsonObject & json, bool includeG4ants3Se
             for (const auto & mat : Materials) matAr.push_back(mat.data());
         json["Materials"]            = matAr;
 
-        QJsonArray nistAr;
+        {
+            QJsonArray ar;
             for (const auto & mat : MaterialsFromNist)
             {
                 QJsonArray el;
                 el << QString(mat.first.data()) << QString(mat.second.data());
-                nistAr.push_back(el);
+                ar.push_back(el);
             }
-        json["MaterialsFromNist"]    = nistAr;
+            json["MaterialsFromNist"] = ar;
+        }
 
         {
             QJsonArray ar;
@@ -110,9 +112,9 @@ void AParticleRunSettings::writeToJson(QJsonObject & json, bool includeG4ants3Se
             {
                 QJsonArray el;
                 el << QString(mat.first.data()) << QString(mat.second.data());
-                nistAr.push_back(el);
+                ar.push_back(el);
             }
-            json["MaterialsFromNCrystal"] = nistAr;
+            json["MaterialsFromNCrystal"] = ar;
         }
 
         {
