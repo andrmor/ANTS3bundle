@@ -41,7 +41,9 @@ SessionManager::~SessionManager()
     delete outStreamHistory;
 }
 
+#ifdef ANTS3_NCRYSTAL
 #include "G4NCrystal/G4NCrystal.hh"
+#endif
 void SessionManager::startSession()
 {
     prepareParticleGun();
@@ -65,7 +67,9 @@ void SessionManager::startSession()
 
     if (Settings.RunSet.SaveSettings.Enabled) findExitVolume();
 
+#ifdef ANTS3_NCRYSTAL
     if (Settings.G4Set.UseNCrystal) G4NCrystal::installOnDemand();
+#endif
 }
 
 void SessionManager::prepareParticleGun()
@@ -381,15 +385,7 @@ void SessionManager::updateMaterials()
         MaterialMap[G4Name] = MaterialMap[name];
     }
 
-    // NCrystal
-    /*
-    G4Material * newMat = G4NCrystal::createMaterial("Al_sg225.ncmat");
-    newMat->SetName("Al");
-    std::cout << "\n\n\n" << "Created new mat using NCrystal" << std::endl;
-    if (!newMat) terminateSession("NCrystal Al not created");
-    replaceMaterialRecursive(worldLV, "Al", newMat);
-    */
-
+    #ifdef ANTS3_NCRYSTAL
     for (auto & pair : Settings.RunSet.MaterialsFromNCrystal)
     {
         G4String name   = pair.first;
@@ -411,6 +407,7 @@ void SessionManager::updateMaterials()
 
         replaceMaterialRecursive(worldLV, name, newMat);
     }
+    #endif
 }
 
 void SessionManager::replaceMatNameInMatLimitedSources(const G4String & name, const G4String & G4Name)
