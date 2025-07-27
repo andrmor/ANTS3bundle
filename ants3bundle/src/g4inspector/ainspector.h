@@ -4,6 +4,7 @@
 #include <QString>
 
 class QJsonObject;
+class G4Material;
 
 class AInspector
 {
@@ -23,7 +24,7 @@ private:
     void terminate(const QString & returnMessage);
     void generateResponseFile(const QJsonObject & responseJson);
     void processRequest(const QJsonObject & json);
-    void fillMaterialComposition(const QString & matName, QJsonObject & json);
+    void fillMaterialComposition(G4Material * material, QJsonObject & json);
 };
 
 #endif // AINSPECTOR_H
