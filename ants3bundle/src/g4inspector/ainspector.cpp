@@ -1,6 +1,13 @@
 #include "ainspector.h"
 #include "ajsontools.h"
 
+#include "G4NistManager.hh"
+#include "G4SystemOfUnits.hh"
+
+#ifdef ANTS3_NCRYSTAL
+#include "G4NCrystal/G4NCrystal.hh"
+#endif
+
 #include <QDebug>
 
 AInspector::AInspector(const QString & dir, const QString & fileName) :
@@ -52,10 +59,38 @@ void AInspector::processRequest(const QJsonObject & json)
         jstools::parseJson(json, "MaterialName", matName);
         if (matName.isEmpty()) terminate("Empty material name");
 
+        //qDebug() << "...Mat name:" << matName;
+        G4NistManager * matManager = G4NistManager::Instance();
+        G4Material * mat = matManager->FindOrBuildMaterial(matName.toLatin1().data());
+        if (!mat)
+        {
+            terminate("Material " + matName + " is not listed in G4NistManager");
+            return;
+        }
+
         QJsonObject json;
-        fillMaterialComposition(matName, json);
+        fillMaterialComposition(mat, json);
         generateResponseFile(json);
     }
+    #ifdef ANTS3_NCRYSTAL
+    else if (request == "MaterialCompositionNCrystal")
+    {
+        QString matName;
+        jstools::parseJson(json, "MaterialName", matName);
+        if (matName.isEmpty()) terminate("Empty material name");
+
+        G4Material * mat = G4NCrystal::createMaterial(matName.toLatin1().data());
+        if (!mat)
+        {
+            terminate("Unknown generation string for NCrystal material: " + matName);
+            return;
+        }
+
+        QJsonObject json;
+        fillMaterialComposition(mat, json);
+        generateResponseFile(json);
+    }
+    #endif
     else if (request == "Geant4Version")
     {
         QJsonObject json;
@@ -70,20 +105,8 @@ void AInspector::processRequest(const QJsonObject & json)
     else terminate("Unknown request");
 }
 
-#include "G4NistManager.hh"
-#include "G4SystemOfUnits.hh"
-void AInspector::fillMaterialComposition(const QString & matName, QJsonObject & json)
+void AInspector::fillMaterialComposition(G4Material * mat, QJsonObject & json)
 {
-    //qDebug() << "...Mat name:" << matName;
-    G4NistManager * matManager = G4NistManager::Instance();
-
-    G4Material * mat = matManager->FindOrBuildMaterial(matName.toLatin1().data());
-    if (!mat)
-    {
-        terminate("Material " + matName + " is not listed in G4NistManager");
-        return;
-    }
-
     json["Name"]    = QString(mat->GetName().data());
     json["Density"] = mat->GetDensity()/(g/cm3);
     json["Formula"] = QString(mat->GetChemicalFormula().data());

@@ -20,7 +20,7 @@ AGeant4InspectorManager & AGeant4InspectorManager::getInstance()
     return instance;
 }
 
-bool AGeant4InspectorManager::inspectMaterial(const QString & matName, AG4MaterialRecord & reply)
+bool AGeant4InspectorManager::inspectMaterial(const QString & matName, bool nCrystalMaterial, AG4MaterialRecord & reply)
 {
     bAborted = false;
     ErrorString.clear();
@@ -40,7 +40,7 @@ bool AGeant4InspectorManager::inspectMaterial(const QString & matName, AG4Materi
 
     A3WorkDistrConfig Request;
     Request.NumEvents = numEvents;
-    bool ok = configureForInspectMaterial(matName, RunPlan, Request);
+    bool ok = configureForInspectMaterial(matName, nCrystalMaterial, RunPlan, Request);
     if (!ok) return false;
 
     QJsonObject Reply = Dispatch.performTask(Request);
@@ -150,7 +150,7 @@ void AGeant4InspectorManager::abort()
     bAborted = true;
 }
 
-bool AGeant4InspectorManager::configureForInspectMaterial(const QString & matName, std::vector<AFarmNodeRecord> & RunPlan, A3WorkDistrConfig & Request)
+bool AGeant4InspectorManager::configureForInspectMaterial(const QString & matName, bool nCrystalMat, std::vector<AFarmNodeRecord> & RunPlan, A3WorkDistrConfig & Request)
 {
     Request.Command = "g4inspector";
 
@@ -166,7 +166,7 @@ bool AGeant4InspectorManager::configureForInspectMaterial(const QString & matNam
     A3NodeWorkerConfig worker;
 
     QJsonObject jsonIn;
-    jsonIn["Request"] = "MaterialComposition";
+    jsonIn["Request"] = (nCrystalMat ? "MaterialCompositionNCrystal" : "MaterialComposition");
     jsonIn["MaterialName"] = matName;
     jstools::saveJsonToFile(jsonIn, ExchangeDir + "/" + RequestFileName);
 

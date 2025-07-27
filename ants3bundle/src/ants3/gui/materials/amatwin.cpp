@@ -1464,7 +1464,7 @@ void AMatWin::on_pbInspectG4Material_clicked()
     //ui->pbAbort->setEnabled(true);
 
     AG4MaterialRecord reply;
-    G4Inspector.inspectMaterial(tmpMaterial.G4MaterialName, reply);
+    G4Inspector.inspectMaterial(tmpMaterial.G4MaterialName, false, reply);
 
     if (!G4Inspector.ErrorString.isEmpty())
         guitools::message(G4Inspector.ErrorString, this);
@@ -1591,6 +1591,7 @@ void AMatWin::on_pbListNCrystalMaterials_clicked()
     guitools::message1(txt, "NCrystal materials", this);
 }
 
+// !!!*** define common parts with on_pbInspectG4Material_clicked
 void AMatWin::on_pbInspectNCrystalMaterial_clicked()
 {
     //disableInterface(true);
@@ -1600,7 +1601,7 @@ void AMatWin::on_pbInspectNCrystalMaterial_clicked()
     //ui->pbAbort->setEnabled(true);
 
     AG4MaterialRecord reply;
-    G4Inspector.inspectMaterial(tmpMaterial.NCrystalMaterialName, reply);
+    G4Inspector.inspectMaterial(tmpMaterial.NCrystalMaterialName, true, reply);
 
     if (!G4Inspector.ErrorString.isEmpty())
         guitools::message(G4Inspector.ErrorString, this);
