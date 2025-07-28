@@ -1,3 +1,5 @@
+CONFIG += ants3_NCrystal   # !!! Requires installation of NCrystal with NCrystal-Geant4, and need to adjust paths below !!!
+
 QT -= gui
 
 CONFIG += c++17 console
@@ -111,3 +113,34 @@ HEADERS += \
     src/exceptionhandler.h \
     src/json11.hh \
     src/js11tools.hh
+
+ants3_NCrystal {
+  DEFINES += ANTS3_NCRYSTAL
+
+  #NCrystal
+  #INCLUDEPATH += /home/andr/NCrystal/ncrystal/ncrystal-main/ncrystal_install/include
+  INCLUDEPATH += $$system(ncrystal-config --show includedir)
+
+  #LIBS += -L$$system(ncrystal-config --show libdir) -lNCrystal
+  #LIBS += -L/home/andr/NCrystal/ncrystal/ncrystal-main/ncrystal_build -lNCrystal
+  #LIBS += -L/home/andr/NCrystal/ncrystal/ncrystal-main/ncrystal_install/lib -lNCrystal
+  LIBS += -L$$system(ncrystal-config --show libdir) -lNCrystal
+
+  #NCrystal-Geant4
+  INCLUDEPATH += /home/andr/NCrystal/ncrystal/ncrystal-geant4-main/src/ncrystal_geant4/cmake/include
+
+  SOURCES += \
+  /home/andr/NCrystal/ncrystal/ncrystal-geant4-main/src/ncrystal_geant4/cmake/src/G4NCBias.cc \
+  /home/andr/NCrystal/ncrystal/ncrystal-geant4-main/src/ncrystal_geant4/cmake/src/G4NCManager.cc \
+  /home/andr/NCrystal/ncrystal/ncrystal-geant4-main/src/ncrystal_geant4/cmake/src/G4NCMatHelper.cc \
+  /home/andr/NCrystal/ncrystal/ncrystal-geant4-main/src/ncrystal_geant4/cmake/src/G4NCProcWrapper.hh \
+  /home/andr/NCrystal/ncrystal/ncrystal-geant4-main/src/ncrystal_geant4/cmake/src/G4NCInstall.cc \
+  /home/andr/NCrystal/ncrystal/ncrystal-geant4-main/src/ncrystal_geant4/cmake/src/G4NCManager.hh \
+  /home/andr/NCrystal/ncrystal/ncrystal-geant4-main/src/ncrystal_geant4/cmake/src/G4NCProcWrapper.cc
+
+  HEADERS += \
+  /home/andr/NCrystal/ncrystal/ncrystal-geant4-main/src/ncrystal_geant4/cmake/include/G4NCrystal/G4NCBias.hh \
+  /home/andr/NCrystal/ncrystal/ncrystal-geant4-main/src/ncrystal_geant4/cmake/include/G4NCrystal/G4NCInstall.hh \
+  /home/andr/NCrystal/ncrystal/ncrystal-geant4-main/src/ncrystal_geant4/cmake/include/G4NCrystal/G4NCMatHelper.hh \
+  /home/andr/NCrystal/ncrystal/ncrystal-geant4-main/src/ncrystal_geant4/cmake/include/G4NCrystal/G4NCrystal.hh
+}

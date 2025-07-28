@@ -95,14 +95,27 @@ void AParticleRunSettings::writeToJson(QJsonObject & json, bool includeG4ants3Se
             for (const auto & mat : Materials) matAr.push_back(mat.data());
         json["Materials"]            = matAr;
 
-        QJsonArray nistAr;
+        {
+            QJsonArray ar;
             for (const auto & mat : MaterialsFromNist)
             {
                 QJsonArray el;
                 el << QString(mat.first.data()) << QString(mat.second.data());
-                nistAr.push_back(el);
+                ar.push_back(el);
             }
-        json["MaterialsFromNist"]    = nistAr;
+            json["MaterialsFromNist"] = ar;
+        }
+
+        {
+            QJsonArray ar;
+            for (const auto & mat : MaterialsFromNCrystal)
+            {
+                QJsonArray el;
+                el << QString(mat.first.data()) << QString(mat.second.data());
+                ar.push_back(el);
+            }
+            json["MaterialsFromNCrystal"] = ar;
+        }
 
         {
             QJsonArray ar;
@@ -197,6 +210,16 @@ void AParticleRunSettings::readFromJson(const QJsonObject & json)
     {
         json11::Json::array el = arNist[i].array_items();
         MaterialsFromNist.push_back( {el[0].string_value(), el[1].string_value()} );
+    }
+
+    {
+        json11::Json::array ar;
+        jstools::parseJson(json, "MaterialsFromNCrystal", ar);
+        for (size_t i = 0; i < ar.size(); i++)
+        {
+            json11::Json::array el = ar[i].array_items();
+            MaterialsFromNCrystal.push_back( {el[0].string_value(), el[1].string_value()} );
+        }
     }
 
     {

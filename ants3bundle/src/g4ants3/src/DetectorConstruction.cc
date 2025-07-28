@@ -7,6 +7,8 @@
 #include "G4SystemOfUnits.hh"
 #include "G4UserLimits.hh"
 
+#include "G4Material.hh"
+
 #include <algorithm>
 
 DetectorConstruction::DetectorConstruction(G4VPhysicalVolume *setWorld)
