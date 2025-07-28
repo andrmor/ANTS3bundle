@@ -468,6 +468,34 @@ void AViewer3D::on_actionExport_to_basket_of_graph_window_triggered()
     View3->exportToBasket("YZ");
 }
 
+#include "TH1D.h"
+void AViewer3D::on_actionExport_projections_to_basket_triggered()
+{
+    TH1D hX("XProj", "XProj", NumBinsX, StartZeroBinX, StartZeroBinX + NumBinsX*mmPerPixelX);
+    TH1D hY("YProj", "YProj", NumBinsY, StartZeroBinY, StartZeroBinY + NumBinsY*mmPerPixelY);
+    TH1D hZ("ZProj", "ZProj", NumBinsZ, StartZeroBinZ, StartZeroBinZ + NumBinsZ*mmPerPixelZ);
+
+    for (int ix = 0; ix < NumBinsX; ix++)
+    {
+        double x = StartZeroBinX + ix * mmPerPixelX;
+        for (int iy = 0; iy < NumBinsY; iy++)
+        {
+            double y = StartZeroBinY + iy * mmPerPixelY;
+            for (int iz = 0; iz < NumBinsZ; iz++)
+            {
+                double z = StartZeroBinZ + iz * mmPerPixelZ;
+                hX.Fill(x, Data[ix][iy][iz]);
+                hY.Fill(y, Data[ix][iy][iz]);
+                hZ.Fill(z, Data[ix][iy][iz]);
+            }
+        }
+    }
+
+    emit requestExportToBasket(&hX, "hist", "X_proj");
+    emit requestExportToBasket(&hY, "hist", "Y_proj");
+    emit requestExportToBasket(&hZ, "hist", "Z_proj");
+}
+
 #include <QSettings>
 void AViewer3D::storeGeomStatus()
 {
@@ -492,4 +520,30 @@ void AViewer3D::restoreGeomStatus()
         else      showNormal();
     }
     settings.endGroup();
+}
+
+#include "a3global.h"
+void AViewer3D::on_actionMake_template_triggered()
+{
+    QJsonObject json;
+    Settings.writeToJson(json);
+    writeViewersToJson(json);
+    QString fn = A3Global::getConstInstance().ConfigDir + "/settingsViewer3D.json";
+    jstools::saveJsonToFile(json, fn);
+}
+
+void AViewer3D::on_actionApply_template_triggered()
+{
+    QString fn = A3Global::getConstInstance().ConfigDir + "/settingsViewer3D.json";
+    QJsonObject json;
+    bool ok = jstools::loadJsonFromFile(json, fn);
+    if (!ok)
+    {
+        guitools::message("Cannot read template file, probably it was not created yet", this);
+        return;
+    }
+
+    Settings.readFromJson(json);
+    readViewersFromJson(json);
+    updateGui();
 }

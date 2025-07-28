@@ -1,0 +1,11 @@
+ar = [1,2,3,4, [1.1, 2.2, 3.3]]
+obj = {"name": "Name1", "Group:": 1}
+
+print("Array:",ar, "  Object:", obj, "  String:", "ahaaa")
+
+def color(text, color):
+   return "<"+"font color='" + color + "'>" +     text     + "</"+"font"+">" 
+   
+core.printHtml( color("Example of a warning message", "red") )
+core.printHtml( color(str(ar), "teal") )
+core.printHtml( color(core.toStr(obj), "blue") )

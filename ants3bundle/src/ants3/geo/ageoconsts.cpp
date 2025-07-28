@@ -254,6 +254,15 @@ QString AGeoConsts::getComment(int index) const
     return Records.at(index).Comment;
 }
 
+int AGeoConsts::getIndexByName(const QString & name) const
+{
+    for (int i = 0; i < Records.size(); i++)
+    {
+        if (name == Records[i].Name) return i;
+    }
+    return -1;
+}
+
 bool AGeoConsts::evaluateConstExpression(int index)
 {
     AGeoConstRecord & rec = Records[index];

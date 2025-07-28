@@ -1,27 +1,25 @@
 var dir = "/home/andr/WORK/Ants3ReleaseTests/BinSave"
 var fn = dir + "/file.bin"
 
+// 3D array with two 'events', first have two records, the second has three
 var ar = [
           [ [1,1.23,"aaa"],[2,2.23,"bbb"] ],
           [ [3,3.33,"ccc"],[4,4.44,"ddd"],[5,5.55,"eee"] ]
          ]
-var dataFormat = ["i", "d", "s"]
+var dataFormat = ["i", "d", "s"] // data format in the binary file:  int, double, string
 
-core.print("Original array:")
-core.print(ar)
-core.print("Saving with 'event index markers'...")
+core.print("Original array:", ar, "\n")
 
+/*
+core.print("Saving without 'event index markers'...")
+core.save3DBinaryArray(ar, fn, 0xff, dataFormat, 0xee)
+core.load3DBinaryArray(fn, 0xff, dataFormat, 0xee, [])
+*/
+
+core.print("Saving and then loading with 'event index markers'...")
 var arLabels = [[0],[1]]
 var labelFormat = ["i"]
-
-//core.save3DBinaryArray(ar, fn, 0xff, dataFormat, 0xee)
-//core.load3DBinaryArray(fn, 0xff, dataFormat, 0xee, [])
-
 core.save3DBinaryArray(ar, fn, 0xff, dataFormat, 0xee, arLabels, labelFormat)
 var loadedArray = core.load3DBinaryArray(fn, 0xff, dataFormat, 0xee, labelFormat)
-core.print("Loaded array:")
-core.print(loadedArray)
 
-
-
-
+core.print("\nLoaded array:", loadedArray)

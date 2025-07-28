@@ -355,7 +355,7 @@ QVariantList ATrackRec_SI::doGetStepRecord(bool flag_PreTrue_PostFalse)
             vl << thisStep->TargetIsotope;
 
             QVariantList svl;
-            for (int & iSec : thisStep->Secondaries) svl << iSec;
+            for (int iSec : thisStep->Secondaries) svl << iSec;
             vl.push_back(svl);
         }
         else abort("Error: bad current step!");

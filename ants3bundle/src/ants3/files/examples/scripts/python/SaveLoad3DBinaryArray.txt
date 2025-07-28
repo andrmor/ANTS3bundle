@@ -1,0 +1,24 @@
+dir = "/home/andr/WORK/Ants3ReleaseTests/BinSave"
+fn = dir + "/file.bin"
+
+# 3D array with two 'events', first have two records, the second has three
+ar = [
+          [ [1,1.23,"aaa"],[2,2.23,"bbb"] ],
+          [ [3,3.33,"ccc"],[4,4.44,"ddd"],[5,5.55,"eee"] ]
+     ]
+     
+dataFormat = ["i", "d", "s"] # data format in the binary file:  int, double, string
+
+print("Original array (list):", ar, "\n")
+
+print("Saving and then loading without 'event index markers'...")
+core.save3DBinaryArray(ar, fn, 0xff, dataFormat, 0xee)
+loadedArray = core.load3DBinaryArray(fn, 0xff, dataFormat, 0xee, [])
+
+#print("Saving and then loading with 'event index markers'...")
+#arLabels = [[0],[1]]
+#labelFormat = ["i"]
+#core.save3DBinaryArray(ar, fn, 0xff, dataFormat, 0xee, arLabels, labelFormat)
+#loadedArray = core.load3DBinaryArray(fn, 0xff, dataFormat, 0xee, labelFormat)
+
+print("\nLoaded array (tuple):", loadedArray)

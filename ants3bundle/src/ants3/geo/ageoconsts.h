@@ -53,6 +53,8 @@ public:
     QString getExpression(int index) const;
     QString getComment(int index) const;
 
+    int     getIndexByName(const QString & name) const; // returns -1 if not found
+
     int     countConstants() const {return Records.size();}
     bool    evaluateConstExpression(int index);
     bool    isGeoConstInUseGlobal(const QRegularExpression & nameRegExp, const AGeoObject * obj) const;

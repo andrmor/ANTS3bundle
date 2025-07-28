@@ -1,0 +1,42 @@
+# --- Warning! ---
+#  This script prints a lot of text. 
+# Recommended to start with < 100 events
+
+dir = "/home/andr/.config/ants3/TmpOutput"
+fileName = "TrackingData.dat"
+tracks.open(dir + "/" + fileName)
+
+def outText(depth):
+    pr = tracks.getTrackRecord()
+    print("> " + pr[0])
+    while tracks.makeStep():
+            trPre = tracks.getPreStepRecord()
+            trPost = tracks.getPostStepRecord()
+            core.print(trPre, "  ->-  ", trPost)
+       
+    numSec = tracks.countSecondaries()
+    for iSec in range(0, numSec):
+        st = depth
+        if len(st) > 0: st += ":"
+        st += str(iSec)
+        print("Secondary #", st)
+        tracks.enterSecondary(iSec)
+        outText(st)
+        tracks.exitSecondary()
+
+numEvents = tracks.countEvents()
+if numEvents == 0: core.abort("No data!")
+
+core.clearOutput()
+print("Tracking (from ->- to) report format for 'from' and 'to':\n[X, Y, Z], Time, [iMaterial, Volume, Index], EnergyAfterStep, DirectlyDepositedEnergy, Process, TragetIsotope, CreatedSecondaries\n")
+print("Custom process names:\n'T' - transportation\n'O' - exit defined geometry\n")
+
+for iEv in range(0, numEvents):
+    print("\n==> EVENT #", iEv)
+    tracks.setEvent(iEv)
+    numPrim = tracks.countPrimaries()
+    for iPr in range(0, numPrim):
+        print("--> Primary #", iPr)
+        tracks.setPrimary(iPr)
+        outText("")
+

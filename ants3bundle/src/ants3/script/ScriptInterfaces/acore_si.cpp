@@ -45,7 +45,7 @@ ACore_SI::ACore_SI() : AScriptInterface()
     Help["getDateTimeStamp"] = "Return text with the current date and time, in the format: hours:minutes:seconds Day Month Year";
 
     Help["createDir"] = "Create a new directory. Abort if not successful";
-    Help["createFile"] = "Create an empty file. Abort if not successful or file already exists";
+    Help["createFile"] = "Create an empty file. When the second argument is not provided or set to true, abort is triggered if a file with that name already exists";
     Help["deleteFile"] = "Delete the file. Abort if not successful";
     Help["isFileExist"] = "Return true if the file exists, false otherwise";
 
@@ -66,6 +66,14 @@ ACore_SI::ACore_SI() : AScriptInterface()
                          {3,"Save 1D or 2D numeric array to the file. If 'append' argument is true, the data are added to the end of the file. "
                             "In this case if the file does not exists, abort is triggered"}};
     Help["loadNumericArray"] = "Load an array of numerics (or an array of numeric arrays). One row corresponds to one line in the file. Separators can be space, tab, comma or colon. Lines starting with # or // are ignored.";
+
+    Help["load3DBinaryArray"] = "Load 3D binary array (typically, for Ants3 files, the array dimensions are [eventIndex][recordIndex][recordFields])\n"
+                                "dataIdChar and separatorIdChar are bytes indicating the begining of the new record and new event, respectively.\n"
+                                "Both format arguments are arrays of 's', 'i', 'd', 'f' or 'c' markers (string, int, double, float and char, respectively)";
+
+    Help["save3DBinaryArray"] = "Save 3D binary array (typically, for Ants3 files, the array dimensions are [eventIndex][recordIndex][recordFields])\n"
+                                "dataIdChar and separatorIdChar are bytes indicating the begining of the new record and new event, respectively.\n"
+                                "Both format arguments are arrays of 's', 'i', 'd', 'f' or 'c' markers (string, int, double, float and char, respectively)";
 
     {
         AScriptHelpEntry se;
@@ -1088,11 +1096,14 @@ void ACore_SI::save3DArray(QVariantList array, QString fileName, QString topLeve
     }
 }
 
-QVariantList ACore_SI::load3DBinaryArray(QString fileName, char dataId, QVariantList dataFormat,
-                                         char separatorId, QVariantList separatorFormat,
+QVariantList ACore_SI::load3DBinaryArray(QString fileName, int idataId, QVariantList dataFormat,
+                                         int iSeparatorId, QVariantList separatorFormat,
                                          int recordsFrom, int recordsUntil, bool skipEmpty)
 {
     QVariantList vl1;
+
+    char dataId = idataId;
+    char separatorId = iSeparatorId;
 
     std::vector<EArrayFormat> DataFormatSelector;
     bool bFormatOK = readFormat(dataFormat, DataFormatSelector, false);
@@ -1176,15 +1187,18 @@ QVariantList ACore_SI::load3DBinaryArray(QString fileName, char dataId, QVariant
     return vl1;
 }
 
-void ACore_SI::save3DBinaryArray(QVariantList data, QString fileName, char dataId, QVariantList dataFormat, char separatorId, bool append)
+void ACore_SI::save3DBinaryArray(QVariantList data, QString fileName, int dataId, QVariantList dataFormat, int separatorId, bool append)
 {
     save3DBinaryArray(data, fileName, dataId, dataFormat, separatorId, QVariantList(), QVariantList(), append);
 }
 
-void ACore_SI::save3DBinaryArray(QVariantList data, QString fileName, char dataId, QVariantList dataFormat,
-                                 char separatorId, QVariantList topLevelLabels, QVariantList separatorFormat, bool append)
+void ACore_SI::save3DBinaryArray(QVariantList data, QString fileName, int iDataId, QVariantList dataFormat,
+                                 int iSeparatorId, QVariantList topLevelLabels, QVariantList separatorFormat, bool append)
 {
     QVariantList vl1;
+
+    char dataId = iDataId;
+    char separatorId = iSeparatorId;
 
     std::vector<EArrayFormat> DataFormatSelector;
     bool bFormatOK = readFormat(dataFormat, DataFormatSelector, false, false);
@@ -1424,10 +1438,10 @@ void ACore_SI::reportProgress(int percents)
     AScriptHub::getInstance().reportProgress(percents, Lang);
 }
 
-void ACore_SI::createFile(QString fileName)
+void ACore_SI::createFile(QString fileName, bool abortIfExists)
 {
     QFile file(fileName);
-    if (file.exists())
+    if (file.exists() && abortIfExists)
     {
         abort("File already exists: " + fileName);
         return;

@@ -1,0 +1,68 @@
+//script requires CASTOR_CONFIG environmental variable to be set!
+//It should point to the config directory of the installed CASToR library
+//for example, add the following line (replace the path!) in .bashrc file:
+//export CASTOR_CONFIG=/SomePath/Castor/config
+
+//It is strongly recommended to install CASToR with multithread support!
+//install OpenMP library, e.g. in Ubuntu:
+//sudo apt-get install libomp-dev
+//before calling "make" to compile castor, setup this environmental variable:
+//export CASTOR_OMP=1
+//to enable OpenMP in castor-recon, use additional key with the number giving the number of threads to be used:
+//-th 20
+
+var workingDir = "/home/andr/.config/ants3/TmpOutput"
+workingDir += "/"
+
+var bCreateScanner = true
+var bBuildEvents = true
+var bFindCoincidences = true
+var bReconstruct = true
+var bShowImages = true
+
+var scannerName = "AntsTpptV2"
+if (bCreateScanner) pet.createScanner(scannerName, 0.5*335.4, 15, 3, 90.0)
+
+var depoFile = workingDir + "Deposition.dat"
+var eventsFile = workingDir + "Events.dat"
+if (bBuildEvents)
+{
+   pet.configureBuilderTimeWindows( [[0, 1e50]])
+   pet.configureBuilderClustering(0.01, 0.1, 40, 100)
+   pet.configureBuilderSeed(1234)
+   pet.configureBuilderCTR(0.22)
+   pet.configureBuilderEnergies(0.13, 10)
+   pet.setDepositionFile(depoFile, true);
+   var num = pet.buildEventsFromDeposition(eventsFile, true)
+   core.print("Builder constructed",num,"sensor hits")
+}
+
+var coincFile = workingDir + "Coinc.cdh"
+if (bFindCoincidences)
+{
+   pet.configureCoincidenceWindow(4.0)
+   pet.configureCoincidenceGlobalTimeRange(0, 1e50)
+   pet.configureCoincidenceEnergyWindow(0.9*511, 1.1*511)
+   var num = pet.findCoincidences(scannerName, eventsFile, true, coincFile, true)
+   core.print("Finder reports",num,"coincidence pairs")
+}
+
+var outputDir = workingDir + "images"
+if (bReconstruct)
+{
+   pet.configureReconstructionVoxels(128,128,128,  0.5,0.5,0.5)
+   pet.configureReconstructionAlgorithm("MLEM") // MLEM  OSL  DEPIERRO95
+   pet.configureReconstructionIterations(3,16)
+   //pet.configureReconstructionGaussianConvolver(2.5,2.0,3.5)
+   //pet.configureReconstructionGaussianConvolver(1.5,1.0,2.0)
+   pet.configureReconstructionGaussianConvolver(1.5,1.5,2.0)
+   //pet.configureReconstructionIgnoreTOF(true) // ignore ToF even if present in the datafile
+   pet.reconstruct(coincFile, outputDir, 20)
+}
+
+if (bShowImages)
+{
+    var dir = workingDir + "/images/"
+    var fn = dir + "images_it3.hdr"
+    grwin.show3D(fn)
+}

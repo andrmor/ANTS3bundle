@@ -1,0 +1,42 @@
+fn = "a.bin"
+
+# 1D
+arr = [1.1,2.2,3.3]
+print("1D array to save:")
+print(arr)
+print("Saving it to a binary file...")
+core.saveBinaryArray(arr, fn, ['d'], False)
+print("   saving it once more to demonstrate how to append...")
+core.saveBinaryArray(arr, fn, ['d'], True)  # last argument controls append mode
+rar = core.loadArrayBinary(fn, ['d'])
+print("Loaded array:")
+print(rar)
+
+# 2D
+arr = []
+for i in range (0, 5):
+    arr.append([i, 50.5*i, 0x33, 123456, "Text"+str(i)])
+print("\n2D array to save (skipping penultimate field due to '' format field):")
+print(arr)
+core.saveBinaryArray(arr, fn, ['i', 'd', 'c', '', 's'], False)
+rar = core.loadArrayBinary(fn, ['i', 'd', 'c', 's'])
+print("Loaded array:")
+print(rar)
+
+# 3D
+core.print("\nGenerating 3D array: 3 events, each having 5 data records of 2 numbers")
+core.createFile(fn, False)
+dataSeparator   = 0xEE
+eventSeparartor = 0xFF
+for iEvent in range(0, 3):
+    arr = [[eventSeparartor, iEvent]]           # has to be an array of arrays!
+    core.saveBinaryArray(arr, fn, ['c', 'i'], True) # this is event start marker with event index
+    print("Event #", iEvent)
+    data = []
+    for iRec in range(0, 5):
+        data.append([dataSeparator, iRec, iEvent*100 + iRec + 0.1])
+        print("  record #", iRec, " : ", [iRec, iEvent*100 + iRec + 0.1])
+    core.saveBinaryArray(data, fn, ['c', 'i', 'd'], True)
+rar = core.load3DBinaryArray(fn, dataSeparator, ['i', 'd'], eventSeparartor, ['i'])
+print("Loaded array:")
+print(rar)

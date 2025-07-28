@@ -52,7 +52,7 @@ public slots:
 
     // Basic io
     void         createDir(QString path);
-    void         createFile(QString fileName);
+    void         createFile(QString fileName, bool abortIfExists = true);
     void         deleteFile(QString fileName);
     bool         isFileExist(QString fileName);
 
@@ -85,9 +85,9 @@ public slots:
     QVariantList load3DArray(QString fileName, QString topSeparator, QVariantList format,
                              bool skipEmpty = true, bool allowIncomplete = false, int recordsFrom = 0, int recordsUntil = 2147483647);
 
-    QVariantList load3DBinaryArray(QString fileName, char dataId, QVariantList dataFormat, char separatorId, QVariantList separatorFormat, int recordsFrom = 0, int recordsUntil = 1e6, bool skipEmpty = false);
-    void         save3DBinaryArray(QVariantList data, QString fileName, char dataId, QVariantList dataFormat, char separatorId, bool append = false);
-    void         save3DBinaryArray(QVariantList data, QString fileName, char dataId, QVariantList dataFormat, char separatorId, QVariantList topLevelLabels, QVariantList separatorFormat, bool append = false);
+    QVariantList load3DBinaryArray(QString fileName, int dataIdChar, QVariantList dataFormat, int separatorIdChar, QVariantList separatorFormat, int recordsFrom = 0, int recordsUntil = 1e6, bool skipEmpty = false);
+    void         save3DBinaryArray(QVariantList data, QString fileName, int dataIdChar, QVariantList dataFormat, int separatorIdChar, bool append = false);
+    void         save3DBinaryArray(QVariantList data, QString fileName, int dataIdChar, QVariantList dataFormat, int separatorIdChar, QVariantList topLevelLabels, QVariantList separatorFormat, bool append = false);
 
     // Object
     void        saveObject(QVariantMap Object, QString FileName);

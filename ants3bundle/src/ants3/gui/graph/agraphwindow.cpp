@@ -1155,7 +1155,19 @@ void AGraphWindow::updateControls()
     //qDebug() << "PlotType:"<< PlotType << "Opt:"<<opt;
 
     zmin = 0; zmax = 0;
-    if (PlotType.startsWith("TH1") || PlotType.startsWith("TH2") || PlotType =="TProfile")
+    TView * view_3D = c->GetView();
+    if (view_3D)
+    {
+        double min[3], max[3];
+        view_3D->GetRange(min, max);
+        ui->ledXfrom->setText( QString::number(min[0], 'g', 4) );
+        ui->ledXto->setText( QString::number(max[0], 'g', 4) );
+        ui->ledYfrom->setText( QString::number(min[1], 'g', 4) );
+        ui->ledYto->setText( QString::number(max[1], 'g', 4) );
+        ui->ledZfrom->setText( QString::number(min[2], 'g', 4) );
+        ui->ledZto->setText( QString::number(max[2], 'g', 4) );
+    }
+    else if (PlotType.startsWith("TH1") || PlotType.startsWith("TH2") || PlotType =="TProfile")
     {
         c->GetRangeAxis(xmin, ymin, xmax, ymax);
         if (c->GetLogx())

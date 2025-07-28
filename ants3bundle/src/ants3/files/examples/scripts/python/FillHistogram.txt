@@ -1,0 +1,25 @@
+
+hist.new1D("h", 100,0,1)
+
+for i in range(0, 20):
+    hist.new1D("h"+str(i), 100,0,100) # just to give more work to find the right histo :)
+
+numEvents = 1000000
+
+def directly():
+    for ii in range(0, numEvents):
+        hist.fill("h", Math.random())
+
+def allAtOnce():
+    data = []
+    for ii in range(0, numEvents): data.append(Math.random())
+    hist.fillArr("h", data)
+
+start = core.getTimeMarkMilliseconds()
+#directly()
+allAtOnce()
+core.print("Elapsed time:", core.getTimeMarkMilliseconds() - start, "ms")
+hist.draw("h")
+
+# note that gain in time strongly depends on the number of events (not linear)
+

@@ -5,38 +5,41 @@ var arr = [1.1,2.2,3.3]
 core.print("1D array to save:")
 core.print(arr)
 core.print("Saving it to a binary file...")
-core.saveBinaryArray(arr, ['d'], fn, false)
+core.saveBinaryArray(arr, fn, ['d'], false)
 core.print("   saving it once more to demonstrate how to append...")
-core.saveBinaryArray(arr, ['d'], fn, true)  //append
+core.saveBinaryArray(arr, fn, ['d'], true)  // last argument controls append mode
 var rar = core.loadArrayBinary(fn, ['d'])
 core.print("Loaded array:")
 core.print(rar)
 
 // 2D
 var arr = []
-for (var i = 0; i < 5; i++)
-   arr.push([i, 50.5*i, 0x33, 123456, "Text"+i])
+for (var i = 0; i < 5; i++) arr.push([i, 50.5*i, 0x33, 123456, "Text"+i])
 core.print("\n2D array to save (skipping penultimate field due to '' format field):")
 core.print(arr)
-core.saveBinaryArray(arr, ['i', 'd', 'c', '', 's'], fn, false)
+core.saveBinaryArray(arr, fn, ['i', 'd', 'c', '', 's'], false)
 var rar = core.loadArrayBinary(fn, ['i', 'd', 'c', 's'])
 core.print("Loaded array:")
 core.print(rar)
 
 //3D
-core.print("\nGenerating 3D array: 3 events, each having 5 data records")
+core.print("\nGenerating 3D array: 3 events, each having 5 data records of 2 numbers")
 core.createFile(fn, false)
 var dataSeparator   = 0xEE
 var eventSeparartor = 0xFF
 for (var iEvent = 0; iEvent < 3; iEvent++)
 {
-       var arr = [[eventSeparartor, iEvent]]   // has to be an array of arrays!
-       core.saveBinaryArray(arr, ['c', 'i'], fn, true)
-
-       var data = []
-       for (var iRec = 0; iRec < 5; iRec++)
-              data.push([dataSeparator, iRec, iEvent*100 + iRec + 0.1])
-       core.saveBinaryArray(data, ['c', 'i', 'd'], fn, true)
+    var arr = [[eventSeparartor, iEvent]]   // has to be an array of arrays!
+    core.saveBinaryArray(arr, fn, ['c', 'i'], true) // this is event start marker with event index
+    
+    core.print("Event #", iEvent)
+    var data = []
+    for (var iRec = 0; iRec < 5; iRec++)
+    {
+        data.push([dataSeparator, iRec, iEvent*100 + iRec + 0.1])
+        core.print("  record #", iRec, " : ", [iRec, iEvent*100 + iRec + 0.1])
+    }
+    core.saveBinaryArray(data, fn, ['c', 'i', 'd'], true)
 }
 var rar = core.load3DBinaryArray(fn, dataSeparator, ['i', 'd'], eventSeparartor, ['i'])
 core.print("Loaded array:")

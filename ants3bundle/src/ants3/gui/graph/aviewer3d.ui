@@ -33,7 +33,7 @@
     <item>
      <widget class="QLineEdit" name="leTitle">
       <property name="alignment">
-       <set>Qt::AlignCenter</set>
+       <set>Qt::AlignmentFlag::AlignCenter</set>
       </property>
      </widget>
     </item>
@@ -57,9 +57,14 @@
     </property>
     <addaction name="actionMake_a_copy"/>
     <addaction name="separator"/>
+    <addaction name="actionMake_template"/>
+    <addaction name="actionApply_template"/>
+    <addaction name="separator"/>
     <addaction name="actionSave_as_png_images"/>
     <addaction name="actionSave_as_TH2D_histograms"/>
+    <addaction name="separator"/>
     <addaction name="actionExport_to_basket_of_graph_window"/>
+    <addaction name="actionExport_projections_to_basket"/>
    </widget>
    <addaction name="menuShow"/>
   </widget>
@@ -82,6 +87,21 @@
   <action name="actionExport_to_basket_of_graph_window">
    <property name="text">
     <string>Export to basket of graph window</string>
+   </property>
+  </action>
+  <action name="actionExport_projections_to_basket">
+   <property name="text">
+    <string>Export projections to basket</string>
+   </property>
+  </action>
+  <action name="actionMake_template">
+   <property name="text">
+    <string>Make template</string>
+   </property>
+  </action>
+  <action name="actionApply_template">
+   <property name="text">
+    <string>Apply template</string>
    </property>
   </action>
  </widget>

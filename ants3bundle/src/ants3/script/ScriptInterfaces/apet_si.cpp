@@ -37,6 +37,8 @@ APet_si::APet_si() :
     Help["configureBuilderCTR"] = "Configures the Coincidence Timing Resolution of the scanner in ns: all events will be 'blurred' assuming Gaussian distribution to result in this CTR for the coincidence pairs";
     Help["configureBuilderEnergies"] = "Configures energy resolution (the ratio of FWHM to the mean value) of the sanner and energy threshold in keV below which an event is ignored (not saved to the output file)."
                                        "Note that the energy values of all events will be blurred assuming Gaussian distribution and uing the provided energy resolution";
+    Help["setDepositionFile"] = "Clear the list of deposition files and add the file provided by the argument";
+    Help["addDepositionFile"] = "Add the file provided by the argument to the list of deposition files (does not clear the list! see setDepositionFile method)";
     Help["buildEventsFromDeposition"] = "Build events using energy deposition records in a provided ANTS3 deposition file and creates an output find with the constructed events according to the configuration settings "
                                         "configured using the methods starting from configureBuilder...";
 
@@ -238,6 +240,12 @@ void APet_si::configureBuilderEnergies(double energyResolution_fraction, double 
 {
     BuilderConfig.EnergyResolution = energyResolution_fraction;
     BuilderConfig.EnergyThreshold  = energyThreshold_keV;
+}
+
+void APet_si::setDepositionFile(QString depositionFileName, bool binary)
+{
+    DepoFiles.clear();
+    DepoFiles.push_back( {depositionFileName.toLatin1().data(), binary} );
 }
 
 void APet_si::addDepositionFile(QString depositionFileName, bool binary)

@@ -19,7 +19,7 @@ public:
 
     AScriptInterface * cloneBase() const override {return new APet_si();}
 
-    void abortRun() override; // !!!*** TODO
+    void abortRun() override;  // !!!*** TODO
 
 public slots:
     void createScanner(QString scannerName, double scannerRadius, double crystalDepth, double crystalSize, double minAngle_deg);
@@ -29,6 +29,7 @@ public slots:
     void configureBuilderSeed(int seed);
     void configureBuilderCTR(double CTR_ns);
     void configureBuilderEnergies(double energyResolution_fraction, double energyThreshold_keV);
+    void setDepositionFile(QString depositionFileName, bool binary);
     void addDepositionFile(QString depositionFileName, bool binary);
     double buildEventsFromDeposition(QString eventsFileName, bool binary);
 
