@@ -499,7 +499,7 @@ void AParticleSimWin::on_pbEditParticleSource_clicked()
     }
 
     delete ParticleSourceDialog;
-    ParticleSourceDialog = new AParticleSourceDialog(SourceGenSettings.SourceData.at(isource), this);
+    ParticleSourceDialog = new AParticleSourceDialog(*SourceGenSettings.SourceData[isource], this); // !!!****
     connect(ParticleSourceDialog, &AParticleSourceDialog::requestTestParticleGun, this, &AParticleSimWin::testParticleGun);
     connect(ParticleSourceDialog, &AParticleSourceDialog::requestShowSource,      this, &AParticleSimWin::onRequestShowSource);
     connect(ParticleSourceDialog, &AParticleSourceDialog::requestDraw,            this, &AParticleSimWin::requestDraw);
@@ -518,13 +518,13 @@ void AParticleSimWin::onParticleSourceAccepted()
     const int numSources = SourceGenSettings.getNumSources();
     if (isource >= numSources) return;
 
-    AParticleSourceRecord & ps = ParticleSourceDialog->getResult();
+    AParticleSourceRecord * ps = ParticleSourceDialog->getResult();
     SourceGenSettings.replace(isource, ps);
 
     updateSourceList();
     if (ui->pbGunShowSource->isChecked()) on_pbGunShowSource_toggled(true);
 
-    checkWorldSize(ps);
+    checkWorldSize(*ps);
 }
 
 #include "aworldsizewarningdialog.h"
@@ -586,8 +586,8 @@ void AParticleSimWin::checkWorldSize(AParticleSourceRecord & ps)
 
 void AParticleSimWin::on_pbAddSource_clicked()
 {
-    AParticleSourceRecord s;
-    s.Particles.push_back(AGunParticle());
+    AParticleSourceRecord * s = new AParticleSourceRecord();
+    s->Particles.push_back(AGunParticle());
     SimSet.SourceGenSettings.SourceData.push_back(s);
 
     updateSourceList();
@@ -626,7 +626,7 @@ void AParticleSimWin::on_pbRemoveSource_clicked()
         return;
     }
 
-    const QString SourceName = SimSet.SourceGenSettings.SourceData.at(isource).Name.data();
+    const QString SourceName = SimSet.SourceGenSettings.SourceData.at(isource)->Name.data();
     bool ok = guitools::confirm(QString("Remove source %0?").arg(SourceName), this);
     if (!ok) return;
 
@@ -657,7 +657,7 @@ void AParticleSimWin::updateSourceList()
 
     for (int i = 0; i < numSources; i++)
     {
-        AParticleSourceRecord & pr = SourceGenSettings.SourceData[i];
+        AParticleSourceRecord & pr = *SourceGenSettings.SourceData[i];
         QListWidgetItem * item = new QListWidgetItem();
         ui->lwDefinedParticleSources->addItem(item);
 
@@ -749,8 +749,8 @@ void AParticleSimWin::on_pbGunTest_clicked()
     if (ui->cobParticleGenerationMode->currentIndex() == 0)
     {
         if (ui->pbGunShowSource->isChecked())
-            for (const AParticleSourceRecord & s : SimSet.SourceGenSettings.SourceData)
-                AParticleSourcePlotter::plotSource(s);
+            for (const AParticleSourceRecord * s : SimSet.SourceGenSettings.SourceData)
+                AParticleSourcePlotter::plotSource(*s);
     }
 
     emit requestBusyStatus(true);   // -->   !!!***
@@ -781,8 +781,8 @@ void AParticleSimWin::configureAngleStat(AParticleGun * gun)
 
     if (ps->Settings.getNumSources() > 1) return;
 
-    const AParticleSourceRecord & sr = ps->Settings.SourceData.front();
-    if (!sr.isDirectional()) return;
+    const AParticleSourceRecord * sr = ps->Settings.SourceData.front();
+    if (!sr->isDirectional()) return;
 
     CollectAngle = true;
     SourceStatDirection = ps->getCollimationDirection(0);
@@ -893,8 +893,8 @@ void AParticleSimWin::on_pbGunShowSource_toggled(bool checked)
     if (checked)
     {
         emit requestShowGeometry(true, true, true);
-        for (const AParticleSourceRecord & s : SimSet.SourceGenSettings.SourceData)
-            AParticleSourcePlotter::plotSource(s);
+        for (const AParticleSourceRecord * s : SimSet.SourceGenSettings.SourceData)
+            AParticleSourcePlotter::plotSource(*s);
         emit requestShowTracks();
     }
     else
@@ -2750,13 +2750,13 @@ void AParticleSimWin::on_pbSaveParticleSource_clicked()
         return;
     }
 
-    const AParticleSourceRecord & source = SimSet.SourceGenSettings.SourceData[iSource];
+    const AParticleSourceRecord * source = SimSet.SourceGenSettings.SourceData[iSource];
 
-    QString fileName = guitools::dialogSaveFile(this, "Save source " + QString(source.Name.data()) + " to file", "Json files (*.json)");
+    QString fileName = guitools::dialogSaveFile(this, "Save source " + QString(source->Name.data()) + " to file", "Json files (*.json)");
     if (fileName.isEmpty()) return;
     if (!fileName.endsWith(".json")) fileName += ".json";
     QJsonObject json;
-    source.writeToJson(json);
+    source->writeToJson(json);
     bool ok = jstools::saveJsonToFile(json, fileName);
     if (!ok) guitools::message("Failed to open file for saving: " + fileName);
 }
@@ -2774,15 +2774,15 @@ void AParticleSimWin::on_pbLoadParticleSource_clicked()
         return;
     }
 
-    AParticleSourceRecord s;
-    ok = s.readFromJson(json);
+    AParticleSourceRecord * s = new AParticleSourceRecord(); // !!!**** other types
+    ok = s->readFromJson(json);
     if (!ok)
     {
         guitools::message("Error in imported source", this);
         return;
     }
 
-    QString err(s.check().data());
+    QString err(s->check().data());
     if (!err.isEmpty())
     {
         guitools::message(err, this);
@@ -2813,15 +2813,15 @@ void AParticleSimWin::on_pbLoadFromLibrary_clicked()
         return;
     }
 
-    AParticleSourceRecord s;
-    ok = s.readFromJson(json);
+    AParticleSourceRecord * s = new AParticleSourceRecord(); // !!!**** other types
+    ok = s->readFromJson(json);
     if (!ok)
     {
         guitools::message("Error in loaded source", this);
         return;
     }
 
-    QString err(s.check().data());
+    QString err(s->check().data());
     if (!err.isEmpty())
     {
         guitools::message(err, this);

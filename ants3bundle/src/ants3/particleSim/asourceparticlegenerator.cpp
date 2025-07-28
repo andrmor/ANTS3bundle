@@ -51,7 +51,7 @@ bool ASourceParticleGenerator::init()
     TotalParticleWeight = std::vector<double>(NumSources, 0);
     for (int isource = 0; isource<NumSources; isource++)
     {
-        for (const AGunParticle & gp : Settings.SourceData[isource].Particles)
+        for (const AGunParticle & gp : Settings.SourceData[isource]->Particles)
             if (gp.GenerationType == AGunParticle::Independent)
                 TotalParticleWeight[isource] += gp.StatWeight;
     }
@@ -62,25 +62,25 @@ bool ASourceParticleGenerator::init()
     LinkedPartiles.resize(NumSources);
     for (int iSource = 0; iSource < NumSources; iSource++)
     {
-        const int numParts = Settings.SourceData[iSource].Particles.size();
+        const int numParts = Settings.SourceData[iSource]->Particles.size();
         LinkedPartiles[iSource].resize(numParts);
         for (int iParticle = 0; iParticle < numParts; iParticle++)
         {
             LinkedPartiles[iSource][iParticle].clear();
-            if (Settings.SourceData[iSource].Particles[iParticle].GenerationType != AGunParticle::Independent)
+            if (Settings.SourceData[iSource]->Particles[iParticle].GenerationType != AGunParticle::Independent)
                 continue; //nothing to do for dependent particles
 
             //every independent particle defines an "event generation chain" containing the particle iteslf and all linked (and linked to linked to linked etc) particles
             LinkedPartiles[iSource][iParticle].push_back(ALinkedParticle(iParticle)); //list always contains the particle itself - simplifies the generation algorithm
             //only particles with larger indexes can be linked to this particle
             for (int ip = iParticle + 1; ip < numParts; ip++)
-                if (Settings.SourceData[iSource].Particles[ip].GenerationType != AGunParticle::Independent) //only looking for dependent
+                if (Settings.SourceData[iSource]->Particles[ip].GenerationType != AGunParticle::Independent) //only looking for dependent
                 {
                     //for iparticle, checking if it is linked to any particle in the list of the LinkedParticles
                     for (size_t idef=0; idef<LinkedPartiles[iSource][iParticle].size(); idef++)
                     {
                         int compareWith = LinkedPartiles[iSource][iParticle][idef].iParticle;
-                        int linkedTo = Settings.SourceData[iSource].Particles[ip].LinkedTo;
+                        int linkedTo = Settings.SourceData[iSource]->Particles[ip].LinkedTo;
                         if ( linkedTo == compareWith)
                         {
                             LinkedPartiles[iSource][iParticle].push_back(ALinkedParticle(ip, linkedTo));
@@ -96,16 +96,16 @@ bool ASourceParticleGenerator::init()
     CollimationProbability.resize(NumSources);
     for (int isource = 0; isource < NumSources; isource++)
     {
-        const AParticleSourceRecord & psr = Settings.SourceData[isource];
-        const double CollPhi   = psr.DirectionPhi * M_PI / 180.0;
-        const double CollTheta = psr.DirectionTheta * M_PI / 180.0;
-        const double Spread    = psr.CutOff * M_PI / 180.0;
+        const AParticleSourceRecord * psr = Settings.SourceData[isource];
+        const double CollPhi   = psr->DirectionPhi * M_PI / 180.0;
+        const double CollTheta = psr->DirectionTheta * M_PI / 180.0;
+        const double Spread    = psr->CutOff * M_PI / 180.0;
 
-        if (psr.DirectionBySphericalAngles)
+        if (psr->DirectionBySphericalAngles)
             CollimationDirection[isource] = AVector3(sin(CollTheta)*sin(CollPhi), sin(CollTheta)*cos(CollPhi), cos(CollTheta));
         else
         {
-            CollimationDirection[isource] = AVector3(psr.DirectionVectorX, psr.DirectionVectorY, psr.DirectionVectorZ);
+            CollimationDirection[isource] = AVector3(psr->DirectionVectorX, psr->DirectionVectorY, psr->DirectionVectorZ);
             CollimationDirection[isource].toUnitVector();
         }
 
@@ -124,8 +124,8 @@ int ASourceParticleGenerator::selectSource() const
         double rnd = ARandomHub::getInstance().uniform() * TotalActivity;
         for (; iSource < NumSources - 1; iSource++)
         {
-            if (Settings.SourceData[iSource].Activity >= rnd) break;
-            rnd -= Settings.SourceData[iSource].Activity;
+            if (Settings.SourceData[iSource]->Activity >= rnd) break;
+            rnd -= Settings.SourceData[iSource]->Activity;
         }
     }
 
@@ -134,7 +134,7 @@ int ASourceParticleGenerator::selectSource() const
 
 bool ASourceParticleGenerator::selectPosition(int iSource, double * R) const
 {
-    const AParticleSourceRecord & Source = Settings.SourceData[iSource];
+    const AParticleSourceRecord & Source = *Settings.SourceData[iSource];
     int attempts = 10000;
 
 #ifdef GEANT4
@@ -179,7 +179,7 @@ bool ASourceParticleGenerator::selectPosition(int iSource, double * R) const
 
 void ASourceParticleGenerator::generateDirection(size_t iSource, bool forceIsotropic, double * direction) const
 {
-    const AParticleSourceRecord & src = Settings.SourceData[iSource];
+    const AParticleSourceRecord & src = *Settings.SourceData[iSource];
 
     if (src.AngularMode == AParticleSourceRecord::Isotropic || forceIsotropic)
     {
@@ -282,7 +282,7 @@ size_t ASourceParticleGenerator::selectParticle(int iSource) const
 {
     size_t iParticle = 0;
 
-    const AParticleSourceRecord & Source = Settings.SourceData[iSource];
+    const AParticleSourceRecord & Source = *Settings.SourceData[iSource];
     double rnd = ARandomHub::getInstance().uniform() * TotalParticleWeight.at(iSource);
     for ( ; iParticle < Source.Particles.size() - 1; iParticle++)
     {
@@ -305,7 +305,7 @@ bool ASourceParticleGenerator::generateEvent(std::function<void(const AParticleR
     {
         // Source
         int iSource = selectSource();
-        const AParticleSourceRecord & Source = Settings.SourceData[iSource];
+        const AParticleSourceRecord & Source = *Settings.SourceData[iSource];
 
         // Particle
         const size_t iParticle = selectParticle(iSource); // cannot avoid using index
@@ -528,7 +528,7 @@ void ASourceParticleGenerator::doGeneratePosition(const AParticleSourceRecord & 
 // !!!*** override for secondaries to uniform!
 void ASourceParticleGenerator::addGeneratedParticle(int iSource, int iParticle, double * position, double time, bool forceIsotropic, std::function<void (const AParticleRecord &)> handler)
 {
-    const AParticleSourceRecord & src = Settings.SourceData[iSource];
+    const AParticleSourceRecord & src = *Settings.SourceData[iSource];
     const AGunParticle & gp = src.Particles[iParticle];
 
     if (gp.Particle[0] == '_')
@@ -631,14 +631,14 @@ void ASourceParticleGenerator::updateLimitedToMat()
     SessionManager & SM = SessionManager::getInstance();
     Navigator->SetWorldVolume(SM.WorldPV);
 
-    for (const AParticleSourceRecord & source : Settings.SourceData)
+    for (const AParticleSourceRecord * source : Settings.SourceData)
     {
         G4Material * mat = nullptr;
 
-        if (source.MaterialLimited)
+        if (source->MaterialLimited)
         {
             G4NistManager * man = G4NistManager::Instance();
-            mat = man->FindMaterial(source.LimtedToMatName);
+            mat = man->FindMaterial(source->LimtedToMatName);
         }
 
         LimitedToMat.push_back(mat);
@@ -646,15 +646,15 @@ void ASourceParticleGenerator::updateLimitedToMat()
 #else
     const QStringList mats = AMaterialHub::getConstInstance().getListOfMaterialNames();
 
-    for (const AParticleSourceRecord & source : Settings.SourceData)
+    for (const AParticleSourceRecord * source : Settings.SourceData)
     {
         int matIndex = -1; // not limited
 
-        if (source.MaterialLimited)
+        if (source->MaterialLimited)
         {
             bool bFound = false;
             int iMat = 0;
-            const QString LimitTo = source.LimtedToMatName.data();
+            const QString LimitTo = source->LimtedToMatName.data();
             for (; iMat < mats.size(); iMat++)
                 if (LimitTo == mats[iMat])
                 {

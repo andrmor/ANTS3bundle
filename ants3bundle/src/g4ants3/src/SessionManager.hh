@@ -118,7 +118,7 @@ public:
         std::vector<TmpDepositionBuffer> DirectDepositionBuffer;
 
 private:
-        void prepareParticleGun();
+        void prepareParticleGun(); // !!!**** other types
         void prepareMonitors();
         void prepareAnalyzers();
         void prepareOutputDepoStream();

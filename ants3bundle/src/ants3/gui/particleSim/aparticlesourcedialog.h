@@ -22,7 +22,7 @@ public:
     explicit AParticleSourceDialog(const AParticleSourceRecord & Rec, QWidget * parent);
     ~AParticleSourceDialog();
 
-    AParticleSourceRecord & getResult();
+    AParticleSourceRecord * getResult();
 
 protected:
     virtual void closeEvent(QCloseEvent * e) override;

@@ -161,9 +161,13 @@ void AParticleSourceDialog::restorePersistentSettings()
     settings.endGroup();
 }
 
-AParticleSourceRecord & AParticleSourceDialog::getResult()
+AParticleSourceRecord * AParticleSourceDialog::getResult()
 {
-    return LocalRec;
+    AParticleSourceRecord * rec = new AParticleSourceRecord();
+    QJsonObject json;
+    LocalRec.writeToJson(json);
+    rec->readFromJson(json);
+    return rec;
 }
 
 void AParticleSourceDialog::closeEvent(QCloseEvent *e)
@@ -208,8 +212,8 @@ void AParticleSourceDialog::on_pbGunTest_clicked()
     if (ui->pbShowSource->isChecked()) AParticleSourcePlotter::plotSource(LocalRec);
 
     ASourceGeneratorSettings settings;
-    settings.SourceData.push_back(LocalRec);
-    settings.SourceData.back().Activity = 1.0;
+    settings.SourceData.push_back(&LocalRec);
+    settings.SourceData.back()->Activity = 1.0;
     ASourceParticleGenerator gun(settings);
 
     auto abort = [&gun]{gun.AbortRequested = true;};
