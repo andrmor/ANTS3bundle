@@ -2530,7 +2530,7 @@ in basket</string>
    </widget>
    <widget class="QMenu" name="menuMainObject">
     <property name="title">
-     <string>Settings</string>
+     <string>Preferences</string>
     </property>
     <addaction name="actionSet_histogram_stat_box_content"/>
     <addaction name="actionSet_default_margins"/>

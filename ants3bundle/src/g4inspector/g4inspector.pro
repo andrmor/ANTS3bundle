@@ -1,4 +1,4 @@
-CONFIG += ants3_NCrystal   # !!! Requires installation of NCrystal with NCrystal-Geant4, and need to adjust paths below !!!
+#CONFIG += ants3_NCrystal   # !!! Requires installation of NCrystal with NCrystal-Geant4, and need to adjust paths below !!!
 
 QT -= gui
 

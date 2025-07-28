@@ -11,3 +11,6 @@ g4inspector.subdir = src/g4inspector
 # to disable WebSockets, comment away these lines in ants3.pro and dispatcher.pro:
 #CONFIG += ants3_FARM         #if commented away, WebSockets are not compiled and distributed (farm) functionality is disabled
 # note that it cannot be done here (this is the Qt way...)
+
+# to enable NCrystal support, uncomment lines with CONFIG += ants3_NCrystal
+# in g4ants3.pr and g4inspector.pro

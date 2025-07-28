@@ -772,7 +772,8 @@ void AMainWindow::on_actionVersions_triggered()
     qApp->processEvents();
     AGeant4InspectorManager & G4Inspector = AGeant4InspectorManager::getInstance();
     QString g4version = "NA";
-    G4Inspector.requestVersion(g4version);
+    bool nCrystalEnabled = false;
+    G4Inspector.requestVersion(g4version, nCrystalEnabled);
 
     QString out = "ANTS3\n"
                   "   version:  " + mav + "." + miv + "\n"
@@ -783,6 +784,7 @@ void AMainWindow::on_actionVersions_triggered()
                   "ROOT version:  " + gROOT->GetVersion() + "\n"
                   "\n"
                   "Local Geant4 version:  " + g4version + "\n"
+                  "  NCrystal enabled: " + ( nCrystalEnabled ? "yes" : "no") + "\n"
                   "\n"
                   "Optional components:\n"
                   "  Python scripting: "

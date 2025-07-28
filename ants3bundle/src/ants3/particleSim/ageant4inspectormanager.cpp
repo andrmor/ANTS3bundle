@@ -85,7 +85,7 @@ bool AGeant4InspectorManager::inspectMaterial(const QString & matName, bool nCry
     return true;
 }
 
-bool AGeant4InspectorManager::requestVersion(QString & version)
+bool AGeant4InspectorManager::requestVersion(QString & version, bool & nCrystalEnabled)
 {
     bAborted = false;
     ErrorString.clear();
@@ -137,6 +137,7 @@ bool AGeant4InspectorManager::requestVersion(QString & version)
             jstools::parseJson(json, "Response", js);
 
             jstools::parseJson(js, "Version", version);
+            jstools::parseJson(js, "NCrystal", nCrystalEnabled);
         }
     }
 

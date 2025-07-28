@@ -72,9 +72,9 @@ void AInspector::processRequest(const QJsonObject & json)
         fillMaterialComposition(mat, json);
         generateResponseFile(json);
     }
-    #ifdef ANTS3_NCRYSTAL
     else if (request == "MaterialCompositionNCrystal")
     {
+    #ifdef ANTS3_NCRYSTAL
         QString matName;
         jstools::parseJson(json, "MaterialName", matName);
         if (matName.isEmpty()) terminate("Empty material name");
@@ -89,8 +89,11 @@ void AInspector::processRequest(const QJsonObject & json)
         QJsonObject json;
         fillMaterialComposition(mat, json);
         generateResponseFile(json);
-    }
+    #else
+        terminate("Cannot use NCrystal materials: G4inspector reports that ants3 was compiled without NCrystal library!");
+        return;
     #endif
+    }
     else if (request == "Geant4Version")
     {
         QJsonObject json;
@@ -100,6 +103,11 @@ void AInspector::processRequest(const QJsonObject & json)
         str.remove("geant4-");
         str = str.simplified();
         json["Version"] = str;
+#ifdef ANTS3_NCRYSTAL
+        json["NCrystal"] = true;
+#else
+        json["NCrystal"] = false;
+#endif
         generateResponseFile(json);
     }
     else terminate("Unknown request");

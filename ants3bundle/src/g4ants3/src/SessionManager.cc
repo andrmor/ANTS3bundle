@@ -67,8 +67,11 @@ void SessionManager::startSession()
 
     if (Settings.RunSet.SaveSettings.Enabled) findExitVolume();
 
+    if (Settings.G4Set.UseNCrystal)
 #ifdef ANTS3_NCRYSTAL
-    if (Settings.G4Set.UseNCrystal) G4NCrystal::installOnDemand();
+        G4NCrystal::installOnDemand();
+#else
+        terminateSession("Cannot activate NCrystal: g4ants3 was compiled without NCrystal library enabled!");
 #endif
 }
 
@@ -407,6 +410,8 @@ void SessionManager::updateMaterials()
 
         replaceMaterialRecursive(worldLV, name, newMat);
     }
+    #else
+    if (!Settings.RunSet.MaterialsFromNCrystal.empty()) terminateSession("NCrystal materials are not empty, but g4ants3 was compiled without NCrystal library!");
     #endif
 }
 

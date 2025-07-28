@@ -49,7 +49,7 @@ public:
 
 public slots:
     bool inspectMaterial(const QString & matName, bool nCrystalMaterial, AG4MaterialRecord & reply);
-    bool requestVersion(QString & version);
+    bool requestVersion(QString & version, bool & nCrystalEnabled);
 
 signals:
     void finished(bool bSuccess);
