@@ -499,11 +499,17 @@ void AParticleSimWin::on_pbEditParticleSource_clicked()
     }
 
     delete ParticleSourceDialog;
-    ParticleSourceDialog = new AParticleSourceDialog(*SourceGenSettings.SourceData[isource], this); // !!!****
-    connect(ParticleSourceDialog, &AParticleSourceDialog::requestTestParticleGun, this, &AParticleSimWin::testParticleGun);
-    connect(ParticleSourceDialog, &AParticleSourceDialog::requestShowSource,      this, &AParticleSimWin::onRequestShowSource);
-    connect(ParticleSourceDialog, &AParticleSourceDialog::requestDraw,            this, &AParticleSimWin::requestDraw);
-    connect(ParticleSourceDialog, &AParticleSourceDialog::accepted,               this, &AParticleSimWin::onParticleSourceAccepted);
+
+    // !!!****
+    AParticleSourceRecord_Standard * stSource = dynamic_cast<AParticleSourceRecord_Standard*>(SourceGenSettings.SourceData[isource]);
+    if (stSource)
+    {
+        ParticleSourceDialog = new AParticleSourceDialog(*stSource, this);
+        connect(ParticleSourceDialog, &AParticleSourceDialog::requestTestParticleGun, this, &AParticleSimWin::testParticleGun);
+        connect(ParticleSourceDialog, &AParticleSourceDialog::requestShowSource,      this, &AParticleSimWin::onRequestShowSource);
+        connect(ParticleSourceDialog, &AParticleSourceDialog::requestDraw,            this, &AParticleSimWin::requestDraw);
+        connect(ParticleSourceDialog, &AParticleSourceDialog::accepted,               this, &AParticleSimWin::onParticleSourceAccepted);
+    }
 
     ParticleSourceDialog->setModal(true);
     ParticleSourceDialog->open();
@@ -518,49 +524,57 @@ void AParticleSimWin::onParticleSourceAccepted()
     const int numSources = SourceGenSettings.getNumSources();
     if (isource >= numSources) return;
 
-    AParticleSourceRecord * ps = ParticleSourceDialog->getResult();
+    AParticleSourceRecord_Standard * ps = ParticleSourceDialog->getResult();
     SourceGenSettings.replace(isource, ps);
 
     updateSourceList();
     if (ui->pbGunShowSource->isChecked()) on_pbGunShowSource_toggled(true);
 
-    checkWorldSize(*ps);
+    checkWorldSize(ps);
 }
 
 #include "aworldsizewarningdialog.h"
-void AParticleSimWin::checkWorldSize(AParticleSourceRecord & ps)
+void AParticleSimWin::checkWorldSize(AParticleSourceRecordBase * sourceBase)
 {
     if (IgnoreWorldSizeWarning) return;
 
     AGeometryHub & GeoHub = AGeometryHub::getInstance();
     const double wXY = GeoHub.getWorldSizeXY();
     const double wZ  = GeoHub.getWorldSizeZ();
-    double maxXY = std::max(abs(ps.X0), abs(ps.Y0));
-    double maxZ  = abs(ps.Z0);
-    switch (ps.Shape)
+
+    // !!!****
+    double maxXY = 0;
+    double maxZ = 0;
+    AParticleSourceRecord_Standard * ps = dynamic_cast<AParticleSourceRecord_Standard*>(sourceBase);
+    if (ps)
     {
-    case AParticleSourceRecord::Point :
-        break;
-    case AParticleSourceRecord::Line :
-        maxXY += 0.5 * ps.Size1;
-        maxZ  += 0.5 * ps.Size1;
-        break;
-    case AParticleSourceRecord::Rectangle :
-        maxXY += 0.5 * std::max(ps.Size1, ps.Size2);
-        maxZ  += 0.5 * std::max(ps.Size1, ps.Size2);
-        break;
-    case AParticleSourceRecord::Round :
-        maxXY += 0.5 * ps.Size1;
-        maxZ  += 0.5 * ps.Size1;
-        break;
-    case AParticleSourceRecord::Box :
-        maxXY += 0.5 * std::max(ps.Size1, std::max(ps.Size2, ps.Size3));
-        maxZ  += 0.5 * std::max(ps.Size1, std::max(ps.Size2, ps.Size3));
-        break;
-    case AParticleSourceRecord::Cylinder :
-        maxXY += 0.5 * std::max(ps.Size1, ps.Size2);
-        maxZ  += 0.5 * std::max(ps.Size1, ps.Size2);
-        break;
+        maxXY = std::max(abs(ps->X0), abs(ps->Y0));
+        maxZ  = abs(ps->Z0);
+        switch (ps->Shape)
+        {
+        case AParticleSourceRecord_Standard::Point :
+            break;
+        case AParticleSourceRecord_Standard::Line :
+            maxXY += 0.5 * ps->Size1;
+            maxZ  += 0.5 * ps->Size1;
+            break;
+        case AParticleSourceRecord_Standard::Rectangle :
+            maxXY += 0.5 * std::max(ps->Size1, ps->Size2);
+            maxZ  += 0.5 * std::max(ps->Size1, ps->Size2);
+            break;
+        case AParticleSourceRecord_Standard::Round :
+            maxXY += 0.5 * ps->Size1;
+            maxZ  += 0.5 * ps->Size1;
+            break;
+        case AParticleSourceRecord_Standard::Box :
+            maxXY += 0.5 * std::max(ps->Size1, std::max(ps->Size2, ps->Size3));
+            maxZ  += 0.5 * std::max(ps->Size1, std::max(ps->Size2, ps->Size3));
+            break;
+        case AParticleSourceRecord_Standard::Cylinder :
+            maxXY += 0.5 * std::max(ps->Size1, ps->Size2);
+            maxZ  += 0.5 * std::max(ps->Size1, ps->Size2);
+            break;
+        }
     }
 
     maxXY *= 1.1;
@@ -586,7 +600,7 @@ void AParticleSimWin::checkWorldSize(AParticleSourceRecord & ps)
 
 void AParticleSimWin::on_pbAddSource_clicked()
 {
-    AParticleSourceRecord * s = new AParticleSourceRecord();
+    AParticleSourceRecord_Standard * s = new AParticleSourceRecord_Standard();
     s->Particles.push_back(AGunParticle());
     SimSet.SourceGenSettings.SourceData.push_back(s);
 
@@ -655,9 +669,9 @@ void AParticleSimWin::updateSourceList()
 
     const double TotalActivity = SourceGenSettings.calculateTotalActivity();
 
-    for (int i = 0; i < numSources; i++)
+    for (int iSource = 0; iSource < numSources; iSource++)
     {
-        AParticleSourceRecord & pr = *SourceGenSettings.SourceData[i];
+        AParticleSourceRecordBase * pr = SourceGenSettings.SourceData[iSource];
         QListWidgetItem * item = new QListWidgetItem();
         ui->lwDefinedParticleSources->addItem(item);
 
@@ -665,21 +679,27 @@ void AParticleSimWin::updateSourceList()
         fr->setFrameShape(QFrame::Box);
         QHBoxLayout* l = new QHBoxLayout();
         l->setContentsMargins(3, 2, 3, 2);
-            QLabel* lab = new QLabel(pr.Name.data());
-            lab->setMinimumWidth(110);
-            QFont f = lab->font();
-            f.setBold(true);
-            lab->setFont(f);
+        QLabel* lab = new QLabel(pr->Name.data());
+        lab->setMinimumWidth(110);
+        QFont f = lab->font();
+        f.setBold(true);
+        lab->setFont(f);
         l->addWidget(lab);
-        l->addWidget(new QLabel( QString(pr.getShapeString().data()) + ','));
-            QString SPart;
-            if (pr.Particles.size() == 1) SPart = pr.Particles.front().Particle.data();
-            else SPart = QString("%1 particles").arg(pr.Particles.size());
-        l->addWidget(new QLabel(SPart));
-        l->addStretch();
 
+        // !!!****
+        AParticleSourceRecord_Standard * stSource = dynamic_cast<AParticleSourceRecord_Standard*>(pr);
+        if (stSource)
+        {
+            l->addWidget(new QLabel( QString(stSource->getShapeString().data()) + ','));
+            QString SPart;
+            if (stSource->Particles.size() == 1) SPart = stSource->Particles.front().Particle.data();
+            else SPart = QString("%1 particles").arg(stSource->Particles.size());
+            l->addWidget(new QLabel(SPart));
+        }
+
+        l->addStretch();
         l->addWidget(new QLabel("Fraction:"));
-            QLineEdit* e = new QLineEdit(QString::number(pr.Activity));
+            QLineEdit* e = new QLineEdit(QString::number(pr->Activity));
             e->setMaximumWidth(50);
             e->setMinimumWidth(50);
             QDoubleValidator* val = new QDoubleValidator(this);
@@ -688,14 +708,14 @@ void AParticleSimWin::updateSourceList()
             QObject::connect(e, &QLineEdit::editingFinished, [&pr, e, this]()
             {
                 double newVal = e->text().toDouble();
-                if (pr.Activity == newVal) return;
-                pr.Activity = newVal;
+                if (pr->Activity == newVal) return;
+                pr->Activity = newVal;
                 e->clearFocus();
                 updateSourceList();
             });
         l->addWidget(e);
 
-            double per = ( TotalActivity == 0 ? 0 : 100.0 * pr.Activity / TotalActivity );
+            double per = ( TotalActivity == 0 ? 0 : 100.0 * pr->Activity / TotalActivity );
             QString t = (per == 0 ? "-Off-" : QString("%1%").arg(per, 3, 'g', 3) );
             lab = new QLabel(t);
             lab->setMinimumWidth(45);
@@ -707,7 +727,7 @@ void AParticleSimWin::updateSourceList()
         item->setSizeHint(fr->sizeHint());
 
         bool bVis = (numSources > 1);
-        if (!bVis && pr.Activity == 0) bVis = true;
+        if (!bVis && pr->Activity == 0) bVis = true;
         e->setVisible(bVis);
     }
 
@@ -749,8 +769,12 @@ void AParticleSimWin::on_pbGunTest_clicked()
     if (ui->cobParticleGenerationMode->currentIndex() == 0)
     {
         if (ui->pbGunShowSource->isChecked())
-            for (const AParticleSourceRecord * s : SimSet.SourceGenSettings.SourceData)
-                AParticleSourcePlotter::plotSource(*s);
+            for (AParticleSourceRecordBase * sourceBase : SimSet.SourceGenSettings.SourceData)
+            {
+                AParticleSourceRecord_Standard * stSource = dynamic_cast<AParticleSourceRecord_Standard*>(sourceBase);
+                // !!!****
+                if (stSource) AParticleSourcePlotter::plotSource(*stSource);
+            }
     }
 
     emit requestBusyStatus(true);   // -->   !!!***
@@ -781,8 +805,11 @@ void AParticleSimWin::configureAngleStat(AParticleGun * gun)
 
     if (ps->Settings.getNumSources() > 1) return;
 
-    const AParticleSourceRecord * sr = ps->Settings.SourceData.front();
-    if (!sr->isDirectional()) return;
+    AParticleSourceRecordBase * sr = ps->Settings.SourceData.front();
+    AParticleSourceRecord_Standard * stSource = dynamic_cast<AParticleSourceRecord_Standard*>(sr);
+    if (!stSource) return;
+
+    if (!stSource->isDirectional()) return;
 
     CollectAngle = true;
     SourceStatDirection = ps->getCollimationDirection(0);
@@ -893,8 +920,12 @@ void AParticleSimWin::on_pbGunShowSource_toggled(bool checked)
     if (checked)
     {
         emit requestShowGeometry(true, true, true);
-        for (const AParticleSourceRecord * s : SimSet.SourceGenSettings.SourceData)
-            AParticleSourcePlotter::plotSource(*s);
+        for (AParticleSourceRecordBase * sourceBase : SimSet.SourceGenSettings.SourceData)
+        {
+            AParticleSourceRecord_Standard * stSource = dynamic_cast<AParticleSourceRecord_Standard*>(sourceBase);
+            if (stSource) AParticleSourcePlotter::plotSource(*stSource);
+            // !!!****
+        }
         emit requestShowTracks();
     }
     else
@@ -2750,7 +2781,7 @@ void AParticleSimWin::on_pbSaveParticleSource_clicked()
         return;
     }
 
-    const AParticleSourceRecord * source = SimSet.SourceGenSettings.SourceData[iSource];
+    const AParticleSourceRecordBase * source = SimSet.SourceGenSettings.SourceData[iSource];
 
     QString fileName = guitools::dialogSaveFile(this, "Save source " + QString(source->Name.data()) + " to file", "Json files (*.json)");
     if (fileName.isEmpty()) return;
@@ -2774,9 +2805,8 @@ void AParticleSimWin::on_pbLoadParticleSource_clicked()
         return;
     }
 
-    AParticleSourceRecord * s = new AParticleSourceRecord(); // !!!**** other types
-    ok = s->readFromJson(json);
-    if (!ok)
+    AParticleSourceRecordBase * s = AParticleSourceRecordBase::factory(json);
+    if (!s)
     {
         guitools::message("Error in imported source", this);
         return;
@@ -2813,9 +2843,8 @@ void AParticleSimWin::on_pbLoadFromLibrary_clicked()
         return;
     }
 
-    AParticleSourceRecord * s = new AParticleSourceRecord(); // !!!**** other types
-    ok = s->readFromJson(json);
-    if (!ok)
+    AParticleSourceRecordBase * s = AParticleSourceRecordBase::factory(json);
+    if (!s)
     {
         guitools::message("Error in loaded source", this);
         return;

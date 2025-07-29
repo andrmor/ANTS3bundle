@@ -21,6 +21,65 @@ using JsonObject =
     QJsonObject;
 #endif
 
+AParticleSourceRecordBase * AParticleSourceRecordBase::factory(std::string sourceType)
+{
+    if (sourceType == AParticleSourceRecord_Standard().getType()) return new AParticleSourceRecord_Standard();
+    return nullptr;
+}
+
+#ifdef JSON11
+AParticleSourceRecordBase * AParticleSourceRecordBase::factory(const json11::Json::object & json)
+#else
+AParticleSourceRecordBase * AParticleSourceRecordBase::factory(const QJsonObject & json)
+#endif
+{
+    // compatibility: the old system had only standard sources, so "Type" key can be absent
+    std::string sourceType = AParticleSourceRecord_Standard().getType();
+
+    jstools::parseJson(json, "Type", sourceType); // can be absent!
+    AParticleSourceRecordBase * ptr = AParticleSourceRecordBase::factory(sourceType);
+    if (!ptr) return nullptr;
+
+    ptr->readFromJson(json);
+    return ptr;
+}
+
+void AParticleSourceRecordBase::clear()
+{
+    Name     = "No_name";
+    Activity = 1.0;
+
+    doClear();
+}
+
+#ifndef JSON11
+void AParticleSourceRecordBase::writeToJson(QJsonObject & json) const
+{
+    json["Type"]     = QString(getType().data());
+
+    json["Name"]     = QString(Name.data());
+    json["Activity"] = Activity;
+
+    doWriteToJson(json);
+}
+#endif
+
+#ifdef JSON11
+bool AParticleSourceRecordBase::readFromJson(const json11::Json::object & json)
+#else
+bool AParticleSourceRecordBase::readFromJson(const JsonObject & json)
+#endif
+{
+    clear();
+
+    jstools::parseJson(json, "Name",     Name);
+    jstools::parseJson(json, "Activity", Activity);
+
+    return doReadFromJson(json);
+}
+
+// ----------
+
 std::string AGunParticle::configureEnergySampler()
 {
     _EnergySampler.clear();
@@ -182,13 +241,11 @@ bool AGunParticle::readFromJson(const JsonObject & json)
     return true;
 }
 
-// ---------------------- AParticleSourceRecord ----------------------
+// ---------------------- AParticleSourceRecord_Standard----------------------
 
-void AParticleSourceRecord::clear()
+void AParticleSourceRecord_Standard::doClear()
 {
-    Name     = "No_name";
-    Activity = 1.0;
-    Shape    = Point;
+    Shape = Point;
 
     X0    = 0;
     Y0    = 0;
@@ -234,7 +291,7 @@ void AParticleSourceRecord::clear()
     Particles.clear();
 }
 
-std::string AParticleSourceRecord::timeUnitsToString(AParticleSourceRecord::ETimeUnits timeUnits) const
+std::string AParticleSourceRecord_Standard::timeUnitsToString(AParticleSourceRecord_Standard::ETimeUnits timeUnits) const
 {
     switch (timeUnits)
     {
@@ -252,11 +309,8 @@ std::string AParticleSourceRecord::timeUnitsToString(AParticleSourceRecord::ETim
 }
 
 #ifndef JSON11
-void AParticleSourceRecord::writeToJson(QJsonObject & json) const
+void AParticleSourceRecord_Standard::doWriteToJson(QJsonObject & json) const
 {
-    json["Name"]     = QString(Name.data());
-    json["Activity"] = Activity;
-
     // Spatial properties
     {
         QJsonObject js;
@@ -339,7 +393,7 @@ void AParticleSourceRecord::writeToJson(QJsonObject & json) const
                 case FixedOffset              : str = "Fixed";        break;
                 case ByEventIndexOffset       : str = "ByEventIndex"; break;
                 case CustomDistributionOffset : str = "Custom";       break;
-                default : qCritical() << "Not implemented TimeOffsetMode in AParticleSourceRecord::writeToJson"; exit(111);
+                default : qCritical() << "Not implemented TimeOffsetMode in AParticleSourceRecord_Standard::writeToJson"; exit(111);
                 }
             js["OffsetMode"]    = str;
             js["FixedOffset"]   = TimeFixedOffset;
@@ -354,7 +408,7 @@ void AParticleSourceRecord::writeToJson(QJsonObject & json) const
                 case GaussianSpread    : str = "Gaussian";    break;
                 case UniformSpread     : str = "Uniform";     break;
                 case ExponentialSpread : str = "Exponential"; break;
-                default : qCritical() << "Not implemented TimeSpreadMode in AParticleSourceRecord::writeToJson"; exit(111);
+                default : qCritical() << "Not implemented TimeSpreadMode in AParticleSourceRecord_Standard::writeToJson"; exit(111);
                 }
             js["SpreadMode"]     = str;
             js["SpreadSigma"]    = TimeSpreadSigma;
@@ -383,7 +437,7 @@ void AParticleSourceRecord::writeToJson(QJsonObject & json) const
 }
 #endif
 
-AParticleSourceRecord::ETimeUnits AParticleSourceRecord::strToTimeUnits(const std::string & str) const
+AParticleSourceRecord_Standard::ETimeUnits AParticleSourceRecord_Standard::strToTimeUnits(const std::string & str) const
 {
     if      (str == "ns")  return ns;
     else if (str == "us")  return us;
@@ -396,13 +450,12 @@ AParticleSourceRecord::ETimeUnits AParticleSourceRecord::strToTimeUnits(const st
     return ns;
 }
 
-bool AParticleSourceRecord::readFromJson(const JsonObject & json)
+#ifdef JSON11
+bool AParticleSourceRecord_Standard::doReadFromJson(const json11::Json::object & json)
+#else
+bool AParticleSourceRecord_Standard::doReadFromJson(const JsonObject & json)
+#endif
 {
-    clear();
-
-    jstools::parseJson(json, "Name",     Name);
-    jstools::parseJson(json, "Activity", Activity);
-
     // Spatial properties
     {
         JsonObject js;
@@ -564,7 +617,7 @@ bool AParticleSourceRecord::readFromJson(const JsonObject & json)
     return true;
 }
 
-std::string AParticleSourceRecord::getShapeString() const
+std::string AParticleSourceRecord_Standard::getShapeString() const
 {
     switch (Shape)
     {
@@ -578,7 +631,7 @@ std::string AParticleSourceRecord::getShapeString() const
     return "UnknownShape";
 }
 
-bool AParticleSourceRecord::isDirectional() const
+bool AParticleSourceRecord_Standard::isDirectional() const
 {
     switch (AngularMode)
     {
@@ -590,7 +643,7 @@ bool AParticleSourceRecord::isDirectional() const
     }
 }
 
-std::string AParticleSourceRecord::check() const
+std::string AParticleSourceRecord_Standard::check() const
 {
     if (Activity < 0)  return "Negative activity";
 
@@ -628,7 +681,7 @@ std::string AParticleSourceRecord::check() const
     }
     if (UseCutOff && CutOff < 0) return "Negative cut-off angle";
 
-    if (TimeOffsetMode == AParticleSourceRecord::CustomDistributionOffset)
+    if (TimeOffsetMode == AParticleSourceRecord_Standard::CustomDistributionOffset)
     {
         if (!_TimeSampler.isReady()) return "Time sampler is not ready: Check custom time offset distribution";
     }
@@ -683,21 +736,21 @@ std::string AParticleSourceRecord::check() const
     return "";
 }
 
-std::string AParticleSourceRecord::configureAngularSampler()
+std::string AParticleSourceRecord_Standard::configureAngularSampler()
 {
     _AngularSampler.clear();
     if (AngularMode != CustomAngular) return "";
     return _AngularSampler.configure(AngularDistribution, false);
 }
 
-std::string AParticleSourceRecord::configureTimeSampler()
+std::string AParticleSourceRecord_Standard::configureTimeSampler()
 {
     _TimeSampler.clear();
     if (TimeOffsetMode != CustomDistributionOffset) return "";
     return _TimeSampler.configure(TimeDistribution, false);
 }
 
-std::string AParticleSourceRecord::configureAxialSampler()
+std::string AParticleSourceRecord_Standard::configureAxialSampler()
 {
     _AxialSampler.clear();
     if (AxialDistributionType != CustomAxial) return "";

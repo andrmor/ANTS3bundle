@@ -19,10 +19,10 @@ class AParticleSourceDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit AParticleSourceDialog(const AParticleSourceRecord & Rec, QWidget * parent);
+    explicit AParticleSourceDialog(const AParticleSourceRecord_Standard & Rec, QWidget * parent);
     ~AParticleSourceDialog();
 
-    AParticleSourceRecord * getResult();
+    AParticleSourceRecord_Standard * getResult();
 
 protected:
     virtual void closeEvent(QCloseEvent * e) override;
@@ -84,8 +84,8 @@ signals:
     void requestDraw(TObject * obj, QString options, bool transferOwnership, bool focusWindow);
 
 private:
-    AParticleSourceRecord         LocalRec;
-    const AParticleSourceRecord & OriginalRec;
+    AParticleSourceRecord_Standard         LocalRec;
+    const AParticleSourceRecord_Standard & OriginalRec;
 
     Ui::AParticleSourceDialog * ui;
 
@@ -103,8 +103,8 @@ private:
     void restorePersistentSettings();
     void updateFixedEnergyIndication(const AGunParticle & gRec);
     void updateFixedEnergy();
-    void updateTimeWithUnitsIndication(double time_ns, AParticleSourceRecord::ETimeUnits prefUnits, QLineEdit * led, QComboBox * cob);
-    void readTimeWithUnits(QLineEdit * led, QComboBox * cob, double & time_ns, AParticleSourceRecord::ETimeUnits & prefUnits);
+    void updateTimeWithUnitsIndication(double time_ns, AParticleSourceRecord_Standard::ETimeUnits prefUnits, QLineEdit * led, QComboBox * cob);
+    void readTimeWithUnits(QLineEdit * led, QComboBox * cob, double & time_ns, AParticleSourceRecord_Standard::ETimeUnits &prefUnits);
 };
 
 #endif // APARTICLESOURCEDIALOG_H

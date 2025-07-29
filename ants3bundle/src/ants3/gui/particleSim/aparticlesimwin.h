@@ -18,7 +18,7 @@ class AMonitorHub;
 class ACalorimeterHub;
 class TH1D;
 class AParticleRecord;
-class AParticleSourceRecord;
+class AParticleSourceRecordBase;
 class ATrackingHistoryCrawler;
 class AFindRecordSelector;
 class AEventTrackingRecord;
@@ -62,14 +62,14 @@ private slots:
     void on_pbRemoveStepLimit_clicked();
 
     void on_pbEditParticleSource_clicked();
-    void on_pbAddSource_clicked();
+    void on_pbAddSource_clicked(); // !!!****
     void on_pbCloneSource_clicked();
     void on_pbRemoveSource_clicked();
 
     void on_lwDefinedParticleSources_itemDoubleClicked(QListWidgetItem * item);
 
     void on_pbGunTest_clicked();
-    void on_pbGunShowSource_toggled(bool checked); // !!!***
+    void on_pbGunShowSource_toggled(bool checked); // !!!****
     void on_pbConfigureOutput_clicked();
 
     void on_cobParticleGenerationMode_activated(int index);
@@ -206,7 +206,7 @@ private:
 
     void updateG4Gui();
     void updateSimGui();
-    void updateSourceList();
+    void updateSourceList(); // !!!****
     void updateGeneralControlInResults();
 
     //clear
@@ -238,7 +238,7 @@ private:
 
     void addStatistics(const AParticleRecord & p);
     void configureAngleStat(AParticleGun * gun);
-    void checkWorldSize(AParticleSourceRecord & ps);
+    void checkWorldSize(AParticleSourceRecordBase * ps);
     bool isTrackingDataFileExists();
 
     void findInBulk(ATrackingHistoryCrawler & crawler, AFindRecordSelector & options, int numThreads, int numEventsPerThread);
