@@ -443,17 +443,22 @@ bool ASourceParticleGenerator::generatePrimary_EcoMugSource(int iSource, APartic
     EcoMug * gen = EcoMugGenerators[iSource];
     gen->Generate();
 
+    const double p = gen->GetGenerationMomentum(); // [GeV/c]
+    double mass = 0.10566; // GeV/c²
+    // Ekin = sqrt(p²*c² + m²*c⁴) - mc²
+    double energy_GeV = sqrt(p*p + mass*mass) - mass; // multiply by 1e6 to get in keV
+
     AParticleRecord particle(
 #ifdef GEANT4
         (gen->GetCharge() < 0 ? (G4ParticleDefinition*)G4MuonMinus::Definition() : (G4ParticleDefinition*)G4MuonPlus::Definition()),
         (double*)gen->GetGenerationPosition().data(),
         0,
-        gen->GetGenerationMomentum()/GeV*keV);
+        energy_GeV * 1e6); // in keV
 #else
         (gen->GetCharge() < 0 ? "mu-" : "mu+"),
         (double*)gen->GetGenerationPosition().data(),
         0,
-        gen->GetGenerationMomentum());
+        energy_GeV * 1e6); // in keV
 #endif
 
     std::array<double, 3> vec;
