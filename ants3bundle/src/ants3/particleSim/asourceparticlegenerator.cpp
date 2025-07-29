@@ -4,6 +4,8 @@
 #include "aparticlesourcerecord.h"
 #include "aerrorhub.h"
 
+#include "EcoMug/EcoMug.h"
+
 #include <string>
 #include <cmath>
 
@@ -97,7 +99,7 @@ bool ASourceParticleGenerator::init()
         }
     }
 
-    //vectors related to collmation direction
+    //vectors related to collimation direction
     CollimationDirection.resize(NumSources);
     CollimationProbability.resize(NumSources);
     for (int isource = 0; isource < NumSources; isource++)
@@ -119,6 +121,24 @@ bool ASourceParticleGenerator::init()
 
         CollimationProbability[isource] = 0.5 * (1.0 - cos(Spread));
     }
+
+    // Init for EcoMug sources
+    EcoMugGenerators.resize(NumSources);
+    for (int iSource = 0; iSource < NumSources; iSource++)
+    {
+        delete EcoMugGenerators[iSource]; EcoMugGenerators[iSource] = nullptr;
+
+        AParticleSourceRecord_EcoMug * muSource = dynamic_cast<AParticleSourceRecord_EcoMug*>(Settings.SourceData[iSource]);
+        if (!muSource) continue;
+
+        EcoMug * gen = new EcoMug();
+        gen->SetUseHSphere();
+        gen->SetHSphereRadius(50.0);
+        gen->SetHSphereCenterPosition({0,0,0});
+
+        EcoMugGenerators[iSource] = gen;
+    }
+
     return true;
 }
 
@@ -311,94 +331,137 @@ bool ASourceParticleGenerator::generateEvent(std::function<void(const AParticleR
         int iSource = selectSource();
         AParticleSourceRecordBase * Source = Settings.SourceData[iSource];
 
+        bool ok = true;
         AParticleSourceRecord_Standard * stSource = dynamic_cast<AParticleSourceRecord_Standard*>(Source);
-        if (!stSource) continue; // !!!****
-
-        // !!!**** make a method?
-
-        // Particle
-        const size_t iParticle = selectParticle(iSource, stSource); // cannot avoid using index
-
-        // Position
-        double position[3];
-        bool ok = selectPosition(iSource, stSource, position);  // cannot avoid using index
-        if (!ok) return false; // !!!*** error handling!
-
-        // Time
-        const double time = selectTime(stSource, iEvent);
-
-        // generating the selected particle itself
-        addGeneratedParticle(iSource, stSource, iParticle, position, time, false, handler);
-
-        // generating linked particles
-        std::vector<ALinkedParticle> & ThisLP = LinkedPartiles[iSource][iParticle];
-        ThisLP.front().bWasGenerated = true;
-        ThisLP.front().TimeStamp = time;
-        for (size_t ip = 1; ip < ThisLP.size(); ip++) // ThisLP starts from the particle itself, so skip the first record
+        if (stSource) ok = generatePrimary_StandardSource(iSource, stSource, handler, iEvent);
+        else
         {
-            const int thisParticle = ThisLP[ip].iParticle;
-            const int linkedTo     = ThisLP[ip].LinkedTo;
+            AParticleSourceRecord_EcoMug * muSource = dynamic_cast<AParticleSourceRecord_EcoMug*>(Source);
+            if (muSource) ok = generatePrimary_EcoMugSource(iSource, muSource, handler);
+        }
 
-            bool parentWasGenerated = false;
-            for (int index = ip-1; index > -1; index--)
-            {
-                if (ThisLP[index].iParticle == linkedTo)
-                {
-                    parentWasGenerated = ThisLP[index].bWasGenerated;
-                    ThisLP[ip].TimeStamp = ThisLP[index].TimeStamp; // by default inherits parent's timestamp
-                    break;
-                }
-            }
+        if (!ok) return false;
 
-            if (parentWasGenerated) // parent was generated
-            {
-                if (stSource->Particles[thisParticle].GenerationType == AGunParticle::Linked_IfNotGenerated)
-                {
-                    ThisLP[ip].bWasGenerated = false;
-                    continue;
-                }
-            }
-            else // parent was NOT generated
-            {
-                if (stSource->Particles[thisParticle].GenerationType == AGunParticle::Linked_IfGenerated)
-                {
-                    ThisLP[ip].bWasGenerated = false;
-                    continue;
-                }
-            }
+        #ifndef GEANT4
+        if (AbortRequested) return false;
+        #endif
+    }
 
-            const double LinkingProbability = stSource->Particles[thisParticle].LinkedProb;
-            if (ARandomHub::getInstance().uniform() > LinkingProbability)
+    return true;
+}
+
+bool ASourceParticleGenerator::generatePrimary_StandardSource(int iSource, AParticleSourceRecord_Standard * source, std::function<void(const AParticleRecord&)> handler, int iEvent)
+{
+    // Particle
+    const size_t iParticle = selectParticle(iSource, source); // cannot avoid using index
+
+    // Position
+    double position[3];
+    bool ok = selectPosition(iSource, source, position);  // cannot avoid using index
+    if (!ok) return false; // !!!*** error handling!
+
+    // Time
+    const double time = selectTime(source, iEvent);
+
+    // generating the selected particle itself
+    addGeneratedParticle(iSource, source, iParticle, position, time, false, handler);
+
+    // generating linked particles
+    std::vector<ALinkedParticle> & ThisLP = LinkedPartiles[iSource][iParticle];
+    ThisLP.front().bWasGenerated = true;
+    ThisLP.front().TimeStamp = time;
+    for (size_t ip = 1; ip < ThisLP.size(); ip++) // ThisLP starts from the particle itself, so skip the first record
+    {
+        const int thisParticle = ThisLP[ip].iParticle;
+        const int linkedTo     = ThisLP[ip].LinkedTo;
+
+        bool parentWasGenerated = false;
+        for (int index = ip-1; index > -1; index--)
+        {
+            if (ThisLP[index].iParticle == linkedTo)
+            {
+                parentWasGenerated = ThisLP[index].bWasGenerated;
+                ThisLP[ip].TimeStamp = ThisLP[index].TimeStamp; // by default inherits parent's timestamp
+                break;
+            }
+        }
+
+        if (parentWasGenerated) // parent was generated
+        {
+            if (source->Particles[thisParticle].GenerationType == AGunParticle::Linked_IfNotGenerated)
             {
                 ThisLP[ip].bWasGenerated = false;
                 continue;
             }
-
-            double halfLife = stSource->Particles[thisParticle].HalfLife;
-            if (halfLife != 0) ThisLP[ip].TimeStamp += RandomHub.getInstance().exp(halfLife/log(2));
-
-            if (stSource->UseCutOff && stSource->Particles[thisParticle].Particle != "-") //direct deposition ("-") ignores direction and cut-off
+        }
+        else // parent was NOT generated
+        {
+            if (source->Particles[thisParticle].GenerationType == AGunParticle::Linked_IfGenerated)
             {
-                double inCutoffProbability = CollimationProbability[iSource];
-                if (stSource->Particles[thisParticle].BtBPair) inCutoffProbability *= 2.0; // if a pair, chance to get in cutoff is doubled
-                if (ARandomHub::getInstance().uniform() > inCutoffProbability)
-                {
-                    // did not pass cut-off
-                    ThisLP[ip].bWasGenerated = true;  // marked as generated, just do not add to tracking since outside of cut-off
-                    continue;
-                }
+                ThisLP[ip].bWasGenerated = false;
+                continue;
             }
-
-            ThisLP[ip].bWasGenerated = true;
-
-            addGeneratedParticle(iSource, stSource, thisParticle, position, ThisLP[ip].TimeStamp, true, handler);
         }
 
-#ifndef GEANT4
-            if (AbortRequested) return false;
-#endif
-    }
+        const double LinkingProbability = source->Particles[thisParticle].LinkedProb;
+        if (ARandomHub::getInstance().uniform() > LinkingProbability)
+        {
+            ThisLP[ip].bWasGenerated = false;
+            continue;
+        }
 
+        double halfLife = source->Particles[thisParticle].HalfLife;
+        if (halfLife != 0) ThisLP[ip].TimeStamp += RandomHub.getInstance().exp(halfLife/log(2));
+
+        if (source->UseCutOff && source->Particles[thisParticle].Particle != "-") //direct deposition ("-") ignores direction and cut-off
+        {
+            double inCutoffProbability = CollimationProbability[iSource];
+            if (source->Particles[thisParticle].BtBPair) inCutoffProbability *= 2.0; // if a pair, chance to get in cutoff is doubled
+            if (ARandomHub::getInstance().uniform() > inCutoffProbability)
+            {
+                // did not pass cut-off
+                ThisLP[ip].bWasGenerated = true;  // marked as generated, just do not add to tracking since outside of cut-off
+                continue;
+            }
+        }
+
+        ThisLP[ip].bWasGenerated = true;
+
+        addGeneratedParticle(iSource, source, thisParticle, position, ThisLP[ip].TimeStamp, true, handler);
+    }
+    return true;
+}
+
+#ifdef GEANT4
+#include "G4MuonMinus.hh"
+#include "G4MuonPlus.hh"
+#include "G4SystemOfUnits.hh"
+#endif
+
+bool ASourceParticleGenerator::generatePrimary_EcoMugSource(int iSource, AParticleSourceRecord_EcoMug * source, std::function<void (const AParticleRecord &)> handler)
+{
+    EcoMug * gen = EcoMugGenerators[iSource];
+    gen->Generate();
+
+    AParticleRecord particle(
+#ifdef GEANT4
+        (gen->GetCharge() < 0 ? (G4ParticleDefinition*)G4MuonMinus::Definition() : (G4ParticleDefinition*)G4MuonPlus::Definition()),
+        (double*)gen->GetGenerationPosition().data(),
+        0,
+        gen->GetGenerationMomentum()/GeV*keV);
+#else
+        (gen->GetCharge() < 0 ? "mu-" : "mu+"),
+        (double*)gen->GetGenerationPosition().data(),
+        0,
+        gen->GetGenerationMomentum());
+#endif
+
+    std::array<double, 3> vec;
+    gen->GetGenerationMomentum(vec);
+    particle.setDirection(vec.data());
+    particle.ensureUnitaryLength();
+
+    handler(particle);
     return true;
 }
 

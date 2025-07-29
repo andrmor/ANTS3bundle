@@ -188,4 +188,19 @@ private:
     std::string timeUnitsToString(AParticleSourceRecord_Standard::ETimeUnits timeUnits) const; // !!!*** error reporting
 };
 
+struct AParticleSourceRecord_EcoMug : public AParticleSourceRecordBase
+{
+    std::string getType() const override {return "EcoMug";}
+    void doClear() override {}
+    std::string check() const override {return "";}
+
+#ifdef JSON11
+    bool doReadFromJson(const json11::Json::object & /*json*/) override {return true;}
+#else
+    bool doReadFromJson(const QJsonObject & /*json*/) override {return true;}
+    void doWriteToJson(QJsonObject & /*json*/) const override {}
+#endif
+
+};
+
 #endif // APARTICLESOURCERECORD_H

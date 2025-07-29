@@ -30,6 +30,8 @@ public:
 };
 
 struct AParticleSourceRecord_Standard;
+struct AParticleSourceRecord_EcoMug;
+class EcoMug;
 
 class ASourceParticleGenerator : public AParticleGun
 {
@@ -64,6 +66,8 @@ private:
     std::vector<int>         LimitedToMat;
 #endif
 
+    std::vector<EcoMug*> EcoMugGenerators;
+
     void   updateLimitedToMat();
 
     int    selectNumberOfPrimaries() const;
@@ -75,6 +79,8 @@ private:
     double selectTime(AParticleSourceRecord_Standard * source, int iEvent);
     void   addGeneratedParticle(int iSource, AParticleSourceRecord_Standard * source, int iParticle, double * position, double time, bool forceIsotropic, std::function<void(const AParticleRecord&)> handler);
     void   processSpecialParticle(const AGunParticle & particle, AParticleSourceRecord_Standard * source, double * position, double time, bool forceIsotropic, std::function<void (const AParticleRecord &)> handler);
+    bool   generatePrimary_StandardSource(int iSource, AParticleSourceRecord_Standard * source, std::function<void (const AParticleRecord &)> handler, int iEvent);
+    bool   generatePrimary_EcoMugSource(int iSource, AParticleSourceRecord_EcoMug * source, std::function<void (const AParticleRecord &)> handler);
 };
 
 #endif // ASOURCEPARTICLEGENERATOR_H

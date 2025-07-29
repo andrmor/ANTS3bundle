@@ -386,6 +386,7 @@ HEADERS += \
     gui/raster/arasterwindow.h \
     gui/script/aargumentcounter.h \
     gui/script/ascriptexampleexplorer.h \
+    particleSim/EcoMug/EcoMug.h \
     particleSim/aorthopositroniumgammagenerator.h \
     particleSim/aparticleanalyzerhub.h \
     particleSim/aparticleanalyzersettings.h \

@@ -23,7 +23,8 @@ using JsonObject =
 
 AParticleSourceRecordBase * AParticleSourceRecordBase::factory(std::string sourceType)
 {
-    if (sourceType == AParticleSourceRecord_Standard().getType()) return new AParticleSourceRecord_Standard();
+    if      (sourceType == AParticleSourceRecord_Standard().getType()) return new AParticleSourceRecord_Standard();
+    else if (sourceType == AParticleSourceRecord_EcoMug().getType())   return new AParticleSourceRecord_EcoMug();
     return nullptr;
 }
 
