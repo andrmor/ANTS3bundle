@@ -757,3 +757,91 @@ std::string AParticleSourceRecord_Standard::configureAxialSampler()
     if (AxialDistributionType != CustomAxial) return "";
     return _AxialSampler.configure(AxialDistribution);
 }
+
+// ---------------
+
+void AParticleSourceRecord_EcoMug::doClear()
+{
+    Shape = Rectangle;
+
+    Size1 = 50.0;
+    Size2 = 50.0;
+
+    X0 = 0;
+    Y0 = 0;
+    Z0 = 0;
+}
+
+std::string AParticleSourceRecord_EcoMug::check() const
+{
+    switch (Shape)
+    {
+    case Rectangle:
+        if (Size1 <= 0) return "Size1 has to be positive";
+        if (Size2 <= 0) return "Size2 has to be positive";
+        break;
+    case Cylinder:
+        if (Size1 <= 0) return "Radius has to be positive";
+        if (Size2 <= 0) return "Height has to be positive";
+        break;
+    case HalfSphere:
+        if (Size1 <= 0) return "Radius has to be positive";
+        break;
+    }
+
+    return "";
+}
+
+#ifndef JSON11
+void AParticleSourceRecord_EcoMug::doWriteToJson(QJsonObject & json) const
+{
+    QString str;
+    switch (Shape)
+    {
+    case Rectangle  : str = "Rectangle";  break;
+    case Cylinder   : str = "Cylinder";   break;
+    case HalfSphere : str = "HalfSphere"; break;
+    }
+    json["Shape"] = str;
+
+    json["Size1"] = Size1;
+    json["Size2"] = Size2;
+
+    json["Position"] = QJsonArray{X0, Y0, Z0};
+}
+#endif
+
+#ifdef JSON11
+bool AParticleSourceRecord_EcoMug::doReadFromJson(const json11::Json::object & json)
+#else
+bool AParticleSourceRecord_EcoMug::doReadFromJson(const JsonObject & json)
+#endif
+{
+    std::string str;
+    jstools::parseJson(json, "Shape", str);
+
+    if      (str == "Rectangle")  Shape = Rectangle;
+    else if (str == "Cylinder")   Shape = Cylinder;
+    else if (str == "HalfSphere") Shape = HalfSphere;
+    else ; // !!!*** error
+
+    JsonArray pjs;
+    jstools::parseJson(json, "Position", pjs);
+    if (pjs.size() == 3)
+    {
+#ifdef JSON11
+        X0 = pjs[0].number_value();
+        Y0 = pjs[1].number_value();
+        Z0 = pjs[2].number_value();
+#else
+        X0 = pjs[0].toDouble();
+        Y0 = pjs[1].toDouble();
+        Z0 = pjs[2].toDouble();
+#endif
+    }
+    else ; // !!!*** error
+
+    jstools::parseJson(json, "Size1", Size1);
+    jstools::parseJson(json, "Size2", Size2);
+    return true;
+}

@@ -132,9 +132,26 @@ bool ASourceParticleGenerator::init()
         if (!muSource) continue;
 
         EcoMug * gen = new EcoMug();
-        gen->SetUseHSphere();
-        gen->SetHSphereRadius(50.0);
-        gen->SetHSphereCenterPosition({0,0,0});
+
+        switch (muSource->Shape)
+        {
+        case AParticleSourceRecord_EcoMug::Rectangle :
+            gen->SetUseSky();
+            gen->SetSkySize({muSource->Size1, muSource->Size2});
+            gen->SetSkyCenterPosition({muSource->X0, muSource->Y0, muSource->Z0});
+            break;
+        case AParticleSourceRecord_EcoMug::Cylinder :
+            gen->SetUseCylinder();
+            gen->SetCylinderRadius(muSource->Size1);
+            gen->SetCylinderHeight(muSource->Size2);
+            gen->SetCylinderCenterPosition({muSource->X0, muSource->Y0, muSource->Z0});
+            break;
+        case AParticleSourceRecord_EcoMug::HalfSphere :
+            gen->SetUseHSphere();
+            gen->SetHSphereRadius(muSource->Size1);
+            gen->SetHSphereCenterPosition({muSource->X0, muSource->Y0, muSource->Z0});
+            break;
+        }
 
         EcoMugGenerators[iSource] = gen;
     }

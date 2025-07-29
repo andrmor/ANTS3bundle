@@ -191,14 +191,27 @@ private:
 struct AParticleSourceRecord_EcoMug : public AParticleSourceRecordBase
 {
     std::string getType() const override {return "EcoMug";}
-    void doClear() override {}
-    std::string check() const override {return "";}
+
+    enum EShape {Rectangle, Cylinder, HalfSphere};
+
+    EShape Shape = Rectangle;
+
+    double Size1 = 50.0; // SizeX or Radius
+    double Size2 = 50.0; // SizeY or Height
+
+    // position
+    double X0 = 0;
+    double Y0 = 0;
+    double Z0 = 0;
+
+    void doClear() override;
+    std::string check() const override;
 
 #ifdef JSON11
-    bool doReadFromJson(const json11::Json::object & /*json*/) override {return true;}
+    bool doReadFromJson(const json11::Json::object & /*json*/) override;
 #else
-    bool doReadFromJson(const QJsonObject & /*json*/) override {return true;}
-    void doWriteToJson(QJsonObject & /*json*/) const override {}
+    bool doReadFromJson(const QJsonObject & /*json*/) override;
+    void doWriteToJson(QJsonObject & /*json*/) const override;
 #endif
 
 };

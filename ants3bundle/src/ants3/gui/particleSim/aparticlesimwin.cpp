@@ -482,6 +482,7 @@ void AParticleSimWin::on_pbRemoveStepLimit_clicked()
      updateG4Gui();
 }
 
+#include "aparticlesourcedialog_ecomug.h"
 void AParticleSimWin::on_pbEditParticleSource_clicked()
 {
     int isource = ui->lwDefinedParticleSources->currentRow();
@@ -498,9 +499,9 @@ void AParticleSimWin::on_pbEditParticleSource_clicked()
         return;
     }
 
-    delete ParticleSourceDialog;
+    delete ParticleSourceDialog;        ParticleSourceDialog = nullptr;
+    delete ParticleSourceDialog_EcoMug; ParticleSourceDialog_EcoMug = nullptr;
 
-    // !!!****
     AParticleSourceRecord_Standard * stSource = dynamic_cast<AParticleSourceRecord_Standard*>(SourceGenSettings.SourceData[isource]);
     if (stSource)
     {
@@ -509,10 +510,24 @@ void AParticleSimWin::on_pbEditParticleSource_clicked()
         connect(ParticleSourceDialog, &AParticleSourceDialog::requestShowSource,      this, &AParticleSimWin::onRequestShowSource);
         connect(ParticleSourceDialog, &AParticleSourceDialog::requestDraw,            this, &AParticleSimWin::requestDraw);
         connect(ParticleSourceDialog, &AParticleSourceDialog::accepted,               this, &AParticleSimWin::onParticleSourceAccepted);
+        ParticleSourceDialog->setModal(true);
+        ParticleSourceDialog->open();
+    }
+    else
+    {
+        AParticleSourceRecord_EcoMug * muSource = dynamic_cast<AParticleSourceRecord_EcoMug*>(SourceGenSettings.SourceData[isource]);
+        if (muSource)
+        {
+            ParticleSourceDialog_EcoMug = new AParticleSourceDialog_EcoMug(*muSource, this);
+            connect(ParticleSourceDialog_EcoMug, &AParticleSourceDialog_EcoMug::requestTestParticleGun, this, &AParticleSimWin::testParticleGun);
+            connect(ParticleSourceDialog_EcoMug, &AParticleSourceDialog_EcoMug::requestShowSource,      this, &AParticleSimWin::onRequestShowSource);
+            connect(ParticleSourceDialog_EcoMug, &AParticleSourceDialog_EcoMug::requestDraw,            this, &AParticleSimWin::requestDraw);
+            connect(ParticleSourceDialog_EcoMug, &AParticleSourceDialog_EcoMug::accepted,               this, &AParticleSimWin::onParticleSourceAccepted);
+            ParticleSourceDialog_EcoMug->setModal(true);
+            ParticleSourceDialog_EcoMug->open();
+        }
     }
 
-    ParticleSourceDialog->setModal(true);
-    ParticleSourceDialog->open();
 }
 
 void AParticleSimWin::onParticleSourceAccepted()
@@ -524,13 +539,22 @@ void AParticleSimWin::onParticleSourceAccepted()
     const int numSources = SourceGenSettings.getNumSources();
     if (isource >= numSources) return;
 
-    AParticleSourceRecord_Standard * ps = ParticleSourceDialog->getResult();
-    SourceGenSettings.replace(isource, ps);
+    if (ParticleSourceDialog)
+    {
+        AParticleSourceRecord_Standard * ps = ParticleSourceDialog->getResult();
+        SourceGenSettings.replace(isource, ps);
+        checkWorldSize(ps);
+    }
+    else if (ParticleSourceDialog_EcoMug)
+    {
+        AParticleSourceRecord_EcoMug * ps = ParticleSourceDialog_EcoMug->getResult();
+        SourceGenSettings.replace(isource, ps);
+        checkWorldSize(ps); // !!!**** need new method
+    }
 
     updateSourceList();
     if (ui->pbGunShowSource->isChecked()) on_pbGunShowSource_toggled(true);
 
-    checkWorldSize(ps);
 }
 
 #include "aworldsizewarningdialog.h"

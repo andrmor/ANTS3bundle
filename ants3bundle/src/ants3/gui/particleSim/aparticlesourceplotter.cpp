@@ -201,6 +201,75 @@ void AParticleSourcePlotter::plotSource(const AParticleSourceRecord_Standard & p
     }
 }
 
+void AParticleSourcePlotter::plotSource(const AParticleSourceRecord_EcoMug & p)
+{
+    TGeoManager * gGeoManager = AGeometryHub::getInstance().GeoManager;
+
+    const double X0 = p.X0;
+    const double Y0 = p.Y0;
+    const double Z0 = p.Z0;
+
+    const double size1 = p.Size1;
+    const double size2 = p.Size2;
+
+    switch (p.Shape)
+    {
+    case (AParticleSourceRecord_EcoMug::Rectangle):
+    {
+        Int_t track_index = gGeoManager->AddTrack(1,22);
+        TVirtualGeoTrack *track = gGeoManager->GetTrack(track_index);
+        track->AddPoint(X0-0.5*size1, Y0-0.5*size2, Z0, 0);
+        track->AddPoint(X0-0.5*size1, Y0+0.5*size2, Z0, 0);
+        track->AddPoint(X0+0.5*size1, Y0+0.5*size2, Z0, 0);
+        track->AddPoint(X0+0.5*size1, Y0-0.5*size2, Z0, 0);
+        track->AddPoint(X0-0.5*size1, Y0-0.5*size2, Z0, 0);
+        track->SetLineWidth(3);
+        track->SetLineColor(9);
+        break;
+    }
+    case (AParticleSourceRecord_EcoMug::Cylinder):
+    {
+        Int_t track_index = gGeoManager->AddTrack(1,22);
+        TVirtualGeoTrack *track = gGeoManager->GetTrack(track_index);
+        double z = Z0 - 0.5*size2;
+        for (int i=0; i<51; i++)
+        {
+            double x = size1*cos(3.1415926535/25.0*i);
+            double y = size1*sin(3.1415926535/25.0*i);
+            track->AddPoint(x, y, z, 0);
+        }
+        track->SetLineWidth(3);
+        track->SetLineColor(9);
+        track_index = gGeoManager->AddTrack(1,22); // can reuse the same cycle! !!!***
+        track = gGeoManager->GetTrack(track_index);
+        z = Z0 + 0.5*size2;
+        for (int i=0; i<51; i++)
+        {
+            double x = size1*cos(3.1415926535/25.0*i);
+            double y = size1*sin(3.1415926535/25.0*i);
+            track->AddPoint(x, y, z, 0);
+        }
+        track->SetLineWidth(3);
+        track->SetLineColor(9);
+        break;
+    }
+    case (AParticleSourceRecord_EcoMug::HalfSphere):
+    {
+        Int_t track_index = gGeoManager->AddTrack(1,22);
+        TVirtualGeoTrack *track = gGeoManager->GetTrack(track_index);
+        for (int i=0; i<51; i++)
+        {
+            double x = size1*cos(3.1415926535/25.0*i);
+            double y = size1*sin(3.1415926535/25.0*i);
+            track->AddPoint(x, y, Z0, 0);
+        }
+        track->SetLineWidth(3);
+        track->SetLineColor(9);
+        break;
+    }
+    }
+}
+
 void AParticleSourcePlotter::clearTracks()
 {
     TGeoManager * GeoManager = AGeometryHub::getInstance().GeoManager;
