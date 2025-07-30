@@ -27,7 +27,7 @@ public:
 
     bool        check() const;
 
-    bool        clone(int iSource); // !!!**** update to other types
+    bool        clone(int iSource);
     bool        replace(int iSource, AParticleSourceRecordBase * source);
     void        remove(int iSource);
 
@@ -35,7 +35,7 @@ public:
     bool        readFromJson(const json11::Json::object & json); // Error handling !!!***
 #else
     void        writeToJson(QJsonObject & json) const;
-    bool        readFromJson(const QJsonObject & json); // !!!**** update to other types                    Error handling !!!***
+    bool        readFromJson(const QJsonObject & json); // Error handling !!!***
 #endif
 
 };

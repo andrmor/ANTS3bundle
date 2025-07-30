@@ -63,7 +63,7 @@ private slots:
     void on_pbRemoveStepLimit_clicked();
 
     void on_pbEditParticleSource_clicked();
-    void on_pbAddSource_clicked(); // !!!****
+    void on_pbAddSource_clicked();
     void on_pbCloneSource_clicked();
     void on_pbRemoveSource_clicked();
 
@@ -208,7 +208,7 @@ private:
 
     void updateG4Gui();
     void updateSimGui();
-    void updateSourceList(); // !!!****
+    void updateSourceList();
     void updateGeneralControlInResults();
 
     //clear

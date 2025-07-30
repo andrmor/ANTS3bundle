@@ -808,16 +808,12 @@ void AParticleSimWin::on_pbGunTest_clicked()
     if (ui->cobParticleGenerationMode->currentIndex() == 0)
     {
         if (ui->pbGunShowSource->isChecked())
-            for (AParticleSourceRecordBase * sourceBase : SimSet.SourceGenSettings.SourceData)
-            {
-                AParticleSourceRecord_Standard * stSource = dynamic_cast<AParticleSourceRecord_Standard*>(sourceBase);
-                // !!!****
-                if (stSource) AParticleSourcePlotter::plotSource(*stSource);
-            }
+            for (AParticleSourceRecordBase * source : SimSet.SourceGenSettings.SourceData)
+                AParticleSourcePlotter::plotSource(source);
     }
 
     emit requestBusyStatus(true);   // -->   !!!***
-onBusyStatusChange(true);
+    onBusyStatusChange(true);
 
     ui->pbAbort->setEnabled(true);
     QFont font = ui->pbAbort->font();
@@ -831,7 +827,7 @@ onBusyStatusChange(true);
     font.setBold(false);
     ui->pbAbort->setFont(font);
     emit requestBusyStatus(false);  // <--  !!!***
-onBusyStatusChange(false);
+    onBusyStatusChange(false);
 
     if (ui->cobParticleGenerationMode->currentIndex() == 1) updateFileParticleGeneratorGui();
 }

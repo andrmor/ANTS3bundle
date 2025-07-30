@@ -83,10 +83,11 @@ void SessionManager::prepareParticleGun()
         for (AParticleSourceRecordBase * source : Settings.SourceGenSettings.SourceData)
         {
             AParticleSourceRecord_Standard * stSource = dynamic_cast<AParticleSourceRecord_Standard*>(source);
-            if (!stSource) continue;
-
-            for (AGunParticle & particle : stSource->Particles)
-                particle.particleDefinition = SessionManager::findGeant4Particle(particle.Particle); // terminate inside if not found
+            if (stSource)
+            {
+                for (AGunParticle & particle : stSource->Particles)
+                    particle.particleDefinition = SessionManager::findGeant4Particle(particle.Particle); // terminate inside if not found
+            }
         }
         ParticleGenerator = new ASourceParticleGenerator(Settings.SourceGenSettings);
         break;
@@ -425,7 +426,7 @@ void SessionManager::replaceMatNameInMatLimitedSources(const G4String & name, co
     for (AParticleSourceRecordBase * sr : Settings.SourceGenSettings.SourceData)
     {
         AParticleSourceRecord_Standard * stSource = dynamic_cast<AParticleSourceRecord_Standard*>(sr);
-        if (!stSource) continue; // !!!****
+        if (!stSource) continue;
 
         if (stSource->MaterialLimited && stSource->LimtedToMatName == name)
             stSource->LimtedToMatName = G4Name;
