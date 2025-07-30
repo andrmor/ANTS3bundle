@@ -160,6 +160,7 @@ SOURCES += \
     gui/materials/arefractiveindeximportdialog.cpp \
     gui/particleSim/aeventsdonedialog.cpp \
     gui/particleSim/aparticlesourcedialog_ecomug.cpp \
+    gui/particleSim/aparticlesourcedialogbase.cpp \
     gui/particleSim/aparticlesourceplotter.cpp \
     gui/particleSim/atrackdrawdialog.cpp \
     gui/particleSim/atrackingdataexplorer.cpp \
@@ -381,6 +382,7 @@ HEADERS += \
     gui/materials/aopticaldataimportdialog.h \
     gui/materials/arefractiveindeximportdialog.h \
     gui/particleSim/aparticlesourcedialog_ecomug.h \
+    gui/particleSim/aparticlesourcedialogbase.h \
     gui/photsim/afunctionalmodelwidget.h \
     gui/photsim/aphotfunctwindow.h \
     gui/photsim/aphotonlogsettingsform.h \

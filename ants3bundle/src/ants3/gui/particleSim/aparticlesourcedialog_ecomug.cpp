@@ -5,19 +5,19 @@
 #include "aparticlesimsettings.h"
 #include "aparticlesourceplotter.h"
 #include "agraphbuilder.h"
-#include "ajsontools.h"
 
 #include <QDebug>
 #include <QDoubleValidator>
 #include <QMessageBox>
 #include <QCloseEvent>
 #include <QSettings>
+#include <QJsonObject>
 
 #include "TH1D.h"
 #include "TGraph.h"
 
 AParticleSourceDialog_EcoMug::AParticleSourceDialog_EcoMug(const AParticleSourceRecord_EcoMug & Rec, QWidget * parent) :
-    QDialog(parent),
+    AParticleSourceDialogBase(parent),
     LocalRec(Rec), OriginalRec(Rec),
     ui(new Ui::AParticleSourceDialog_EcoMug)
 {
@@ -75,7 +75,7 @@ void AParticleSourceDialog_EcoMug::restorePersistentSettings()
     settings.endGroup();
 }
 
-AParticleSourceRecord_EcoMug * AParticleSourceDialog_EcoMug::getResult()
+AParticleSourceRecordBase * AParticleSourceDialog_EcoMug::getResult()
 {
     AParticleSourceRecord_EcoMug * rec = new AParticleSourceRecord_EcoMug();
     QJsonObject json;

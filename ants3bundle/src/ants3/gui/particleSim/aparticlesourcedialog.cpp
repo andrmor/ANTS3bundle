@@ -18,7 +18,7 @@
 #include "TGraph.h"
 
 AParticleSourceDialog::AParticleSourceDialog(const AParticleSourceRecord_Standard & Rec, QWidget * parent) :
-    QDialog(parent),
+    AParticleSourceDialogBase(parent),
     LocalRec(Rec), OriginalRec(Rec),
     ui(new Ui::AParticleSourceDialog)
 {
@@ -161,7 +161,7 @@ void AParticleSourceDialog::restorePersistentSettings()
     settings.endGroup();
 }
 
-AParticleSourceRecord_Standard *AParticleSourceDialog::getResult()
+AParticleSourceRecordBase * AParticleSourceDialog::getResult()
 {
     AParticleSourceRecord_Standard * rec = new AParticleSourceRecord_Standard();
     QJsonObject json;

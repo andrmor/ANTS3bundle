@@ -22,8 +22,7 @@ class AParticleSourceRecordBase;
 class ATrackingHistoryCrawler;
 class AFindRecordSelector;
 class AEventTrackingRecord;
-class AParticleSourceDialog;        // !!!**** add layer of abstraction?
-class AParticleSourceDialog_EcoMug; // !!!**** add layer of abstraction?
+class AParticleSourceDialogBase;
 
 namespace Ui {
 class AParticleSimWin;
@@ -203,8 +202,7 @@ private:
 
     AEventTrackingRecord * CurrentEventRecord = nullptr;
 
-    AParticleSourceDialog * ParticleSourceDialog = nullptr;
-    AParticleSourceDialog_EcoMug * ParticleSourceDialog_EcoMug = nullptr;
+    AParticleSourceDialogBase * ParticleSourceDialog = nullptr;
 
     void updateG4Gui();
     void updateSimGui();

@@ -54,7 +54,6 @@ private:
     double TotalActivity = 0;
 
     // consider moving randomSamplers to here too !!!***
-    // !!!*** consider to move to the standard source record the following 3 properties:
     std::vector<double>   TotalParticleWeight;
     std::vector<AVector3> CollimationDirection;   //[isource] collimation direction
     std::vector<double>   CollimationProbability; //[isource] collimation probability: solid angle inside cone / 4Pi

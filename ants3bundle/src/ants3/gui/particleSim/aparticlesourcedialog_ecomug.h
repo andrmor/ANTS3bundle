@@ -1,6 +1,7 @@
 #ifndef APARTICLESOURCEDIALOG_ECOMUG_H
 #define APARTICLESOURCEDIALOG_ECOMUG_H
 
+#include "aparticlesourcedialogbase.h"
 #include "asourceparticlegenerator.h"
 #include "aparticlesourcerecord.h"
 
@@ -14,7 +15,7 @@ class TObject;
 class QLineEdit;
 class QComboBox;
 
-class AParticleSourceDialog_EcoMug : public QDialog
+class AParticleSourceDialog_EcoMug : public AParticleSourceDialogBase
 {
     Q_OBJECT
 
@@ -22,7 +23,7 @@ public:
     explicit AParticleSourceDialog_EcoMug(const AParticleSourceRecord_EcoMug & Rec, QWidget * parent);
     ~AParticleSourceDialog_EcoMug();
 
-    AParticleSourceRecord_EcoMug * getResult();
+    AParticleSourceRecordBase * getResult() override;
 
 protected:
     virtual void closeEvent(QCloseEvent * e) override;
@@ -38,12 +39,6 @@ private slots:
     void on_pbShowSource_clicked(bool checked);
 
     void on_cobGeneratorShape_currentIndexChanged(int index);
-
-signals:
-    void delayClose();
-    void requestTestParticleGun(AParticleGun * gun, int num, bool fillStatistics);
-    void requestShowSource();
-    void requestDraw(TObject * obj, QString options, bool transferOwnership, bool focusWindow);
 
 private:
     AParticleSourceRecord_EcoMug         LocalRec;
