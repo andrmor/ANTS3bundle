@@ -566,9 +566,9 @@ void AParticleSimWin::checkWorldSize(AParticleSourceRecordBase * sourceBase)
     const double wXY = GeoHub.getWorldSizeXY();
     const double wZ  = GeoHub.getWorldSizeZ();
 
-    // !!!****
     double maxXY = 0;
     double maxZ = 0;
+    // !!!*** make a method inside AParticleSourceRecord
     AParticleSourceRecord_Standard * ps = dynamic_cast<AParticleSourceRecord_Standard*>(sourceBase);
     if (ps)
     {
@@ -598,6 +598,29 @@ void AParticleSimWin::checkWorldSize(AParticleSourceRecordBase * sourceBase)
             maxXY += 0.5 * std::max(ps->Size1, ps->Size2);
             maxZ  += 0.5 * std::max(ps->Size1, ps->Size2);
             break;
+        }
+    }
+    else
+    {
+        AParticleSourceRecord_EcoMug * ps = dynamic_cast<AParticleSourceRecord_EcoMug*>(sourceBase);
+        if (ps)
+        {
+            maxXY = std::max(abs(ps->X0), abs(ps->Y0));
+            maxZ  = abs(ps->Z0);
+            switch (ps->Shape)
+            {
+            case AParticleSourceRecord_EcoMug::Rectangle :
+                maxXY += 0.5 * std::max(ps->Size1, ps->Size2);
+                break;
+            case AParticleSourceRecord_EcoMug::Cylinder :
+                maxXY += ps->Size1;
+                maxZ  += 0.5 * ps->Size2;
+                break;
+            case AParticleSourceRecord_EcoMug::HalfSphere :
+                maxXY += ps->Size1;
+                maxZ  += ps->Size1;
+                break;
+            }
         }
     }
 
@@ -706,20 +729,12 @@ void AParticleSimWin::updateSourceList()
         QLabel* lab = new QLabel(pr->Name.data());
         lab->setMinimumWidth(110);
         QFont f = lab->font();
-        f.setBold(true);
+        //f.setBold(true);
+        f.setWeight(QFont::DemiBold);
         lab->setFont(f);
         l->addWidget(lab);
 
-        // !!!****
-        AParticleSourceRecord_Standard * stSource = dynamic_cast<AParticleSourceRecord_Standard*>(pr);
-        if (stSource)
-        {
-            l->addWidget(new QLabel( QString(stSource->getShapeString().data()) + ','));
-            QString SPart;
-            if (stSource->Particles.size() == 1) SPart = stSource->Particles.front().Particle.data();
-            else SPart = QString("%1 particles").arg(stSource->Particles.size());
-            l->addWidget(new QLabel(SPart));
-        }
+        l->addWidget(new QLabel( QString(pr->getShortDescription().data()) ));
 
         l->addStretch();
         l->addWidget(new QLabel("Fraction:"));
@@ -944,12 +959,8 @@ void AParticleSimWin::on_pbGunShowSource_toggled(bool checked)
     if (checked)
     {
         emit requestShowGeometry(true, true, true);
-        for (AParticleSourceRecordBase * sourceBase : SimSet.SourceGenSettings.SourceData)
-        {
-            AParticleSourceRecord_Standard * stSource = dynamic_cast<AParticleSourceRecord_Standard*>(sourceBase);
-            if (stSource) AParticleSourcePlotter::plotSource(*stSource);
-            // !!!****
-        }
+        for (AParticleSourceRecordBase * source : SimSet.SourceGenSettings.SourceData)
+            AParticleSourcePlotter::plotSource(source);
         emit requestShowTracks();
     }
     else

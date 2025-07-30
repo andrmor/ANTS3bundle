@@ -6,6 +6,20 @@
 #include "TVirtualGeoTrack.h"
 #include "TVector3.h"
 
+#include <QDebug>
+
+void AParticleSourcePlotter::plotSource(const AParticleSourceRecordBase * source)
+{
+    const AParticleSourceRecord_Standard * stSource = dynamic_cast<const AParticleSourceRecord_Standard*>(source);
+    if (stSource) AParticleSourcePlotter::plotSource(*stSource);
+    else
+    {
+        const AParticleSourceRecord_EcoMug * muSource = dynamic_cast<const AParticleSourceRecord_EcoMug*>(source);
+        if (muSource) AParticleSourcePlotter::plotSource(*muSource);
+        else qWarning() << "AParticleSourcePlotter: unknow type of particle source";
+    }
+}
+
 void AParticleSourcePlotter::plotSource(const AParticleSourceRecord_Standard & p)
 {
     TGeoManager * gGeoManager = AGeometryHub::getInstance().GeoManager;

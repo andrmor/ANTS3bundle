@@ -618,20 +618,6 @@ bool AParticleSourceRecord_Standard::doReadFromJson(const JsonObject & json)
     return true;
 }
 
-std::string AParticleSourceRecord_Standard::getShapeString() const
-{
-    switch (Shape)
-    {
-    case Point     : return "Point";
-    case Line      : return "Line";
-    case Rectangle : return "Rectangle";
-    case Round     : return "Round";
-    case Box       : return "Box";
-    case Cylinder  : return "Cylinder";
-    }
-    return "UnknownShape";
-}
-
 bool AParticleSourceRecord_Standard::isDirectional() const
 {
     switch (AngularMode)
@@ -737,6 +723,28 @@ std::string AParticleSourceRecord_Standard::check() const
     return "";
 }
 
+std::string AParticleSourceRecord_Standard::getShortDescription() const
+{
+    std::string str;
+    switch (Shape)
+    {
+    case Point     : str = "Point"; break;
+    case Line      : str = "Line"; break;
+    case Rectangle : str = "Rectangle"; break;
+    case Round     : str = "Round"; break;
+    case Box       : str = "Box"; break;
+    case Cylinder  : str = "Cylinder"; break;
+    default        : str = "UnknownShape"; break;
+    }
+
+    str += ", ";
+
+    if (Particles.size() == 1) str += Particles.front().Particle.data();
+    else str += std::to_string(Particles.size()) + " particles";
+
+    return str;
+}
+
 std::string AParticleSourceRecord_Standard::configureAngularSampler()
 {
     _AngularSampler.clear();
@@ -790,6 +798,20 @@ std::string AParticleSourceRecord_EcoMug::check() const
     }
 
     return "";
+}
+
+std::string AParticleSourceRecord_EcoMug::getShortDescription() const
+{
+    std::string str;
+    switch (Shape)
+    {
+    case Rectangle  : str = "Rectangle";  break;
+    case Cylinder   : str = "Cylinder";   break;
+    case HalfSphere : str = "HalfSphere"; break;
+    default         : str = "UnknownShape"; break;
+    }
+    str += ", muons";
+    return str;
 }
 
 #ifndef JSON11

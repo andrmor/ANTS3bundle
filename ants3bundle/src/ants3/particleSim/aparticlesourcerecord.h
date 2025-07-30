@@ -25,6 +25,7 @@ struct AParticleSourceRecordBase
     virtual void doClear(){}
 
     virtual std::string check() const = 0;
+    virtual std::string getShortDescription() const = 0;
 
 #ifdef JSON11
     bool readFromJson(const json11::Json::object & json);
@@ -169,10 +170,10 @@ struct AParticleSourceRecord_Standard : public AParticleSourceRecordBase
     bool doReadFromJson(const QJsonObject & json) override; // !!!*** error handling
 #endif
 
-    std::string getShapeString() const;
     bool        isDirectional() const;
 
     std::string check() const override;  // !!!*** check energy spectrum
+    std::string getShortDescription() const override;
 
     std::string configureAngularSampler();
     std::string configureTimeSampler();
@@ -206,6 +207,7 @@ struct AParticleSourceRecord_EcoMug : public AParticleSourceRecordBase
 
     void doClear() override;
     std::string check() const override;
+    std::string getShortDescription() const override;
 
 #ifdef JSON11
     bool doReadFromJson(const json11::Json::object & /*json*/) override;
