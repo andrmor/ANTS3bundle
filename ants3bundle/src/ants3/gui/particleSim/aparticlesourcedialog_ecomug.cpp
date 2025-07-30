@@ -23,7 +23,7 @@ AParticleSourceDialog_EcoMug::AParticleSourceDialog_EcoMug(const AParticleSource
 {
     ui->setupUi(this);
 
-    resize(width(), 700);
+    resize(width(), 200);
 
     setWindowModality(Qt::WindowModal);
     setWindowTitle("EcoMug particle source configurator");
