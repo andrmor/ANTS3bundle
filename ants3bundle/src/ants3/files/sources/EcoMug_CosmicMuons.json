@@ -1,5 +1,13 @@
 {
     "Activity": 1,
     "Name": "EcoMug_CosmicMuons",
+    "Position": [
+        0,
+        0,
+        0
+    ],
+    "Shape": "HalfSphere",
+    "Size1": 50,
+    "Size2": 50,
     "Type": "EcoMug"
 }

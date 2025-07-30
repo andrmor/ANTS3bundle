@@ -1,7 +1,6 @@
 #include "aparticlesourceplotter.h"
 #include "aparticlesourcerecord.h"
 #include "ageometryhub.h"
-#include "aparticlerecord.h"
 
 #include "TGeoManager.h"
 #include "TVirtualGeoTrack.h"
@@ -201,10 +200,18 @@ void AParticleSourcePlotter::plotSource(const AParticleSourceRecord_Standard & p
     }
 }
 
-void AParticleSourcePlotter::plotSource(const AParticleSourceRecord_EcoMug & p)
+TVirtualGeoTrack * AParticleSourcePlotter::createTrack()
 {
     TGeoManager * gGeoManager = AGeometryHub::getInstance().GeoManager;
+    Int_t track_index = gGeoManager->AddTrack(1,22);
+    TVirtualGeoTrack * track = gGeoManager->GetTrack(track_index);
+    track->SetLineWidth(3);
+    track->SetLineColor(9);
+    return track;
+}
 
+void AParticleSourcePlotter::plotSource(const AParticleSourceRecord_EcoMug & p)
+{
     const double X0 = p.X0;
     const double Y0 = p.Y0;
     const double Z0 = p.Z0;
@@ -216,55 +223,57 @@ void AParticleSourcePlotter::plotSource(const AParticleSourceRecord_EcoMug & p)
     {
     case (AParticleSourceRecord_EcoMug::Rectangle):
     {
-        Int_t track_index = gGeoManager->AddTrack(1,22);
-        TVirtualGeoTrack *track = gGeoManager->GetTrack(track_index);
+        TVirtualGeoTrack * track = createTrack();
         track->AddPoint(X0-0.5*size1, Y0-0.5*size2, Z0, 0);
         track->AddPoint(X0-0.5*size1, Y0+0.5*size2, Z0, 0);
         track->AddPoint(X0+0.5*size1, Y0+0.5*size2, Z0, 0);
         track->AddPoint(X0+0.5*size1, Y0-0.5*size2, Z0, 0);
         track->AddPoint(X0-0.5*size1, Y0-0.5*size2, Z0, 0);
-        track->SetLineWidth(3);
-        track->SetLineColor(9);
         break;
     }
     case (AParticleSourceRecord_EcoMug::Cylinder):
     {
-        Int_t track_index = gGeoManager->AddTrack(1,22);
-        TVirtualGeoTrack *track = gGeoManager->GetTrack(track_index);
+        TVirtualGeoTrack * track = createTrack();
         double z = Z0 - 0.5*size2;
         for (int i=0; i<51; i++)
         {
-            double x = size1*cos(3.1415926535/25.0*i);
-            double y = size1*sin(3.1415926535/25.0*i);
+            double x = X0 + size1*cos(3.1415926535/25.0*i);
+            double y = Y0 + size1*sin(3.1415926535/25.0*i);
             track->AddPoint(x, y, z, 0);
         }
-        track->SetLineWidth(3);
-        track->SetLineColor(9);
-        track_index = gGeoManager->AddTrack(1,22); // can reuse the same cycle! !!!***
-        track = gGeoManager->GetTrack(track_index);
+        track = createTrack();
         z = Z0 + 0.5*size2;
         for (int i=0; i<51; i++)
         {
-            double x = size1*cos(3.1415926535/25.0*i);
-            double y = size1*sin(3.1415926535/25.0*i);
+            double x = X0 + size1*cos(3.1415926535/25.0*i);
+            double y = Y0 + size1*sin(3.1415926535/25.0*i);
             track->AddPoint(x, y, z, 0);
         }
-        track->SetLineWidth(3);
-        track->SetLineColor(9);
         break;
     }
     case (AParticleSourceRecord_EcoMug::HalfSphere):
     {
-        Int_t track_index = gGeoManager->AddTrack(1,22);
-        TVirtualGeoTrack *track = gGeoManager->GetTrack(track_index);
+        TVirtualGeoTrack * track = createTrack();
         for (int i=0; i<51; i++)
         {
-            double x = size1*cos(3.1415926535/25.0*i);
-            double y = size1*sin(3.1415926535/25.0*i);
+            double x = X0 + size1*cos(3.1415926535/25.0*i);
+            double y = Y0 + size1*sin(3.1415926535/25.0*i);
             track->AddPoint(x, y, Z0, 0);
         }
-        track->SetLineWidth(3);
-        track->SetLineColor(9);
+        track = createTrack();
+        for (int i=0; i<26; i++)
+        {
+            double x = X0 + size1*cos(3.1415926535/25.0*i);
+            double z = Z0 + size1*sin(3.1415926535/25.0*i);
+            track->AddPoint(x, Y0, z, 0);
+        }
+        track = createTrack();
+        for (int i=0; i<26; i++)
+        {
+            double y = Y0 + size1*cos(3.1415926535/25.0*i);
+            double z = Z0 + size1*sin(3.1415926535/25.0*i);
+            track->AddPoint(X0, y, z, 0);
+        }
         break;
     }
     }

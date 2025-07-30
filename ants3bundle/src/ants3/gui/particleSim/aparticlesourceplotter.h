@@ -1,6 +1,7 @@
 #ifndef APARTICLESOURCEPLOTTER_H
 #define APARTICLESOURCEPLOTTER_H
 
+class TVirtualGeoTrack;
 class AParticleSourceRecord_Standard;
 class AParticleSourceRecord_EcoMug;
 
@@ -12,6 +13,9 @@ public:
     static void clearTracks();
 
     static constexpr double pi = 3.14159265358979323846;
+
+private:
+    static TVirtualGeoTrack * createTrack();
 };
 
 #endif // APARTICLESOURCEPLOTTER_H
