@@ -56,12 +56,12 @@ AGraph_SI::AGraph_SI()
     Help["setYDivisions"] = "Configures ticks for Y axis\n" + divHelp;
 
     Help["setXCustomLabelsByIndex"] = "Assign custom labels for X axis. 'textLabels' argument is the array with the new labels.\n"
-                                      "If a default label has to be removed, put an empty string ' ' at the corresponding place of this array.\n"
+                                      "If a default label has to be removed, put one space string (' ') at the corresponding place of this array.\n"
                                       "'tiltAngleDegrees' controls the rotation angle of the labels, zero is default.\n"
                                       "Set 'rightAligned' to true for large tilt angles.";
     Help["setXCustomLabelsByValue"] = "Assign custom labels for X axis. 'textLabels' and 'xValues' arguments are the arrays with the new labels at the "
                                       "corresponding X values.\n"
-                                      "If a default label has to be removed, put an empty string ' ' at the corresponding place of this array.\n"
+                                      "If a default label has to be removed, put one space string (' ') at the corresponding place of this array.\n"
                                       "'tiltAngleDegrees' controls the rotation angle of the labels, zero is default.\n"
                                       "Set 'rightAligned' to true for large tilt angles.";
 
