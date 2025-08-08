@@ -3408,7 +3408,7 @@ void AParticleSimWin::on_pbHelpOnDepositionDataFormat_clicked()
                   "\n"
                   "Data can be loaded using the following script:\n"
                   "fn = \"/pathToFile/Deposition.dat\"\n"
-                  "data = core.load3DArray(fn, '#', ['s', 'i', 'd',   'd','d','d',  'd', 'i'], 0, 1e10, true)\n"
+                  "data = core.load3DArray(fn, '#', ['s', 'i', 'd',   'd','d','d',  'd', 'i'])\n"
                   "\n"
                   "data is a 3D array: data[eventIndex][depositionIndex][depositionData]\n"
                   "For example, data[0][0][2] gives the deposition energy in the first deposition of the first event.\n"
@@ -3423,7 +3423,7 @@ void AParticleSimWin::on_pbHelpOnDepositionDataFormat_clicked()
                   "\n"
                   "Data can be loaded using the following script:\n"
                   "fn = \"/pathToFile/Deposition.dat\"\n"
-                  "data = core.load3DBinaryArray(fn, 0xff, ['s', 'i', 'd',   'd','d','d',  'd', 'i'], 0xee, ['i'], 0, 1e10, true)\n"
+                  "data = core.load3DBinaryArray(fn, 0xff, ['s', 'i', 'd',   'd','d','d',  'd', 'i'], 0xee, ['i'])\n"
                   "";
 
     guitools::message1(txt, "Info for deposition data", this);

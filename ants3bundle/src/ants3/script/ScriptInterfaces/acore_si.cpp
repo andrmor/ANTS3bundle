@@ -1195,8 +1195,6 @@ void ACore_SI::save3DBinaryArray(QVariantList data, QString fileName, int dataId
 void ACore_SI::save3DBinaryArray(QVariantList data, QString fileName, int iDataId, QVariantList dataFormat,
                                  int iSeparatorId, QVariantList topLevelLabels, QVariantList separatorFormat, bool append)
 {
-    QVariantList vl1;
-
     char dataId = iDataId;
     char separatorId = iSeparatorId;
 
