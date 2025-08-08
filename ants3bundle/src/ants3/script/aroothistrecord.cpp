@@ -318,7 +318,12 @@ void ARootHistRecord::scaleInegralTo(double ScaleIntegralTo, bool bDividedByBinW
     if (Type == "TH1D")
     {
         TH1* h = dynamic_cast<TH1*>(Object);
-        h->Scale( ScaleIntegralTo, ( bDividedByBinWidth ? "width" : "" ) );
+        if (!h) return;
+
+        double inte = h->Integral(bDividedByBinWidth ? "width" : "");
+        if (inte == 0) inte = 1;
+        //h->Scale( ScaleIntegralTo/inte, ( bDividedByBinWidth ? "width" : "" ) );
+        h->Scale( ScaleIntegralTo/inte);
     }
 }
 
