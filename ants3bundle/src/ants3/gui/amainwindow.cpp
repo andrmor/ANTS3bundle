@@ -152,6 +152,7 @@ AMainWindow::AMainWindow() :
     Config.replaceEmptyOutputDirsWithTemporary();
 
   // Finalizing
+    Config.createUndo();
     updateAllGuiFromConfig(); //updateGui();
     ScriptHub->finalizeInit();
 
@@ -658,7 +659,9 @@ void AMainWindow::on_pbNew_clicked()
     Config.ConfigDescription = "";
     Config.replaceEmptyOutputDirsWithTemporary();
     Config.updateJSONfromConfig();
+
     Config.clearUndo();
+    Config.createUndo();
 
     updateAllGuiFromConfig();
 }

@@ -100,11 +100,11 @@ void AGeoTreeWin::onRebuildDetectorRequest()
 {
     qDebug() << "A3GeoConWin->onRebuildDetectorRequest triggered";
 
-    AErrorHub::clear();
-    emit requestRebuildGeometry();
-
     AConfig::getInstance().createUndo();
     updateMenuIndication();
+
+    AErrorHub::clear();
+    emit requestRebuildGeometry();
 
     if (AErrorHub::isError())
     {

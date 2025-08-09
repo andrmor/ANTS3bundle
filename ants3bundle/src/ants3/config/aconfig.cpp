@@ -52,7 +52,9 @@ QString AConfig::load(const QString & fileName, bool bUpdateGui)
 
     clearUndo();
 
-    return readFromJson(json, bUpdateGui);
+    QString res = readFromJson(json, bUpdateGui);
+    createUndo();
+    return res;
 }
 
 QString AConfig::save(const QString & fileName)
@@ -171,10 +173,10 @@ void AConfig::createUndo()
     updateJSONfromConfig();
 
     UndoConfigs.insert(UndoConfigs.begin(), JSON);
-    qDebug() << "Undo created, UndoConfig length:" << UndoConfigs.size();
+    qDebug() << "> Undo created, UndoConfig length:" << UndoConfigs.size();
     if (UndoConfigs.size() > A3Global::getConstInstance().UndoMaxDepth)
     {
-        qDebug() << "UndoConfigs max reached, resizing to UndoMaxDepth of " << A3Global::getConstInstance().UndoMaxDepth;
+        qDebug() << "> UndoConfigs max reached, resizing to UndoMaxDepth of " << A3Global::getConstInstance().UndoMaxDepth;
         UndoConfigs.resize(A3Global::getConstInstance().UndoMaxDepth);
     }
 
