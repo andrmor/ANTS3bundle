@@ -50,8 +50,7 @@ QString AConfig::load(const QString & fileName, bool bUpdateGui)
     bool ok = jstools::loadJsonFromFile(json, fileName);
     if (!ok) return "Cannot open config file: " + fileName;
 
-    invalidateUndo();
-    invalidateRedo();
+    clearUndo();
 
     return readFromJson(json, bUpdateGui);
 }
@@ -159,56 +158,92 @@ QString AConfig::tryReadFromJson(const QJsonObject & json)
     return "";
 }
 
+ // ---- undo related ----
+
 void AConfig::createUndo()
 {
+    if (A3Global::getConstInstance().UndoMaxDepth == 0)
+    {
+        qDebug() << "-> Undo/redo system is desabled, nothing to do";
+        return;
+    }
+
     updateJSONfromConfig();
 
-    A3Global & GS = A3Global::getInstance();
-    QString fn = GS.QuicksaveDir + "/undo.json";
-    jstools::saveJsonToFile(JSON, fn);
+    UndoConfigs.insert(UndoConfigs.begin(), JSON);
+    qDebug() << "Undo created, UndoConfig length:" << UndoConfigs.size();
+    if (UndoConfigs.size() > A3Global::getConstInstance().UndoMaxDepth)
+    {
+        qDebug() << "UndoConfigs max reached, resizing to UndoMaxDepth of " << A3Global::getConstInstance().UndoMaxDepth;
+        UndoConfigs.resize(A3Global::getConstInstance().UndoMaxDepth);
+    }
+
+    UndoCurrentPosition = 0;
 }
 
 bool AConfig::isUndoAvailable() const
 {
-    A3Global & GS = A3Global::getInstance();
-    QFile qf(GS.QuicksaveDir + "/undo.json");
-    return qf.exists();
+    if (UndoCurrentPosition < 0) return false;
+    return (UndoCurrentPosition < UndoConfigs.size() - 1);
 }
 
 bool AConfig::isRedoAvailable() const
 {
-    A3Global & GS = A3Global::getInstance();
-    QFile qf(GS.QuicksaveDir + "/redo.json");
-    return qf.exists();
+    if (UndoCurrentPosition < 0) return false;
+    return (UndoCurrentPosition > 0);
 }
 
-void AConfig::invalidateUndo()
+void AConfig::clearUndo()
 {
-    A3Global & GS = A3Global::getInstance();
-    QFile qf(GS.QuicksaveDir + "/undo.json");
-    qf.remove();
-}
-
-void AConfig::invalidateRedo()
-{
-    A3Global & GS = A3Global::getInstance();
-    QFile qf(GS.QuicksaveDir + "/redo.json");
-    qf.remove();
+    UndoCurrentPosition = -1;
+    UndoConfigs.clear();
 }
 
 QString AConfig::doUndo()
 {
-    A3Global & GS = A3Global::getInstance();
-    save(GS.QuicksaveDir + "/redoTmp.json");
-    QString ErrorString = load(GS.QuicksaveDir + "/undo.json", true);
-    QFile qf(GS.QuicksaveDir + "/redoTmp.json");
-    qf.rename(GS.QuicksaveDir + "/redo.json");
-    return ErrorString;
+    if (UndoCurrentPosition < 0) return "No undo configurations are available";
+    if (UndoCurrentPosition >= UndoConfigs.size()-1) return "Cannot undo: already at the last remembered config";
+
+    qDebug() << "-->Doing undo...";
+    UndoCurrentPosition++;
+    qDebug() << "> New Undo current position:" << UndoCurrentPosition;
+    readFromJson(UndoConfigs[UndoCurrentPosition], true);
+    qDebug() << "> JSON loaded";
+    return "";
 }
 
 QString AConfig::doRedo()
 {
-    A3Global & GS = A3Global::getInstance();
-    QString ErrorString = load(GS.QuicksaveDir + "/redo.json", true);
-    return ErrorString;
+    if (UndoCurrentPosition < 0) return "No undo/redo configurations are available";
+    if (UndoCurrentPosition == 0) return "Cannot redo: Already at the last available configuration";
+
+    qDebug() << "-->Doing undo...";
+    UndoCurrentPosition--;
+    qDebug() << "> New Undo current position:" << UndoCurrentPosition;
+    readFromJson(UndoConfigs[UndoCurrentPosition], true);
+    qDebug() << "> JSON loaded";
+    return "";
 }
+
+void AConfig::updateUndoMaxDepth(int newDepth)
+{
+    if (newDepth == A3Global::getConstInstance().UndoMaxDepth) return;
+
+    if (newDepth == 0)
+    {
+        UndoConfigs.clear();
+        UndoCurrentPosition = -1;
+    }
+    else if (newDepth > A3Global::getConstInstance().UndoMaxDepth)
+    {
+        // nothing special to do
+    }
+    else // newDepth < UndoMaxDepth,  but not zero
+    {
+        if (UndoConfigs.size() > newDepth) UndoConfigs.resize(newDepth);
+        if (UndoCurrentPosition > newDepth-1) UndoCurrentPosition = newDepth-1;
+    }
+    A3Global::getInstance().UndoMaxDepth = newDepth;
+}
+
+// ----

@@ -558,10 +558,6 @@ void AGeoTree::customMenuRequested(const QPoint &pos)
   QAction* SelectedAction = menu.exec(twGeoTree->mapToGlobal(pos));
   if (!SelectedAction) return;
 
-  // undo
-  if (SelectedAction != focusObjA && SelectedAction != showA && SelectedAction != showAonly && SelectedAction != showAdown)
-      AConfig::getInstance().createUndo();
-
   // -- EXECUTE SELECTED ACTION --
   if      (SelectedAction == focusObjA)      focusObject(objName);
   else if (SelectedAction == showA)          ShowObject(obj);
@@ -734,9 +730,6 @@ void AGeoTree::customProtoMenuRequested(const QPoint & pos)
 
     QAction * SelectedAction = menu.exec(twPrototypes->mapToGlobal(pos));
     if (!SelectedAction) return; //nothing was selected
-
-    // undo
-    if (SelectedAction != showAllA) AConfig::getInstance().createUndo();
 
     // -- EXECUTE SELECTED ACTION --
     if      (SelectedAction == showAllA)       ShowAllInstances(obj);

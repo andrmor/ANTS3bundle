@@ -55,6 +55,7 @@ public:
 
     // GeoTreeWindow
     bool NewGeoObjectAddedLast = false;
+    int  UndoMaxDepth = 10;
 
     QJsonObject TrackVisAttributes;
 

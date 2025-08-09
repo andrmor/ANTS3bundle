@@ -183,6 +183,7 @@ void AMainWindow::onRebuildGeometryRequested()
 {
     AGeometryHub & geom = AGeometryHub::getInstance();
     geom.populateGeoManager();
+
     GeoTreeWin->updateGui();
     MatWin->updateGui();
     RuleWin->updateGui();
@@ -655,10 +656,9 @@ void AMainWindow::on_pbNew_clicked()
 
     Config.ConfigName = "";
     Config.ConfigDescription = "";
-
     Config.replaceEmptyOutputDirsWithTemporary();
-
-    AConfig::getInstance().updateJSONfromConfig();
+    Config.updateJSONfromConfig();
+    Config.clearUndo();
 
     updateAllGuiFromConfig();
 }

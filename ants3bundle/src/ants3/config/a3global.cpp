@@ -104,6 +104,7 @@ void A3Global::saveConfig()
     json["TrackVisAttributes"] = TrackVisAttributes;
 
     json["NewGeoObjectAddedLast"] = NewGeoObjectAddedLast;
+    json["UndoMaxDepth"] = UndoMaxDepth;
 
     // Web server
     {
@@ -181,6 +182,7 @@ void A3Global::loadConfig()
     jstools::parseJson(json, "TrackVisAttributes", TrackVisAttributes);
 
     jstools::parseJson(json, "NewGeoObjectAddedLast", NewGeoObjectAddedLast);
+    jstools::parseJson(json, "UndoMaxDepth", UndoMaxDepth);
 
     // Web server
     {
