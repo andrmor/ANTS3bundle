@@ -1236,7 +1236,8 @@ bool AGeoObject::isMaterialInUse(int imat, QString & volName) const
 {
     if (Material == imat)
     {
-        if ( !Type->isGridElement() && !Type->isCompositeContainer() && !Type->isPrototypeCollection())
+        if ( !Type->isGridElement() && !Type->isPrototypeCollection() &&
+             !Type->isHandlingSet() && !Type->isHandlingArray() )
         {
             volName = Name;
             return true;
