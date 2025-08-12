@@ -21,6 +21,66 @@ using JsonObject =
     QJsonObject;
 #endif
 
+AParticleSourceRecordBase * AParticleSourceRecordBase::factory(std::string sourceType)
+{
+    if      (sourceType == AParticleSourceRecord_Standard().getType()) return new AParticleSourceRecord_Standard();
+    else if (sourceType == AParticleSourceRecord_EcoMug().getType())   return new AParticleSourceRecord_EcoMug();
+    return nullptr;
+}
+
+#ifdef JSON11
+AParticleSourceRecordBase * AParticleSourceRecordBase::factory(const json11::Json::object & json)
+#else
+AParticleSourceRecordBase * AParticleSourceRecordBase::factory(const QJsonObject & json)
+#endif
+{
+    // compatibility: the old system had only standard sources, so "Type" key can be absent
+    std::string sourceType = AParticleSourceRecord_Standard().getType();
+
+    jstools::parseJson(json, "Type", sourceType); // can be absent!
+    AParticleSourceRecordBase * ptr = AParticleSourceRecordBase::factory(sourceType);
+    if (!ptr) return nullptr;
+
+    ptr->readFromJson(json);
+    return ptr;
+}
+
+void AParticleSourceRecordBase::clear()
+{
+    Name     = "No_name";
+    Activity = 1.0;
+
+    doClear();
+}
+
+#ifndef JSON11
+void AParticleSourceRecordBase::writeToJson(QJsonObject & json) const
+{
+    json["Type"]     = QString(getType().data());
+
+    json["Name"]     = QString(Name.data());
+    json["Activity"] = Activity;
+
+    doWriteToJson(json);
+}
+#endif
+
+#ifdef JSON11
+bool AParticleSourceRecordBase::readFromJson(const json11::Json::object & json)
+#else
+bool AParticleSourceRecordBase::readFromJson(const JsonObject & json)
+#endif
+{
+    clear();
+
+    jstools::parseJson(json, "Name",     Name);
+    jstools::parseJson(json, "Activity", Activity);
+
+    return doReadFromJson(json);
+}
+
+// ----------
+
 std::string AGunParticle::configureEnergySampler()
 {
     _EnergySampler.clear();
@@ -182,13 +242,11 @@ bool AGunParticle::readFromJson(const JsonObject & json)
     return true;
 }
 
-// ---------------------- AParticleSourceRecord ----------------------
+// ---------------------- AParticleSourceRecord_Standard----------------------
 
-void AParticleSourceRecord::clear()
+void AParticleSourceRecord_Standard::doClear()
 {
-    Name     = "No_name";
-    Activity = 1.0;
-    Shape    = Point;
+    Shape = Point;
 
     X0    = 0;
     Y0    = 0;
@@ -234,7 +292,7 @@ void AParticleSourceRecord::clear()
     Particles.clear();
 }
 
-std::string AParticleSourceRecord::timeUnitsToString(AParticleSourceRecord::ETimeUnits timeUnits) const
+std::string AParticleSourceRecord_Standard::timeUnitsToString(AParticleSourceRecord_Standard::ETimeUnits timeUnits) const
 {
     switch (timeUnits)
     {
@@ -252,11 +310,8 @@ std::string AParticleSourceRecord::timeUnitsToString(AParticleSourceRecord::ETim
 }
 
 #ifndef JSON11
-void AParticleSourceRecord::writeToJson(QJsonObject & json) const
+void AParticleSourceRecord_Standard::doWriteToJson(QJsonObject & json) const
 {
-    json["Name"]     = QString(Name.data());
-    json["Activity"] = Activity;
-
     // Spatial properties
     {
         QJsonObject js;
@@ -339,7 +394,7 @@ void AParticleSourceRecord::writeToJson(QJsonObject & json) const
                 case FixedOffset              : str = "Fixed";        break;
                 case ByEventIndexOffset       : str = "ByEventIndex"; break;
                 case CustomDistributionOffset : str = "Custom";       break;
-                default : qCritical() << "Not implemented TimeOffsetMode in AParticleSourceRecord::writeToJson"; exit(111);
+                default : qCritical() << "Not implemented TimeOffsetMode in AParticleSourceRecord_Standard::writeToJson"; exit(111);
                 }
             js["OffsetMode"]    = str;
             js["FixedOffset"]   = TimeFixedOffset;
@@ -354,7 +409,7 @@ void AParticleSourceRecord::writeToJson(QJsonObject & json) const
                 case GaussianSpread    : str = "Gaussian";    break;
                 case UniformSpread     : str = "Uniform";     break;
                 case ExponentialSpread : str = "Exponential"; break;
-                default : qCritical() << "Not implemented TimeSpreadMode in AParticleSourceRecord::writeToJson"; exit(111);
+                default : qCritical() << "Not implemented TimeSpreadMode in AParticleSourceRecord_Standard::writeToJson"; exit(111);
                 }
             js["SpreadMode"]     = str;
             js["SpreadSigma"]    = TimeSpreadSigma;
@@ -383,7 +438,7 @@ void AParticleSourceRecord::writeToJson(QJsonObject & json) const
 }
 #endif
 
-AParticleSourceRecord::ETimeUnits AParticleSourceRecord::strToTimeUnits(const std::string & str) const
+AParticleSourceRecord_Standard::ETimeUnits AParticleSourceRecord_Standard::strToTimeUnits(const std::string & str) const
 {
     if      (str == "ns")  return ns;
     else if (str == "us")  return us;
@@ -396,13 +451,12 @@ AParticleSourceRecord::ETimeUnits AParticleSourceRecord::strToTimeUnits(const st
     return ns;
 }
 
-bool AParticleSourceRecord::readFromJson(const JsonObject & json)
+#ifdef JSON11
+bool AParticleSourceRecord_Standard::doReadFromJson(const json11::Json::object & json)
+#else
+bool AParticleSourceRecord_Standard::doReadFromJson(const JsonObject & json)
+#endif
 {
-    clear();
-
-    jstools::parseJson(json, "Name",     Name);
-    jstools::parseJson(json, "Activity", Activity);
-
     // Spatial properties
     {
         JsonObject js;
@@ -564,21 +618,7 @@ bool AParticleSourceRecord::readFromJson(const JsonObject & json)
     return true;
 }
 
-std::string AParticleSourceRecord::getShapeString() const
-{
-    switch (Shape)
-    {
-    case Point     : return "Point";
-    case Line      : return "Line";
-    case Rectangle : return "Rectangle";
-    case Round     : return "Round";
-    case Box       : return "Box";
-    case Cylinder  : return "Cylinder";
-    }
-    return "UnknownShape";
-}
-
-bool AParticleSourceRecord::isDirectional() const
+bool AParticleSourceRecord_Standard::isDirectional() const
 {
     switch (AngularMode)
     {
@@ -590,7 +630,7 @@ bool AParticleSourceRecord::isDirectional() const
     }
 }
 
-std::string AParticleSourceRecord::check() const
+std::string AParticleSourceRecord_Standard::check() const
 {
     if (Activity < 0)  return "Negative activity";
 
@@ -628,7 +668,7 @@ std::string AParticleSourceRecord::check() const
     }
     if (UseCutOff && CutOff < 0) return "Negative cut-off angle";
 
-    if (TimeOffsetMode == AParticleSourceRecord::CustomDistributionOffset)
+    if (TimeOffsetMode == AParticleSourceRecord_Standard::CustomDistributionOffset)
     {
         if (!_TimeSampler.isReady()) return "Time sampler is not ready: Check custom time offset distribution";
     }
@@ -683,23 +723,147 @@ std::string AParticleSourceRecord::check() const
     return "";
 }
 
-std::string AParticleSourceRecord::configureAngularSampler()
+std::string AParticleSourceRecord_Standard::getShortDescription() const
+{
+    std::string str;
+    switch (Shape)
+    {
+    case Point     : str = "Point"; break;
+    case Line      : str = "Line"; break;
+    case Rectangle : str = "Rectangle"; break;
+    case Round     : str = "Round"; break;
+    case Box       : str = "Box"; break;
+    case Cylinder  : str = "Cylinder"; break;
+    default        : str = "UnknownShape"; break;
+    }
+
+    str += ", ";
+
+    if (Particles.size() == 1) str += Particles.front().Particle.data();
+    else str += std::to_string(Particles.size()) + " particles";
+
+    return str;
+}
+
+std::string AParticleSourceRecord_Standard::configureAngularSampler()
 {
     _AngularSampler.clear();
     if (AngularMode != CustomAngular) return "";
     return _AngularSampler.configure(AngularDistribution, false);
 }
 
-std::string AParticleSourceRecord::configureTimeSampler()
+std::string AParticleSourceRecord_Standard::configureTimeSampler()
 {
     _TimeSampler.clear();
     if (TimeOffsetMode != CustomDistributionOffset) return "";
     return _TimeSampler.configure(TimeDistribution, false);
 }
 
-std::string AParticleSourceRecord::configureAxialSampler()
+std::string AParticleSourceRecord_Standard::configureAxialSampler()
 {
     _AxialSampler.clear();
     if (AxialDistributionType != CustomAxial) return "";
     return _AxialSampler.configure(AxialDistribution);
+}
+
+// ---------------
+
+void AParticleSourceRecord_EcoMug::doClear()
+{
+    Shape = Rectangle;
+
+    Size1 = 50.0;
+    Size2 = 50.0;
+
+    X0 = 0;
+    Y0 = 0;
+    Z0 = 0;
+}
+
+std::string AParticleSourceRecord_EcoMug::check() const
+{
+    switch (Shape)
+    {
+    case Rectangle:
+        if (Size1 <= 0) return "Size1 has to be positive";
+        if (Size2 <= 0) return "Size2 has to be positive";
+        break;
+    case Cylinder:
+        if (Size1 <= 0) return "Radius has to be positive";
+        if (Size2 <= 0) return "Height has to be positive";
+        break;
+    case HalfSphere:
+        if (Size1 <= 0) return "Radius has to be positive";
+        break;
+    }
+
+    return "";
+}
+
+std::string AParticleSourceRecord_EcoMug::getShortDescription() const
+{
+    std::string str;
+    switch (Shape)
+    {
+    case Rectangle  : str = "Rectangle";  break;
+    case Cylinder   : str = "Cylinder";   break;
+    case HalfSphere : str = "HalfSphere"; break;
+    default         : str = "UnknownShape"; break;
+    }
+    str += ", muons";
+    return str;
+}
+
+#ifndef JSON11
+void AParticleSourceRecord_EcoMug::doWriteToJson(QJsonObject & json) const
+{
+    QString str;
+    switch (Shape)
+    {
+    case Rectangle  : str = "Rectangle";  break;
+    case Cylinder   : str = "Cylinder";   break;
+    case HalfSphere : str = "HalfSphere"; break;
+    }
+    json["Shape"] = str;
+
+    json["Size1"] = Size1;
+    json["Size2"] = Size2;
+
+    json["Position"] = QJsonArray{X0, Y0, Z0};
+}
+#endif
+
+#ifdef JSON11
+bool AParticleSourceRecord_EcoMug::doReadFromJson(const json11::Json::object & json)
+#else
+bool AParticleSourceRecord_EcoMug::doReadFromJson(const JsonObject & json)
+#endif
+{
+    std::string str;
+    jstools::parseJson(json, "Shape", str);
+
+    if      (str == "Rectangle")  Shape = Rectangle;
+    else if (str == "Cylinder")   Shape = Cylinder;
+    else if (str == "HalfSphere") Shape = HalfSphere;
+    else ; // !!!*** error
+
+    JsonArray pjs;
+    jstools::parseJson(json, "Position", pjs);
+    if (pjs.size() == 3)
+    {
+#ifdef JSON11
+        X0 = pjs[0].number_value();
+        Y0 = pjs[1].number_value();
+        Z0 = pjs[2].number_value();
+#else
+        X0 = pjs[0].toDouble();
+        Y0 = pjs[1].toDouble();
+        Z0 = pjs[2].toDouble();
+#endif
+    }
+    else ; // !!!*** error
+
+    jstools::parseJson(json, "Size1", Size1);
+    jstools::parseJson(json, "Size2", Size2);
+    return true;
 }

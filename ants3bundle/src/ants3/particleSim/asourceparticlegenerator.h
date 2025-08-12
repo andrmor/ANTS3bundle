@@ -10,7 +10,6 @@
 #include <functional>
 
 class  ASourceGeneratorSettings;
-struct AParticleSourceRecord;
 class  ARandomHub;
 class  G4Navigator;
 class  G4Material;
@@ -29,6 +28,10 @@ public:
     bool bWasGenerated = false;
     double TimeStamp = 0;
 };
+
+struct AParticleSourceRecord_Standard;
+struct AParticleSourceRecord_EcoMug;
+class EcoMug;
 
 class ASourceParticleGenerator : public AParticleGun
 {
@@ -62,17 +65,21 @@ private:
     std::vector<int>         LimitedToMat;
 #endif
 
+    std::vector<EcoMug*> EcoMugGenerators;
+
     void   updateLimitedToMat();
 
     int    selectNumberOfPrimaries() const;
     int    selectSource() const;   // !!!*** to size_t
-    size_t selectParticle(int iSource) const;
-    bool   selectPosition(int iSource, double * R) const;
-    void   generateDirection(size_t iSource, bool forceIsotropic, double * direction) const;
-    void   doGeneratePosition(const AParticleSourceRecord & rec, double * R) const;
-    double selectTime(const AParticleSourceRecord & Source, int iEvent);
-    void   addGeneratedParticle(int iSource, int iParticle, double * position, double time, bool forceIsotropic, std::function<void(const AParticleRecord&)> handler);
-    void   processSpecialParticle(const AGunParticle & particle, int iSource, double * position, double time, bool forceIsotropic, std::function<void (const AParticleRecord &)> handler);
+    size_t selectParticle(int iSource, AParticleSourceRecord_Standard * source) const;
+    bool   selectPosition(int iSource, AParticleSourceRecord_Standard * source, double * R) const;
+    void   generateDirection(size_t iSource, AParticleSourceRecord_Standard * source, bool forceIsotropic, double * direction) const;
+    void   doGeneratePosition(AParticleSourceRecord_Standard * source, double * R) const;
+    double selectTime(AParticleSourceRecord_Standard * source, int iEvent);
+    void   addGeneratedParticle(int iSource, AParticleSourceRecord_Standard * source, int iParticle, double * position, double time, bool forceIsotropic, std::function<void(const AParticleRecord&)> handler);
+    void   processSpecialParticle(const AGunParticle & particle, AParticleSourceRecord_Standard * source, double * position, double time, bool forceIsotropic, std::function<void (const AParticleRecord &)> handler);
+    bool   generatePrimary_StandardSource(int iSource, AParticleSourceRecord_Standard * source, std::function<void (const AParticleRecord &)> handler, int iEvent);
+    bool   generatePrimary_EcoMugSource(int iSource, AParticleSourceRecord_EcoMug * source, std::function<void (const AParticleRecord &)> handler);
 };
 
 #endif // ASOURCEPARTICLEGENERATOR_H

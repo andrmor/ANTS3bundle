@@ -17,8 +17,8 @@
 #include "TH1D.h"
 #include "TGraph.h"
 
-AParticleSourceDialog::AParticleSourceDialog(const AParticleSourceRecord & Rec, QWidget * parent) :
-    QDialog(parent),
+AParticleSourceDialog::AParticleSourceDialog(const AParticleSourceRecord_Standard & Rec, QWidget * parent) :
+    AParticleSourceDialogBase(parent),
     LocalRec(Rec), OriginalRec(Rec),
     ui(new Ui::AParticleSourceDialog)
 {
@@ -52,8 +52,8 @@ AParticleSourceDialog::AParticleSourceDialog(const AParticleSourceRecord & Rec, 
     int index = 0;
     switch (Rec.AxialDistributionType)
     {
-    case AParticleSourceRecord::GaussAxial  : index = 0; break;
-    case AParticleSourceRecord::CustomAxial : index = 1; break;
+    case AParticleSourceRecord_Standard::GaussAxial  : index = 0; break;
+    case AParticleSourceRecord_Standard::CustomAxial : index = 1; break;
     default: guitools::message("Unknown axial distribution type, setting to Gauss!", this);
     }
     ui->cobAxialDistributionType->setCurrentIndex(index);
@@ -67,10 +67,10 @@ AParticleSourceDialog::AParticleSourceDialog(const AParticleSourceRecord & Rec, 
     index = 0;
     switch (Rec.AngularMode)
     {
-    case AParticleSourceRecord::Isotropic       : index = 0; break;
-    case AParticleSourceRecord::FixedDirection  : index = 1; break;
-    case AParticleSourceRecord::GaussDispersion : index = 2; break;
-    case AParticleSourceRecord::CustomAngular   : index = 3; break;
+    case AParticleSourceRecord_Standard::Isotropic       : index = 0; break;
+    case AParticleSourceRecord_Standard::FixedDirection  : index = 1; break;
+    case AParticleSourceRecord_Standard::GaussDispersion : index = 2; break;
+    case AParticleSourceRecord_Standard::CustomAngular   : index = 3; break;
     default : guitools::message("Unknown angular mode, setting to Isotropic!", this);
     }
     ui->cobAngularMode->setCurrentIndex(index);
@@ -92,9 +92,9 @@ AParticleSourceDialog::AParticleSourceDialog(const AParticleSourceRecord & Rec, 
     index = 0;
     switch (Rec.TimeOffsetMode)
     {
-    case AParticleSourceRecord::FixedOffset              : index = 0; break;
-    case AParticleSourceRecord::ByEventIndexOffset       : index = 1; break;
-    case AParticleSourceRecord::CustomDistributionOffset : index = 2; break;
+    case AParticleSourceRecord_Standard::FixedOffset              : index = 0; break;
+    case AParticleSourceRecord_Standard::ByEventIndexOffset       : index = 1; break;
+    case AParticleSourceRecord_Standard::CustomDistributionOffset : index = 2; break;
     default : guitools::message("Unknown TimeOffsetMode, setting to FixedOffset!", this);
     }
     ui->cobTimeAverageMode->setCurrentIndex(index);
@@ -108,10 +108,10 @@ AParticleSourceDialog::AParticleSourceDialog(const AParticleSourceRecord & Rec, 
     index = 0;
     switch (Rec.TimeSpreadMode)
     {
-    case AParticleSourceRecord::NoSpread          : index = 0; break;
-    case AParticleSourceRecord::GaussianSpread    : index = 1; break;
-    case AParticleSourceRecord::UniformSpread     : index = 2; break;
-    case AParticleSourceRecord::ExponentialSpread : index = 3; break;
+    case AParticleSourceRecord_Standard::NoSpread          : index = 0; break;
+    case AParticleSourceRecord_Standard::GaussianSpread    : index = 1; break;
+    case AParticleSourceRecord_Standard::UniformSpread     : index = 2; break;
+    case AParticleSourceRecord_Standard::ExponentialSpread : index = 3; break;
     default : guitools::message("Unknown TimeSpreadMode, setting to NoSpread!", this);
     }
     ui->cobTimeSpreadMode->setCurrentIndex(index);
@@ -161,9 +161,13 @@ void AParticleSourceDialog::restorePersistentSettings()
     settings.endGroup();
 }
 
-AParticleSourceRecord & AParticleSourceDialog::getResult()
+AParticleSourceRecordBase * AParticleSourceDialog::getResult()
 {
-    return LocalRec;
+    AParticleSourceRecord_Standard * rec = new AParticleSourceRecord_Standard();
+    QJsonObject json;
+    LocalRec.writeToJson(json);
+    rec->readFromJson(json);
+    return rec;
 }
 
 void AParticleSourceDialog::closeEvent(QCloseEvent *e)
@@ -208,8 +212,8 @@ void AParticleSourceDialog::on_pbGunTest_clicked()
     if (ui->pbShowSource->isChecked()) AParticleSourcePlotter::plotSource(LocalRec);
 
     ASourceGeneratorSettings settings;
-    settings.SourceData.push_back(LocalRec);
-    settings.SourceData.back().Activity = 1.0;
+    settings.SourceData.push_back(&LocalRec);
+    settings.SourceData.back()->Activity = 1.0;
     ASourceParticleGenerator gun(settings);
 
     auto abort = [&gun]{gun.AbortRequested = true;};
@@ -435,12 +439,12 @@ void AParticleSourceDialog::on_pbUpdateRecord_clicked()
 
     switch (ui->cobGunSourceType->currentIndex())
     {
-    case 0 : LocalRec.Shape = AParticleSourceRecord::Point;     break;
-    case 1 : LocalRec.Shape = AParticleSourceRecord::Line;      break;
-    case 2 : LocalRec.Shape = AParticleSourceRecord::Rectangle; break;
-    case 3 : LocalRec.Shape = AParticleSourceRecord::Round;     break;
-    case 4 : LocalRec.Shape = AParticleSourceRecord::Box;       break;
-    case 5 : LocalRec.Shape = AParticleSourceRecord::Cylinder;  break;
+    case 0 : LocalRec.Shape = AParticleSourceRecord_Standard::Point;     break;
+    case 1 : LocalRec.Shape = AParticleSourceRecord_Standard::Line;      break;
+    case 2 : LocalRec.Shape = AParticleSourceRecord_Standard::Rectangle; break;
+    case 3 : LocalRec.Shape = AParticleSourceRecord_Standard::Round;     break;
+    case 4 : LocalRec.Shape = AParticleSourceRecord_Standard::Box;       break;
+    case 5 : LocalRec.Shape = AParticleSourceRecord_Standard::Cylinder;  break;
     }
 
     LocalRec.Size1 = 0.5 * ui->ledGun1DSize->text().toDouble();
@@ -457,8 +461,8 @@ void AParticleSourceDialog::on_pbUpdateRecord_clicked()
     LocalRec.UseAxialDistribution = ui->cbAxialDistribution->isChecked();
     switch (ui->cobAxialDistributionType->currentIndex())
     {
-    case 0 : LocalRec.AxialDistributionType = AParticleSourceRecord::GaussAxial;  break;
-    case 1 : LocalRec.AxialDistributionType = AParticleSourceRecord::CustomAxial; break;
+    case 0 : LocalRec.AxialDistributionType = AParticleSourceRecord_Standard::GaussAxial;  break;
+    case 1 : LocalRec.AxialDistributionType = AParticleSourceRecord_Standard::CustomAxial; break;
     default: qWarning() << "Not implemented AxialDistributionType";
     }
     LocalRec.AxialDistributionSigma = ui->ledAxialDistributionSigma->text().toDouble();
@@ -470,13 +474,13 @@ void AParticleSourceDialog::on_pbUpdateRecord_clicked()
 
     switch (ui->cobAngularMode->currentIndex())
     {
-    case 0 : LocalRec.AngularMode = AParticleSourceRecord::Isotropic;  break;
-    case 1 : LocalRec.AngularMode = AParticleSourceRecord::FixedDirection;  break;
-    case 2 : LocalRec.AngularMode = AParticleSourceRecord::GaussDispersion; break;
-    case 3 : LocalRec.AngularMode = AParticleSourceRecord::CustomAngular;   break;
+    case 0 : LocalRec.AngularMode = AParticleSourceRecord_Standard::Isotropic;  break;
+    case 1 : LocalRec.AngularMode = AParticleSourceRecord_Standard::FixedDirection;  break;
+    case 2 : LocalRec.AngularMode = AParticleSourceRecord_Standard::GaussDispersion; break;
+    case 3 : LocalRec.AngularMode = AParticleSourceRecord_Standard::CustomAngular;   break;
     default:
         qWarning() << "Unknown angular mode!";
-        LocalRec.AngularMode = AParticleSourceRecord::Isotropic;
+        LocalRec.AngularMode = AParticleSourceRecord_Standard::Isotropic;
     }
     LocalRec.DispersionSigma = ui->ledAngularSigma->text().toDouble();
     LocalRec.DirectionBySphericalAngles = (ui->cobAngularSphericalOrVector->currentIndex() == 0);
@@ -490,12 +494,12 @@ void AParticleSourceDialog::on_pbUpdateRecord_clicked()
 
     switch (ui->cobTimeAverageMode->currentIndex())
     {
-    case 0  : LocalRec.TimeOffsetMode = AParticleSourceRecord::FixedOffset;              break;
-    case 1  : LocalRec.TimeOffsetMode = AParticleSourceRecord::ByEventIndexOffset;       break;
-    case 2  : LocalRec.TimeOffsetMode = AParticleSourceRecord::CustomDistributionOffset; break;
+    case 0  : LocalRec.TimeOffsetMode = AParticleSourceRecord_Standard::FixedOffset;              break;
+    case 1  : LocalRec.TimeOffsetMode = AParticleSourceRecord_Standard::ByEventIndexOffset;       break;
+    case 2  : LocalRec.TimeOffsetMode = AParticleSourceRecord_Standard::CustomDistributionOffset; break;
     default :
         qWarning() << "Unknown time offset mode!";
-        LocalRec.TimeOffsetMode = AParticleSourceRecord::FixedOffset;
+        LocalRec.TimeOffsetMode = AParticleSourceRecord_Standard::FixedOffset;
     }
     //LocalRec.TimeFixedOffset = ui->ledTimeAverageFixed->text().toDouble();
     readTimeWithUnits(ui->ledTimeAverageFixed,    ui->cobTimeFixedOffsetPrefUnit,   LocalRec.TimeFixedOffset,   LocalRec.TimeFixedOffsetPrefUnit);
@@ -505,13 +509,13 @@ void AParticleSourceDialog::on_pbUpdateRecord_clicked()
     readTimeWithUnits(ui->ledTimeAveragePeriod,   ui->cobTimeByEventPeriodPrefUnit, LocalRec.TimeByEventPeriod, LocalRec.TimeByEventPeriodPrefUnit);
     switch (ui->cobTimeSpreadMode->currentIndex())
     {
-    case 0  : LocalRec.TimeSpreadMode = AParticleSourceRecord::NoSpread;          break;
-    case 1  : LocalRec.TimeSpreadMode = AParticleSourceRecord::GaussianSpread;    break;
-    case 2  : LocalRec.TimeSpreadMode = AParticleSourceRecord::UniformSpread;     break;
-    case 3  : LocalRec.TimeSpreadMode = AParticleSourceRecord::ExponentialSpread; break;
+    case 0  : LocalRec.TimeSpreadMode = AParticleSourceRecord_Standard::NoSpread;          break;
+    case 1  : LocalRec.TimeSpreadMode = AParticleSourceRecord_Standard::GaussianSpread;    break;
+    case 2  : LocalRec.TimeSpreadMode = AParticleSourceRecord_Standard::UniformSpread;     break;
+    case 3  : LocalRec.TimeSpreadMode = AParticleSourceRecord_Standard::ExponentialSpread; break;
     default :
         qWarning() << "Unknown time spread mode!";
-        LocalRec.TimeSpreadMode = AParticleSourceRecord::NoSpread;
+        LocalRec.TimeSpreadMode = AParticleSourceRecord_Standard::NoSpread;
     }
     //LocalRec.TimeSpreadSigma = ui->ledTimeSpreadSigma->text().toDouble();
     readTimeWithUnits(ui->ledTimeSpreadSigma,    ui->cobTimeSpreadSigmaPrefUnit, LocalRec.TimeSpreadSigma,    LocalRec.TimeSpreadSigmaPrefUnit);
@@ -745,18 +749,18 @@ void AParticleSourceDialog::on_leSourceLimitMaterial_textEdited(const QString &)
     updateColorLimitingMat();
 }
 
-void AParticleSourceDialog::updateTimeWithUnitsIndication(double time_ns, AParticleSourceRecord::ETimeUnits prefUnits, QLineEdit * led, QComboBox * cob)
+void AParticleSourceDialog::updateTimeWithUnitsIndication(double time_ns, AParticleSourceRecord_Standard::ETimeUnits prefUnits, QLineEdit * led, QComboBox * cob)
 {
     int index = 0;
     double factor = 1.0;
     switch (prefUnits)
     {
-    case AParticleSourceRecord::ns  : index = 0; factor = 1.0;    break;
-    case AParticleSourceRecord::us  : index = 1; factor = 1e3;    break;
-    case AParticleSourceRecord::ms  : index = 2; factor = 1e6;    break;
-    case AParticleSourceRecord::s   : index = 3; factor = 1e9;    break;
-    case AParticleSourceRecord::min : index = 4; factor = 60e9;   break;
-    case AParticleSourceRecord::h   : index = 5; factor = 3600e9; break;
+    case AParticleSourceRecord_Standard::ns  : index = 0; factor = 1.0;    break;
+    case AParticleSourceRecord_Standard::us  : index = 1; factor = 1e3;    break;
+    case AParticleSourceRecord_Standard::ms  : index = 2; factor = 1e6;    break;
+    case AParticleSourceRecord_Standard::s   : index = 3; factor = 1e9;    break;
+    case AParticleSourceRecord_Standard::min : index = 4; factor = 60e9;   break;
+    case AParticleSourceRecord_Standard::h   : index = 5; factor = 3600e9; break;
     default :
         qWarning() << "Not impelmented ETimeUnits enum value in updateTimeWithUnitsIndication";
         index = 0; factor = 1.0;
@@ -766,21 +770,21 @@ void AParticleSourceDialog::updateTimeWithUnitsIndication(double time_ns, AParti
     cob->setCurrentIndex(index);
 }
 
-void AParticleSourceDialog::readTimeWithUnits(QLineEdit * led, QComboBox * cob, double & time_ns, AParticleSourceRecord::ETimeUnits & prefUnits)
+void AParticleSourceDialog::readTimeWithUnits(QLineEdit * led, QComboBox * cob, double & time_ns, AParticleSourceRecord_Standard::ETimeUnits & prefUnits)
 {
-    AParticleSourceRecord::ETimeUnits e = AParticleSourceRecord::ns;
+    AParticleSourceRecord_Standard::ETimeUnits e = AParticleSourceRecord_Standard::ns;
     double factor = 1.0;
     switch (cob->currentIndex())
     {
-    case 0 : e = AParticleSourceRecord::ns;  factor = 1.0;    break;
-    case 1 : e = AParticleSourceRecord::us;  factor = 1e3;    break;
-    case 2 : e = AParticleSourceRecord::ms;  factor = 1e6;    break;
-    case 3 : e = AParticleSourceRecord::s;   factor = 1e9;    break;
-    case 4 : e = AParticleSourceRecord::min; factor = 60e9;   break;
-    case 5 : e = AParticleSourceRecord::h;   factor = 3600e9; break;
+    case 0 : e = AParticleSourceRecord_Standard::ns;  factor = 1.0;    break;
+    case 1 : e = AParticleSourceRecord_Standard::us;  factor = 1e3;    break;
+    case 2 : e = AParticleSourceRecord_Standard::ms;  factor = 1e6;    break;
+    case 3 : e = AParticleSourceRecord_Standard::s;   factor = 1e9;    break;
+    case 4 : e = AParticleSourceRecord_Standard::min; factor = 60e9;   break;
+    case 5 : e = AParticleSourceRecord_Standard::h;   factor = 3600e9; break;
     default :
         qWarning() << "Not implemented ETimeUnits enum value in readTimeWithUnits";
-        e = AParticleSourceRecord::ns; factor = 1.0;
+        e = AParticleSourceRecord_Standard::ns; factor = 1.0;
     }
     time_ns = led->text().toDouble() * factor;
     prefUnits = e;

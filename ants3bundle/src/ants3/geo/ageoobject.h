@@ -140,7 +140,7 @@ public:
   void clearContent();
   void updateWorldSize(double& XYm, double& Zm);
   bool isMaterialInUse(int imat, QString & volName) const;  //including disabled objects
-  bool isMaterialInActiveUse(int imat) const;  //excluding disabled objects  !!!**** need? if yes, synchronize with previous
+  bool isMaterialInActiveUse(int imat) const;  //excluding disabled objects  !!!*** need? if yes, synchronize with previous
   void collectContainingObjects(std::vector<AGeoObject*> & vec) const;
   double getMaxSize() const;
 

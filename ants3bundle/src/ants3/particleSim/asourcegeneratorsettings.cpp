@@ -7,6 +7,7 @@
 
 void ASourceGeneratorSettings::clear()
 {
+    for (AParticleSourceRecordBase * rec : SourceData) delete rec;
     SourceData.clear();
 
     MultiEnabled   = false;
@@ -17,18 +18,18 @@ void ASourceGeneratorSettings::clear()
 double ASourceGeneratorSettings::calculateTotalActivity() const
 {
     double TotalActivity = 0;
-    for (const AParticleSourceRecord & r : SourceData)
-        TotalActivity += r.Activity;
+    for (const AParticleSourceRecordBase * r : SourceData)
+        TotalActivity += r->Activity;
     return TotalActivity;
 }
 
 bool ASourceGeneratorSettings::check() const
 {
     std::string Error;
-    for (const AParticleSourceRecord & ps : SourceData)
+    for (const AParticleSourceRecordBase * ps : SourceData)
     {
-        const std::string err = ps.check();
-        if (!err.empty()) Error += "Source " + ps.Name + ": " + err + "\n";
+        const std::string err = ps->check();
+        if (!err.empty()) Error += "Source " + ps->Name + ": " + err + "\n";
     }
 
     if (Error.empty()) return true;
@@ -39,19 +40,28 @@ bool ASourceGeneratorSettings::check() const
 
 bool ASourceGeneratorSettings::clone(int iSource)
 {
+#ifdef JSON11
+    return false;
+#else
     if (iSource < 0 || iSource >= (int)SourceData.size()) return false;
 
-    AParticleSourceRecord r = SourceData[iSource];
-    r.Name += "_c";
+    AParticleSourceRecordBase * r = SourceData[iSource];
+    r->Name += "_c";
 
-    SourceData.insert(SourceData.begin() + iSource + 1, r);
+    QJsonObject json;
+    r->writeToJson(json);
+    AParticleSourceRecordBase * clone = AParticleSourceRecordBase::factory(json);
+
+    SourceData.insert(SourceData.begin() + iSource + 1, clone);
     return true;
+#endif
 }
 
-bool ASourceGeneratorSettings::replace(int iSource, AParticleSourceRecord & source)
+bool ASourceGeneratorSettings::replace(int iSource, AParticleSourceRecordBase * source)
 {
     if (iSource < 0 || iSource >= (int)SourceData.size()) return false;
 
+    delete SourceData[iSource];
     SourceData[iSource] = source;
     return true;
 }
@@ -61,17 +71,18 @@ void ASourceGeneratorSettings::remove(int iSource)
     if (SourceData.empty()) return;
     if (iSource < 0 || iSource >= (int)SourceData.size()) return;
 
+    delete SourceData[iSource];
     SourceData.erase(SourceData.begin() + iSource);
 }
 
 #ifndef JSON11
-void ASourceGeneratorSettings::writeToJson(QJsonObject &json) const
+void ASourceGeneratorSettings::writeToJson(QJsonObject & json) const
 {
     QJsonArray ja;
-    for (const AParticleSourceRecord & ps : SourceData)
+    for (const AParticleSourceRecordBase * ps : SourceData)
     {
         QJsonObject js;
-            ps.writeToJson(js);
+            ps->writeToJson(js);
         ja.append(js);
     }
     json["ParticleSources"] = ja;
@@ -104,16 +115,13 @@ bool ASourceGeneratorSettings::readFromJson(const QJsonObject & json)
 #ifdef JSON11
         json11::Json::object js = ar[iSource].object_items();
 #else
-        QJsonObject js = ar.at(iSource).toObject();
+        QJsonObject js = ar[iSource].toObject();
 #endif
-        AParticleSourceRecord ps;
-        bool ok = ps.readFromJson(js);
-        if (ok)
-        {
-            SourceData.push_back(ps);
-        }
+        AParticleSourceRecordBase * ps = AParticleSourceRecordBase::factory(js);
+        if (ps) SourceData.push_back(ps);
         else
         {
+            AErrorHub::addError("Failed to load particle source");
             // Load particle source # << iSource << from json failed!
             return false;
         }

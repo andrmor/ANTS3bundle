@@ -14,7 +14,7 @@ class ASourceGeneratorSettings
 public:
     enum EMultiMode {Constant = 0, Poisson = 1};
 
-    std::vector<AParticleSourceRecord> SourceData;
+    std::vector<AParticleSourceRecordBase*> SourceData;
 
     bool       MultiEnabled = false;
     EMultiMode MultiMode    = Constant;
@@ -28,7 +28,7 @@ public:
     bool        check() const;
 
     bool        clone(int iSource);
-    bool        replace(int iSource, AParticleSourceRecord & source);
+    bool        replace(int iSource, AParticleSourceRecordBase * source);
     void        remove(int iSource);
 
 #ifdef JSON11

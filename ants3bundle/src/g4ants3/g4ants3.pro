@@ -80,6 +80,7 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 HEADERS += \
+    ../ants3/particleSim/EcoMug/EcoMug.h \
     ../ants3/particleSim/acalsettings.h \
     ../ants3/particleSim/afilegeneratorsettings.h \
     ../ants3/particleSim/afileparticlegenerator.h \

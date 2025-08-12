@@ -159,6 +159,8 @@ SOURCES += \
     gui/materials/aopticaldataimportdialog.cpp \
     gui/materials/arefractiveindeximportdialog.cpp \
     gui/particleSim/aeventsdonedialog.cpp \
+    gui/particleSim/aparticlesourcedialog_ecomug.cpp \
+    gui/particleSim/aparticlesourcedialogbase.cpp \
     gui/particleSim/aparticlesourceplotter.cpp \
     gui/particleSim/atrackdrawdialog.cpp \
     gui/particleSim/atrackingdataexplorer.cpp \
@@ -379,6 +381,8 @@ HEADERS += \
     gui/materials/aabsorptiondataconverterdialog.h \
     gui/materials/aopticaldataimportdialog.h \
     gui/materials/arefractiveindeximportdialog.h \
+    gui/particleSim/aparticlesourcedialog_ecomug.h \
+    gui/particleSim/aparticlesourcedialogbase.h \
     gui/photsim/afunctionalmodelwidget.h \
     gui/photsim/aphotfunctwindow.h \
     gui/photsim/aphotonlogsettingsform.h \
@@ -386,6 +390,7 @@ HEADERS += \
     gui/raster/arasterwindow.h \
     gui/script/aargumentcounter.h \
     gui/script/ascriptexampleexplorer.h \
+    particleSim/EcoMug/EcoMug.h \
     particleSim/aorthopositroniumgammagenerator.h \
     particleSim/aparticleanalyzerhub.h \
     particleSim/aparticleanalyzersettings.h \
@@ -617,6 +622,7 @@ FORMS += \
         gui/materials/aopticaldataimportdialog.ui \
         gui/materials/arefractiveindeximportdialog.ui \
         gui/particleSim/aeventsdonedialog.ui \
+        gui/particleSim/aparticlesourcedialog_ecomug.ui \
         gui/particleSim/atrackdrawdialog.ui \
         gui/particleSim/aworldsizewarningdialog.ui \
         gui/photsim/ainterfaceruletester.ui \

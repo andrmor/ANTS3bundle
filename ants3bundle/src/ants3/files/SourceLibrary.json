@@ -11,6 +11,12 @@
             "File": "oPs_Na22.json",
             "Tags": ["Beta+", "Positronium"],
             "Description": "OrthoPositronium deacying to 3 gammas with branching ratio of 1% and originating from Na22."
+        },
+        {
+            "Name": "EcoMug_CosmicMuons",
+            "File": "EcoMug_CosmicMuons.json",
+            "Tags": ["Muon", "Cosmic"],
+            "Description": "Source of cosmic muons, implementation of the EcoMug generator."
         }
         
     ]
