@@ -55,7 +55,7 @@ private slots:
     void on_lePhysicsList_editingFinished();
     //void on_cbUseTSphys_clicked(bool checked);
     void on_cobThermalNeutronModel_activated(int index);
-    void on_pteCommands_textChanged();
+    void on_pteCommands_textChanged(); // guarded by bUpdatingCommandList
     //void on_pteSensitiveVolumes_textChanged();
     void on_pbAddNewStepLimit_clicked(); // !!!*** possible override of step limit with overlapping volume name using wildcard *
     void on_lwStepLimits_itemDoubleClicked(QListWidgetItem *item);
@@ -159,7 +159,7 @@ private:
     AMonitorHub           & MonitorHub;
     ACalorimeterHub       & CalHub;
 
-    Ui::AParticleSimWin *ui;
+    Ui::AParticleSimWin   * ui = nullptr;
 
     std::vector<bool> ExpandedItems;
 
