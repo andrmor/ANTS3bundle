@@ -56,7 +56,7 @@ private slots:
     //void on_cbUseTSphys_clicked(bool checked);
     void on_cobThermalNeutronModel_activated(int index);
     void on_pteCommands_textChanged();
-    void on_pteSensitiveVolumes_textChanged();  // redo  !!!***
+    //void on_pteSensitiveVolumes_textChanged();
     void on_pbAddNewStepLimit_clicked(); // !!!*** possible override of step limit with overlapping volume name using wildcard *
     void on_lwStepLimits_itemDoubleClicked(QListWidgetItem *item);
     void on_pbRemoveStepLimit_clicked();
@@ -181,7 +181,7 @@ private:
     double fromB2 = 0;
     double toB2 = 0;
 
-    bool   bGuiUpdateInProgress = false;
+    bool   bUpdatingCommandList = false;
 
     QString LastDir_Working;
     QString LastFile_Tracking;
@@ -279,7 +279,7 @@ private slots:
 
     void abortFind();
     void on_pbChooseWorkingDirectory_customContextMenuRequested(const QPoint &pos);
-    void on_cbIncludeScintillators_clicked(bool checked);
+    //void on_cbIncludeScintillators_clicked(bool checked);
     void on_sbNumThreadsStatistics_valueChanged(int arg1);
     void on_ledPTHistFromX_editingFinished();
     void on_ledPTHistToX_editingFinished();

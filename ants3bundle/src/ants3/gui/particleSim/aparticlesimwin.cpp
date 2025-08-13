@@ -289,8 +289,6 @@ void AParticleSimWin::readFromJson(const QJsonObject &json)
 
 void AParticleSimWin::updateGui()
 {
-    bGuiUpdateInProgress = true;  // -->
-
     updateG4Gui();
     updateSimGui();
     onMaterialsChanged();
@@ -305,8 +303,6 @@ void AParticleSimWin::updateGui()
 
     updateCalorimeterGui();
     updateAnalyzerGui();
-
-    bGuiUpdateInProgress = false; // <--
 }
 
 void AParticleSimWin::updateSimGui()
@@ -334,15 +330,17 @@ void AParticleSimWin::updateG4Gui()
 {
     ui->lePhysicsList->setText(G4SimSet.PhysicsList.data());
 
+    bUpdatingCommandList = true;  // -->
     ui->pteCommands->clear();
     for (const auto & s : G4SimSet.Commands)
         ui->pteCommands->appendPlainText(s.data());
+    bUpdatingCommandList = false; // <--
 
-    QStringList svl;
-    ui->pteSensitiveVolumes->clear();
-    for (const auto & s : G4SimSet.SensitiveVolumes) svl << s.data();
-    ui->pteSensitiveVolumes->appendPlainText(svl.join("\n"));
-    ui->cbIncludeScintillators->setChecked(G4SimSet.AddScintillatorsToSensitiveVolumes);
+    //QStringList svl;
+    //ui->pteSensitiveVolumes->clear();
+    //for (const auto & s : G4SimSet.SensitiveVolumes) svl << s.data();
+    //ui->pteSensitiveVolumes->appendPlainText(svl.join("\n"));
+    //ui->cbIncludeScintillators->setChecked(G4SimSet.AddScintillatorsToSensitiveVolumes);
 
     ui->lwStepLimits->clear();
     for (const auto & it : G4SimSet.StepLimits)
@@ -370,13 +368,14 @@ void AParticleSimWin::on_cobThermalNeutronModel_activated(int index)
 }
 void AParticleSimWin::on_pteCommands_textChanged()
 {
-    if (bGuiUpdateInProgress) return;
+    if (bUpdatingCommandList) return;
 
     const QString t = ui->pteCommands->document()->toPlainText();
     const QStringList sl = t.split('\n', Qt::SkipEmptyParts);
     G4SimSet.Commands.clear();
     for (auto & s : sl) G4SimSet.Commands.push_back(s.toLatin1().data());
 }
+/*
 void AParticleSimWin::on_pteSensitiveVolumes_textChanged()
 {
     if (bGuiUpdateInProgress) return;
@@ -387,6 +386,7 @@ void AParticleSimWin::on_pteSensitiveVolumes_textChanged()
     G4SimSet.SensitiveVolumes.clear();
     for (auto & s : sl) G4SimSet.SensitiveVolumes.push_back(s.toLatin1().data());
 }
+*/
 
 void AParticleSimWin::on_pbAddNewStepLimit_clicked()
 {
@@ -3315,10 +3315,12 @@ void AParticleSimWin::on_pbChooseWorkingDirectory_customContextMenuRequested(con
     QDesktopServices::openUrl( QUrl::fromLocalFile(ui->leWorkingDirectory->text()) );
 }
 
+/*
 void AParticleSimWin::on_cbIncludeScintillators_clicked(bool checked)
 {
     G4SimSet.AddScintillatorsToSensitiveVolumes = checked;
 }
+*/
 
 void AParticleSimWin::updateRangeWarning()
 {

@@ -176,7 +176,8 @@ void AParticleSimManager::doPreSimChecks()
 
     // !!!*** refactor
     QString err;
-    err = Geometry.checkVolumesExist(SimSet.G4Set.SensitiveVolumes);
+    //err = Geometry.checkVolumesExist(SimSet.G4Set.SensitiveVolumes);
+    err = Geometry.checkVolumesExist(SimSet.RunSet.SaveDepositionVolumes);
     if (!err.isEmpty()) AErrorHub::addError(err.toLatin1().data());
 }
 
@@ -411,14 +412,17 @@ void AParticleSimManager::configureAnalyzers()
 
 void AParticleSimManager::configureScintillators()
 {
-    SimSet.G4Set.ScintSensitiveVolumes.clear();
-    if (SimSet.G4Set.AddScintillatorsToSensitiveVolumes)
+    //SimSet.G4Set.ScintSensitiveVolumes.clear();
+    SimSet.RunSet.SaveDepositionScintVolumes.clear();
+    //if (SimSet.G4Set.AddScintillatorsToSensitiveVolumes)
+    if (SimSet.RunSet.SaveDepositionIncludeScintillators)
     {
         std::vector<QString> vol;
         Geometry.getScintillatorVolumeUniqueNames(vol);
 
         for (const QString & name : vol)
-            SimSet.G4Set.ScintSensitiveVolumes.emplace_back(name.toLatin1().data());
+            //SimSet.G4Set.ScintSensitiveVolumes.emplace_back(name.toLatin1().data());
+            SimSet.RunSet.SaveDepositionScintVolumes.emplace_back(name.toLatin1().data());
     }
 }
 

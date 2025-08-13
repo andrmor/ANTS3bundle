@@ -55,6 +55,9 @@ public:
 
     bool        SaveDeposition = false;
     std::string FileNameDeposition = "Deposition.dat";
+    std::vector<std::string> SaveDepositionVolumes;
+    bool SaveDepositionIncludeScintillators = true;
+    std::vector<std::string> SaveDepositionScintVolumes;  // filled automatically
 
     ASaveParticlesSettings SaveSettings;
 

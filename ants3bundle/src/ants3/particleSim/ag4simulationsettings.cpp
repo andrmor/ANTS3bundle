@@ -9,6 +9,7 @@ void AG4SimulationSettings::writeToJson(QJsonObject &json) const
 {
     json["PhysicsList"] = QString(PhysicsList.data());
 
+    /*
     {
         QJsonArray ar;
         for (auto & v : SensitiveVolumes)
@@ -22,8 +23,9 @@ void AG4SimulationSettings::writeToJson(QJsonObject &json) const
             ar.push_back(QString(v.data()));
         json["ScintSensitiveVolumes"] = ar;
     }
+    */
 
-    json["AddScintillatorsToSensitiveVolumes"] = AddScintillatorsToSensitiveVolumes;
+    //json["AddScintillatorsToSensitiveVolumes"] = AddScintillatorsToSensitiveVolumes;
 
     QJsonArray arC;
     for (auto & c : Commands)
@@ -56,6 +58,7 @@ void AG4SimulationSettings::readFromJson(const QJsonObject &json)
     jstools::parseJson(json, "UseTSphys",   UseTSphys);
     jstools::parseJson(json, "UseNCrystal", UseNCrystal);
 
+/*
 #ifdef JSON11
     json11::Json::array arSV;
 #else
@@ -89,8 +92,8 @@ void AG4SimulationSettings::readFromJson(const QJsonObject &json)
 #endif
         ScintSensitiveVolumes.push_back(sv);
     }
-
-    jstools::parseJson(json, "AddScintillatorsToSensitiveVolumes", AddScintillatorsToSensitiveVolumes);
+*/
+    //jstools::parseJson(json, "AddScintillatorsToSensitiveVolumes", AddScintillatorsToSensitiveVolumes);
 
     Commands.clear();
 #ifdef JSON11
@@ -143,9 +146,9 @@ void AG4SimulationSettings::clear()
 {
     PhysicsList = "QGSP_BERT_HP";
     UseTSphys = false;
-    ScintSensitiveVolumes.clear();
-    AddScintillatorsToSensitiveVolumes = true;
-    SensitiveVolumes.clear();
+    //ScintSensitiveVolumes.clear();
+    //AddScintillatorsToSensitiveVolumes = true;
+    //SensitiveVolumes.clear();
     Commands = {"/run/setCut 0.7 mm"};
     StepLimits.clear();
 }

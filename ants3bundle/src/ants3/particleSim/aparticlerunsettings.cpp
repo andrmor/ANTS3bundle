@@ -63,6 +63,17 @@ void AParticleRunSettings::writeToJson(QJsonObject & json, bool includeG4ants3Se
 
     json["SaveDeposition"]       = SaveDeposition;
     json["FileNameDeposition"]   = QString(FileNameDeposition.data());
+    {
+        QJsonArray ar;
+        for (const std::string & str : SaveDepositionVolumes) ar.push_back(QString(str.data()));
+        json["SaveDepositionVolumes"] = ar;
+    }
+    json["SaveDepositionIncludeScintillators"] = SaveDepositionIncludeScintillators;
+    {
+        QJsonArray ar;
+        for (const std::string & str : SaveDepositionScintVolumes) ar.push_back(QString(str.data()));
+        json["SaveDepositionScintVolumes"] = ar;
+    }
 
     json["AsciiOutput"]          = AsciiOutput;
     json["AsciiPrecision"]       = AsciiPrecision;
@@ -156,6 +167,27 @@ void AParticleRunSettings::readFromJson(const QJsonObject & json)
 
     jstools::parseJson(json, "SaveDeposition",       SaveDeposition);
     jstools::parseJson(json, "FileNameDeposition",   FileNameDeposition);
+    SaveDepositionVolumes.clear();
+#ifdef JSON11
+    {
+        json11::Json::array ar;
+        jstools::parseJson(json, "SaveDepositionVolumes", ar);
+        for (size_t i = 0; i < ar.size(); i++) SaveDepositionVolumes.push_back(ar[i].string_value());
+    }
+    {
+        json11::Json::array ar;
+        jstools::parseJson(json, "SaveDepositionScintVolumes", ar);
+        for (size_t i = 0; i < ar.size(); i++) SaveDepositionScintVolumes.push_back(ar[i].string_value());
+    }
+#else
+    {
+        QJsonArray ar;
+        jstools::parseJson(json, "SaveDepositionVolumes", ar);
+        for (int i = 0; i < ar.size(); i++) SaveDepositionVolumes.push_back(ar[i].toString().toLatin1().data());
+    }
+    // do not load SaveDepositionScintVolumes, filled automatically
+#endif
+    jstools::parseJson(json, "SaveDepositionIncludeScintillators", SaveDepositionIncludeScintillators);
 
 #ifdef JSON11
     json11::Json::object sjs;
