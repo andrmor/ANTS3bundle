@@ -6,6 +6,7 @@
 
 #ifdef ANTS3_NCRYSTAL
 #include "G4NCrystal/G4NCrystal.hh"
+#include "NCrystal/interfaces/NCVersion.hh"
 #endif
 
 #include <QDebug>
@@ -104,9 +105,14 @@ void AInspector::processRequest(const QJsonObject & json)
         str = str.simplified();
         json["Version"] = str;
 #ifdef ANTS3_NCRYSTAL
-        json["NCrystal"] = true;
+        int ver = NCRYSTAL_NAMESPACE::getVersion(); // 1000000*MAJOR+1000*MINOR+PATCH
+        int maj = ver / 1000000;
+        int min = (ver - maj * 1000000) / 1000;
+        int patch = ver - maj * 1000000 - min * 1000;
+        QString verStr = QString("%0.%1.%2").arg(maj).arg(min).arg(patch);
+        json["NCrystal"] = verStr;
 #else
-        json["NCrystal"] = false;
+        json["NCrystal"] = "";
 #endif
         generateResponseFile(json);
     }
