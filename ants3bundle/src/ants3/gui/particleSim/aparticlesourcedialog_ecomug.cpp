@@ -202,3 +202,13 @@ void AParticleSourceDialog_EcoMug::on_pbShowSource_clicked(bool checked)
     if (checked) AParticleSourcePlotter::plotSource(LocalRec);
     emit requestShowSource();
 }
+
+void AParticleSourceDialog_EcoMug::on_pbRef_clicked()
+{
+    QString txt = ""
+    "Pagano, D., Bonomi, G., Donzella, A., Zenoni, A., Zumerle, G., & Zurlo, N. (2021).\n"
+    "EcoMug: An Efficient COsmic MUon Generator for cosmic-ray muon applications.\n"
+    "NIM A, 1014, 165732.";
+    guitools::message(txt, this);
+}
+

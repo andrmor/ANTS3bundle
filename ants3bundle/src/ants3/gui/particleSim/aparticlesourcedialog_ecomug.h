@@ -40,6 +40,8 @@ private slots:
 
     void on_cobGeneratorShape_currentIndexChanged(int index);
 
+    void on_pbRef_clicked();
+
 private:
     AParticleSourceRecord_EcoMug         LocalRec;
     const AParticleSourceRecord_EcoMug & OriginalRec;
