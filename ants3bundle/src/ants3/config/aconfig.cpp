@@ -166,11 +166,17 @@ void AConfig::createUndo()
 {
     if (A3Global::getConstInstance().UndoMaxDepth == 0)
     {
-        qDebug() << "-> Undo/redo system is desabled, nothing to do";
+        qDebug() << "-> Undo/redo system is disabled, nothing to do";
         return;
     }
 
     updateJSONfromConfig();
+
+    if (UndoCurrentPosition > 0)
+    {
+        // deleting not relevant stored configurations
+        UndoConfigs.erase(UndoConfigs.begin(), UndoConfigs.begin()+UndoCurrentPosition);
+    }
 
     UndoConfigs.insert(UndoConfigs.begin(), JSON);
     qDebug() << "> Undo created, UndoConfig length:" << UndoConfigs.size();
