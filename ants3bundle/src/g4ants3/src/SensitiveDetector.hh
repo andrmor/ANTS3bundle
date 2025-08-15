@@ -121,6 +121,8 @@ public:
 
     AHistogram1D * EventDepoData = nullptr;
     double SumDepoOverEvent = 0;
+
+    bool SaveDepositionLog = false;
 };
 
 class DelegatingCalorimeterSensitiveDetector : public G4VSensitiveDetector

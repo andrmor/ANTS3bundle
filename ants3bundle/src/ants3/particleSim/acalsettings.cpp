@@ -336,6 +336,9 @@ void ACalSettings::writeToJson(QJsonObject & json, bool includeG4ants3Set) const
     json["Enabled"] = Enabled;
     json["FileName"] = FileName.data();
 
+    json["SaveEnergyDepositionLog"] = SaveEnergyDepositionLog;
+    json["LogFileName"] = LogFileName.data();
+
     if (includeG4ants3Set)
     {
         // "Normal calorimeters"
@@ -368,6 +371,9 @@ void ACalSettings::readFromJson(const QJsonObject & json)
 {
     jstools::parseJson(json, "Enabled",  Enabled);
     jstools::parseJson(json, "FileName", FileName);
+
+    jstools::parseJson(json, "SaveEnergyDepositionLog",  SaveEnergyDepositionLog);
+    jstools::parseJson(json, "LogFileName", LogFileName);
 
     Calorimeters.clear();
     DelegatingCalorimeters.clear();

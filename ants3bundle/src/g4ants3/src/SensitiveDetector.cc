@@ -335,6 +335,9 @@ CalorimeterSensitiveDetectorWrapper::CalorimeterSensitiveDetectorWrapper(const s
         Data = new AHistogram3Dfixed(properties.Origin, properties.Step, properties.Bins);
         VoxelVolume_mm3 = Properties.Step[0] * Properties.Step[1] * Properties.Step[2]; // in mm3
     }
+
+    SessionManager & SM = SessionManager::getInstance();
+    SaveDepositionLog = SM.Settings.RunSet.CalorimeterSettings.SaveEnergyDepositionLog;
 }
 
 CalorimeterSensitiveDetectorWrapper::~CalorimeterSensitiveDetectorWrapper()
@@ -371,7 +374,7 @@ G4bool CalorimeterSensitiveDetectorWrapper::ProcessHits(G4Step * step, G4Touchab
 
 void CalorimeterSensitiveDetectorWrapper::registerHit(double depo, const G4ThreeVector & local, G4Step * step)
 {
-    if (Properties.DataType == ACalorimeterProperties::DepoPerEvent)
+    if (Properties.DataType == ACalorimeterProperties::DepoPerEvent || SaveDepositionLog)
         SumDepoOverEvent += depo / keV;
     else
     {

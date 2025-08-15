@@ -53,9 +53,9 @@ public:
     std::array<int,    3> Bins   = {10, 10,  10};
 
     //bool CollectDepoOverEvent = false;
-    int EventDepoBins = 190;
-    double EventDepoFrom = 100;
-    double EventDepoTo = 2000;
+    int EventDepoBins = 100;
+    double EventDepoFrom = 0;
+    double EventDepoTo = 1000;
 
 #ifndef JSON11
     //ants3 side: text fields to be used with Geo Constants
@@ -87,6 +87,9 @@ class ACalSettings
 public:
     bool Enabled         = false;
     std::string FileName = "Calorimeters.json";
+
+    bool SaveEnergyDepositionLog = false;
+    std::string LogFileName = "CalorimeterLog.dat";
 
 #ifdef JSON11
     void readFromJson(const json11::Json::object & json);

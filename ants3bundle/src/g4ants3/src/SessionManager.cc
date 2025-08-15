@@ -38,6 +38,7 @@ SessionManager::~SessionManager()
 {
     delete outStreamExit;
     delete outStreamDeposition;
+    delete outStreamCalorimeterLog;
     delete outStreamHistory;
 }
 
@@ -59,6 +60,9 @@ void SessionManager::startSession()
 
     // preparing ouptut for exiting particle export
     if (Settings.RunSet.SaveSettings.Enabled) prepareOutputExitStream();
+
+    // preparing ouptut for exiting particle export
+    if (Settings.RunSet.CalorimeterSettings.Enabled && Settings.RunSet.CalorimeterSettings.SaveEnergyDepositionLog) prepareOutputCalorimeterLogStream();
 
     //set random generator
     ARandomHub::getInstance().init(Settings.RunSet.Seed);
@@ -149,6 +153,9 @@ void SessionManager::onEventFinished()
 
         DirectDepositionBuffer.clear();
     }
+
+    if (Settings.RunSet.CalorimeterSettings.Enabled && Settings.RunSet.CalorimeterSettings.SaveEnergyDepositionLog)
+        saveCalorimeterLogEntry();
 
     //EventId = NextEventId;
     CurrentEvent++;
@@ -507,6 +514,27 @@ void SessionManager::saveDepoRecord(const std::string & pName, int iMat, double 
     }
 }
 
+#include "SensitiveDetector.hh"
+void SessionManager::saveCalorimeterLogEntry()
+{
+    if (!outStreamCalorimeterLog) return;
+
+    if (bBinaryOutput)
+    {
+        for (CalorimeterSensitiveDetectorWrapper * sd : Calorimeters)
+            outStreamCalorimeterLog->write((char*)&sd->SumDepoOverEvent, sizeof(double));
+    }
+    else
+    {
+        std::stringstream ss;
+        for (CalorimeterSensitiveDetectorWrapper * sd : Calorimeters)
+        {
+            ss << sd->SumDepoOverEvent << ' ';
+        }
+        *outStreamCalorimeterLog << ss.rdbuf() << '\n';
+    }
+}
+
 void SessionManager::saveTrackStart(int trackID, int parentTrackID,
                                     const G4String & particleName,
                                     const G4ThreeVector & pos, double time, double kinE,
@@ -852,6 +880,19 @@ void SessionManager::prepareOutputDepoStream()
 
     if (!outStreamDeposition->is_open())
         terminateSession("Cannot open file to store deposition data");
+}
+
+void SessionManager::prepareOutputCalorimeterLogStream()
+{
+    outStreamCalorimeterLog = new std::ofstream();
+
+    if (bBinaryOutput)
+        outStreamCalorimeterLog->open(WorkingDir + "/" + Settings.RunSet.CalorimeterSettings.LogFileName, std::ios::out | std::ios::binary);
+    else
+        outStreamCalorimeterLog->open(WorkingDir + "/" + Settings.RunSet.CalorimeterSettings.LogFileName);
+
+    if (!outStreamCalorimeterLog->is_open())
+        terminateSession("Cannot open file to store calorimeter log");
 }
 
 void SessionManager::prepareOutputHistoryStream()
