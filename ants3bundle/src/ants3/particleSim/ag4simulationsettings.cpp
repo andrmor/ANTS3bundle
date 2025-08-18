@@ -144,7 +144,7 @@ void AG4SimulationSettings::readFromJson(const QJsonObject &json)
 
 void AG4SimulationSettings::clear()
 {
-    PhysicsList = "QGSP_BERT_HP";
+    PhysicsList = "QGSP_BIC_HP";
     UseTSphys = false;
     //ScintSensitiveVolumes.clear();
     //AddScintillatorsToSensitiveVolumes = true;
