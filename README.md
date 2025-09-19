@@ -25,7 +25,7 @@
 
 # New developments (dev branch)
 
-* NCrystal support is added [instructions](https://github.com/andrmor/ANTS3bundle/wiki/NCrystalInstall)
+* NCrystal support is added, see [instructions](https://github.com/andrmor/ANTS3bundle/wiki/NCrystalInstall)
 * EcoMug soure of cosmic muons can be used in particle simulations
 
 ---
