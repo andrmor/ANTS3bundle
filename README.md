@@ -18,21 +18,15 @@
  * Unsupervised optimization of the detector parameters based on scripting system involving Simplex minimizer
  * WebSocket server for creating custom extensions
      
-# Status of the development
+# A paper describing ANTS3
 
-* Full code released
-* ANTS3 paper is submitted, the preprint: https://arxiv.org/abs/2506.07922
-** The paper is accepted for publication at Compter Physics Communications: https://doi.org/10.1016/j.cpc.2025.109869
----
-* Dev version:
-** NCrystal support is provided [instructions](https://github.com/andrmor/ANTS3bundle/wiki/NCrystalInstall)
-** EcoMug soure of cosmic muons can be used
+* Preprint: https://arxiv.org/abs/2506.07922
+* Accepted for publication in Compter Physics Communications: https://doi.org/10.1016/j.cpc.2025.109869
 
-# Next steps
+# New developments (dev branch)
 
-* Popularting the ANTS3 wiki
-* Adding more examples (config and scripts)
-* Filling material and source libraries
+* NCrystal support is added [instructions](https://github.com/andrmor/ANTS3bundle/wiki/NCrystalInstall)
+* EcoMug soure of cosmic muons can be used in particle simulations
 
 ---
 
@@ -55,8 +49,9 @@
 
  # Latest tested software versions
 
-* 21 April 2025 --> Ubuntu 24.04 Mate, Qt 6.9.0, CERN ROOT 6.32.10, Geant4 11.3.0
-* 22 February 2025 --> Ubuntu 24.04 Mate, Qt 6.8.2, CERN ROOT 6.32.10, Geant4 11.3.0
-* 21 October 2024 --> Ubuntu 24.04 Mate, Qt 6.8.0, CERN ROOT 6.32.04, Geant4 11.2.2
-* 27 June 2024 --> Ubuntu 24.04 Mate, Qt 6.6.3, CERN ROOT 6.32.02, Geant4 11.2.2
+* 19 September 2025 --> Ubuntu Mate 24.04, Qt 6.9.2, CERN ROOT 6.32.10, Geant4 11.3.2
+* 21 April 2025 --> Ubuntu Mate 24.04, Qt 6.9.0, CERN ROOT 6.32.10, Geant4 11.3.0
+* 22 February 2025 --> Ubuntu Mate 24.04, Qt 6.8.2, CERN ROOT 6.32.10, Geant4 11.3.0
+* 21 October 2024 --> Ubuntu Mate 24.04, Qt 6.8.0, CERN ROOT 6.32.04, Geant4 11.2.2
+* 27 June 2024 --> Ubuntu Mate 24.04, Qt 6.6.3, CERN ROOT 6.32.02, Geant4 11.2.2
 
