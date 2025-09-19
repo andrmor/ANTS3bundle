@@ -22,6 +22,11 @@
 
 * Full code released
 * ANTS3 paper is submitted, the preprint: https://arxiv.org/abs/2506.07922
+** The paper is accepted for publication at Compter Physics Communications: https://doi.org/10.1016/j.cpc.2025.109869
+---
+* Dev version:
+** NCrystal support is provided [instructions](https://github.com/andrmor/ANTS3bundle/wiki/NCrystalInstall)
+** EcoMug soure of cosmic muons can be used
 
 # Next steps
 
