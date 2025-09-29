@@ -14,11 +14,15 @@
 class AG4SimulationSettings
 {
 public:
-    std::string              PhysicsList = "QGSP_BERT_HP";
+    std::string              PhysicsList = "QGSP_BIC_HP";
     bool                     UseTSphys = false;
-    std::vector<std::string> SensitiveVolumes;
-    bool                     AddScintillatorsToSensitiveVolumes = true;
-    std::vector<std::string> ScintSensitiveVolumes;  // filled automatically
+    bool                     UseNCrystal = false;
+
+    // migrated to RunSettings
+    //std::vector<std::string> SensitiveVolumes;
+    //bool                     AddScintillatorsToSensitiveVolumes = true;
+    //std::vector<std::string> ScintSensitiveVolumes;  // filled automatically
+
     std::vector<std::string> Commands = {"/run/setCut 0.7 mm"};
     std::map<std::string, double> StepLimits;
 

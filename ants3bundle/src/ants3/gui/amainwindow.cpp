@@ -152,6 +152,7 @@ AMainWindow::AMainWindow() :
     Config.replaceEmptyOutputDirsWithTemporary();
 
   // Finalizing
+    Config.createUndo();
     updateAllGuiFromConfig(); //updateGui();
     ScriptHub->finalizeInit();
 
@@ -183,6 +184,7 @@ void AMainWindow::onRebuildGeometryRequested()
 {
     AGeometryHub & geom = AGeometryHub::getInstance();
     geom.populateGeoManager();
+
     GeoTreeWin->updateGui();
     MatWin->updateGui();
     RuleWin->updateGui();
@@ -655,10 +657,11 @@ void AMainWindow::on_pbNew_clicked()
 
     Config.ConfigName = "";
     Config.ConfigDescription = "";
-
     Config.replaceEmptyOutputDirsWithTemporary();
+    Config.updateJSONfromConfig();
 
-    AConfig::getInstance().updateJSONfromConfig();
+    Config.clearUndo();
+    Config.createUndo();
 
     updateAllGuiFromConfig();
 }
@@ -772,7 +775,8 @@ void AMainWindow::on_actionVersions_triggered()
     qApp->processEvents();
     AGeant4InspectorManager & G4Inspector = AGeant4InspectorManager::getInstance();
     QString g4version = "NA";
-    G4Inspector.requestVersion(g4version);
+    QString nCrystalVersion = "";
+    G4Inspector.requestVersion(g4version, nCrystalVersion);
 
     QString out = "ANTS3\n"
                   "   version:  " + mav + "." + miv + "\n"
@@ -783,6 +787,7 @@ void AMainWindow::on_actionVersions_triggered()
                   "ROOT version:  " + gROOT->GetVersion() + "\n"
                   "\n"
                   "Local Geant4 version:  " + g4version + "\n"
+                  "  NCrystal: " + ( nCrystalVersion.isEmpty() ? "disabled" : "version " + nCrystalVersion) + "\n"
                   "\n"
                   "Optional components:\n"
                   "  Python scripting: "

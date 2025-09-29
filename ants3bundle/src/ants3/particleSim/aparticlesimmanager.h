@@ -54,6 +54,7 @@ private:
     AFileMerger HistoryFileMerger;
     AFileMerger ParticlesFileMerger;
     AFileMerger DepositionFileMerger;
+    AFileMerger CalorimeterLogFileMerger;
     std::vector<QString> MonitorFiles;
     std::vector<QString> CalorimeterFiles;
     std::vector<QString> AnalyzerFiles;

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>683</width>
-    <height>419</height>
+    <height>527</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -194,7 +194,348 @@
     </layout>
    </item>
    <item>
+    <widget class="Line" name="line_4">
+     <property name="orientation">
+      <enum>Qt::Orientation::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_9">
+     <property name="topMargin">
+      <number>0</number>
+     </property>
+     <item>
+      <widget class="QCheckBox" name="cbMonitors">
+       <property name="minimumSize">
+        <size>
+         <width>125</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>Monitors</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="labMonitors">
+       <property name="text">
+        <string>--</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_8">
+       <property name="orientation">
+        <enum>Qt::Orientation::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="Line" name="line_7">
+     <property name="orientation">
+      <enum>Qt::Orientation::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_10">
+     <property name="topMargin">
+      <number>0</number>
+     </property>
+     <item>
+      <widget class="QCheckBox" name="cbCalorimeters">
+       <property name="minimumSize">
+        <size>
+         <width>125</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>Calorimeters</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="labCalorimeters">
+       <property name="text">
+        <string>--</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_9">
+       <property name="orientation">
+        <enum>Qt::Orientation::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QFrame" name="frCalorimeters">
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>0</height>
+      </size>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::Shape::NoFrame</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Shadow::Raised</enum>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_14">
+      <property name="spacing">
+       <number>6</number>
+      </property>
+      <property name="leftMargin">
+       <number>50</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
+      <item>
+       <widget class="QCheckBox" name="cbCalorimeterSaveLog">
+        <property name="toolTip">
+         <string>Format: One line per event, the line lists energy total depsoition per event for each calorimeter, ordered by the calorimeter index</string>
+        </property>
+        <property name="text">
+         <string>Save log of deposition per event to</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="labCalorimeterLogFileName">
+        <property name="text">
+         <string>CalorimeterLog.dat</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer_12">
+        <property name="orientation">
+         <enum>Qt::Orientation::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="Line" name="line_8">
+     <property name="orientation">
+      <enum>Qt::Orientation::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_11">
+     <property name="topMargin">
+      <number>0</number>
+     </property>
+     <item>
+      <widget class="QCheckBox" name="cbParticleAnalyzers">
+       <property name="minimumSize">
+        <size>
+         <width>125</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>Part. analyzers</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="labParticleAnalyzers">
+       <property name="text">
+        <string>--</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_10">
+       <property name="orientation">
+        <enum>Qt::Orientation::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
+   </item>
+   <item>
     <widget class="Line" name="line_2">
+     <property name="orientation">
+      <enum>Qt::Orientation::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_7">
+     <property name="topMargin">
+      <number>0</number>
+     </property>
+     <item>
+      <widget class="QCheckBox" name="cbDeposition">
+       <property name="minimumSize">
+        <size>
+         <width>125</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="toolTip">
+        <string>Ascii:
+#EventIndex
+particle_name matId DepoEnergy[keV] X[mm] Y[mm] Z[mm] Time[ns]
+
+Binary:
+0xEE EventIndex(int)
+0xFF particle_name(0-term string) matId(int) DepoEnergy[keV](double) X(double) Y(double) Z(double) Time[ns](double)</string>
+       </property>
+       <property name="text">
+        <string>Deposition</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="labDeposition">
+       <property name="text">
+        <string>--</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_7">
+       <property name="orientation">
+        <enum>Qt::Orientation::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QFrame" name="frDeposition">
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>0</height>
+      </size>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::Shape::NoFrame</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Shadow::Raised</enum>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_3">
+      <property name="spacing">
+       <number>3</number>
+      </property>
+      <property name="leftMargin">
+       <number>50</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_12">
+        <item>
+         <widget class="QLabel" name="label_7">
+          <property name="text">
+           <string>Record in volumes:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="leDepo">
+          <property name="toolTip">
+           <string>Space or comma-separated list of geometric volume names. &quot;Vol*&quot; means all volumes with the name starting with &quot;Vol&quot;</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_13">
+        <item>
+         <widget class="QCheckBox" name="cbDepoIncludeAllScintillators">
+          <property name="text">
+           <string>Include all scintillators</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer_11">
+          <property name="orientation">
+           <enum>Qt::Orientation::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="Line" name="line_3">
      <property name="orientation">
       <enum>Qt::Orientation::Horizontal</enum>
      </property>
@@ -223,7 +564,7 @@ Binary:
 0xFF particle_name(0-term string) Energy[keV](double) X(double) Y(double) Z(double) DirX(double) DirY(double) DirZ(double) Time[ns](double)</string>
        </property>
        <property name="text">
-        <string>Save particles</string>
+        <string>Log particles</string>
        </property>
        <property name="checked">
         <bool>true</bool>
@@ -314,7 +655,7 @@ Binary:
         <item>
          <widget class="QCheckBox" name="cbUseTimeWindow">
           <property name="text">
-           <string>Use time window</string>
+           <string>Inside time window</string>
           </property>
           <property name="checked">
            <bool>true</bool>
@@ -394,189 +735,6 @@ Binary:
     </widget>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_7">
-     <property name="topMargin">
-      <number>0</number>
-     </property>
-     <item>
-      <widget class="QCheckBox" name="cbDeposition">
-       <property name="minimumSize">
-        <size>
-         <width>125</width>
-         <height>0</height>
-        </size>
-       </property>
-       <property name="toolTip">
-        <string>Ascii:
-#EventIndex
-particle_name matId DepoEnergy[keV] X[mm] Y[mm] Z[mm] Time[ns]
-
-Binary:
-0xEE EventIndex(int)
-0xFF particle_name(0-term string) matId(int) DepoEnergy[keV](double) X(double) Y(double) Z(double) Time[ns](double)</string>
-       </property>
-       <property name="text">
-        <string>Deposition</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLabel" name="labDeposition">
-       <property name="text">
-        <string>--</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <spacer name="horizontalSpacer_7">
-       <property name="orientation">
-        <enum>Qt::Orientation::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-    </layout>
-   </item>
-   <item>
-    <widget class="Line" name="line_3">
-     <property name="orientation">
-      <enum>Qt::Orientation::Horizontal</enum>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_9">
-     <property name="topMargin">
-      <number>0</number>
-     </property>
-     <item>
-      <widget class="QCheckBox" name="cbMonitors">
-       <property name="minimumSize">
-        <size>
-         <width>125</width>
-         <height>0</height>
-        </size>
-       </property>
-       <property name="text">
-        <string>Monitors</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLabel" name="labMonitors">
-       <property name="text">
-        <string>--</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <spacer name="horizontalSpacer_8">
-       <property name="orientation">
-        <enum>Qt::Orientation::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-    </layout>
-   </item>
-   <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_10">
-     <property name="topMargin">
-      <number>0</number>
-     </property>
-     <item>
-      <widget class="QCheckBox" name="cbCalorimeters">
-       <property name="minimumSize">
-        <size>
-         <width>125</width>
-         <height>0</height>
-        </size>
-       </property>
-       <property name="text">
-        <string>Calorimeters</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLabel" name="labCalorimeters">
-       <property name="text">
-        <string>--</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <spacer name="horizontalSpacer_9">
-       <property name="orientation">
-        <enum>Qt::Orientation::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-    </layout>
-   </item>
-   <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_11">
-     <property name="topMargin">
-      <number>0</number>
-     </property>
-     <item>
-      <widget class="QCheckBox" name="cbParticleAnalyzers">
-       <property name="minimumSize">
-        <size>
-         <width>125</width>
-         <height>0</height>
-        </size>
-       </property>
-       <property name="text">
-        <string>Part. analyzers</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLabel" name="labParticleAnalyzers">
-       <property name="text">
-        <string>--</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <spacer name="horizontalSpacer_10">
-       <property name="orientation">
-        <enum>Qt::Orientation::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-    </layout>
-   </item>
-   <item>
-    <widget class="Line" name="line_4">
-     <property name="orientation">
-      <enum>Qt::Orientation::Horizontal</enum>
-     </property>
-    </widget>
-   </item>
-   <item>
     <layout class="QHBoxLayout" name="horizontalLayout_6">
      <item>
       <spacer name="horizontalSpacer">
@@ -648,12 +806,12 @@ Binary:
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>160</x>
-     <y>209</y>
+     <x>214</x>
+     <y>468</y>
     </hint>
     <hint type="destinationlabel">
-     <x>223</x>
-     <y>207</y>
+     <x>254</x>
+     <y>469</y>
     </hint>
    </hints>
   </connection>
@@ -664,12 +822,12 @@ Binary:
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>150</x>
-     <y>222</y>
+     <x>214</x>
+     <y>468</y>
     </hint>
     <hint type="destinationlabel">
-     <x>325</x>
-     <y>214</y>
+     <x>360</x>
+     <y>469</y>
     </hint>
    </hints>
   </connection>
@@ -680,12 +838,12 @@ Binary:
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>92</x>
-     <y>214</y>
+     <x>151</x>
+     <y>468</y>
     </hint>
     <hint type="destinationlabel">
-     <x>471</x>
-     <y>215</y>
+     <x>400</x>
+     <y>469</y>
     </hint>
    </hints>
   </connection>
@@ -696,12 +854,12 @@ Binary:
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>89</x>
-     <y>214</y>
+     <x>148</x>
+     <y>468</y>
     </hint>
     <hint type="destinationlabel">
-     <x>631</x>
-     <y>209</y>
+     <x>506</x>
+     <y>469</y>
     </hint>
    </hints>
   </connection>
@@ -712,12 +870,12 @@ Binary:
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>82</x>
-     <y>218</y>
+     <x>141</x>
+     <y>468</y>
     </hint>
     <hint type="destinationlabel">
-     <x>674</x>
-     <y>217</y>
+     <x>528</x>
+     <y>469</y>
     </hint>
    </hints>
   </connection>
@@ -728,12 +886,44 @@ Binary:
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>39</x>
-     <y>151</y>
+     <x>48</x>
+     <y>406</y>
     </hint>
     <hint type="destinationlabel">
-     <x>38</x>
-     <y>190</y>
+     <x>46</x>
+     <y>470</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cbDeposition</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>frDeposition</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>83</x>
+     <y>305</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>36</x>
+     <y>367</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cbCalorimeters</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>frCalorimeters</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>83</x>
+     <y>181</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>41</x>
+     <y>207</y>
     </hint>
    </hints>
   </connection>

@@ -37,6 +37,8 @@ public:
     double      time;     // ns
     double      energy;   // keV
 
+    void setDirection(double * vec) {v[0] = vec[0]; v[1] = vec[1]; v[2] = vec[2];}
+
     void ensureUnitaryLength();
 };
 

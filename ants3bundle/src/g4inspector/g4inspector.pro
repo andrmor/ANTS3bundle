@@ -1,3 +1,5 @@
+#CONFIG += ants3_NCrystal   # Requires installation of NCrystal
+
 QT -= gui
 
 CONFIG += c++17 console
@@ -41,3 +43,28 @@ HEADERS += \
         ainspector.h \
         ../ants3/tools/ajsontools.h
 
+ants3_NCrystal {
+  DEFINES += ANTS3_NCRYSTAL
+
+  #NCrystal
+  INCLUDEPATH += $$system(ncrystal-config --show includedir)
+  LIBS += -L$$system(ncrystal-config --show libdir) -lNCrystal
+
+  #NCrystal-Geant4
+  INCLUDEPATH += ../g4ants3/src
+  INCLUDEPATH += ../g4ants3/src/G4NCrystal
+  SOURCES += \
+  ../g4ants3/src/G4NCrystal/G4NCBias.cc \
+  ../g4ants3/src/G4NCrystal/G4NCManager.cc \
+  ../g4ants3/src/G4NCrystal/G4NCMatHelper.cc \
+  ../g4ants3/src/G4NCrystal/G4NCInstall.cc \
+  ../g4ants3/src/G4NCrystal/G4NCProcWrapper.cc
+  HEADERS += \
+  ../g4ants3/src/G4NCrystal/G4NCBias.hh \
+  ../g4ants3/src/G4NCrystal/G4NCInstall.hh \
+  ../g4ants3/src/G4NCrystal/G4NCMatHelper.hh \
+  ../g4ants3/src/G4NCrystal/G4NCProcWrapper.hh \
+  ../g4ants3/src/G4NCrystal/G4NCManager.hh \
+  ../g4ants3/src/G4NCrystal/G4NCrystal.hh
+
+}

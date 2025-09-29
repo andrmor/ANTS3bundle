@@ -1,6 +1,14 @@
 #include "ainspector.h"
 #include "ajsontools.h"
 
+#include "G4NistManager.hh"
+#include "G4SystemOfUnits.hh"
+
+#ifdef ANTS3_NCRYSTAL
+#include "G4NCrystal/G4NCrystal.hh"
+#include "NCrystal/interfaces/NCVersion.hh"
+#endif
+
 #include <QDebug>
 
 AInspector::AInspector(const QString & dir, const QString & fileName) :
@@ -52,9 +60,40 @@ void AInspector::processRequest(const QJsonObject & json)
         jstools::parseJson(json, "MaterialName", matName);
         if (matName.isEmpty()) terminate("Empty material name");
 
+        //qDebug() << "...Mat name:" << matName;
+        G4NistManager * matManager = G4NistManager::Instance();
+        G4Material * mat = matManager->FindOrBuildMaterial(matName.toLatin1().data());
+        if (!mat)
+        {
+            terminate("Material " + matName + " is not listed in G4NistManager");
+            return;
+        }
+
         QJsonObject json;
-        fillMaterialComposition(matName, json);
+        fillMaterialComposition(mat, json);
         generateResponseFile(json);
+    }
+    else if (request == "MaterialCompositionNCrystal")
+    {
+    #ifdef ANTS3_NCRYSTAL
+        QString matName;
+        jstools::parseJson(json, "MaterialName", matName);
+        if (matName.isEmpty()) terminate("Empty material name");
+
+        G4Material * mat = G4NCrystal::createMaterial(matName.toLatin1().data());
+        if (!mat)
+        {
+            terminate("Unknown generation string for NCrystal material: " + matName);
+            return;
+        }
+
+        QJsonObject json;
+        fillMaterialComposition(mat, json);
+        generateResponseFile(json);
+    #else
+        terminate("Cannot use NCrystal materials: G4inspector reports that ants3 was compiled without NCrystal library!");
+        return;
+    #endif
     }
     else if (request == "Geant4Version")
     {
@@ -65,25 +104,23 @@ void AInspector::processRequest(const QJsonObject & json)
         str.remove("geant4-");
         str = str.simplified();
         json["Version"] = str;
+#ifdef ANTS3_NCRYSTAL
+        int ver = NCRYSTAL_NAMESPACE::getVersion(); // 1000000*MAJOR+1000*MINOR+PATCH
+        int maj = ver / 1000000;
+        int min = (ver - maj * 1000000) / 1000;
+        int patch = ver - maj * 1000000 - min * 1000;
+        QString verStr = QString("%0.%1.%2").arg(maj).arg(min).arg(patch);
+        json["NCrystal"] = verStr;
+#else
+        json["NCrystal"] = "";
+#endif
         generateResponseFile(json);
     }
     else terminate("Unknown request");
 }
 
-#include "G4NistManager.hh"
-#include "G4SystemOfUnits.hh"
-void AInspector::fillMaterialComposition(const QString & matName, QJsonObject & json)
+void AInspector::fillMaterialComposition(G4Material * mat, QJsonObject & json)
 {
-    //qDebug() << "...Mat name:" << matName;
-    G4NistManager * matManager = G4NistManager::Instance();
-
-    G4Material * mat = matManager->FindOrBuildMaterial(matName.toLatin1().data());
-    if (!mat)
-    {
-        terminate("Material " + matName + " is not listed in G4NistManager");
-        return;
-    }
-
     json["Name"]    = QString(mat->GetName().data());
     json["Density"] = mat->GetDensity()/(g/cm3);
     json["Formula"] = QString(mat->GetChemicalFormula().data());

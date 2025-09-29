@@ -83,7 +83,7 @@ public slots:
     // 3D arrays
     void         save3DArray(QVariantList array, QString fileName, QString topLevelSeparator, QVariantList topLevelLabels = QVariantList(),  bool append = false);
     QVariantList load3DArray(QString fileName, QString topSeparator, QVariantList format,
-                             bool skipEmpty = true, bool allowIncomplete = false, int recordsFrom = 0, int recordsUntil = 2147483647);
+                             bool skipEmpty = false, bool allowIncomplete = false, int recordsFrom = 0, int recordsUntil = 2147483647);
 
     QVariantList load3DBinaryArray(QString fileName, int dataIdChar, QVariantList dataFormat, int separatorIdChar, QVariantList separatorFormat, int recordsFrom = 0, int recordsUntil = 1e6, bool skipEmpty = false);
     void         save3DBinaryArray(QVariantList data, QString fileName, int dataIdChar, QVariantList dataFormat, int separatorIdChar, bool append = false);

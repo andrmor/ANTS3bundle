@@ -1,6 +1,7 @@
 #ifndef APARTICLESOURCEDIALOG_H
 #define APARTICLESOURCEDIALOG_H
 
+#include "aparticlesourcedialogbase.h"
 #include "asourceparticlegenerator.h"
 #include "aparticlesourcerecord.h"
 
@@ -14,15 +15,15 @@ class TObject;
 class QLineEdit;
 class QComboBox;
 
-class AParticleSourceDialog : public QDialog
+class AParticleSourceDialog : public AParticleSourceDialogBase
 {
     Q_OBJECT
 
 public:
-    explicit AParticleSourceDialog(const AParticleSourceRecord & Rec, QWidget * parent);
+    explicit AParticleSourceDialog(const AParticleSourceRecord_Standard & Rec, QWidget * parent);
     ~AParticleSourceDialog();
 
-    AParticleSourceRecord & getResult();
+    AParticleSourceRecordBase * getResult() override;
 
 protected:
     virtual void closeEvent(QCloseEvent * e) override;
@@ -76,16 +77,9 @@ private slots:
 
     void on_leGunParticle_editingFinished();
 
-
-signals:
-    void delayClose();
-    void requestTestParticleGun(AParticleGun * gun, int num, bool fillStatistics);
-    void requestShowSource();
-    void requestDraw(TObject * obj, QString options, bool transferOwnership, bool focusWindow);
-
 private:
-    AParticleSourceRecord         LocalRec;
-    const AParticleSourceRecord & OriginalRec;
+    AParticleSourceRecord_Standard         LocalRec;
+    const AParticleSourceRecord_Standard & OriginalRec;
 
     Ui::AParticleSourceDialog * ui;
 
@@ -103,8 +97,8 @@ private:
     void restorePersistentSettings();
     void updateFixedEnergyIndication(const AGunParticle & gRec);
     void updateFixedEnergy();
-    void updateTimeWithUnitsIndication(double time_ns, AParticleSourceRecord::ETimeUnits prefUnits, QLineEdit * led, QComboBox * cob);
-    void readTimeWithUnits(QLineEdit * led, QComboBox * cob, double & time_ns, AParticleSourceRecord::ETimeUnits & prefUnits);
+    void updateTimeWithUnitsIndication(double time_ns, AParticleSourceRecord_Standard::ETimeUnits prefUnits, QLineEdit * led, QComboBox * cob);
+    void readTimeWithUnits(QLineEdit * led, QComboBox * cob, double & time_ns, AParticleSourceRecord_Standard::ETimeUnits &prefUnits);
 };
 
 #endif // APARTICLESOURCEDIALOG_H

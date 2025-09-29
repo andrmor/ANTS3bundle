@@ -44,6 +44,9 @@ public:
     QString     to   = "B";
     QString     lines;
 
+    std::vector<QJsonObject> UndoConfigs;
+    int                      UndoCurrentPosition = -1;
+
     void    updateJSONfromConfig();
     QString updateConfigFromJSON(bool updateGui);
 
@@ -57,10 +60,10 @@ public:
     void createUndo();
     bool isUndoAvailable() const;
     bool isRedoAvailable() const;
-    void invalidateUndo();
-    void invalidateRedo();
+    void clearUndo();
     QString doUndo();
     QString doRedo();
+    void updateUndoMaxDepth(int newDepth);
 
     void replaceEmptyOutputDirsWithTemporary();
     void clearTemporaryOutputDirs();

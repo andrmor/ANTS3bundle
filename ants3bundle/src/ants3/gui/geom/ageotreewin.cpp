@@ -98,7 +98,10 @@ AGeoTreeWin::~AGeoTreeWin()
 
 void AGeoTreeWin::onRebuildDetectorRequest()
 {
-    //qDebug() << "A3GeoConWin->onRebuildDetectorRequest triggered";
+    qDebug() << "A3GeoConWin->onRebuildDetectorRequest triggered";
+
+    AConfig::getInstance().createUndo();
+    updateMenuIndication();
 
     AErrorHub::clear();
     emit requestRebuildGeometry();
@@ -669,8 +672,14 @@ void AGeoTreeWin::onRequestShowPrototypeList()
 void AGeoTreeWin::updateMenuIndication()
 {
     const AConfig & Config = AConfig::getConstInstance();
+
     ui->actionUndo->setEnabled(Config.isUndoAvailable());
     ui->actionRedo->setEnabled(Config.isRedoAvailable());
+
+    int numSteps = A3Global::getConstInstance().UndoMaxDepth;
+    if (numSteps != 0) numSteps--;
+    QString label = QString("Set max number of undo steps stored (now is %1)").arg(numSteps);
+    ui->actionSet_max_number_of_undo_steps_stored->setText(label);
 }
 
 void AGeoTreeWin::onRemoveGeoConstFromShortcut()
@@ -959,5 +968,21 @@ void AGeoTreeWin::on_actionFind_object_triggered()
 void AGeoTreeWin::on_actionNew_objects_added_at_the_end_triggered(bool checked)
 {
     A3Global::getInstance().NewGeoObjectAddedLast = checked;
+}
+
+void AGeoTreeWin::on_actionSet_max_number_of_undo_steps_stored_triggered()
+{
+    AConfig & Config = AConfig::getInstance();
+
+    int input = A3Global::getConstInstance().UndoMaxDepth;
+    // the first step required depth of two, then increment by one
+    if (input != 0) input--;
+
+    guitools::inputInteger("Set maximum number of steps stored. 0 disables undo/redo system", input, 0, 99, this);
+
+    if (input != 0) input++; // if input = 1, actually we need two steps, etc
+    Config.updateUndoMaxDepth(input);
+
+    updateMenuIndication();
 }
 

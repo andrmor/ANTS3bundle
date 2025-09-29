@@ -233,6 +233,11 @@ void AMaterial::updateRuntimeOpticalProperties()
 void AMaterial::clear()
 {
     Name = "Undefined";
+
+    CompositionType = Direct;
+    G4MaterialName.clear();
+    NCrystalMaterialName.clear();
+
     RefIndex = 1.0;
     AbsCoeff = RayleighMFP = ReemissionProb = 0;
     IgnoreEnergyConservationInReemission = false;
@@ -293,8 +298,16 @@ void AMaterial::writeToJson(QJsonObject & json) const
 
     QJsonObject jsComp;
         Composition.writeToJson(jsComp);
-        jsComp["UseGeant4Material"] = UseG4Material;
+        QString typeStr;
+        switch (CompositionType)
+        {
+        case Direct           : typeStr = "Direct";   break;
+        case Geant4Material   : typeStr = "Geant4";   break;
+        case NCrystalMaterial : typeStr = "NCrystal"; break;
+        }
+        jsComp["CompositionType"] = typeStr;
         jsComp["Geant4Material"] = G4MaterialName;
+        jsComp["NCrystalMaterialName"] = NCrystalMaterialName;
     json["Composition"] = jsComp;
 
     json["RefIndex"] = RefIndex;
@@ -405,8 +418,29 @@ bool AMaterial::readFromJson(const QJsonObject & json)
     QJsonObject jsComp;
     jstools::parseJson(json, "Composition", jsComp);
         Composition.readFromJson(jsComp);
-        jstools::parseJson(jsComp, "UseGeant4Material", UseG4Material);
+        // Compatibility!
+        bool oldGeant4Mat = false;
+        if (jstools::parseJson(jsComp, "UseGeant4Material", oldGeant4Mat))
+        {
+            if (oldGeant4Mat) CompositionType = Geant4Material;
+            else              CompositionType = Direct;
+        }
+        else
+        {
+            QString typeStr;
+            jstools::parseJson(jsComp, "CompositionType", typeStr);
+            if      (typeStr == "Direct")   CompositionType = Direct;
+            else if (typeStr == "Geant4")   CompositionType = Geant4Material;
+            else if (typeStr == "NCrystal") CompositionType = NCrystalMaterial;
+            else
+            {
+                CompositionType = Direct;
+                AErrorHub::addQError("Unknown CompositionType for material " + Name);
+                qWarning() << "Unknown CompositionType for material " + Name + ", setting to Direct";
+            }
+        }
         jstools::parseJson(jsComp, "Geant4Material",    G4MaterialName);
+        jstools::parseJson(jsComp, "NCrystalMaterialName", NCrystalMaterialName);
 
     jstools::parseJson(json, "RefIndex", RefIndex);
     jstools::parseJson(json, "AbsCoeff", AbsCoeff);
@@ -525,9 +559,13 @@ QString AMaterial::checkMaterial() const
 {
     if (Name.isEmpty()) return "Empty material name!";
 
-    if (UseG4Material)
+    if (CompositionType == Geant4Material)
     {
         if (G4MaterialName.isEmpty()) return Name + ": Geant4 material name is empty";
+    }
+    else if (CompositionType == NCrystalMaterial)
+    {
+        if (NCrystalMaterialName.isEmpty()) return Name + ": NCrystal material name is empty";
     }
     else
     {

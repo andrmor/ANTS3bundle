@@ -55,6 +55,9 @@ public:
 
     bool        SaveDeposition = false;
     std::string FileNameDeposition = "Deposition.dat";
+    std::vector<std::string> SaveDepositionVolumes;
+    bool SaveDepositionIncludeScintillators = true;
+    std::vector<std::string> SaveDepositionScintVolumes;  // filled automatically
 
     ASaveParticlesSettings SaveSettings;
 
@@ -70,6 +73,7 @@ public:
 
     std::vector<std::string> Materials;
     std::vector<std::pair<std::string, std::string>> MaterialsFromNist;
+    std::vector<std::pair<std::string, std::string>> MaterialsFromNCrystal;
     std::vector<std::pair<std::string, double>> MaterialsMeanExEnergy; // in eV
 
     std::string GDML;

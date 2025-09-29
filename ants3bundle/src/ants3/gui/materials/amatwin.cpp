@@ -44,7 +44,7 @@ AMatWin::AMatWin(QWidget * parent) :
 {
     ui->setupUi(this);
 
-    this->move(15,15);
+    move(15,15);
 
     Qt::WindowFlags windowFlags = (Qt::Window | Qt::CustomizeWindowHint);
     windowFlags |= Qt::WindowCloseButtonHint;
@@ -54,6 +54,7 @@ AMatWin::AMatWin(QWidget * parent) :
     DefaultPBStyle = ui->pbAcceptChanges->styleSheet();
 
     configureG4Materials();
+    configureNCrystalMaterials();
 
     ui->pbWasModified->setVisible(false);
     ui->pbUpdateTmpMaterial->setVisible(false);
@@ -188,7 +189,7 @@ void AMatWin::updateWaveButtons()
     ui->pbDeleteReemisProbLambda->setEnabled(bR);
 }
 
-void AMatWin::updateG4RelatedGui()
+void AMatWin::compositionTypeChanged()
 {
 
 }
@@ -372,6 +373,25 @@ void AMatWin::fillElementInfo()
     }
 }
 
+void AMatWin::configureNCrystalMaterials()
+{
+    NCrystalMaterialNames = {"AcrylicGlass_C5O2H8.ncmat","AgBr_sg225_SilverBromide.ncmat","Ag_sg225.ncmat","Al2O3_sg167_Corundum.ncmat","Al4C3_sg166_AluminiumCarbide.ncmat","AlN_sg186_AluminumNitride.ncmat","Al_sg225.ncmat","Ar_Gas_STP.ncmat","Au_sg225.ncmat","BaF2_sg225_BariumFluoride.ncmat","BaO_sg225_BariumOxide.ncmat","Ba_sg229.ncmat","Be3N2_sg206_BerylliumNitride.ncmat","BeF2_sg152_Beryllium_Fluoride.ncmat","BeO_sg186.ncmat","Be_sg194.ncmat","Bi_sg166.ncmat","CaCO3_sg62_Aragonite.ncmat","CaF2_sg225_CalciumFlouride.ncmat","CaH2_sg62_CalciumHydride.ncmat","CaO2H2_sg164_CalciumHydroxide.ncmat","CaO_sg225_CalciumOxide.ncmat","Ca_sg225.ncmat","Ca_sg229_Calcium-gamma.ncmat","CaSiO3_sg2_Wollastonite.ncmat","CeO2_sg225_CeriumOxide.ncmat","Cr_sg229.ncmat","C_sg194_pyrolytic_graphite.ncmat","C_sg227_Diamond.ncmat","Cu2O_sg224_Cuprite.ncmat","Cu_sg225.ncmat","Dy2O3_sg206_DysprosiumOxide.ncmat","Epoxy_Araldite506_C18H20O3.ncmat","Fe_sg225_Iron-gamma.ncmat","Fe_sg229_Iron-alpha.ncmat","GaN_sg186_GalliumNitride.ncmat","GaSe_sg194_GalliumSelenide.ncmat","Ge3Bi4O12_sg220_BismuthGermanate.ncmat","Ge_sg227.ncmat","He_Gas_STP.ncmat","HfO2_sg14_HafniumOxide.ncmat","Ho2O3_sg206_HolmiumOxide.ncmat","Kapton_C22H10N2O5.ncmat","KBr_sg225_PotassiumBromide.ncmat","KF_sg225_PotassiumFlouride.ncmat","KOH_sg4_PotassiumHydroxide.ncmat","Kr_Gas_STP.ncmat","K_sg229.ncmat","LaBr3_sg176_LanthanumBromide.ncmat","Li2O_sg225_LithiumOxide.ncmat","Li3N_sg191_LithiumNitride.ncmat","LiF_sg225_LithiumFlouride.ncmat","LiH_sg225_LithiumHydride.ncmat","LiquidHeavyWaterD2O_T293.6K.ncmat","LiquidWaterH2O_T293.6K.ncmat","Lu2O3_sg206_LutetiumOxide.ncmat","Lu2SiO5_sg15.ncmat","Mg2SiO4_sg62_MagnesiumSilicate.ncmat","MgAl2O4_sg227_MAS.ncmat","MgCO3_sg167_MagnesiumCarbonate.ncmat","MgD2_sg136_MagnesiumDeuteride.ncmat","MgF2_sg136_MagnesiumFlouride.ncmat","MgH2_sg136_MagnesiumHydride.ncmat","MgO2H2_sg164_MagnesiumHydroxide.ncmat","MgO_sg225_Periclase.ncmat","Mg_sg194.ncmat","Mo_sg229.ncmat","Na4Si3Al3O12Cl_sg218_Sodalite.ncmat","NaBr_sg225_SodiumBromide.ncmat","NaCl_sg225_SodiumChloride.ncmat","NaF_sg225_SodiumFlouride.ncmat","NaI_sg225_SodiumIodide.ncmat","Na_sg229.ncmat","Nb_sg229.ncmat","Ne_Gas_STP.ncmat","Ni_sg225.ncmat","Nylon11_C11H21NO.ncmat","Nylon12_C12H23NO.ncmat","Nylon610_C16H30N2O2.ncmat","Nylon66or6_C12H22N2O2.ncmat","PbF2-beta_sg225_BetaLeadFlouride.ncmat","PbO-alpha_sg129_Litharge.ncmat","PbO-beta_sg57_Massicot.ncmat","Pb_sg225.ncmat","PbS_sg225_LeadSulfide.ncmat","Pd_sg225.ncmat","PEEK_C19H12O3.ncmat","Polycarbonate_C16O3H14.ncmat","Polyester_C10H8O4.ncmat","Polyethylene_CH2.ncmat","Polylactide_C3H4O2.ncmat","Polypropylene_C3H6.ncmat","Polystyrene_C8H8.ncmat","Pt_sg225.ncmat","PVC_C2H3Cl.ncmat","Rb_sg229.ncmat","Rubber_C5H8.ncmat","Sc_sg194.ncmat","SiC-beta_sg216_BetaSiliconCarbide.ncmat","SiO2-alpha_sg154_AlphaQuartz.ncmat","SiO2-beta_sg180_BetaQuartz.ncmat","Si_sg227.ncmat","Sn_sg141.ncmat","SrF2_sg225_StrontiumFluoride.ncmat","SrH2_sg62_StrontiumHydride.ncmat","Sr_sg225.ncmat","Th3N4_sg166_ThoriumNitride.ncmat","ThO2_sg225_ThoriumDioxide.ncmat","Th_sg225.ncmat","TiO2_sg136_Rutile.ncmat","TiO2_sg141_Anatase.ncmat","Ti_sg194.ncmat","TlBr_sg221_ThaliumBromide.ncmat","Tm2O3_sg206_ThuliumOxide.ncmat","UF6_sg62_UraniumHexaflouride.ncmat","UO2_sg225_UraniumDioxide.ncmat","void.ncmat","V_sg229.ncmat","W_sg229.ncmat","Xe_Gas_STP.ncmat","Y2O3_sg206_Yttrium_Oxide.ncmat","Y2SiO5_sg15_YSO.ncmat","Y3Al5O12_sg230_YAG.ncmat","Y_sg194.ncmat","ZnF2_sg136_ZincFlouride.ncmat","ZnO_sg186_ZincOxide.ncmat","Zn_sg194.ncmat","ZnS_sg216_Sphalerite.ncmat","ZrF4-beta_sg84.ncmat","ZrO2_sg137_Zirconia.ncmat","ZrO2_sg14_Zirconia.ncmat","Zr_sg194.ncmat"};
+
+    QCompleter * Completer = new QCompleter(this);
+    QStringListModel * CompletitionModel = new QStringListModel(NCrystalMaterialNames, this);
+    Completer->setModel(CompletitionModel);
+    Completer->setCompletionMode(QCompleter::UnfilteredPopupCompletion);
+    //completer->setCompletionMode(QCompleter::PopupCompletion);
+    Completer->setFilterMode(Qt::MatchContains);
+    //completer->setFilterMode(Qt::MatchStartsWith);
+    //Completer->setModelSorting(QCompleter::CaseSensitivelySortedModel);
+    Completer->setModelSorting(QCompleter::CaseInsensitivelySortedModel);
+    //Completer->setCaseSensitivity(Qt::CaseSensitive);
+    Completer->setCaseSensitivity(Qt::CaseInsensitive);
+    Completer->setWrapAround(false);
+    ui->leNCrystalMaterial->setCompleter(Completer);
+}
+
 std::pair<QString,int> pressureToStringAndCobIndex(double pressure_bar, const QString & units)
 {
     double factor = 1.0;
@@ -414,9 +434,18 @@ void AMatWin::updateTmpMaterialGui()
     ui->leComposition->setText( tmpMaterial.Composition.getCompositionString() );
     fillElementInfo();
 
-    ui->cobCompositionType->setCurrentIndex(tmpMaterial.UseG4Material ? 1 : 0);
+    int index = 0;
+    switch (tmpMaterial.CompositionType)
+    {
+    case AMaterial::Direct           : index = 0; break;
+    case AMaterial::Geant4Material   : index = 1; break;
+    case AMaterial::NCrystalMaterial : index = 2; break;
+    default: qWarning() << "Not implemented type of material composition, selecting 'Direct'";
+    }
+    ui->cobCompositionType->setCurrentIndex(index);
     ui->leG4Material->setText(tmpMaterial.G4MaterialName);
-    updateG4RelatedGui();
+    ui->leNCrystalMaterial->setText(tmpMaterial.NCrystalMaterialName);
+    compositionTypeChanged();
 
     ui->ledN->setText( QString::number(tmpMaterial.RefIndex) );
     ui->ledAbs->setText( QString::number(tmpMaterial.AbsCoeff) );
@@ -531,8 +560,18 @@ void AMatWin::on_pbUpdateTmpMaterial_clicked()
 {  
     tmpMaterial.Name = ui->leName->text();
 
-    tmpMaterial.UseG4Material = (ui->cobCompositionType->currentIndex() == 1);
+    switch (ui->cobCompositionType->currentIndex())
+    {
+    case 0: tmpMaterial.CompositionType = AMaterial::Direct;           break;
+    case 1: tmpMaterial.CompositionType = AMaterial::Geant4Material;   break;
+    case 2: tmpMaterial.CompositionType = AMaterial::NCrystalMaterial; break;
+    default:
+        qWarning() << "Unknown composition type in cobCompositionType, assuming 'Direct'";
+        tmpMaterial.CompositionType = AMaterial::Direct;
+    }
+
     tmpMaterial.G4MaterialName = ui->leG4Material->text();
+    tmpMaterial.NCrystalMaterialName = ui->leNCrystalMaterial->text();
 
     tmpMaterial.Composition.Density = ui->ledDensity->text().toDouble();
     tmpMaterial.Composition.Temperature = ui->ledT->text().toDouble();
@@ -1177,7 +1216,7 @@ void AMatWin::on_pbListGeant4Materials_clicked()
 
 void AMatWin::on_cobCompositionType_currentIndexChanged(int /*index*/)
 {
-    updateG4RelatedGui();
+    compositionTypeChanged();
 }
 
 void AMatWin::on_actionRemove_selected_material_triggered()
@@ -1425,7 +1464,7 @@ void AMatWin::on_pbInspectG4Material_clicked()
     //ui->pbAbort->setEnabled(true);
 
     AG4MaterialRecord reply;
-    G4Inspector.inspectMaterial(tmpMaterial.G4MaterialName, reply);
+    G4Inspector.inspectMaterial(tmpMaterial.G4MaterialName, false, reply);
 
     if (!G4Inspector.ErrorString.isEmpty())
         guitools::message(G4Inspector.ErrorString, this);
@@ -1543,5 +1582,44 @@ void AMatWin::on_pbImportNWave_clicked()
     ui->pbShowNlambda->setEnabled(bHaveData);
     ui->pbDeleteNlambda->setEnabled(bHaveData);
     setWasModified(true);
+}
+
+void AMatWin::on_pbListNCrystalMaterials_clicked()
+{
+    QString txt;
+    txt = NCrystalMaterialNames.join('\n');
+    guitools::message1(txt, "NCrystal materials", this);
+}
+
+// !!!*** define common parts with on_pbInspectG4Material_clicked
+void AMatWin::on_pbInspectNCrystalMaterial_clicked()
+{
+    //disableInterface(true);
+    qApp->processEvents();
+
+    AGeant4InspectorManager & G4Inspector = AGeant4InspectorManager::getInstance();
+    //ui->pbAbort->setEnabled(true);
+
+    AG4MaterialRecord reply;
+    G4Inspector.inspectMaterial(tmpMaterial.NCrystalMaterialName, true, reply);
+
+    if (!G4Inspector.ErrorString.isEmpty())
+        guitools::message(G4Inspector.ErrorString, this);
+    else
+    {
+        QString str;
+        str += "Name:\t\t"    + reply.Name + "\n\n";
+        str += "Density:\t\t" + QString::number(reply.Density) + " g/cm3" + "\n\n";
+        str += "Composition\n";
+        str += " by weight:\t\t" + reply.WeightFractions + '\n';
+        str += " by atoms:\t\t" + (reply.AtomFractions.isEmpty() ? "Not specified" : reply.AtomFractions) + "\n\n";
+        reply.Formula.remove('_');
+        str += "Formula:\t\t" + (reply.Formula.isEmpty() ? "Not specified" : reply.Formula);
+        str += "\n\n";
+        str += "Temperature:\t" + QString::number(reply.Temperature) + " K\n\n";
+        str += "Mean Excitation Energy:\t" + QString::number(reply.MeanExcitationEnergy) + " eV";
+
+        guitools::message1notModal(str, "Geant4 material", this);
+    }
 }
 

@@ -56,6 +56,8 @@ private slots:
   void on_actionFind_object_triggered();
   void on_actionNew_objects_added_at_the_end_triggered(bool checked);
 
+  void on_actionSet_max_number_of_undo_steps_stored_triggered();
+
   private:
   AGeometryHub       & Geometry;
   const AMaterialHub & MaterialHub;

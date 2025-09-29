@@ -48,8 +48,8 @@ public:
     QString ErrorString;
 
 public slots:
-    bool inspectMaterial(const QString & matName, AG4MaterialRecord & reply);
-    bool requestVersion(QString & version);
+    bool inspectMaterial(const QString & matName, bool nCrystalMaterial, AG4MaterialRecord & reply);
+    bool requestVersion(QString & geantVersion, QString & nCrystalVersion);
 
 signals:
     void finished(bool bSuccess);
@@ -59,7 +59,7 @@ protected:
     std::vector<QString>   OutputFiles;
     bool                   bAborted = false;
 
-    bool configureForInspectMaterial(const QString & matName, std::vector<AFarmNodeRecord> & RunPlan, A3WorkDistrConfig & Request);
+    bool configureForInspectMaterial(const QString & matName, bool nCrystalMat, std::vector<AFarmNodeRecord> & RunPlan, A3WorkDistrConfig & Request);
     bool configureForRequestGeantVersion(std::vector<AFarmNodeRecord> & RunPlan, A3WorkDistrConfig & Request);
 };
 

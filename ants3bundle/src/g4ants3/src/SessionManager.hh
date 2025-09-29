@@ -73,6 +73,8 @@ class SessionManager
 
         void saveDepoRecord(const std::string & pName, int iMat, double edep, double * pos, double time, int copyNumber);
 
+        void saveCalorimeterLogEntry();
+
         void saveTrackStart(int trackID, int parentTrackID,
                             const G4String & particleName,
                             const G4ThreeVector & pos, double time, double kinE,
@@ -122,6 +124,7 @@ private:
         void prepareMonitors();
         void prepareAnalyzers();
         void prepareOutputDepoStream();
+        void prepareOutputCalorimeterLogStream();
         void prepareOutputHistoryStream();
         void prepareOutputExitStream();
         void executeAdditionalCommands();
@@ -133,9 +136,10 @@ private:
         void replaceMatNameInMatLimitedSources(const G4String & name, const G4String & G4Name);
 
     private:
-        std::ofstream * outStreamDeposition = nullptr;
-        std::ofstream * outStreamHistory    = nullptr;
-        std::ofstream * outStreamExit       = nullptr;
+        std::ofstream * outStreamDeposition     = nullptr;
+        std::ofstream * outStreamCalorimeterLog = nullptr;
+        std::ofstream * outStreamHistory        = nullptr;
+        std::ofstream * outStreamExit           = nullptr;
 
         std::map<std::string, int> ElementToZ;
         std::map<std::string, int> MaterialMap;

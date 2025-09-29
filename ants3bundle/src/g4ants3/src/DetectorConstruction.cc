@@ -7,6 +7,8 @@
 #include "G4SystemOfUnits.hh"
 #include "G4UserLimits.hh"
 
+#include "G4Material.hh"
+
 #include <algorithm>
 
 DetectorConstruction::DetectorConstruction(G4VPhysicalVolume *setWorld)
@@ -32,10 +34,14 @@ void DetectorConstruction::ConstructSDandField()
     G4LogicalVolumeStore* store = G4LogicalVolumeStore::GetInstance();
 
     std::vector<std::string> SVlist;
-    SVlist.reserve(SM.Settings.G4Set.SensitiveVolumes.size() + SM.Settings.G4Set.ScintSensitiveVolumes.size());
-    std::copy(SM.Settings.G4Set.SensitiveVolumes.begin(), SM.Settings.G4Set.SensitiveVolumes.end(), std::back_inserter(SVlist));
-    if (SM.Settings.G4Set.AddScintillatorsToSensitiveVolumes)
-        std::copy(SM.Settings.G4Set.ScintSensitiveVolumes.begin(), SM.Settings.G4Set.ScintSensitiveVolumes.end(), std::back_inserter(SVlist));
+    //SVlist.reserve(SM.Settings.G4Set.SensitiveVolumes.size() + SM.Settings.G4Set.ScintSensitiveVolumes.size());
+    SVlist.reserve(SM.Settings.RunSet.SaveDepositionVolumes.size() + SM.Settings.RunSet.SaveDepositionScintVolumes.size());
+    //std::copy(SM.Settings.G4Set.SensitiveVolumes.begin(), SM.Settings.G4Set.SensitiveVolumes.end(), std::back_inserter(SVlist));
+    std::copy(SM.Settings.RunSet.SaveDepositionVolumes.begin(), SM.Settings.RunSet.SaveDepositionVolumes.end(), std::back_inserter(SVlist));
+    //if (SM.Settings.G4Set.AddScintillatorsToSensitiveVolumes)
+        //std::copy(SM.Settings.G4Set.ScintSensitiveVolumes.begin(), SM.Settings.G4Set.ScintSensitiveVolumes.end(), std::back_inserter(SVlist));
+    if (SM.Settings.RunSet.SaveDepositionIncludeScintillators)
+        std::copy(SM.Settings.RunSet.SaveDepositionScintVolumes.begin(), SM.Settings.RunSet.SaveDepositionScintVolumes.end(), std::back_inserter(SVlist));
     for (auto & sv : SVlist)
     {
         if (sv.size() == 0) continue;

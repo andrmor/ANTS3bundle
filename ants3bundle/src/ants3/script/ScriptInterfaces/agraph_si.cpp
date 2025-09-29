@@ -55,6 +55,16 @@ AGraph_SI::AGraph_SI()
     Help["setXDivisions"] = "Configures ticks for X axis\n" + divHelp;
     Help["setYDivisions"] = "Configures ticks for Y axis\n" + divHelp;
 
+    Help["setXCustomLabelsByIndex"] = "Assign custom labels for X axis. 'textLabels' argument is the array with the new labels.\n"
+                                      "If a default label has to be removed, put one space string (' ') at the corresponding place of this array.\n"
+                                      "'tiltAngleDegrees' controls the rotation angle of the labels, zero is default.\n"
+                                      "Set 'rightAligned' to true for large tilt angles.";
+    Help["setXCustomLabelsByValue"] = "Assign custom labels for X axis. 'textLabels' and 'xValues' arguments are the arrays with the new labels at the "
+                                      "corresponding X values.\n"
+                                      "If a default label has to be removed, put one space string (' ') at the corresponding place of this array.\n"
+                                      "'tiltAngleDegrees' controls the rotation angle of the labels, zero is default.\n"
+                                      "Set 'rightAligned' to true for large tilt angles.";
+
     Help["sort"] = "Sorts points of 1D graph to have continuously increasing X";
 
     Help["getData"] = "Get an array with the data points of the graph";
@@ -486,6 +496,57 @@ void AGraph_SI::setYDivisions(QString graphName, int numDiv)
     ARootGraphRecord * r = dynamic_cast<ARootGraphRecord*>(Graphs.getRecord(graphName));
     if (!r) abort("Graph " + graphName + " not found!");
     else    r->setYDivisions(numDiv);
+}
+
+#include "TAxis.h"
+void AGraph_SI::setXCustomLabelsByIndex(QString graphName, QVariantList textLabels, double tiltAngleDegrees, bool rightAligned)
+{
+    if (!bGuiThread)
+    {
+        abort("Cannot perform this operation in non-GUI thread!");
+        return;
+    }
+
+    ARootGraphRecord * r = dynamic_cast<ARootGraphRecord*>(Graphs.getRecord(graphName));
+    if (!r)
+    {
+        abort("Graph " + graphName + " not found!");
+        return;
+    }
+
+    TGraph * gr = dynamic_cast<TGraph*>(r->GetObject());
+    if (!gr) abort("Name " + graphName + " is not associated with a graph!");
+    else
+    {
+        TAxis * ax = gr->GetXaxis();
+        for (int i = 0; i < ax->GetNlabels() && i < textLabels.size(); i++)
+            ax->ChangeLabel(i+1, tiltAngleDegrees, -1, (rightAligned ? 32 : -1), -1, -1, textLabels[i].toString().toLatin1().data());
+    }
+}
+
+void AGraph_SI::setXCustomLabelsByValue(QString graphName, QVariantList xValues, QVariantList textLabels, double tiltAngleDegrees, bool rightAligned)
+{
+    if (!bGuiThread)
+    {
+        abort("Cannot perform this operation in non-GUI thread!");
+        return;
+    }
+
+    ARootGraphRecord * r = dynamic_cast<ARootGraphRecord*>(Graphs.getRecord(graphName));
+    if (!r)
+    {
+        abort("Graph " + graphName + " not found!");
+        return;
+    }
+
+    TGraph * gr = dynamic_cast<TGraph*>(r->GetObject());
+    if (!gr) abort("Name " + graphName + " is not associated with a graph!");
+    else
+    {
+        TAxis * ax = gr->GetXaxis();
+        for (int i = 0; i < xValues.size() && i < textLabels.size(); i++)
+            ax->ChangeLabelByValue(xValues[i].toDouble(), tiltAngleDegrees, -1, (rightAligned ? 32 : -1), -1, -1, textLabels[i].toString().toLatin1().data());
+    }
 }
 
 void AGraph_SI::sort(QString graphName)

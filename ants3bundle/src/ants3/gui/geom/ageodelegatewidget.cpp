@@ -377,8 +377,6 @@ void AGeoDelegateWidget::onConfirmPressed()
         return;
     }
 
-    AConfig::getInstance().createUndo();
-
     const QString oldName = CurrentObject->Name;
     bool ok = GeoDelegate->updateObject(CurrentObject);
     if (!ok) return;

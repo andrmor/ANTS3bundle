@@ -1,3 +1,5 @@
+#CONFIG += ants3_NCrystal   # Requires installation of NCrystal
+
 QT -= gui
 
 CONFIG += c++17 console
@@ -78,6 +80,7 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 HEADERS += \
+    ../ants3/particleSim/EcoMug/EcoMug.h \
     ../ants3/particleSim/acalsettings.h \
     ../ants3/particleSim/afilegeneratorsettings.h \
     ../ants3/particleSim/afileparticlegenerator.h \
@@ -111,3 +114,26 @@ HEADERS += \
     src/exceptionhandler.h \
     src/json11.hh \
     src/js11tools.hh
+
+ants3_NCrystal {
+  DEFINES += ANTS3_NCRYSTAL
+
+  #NCrystal
+  INCLUDEPATH += $$system(ncrystal-config --show includedir)
+  LIBS += -L$$system(ncrystal-config --show libdir) -lNCrystal
+
+  #NCrystal-Geant4
+  SOURCES += \
+  src/G4NCrystal/G4NCBias.cc \
+  src/G4NCrystal/G4NCManager.cc \
+  src/G4NCrystal/G4NCMatHelper.cc \
+  src/G4NCrystal/G4NCInstall.cc \
+  src/G4NCrystal/G4NCProcWrapper.cc
+  HEADERS += \
+  src/G4NCrystal/G4NCBias.hh \
+  src/G4NCrystal/G4NCInstall.hh \
+  src/G4NCrystal/G4NCMatHelper.hh \
+  src/G4NCrystal/G4NCProcWrapper.hh \
+  src/G4NCrystal/G4NCManager.hh \
+  src/G4NCrystal/G4NCrystal.hh
+}

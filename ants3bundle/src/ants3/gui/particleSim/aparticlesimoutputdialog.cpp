@@ -31,15 +31,23 @@ AParticleSimOutputDialog::AParticleSimOutputDialog(QWidget *parent) :
 
     ui->cbDeposition->setChecked(RunSet.SaveDeposition);
     ui->labDeposition->setText(RunSet.FileNameDeposition.data());
+    ui->leDepo->clear();
+    QStringList svl;
+    for (const auto & s : RunSet.SaveDepositionVolumes) svl << s.data();
+    ui->leDepo->setText(svl.join(" "));
+    ui->cbDepoIncludeAllScintillators->setChecked(RunSet.SaveDepositionIncludeScintillators);
 
     ui->cbMonitors->setChecked(RunSet.MonitorSettings.Enabled);
     ui->labMonitors->setText(RunSet.MonitorSettings.FileName.data());
 
     ui->cbCalorimeters->setChecked(RunSet.CalorimeterSettings.Enabled);
     ui->labCalorimeters->setText(RunSet.CalorimeterSettings.FileName.data());
+    ui->cbCalorimeterSaveLog->setChecked(RunSet.CalorimeterSettings.SaveEnergyDepositionLog);
 
     ui->cbParticleAnalyzers->setChecked(RunSet.AnalyzerSettings.Enabled);
     ui->labParticleAnalyzers->setText(RunSet.AnalyzerSettings.FileName.data());
+
+    resize(width(), height()-50);
 }
 
 AParticleSimOutputDialog::~AParticleSimOutputDialog()
@@ -69,12 +77,20 @@ void AParticleSimOutputDialog::on_pbAccept_clicked()
 
     RunSet.SaveDeposition = ui->cbDeposition->isChecked();
     //RunSet.FileNameDeposition = ui->leDeposition->text().toLatin1().data();
+    const QRegularExpression rx = QRegularExpression("(\\ |\\,|\\n|\\t)"); //separators: ' ' or ',' or '\n' or '\t'
+    const QString t = ui->leDepo->text();
+    const QStringList sl = t.split(rx, Qt::SkipEmptyParts);
+    // !!!*** check for overlaps in names, considering also wildcard
+    RunSet.SaveDepositionVolumes.clear();
+    for (const QString & s : sl) RunSet.SaveDepositionVolumes.push_back(s.toLatin1().data());
+    RunSet.SaveDepositionIncludeScintillators = ui->cbDepoIncludeAllScintillators->isChecked();
 
     RunSet.MonitorSettings.Enabled = ui->cbMonitors->isChecked();
     //RunSet.MonitorSettings.FileName = ui->leMonitors->text().toLatin1().data();
 
     RunSet.CalorimeterSettings.Enabled = ui->cbCalorimeters->isChecked();
     //RunSet.CalorimeterSettings.FileName = ui->leCalorimeters->text().toLatin1().data();
+    RunSet.CalorimeterSettings.SaveEnergyDepositionLog = ui->cbCalorimeterSaveLog->isChecked();
 
     RunSet.AnalyzerSettings.Enabled = ui->cbParticleAnalyzers->isChecked();
     //RunSet.AnalyzerSettings.FileName = ui->labParticleAnalyzers->text().toLatin1().data();

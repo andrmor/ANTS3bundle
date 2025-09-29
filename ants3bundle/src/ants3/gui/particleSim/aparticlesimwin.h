@@ -18,11 +18,11 @@ class AMonitorHub;
 class ACalorimeterHub;
 class TH1D;
 class AParticleRecord;
-class AParticleSourceRecord;
+class AParticleSourceRecordBase;
 class ATrackingHistoryCrawler;
 class AFindRecordSelector;
 class AEventTrackingRecord;
-class AParticleSourceDialog;
+class AParticleSourceDialogBase;
 
 namespace Ui {
 class AParticleSimWin;
@@ -53,10 +53,10 @@ private slots:
     void on_pbSimulate_clicked();
 
     void on_lePhysicsList_editingFinished();
-    void on_cobRefPhysLists_activated(int index);
-    void on_cbUseTSphys_clicked(bool checked);
-    void on_pteCommands_textChanged();
-    void on_pteSensitiveVolumes_textChanged();  // redo  !!!***
+    //void on_cbUseTSphys_clicked(bool checked);
+    void on_cobThermalNeutronModel_activated(int index);
+    void on_pteCommands_textChanged(); // guarded by bUpdatingCommandList
+    //void on_pteSensitiveVolumes_textChanged();
     void on_pbAddNewStepLimit_clicked(); // !!!*** possible override of step limit with overlapping volume name using wildcard *
     void on_lwStepLimits_itemDoubleClicked(QListWidgetItem *item);
     void on_pbRemoveStepLimit_clicked();
@@ -69,7 +69,7 @@ private slots:
     void on_lwDefinedParticleSources_itemDoubleClicked(QListWidgetItem * item);
 
     void on_pbGunTest_clicked();
-    void on_pbGunShowSource_toggled(bool checked); // !!!***
+    void on_pbGunShowSource_toggled(bool checked);
     void on_pbConfigureOutput_clicked();
 
     void on_cobParticleGenerationMode_activated(int index);
@@ -159,7 +159,7 @@ private:
     AMonitorHub           & MonitorHub;
     ACalorimeterHub       & CalHub;
 
-    Ui::AParticleSimWin *ui;
+    Ui::AParticleSimWin   * ui = nullptr;
 
     std::vector<bool> ExpandedItems;
 
@@ -181,7 +181,7 @@ private:
     double fromB2 = 0;
     double toB2 = 0;
 
-    bool   bGuiUpdateInProgress = false;
+    bool   bUpdatingCommandList = false;
 
     QString LastDir_Working;
     QString LastFile_Tracking;
@@ -202,7 +202,7 @@ private:
 
     AEventTrackingRecord * CurrentEventRecord = nullptr;
 
-    AParticleSourceDialog * ParticleSourceDialog = nullptr;
+    AParticleSourceDialogBase * ParticleSourceDialog = nullptr;
 
     void updateG4Gui();
     void updateSimGui();
@@ -238,7 +238,7 @@ private:
 
     void addStatistics(const AParticleRecord & p);
     void configureAngleStat(AParticleGun * gun);
-    void checkWorldSize(AParticleSourceRecord & ps);
+    void checkWorldSize(AParticleSourceRecordBase * ps);
     bool isTrackingDataFileExists();
 
     void findInBulk(ATrackingHistoryCrawler & crawler, AFindRecordSelector & options, int numThreads, int numEventsPerThread);
@@ -279,7 +279,7 @@ private slots:
 
     void abortFind();
     void on_pbChooseWorkingDirectory_customContextMenuRequested(const QPoint &pos);
-    void on_cbIncludeScintillators_clicked(bool checked);
+    //void on_cbIncludeScintillators_clicked(bool checked);
     void on_sbNumThreadsStatistics_valueChanged(int arg1);
     void on_ledPTHistFromX_editingFinished();
     void on_ledPTHistToX_editingFinished();
@@ -303,6 +303,8 @@ private slots:
     void on_cobAnalyzerNumberOption_activated(int index);
     void on_cobAnalyzerEnergyUnits_activated(int index);
     void on_pbHelpGetParticles_clicked();
+
+    void on_pbOfferPhysLists_clicked();
 };
 
 #endif // APARTICLESIMWIN_H

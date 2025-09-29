@@ -12,6 +12,40 @@
     class QJsonObject;
 #endif
 
+struct AParticleSourceRecordBase
+{
+    virtual ~AParticleSourceRecordBase(){}
+
+    virtual std::string getType() const = 0; //{return "Base";}
+
+    std::string Name     = "No_name";
+    double      Activity = 1.0;
+
+    void clear();
+    virtual void doClear(){}
+
+    virtual std::string check() const = 0;
+    virtual std::string getShortDescription() const = 0;
+
+#ifdef JSON11
+    bool readFromJson(const json11::Json::object & json);
+    virtual bool doReadFromJson(const json11::Json::object & /*json*/) {return true;}
+#else
+    bool readFromJson(const QJsonObject & json);
+    virtual bool doReadFromJson(const QJsonObject & /*json*/) {return true;}
+
+    void writeToJson(QJsonObject & json) const;
+    virtual void doWriteToJson(QJsonObject & /*json*/) const {}
+#endif
+
+static AParticleSourceRecordBase * factory(std::string sourceType);
+#ifdef JSON11
+static AParticleSourceRecordBase * factory(const json11::Json::object & json);
+#else
+static AParticleSourceRecordBase * factory(const QJsonObject & json);
+#endif
+};
+
 class G4ParticleDefinition;
 
 // !!!*** add check method (check energy spectrum, values are positive, add: LinkedBtBPair cannot be for "-")
@@ -56,8 +90,10 @@ struct AGunParticle
     ARandomSampler _EnergySampler;
 };
 
-struct AParticleSourceRecord
+struct AParticleSourceRecord_Standard : public AParticleSourceRecordBase
 {
+    virtual std::string getType() const override {return "Standard";}
+
     enum EShape {Point, Line, Rectangle, Round, Box, Cylinder};
     enum EAngularMode {Isotropic, FixedDirection, GaussDispersion, CustomAngular};
     enum EAxialMode {GaussAxial, CustomAxial};
@@ -65,8 +101,6 @@ struct AParticleSourceRecord
     enum ESpreadMode {NoSpread, GaussianSpread, UniformSpread, ExponentialSpread};
     enum ETimeUnits {ns, us, ms, s, min, h};
 
-    std::string Name     = "No_name";
-    double      Activity = 1.0;
     EShape      Shape    = Point;
 
     // Position
@@ -127,19 +161,19 @@ struct AParticleSourceRecord
     // Particles
     std::vector<AGunParticle> Particles;
 
-    void clear();
+    void doClear() override;
 
 #ifdef JSON11
-    bool readFromJson(const json11::Json::object & json); // !!!*** error handling?
+    bool doReadFromJson(const json11::Json::object & json) override; // !!!*** error handling?
 #else
-    void writeToJson(QJsonObject & json) const;
-    bool readFromJson(const QJsonObject & json); // !!!*** error handling
+    void doWriteToJson(QJsonObject & json) const override;
+    bool doReadFromJson(const QJsonObject & json) override; // !!!*** error handling
 #endif
 
-    std::string getShapeString() const;
     bool        isDirectional() const;
 
-    std::string check() const;  // !!!*** check energy spectrum
+    std::string check() const override;  // !!!*** check energy spectrum
+    std::string getShortDescription() const override;
 
     std::string configureAngularSampler();
     std::string configureTimeSampler();
@@ -151,8 +185,37 @@ struct AParticleSourceRecord
     RandomRadialSampler _AxialSampler;
 
 private:
-    AParticleSourceRecord::ETimeUnits strToTimeUnits(const std::string & str) const;  // !!!*** error reporting
-    std::string timeUnitsToString(AParticleSourceRecord::ETimeUnits timeUnits) const; // !!!*** error reporting
+    AParticleSourceRecord_Standard::ETimeUnits strToTimeUnits(const std::string & str) const;  // !!!*** error reporting
+    std::string timeUnitsToString(AParticleSourceRecord_Standard::ETimeUnits timeUnits) const; // !!!*** error reporting
+};
+
+struct AParticleSourceRecord_EcoMug : public AParticleSourceRecordBase
+{
+    std::string getType() const override {return "EcoMug";}
+
+    enum EShape {Rectangle, Cylinder, HalfSphere};
+
+    EShape Shape = Rectangle;
+
+    double Size1 = 50.0; // SizeX or Radius
+    double Size2 = 50.0; // SizeY or Height
+
+    // position
+    double X0 = 0;
+    double Y0 = 0;
+    double Z0 = 0;
+
+    void doClear() override;
+    std::string check() const override;
+    std::string getShortDescription() const override;
+
+#ifdef JSON11
+    bool doReadFromJson(const json11::Json::object & /*json*/) override;
+#else
+    bool doReadFromJson(const QJsonObject & /*json*/) override;
+    void doWriteToJson(QJsonObject & /*json*/) const override;
+#endif
+
 };
 
 #endif // APARTICLESOURCERECORD_H

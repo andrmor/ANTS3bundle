@@ -52,6 +52,8 @@ public slots:
     void setXRange(QString graphName, double min, double max);
     void setXDivisions(QString graphName, int numDiv);
     void setYDivisions(QString graphName, int numDiv);
+    void setXCustomLabelsByIndex(QString graphName, QVariantList textLabels, double tiltAngleDegrees, bool rightAligned);
+    void setXCustomLabelsByValue(QString graphName, QVariantList xValues, QVariantList textLabels, double tiltAngleDegrees, bool rightAligned);
 
     void sort(QString graphName);
 

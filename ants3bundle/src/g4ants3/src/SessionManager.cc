@@ -38,9 +38,13 @@ SessionManager::~SessionManager()
 {
     delete outStreamExit;
     delete outStreamDeposition;
+    delete outStreamCalorimeterLog;
     delete outStreamHistory;
 }
 
+#ifdef ANTS3_NCRYSTAL
+#include "G4NCrystal/G4NCrystal.hh"
+#endif
 void SessionManager::startSession()
 {
     prepareParticleGun();
@@ -57,12 +61,22 @@ void SessionManager::startSession()
     // preparing ouptut for exiting particle export
     if (Settings.RunSet.SaveSettings.Enabled) prepareOutputExitStream();
 
+    // preparing ouptut for exiting particle export
+    if (Settings.RunSet.CalorimeterSettings.Enabled && Settings.RunSet.CalorimeterSettings.SaveEnergyDepositionLog) prepareOutputCalorimeterLogStream();
+
     //set random generator
     ARandomHub::getInstance().init(Settings.RunSet.Seed);
 
     executeAdditionalCommands();
 
     if (Settings.RunSet.SaveSettings.Enabled) findExitVolume();
+
+    if (Settings.G4Set.UseNCrystal)
+#ifdef ANTS3_NCRYSTAL
+        G4NCrystal::installOnDemand();
+#else
+        terminateSession("Cannot activate NCrystal: g4ants3 was compiled without NCrystal library enabled!");
+#endif
 }
 
 void SessionManager::prepareParticleGun()
@@ -70,9 +84,15 @@ void SessionManager::prepareParticleGun()
     switch (Settings.GenerationMode)
     {
     case AParticleSimSettings::Sources :
-        for (AParticleSourceRecord & source : Settings.SourceGenSettings.SourceData)
-            for (AGunParticle & particle : source.Particles)
-                particle.particleDefinition = SessionManager::findGeant4Particle(particle.Particle); // terminate inside if not found
+        for (AParticleSourceRecordBase * source : Settings.SourceGenSettings.SourceData)
+        {
+            AParticleSourceRecord_Standard * stSource = dynamic_cast<AParticleSourceRecord_Standard*>(source);
+            if (stSource)
+            {
+                for (AGunParticle & particle : stSource->Particles)
+                    particle.particleDefinition = SessionManager::findGeant4Particle(particle.Particle); // terminate inside if not found
+            }
+        }
         ParticleGenerator = new ASourceParticleGenerator(Settings.SourceGenSettings);
         break;
     case AParticleSimSettings::File :
@@ -133,6 +153,9 @@ void SessionManager::onEventFinished()
 
         DirectDepositionBuffer.clear();
     }
+
+    if (Settings.RunSet.CalorimeterSettings.Enabled && Settings.RunSet.CalorimeterSettings.SaveEnergyDepositionLog)
+        saveCalorimeterLogEntry();
 
     //EventId = NextEventId;
     CurrentEvent++;
@@ -310,7 +333,7 @@ void replaceMaterialRecursive(G4LogicalVolume * volLV, const G4String & matName,
 {
     if (volLV->GetMaterial()->GetName() == matName)
     {
-        //std::cout << "Replacing material for vol " << volLV->GetName() << '\n';
+        std::cout << "Replacing material for vol " << volLV->GetName() << '\n';
         volLV->SetMaterial(newMat);
     }
 
@@ -355,6 +378,7 @@ void SessionManager::updateMaterials()
 
         G4Material * newMat = nullptr;
 
+        /*
         //is it custom G4ants override?
         if (G4Name == "G4_Al_TS")
         {
@@ -363,9 +387,8 @@ void SessionManager::updateMaterials()
             newMat->AddElement(alEle, 1);
         }
         else
-        {
-            newMat = man->FindOrBuildMaterial(G4Name);
-        }
+        */
+        newMat = man->FindOrBuildMaterial(G4Name);
 
         if (!newMat)
         {
@@ -377,14 +400,43 @@ void SessionManager::updateMaterials()
 
         MaterialMap[G4Name] = MaterialMap[name];
     }
+
+    #ifdef ANTS3_NCRYSTAL
+    for (auto & pair : Settings.RunSet.MaterialsFromNCrystal)
+    {
+        G4String name   = pair.first;
+        G4String NCrystalName = pair.second;
+        //if (name == NCrystalName)
+        //{
+        //    terminateSession("Material " + name + ": cannot use the NCrystal name as the material name");
+        //    return;
+        //}
+
+        G4Material * newMat = G4NCrystal::createMaterial(NCrystalName);
+        if (!newMat)
+        {
+            terminateSession("Failed to build NCrystal material using string " + NCrystalName + " for material " + name);
+            return;
+        }
+        std::cout << "NCrystal material created for " << name << " using string " << NCrystalName;
+        newMat->SetName(name);
+
+        replaceMaterialRecursive(worldLV, name, newMat);
+    }
+    #else
+    if (!Settings.RunSet.MaterialsFromNCrystal.empty()) terminateSession("NCrystal materials are not empty, but g4ants3 was compiled without NCrystal library!");
+    #endif
 }
 
 void SessionManager::replaceMatNameInMatLimitedSources(const G4String & name, const G4String & G4Name)
 {
-    for (AParticleSourceRecord & sr : Settings.SourceGenSettings.SourceData)
+    for (AParticleSourceRecordBase * sr : Settings.SourceGenSettings.SourceData)
     {
-        if (sr.MaterialLimited && sr.LimtedToMatName == name)
-            sr.LimtedToMatName = G4Name;
+        AParticleSourceRecord_Standard * stSource = dynamic_cast<AParticleSourceRecord_Standard*>(sr);
+        if (!stSource) continue;
+
+        if (stSource->MaterialLimited && stSource->LimtedToMatName == name)
+            stSource->LimtedToMatName = G4Name;
     }
 }
 
@@ -459,6 +511,27 @@ void SessionManager::saveDepoRecord(const std::string & pName, int iMat, double 
         ss << copyNumber;  // !!!***
 
         *outStreamDeposition << ss.rdbuf() << '\n';
+    }
+}
+
+#include "SensitiveDetector.hh"
+void SessionManager::saveCalorimeterLogEntry()
+{
+    if (!outStreamCalorimeterLog) return;
+
+    if (bBinaryOutput)
+    {
+        for (CalorimeterSensitiveDetectorWrapper * sd : Calorimeters)
+            outStreamCalorimeterLog->write((char*)&sd->SumDepoOverEvent, sizeof(double));
+    }
+    else
+    {
+        std::stringstream ss;
+        for (CalorimeterSensitiveDetectorWrapper * sd : Calorimeters)
+        {
+            ss << sd->SumDepoOverEvent << ' ';
+        }
+        *outStreamCalorimeterLog << ss.rdbuf() << '\n';
     }
 }
 
@@ -807,6 +880,19 @@ void SessionManager::prepareOutputDepoStream()
 
     if (!outStreamDeposition->is_open())
         terminateSession("Cannot open file to store deposition data");
+}
+
+void SessionManager::prepareOutputCalorimeterLogStream()
+{
+    outStreamCalorimeterLog = new std::ofstream();
+
+    if (bBinaryOutput)
+        outStreamCalorimeterLog->open(WorkingDir + "/" + Settings.RunSet.CalorimeterSettings.LogFileName, std::ios::out | std::ios::binary);
+    else
+        outStreamCalorimeterLog->open(WorkingDir + "/" + Settings.RunSet.CalorimeterSettings.LogFileName);
+
+    if (!outStreamCalorimeterLog->is_open())
+        terminateSession("Cannot open file to store calorimeter log");
 }
 
 void SessionManager::prepareOutputHistoryStream()

@@ -36,7 +36,7 @@ public slots:
     void addArrow(double x1, double y1, double x2, double y2, int color, int width, int style);
 
     QVariantList getAxisRanges();
-    QVariantList getContent();
+    QVariantList getDataFromPlot();
 
     void saveImage(QString fileName);
 

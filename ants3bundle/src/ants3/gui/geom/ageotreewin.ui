@@ -775,8 +775,9 @@
     <addaction name="separator"/>
     <addaction name="actionRedo"/>
     <addaction name="separator"/>
-    <addaction name="actionExperimental_feature"/>
-    <addaction name="actionOperations_with_constants_are_not_affected"/>
+    <addaction name="actionSet_max_number_of_undo_steps_stored"/>
+    <addaction name="separator"/>
+    <addaction name="actionWarning_Only_changing_geometry_saves_undo_configuration"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -880,6 +881,26 @@
   <action name="actionOperations_with_constants_are_not_affected">
    <property name="text">
     <string>Operations with constants are not affected!</string>
+   </property>
+  </action>
+  <action name="actionMaximum_number_of_undo_steps_stored_10">
+   <property name="text">
+    <string>Maximum number of undo steps storedl</string>
+   </property>
+  </action>
+  <action name="actionMaximum_number_of_undo_steps_cored">
+   <property name="text">
+    <string>Maximum number of undo steps cored: </string>
+   </property>
+  </action>
+  <action name="actionSet_max_number_of_undo_steps_stored">
+   <property name="text">
+    <string>Set max number of undo steps stored</string>
+   </property>
+  </action>
+  <action name="actionWarning_Only_changing_geometry_saves_undo_configuration">
+   <property name="text">
+    <string>Warning! Only geometry changes trigger undo-redo system</string>
    </property>
   </action>
  </widget>

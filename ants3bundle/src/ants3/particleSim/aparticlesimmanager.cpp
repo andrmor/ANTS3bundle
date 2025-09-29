@@ -152,6 +152,7 @@ void addNames(const AParticleRunSettings & settings)
     fileNames.push_back(OutputDir + '/' + settings.SaveSettings.FileName.data());
     fileNames.push_back(OutputDir + '/' + settings.MonitorSettings.FileName.data());
     fileNames.push_back(OutputDir + '/' + settings.CalorimeterSettings.FileName.data());
+    fileNames.push_back(OutputDir + '/' + settings.CalorimeterSettings.LogFileName.data());
     fileNames.push_back(OutputDir + '/' + settings.Receipt.data());
     fileNames.push_back(OutputDir + '/' + settings.FileNameSaveConfig.data());
 
@@ -176,7 +177,8 @@ void AParticleSimManager::doPreSimChecks()
 
     // !!!*** refactor
     QString err;
-    err = Geometry.checkVolumesExist(SimSet.G4Set.SensitiveVolumes);
+    //err = Geometry.checkVolumesExist(SimSet.G4Set.SensitiveVolumes);
+    err = Geometry.checkVolumesExist(SimSet.RunSet.SaveDepositionVolumes);
     if (!err.isEmpty()) AErrorHub::addError(err.toLatin1().data());
 }
 
@@ -215,6 +217,7 @@ bool AParticleSimManager::configureSimulation(const std::vector<AFarmNodeRecord>
 
     HistoryFileMerger.clear();
     DepositionFileMerger.clear();
+    CalorimeterLogFileMerger.clear();
     ParticlesFileMerger.clear();
     MonitorFiles.clear();
     CalorimeterFiles.clear();
@@ -304,6 +307,14 @@ bool AParticleSimManager::configureSimulation(const std::vector<AFarmNodeRecord>
                 WorkSet.RunSet.CalorimeterSettings.FileName = fileName.toLatin1().data();
                 Worker.OutputFiles.push_back(fileName);
                 CalorimeterFiles.push_back(ExchangeDir + '/' + fileName);
+
+                if (SimSet.RunSet.CalorimeterSettings.SaveEnergyDepositionLog)
+                {
+                    const QString fileName = QString("calorimeterLog-%0").arg(iProcess);
+                    WorkSet.RunSet.CalorimeterSettings.LogFileName = fileName.toLatin1().data();
+                    Worker.OutputFiles.push_back(fileName);
+                    CalorimeterLogFileMerger.add(ExchangeDir + '/' + fileName);
+                }
             }
 
             if (SimSet.RunSet.AnalyzerSettings.Enabled)
@@ -390,6 +401,7 @@ void AParticleSimManager::configureMaterials()
 
     SimSet.RunSet.Materials             = MatHub.getMaterialNames();
     SimSet.RunSet.MaterialsFromNist     = MatHub.getMaterialsFromNist();
+    SimSet.RunSet.MaterialsFromNCrystal = MatHub.getMaterialsFromNCrystal();
     SimSet.RunSet.MaterialsMeanExEnergy = MatHub.getMaterialsMeanExEnergy();
 }
 
@@ -410,14 +422,17 @@ void AParticleSimManager::configureAnalyzers()
 
 void AParticleSimManager::configureScintillators()
 {
-    SimSet.G4Set.ScintSensitiveVolumes.clear();
-    if (SimSet.G4Set.AddScintillatorsToSensitiveVolumes)
+    //SimSet.G4Set.ScintSensitiveVolumes.clear();
+    SimSet.RunSet.SaveDepositionScintVolumes.clear();
+    //if (SimSet.G4Set.AddScintillatorsToSensitiveVolumes)
+    if (SimSet.RunSet.SaveDepositionIncludeScintillators)
     {
         std::vector<QString> vol;
         Geometry.getScintillatorVolumeUniqueNames(vol);
 
         for (const QString & name : vol)
-            SimSet.G4Set.ScintSensitiveVolumes.emplace_back(name.toLatin1().data());
+            //SimSet.G4Set.ScintSensitiveVolumes.emplace_back(name.toLatin1().data());
+            SimSet.RunSet.SaveDepositionScintVolumes.emplace_back(name.toLatin1().data());
     }
 }
 
@@ -458,7 +473,12 @@ void AParticleSimManager::mergeOutput(bool binary)
 
     ACalorimeterHub & CalHub = ACalorimeterHub::getInstance();
     if (SimSet.RunSet.CalorimeterSettings.Enabled)
+    {
         CalHub.mergeCalorimeterFiles(CalorimeterFiles, OutputDir + '/' + SimSet.RunSet.CalorimeterSettings.FileName.data());
+
+        if (SimSet.RunSet.CalorimeterSettings.SaveEnergyDepositionLog)
+            CalorimeterLogFileMerger.mergeToFile(OutputDir + '/' + SimSet.RunSet.CalorimeterSettings.LogFileName.data(), binary);
+    }
 
     AParticleAnalyzerHub & AnHub = AParticleAnalyzerHub::getInstance();
     if (SimSet.RunSet.AnalyzerSettings.Enabled)
