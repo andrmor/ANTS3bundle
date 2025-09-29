@@ -20,13 +20,13 @@
      
 # A paper describing ANTS3
 
-* Preprint: https://arxiv.org/abs/2506.07922
-* Accepted for publication in Compter Physics Communications: https://doi.org/10.1016/j.cpc.2025.109869
+* Published in Compter Physics Communications: https://doi.org/10.1016/j.cpc.2025.109869
+  * Preprint: https://arxiv.org/abs/2506.07922
 
-# New developments (dev branch)
+# New features in version 1.07 (released on September 29, 2025)
 
-* NCrystal support is added, see [instructions](https://github.com/andrmor/ANTS3bundle/wiki/NCrystalInstall)
-* EcoMug soure of cosmic muons can be used in particle simulations
+* [NCrystal](https://github.com/mctools/ncrystal) support is added, requires a separate installation, see [instructions](https://github.com/andrmor/ANTS3bundle/wiki/NCrystalInstall)
+* [EcoMug](https://github.com/dr4kan/EcoMug) soure of cosmic muons can be used in particle simulations
 
 ---
 
