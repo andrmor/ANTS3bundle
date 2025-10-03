@@ -1822,6 +1822,7 @@
             ],
             "Comments": "",
             "Composition": {
+                "CompositionType": "Direct",
                 "CustomComposition": {
                     "CompositionString": "H",
                     "Density": 1e-24,
@@ -1835,7 +1836,7 @@
                     "UseMeanExcitationEnergy": false
                 },
                 "Geant4Material": "",
-                "UseGeant4Material": false
+                "NCrystalMaterialName": ""
             },
             "CustomScatterMFP": 0,
             "Dielectric": true,
@@ -1890,6 +1891,7 @@
             ],
             "Comments": "",
             "Composition": {
+                "CompositionType": "Direct",
                 "CustomComposition": {
                     "CompositionString": "SiO2:72.98 + Na2O:14 + CaO:7 + MgO:4 + Al2O3:2 + K2O:0.02",
                     "Density": 2.53,
@@ -1903,7 +1905,7 @@
                     "UseMeanExcitationEnergy": false
                 },
                 "Geant4Material": "",
-                "UseGeant4Material": false
+                "NCrystalMaterialName": ""
             },
             "CustomScatterMFP": 0,
             "Dielectric": true,
@@ -1958,6 +1960,7 @@
             ],
             "Comments": "",
             "Composition": {
+                "CompositionType": "Geant4",
                 "CustomComposition": {
                     "CompositionString": "H",
                     "Density": 1e-24,
@@ -1971,7 +1974,7 @@
                     "UseMeanExcitationEnergy": false
                 },
                 "Geant4Material": "G4_Al",
-                "UseGeant4Material": true
+                "NCrystalMaterialName": ""
             },
             "CustomScatterMFP": 0,
             "Dielectric": true,
@@ -2026,6 +2029,7 @@
             ],
             "Comments": "",
             "Composition": {
+                "CompositionType": "Direct",
                 "CustomComposition": {
                     "CompositionString": "C41H22N4O11",
                     "Density": 1.42,
@@ -2039,7 +2043,7 @@
                     "UseMeanExcitationEnergy": false
                 },
                 "Geant4Material": "",
-                "UseGeant4Material": false
+                "NCrystalMaterialName": ""
             },
             "CustomScatterMFP": 0,
             "Dielectric": true,
@@ -2094,6 +2098,7 @@
             ],
             "Comments": "",
             "Composition": {
+                "CompositionType": "Geant4",
                 "CustomComposition": {
                     "CompositionString": "H",
                     "Density": 1e-24,
@@ -2107,7 +2112,7 @@
                     "UseMeanExcitationEnergy": false
                 },
                 "Geant4Material": "G4_Cu",
-                "UseGeant4Material": true
+                "NCrystalMaterialName": ""
             },
             "CustomScatterMFP": 0,
             "Dielectric": true,
@@ -2162,6 +2167,7 @@
             ],
             "Comments": "",
             "Composition": {
+                "CompositionType": "Direct",
                 "CustomComposition": {
                     "CompositionString": "{10B:97.06+11B:2.94}:81.7 + C:17 + H:0.7 + O:0.4 + N:0.2",
                     "Density": 2.242,
@@ -2175,7 +2181,7 @@
                     "UseMeanExcitationEnergy": false
                 },
                 "Geant4Material": "",
-                "UseGeant4Material": false
+                "NCrystalMaterialName": ""
             },
             "CustomScatterMFP": 0,
             "Dielectric": true,
@@ -2230,6 +2236,7 @@
             ],
             "Comments": "",
             "Composition": {
+                "CompositionType": "Direct",
                 "CustomComposition": {
                     "CompositionString": "C2F4H2",
                     "Density": 0.0042405,
@@ -2243,7 +2250,7 @@
                     "UseMeanExcitationEnergy": false
                 },
                 "Geant4Material": "",
-                "UseGeant4Material": false
+                "NCrystalMaterialName": ""
             },
             "CustomScatterMFP": 0,
             "Dielectric": true,
@@ -2298,6 +2305,7 @@
             ],
             "Comments": "",
             "Composition": {
+                "CompositionType": "Geant4",
                 "CustomComposition": {
                     "CompositionString": "H",
                     "Density": 1e-24,
@@ -2311,7 +2319,7 @@
                     "UseMeanExcitationEnergy": false
                 },
                 "Geant4Material": "G4_POLYETHYLENE",
-                "UseGeant4Material": true
+                "NCrystalMaterialName": ""
             },
             "CustomScatterMFP": 0,
             "Dielectric": true,
@@ -2361,20 +2369,12 @@
         }
     ],
     "ParticleSim": {
-        "ClusterMerge": false,
-        "ClusterMergeRadius": 0.1,
-        "ClusterMergeTime": 1,
         "Events": 1000,
         "Geant4Settings": {
-            "AddScintillatorsToSensitiveVolumes": true,
             "Commands": [
                 "/run/setCut 0.01 mm"
             ],
             "PhysicsList": "QGSP_BIC_HP",
-            "ScintSensitiveVolumes": [
-            ],
-            "SensitiveVolumes": [
-            ],
             "StepLimits": [
                 [
                     "Converter*",
@@ -2385,6 +2385,7 @@
                     0.01
                 ]
             ],
+            "UseNCrystal": false,
             "UseTSphys": false
         },
         "GenerationFromFile": {
@@ -2433,6 +2434,7 @@
                             },
                             "Generation": {
                                 "BtBPair": false,
+                                "HalfLifeLinked": 0,
                                 "LinkedTo": 0,
                                 "LinkingProbability": 0,
                                 "StatWeight": 1,
@@ -2485,7 +2487,8 @@
                         "SpreadSigmaPrefUnit": "ns",
                         "SpreadWidth": 100,
                         "SpreadWidthPrefUnit": "ns"
-                    }
+                    },
+                    "Type": "Standard"
                 }
             ]
         },
@@ -2499,7 +2502,9 @@
             "AsciiPrecision": 6,
             "CalorimeterSettings": {
                 "Enabled": true,
-                "FileName": "Calorimeters.json"
+                "FileName": "Calorimeters.json",
+                "LogFileName": "CalorimeterLog.dat",
+                "SaveEnergyDepositionLog": false
             },
             "FileNameDeposition": "Deposition.dat",
             "FileNameSaveConfig": "Config_ParticleSim.json",
@@ -2508,9 +2513,14 @@
                 "Enabled": false,
                 "FileName": "ParticleMonitors.json"
             },
-            "OutputDirectory": "/home/andr/.config/ants3/TmpOutput",
+            "OutputDirectory": "",
             "SaveConfig": false,
             "SaveDeposition": false,
+            "SaveDepositionIncludeScintillators": true,
+            "SaveDepositionScintVolumes": [
+            ],
+            "SaveDepositionVolumes": [
+            ],
             "SaveParticles": {
                 "Enabled": false,
                 "FileName": "OutputParticles.dat",
@@ -2658,7 +2668,7 @@
             "FileNameStatistics": "PhotonStatistics.json",
             "FileNameTracks": "PhotonTracks.txt",
             "MaxTracks": 1000,
-            "OutputDirectory": "/home/andr/.config/ants3/TmpOutput",
+            "OutputDirectory": "",
             "PhotonLog": {
                 "Enabled": false,
                 "FileName": "PhotonLog.txt",
