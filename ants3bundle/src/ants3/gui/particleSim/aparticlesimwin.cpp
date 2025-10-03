@@ -704,13 +704,13 @@ void AParticleSimWin::updateSourceList()
 
         l->addStretch();
         l->addWidget(new QLabel("Fraction:"));
-            QLineEdit* e = new QLineEdit(QString::number(pr->Activity));
+            QLineEdit * e = new QLineEdit(QString::number(pr->Activity));
             e->setMaximumWidth(50);
             e->setMinimumWidth(50);
             QDoubleValidator* val = new QDoubleValidator(this);
             val->setBottom(0);
             e->setValidator(val);
-            QObject::connect(e, &QLineEdit::editingFinished, [&pr, e, this]()
+            QObject::connect(e, &QLineEdit::editingFinished, [pr, e, this]()
             {
                 double newVal = e->text().toDouble();
                 if (pr->Activity == newVal) return;
