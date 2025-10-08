@@ -648,8 +648,11 @@ Format: Volume_name  Step_in_mm</string>
                     <kerning>true</kerning>
                    </font>
                   </property>
+                  <property name="toolTip">
+                   <string>Show all defined sources with non-zero activity</string>
+                  </property>
                   <property name="text">
-                   <string>Show all
+                   <string>Show
 sources</string>
                   </property>
                   <property name="checkable">

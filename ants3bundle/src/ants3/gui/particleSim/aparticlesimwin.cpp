@@ -739,6 +739,8 @@ void AParticleSimWin::updateSourceList()
     if (curRow < 0 || curRow >= ui->lwDefinedParticleSources->count())
         curRow = 0;
     ui->lwDefinedParticleSources->setCurrentRow(curRow);
+
+    if (ui->pbGunShowSource->isChecked()) on_pbGunShowSource_toggled(true);
 }
 
 void AParticleSimWin::updateGeneralControlInResults()
@@ -922,7 +924,10 @@ void AParticleSimWin::on_pbGunShowSource_toggled(bool checked)
     {
         emit requestShowGeometry(true, true, true);
         for (AParticleSourceRecordBase * source : SimSet.SourceGenSettings.SourceData)
+        {
+            if (source->Activity == 0) continue;
             AParticleSourcePlotter::plotSource(source);
+        }
         emit requestShowTracks();
     }
     else
