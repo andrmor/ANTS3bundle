@@ -16,13 +16,15 @@ struct AParticleSourceRecordBase
 {
     virtual ~AParticleSourceRecordBase(){}
 
-    virtual std::string getType() const = 0; //{return "Base";}
+    virtual std::string getType() const = 0;
 
     std::string Name     = "No_name";
     double      Activity = 1.0;
 
     void clear();
     virtual void doClear(){}
+
+    virtual void getSuggestedWorldHalfSize(double & XY, double & Z) const = 0;
 
     virtual std::string check() const = 0;
     virtual std::string getShortDescription() const = 0;
@@ -114,9 +116,9 @@ struct AParticleSourceRecord_Standard : public AParticleSourceRecordBase
     double      Psi   = 0;
 
     // Size
-    double      Size1 = 10.0;
-    double      Size2 = 10.0;
-    double      Size3 = 10.0;
+    double      Size1 = 10.0;   // Half-size or radius
+    double      Size2 = 10.0;   // Half-size or radius
+    double      Size3 = 10.0;   // Half-size or radius
 
     // Axial distribution for round
     bool        UseAxialDistribution = false;
@@ -163,6 +165,8 @@ struct AParticleSourceRecord_Standard : public AParticleSourceRecordBase
 
     void doClear() override;
 
+    void getSuggestedWorldHalfSize(double & XY, double & Z) const override;
+
 #ifdef JSON11
     bool doReadFromJson(const json11::Json::object & json) override; // !!!*** error handling?
 #else
@@ -197,8 +201,8 @@ struct AParticleSourceRecord_EcoMug : public AParticleSourceRecordBase
 
     EShape Shape = Rectangle;
 
-    double Size1 = 50.0; // SizeX or Radius
-    double Size2 = 50.0; // SizeY or Height
+    double Size1 = 50.0; // FullSizeX or Radius
+    double Size2 = 50.0; // FullSizeY or Height
 
     // position
     double X0 = 0;
@@ -208,6 +212,8 @@ struct AParticleSourceRecord_EcoMug : public AParticleSourceRecordBase
     void doClear() override;
     std::string check() const override;
     std::string getShortDescription() const override;
+
+    void getSuggestedWorldHalfSize(double & XY, double & Z) const override;
 
 #ifdef JSON11
     bool doReadFromJson(const json11::Json::object & /*json*/) override;

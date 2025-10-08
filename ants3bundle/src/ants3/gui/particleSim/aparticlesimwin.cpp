@@ -539,67 +539,13 @@ void AParticleSimWin::checkWorldSize(AParticleSourceRecordBase * sourceBase)
 
     double maxXY = 0;
     double maxZ = 0;
-    // !!!*** make a method inside AParticleSourceRecord
-    AParticleSourceRecord_Standard * ps = dynamic_cast<AParticleSourceRecord_Standard*>(sourceBase);
-    if (ps)
-    {
-        maxXY = std::max(abs(ps->X0), abs(ps->Y0));
-        maxZ  = abs(ps->Z0);
-        switch (ps->Shape)
-        {
-        case AParticleSourceRecord_Standard::Point :
-            break;
-        case AParticleSourceRecord_Standard::Line :
-            maxXY += 0.5 * ps->Size1;
-            maxZ  += 0.5 * ps->Size1;
-            break;
-        case AParticleSourceRecord_Standard::Rectangle :
-            maxXY += 0.5 * std::max(ps->Size1, ps->Size2);
-            maxZ  += 0.5 * std::max(ps->Size1, ps->Size2);
-            break;
-        case AParticleSourceRecord_Standard::Round :
-            maxXY += 0.5 * ps->Size1;
-            maxZ  += 0.5 * ps->Size1;
-            break;
-        case AParticleSourceRecord_Standard::Box :
-            maxXY += 0.5 * std::max(ps->Size1, std::max(ps->Size2, ps->Size3));
-            maxZ  += 0.5 * std::max(ps->Size1, std::max(ps->Size2, ps->Size3));
-            break;
-        case AParticleSourceRecord_Standard::Cylinder :
-            maxXY += 0.5 * std::max(ps->Size1, ps->Size2);
-            maxZ  += 0.5 * std::max(ps->Size1, ps->Size2);
-            break;
-        }
-    }
-    else
-    {
-        AParticleSourceRecord_EcoMug * ps = dynamic_cast<AParticleSourceRecord_EcoMug*>(sourceBase);
-        if (ps)
-        {
-            maxXY = std::max(abs(ps->X0), abs(ps->Y0));
-            maxZ  = abs(ps->Z0);
-            switch (ps->Shape)
-            {
-            case AParticleSourceRecord_EcoMug::Rectangle :
-                maxXY += 0.5 * std::max(ps->Size1, ps->Size2);
-                break;
-            case AParticleSourceRecord_EcoMug::Cylinder :
-                maxXY += ps->Size1;
-                maxZ  += 0.5 * ps->Size2;
-                break;
-            case AParticleSourceRecord_EcoMug::HalfSphere :
-                maxXY += ps->Size1;
-                maxZ  += ps->Size1;
-                break;
-            }
-        }
-    }
-
-    maxXY *= 1.1;
-    maxZ  *= 1.1;
+    sourceBase->getSuggestedWorldHalfSize(maxXY, maxZ);
 
     if (maxXY > wXY || maxZ > wZ)
     {
+        maxXY *= 1.1;
+        maxZ  *= 1.1;
+
         AWorldSizeWarningDialog d( std::max(maxXY, wXY), std::max(maxZ, wZ), this);
         d.exec();
         switch (d.Result)

@@ -21,6 +21,8 @@ using JsonObject =
     QJsonObject;
 #endif
 
+#include <math.h>
+
 AParticleSourceRecordBase * AParticleSourceRecordBase::factory(std::string sourceType)
 {
     if      (sourceType == AParticleSourceRecord_Standard().getType()) return new AParticleSourceRecord_Standard();
@@ -290,6 +292,35 @@ void AParticleSourceRecord_Standard::doClear()
     TimeDistribution.clear();
 
     Particles.clear();
+}
+
+void AParticleSourceRecord_Standard::getSuggestedWorldHalfSize(double & XY, double & Z) const
+{
+    double size = 0;
+    // assuming arbitrary orientation
+    switch (Shape)
+    {
+    case AParticleSourceRecord_Standard::Point :
+        break;
+    case AParticleSourceRecord_Standard::Line :
+        size = Size1;
+        break;
+    case AParticleSourceRecord_Standard::Rectangle :
+        size = sqrt(Size1*Size1 + Size2*Size2);
+        break;
+    case AParticleSourceRecord_Standard::Round :
+        size = Size1;
+        break;
+    case AParticleSourceRecord_Standard::Box :
+        size = sqrt(Size1*Size1 + Size2*Size2 + Size3*Size3);
+        break;
+    case AParticleSourceRecord_Standard::Cylinder :
+        size = sqrt(Size1*Size1 + Size2*Size2);
+        break;
+    }
+
+    XY = std::max( abs(X0), abs(Y0) ) + size;
+    Z  = abs(Z0) + size;
 }
 
 std::string AParticleSourceRecord_Standard::timeUnitsToString(AParticleSourceRecord_Standard::ETimeUnits timeUnits) const
@@ -812,6 +843,30 @@ std::string AParticleSourceRecord_EcoMug::getShortDescription() const
     }
     str += ", muons";
     return str;
+}
+
+void AParticleSourceRecord_EcoMug::getSuggestedWorldHalfSize(double & XY, double & Z) const
+{
+    double sizeXY = 0;
+    double sizeZ  = 0;
+    // assuming non-adjustable orientation
+    switch (Shape)
+    {
+    case AParticleSourceRecord_EcoMug::Rectangle :
+        sizeXY = 0.5 * std::max(Size1, Size2);
+        break;
+    case AParticleSourceRecord_EcoMug::Cylinder :
+        sizeXY = Size1;
+        sizeZ  = 0.5 * Size2;
+        break;
+    case AParticleSourceRecord_EcoMug::HalfSphere :
+        sizeXY = Size1;
+        sizeZ  = Size1;
+        break;
+    }
+
+    XY = std::max( abs(X0), abs(Y0) ) + sizeXY;
+    Z  = abs(Z0) + sizeZ;
 }
 
 #ifndef JSON11
