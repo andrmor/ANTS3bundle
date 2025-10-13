@@ -36,7 +36,7 @@
 * [Outdated: Ubuntu 22.04 Mate](https://github.com/andrmor/ANTS3bundle/wiki/Install_Ubuntu22.04)
 
 # Test on a virtual machine
-* It is possible to test most of the features of Ants3 using a pre-configured virtual machine: follow [instruction](https://github.com/andrmor/ANTS3bundle/wiki/VirtualMachine)
+* It is possible to try Ants3 using a pre-configured virtual machine: follow installation [instructions](https://github.com/andrmor/ANTS3bundle/wiki/VirtualMachine)
 
 # How to use Farm mode
 * On every farm node computer start dispatcher executable from a terminal, suppling three parameters: IP address, port, maxNumberOfProcesses
