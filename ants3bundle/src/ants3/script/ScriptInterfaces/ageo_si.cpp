@@ -1704,6 +1704,31 @@ void AGeo_SI::setLightSensor(QString Object, int iModel)
     delete obj->Role; obj->Role = new AGeoSensor(iModel);
 }
 
+void setLightSensorRecursive(AGeoObject * obj, const QString & objectNameStartsWith, int iModel)
+{
+    if (obj)
+    {
+        if (obj->Name.startsWith(objectNameStartsWith, Qt::CaseSensitive))
+        {
+            delete obj->Role; obj->Role = new AGeoSensor(iModel);
+        }
+
+        for (AGeoObject * hobj : obj->HostedObjects)
+            setLightSensorRecursive(hobj, objectNameStartsWith, iModel);
+    }
+}
+
+void AGeo_SI::setLightSensorByName(QString ObjectNameStartsWith, int iModel)
+{
+    for (AGeoObject * obj : GeoObjects)
+        if (obj->Name.startsWith(ObjectNameStartsWith))
+        {
+            delete obj->Role; obj->Role = new AGeoSensor(iModel);
+        }
+
+    setLightSensorRecursive(AGeometryHub::getInstance().World, ObjectNameStartsWith, iModel);
+}
+
 void AGeo_SI::setCalorimeter(QString Object, QVariantList bins, QVariantList origin, QVariantList step)
 {
     AGeoObject * obj = findObject(Object);
@@ -1762,12 +1787,6 @@ void AGeo_SI::setScintillatorByName(QString ObjectNameStartsWith)
             delete obj->Role; obj->Role = new AGeoScint();
         }
 
-    //std::vector<AGeoObject*> objAr;
-    //AGeometryHub::getInstance().World->findObjectsByWildcard(ObjectNameStartsWith, objAr);
-    //for (AGeoObject * obj : objAr)
-    //{
-    //    delete obj->Role; obj->Role = new AGeoScint();
-    //}
     setScintRecursive(AGeometryHub::getInstance().World, ObjectNameStartsWith);
 }
 

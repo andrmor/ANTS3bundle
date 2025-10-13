@@ -106,6 +106,7 @@ public slots:
     void setLineProperties(QString name, int color, int width, int style);
 
     void setLightSensor(QString Object, int iModel = 0);
+    void setLightSensorByName(QString ObjectNameStartsWith, int iModel = 0);
     void setCalorimeter(QString Object, QVariantList bins, QVariantList origin, QVariantList step);
     void setScintillator(QString Object);
     void setScintillatorByName(QString ObjectNameStartsWith);

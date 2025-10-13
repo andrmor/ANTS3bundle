@@ -805,14 +805,12 @@ bool AGeoObjectDelegate::updateObject(AGeoObject * obj) const  //react to false 
     }
     else if (obj->Type->isGrid())
     {
-/*        !!!***
         AGeoObject * GE = obj->getGridElement();
         if (GE)
         {
             GE->Name = "GridElement_" + obj->Name;
             GE->Material = obj->Material;
         }
-*/
     }
     else if (obj->isCompositeMemeber())
         obj->updateNameOfLogicalMember(oldName, newName);
