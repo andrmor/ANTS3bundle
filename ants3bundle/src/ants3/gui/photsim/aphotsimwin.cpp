@@ -570,7 +570,7 @@ void APhotSimWin::on_pbLoadAllResults_clicked()
     gvSensors->resetViewport(); // not working if the widget was not yet drawn :(
 
     ui->leBombsFile->setText(Set.FileNamePhotonBombs);
-    on_pbShowBombsMultiple_clicked();
+    showBombsMultiple(false);
 
     ui->leTracksFile->setText(Set.FileNameTracks);
     loadAndShowTracks(true);
@@ -1730,9 +1730,9 @@ void APhotSimWin::doShowEvent()
 {
     switch (ui->tbwResults->currentIndex())
     {
-    case 2 : showSensorSignals(true);  break;
-    case 3 : showBombSingleEvent();   break;
-    case 4 : showTracksSingleEvent(); break;
+    case 2 : showSensorSignals(true);   break;
+    case 3 : showBombSingleEvent(true); break;
+    case 4 : showTracksSingleEvent();   break;
     default :;
     }
 }
@@ -1847,15 +1847,19 @@ void APhotSimWin::showSensorSignalTable(const std::vector<float> & signalArray, 
 
 // ------
 
-void APhotSimWin::showBombSingleEvent()
+void APhotSimWin::showBombSingleEvent(bool suppressMessages)
 {
     TGeoManager * GeoManager = AGeometryHub::getInstance().GeoManager;
     GeoManager->ClearTracks();
 
     emit requestClearGeoMarkers(0);
 
-    bool ok = updateBombHandler();
-    if (!ok) return;
+    QString err = updateBombHandler();
+    if (!err.isEmpty())
+    {
+        if (!suppressMessages) guitools::message(err, this);
+        return;
+    }
 
     int iEvent = ui->sbEvent->value();
     if (iEvent < 0)
@@ -1873,10 +1877,10 @@ void APhotSimWin::showBombSingleEvent()
     }
     */
 
-    ok = BombFileHandler->gotoEvent(iEvent);
+    bool ok = BombFileHandler->gotoEvent(iEvent);
     if (!ok)
     {
-        guitools::message("Cannot go to this event!", this);
+        if (!suppressMessages) guitools::message("Cannot go to this event!", this);
         return;
     }
 
@@ -1895,16 +1899,12 @@ void APhotSimWin::showTracksSingleEvent()
     loadAndShowTracks(false, iShowEvent);
 }
 
-bool APhotSimWin::updateBombHandler()
+QString APhotSimWin::updateBombHandler()
 {
     QString name = ui->leBombsFile->text();
     if (!name.contains('/')) name = ui->leResultsWorkingDir->text() + '/' + name;
 
-    if (name.isEmpty())
-    {
-        //guitools::message("File name is empty!", this);
-        return false;
-    }
+    if (name.isEmpty()) return "File name is empty!";
 
     if (BombFileSettings->FileName != name || !BombFileHandler->isInitialized())
     {
@@ -1913,14 +1913,10 @@ bool APhotSimWin::updateBombHandler()
         BombFileSettings->FileName = name;
         AErrorHub::clear();
         bool ok = BombFileHandler->init();
-        if (!ok)
-        {
-            //guitools::message(AErrorHub::getQError(), this);
-            return false;
-        }
+        if (!ok) return AErrorHub::getQError();
     }
 
-    return true;
+    return "";
 }
 
 void APhotSimWin::setGuiEnabled(bool flag)
@@ -1953,13 +1949,21 @@ void APhotSimWin::on_pbChooseSensorSigFile_clicked()
 
 void APhotSimWin::on_pbShowBombsMultiple_clicked()
 {
+    showBombsMultiple(true);
+}
+
+void APhotSimWin::showBombsMultiple(bool showMessages)
+{
     emit requestShowGeometry(true);
-//    emit requestShowTracks(); // !!!***
 
     emit requestClearGeoMarkers(0);
 
-    bool ok = updateBombHandler();
-    if (!ok) return;
+    QString err = updateBombHandler();
+    if (!err.isEmpty())
+    {
+        if (showMessages) guitools::message(err, this);
+        return;
+    }
 
     BombFileHandler->init();
 

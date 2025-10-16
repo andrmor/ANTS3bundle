@@ -214,8 +214,8 @@ private:
     void reshapeSensorSignalTable();
     void loadAllSensorSignals();
 
-    void showBombSingleEvent();
-    bool updateBombHandler();
+    void showBombSingleEvent(bool suppressMessages);
+    QString updateBombHandler();
 
     void loadStatistics(bool suppressMessage);
     void loadMonitorsData(bool suppressMessage);
@@ -225,6 +225,8 @@ private:
     QString initPhotonLogHandler(); // returns error if any
     void showLogRecord();
     void resetViewportOnNewData();
+
+    void showBombsMultiple(bool showMessages);
 
 signals:
     void requestShowGeometry(bool ActivateWindow = true, bool SAME = true, bool ColorUpdateAllowed = true);
