@@ -180,7 +180,7 @@
                 "Z": 0,
                 "color": 1,
                 "fActive": true,
-                "fExpanded": false,
+                "fExpanded": true,
                 "style": 1,
                 "width": 1
             },
@@ -203,7 +203,7 @@
                 "Z": 0,
                 "color": -1,
                 "fActive": true,
-                "fExpanded": false,
+                "fExpanded": true,
                 "style": 1,
                 "width": 1
             },
@@ -385,8 +385,11 @@
                 "ScatMode": 1,
                 "Spec": 0,
                 "SurfaceProperties": {
-                    "Model": "Polished"
-                }
+                    "KillPhotonsRefractedBackward": false,
+                    "Model": "Polished",
+                    "OrientationProbabilityCorrection": true
+                },
+                "Symmetric": false
             }
         ],
         "VolumeRules": [
@@ -400,6 +403,7 @@
             ],
             "Comments": "",
             "Composition": {
+                "CompositionType": "Direct",
                 "CustomComposition": {
                     "CompositionString": "H",
                     "Density": 1e-24,
@@ -413,7 +417,7 @@
                     "UseMeanExcitationEnergy": false
                 },
                 "Geant4Material": "",
-                "UseGeant4Material": false
+                "NCrystalMaterialName": ""
             },
             "CustomScatterMFP": 0,
             "Dielectric": true,
@@ -468,6 +472,7 @@
             ],
             "Comments": "",
             "Composition": {
+                "CompositionType": "Direct",
                 "CustomComposition": {
                     "CompositionString": "H",
                     "Density": 1e-24,
@@ -481,7 +486,7 @@
                     "UseMeanExcitationEnergy": false
                 },
                 "Geant4Material": "",
-                "UseGeant4Material": false
+                "NCrystalMaterialName": ""
             },
             "CustomScatterMFP": 0,
             "Dielectric": true,
@@ -531,35 +536,14 @@
         }
     ],
     "ParticleSim": {
-        "ClusterMerge": false,
-        "ClusterMergeRadius": 0.1,
-        "ClusterMergeTime": 1,
         "Events": 1,
         "Geant4Settings": {
-            "AddScintillatorsToSensitiveVolumes": true,
             "Commands": [
             ],
             "PhysicsList": "QGSP_BERT_HP",
-            "ScintSensitiveVolumes": [
-                "Scintillator",
-                "ScintFront",
-                "ScintBack",
-                "ScintFront",
-                "ScintBack",
-                "ScintFront",
-                "ScintBack",
-                "ScintFront",
-                "ScintBack",
-                "Scintillator",
-                "ScintFront",
-                "ScintBack",
-                "ScintFront",
-                "ScintBack"
-            ],
-            "SensitiveVolumes": [
-            ],
             "StepLimits": [
             ],
+            "UseNCrystal": false,
             "UseTSphys": false
         },
         "GenerationFromFile": {
@@ -587,16 +571,25 @@
             "AsciiPrecision": 6,
             "CalorimeterSettings": {
                 "Enabled": false,
-                "FileName": "Calorimeters.json"
+                "FileName": "Calorimeters.json",
+                "LogFileName": "CalorimeterLog.dat",
+                "SaveEnergyDepositionLog": false
             },
             "FileNameDeposition": "Deposition.dat",
+            "FileNameSaveConfig": "Config_ParticleSim.json",
             "FileNameTrackingHistory": "TrackingData.dat",
             "MonitorSettings": {
                 "Enabled": false,
                 "FileName": "ParticleMonitors.json"
             },
             "OutputDirectory": "",
+            "SaveConfig": false,
             "SaveDeposition": false,
+            "SaveDepositionIncludeScintillators": true,
+            "SaveDepositionScintVolumes": [
+            ],
+            "SaveDepositionVolumes": [
+            ],
             "SaveParticles": {
                 "Enabled": false,
                 "FileName": "OutputParticles.dat",
@@ -631,10 +624,12 @@
             "Advanced": {
                 "Direction": {
                     "ConeAngle": 10,
-                    "DirDX": 0.5,
-                    "DirDY": 0.25,
-                    "DirDZ": -1,
-                    "DirectionMode": "Fixed"
+                    "DirectionMode": "Fixed",
+                    "DirectionVector": [
+                        0.5,
+                        0,
+                        -1
+                    ]
                 },
                 "SkipBombs": {
                     "EnableOnlyMat": false,
@@ -733,6 +728,7 @@
         },
         "Run": {
             "BinaryFormat": false,
+            "FileNameConfig": "Config_OpticalSim.json",
             "FileNameMonitors": "PhotonMonitors.txt",
             "FileNamePhotonBombs": "PhotonBombs.txt",
             "FileNameReceipt": "DummyReceipt.txt",
@@ -755,6 +751,7 @@
                 "MustNotInclude_Volumes": [
                 ]
             },
+            "SaveConfig": false,
             "SaveMonitors": true,
             "SavePhotonBombs": false,
             "SaveSensorLog": false,
