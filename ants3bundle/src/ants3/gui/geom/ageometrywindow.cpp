@@ -866,6 +866,8 @@ void AGeometryWindow::addGenerationMarker(const double * Pos)
 
 void AGeometryWindow::CenterView(double *r)
 {
+    if (UseJSRoot) return;
+
     if (!RasterWindow->fCanvas->HasViewer3D()) return;
 
     AGeoViewParameters & p = RasterWindow->ViewParameters;
@@ -1051,6 +1053,7 @@ void AGeometryWindow::Zoom(bool update)
 
 void AGeometryWindow::FocusVolume(QString name)
 {
+    if (UseJSRoot) return;
     CameraControl->setFocus(name);
 }
 
@@ -1299,6 +1302,8 @@ void AGeometryWindow::on_pbSaveAs_customContextMenuRequested(const QPoint &)
 
 void AGeometryWindow::on_pbCameraDialog_clicked()
 {
+    if (UseJSRoot) return;
+
     if (CameraControl->xPos == 0 && CameraControl->yPos == 0)
     {
         CameraControl->xPos = x() + width() + 3;
