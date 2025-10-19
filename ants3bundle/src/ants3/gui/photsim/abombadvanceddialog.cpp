@@ -45,6 +45,8 @@ ABombAdvancedDialog::ABombAdvancedDialog(QWidget *parent) :
     ui->cbSkipByMaterial->setChecked(s.bOnlyMaterial);
     ui->leSkipOutsideMaterial->setText(s.Material);
 
+    ui->cbSecondaryScint->setChecked(s.SecondaryScintillation);
+
     on_cobDirectionMode_currentIndexChanged(ui->cobDirectionMode->currentIndex());
 }
 
@@ -80,6 +82,8 @@ void ABombAdvancedDialog::on_pbAccept_clicked()
 
     s.bOnlyMaterial = ui->cbSkipByMaterial->isChecked();
     s.Material = ui->leSkipOutsideMaterial->text();
+
+    s.SecondaryScintillation = ui->cbSecondaryScint->isChecked();
 
     accept();
 }
@@ -142,4 +146,9 @@ void ABombAdvancedDialog::updateFixedWavelengthGui()
 void ABombAdvancedDialog::on_ledFixedWavelength_editingFinished()
 {
     updateFixedWavelengthGui();
+}
+
+void ABombAdvancedDialog::on_cbSecondaryScint_toggled(bool checked)
+{
+    ui->twAdvSimOpt->setTabIcon(4, (checked ? YellowCircle : QIcon()));
 }

@@ -174,7 +174,7 @@ public:
     QString   Material;
     int       MaxNodeAttempts = 1000;
 
-    bool      SecondaryScintillation = true;
+    bool      SecondaryScintillation = false;
 
     void clear();
 

@@ -32,6 +32,8 @@ private slots:
 
     void on_ledFixedWavelength_editingFinished();
 
+    void on_cbSecondaryScint_toggled(bool checked);
+
 private:
     Ui::ABombAdvancedDialog *ui;
 

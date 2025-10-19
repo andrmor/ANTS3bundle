@@ -899,7 +899,7 @@ void APhotonAdvancedSettings::clear()
     Material.clear();
     MaxNodeAttempts = 1000;
 
-    SecondaryScintillation = true;
+    SecondaryScintillation = false;
 }
 
 void APhotonAdvancedSettings::writeToJson(QJsonObject & json) const
