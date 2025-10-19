@@ -786,6 +786,17 @@ void APhotonSimulator::generateAndTracePhotons(const ANodeRecord & node)
     for (int i = 0; i < 3; i++) Photon.r[i] = node.R[i];
 
     TGeoNavigator * navigator = AGeometryHub::getInstance().GeoManager->GetCurrentNavigator();
+
+    // Material at the emission position
+    int MatIndex = 0;
+    TGeoNode * GeoNode = navigator->FindNode(Photon.r[0], Photon.r[1], Photon.r[2]);
+    if (GeoNode) MatIndex = GeoNode->GetVolume()->GetMaterial()->GetIndex();
+    else
+    {
+        MatIndex = AGeometryHub::getInstance().Top->GetMaterial()->GetIndex(); //get material of the world
+        qWarning() << "Node not found when generating photons, using material of the world";
+    }
+
     for (int i = 0; i < node.NumPhot; i++)
     {
         // Direction
@@ -801,16 +812,6 @@ void APhotonSimulator::generateAndTracePhotons(const ANodeRecord & node)
             for (int i = 0; i < 3; i++) Photon.v[i] = K1[i];
         }
         //else it is already set
-
-        // Material at the emission position
-        int MatIndex = 0;
-        TGeoNode * GeoNode = navigator->FindNode(Photon.r[0], Photon.r[1], Photon.r[2]);
-        if (GeoNode) MatIndex = GeoNode->GetVolume()->GetMaterial()->GetIndex();
-        else
-        {
-            MatIndex = AGeometryHub::getInstance().Top->GetMaterial()->GetIndex(); //get material of the world
-            qWarning() << "Node not found when generating photons, using material of the world";
-        }
 
         // Wavelength
         if (!AdvSet.bFixWave)
