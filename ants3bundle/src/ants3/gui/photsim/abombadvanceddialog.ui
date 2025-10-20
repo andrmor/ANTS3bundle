@@ -715,7 +715,7 @@
      </widget>
      <widget class="QWidget" name="tab">
       <attribute name="title">
-       <string>SecondaryScint</string>
+       <string>Secondary</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_10">
        <item>
@@ -759,10 +759,9 @@
           <bool>true</bool>
          </property>
          <property name="plainText">
-          <string>Warning!
-Generation and drift of ionization electrons are not simulated!
-The directly configured number of photon is generated uniformly over the line crossing the first Seconday Scintillator found in (0,0,1) direction from the node.
-The time offset is computed from the drift time.</string>
+          <string>Note that generation and drift of ionization electrons are not simulated!
+The configured number of photon is generated uniformly over the line crossing the first object with the SecondayScintillator role found in (0,0,1) direction from the node position.
+The emission time is computed based on the drift time and the secondary scintillation time properties of the corresponding material.</string>
          </property>
         </widget>
        </item>

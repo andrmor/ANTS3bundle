@@ -47,6 +47,8 @@ ABombAdvancedDialog::ABombAdvancedDialog(QWidget *parent) :
 
     ui->cbSecondaryScint->setChecked(s.SecondaryScintillation);
 
+    ui->pbCND_applyChanges->setVisible(false);
+
     on_cobDirectionMode_currentIndexChanged(ui->cobDirectionMode->currentIndex());
 }
 
