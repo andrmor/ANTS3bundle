@@ -92,7 +92,8 @@ private:
     void    doBeforeEvent();
     void    simulatePhotonBomb(ANodeRecord & node, bool overrideNumPhotons);
     void    doAfterEvent();
-    void    generateAndTracePhotons(const ANodeRecord & node);
+    void    generateAndTracePhotons_primary(const ANodeRecord & node);
+    void    generateAndTracePhotons_secondary(ANodeRecord & node);
     bool    isInsideLimitingVolume(const double * r);    // no optimization: assuming they will not be used together \|
     bool    isInsideLimitingMaterial(const double * r);  // no optimization: assuming they will not be used together /|
 

@@ -1527,7 +1527,7 @@ void APhotSimWin::updateAdvancedBombIndicator()
 {
     const APhotonAdvancedSettings & s = SimSet.BombSet.AdvancedSettings;
 
-    bool on = (s.DirectionMode != APhotonAdvancedSettings::Isotropic || s.bFixWave || s.bFixDecay || s.bOnlyVolume || s.bOnlyMaterial);
+    bool on = (s.DirectionMode != APhotonAdvancedSettings::Isotropic || s.bFixWave || s.bFixDecay || s.bOnlyVolume || s.bOnlyMaterial || s.SecondaryScintillation);
     ui->labAdvancedBombOn->setVisible(on);
 }
 

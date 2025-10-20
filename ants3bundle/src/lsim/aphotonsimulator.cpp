@@ -775,20 +775,21 @@ void APhotonSimulator::simulatePhotonBomb(ANodeRecord & node, bool overrideNumPh
         if (overrideNumPhotons) node.NumPhot = getNumPhotonsThisBomb();
     }
 
-    generateAndTracePhotons(node);
+    if (!AdvSet.SecondaryScintillation) generateAndTracePhotons_primary(node);
+    else                                generateAndTracePhotons_secondary(node);
+
     if (SimSet.RunSet.SavePhotonBombs) savePhotonBomb(node);
 }
 
-void APhotonSimulator::generateAndTracePhotons(const ANodeRecord & node)
+void APhotonSimulator::generateAndTracePhotons_primary(const ANodeRecord & node)
 {
     const APhotonAdvancedSettings & AdvSet = SimSet.BombSet.AdvancedSettings;
 
     for (int i = 0; i < 3; i++) Photon.r[i] = node.R[i];
 
-    TGeoNavigator * navigator = AGeometryHub::getInstance().GeoManager->GetCurrentNavigator();
-
     // Material at the emission position
     int MatIndex = 0;
+    TGeoNavigator * navigator = AGeometryHub::getInstance().GeoManager->GetCurrentNavigator();
     TGeoNode * GeoNode = navigator->FindNode(Photon.r[0], Photon.r[1], Photon.r[2]);
     if (GeoNode) MatIndex = GeoNode->GetVolume()->GetMaterial()->GetIndex();
     else
@@ -821,6 +822,102 @@ void APhotonSimulator::generateAndTracePhotons(const ANodeRecord & node)
         Photon.time = node.Time;
         if (!AdvSet.bFixDecay)
             APhotonGenerator::generateTime(Photon, MatIndex);
+        else
+            Photon.time += RandomHub.exp(AdvSet.DecayTime);
+
+        Tracer->tracePhoton(Photon);
+    }
+}
+
+void APhotonSimulator::generateAndTracePhotons_secondary(ANodeRecord & node)
+{
+    TGeoManager * GeoManager = AGeometryHub::getInstance().GeoManager;
+    const AMaterialHub & MatHub = AMaterialHub::getConstInstance();
+
+    GeoManager->SetCurrentPoint(node.R);
+    TGeoNode * geoNode = GeoManager->FindNode();
+    if (!geoNode) return;
+
+    double timeOffset = node.Time;
+
+    //field is always in z direction, electrons drift up!
+    GeoManager->SetCurrentDirection(0, 0, 1.0);  //up
+
+    bool foundSecondaryScint = true;
+    const char * marker = GeoManager->GetCurrentVolume()->GetTitle();
+    while (marker[0] != '2')
+    {
+        //drifting up until entered secondary scintillator (marker[0] == '2') or the position is outside of the defined geometry
+        const int thisMatIndex = GeoManager->GetCurrentVolume()->GetMaterial()->GetIndex();
+
+        GeoManager->FindNextBoundaryAndStep();
+        if (GeoManager->IsOutside())
+        {
+            foundSecondaryScint = false;
+            break;
+        }
+
+        const double step = GeoManager->GetStep();
+        const double driftSpeed = MatHub.getDriftSpeed(thisMatIndex);
+        if (driftSpeed != 0)
+        {
+            timeOffset += step / driftSpeed;
+            //const double sigmaTime  = MatHub.getDiffusionSigmaTime(thisMatIndex, step);
+            //timeOffset += RandomHub.gauss(0, sigmaTime);
+        }
+
+        marker = GeoManager->GetCurrentVolume()->GetTitle();
+    }
+    if (!foundSecondaryScint) return; // Sec scint not found
+
+    const int    MatIndexSecScint = GeoManager->GetCurrentVolume()->GetMaterial()->GetIndex();
+    const double Zstart = GeoManager->GetCurrentPoint()[2];
+
+    GeoManager->FindNextBoundary();
+    const double Zspan = GeoManager->GetStep();
+
+    //generate photons
+    Photon.SecondaryScint = true;
+    Photon.r[0] = node.R[0];
+    Photon.r[1] = node.R[1];
+
+    const double driftSpeed = MatHub.getDriftSpeed(MatIndexSecScint);
+
+    const APhotonAdvancedSettings & AdvSet = SimSet.BombSet.AdvancedSettings;
+    for (int iPh = 0; iPh < node.NumPhot; iPh++)
+    {
+        //random z inside this secondary scintillator
+        const double z = Zspan * RandomHub.uniform();
+        Photon.r[2] = Zstart + z;
+        Photon.time = timeOffset;
+        if (driftSpeed != 0)
+        {
+            Photon.time += z / driftSpeed;
+            //const double sigmaTime  = MatHub.getDiffusionSigmaTime(MatIndexSecScint, z);
+            //Photon.time += RandomHub.gauss(0, sigmaTime);
+        }
+
+        // Direction
+        if      (AdvSet.DirectionMode == APhotonAdvancedSettings::Isotropic)
+            Photon.generateRandomDir();
+        else if (AdvSet.DirectionMode == APhotonAdvancedSettings::Cone)
+        {
+            const double z = CosConeAngle + RandomHub.uniform() * (1.0 - CosConeAngle);
+            const double tmp = sqrt(1.0 - z*z);
+            const double phi = RandomHub.uniform() * 2.0 * TMath::Pi();
+            TVector3 K1(tmp*cos(phi), tmp*sin(phi), z);
+            K1.RotateUz(ColDirUnitary);
+            for (int i = 0; i < 3; i++) Photon.v[i] = K1[i];
+        }
+        //else it is already set
+
+        // Wavelength
+        if (!AdvSet.bFixWave)
+            APhotonGenerator::generateWave(Photon, MatIndexSecScint); // else waveindex is already set
+
+        // Time
+        if (!AdvSet.bFixDecay)
+            APhotonGenerator::generateTime(Photon, MatIndexSecScint);
         else
             Photon.time += RandomHub.exp(AdvSet.DecayTime);
 
