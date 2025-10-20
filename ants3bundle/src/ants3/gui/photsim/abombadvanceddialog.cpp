@@ -154,3 +154,13 @@ void ABombAdvancedDialog::on_cbSecondaryScint_toggled(bool checked)
 {
     ui->twAdvSimOpt->setTabIcon(4, (checked ? YellowCircle : QIcon()));
 }
+
+void ABombAdvancedDialog::on_pbSecScintInfo_clicked()
+{
+    QString txt = "Note that generation and drift of ionization electrons are not simulated in photon bomb mode!\n\n"
+                  "The configured number of photon is generated uniformly over the line crossing the first object with the SecondayScintillator role found in (0,0,1) direction from the node position.\n\n"
+                  "The emission time is computed based on the drift time (diffusion is ignored) and the secondary scintillation time properties of the scintillator material.\n\n"
+                  "In wavelength-resolved mode, the secondary scintillation emission spectrum of the scintillator is used.";
+    guitools::message(txt, this);
+}
+

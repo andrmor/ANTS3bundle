@@ -838,7 +838,7 @@ void APhotonSimulator::generateAndTracePhotons_secondary(ANodeRecord & node)
     TGeoNode * geoNode = GeoManager->FindNode();
     if (!geoNode) return;
 
-    double time = node.Time;
+    double timeOffset = node.Time;
 
     //field is always in z direction, electrons drift up!
     GeoManager->SetCurrentDirection(0, 0, 1.0);  //up
@@ -861,9 +861,9 @@ void APhotonSimulator::generateAndTracePhotons_secondary(ANodeRecord & node)
         const double driftSpeed = MatHub.getDriftSpeed(thisMatIndex);
         if (driftSpeed != 0)
         {
-            time += step / driftSpeed;
-            const double sigmaTime  = MatHub.getDiffusionSigmaTime(thisMatIndex, step);
-            time += RandomHub.gauss(0, sigmaTime);
+            timeOffset += step / driftSpeed;
+            //const double sigmaTime  = MatHub.getDiffusionSigmaTime(thisMatIndex, step);
+            //timeOffset += RandomHub.gauss(0, sigmaTime);
         }
 
         marker = GeoManager->GetCurrentVolume()->GetTitle();
@@ -877,20 +877,25 @@ void APhotonSimulator::generateAndTracePhotons_secondary(ANodeRecord & node)
     const double Zspan = GeoManager->GetStep();
 
     //generate photons
+    Photon.SecondaryScint = true;
     Photon.r[0] = node.R[0];
     Photon.r[1] = node.R[1];
-    Photon.SecondaryScint = true;
 
-    const double DriftSpeed = MatHub.getDriftSpeed(MatIndexSecScint);
+    const double driftSpeed = MatHub.getDriftSpeed(MatIndexSecScint);
 
     const APhotonAdvancedSettings & AdvSet = SimSet.BombSet.AdvancedSettings;
-
     for (int iPh = 0; iPh < node.NumPhot; iPh++)
     {
         //random z inside this secondary scintillator
         const double z = Zspan * RandomHub.uniform();
         Photon.r[2] = Zstart + z;
-        Photon.time = time + z / DriftSpeed;
+        Photon.time = timeOffset;
+        if (driftSpeed != 0)
+        {
+            Photon.time += z / driftSpeed;
+            //const double sigmaTime  = MatHub.getDiffusionSigmaTime(MatIndexSecScint, z);
+            //Photon.time += RandomHub.gauss(0, sigmaTime);
+        }
 
         // Direction
         if      (AdvSet.DirectionMode == APhotonAdvancedSettings::Isotropic)
@@ -911,7 +916,6 @@ void APhotonSimulator::generateAndTracePhotons_secondary(ANodeRecord & node)
             APhotonGenerator::generateWave(Photon, MatIndexSecScint); // else waveindex is already set
 
         // Time
-        Photon.time = node.Time;
         if (!AdvSet.bFixDecay)
             APhotonGenerator::generateTime(Photon, MatIndexSecScint);
         else

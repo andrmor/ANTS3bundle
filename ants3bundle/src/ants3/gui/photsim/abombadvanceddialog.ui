@@ -732,38 +732,38 @@
         </spacer>
        </item>
        <item>
-        <widget class="QCheckBox" name="cbSecondaryScint">
-         <property name="text">
-          <string>Generate photons of secondary scintillation</string>
+        <layout class="QHBoxLayout" name="horizontalLayout_16">
+         <property name="topMargin">
+          <number>0</number>
          </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPlainTextEdit" name="plainTextEdit">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
-           <horstretch>0</horstretch>
-           <verstretch>1</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>0</width>
-           <height>120</height>
-          </size>
-         </property>
-         <property name="frameShape">
-          <enum>QFrame::Shape::NoFrame</enum>
-         </property>
-         <property name="readOnly">
-          <bool>true</bool>
-         </property>
-         <property name="plainText">
-          <string>Note that generation and drift of ionization electrons are not simulated!
-The configured number of photon is generated uniformly over the line crossing the first object with the SecondayScintillator role found in (0,0,1) direction from the node position.
-The emission time is computed based on the drift time and the secondary scintillation time properties of the corresponding material.</string>
-         </property>
-        </widget>
+         <item>
+          <widget class="QCheckBox" name="cbSecondaryScint">
+           <property name="text">
+            <string>Generate photons of secondary scintillation</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="pbSecScintInfo">
+           <property name="text">
+            <string>Info</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_11">
+           <property name="orientation">
+            <enum>Qt::Orientation::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
        </item>
        <item>
         <spacer name="verticalSpacer_10">

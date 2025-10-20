@@ -56,6 +56,8 @@ APhotonSimOutputDialog::APhotonSimOutputDialog(QWidget *parent) :
 
     PhotonLog->updateGui(RunSet.PhotonLogSet);
     PhotonLog->setEnabled(RunSet.PhotonLogSet.Enabled);
+
+    ui->pbAccept->setDefault(true);
 }
 
 APhotonSimOutputDialog::~APhotonSimOutputDialog()
