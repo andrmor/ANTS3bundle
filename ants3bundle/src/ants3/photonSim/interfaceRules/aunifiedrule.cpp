@@ -27,7 +27,7 @@ AInterfaceRule::EInterfaceRuleResult AUnifiedRule::calculate(APhoton * Photon, c
                 Status = Absorption;
                 return Absorbed;
             }
-        Refl = ReflectionOverride;
+        Refl = ReflectionOverride + AbsorptionOverride;
     }
     else
     {
