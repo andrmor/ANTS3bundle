@@ -11,7 +11,7 @@ public:
     EInterfaceRuleResult calculate(APhoton * Photon, const double * NormalVector) override; //unitary vectors! iWave = -1 if not wavelength-resolved
 
     QString getType() const override {return "Unified";}
-    QString getAbbreviation() const override {return "Uni";}
+    QString getAbbreviation() const override {return "Unified";}
     QString getReportLine() const override;
     QString getLongReportLine() const override;
     QString getDescription() const override;
@@ -23,12 +23,17 @@ public:
     double Cdiflobe  = 0;   // diffuse lobe (Lambertian)
     double Cback     = 0;   // backscatter spike
 
+    bool   SkipFresnel = false;
+    double AbsorptionOverride = 0.05;
+    double ReflectionOverride = 0.5;
+
 protected:
     void doWriteToJson(QJsonObject & json) const override;
     bool doReadFromJson(const QJsonObject & json) override;
 
     QString doCheckOverrideData() override;
 
+    // should be renamed to "computeReflectionProbability"
     double computeRefractionProbability(const APhoton *Photon, const double * NormalVector) const; // !!!*** code duplication! Not easy to remove...
 };
 

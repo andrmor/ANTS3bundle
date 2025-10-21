@@ -466,31 +466,58 @@ ASurfaceInterfaceWidget::ASurfaceInterfaceWidget(ASurfaceInterfaceRule * rule, Q
 AUnifiedInterfaceWidget::AUnifiedInterfaceWidget(AUnifiedRule * rule, QWidget * parent) :
     AInterfaceRuleWidget(parent)
 {
-    QGridLayout * lay = new QGridLayout(this);
+    QVBoxLayout * mainLay = new QVBoxLayout(this);
+    mainLay->setContentsMargins(0,0,0,0);
 
-    lay->addWidget(new QLabel("Specular Spike:"), 0, 0);
-    lay->addWidget(new QLabel("Specular Lobe:"), 0, 2);
-    lay->addWidget(new QLabel("Diffuse Lobe:"), 1, 0);
-    lay->addWidget(new QLabel("Backscatter Spike:"), 1, 2);
+    QGridLayout * lay = new QGridLayout();
 
-    QDoubleValidator* val = new QDoubleValidator(this);
-    val->setNotation(QDoubleValidator::StandardNotation);
-    val->setBottom(0.0);
-    val->setTop(1.0);
-    val->setDecimals(6);
+        lay->addWidget(new QLabel("Specular Spike:"), 0, 0);
+        lay->addWidget(new QLabel("Specular Lobe:"), 0, 2);
+        lay->addWidget(new QLabel("Diffuse Lobe:"), 1, 0);
+        lay->addWidget(new QLabel("Backscatter Spike:"), 1, 2);
 
-    QLineEdit * leSS = new QLineEdit(QString::number(rule->Cspec));     leSS->setValidator(val);
-    QLineEdit * leSL = new QLineEdit(QString::number(rule->Cspeclobe)); leSL->setValidator(val);
-    QLineEdit * leDL = new QLineEdit(QString::number(rule->Cdiflobe));  leDL->setValidator(val);
-    QLineEdit * leBS = new QLineEdit(QString::number(rule->Cback));     leBS->setValidator(val);
+        QDoubleValidator* val = new QDoubleValidator(this);
+        val->setNotation(QDoubleValidator::StandardNotation);
+        val->setBottom(0.0);
+        val->setTop(1.0);
+        val->setDecimals(6);
 
-    lay->addWidget(leSS, 0, 1);
-    lay->addWidget(leSL, 0, 3);
-    lay->addWidget(leDL, 1, 1);
-    lay->addWidget(leBS, 1, 3);
+        QLineEdit * leSS = new QLineEdit(QString::number(rule->Cspec));     leSS->setValidator(val);
+            QLineEdit * leSL = new QLineEdit(QString::number(rule->Cspeclobe)); leSL->setValidator(val);
+        QLineEdit * leDL = new QLineEdit(QString::number(rule->Cdiflobe));  leDL->setValidator(val);
+        QLineEdit * leBS = new QLineEdit(QString::number(rule->Cback));     leBS->setValidator(val);
 
-    QObject::connect(leSS, &QLineEdit::editingFinished, [leSS, rule]() { rule->Cspec = leSS->text().toDouble(); } );
-    QObject::connect(leSL, &QLineEdit::editingFinished, [leSL, rule]() { rule->Cspeclobe = leSL->text().toDouble(); } );
-    QObject::connect(leDL, &QLineEdit::editingFinished, [leDL, rule]() { rule->Cdiflobe = leDL->text().toDouble(); } );
-    QObject::connect(leBS, &QLineEdit::editingFinished, [leBS, rule]() { rule->Cback = leBS->text().toDouble(); } );
+        lay->addWidget(leSS, 0, 1);
+        lay->addWidget(leSL, 0, 3);
+            lay->addWidget(leDL, 1, 1);
+        lay->addWidget(leBS, 1, 3);
+
+        QObject::connect(leSS, &QLineEdit::editingFinished, [leSS, rule]() { rule->Cspec = leSS->text().toDouble(); } );
+        QObject::connect(leSL, &QLineEdit::editingFinished, [leSL, rule]() { rule->Cspeclobe = leSL->text().toDouble(); } );
+        QObject::connect(leDL, &QLineEdit::editingFinished, [leDL, rule]() { rule->Cdiflobe = leDL->text().toDouble(); } );
+        QObject::connect(leBS, &QLineEdit::editingFinished, [leBS, rule]() { rule->Cback = leBS->text().toDouble(); } );
+
+    mainLay->addLayout(lay);
+
+    QHBoxLayout * hLay = new QHBoxLayout();
+        hLay->setContentsMargins(0,0,0,0);
+        QCheckBox * cbSkip = new QCheckBox("Override Fresnel:"); cbSkip->setChecked(rule->SkipFresnel);
+        QObject::connect(cbSkip, &QCheckBox::clicked, [rule](bool checked) { rule->SkipFresnel = checked; } );
+        hLay->addWidget(cbSkip);
+        hLay->addWidget(new QLabel("reflection:"));
+        QLineEdit * leRef = new QLineEdit(QString::number(rule->ReflectionOverride)); leRef->setValidator(val);
+        hLay->addWidget(leRef);
+        hLay->addWidget(new QLabel("absorption:"));
+        QLineEdit * leAbs = new QLineEdit(QString::number(rule->AbsorptionOverride)); leAbs->setValidator(val);
+        hLay->addWidget(leAbs);
+        QObject::connect(leRef, &QLineEdit::editingFinished, [leRef, rule]() { rule->ReflectionOverride = leRef->text().toDouble(); } );
+        QObject::connect(leAbs, &QLineEdit::editingFinished, [leAbs, rule]() { rule->AbsorptionOverride = leAbs->text().toDouble(); } );
+        QObject::connect(cbSkip, &QCheckBox::toggled, leRef, &QLineEdit::setEnabled);
+        QObject::connect(cbSkip, &QCheckBox::toggled, leAbs, &QLineEdit::setEnabled);
+        if (!cbSkip->isChecked())
+        {
+            leRef->setEnabled(false);
+            leAbs->setEnabled(false);
+        }
+    mainLay->addLayout(hLay);
 }
