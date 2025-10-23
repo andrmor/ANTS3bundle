@@ -33,8 +33,7 @@ protected:
 
     QString doCheckOverrideData() override;
 
-    // should be renamed to "computeReflectionProbability"
-    double computeRefractionProbability(const APhoton *Photon, const double * NormalVector) const; // !!!*** code duplication! Not easy to remove...
+    double computeReflectionProbability(const APhoton *Photon, const double * NormalVector) const; // !!!*** code duplication! Not easy to remove...
 };
 
 #endif // AUNIFIEDRULE_H

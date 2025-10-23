@@ -18,26 +18,29 @@ AUnifiedRule::AUnifiedRule(int MatFrom, int MatTo) : AInterfaceRule(MatFrom, Mat
 
 AInterfaceRule::EInterfaceRuleResult AUnifiedRule::calculate(APhoton * Photon, const double * NormalVector)
 {
-    double Refl = 0;
+    double remainingRnd = RandomHub.uniform();
+
+    double reflectionFraction = 0;
     if (SkipFresnel)
     {
         if (AbsorptionOverride > 0)
-            if (RandomHub.uniform() < AbsorptionOverride)
+        {
+            remainingRnd -= AbsorptionOverride;
+            if (remainingRnd < 0)
             {
                 Status = Absorption;
                 return Absorbed;
             }
-        Refl = ReflectionOverride + AbsorptionOverride;
+        }
+        reflectionFraction = ReflectionOverride;
     }
     else
     {
-        Refl = computeRefractionProbability(Photon, NormalVector);
+        reflectionFraction = computeReflectionProbability(Photon, NormalVector);
     }
 
-    double rnd = RandomHub.uniform();
-
-    rnd -= Refl * Cspec;
-    if (rnd < 0)
+    remainingRnd -= reflectionFraction * Cspec;
+    if (remainingRnd < 0)
     {
         // qDebug() << "Specular spike";
         //rotating the vector: K = K - 2*(NK)*N
@@ -48,8 +51,8 @@ AInterfaceRule::EInterfaceRuleResult AUnifiedRule::calculate(APhoton * Photon, c
         return Back;
     }
 
-    rnd -= Refl * Cback;
-    if (rnd < 0)
+    remainingRnd -= reflectionFraction * Cback;
+    if (remainingRnd < 0)
     {
         // qDebug() << "Backscatter spike";
         for (int i = 0; i < 3; i++) Photon->v[i] = -Photon->v[i];
@@ -58,8 +61,8 @@ AInterfaceRule::EInterfaceRuleResult AUnifiedRule::calculate(APhoton * Photon, c
         return Back;
     }
 
-    rnd -= Refl * Cdiflobe;
-    if (rnd < 0)
+    remainingRnd -= reflectionFraction * Cdiflobe;
+    if (remainingRnd < 0)
     {
         // qDebug() << "Lambertian";
         double norm2;
@@ -79,8 +82,8 @@ AInterfaceRule::EInterfaceRuleResult AUnifiedRule::calculate(APhoton * Photon, c
     }
 
     calculateLocalNormal(NormalVector, Photon->v);
-    rnd -= Refl * Cspeclobe;
-    if (rnd < 0)
+    remainingRnd -= reflectionFraction * Cspeclobe;
+    if (remainingRnd < 0)
     {
         //qDebug() << "Specular lobe (microfacet reflection)";
         //rotating the vector: K = K - 2*(NK)*N
@@ -124,7 +127,7 @@ AInterfaceRule::EInterfaceRuleResult AUnifiedRule::calculate(APhoton * Photon, c
     return Absorbed;
 }
 
-double AUnifiedRule::computeRefractionProbability(const APhoton * Photon, const double * NormalVector) const
+double AUnifiedRule::computeReflectionProbability(const APhoton * Photon, const double * NormalVector) const
 {
     // has to be synchronized (algorithm) with the method calculateReflectionProbability() of the APhotonTracer class of lsim module!
     // has to be synchronized (algorithm) with the AInterfaceRuleTester calculateReflectionProbability(const APhoton & Photon)
