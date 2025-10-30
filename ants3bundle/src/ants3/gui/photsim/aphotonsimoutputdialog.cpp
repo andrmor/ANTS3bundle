@@ -134,3 +134,18 @@ void APhotonSimOutputDialog::on_pbChangeDir_customContextMenuRequested(const QPo
     QDesktopServices::openUrl( QUrl::fromLocalFile(txt) );
 }
 
+
+void APhotonSimOutputDialog::on_pbSensorLogHelp_clicked()
+{
+    QString txt = ""
+                  "The log, event by event, after the event index line (e.g. \"#0\")\n"
+                  "lists info for all photons which _entered_ a light sensor.\n"
+                  "That means that the sensor interface is processed first\n(a photon can be absorbed or reflected!)\n"
+                  "\nThe format, if all data fields are activated, is:\n"
+                  "SensorIndex Time[ns] LocalX[mm] LocalY[mm] Angle[deg] WaveIndex\n"
+                  "If not all fields are activated, the corresponding quantity is not saved.\n"
+                  "Only ascii output is currently implemented."
+        "";
+    guitools::message(txt, this);
+}
+

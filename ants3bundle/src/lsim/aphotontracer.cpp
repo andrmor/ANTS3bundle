@@ -1013,7 +1013,8 @@ void APhotonTracer::processSensorHit(int iSensor)
     if (!SimSet.OptSet.CheckQeBeforeTracking) Rnd = RandomHub.uniform(); // else already have a value
     bool bDetected = Event.checkSensorHit(iSensor, Photon.time, Photon.waveIndex, local[0], local[1], angle, TransitionCounter, Rnd);
 
-    if (bDetected && SimSet.RunSet.SaveSensorLog)
+    //if (bDetected && SimSet.RunSet.SaveSensorLog)
+    if (SimSet.RunSet.SaveSensorLog)
         appendToSensorLog(iSensor, Photon.time, local[0], local[1], angle, Photon.waveIndex);
 
     if (SaveLog) PhLog.push_back( APhotonHistoryLog(Navigator->GetCurrentPoint(), Navigator->GetCurrentVolume()->GetName(), Navigator->GetCurrentNode()->GetNumber(), Photon.time, Photon.waveIndex, (bDetected ? APhotonHistoryLog::Detected : APhotonHistoryLog::NotDetected), -1, -1, iSensor) );

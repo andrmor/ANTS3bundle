@@ -25,6 +25,8 @@ private slots:
 
     void on_pbChangeDir_customContextMenuRequested(const QPoint &pos);
 
+    void on_pbSensorLogHelp_clicked();
+
 private:
     Ui::APhotonSimOutputDialog * ui;
     APhotonLogSettingsForm * PhotonLog = nullptr;
