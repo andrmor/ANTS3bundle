@@ -6,6 +6,7 @@ CONFIG += ants3_FARM        #if commented away, WebSockets are not compiled and 
 CONFIG += ants3_Python      #enables Python scripting
 CONFIG += ants3_RootServer  #enables CERN ROOT html server
 CONFIG += ants3_jsroot      #enables JSROOT visualisation of the geometry. Requires Qt WebEngine library installed and ants3_RootServer enabled
+CONFIG += ants3_mercury     #enables Mercury library for position reconstruction
 #
 # --- end of user-configure area ---
 
@@ -51,8 +52,59 @@ ants3_RootServer{
         DEFINES += __USE_ANTS_JSROOT__
         QT      += webenginewidgets
     }
-
 }
+
+# Mercury
+ants3_mercury{
+  DEFINES += USE_MERCURY
+
+    INCLUDEPATH += /usr/include/eigen3
+    INCLUDEPATH += rec/Mercury
+    INCLUDEPATH += rec/Mercury/lib
+    INCLUDEPATH += rec/Mercury/LRModel
+    INCLUDEPATH += rec/Mercury/spline123
+    INCLUDEPATH += rec/Mercury/script
+
+    SOURCES += \
+        rec/Mercury/LRModel/compress.cpp \
+        rec/Mercury/LRModel/lrf.cpp \
+        rec/Mercury/LRModel/lrfaxial.cpp \
+        rec/Mercury/LRModel/lrfaxial3d.cpp \
+        rec/Mercury/LRModel/lrfcomp.cpp \
+        rec/Mercury/LRModel/lrfio.cpp \
+        rec/Mercury/LRModel/lrfxy.cpp \
+        rec/Mercury/LRModel/lrfxyz.cpp \
+        rec/Mercury/LRModel/lrmodel.cpp \
+        rec/Mercury/LRModel/transform.cpp \
+        rec/Mercury/lib/json11.cpp \
+        rec/Mercury/reconstructor.cpp \
+        rec/Mercury/reconstructor_mp.cpp \
+        rec/Mercury/spline123/bsfit123.cpp \
+        rec/Mercury/spline123/bspline123d.cpp \
+        rec/Mercury/spline123/profileHist.cpp \
+        rec/Mercury/script/amercury_si.cpp
+
+    HEADERS += \
+        rec/Mercury/LRModel/compress.h \
+        rec/Mercury/LRModel/lrf.h \
+        rec/Mercury/LRModel/lrfaxial.h \
+        rec/Mercury/LRModel/lrfaxial3d.h \
+        rec/Mercury/LRModel/lrfcomp.h \
+        rec/Mercury/LRModel/lrfio.h \
+        rec/Mercury/LRModel/lrfxy.h \
+        rec/Mercury/LRModel/lrfxyz.h \
+        rec/Mercury/LRModel/lrmodel.h \
+        rec/Mercury/LRModel/transform.h \
+        rec/Mercury/lib/eiquadprog.hpp \
+        rec/Mercury/lib/json11.hpp \
+        rec/Mercury/reconstructor.h \
+        rec/Mercury/reconstructor_mp.h \
+        rec/Mercury/spline123/bsfit123.h \
+        rec/Mercury/spline123/bspline123d.h \
+        rec/Mercury/spline123/profileHist.h \
+        rec/Mercury/script/amercury_si.h
+}
+
 #----------
 
 # Permission to script to start external processes

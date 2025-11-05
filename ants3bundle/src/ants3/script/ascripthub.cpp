@@ -31,6 +31,10 @@
 #include "arootstyle_si.h"
 #include "apet_si.h"
 
+#ifdef USE_MERCURY
+#include "amercury_si.h"
+#endif
+
 AScriptHub & AScriptHub::getInstance()
 {
     static AScriptHub instance;
@@ -237,6 +241,9 @@ AScriptHub::AScriptHub()
     addCommonInterface(new ATree_SI(),         "tree");
     addCommonInterface(new ARootStyle_SI(),    "root");
     addCommonInterface(new APet_si(),          "pet");
+#ifdef USE_MERCURY
+    addCommonInterface(new AMercury_si(),      "mercury");
+#endif
     addCommonInterface(new ADemo_SI(),         "demo");
 
 #ifdef WEBSOCKETS
