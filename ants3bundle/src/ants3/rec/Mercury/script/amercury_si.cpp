@@ -1,6 +1,6 @@
 #include "amercury_si.h"
 #include "reconstructor.h"
-//#include "reconstructor_mp.h"
+#include "reconstructor_mp.h"
 
 #include <QVariant>
 
@@ -14,7 +14,8 @@ void AMercury_si::createReconstructor_CoG()
         return;
     }
 
-    delete Rec; Rec = new RecCoG(Model);
+    resetReconstructors();
+    Rec = new RecCoG(Model);
 }
 
 void AMercury_si::createReconstructor_ML()
@@ -25,7 +26,20 @@ void AMercury_si::createReconstructor_ML()
         return;
     }
 
-    delete Rec; Rec = new RecML(Model);
+    resetReconstructors();
+    Rec = new RecML(Model);
+}
+
+void AMercury_si::createReconstructor_ML_multi(int numThreads)
+{
+    if (!Model)
+    {
+        abort("LRF model was not created yet!");
+        return;
+    }
+
+    resetReconstructors();
+    RecMP = new RecML_MP(Model, numThreads);
 }
 
 void AMercury_si::createReconstructor_LS()
@@ -36,7 +50,8 @@ void AMercury_si::createReconstructor_LS()
         return;
     }
 
-    delete Rec; Rec = new RecLS(Model);
+    resetReconstructors();
+    Rec = new RecLS(Model);
 }
 
 void AMercury_si::reconstructEvent(QVariantList sensSignals)
@@ -49,6 +64,28 @@ void AMercury_si::reconstructEvent(QVariantList sensSignals)
         a[i] = sensSignals[i].toDouble();
 
     if (Rec) Rec->ProcessEvent(a, sat);
+    else     abort("Reconstructor was not yet created");
+}
+
+void AMercury_si::reconstructEvents(QVariantList sensSignalsOverAllEvents)
+{
+    const size_t numEvents = sensSignalsOverAllEvents.size();
+
+    std::vector<std::vector<double>> A(numEvents);
+
+    size_t numEl = 0;
+
+    for (size_t iEv = 0; iEv < numEvents; iEv++)
+    {
+        QVariantList sensSignals = sensSignalsOverAllEvents[iEv].toList();
+        numEl = sensSignals.size();
+
+        A[iEv].resize(numEl);
+        for (size_t i = 0; i < numEl; i++)
+            A[iEv][i] = sensSignals[i].toDouble();
+    }
+
+    if (RecMP) RecMP->ProcessEvents(A);
     else     abort("Reconstructor was not yet created");
 }
 
@@ -66,6 +103,24 @@ double AMercury_si::getPositionY()
 
     abort("Reconstructor was not yet created");
     return 0;
+}
+
+QVariantList AMercury_si::getReconstructedPositions()
+{
+    QVariantList res;
+    if (!RecMP) return res;
+
+    const std::vector<double> xRes = RecMP->getRecX();
+    const std::vector<double> yRes = RecMP->getRecY();
+    const std::vector<double> zRes = RecMP->getRecZ();
+
+    for (size_t i = 0; i < xRes.size(); i++)
+    {
+        //QVariantList el{xRes[i], yRes[i], zRes[i]};
+        QVariantList el{xRes[i], yRes[i], 0};
+        res.push_back(el);
+    }
+    return res;
 }
 
 void AMercury_si::setCogAbsCutoff(double val)
@@ -111,6 +166,19 @@ void AMercury_si::setLRF(int iSens, QString jsonString)
     Model->SetJsonLRF(iSens, jsonString.toLatin1().data());
 }
 
+QString AMercury_si::writeModel()
+{
+    QString res;
+    if (Model) res = Model->GetJsonString().data();
+    return res;
+}
+
+void AMercury_si::readModel(QString jsonStr)
+{
+    delete Model; Model = nullptr;
+    Model = new LRModel(jsonStr.toLatin1().data());
+}
+
 void AMercury_si::clearAllFitData()
 {
     if (Model) Model->ClearAllFitData();
@@ -135,5 +203,17 @@ void AMercury_si::addFitData(int iSens, QVariantList xyza)
 void AMercury_si::fitSensor(int iSens)
 {
     if (Model) Model->FitSensor(iSens);
+}
+
+double AMercury_si::eval(int iSens, double x, double y, double z)
+{
+    if (Model) return Model->Eval(iSens, x, y, z);
+    else return 0;
+}
+
+void AMercury_si::resetReconstructors()
+{
+    delete Rec;   Rec   = nullptr;
+    delete RecMP; RecMP = nullptr;
 }
 

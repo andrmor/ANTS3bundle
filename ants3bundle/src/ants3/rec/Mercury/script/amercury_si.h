@@ -8,6 +8,7 @@
 
 class LRModel;
 class Reconstructor;
+class ReconstructorMP;
 
 class AMercury_si : public AScriptInterface
 {
@@ -23,12 +24,17 @@ public:
 public slots:
     void createReconstructor_CoG();
     void createReconstructor_ML();
+    void createReconstructor_ML_multi(int numThreads);
     void createReconstructor_LS();
 
-    void reconstructEvent(QVariantList sensSignals);
+    void reconstructEvent(QVariantList  sensSignals);
+    void reconstructEvents(QVariantList sensSignalsOverAllEvents);
+
 
     double getPositionX();
     double getPositionY();
+
+    QVariantList getReconstructedPositions();
 
     void setCogAbsCutoff(double val);
     void setCogRelCutoff(double val);
@@ -38,13 +44,21 @@ public slots:
     void addSensor(int iSens, double x, double y);
     void setLRF(int iSens, QString jsonString);
 
+    QString writeModel();
+    void    readModel(QString jsonStr);
+
     void clearAllFitData();
     void addFitData(int iSens, QVariantList xyza);
     void fitSensor(int iSens);
 
+    double eval(int iSens, double x, double y, double z);
+
 private:
     LRModel * Model = nullptr;
-    Reconstructor * Rec = nullptr;
+    Reconstructor   * Rec   = nullptr;
+    ReconstructorMP * RecMP = nullptr;
+
+    void resetReconstructors();
 
 };
 

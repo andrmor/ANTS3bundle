@@ -58,6 +58,10 @@ ants3_RootServer{
 ants3_mercury{
   DEFINES += USE_MERCURY
 
+    QMAKE_CXXFLAGS += -fopenmp
+    QMAKE_LFLAGS += -fopenmp
+    LIBS += -fopenmp
+
     INCLUDEPATH += /usr/include/eigen3
     INCLUDEPATH += rec/Mercury
     INCLUDEPATH += rec/Mercury/lib
