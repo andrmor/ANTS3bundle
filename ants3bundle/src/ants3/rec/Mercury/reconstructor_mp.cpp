@@ -1,5 +1,9 @@
 #include "reconstructor_mp.h"
 #include "reconstructor.h"
+#include "lrmodel.h"
+
+#include <Eigen/Dense>
+
 #include "omp.h"
 
 ReconstructorMP::ReconstructorMP(LRModel *lrm, int n_threads)

@@ -89,6 +89,12 @@ void  DualSlopeCompress::ToJsonObject(Json_object &json) const
     json["k"] = k;
 }
 
+double DualSlopeCompress::Compress(double r) const
+{
+    double dr = r - r0;
+    return std::max(0.0, b + dr * a - sqrt(dr * dr + lam2));
+}
+
 void  QuadraticCompress::ToJsonObject(Json_object &json) const
 {
     json["method"] = "quadratic";

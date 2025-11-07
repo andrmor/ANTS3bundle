@@ -3,11 +3,9 @@
 
 #include <vector>
 #include <string>
-#include <Eigen/Dense>
-#include "TMath.h"
+
 #include "Math/Functor.h"
 #include "Minuit2/Minuit2Minimizer.h"
-#include "lrmodel.h"
 
 class LRModel;
 
@@ -76,7 +74,7 @@ public:
     double getSumActiveLRF(double x, double y, double z);
 
     LRModel *getLRModel() {return lrm;}
-    std::string getLRModelJson() {return lrm->GetJsonString();}
+    std::string getLRModelJson();
 
 protected:    
     void checkActive();
@@ -179,7 +177,7 @@ class RecLS : public RecMinuit
 public:
     RecLS(LRModel *lrm, bool weighted = true);
     RecLS(std::string json_str, bool weighted = true);
-    virtual void InitCostFunction();
+    void InitCostFunction() override;
     double Cost(const double *p);
     bool fWeighted = true;
 };
@@ -189,7 +187,7 @@ class RecML : public RecMinuit
 public:
     RecML(LRModel *lrm);
     RecML(std::string json_str);
-    virtual void InitCostFunction();
+    void InitCostFunction() override;
     double Cost(const double *p);
 }; 
 
@@ -198,7 +196,7 @@ class RecCoG : public Reconstructor
 public:
     RecCoG(LRModel *lrm);
     RecCoG(std::string json_str);
-    virtual bool ProcessEvent(std::vector <double> &a, std::vector <bool> &sat);    
+    bool ProcessEvent(std::vector <double> &a, std::vector <bool> &sat) override;
 };
 
 #endif // RECONSTRUCTOR_H

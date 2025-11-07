@@ -285,7 +285,7 @@ private:
     void setShowCursorPosition(bool flag);
     void fixGraphFrame();
     void updateLogScaleFlags(std::vector<ADrawObject> & drawObjects) const;
-    void connectScriptUnitDrawRequests(const std::vector<AScriptInterface *> interfaces);
+    void connectScriptUnitDrawRequests(const std::vector<AScriptInterface *> interfaces); // only special draw requests, the standard ones are handled by ScriptHub
     void updateMargins(ADrawObject * obj = nullptr);
     TLegend * addLegend();
 

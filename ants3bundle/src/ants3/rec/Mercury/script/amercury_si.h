@@ -4,11 +4,13 @@
 #include "ascriptinterface.h"
 
 #include <QObject>
+#include <QString>
 #include <QVariantList>
 
 class LRModel;
 class Reconstructor;
 class ReconstructorMP;
+class TObject;
 
 class AMercury_si : public AScriptInterface
 {
@@ -40,18 +42,19 @@ public slots:
     void setCogRelCutoff(double val);
 
     // --- LRFs ---
-    void createModel(int numSens);
-    void addSensor(int iSens, double x, double y);
-    void setLRF(int iSens, QString jsonString);
+    void createModel(int numSensors);
+    void addSensor(int iSensor, double x, double y);
+    void setLRF(int iSensor, QString jsonString);
 
     QString writeModel();
     void    readModel(QString jsonStr);
 
     void clearAllFitData();
-    void addFitData(int iSens, QVariantList xyza);
-    void fitSensor(int iSens);
+    void addFitData(int iSensor, QVariantList xyza);
+    void fitSensor(int iSensor);
 
-    double eval(int iSens, double x, double y, double z);
+    void plotLRF_radial(int iSensor, bool showNodes = false);
+    double eval(int iSensor, double x, double y, double z);
 
 private:
     LRModel * Model = nullptr;

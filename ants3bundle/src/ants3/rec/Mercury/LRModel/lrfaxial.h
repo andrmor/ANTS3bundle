@@ -64,7 +64,9 @@ public:
     ProfileHist *GetHist();
 
 // relative gain calculation
-    double GetRatio(LRF* other) const;    
+    double GetRatio(LRF* other) const;
+
+    double Compress(double r) const;
 
 protected:
     void Init();

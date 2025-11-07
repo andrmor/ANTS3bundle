@@ -2,6 +2,7 @@
 #include "ascriptobjstore.h"
 #include "arootobjcollection.h"
 #include "aroothistrecord.h"
+#include "ascripthub.h"
 
 #include <QJsonArray>
 #include <QJsonValue>
@@ -841,7 +842,7 @@ void AHist_SI::smooth(QString histName, int times)
     else
     {
         r->smooth(times);
-        if (bGuiThread) emit requestDraw(0, "", true); //to update
+        if (bGuiThread) emit AScriptHub::getInstance().requestDraw(0, "", true); //to update
     }
 }
 
@@ -857,7 +858,7 @@ void AHist_SI::smear(QString histName, double sigma)
             return;
         }
         r->smear(sigma);
-        if (bGuiThread) emit requestDraw(0, "", true); //to update
+        if (bGuiThread) emit AScriptHub::getInstance().requestDraw(0, "", true); //to update
     }
 }
 
@@ -917,7 +918,7 @@ QVariantList AHist_SI::fitGauss(QString histName, QString options)
 
     std::vector<double> vec = r->fitGauss(options);
 
-    if (!vec.empty() && bGuiThread) emit requestDraw(0, "", true); //to update
+    if (!vec.empty() && bGuiThread) emit AScriptHub::getInstance().requestDraw(0, "", true); //to update
 
     for (double d : vec) vl << d;
     return vl;
@@ -952,7 +953,7 @@ QVariantList AHist_SI::fitGaussWithInit(QString histName, QVariantList initialPa
 
     std::vector<double> vec = r->fitGaussWithInit(in, options);
 
-    if (!vec.empty() && bGuiThread) emit requestDraw(0, "", true); //to update
+    if (!vec.empty() && bGuiThread) emit AScriptHub::getInstance().requestDraw(0, "", true); //to update
 
     for (double d : vec) vl << d;
     return vl;
@@ -1220,7 +1221,7 @@ void AHist_SI::draw(QString HistName, QString options)
         }
 
         TObject * copy = r->GetObject()->Clone(r->GetObject()->GetName());
-        emit requestDraw(copy, options, true);
+        emit AScriptHub::getInstance().requestDraw(copy, options, true);
     }
 }
 

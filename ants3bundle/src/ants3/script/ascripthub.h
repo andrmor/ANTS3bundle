@@ -12,6 +12,7 @@ class AScriptInterface;
 class AGeoWin_SI;
 class AGeometryWindow;
 class AGuiFromScrWin;
+class TObject;
 
 #ifdef ANTS3_PYTHON
     class APythonScriptManager;
@@ -74,6 +75,7 @@ signals:
     void requestUpdateGui();
     void reportProgress_JS(int percent);
     void reportProgress_P(int percent);
+    void requestDraw(TObject * obj, QString options, bool fFocus); // connected using Queued Connection inside graphwindow class; object ownership is transferred to graph window!
 
 private:
     AJScriptManager      * JavaScriptM = nullptr;

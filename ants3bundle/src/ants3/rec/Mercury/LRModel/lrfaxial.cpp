@@ -369,3 +369,11 @@ void LRFaxial::ToJsonObject(Json_object &json) const
     if (compress) 
         json["compression"] = compress->GetJsonObject();
 }
+
+
+double LRFaxial::Compress(double r) const
+{
+    if (!compress) return r;
+    return compress->Compress(r);
+}
+

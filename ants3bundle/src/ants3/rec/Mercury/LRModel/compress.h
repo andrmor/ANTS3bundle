@@ -14,6 +14,7 @@ public:
     virtual double Rho(double r) const = 0;
     virtual double RhoDrv(double r) const = 0;
     virtual void ToJsonObject(Json_object &json) const = 0;
+    virtual double Compress(double r) const {return r;}
 
     static Compress1d* Factory(const Json &json);
 
@@ -63,6 +64,8 @@ public:
     virtual double Rho(double r) const;
     virtual double RhoDrv(double r) const;
     virtual void ToJsonObject(Json_object &json) const;
+
+    double Compress(double r) const override;
 
 private:
     double k;

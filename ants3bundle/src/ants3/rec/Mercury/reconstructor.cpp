@@ -1,10 +1,14 @@
 #include "reconstructor.h"
 #include "lrmodel.h"
-#include "TROOT.h"
+//#include "TROOT.h"
 #include <iostream>
-#include <fstream>
+//#include <fstream>
 // #include "eiquadprog.hpp"
 #include <cmath>
+
+#include <Eigen/Dense>
+#include "TMath.h"
+#include "lrmodel.h"
 
 Reconstructor::Reconstructor(LRModel *lrm)
 {
@@ -120,6 +124,11 @@ double Reconstructor::getSumActiveLRF(double x, double y, double z)
     for (int i : Active)  
         sum += lrm->Eval(i, x, y, z);
     return sum;
+}
+
+std::string Reconstructor::getLRModelJson()
+{
+    return lrm->GetJsonString();
 }
 
 double Reconstructor::getDistFromSensor(int id, double x, double y)

@@ -1,6 +1,7 @@
 #include "amercury_si.h"
 #include "reconstructor.h"
 #include "reconstructor_mp.h"
+#include "lrmodel.h"
 
 #include <QVariant>
 
@@ -137,13 +138,13 @@ void AMercury_si::setCogRelCutoff(double val)
 
 // --- LRFs ---
 
-void AMercury_si::createModel(int numSens)
+void AMercury_si::createModel(int numSensors)
 {
     delete Model;
-    Model = new LRModel(numSens);
+    Model = new LRModel(numSensors);
 }
 
-void AMercury_si::addSensor(int iSens, double x, double y)
+void AMercury_si::addSensor(int iSensor, double x, double y)
 {
     if (!Model)
     {
@@ -151,11 +152,11 @@ void AMercury_si::addSensor(int iSens, double x, double y)
         return;
     }
 
-    if (Model->SensorExists(iSens)) Model->AddSensor(iSens, x, y);
+    if (Model->SensorExists(iSensor)) Model->AddSensor(iSensor, x, y);
     else abort("Sensor index is not valid");
 }
 
-void AMercury_si::setLRF(int iSens, QString jsonString)
+void AMercury_si::setLRF(int iSensor, QString jsonString)
 {
     if (!Model)
     {
@@ -163,7 +164,7 @@ void AMercury_si::setLRF(int iSens, QString jsonString)
         return;
     }
 
-    Model->SetJsonLRF(iSens, jsonString.toLatin1().data());
+    Model->SetJsonLRF(iSensor, jsonString.toLatin1().data());
 }
 
 QString AMercury_si::writeModel()
@@ -184,7 +185,7 @@ void AMercury_si::clearAllFitData()
     if (Model) Model->ClearAllFitData();
 }
 
-void AMercury_si::addFitData(int iSens, QVariantList xyza)
+void AMercury_si::addFitData(int iSensor, QVariantList xyza)
 {
     if (!Model) return;
 
@@ -197,17 +198,25 @@ void AMercury_si::addFitData(int iSens, QVariantList xyza)
             data[iEv][i] = event[i].toDouble();
     }
 
-    Model->AddFitData(iSens, data);
+    Model->AddFitData(iSensor, data);
 }
 
-void AMercury_si::fitSensor(int iSens)
+void AMercury_si::fitSensor(int iSensor)
 {
-    if (Model) Model->FitSensor(iSens);
+    if (Model) Model->FitSensor(iSensor);
 }
 
-double AMercury_si::eval(int iSens, double x, double y, double z)
+#include "alrfdrawer.h"
+void AMercury_si::plotLRF_radial(int iSensor, bool showNodes)
 {
-    if (Model) return Model->Eval(iSens, x, y, z);
+    ALrfDrawer dr(Model);
+    QString err = dr.drawRadial(iSensor, showNodes);
+    if (!err.isEmpty()) abort(err);
+}
+
+double AMercury_si::eval(int iSensor, double x, double y, double z)
+{
+    if (Model) return Model->Eval(iSensor, x, y, z);
     else return 0;
 }
 

@@ -3,11 +3,10 @@
 
 #include <vector>
 #include <string>
-#include <Eigen/Dense>
-#include "TMath.h"
-#include "Math/Functor.h"
-#include "Minuit2/Minuit2Minimizer.h"
-#include "lrmodel.h"
+//#include "TMath.h"
+//#include "Math/Functor.h"
+//#include "Minuit2/Minuit2Minimizer.h"
+
 #include "reconstructor.h"
 
 class LRModel;

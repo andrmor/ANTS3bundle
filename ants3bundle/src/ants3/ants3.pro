@@ -68,6 +68,7 @@ ants3_mercury{
     INCLUDEPATH += rec/Mercury/LRModel
     INCLUDEPATH += rec/Mercury/spline123
     INCLUDEPATH += rec/Mercury/script
+    INCLUDEPATH += gui/rec
 
     SOURCES += \
         rec/Mercury/LRModel/compress.cpp \
@@ -86,7 +87,8 @@ ants3_mercury{
         rec/Mercury/spline123/bsfit123.cpp \
         rec/Mercury/spline123/bspline123d.cpp \
         rec/Mercury/spline123/profileHist.cpp \
-        rec/Mercury/script/amercury_si.cpp
+        rec/Mercury/script/amercury_si.cpp \
+        gui/rec/alrfdrawer.cpp
 
     HEADERS += \
         rec/Mercury/LRModel/compress.h \
@@ -106,7 +108,8 @@ ants3_mercury{
         rec/Mercury/spline123/bsfit123.h \
         rec/Mercury/spline123/bspline123d.h \
         rec/Mercury/spline123/profileHist.h \
-        rec/Mercury/script/amercury_si.h
+        rec/Mercury/script/amercury_si.h \
+        gui/rec/alrfdrawer.h
 }
 
 #----------

@@ -109,6 +109,7 @@ AGraphWindow::AGraphWindow(QWidget * parent) :
     connect(lwBasket, &ABasketListWidget::itemDoubleClicked, this, &AGraphWindow::onBasketItemDoubleClicked);
     connect(lwBasket, &ABasketListWidget::requestReorder, this, &AGraphWindow::onBasketReorderRequested);
 
+    connect(&AScriptHub::getInstance(), &AScriptHub::requestDraw, this, &AGraphWindow::onScriptDrawRequest);
     connectScriptUnitDrawRequests(AScriptHub::getInstance().getJScriptManager().getInterfaces());
 #ifdef ANTS3_PYTHON
     connectScriptUnitDrawRequests(AScriptHub::getInstance().getPythonManager().getInterfaces());
@@ -171,49 +172,18 @@ AGraphWindow::~AGraphWindow()
     delete Basket; Basket = nullptr;
 }
 
-#include "agraph_si.h"
-#include "ahist_si.h"
 #include "atree_si.h"
 void AGraphWindow::connectScriptUnitDrawRequests(const std::vector<AScriptInterface *> interfaces)
 {
-    const AGraph_SI * graphInter = nullptr;
-    const AHist_SI  * histInter  = nullptr;
-    const ATree_SI  * treeInter  = nullptr;
-
     for (const AScriptInterface * inter : interfaces)
     {
-        if (!graphInter)
+        const ATree_SI * test = dynamic_cast<const ATree_SI*>(inter);
+        if (test)
         {
-            const AGraph_SI * test = dynamic_cast<const AGraph_SI*>(inter);
-            if (test)
-            {
-                graphInter = test;
-                continue;
-            }
-        }
-        if (!histInter)
-        {
-            const AHist_SI * test = dynamic_cast<const AHist_SI*>(inter);
-            if (test)
-            {
-                histInter = test;
-                continue;
-            }
-        }
-        if (!treeInter)
-        {
-            const ATree_SI * test = dynamic_cast<const ATree_SI*>(inter);
-            if (test)
-            {
-                treeInter = test;
-                continue;
-            }
+            connect(test, &ATree_SI::requestTreeDraw, this, &AGraphWindow::onScriptDrawTree, Qt::QueuedConnection);
+            continue;
         }
     }
-
-    if (graphInter) connect(graphInter, &AGraph_SI::requestDraw,    this, &AGraphWindow::onScriptDrawRequest, Qt::DirectConnection);
-    if (histInter)  connect(histInter,  &AHist_SI::requestDraw,     this, &AGraphWindow::onScriptDrawRequest, Qt::DirectConnection);
-    if (treeInter)  connect(treeInter,  &ATree_SI::requestTreeDraw, this, &AGraphWindow::onScriptDrawTree);
 }
 
 void AGraphWindow::addLine(double x1, double y1, double x2, double y2, int color, int width, int style)
