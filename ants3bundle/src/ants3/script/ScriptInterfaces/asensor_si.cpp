@@ -17,6 +17,24 @@ int ASensor_SI::countModels()
     return SensHub.countModels();
 }
 
+QVariantList ASensor_SI::getGains()
+{
+    QVariantList vl;
+
+    for (double gain : SensHub.SensorGains)
+        vl.push_back(gain);
+
+    return vl;
+}
+
+void ASensor_SI::setGains(QVariantList gains)
+{
+    SensHub.SensorGains.clear();
+
+    for (int i = 0; i < gains.size(); i++)
+        SensHub.SensorGains.push_back(gains[i].toDouble());
+}
+
 void ASensor_SI::clearAssignment()
 {
     SensHub.clearAssignment();

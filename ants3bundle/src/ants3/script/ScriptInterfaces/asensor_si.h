@@ -20,6 +20,9 @@ public slots:
     int countSensors();
     int countModels();
 
+    QVariantList getGains();
+    void setGains(QVariantList gains);
+
     void clearAssignment();
     void assignModel(int iSensor, int iModel);
 

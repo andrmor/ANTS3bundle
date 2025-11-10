@@ -798,6 +798,8 @@ void ASensorWindow::updatePhElToSigButtons()
 void ASensorWindow::updateGains()
 {
     ui->cbGains->setChecked(SensHub.UseSensorGains);
+
+    if (ui->cbGains_ShowTable->isChecked()) showTableWithGains();
 }
 
 #include <QDialog>
