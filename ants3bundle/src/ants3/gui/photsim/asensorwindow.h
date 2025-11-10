@@ -81,6 +81,12 @@ private slots:
 
     void on_pbCompteEffectivePDE_clicked();
 
+    void on_cbGains_clicked(bool checked);
+
+    void on_pbGains_Clear_clicked();
+
+    void on_pbGains_Randomize_clicked();
+
 private:
     ASensorHub & SensHub;
     Ui::ASensorWindow * ui = nullptr;
@@ -92,6 +98,7 @@ private:
     void updateAngularButtons();
     void updateAreaButtons();
     void updatePhElToSigButtons();
+    void updateGains();
 
 signals:
     void requestShowSensorModels(int iModel);

@@ -82,12 +82,14 @@ private:
     ASensorHub& operator=(const ASensorHub&) = delete;
     ASensorHub& operator=(ASensorHub&&)      = delete;
 
-private:
+private:  // !!!*** -> public
     std::vector<ASensorModel> Models;
 
+public:
     bool UseSensorGains = false;
     std::vector<double> SensorGains;
 
+private:
     bool PersistentModelAssignment = false;
     std::vector<int> LoadedModelAssignment;
 

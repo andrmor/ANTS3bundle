@@ -95,6 +95,8 @@ void ASensorWindow::updateGui()
     updateAreaButtons();
     updatePhElToSigButtons();
     onMaterialsChanged();
+
+    updateGains();
 }
 
 #include "amaterialhub.h"
@@ -773,6 +775,11 @@ void ASensorWindow::updatePhElToSigButtons()
     ui->pbRemoveCustomPhElSig->setDisabled(mod->SinglePhElPHS.empty());
 }
 
+void ASensorWindow::updateGains()
+{
+    ui->cbGains->setChecked(SensHub.UseSensorGains);
+}
+
 #include <QDialog>
 #include <QSpinBox>
 #include <QDoubleValidator>
@@ -889,5 +896,28 @@ void ASensorWindow::on_pbCompteEffectivePDE_clicked()
 
     ui->ledEffectivePDE->setText(QString::number(weightedSum/weights, 'g', 4));
     on_ledEffectivePDE_editingFinished();
+}
+
+
+void ASensorWindow::on_cbGains_clicked(bool checked)
+{
+    SensHub.UseSensorGains = checked;
+}
+
+void ASensorWindow::on_pbGains_Clear_clicked()
+{
+    SensHub.SensorGains.resize(SensHub.countSensors());
+    std::fill(SensHub.SensorGains.begin(), SensHub.SensorGains.end(), 1.0);
+}
+
+#include "arandomhub.h"
+void ASensorWindow::on_pbGains_Randomize_clicked()
+{
+    double mean  = ui->ledGains_Mean->text().toDouble();
+    double sigma = ui->ledGains_Sigma->text().toDouble();
+
+    SensHub.SensorGains.resize(SensHub.countSensors());
+    for (size_t i = 0; i < SensHub.SensorGains.size(); i++)
+        SensHub.SensorGains[i] = ARandomHub::getInstance().gauss(mean, sigma);
 }
 

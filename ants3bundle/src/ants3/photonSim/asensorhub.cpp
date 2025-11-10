@@ -184,7 +184,7 @@ void ASensorHub::writeToJson(QJsonObject & json) const
                     for (double gain : SensorGains)
                     ar.push_back(gain);
                 js["Gains"] = ar;
-            json["SensorGains"] = js;
+            mainJs["SensorGains"] = js;
         }
 
     json["Sensors"] = mainJs;
