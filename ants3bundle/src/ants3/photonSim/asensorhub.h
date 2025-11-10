@@ -61,6 +61,9 @@ public:
     bool    isPersistentModelAssignment() const {return PersistentModelAssignment;}
     void    exitPersistentMode();
 
+    bool    useSensorGains() const {return UseSensorGains;}
+    double  getSensorGain(int iSensor) const {return SensorGains[iSensor];}
+
     QString updateRuntimeProperties(); // returns error
 
     void    writeToJson(QJsonObject & json) const;
@@ -81,6 +84,9 @@ private:
 
 private:
     std::vector<ASensorModel> Models;
+
+    bool UseSensorGains = false;
+    std::vector<double> SensorGains;
 
     bool PersistentModelAssignment = false;
     std::vector<int> LoadedModelAssignment;

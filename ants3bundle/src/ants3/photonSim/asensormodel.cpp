@@ -34,7 +34,7 @@ void ASensorModel::clear()
     DarkCountRate = 0;
     IntegrationTime = 1e-6;
     ElectronicNoiseSigma = 0;
-    ElectronicGainFactor = 1.0;
+    //ElectronicGainFactor = 1.0;
 
     delete _PHS; _PHS = nullptr;
     _AverageDarkCounts = 0;
@@ -91,7 +91,7 @@ void ASensorModel::writeToJson(QJsonObject & json) const
 
     {
         QJsonObject js;
-            js["ElectronicGainFactor"] = ElectronicGainFactor;
+            //js["ElectronicGainFactor"] = ElectronicGainFactor;
             QString str;
                 switch (PhElToSignalModel)
                 {
@@ -173,7 +173,7 @@ QString ASensorModel::readFromJson(const QJsonObject & json)
 
     {
         QJsonObject js = json["PhElToSignals"].toObject();
-        jstools::parseJson(js, "ElectronicGainFactor", ElectronicGainFactor);
+        //jstools::parseJson(js, "ElectronicGainFactor", ElectronicGainFactor);
         QString str;
         jstools::parseJson(js, "Model", str);
         if      (str == "Constant") PhElToSignalModel = Constant;
@@ -257,7 +257,7 @@ QString ASensorModel::checkAreaFactors() const
 
 QString ASensorModel::checkPhElToSignals() const
 {
-    if (ElectronicGainFactor <= 0) return "Electronic gain factor should be positive";
+    //if (ElectronicGainFactor <= 0) return "Electronic gain factor should be positive";
 
     if (PhElToSignalModel == Custom)
     {
@@ -460,20 +460,23 @@ double ASensorModel::convertHitsToSignal(double phel) const
 
     if (ElectronicNoiseSigma != 0) signal += RandomHub.gauss(0, ElectronicNoiseSigma);
 
-    signal *= ElectronicGainFactor;
+    //signal *= ElectronicGainFactor;  // no more a part of the sensor model, see SensorHub (standalone now!)
 
     return signal;
-
-    /*
-        // ADC simulation
-        if (PMs->isDoADC())
-        {
-            if (pmSignals[ipm] < 0) pmSignals[ipm] = 0;
-            else
-            {
-                if (pmSignals[ipm] > pm.ADCmax) pmSignals[ipm] = pm.ADClevels;
-                else pmSignals[ipm] = static_cast<int>( pmSignals.at(ipm) / PMs->at(ipm).ADCstep );
-            }
-        }
-    */
 }
+
+/*
+double ASensorModel::simulateDigitalization(double signal) const
+{
+    // ADC simulation
+    if (PMs->isDoADC())
+    {
+        if (pmSignals[ipm] < 0) pmSignals[ipm] = 0;
+        else
+        {
+            if (pmSignals[ipm] > pm.ADCmax) pmSignals[ipm] = pm.ADClevels;
+            else pmSignals[ipm] = static_cast<int>( pmSignals.at(ipm) / PMs->at(ipm).ADCstep );
+        }
+    }
+}
+*/

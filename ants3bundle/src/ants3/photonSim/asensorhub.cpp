@@ -138,6 +138,9 @@ QString ASensorHub::updateRuntimeProperties()
         if (!err.isEmpty()) return err;
     }
 
+    if (UseSensorGains)
+        if (SensorGains.size() != SensorData.size()) return "Sensor gain vector has imvalid size";
+
     for (ASensorData & sd : SensorData)
     {
         const int & index = sd.ModelIndex;
@@ -157,6 +160,7 @@ void ASensorHub::exitPersistentMode()
 void ASensorHub::writeToJson(QJsonObject & json) const
 {
     QJsonObject mainJs;
+
         QJsonArray ar;
         for (const ASensorModel & m : Models)
         {
@@ -171,6 +175,18 @@ void ASensorHub::writeToJson(QJsonObject & json) const
             for (const ASensorData & sd : SensorData)
                 arMA << sd.ModelIndex;
         mainJs["ModelAssignment"] = arMA;
+
+        // Gains
+        {
+            QJsonObject js;
+                js["Enabled"] = UseSensorGains;
+                QJsonArray ar;
+                    for (double gain : SensorGains)
+                    ar.push_back(gain);
+                js["Gains"] = ar;
+            json["SensorGains"] = js;
+        }
+
     json["Sensors"] = mainJs;
 }
 
@@ -224,17 +240,38 @@ QString ASensorHub::readFromJson(const QJsonObject & json)
         if (bFoundInvalidModelIndex) return "Bad model index(es) in loaded ModelAssignment";
     }
 
+    // Gains
+    {
+        QJsonObject js;
+        ok = jstools::parseJson(mainJs, "SensorGains", js);
+        if (ok)
+        {
+            jstools::parseJson(js, "Enabled", UseSensorGains);
+            QJsonArray ar;
+            jstools::parseJson(js, "Gains", ar);
+            SensorGains.resize(ar.size());
+            for (size_t i = 0; i < ar.size(); i++)
+                SensorGains[i] = ar[i].toDouble();
+        }
+        else UseSensorGains = false; // compatibility
+    }
+
     return "";
 }
 
 void ASensorHub::clear()
 {
-    LoadedModelAssignment.clear();
-    clearSensors();
-
     Models.clear();
     Models.resize(1);
     Models.front().Name = "Ideal";
+
+    UseSensorGains = false;
+    SensorGains.clear();
+
+    PersistentModelAssignment = false;
+    LoadedModelAssignment.clear();
+
+    clearSensors();
 }
 
 double ASensorHub::getMaxQE(bool bWaveRes) const

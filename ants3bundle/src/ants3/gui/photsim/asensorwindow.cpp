@@ -84,7 +84,7 @@ void ASensorWindow::updateGui()
         }
         ui->cobSignalModel->setCurrentIndex(index);
         on_cobSignalModel_currentIndexChanged(index);
-        ui->lepElGainFactor->setText(QString::number(mod->ElectronicGainFactor));
+        //ui->lepElGainFactor->setText(QString::number(mod->ElectronicGainFactor));
         ui->lepAverageSignalPerPhE->setText(QString::number(mod->AverageSignalPerPhEl));
         ui->lepNormalSigma->setText(QString::number(mod->NormalSigma));
         ui->lepGammaShape->setText(QString::number(mod->GammaShape));
@@ -677,6 +677,7 @@ void ASensorWindow::on_cobSignalModel_activated(int index)
     }
 }
 
+/*
 void ASensorWindow::on_lepElGainFactor_editingFinished()
 {
     int iModel = ui->cobModel->currentIndex();
@@ -685,6 +686,7 @@ void ASensorWindow::on_lepElGainFactor_editingFinished()
 
     mod->ElectronicGainFactor = ui->lepElGainFactor->text().toDouble();
 }
+*/
 
 void ASensorWindow::on_lepAverageSignalPerPhE_editingFinished()
 {
@@ -776,6 +778,7 @@ void ASensorWindow::updatePhElToSigButtons()
 #include <QDoubleValidator>
 static int    lastSelectedTimes = 100000;
 static double lastSelectedPhEl = 1.0;
+static double lastSelectedGain = 1.0;
 void ASensorWindow::on_pbTestPhElSignal_clicked()
 {
     int iModel = ui->cobModel->currentIndex();
@@ -799,19 +802,28 @@ void ASensorWindow::on_pbTestPhElSignal_clicked()
         QLineEdit * lePE = new QLineEdit(QString::number(lastSelectedPhEl)); lePE->setMaximumWidth(80);
         QDoubleValidator * dv = new QDoubleValidator(dialog); dv->setBottom(0); lePE->setValidator(dv);
         lay->addWidget(lePE);
-        lay->addWidget(new QLabel("photoelectrons"));
+        lay->addWidget(new QLabel("ph.e-"));
         QSpinBox * sbTimes = new QSpinBox(); sbTimes->setMaximum(1e9); sbTimes->setMinimum(1); sbTimes->setValue(lastSelectedTimes);
         lay->addWidget(sbTimes);
         lay->addWidget(new QLabel("times"));
+        lay->addStretch();
     vlay->addLayout(lay);
+    QHBoxLayout * layGain = new QHBoxLayout();
+        layGain->addWidget(new QLabel("assume sensor gain of"));
+        QLineEdit * ledGain = new QLineEdit(QString::number(lastSelectedGain)); ledGain->setMaximumWidth(80);
+            ledGain->setValidator(dv);
+        layGain->addWidget(ledGain);
+        layGain->addStretch();
+    vlay->addLayout(layGain);
 
-    auto click = [this, mod, dialog, lePE, sbTimes]()
+    auto click = [this, mod, dialog, lePE, sbTimes, ledGain]()
     {
         lastSelectedPhEl = lePE->text().toDouble();
         lastSelectedTimes = sbTimes->value();
+        lastSelectedGain = ledGain->text().toDouble();
         auto hist1D = new TH1D("", "Signal distribution", 100, 0, 0);
         for (int i = 0; i < lastSelectedTimes; i++)
-            hist1D->Fill(mod->convertHitsToSignal(lastSelectedPhEl));
+            hist1D->Fill(mod->convertHitsToSignal(lastSelectedPhEl) * lastSelectedGain);
         hist1D->SetXTitle("Sensor signal");
         emit requestDraw(hist1D, "hist", true, true);
 

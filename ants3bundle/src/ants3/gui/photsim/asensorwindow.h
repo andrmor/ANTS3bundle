@@ -76,7 +76,7 @@ private slots:
     void on_pbShowCustomPhElSig_clicked();
     void on_pbRemoveCustomPhElSig_clicked();
     void on_lepElNoiseSigma_editingFinished();
-    void on_lepElGainFactor_editingFinished();
+    //void on_lepElGainFactor_editingFinished();
     void on_pbTestPhElSignal_clicked();
 
     void on_pbCompteEffectivePDE_clicked();

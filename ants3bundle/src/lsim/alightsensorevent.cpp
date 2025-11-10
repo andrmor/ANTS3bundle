@@ -97,6 +97,12 @@ void ALightSensorEvent::convertHitsToSignals()
     {
         const ASensorModel * model = SensorHub.sensorModelFast(ipm);
         PMhits[ipm] = model->convertHitsToSignal(PMhits[ipm]);
+
+        if (SensorHub.useSensorGains())
+            PMhits[ipm] *= SensorHub.getSensorGain(ipm);
+
+        // not implemented in Ants3
+        //PMhits[ipm] = model->simulateDigitalization(PMhits[ipm]);
     }
 }
 

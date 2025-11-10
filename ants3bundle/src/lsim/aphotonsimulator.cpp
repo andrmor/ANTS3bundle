@@ -208,6 +208,7 @@ void APhotonSimulator::saveSensorHits()
     Event->addDarkCounts();
     Event->convertHitsToSignals();
 
+
     for (float sig : Event->PMhits) *StreamSensorHits << sig << ' ';
     *StreamSensorHits << '\n';
 }

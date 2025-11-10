@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>631</width>
-    <height>734</height>
+    <height>701</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -1422,43 +1422,6 @@ A matrix of area factors, lines and columns representing X and Y direction, resp
              </item>
              <item>
               <spacer name="horizontalSpacer_20">
-               <property name="orientation">
-                <enum>Qt::Orientation::Horizontal</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>40</width>
-                 <height>20</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
-            </layout>
-           </item>
-           <item row="17" column="1">
-            <layout class="QHBoxLayout" name="horizontalLayout_22">
-             <property name="topMargin">
-              <number>0</number>
-             </property>
-             <item>
-              <widget class="QLabel" name="label_35">
-               <property name="text">
-                <string>Electronic gain</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QLineEdit" name="lepElGainFactor">
-               <property name="maximumSize">
-                <size>
-                 <width>100</width>
-                 <height>16777215</height>
-                </size>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <spacer name="horizontalSpacer_21">
                <property name="orientation">
                 <enum>Qt::Orientation::Horizontal</enum>
                </property>
