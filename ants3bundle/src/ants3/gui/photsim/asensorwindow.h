@@ -92,6 +92,12 @@ private slots:
 
     void onGainCellEditingFinished();
 
+    void on_pbGains_Load_clicked();
+
+    void on_pbGains_Save_clicked();
+
+    void on_pbGains_Save_customContextMenuRequested(const QPoint &pos);
+
 private:
     ASensorHub & SensHub;
     Ui::ASensorWindow * ui = nullptr;

@@ -1713,6 +1713,9 @@ A matrix of area factors, lines and columns representing X and Y direction, resp
                  <fontweight>DemiBold</fontweight>
                 </font>
                </property>
+               <property name="toolTip">
+                <string>One line per sensor, can be either the sensor gain directly or first the sensor index then gain, separated with a space, comma or tab</string>
+               </property>
                <property name="text">
                 <string>Load gains</string>
                </property>
@@ -1724,6 +1727,12 @@ A matrix of area factors, lines and columns representing X and Y direction, resp
                 <font>
                  <fontweight>DemiBold</fontweight>
                 </font>
+               </property>
+               <property name="contextMenuPolicy">
+                <enum>Qt::ContextMenuPolicy::CustomContextMenu</enum>
+               </property>
+               <property name="toolTip">
+                <string>Left-click: save a column of gain values; right-click: save two columns, first is the sensor index, the secomd is the gain</string>
                </property>
                <property name="text">
                 <string>Save gains</string>

@@ -1004,3 +1004,87 @@ void ASensorWindow::onGainCellEditingFinished()
     else guitools::message("Cell not found!", this);
 }
 
+#include <QFileInfo>
+void ASensorWindow::on_pbGains_Load_clicked()
+{
+    QString fileName = guitools::dialogLoadFile(this, "Load gains from a text file", "*.*");
+    if (fileName.isEmpty()) return;
+
+    if (!QFileInfo::exists(fileName))
+    {
+        guitools::message("File does not exist: " + fileName);
+        return;
+    }
+
+    QFile file(fileName);
+    if(!file.open(QIODevice::ReadOnly | QFile::Text))
+    {
+        guitools::message("Cannot open file: "+fileName);
+        return;
+    }
+
+    QTextStream in(&file);
+    const QRegularExpression rx("(\\ |\\,|\\:|\\t)"); //separators: ' ' or ',' or ':' or '\t'
+
+    std::vector<double> vec;
+
+    while (!in.atEnd())
+    {
+        const QString line = in.readLine();
+        if (line.startsWith('#') || line.startsWith("//")) continue; // it is a comment
+
+        const QStringList fields = line.split(rx, Qt::SkipEmptyParts);
+        if (fields.isEmpty()) continue;
+
+        bool bOK;
+        double first = fields.first().toDouble(&bOK);
+        if (!bOK)
+        {
+            guitools::message("Bad format of the file: numeric values are expected");
+            return;
+        }
+
+        if      (fields.size() == 1)
+            vec.push_back(first);
+        else if (fields.size() == 2)
+        {
+            double second = fields[1].toDouble(&bOK);
+            if (!bOK)
+            {
+                guitools::message("Bad format of the file: numeric values are expected");
+                return;
+            }
+            vec.push_back(second);
+        }
+    }
+    file.close();
+
+    SensHub.SensorGains = vec;
+
+    updateHeader();
+    if (ui->cbGains_ShowTable->isChecked()) showTableWithGains();
+}
+
+void ASensorWindow::on_pbGains_Save_clicked()
+{
+    QString fn = guitools::dialogSaveFile(this, "Save gains to text file", "*.*");
+    if (fn.isEmpty()) return;
+
+    QString err = ftools::saveArrayOfDoublesToFile(fn, SensHub.SensorGains);
+    if (!err.isEmpty()) guitools::message(err, this);
+}
+
+void ASensorWindow::on_pbGains_Save_customContextMenuRequested(const QPoint &)
+{
+    QString fn = guitools::dialogSaveFile(this, "Save gains to text file (with sensor index)", "*.*");
+    if (fn.isEmpty()) return;
+
+    const size_t size = SensHub.SensorGains.size();
+    std::vector<std::pair<double, double>> vec(size);
+    for (size_t i = 0; i < size; i++)
+        vec[i] = {i, SensHub.SensorGains[i]};
+
+    QString err = ftools::saveArrayOfDoublePairsToFile(fn, vec);
+    if (!err.isEmpty()) guitools::message(err, this);
+}
+

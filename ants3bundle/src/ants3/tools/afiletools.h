@@ -23,6 +23,9 @@ namespace ftools
     QString loadDoubleVectorsFromFile(const QString & fileName, std::vector< std::vector<double>* > & vec);  //cleans previous data, returns error string
     QString saveDoubleVectorsToFile(const std::vector<std::vector<double> *> & vec, const QString & fileName);
 
+    QString  saveArrayOfDoublesToFile(const QString & fileName, const std::vector<double> & vec);
+    QString  saveArrayOfDoublePairsToFile(const QString & fileName, const std::vector<std::pair<double, double>> & vec);
+
 }
 
 #endif // AFILETOOLS_H
