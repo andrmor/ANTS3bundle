@@ -163,9 +163,20 @@ void ASensorWindow::updateHeader()
     ui->labNumSensors->setText( QString::number(SensHub.countSensors()) );
     ui->labNumModels->setText( QString::number(SensHub.countModels()) );
 
-    ui->labNumGains->setText( QString::number(SensHub.SensorGains.size()) );
-    ui->labGainMissmatch->setVisible( SensHub.countSensors() != SensHub.SensorGains.size() );
-    ui->tabWidget->setTabIcon(1, SensHub.countSensors() == SensHub.SensorGains.size() ? QIcon() : guitools::createColorCircleIcon(ui->tabWidget->iconSize(), Qt::red) );
+    ui->labDefinedGains->setVisible(SensHub.UseSensorGains);
+    ui->labNumGains->setVisible(SensHub.UseSensorGains);
+    if (SensHub.UseSensorGains)
+    {
+        ui->labNumGains->setText( QString::number(SensHub.SensorGains.size()) );
+        ui->labGainMissmatch->setVisible( SensHub.countSensors() != SensHub.SensorGains.size() );
+        ui->tabWidget->setTabIcon(1, SensHub.countSensors() == SensHub.SensorGains.size() ? QIcon() : guitools::createColorCircleIcon(ui->tabWidget->iconSize(), Qt::red) );
+    }
+    else
+    {
+        ui->tabWidget->setTabIcon(1, QIcon());
+        ui->labGainMissmatch->setVisible(false);
+    }
+
 }
 
 void ASensorWindow::on_cobSensorType_currentIndexChanged(int index)
@@ -911,6 +922,15 @@ void ASensorWindow::on_pbCompteEffectivePDE_clicked()
 void ASensorWindow::on_cbGains_clicked(bool checked)
 {
     SensHub.UseSensorGains = checked;
+
+    if (checked)
+    {
+        if (ui->cbGains_ShowTable->isChecked())
+            showTableWithGains();
+    }
+    else ui->cbGains_ShowTable->setChecked(false);
+
+    updateHeader();
 }
 
 void ASensorWindow::on_pbGains_Clear_clicked()
