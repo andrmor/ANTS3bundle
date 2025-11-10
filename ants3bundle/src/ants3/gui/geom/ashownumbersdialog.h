@@ -45,6 +45,8 @@ private slots:
 
     void on_pbScintillatorIndex_clicked();
 
+    void on_pbSensorGains_clicked();
+
 private:
     AGeometryWindow & GW;
     Ui::AShowNumbersDialog *ui;

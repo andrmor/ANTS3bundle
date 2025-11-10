@@ -85,6 +85,7 @@ public slots:
     void showSensorIndexes();  // !!!***
     void showCalorimeterIndexes();  // !!!***
     void showSensorModelIndexes(int iModel = -1);  // !!!***
+    void showSensorGains();  // !!!***
     void showPhotonFunctionalIndexes();  // !!!***
     void showAnalyzerIndexes();  // !!!***
     void showScintillatorIndexes();  // !!!***

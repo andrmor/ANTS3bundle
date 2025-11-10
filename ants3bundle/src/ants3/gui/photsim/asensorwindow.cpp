@@ -950,7 +950,11 @@ void ASensorWindow::on_pbGains_Randomize_clicked()
 
     SensHub.SensorGains.resize(SensHub.countSensors());
     for (size_t i = 0; i < SensHub.SensorGains.size(); i++)
-        SensHub.SensorGains[i] = ARandomHub::getInstance().gauss(mean, sigma);
+    {
+        double val = ARandomHub::getInstance().gauss(mean, sigma);
+        int rounded = val * 1000;
+        SensHub.SensorGains[i] = 0.001 * rounded;
+    }
 
     if (ui->cbGains_ShowTable->isChecked()) showTableWithGains();
     updateHeader();

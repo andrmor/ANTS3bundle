@@ -561,7 +561,7 @@ void AGeometryWindow::showSensorIndexes()
     std::vector<QString> tmp;
     for (int i = 0; i < ASensorHub::getConstInstance().countSensors(); i++)
         tmp.push_back( QString::number(i) );
-    showText(tmp, kBlack, AGeoWriter::Sensors);
+    showText(tmp, kBlue, AGeoWriter::Sensors);
 
     /*
     emit requestUpdateRegisteredGeoManager();
@@ -1371,6 +1371,28 @@ void AGeometryWindow::showSensorModelIndexes(int iModel)
             tmp.push_back( QString::number(index) );
     }
     showText(tmp, kRed, AGeoWriter::Sensors, true);
+
+    /*
+    emit requestUpdateRegisteredGeoManager();
+    */
+}
+
+void AGeometryWindow::showSensorGains()
+{
+    Geometry.GeoManager->ClearTracks();
+
+    const ASensorHub & SH = ASensorHub::getConstInstance();
+    const int numSensors = SH.countSensors();
+    const size_t numGains = SH.SensorGains.size();
+
+    std::vector<QString> tmp;
+    for (int i = 0; i < numSensors; i++)
+    {
+        if (i < numGains) tmp.push_back( QString::number(SH.SensorGains[i]) );
+        else              tmp.push_back("");
+    }
+
+    showText(tmp, kMagenta, AGeoWriter::Sensors, true);
 
     /*
     emit requestUpdateRegisteredGeoManager();

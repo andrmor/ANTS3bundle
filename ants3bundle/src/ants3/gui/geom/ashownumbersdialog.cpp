@@ -87,6 +87,12 @@ void AShowNumbersDialog::on_pbSensorModel_clicked()
     accept();
 }
 
+void AShowNumbersDialog::on_pbSensorGains_clicked()
+{
+    GW.showSensorGains();
+    accept();
+}
+
 void AShowNumbersDialog::on_pbOptMonIndex_clicked()
 {
     GW.showPhotonMonIndexes();
