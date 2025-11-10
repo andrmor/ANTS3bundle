@@ -162,6 +162,10 @@ void ASensorWindow::updateHeader()
 {
     ui->labNumSensors->setText( QString::number(SensHub.countSensors()) );
     ui->labNumModels->setText( QString::number(SensHub.countModels()) );
+
+    ui->labNumGains->setText( QString::number(SensHub.SensorGains.size()) );
+    ui->labGainMissmatch->setVisible( SensHub.countSensors() != SensHub.SensorGains.size() );
+    ui->tabWidget->setTabIcon(1, SensHub.countSensors() == SensHub.SensorGains.size() ? QIcon() : guitools::createColorCircleIcon(ui->tabWidget->iconSize(), Qt::red) );
 }
 
 void ASensorWindow::on_cobSensorType_currentIndexChanged(int index)
@@ -915,6 +919,7 @@ void ASensorWindow::on_pbGains_Clear_clicked()
     std::fill(SensHub.SensorGains.begin(), SensHub.SensorGains.end(), 1.0);
 
     if (ui->cbGains_ShowTable->isChecked()) showTableWithGains();
+    updateHeader();
 }
 
 #include "arandomhub.h"
@@ -928,6 +933,7 @@ void ASensorWindow::on_pbGains_Randomize_clicked()
         SensHub.SensorGains[i] = ARandomHub::getInstance().gauss(mean, sigma);
 
     if (ui->cbGains_ShowTable->isChecked()) showTableWithGains();
+    updateHeader();
 }
 
 void ASensorWindow::showTableWithGains()

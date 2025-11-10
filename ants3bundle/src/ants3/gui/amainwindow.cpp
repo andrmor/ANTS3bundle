@@ -190,6 +190,7 @@ void AMainWindow::onRebuildGeometryRequested()
     RuleWin->updateGui();
     PartSimWin->onMaterialsChanged();
     SensWin->onMaterialsChanged();
+    SensWin->updateGui();
     emit GeoTreeWin->requestClearGeoMarkers(0);
     if (GeoWin->isVisible()) GeoWin->ShowGeometry(false);
     PhotFunWin->updateGui();

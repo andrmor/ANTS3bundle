@@ -100,6 +100,18 @@
         </widget>
        </item>
        <item>
+        <widget class="QLabel" name="labGainMissmatch">
+         <property name="font">
+          <font>
+           <fontweight>DemiBold</fontweight>
+          </font>
+         </property>
+         <property name="text">
+          <string>   missmatch!</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <spacer name="horizontalSpacer">
          <property name="orientation">
           <enum>Qt::Orientation::Horizontal</enum>
