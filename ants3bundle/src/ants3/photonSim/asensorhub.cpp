@@ -139,7 +139,7 @@ QString ASensorHub::updateRuntimeProperties()
     }
 
     if (UseSensorGains)
-        if (SensorGains.size() != SensorData.size()) return "Sensor gain vector has imvalid size";
+        if (SensorGains.size() != SensorData.size()) return "Sensor gain vector has invalid size";
 
     for (ASensorData & sd : SensorData)
     {

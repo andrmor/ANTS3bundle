@@ -30,6 +30,11 @@ ASensorWindow::ASensorWindow(QWidget *parent) :
     dvp->setBottom(0);
     foreach(QLineEdit * w, list) if (w->objectName().startsWith("lep")) w->setValidator(dvp);
 
+    ui->cbGains_ShowTable->setChecked(false);
+
+    CellValidator = new QDoubleValidator(this);
+    CellValidator->setBottom(0);
+
     updateGui();
 }
 
@@ -908,6 +913,8 @@ void ASensorWindow::on_pbGains_Clear_clicked()
 {
     SensHub.SensorGains.resize(SensHub.countSensors());
     std::fill(SensHub.SensorGains.begin(), SensHub.SensorGains.end(), 1.0);
+
+    if (ui->cbGains_ShowTable->isChecked()) showTableWithGains();
 }
 
 #include "arandomhub.h"
@@ -919,5 +926,55 @@ void ASensorWindow::on_pbGains_Randomize_clicked()
     SensHub.SensorGains.resize(SensHub.countSensors());
     for (size_t i = 0; i < SensHub.SensorGains.size(); i++)
         SensHub.SensorGains[i] = ARandomHub::getInstance().gauss(mean, sigma);
+
+    if (ui->cbGains_ShowTable->isChecked()) showTableWithGains();
+}
+
+void ASensorWindow::showTableWithGains()
+{
+    ui->twGains->clearContents();
+
+    const size_t num = SensHub.SensorGains.size();
+    ui->twGains->setRowCount(num);
+
+    QStringList headerLabels;
+    for (size_t iSens = 0; iSens < num; iSens++)
+    {
+        QLineEdit * te = new QLineEdit("", 0);
+        te->setValidator(CellValidator);
+        te->setAlignment(Qt::AlignHCenter);
+        te->setFrame(false);
+        QObject::connect(te, &QLineEdit::editingFinished, this, &ASensorWindow::onGainCellEditingFinished);
+        ui->twGains->setCellWidget(iSens, 0, te);
+
+        te->setText( QString::number(SensHub.SensorGains[iSens]) );
+
+        ui->twGains->setRowHeight(iSens, RowHeight);
+        headerLabels << QString::number(iSens);
+    }
+
+    ui->twGains->setVerticalHeaderLabels(headerLabels);
+}
+
+void ASensorWindow::on_cbGains_ShowTable_toggled(bool checked)
+{
+    ui->twGains->setVisible(checked);
+    if (checked) showTableWithGains();
+
+    ui->spGainLower->changeSize(10, 10, QSizePolicy::Minimum,
+                                checked? QSizePolicy::Ignored : QSizePolicy::Expanding);
+}
+
+void ASensorWindow::onGainCellEditingFinished()
+{
+    int row = ui->twGains->currentRow();
+    if (row >= 0 && row < SensHub.SensorGains.size())
+    {
+        QWidget * widget = ui->twGains->cellWidget(row, 0);
+        QLineEdit * le = dynamic_cast<QLineEdit*>(widget);
+        if (le) SensHub.SensorGains[row] = le->text().toDouble();
+        else guitools::message("Cell widget not found!", this);
+    }
+    else guitools::message("Cell not found!", this);
 }
 

@@ -9,6 +9,7 @@ class ASensorWindow;
 
 class ASensorHub;
 class TObject;
+class QDoubleValidator;
 
 class ASensorWindow : public AGuiWindow
 {
@@ -87,9 +88,17 @@ private slots:
 
     void on_pbGains_Randomize_clicked();
 
+    void on_cbGains_ShowTable_toggled(bool checked);
+
+    void onGainCellEditingFinished();
+
 private:
     ASensorHub & SensHub;
     Ui::ASensorWindow * ui = nullptr;
+
+    const int RowHeight = 23;
+
+    QDoubleValidator * CellValidator = nullptr;
 
     void updateNumPixels();
     void onModelIndexChanged();
@@ -99,6 +108,7 @@ private:
     void updateAreaButtons();
     void updatePhElToSigButtons();
     void updateGains();
+    void showTableWithGains();
 
 signals:
     void requestShowSensorModels(int iModel);
