@@ -16,7 +16,7 @@ class ALrfMouseExplorer : public QDialog
     Q_OBJECT
 
 public:
-    ALrfMouseExplorer(LRModel * lrmodel, double SuggestedZ = 0, QWidget * parent = 0);
+    ALrfMouseExplorer(LRModel * lrmodel, double suggestedZ = 0, QWidget * parent = 0);
     ~ALrfMouseExplorer();
 
     void Start();

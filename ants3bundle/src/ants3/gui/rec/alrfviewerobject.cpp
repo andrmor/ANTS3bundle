@@ -10,70 +10,70 @@
 #include <math.h>
 
 ALrfViewerObject::ALrfViewerObject(ALrfGraphicsView *GV) :
-    PMs(ASensorHub::getInstance()), gv(GV)
+    SensHub(ASensorHub::getInstance()), GrView(GV)
 {
     GVscale = 1.0;
     CursorMode = 0;
-    scene = new QGraphicsScene(this);
-    connect(scene, SIGNAL(selectionChanged()), this, SLOT(sceneSelectionChanged()));
+    Scene = new QGraphicsScene(this);
+    connect(Scene, SIGNAL(selectionChanged()), this, SLOT(sceneSelectionChanged()));
 
-    gv->setScene(scene);
-    gv->setDragMode(QGraphicsView::ScrollHandDrag); //if zoomed, can use hand to center needed area
+    GrView->setScene(Scene);
+    GrView->setDragMode(QGraphicsView::ScrollHandDrag); //if zoomed, can use hand to center needed area
     //gvOut->setTransformationAnchor(QGraphicsView::AnchorViewCenter);
-    gv->setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
-    gv->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    gv->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    gv->setRenderHints(QPainter::Antialiasing);
+    GrView->setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
+    GrView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    GrView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    GrView->setRenderHints(QPainter::Antialiasing);
 
     ALrfViewerObject::ResetViewport();
 }
 
 ALrfViewerObject::~ALrfViewerObject()
 {
-    disconnect(scene, SIGNAL(selectionChanged()), this, SLOT(sceneSelectionChanged()));
+    disconnect(Scene, SIGNAL(selectionChanged()), this, SLOT(sceneSelectionChanged()));
 
-    if (PMicons.size() > 0)
-        for (int i=0; i<PMicons.size(); i++) scene->removeItem(PMicons[i]);
-    PMicons.resize(0);
-    scene->clear();
-    delete scene;
-    scene = 0;
+    if (SensIcons.size() > 0)
+        for (int i=0; i<SensIcons.size(); i++) Scene->removeItem(SensIcons[i]);
+    SensIcons.resize(0);
+    Scene->clear();
+    delete Scene;
+    Scene = 0;
 }
 
 #include "ageoobject.h"
 void ALrfViewerObject::DrawAll()
 {
-    int NumPMs = PMs.countSensors();
-    if (CursorMode == 1) gv->setCursor(Qt::CrossCursor);
+    int NumPMs = SensHub.countSensors();
+    if (CursorMode == 1) GrView->setCursor(Qt::CrossCursor);
 
     //      qDebug()<<"Starting update of graphics";
     //scene->blockSignals(true);
 
-    if (PMicons.size() > 0)
-        for (int i=0; i<PMicons.size(); i++) scene->removeItem(PMicons[i]);
-    PMicons.resize(0);
-    scene->clear();
+    if (SensIcons.size() > 0)
+        for (int i=0; i<SensIcons.size(); i++) Scene->removeItem(SensIcons[i]);
+    SensIcons.resize(0);
+    Scene->clear();
     //      qDebug()<<"Scene cleared";
 
-    PMprops.resize(NumPMs);
+    SensProps.resize(NumPMs);
     //asserted size of PM properies vector
 
     //============================ drawing PMs ===================================
     for (int ipm = 0; ipm < NumPMs; ipm++)
     {
-        //const APm &PM = PMs.at(ipm);
-        const ASensorData * PM = PMs.getSensorData(ipm);
+        //const APm &PM = SensHub.at(ipm);
+        const ASensorData * PM = SensHub.getSensorData(ipm);
         if (!PM) continue;
 
         //PM object pen
-        QPen pen(PMprops[ipm].pen);
+        QPen pen(SensProps[ipm].pen);
 
         //int size = 6.0 * PMs->SizeX(ipm) / 300.0;
         int size = 6.0 * PM->GeoObj->getMaxSize() / 300.0; // !!!***
         pen.setWidth(size);
 
         //PM object brush
-        QBrush brush(PMprops[ipm].brush);
+        QBrush brush(SensProps[ipm].brush);
 
         QGraphicsItem * tmp;
         // !!!*** TODO:
@@ -105,11 +105,11 @@ void ALrfViewerObject::DrawAll()
         */
         // temporarly!
         double diameter = PM->GeoObj->getMaxSize() * GVscale;
-        tmp = scene->addEllipse( -0.5*diameter, -0.5*diameter, diameter, diameter, pen, brush);
+        tmp = Scene->addEllipse( -0.5*diameter, -0.5*diameter, diameter, diameter, pen, brush);
         // temporarly!
 
         tmp->setZValue(PM->Position[2]);
-        tmp->setVisible(PMprops.at(ipm).visible);
+        tmp->setVisible(SensProps.at(ipm).visible);
 
         //tmp->setRotation(-PM.psi); // !!!***
 
@@ -120,7 +120,7 @@ void ALrfViewerObject::DrawAll()
         if      (CursorMode == 0) tmp->setCursor(Qt::PointingHandCursor);
         else if (CursorMode == 1) tmp->setCursor(Qt::CrossCursor);
 
-        PMicons.append(tmp);
+        SensIcons.push_back(tmp);
     }
     //      qDebug()<<"PM objects set, number="<<PMicons.size();
 
@@ -130,7 +130,7 @@ void ALrfViewerObject::DrawAll()
     {
         for (int ipm = 0; ipm < NumPMs; ipm++)
         {
-            const ASensorData * PM = PMs.getSensorData(ipm);
+            const ASensorData * PM = SensHub.getSensorData(ipm);
             if (!PM) continue;
 
             QGraphicsTextItem * io = new QGraphicsTextItem();
@@ -140,19 +140,19 @@ void ALrfViewerObject::DrawAll()
             io->setScale(0.04*size);
 
             //preparing text to show
-            QString text = PMprops[ipm].text;
+            QString text = SensProps[ipm].text;
 
             text = "<CENTER>" + text + "</CENTER>";
-            io->setDefaultTextColor(PMprops[ipm].textColor);
+            io->setDefaultTextColor(SensProps[ipm].textColor);
             io->setHtml(text);
             double x = ( PM->Position[0] - 1.0*size) * GVscale;  // was 0.75
             double y = (-PM->Position[1] - 0.5*size ) * GVscale; //minus y to invert the scale!!!
             io->setPos(x, y);
 
             io->setZValue(PM->Position[2] + 0.01);
-            io->setVisible(PMprops.at(ipm).visible);
+            io->setVisible(SensProps.at(ipm).visible);
 
-            scene->addItem(io);
+            Scene->addItem(io);
         }
     }
 
@@ -161,7 +161,7 @@ void ALrfViewerObject::DrawAll()
 
 void ALrfViewerObject::ResetViewport()
 {
-    int NumPMs = PMs.countSensors();
+    int NumPMs = SensHub.countSensors();
     if (NumPMs == 0) return;
 
     //calculating viewing area
@@ -171,7 +171,7 @@ void ALrfViewerObject::ResetViewport()
     double Ymax = -1e10;
     for (int ipm = 0; ipm < NumPMs; ipm++)
     {
-        const ASensorData * PM = PMs.getSensorData(ipm);
+        const ASensorData * PM = SensHub.getSensorData(ipm);
         if (!PM) continue;
 
         double x = PM->Position[0];
@@ -188,110 +188,122 @@ void ALrfViewerObject::ResetViewport()
     double Xdelta = Xmax-Xmin;
     double Ydelta = Ymax-Ymin;
 
-    scene->setSceneRect((Xmin - 0.1*Xdelta)*GVscale, (Ymin - 0.1*Ydelta)*GVscale, (Xmax-Xmin + 0.2*Xdelta)*GVscale, (Ymax-Ymin + 0.2*Ydelta)*GVscale);
-    gv->fitInView( (Xmin - 0.01*Xdelta)*GVscale, (Ymin - 0.01*Ydelta)*GVscale, (Xmax-Xmin + 0.02*Xdelta)*GVscale, (Ymax-Ymin + 0.02*Ydelta)*GVscale, Qt::KeepAspectRatio);
+    Scene->setSceneRect((Xmin - 0.1*Xdelta)*GVscale, (Ymin - 0.1*Ydelta)*GVscale, (Xmax-Xmin + 0.2*Xdelta)*GVscale, (Ymax-Ymin + 0.2*Ydelta)*GVscale);
+    GrView->fitInView( (Xmin - 0.01*Xdelta)*GVscale, (Ymin - 0.01*Ydelta)*GVscale, (Xmax-Xmin + 0.02*Xdelta)*GVscale, (Ymax-Ymin + 0.02*Ydelta)*GVscale, Qt::KeepAspectRatio);
 }
 
 void ALrfViewerObject::ClearColors()
 {
-    PMprops.resize(0);
-    PMprops.resize(PMs.countSensors());
+    SensProps.resize(0);
+    SensProps.resize(SensHub.countSensors());
 }
 
 void ALrfViewerObject::SetPenColor(int ipm, QColor color)
 {
-    int NumPMs = PMs.countSensors();
+    int NumPMs = SensHub.countSensors();
     if (ipm < 0 || ipm >= NumPMs) return;
 
-    if (PMprops.size() < NumPMs) PMprops.resize(NumPMs);
-    PMprops[ipm].pen = color;
+    if (SensProps.size() < NumPMs) SensProps.resize(NumPMs);
+    SensProps[ipm].pen = color;
 }
 
 void ALrfViewerObject::SetBrushColor(int ipm, QColor color)
 {
-    int NumPMs = PMs.countSensors();
+    int NumPMs = SensHub.countSensors();
     if (ipm < 0 || ipm >= NumPMs) return;
 
-    if (PMprops.size() < NumPMs) PMprops.resize(NumPMs);
-    PMprops[ipm].brush = color;
+    if (SensProps.size() < NumPMs) SensProps.resize(NumPMs);
+    SensProps[ipm].brush = color;
 }
 
 void ALrfViewerObject::SetText(int ipm, QString text)
 {
-    int NumPMs = PMs.countSensors();
+    int NumPMs = SensHub.countSensors();
     if (ipm < 0 || ipm >= NumPMs) return;
 
-    if (PMprops.size() < NumPMs) PMprops.resize(NumPMs);
-    PMprops[ipm].text = text;
+    if (SensProps.size() < NumPMs) SensProps.resize(NumPMs);
+    SensProps[ipm].text = text;
 }
 
 void ALrfViewerObject::SetTextColor(int ipm, QColor color)
 {
-    int NumPMs = PMs.countSensors();
+    int NumPMs = SensHub.countSensors();
     if (ipm < 0 || ipm >= NumPMs) return;
 
-    if (PMprops.size() < NumPMs) PMprops.resize(NumPMs);
-    PMprops[ipm].textColor = color;
+    if (SensProps.size() < NumPMs) SensProps.resize(NumPMs);
+    SensProps[ipm].textColor = color;
 }
 
 void ALrfViewerObject::SetVisible(int ipm, bool fFlag)
 {
-    int NumPMs = PMs.countSensors();
+    int NumPMs = SensHub.countSensors();
     if (ipm < 0 || ipm >= NumPMs) return;
 
-    if (PMprops.size() < NumPMs) PMprops.resize(NumPMs);
-    PMprops[ipm].visible = fFlag;
+    if (SensProps.size() < NumPMs) SensProps.resize(NumPMs);
+    SensProps[ipm].visible = fFlag;
 }
 
 void ALrfViewerObject::SetCursorMode(int option)
 {
-    CursorMode = option; gv->setCursorMode(option);
+    CursorMode = option; GrView->setCursorMode(option);
 }
 
 void ALrfViewerObject::forceResize()
 {
-    qDebug()<<"resize!";
+    // qDebug() << "Force resize!";
     ALrfViewerObject::ResetViewport();
 }
 
 void ALrfViewerObject::sceneSelectionChanged()
 {
+    /*
+    //  Not implemented?
     //  qDebug()<<"Scene selection changed!";
-    int selectedItems = scene->selectedItems().size();
+    int selectedItems = Scene->selectedItems().size();
     //  qDebug()<<"  --number of selected items:"<<selectedItems;
     if (selectedItems == 0)
     {
-        //      qDebug()<<"  --empty - ignoring event";
+        //  qDebug()<<"  --empty - ignoring event";
         return;
     }
 
-    QGraphicsItem* pointer = scene->selectedItems().first();
-    if (pointer == 0)
+    QGraphicsItem * pointer = Scene->selectedItems().first();
+    if (pointer == nullptr)
     {
-        //      qDebug()<<"  --zero pinter, ignoring event!";
+        //  qDebug()<<"  --zero pinter, ignoring event!";
         return;
     }
 
-    int ipm = 0;
-    ipm = PMicons.indexOf(pointer);
-    if (ipm == -1)
-    {
-        //      qDebug()<<" --ipm not found!";
-        return;
-    }
+
+    //int ipm = 0;
+    //ipm = SensIcons.indexOf(pointer);
+    //if (ipm == -1)
+    //{
+    //    //  qDebug()<<" --ipm not found!";
+    //    return;
+    //}
     //  qDebug()<<" -- ipm = "<<ipm;
 
-    QVector<int> result;
-    for (int i=0; i<scene->selectedItems().size(); i++)
+    auto it = std::find(SensIcons.begin(), SensIcons.end(), pointer);
+    if (it == SensIcons.end())
     {
-        QGraphicsItem* pointer = scene->selectedItems().at(i);
-        if (pointer == 0) continue;
-        int ipm = 0;
-        ipm = PMicons.indexOf(pointer);
+        //  qDebug()<<" --ipm not found!";
+        return;
+    }
+
+    QVector<int> result;
+    for (int i = 0; i < Scene->selectedItems().size(); i++)
+    {
+        QGraphicsItem * pointer = Scene->selectedItems().at(i);
+        if (pointer == nullptr) continue;
+        //int ipm = SensIcons.indexOf(pointer);
+        auto it = std::find(SensIcons.begin(), SensIcons.end(), pointer);
+        int ipm = (it != SensIcons.end()) ? std::distance(SensIcons.begin(), it) : -1;
         if (ipm == -1) continue;
         result.append(ipm);
     }
     emit PMselectionChanged(result);
 
     //  qDebug()<<"scene selection processing complete";
+    */
 }

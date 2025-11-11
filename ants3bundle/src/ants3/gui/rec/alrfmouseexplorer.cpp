@@ -12,9 +12,11 @@
 #include <QPointF>
 #include <QDebug>
 
+#include <vector>
+
 #include "lrmodel.h"
 
-ALrfMouseExplorer::ALrfMouseExplorer(LRModel * model, double SuggestedZ, QWidget* parent) :
+ALrfMouseExplorer::ALrfMouseExplorer(LRModel * model, double suggestedZ, QWidget * parent) :
     QDialog(parent), SensHub(ASensorHub::getInstance())
 {
     LRFs = new LRModel(model->GetJsonString());
@@ -41,7 +43,7 @@ ALrfMouseExplorer::ALrfMouseExplorer(LRModel * model, double SuggestedZ, QWidget
     QLabel * l2 = new QLabel("Z:");
     hbox->addWidget(l2);
 
-    ledZ = new QLineEdit(QString::number(SuggestedZ));
+    ledZ = new QLineEdit(QString::number(suggestedZ));
     QDoubleValidator * dv = new QDoubleValidator(this);
     dv->setNotation(QDoubleValidator::ScientificNotation);
     ledZ->setValidator(dv);
@@ -96,7 +98,7 @@ void ALrfMouseExplorer::paintLRFonDialog(QPointF * pos)
     setWindowTitle(title);
 
     int numPMs = SensHub.countSensors();
-    QVector<double> lrfs;
+    std::vector<double> lrfs;
     lrfs.resize(numPMs);
 
     int iGroup = cobSG->currentIndex();

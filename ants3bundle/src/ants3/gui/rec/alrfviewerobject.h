@@ -4,6 +4,8 @@
 #include <QObject>
 #include <QColor>
 
+#include <vector>
+
 class ASensorHub;
 class ALrfGraphicsView;
 class QGraphicsScene;
@@ -39,8 +41,8 @@ public:
     void SetVisible(int ipm, bool fFlag);
     void SetCursorMode(int option); //0-normal (hands), 1-cross only
 
-signals:
-    void PMselectionChanged(QVector<int>);
+//signals:  not needed?
+//    void PMselectionChanged(QVector<int>);
 
 public slots:
     void forceResize();
@@ -49,15 +51,15 @@ private slots:
     void sceneSelectionChanged();
 
 private:
-    ASensorHub & PMs;
+    ASensorHub & SensHub;
 
-    QVector<QGraphicsItem*> PMicons;
-    QVector<PMpropsClass> PMprops;
+    std::vector<QGraphicsItem*> SensIcons;
+    std::vector<PMpropsClass>   SensProps;
 
-    ALrfGraphicsView *gv;
-    QGraphicsScene *scene;
+    ALrfGraphicsView * GrView = nullptr;
+    QGraphicsScene   * Scene;
     double GVscale;
-    int CursorMode;
+    int    CursorMode;
 
 };
 

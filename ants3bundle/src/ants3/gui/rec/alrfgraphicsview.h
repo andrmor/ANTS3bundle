@@ -8,8 +8,8 @@ class ALrfGraphicsView : public QGraphicsView
 {
     Q_OBJECT
 public:
-    ALrfGraphicsView( QWidget * parent = 0 );
-    ALrfGraphicsView( QGraphicsScene * scene, QWidget * parent = 0 );
+    ALrfGraphicsView(QWidget * parent = nullptr);
+    ALrfGraphicsView(QGraphicsScene * scene, QWidget * parent = nullptr);
     void setCursorMode(int mode) {CursorMode = mode;}
 
 protected:
@@ -24,7 +24,7 @@ private:
     int CursorMode;
 
 signals:
-    void MouseMovedSignal(QPointF *Pos);
+    void MouseMovedSignal(QPointF * Pos);
 };
 
 #endif // ALRFGRAPHICSVIEW_H
