@@ -136,7 +136,7 @@ void ALrfViewerObject::DrawAll()
             QGraphicsTextItem * io = new QGraphicsTextItem();
             //double size = 0.5*PMs->getType( PMs->at(ipm).type )->SizeX;
             double size = 0.5 * PM->GeoObj->getMaxSize();  // !!!***
-            io->setTextWidth(40);
+            io->setTextWidth(50);  // was 40
             io->setScale(0.04*size);
 
             //preparing text to show
@@ -145,7 +145,7 @@ void ALrfViewerObject::DrawAll()
             text = "<CENTER>" + text + "</CENTER>";
             io->setDefaultTextColor(PMprops[ipm].textColor);
             io->setHtml(text);
-            double x = ( PM->Position[0] - 0.75*size) * GVscale;
+            double x = ( PM->Position[0] - 1.0*size) * GVscale;  // was 0.75
             double y = (-PM->Position[1] - 0.5*size ) * GVscale; //minus y to invert the scale!!!
             io->setPos(x, y);
 

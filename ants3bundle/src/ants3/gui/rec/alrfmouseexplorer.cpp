@@ -85,7 +85,7 @@ void ALrfMouseExplorer::Start()
     exec();
 }
 
-void ALrfMouseExplorer::paintLRFonDialog(QPointF *pos)
+void ALrfMouseExplorer::paintLRFonDialog(QPointF * pos)
 {
     double r[3];
     r[0] = pos->x();
@@ -100,18 +100,19 @@ void ALrfMouseExplorer::paintLRFonDialog(QPointF *pos)
     lrfs.resize(numPMs);
 
     int iGroup = cobSG->currentIndex();
-    bool fAll = ( iGroup==cobSG->count()-1 );
+    bool fAll = ( iGroup == cobSG->count()-1 );
 
     double max = -100;
-    for (int ipm=0; ipm<numPMs; ipm++)
+    for (int ipm = 0; ipm < numPMs; ipm++)
         //if (fAll || PMgroups->isPmBelongsToGroupFast(ipm, iGroup)) // !!!***
         {
-            //lrfs[ipm] = LRFs->getLRF(ipm, r);
-            lrfs[ipm] = LRFs->Eval(ipm, r);
+            if (ipm < SensHub.SensorGains.size()) lrfs[ipm] = LRFs->Eval(ipm, r);
+            else lrfs[ipm] = 0;
+
             if (lrfs[ipm]>max) max = lrfs[ipm];
         }
 
-    for (int ipm=0; ipm<numPMs; ipm++)
+    for (int ipm = 0; ipm < numPMs; ipm++)
     {
         //if (fAll || PMgroups->isPmBelongsToGroupFast(ipm, iGroup)) // !!!***
         {

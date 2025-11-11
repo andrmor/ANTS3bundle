@@ -71,7 +71,6 @@ ants3_mercury{
     INCLUDEPATH += gui/rec
 
     SOURCES += \
-    gui/rec/alrfviewerobject.cpp \
         rec/Mercury/LRModel/compress.cpp \
         rec/Mercury/LRModel/lrf.cpp \
         rec/Mercury/LRModel/lrfaxial.cpp \
@@ -91,10 +90,10 @@ ants3_mercury{
         rec/Mercury/script/amercury_si.cpp \
         gui/rec/alrfdrawer.cpp \
         gui/rec/alrfmouseexplorer.cpp \
+        gui/rec/alrfviewerobject.cpp \
         gui/rec/alrfgraphicsview.cpp
 
     HEADERS += \
-    gui/rec/alrfviewerobject.h \
         rec/Mercury/LRModel/compress.h \
         rec/Mercury/LRModel/lrf.h \
         rec/Mercury/LRModel/lrfaxial.h \
@@ -115,6 +114,7 @@ ants3_mercury{
         rec/Mercury/script/amercury_si.h \
         gui/rec/alrfdrawer.h \
         gui/rec/alrfmouseexplorer.h \
+        gui/rec/alrfviewerobject.h \
         gui/rec/alrfgraphicsview.h
 }
 
