@@ -7,6 +7,7 @@
 
 AMercury_si::AMercury_si() {}
 
+/*
 void AMercury_si::createReconstructor_CoG()
 {
     if (!Model)
@@ -17,30 +18,6 @@ void AMercury_si::createReconstructor_CoG()
 
     resetReconstructors();
     Rec = new RecCoG(Model);
-}
-
-void AMercury_si::createReconstructor_ML()
-{
-    if (!Model)
-    {
-        abort("LRF model was not created yet!");
-        return;
-    }
-
-    resetReconstructors();
-    Rec = new RecML(Model);
-}
-
-void AMercury_si::createReconstructor_ML_multi(int numThreads)
-{
-    if (!Model)
-    {
-        abort("LRF model was not created yet!");
-        return;
-    }
-
-    resetReconstructors();
-    RecMP = new RecML_MP(Model, numThreads);
 }
 
 void AMercury_si::createReconstructor_LS()
@@ -55,6 +32,56 @@ void AMercury_si::createReconstructor_LS()
     Rec = new RecLS(Model);
 }
 
+void AMercury_si::createReconstructor_ML()
+{
+    if (!Model)
+    {
+        abort("LRF model was not created yet!");
+        return;
+    }
+
+    resetReconstructors();
+    Rec = new RecML(Model);
+}
+*/
+
+void AMercury_si::createReconstructor_CoG_multi(int numThreads)
+{
+    if (!Model)
+    {
+        abort("LRF model was not created yet!");
+        return;
+    }
+
+    resetReconstructors();
+    RecMP = new ReconstructorMP(Model, numThreads);
+}
+
+void AMercury_si::createReconstructor_LS_multi(int numThreads)
+{
+    if (!Model)
+    {
+        abort("LRF model was not created yet!");
+        return;
+    }
+
+    resetReconstructors();
+    RecMP = new RecLS_MP(Model, numThreads);
+}
+
+void AMercury_si::createReconstructor_ML_multi(int numThreads)
+{
+    if (!Model)
+    {
+        abort("LRF model was not created yet!");
+        return;
+    }
+
+    resetReconstructors();
+    RecMP = new RecML_MP(Model, numThreads);
+}
+
+/*
 void AMercury_si::reconstructEvent(QVariantList sensSignals)
 {
     const size_t numEl = sensSignals.size();
@@ -67,6 +94,7 @@ void AMercury_si::reconstructEvent(QVariantList sensSignals)
     if (Rec) Rec->ProcessEvent(a, sat);
     else     abort("Reconstructor was not yet created");
 }
+*/
 
 void AMercury_si::reconstructEvents(QVariantList sensSignalsOverAllEvents)
 {
@@ -90,6 +118,7 @@ void AMercury_si::reconstructEvents(QVariantList sensSignalsOverAllEvents)
     else     abort("Reconstructor was not yet created");
 }
 
+/*
 double AMercury_si::getPositionX()
 {
     if (Rec) return Rec->getRecX();
@@ -105,8 +134,9 @@ double AMercury_si::getPositionY()
     abort("Reconstructor was not yet created");
     return 0;
 }
+*/
 
-QVariantList AMercury_si::getReconstructedPositions()
+QVariantList AMercury_si::getReconstructedXYZ()
 {
     QVariantList res;
     if (!RecMP) return res;
@@ -117,8 +147,25 @@ QVariantList AMercury_si::getReconstructedPositions()
 
     for (size_t i = 0; i < xRes.size(); i++)
     {
-        //QVariantList el{xRes[i], yRes[i], zRes[i]};
-        QVariantList el{xRes[i], yRes[i], 0};
+        QVariantList el{xRes[i], yRes[i], zRes[i]};
+        res.push_back(el);
+    }
+    return res;
+}
+
+QVariantList AMercury_si::getReconstructedXYZE()
+{
+    QVariantList res;
+    if (!RecMP) return res;
+
+    const std::vector<double> xRes = RecMP->getRecX();
+    const std::vector<double> yRes = RecMP->getRecY();
+    const std::vector<double> zRes = RecMP->getRecZ();
+    const std::vector<double> E    = RecMP->getRecE();
+
+    for (size_t i = 0; i < xRes.size(); i++)
+    {
+        QVariantList el{xRes[i], yRes[i], zRes[i], E[i]};
         res.push_back(el);
     }
     return res;
@@ -224,6 +271,17 @@ void AMercury_si::showLightResponseExplorer()
 double AMercury_si::eval(int iSensor, double x, double y, double z)
 {
     if (Model) return Model->Eval(iSensor, x, y, z);
+    else return 0;
+}
+
+double AMercury_si::eval(int iSensor, QVariantList xyz)
+{
+    if (xyz.length() != 3) return 0;
+
+    double pos[3];
+    for (size_t i = 0; i < 3; i++) pos[i] = xyz[i].toDouble();
+
+    if (Model) return Model->Eval(iSensor, pos);
     else return 0;
 }
 

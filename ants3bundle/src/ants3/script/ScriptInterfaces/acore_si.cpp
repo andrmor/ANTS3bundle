@@ -294,6 +294,26 @@ double ACore_SI::arraySum(QVariantList array)
     return sum;
 }
 
+QVariantList ACore_SI::arrayColumn(QVariantList array, int columnIndex)
+{
+    QVariantList vl;
+
+    const int size = array.size();
+    for (int i = 0; i < size; i++)
+    {
+        QVariantList el = array[i].toList();
+        if (el.isEmpty()) continue;
+        if (el.size() <= columnIndex)
+        {
+            abort("Invalid width of the array row for the selected columnIndex");
+            return vl;
+        }
+        vl.push_back(el[columnIndex]);
+    }
+
+    return vl;
+}
+
 /*
 #include "amatcomposition.h"
 QString ACore_SI::testComposition(QString comp)

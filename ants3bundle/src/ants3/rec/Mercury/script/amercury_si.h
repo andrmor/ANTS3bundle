@@ -24,19 +24,20 @@ public:
     void abortRun() override {};  // !!!*** TODO
 
 public slots:
-    void createReconstructor_CoG();
-    void createReconstructor_ML();
+    //void createReconstructor_CoG();
+    //void createReconstructor_LS();
+    //void createReconstructor_ML();
+    void createReconstructor_CoG_multi(int numThreads);
+    void createReconstructor_LS_multi(int numThreads);
     void createReconstructor_ML_multi(int numThreads);
-    void createReconstructor_LS();
 
-    void reconstructEvent(QVariantList  sensSignals);
+    //void reconstructEvent(QVariantList  sensSignals);
     void reconstructEvents(QVariantList sensSignalsOverAllEvents);
 
-
-    double getPositionX();
-    double getPositionY();
-
-    QVariantList getReconstructedPositions();
+    //double getPositionX();
+    //double getPositionY();
+    QVariantList getReconstructedXYZ();
+    QVariantList getReconstructedXYZE();
 
     void setCogAbsCutoff(double val);
     void setCogRelCutoff(double val);
@@ -57,6 +58,7 @@ public slots:
     void showLightResponseExplorer();
 
     double eval(int iSensor, double x, double y, double z);
+    double eval(int iSensor, QVariantList xyz);
 
 private:
     LRModel * Model = nullptr;

@@ -14,7 +14,7 @@ class LRModel;
 class ReconstructorMP
 {
 public:
-    ReconstructorMP() {;}
+    ReconstructorMP() {}
     ReconstructorMP(LRModel *lrm, int n_threads);
     ReconstructorMP(std::string json_str, int n_threads);
     virtual ~ReconstructorMP();
