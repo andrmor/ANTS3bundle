@@ -6,7 +6,6 @@
 
 #include "TGraph.h"
 #include "TAxis.h"
-#include "TLine.h"
 
 ALrfDrawer::ALrfDrawer(LRModel * model) :
     Model(model) {}
@@ -45,6 +44,7 @@ QString ALrfDrawer::drawRadial(int iSens, bool showNodes)
             if (val > maxVal) maxVal = val;
             if (val < minVal) minVal = val;
         }
+        g->SetMinimum(0);
 
         emit AScriptHub::getInstance().requestDraw(g, "AL", true);
 
@@ -57,6 +57,7 @@ QString ALrfDrawer::drawRadial(int iSens, bool showNodes)
             double Rmax = axial->Compress(rmax);
             double DX = Rmax - Rmin;
 
+            // !!!*** should be delegated to the library!
             int lastnode = -1;
             std::vector<double> GrX;
             for (int ix = 0; ix < 102; ix++)
@@ -71,13 +72,15 @@ QString ALrfDrawer::drawRadial(int iSens, bool showNodes)
                 }
             }
 
-            for (double x : GrX)
-            {
-                TLine * line = new TLine(x, minVal, x, maxVal);
-                line->SetLineColor(1);
-                line->SetLineStyle(9);
-                emit AScriptHub::getInstance().requestDraw(line, "same", false);
-            }
+            TGraph * gN = new TGraph(); // will be owned by the graph window
+            gN->SetMarkerStyle(8);
+            gN->SetMarkerSize(1);
+            gN->SetMarkerColor(4);
+            gN->SetTitle( TString("LRF_nodes #") + iSens);
+            gN->GetXaxis()->SetTitle("Radial distance, mm");
+            gN->GetYaxis()->SetTitle("LRF_nodes");
+            for (double r : GrX) gN->AddPoint(r, axial->evalAxial(r));
+            emit AScriptHub::getInstance().requestDraw(gN, "Psame", true);
         }
     }
 
