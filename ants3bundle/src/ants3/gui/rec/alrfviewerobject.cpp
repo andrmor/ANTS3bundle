@@ -1,6 +1,6 @@
-#include "viewer2darrayobject.h"
+#include "alrfviewerobject.h"
 #include "asensorhub.h"
-#include "myqgraphicsview.h"
+#include "alrfgraphicsview.h"
 
 #include <QGraphicsScene>
 #include <QGraphicsItem>
@@ -9,7 +9,7 @@
 
 #include <math.h>
 
-Viewer2DarrayObject::Viewer2DarrayObject(myQGraphicsView *GV) :
+ALrfViewerObject::ALrfViewerObject(ALrfGraphicsView *GV) :
     PMs(ASensorHub::getInstance()), gv(GV)
 {
     GVscale = 1.0;
@@ -25,10 +25,10 @@ Viewer2DarrayObject::Viewer2DarrayObject(myQGraphicsView *GV) :
     gv->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     gv->setRenderHints(QPainter::Antialiasing);
 
-    Viewer2DarrayObject::ResetViewport();
+    ALrfViewerObject::ResetViewport();
 }
 
-Viewer2DarrayObject::~Viewer2DarrayObject()
+ALrfViewerObject::~ALrfViewerObject()
 {
     disconnect(scene, SIGNAL(selectionChanged()), this, SLOT(sceneSelectionChanged()));
 
@@ -41,7 +41,7 @@ Viewer2DarrayObject::~Viewer2DarrayObject()
 }
 
 #include "ageoobject.h"
-void Viewer2DarrayObject::DrawAll()
+void ALrfViewerObject::DrawAll()
 {
     int NumPMs = PMs.countSensors();
     if (CursorMode == 1) gv->setCursor(Qt::CrossCursor);
@@ -159,7 +159,7 @@ void Viewer2DarrayObject::DrawAll()
     //      qDebug()<<" update of graphics done";
 }
 
-void Viewer2DarrayObject::ResetViewport()
+void ALrfViewerObject::ResetViewport()
 {
     int NumPMs = PMs.countSensors();
     if (NumPMs == 0) return;
@@ -192,13 +192,13 @@ void Viewer2DarrayObject::ResetViewport()
     gv->fitInView( (Xmin - 0.01*Xdelta)*GVscale, (Ymin - 0.01*Ydelta)*GVscale, (Xmax-Xmin + 0.02*Xdelta)*GVscale, (Ymax-Ymin + 0.02*Ydelta)*GVscale, Qt::KeepAspectRatio);
 }
 
-void Viewer2DarrayObject::ClearColors()
+void ALrfViewerObject::ClearColors()
 {
     PMprops.resize(0);
     PMprops.resize(PMs.countSensors());
 }
 
-void Viewer2DarrayObject::SetPenColor(int ipm, QColor color)
+void ALrfViewerObject::SetPenColor(int ipm, QColor color)
 {
     int NumPMs = PMs.countSensors();
     if (ipm < 0 || ipm >= NumPMs) return;
@@ -207,7 +207,7 @@ void Viewer2DarrayObject::SetPenColor(int ipm, QColor color)
     PMprops[ipm].pen = color;
 }
 
-void Viewer2DarrayObject::SetBrushColor(int ipm, QColor color)
+void ALrfViewerObject::SetBrushColor(int ipm, QColor color)
 {
     int NumPMs = PMs.countSensors();
     if (ipm < 0 || ipm >= NumPMs) return;
@@ -216,7 +216,7 @@ void Viewer2DarrayObject::SetBrushColor(int ipm, QColor color)
     PMprops[ipm].brush = color;
 }
 
-void Viewer2DarrayObject::SetText(int ipm, QString text)
+void ALrfViewerObject::SetText(int ipm, QString text)
 {
     int NumPMs = PMs.countSensors();
     if (ipm < 0 || ipm >= NumPMs) return;
@@ -225,7 +225,7 @@ void Viewer2DarrayObject::SetText(int ipm, QString text)
     PMprops[ipm].text = text;
 }
 
-void Viewer2DarrayObject::SetTextColor(int ipm, QColor color)
+void ALrfViewerObject::SetTextColor(int ipm, QColor color)
 {
     int NumPMs = PMs.countSensors();
     if (ipm < 0 || ipm >= NumPMs) return;
@@ -234,7 +234,7 @@ void Viewer2DarrayObject::SetTextColor(int ipm, QColor color)
     PMprops[ipm].textColor = color;
 }
 
-void Viewer2DarrayObject::SetVisible(int ipm, bool fFlag)
+void ALrfViewerObject::SetVisible(int ipm, bool fFlag)
 {
     int NumPMs = PMs.countSensors();
     if (ipm < 0 || ipm >= NumPMs) return;
@@ -243,18 +243,18 @@ void Viewer2DarrayObject::SetVisible(int ipm, bool fFlag)
     PMprops[ipm].visible = fFlag;
 }
 
-void Viewer2DarrayObject::SetCursorMode(int option)
+void ALrfViewerObject::SetCursorMode(int option)
 {
     CursorMode = option; gv->setCursorMode(option);
 }
 
-void Viewer2DarrayObject::forceResize()
+void ALrfViewerObject::forceResize()
 {
     qDebug()<<"resize!";
-    Viewer2DarrayObject::ResetViewport();
+    ALrfViewerObject::ResetViewport();
 }
 
-void Viewer2DarrayObject::sceneSelectionChanged()
+void ALrfViewerObject::sceneSelectionChanged()
 {
     //  qDebug()<<"Scene selection changed!";
     int selectedItems = scene->selectedItems().size();

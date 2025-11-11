@@ -1,7 +1,7 @@
 #include "alrfmouseexplorer.h"
-#include "viewer2darrayobject.h"
+#include "alrfviewerobject.h"
 #include "asensorhub.h"
-#include "myqgraphicsview.h"
+#include "alrfgraphicsview.h"
 
 #include <QPushButton>
 #include <QLabel>
@@ -15,7 +15,7 @@
 #include "lrmodel.h"
 
 ALrfMouseExplorer::ALrfMouseExplorer(LRModel * model, double SuggestedZ, QWidget* parent) :
-    QDialog(parent), PMs(ASensorHub::getInstance())
+    QDialog(parent), SensHub(ASensorHub::getInstance())
 {
     LRFs = new LRModel(model->GetJsonString());
     setModal(true);
@@ -24,13 +24,13 @@ ALrfMouseExplorer::ALrfMouseExplorer(LRModel * model, double SuggestedZ, QWidget
     QVBoxLayout * mainLayout = new QVBoxLayout;
 
     //tools
-    QHBoxLayout *hbox = new QHBoxLayout;
-    QLabel *l1 = new QLabel("PM selection:");
+    QHBoxLayout * hbox = new QHBoxLayout;
+    QLabel * l1 = new QLabel("PM selection:");
     hbox->addWidget(l1);
 
     cobSG = new QComboBox();
     for (int igr=0; igr<LRFs->GetGroupCount(); igr++)
-        //cobSG->addItem(LRFs->GetGroupName(igr));
+        //cobSG->addItem(LRFs->GetGroupName(igr));     // !!!***
         cobSG->addItem(QString::number(igr));
 
     cobSG->addItem("All PMs");
@@ -38,28 +38,28 @@ ALrfMouseExplorer::ALrfMouseExplorer(LRModel * model, double SuggestedZ, QWidget
     connect(cobSG, SIGNAL(activated(int)), this, SLOT(onCobActivated(int)));
     hbox->addWidget(cobSG);
 
-    QLabel *l2 = new QLabel("Z:");
+    QLabel * l2 = new QLabel("Z:");
     hbox->addWidget(l2);
 
     ledZ = new QLineEdit(QString::number(SuggestedZ));
-    QDoubleValidator* dv = new QDoubleValidator(this);
+    QDoubleValidator * dv = new QDoubleValidator(this);
     dv->setNotation(QDoubleValidator::ScientificNotation);
     ledZ->setValidator(dv);
     hbox->addWidget(ledZ);
     mainLayout->addLayout(hbox);
 
     //graphics
-    gv = new myQGraphicsView(this);
-    connect(gv, SIGNAL(MouseMovedSignal(QPointF*)), this, SLOT(paintLRFonDialog(QPointF*)));
-    mainLayout->addWidget(gv);
+    GrView = new ALrfGraphicsView(this);
+    connect(GrView, SIGNAL(MouseMovedSignal(QPointF*)), this, SLOT(paintLRFonDialog(QPointF*)));
+    mainLayout->addWidget(GrView);
 
     //close button
-    QPushButton *okButton = new QPushButton("Close");
+    QPushButton * okButton = new QPushButton("Close");
     connect(okButton, SIGNAL(clicked()), this, SLOT(accept()));
     mainLayout->addWidget(okButton);
     setLayout(mainLayout);
 
-    LRFviewObj = new Viewer2DarrayObject(gv);
+    LRFviewObj = new ALrfViewerObject(GrView);
     LRFviewObj->SetCursorMode(1);
 
     okButton->setAutoDefault(false);
@@ -67,7 +67,7 @@ ALrfMouseExplorer::ALrfMouseExplorer(LRModel * model, double SuggestedZ, QWidget
 
 ALrfMouseExplorer::~ALrfMouseExplorer()
 {
-    delete gv;
+    delete GrView;
     delete LRFviewObj;
 }
 
@@ -75,7 +75,7 @@ void ALrfMouseExplorer::Start()
 {
     resize(800,800);
     show();
-    gv->show();
+    GrView->show();
     LRFviewObj->DrawAll();
     LRFviewObj->ResetViewport();
 
@@ -95,7 +95,7 @@ void ALrfMouseExplorer::paintLRFonDialog(QPointF *pos)
     QString title = QString::number(r[0], 'f', 1) +" , "+ QString::number(r[1], 'f', 1) +" , "+ QString::number(r[2], 'f', 1);
     setWindowTitle(title);
 
-    int numPMs = PMs.countSensors();
+    int numPMs = SensHub.countSensors();
     QVector<double> lrfs;
     lrfs.resize(numPMs);
 

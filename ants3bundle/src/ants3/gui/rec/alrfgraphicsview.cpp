@@ -1,26 +1,26 @@
-#include "myqgraphicsview.h"
+#include "alrfgraphicsview.h"
 
 #include <QLineEdit>
 #include <QWheelEvent>
 
-myQGraphicsView::myQGraphicsView(QWidget *parent) : QGraphicsView(parent)
+ALrfGraphicsView::ALrfGraphicsView(QWidget *parent) : QGraphicsView(parent)
 {
     CursorMode = 0;
 }
 
-myQGraphicsView::myQGraphicsView(QGraphicsScene *scene, QWidget *parent) : QGraphicsView(scene,parent)
+ALrfGraphicsView::ALrfGraphicsView(QGraphicsScene *scene, QWidget *parent) : QGraphicsView(scene,parent)
 {
     CursorMode = 0;
 }
 
-void myQGraphicsView::wheelEvent(QWheelEvent * event)
+void ALrfGraphicsView::wheelEvent(QWheelEvent * event)
 {
     const int delta = event->angleDelta().y();
     if (delta > 0) scale(1.1, 1.1);
     else           scale(1.0/1.1, 1.0/1.1);
 }
 
-void myQGraphicsView::mouseMoveEvent(QMouseEvent *event)
+void ALrfGraphicsView::mouseMoveEvent(QMouseEvent *event)
 {
     MousePosition = this->mapToScene(event->pos());
     //MousePosition = event->pos();
@@ -29,21 +29,21 @@ void myQGraphicsView::mouseMoveEvent(QMouseEvent *event)
     QGraphicsView::mouseMoveEvent(event);
 }
 
-void myQGraphicsView::enterEvent(QEnterEvent * event)
+void ALrfGraphicsView::enterEvent(QEnterEvent * event)
 {
     QGraphicsView::enterEvent(event);
     if (CursorMode == 1)
         viewport()->setCursor(Qt::CrossCursor);
 }
 
-void myQGraphicsView::mousePressEvent(QMouseEvent *event)
+void ALrfGraphicsView::mousePressEvent(QMouseEvent *event)
 {
     QGraphicsView::mousePressEvent(event);
     if (CursorMode == 1)
         viewport()->setCursor(Qt::CrossCursor);
 }
 
-void myQGraphicsView::mouseReleaseEvent(QMouseEvent *event)
+void ALrfGraphicsView::mouseReleaseEvent(QMouseEvent *event)
 {
     QGraphicsView::mouseReleaseEvent(event);
     if (CursorMode == 1)

@@ -5,36 +5,35 @@
 
 class LRModel;
 class ASensorHub;
-class APmGroupsManager;
-class Viewer2DarrayObject;
-class myQGraphicsView;
+class ALrfViewerObject;
+class ALrfGraphicsView;
 class QPointF;
 class QComboBox;
 class QLineEdit;
 
 class ALrfMouseExplorer : public QDialog
 {
-  Q_OBJECT
+    Q_OBJECT
 
 public:
-  ALrfMouseExplorer(LRModel * lrmodel, double SuggestedZ = 0, QWidget *parent = 0);
-  ~ALrfMouseExplorer();
+    ALrfMouseExplorer(LRModel * lrmodel, double SuggestedZ = 0, QWidget * parent = 0);
+    ~ALrfMouseExplorer();
 
-  void Start();
+    void Start();
 
 private:
-  Viewer2DarrayObject *LRFviewObj;
-  myQGraphicsView* gv;
+    ALrfViewerObject * LRFviewObj = nullptr;
+    ALrfGraphicsView * GrView     = nullptr;
 
-  LRModel * LRFs = nullptr;
-  ASensorHub & PMs;
+    LRModel    * LRFs = nullptr;
+    ASensorHub & SensHub;
 
-  QComboBox *cobSG;
-  QLineEdit *ledZ;
+    QComboBox  * cobSG = nullptr;
+    QLineEdit  * ledZ = nullptr;
 
 public slots:
-  void paintLRFonDialog(QPointF* pos);
-  void onCobActivated(int);
+    void paintLRFonDialog(QPointF * pos);
+    void onCobActivated(int);
 
 };
 

@@ -1,15 +1,15 @@
-#ifndef MYQGRAPHICSVIEW_H
-#define MYQGRAPHICSVIEW_H
+#ifndef ALRFGRAPHICSVIEW_H
+#define ALRFGRAPHICSVIEW_H
 
 #include <QObject>
 #include <QGraphicsView>
 
-class myQGraphicsView : public QGraphicsView
+class ALrfGraphicsView : public QGraphicsView
 {
     Q_OBJECT
 public:
-    myQGraphicsView( QWidget * parent = 0 );
-    myQGraphicsView( QGraphicsScene * scene, QWidget * parent = 0 );
+    ALrfGraphicsView( QWidget * parent = 0 );
+    ALrfGraphicsView( QGraphicsScene * scene, QWidget * parent = 0 );
     void setCursorMode(int mode) {CursorMode = mode;}
 
 protected:
@@ -27,4 +27,4 @@ signals:
     void MouseMovedSignal(QPointF *Pos);
 };
 
-#endif // MYQGRAPHICSVIEW_H
+#endif // ALRFGRAPHICSVIEW_H
