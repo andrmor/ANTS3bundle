@@ -73,6 +73,8 @@ public:
 
     double  getMaxQE(bool bWaveRes) const;
 
+    const ASensorData * getSensorData(int iSensor) const;
+
 private:
     ASensorHub();
     ~ASensorHub(){}

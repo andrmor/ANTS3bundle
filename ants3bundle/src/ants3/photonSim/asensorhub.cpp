@@ -288,6 +288,12 @@ double ASensorHub::getMaxQE(bool bWaveRes) const
     return maxQE;
 }
 
+const ASensorData *ASensorHub::getSensorData(int iSensor) const
+{
+    if (iSensor > -1 && iSensor < SensorData.size()) return &(SensorData[iSensor]);
+    return nullptr;
+}
+
 ASensorHub::ASensorHub()
 {
     Models.resize(1);

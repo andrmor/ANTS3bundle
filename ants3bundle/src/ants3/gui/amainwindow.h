@@ -24,6 +24,7 @@ class QTimer;
 class A3Global;
 class AConfigExampleBrowser;
 class AGuiFromScrWin;
+class LRModel;
 
 class AMainWindow : public AGuiWindow
 {
@@ -130,6 +131,8 @@ private slots:
 
     // run time
     void rootTimerTimeout();
+
+    void showLightResponseExplorer(LRModel * model);
 
 protected:
     void closeEvent(QCloseEvent * event);

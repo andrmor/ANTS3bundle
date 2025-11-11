@@ -214,6 +214,13 @@ void AMercury_si::plotLRF_radial(int iSensor, bool showNodes)
     if (!err.isEmpty()) abort(err);
 }
 
+#include "ascripthub.h"
+void AMercury_si::showLightResponseExplorer()
+{
+    if (!Model) abort("Light response model is not defined");
+    else emit AScriptHub::getInstance().requestShowLightResponseExplorer(Model);
+}
+
 double AMercury_si::eval(int iSensor, double x, double y, double z)
 {
     if (Model) return Model->Eval(iSensor, x, y, z);

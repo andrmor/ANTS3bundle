@@ -88,7 +88,10 @@ ants3_mercury{
         rec/Mercury/spline123/bspline123d.cpp \
         rec/Mercury/spline123/profileHist.cpp \
         rec/Mercury/script/amercury_si.cpp \
-        gui/rec/alrfdrawer.cpp
+        gui/rec/alrfdrawer.cpp \
+        gui/rec/alrfmouseexplorer.cpp \
+        gui/rec/myqgraphicsview.cpp \
+        gui/rec/viewer2darrayobject.cpp
 
     HEADERS += \
         rec/Mercury/LRModel/compress.h \
@@ -109,7 +112,10 @@ ants3_mercury{
         rec/Mercury/spline123/bspline123d.h \
         rec/Mercury/spline123/profileHist.h \
         rec/Mercury/script/amercury_si.h \
-        gui/rec/alrfdrawer.h
+        gui/rec/alrfdrawer.h \
+        gui/rec/alrfmouseexplorer.h \
+        gui/rec/myqgraphicsview.h \
+        gui/rec/viewer2darrayobject.h
 }
 
 #----------

@@ -54,6 +54,8 @@ public slots:
     void fitSensor(int iSensor);
 
     void plotLRF_radial(int iSensor, bool showNodes = false);
+    void showLightResponseExplorer();
+
     double eval(int iSensor, double x, double y, double z);
 
 private:

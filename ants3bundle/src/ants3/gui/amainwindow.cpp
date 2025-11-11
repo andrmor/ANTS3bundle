@@ -124,6 +124,10 @@ AMainWindow::AMainWindow() :
 
     connect(&AScriptHub::getInstance(), &AScriptHub::requestUpdateGui, this, &AMainWindow::updateAllGuiFromConfig);
 
+#ifdef USE_MERCURY
+    connect(ScriptHub, &AScriptHub::requestShowLightResponseExplorer, this, &AMainWindow::showLightResponseExplorer, Qt::QueuedConnection);
+#endif
+
     // called where all windows connecting to GeoWin are already defined
     connectSignalSlotsForGeoWin();
 
@@ -168,6 +172,18 @@ AMainWindow::~AMainWindow()
 void AMainWindow::rootTimerTimeout()
 {
     gSystem->ProcessEvents();
+}
+
+#ifdef USE_MERCURY
+#include "alrfmouseexplorer.h"
+#endif
+void AMainWindow::showLightResponseExplorer(LRModel  *model)
+{
+#ifdef USE_MERCURY
+    ALrfMouseExplorer * expl = new ALrfMouseExplorer(model, 0, this);
+    expl->Start();
+    expl->deleteLater();
+#endif
 }
 
 void AMainWindow::updateGui()
