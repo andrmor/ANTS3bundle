@@ -12,14 +12,11 @@
 ALrfViewerObject::ALrfViewerObject(ALrfGraphicsView *GV) :
     SensHub(ASensorHub::getInstance()), GrView(GV)
 {
-    GVscale = 1.0;
-    CursorMode = 0;
     Scene = new QGraphicsScene(this);
-    connect(Scene, SIGNAL(selectionChanged()), this, SLOT(sceneSelectionChanged()));
+    connect(Scene, &QGraphicsScene::selectionChanged, this, &ALrfViewerObject::sceneSelectionChanged);
 
     GrView->setScene(Scene);
-    GrView->setDragMode(QGraphicsView::ScrollHandDrag); //if zoomed, can use hand to center needed area
-    //gvOut->setTransformationAnchor(QGraphicsView::AnchorViewCenter);
+    GrView->setDragMode(QGraphicsView::ScrollHandDrag);               // when zoomed, one can use "hand" to center on the needed area
     GrView->setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
     GrView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     GrView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -30,17 +27,19 @@ ALrfViewerObject::ALrfViewerObject(ALrfGraphicsView *GV) :
 
 ALrfViewerObject::~ALrfViewerObject()
 {
-    disconnect(Scene, SIGNAL(selectionChanged()), this, SLOT(sceneSelectionChanged()));
+    connect(Scene, &QGraphicsScene::selectionChanged, this, &ALrfViewerObject::sceneSelectionChanged);
 
     if (SensIcons.size() > 0)
-        for (int i=0; i<SensIcons.size(); i++) Scene->removeItem(SensIcons[i]);
+        for (size_t i = 0; i < SensIcons.size(); i++)
+            Scene->removeItem(SensIcons[i]);
+
     SensIcons.resize(0);
     Scene->clear();
-    delete Scene;
-    Scene = 0;
+    delete Scene; Scene = nullptr;
 }
 
 #include "ageoobject.h"
+#include "guitools.h"
 void ALrfViewerObject::DrawAll()
 {
     int NumPMs = SensHub.countSensors();
@@ -50,7 +49,9 @@ void ALrfViewerObject::DrawAll()
     //scene->blockSignals(true);
 
     if (SensIcons.size() > 0)
-        for (int i=0; i<SensIcons.size(); i++) Scene->removeItem(SensIcons[i]);
+        for (size_t i = 0; i < SensIcons.size(); i++)
+            Scene->removeItem(SensIcons[i]);
+
     SensIcons.resize(0);
     Scene->clear();
     //      qDebug()<<"Scene cleared";
@@ -58,63 +59,18 @@ void ALrfViewerObject::DrawAll()
     SensProps.resize(NumPMs);
     //asserted size of PM properies vector
 
-    //============================ drawing PMs ===================================
+    // Drawing sensors
     for (int ipm = 0; ipm < NumPMs; ipm++)
     {
-        //const APm &PM = SensHub.at(ipm);
-        const ASensorData * PM = SensHub.getSensorData(ipm);
-        if (!PM) continue;
+        const ASensorData * sensor = SensHub.getSensorData(ipm);
+        if (!sensor) continue;
 
-        //PM object pen
-        QPen pen(SensProps[ipm].pen);
-
-        //int size = 6.0 * PMs->SizeX(ipm) / 300.0;
-        int size = 6.0 * PM->GeoObj->getMaxSize() / 300.0; // !!!***
-        pen.setWidth(size);
-
-        //PM object brush
         QBrush brush(SensProps[ipm].brush);
+        QGraphicsItem * tmp = guitools::addGeoObjectToScene(sensor->GeoObj, Scene, GVscale, brush);
 
-        QGraphicsItem * tmp;
-        // !!!*** TODO:
-        /*
-        if (PMs->getType(PM.type)->Shape == 0)
-        {
-            double sizex = PMs->getType(PM.type)->SizeX*GVscale;
-            double sizey = PMs->getType(PM.type)->SizeY*GVscale;
-            tmp = scene->addRect(-0.5*sizex, -0.5*sizey, sizex, sizey, pen, brush);
-        }
-        else if (PMs->getType(PM.type)->Shape == 1)
-        {
-            double diameter = PMs->getType(PM.type)->SizeX*GVscale;
-            tmp = scene->addEllipse( -0.5*diameter, -0.5*diameter, diameter, diameter, pen, brush);
-        }
-        else
-        {
-            double radius = 0.5*PMs->getType(PM.type)->SizeX*GVscale;
-            QPolygonF polygon;
-            for (int j=0; j<7; j++)
-            {
-                double angle = 3.1415926535/3.0 * j + 3.1415926535/2.0;
-                double x = radius * cos(angle);
-                double y = radius * sin(angle);
-                polygon.append( QPointF(x, y) );
-            }
-            tmp = scene->addPolygon(polygon, pen, brush);
-        }
-        */
-        // temporarly!
-        double diameter = PM->GeoObj->getMaxSize() * GVscale;
-        tmp = Scene->addEllipse( -0.5*diameter, -0.5*diameter, diameter, diameter, pen, brush);
-        // temporarly!
-
-        tmp->setZValue(PM->Position[2]);
+        tmp->setPos(sensor->Position[0] * GVscale, -sensor->Position[1] * GVscale);
+        tmp->setZValue(sensor->Position[2]);
         tmp->setVisible(SensProps.at(ipm).visible);
-
-        //tmp->setRotation(-PM.psi); // !!!***
-
-        //tmp->setPos(PM.x*GVscale, -PM.y*GVscale);
-        tmp->setPos(PM->Position[0] * GVscale, -PM->Position[1] * GVscale);
 
         tmp->setFlag(QGraphicsItem::ItemIsSelectable);
         if      (CursorMode == 0) tmp->setCursor(Qt::PointingHandCursor);
@@ -122,10 +78,8 @@ void ALrfViewerObject::DrawAll()
 
         SensIcons.push_back(tmp);
     }
-    //      qDebug()<<"PM objects set, number="<<PMicons.size();
 
-
-    //======================= PM signal text ===========================
+    // Adding signal texts
     if (true)
     {
         for (int ipm = 0; ipm < NumPMs; ipm++)

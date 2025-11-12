@@ -3,15 +3,11 @@
 #include <QLineEdit>
 #include <QWheelEvent>
 
-ALrfGraphicsView::ALrfGraphicsView(QWidget *parent) : QGraphicsView(parent)
-{
-    CursorMode = 0;
-}
+ALrfGraphicsView::ALrfGraphicsView(QWidget *parent) :
+    QGraphicsView(parent) {}
 
-ALrfGraphicsView::ALrfGraphicsView(QGraphicsScene *scene, QWidget *parent) : QGraphicsView(scene,parent)
-{
-    CursorMode = 0;
-}
+ALrfGraphicsView::ALrfGraphicsView(QGraphicsScene * scene, QWidget * parent) :
+    QGraphicsView(scene, parent) {}
 
 void ALrfGraphicsView::wheelEvent(QWheelEvent * event)
 {
@@ -20,12 +16,11 @@ void ALrfGraphicsView::wheelEvent(QWheelEvent * event)
     else           scale(1.0/1.1, 1.0/1.1);
 }
 
-void ALrfGraphicsView::mouseMoveEvent(QMouseEvent *event)
+void ALrfGraphicsView::mouseMoveEvent(QMouseEvent * event)
 {
-    MousePosition = this->mapToScene(event->pos());
-    //MousePosition = event->pos();
-    //  qDebug() << MousePosition << this->mapToScene(event->pos());
-    emit MouseMovedSignal(&MousePosition);
+    MousePosition = mapToScene(event->pos());
+    emit mouseMovedSignal(&MousePosition);
+
     QGraphicsView::mouseMoveEvent(event);
 }
 

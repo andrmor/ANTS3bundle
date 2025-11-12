@@ -36,8 +36,9 @@ public slots:
 
     //double getPositionX();
     //double getPositionY();
-    QVariantList getRecXYZ();
+    QVariantList getRecXYZ();   // status info: what happens with the returned coordinates if the reconstruction fails?
     QVariantList getRecXYZE();
+
 
     void setCOG_AbsCutoff(double val);
     void setCOG_RelCutoff(double val);

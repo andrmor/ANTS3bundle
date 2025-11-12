@@ -37,7 +37,7 @@ ALrfMouseExplorer::ALrfMouseExplorer(LRModel * model, double suggestedZ, QWidget
 
     cobSG->addItem("All PMs");
     cobSG->setCurrentIndex(cobSG->count()-1);
-    connect(cobSG, SIGNAL(activated(int)), this, SLOT(onCobActivated(int)));
+    connect(cobSG, &QComboBox::activated, this, &ALrfMouseExplorer::onCobActivated);
     hbox->addWidget(cobSG);
 
     QLabel * l2 = new QLabel("Z:");
@@ -52,19 +52,19 @@ ALrfMouseExplorer::ALrfMouseExplorer(LRModel * model, double suggestedZ, QWidget
 
     //graphics
     GrView = new ALrfGraphicsView(this);
-    connect(GrView, SIGNAL(MouseMovedSignal(QPointF*)), this, SLOT(paintLRFonDialog(QPointF*)));
+    connect(GrView, &ALrfGraphicsView::mouseMovedSignal, this, &ALrfMouseExplorer::paintLRFonDialog);
     mainLayout->addWidget(GrView);
 
     //close button
-    QPushButton * okButton = new QPushButton("Close");
-    connect(okButton, SIGNAL(clicked()), this, SLOT(accept()));
-    mainLayout->addWidget(okButton);
+    QPushButton * closeB = new QPushButton("Close");
+    mainLayout->addWidget(closeB);
+    connect(closeB, &QPushButton::clicked, this, &ALrfMouseExplorer::accept);
     setLayout(mainLayout);
 
     LRFviewObj = new ALrfViewerObject(GrView);
     LRFviewObj->SetCursorMode(1);
 
-    okButton->setAutoDefault(false);
+    closeB->setAutoDefault(false);
 }
 
 ALrfMouseExplorer::~ALrfMouseExplorer()
@@ -111,7 +111,7 @@ void ALrfMouseExplorer::paintLRFonDialog(QPointF * pos)
             if (ipm < SensHub.SensorGains.size()) lrfs[ipm] = LRFs->Eval(ipm, r);
             else lrfs[ipm] = 0;
 
-            if (lrfs[ipm]>max) max = lrfs[ipm];
+            if (lrfs[ipm] > max) max = lrfs[ipm];
         }
 
     for (int ipm = 0; ipm < numPMs; ipm++)
@@ -123,7 +123,7 @@ void ALrfMouseExplorer::paintLRFonDialog(QPointF * pos)
             int g = 255 - lrfs[ipm]/max*254.0;
             LRFviewObj->SetText(ipm, QString::number(lrfs[ipm], 'f', 1));
 
-            if (lrfs[ipm] <= 0)  /// to update to isInRange() check
+            if (lrfs[ipm] <= 0)  // to update to isInRange() check
             {
                 LRFviewObj->SetBrushColor(ipm, Qt::red);
                 LRFviewObj->SetTextColor(ipm, Qt::black);

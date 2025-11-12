@@ -14,13 +14,11 @@ class QGraphicsItem;
 class PMpropsClass
 {
 public:
-    QColor pen;
-    QColor brush;
+    QColor  pen       = Qt::black;
+    QColor  brush     = Qt::white;
     QString text;
-    QColor textColor;
-    bool visible;
-
-    PMpropsClass() {pen = Qt::black; brush = Qt::white; text = ""; textColor = Qt::black; visible = true;}
+    QColor  textColor = Qt::black;
+    bool    visible   = true;
 };
 
 class ALrfViewerObject : public QObject
@@ -57,9 +55,9 @@ private:
     std::vector<PMpropsClass>   SensProps;
 
     ALrfGraphicsView * GrView = nullptr;
-    QGraphicsScene   * Scene;
-    double GVscale;
-    int    CursorMode;
+    QGraphicsScene   * Scene  = nullptr;
+    double GVscale            = 1.0;
+    int    CursorMode         = 0;
 
 };
 

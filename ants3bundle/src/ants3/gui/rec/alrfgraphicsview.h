@@ -21,10 +21,10 @@ protected:
 
 private:
     QPointF MousePosition;
-    int CursorMode;
+    int CursorMode = 0;
 
 signals:
-    void MouseMovedSignal(QPointF * Pos);
+    void mouseMovedSignal(QPointF * Pos);
 };
 
 #endif // ALRFGRAPHICSVIEW_H
