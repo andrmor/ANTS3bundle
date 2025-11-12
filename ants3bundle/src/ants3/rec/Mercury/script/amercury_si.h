@@ -38,10 +38,11 @@ public slots:
     //double getPositionY();
     QVariantList getRecXYZ();   // status info: what happens with the returned coordinates if the reconstruction fails?
     QVariantList getRecXYZE();
-
+    QVariantList getRecStats(); // [status(0 = OK), chi2, cov_xx, cov_yy, cov_xy]
 
     void setCOG_AbsCutoff(double val);
     void setCOG_RelCutoff(double val);
+    void setCutoffRadius(double val);
 
     // --- LRFs ---
     void newLightResponseModel(int numSensors);       // --> newLightResponseModel(SensorXYs);
@@ -55,6 +56,11 @@ public slots:
     void addFitData(int iSensor, QVariantList xyza);
     void fitSensor(int iSensor);
 
+    void enableSensor(int iSensor, bool enableFlag);
+
+    void         setModelGains(QVariantList gains);
+    QVariantList getModelGains();
+
     QString exportLightResponseModel();
     void    importLightResponseModel(QString jsonStr);
 
@@ -63,6 +69,8 @@ public slots:
 
     double eval(int iSensor, double x, double y, double z);
     double eval(int iSensor, QVariantList xyz);
+
+    void setMinuitParameters(double RMtolerance, int RMmaxIterations, int RMmaxFuncCalls);  //  deafults are 0.001, 1000, 500
 
 private:
     LRModel * Model = nullptr;

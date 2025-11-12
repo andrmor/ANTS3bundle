@@ -187,6 +187,33 @@ QVariantList AMercury_si::getRecXYZE()
     return res;
 }
 
+QVariantList AMercury_si::getRecStats()
+{
+    QVariantList res;
+    if (!RecMP)
+    {
+        abort("Reconstructor was not created yet");
+        return res;
+    }
+
+    const std::vector<int>    & status = RecMP->rec_status;
+    const std::vector<double> & chi2   = RecMP->rec_chi2min;
+    const std::vector<double> & cov_xx = RecMP->cov_xx;
+    const std::vector<double> & cov_yy = RecMP->cov_yy;
+    const std::vector<double> & cov_xy = RecMP->cov_xy;
+
+    const size_t size = status.size();
+    if (size != chi2.size() || size != cov_xx.size() || size != cov_yy.size() || size != cov_xy.size())
+    {
+        abort("Mismatch in status array sizes");
+        return res;
+    }
+
+    for (size_t i = 0; i < size; i++)
+        res.emplaceBack(QVariantList{status[i], chi2[i], cov_xx[i], cov_yy[i], cov_xy[i]});
+    return res;
+}
+
 void AMercury_si::setCOG_AbsCutoff(double val)
 {
     if (Rec) Rec->setCogAbsCutoff(val);
@@ -196,6 +223,12 @@ void AMercury_si::setCOG_AbsCutoff(double val)
 void AMercury_si::setCOG_RelCutoff(double val)
 {
     if (Rec) Rec->setCogRelCutoff(val);
+    else abort("Reconstructor was not yet created");
+}
+
+void AMercury_si::setCutoffRadius(double val)
+{
+    if (Rec) Rec->setRecCutoffRadius(val);
     else abort("Reconstructor was not yet created");
 }
 
@@ -269,6 +302,56 @@ void AMercury_si::fitSensor(int iSensor)
     if (Model) Model->FitSensor(iSensor);
 }
 
+void AMercury_si::enableSensor(int iSensor, bool enableFlag)
+{
+    if (!Model)
+    {
+        abort("Light response model is not defined");
+        return;
+    }
+    if (iSensor < 0 || iSensor >= Model->GetSensorCount())
+    {
+        abort("Bad sensor index: " + QString::number(iSensor));
+        return;
+    }
+
+    if (enableFlag) Model->SetEnabled(iSensor);
+    else            Model->SetDisabled(iSensor);
+}
+
+void AMercury_si::setModelGains(QVariantList gains)
+{
+    if (!Model)
+    {
+        abort("Light response model is not defined");
+        return;
+    }
+    size_t size = gains.size();
+    if (size != Model->GetSensorCount())
+    {
+        abort("gains array length is not equal to the number of sensors");
+        return;
+    }
+
+    for (int i = 0; i < size; i++)
+        Model->SetGain(i, gains[i].toDouble());
+}
+
+QVariantList AMercury_si::getModelGains()
+{
+    QVariantList vl;
+    if (!Model)
+    {
+        abort("Light response model is not defined");
+        return vl;
+    }
+
+    int size = Model->GetSensorCount();
+    for (int i = 0; i < size; i++)
+        vl << Model->GetGain(i);
+    return vl;
+}
+
 #include "alrfdrawer.h"
 void AMercury_si::plotLRF_radial(int iSensor, bool showNodes)
 {
@@ -299,6 +382,19 @@ double AMercury_si::eval(int iSensor, QVariantList xyz)
 
     if (Model) return Model->Eval(iSensor, pos);
     else return 0;
+}
+
+void AMercury_si::setMinuitParameters(double RMtolerance, int RMmaxIterations, int RMmaxFuncCalls)
+{
+    RecMinuitMP * rec = dynamic_cast<RecMinuitMP*>(RecMP);
+    if (!rec)
+    {
+        abort("Reconstructor not created or it is not of Minuit type");
+        return;
+    }
+    rec->setRMtolerance(RMtolerance);
+    rec->setRMmaxIterations(RMmaxIterations);
+    rec->setRMmaxFuncCalls(RMmaxFuncCalls);
 }
 
 void AMercury_si::resetReconstructors()
