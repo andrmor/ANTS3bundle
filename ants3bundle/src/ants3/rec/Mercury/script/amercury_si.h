@@ -27,32 +27,35 @@ public slots:
     //void createReconstructor_CoG();
     //void createReconstructor_LS();
     //void createReconstructor_ML();
-    void createReconstructor_CoG_multi(int numThreads);
+    void createReconstructor_COG_multi(int numThreads);
     void createReconstructor_LS_multi(int numThreads);
     void createReconstructor_ML_multi(int numThreads);
 
     //void reconstructEvent(QVariantList  sensSignals);
-    void reconstructEvents(QVariantList sensSignalsOverAllEvents);
+    void reconstructEvents(QVariantList sensorSignalsOverAllEvents);
 
     //double getPositionX();
     //double getPositionY();
-    QVariantList getReconstructedXYZ();
-    QVariantList getReconstructedXYZE();
+    QVariantList getRecXYZ();
+    QVariantList getRecXYZE();
 
-    void setCogAbsCutoff(double val);
-    void setCogRelCutoff(double val);
+    void setCOG_AbsCutoff(double val);
+    void setCOG_RelCutoff(double val);
 
     // --- LRFs ---
-    void createModel(int numSensors);
+    void newLightResponseModel(int numSensors);       // --> newLightResponseModel(SensorXYs);
     void addSensor(int iSensor, double x, double y);
-    void setLRF(int iSensor, QString jsonString);
-
-    QString writeModel();
-    void    readModel(QString jsonStr);
+    void setLRF(int iSensor, QString jsonString);     // --> ?? setLRF_Axial(iSens, n, rmin, rmax)
+                                                      //        setCompression(iSens, k, lam, r0)  --> option to all
+                                                      //        setConstrains(iSens, non-neg, non-inc, flat]) --> option to all
+                                                      //        shiftLRF(iSensor, x, y) - by default at the sensor xy
 
     void clearAllFitData();
     void addFitData(int iSensor, QVariantList xyza);
     void fitSensor(int iSensor);
+
+    QString exportLightResponseModel();
+    void    importLightResponseModel(QString jsonStr);
 
     void plotLRF_radial(int iSensor, bool showNodes = false);
     void showLightResponseExplorer();
@@ -66,7 +69,6 @@ private:
     ReconstructorMP * RecMP = nullptr;
 
     void resetReconstructors();
-
 };
 
 #endif // AMERCURY_SI_H

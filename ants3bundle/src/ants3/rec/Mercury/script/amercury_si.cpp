@@ -45,7 +45,7 @@ void AMercury_si::createReconstructor_ML()
 }
 */
 
-void AMercury_si::createReconstructor_CoG_multi(int numThreads)
+void AMercury_si::createReconstructor_COG_multi(int numThreads)
 {
     if (!Model)
     {
@@ -96,9 +96,9 @@ void AMercury_si::reconstructEvent(QVariantList sensSignals)
 }
 */
 
-void AMercury_si::reconstructEvents(QVariantList sensSignalsOverAllEvents)
+void AMercury_si::reconstructEvents(QVariantList sensorSignalsOverAllEvents)
 {
-    const size_t numEvents = sensSignalsOverAllEvents.size();
+    const size_t numEvents = sensorSignalsOverAllEvents.size();
 
     std::vector<std::vector<double>> A(numEvents);
 
@@ -106,7 +106,7 @@ void AMercury_si::reconstructEvents(QVariantList sensSignalsOverAllEvents)
 
     for (size_t iEv = 0; iEv < numEvents; iEv++)
     {
-        QVariantList sensSignals = sensSignalsOverAllEvents[iEv].toList();
+        QVariantList sensSignals = sensorSignalsOverAllEvents[iEv].toList();
         numEl = sensSignals.size();
 
         A[iEv].resize(numEl);
@@ -136,48 +136,64 @@ double AMercury_si::getPositionY()
 }
 */
 
-QVariantList AMercury_si::getReconstructedXYZ()
+QVariantList AMercury_si::getRecXYZ()
 {
     QVariantList res;
-    if (!RecMP) return res;
-
-    const std::vector<double> xRes = RecMP->getRecX();
-    const std::vector<double> yRes = RecMP->getRecY();
-    const std::vector<double> zRes = RecMP->getRecZ();
-
-    for (size_t i = 0; i < xRes.size(); i++)
+    if (!RecMP)
     {
-        QVariantList el{xRes[i], yRes[i], zRes[i]};
-        res.push_back(el);
+        abort("Reconstructor was not created yet");
+        return res;
     }
+
+    const std::vector<double> & x = RecMP->rec_x;
+    const std::vector<double> & y = RecMP->rec_y;
+    const std::vector<double> & z = RecMP->rec_z;
+
+    const size_t size = x.size();
+    if (size != y.size() || size != z.size())
+    {
+        abort("Mismatch in xyz array sizes");
+        return res;
+    }
+
+    for (size_t i = 0; i < size; i++)
+        res.emplaceBack(QVariantList{x[i], y[i], z[i]});
     return res;
 }
 
-QVariantList AMercury_si::getReconstructedXYZE()
+QVariantList AMercury_si::getRecXYZE()
 {
     QVariantList res;
-    if (!RecMP) return res;
-
-    const std::vector<double> xRes = RecMP->getRecX();
-    const std::vector<double> yRes = RecMP->getRecY();
-    const std::vector<double> zRes = RecMP->getRecZ();
-    const std::vector<double> E    = RecMP->getRecE();
-
-    for (size_t i = 0; i < xRes.size(); i++)
+    if (!RecMP)
     {
-        QVariantList el{xRes[i], yRes[i], zRes[i], E[i]};
-        res.push_back(el);
+        abort("Reconstructor was not created yet");
+        return res;
     }
+
+    const std::vector<double> & x = RecMP->rec_x;
+    const std::vector<double> & y = RecMP->rec_y;
+    const std::vector<double> & z = RecMP->rec_z;
+    const std::vector<double> & e = RecMP->rec_e;
+
+    const size_t size = x.size();
+    if (size != y.size() || size != z.size() || size != e.size())
+    {
+        abort("Mismatch in xyze array sizes");
+        return res;
+    }
+
+    for (size_t i = 0; i < size; i++)
+        res.emplaceBack(QVariantList{x[i], y[i], z[i], e[i]});
     return res;
 }
 
-void AMercury_si::setCogAbsCutoff(double val)
+void AMercury_si::setCOG_AbsCutoff(double val)
 {
     if (Rec) Rec->setCogAbsCutoff(val);
     else abort("Reconstructor was not yet created");
 }
 
-void AMercury_si::setCogRelCutoff(double val)
+void AMercury_si::setCOG_RelCutoff(double val)
 {
     if (Rec) Rec->setCogRelCutoff(val);
     else abort("Reconstructor was not yet created");
@@ -185,7 +201,7 @@ void AMercury_si::setCogRelCutoff(double val)
 
 // --- LRFs ---
 
-void AMercury_si::createModel(int numSensors)
+void AMercury_si::newLightResponseModel(int numSensors)
 {
     delete Model;
     Model = new LRModel(numSensors);
@@ -214,14 +230,14 @@ void AMercury_si::setLRF(int iSensor, QString jsonString)
     Model->SetJsonLRF(iSensor, jsonString.toLatin1().data());
 }
 
-QString AMercury_si::writeModel()
+QString AMercury_si::exportLightResponseModel()
 {
     QString res;
     if (Model) res = Model->GetJsonString().data();
     return res;
 }
 
-void AMercury_si::readModel(QString jsonStr)
+void AMercury_si::importLightResponseModel(QString jsonStr)
 {
     delete Model; Model = nullptr;
     Model = new LRModel(jsonStr.toLatin1().data());
