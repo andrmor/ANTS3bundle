@@ -31,6 +31,10 @@ public slots:
     void createReconstructor_LS_multi(int numThreads);
     void createReconstructor_ML_multi(int numThreads);
 
+    void setCOG_AbsCutoff(double val);
+    void setCOG_RelCutoff(double val);
+    void setCutoffRadius(double val);
+
     //void reconstructEvent(QVariantList  sensSignals);
     void reconstructEvents(QVariantList sensorSignalsOverAllEvents);
 
@@ -40,9 +44,6 @@ public slots:
     QVariantList getRecXYZE();
     QVariantList getRecStats(); // [status(0 = OK), chi2, cov_xx, cov_yy, cov_xy]
 
-    void setCOG_AbsCutoff(double val);
-    void setCOG_RelCutoff(double val);
-    void setCutoffRadius(double val);
 
     // --- LRFs ---
     void newLightResponseModel(int numSensors);       // --> newLightResponseModel(SensorXYs);
@@ -50,7 +51,18 @@ public slots:
     void setLRF(int iSensor, QString jsonString);     // --> ?? setLRF_Axial(iSens, n, rmin, rmax)
                                                       //        setCompression(iSens, k, lam, r0)  --> option to all
                                                       //        setConstrains(iSens, non-neg, non-inc, flat]) --> option to all
-                                                      //        shiftLRF(iSensor, x, y) - by default at the sensor xy
+                                                      //        changeLRFcenter(iSensor, x, y) - by default at the sensor xy
+
+    void clearGroups();
+
+    void makeGroups_OneForAllSensors();
+    void makeGroups_ByRadius();
+    void MakeGroups_RectanglePattern();
+    void MakeGroups_SquarePattern();
+    void MakeGroups_HexagonPattern();
+    void MakeGroups_NgonPattern(int n);
+
+    int  countGroups();
 
     void clearAllFitData();
     void addFitData(int iSensor, QVariantList xyza);

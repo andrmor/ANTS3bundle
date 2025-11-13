@@ -32,7 +32,6 @@ ALrfMouseExplorer::ALrfMouseExplorer(LRModel * model, double suggestedZ, QWidget
 
     cobSG = new QComboBox();
     for (int igr=0; igr<LRFs->GetGroupCount(); igr++)
-        //cobSG->addItem(LRFs->GetGroupName(igr));     // !!!***
         cobSG->addItem(QString::number(igr));
 
     cobSG->addItem("All PMs");
@@ -87,6 +86,12 @@ void ALrfMouseExplorer::Start()
     exec();
 }
 
+bool isSetContains(const std::set<int> & set, int val)
+{
+    const auto search = set.find(val);
+    return (search != set.end());
+}
+
 void ALrfMouseExplorer::paintLRFonDialog(QPointF * pos)
 {
     double r[3];
@@ -104,19 +109,24 @@ void ALrfMouseExplorer::paintLRFonDialog(QPointF * pos)
     int iGroup = cobSG->currentIndex();
     bool fAll = ( iGroup == cobSG->count()-1 );
 
+    std::set <int> groupMembers;
+    if (!fAll) groupMembers = LRFs->GroupMembers(iGroup);
+
     double max = -100;
     for (int ipm = 0; ipm < numPMs; ipm++)
-        //if (fAll || PMgroups->isPmBelongsToGroupFast(ipm, iGroup)) // !!!***
+        if (fAll || isSetContains(groupMembers, ipm))
         {
-            if (ipm < SensHub.SensorGains.size()) lrfs[ipm] = LRFs->Eval(ipm, r);
-            else lrfs[ipm] = 0;
+            if (ipm < SensHub.SensorGains.size())
+                lrfs[ipm] = LRFs->Eval(ipm, r);
+            else
+                lrfs[ipm] = 0;
 
             if (lrfs[ipm] > max) max = lrfs[ipm];
         }
 
     for (int ipm = 0; ipm < numPMs; ipm++)
     {
-        //if (fAll || PMgroups->isPmBelongsToGroupFast(ipm, iGroup)) // !!!***
+        if (fAll || isSetContains(groupMembers, ipm))
         {
             LRFviewObj->SetVisible(ipm, true);
 
@@ -135,7 +145,7 @@ void ALrfMouseExplorer::paintLRFonDialog(QPointF * pos)
                 else LRFviewObj->SetTextColor(ipm, Qt::white);
             }
         }
-        //else LRFviewObj->SetVisible(ipm, false); // !!!***
+        else LRFviewObj->SetVisible(ipm, false);
     }
     LRFviewObj->DrawAll();
 }

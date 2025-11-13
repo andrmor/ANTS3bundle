@@ -263,6 +263,47 @@ void AMercury_si::setLRF(int iSensor, QString jsonString)
     Model->SetJsonLRF(iSensor, jsonString.toLatin1().data());
 }
 
+void AMercury_si::clearGroups()
+{
+    if (Model) Model->ResetGroups();
+}
+
+int AMercury_si::countGroups()
+{
+    if (Model) return Model->GetGroupCount();
+    else return 0;
+}
+
+void AMercury_si::makeGroups_OneForAllSensors()
+{
+    if (Model) Model->MakeGroupsCommon();
+}
+
+void AMercury_si::makeGroups_ByRadius()
+{
+    if (Model) Model->MakeGroupsByRadius();
+}
+
+void AMercury_si::MakeGroups_RectanglePattern()
+{
+    if (Model) Model->MakeGroupsRectangle();
+}
+
+void AMercury_si::MakeGroups_SquarePattern()
+{
+    if (Model) Model->MakeGroupsSquare();
+}
+
+void AMercury_si::MakeGroups_HexagonPattern()
+{
+    if (Model) Model->MakeGroupsHexagon();
+}
+
+void AMercury_si::MakeGroups_NgonPattern(int n)
+{
+    if (Model) Model->MakeGroupsNgon(n);
+}
+
 QString AMercury_si::exportLightResponseModel()
 {
     QString res;
@@ -361,6 +402,7 @@ void AMercury_si::plotLRF_radial(int iSensor, bool showNodes)
 }
 
 #include "ascripthub.h"
+#include "alrfmouseexplorer.h" // tmp
 void AMercury_si::showLightResponseExplorer()
 {
     if (!Model) abort("Light response model is not defined");
