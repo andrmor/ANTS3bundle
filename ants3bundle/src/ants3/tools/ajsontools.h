@@ -15,7 +15,7 @@ bool        saveJsonArrayToFile(const QJsonArray & jsar, const QString& fileName
 bool        loadJsonFromFile(QJsonObject &json, const QString& fileName);
 bool        loadJsonArrayFromFile(QJsonArray &ar, const QString& fileName);
 
-QJsonObject strToJson(const QString& s);
+QJsonObject strToJson(const QString & s);
 QString     jsonToString(const QJsonObject& json);
 QString     jsonArrayToString(const QJsonArray & ar);
 

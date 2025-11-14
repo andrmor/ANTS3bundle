@@ -263,6 +263,62 @@ void AMercury_si::setLRF(int iSensor, QString jsonString)
     Model->SetJsonLRF(iSensor, jsonString.toLatin1().data());
 }
 
+#include "ajsontools.h"
+QString AMercury_si::newLRF_axial(int intervals, double rmin, double rmax)
+{
+    QJsonObject json;
+    json["type"] = "Axial";
+    json["nint"] = intervals;
+    json["rmin"] = rmin;
+    json["rmax"] = rmax;
+
+    return jstools::jsonToString(json);
+}
+
+QString AMercury_si::configureLRF_AxialCompression(QString LRF, double k, double lambda, double r0)
+{
+    QJsonObject json = jstools::strToJson(LRF);
+
+    if (json.isEmpty())
+    {
+        abort("LRF should be a json object string");
+        return "";
+    }
+    if (json["type"] != "Axial")
+    {
+        abort("Compression can be applied only to Axial type LRFs");
+        return "";
+    }
+
+    QJsonObject js;
+        js["method"] = "dualslope";
+        js["k"]      = k;
+        js["lam"]    = lambda;
+        js["r0"]     = r0;
+    json["compression"] = js;
+
+    return jstools::jsonToString(json);
+}
+
+QString AMercury_si::configureLRF_Constrains(QString LRF, bool nonNegative, bool nonIncreasing, bool flattop)
+{
+    QJsonObject json = jstools::strToJson(LRF);
+
+    if (json.isEmpty())
+    {
+        abort("LRF should be a json object string");
+        return "";
+    }
+
+    QJsonObject js;
+        js["non-negative"]   = nonNegative;
+        js["non-increasing"] = nonIncreasing;
+        js["flattop"]        = flattop;
+    json["constraints"] = js;
+
+    return jstools::jsonToString(json);
+}
+
 void AMercury_si::clearGroups()
 {
     if (Model) Model->ResetGroups();
@@ -304,6 +360,17 @@ void AMercury_si::MakeGroups_NgonPattern(int n)
     if (Model) Model->MakeGroupsNgon(n);
 }
 
+void AMercury_si::setGroupLRF(int iGroup, QString jsonString)
+{
+    if (!Model)
+    {
+        abort("Model was not created yet!");
+        return;
+    }
+
+    Model->SetGroupJsonLRF(iGroup, jsonString.toLatin1().data());
+}
+
 QString AMercury_si::exportLightResponseModel()
 {
     QString res;
@@ -341,6 +408,11 @@ void AMercury_si::addFitData(int iSensor, QVariantList xyza)
 void AMercury_si::fitSensor(int iSensor)
 {
     if (Model) Model->FitSensor(iSensor);
+}
+
+void AMercury_si::fitGroup(int iGroup)
+{
+    if (Model) Model->FitGroup(iGroup);
 }
 
 void AMercury_si::enableSensor(int iSensor, bool enableFlag)

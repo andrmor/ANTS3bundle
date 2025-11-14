@@ -53,6 +53,10 @@ public slots:
                                                       //        setConstrains(iSens, non-neg, non-inc, flat]) --> option to all
                                                       //        changeLRFcenter(iSensor, x, y) - by default at the sensor xy
 
+    QString newLRF_axial(int intervals, double rmin, double rmax);
+    QString configureLRF_AxialCompression(QString LRF, double k, double lambda, double r0);
+    QString configureLRF_Constrains(QString LRF, bool nonNegative, bool nonIncreasing, bool flattop);
+
     void clearGroups();
 
     void makeGroups_OneForAllSensors();
@@ -62,11 +66,14 @@ public slots:
     void MakeGroups_HexagonPattern();
     void MakeGroups_NgonPattern(int n);
 
+    void setGroupLRF(int iGroup, QString jsonString);
+
     int  countGroups();
 
     void clearAllFitData();
     void addFitData(int iSensor, QVariantList xyza);
     void fitSensor(int iSensor);
+    void fitGroup(int iGroup);
 
     void enableSensor(int iSensor, bool enableFlag);
 

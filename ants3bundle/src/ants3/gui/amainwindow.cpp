@@ -50,27 +50,33 @@ AMainWindow::AMainWindow() :
     connect(&Config, &AConfig::requestSaveGuiSettings, this, &AMainWindow::onRequestSaveGuiSettings);
 
   // Create and configure windows
+    qDebug() << "Creating Design window";
     GeoTreeWin = new AGeoTreeWin(this);
     connect(GeoTreeWin, &AGeoTreeWin::requestRebuildGeometry, this,   &AMainWindow::onRebuildGeometryRequested);
 
+    qDebug() << "Creating Geometry window";
     GeoWin = new AGeometryWindow(false, this);
     AScriptHub::getInstance().addCommonInterface(new AGeoWin_SI(GeoWin), "geowin");
     // WARNING! signal / slots for GeoWin have to be connected in the connectSignalSlotsForGeoWin() method below
     // the reason is that the window has to be re-created if viewer is changed to JSROOT
 
+    qDebug() << "Creating Graph window";
     GraphWin = new AGraphWindow(this);
     //GraphWindowClass::connectScriptUnitDrawRequests is used to connect draw requests
     connect(GeoTreeWin, &AGeoTreeWin::requestDraw, GraphWin, &AGraphWindow::onDrawRequest);
 
+    qDebug() << "Creating Material window";
     MatWin = new AMatWin(this);
     MatWin->initWindow();
     connect(MatWin, &AMatWin::requestRebuildDetector, this,     &AMainWindow::onRebuildGeometryRequested);
     connect(MatWin, &AMatWin::requestDraw,            GraphWin, &AGraphWindow::onDrawRequest);
 
+    qDebug() << "Creating Interface rule window";
     RuleWin = new AInterfaceRuleWin(this);
     connect(RuleWin, &AInterfaceRuleWin::requestDraw,       GraphWin, &AGraphWindow::onDrawRequest);
     connect(RuleWin, &AInterfaceRuleWin::requestDrawLegend, GraphWin, &AGraphWindow::drawLegend);
 
+    qDebug() << "Creating Sensor window";
     SensWin = new ASensorWindow(this);
     connect(SensWin, &ASensorWindow::requestDraw, GraphWin, &AGraphWindow::onDrawRequest);
 
@@ -90,7 +96,7 @@ AMainWindow::AMainWindow() :
     AScriptHub * ScriptHub = &AScriptHub::getInstance();
     GuiFromScrWin = new AGuiFromScrWin(this);
     ScriptHub->addGuiScriptUnit(GuiFromScrWin);
-    //qDebug() << "Creating JScript window";
+    qDebug() << "Creating JScript window";
     JScriptWin = new AScriptWindow(EScriptLanguage::JavaScript, this);
     JScriptWin->registerInterfaces();
     connect(ScriptHub,  &AScriptHub::clearOutput_JS,        JScriptWin, &AScriptWindow::clearOutput, Qt::QueuedConnection);
@@ -100,10 +106,11 @@ AMainWindow::AMainWindow() :
     connect(ScriptHub,  &AScriptHub::reportProgress_JS,     JScriptWin, &AScriptWindow::onProgressChanged, Qt::QueuedConnection);
     connect(JScriptWin, &AScriptWindow::requestUpdateGui,   this,       &AMainWindow::updateAllGuiFromConfig);
     connect(GeoTreeWin, &AGeoTreeWin::requestAddJavaScript, JScriptWin, &AScriptWindow::onRequestAddScript);
+    qDebug() << "Loading script tabs...";
     JScriptWin->updateGui();
 
 #ifdef ANTS3_PYTHON
-    //qDebug() << "Creating Python window";
+    qDebug() << "Creating Python window";
     PythonWin = new AScriptWindow(EScriptLanguage::Python, this);
     PythonWin->registerInterfaces();
     connect(ScriptHub,  &AScriptHub::clearOutput_P,           PythonWin, &AScriptWindow::clearOutput);
@@ -113,6 +120,7 @@ AMainWindow::AMainWindow() :
     connect(ScriptHub,  &AScriptHub::reportProgress_P,        PythonWin, &AScriptWindow::onProgressChanged);
     connect(PythonWin,  &AScriptWindow::requestUpdateGui,     this,      &AMainWindow::updateAllGuiFromConfig);
     connect(GeoTreeWin, &AGeoTreeWin::requestAddPythonScript, PythonWin, &AScriptWindow::onRequestAddScript);
+    qDebug() << "Loading script tabs...";
     PythonWin->updateGui();
 #endif
 
@@ -131,6 +139,7 @@ AMainWindow::AMainWindow() :
     // called where all windows connecting to GeoWin are already defined
     connectSignalSlotsForGeoWin();
 
+    qDebug() << "Loading geometries of the windows";
     loadWindowGeometries();
 
     bool bShown = GeoWin->isVisible();
@@ -161,6 +170,8 @@ AMainWindow::AMainWindow() :
     ScriptHub->finalizeInit();
 
     if (!bShown) GeoWin->hide(); // has to be last, if before updateAllGuiFromConfig() and window is hidden --> dark on open
+
+    qDebug() << "GUI inits completed";
 }
 
 AMainWindow::~AMainWindow()
