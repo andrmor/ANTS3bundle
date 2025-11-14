@@ -48,7 +48,8 @@ public slots:
     // --- LRFs ---
     void newLightResponseModel(int numSensors);       // --> newLightResponseModel(SensorXYs);
     void addSensor(int iSensor, double x, double y);
-    void setLRF(int iSensor, QString jsonString);     // --> ?? setLRF_Axial(iSens, n, rmin, rmax)
+    void setLRF(int iSensor, QString jsonString);     // temporary: sets x0 y0 of axial if not present in the lrfjson
+                                                      // --> ?? setLRF_Axial(iSens, n, rmin, rmax)
                                                       //        setCompression(iSens, k, lam, r0)  --> option to all
                                                       //        setConstrains(iSens, non-neg, non-inc, flat]) --> option to all
                                                       //        changeLRFcenter(iSensor, x, y) - by default at the sensor xy

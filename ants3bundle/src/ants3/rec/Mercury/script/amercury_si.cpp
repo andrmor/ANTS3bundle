@@ -2,6 +2,7 @@
 #include "reconstructor.h"
 #include "reconstructor_mp.h"
 #include "lrmodel.h"
+#include "ajsontools.h"
 
 #include <QVariant>
 
@@ -252,6 +253,7 @@ void AMercury_si::addSensor(int iSensor, double x, double y)
     else abort("Sensor index is not valid");
 }
 
+#include "asensorhub.h"
 void AMercury_si::setLRF(int iSensor, QString jsonString)
 {
     if (!Model)
@@ -260,10 +262,28 @@ void AMercury_si::setLRF(int iSensor, QString jsonString)
         return;
     }
 
+    if (iSensor < 0 || iSensor >= Model->GetSensorCount())
+    {
+        abort("set LRF: invalid sensor index");
+        return;
+    }
+
+    QJsonObject json = jstools::strToJson(jsonString);
+    if (json["type"] == "Axial")
+    {
+        const ASensorHub & SensHub = ASensorHub::getConstInstance();
+        int num = SensHub.countSensors();
+        if (iSensor <= num)
+        {
+            if (!json.contains("x0")) json["x0"] = SensHub.getSensorData(iSensor)->Position[0];
+            if (!json.contains("y0")) json["y0"] = SensHub.getSensorData(iSensor)->Position[1];
+            jsonString = jstools::jsonToString(json);
+        }
+    }
+
     Model->SetJsonLRF(iSensor, jsonString.toLatin1().data());
 }
 
-#include "ajsontools.h"
 QString AMercury_si::newLRF_axial(int intervals, double rmin, double rmax)
 {
     QJsonObject json;
@@ -310,11 +330,11 @@ QString AMercury_si::configureLRF_Constrains(QString LRF, bool nonNegative, bool
         return "";
     }
 
-    QJsonObject js;
-        js["non-negative"]   = nonNegative;
-        js["non-increasing"] = nonIncreasing;
-        js["flattop"]        = flattop;
-    json["constraints"] = js;
+    QJsonArray ar;
+        if (nonNegative) ar.push_back("non-negative");
+        if (nonIncreasing) ar.push_back("non-increasing");
+        if (flattop) ar.push_back("flattop");
+    json["constraints"] = ar;
 
     return jstools::jsonToString(json);
 }
