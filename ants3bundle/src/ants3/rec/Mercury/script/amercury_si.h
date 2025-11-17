@@ -46,12 +46,15 @@ public slots:
 
 
     // --- LRFs ---
-    void newLightResponseModel(int numSensors);       // --> newLightResponseModel(SensorXYs);
+    //void newLightResponseModel(int numSensors);       // --> newLightResponseModel(SensorXYs);
+    void newLightResponseModel(QVariantList sensorPositions);
+    void setLRF(QString jsonString);
+
+
+
+
     void addSensor(int iSensor, double x, double y);
     void setLRF(int iSensor, QString jsonString);     // temporary: sets x0 y0 of axial if not present in the lrfjson
-                                                      // --> ?? setLRF_Axial(iSens, n, rmin, rmax)
-                                                      //        setCompression(iSens, k, lam, r0)  --> option to all
-                                                      //        setConstrains(iSens, non-neg, non-inc, flat]) --> option to all
                                                       //        changeLRFcenter(iSensor, x, y) - by default at the sensor xy
 
     QString newLRF_axial(int intervals, double rmin, double rmax);
@@ -75,6 +78,7 @@ public slots:
     void addFitData(int iSensor, QVariantList xyza);
     void fitSensor(int iSensor);
     void fitGroup(int iGroup);
+    void fitResponse(QVariantList floodSignals, QVariantList floodPositions);
 
     void enableSensor(int iSensor, bool enableFlag);
 

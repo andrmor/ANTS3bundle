@@ -235,10 +235,47 @@ void AMercury_si::setCutoffRadius(double val)
 
 // --- LRFs ---
 
-void AMercury_si::newLightResponseModel(int numSensors)
+// void AMercury_si::newLightResponseModel(int numSensors)
+// {
+//     delete Model;
+//     Model = new LRModel(numSensors);
+// }
+
+void AMercury_si::newLightResponseModel(QVariantList sensorPositions)
 {
+    size_t numSens = sensorPositions.size();
+    if (numSens == 0)
+    {
+        abort("Cannot create light response model: sensorPositions array is empty");
+        return;
+    }
+
+    std::vector<std::pair<double,double>> arSensPos(numSens);
+    for (size_t iSens = 0; iSens < numSens; iSens++)
+    {
+        QVariantList pos = sensorPositions[iSens].toList();
+        if (pos.size() < 2)
+        {
+            abort("Array sensorPositions should contains arrays of at least size of 2: X and Y positions of sensor centers");
+            return;
+        }
+
+        bool ok0, ok1;
+        double x = pos[0].toDouble(&ok0);
+        double y = pos[1].toDouble(&ok1);
+        if (!ok0 || !ok1)
+        {
+            abort("Array sensorPositions should contains arrays of at least size of 2: X and Y positions of sensor centers,\nconvertable to double numbers");
+            return;
+        }
+        arSensPos[iSens] = {x, y};
+    }
+
     delete Model;
-    Model = new LRModel(numSensors);
+    Model = new LRModel(numSens);
+
+    for (size_t iSens = 0; iSens < numSens; iSens++)
+        Model->AddSensor(iSens, arSensPos[iSens].first, arSensPos[iSens].second);
 }
 
 void AMercury_si::addSensor(int iSensor, double x, double y)
@@ -282,6 +319,19 @@ void AMercury_si::setLRF(int iSensor, QString jsonString)
     }
 
     Model->SetJsonLRF(iSensor, jsonString.toLatin1().data());
+}
+
+void AMercury_si::setLRF(QString jsonString)
+{
+    if (!Model)
+    {
+        abort("Model was not created yet!");
+        return;
+    }
+
+    const size_t numSens = Model->GetSensorCount();
+    for (size_t iSens = 0; iSens < numSens; iSens++)
+        setLRF(iSens, jsonString);
 }
 
 QString AMercury_si::newLRF_axial(int intervals, double rmin, double rmax)
@@ -433,6 +483,65 @@ void AMercury_si::fitSensor(int iSensor)
 void AMercury_si::fitGroup(int iGroup)
 {
     if (Model) Model->FitGroup(iGroup);
+}
+
+void AMercury_si::fitResponse(QVariantList floodSignals, QVariantList floodPositions)
+{
+    if (!Model)
+    {
+        abort("Model was not created yet!");
+        return;
+    }
+
+    const size_t numEv = floodSignals.size();
+    if (numEv != floodPositions.size())
+    {
+        abort("Mismatch in the seizes of the flood signal and position arrays");
+        return;
+    }
+
+    Model->ClearAllFitData();
+
+    const size_t numSens = Model->GetSensorCount();
+    std::vector<std::array<double, 4>> data(numEv);
+    std::vector<std::vector<double>> arSig(numEv);
+    for (size_t iEv = 0; iEv < numEv; iEv++)
+    {
+        QVariantList eventPos = floodPositions[iEv].toList();
+        if (eventPos.size() < 3)
+        {
+            abort("Bad format of floodPositions array");
+            return;
+        }
+        for (size_t i = 0; i < 3; i++)
+            data[iEv][i] = eventPos[i].toDouble();
+
+        arSig[iEv].resize(numSens);
+        QVariantList eventSignals = floodSignals[iEv].toList();
+        if (eventSignals.size() != numSens)
+        {
+            abort("Bad format of floodSignals array");
+            return;
+        }
+        for (size_t iSens = 0; iSens < numSens; iSens++)
+        {
+            arSig[iEv][iSens] = eventSignals[iSens].toDouble();
+        }
+    }
+
+    for (size_t iSens = 0; iSens < numSens; iSens++)
+    {
+        std::vector<std::array <double, 4>> thisData(data);
+        for (size_t iEv = 0; iEv < numEv; iEv++)
+        {
+            thisData[iEv][3] = arSig[iEv][iSens];
+        }
+        Model->AddFitData(iSens, thisData);
+    }
+
+    //fitting
+    for (size_t iSens = 0; iSens < numSens; iSens++)
+        Model->FitSensor(iSens);
 }
 
 void AMercury_si::enableSensor(int iSensor, bool enableFlag)
