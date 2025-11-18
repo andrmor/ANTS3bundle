@@ -8,6 +8,7 @@
 #include <QVariantList>
 
 class LRModel;
+class LRF;
 class Reconstructor;
 class ReconstructorMP;
 class TObject;
@@ -102,6 +103,8 @@ private:
     ReconstructorMP * RecMP = nullptr;
 
     void resetReconstructors();
+    void assignGroupLrfsFromSensors();
+    void ifAxialUpdateLrfCenter(LRF * lrf, double x, double y);
 };
 
 #endif // AMERCURY_SI_H
