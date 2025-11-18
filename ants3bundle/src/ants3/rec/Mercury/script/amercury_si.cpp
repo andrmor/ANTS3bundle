@@ -561,6 +561,11 @@ void AMercury_si::fitResponse(QVariantList floodSignals, QVariantList floodPosit
         }
     }
 
+    const size_t numGroups = Model->GetGroupCount();
+    bool estimateGains = (Model->GetGroupCount() > 0);
+    GainEstimator * gainEstimator = nullptr;
+    if (estimateGains) gainEstimator = new GainEstimator(Model);
+
     // adding fitting data
     for (size_t iSens = 0; iSens < numSens; iSens++)
     {
@@ -570,7 +575,10 @@ void AMercury_si::fitResponse(QVariantList floodSignals, QVariantList floodPosit
             thisData[iEv][3] = arSig[iEv][iSens];
         }
         Model->AddFitData(iSens, thisData);
+        if (estimateGains) gainEstimator->AddData(iSens, thisData);
     }
+
+
 
     //fitting response for sensors not belonging to any groups
     for (size_t iSens = 0; iSens < numSens; iSens++)
@@ -580,9 +588,42 @@ void AMercury_si::fitResponse(QVariantList floodSignals, QVariantList floodPosit
     }
 
     // fitting response for groups
-    const size_t numGroups = Model->GetGroupCount();
     for (size_t iGr = 0; iGr < numGroups; iGr++)
         Model->FitGroup(iGr);
+
+
+    if (estimateGains)
+    {
+        for (size_t iGr = 0; iGr < numGroups; iGr++)
+        {
+            qDebug() << "-----\n" << iGr;
+            std::set<int> & groupSet = Model->GroupMembers(iGr);
+            const int size = groupSet.size();
+            std::vector<int> groupVec;
+            groupVec.reserve(size);
+            for (auto itr = groupSet.begin(); itr != groupSet.end(); itr++)
+                groupVec.push_back(*itr);
+            qDebug() << "Sensors:" << groupVec;
+
+            std::vector<double> relGains = gainEstimator->GetRelativeGainsList(groupVec, groupVec.front());
+            //qDebug() << "Inverse (apparently) gains:" << "-->" << relGains;
+            double sumGain = 0;
+            for (size_t i = 0; i < size; i++)
+                sumGain += 1.0/relGains[i];
+            sumGain /= size;
+
+            for (size_t i = 0; i < size; i++)
+            {
+                Model->SetGain(groupVec[i], 1.0/relGains[i]/sumGain);
+                qDebug() << groupVec[i] << "-->" << 1.0/relGains[i]/sumGain;
+            }
+        }
+    }
+
+
+
+    // dests
+    delete gainEstimator;
 }
 
 void AMercury_si::enableSensor(int iSensor, bool enableFlag)
