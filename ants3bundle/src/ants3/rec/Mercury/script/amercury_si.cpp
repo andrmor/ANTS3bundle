@@ -237,7 +237,7 @@ void AMercury_si::setCutoffRadius(double val)
 
 // void AMercury_si::newLightResponseModel(int numSensors)
 // {
-//     delete Model;
+//     clearModel();
 //     Model = new LRModel(numSensors);
 // }
 
@@ -271,7 +271,7 @@ void AMercury_si::newLightResponseModel(QVariantList sensorPositions)
         arSensPos[iSens] = {x, y};
     }
 
-    delete Model;
+    clearModel();
     Model = new LRModel(numSens);
 
     for (size_t iSens = 0; iSens < numSens; iSens++)
@@ -356,6 +356,8 @@ void AMercury_si::setLRF(QString jsonString)
         ifAxialUpdateLrfCenter(lrf, SensHub.getSensorData(iSens)->Position[0], SensHub.getSensorData(iSens)->Position[1]);
         Model->SetLRF(iSens, lrf);
     }
+
+    CommonJsonString = jsonString;
 }
 
 QString AMercury_si::newLRF_axial(int intervals, double rmin, double rmax)
@@ -426,7 +428,14 @@ int AMercury_si::countGroups()
 
 void AMercury_si::makeGroups_OneForAllSensors()
 {
-    if (Model) Model->MakeGroupsCommon();
+    if (!Model)
+    {
+        abort("Model was not created yet!");
+        return;
+    }
+
+    Model->MakeGroupsCommon();
+    if (!CommonJsonString.isEmpty()) setLRF(CommonJsonString);
 }
 
 void AMercury_si::makeGroups_ByRadius()
@@ -438,27 +447,55 @@ void AMercury_si::makeGroups_ByRadius()
     }
 
     Model->MakeGroupsByRadius();
-    assignGroupLrfsFromSensors();
+    if (!CommonJsonString.isEmpty()) setLRF(CommonJsonString);
 }
 
 void AMercury_si::MakeGroups_RectanglePattern()
 {
-    if (Model) Model->MakeGroupsRectangle();
+    if (!Model)
+    {
+        abort("Model was not created yet!");
+        return;
+    }
+
+    Model->MakeGroupsRectangle();
+    if (!CommonJsonString.isEmpty()) setLRF(CommonJsonString);
 }
 
 void AMercury_si::MakeGroups_SquarePattern()
 {
-    if (Model) Model->MakeGroupsSquare();
+    if (!Model)
+    {
+        abort("Model was not created yet!");
+        return;
+    }
+
+    Model->MakeGroupsSquare();
+    if (!CommonJsonString.isEmpty()) setLRF(CommonJsonString);
 }
 
 void AMercury_si::MakeGroups_HexagonPattern()
 {
-    if (Model) Model->MakeGroupsHexagon();
+    if (!Model)
+    {
+        abort("Model was not created yet!");
+        return;
+    }
+
+    Model->MakeGroupsHexagon();
+    if (!CommonJsonString.isEmpty()) setLRF(CommonJsonString);
 }
 
 void AMercury_si::MakeGroups_NgonPattern(int n)
 {
+    if (!Model)
+    {
+        abort("Model was not created yet!");
+        return;
+    }
+
     if (Model) Model->MakeGroupsNgon(n);
+    if (!CommonJsonString.isEmpty()) setLRF(CommonJsonString);
 }
 
 void AMercury_si::setGroupLRF(int iGroup, QString jsonString)
@@ -481,7 +518,7 @@ QString AMercury_si::exportLightResponseModel()
 
 void AMercury_si::importLightResponseModel(QString jsonStr)
 {
-    delete Model; Model = nullptr;
+    clearModel();
     Model = new LRModel(jsonStr.toLatin1().data());
 }
 
@@ -578,8 +615,6 @@ void AMercury_si::fitResponse(QVariantList floodSignals, QVariantList floodPosit
         if (estimateGains) gainEstimator->AddData(iSens, thisData);
     }
 
-
-
     //fitting response for sensors not belonging to any groups
     for (size_t iSens = 0; iSens < numSens; iSens++)
     {
@@ -591,19 +626,18 @@ void AMercury_si::fitResponse(QVariantList floodSignals, QVariantList floodPosit
     for (size_t iGr = 0; iGr < numGroups; iGr++)
         Model->FitGroup(iGr);
 
-
     if (estimateGains)
     {
         for (size_t iGr = 0; iGr < numGroups; iGr++)
         {
-            qDebug() << "-----\n" << iGr;
+            //qDebug() << "-----\n" << iGr;
             std::set<int> & groupSet = Model->GroupMembers(iGr);
             const int size = groupSet.size();
             std::vector<int> groupVec;
             groupVec.reserve(size);
             for (auto itr = groupSet.begin(); itr != groupSet.end(); itr++)
                 groupVec.push_back(*itr);
-            qDebug() << "Sensors:" << groupVec;
+            //qDebug() << "Sensors:" << groupVec;
 
             std::vector<double> relGains = gainEstimator->GetRelativeGainsList(groupVec, groupVec.front());
             //qDebug() << "Inverse (apparently) gains:" << "-->" << relGains;
@@ -615,7 +649,7 @@ void AMercury_si::fitResponse(QVariantList floodSignals, QVariantList floodPosit
             for (size_t i = 0; i < size; i++)
             {
                 Model->SetGain(groupVec[i], 1.0/relGains[i]/sumGain);
-                qDebug() << groupVec[i] << "-->" << 1.0/relGains[i]/sumGain;
+                //qDebug() << groupVec[i] << "-->" << 1.0/relGains[i]/sumGain;
             }
         }
     }
@@ -722,27 +756,17 @@ void AMercury_si::setMinuitParameters(double RMtolerance, int RMmaxIterations, i
     rec->setRMmaxFuncCalls(RMmaxFuncCalls);
 }
 
+void AMercury_si::clearModel()
+{
+    delete Model; Model = nullptr;
+
+    CommonJsonString.clear();
+}
+
 void AMercury_si::resetReconstructors()
 {
     delete Rec;   Rec   = nullptr;
     delete RecMP; RecMP = nullptr;
-}
-
-void AMercury_si::assignGroupLrfsFromSensors()
-{
-    const size_t numGroups = Model->GetGroupCount();
-    for (size_t iGr = 0; iGr < numGroups; iGr++)
-    {
-        std::set <int> & members = Model->GroupMembers(iGr);
-        if (members.empty()) continue;
-        int iFirst = *(members.begin());
-        LRF * lrf = Model->GetLRF(iFirst);  // already nullptr! !!!***
-        if (lrf)
-        {
-            ifAxialUpdateLrfCenter(lrf, Model->GetGroupX(iGr), Model->GetGroupY(iGr));
-            Model->SetGroupLRF(iGr, lrf);
-        }
-    }
 }
 
 #include "lrfaxial.h"

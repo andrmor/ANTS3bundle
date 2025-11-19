@@ -102,8 +102,10 @@ private:
     Reconstructor   * Rec   = nullptr;
     ReconstructorMP * RecMP = nullptr;
 
+    QString CommonJsonString; // set by SetLRF(QString jsonString) to be used in the case when MakeGroups_xxx is used after LRFs are already set
+
+    void clearModel();
     void resetReconstructors();
-    void assignGroupLrfsFromSensors();
     void ifAxialUpdateLrfCenter(LRF * lrf, double x, double y);
 };
 
