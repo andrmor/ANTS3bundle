@@ -27,14 +27,14 @@ ALrfMouseExplorer::ALrfMouseExplorer(LRModel * model, double suggestedZ, QWidget
 
     //tools
     QHBoxLayout * hbox = new QHBoxLayout;
-    QLabel * l1 = new QLabel("PM selection:");
+    QLabel * l1 = new QLabel("Sensor selection:");
     hbox->addWidget(l1);
 
     cobSG = new QComboBox();
     for (int igr=0; igr<LRFs->GetGroupCount(); igr++)
-        cobSG->addItem(QString::number(igr));
+        cobSG->addItem("Group #" + QString::number(igr));
 
-    cobSG->addItem("All PMs");
+    cobSG->addItem("All");
     cobSG->setCurrentIndex(cobSG->count()-1);
     connect(cobSG, &QComboBox::activated, this, &ALrfMouseExplorer::onCobActivated);
     hbox->addWidget(cobSG);

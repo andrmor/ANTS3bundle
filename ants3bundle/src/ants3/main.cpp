@@ -48,12 +48,14 @@ void signal_handler(int)
 int main(int argc, char *argv[])
 {
     qDebug() << "Starting ANTS3";
+    qDebug() << "Init ROOT application";
     // need to start Root application before QtApplication
     int rootargc = 1;
     char* rootargv[] = {(char*)"dummy"};
     TApplication RootApp("MyROOT", &rootargc, rootargv);
     TH1::AddDirectory(false);  //a histograms objects will not be automatically created in root directory (TDirectory); special case is in TreeView
 
+    qDebug() << "Init Qt application";
     std::unique_ptr<QCoreApplication> app;
     bool guiMode = ( argc == 1 || (argc == 2 && QString(argv[1]).startsWith("-qml")) ); // -qml is obsolete with new Qt versions?
     if (guiMode)
@@ -92,12 +94,15 @@ int main(int argc, char *argv[])
 
     QLocale::setDefault(QLocale("en_US"));
 
+    qDebug() << "Loading global settings";
     A3Global & GlobSet = A3Global::getInstance();
     GlobSet.init();
 
+    qDebug() << "Starting dispatcher process";
     ADispatcherInterface & Dispatcher = ADispatcherInterface::getInstance();
     QObject::connect(&(*app), &QCoreApplication::aboutToQuit, &Dispatcher, &ADispatcherInterface::aboutToQuit);
 
+    qDebug() << "Initializing hubs";
     AScriptHub::getInstance();
     AMaterialHub::getInstance().addNewMaterial("Vacuum");
 

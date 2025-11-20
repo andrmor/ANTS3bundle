@@ -43,6 +43,7 @@ AMainWindow::AMainWindow() :
     GlobSet(A3Global::getInstance()),
     ui(new Ui::AMainWindow)
 {
+    qDebug() << "Constructing MainWindow";
     ui->setupUi(this);
 
   // Main signal->slot lines
