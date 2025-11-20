@@ -109,7 +109,7 @@ AGraphWindow::AGraphWindow(QWidget * parent) :
     connect(lwBasket, &ABasketListWidget::itemDoubleClicked, this, &AGraphWindow::onBasketItemDoubleClicked);
     connect(lwBasket, &ABasketListWidget::requestReorder, this, &AGraphWindow::onBasketReorderRequested);
 
-    connect(&AScriptHub::getInstance(), &AScriptHub::requestDraw, this, &AGraphWindow::onScriptDrawRequest);
+    connect(&AScriptHub::getInstance(), &AScriptHub::requestDraw, this, &AGraphWindow::onScriptDrawRequest, Qt::DirectConnection); // inside will be queued
     connectScriptUnitDrawRequests(AScriptHub::getInstance().getJScriptManager().getInterfaces());
 #ifdef ANTS3_PYTHON
     connectScriptUnitDrawRequests(AScriptHub::getInstance().getPythonManager().getInterfaces());

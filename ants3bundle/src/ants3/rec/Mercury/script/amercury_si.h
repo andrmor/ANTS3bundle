@@ -88,6 +88,10 @@ public slots:
     void    importLightResponseModel(QString jsonStr);
 
     void plotLRF_radial(int iSensor, bool showNodes = false);
+
+    void plotChi2(int bins, double from, double to);
+    void plotChi2_XY(int xBins, double xFrom, double xTo, int yBins, double yFrom, double yTo);
+
     void showLightResponseExplorer();
 
     double eval(int iSensor, double x, double y, double z);

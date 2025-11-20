@@ -3,6 +3,7 @@
 #include "reconstructor_mp.h"
 #include "lrmodel.h"
 #include "ajsontools.h"
+#include "ascripthub.h"
 
 #include <QVariant>
 
@@ -734,7 +735,64 @@ void AMercury_si::plotLRF_radial(int iSensor, bool showNodes)
     if (!err.isEmpty()) abort(err);
 }
 
-#include "ascripthub.h"
+#include "TH1D.h"
+void AMercury_si::plotChi2(int bins, double from, double to)
+{
+    if (!Model)
+    {
+        abort("Light response model is not defined");
+        return;
+    }
+    if (!RecMP)
+    {
+        abort("Reconstructor was not created yet");
+        return;
+    }
+
+    const std::vector<int>    & status = RecMP->rec_status;
+    const std::vector<double> & chi2   = RecMP->rec_chi2min;
+
+    TH1D * h = new TH1D("", "chi2", bins, from, to);
+    for (size_t i = 0; i < status.size(); i++)
+    {
+        if (status[i] != 0) continue;
+
+        h->Fill(chi2[i], 1);
+    }
+
+    emit AScriptHub::getInstance().requestDraw(h, "hist", true);
+}
+
+#include "TH2D.h"
+void AMercury_si::plotChi2_XY(int xBins, double xFrom, double xTo, int yBins, double yFrom, double yTo)
+{
+    if (!Model)
+    {
+        abort("Light response model is not defined");
+        return;
+    }
+    if (!RecMP)
+    {
+        abort("Reconstructor was not created yet");
+        return;
+    }
+
+    const std::vector<int>    & status = RecMP->rec_status;
+    const std::vector<double> & chi2   = RecMP->rec_chi2min;
+    const std::vector<double> & x      = RecMP->rec_x;
+    const std::vector<double> & y      = RecMP->rec_y;
+
+    TH2D * h = new TH2D("", "chi2_xy", xBins, xFrom, xTo, yBins, yFrom, yTo);
+    for (size_t i = 0; i < status.size(); i++)
+    {
+        if (status[i] != 0) continue;
+
+        h->Fill(x[i], y[i], chi2[i]);
+    }
+
+    emit AScriptHub::getInstance().requestDraw(h, "colz", true);
+}
+
 #include "alrfmouseexplorer.h" // tmp
 void AMercury_si::showLightResponseExplorer()
 {
