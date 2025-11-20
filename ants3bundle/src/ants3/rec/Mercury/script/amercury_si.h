@@ -37,7 +37,7 @@ public slots:
     void setCutoffRadius(double val);
 
     //void reconstructEvent(QVariantList  sensSignals);
-    void reconstructEvents(QVariantList sensorSignalsOverAllEvents);
+    void reconstructEvents(QVariantList sensorSignalsOverAllEvents); // add filter optional parameter? just bool, can set it for sat as well?
 
     //double getPositionX();
     //double getPositionY();
@@ -63,21 +63,19 @@ public slots:
     QString configureLRF_Constrains(QString LRF, bool nonNegative, bool nonIncreasing, bool flattop);
 
     void clearGroups();
-
     void makeGroups_OneForAllSensors();
     void makeGroups_ByRadius();
     void MakeGroups_RectanglePattern();
     void MakeGroups_SquarePattern();
     void MakeGroups_HexagonPattern();
     void MakeGroups_NgonPattern(int n);
-
     int  countGroups();
 
     void clearAllFitData();
     void addFitData(int iSensor, QVariantList xyza);
+    void fitResponse(QVariantList floodSignals, QVariantList floodPositions);
     void fitSensor(int iSensor);
     void fitGroup(int iGroup);
-    void fitResponse(QVariantList floodSignals, QVariantList floodPositions);
 
     void enableSensor(int iSensor, bool enableFlag);
 
