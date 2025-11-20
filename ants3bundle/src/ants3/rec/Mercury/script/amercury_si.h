@@ -51,12 +51,12 @@ public slots:
     void newLightResponseModel(QVariantList sensorPositions);
     void setLRF(QString jsonString);
 
+    //void addSensor(int iSensor, double x, double y);
+    void setLRF_Sensor(int iSensor, QString jsonString);     // sets x0 y0 of axial if not present in the lrfjson
+    void setLRF_Group(int iGroup, QString jsonString);     // sets x0 y0 of axial if not present in the lrfjson
 
-
-
-    void addSensor(int iSensor, double x, double y);
-    void setLRF(int iSensor, QString jsonString);     // temporary: sets x0 y0 of axial if not present in the lrfjson
-                                                      //        changeLRFcenter(iSensor, x, y) - by default at the sensor xy
+    // to discuss:
+    // void changeLRFcenter(iSensor, x, y) - by default at the sensor xy
 
     QString newLRF_axial(int intervals, double rmin, double rmax);
     QString configureLRF_AxialCompression(QString LRF, double k, double lambda, double r0);
@@ -70,8 +70,6 @@ public slots:
     void MakeGroups_SquarePattern();
     void MakeGroups_HexagonPattern();
     void MakeGroups_NgonPattern(int n);
-
-    void setGroupLRF(int iGroup, QString jsonString);
 
     int  countGroups();
 

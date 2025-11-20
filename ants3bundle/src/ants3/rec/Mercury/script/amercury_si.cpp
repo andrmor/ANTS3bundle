@@ -278,6 +278,7 @@ void AMercury_si::newLightResponseModel(QVariantList sensorPositions)
         Model->AddSensor(iSens, arSensPos[iSens].first, arSensPos[iSens].second);
 }
 
+/*
 void AMercury_si::addSensor(int iSensor, double x, double y)
 {
     if (!Model)
@@ -289,9 +290,10 @@ void AMercury_si::addSensor(int iSensor, double x, double y)
     if (Model->SensorExists(iSensor)) Model->AddSensor(iSensor, x, y);
     else abort("Sensor index is not valid");
 }
+*/
 
 #include "asensorhub.h"
-void AMercury_si::setLRF(int iSensor, QString jsonString)
+void AMercury_si::setLRF_Sensor(int iSensor, QString jsonString)
 {
     if (!Model)
     {
@@ -301,7 +303,7 @@ void AMercury_si::setLRF(int iSensor, QString jsonString)
 
     if (iSensor < 0 || iSensor >= Model->GetSensorCount())
     {
-        abort("set LRF: invalid sensor index");
+        abort("SetLRF_Sensor: invalid sensor index");
         return;
     }
 
@@ -319,6 +321,31 @@ void AMercury_si::setLRF(int iSensor, QString jsonString)
     }
 
     Model->SetJsonLRF(iSensor, jsonString.toLatin1().data());
+}
+
+void AMercury_si::setLRF_Group(int iGroup, QString jsonString)
+{
+    if (!Model)
+    {
+        abort("Model was not created yet!");
+        return;
+    }
+
+    if (iGroup < 0 || iGroup >= Model->GetGroupCount())
+    {
+        abort("SetLRF_Group: invalid group index");
+        return;
+    }
+
+    QJsonObject json = jstools::strToJson(jsonString);
+    if (json["type"] == "Axial")
+    {
+        if (!json.contains("x0")) json["x0"] = Model->GetGroupX(iGroup);
+        if (!json.contains("y0")) json["y0"] = Model->GetGroupY(iGroup);
+        jsonString = jstools::jsonToString(json);
+    }
+
+    Model->SetGroupJsonLRF(iGroup, jsonString.toLatin1().data());
 }
 
 void AMercury_si::setLRF(QString jsonString)
@@ -496,17 +523,6 @@ void AMercury_si::MakeGroups_NgonPattern(int n)
 
     if (Model) Model->MakeGroupsNgon(n);
     if (!CommonJsonString.isEmpty()) setLRF(CommonJsonString);
-}
-
-void AMercury_si::setGroupLRF(int iGroup, QString jsonString)
-{
-    if (!Model)
-    {
-        abort("Model was not created yet!");
-        return;
-    }
-
-    Model->SetGroupJsonLRF(iGroup, jsonString.toLatin1().data());
 }
 
 QString AMercury_si::exportLightResponseModel()
