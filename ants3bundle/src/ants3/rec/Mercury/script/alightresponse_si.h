@@ -29,12 +29,7 @@ public slots:
     QString exportLightResponseModel();
     void importLightResponseModel(QString jsonStr);
 
-    void makeGroups_OneForAllSensors();
-    void makeGroups_ByRadius();
-    void MakeGroups_RectanglePattern();
-    void MakeGroups_SquarePattern();
-    void MakeGroups_HexagonPattern();
-    void MakeGroups_NgonPattern(int n);
+    void makeSensorGroups(QString type, int numNodes = 3);
 
     QString newLRF_axial(int intervals, double rmin, double rmax);
     QString configureLRF_AxialCompression(QString LRF, double k, double lambda, double r0);

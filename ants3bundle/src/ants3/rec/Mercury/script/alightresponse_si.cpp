@@ -63,7 +63,7 @@ void ALightResponse_SI::importLightResponseModel(QString jsonStr)
     LRHub.Model = new LRModel(jsonStr.toLatin1().data());
 }
 
-void ALightResponse_SI::makeGroups_OneForAllSensors()
+void ALightResponse_SI::makeSensorGroups(QString type, int numNodes)
 {
     if (!LRHub.Model)
     {
@@ -71,67 +71,18 @@ void ALightResponse_SI::makeGroups_OneForAllSensors()
         return;
     }
 
-    LRHub.Model->MakeGroupsCommon();
-    if (!CommonJsonString.isEmpty()) setLRF(CommonJsonString);
-}
-
-void ALightResponse_SI::makeGroups_ByRadius()
-{
-    if (!LRHub.Model)
+    if      (type == "Common")    LRHub.Model->MakeGroupsCommon();
+    if      (type == "ByRadius")  LRHub.Model->MakeGroupsByRadius();
+    else if (type == "Rectangle") LRHub.Model->MakeGroupsRectangle();
+    else if (type == "Square")    LRHub.Model->MakeGroupsSquare();
+    else if (type == "Hexagon")   LRHub.Model->MakeGroupsHexagon();
+    else if (type == "Polygon")   LRHub.Model->MakeGroupsNgon(numNodes);
+    else
     {
-        abort("Model was not created yet!");
+        abort("Unknow groupping type! Available options are:\nCommon, ByRadius, Rectangle, Square, Hexagon and Polygon");
         return;
     }
 
-    LRHub.Model->MakeGroupsByRadius();
-    if (!CommonJsonString.isEmpty()) setLRF(CommonJsonString);
-}
-
-void ALightResponse_SI::MakeGroups_RectanglePattern()
-{
-    if (!LRHub.Model)
-    {
-        abort("Model was not created yet!");
-        return;
-    }
-
-    LRHub.Model->MakeGroupsRectangle();
-    if (!CommonJsonString.isEmpty()) setLRF(CommonJsonString);
-}
-
-void ALightResponse_SI::MakeGroups_SquarePattern()
-{
-    if (!LRHub.Model)
-    {
-        abort("Model was not created yet!");
-        return;
-    }
-
-    LRHub.Model->MakeGroupsSquare();
-    if (!CommonJsonString.isEmpty()) setLRF(CommonJsonString);
-}
-
-void ALightResponse_SI::MakeGroups_HexagonPattern()
-{
-    if (!LRHub.Model)
-    {
-        abort("Model was not created yet!");
-        return;
-    }
-
-    LRHub.Model->MakeGroupsHexagon();
-    if (!CommonJsonString.isEmpty()) setLRF(CommonJsonString);
-}
-
-void ALightResponse_SI::MakeGroups_NgonPattern(int n)
-{
-    if (!LRHub.Model)
-    {
-        abort("Model was not created yet!");
-        return;
-    }
-
-    LRHub.Model->MakeGroupsNgon(n);
     if (!CommonJsonString.isEmpty()) setLRF(CommonJsonString);
 }
 

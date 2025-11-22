@@ -243,8 +243,8 @@ AScriptHub::AScriptHub()
     addCommonInterface(new ARootStyle_SI(),    "root");
     addCommonInterface(new APet_si(),          "pet");
 #ifdef USE_MERCURY
-    addCommonInterface(new AMercury_si(),      "mercury");
     addCommonInterface(new ALightResponse_SI(),"response");
+    addCommonInterface(new AMercury_si(),      "mercury");
 #endif
     addCommonInterface(new ADemo_SI(),         "demo");
 
