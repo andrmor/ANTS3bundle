@@ -63,30 +63,30 @@ ants3_mercury{
     LIBS += -fopenmp
 
     INCLUDEPATH += /usr/include/eigen3
-    INCLUDEPATH += rec/Mercury
-    INCLUDEPATH += rec/Mercury/lib
-    INCLUDEPATH += rec/Mercury/LRModel
-    INCLUDEPATH += rec/Mercury/spline123
+    INCLUDEPATH += rec/Mercury/mercuryLib
+    INCLUDEPATH += rec/Mercury/mercuryLib/lib
+    INCLUDEPATH += rec/Mercury/mercuryLib/LRModel
+    INCLUDEPATH += rec/Mercury/mercuryLib/spline123
     INCLUDEPATH += rec/Mercury/script
     INCLUDEPATH += gui/rec
 
     SOURCES += \
-        rec/Mercury/LRModel/compress.cpp \
-        rec/Mercury/LRModel/lrf.cpp \
-        rec/Mercury/LRModel/lrfaxial.cpp \
-        rec/Mercury/LRModel/lrfaxial3d.cpp \
-        rec/Mercury/LRModel/lrfcomp.cpp \
-        rec/Mercury/LRModel/lrfio.cpp \
-        rec/Mercury/LRModel/lrfxy.cpp \
-        rec/Mercury/LRModel/lrfxyz.cpp \
-        rec/Mercury/LRModel/lrmodel.cpp \
-        rec/Mercury/LRModel/transform.cpp \
-        rec/Mercury/lib/json11.cpp \
-        rec/Mercury/reconstructor.cpp \
-        rec/Mercury/reconstructor_mp.cpp \
-        rec/Mercury/spline123/bsfit123.cpp \
-        rec/Mercury/spline123/bspline123d.cpp \
-        rec/Mercury/spline123/profileHist.cpp \
+        rec/Mercury/mercuryLib/LRModel/compress.cpp \
+        rec/Mercury/mercuryLib/LRModel/lrf.cpp \
+        rec/Mercury/mercuryLib/LRModel/lrfaxial.cpp \
+        rec/Mercury/mercuryLib/LRModel/lrfaxial3d.cpp \
+        rec/Mercury/mercuryLib/LRModel/lrfcomp.cpp \
+        rec/Mercury/mercuryLib/LRModel/lrfio.cpp \
+        rec/Mercury/mercuryLib/LRModel/lrfxy.cpp \
+        rec/Mercury/mercuryLib/LRModel/lrfxyz.cpp \
+        rec/Mercury/mercuryLib/LRModel/lrmodel.cpp \
+        rec/Mercury/mercuryLib/LRModel/transform.cpp \
+        rec/Mercury/mercuryLib/lib/json11.cpp \
+        rec/Mercury/mercuryLib/reconstructor.cpp \
+        rec/Mercury/mercuryLib/reconstructor_mp.cpp \
+        rec/Mercury/mercuryLib/spline123/bsfit123.cpp \
+        rec/Mercury/mercuryLib/spline123/bspline123d.cpp \
+        rec/Mercury/mercuryLib/spline123/profileHist.cpp \
         rec/Mercury/script/amercury_si.cpp \
         gui/rec/alrfdrawer.cpp \
         gui/rec/alrfmouseexplorer.cpp \
@@ -94,23 +94,23 @@ ants3_mercury{
         gui/rec/alrfgraphicsview.cpp
 
     HEADERS += \
-        rec/Mercury/LRModel/compress.h \
-        rec/Mercury/LRModel/lrf.h \
-        rec/Mercury/LRModel/lrfaxial.h \
-        rec/Mercury/LRModel/lrfaxial3d.h \
-        rec/Mercury/LRModel/lrfcomp.h \
-        rec/Mercury/LRModel/lrfio.h \
-        rec/Mercury/LRModel/lrfxy.h \
-        rec/Mercury/LRModel/lrfxyz.h \
-        rec/Mercury/LRModel/lrmodel.h \
-        rec/Mercury/LRModel/transform.h \
-        rec/Mercury/lib/eiquadprog.hpp \
-        rec/Mercury/lib/json11.hpp \
-        rec/Mercury/reconstructor.h \
-        rec/Mercury/reconstructor_mp.h \
-        rec/Mercury/spline123/bsfit123.h \
-        rec/Mercury/spline123/bspline123d.h \
-        rec/Mercury/spline123/profileHist.h \
+        rec/Mercury/mercuryLib/LRModel/compress.h \
+        rec/Mercury/mercuryLib/LRModel/lrf.h \
+        rec/Mercury/mercuryLib/LRModel/lrfaxial.h \
+        rec/Mercury/mercuryLib/LRModel/lrfaxial3d.h \
+        rec/Mercury/mercuryLib/LRModel/lrfcomp.h \
+        rec/Mercury/mercuryLib/LRModel/lrfio.h \
+        rec/Mercury/mercuryLib/LRModel/lrfxy.h \
+        rec/Mercury/mercuryLib/LRModel/lrfxyz.h \
+        rec/Mercury/mercuryLib/LRModel/lrmodel.h \
+        rec/Mercury/mercuryLib/LRModel/transform.h \
+        rec/Mercury/mercuryLib/lib/eiquadprog.hpp \
+        rec/Mercury/mercuryLib/lib/json11.hpp \
+        rec/Mercury/mercuryLib/reconstructor.h \
+        rec/Mercury/mercuryLib/reconstructor_mp.h \
+        rec/Mercury/mercuryLib/spline123/bsfit123.h \
+        rec/Mercury/mercuryLib/spline123/bspline123d.h \
+        rec/Mercury/mercuryLib/spline123/profileHist.h \
         rec/Mercury/script/amercury_si.h \
         gui/rec/alrfdrawer.h \
         gui/rec/alrfmouseexplorer.h \

@@ -57,7 +57,7 @@ QString ALrfDrawer::drawRadial(int iSens, bool showNodes)
             double Rmax = axial->Compress(rmax);
             double DX = Rmax - Rmin;
 
-            // !!!*** should be delegated to the library!
+            // !!!*** should be delegated to the library
             int lastnode = -1;
             std::vector<double> GrX;
             for (int ix = 0; ix < 102; ix++)
