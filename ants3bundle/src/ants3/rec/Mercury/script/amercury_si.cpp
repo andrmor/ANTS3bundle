@@ -1,13 +1,16 @@
 #include "amercury_si.h"
+#include "alightresponsehub.h"
 #include "reconstructor.h"
 #include "reconstructor_mp.h"
-#include "lrmodel.h"
-#include "ajsontools.h"
 #include "ascripthub.h"
 
 #include <QVariant>
 
-AMercury_si::AMercury_si() {}
+#include "TH1D.h"
+#include "TH2D.h"
+
+AMercury_si::AMercury_si() :
+    LRHub(ALightResponseHub::getInstance()) {}
 
 /*
 void AMercury_si::createReconstructor_CoG()
@@ -49,38 +52,38 @@ void AMercury_si::createReconstructor_ML()
 
 void AMercury_si::createReconstructor_COG_multi(int numThreads)
 {
-    if (!Model)
+    if (!LRHub.Model)
     {
         abort("LRF model was not created yet!");
         return;
     }
 
     resetReconstructors();
-    RecMP = new ReconstructorMP(Model, numThreads);
+    RecMP = new ReconstructorMP(LRHub.Model, numThreads);
 }
 
 void AMercury_si::createReconstructor_LS_multi(int numThreads)
 {
-    if (!Model)
+    if (!LRHub.Model)
     {
         abort("LRF model was not created yet!");
         return;
     }
 
     resetReconstructors();
-    RecMP = new RecLS_MP(Model, numThreads);
+    RecMP = new RecLS_MP(LRHub.Model, numThreads);
 }
 
 void AMercury_si::createReconstructor_ML_multi(int numThreads)
 {
-    if (!Model)
+    if (!LRHub.Model)
     {
         abort("LRF model was not created yet!");
         return;
     }
 
     resetReconstructors();
-    RecMP = new RecML_MP(Model, numThreads);
+    RecMP = new RecML_MP(LRHub.Model, numThreads);
 }
 
 /*
@@ -216,529 +219,9 @@ QVariantList AMercury_si::getRecStats()
     return res;
 }
 
-void AMercury_si::setCOG_AbsCutoff(double val)
-{
-    if (Rec) Rec->setCogAbsCutoff(val);
-    else abort("Reconstructor was not yet created");
-}
-
-void AMercury_si::setCOG_RelCutoff(double val)
-{
-    if (Rec) Rec->setCogRelCutoff(val);
-    else abort("Reconstructor was not yet created");
-}
-
-void AMercury_si::setCutoffRadius(double val)
-{
-    if (Rec) Rec->setRecCutoffRadius(val);
-    else abort("Reconstructor was not yet created");
-}
-
-// --- LRFs ---
-
-// void AMercury_si::newLightResponseModel(int numSensors)
-// {
-//     clearModel();
-//     Model = new LRModel(numSensors);
-// }
-
-void AMercury_si::newLightResponseModel(QVariantList sensorPositions)
-{
-    size_t numSens = sensorPositions.size();
-    if (numSens == 0)
-    {
-        abort("Cannot create light response model: sensorPositions array is empty");
-        return;
-    }
-
-    std::vector<std::pair<double,double>> arSensPos(numSens);
-    for (size_t iSens = 0; iSens < numSens; iSens++)
-    {
-        QVariantList pos = sensorPositions[iSens].toList();
-        if (pos.size() < 2)
-        {
-            abort("Array sensorPositions should contains arrays of at least size of 2: X and Y positions of sensor centers");
-            return;
-        }
-
-        bool ok0, ok1;
-        double x = pos[0].toDouble(&ok0);
-        double y = pos[1].toDouble(&ok1);
-        if (!ok0 || !ok1)
-        {
-            abort("Array sensorPositions should contains arrays of at least size of 2: X and Y positions of sensor centers,\nconvertable to double numbers");
-            return;
-        }
-        arSensPos[iSens] = {x, y};
-    }
-
-    clearModel();
-    Model = new LRModel(numSens);
-
-    for (size_t iSens = 0; iSens < numSens; iSens++)
-        Model->AddSensor(iSens, arSensPos[iSens].first, arSensPos[iSens].second);
-}
-
-/*
-void AMercury_si::addSensor(int iSensor, double x, double y)
-{
-    if (!Model)
-    {
-        abort("Model was not created yet!");
-        return;
-    }
-
-    if (Model->SensorExists(iSensor)) Model->AddSensor(iSensor, x, y);
-    else abort("Sensor index is not valid");
-}
-*/
-
-#include "asensorhub.h"
-void AMercury_si::setLRF_Sensor(int iSensor, QString jsonString)
-{
-    if (!Model)
-    {
-        abort("Model was not created yet!");
-        return;
-    }
-
-    if (iSensor < 0 || iSensor >= Model->GetSensorCount())
-    {
-        abort("SetLRF_Sensor: invalid sensor index");
-        return;
-    }
-
-    QJsonObject json = jstools::strToJson(jsonString);
-    if (json["type"] == "Axial")
-    {
-        const ASensorHub & SensHub = ASensorHub::getConstInstance();
-        int num = SensHub.countSensors();
-        if (iSensor <= num)
-        {
-            if (!json.contains("x0")) json["x0"] = SensHub.getSensorData(iSensor)->Position[0];
-            if (!json.contains("y0")) json["y0"] = SensHub.getSensorData(iSensor)->Position[1];
-            jsonString = jstools::jsonToString(json);
-        }
-    }
-
-    Model->SetJsonLRF(iSensor, jsonString.toLatin1().data());
-}
-
-void AMercury_si::setLRF_Group(int iGroup, QString jsonString)
-{
-    if (!Model)
-    {
-        abort("Model was not created yet!");
-        return;
-    }
-
-    if (iGroup < 0 || iGroup >= Model->GetGroupCount())
-    {
-        abort("SetLRF_Group: invalid group index");
-        return;
-    }
-
-    QJsonObject json = jstools::strToJson(jsonString);
-    if (json["type"] == "Axial")
-    {
-        if (!json.contains("x0")) json["x0"] = Model->GetGroupX(iGroup);
-        if (!json.contains("y0")) json["y0"] = Model->GetGroupY(iGroup);
-        jsonString = jstools::jsonToString(json);
-    }
-
-    Model->SetGroupJsonLRF(iGroup, jsonString.toLatin1().data());
-}
-
-void AMercury_si::setLRF(QString jsonString)
-{
-    if (!Model)
-    {
-        abort("Model was not created yet!");
-        return;
-    }
-
-    LRF * lrfToClone = LRF::mkFromJson(jsonString.toLatin1().data());
-    if (!lrfToClone)
-    {
-        abort("Failed to make LRF from jsonString");
-        return;
-    }
-
-    const size_t numGroups = Model->GetGroupCount();
-    for (size_t iGr = 0; iGr < numGroups; iGr++)
-    {
-        LRF * lrf = lrfToClone->clone();
-        ifAxialUpdateLrfCenter(lrf, Model->GetGroupX(iGr), Model->GetGroupY(iGr));
-        Model->SetGroupLRF(iGr, lrf);
-    }
-
-    // find sensors not belonging to any group
-    const ASensorHub & SensHub = ASensorHub::getConstInstance();
-    const size_t numSens = Model->GetSensorCount();
-    for (size_t iSens = 0; iSens < numSens; iSens++)
-    {
-        int iGr = Model->GetGroup(iSens);
-        if (iGr != -1) continue;
-
-        LRF * lrf = lrfToClone->clone();
-        ifAxialUpdateLrfCenter(lrf, SensHub.getSensorData(iSens)->Position[0], SensHub.getSensorData(iSens)->Position[1]);
-        Model->SetLRF(iSens, lrf);
-    }
-
-    CommonJsonString = jsonString;
-}
-
-QString AMercury_si::newLRF_axial(int intervals, double rmin, double rmax)
-{
-    QJsonObject json;
-    json["type"] = "Axial";
-    json["nint"] = intervals;
-    json["rmin"] = rmin;
-    json["rmax"] = rmax;
-
-    return jstools::jsonToString(json);
-}
-
-QString AMercury_si::configureLRF_AxialCompression(QString LRF, double k, double lambda, double r0)
-{
-    QJsonObject json = jstools::strToJson(LRF);
-
-    if (json.isEmpty())
-    {
-        abort("LRF should be a json object string");
-        return "";
-    }
-    if (json["type"] != "Axial")
-    {
-        abort("Compression can be applied only to Axial type LRFs");
-        return "";
-    }
-
-    QJsonObject js;
-        js["method"] = "dualslope";
-        js["k"]      = k;
-        js["lam"]    = lambda;
-        js["r0"]     = r0;
-    json["compression"] = js;
-
-    return jstools::jsonToString(json);
-}
-
-QString AMercury_si::configureLRF_Constrains(QString LRF, bool nonNegative, bool nonIncreasing, bool flattop)
-{
-    QJsonObject json = jstools::strToJson(LRF);
-
-    if (json.isEmpty())
-    {
-        abort("LRF should be a json object string");
-        return "";
-    }
-
-    QJsonArray ar;
-        if (nonNegative) ar.push_back("non-negative");
-        if (nonIncreasing) ar.push_back("non-increasing");
-        if (flattop) ar.push_back("flattop");
-    json["constraints"] = ar;
-
-    return jstools::jsonToString(json);
-}
-
-void AMercury_si::clearGroups()
-{
-    if (Model) Model->ResetGroups();
-}
-
-int AMercury_si::countGroups()
-{
-    if (Model) return Model->GetGroupCount();
-    else return 0;
-}
-
-void AMercury_si::makeGroups_OneForAllSensors()
-{
-    if (!Model)
-    {
-        abort("Model was not created yet!");
-        return;
-    }
-
-    Model->MakeGroupsCommon();
-    if (!CommonJsonString.isEmpty()) setLRF(CommonJsonString);
-}
-
-void AMercury_si::makeGroups_ByRadius()
-{
-    if (!Model)
-    {
-        abort("Model was not created yet!");
-        return;
-    }
-
-    Model->MakeGroupsByRadius();
-    if (!CommonJsonString.isEmpty()) setLRF(CommonJsonString);
-}
-
-void AMercury_si::MakeGroups_RectanglePattern()
-{
-    if (!Model)
-    {
-        abort("Model was not created yet!");
-        return;
-    }
-
-    Model->MakeGroupsRectangle();
-    if (!CommonJsonString.isEmpty()) setLRF(CommonJsonString);
-}
-
-void AMercury_si::MakeGroups_SquarePattern()
-{
-    if (!Model)
-    {
-        abort("Model was not created yet!");
-        return;
-    }
-
-    Model->MakeGroupsSquare();
-    if (!CommonJsonString.isEmpty()) setLRF(CommonJsonString);
-}
-
-void AMercury_si::MakeGroups_HexagonPattern()
-{
-    if (!Model)
-    {
-        abort("Model was not created yet!");
-        return;
-    }
-
-    Model->MakeGroupsHexagon();
-    if (!CommonJsonString.isEmpty()) setLRF(CommonJsonString);
-}
-
-void AMercury_si::MakeGroups_NgonPattern(int n)
-{
-    if (!Model)
-    {
-        abort("Model was not created yet!");
-        return;
-    }
-
-    if (Model) Model->MakeGroupsNgon(n);
-    if (!CommonJsonString.isEmpty()) setLRF(CommonJsonString);
-}
-
-QString AMercury_si::exportLightResponseModel()
-{
-    QString res;
-    if (Model) res = Model->GetJsonString().data();
-    return res;
-}
-
-void AMercury_si::importLightResponseModel(QString jsonStr)
-{
-    clearModel();
-    Model = new LRModel(jsonStr.toLatin1().data());
-}
-
-void AMercury_si::clearAllFitData()
-{
-    if (Model) Model->ClearAllFitData();
-}
-
-void AMercury_si::addFitData(int iSensor, QVariantList xyza)
-{
-    if (!Model) return;
-
-    const size_t size = xyza.size();
-    std::vector<std::array <double, 4>> data(size);
-    for (size_t iEv = 0; iEv < size; iEv++)
-    {
-        QVariantList event = xyza[iEv].toList();
-        for (size_t i = 0; i < 4; i++)
-            data[iEv][i] = event[i].toDouble();
-    }
-
-    Model->AddFitData(iSensor, data);
-}
-
-void AMercury_si::fitSensor(int iSensor)
-{
-    if (Model) Model->FitSensor(iSensor);
-}
-
-void AMercury_si::fitGroup(int iGroup)
-{
-    if (Model) Model->FitGroup(iGroup);
-}
-
-void AMercury_si::fitResponse(QVariantList floodSignals, QVariantList floodPositions)
-{
-    if (!Model)
-    {
-        abort("Model was not created yet!");
-        return;
-    }
-
-    const size_t numEv = floodSignals.size();
-    if (numEv != floodPositions.size())
-    {
-        abort("Mismatch in the seizes of the flood signal and position arrays");
-        return;
-    }
-
-    Model->ClearAllFitData();
-
-    // preparing gitting data
-    const size_t numSens = Model->GetSensorCount();
-    std::vector<std::array<double, 4>> data(numEv);
-    std::vector<std::vector<double>> arSig(numEv);
-    for (size_t iEv = 0; iEv < numEv; iEv++)
-    {
-        QVariantList eventPos = floodPositions[iEv].toList();
-        if (eventPos.size() < 3)
-        {
-            abort("Bad format of floodPositions array");
-            return;
-        }
-        for (size_t i = 0; i < 3; i++)
-            data[iEv][i] = eventPos[i].toDouble();
-
-        arSig[iEv].resize(numSens);
-        QVariantList eventSignals = floodSignals[iEv].toList();
-        if (eventSignals.size() != numSens)
-        {
-            abort("Bad format of floodSignals array");
-            return;
-        }
-        for (size_t iSens = 0; iSens < numSens; iSens++)
-        {
-            arSig[iEv][iSens] = eventSignals[iSens].toDouble();
-        }
-    }
-
-    const size_t numGroups = Model->GetGroupCount();
-    bool estimateGains = (Model->GetGroupCount() > 0);
-    GainEstimator * gainEstimator = nullptr;
-    if (estimateGains) gainEstimator = new GainEstimator(Model);
-
-    // adding fitting data
-    for (size_t iSens = 0; iSens < numSens; iSens++)
-    {
-        std::vector<std::array <double, 4>> thisData(data);
-        for (size_t iEv = 0; iEv < numEv; iEv++)
-        {
-            thisData[iEv][3] = arSig[iEv][iSens];
-        }
-        Model->AddFitData(iSens, thisData);
-        if (estimateGains) gainEstimator->AddData(iSens, thisData);
-    }
-
-    //fitting response for sensors not belonging to any groups
-    for (size_t iSens = 0; iSens < numSens; iSens++)
-    {
-        if (Model->GetGroup(iSens) == -1)
-            Model->FitSensor(iSens);
-    }
-
-    // fitting response for groups
-    for (size_t iGr = 0; iGr < numGroups; iGr++)
-        Model->FitGroup(iGr);
-
-    if (estimateGains)
-    {
-        for (size_t iGr = 0; iGr < numGroups; iGr++)
-        {
-            //qDebug() << "-----\n" << iGr;
-            std::set<int> & groupSet = Model->GroupMembers(iGr);
-            const int size = groupSet.size();
-            std::vector<int> groupVec;
-            groupVec.reserve(size);
-            for (auto itr = groupSet.begin(); itr != groupSet.end(); itr++)
-                groupVec.push_back(*itr);
-            //qDebug() << "Sensors:" << groupVec;
-
-            std::vector<double> relGains = gainEstimator->GetRelativeGainsList(groupVec, groupVec.front());
-            //qDebug() << "Inverse (apparently) gains:" << "-->" << relGains;
-            double sumGain = 0;
-            for (size_t i = 0; i < size; i++)
-                sumGain += 1.0/relGains[i];
-            sumGain /= size;
-
-            for (size_t i = 0; i < size; i++)
-            {
-                Model->SetGain(groupVec[i], 1.0/relGains[i]/sumGain);
-                //qDebug() << groupVec[i] << "-->" << 1.0/relGains[i]/sumGain;
-            }
-        }
-    }
-
-
-
-    // dests
-    delete gainEstimator;
-}
-
-void AMercury_si::enableSensor(int iSensor, bool enableFlag)
-{
-    if (!Model)
-    {
-        abort("Light response model is not defined");
-        return;
-    }
-    if (iSensor < 0 || iSensor >= Model->GetSensorCount())
-    {
-        abort("Bad sensor index: " + QString::number(iSensor));
-        return;
-    }
-
-    if (enableFlag) Model->SetEnabled(iSensor);
-    else            Model->SetDisabled(iSensor);
-}
-
-void AMercury_si::setModelGains(QVariantList gains)
-{
-    if (!Model)
-    {
-        abort("Light response model is not defined");
-        return;
-    }
-    size_t size = gains.size();
-    if (size != Model->GetSensorCount())
-    {
-        abort("gains array length is not equal to the number of sensors");
-        return;
-    }
-
-    for (int i = 0; i < size; i++)
-        Model->SetGain(i, gains[i].toDouble());
-}
-
-QVariantList AMercury_si::getModelGains()
-{
-    QVariantList vl;
-    if (!Model)
-    {
-        abort("Light response model is not defined");
-        return vl;
-    }
-
-    int size = Model->GetSensorCount();
-    for (int i = 0; i < size; i++)
-        vl << Model->GetGain(i);
-    return vl;
-}
-
-#include "alrfdrawer.h"
-void AMercury_si::plotLRF_radial(int iSensor, bool showNodes)
-{
-    ALrfDrawer dr(Model);
-    QString err = dr.drawRadial(iSensor, showNodes);
-    if (!err.isEmpty()) abort(err);
-}
-
-#include "TH1D.h"
 void AMercury_si::plotChi2(int bins, double from, double to)
 {
-    if (!Model)
+    if (!LRHub.Model)
     {
         abort("Light response model is not defined");
         return;
@@ -763,10 +246,9 @@ void AMercury_si::plotChi2(int bins, double from, double to)
     emit AScriptHub::getInstance().requestDraw(h, "hist", true);
 }
 
-#include "TH2D.h"
 void AMercury_si::plotChi2_XY(int xBins, double xFrom, double xTo, int yBins, double yFrom, double yTo)
 {
-    if (!Model)
+    if (!LRHub.Model)
     {
         abort("Light response model is not defined");
         return;
@@ -793,28 +275,23 @@ void AMercury_si::plotChi2_XY(int xBins, double xFrom, double xTo, int yBins, do
     emit AScriptHub::getInstance().requestDraw(h, "colz", true);
 }
 
-#include "alrfmouseexplorer.h" // tmp
-void AMercury_si::showLightResponseExplorer()
+
+void AMercury_si::setCOG_AbsCutoff(double val)
 {
-    if (!Model) abort("Light response model is not defined");
-    else emit AScriptHub::getInstance().requestShowLightResponseExplorer(Model);
+    if (Rec) Rec->setCogAbsCutoff(val);
+    else abort("Reconstructor was not yet created");
 }
 
-double AMercury_si::eval(int iSensor, double x, double y, double z)
+void AMercury_si::setCOG_RelCutoff(double val)
 {
-    if (Model) return Model->Eval(iSensor, x, y, z);
-    else return 0;
+    if (Rec) Rec->setCogRelCutoff(val);
+    else abort("Reconstructor was not yet created");
 }
 
-double AMercury_si::eval(int iSensor, QVariantList xyz)
+void AMercury_si::setCutoffRadius(double val)
 {
-    if (xyz.length() != 3) return 0;
-
-    double pos[3];
-    for (size_t i = 0; i < 3; i++) pos[i] = xyz[i].toDouble();
-
-    if (Model) return Model->Eval(iSensor, pos);
-    else return 0;
+    if (Rec) Rec->setRecCutoffRadius(val);
+    else abort("Reconstructor was not yet created");
 }
 
 void AMercury_si::setMinuitParameters(double RMtolerance, int RMmaxIterations, int RMmaxFuncCalls)
@@ -830,12 +307,7 @@ void AMercury_si::setMinuitParameters(double RMtolerance, int RMmaxIterations, i
     rec->setRMmaxFuncCalls(RMmaxFuncCalls);
 }
 
-void AMercury_si::clearModel()
-{
-    delete Model; Model = nullptr;
-
-    CommonJsonString.clear();
-}
+// --- Private methods ---
 
 void AMercury_si::resetReconstructors()
 {
@@ -843,10 +315,6 @@ void AMercury_si::resetReconstructors()
     delete RecMP; RecMP = nullptr;
 }
 
-#include "lrfaxial.h"
-void AMercury_si::ifAxialUpdateLrfCenter(LRF * lrf, double x, double y)
-{
-    LRFaxial * axlrf = dynamic_cast<LRFaxial*>(lrf);
-    if (axlrf) axlrf->SetOrigin(x, y);
-}
+
+
 

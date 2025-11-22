@@ -33,6 +33,7 @@
 
 #ifdef USE_MERCURY
 #include "amercury_si.h"
+#include "alightresponse_si.h"
 #endif
 
 AScriptHub & AScriptHub::getInstance()
@@ -243,6 +244,7 @@ AScriptHub::AScriptHub()
     addCommonInterface(new APet_si(),          "pet");
 #ifdef USE_MERCURY
     addCommonInterface(new AMercury_si(),      "mercury");
+    addCommonInterface(new ALightResponse_SI(),"response");
 #endif
     addCommonInterface(new ADemo_SI(),         "demo");
 

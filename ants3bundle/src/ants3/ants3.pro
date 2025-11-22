@@ -63,6 +63,7 @@ ants3_mercury{
     LIBS += -fopenmp
 
     INCLUDEPATH += /usr/include/eigen3
+    INCLUDEPATH += rec/Mercury
     INCLUDEPATH += rec/Mercury/mercuryLib
     INCLUDEPATH += rec/Mercury/mercuryLib/lib
     INCLUDEPATH += rec/Mercury/mercuryLib/LRModel
@@ -87,6 +88,7 @@ ants3_mercury{
         rec/Mercury/mercuryLib/spline123/bsfit123.cpp \
         rec/Mercury/mercuryLib/spline123/bspline123d.cpp \
         rec/Mercury/mercuryLib/spline123/profileHist.cpp \
+        rec/Mercury/alightresponsehub.cpp \
         rec/Mercury/script/amercury_si.cpp \
         gui/rec/alrfdrawer.cpp \
         gui/rec/alrfmouseexplorer.cpp \
@@ -111,6 +113,7 @@ ants3_mercury{
         rec/Mercury/mercuryLib/spline123/bsfit123.h \
         rec/Mercury/mercuryLib/spline123/bspline123d.h \
         rec/Mercury/mercuryLib/spline123/profileHist.h \
+        rec/Mercury/alightresponsehub.h \
         rec/Mercury/script/amercury_si.h \
         gui/rec/alrfdrawer.h \
         gui/rec/alrfmouseexplorer.h \
@@ -301,6 +304,7 @@ SOURCES += \
     photonSim/interfaceRules/aunifiedrule.cpp \
     photonSim/photonFunctional/aphotonfunctionalhub.cpp \
     photonSim/photonFunctional/aphotonfunctionalmodel.cpp \
+    rec/Mercury/script/alightresponse_si.cpp \
     rec/PET/acastorimageloader.cpp \
     script/ScriptInterfaces/ageo_si.cpp \
     script/ScriptInterfaces/ageowin_si.cpp \
@@ -462,6 +466,7 @@ HEADERS += \
     photonSim/aphotonloghandler.h \
     photonSim/photonFunctional/aphotonfunctionalhub.h \
     photonSim/photonFunctional/aphotonfunctionalmodel.h \
+    rec/Mercury/script/alightresponse_si.h \
     rec/PET/acastorimageloader.h \
     rec/PET/apetcoincidencefinderconfig.h \
     farm/afarmnoderecord.h \
