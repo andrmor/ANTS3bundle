@@ -86,15 +86,11 @@ void ALightResponse_SI::makeSensorGroups(QString type, int numNodes)
     if (!CommonJsonString.isEmpty()) setLRF(CommonJsonString);
 }
 
-QString ALightResponse_SI::newLRF_axial(int intervals, double rmin, double rmax)
+QString ALightResponse_SI::newLRF_axial(int intervals, double minR, double maxR)
 {
-    QJsonObject json;
-    json["type"] = "Axial";
-    json["nint"] = intervals;
-    json["rmin"] = rmin;
-    json["rmax"] = rmax;
-
-    return jstools::jsonToString(json);
+    LRFaxial lrf(maxR, intervals);
+    lrf.SetRmin(minR);
+    return QString(lrf.GetJsonString().data());
 }
 
 QString ALightResponse_SI::configureLRF_AxialCompression(QString LRF, double k, double lambda, double r0)
@@ -139,6 +135,13 @@ QString ALightResponse_SI::configureLRF_Constrains(QString LRF, bool nonNegative
     json["constraints"] = ar;
 
     return jstools::jsonToString(json);
+}
+
+#include "lrfxy.h"
+QString ALightResponse_SI::newLRF_xy(int intervalsX, double minX, double maxX, int intervalsY, double minY, double maxY)
+{
+    LRFxy lrf(minX, maxX, intervalsX, minY, maxY, intervalsY);
+    return QString(lrf.GetJsonString().data());
 }
 
 void ALightResponse_SI::setLRF(QString jsonString)

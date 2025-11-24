@@ -31,9 +31,10 @@ public slots:
 
     void makeSensorGroups(QString type, int numNodes = 3);
 
-    QString newLRF_axial(int intervals, double rmin, double rmax);
+    QString newLRF_axial(int intervals, double minR, double maxR);
     QString configureLRF_AxialCompression(QString LRF, double k, double lambda, double r0);
     QString configureLRF_Constrains(QString LRF, bool nonNegative, bool nonIncreasing, bool flattop);
+    QString newLRF_xy(int intervalsX, double minX, double maxX, int intervalsY, double minY, double maxY);
 
     void setLRF(QString jsonString);
 
