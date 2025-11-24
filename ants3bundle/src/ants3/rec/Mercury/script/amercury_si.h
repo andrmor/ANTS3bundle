@@ -9,6 +9,8 @@
 
 class ALightResponseHub;
 class ReconstructorMP;
+class TH1D;
+class TH2D;
 
 class AMercury_si : public AScriptInterface
 {
@@ -30,8 +32,8 @@ public slots:
     QVariantList getRecXYZE();
     QVariantList getRecStats(); // [status(0 = OK), chi2, cov_xx, cov_yy, cov_xy]
 
-    void plotChi2(int bins, double from, double to);
-    void plotChi2_XY(int xBins, double xFrom, double xTo, int yBins, double yFrom, double yTo);
+    void plot(QString what, int bins, double from, double to);
+    void plot_vsRecXY(QString what, int xBins, double xFrom, double xTo, int yBins, double yFrom, double yTo);
 
     // --- Low level ---
     void setCOG_AbsCutoff(double val);
@@ -44,6 +46,9 @@ private:
     ReconstructorMP   * RecMP = nullptr;
 
     void resetReconstructor();
+
+    enum EPlotOption {ErrorOption, EnergyOption, Chi2Option, StatusOption};
+    EPlotOption whatFromString(QString what);
 
 };
 

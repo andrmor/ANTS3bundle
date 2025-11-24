@@ -147,60 +147,121 @@ QVariantList AMercury_si::getRecStats()
     return res;
 }
 
-void AMercury_si::plotChi2(int bins, double from, double to)
+#include "TAxis.h"
+void AMercury_si::plot(QString what, int bins, double from, double to)
 {
-    if (!LRHub.Model)
-    {
-        abort("Light response model is not defined");
-        return;
-    }
     if (!RecMP)
     {
         abort("Reconstructor was not created yet");
         return;
     }
 
-    const std::vector<int>    & status = RecMP->rec_status;
-    const std::vector<double> & chi2   = RecMP->rec_chi2min;
-
-    TH1D * h = new TH1D("", "chi2", bins, from, to);
-    for (size_t i = 0; i < status.size(); i++)
+    EPlotOption opt = whatFromString(what);
+    if (opt == ErrorOption)
     {
-        if (status[i] != 0) continue;
-
-        h->Fill(chi2[i], 1);
+        abort("mercury.plot method accepts only the following options:\nEnergy, Chi2, Status");
+        return;
     }
 
-    emit AScriptHub::getInstance().requestDraw(h, "hist", true);
+    const std::vector<int>    & status = RecMP->rec_status;
+    const std::vector<double> & chi2   = RecMP->rec_chi2min;
+    const std::vector<double> & energy = RecMP->rec_e;
+
+    TH1D * h = nullptr;
+
+    switch (opt)
+    {
+    case EnergyOption:
+        h = new TH1D("", "energy", bins, from, to);
+        for (size_t i = 0; i < status.size(); i++)
+        {
+            if (status[i] != 0) continue;
+            h->Fill(energy[i], 1);
+        }
+        break;
+    case Chi2Option:
+        h = new TH1D("", "chi2", bins, from, to);
+        for (size_t i = 0; i < status.size(); i++)
+        {
+            if (status[i] != 0) continue;
+
+            h->Fill(chi2[i], 1);
+        }
+        break;
+    case StatusOption:
+        h = new TH1D("", "status", 2, 0, 2);
+        for (size_t i = 0; i < status.size(); i++)
+            h->Fill( (status[i] == 0 ? 0 : 1), 1);
+        {
+            TAxis * ax = h->GetXaxis();
+            ax->SetNdivisions(4, false);
+            ax->ChangeLabelByValue(0, -1, -1, -1, -1, -1, " ");
+            ax->ChangeLabelByValue(0.5, -1, -1, -1, -1, -1, "Good");
+            ax->ChangeLabelByValue(1.0, -1, -1, -1, -1, -1, " ");
+            ax->ChangeLabelByValue(1.5, -1, -1, -1, -1, -1, "Fail");
+            ax->ChangeLabelByValue(2.0, -1, -1, -1, -1, -1, " ");
+        }
+        break;
+    default:
+        break;
+    }
+
+    if (h) emit AScriptHub::getInstance().requestDraw(h, "hist", true);
 }
 
-void AMercury_si::plotChi2_XY(int xBins, double xFrom, double xTo, int yBins, double yFrom, double yTo)
+void AMercury_si::plot_vsRecXY(QString what, int xBins, double xFrom, double xTo, int yBins, double yFrom, double yTo)
 {
-    if (!LRHub.Model)
-    {
-        abort("Light response model is not defined");
-        return;
-    }
     if (!RecMP)
     {
         abort("Reconstructor was not created yet");
         return;
     }
 
+    EPlotOption opt = whatFromString(what);
+    if (opt == ErrorOption)
+    {
+        abort("mercury.plot method accepts only the following options:\nEnergy, Chi2, Status");
+        return;
+    }
+
     const std::vector<int>    & status = RecMP->rec_status;
     const std::vector<double> & chi2   = RecMP->rec_chi2min;
+    const std::vector<double> & energy = RecMP->rec_e;
     const std::vector<double> & x      = RecMP->rec_x;
     const std::vector<double> & y      = RecMP->rec_y;
 
-    TH2D * h = new TH2D("", "chi2_xy", xBins, xFrom, xTo, yBins, yFrom, yTo);
-    for (size_t i = 0; i < status.size(); i++)
-    {
-        if (status[i] != 0) continue;
+    TH2D * h = nullptr;
 
-        h->Fill(x[i], y[i], chi2[i]);
+    switch (opt)
+    {
+    case EnergyOption:
+        h = new TH2D("", "energy_recXY", xBins, xFrom, xTo, yBins, yFrom, yTo);
+        for (size_t i = 0; i < status.size(); i++)
+        {
+            if (status[i] != 0) continue;
+
+            h->Fill(x[i], y[i], energy[i]);
+        }
+        break;
+    case Chi2Option:
+        h = new TH2D("", "chi2_recXY", xBins, xFrom, xTo, yBins, yFrom, yTo);
+        for (size_t i = 0; i < status.size(); i++)
+        {
+            if (status[i] != 0) continue;
+
+            h->Fill(x[i], y[i], chi2[i]);
+        }
+        break;
+    case StatusOption:
+        h = new TH2D("", "status_recXY", xBins, xFrom, xTo, yBins, yFrom, yTo);
+        for (size_t i = 0; i < status.size(); i++)
+            h->Fill(x[i], y[i], (status[i] == 0 ? 0 : 1));
+        break;
+    default:
+        break;
     }
 
-    emit AScriptHub::getInstance().requestDraw(h, "colz", true);
+    if (h) emit AScriptHub::getInstance().requestDraw(h, "colz", true);
 }
 
 
@@ -242,3 +303,13 @@ void AMercury_si::resetReconstructor()
     delete RecMP; RecMP = nullptr;
 }
 
+AMercury_si::EPlotOption AMercury_si::whatFromString(QString what)
+{
+    what = what.toUpper();
+
+    if (what == "ENERGY") return EnergyOption;
+    if (what == "CHI2")   return Chi2Option;
+    if (what == "STATUS") return StatusOption;
+
+    return ErrorOption;
+}
