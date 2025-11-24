@@ -1,6 +1,5 @@
 #include "amercury_si.h"
 #include "alightresponsehub.h"
-#include "reconstructor.h"
 #include "reconstructor_mp.h"
 #include "ascripthub.h"
 
@@ -12,98 +11,46 @@
 AMercury_si::AMercury_si() :
     LRHub(ALightResponseHub::getInstance()) {}
 
-/*
-void AMercury_si::createReconstructor_CoG()
-{
-    if (!Model)
-    {
-        abort("LRF model was not created yet!");
-        return;
-    }
-
-    resetReconstructors();
-    Rec = new RecCoG(Model);
-}
-
-void AMercury_si::createReconstructor_LS()
-{
-    if (!Model)
-    {
-        abort("LRF model was not created yet!");
-        return;
-    }
-
-    resetReconstructors();
-    Rec = new RecLS(Model);
-}
-
-void AMercury_si::createReconstructor_ML()
-{
-    if (!Model)
-    {
-        abort("LRF model was not created yet!");
-        return;
-    }
-
-    resetReconstructors();
-    Rec = new RecML(Model);
-}
-*/
-
-void AMercury_si::createReconstructor_COG_multi(int numThreads)
+void AMercury_si::newReconstructor(QString type, int numThreads)
 {
     if (!LRHub.Model)
     {
-        abort("LRF model was not created yet!");
+        abort("LRF model was not created yet");
         return;
     }
 
-    resetReconstructors();
-    RecMP = new ReconstructorMP(LRHub.Model, numThreads);
-}
-
-void AMercury_si::createReconstructor_LS_multi(int numThreads)
-{
-    if (!LRHub.Model)
+    if (numThreads < 1)
     {
-        abort("LRF model was not created yet!");
+        abort("The numThread argument of newReconstructor method should be at least 1");
         return;
     }
 
-    resetReconstructors();
-    RecMP = new RecLS_MP(LRHub.Model, numThreads);
-}
+    resetReconstructor();
 
-void AMercury_si::createReconstructor_ML_multi(int numThreads)
-{
-    if (!LRHub.Model)
+    if      (type == "COG") RecMP = new ReconstructorMP(LRHub.Model, numThreads);
+    else if (type == "ML")  RecMP = new RecML_MP(LRHub.Model, numThreads);
+    else if (type == "LS")  RecMP = new RecLS_MP(LRHub.Model, numThreads);
+    else
     {
-        abort("LRF model was not created yet!");
+        abort("The method newReconstructor should have a type of 'COG', 'ML' or 'LS'");
         return;
     }
-
-    resetReconstructors();
-    RecMP = new RecML_MP(LRHub.Model, numThreads);
 }
-
-/*
-void AMercury_si::reconstructEvent(QVariantList sensSignals)
-{
-    const size_t numEl = sensSignals.size();
-    std::vector<double> a(numEl);
-    std::vector<bool>   sat(numEl, false);
-
-    for (size_t i = 0; i < numEl; i++)
-        a[i] = sensSignals[i].toDouble();
-
-    if (Rec) Rec->ProcessEvent(a, sat);
-    else     abort("Reconstructor was not yet created");
-}
-*/
 
 void AMercury_si::reconstructEvents(QVariantList sensorSignalsOverAllEvents)
 {
+    if (!RecMP)
+    {
+        abort("Reconstructor was not created yet");
+        return;
+    }
+
     const size_t numEvents = sensorSignalsOverAllEvents.size();
+    if (numEvents == 0)
+    {
+        abort("The array with events for reconstructEvents is empty");
+        return;
+    }
 
     std::vector<std::vector<double>> A(numEvents);
 
@@ -119,27 +66,8 @@ void AMercury_si::reconstructEvents(QVariantList sensorSignalsOverAllEvents)
             A[iEv][i] = sensSignals[i].toDouble();
     }
 
-    if (RecMP) RecMP->ProcessEvents(A);
-    else     abort("Reconstructor was not yet created");
+    RecMP->ProcessEvents(A);
 }
-
-/*
-double AMercury_si::getPositionX()
-{
-    if (Rec) return Rec->getRecX();
-
-    abort("Reconstructor was not yet created");
-    return 0;
-}
-
-double AMercury_si::getPositionY()
-{
-    if (Rec) return Rec->getRecY();
-
-    abort("Reconstructor was not yet created");
-    return 0;
-}
-*/
 
 QVariantList AMercury_si::getRecXYZ()
 {
@@ -278,20 +206,20 @@ void AMercury_si::plotChi2_XY(int xBins, double xFrom, double xTo, int yBins, do
 
 void AMercury_si::setCOG_AbsCutoff(double val)
 {
-    if (Rec) Rec->setCogAbsCutoff(val);
-    else abort("Reconstructor was not yet created");
+    if (RecMP) RecMP->setCogAbsCutoff(val);
+    else abort("Reconstructor was not created yet");
 }
 
 void AMercury_si::setCOG_RelCutoff(double val)
 {
-    if (Rec) Rec->setCogRelCutoff(val);
-    else abort("Reconstructor was not yet created");
+    if (RecMP) RecMP->setCogRelCutoff(val);
+    else abort("Reconstructor was not created yet");
 }
 
 void AMercury_si::setCutoffRadius(double val)
 {
-    if (Rec) Rec->setRecCutoffRadius(val);
-    else abort("Reconstructor was not yet created");
+    if (RecMP) RecMP->setRecCutoffRadius(val);
+    else abort("Reconstructor was not created yet");
 }
 
 void AMercury_si::setMinuitParameters(double RMtolerance, int RMmaxIterations, int RMmaxFuncCalls)
@@ -299,7 +227,7 @@ void AMercury_si::setMinuitParameters(double RMtolerance, int RMmaxIterations, i
     RecMinuitMP * rec = dynamic_cast<RecMinuitMP*>(RecMP);
     if (!rec)
     {
-        abort("Reconstructor not created or it is not of Minuit type");
+        abort("Reconstructor not created or it is not 'ML' or 'LS' type");
         return;
     }
     rec->setRMtolerance(RMtolerance);
@@ -309,12 +237,8 @@ void AMercury_si::setMinuitParameters(double RMtolerance, int RMmaxIterations, i
 
 // --- Private methods ---
 
-void AMercury_si::resetReconstructors()
+void AMercury_si::resetReconstructor()
 {
-    delete Rec;   Rec   = nullptr;
     delete RecMP; RecMP = nullptr;
 }
-
-
-
 

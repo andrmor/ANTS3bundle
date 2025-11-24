@@ -26,8 +26,8 @@ public slots:
     // High-level interface
     void newLightResponseModel(QVariantList sensorPositions);
 
-    QString exportLightResponseModel();
     void importLightResponseModel(QString jsonStr);
+    QString exportLightResponseModel();
 
     void makeSensorGroups(QString type, int numNodes = 3);
 
@@ -37,13 +37,11 @@ public slots:
 
     void setLRF(QString jsonString);
 
-    void clearFitData();
     void addFitData(int iSensor, QVariantList xyza);
     void fitResponse(QVariantList floodSignals, QVariantList floodPositions);
 
     void plotLRF_radial(int iSensor, bool showNodes = false);
     void showLightResponseExplorer();
-
 
     // Low-level interface
     void enableSensor(int iSensor, bool enableFlag);
@@ -52,11 +50,12 @@ public slots:
     int  countGroups();
 
     void setLRF_Sensor(int iSensor, QString jsonString);     // sets x0 y0 of axial if not present in the lrfjson
-    void setLRF_Group(int iGroup, QString jsonString);     // sets x0 y0 of axial if not present in the lrfjson
+    void setLRF_Group(int iGroup, QString jsonString);       // sets x0 y0 of axial if not present in the lrfjson
 
     void         setModelGains(QVariantList gains);
     QVariantList getModelGains();
 
+    void clearFitData();
     void fitSensor(int iSensor);
     void fitGroup(int iGroup);
 
