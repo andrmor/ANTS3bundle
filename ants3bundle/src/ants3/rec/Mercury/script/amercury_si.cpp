@@ -184,7 +184,6 @@ void AMercury_si::plot(QString what, int bins, double from, double to)
         for (size_t i = 0; i < status.size(); i++)
         {
             if (status[i] != 0) continue;
-
             h->Fill(chi2[i], 1);
         }
         break;
@@ -291,10 +290,9 @@ void AMercury_si::doPlot_vsXY(bool vsTrue, EPlotOption opt, int xBins, double xF
     const std::vector<double> & recX   = RecMP->rec_x;
     const std::vector<double> & recY   = RecMP->rec_y;
 
-    TH2D * h = new TH2D("", "", xBins, xFrom, xTo, yBins, yFrom, yTo);
+    TH2D * h  = new TH2D("", "", xBins, xFrom, xTo, yBins, yFrom, yTo);
+    TH2D * h1 = new TH2D("", "", xBins, xFrom, xTo, yBins, yFrom, yTo);  // used for normalization
     QString title;
-
-    // !!!*** TODO normalization (TH2D * hNorm = ...)
 
     switch (opt)
     {
@@ -303,8 +301,8 @@ void AMercury_si::doPlot_vsXY(bool vsTrue, EPlotOption opt, int xBins, double xF
         for (size_t i = 0; i < status.size(); i++)
         {
             if (status[i] != 0) continue;
-
-            h->Fill(x[i], y[i], energy[i]);
+            h-> Fill(x[i], y[i], energy[i]);
+            h1->Fill(x[i], y[i], 1);
         }
         break;
     case Chi2Option:
@@ -312,21 +310,25 @@ void AMercury_si::doPlot_vsXY(bool vsTrue, EPlotOption opt, int xBins, double xF
         for (size_t i = 0; i < status.size(); i++)
         {
             if (status[i] != 0) continue;
-
-            h->Fill(x[i], y[i], chi2[i]);
+            h-> Fill(x[i], y[i], chi2[i]);
+            h1->Fill(x[i], y[i], 1);
         }
         break;
     case StatusOption:
         title = "status_";
         for (size_t i = 0; i < status.size(); i++)
-            h->Fill(x[i], y[i], (status[i] == 0 ? 0 : 1));
+        {
+            h->Fill (x[i], y[i], (status[i] == 0 ? 0 : 1));
+            h1->Fill(x[i], y[i], 1);
+        }
         break;
     case DensityOption:
         title = "density_";
         for (size_t i = 0; i < status.size(); i++)
         {
             if (status[i] != 0) continue;
-            h->Fill(x[i], y[i], 1);
+            h-> Fill(x[i], y[i], 1);
+            // no h1 filling as there is no averaging!
         }
         break;
     case BiasXOption:
@@ -334,7 +336,8 @@ void AMercury_si::doPlot_vsXY(bool vsTrue, EPlotOption opt, int xBins, double xF
         for (size_t i = 0; i < status.size(); i++)
         {
             if (status[i] != 0) continue;
-            h->Fill(x[i], y[i], recX[i] - x[i]);
+            h-> Fill(x[i], y[i], recX[i] - x[i]);
+            h1->Fill(x[i], y[i], 1);
         }
         break;
     case BiasYOption:
@@ -342,7 +345,8 @@ void AMercury_si::doPlot_vsXY(bool vsTrue, EPlotOption opt, int xBins, double xF
         for (size_t i = 0; i < status.size(); i++)
         {
             if (status[i] != 0) continue;
-            h->Fill(x[i], y[i], recY[i] - y[i]);
+            h-> Fill(x[i], y[i], recY[i] - y[i]);
+            h1->Fill(x[i], y[i], 1);
         }
         break;
     case SigmaXOption:
@@ -351,7 +355,8 @@ void AMercury_si::doPlot_vsXY(bool vsTrue, EPlotOption opt, int xBins, double xF
         {
             if (status[i] != 0) continue;
             const double delta = recX[i] - x[i];
-            h->Fill(x[i], y[i], delta*delta);
+            h-> Fill(x[i], y[i], delta*delta);
+            h1->Fill(x[i], y[i], 1);
         }
         break;
     case SigmaYOption:
@@ -360,7 +365,8 @@ void AMercury_si::doPlot_vsXY(bool vsTrue, EPlotOption opt, int xBins, double xF
         {
             if (status[i] != 0) continue;
             const double delta = recY[i] - y[i];
-            h->Fill(x[i], y[i], delta*delta);
+            h-> Fill(x[i], y[i], delta*delta);
+            h1->Fill(x[i], y[i], 1);
         }
         break;
     default:
@@ -371,6 +377,14 @@ void AMercury_si::doPlot_vsXY(bool vsTrue, EPlotOption opt, int xBins, double xF
     {
         title += (vsTrue ? "trueXY" : "recXY");
         h->SetTitle(title.toLatin1().data());
+
+        if (opt != DensityOption) h->Divide(h1);
+        if (opt == SigmaXOption || opt == SigmaYOption)
+        {
+            for (int bin = 0; bin <= h->GetNcells(); bin++)
+                h->SetBinContent(bin, sqrt(h->GetBinContent(bin)));
+        }
+
         emit AScriptHub::getInstance().requestDraw(h, "colz", true);
     }
 }
