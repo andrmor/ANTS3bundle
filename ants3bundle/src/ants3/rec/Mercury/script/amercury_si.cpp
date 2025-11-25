@@ -159,7 +159,7 @@ void AMercury_si::plot(QString what, int bins, double from, double to)
     EPlotOption opt = whatFromString(what);
     if (opt == ErrorOption)
     {
-        abort("mercury.plot method accepts only the following options:\nEnergy, Chi2, Status");
+        abort("Mercury unit offers the following plot options:\n" + PlotOptions);
         return;
     }
 
@@ -202,6 +202,9 @@ void AMercury_si::plot(QString what, int bins, double from, double to)
             ax->ChangeLabelByValue(2.0, -1, -1, -1, -1, -1, " ");
         }
         break;
+    case DensityOption:
+        abort("Density option is only applicable for 2D plots");
+        break;
     default:
         break;
     }
@@ -220,22 +223,83 @@ void AMercury_si::plot_vsRecXY(QString what, int xBins, double xFrom, double xTo
     EPlotOption opt = whatFromString(what);
     if (opt == ErrorOption)
     {
-        abort("mercury.plot method accepts only the following options:\nEnergy, Chi2, Status");
+        abort("Mercury unit offers the following plot options:\n" + PlotOptions);
         return;
     }
+
+    const std::vector<double> & x = RecMP->rec_x;
+    const std::vector<double> & y = RecMP->rec_y;
+    doPlot_vsXY(false, opt, xBins, xFrom, xTo, yBins, yFrom, yTo, x, y);
+}
+
+void AMercury_si::plot_vsTrueXY(QString what, int xBins, double xFrom, double xTo, int yBins, double yFrom, double yTo, QVariantList truePositions)
+{
+    if (!RecMP)
+    {
+        abort("Reconstructor was not created yet");
+        return;
+    }
+
+    EPlotOption opt = whatFromString(what);
+    if (opt == ErrorOption)
+    {
+        abort("Mercury unit offers the following plot options:\n" + PlotOptions);
+        return;
+    }
+
+    size_t num = truePositions.size();
+    if (num == 0)
+    {
+        abort("TruePositions array is empty");
+        return;
+    }
+    if (num != RecMP->rec_x.size())
+    {
+        abort("TruePositions array size does not match reconstruction data size");
+        return;
+    }
+    std::vector<double> x(num), y(num);
+
+    for (size_t i = 0; i < num; i++)
+    {
+        QVariantList el = truePositions[i].toList();
+        if (el.size() < 2)
+        {
+            abort("TruePositions array should contain arrays of at least size two (X and Y positions)");
+            return;
+        }
+        x[i] = el[0].toDouble();
+        y[i] = el[1].toDouble();
+    }
+
+    doPlot_vsXY(true, opt, xBins, xFrom, xTo, yBins, yFrom, yTo, x, y);
+}
+
+void AMercury_si::doPlot_vsXY(bool vsTrue, EPlotOption opt, int xBins, double xFrom, double xTo, int yBins, double yFrom, double yTo,
+                              const std::vector<double> & x, const std::vector<double> & y)
+{
+    if (!vsTrue)
+        if (opt == BiasXOption || opt == BiasYOption || opt == SigmaXOption || opt == SigmaYOption)
+        {
+            abort("Bias and Sigma options are available only for 2D plots vs true positions");
+            return;
+        }
 
     const std::vector<int>    & status = RecMP->rec_status;
     const std::vector<double> & chi2   = RecMP->rec_chi2min;
     const std::vector<double> & energy = RecMP->rec_e;
-    const std::vector<double> & x      = RecMP->rec_x;
-    const std::vector<double> & y      = RecMP->rec_y;
+    const std::vector<double> & recX   = RecMP->rec_x;
+    const std::vector<double> & recY   = RecMP->rec_y;
 
-    TH2D * h = nullptr;
+    TH2D * h = new TH2D("", "", xBins, xFrom, xTo, yBins, yFrom, yTo);
+    QString title;
+
+    // !!!*** TODO normalization (TH2D * hNorm = ...)
 
     switch (opt)
     {
     case EnergyOption:
-        h = new TH2D("", "energy_recXY", xBins, xFrom, xTo, yBins, yFrom, yTo);
+        title = "energy_";
         for (size_t i = 0; i < status.size(); i++)
         {
             if (status[i] != 0) continue;
@@ -244,7 +308,7 @@ void AMercury_si::plot_vsRecXY(QString what, int xBins, double xFrom, double xTo
         }
         break;
     case Chi2Option:
-        h = new TH2D("", "chi2_recXY", xBins, xFrom, xTo, yBins, yFrom, yTo);
+        title = "chi2_";
         for (size_t i = 0; i < status.size(); i++)
         {
             if (status[i] != 0) continue;
@@ -253,17 +317,63 @@ void AMercury_si::plot_vsRecXY(QString what, int xBins, double xFrom, double xTo
         }
         break;
     case StatusOption:
-        h = new TH2D("", "status_recXY", xBins, xFrom, xTo, yBins, yFrom, yTo);
+        title = "status_";
         for (size_t i = 0; i < status.size(); i++)
             h->Fill(x[i], y[i], (status[i] == 0 ? 0 : 1));
+        break;
+    case DensityOption:
+        title = "density_";
+        for (size_t i = 0; i < status.size(); i++)
+        {
+            if (status[i] != 0) continue;
+            h->Fill(x[i], y[i], 1);
+        }
+        break;
+    case BiasXOption:
+        title = "biasX_";
+        for (size_t i = 0; i < status.size(); i++)
+        {
+            if (status[i] != 0) continue;
+            h->Fill(x[i], y[i], recX[i] - x[i]);
+        }
+        break;
+    case BiasYOption:
+        title = "biasY_";
+        for (size_t i = 0; i < status.size(); i++)
+        {
+            if (status[i] != 0) continue;
+            h->Fill(x[i], y[i], recY[i] - y[i]);
+        }
+        break;
+    case SigmaXOption:
+        title = "sigmaX_";
+        for (size_t i = 0; i < status.size(); i++)
+        {
+            if (status[i] != 0) continue;
+            const double delta = recX[i] - x[i];
+            h->Fill(x[i], y[i], delta*delta);
+        }
+        break;
+    case SigmaYOption:
+        title = "sigmaY_";
+        for (size_t i = 0; i < status.size(); i++)
+        {
+            if (status[i] != 0) continue;
+            const double delta = recY[i] - y[i];
+            h->Fill(x[i], y[i], delta*delta);
+        }
         break;
     default:
         break;
     }
 
-    if (h) emit AScriptHub::getInstance().requestDraw(h, "colz", true);
+    if (h)
+    {
+        title += (vsTrue ? "trueXY" : "recXY");
+        h->SetTitle(title.toLatin1().data());
+        emit AScriptHub::getInstance().requestDraw(h, "colz", true);
+    }
 }
-
 
 void AMercury_si::setCOG_AbsCutoff(double val)
 {
@@ -307,9 +417,14 @@ AMercury_si::EPlotOption AMercury_si::whatFromString(QString what)
 {
     what = what.toUpper();
 
-    if (what == "ENERGY") return EnergyOption;
-    if (what == "CHI2")   return Chi2Option;
-    if (what == "STATUS") return StatusOption;
+    if (what == "ENERGY")  return EnergyOption;
+    if (what == "CHI2")    return Chi2Option;
+    if (what == "STATUS")  return StatusOption;
+    if (what == "DENSITY") return DensityOption;
+    if (what == "BIASX")   return BiasXOption;
+    if (what == "BIASY")   return BiasYOption;
+    if (what == "SIGMAX")  return SigmaXOption;
+    if (what == "SIGMAY")  return SigmaYOption;
 
     return ErrorOption;
 }

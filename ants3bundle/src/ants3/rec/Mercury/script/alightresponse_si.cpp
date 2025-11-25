@@ -13,7 +13,7 @@ ALightResponse_SI::ALightResponse_SI() :
 
 // --- High level ---
 
-void ALightResponse_SI::newLightResponseModel(QVariantList sensorPositions)
+void ALightResponse_SI::newResponseModel(QVariantList sensorPositions)
 {
     size_t numSens = sensorPositions.size();
     if (numSens == 0)
@@ -50,17 +50,27 @@ void ALightResponse_SI::newLightResponseModel(QVariantList sensorPositions)
         LRHub.Model->AddSensor(iSens, arSensPos[iSens].first, arSensPos[iSens].second);
 }
 
-QString ALightResponse_SI::exportLightResponseModel()
+#include "afiletools.h"
+void ALightResponse_SI::saveResponseModel(QString fileName)
 {
-    QString res;
-    if (LRHub.Model) res = LRHub.Model->GetJsonString().data();
-    return res;
+    if (!LRHub.Model)
+    {
+        abort("Model was not created yet!");
+        return;
+    }
+
+    QString jsonStr = LRHub.Model->GetJsonString().data();
+    bool ok = ftools::saveTextToFile(jsonStr, fileName);
+    if (!ok) abort("Failed to save response to file: " + fileName);
 }
 
-void ALightResponse_SI::importLightResponseModel(QString jsonStr)
+void ALightResponse_SI::loadResponseModel(QString fileName)
 {
     clearModel();
-    LRHub.Model = new LRModel(jsonStr.toLatin1().data());
+    QString jsonStr;
+    bool ok = ftools::loadTextFromFile(jsonStr, fileName);
+    if (!ok) abort("Failed to load response from file: " + fileName);
+    else LRHub.Model = new LRModel(jsonStr.toLatin1().data());
 }
 
 void ALightResponse_SI::makeSensorGroups(QString type, int numNodes)
@@ -222,7 +232,7 @@ void ALightResponse_SI::plotLRF_radial(int iSensor, bool showNodes)
     if (!err.isEmpty()) abort(err);
 }
 
-void ALightResponse_SI::showLightResponseExplorer()
+void ALightResponse_SI::showResponseExplorer()
 {
     if (!LRHub.Model) abort("Light response model is not defined");
     else emit AScriptHub::getInstance().requestShowLightResponseExplorer(LRHub.Model);

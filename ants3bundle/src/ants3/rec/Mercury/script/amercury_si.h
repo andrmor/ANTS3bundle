@@ -34,6 +34,7 @@ public slots:
 
     void plot(QString what, int bins, double from, double to);
     void plot_vsRecXY(QString what, int xBins, double xFrom, double xTo, int yBins, double yFrom, double yTo);
+    void plot_vsTrueXY(QString what, int xBins, double xFrom, double xTo, int yBins, double yFrom, double yTo, QVariantList truePositions);
 
     // --- Low level ---
     void setCOG_AbsCutoff(double val);
@@ -47,9 +48,12 @@ private:
 
     void resetReconstructor();
 
-    enum EPlotOption {ErrorOption, EnergyOption, Chi2Option, StatusOption};
+    enum EPlotOption {ErrorOption, EnergyOption, Chi2Option, StatusOption, DensityOption, BiasXOption, BiasYOption, SigmaXOption, SigmaYOption};
+    const QString PlotOptions = "Energy, Chi2, Status, Density, BiasX, BiasY, SigmaX, SigmaY";
     EPlotOption whatFromString(QString what);
 
+    void doPlot_vsXY(bool vsTrue, EPlotOption opt, int xBins, double xFrom, double xTo, int yBins, double yFrom, double yTo,
+                     const std::vector<double> & x, const std::vector<double> & y);
 };
 
 #endif // AMERCURY_SI_H
