@@ -29,13 +29,20 @@ public slots:
     void loadResponseModel(QString fileName);
     void saveResponseModel(QString fileName);
 
-    void makeSensorGroups(QString type, int numNodes = 3);
+    void defineSensorGroups(QString type, int numNodes = 3);
 
     QString newLRF_axial(int intervals, double minR, double maxR);
-    QString configureLRF_AxialCompression(QString LRF, double k, double lambda, double r0);
-    QString newLRF_xy(int intervalsX, double minX, double maxX, int intervalsY, double minY, double maxY);
+    QString newLRF_axial3D(int intervalsR, double minR, double maxR,
+                           int intervalsZ, double minZ, double maxZ);
+    QString newLRF_xy(int intervalsX, double minX, double maxX,
+                      int intervalsY, double minY, double maxY);
+    QString newLRF_xyz(int intervalsX, double minX, double maxX,
+                       int intervalsY, double minY, double maxY,
+                       int intervalsZ, double minZ, double maxZ);
 
+    QString configureLRF_AxialCompression(QString LRF, double k, double lambda, double r0);
     QString configureLRF_Constrains(QString LRF, bool nonNegative, bool nonIncreasing, bool flattop);
+
     void setLRF(QString jsonString);
 
     void addFitData(int iSensor, QVariantList xyza);
@@ -49,6 +56,7 @@ public slots:
 
     void clearGroups();
     int  countGroups();
+    QVariantList getGroupMembers(int iGroup);
 
     void setLRF_Sensor(int iSensor, QString jsonString);     // sets x0 y0 of axial if not present in the lrfjson
     void setLRF_Group(int iGroup, QString jsonString);       // sets x0 y0 of axial if not present in the lrfjson

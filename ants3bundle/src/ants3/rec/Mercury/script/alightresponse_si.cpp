@@ -73,7 +73,7 @@ void ALightResponse_SI::loadResponseModel(QString fileName)
     else LRHub.Model = new LRModel(jsonStr.toLatin1().data());
 }
 
-void ALightResponse_SI::makeSensorGroups(QString type, int numNodes)
+void ALightResponse_SI::defineSensorGroups(QString type, int numNodes)
 {
     if (!LRHub.Model)
     {
@@ -82,7 +82,7 @@ void ALightResponse_SI::makeSensorGroups(QString type, int numNodes)
     }
 
     if      (type == "Common")    LRHub.Model->MakeGroupsCommon();
-    if      (type == "ByRadius")  LRHub.Model->MakeGroupsByRadius();
+    else if (type == "ByRadius")  LRHub.Model->MakeGroupsByRadius();
     else if (type == "Rectangle") LRHub.Model->MakeGroupsRectangle();
     else if (type == "Square")    LRHub.Model->MakeGroupsSquare();
     else if (type == "Hexagon")   LRHub.Model->MakeGroupsHexagon();
@@ -147,10 +147,29 @@ QString ALightResponse_SI::configureLRF_Constrains(QString LRF, bool nonNegative
     return jstools::jsonToString(json);
 }
 
+#include "lrfaxial3d.h"
+QString ALightResponse_SI::newLRF_axial3D(int intervalsR, double minR, double maxR, int intervalsZ, double minZ, double maxZ)
+{
+    LRFaxial3d lrf(maxR, intervalsR, minZ, maxZ, intervalsZ);
+    lrf.SetRmin(minR);
+    return QString(lrf.GetJsonString().data());
+}
+
 #include "lrfxy.h"
 QString ALightResponse_SI::newLRF_xy(int intervalsX, double minX, double maxX, int intervalsY, double minY, double maxY)
 {
     LRFxy lrf(minX, maxX, intervalsX, minY, maxY, intervalsY);
+    return QString(lrf.GetJsonString().data());
+}
+
+#include "lrfxyz.h"
+QString ALightResponse_SI::newLRF_xyz(int intervalsX, double minX, double maxX,
+                                      int intervalsY, double minY, double maxY,
+                                      int intervalsZ, double minZ, double maxZ)
+{
+    LRFxyz lrf(minX, maxX, intervalsX,
+               minY, maxY, intervalsY,
+               minZ, maxZ, intervalsZ);
     return QString(lrf.GetJsonString().data());
 }
 
@@ -377,6 +396,25 @@ int ALightResponse_SI::countGroups()
 {
     if (LRHub.Model) return LRHub.Model->GetGroupCount();
     else return 0;
+}
+
+QVariantList ALightResponse_SI::getGroupMembers(int iGroup)
+{
+    QVariantList vl;
+    if (!LRHub.Model)
+    {
+        abort("Light response model is not defined");
+        return vl;
+    }
+    if (iGroup < 0 || iGroup > LRHub.Model->GetGroupCount())
+    {
+        abort("Invalid sensor group index: " + QString::number(iGroup));
+        return vl;
+    }
+
+    const std::set<int> & memSet = LRHub.Model->GroupMembers(iGroup);
+    std::for_each(memSet.begin(), memSet.end(), [&vl](const int & n){vl.push_back(n);});
+    return vl;
 }
 
 void ALightResponse_SI::setLRF_Sensor(int iSensor, QString jsonString)
