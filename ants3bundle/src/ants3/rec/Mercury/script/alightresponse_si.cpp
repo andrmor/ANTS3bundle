@@ -251,15 +251,18 @@ void ALightResponse_SI::plotLRF_radial(int iSensor, bool showNodes)
     if (!err.isEmpty()) abort(err);
 }
 
+void ALightResponse_SI::plotLRF_xy(int iSensor, bool showNodes)
+{
+    ALrfDrawer dr(LRHub.Model);
+    QString err = dr.drawXY(iSensor, showNodes);
+    if (!err.isEmpty()) abort(err);
+}
+
 void ALightResponse_SI::showResponseExplorer()
 {
     if (!LRHub.Model) abort("Light response model is not defined");
     else emit AScriptHub::getInstance().requestShowLightResponseExplorer(LRHub.Model);
 }
-
-
-
-
 
 void ALightResponse_SI::fitResponse(QVariantList floodSignals, QVariantList floodPositions)
 {

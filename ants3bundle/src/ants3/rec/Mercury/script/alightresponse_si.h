@@ -49,6 +49,7 @@ public slots:
     void fitResponse(QVariantList floodSignals, QVariantList floodPositions);
 
     void plotLRF_radial(int iSensor, bool showNodes = false);
+    void plotLRF_xy(int iSensor, bool showNodes = false);
     void showResponseExplorer();
 
     // Low-level interface

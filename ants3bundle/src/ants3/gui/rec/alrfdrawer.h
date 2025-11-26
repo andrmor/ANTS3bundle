@@ -15,11 +15,13 @@ public:
     ALrfDrawer(LRModel * model);
 
     QString drawRadial(int iSens, bool showNodes); // returns error
+    QString drawXY(int iSens, bool showNodes); // returns error
 
 private:
     LRModel * Model = nullptr;
 
     size_t NumPointsInRadialGraph = 100;
+    size_t NumPointsInXYGraph = 100;
 
 signals:
     void requestDraw(TObject * obj, QString options, bool fFocus);
