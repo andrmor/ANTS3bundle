@@ -77,6 +77,7 @@ signals:
     void reportProgress_JS(int percent);
     void reportProgress_P(int percent);
     void requestDraw(TObject * obj, QString options, bool fFocus); // connected using Queued Connection inside graphwindow class; object ownership is transferred to graph window!
+    void requestDrawCollection(std::vector<std::pair<TObject*, QString>> objectsAndOptions, bool fFocus); // connected using Queued Connection inside graphwindow class; object ownership is transferred to graph window!
     void requestShowLightResponseExplorer(LRModel * model); // mercury SI
 
 private:

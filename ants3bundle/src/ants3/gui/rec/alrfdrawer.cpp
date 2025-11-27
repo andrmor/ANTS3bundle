@@ -7,7 +7,6 @@
 
 #include "TGraph.h"
 #include "TGraph2D.h"
-#include "TMultiGraph.h"
 #include "TAxis.h"
 
 ALrfDrawer::ALrfDrawer(LRModel * model) :
@@ -89,8 +88,7 @@ QString ALrfDrawer::drawRadial(int iSens, bool showNodes)
         const size_t numProfiles = 36;
         const double z0 = 0;
 
-        TMultiGraph * mg = new TMultiGraph();
-        mg->SetTitle( TString("LRF #") + iSens);
+        std::vector<std::pair<TObject*, QString>> graphs;
 
         double dx = xy->getXmax() - xy->getXmin();
         double dy = xy->getYmax() - xy->getYmin();
@@ -108,6 +106,7 @@ QString ALrfDrawer::drawRadial(int iSens, bool showNodes)
             g->SetLineColor(4);
             g->GetXaxis()->SetTitle("R, mm");
             g->GetYaxis()->SetTitle("LRF");
+            g->SetTitle( TString("LRF #") + iSens);
 
             double angle = iPr * 2 * 3.1415926535 / numProfiles;
             double val = 0;
@@ -123,12 +122,11 @@ QString ALrfDrawer::drawRadial(int iSens, bool showNodes)
             while (val != 0);
 
             g->GetXaxis()->SetRangeUser(0, g->GetXaxis()->GetXmax());
-            mg->Add(g, (iPr == 0 ? "AL" : "L"));
+            g->SetMinimum(0);
+            graphs.push_back({g, (iPr == 0 ? "AL" : "Lsame")});
         }
 
-        mg->GetXaxis()->SetRangeUser(0, mg->GetXaxis()->GetXmax());
-        mg->SetMinimum(0);
-        emit AScriptHub::getInstance().requestDraw(mg, "AL", true);
+        emit AScriptHub::getInstance().requestDrawCollection(graphs, true);
         return "";
     }
 

@@ -109,7 +109,8 @@ AGraphWindow::AGraphWindow(QWidget * parent) :
     connect(lwBasket, &ABasketListWidget::itemDoubleClicked, this, &AGraphWindow::onBasketItemDoubleClicked);
     connect(lwBasket, &ABasketListWidget::requestReorder, this, &AGraphWindow::onBasketReorderRequested);
 
-    connect(&AScriptHub::getInstance(), &AScriptHub::requestDraw, this, &AGraphWindow::onScriptDrawRequest, Qt::DirectConnection); // inside will be queued
+    connect(&AScriptHub::getInstance(), &AScriptHub::requestDraw,           this, &AGraphWindow::onScriptDrawRequest,           Qt::DirectConnection); // inside it is queued
+    connect(&AScriptHub::getInstance(), &AScriptHub::requestDrawCollection, this, &AGraphWindow::onScriptDrawCollectionRequest, Qt::DirectConnection); // inside it is queued
     connectScriptUnitDrawRequests(AScriptHub::getInstance().getJScriptManager().getInterfaces());
 #ifdef ANTS3_PYTHON
     connectScriptUnitDrawRequests(AScriptHub::getInstance().getPythonManager().getInterfaces());
@@ -333,7 +334,7 @@ void AGraphWindow::draw(TObject * obj, QString options, bool update, bool transf
     enforceOverlayOff();
     updateControls();
 
-    DrawFinished = true;
+    DrawFinished--;
 }
 
 void AGraphWindow::updateGuiControlsForMainObject(const QString & className, const QString & options)
@@ -1305,7 +1306,7 @@ void AGraphWindow::onDrawRequest(TObject * obj, QString options, bool transferOw
 
 void AGraphWindow::onScriptDrawRequest(TObject * obj, QString options, bool fFocus)
 {
-    DrawFinished = false;
+    DrawFinished = 1;
 
     emit requestLocalDrawObject(obj, options, fFocus);
     do
@@ -1313,7 +1314,22 @@ void AGraphWindow::onScriptDrawRequest(TObject * obj, QString options, bool fFoc
         QThread::msleep(100);
         QApplication::processEvents();
     }
-    while (!DrawFinished);
+    while (DrawFinished > 0);
+}
+
+void AGraphWindow::onScriptDrawCollectionRequest(std::vector<std::pair<TObject*, QString>> objectsAndOptions, bool fFocus)
+{
+    DrawFinished = objectsAndOptions.size();
+
+    for (const std::pair<TObject*, QString> & pair : objectsAndOptions)
+        emit requestLocalDrawObject(pair.first, pair.second, fFocus);
+
+    do
+    {
+        QThread::msleep(100);
+        QApplication::processEvents();
+    }
+    while (DrawFinished > 0);
 }
 
 void AGraphWindow::processScriptDrawRequest(TObject *obj, QString options, bool fFocus)
