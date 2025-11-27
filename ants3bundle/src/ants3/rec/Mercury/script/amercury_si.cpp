@@ -131,6 +131,7 @@ QVariantList AMercury_si::getRecStats()
 
     const std::vector<int>    & status = RecMP->rec_status;
     const std::vector<double> & chi2   = RecMP->rec_chi2min;
+    const std::vector<int>    & dof    = RecMP->rec_dof;
     const std::vector<double> & cov_xx = RecMP->cov_xx;
     const std::vector<double> & cov_yy = RecMP->cov_yy;
     const std::vector<double> & cov_xy = RecMP->cov_xy;
@@ -143,7 +144,10 @@ QVariantList AMercury_si::getRecStats()
     }
 
     for (size_t i = 0; i < size; i++)
-        res.emplaceBack(QVariantList{status[i], chi2[i], cov_xx[i], cov_yy[i], cov_xy[i]});
+    {
+        if (status[i] == 0) res.emplaceBack(QVariantList{status[i], chi2[i] / dof[i], cov_xx[i], cov_yy[i], cov_xy[i]});
+        else                res.emplaceBack(QVariantList{status[i], 0,                0,         0,         0});
+    }
     return res;
 }
 
@@ -164,6 +168,7 @@ void AMercury_si::plot(QString what, int bins, double from, double to)
     }
 
     const std::vector<int>    & status = RecMP->rec_status;
+    const std::vector<int>    & dof    = RecMP->rec_dof;
     const std::vector<double> & chi2   = RecMP->rec_chi2min;
     const std::vector<double> & energy = RecMP->rec_e;
 
@@ -173,6 +178,7 @@ void AMercury_si::plot(QString what, int bins, double from, double to)
     {
     case EnergyOption:
         h = new TH1D("", "energy", bins, from, to);
+        h->GetXaxis()->SetTitle("Energy");
         for (size_t i = 0; i < status.size(); i++)
         {
             if (status[i] != 0) continue;
@@ -181,10 +187,11 @@ void AMercury_si::plot(QString what, int bins, double from, double to)
         break;
     case Chi2Option:
         h = new TH1D("", "chi2", bins, from, to);
+        h->GetXaxis()->SetTitle("Chi2");
         for (size_t i = 0; i < status.size(); i++)
         {
             if (status[i] != 0) continue;
-            h->Fill(chi2[i], 1);
+            h->Fill(chi2[i] / dof[i], 1);
         }
         break;
     case StatusOption:
@@ -285,6 +292,7 @@ void AMercury_si::doPlot_vsXY(bool vsTrue, EPlotOption opt, int xBins, double xF
         }
 
     const std::vector<int>    & status = RecMP->rec_status;
+    const std::vector<int>    & dof    = RecMP->rec_dof;
     const std::vector<double> & chi2   = RecMP->rec_chi2min;
     const std::vector<double> & energy = RecMP->rec_e;
     const std::vector<double> & recX   = RecMP->rec_x;
@@ -294,10 +302,14 @@ void AMercury_si::doPlot_vsXY(bool vsTrue, EPlotOption opt, int xBins, double xF
     TH2D * h1 = new TH2D("", "", xBins, xFrom, xTo, yBins, yFrom, yTo);  // used for normalization
     QString title;
 
+    h->GetXaxis()->SetTitle("X, mm");
+    h->GetYaxis()->SetTitle("Y, mm");
+
     switch (opt)
     {
     case EnergyOption:
         title = "energy_";
+        h->GetZaxis()->SetTitle("Energy");
         for (size_t i = 0; i < status.size(); i++)
         {
             if (status[i] != 0) continue;
@@ -307,15 +319,17 @@ void AMercury_si::doPlot_vsXY(bool vsTrue, EPlotOption opt, int xBins, double xF
         break;
     case Chi2Option:
         title = "chi2_";
+        h->GetZaxis()->SetTitle("Chi2");
         for (size_t i = 0; i < status.size(); i++)
         {
             if (status[i] != 0) continue;
-            h-> Fill(x[i], y[i], chi2[i]);
+            h-> Fill(x[i], y[i], chi2[i] / dof[i]);
             h1->Fill(x[i], y[i], 1);
         }
         break;
     case StatusOption:
         title = "status_";
+        h->GetZaxis()->SetTitle("Status");
         for (size_t i = 0; i < status.size(); i++)
         {
             h->Fill (x[i], y[i], (status[i] == 0 ? 0 : 1));
@@ -324,6 +338,7 @@ void AMercury_si::doPlot_vsXY(bool vsTrue, EPlotOption opt, int xBins, double xF
         break;
     case DensityOption:
         title = "density_";
+        h->GetZaxis()->SetTitle("Event density");
         for (size_t i = 0; i < status.size(); i++)
         {
             if (status[i] != 0) continue;
@@ -333,6 +348,7 @@ void AMercury_si::doPlot_vsXY(bool vsTrue, EPlotOption opt, int xBins, double xF
         break;
     case BiasXOption:
         title = "biasX_";
+        h->GetZaxis()->SetTitle("X bias");
         for (size_t i = 0; i < status.size(); i++)
         {
             if (status[i] != 0) continue;
@@ -342,6 +358,7 @@ void AMercury_si::doPlot_vsXY(bool vsTrue, EPlotOption opt, int xBins, double xF
         break;
     case BiasYOption:
         title = "biasY_";
+        h->GetZaxis()->SetTitle("Y bias");
         for (size_t i = 0; i < status.size(); i++)
         {
             if (status[i] != 0) continue;
@@ -351,6 +368,7 @@ void AMercury_si::doPlot_vsXY(bool vsTrue, EPlotOption opt, int xBins, double xF
         break;
     case SigmaXOption:
         title = "sigmaX_";
+        h->GetZaxis()->SetTitle("Sigma X");
         for (size_t i = 0; i < status.size(); i++)
         {
             if (status[i] != 0) continue;
@@ -361,6 +379,7 @@ void AMercury_si::doPlot_vsXY(bool vsTrue, EPlotOption opt, int xBins, double xF
         break;
     case SigmaYOption:
         title = "sigmaY_";
+        h->GetZaxis()->SetTitle("Sigma Y");
         for (size_t i = 0; i < status.size(); i++)
         {
             if (status[i] != 0) continue;
