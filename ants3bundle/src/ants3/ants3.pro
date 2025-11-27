@@ -10,6 +10,8 @@ CONFIG += ants3_mercury     #enables Mercury library for position reconstruction
 #
 # --- end of user-configure area ---
 
+QMAKE_CXXFLAGS += -O2
+
 # CERN ROOT
 INCLUDEPATH += $$system(root-config --incdir)
 LIBS += $$system(root-config --libs) -lGeom -lGeomPainter -lGeomBuilder -lMinuit2 -lSpectrum -ltbb
