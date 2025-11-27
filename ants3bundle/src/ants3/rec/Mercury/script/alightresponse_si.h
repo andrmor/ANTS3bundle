@@ -49,7 +49,7 @@ public slots:
     void fitResponse(QVariantList floodSignals, QVariantList floodPositions);
 
     void plotLRF_radial(int iSensor, bool showNodes = false);
-    void plotLRF_xy(int iSensor, bool showNodes = false);
+    void plotLRF_xy(int iSensor);
     void showResponseExplorer();
 
     // Low-level interface
@@ -71,6 +71,9 @@ public slots:
 
     double eval(int iSensor, double x, double y, double z);
     double eval(int iSensor, QVariantList xyz);
+
+    QString getModel();
+    void    setModel(QString jsonString);
 
 private:
     ALightResponseHub & LRHub;

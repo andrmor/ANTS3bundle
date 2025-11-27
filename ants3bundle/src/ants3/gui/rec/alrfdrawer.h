@@ -15,7 +15,7 @@ public:
     ALrfDrawer(LRModel * model);
 
     QString drawRadial(int iSens, bool showNodes); // returns error
-    QString drawXY(int iSens, bool showNodes); // returns error
+    QString drawXY(int iSens); // returns error
 
 private:
     LRModel * Model = nullptr;

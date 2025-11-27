@@ -7,6 +7,7 @@
 
 #include "TGraph.h"
 #include "TGraph2D.h"
+#include "TMultiGraph.h"
 #include "TAxis.h"
 
 ALrfDrawer::ALrfDrawer(LRModel * model) :
@@ -14,37 +15,32 @@ ALrfDrawer::ALrfDrawer(LRModel * model) :
 
 QString ALrfDrawer::drawRadial(int iSens, bool showNodes)
 {
-    if (!Model) return "Light response model is not defined";
+    if (!Model) return "Response model is not defined";
 
     if (iSens < 0 || iSens >= Model->GetSensorCount()) return "Invalid sensor index";
     LRF * lrf = Model->GetLRF(iSens);
     if (!lrf) return "LRF is not defined for the requested sensor";
 
-    TGraph * g = new TGraph(); // will be owned by the graph window
-    g->SetLineWidth(2);
-    g->SetLineColor(4);
-    g->SetTitle( TString("LRF #") + iSens);
-    g->GetXaxis()->SetTitle("Radial distance, mm");
-    g->GetYaxis()->SetTitle("LRF");
-
     LRFaxial * axial = dynamic_cast<LRFaxial*>(lrf);
-    if (axial)
+    if (axial)  // then just one line
     {
+        TGraph * g = new TGraph(); // will be owned by the graph window
+        g->SetLineWidth(2);
+        g->SetLineColor(4);
+        g->SetTitle( TString("LRF #") + iSens);
+        g->GetXaxis()->SetTitle("Radial distance, mm");
+        g->GetYaxis()->SetTitle("LRF");
+
         double from = axial->GetRmin();
         double to   = axial->getRmax();
 
         double step = (to - from) / NumPointsInRadialGraph;
 
-        double minVal = 0;
-        double maxVal = 0;
         for (size_t iR = 0; iR < NumPointsInRadialGraph; iR++)
         {
             double r = step * iR;
             double val = axial->evalAxial(r);
-            g->AddPoint(r, val);
-
-            if (val > maxVal) maxVal = val;
-            if (val < minVal) minVal = val;
+            if (val != 0) g->AddPoint(r, val);
         }
         g->SetMinimum(0);
 
@@ -84,14 +80,64 @@ QString ALrfDrawer::drawRadial(int iSens, bool showNodes)
             for (double r : GrX) gN->AddPoint(r, axial->evalAxial(r));
             emit AScriptHub::getInstance().requestDraw(gN, "Psame", true);
         }
+        return "";
     }
 
-    return "";
+    LRFxy * xy = dynamic_cast<LRFxy*>(lrf);
+    if (xy)
+    {
+        const size_t numProfiles = 36;
+        const double z0 = 0;
+
+        TMultiGraph * mg = new TMultiGraph();
+        mg->SetTitle( TString("LRF #") + iSens);
+
+        double dx = xy->getXmax() - xy->getXmin();
+        double dy = xy->getYmax() - xy->getYmin();
+        double maxRange = std::max(dx, dy);
+
+        double step = maxRange / NumPointsInRadialGraph;
+
+        double x0 = Model->GetX(iSens);
+        double y0 = Model->GetY(iSens);
+
+        for (size_t iPr = 0; iPr < numProfiles; iPr++)
+        {
+            TGraph * g = new TGraph(); // will be owned by the graph window
+            g->SetLineWidth(1);
+            g->SetLineColor(4);
+            g->GetXaxis()->SetTitle("R, mm");
+            g->GetYaxis()->SetTitle("LRF");
+
+            double angle = iPr * 2 * 3.1415926535 / numProfiles;
+            double val = 0;
+            double radius = 0;
+            do
+            {
+                double x = x0 + radius * cos(angle);
+                double y = y0 + radius * sin(angle);
+                val = xy->eval(x, y, z0);
+                if (val != 0) g->AddPoint(radius, val);
+                radius += step;
+            }
+            while (val != 0);
+
+            g->GetXaxis()->SetRangeUser(0, g->GetXaxis()->GetXmax());
+            mg->Add(g, (iPr == 0 ? "AL" : "L"));
+        }
+
+        mg->GetXaxis()->SetRangeUser(0, mg->GetXaxis()->GetXmax());
+        mg->SetMinimum(0);
+        emit AScriptHub::getInstance().requestDraw(mg, "AL", true);
+        return "";
+    }
+
+    return "Not implemented LRF type in ALrfDrawer::drawRadial";
 }
 
-QString ALrfDrawer::drawXY(int iSens, bool showNodes)
+QString ALrfDrawer::drawXY(int iSens)
 {
-    if (!Model) return "Light response model is not defined";
+    if (!Model) return "Response model is not defined";
 
     if (iSens < 0 || iSens >= Model->GetSensorCount()) return "Invalid sensor index";
     LRF * lrf = Model->GetLRF(iSens);
@@ -105,73 +151,31 @@ QString ALrfDrawer::drawXY(int iSens, bool showNodes)
     g->GetYaxis()->SetTitle("Y, mm");
     g->GetZaxis()->SetTitle("LRF");
 
-    //LRFxy * xy = dynamic_cast<LRFxy*>(lrf);
-    if (true)
+    double xFrom = lrf->getXmin();
+    double xTo   = lrf->getXmax();
+    double xStep = (xTo - xFrom) / NumPointsInXYGraph;
+
+    double yFrom = lrf->getYmin();
+    double yTo   = lrf->getYmax();
+    double yStep = (yTo - yFrom) / NumPointsInXYGraph;
+
+    //double minVal = 0;
+    //double maxVal = 0;
+    for (size_t iX = 0; iX < NumPointsInXYGraph; iX++)
     {
-        double xFrom = lrf->getXmin();
-        double xTo   = lrf->getXmax();
-        double xStep = (xTo - xFrom) / NumPointsInXYGraph;
-
-        double yFrom = lrf->getYmin();
-        double yTo   = lrf->getYmax();
-        double yStep = (yTo - yFrom) / NumPointsInXYGraph;
-
-        double minVal = 0;
-        double maxVal = 0;
-        for (size_t iX = 0; iX < NumPointsInXYGraph; iX++)
+        double x = xFrom + xStep * iX;
+        for (size_t iY = 0; iY < NumPointsInXYGraph; iY++)
         {
-            double x = xFrom + xStep * iX;
-            for (size_t iY = 0; iY < NumPointsInXYGraph; iY++)
-            {
-                double y = yFrom + yStep * iY;
-                double val = lrf->eval(x, y, 0);
-                g->AddPoint(x, y, val);
+            double y = yFrom + yStep * iY;
+            double val = lrf->eval(x, y, 0);
+            g->AddPoint(x, y, val);
 
-               if (val > maxVal) maxVal = val;
-               if (val < minVal) minVal = val;
-            }
+            //if (val > maxVal) maxVal = val;
+            //if (val < minVal) minVal = val;
         }
-        g->SetMinimum(0);
-
-        emit AScriptHub::getInstance().requestDraw(g, "tri", true);
-
-        /*
-        if (showNodes)
-        {
-            int nodes   = axial->getNint();
-            double rmax = axial->getRmax();
-
-            double Rmin = axial->Compress(0);
-            double Rmax = axial->Compress(rmax);
-            double DX = Rmax - Rmin;
-
-            // !!!*** should be delegated to the library
-            int lastnode = -1;
-            std::vector<double> GrX;
-            for (int ix = 0; ix < 102; ix++)
-            {
-                double x = rmax * ix / 100.0;
-                double X = axial->Compress(x);
-                int node = X * nodes/DX;
-                if (node > lastnode)
-                {
-                    GrX.push_back(x);
-                    lastnode = node;
-                }
-            }
-
-            TGraph * gN = new TGraph(); // will be owned by the graph window
-            gN->SetMarkerStyle(8);
-            gN->SetMarkerSize(1);
-            gN->SetMarkerColor(4);
-            gN->SetTitle( TString("LRF_nodes #") + iSens);
-            gN->GetXaxis()->SetTitle("Radial distance, mm");
-            gN->GetYaxis()->SetTitle("LRF_nodes");
-            for (double r : GrX) gN->AddPoint(r, axial->evalAxial(r));
-            emit AScriptHub::getInstance().requestDraw(gN, "Psame", true);
-        }
-        */
     }
+    g->SetMinimum(0);
 
+    emit AScriptHub::getInstance().requestDraw(g, "tri", true);
     return "";
 }

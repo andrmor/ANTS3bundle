@@ -251,10 +251,10 @@ void ALightResponse_SI::plotLRF_radial(int iSensor, bool showNodes)
     if (!err.isEmpty()) abort(err);
 }
 
-void ALightResponse_SI::plotLRF_xy(int iSensor, bool showNodes)
+void ALightResponse_SI::plotLRF_xy(int iSensor)
 {
     ALrfDrawer dr(LRHub.Model);
-    QString err = dr.drawXY(iSensor, showNodes);
+    QString err = dr.drawXY(iSensor);
     if (!err.isEmpty()) abort(err);
 }
 
@@ -523,6 +523,22 @@ double ALightResponse_SI::eval(int iSensor, QVariantList xyz)
 
     if (LRHub.Model) return LRHub.Model->Eval(iSensor, pos);
     else return 0;
+}
+
+QString ALightResponse_SI::getModel()
+{
+    if (!LRHub.Model)
+    {
+        abort("Model was not created yet!");
+        return "";
+    }
+    return LRHub.Model->GetJsonString().data();
+}
+
+void ALightResponse_SI::setModel(QString jsonString)
+{
+    clearModel();
+    LRHub.Model = new LRModel(jsonString.toLatin1().data());
 }
 
 // --- private methods ---
