@@ -218,7 +218,23 @@ void AMercury_si::plot(QString what, int bins, double from, double to)
     if (h) emit AScriptHub::getInstance().requestDraw(h, "hist", true);
 }
 
-void AMercury_si::plot_vsRecXY(QString what, int xBins, double xFrom, double xTo, int yBins, double yFrom, double yTo)
+void AMercury_si::configure_plotXY_binning(int xBins, double xFrom, double xTo, int yBins, double yFrom, double yTo)
+{
+    XBins = xBins;
+    YBins = yBins;
+
+    XFrom = xFrom;
+    XTo   = xTo;
+    YFrom = yFrom;
+    YTo   = yTo;
+}
+
+void AMercury_si::plot(QString what, int bins)
+{
+    plot(what, bins, 0, 0);
+}
+
+void AMercury_si::plot_vsRecXY(QString what)
 {
     if (!RecMP)
     {
@@ -235,10 +251,38 @@ void AMercury_si::plot_vsRecXY(QString what, int xBins, double xFrom, double xTo
 
     const std::vector<double> & x = RecMP->rec_x;
     const std::vector<double> & y = RecMP->rec_y;
-    doPlot_vsXY(false, opt, xBins, xFrom, xTo, yBins, yFrom, yTo, x, y);
+    doPlot_vsXY(false, opt, x, y);
 }
 
-void AMercury_si::plot_vsTrueXY(QString what, int xBins, double xFrom, double xTo, int yBins, double yFrom, double yTo, QVariantList truePositions)
+void AMercury_si::configure_plotXY_truePositions(QVariantList truePositions)
+{
+    const size_t num = truePositions.size();
+    if (num == 0)
+    {
+        abort("TruePositions array is empty");
+        return;
+    }
+
+    XTruePositions.resize(num);
+    YTruePositions.resize(num);
+    for (size_t i = 0; i < num; i++)
+    {
+        QVariantList el = truePositions[i].toList();
+        if (el.size() < 2)
+        {
+            abort("TruePositions array should contain arrays of at least size two (X and Y positions)");
+            return;
+        }
+        bool ok1, ok2;
+        XTruePositions[i] = el[0].toDouble(&ok1);
+        YTruePositions[i] = el[1].toDouble(&ok2);
+        if (ok1 && ok2) continue;
+        abort("Bad x or y value format in TruePositions array");
+        return;
+    }
+}
+
+void AMercury_si::plot_vsTrueXY(QString what)
 {
     if (!RecMP)
     {
@@ -253,7 +297,7 @@ void AMercury_si::plot_vsTrueXY(QString what, int xBins, double xFrom, double xT
         return;
     }
 
-    size_t num = truePositions.size();
+    size_t num = XTruePositions.size();
     if (num == 0)
     {
         abort("TruePositions array is empty");
@@ -261,28 +305,14 @@ void AMercury_si::plot_vsTrueXY(QString what, int xBins, double xFrom, double xT
     }
     if (num != RecMP->rec_x.size())
     {
-        abort("TruePositions array size does not match reconstruction data size");
+        abort("TruePositions array size does not match reconstruction data size.\nDid you call mercury.configure_plotXY_truePositions() first?");
         return;
     }
-    std::vector<double> x(num), y(num);
 
-    for (size_t i = 0; i < num; i++)
-    {
-        QVariantList el = truePositions[i].toList();
-        if (el.size() < 2)
-        {
-            abort("TruePositions array should contain arrays of at least size two (X and Y positions)");
-            return;
-        }
-        x[i] = el[0].toDouble();
-        y[i] = el[1].toDouble();
-    }
-
-    doPlot_vsXY(true, opt, xBins, xFrom, xTo, yBins, yFrom, yTo, x, y);
+    doPlot_vsXY(true, opt, XTruePositions, YTruePositions);
 }
 
-void AMercury_si::doPlot_vsXY(bool vsTrue, EPlotOption opt, int xBins, double xFrom, double xTo, int yBins, double yFrom, double yTo,
-                              const std::vector<double> & x, const std::vector<double> & y)
+void AMercury_si::doPlot_vsXY(bool vsTrue, EPlotOption opt, const std::vector<double> & x, const std::vector<double> & y)
 {
     if (!vsTrue)
         if (opt == BiasXOption || opt == BiasYOption || opt == SigmaXOption || opt == SigmaYOption)
@@ -298,8 +328,8 @@ void AMercury_si::doPlot_vsXY(bool vsTrue, EPlotOption opt, int xBins, double xF
     const std::vector<double> & recX   = RecMP->rec_x;
     const std::vector<double> & recY   = RecMP->rec_y;
 
-    TH2D * h  = new TH2D("", "", xBins, xFrom, xTo, yBins, yFrom, yTo);
-    TH2D * h1 = new TH2D("", "", xBins, xFrom, xTo, yBins, yFrom, yTo);  // used for normalization
+    TH2D * h  = new TH2D("", "", XBins, XFrom, XTo, YBins, YFrom, YTo);
+    TH2D * h1 = new TH2D("", "", XBins, XFrom, XTo, YBins, YFrom, YTo);  // used for normalization
     QString title;
 
     h->GetXaxis()->SetTitle("X, mm");

@@ -32,9 +32,13 @@ public slots:
     QVariantList getRecXYZE();
     QVariantList getRecStats(); // [status(0 = OK), chi2, cov_xx, cov_yy, cov_xy]
 
+    void plot(QString what, int bins);
     void plot(QString what, int bins, double from, double to);
-    void plot_vsRecXY(QString what, int xBins, double xFrom, double xTo, int yBins, double yFrom, double yTo);
-    void plot_vsTrueXY(QString what, int xBins, double xFrom, double xTo, int yBins, double yFrom, double yTo, QVariantList truePositions);
+
+    void configure_plotXY_binning(int xBins, double xFrom, double xTo, int yBins, double yFrom, double yTo);
+    void plot_vsRecXY(QString what);
+    void configure_plotXY_truePositions(QVariantList truePositions);
+    void plot_vsTrueXY(QString what);
 
     // --- Low level ---
     void setCOG_AbsCutoff(double val);
@@ -46,14 +50,22 @@ private:
     ALightResponseHub & LRHub;
     ReconstructorMP   * RecMP = nullptr;
 
+    int    XBins = 50;
+    int    YBins = 50;
+    double XFrom = 0;
+    double XTo   = 0;
+    double YFrom = 0;
+    double YTo   = 0;
+
+    std::vector<double> XTruePositions, YTruePositions;
+
     void resetReconstructor();
 
     enum EPlotOption {ErrorOption, EnergyOption, Chi2Option, StatusOption, DensityOption, BiasXOption, BiasYOption, SigmaXOption, SigmaYOption};
     const QString PlotOptions = "Energy, Chi2, Status, Density, BiasX, BiasY, SigmaX, SigmaY";
     EPlotOption whatFromString(QString what);
 
-    void doPlot_vsXY(bool vsTrue, EPlotOption opt, int xBins, double xFrom, double xTo, int yBins, double yFrom, double yTo,
-                     const std::vector<double> & x, const std::vector<double> & y);
+    void doPlot_vsXY(bool vsTrue, EPlotOption opt, const std::vector<double> & x, const std::vector<double> & y);
 };
 
 #endif // AMERCURY_SI_H
