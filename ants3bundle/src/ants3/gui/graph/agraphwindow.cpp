@@ -688,30 +688,19 @@ void AGraphWindow::reshape()
     else if (PlotType == "TGraph2D")
     {
         TGraph2D * gr = static_cast<TGraph2D*>(tobj);
-        //gr->GetXaxis()->SetLimits(xmin, xmax);
         gr->GetXaxis()->SetRangeUser(xmin, xmax);
-        //gr->GetYaxis()->SetLimits(ymin, ymax);
         gr->GetYaxis()->SetRangeUser(ymin, ymax);
 
-        //gr->GetZaxis()->SetLimits(zmin, zmax);
-        //gr->GetZaxis()->SetRangeUser(zmin, zmax);
-        //gr->GetHistogram()->SetRange(xmin, ymin, xmax, ymax);
-
         // setting min or max; then to basket -> load from basket -> empty screen
-        //gr->SetMinimum(zmin);
-        //gr->SetMaximum(zmax);
+        gr->SetMinimum(zmin);
+        gr->SetMaximum(zmax);
 
-        /*
-        TCanvas* c = RasterWindow->fCanvas;
-        double min[3], max[3];
-        min[0] = xmin; max[0] = xmax;
-        min[1] = ymin; max[1] = ymax;
-        min[2] = zmin; max[2] = zmax;
-
-        TView3D * v = dynamic_cast<TView3D*>(c->GetView());
-        qDebug() << "aaaaaaaaaa" << v;
-        if (v) v->SetRange(min, max);
-        */
+        TH2 * h = gr->GetHistogram();
+        if (h)
+        {
+            h->SetMinimum(zmin);
+            h->SetMaximum(zmax);
+        }
     }
 
     qApp->processEvents();
@@ -1109,13 +1098,13 @@ void AGraphWindow::updateControls()
     //qDebug()<<"  GraphWindow: updating indication of ranges";
     TMPignore = true;
 
-    TCanvas* c = RasterWindow->fCanvas;
+    TCanvas * c = RasterWindow->fCanvas;
     ui->cbLogX->setChecked(c->GetLogx());
     ui->cbLogY->setChecked(c->GetLogy());
     ui->cbGridX->setChecked(c->GetGridx());
     ui->cbGridY->setChecked(c->GetGridy());
 
-    TObject* obj = DrawObjects.front().Pointer;
+    TObject * obj = DrawObjects.front().Pointer;
     if (!obj)
     {
         qWarning() << "Cannot update graph window rang controls - object does not exist";
@@ -1129,17 +1118,17 @@ void AGraphWindow::updateControls()
     TView * view_3D = c->GetView();
     if (view_3D)
     {
+        //qDebug() << "3D view";
         double min[3], max[3];
         view_3D->GetRange(min, max);
-        ui->ledXfrom->setText( QString::number(min[0], 'g', 4) );
-        ui->ledXto->setText( QString::number(max[0], 'g', 4) );
-        ui->ledYfrom->setText( QString::number(min[1], 'g', 4) );
-        ui->ledYto->setText( QString::number(max[1], 'g', 4) );
-        ui->ledZfrom->setText( QString::number(min[2], 'g', 4) );
-        ui->ledZto->setText( QString::number(max[2], 'g', 4) );
+        xmin = min[0]; xmax = max[0];
+        ymin = min[1]; ymax = max[1];
+        zmin = min[2]; zmax = max[2];
+        //qDebug() << "Gen purpose (3D), minmaxs xyz:"<< min[0] << max[0] << min[1] << max[1] << min[2] << max[2];
     }
-    else if (PlotType.startsWith("TH1") || PlotType.startsWith("TH2") || PlotType =="TProfile")
+    else
     {
+        //qDebug() << "2D view";
         c->GetRangeAxis(xmin, ymin, xmax, ymax);
         if (c->GetLogx())
         {
@@ -1151,140 +1140,62 @@ void AGraphWindow::updateControls()
             ymin = TMath::Power(10.0, ymin);
             ymax = TMath::Power(10.0, ymax);
         }
+        //qDebug() << "Gen purpose (2D), minmaxs xyz:" << xmin << xmax << ymin << ymax << zmin << zmax;
 
-        if (PlotType.startsWith("TH2") )
+        // special cases
+        if (obj)
         {
-            if (ui->leOptions->text().startsWith("col"))
+            TH2 * h2 = dynamic_cast<TH2*>(obj);
+            if (h2)
             {
                 //it is color contour - 2D plot
-                zmin = ((TH2*) obj)->GetMinimum();
-                zmax = ((TH2*) obj)->GetMaximum();
-                ui->ledZfrom->setText( QString::number(zmin, 'g', 4) );
-                ui->ledZto->setText( QString::number(zmax, 'g', 4) );
+                zmin = h2->GetMinimum();
+                zmax = h2->GetMaximum();
             }
             else
             {
-                //3D plot
-                float min[3], max[3];
-                TView* v = c->GetView();
-//                if (v && !MW->ShutDown)
-                if (v)
+                TGraph2D * g2 = dynamic_cast<TGraph2D*>(obj);
+                if (g2)
                 {
-                    v->GetRange(min, max);
-                    ui->ledZfrom->setText( QString::number(min[2], 'g', 4) );
-                    ui->ledZto->setText( QString::number(max[2], 'g', 4) );
+                    TH2 * h2 = g2->GetHistogram();
+                    if (h2)
+                    {
+                        zmin = h2->GetMinimum();
+                        zmax = h2->GetMaximum();
+                    }
+                    else
+                    {
+                        zmin = g2->GetMinimum();
+                        zmax = g2->GetZmax();//GetMaximum();
+                    }
                 }
-                else
-                {
-                    ui->ledZfrom->setText("");
-                    ui->ledZto->setText("");
-                }
             }
         }
     }
-    else if (PlotType.startsWith("TH3"))
-    {
-        ui->ledZfrom->setText( "" );   //   ui->ledZfrom->setText( QString::number(zmin, 'g', 4) );
-        ui->ledZto->setText( "" ); // ui->ledZto->setText( QString::number(zmax, 'g', 4) );
-    }
-    else if (PlotType.startsWith("TProfile2D"))
-    {
-        if (opt == "" || opt == "prof" || opt.contains("col") || opt.contains("colz"))
-        {
-            c->GetRangeAxis(xmin, ymin, xmax, ymax);
-            if (c->GetLogx())
-            {
-                xmin = TMath::Power(10.0, xmin);
-                xmax = TMath::Power(10.0, xmax);
-            }
-            if (c->GetLogy())
-            {
-                ymin = TMath::Power(10.0, ymin);
-                ymax = TMath::Power(10.0, ymax);
-            }
-        }
-        ui->ledZfrom->setText( "" );   //   ui->ledZfrom->setText( QString::number(zmin, 'g', 4) );
-        ui->ledZto->setText( "" ); // ui->ledZto->setText( QString::number(zmax, 'g', 4) );
-    }
-    else if (PlotType.startsWith("TF1") )
-    {
-        //cannot use GetRange - y is reported 0 always
-        //      xmin = ((TF1*) obj)->GetXmin();
-        //      xmax = ((TF1*) obj)->GetXmax();
-        //      ymin = ((TF1*) obj)->GetMinimum();
-        //      ymax = ((TF1*) obj)->GetMaximum();
-        c->GetRangeAxis(xmin, ymin, xmax, ymax);
-        if (c->GetLogx())
-        {
-            xmin = TMath::Power(10.0, xmin);
-            xmax = TMath::Power(10.0, xmax);
-        }
-        if (c->GetLogy())
-        {
-            ymin = TMath::Power(10.0, ymin);
-            ymax = TMath::Power(10.0, ymax);
-        }
-    }
-    else if (PlotType.startsWith("TF2"))
+
+    // very special cases :)
+    if (PlotType.startsWith("TF2"))
     {
         ((TF2*) obj)->GetRange(xmin, ymin, xmax, ymax);
         //  zmin = ((TF2*) obj)->GetMinimum();  -- too slow, it involves minimizer!
         //  zmax = ((TF2*) obj)->GetMaximum();
-        float min[3], max[3];
-        TView* v = c->GetView();
-        if (v)// && !MW->ShutDown)
-        {
-            v->GetRange(min, max);
-            ui->ledZfrom->setText( QString::number(min[2], 'g', 4) );
-            ui->ledZto->setText( QString::number(max[2], 'g', 4) );
-        }
-        else
-        {
-            ui->ledZfrom->setText("");
-            ui->ledZto->setText("");
-        }
     }
-    else if (PlotType == "TGraph" || PlotType == "TGraphErrors" || PlotType == "TMultiGraph")
-    {
-        c->GetRangeAxis(xmin, ymin, xmax, ymax);
-        if (c->GetLogx())
-        {
-            xmin = TMath::Power(10.0, xmin);
-            xmax = TMath::Power(10.0, xmax);
-        }
-        if (c->GetLogy())
-        {
-            ymin = TMath::Power(10.0, ymin);
-            ymax = TMath::Power(10.0, ymax);
-        }
-        //   qDebug()<<"---Ymin:"<<ymin;
-    }
-    else if (PlotType == "TGraph2D")
-    {
-        float min[3], max[3];
-        TView* v = c->GetView();
-        if (v)// && !MW->ShutDown)
-        {
-            v->GetRange(min, max);
-            xmin = min[0]; xmax = max[0];
-            ymin = min[1]; ymax = max[1];
-            zmin = min[2]; zmax = max[2];
-            //qDebug() << "minmax XYZ"<<xmin<<xmax<<ymin<<ymax<<zmin<<zmax;
-        }
-        ui->ledZfrom->setText( QString::number(zmin, 'g', 4) );
-        ui->ledZto->setText( QString::number(zmax, 'g', 4) );
-    }
+
+    //qDebug() << "Final data:" << xmin << xmax << ymin << ymax << zmin << zmax;
 
     ui->ledXfrom->setText( QString::number(xmin, 'g', 4) );
     xmin = ui->ledXfrom->text().toDouble();  //to have consistent rounding
     ui->ledXto->setText( QString::number(xmax, 'g', 4) );
     xmax = ui->ledXto->text().toDouble();
+
     ui->ledYfrom->setText( QString::number(ymin, 'g', 4) );
     ymin = ui->ledYfrom->text().toDouble();
     ui->ledYto->setText( QString::number(ymax, 'g', 4) );
     ymax = ui->ledYto->text().toDouble();
 
+    ui->ledZfrom->setText( QString::number(zmin, 'g', 4) );
     zmin = ui->ledZfrom->text().toDouble();
+    ui->ledZto->setText( QString::number(zmax, 'g', 4) );
     zmax = ui->ledZto->text().toDouble();
 
     TMPignore = false;

@@ -120,7 +120,7 @@ void ABasketManager::add(const QString & name, const std::vector<ADrawObject> & 
         }
         else if (type == "TGraph2D")
         {
-            clone = new TGraph2D(*static_cast<TGraph2D*>(tobj));  // clone unzooms to full range
+            clone = new TGraph2D(*static_cast<TGraph2D*>(tobj));  // tobj->Clone() unzooms to full xy range
         }
         else
         {
@@ -203,7 +203,13 @@ std::vector<ADrawObject> ABasketManager::getCopy(int index) const
             else
             {
                 TGraph2D * g2 = dynamic_cast<TGraph2D*>(obj.Pointer);
-                if (g2) clone = new TGraph2D(*g2); //clone unzooms to full range
+                if (g2)
+                {
+                    clone = new TGraph2D(*g2); // obj->Clone() unzooms to full xy range
+                    // blanc screen on basket redraw (last ROOT checked: 6.36.04) without th enext line
+                    if (obj.Options.contains("tri", Qt::CaseInsensitive) || obj.Options.contains("p", Qt::CaseInsensitive))
+                        ((TGraph2D*)clone)->SetMargin(0); // col and lego work fine. ROOT :)
+                }
                 else    clone = obj.Pointer->Clone();
                 oldToNew[obj.Pointer] = clone;
                 //qDebug() << "From basket, old-->cloned" << obj.Pointer << "-->" << clone;
