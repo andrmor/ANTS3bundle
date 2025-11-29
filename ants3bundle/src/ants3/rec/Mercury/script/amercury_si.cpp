@@ -418,6 +418,7 @@ void AMercury_si::plotEnergyXYHist(const std::vector<double> & x, const std::vec
     hist->SetTitle(title.toLatin1().data());
 
     emit AScriptHub::getInstance().requestDraw(hist, "colz", true);
+    delete histNorm;
 }
 
 void AMercury_si::plotChi2XYHist(const std::vector<double> & x, const std::vector<double> & y, QString titleSuffix)
@@ -442,6 +443,7 @@ void AMercury_si::plotChi2XYHist(const std::vector<double> & x, const std::vecto
     hist->SetTitle(title.toLatin1().data());
 
     emit AScriptHub::getInstance().requestDraw(hist, "colz", true);
+    delete histNorm;
 }
 
 void AMercury_si::plotStatusXYHist(const std::vector<double> & x, const std::vector<double> & y, QString titleSuffix)
@@ -463,12 +465,13 @@ void AMercury_si::plotStatusXYHist(const std::vector<double> & x, const std::vec
     hist->SetTitle(title.toLatin1().data());
 
     emit AScriptHub::getInstance().requestDraw(hist, "colz", true);
+    delete histNorm;
 }
 
 void AMercury_si::plotDensityXYHist(const std::vector<double> & x, const std::vector<double> & y, QString titleSuffix)
 {
     TH2D * hist     = create2Dhist();
-    TH2D * histNorm = create2Dhist();
+    //TH2D * histNorm = create2Dhist();
 
     const std::vector<int>    & status = RecMP->rec_status;
 
@@ -509,6 +512,7 @@ void AMercury_si::plotBiasXYHist(const std::vector<double> & x, const std::vecto
     hist->SetTitle(title.toLatin1().data());
 
     emit AScriptHub::getInstance().requestDraw(hist, "colz", true);
+    delete histNorm;
 }
 
 void AMercury_si::plotSigmaXYHist(const std::vector<double> & x, const std::vector<double> & y, QString titleSuffix, bool vsX)
@@ -537,6 +541,7 @@ void AMercury_si::plotSigmaXYHist(const std::vector<double> & x, const std::vect
     hist->SetTitle(title.toLatin1().data());
 
     emit AScriptHub::getInstance().requestDraw(hist, "colz", true);
+    delete histNorm;
 }
 
 void AMercury_si::setCOG_AbsCutoff(double val)
