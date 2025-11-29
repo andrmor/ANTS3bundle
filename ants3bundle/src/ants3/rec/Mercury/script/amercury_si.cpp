@@ -344,51 +344,44 @@ void AMercury_si::doPlot_vsXY(bool vsTrue, EPlotOption opt, const std::vector<do
             return;
         }
 
-    TH2D * hist  = new TH2D("", "", XBins, XFrom, XTo, YBins, YFrom, YTo);
-    TH2D * histNorm = new TH2D("", "", XBins, XFrom, XTo, YBins, YFrom, YTo);  // used for normalization
-    QString title;
-
-    hist->GetXaxis()->SetTitle("X, mm");
-    hist->GetYaxis()->SetTitle("Y, mm");
     QString titleSuffix = (vsTrue ? "_trueXY" : "_recXY");
-
     switch (opt)
     {
     case EnergyOption:
-        plotEnergyXYHist(x, y, hist, histNorm, titleSuffix);
+        plotEnergyXYHist(x, y, titleSuffix);
         break;
     case Chi2Option:
-        plotChi2XYHist(x, y, hist, histNorm, titleSuffix);
+        plotChi2XYHist(x, y, titleSuffix);
         break;
     case StatusOption:
-        plotStatusXYHist(x, y, hist, histNorm, titleSuffix);
+        plotStatusXYHist(x, y, titleSuffix);
         break;
     case DensityOption:
-        plotDensityXYHist(x, y, hist, histNorm, titleSuffix);
+        plotDensityXYHist(x, y, titleSuffix);
         break;
     case BiasXOption:
-        plotBiasXYHist(x, y, hist, histNorm, titleSuffix, true);
+        plotBiasXYHist(x, y, titleSuffix, true);
         break;
     case BiasYOption:
-        plotBiasXYHist(x, y, hist, histNorm, titleSuffix, false);
+        plotBiasXYHist(x, y, titleSuffix, false);
         break;
     case ErrorXOption:
-        plotSigmaXYHist(x, y, hist, histNorm, titleSuffix, true);
+        plotSigmaXYHist(x, y, titleSuffix, true);
         break;
     case ErrorYOption:
-        plotSigmaXYHist(x, y, hist, histNorm, titleSuffix, false);
+        plotSigmaXYHist(x, y, titleSuffix, false);
         break;
     case EachValidOption:
-        plotStatusXYHist(x, y, hist, histNorm, titleSuffix);  emit AScriptHub::getInstance().requestAddToBasket("Status" + titleSuffix);
-        plotChi2XYHist(x, y, hist, histNorm, titleSuffix);    emit AScriptHub::getInstance().requestAddToBasket("Chi2" + titleSuffix);
-        plotDensityXYHist(x, y, hist, histNorm, titleSuffix); emit AScriptHub::getInstance().requestAddToBasket("Density" + titleSuffix);
-        plotEnergyXYHist(x, y, hist, histNorm, titleSuffix);  emit AScriptHub::getInstance().requestAddToBasket("Energy" + titleSuffix);
+        plotStatusXYHist(x, y, titleSuffix);  emit AScriptHub::getInstance().requestAddToBasket("Status" + titleSuffix);
+        plotChi2XYHist(x, y, titleSuffix);    emit AScriptHub::getInstance().requestAddToBasket("Chi2" + titleSuffix);
+        plotDensityXYHist(x, y, titleSuffix); emit AScriptHub::getInstance().requestAddToBasket("Density" + titleSuffix);
+        plotEnergyXYHist(x, y, titleSuffix);  emit AScriptHub::getInstance().requestAddToBasket("Energy" + titleSuffix);
         if (vsTrue)
         {
-            plotBiasXYHist(x, y, hist, histNorm, titleSuffix, true);   emit AScriptHub::getInstance().requestAddToBasket("BiasX" + titleSuffix);
-            plotBiasXYHist(x, y, hist, histNorm, titleSuffix, false);  emit AScriptHub::getInstance().requestAddToBasket("BiasY" + titleSuffix);
-            plotSigmaXYHist(x, y, hist, histNorm, titleSuffix, true);  emit AScriptHub::getInstance().requestAddToBasket("ErrorX" + titleSuffix);
-            plotSigmaXYHist(x, y, hist, histNorm, titleSuffix, false); emit AScriptHub::getInstance().requestAddToBasket("ErrorY" + titleSuffix);
+            plotBiasXYHist(x, y, titleSuffix, true);   emit AScriptHub::getInstance().requestAddToBasket("BiasX" + titleSuffix);
+            plotBiasXYHist(x, y, titleSuffix, false);  emit AScriptHub::getInstance().requestAddToBasket("BiasY" + titleSuffix);
+            plotSigmaXYHist(x, y, titleSuffix, true);  emit AScriptHub::getInstance().requestAddToBasket("ErrorX" + titleSuffix);
+            plotSigmaXYHist(x, y, titleSuffix, false); emit AScriptHub::getInstance().requestAddToBasket("ErrorY" + titleSuffix);
         }
         break;
     default:
@@ -396,8 +389,19 @@ void AMercury_si::doPlot_vsXY(bool vsTrue, EPlotOption opt, const std::vector<do
     }
 }
 
-void AMercury_si::plotEnergyXYHist(const std::vector<double> & x, const std::vector<double> & y, TH2D * hist, TH2D * histNorm, QString titleSuffix)
+TH2D * AMercury_si::create2Dhist()
 {
+    TH2D * hist = new TH2D("", "", XBins, XFrom, XTo, YBins, YFrom, YTo);  // used for normalization
+    hist->GetXaxis()->SetTitle("X, mm");
+    hist->GetYaxis()->SetTitle("Y, mm");
+    return hist;
+}
+
+void AMercury_si::plotEnergyXYHist(const std::vector<double> & x, const std::vector<double> & y, QString titleSuffix)
+{
+    TH2D * hist     = create2Dhist();
+    TH2D * histNorm = create2Dhist();
+
     const std::vector<int>    & status = RecMP->rec_status;
     const std::vector<double> & energy = RecMP->rec_e;
 
@@ -416,8 +420,11 @@ void AMercury_si::plotEnergyXYHist(const std::vector<double> & x, const std::vec
     emit AScriptHub::getInstance().requestDraw(hist, "colz", true);
 }
 
-void AMercury_si::plotChi2XYHist(const std::vector<double> & x, const std::vector<double> & y, TH2D * hist, TH2D * histNorm, QString titleSuffix)
+void AMercury_si::plotChi2XYHist(const std::vector<double> & x, const std::vector<double> & y, QString titleSuffix)
 {
+    TH2D * hist     = create2Dhist();
+    TH2D * histNorm = create2Dhist();
+
     const std::vector<int>    & status = RecMP->rec_status;
     const std::vector<int>    & dof    = RecMP->rec_dof;
     const std::vector<double> & chi2   = RecMP->rec_chi2min;
@@ -437,8 +444,11 @@ void AMercury_si::plotChi2XYHist(const std::vector<double> & x, const std::vecto
     emit AScriptHub::getInstance().requestDraw(hist, "colz", true);
 }
 
-void AMercury_si::plotStatusXYHist(const std::vector<double> & x, const std::vector<double> & y, TH2D * hist, TH2D * histNorm, QString titleSuffix)
+void AMercury_si::plotStatusXYHist(const std::vector<double> & x, const std::vector<double> & y, QString titleSuffix)
 {
+    TH2D * hist     = create2Dhist();
+    TH2D * histNorm = create2Dhist();
+
     const std::vector<int>    & status = RecMP->rec_status;
 
     for (size_t i = 0; i < status.size(); i++)
@@ -455,8 +465,11 @@ void AMercury_si::plotStatusXYHist(const std::vector<double> & x, const std::vec
     emit AScriptHub::getInstance().requestDraw(hist, "colz", true);
 }
 
-void AMercury_si::plotDensityXYHist(const std::vector<double> & x, const std::vector<double> & y, TH2D * hist, TH2D * histNorm, QString titleSuffix)
+void AMercury_si::plotDensityXYHist(const std::vector<double> & x, const std::vector<double> & y, QString titleSuffix)
 {
+    TH2D * hist     = create2Dhist();
+    TH2D * histNorm = create2Dhist();
+
     const std::vector<int>    & status = RecMP->rec_status;
 
     for (size_t i = 0; i < status.size(); i++)
@@ -474,8 +487,11 @@ void AMercury_si::plotDensityXYHist(const std::vector<double> & x, const std::ve
     emit AScriptHub::getInstance().requestDraw(hist, "colz", true);
 }
 
-void AMercury_si::plotBiasXYHist(const std::vector<double> & x, const std::vector<double> & y, TH2D * hist, TH2D * histNorm, QString titleSuffix, bool vsX)
+void AMercury_si::plotBiasXYHist(const std::vector<double> & x, const std::vector<double> & y, QString titleSuffix, bool vsX)
 {
+    TH2D * hist     = create2Dhist();
+    TH2D * histNorm = create2Dhist();
+
     const std::vector<int>    & status = RecMP->rec_status;
     const std::vector<double> & recX   = RecMP->rec_x;
     const std::vector<double> & recY   = RecMP->rec_y;
@@ -495,8 +511,11 @@ void AMercury_si::plotBiasXYHist(const std::vector<double> & x, const std::vecto
     emit AScriptHub::getInstance().requestDraw(hist, "colz", true);
 }
 
-void AMercury_si::plotSigmaXYHist(const std::vector<double> & x, const std::vector<double> & y, TH2D * hist, TH2D * histNorm, QString titleSuffix, bool vsX)
+void AMercury_si::plotSigmaXYHist(const std::vector<double> & x, const std::vector<double> & y, QString titleSuffix, bool vsX)
 {
+    TH2D * hist     = create2Dhist();
+    TH2D * histNorm = create2Dhist();
+
     const std::vector<int>    & status = RecMP->rec_status;
     const std::vector<double> & recX   = RecMP->rec_x;
     const std::vector<double> & recY   = RecMP->rec_y;

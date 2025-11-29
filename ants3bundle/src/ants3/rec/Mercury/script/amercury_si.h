@@ -69,12 +69,13 @@ private:
     void plotEnergyHist(int bins, double from, double to);
     void plotChi2Hist(int bins, double from, double to);
     void plotStatusHist();
-    void plotEnergyXYHist (const std::vector<double> & x, const std::vector<double> & y, TH2D * hist, TH2D * histNorm, QString titleSuffix);
-    void plotChi2XYHist   (const std::vector<double> & x, const std::vector<double> & y, TH2D * hist, TH2D * histNorm, QString titleSuffix);
-    void plotStatusXYHist (const std::vector<double> & x, const std::vector<double> & y, TH2D * hist, TH2D * histNorm, QString titleSuffix);
-    void plotDensityXYHist(const std::vector<double> & x, const std::vector<double> & y, TH2D * hist, TH2D * histNorm, QString titleSuffix);
-    void plotBiasXYHist   (const std::vector<double> & x, const std::vector<double> & y, TH2D * hist, TH2D * histNorm, QString titleSuffix, bool vsX);
-    void plotSigmaXYHist  (const std::vector<double> & x, const std::vector<double> & y, TH2D * hist, TH2D * histNorm, QString titleSuffix, bool vsX);
+    TH2D * create2Dhist();
+    void plotEnergyXYHist (const std::vector<double> & x, const std::vector<double> & y, QString titleSuffix);
+    void plotChi2XYHist   (const std::vector<double> & x, const std::vector<double> & y, QString titleSuffix);
+    void plotStatusXYHist (const std::vector<double> & x, const std::vector<double> & y, QString titleSuffix);
+    void plotDensityXYHist(const std::vector<double> & x, const std::vector<double> & y, QString titleSuffix);
+    void plotBiasXYHist   (const std::vector<double> & x, const std::vector<double> & y, QString titleSuffix, bool vsX);
+    void plotSigmaXYHist  (const std::vector<double> & x, const std::vector<double> & y, QString titleSuffix, bool vsX);
 };
 
 #endif // AMERCURY_SI_H
