@@ -111,6 +111,7 @@ AGraphWindow::AGraphWindow(QWidget * parent) :
 
     connect(&AScriptHub::getInstance(), &AScriptHub::requestDraw,           this, &AGraphWindow::onScriptDrawRequest,           Qt::DirectConnection); // inside it is queued
     connect(&AScriptHub::getInstance(), &AScriptHub::requestDrawCollection, this, &AGraphWindow::onScriptDrawCollectionRequest, Qt::DirectConnection); // inside it is queued
+    connect(&AScriptHub::getInstance(), &AScriptHub::requestAddToBasket,    this, &AGraphWindow::addCurrentToBasket,            Qt::QueuedConnection);
     connectScriptUnitDrawRequests(AScriptHub::getInstance().getJScriptManager().getInterfaces());
 #ifdef ANTS3_PYTHON
     connectScriptUnitDrawRequests(AScriptHub::getInstance().getPythonManager().getInterfaces());

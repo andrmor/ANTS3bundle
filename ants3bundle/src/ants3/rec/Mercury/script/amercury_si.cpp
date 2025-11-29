@@ -163,59 +163,82 @@ void AMercury_si::plot(QString what, int bins, double from, double to)
     EPlotOption opt = whatFromString(what);
     if (opt == ErrorOption)
     {
-        abort("Mercury unit offers the following plot options:\n" + PlotOptions);
+        abort("Valid options for Mercury.plot are: Status, Energy, Chi2 and All");
         return;
     }
-
-    const std::vector<int>    & status = RecMP->rec_status;
-    const std::vector<int>    & dof    = RecMP->rec_dof;
-    const std::vector<double> & chi2   = RecMP->rec_chi2min;
-    const std::vector<double> & energy = RecMP->rec_e;
-
-    TH1D * h = nullptr;
 
     switch (opt)
     {
     case EnergyOption:
-        h = new TH1D("", "energy", bins, from, to);
-        h->GetXaxis()->SetTitle("Energy");
-        for (size_t i = 0; i < status.size(); i++)
-        {
-            if (status[i] != 0) continue;
-            h->Fill(energy[i], 1);
-        }
+        plotEnergyHist(bins, from, to);
         break;
     case Chi2Option:
-        h = new TH1D("", "chi2", bins, from, to);
-        h->GetXaxis()->SetTitle("Chi2");
-        for (size_t i = 0; i < status.size(); i++)
-        {
-            if (status[i] != 0) continue;
-            h->Fill(chi2[i] / dof[i], 1);
-        }
+        plotChi2Hist(bins, from, to);
         break;
     case StatusOption:
-        h = new TH1D("", "status", 2, 0, 2);
-        for (size_t i = 0; i < status.size(); i++)
-            h->Fill( (status[i] == 0 ? 0 : 1), 1);
-        {
-            TAxis * ax = h->GetXaxis();
-            ax->SetNdivisions(4, false);
-            ax->ChangeLabelByValue(0, -1, -1, -1, -1, -1, " ");
-            ax->ChangeLabelByValue(0.5, -1, -1, -1, -1, -1, "Good");
-            ax->ChangeLabelByValue(1.0, -1, -1, -1, -1, -1, " ");
-            ax->ChangeLabelByValue(1.5, -1, -1, -1, -1, -1, "Fail");
-            ax->ChangeLabelByValue(2.0, -1, -1, -1, -1, -1, " ");
-        }
+        plotStatusHist();
         break;
-    case DensityOption:
-        abort("Density option is only applicable for 2D plots");
+    case EachValidOption:
+        plotStatusHist();
+        emit AScriptHub::getInstance().requestAddToBasket("Status");
+        plotChi2Hist(bins, from, to);
+        emit AScriptHub::getInstance().requestAddToBasket("Chi2");
+        plotEnergyHist(bins, from, to);
+        emit AScriptHub::getInstance().requestAddToBasket("Energy");
         break;
     default:
+        abort("Not valid 'what' option for mercury.plot\nUse one of the following: Energy, Chi2, Status and All");
         break;
     }
+}
 
-    if (h) emit AScriptHub::getInstance().requestDraw(h, "hist", true);
+void AMercury_si::plotEnergyHist(int bins, double from, double to)
+{
+    const std::vector<int>    & status = RecMP->rec_status;
+    const std::vector<double> & energy = RecMP->rec_e;
+
+    TH1D * h = new TH1D("", "energy", bins, from, to);
+    h->GetXaxis()->SetTitle("Energy");
+    for (size_t i = 0; i < status.size(); i++)
+    {
+        if (status[i] != 0) continue;
+        h->Fill(energy[i], 1);
+    }
+    emit AScriptHub::getInstance().requestDraw(h, "hist", true);
+}
+
+void AMercury_si::plotChi2Hist(int bins, double from, double to)
+{
+    const std::vector<int>    & status = RecMP->rec_status;
+    const std::vector<double> & chi2   = RecMP->rec_chi2min;
+    const std::vector<int>    & dof    = RecMP->rec_dof;
+
+    TH1D * h = new TH1D("", "chi2", bins, from, to);
+    h->GetXaxis()->SetTitle("Chi2");
+    for (size_t i = 0; i < status.size(); i++)
+    {
+        if (status[i] != 0) continue;
+        h->Fill(chi2[i] / dof[i], 1);
+    }
+    emit AScriptHub::getInstance().requestDraw(h, "hist", true);
+}
+
+void AMercury_si::plotStatusHist()
+{
+    const std::vector<int> & status = RecMP->rec_status;
+
+    TH1D * h = new TH1D("", "status", 2, 0, 2);
+    for (size_t i = 0; i < status.size(); i++)
+        h->Fill( (status[i] == 0 ? 0 : 1), 1);
+
+    TAxis * ax = h->GetXaxis();
+    ax->SetNdivisions(4, false);
+    ax->ChangeLabelByValue(0,   -1, -1, -1, -1, -1, " ");
+    ax->ChangeLabelByValue(0.5, -1, -1, -1, -1, -1, "Good");
+    ax->ChangeLabelByValue(1.0, -1, -1, -1, -1, -1, " ");
+    ax->ChangeLabelByValue(1.5, -1, -1, -1, -1, -1, "Fail");
+    ax->ChangeLabelByValue(2.0, -1, -1, -1, -1, -1, " ");
+    emit AScriptHub::getInstance().requestDraw(h, "hist", true);
 }
 
 void AMercury_si::configure_plotXY_binning(int xBins, double xFrom, double xTo, int yBins, double yFrom, double yTo)
@@ -245,7 +268,7 @@ void AMercury_si::plot_vsRecXY(QString what)
     EPlotOption opt = whatFromString(what);
     if (opt == ErrorOption)
     {
-        abort("Mercury unit offers the following plot options:\n" + PlotOptions);
+        abort("Valid options for Mercury.plot_vsRecXY are: Status, Energy, Chi2, Density and All");
         return;
     }
 
@@ -293,7 +316,7 @@ void AMercury_si::plot_vsTrueXY(QString what)
     EPlotOption opt = whatFromString(what);
     if (opt == ErrorOption)
     {
-        abort("Mercury unit offers the following plot options:\n" + PlotOptions);
+        abort("Valid options for Mercury.plot_vsTrueXY are: Status, Energy, Chi2, Density, BiasX, BiasY, ErrorX, ErrorY and All");
         return;
     }
 
@@ -315,127 +338,186 @@ void AMercury_si::plot_vsTrueXY(QString what)
 void AMercury_si::doPlot_vsXY(bool vsTrue, EPlotOption opt, const std::vector<double> & x, const std::vector<double> & y)
 {
     if (!vsTrue)
-        if (opt == BiasXOption || opt == BiasYOption || opt == SigmaXOption || opt == SigmaYOption)
+        if (opt == BiasXOption || opt == BiasYOption || opt == ErrorXOption || opt == ErrorYOption)
         {
-            abort("Bias and Sigma options are available only for 2D plots vs true positions");
+            abort("Bias and Error options are available only for 2D plots vs true positions");
             return;
         }
 
-    const std::vector<int>    & status = RecMP->rec_status;
-    const std::vector<int>    & dof    = RecMP->rec_dof;
-    const std::vector<double> & chi2   = RecMP->rec_chi2min;
-    const std::vector<double> & energy = RecMP->rec_e;
-    const std::vector<double> & recX   = RecMP->rec_x;
-    const std::vector<double> & recY   = RecMP->rec_y;
-
-    TH2D * h  = new TH2D("", "", XBins, XFrom, XTo, YBins, YFrom, YTo);
-    TH2D * h1 = new TH2D("", "", XBins, XFrom, XTo, YBins, YFrom, YTo);  // used for normalization
+    TH2D * hist  = new TH2D("", "", XBins, XFrom, XTo, YBins, YFrom, YTo);
+    TH2D * histNorm = new TH2D("", "", XBins, XFrom, XTo, YBins, YFrom, YTo);  // used for normalization
     QString title;
 
-    h->GetXaxis()->SetTitle("X, mm");
-    h->GetYaxis()->SetTitle("Y, mm");
+    hist->GetXaxis()->SetTitle("X, mm");
+    hist->GetYaxis()->SetTitle("Y, mm");
+    QString titleSuffix = (vsTrue ? "_trueXY" : "_recXY");
 
     switch (opt)
     {
     case EnergyOption:
-        title = "energy_";
-        h->GetZaxis()->SetTitle("Energy");
-        for (size_t i = 0; i < status.size(); i++)
-        {
-            if (status[i] != 0) continue;
-            h-> Fill(x[i], y[i], energy[i]);
-            h1->Fill(x[i], y[i], 1);
-        }
+        plotEnergyXYHist(x, y, hist, histNorm, titleSuffix);
         break;
     case Chi2Option:
-        title = "chi2_";
-        h->GetZaxis()->SetTitle("Chi2");
-        for (size_t i = 0; i < status.size(); i++)
-        {
-            if (status[i] != 0) continue;
-            h-> Fill(x[i], y[i], chi2[i] / dof[i]);
-            h1->Fill(x[i], y[i], 1);
-        }
+        plotChi2XYHist(x, y, hist, histNorm, titleSuffix);
         break;
     case StatusOption:
-        title = "status_";
-        h->GetZaxis()->SetTitle("Status");
-        for (size_t i = 0; i < status.size(); i++)
-        {
-            h->Fill (x[i], y[i], (status[i] == 0 ? 0 : 1));
-            h1->Fill(x[i], y[i], 1);
-        }
+        plotStatusXYHist(x, y, hist, histNorm, titleSuffix);
         break;
     case DensityOption:
-        title = "density_";
-        h->GetZaxis()->SetTitle("Event density");
-        for (size_t i = 0; i < status.size(); i++)
-        {
-            if (status[i] != 0) continue;
-            h-> Fill(x[i], y[i], 1);
-            // no h1 filling as there is no averaging!
-        }
+        plotDensityXYHist(x, y, hist, histNorm, titleSuffix);
         break;
     case BiasXOption:
-        title = "biasX_";
-        h->GetZaxis()->SetTitle("X bias");
-        for (size_t i = 0; i < status.size(); i++)
-        {
-            if (status[i] != 0) continue;
-            h-> Fill(x[i], y[i], recX[i] - x[i]);
-            h1->Fill(x[i], y[i], 1);
-        }
+        plotBiasXYHist(x, y, hist, histNorm, titleSuffix, true);
         break;
     case BiasYOption:
-        title = "biasY_";
-        h->GetZaxis()->SetTitle("Y bias");
-        for (size_t i = 0; i < status.size(); i++)
-        {
-            if (status[i] != 0) continue;
-            h-> Fill(x[i], y[i], recY[i] - y[i]);
-            h1->Fill(x[i], y[i], 1);
-        }
+        plotBiasXYHist(x, y, hist, histNorm, titleSuffix, false);
         break;
-    case SigmaXOption:
-        title = "sigmaX_";
-        h->GetZaxis()->SetTitle("Sigma X");
-        for (size_t i = 0; i < status.size(); i++)
-        {
-            if (status[i] != 0) continue;
-            const double delta = recX[i] - x[i];
-            h-> Fill(x[i], y[i], delta*delta);
-            h1->Fill(x[i], y[i], 1);
-        }
+    case ErrorXOption:
+        plotSigmaXYHist(x, y, hist, histNorm, titleSuffix, true);
         break;
-    case SigmaYOption:
-        title = "sigmaY_";
-        h->GetZaxis()->SetTitle("Sigma Y");
-        for (size_t i = 0; i < status.size(); i++)
+    case ErrorYOption:
+        plotSigmaXYHist(x, y, hist, histNorm, titleSuffix, false);
+        break;
+    case EachValidOption:
+        plotStatusXYHist(x, y, hist, histNorm, titleSuffix);  emit AScriptHub::getInstance().requestAddToBasket("Status" + titleSuffix);
+        plotChi2XYHist(x, y, hist, histNorm, titleSuffix);    emit AScriptHub::getInstance().requestAddToBasket("Chi2" + titleSuffix);
+        plotDensityXYHist(x, y, hist, histNorm, titleSuffix); emit AScriptHub::getInstance().requestAddToBasket("Density" + titleSuffix);
+        plotEnergyXYHist(x, y, hist, histNorm, titleSuffix);  emit AScriptHub::getInstance().requestAddToBasket("Energy" + titleSuffix);
+        if (vsTrue)
         {
-            if (status[i] != 0) continue;
-            const double delta = recY[i] - y[i];
-            h-> Fill(x[i], y[i], delta*delta);
-            h1->Fill(x[i], y[i], 1);
+            plotBiasXYHist(x, y, hist, histNorm, titleSuffix, true);   emit AScriptHub::getInstance().requestAddToBasket("BiasX" + titleSuffix);
+            plotBiasXYHist(x, y, hist, histNorm, titleSuffix, false);  emit AScriptHub::getInstance().requestAddToBasket("BiasY" + titleSuffix);
+            plotSigmaXYHist(x, y, hist, histNorm, titleSuffix, true);  emit AScriptHub::getInstance().requestAddToBasket("ErrorX" + titleSuffix);
+            plotSigmaXYHist(x, y, hist, histNorm, titleSuffix, false); emit AScriptHub::getInstance().requestAddToBasket("ErrorY" + titleSuffix);
         }
         break;
     default:
         break;
     }
+}
 
-    if (h)
+void AMercury_si::plotEnergyXYHist(const std::vector<double> & x, const std::vector<double> & y, TH2D * hist, TH2D * histNorm, QString titleSuffix)
+{
+    const std::vector<int>    & status = RecMP->rec_status;
+    const std::vector<double> & energy = RecMP->rec_e;
+
+    for (size_t i = 0; i < status.size(); i++)
     {
-        title += (vsTrue ? "trueXY" : "recXY");
-        h->SetTitle(title.toLatin1().data());
-
-        if (opt != DensityOption) h->Divide(h1);
-        if (opt == SigmaXOption || opt == SigmaYOption)
-        {
-            for (int bin = 0; bin <= h->GetNcells(); bin++)
-                h->SetBinContent(bin, sqrt(h->GetBinContent(bin)));
-        }
-
-        emit AScriptHub::getInstance().requestDraw(h, "colz", true);
+        if (status[i] != 0) continue;
+        hist->    Fill(x[i], y[i], energy[i]);
+        histNorm->Fill(x[i], y[i], 1);
     }
+    hist->Divide(histNorm);
+
+    hist->GetZaxis()->SetTitle("Energy");
+    QString title = "Energy" + titleSuffix;
+    hist->SetTitle(title.toLatin1().data());
+
+    emit AScriptHub::getInstance().requestDraw(hist, "colz", true);
+}
+
+void AMercury_si::plotChi2XYHist(const std::vector<double> & x, const std::vector<double> & y, TH2D * hist, TH2D * histNorm, QString titleSuffix)
+{
+    const std::vector<int>    & status = RecMP->rec_status;
+    const std::vector<int>    & dof    = RecMP->rec_dof;
+    const std::vector<double> & chi2   = RecMP->rec_chi2min;
+
+    for (size_t i = 0; i < status.size(); i++)
+    {
+        if (status[i] != 0) continue;
+        hist-> Fill(x[i], y[i], chi2[i] / dof[i]);
+        histNorm->Fill(x[i], y[i], 1);
+    }
+    hist->Divide(histNorm);
+
+    hist->GetZaxis()->SetTitle("Chi2");
+    QString title = "Chi2" + titleSuffix;
+    hist->SetTitle(title.toLatin1().data());
+
+    emit AScriptHub::getInstance().requestDraw(hist, "colz", true);
+}
+
+void AMercury_si::plotStatusXYHist(const std::vector<double> & x, const std::vector<double> & y, TH2D * hist, TH2D * histNorm, QString titleSuffix)
+{
+    const std::vector<int>    & status = RecMP->rec_status;
+
+    for (size_t i = 0; i < status.size(); i++)
+    {
+        hist->Fill (x[i], y[i], (status[i] == 0 ? 0 : 1));
+        histNorm->Fill(x[i], y[i], 1);
+    }
+    hist->Divide(histNorm);
+
+    hist->GetZaxis()->SetTitle("Status");
+    QString title = "Status" + titleSuffix;
+    hist->SetTitle(title.toLatin1().data());
+
+    emit AScriptHub::getInstance().requestDraw(hist, "colz", true);
+}
+
+void AMercury_si::plotDensityXYHist(const std::vector<double> & x, const std::vector<double> & y, TH2D * hist, TH2D * histNorm, QString titleSuffix)
+{
+    const std::vector<int>    & status = RecMP->rec_status;
+
+    for (size_t i = 0; i < status.size(); i++)
+    {
+        if (status[i] != 0) continue;
+        hist-> Fill(x[i], y[i], 1);
+        // no filling as there is no averaging!
+    }
+    //hist->Divide(histNorm); // no division!
+
+    hist->GetZaxis()->SetTitle("Event density");
+    QString title = "Density" + titleSuffix;
+    hist->SetTitle(title.toLatin1().data());
+
+    emit AScriptHub::getInstance().requestDraw(hist, "colz", true);
+}
+
+void AMercury_si::plotBiasXYHist(const std::vector<double> & x, const std::vector<double> & y, TH2D * hist, TH2D * histNorm, QString titleSuffix, bool vsX)
+{
+    const std::vector<int>    & status = RecMP->rec_status;
+    const std::vector<double> & recX   = RecMP->rec_x;
+    const std::vector<double> & recY   = RecMP->rec_y;
+
+    for (size_t i = 0; i < status.size(); i++)
+    {
+        if (status[i] != 0) continue;
+        hist-> Fill(x[i], y[i], (vsX ? recX[i] - x[i] : recY[i] - y[i]));
+        histNorm->Fill(x[i], y[i], 1);
+    }
+    hist->Divide(histNorm);
+
+    hist->GetZaxis()->SetTitle(vsX ? "Bias in X" : "Bias in Y");
+    QString title = QString(vsX ? "BiasX" : "BiasY") + titleSuffix;
+    hist->SetTitle(title.toLatin1().data());
+
+    emit AScriptHub::getInstance().requestDraw(hist, "colz", true);
+}
+
+void AMercury_si::plotSigmaXYHist(const std::vector<double> & x, const std::vector<double> & y, TH2D * hist, TH2D * histNorm, QString titleSuffix, bool vsX)
+{
+    const std::vector<int>    & status = RecMP->rec_status;
+    const std::vector<double> & recX   = RecMP->rec_x;
+    const std::vector<double> & recY   = RecMP->rec_y;
+
+    for (size_t i = 0; i < status.size(); i++)
+    {
+        if (status[i] != 0) continue;
+        const double delta = (vsX ? recX[i] - x[i] : recY[i] - y[i]);
+        hist->Fill(x[i], y[i], delta * delta);
+        histNorm->Fill(x[i], y[i], 1);
+    }
+    hist->Divide(histNorm);
+
+    for (int bin = 0; bin <= hist->GetNcells(); bin++)
+        hist->SetBinContent(bin, sqrt(hist->GetBinContent(bin)));
+
+    hist->GetZaxis()->SetTitle(vsX ? "RMS error in X" : "RMS error in Y");
+    QString title = QString(vsX ? "ErrorX" : "ErrorY") + titleSuffix;
+    hist->SetTitle(title.toLatin1().data());
+
+    emit AScriptHub::getInstance().requestDraw(hist, "colz", true);
 }
 
 void AMercury_si::setCOG_AbsCutoff(double val)
@@ -486,8 +568,9 @@ AMercury_si::EPlotOption AMercury_si::whatFromString(QString what)
     if (what == "DENSITY") return DensityOption;
     if (what == "BIASX")   return BiasXOption;
     if (what == "BIASY")   return BiasYOption;
-    if (what == "SIGMAX")  return SigmaXOption;
-    if (what == "SIGMAY")  return SigmaYOption;
+    if (what == "ERRORX")  return ErrorXOption;
+    if (what == "ERRORY")  return ErrorYOption;
+    if (what == "ALL")     return EachValidOption;
 
     return ErrorOption;
 }
