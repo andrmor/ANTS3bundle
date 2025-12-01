@@ -3,13 +3,19 @@
 #include "asensorhub.h"
 #include "ascripthub.h"
 #include "ajsontools.h"
-#include "alrfdrawer.h"
+#include "alrfplotter.h"
+#include "afiletools.h"
 
 #include "lrmodel.h"
 #include "lrfaxial.h"
 
 ALightResponse_SI::ALightResponse_SI() :
-    LRHub(ALightResponseHub::getInstance()) {}
+    LRHub(ALightResponseHub::getInstance()), LrfPlotter(new ALrfPlotter()) {}
+
+ALightResponse_SI::~ALightResponse_SI()
+{
+    delete LrfPlotter;
+}
 
 // --- High level ---
 
@@ -50,7 +56,6 @@ void ALightResponse_SI::newResponseModel(QVariantList sensorPositions)
         LRHub.Model->AddSensor(iSens, arSensPos[iSens].first, arSensPos[iSens].second);
 }
 
-#include "afiletools.h"
 void ALightResponse_SI::saveResponseModel(QString fileName)
 {
     if (!LRHub.Model)
@@ -246,16 +251,82 @@ void ALightResponse_SI::fitGroup(int iGroup)
 
 void ALightResponse_SI::plotLRF_radial(int iSensor, bool showNodes)
 {
-    ALrfDrawer dr(LRHub.Model);
-    QString err = dr.drawRadial(iSensor, showNodes);
+    QString err = LrfPlotter->drawRadial(LRHub.Model, iSensor, showNodes);
     if (!err.isEmpty()) abort(err);
 }
 
 void ALightResponse_SI::plotLRF_xy(int iSensor)
 {
-    ALrfDrawer dr(LRHub.Model);
-    QString err = dr.drawXY(iSensor);
+    QString err = LrfPlotter->drawXY(LRHub.Model, iSensor);
     if (!err.isEmpty()) abort(err);
+}
+
+void ALightResponse_SI::configure_plotLRF(bool plotWithSensorData, QVariantList sensorSignals, QVariantList eventPositions)
+{
+    LrfPlotter->PlotData = plotWithSensorData;
+
+    if (plotWithSensorData)
+    {
+        if (sensorSignals.empty() && eventPositions.empty()) return; // using already defined data
+        const size_t numEvents = sensorSignals.size();
+        if (numEvents != eventPositions.size())
+        {
+            abort("Size mismatch of arrays in configure_plotLRF");
+            return;
+        }
+
+        std::vector<std::vector<double>>  DataSignals(numEvents);
+        std::vector<std::array<double,4>> DataPositions(numEvents);
+        int numSensors = -1;
+        int numPos = 3; // 3 for XYZ and 4 for XYZE
+        for (size_t iEv = 0; iEv < numEvents; iEv++)
+        {
+            QVariantList elSignals = sensorSignals[iEv].toList();
+            if (iEv == 0)
+            {
+                numSensors = elSignals.size();
+                if (numSensors <= 0)
+                {
+                    abort("configure_plotLRF: the sensorSignals array should contain data for at least one sensor");
+                    return;
+                }
+            }
+            else if (elSignals.size() < numSensors)
+            {
+                abort("configure_plotLRF: the sensorSignals array contains invalid number of sensors at event number " + QString::number(iEv));
+                return;
+            }
+            std::vector<double> subvecSignals(numSensors);
+            for (size_t iSens = 0; iSens < numSensors; iSens++)
+                subvecSignals[iSens] = elSignals[iSens].toDouble();
+
+            QVariantList elPositions = eventPositions[iEv].toList();
+            if (iEv == 0)
+            {
+                numPos = elPositions.size();
+                if (numPos < 3 || numPos > 4)
+                {
+                    abort("configure_plotLRF: eventPositions array should contain sub-arrays with XYZ or XYZEnergy data!");
+                    return;
+                }
+            }
+            else if (elPositions.size() != numPos)
+            {
+                abort("configure_plotLRF: eventPositions array should contain sub-arrays with XYZ or XYZEnergy data");
+                return;
+            }
+            std::array<double,4> subarPositions;
+            for (size_t i = 0; i < numPos; i++)
+                subarPositions[i] = elPositions[i].toDouble();
+
+            DataSignals[iEv]   = subvecSignals;
+            DataPositions[iEv] = subarPositions;
+        }
+
+        // optional checks if needed
+        LrfPlotter->DataSignals = DataSignals;
+        LrfPlotter->DataPositions = DataPositions;
+    }
 }
 
 void ALightResponse_SI::showResponseExplorer()

@@ -1,4 +1,4 @@
-#include "alrfdrawer.h"
+#include "alrfplotter.h"
 #include "lrmodel.h"
 #include "lrf.h"
 #include "lrfaxial.h"
@@ -9,15 +9,12 @@
 #include "TGraph2D.h"
 #include "TAxis.h"
 
-ALrfDrawer::ALrfDrawer(LRModel * model) :
-    Model(model) {}
-
-QString ALrfDrawer::drawRadial(int iSens, bool showNodes)
+QString ALrfPlotter::drawRadial(LRModel * model, int iSens, bool showNodes)
 {
-    if (!Model) return "Response model is not defined";
+    if (!model) return "Response model is not defined";
 
-    if (iSens < 0 || iSens >= Model->GetSensorCount()) return "Invalid sensor index";
-    LRF * lrf = Model->GetLRF(iSens);
+    if (iSens < 0 || iSens >= model->GetSensorCount()) return "Invalid sensor index";
+    LRF * lrf = model->GetLRF(iSens);
     if (!lrf) return "LRF is not defined for the requested sensor";
 
     LRFaxial * axial = dynamic_cast<LRFaxial*>(lrf);
@@ -79,6 +76,8 @@ QString ALrfDrawer::drawRadial(int iSens, bool showNodes)
             for (double r : GrX) gN->AddPoint(r, axial->evalAxial(r));
             emit AScriptHub::getInstance().requestDraw(gN, "Psame", true);
         }
+
+        if (PlotData) drawDataAxial();
         return "";
     }
 
@@ -96,8 +95,8 @@ QString ALrfDrawer::drawRadial(int iSens, bool showNodes)
 
         double step = maxRange / NumPointsInRadialGraph;
 
-        double x0 = Model->GetX(iSens);
-        double y0 = Model->GetY(iSens);
+        double x0 = model->GetX(iSens);
+        double y0 = model->GetY(iSens);
 
         for (size_t iPr = 0; iPr < numProfiles; iPr++)
         {
@@ -133,12 +132,12 @@ QString ALrfDrawer::drawRadial(int iSens, bool showNodes)
     return "Not implemented LRF type in ALrfDrawer::drawRadial";
 }
 
-QString ALrfDrawer::drawXY(int iSens)
+QString ALrfPlotter::drawXY(LRModel * model, int iSens)
 {
-    if (!Model) return "Response model is not defined";
+    if (!model) return "Response model is not defined";
 
-    if (iSens < 0 || iSens >= Model->GetSensorCount()) return "Invalid sensor index";
-    LRF * lrf = Model->GetLRF(iSens);
+    if (iSens < 0 || iSens >= model->GetSensorCount()) return "Invalid sensor index";
+    LRF * lrf = model->GetLRF(iSens);
     if (!lrf) return "LRF is not defined for the requested sensor";
 
     TGraph2D * g = new TGraph2D(); // will be owned by the graph window
@@ -176,4 +175,17 @@ QString ALrfDrawer::drawXY(int iSens)
 
     emit AScriptHub::getInstance().requestDraw(g, "tri", true);
     return "";
+}
+
+void ALrfPlotter::drawDataAxial()
+{
+    const size_t numEv = DataSignals.size();
+    if (numEv == 0) return;
+    if (numEv != DataPositions.size()) return;
+
+
+    for (size_t iEv = 0; iEv < numEv; iEv++)
+    {
+
+    }
 }

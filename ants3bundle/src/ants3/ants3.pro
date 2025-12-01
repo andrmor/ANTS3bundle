@@ -92,7 +92,7 @@ ants3_mercury{
         rec/Mercury/mercuryLib/spline123/profileHist.cpp \
         rec/Mercury/alightresponsehub.cpp \
         rec/Mercury/script/amercury_si.cpp \
-        gui/rec/alrfdrawer.cpp \
+        gui/rec/alrfplotter.cpp \
         gui/rec/alrfmouseexplorer.cpp \
         gui/rec/alrfviewerobject.cpp \
         gui/rec/alrfgraphicsview.cpp
@@ -117,10 +117,14 @@ ants3_mercury{
         rec/Mercury/mercuryLib/spline123/profileHist.h \
         rec/Mercury/alightresponsehub.h \
         rec/Mercury/script/amercury_si.h \
-        gui/rec/alrfdrawer.h \
+        gui/rec/alrfplotter.h \
         gui/rec/alrfmouseexplorer.h \
         gui/rec/alrfviewerobject.h \
         gui/rec/alrfgraphicsview.h
+
+    FORMS += \
+        gui/rec/alrfplotterdialog.ui
+
 }
 
 #----------
@@ -283,6 +287,7 @@ SOURCES += \
     gui/photsim/asensorwindow.cpp \
     gui/raster/agraphrasterwindow.cpp \
     gui/raster/arasterwindow.cpp \
+    gui/rec/alrfplotterdialog.cpp \
     gui/script/aargumentcounter.cpp \
     gui/script/ageoscriptmaker.cpp \
     gui/script/aguifromscrwin.cpp \
@@ -459,6 +464,7 @@ HEADERS += \
     gui/photsim/aphotonlogsettingsform.h \
     gui/raster/agraphrasterwindow.h \
     gui/raster/arasterwindow.h \
+    gui/rec/alrfplotterdialog.h \
     gui/script/aargumentcounter.h \
     gui/script/ascriptexampleexplorer.h \
     particleSim/EcoMug/EcoMug.h \
