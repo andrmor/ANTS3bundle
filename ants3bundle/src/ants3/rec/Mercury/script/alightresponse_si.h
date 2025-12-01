@@ -55,6 +55,7 @@ public slots:
     void configure_plotLRF(bool plotWithSensorData, QVariantList sensorSignals, QVariantList eventPositions);
 
     void showResponseExplorer();
+    void showPlotterWidget(QVariantList sensorSignals, QVariantList eventPositions);
 
     // Low-level interface
     void enableSensor(int iSensor, bool enableFlag);

@@ -10,30 +10,28 @@ namespace Ui {
 class ALrfPlotterDialog;
 }
 
-class LRModel;
+class ALrfPlotter;
 
 class ALrfPlotterDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    ALrfPlotterDialog(QWidget * parent = nullptr);
+    ALrfPlotterDialog(ALrfPlotter * plotter, QWidget * parent = nullptr);
     ~ALrfPlotterDialog();
-
-    void setModel(LRModel * model);
-    void setData(const std::vector<std::vector<double>> & sensSignals, const std::vector<std::array<double, 4>> & xyze);
 
 private slots:
     void on_pbClose_clicked();
     void on_pbRedraw_clicked();
 
+    void on_sbSensor_editingFinished();
+
 private:
+    ALrfPlotter           * Plotter;
     Ui::ALrfPlotterDialog * ui = nullptr;
 
-    LRModel * Model = nullptr;
-
-    std::vector<std::vector<double>>   Signals;
-    std::vector<std::array<double, 4>> XYZE;
+private:
+    void makeRadialPlot();
 };
 
 #endif // ALRFPLOTTERDIALOG_H

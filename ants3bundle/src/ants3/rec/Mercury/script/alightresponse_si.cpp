@@ -251,13 +251,13 @@ void ALightResponse_SI::fitGroup(int iGroup)
 
 void ALightResponse_SI::plotLRF_radial(int iSensor, bool showNodes)
 {
-    QString err = LrfPlotter->drawRadial(LRHub.Model, iSensor, showNodes);
+    QString err = LrfPlotter->drawRadial(iSensor, showNodes);
     if (!err.isEmpty()) abort(err);
 }
 
 void ALightResponse_SI::plotLRF_xy(int iSensor)
 {
-    QString err = LrfPlotter->drawXY(LRHub.Model, iSensor);
+    QString err = LrfPlotter->drawXY(iSensor);
     if (!err.isEmpty()) abort(err);
 }
 
@@ -333,6 +333,82 @@ void ALightResponse_SI::showResponseExplorer()
 {
     if (!LRHub.Model) abort("Light response model is not defined");
     else emit AScriptHub::getInstance().requestShowLightResponseExplorer(LRHub.Model);
+}
+
+#include "alrfplotterdialog.h"
+void ALightResponse_SI::showPlotterWidget(QVariantList sensorSignals, QVariantList eventPositions)
+{
+    if (!LRHub.Model)
+    {
+        abort("Light response model is not defined");
+        return;
+    }
+
+    if (sensorSignals.empty() && eventPositions.empty()) return; // using already defined data
+    const size_t numEvents = sensorSignals.size();
+    if (numEvents != eventPositions.size())
+    {
+        abort("Size mismatch of arrays in configure_plotLRF");
+        return;
+    }
+
+    std::vector<std::vector<double>>  DataSignals(numEvents);
+    std::vector<std::array<double,4>> DataPositions(numEvents);
+    int numSensors = -1;
+    int numPos = 3; // 3 for XYZ and 4 for XYZE
+    for (size_t iEv = 0; iEv < numEvents; iEv++)
+    {
+        QVariantList elSignals = sensorSignals[iEv].toList();
+        if (iEv == 0)
+        {
+            numSensors = elSignals.size();
+            if (numSensors <= 0)
+            {
+                abort("configure_plotLRF: the sensorSignals array should contain data for at least one sensor");
+                return;
+            }
+        }
+        else if (elSignals.size() < numSensors)
+        {
+            abort("configure_plotLRF: the sensorSignals array contains invalid number of sensors at event number " + QString::number(iEv));
+            return;
+        }
+        std::vector<double> subvecSignals(numSensors);
+        for (size_t iSens = 0; iSens < numSensors; iSens++)
+            subvecSignals[iSens] = elSignals[iSens].toDouble();
+
+        QVariantList elPositions = eventPositions[iEv].toList();
+        if (iEv == 0)
+        {
+            numPos = elPositions.size();
+            if (numPos < 3 || numPos > 4)
+            {
+                abort("configure_plotLRF: eventPositions array should contain sub-arrays with XYZ or XYZEnergy data!");
+                return;
+            }
+        }
+        else if (elPositions.size() != numPos)
+        {
+            abort("configure_plotLRF: eventPositions array should contain sub-arrays with XYZ or XYZEnergy data");
+            return;
+        }
+        std::array<double,4> subarPositions;
+        for (size_t i = 0; i < numPos; i++)
+            subarPositions[i] = elPositions[i].toDouble();
+
+        DataSignals[iEv]   = subvecSignals;
+        DataPositions[iEv] = subarPositions;
+    }
+
+    if (numPos < 4)
+        for (size_t iEv = 0; iEv < numEvents; iEv++)
+            DataPositions[iEv][3] = 1.0;
+
+    // optional checks if needed
+    LrfPlotter->DataSignals = DataSignals;
+    LrfPlotter->DataPositions = DataPositions;
+
+    emit AScriptHub::getInstance().requestShowPlotterDialog(LrfPlotter);
 }
 
 void ALightResponse_SI::fitResponse(QVariantList floodSignals, QVariantList floodPositions)

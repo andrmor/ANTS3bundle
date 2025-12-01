@@ -135,6 +135,7 @@ AMainWindow::AMainWindow() :
 
 #ifdef USE_MERCURY
     connect(ScriptHub, &AScriptHub::requestShowLightResponseExplorer, this, &AMainWindow::showLightResponseExplorer, Qt::QueuedConnection);
+    connect(ScriptHub, &AScriptHub::requestShowPlotterDialog,         this, &AMainWindow::showLrfPlotterDialog,      Qt::QueuedConnection);
 #endif
 
     // called where all windows connecting to GeoWin are already defined
@@ -188,15 +189,19 @@ void AMainWindow::rootTimerTimeout()
 
 #ifdef USE_MERCURY
 #include "alrfmouseexplorer.h"
-#endif
-void AMainWindow::showLightResponseExplorer(LRModel  *model)
+#include "alrfplotterdialog.h"
+void AMainWindow::showLightResponseExplorer(LRModel * model)
 {
-#ifdef USE_MERCURY
     ALrfMouseExplorer * expl = new ALrfMouseExplorer(model, 0, this);
     expl->Start();
     expl->deleteLater();
-#endif
 }
+void AMainWindow::showLrfPlotterDialog(ALrfPlotter * plotter)
+{
+    ALrfPlotterDialog dialog(plotter, this);
+    dialog.exec();
+}
+#endif
 
 void AMainWindow::updateGui()
 {

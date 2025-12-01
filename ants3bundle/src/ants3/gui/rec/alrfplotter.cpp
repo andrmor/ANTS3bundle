@@ -4,13 +4,15 @@
 #include "lrfaxial.h"
 #include "lrfxy.h"
 #include "ascripthub.h"
+#include "alightresponsehub.h"
 
 #include "TGraph.h"
 #include "TGraph2D.h"
 #include "TAxis.h"
 
-QString ALrfPlotter::drawRadial(LRModel * model, int iSens, bool showNodes)
+QString ALrfPlotter::drawRadial(int iSens, bool showNodes)
 {
+    LRModel * model = ALightResponseHub::getInstance().Model;
     if (!model) return "Response model is not defined";
 
     if (iSens < 0 || iSens >= model->GetSensorCount()) return "Invalid sensor index";
@@ -132,8 +134,9 @@ QString ALrfPlotter::drawRadial(LRModel * model, int iSens, bool showNodes)
     return "Not implemented LRF type in ALrfDrawer::drawRadial";
 }
 
-QString ALrfPlotter::drawXY(LRModel * model, int iSens)
+QString ALrfPlotter::drawXY(int iSens)
 {
+    LRModel * model = ALightResponseHub::getInstance().Model;
     if (!model) return "Response model is not defined";
 
     if (iSens < 0 || iSens >= model->GetSensorCount()) return "Invalid sensor index";
@@ -174,6 +177,53 @@ QString ALrfPlotter::drawXY(LRModel * model, int iSens)
     g->SetMinimum(0);
 
     emit AScriptHub::getInstance().requestDraw(g, "tri", true);
+    return "";
+}
+
+#include "TH2D.h"
+QString ALrfPlotter::drawRadial_Data(int iSens, bool addLRF)
+{
+    LRModel * model = ALightResponseHub::getInstance().Model;
+    if (!model) return "Response model is not defined";
+
+    if (iSens < 0 || iSens >= model->GetSensorCount()) return "Invalid sensor index";
+    LRF * lrf = model->GetLRF(iSens);
+    if (!lrf) return "LRF is not defined for the requested sensor";
+
+    LRFaxial * axial = dynamic_cast<LRFaxial*>(lrf);
+    if (axial)
+    {
+        TH2D * h = new TH2D("", "", 100, 0, 0, 100, 0, 0);
+
+        const size_t numEvents = DataSignals.size();
+        for (size_t iEv = 0; iEv < numEvents; iEv++)
+        {
+            const std::array<double,4> & event = DataPositions[iEv];
+            const double & energy = event[3];
+            const bool goodEvent = (energy > 0);
+            if (!goodEvent) continue;
+            //if (Options.check_z && (pos[2]<Options.z0-Options.dz || pos[2]>Options.z0+Options.dz)) continue;
+
+            double x0 = model->GetX(iSens);
+            double y0 = model->GetY(iSens);
+            double r = hypot(event[0] - x0, event[1] - y0);
+
+            double signal = DataSignals[iEv][iSens];
+            //if (Options.scale_by_energy) fdata /= factor;
+            //if (Options.plot_diff)
+            //{
+            //    double fdiff = fdata - LRFs->getLRF(fUseOldModule, PMnumber, pos);
+            //    hist2D->Fill(r, fdiff);
+            //}
+            //else
+            h->Fill(r, signal);
+        }
+
+        h->GetXaxis()->SetTitle("Radial distance, mm");
+        h->GetYaxis()->SetTitle("Signal");
+
+        emit AScriptHub::getInstance().requestDraw(h, "colz", true);
+    }
     return "";
 }
 

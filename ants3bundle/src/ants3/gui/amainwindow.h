@@ -25,6 +25,7 @@ class A3Global;
 class AConfigExampleBrowser;
 class AGuiFromScrWin;
 class LRModel;
+class ALrfPlotter;
 
 class AMainWindow : public AGuiWindow
 {
@@ -132,7 +133,10 @@ private slots:
     // run time
     void rootTimerTimeout();
 
+#ifdef USE_MERCURY
     void showLightResponseExplorer(LRModel * model);
+    void showLrfPlotterDialog(ALrfPlotter * plotter);
+#endif
 
 protected:
     void closeEvent(QCloseEvent * event);
