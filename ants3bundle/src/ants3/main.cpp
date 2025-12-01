@@ -48,7 +48,7 @@ void signal_handler(int)
 int main(int argc, char *argv[])
 {
     qDebug() << "Starting ANTS3";
-    qDebug() << "Init ROOT application";
+    qDebug() << "Init ROOT application (it can take a while)";
     // need to start Root application before QtApplication
     int rootargc = 1;
     char* rootargv[] = {(char*)"dummy"};

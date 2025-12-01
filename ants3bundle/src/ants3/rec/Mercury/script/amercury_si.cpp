@@ -252,11 +252,6 @@ void AMercury_si::configure_plotXY_binning(int xBins, double xFrom, double xTo, 
     YTo   = yTo;
 }
 
-void AMercury_si::plot(QString what, int bins)
-{
-    plot(what, bins, 0, 0);
-}
-
 void AMercury_si::plot_vsRecXY(QString what)
 {
     if (!RecMP)
@@ -544,16 +539,30 @@ void AMercury_si::plotSigmaXYHist(const std::vector<double> & x, const std::vect
     delete histNorm;
 }
 
-void AMercury_si::setCOG_AbsCutoff(double val)
+void AMercury_si::configure_COG(double signalAbsoluteCutoff, double signalRelativeCutoff)
 {
-    if (RecMP) RecMP->setCogAbsCutoff(val);
-    else abort("Reconstructor was not created yet");
+    if (!RecMP)
+    {
+        abort("Reconstructor was not created yet");
+        return;
+    }
+
+    RecMP->setCogAbsCutoff(signalAbsoluteCutoff);
+    RecMP->setCogRelCutoff(signalRelativeCutoff);
 }
 
-void AMercury_si::setCOG_RelCutoff(double val)
+void AMercury_si::configure_statistical(bool reconstructEnergy, bool reconstructZ, double fixedZ)
 {
-    if (RecMP) RecMP->setCogRelCutoff(val);
-    else abort("Reconstructor was not created yet");
+    RecMinuitMP * rec = dynamic_cast<RecMinuitMP*>(RecMP);
+    if (!rec)
+    {
+        abort("Reconstructor not created or it is not 'ML' or 'LS' type");
+        return;
+    }
+
+    rec->setAutoE(reconstructEnergy);
+    if (reconstructZ) rec->setFreeZ();
+    else rec->setFixedZ(fixedZ);
 }
 
 void AMercury_si::setCutoffRadius(double val)
@@ -562,7 +571,7 @@ void AMercury_si::setCutoffRadius(double val)
     else abort("Reconstructor was not created yet");
 }
 
-void AMercury_si::setMinuitParameters(double RMtolerance, int RMmaxIterations, int RMmaxFuncCalls)
+void AMercury_si::configure_statistical_Minuit(double tolerance, int maxIterations, int maxFuncCalls)
 {
     RecMinuitMP * rec = dynamic_cast<RecMinuitMP*>(RecMP);
     if (!rec)
@@ -570,9 +579,24 @@ void AMercury_si::setMinuitParameters(double RMtolerance, int RMmaxIterations, i
         abort("Reconstructor not created or it is not 'ML' or 'LS' type");
         return;
     }
-    rec->setRMtolerance(RMtolerance);
-    rec->setRMmaxIterations(RMmaxIterations);
-    rec->setRMmaxFuncCalls(RMmaxFuncCalls);
+    rec->setRMtolerance(tolerance);
+    rec->setRMmaxIterations(maxIterations);
+    rec->setRMmaxFuncCalls(maxFuncCalls);
+}
+
+void AMercury_si::configure_statistical_step(double initialStepX, double initialStepY, double initialStepZ, double initialStepEnergy)
+{
+    RecMinuitMP * rec = dynamic_cast<RecMinuitMP*>(RecMP);
+    if (!rec)
+    {
+        abort("Reconstructor not created or it is not 'ML' or 'LS' type");
+        return;
+    }
+
+    rec->setRMstepX(initialStepX);
+    rec->setRMstepY(initialStepY);
+    rec->setRMstepZ(initialStepZ);
+    rec->setRMstepEnergy(initialStepEnergy);
 }
 
 // --- Private methods ---

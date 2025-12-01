@@ -32,7 +32,6 @@ public slots:
     QVariantList getRecXYZE();
     QVariantList getRecStats(); // [status(0 = OK), chi2, cov_xx, cov_yy, cov_xy]
 
-    void plot(QString what, int bins);
     void plot(QString what, int bins, double from, double to);
 
     void configure_plotXY_binning(int xBins, double xFrom, double xTo, int yBins, double yFrom, double yTo);
@@ -41,10 +40,11 @@ public slots:
     void plot_vsTrueXY(QString what);
 
     // --- Low level ---
-    void setCOG_AbsCutoff(double val);
-    void setCOG_RelCutoff(double val);
-    void setCutoffRadius(double val);
-    void setMinuitParameters(double RMtolerance, int RMmaxIterations, int RMmaxFuncCalls);  //  deafults are 0.001, 1000, 500
+    void configure_COG(double signalAbsoluteCutoff, double signalRelativeCutoff);
+    void configure_statistical(bool reconstructEnergy, bool reconstructZ, double fixedZ);
+    void setCutoffRadius(double val); // !!!*** set both cog and statistical, include the method for stat (CoG result or strongest sensor)
+    void configure_statistical_step(double initialStepX, double initialStepY, double initialStepZ, double initialStepEnergy);  //  defaults are 1 1 1 0
+    void configure_statistical_Minuit(double tolerance, int maxIterations, int maxFuncCalls);  //  deafults are 0.001, 1000, 500
 
 private:
     ALightResponseHub & LRHub;
