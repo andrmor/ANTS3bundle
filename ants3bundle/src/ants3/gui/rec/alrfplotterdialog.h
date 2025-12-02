@@ -20,6 +20,8 @@ public:
     ALrfPlotterDialog(ALrfPlotter * plotter, QWidget * parent = nullptr);
     ~ALrfPlotterDialog();
 
+    void triggerRedraw();
+
 private slots:
     void on_pbClose_clicked();
     void on_pbRedraw_clicked();

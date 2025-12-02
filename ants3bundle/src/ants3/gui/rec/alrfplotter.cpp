@@ -223,6 +223,31 @@ QString ALrfPlotter::drawRadial_Data(int iSens, bool addLRF)
         h->GetYaxis()->SetTitle("Signal");
 
         emit AScriptHub::getInstance().requestDraw(h, "colz", true);
+
+        if (addLRF)
+        {
+                TGraph * g = new TGraph(); // will be owned by the graph window
+                g->SetLineWidth(2);
+                g->SetLineColor(2);
+                g->SetTitle( TString("LRF #") + iSens);
+                g->GetXaxis()->SetTitle("Radial distance, mm");
+                g->GetYaxis()->SetTitle("LRF");
+
+                double from = axial->GetRmin();
+                double to   = axial->getRmax();
+
+                double step = (to - from) / NumPointsInRadialGraph;
+
+                for (size_t iR = 0; iR < NumPointsInRadialGraph; iR++)
+                {
+                    double r = step * iR;
+                    double val = axial->evalAxial(r);
+                    if (val != 0) g->AddPoint(r, val);
+                }
+                g->SetMinimum(0);
+
+                emit AScriptHub::getInstance().requestDraw(g, "Lsame", true);
+        }
     }
     return "";
 }

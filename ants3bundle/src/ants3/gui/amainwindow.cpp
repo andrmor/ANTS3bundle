@@ -198,8 +198,12 @@ void AMainWindow::showLightResponseExplorer(LRModel * model)
 }
 void AMainWindow::showLrfPlotterDialog(ALrfPlotter * plotter)
 {
-    ALrfPlotterDialog dialog(plotter, this);
-    dialog.exec();
+    ALrfPlotterDialog * dia = new ALrfPlotterDialog(plotter, this);
+    connect(dia, &ALrfPlotterDialog::rejected, dia, &QObject::deleteLater);
+    dia->showNormal();
+    dia->activateWindow();
+    QApplication::processEvents();
+    dia->triggerRedraw();
 }
 #endif
 

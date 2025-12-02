@@ -533,5 +533,70 @@
   </layout>
  </widget>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>cbRadial_lrf</sender>
+   <signal>clicked()</signal>
+   <receiver>pbRedraw</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>143</x>
+     <y>150</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>117</x>
+     <y>275</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cbRadial_data</sender>
+   <signal>clicked()</signal>
+   <receiver>pbRedraw</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>137</x>
+     <y>183</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>136</x>
+     <y>279</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cbRadial_diff</sender>
+   <signal>clicked()</signal>
+   <receiver>pbRedraw</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>177</x>
+     <y>207</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>155</x>
+     <y>282</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cbRadial_addNodes</sender>
+   <signal>clicked()</signal>
+   <receiver>pbRedraw</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>317</x>
+     <y>155</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>315</x>
+     <y>281</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>
