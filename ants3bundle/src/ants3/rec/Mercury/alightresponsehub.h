@@ -4,6 +4,7 @@
 #include <QObject>
 
 class LRModel;
+class ALrfPlotter;;
 
 class ALightResponseHub : public QObject
 {
@@ -23,7 +24,8 @@ private:
     ALightResponseHub& operator=(ALightResponseHub&&)      = delete;
 
 public:
-    LRModel * Model = nullptr;
+    LRModel     * Model = nullptr;
+    ALrfPlotter * LrfPlotter = nullptr;
 };
 
 #endif // ALIGHTRESPONSEHUB_H

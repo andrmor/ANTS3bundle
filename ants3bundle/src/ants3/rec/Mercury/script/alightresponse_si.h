@@ -10,7 +10,6 @@
 class ALightResponseHub;
 class LRF;
 class TObject;
-class ALrfPlotter;
 
 class ALightResponse_SI : public AScriptInterface
 {
@@ -18,7 +17,6 @@ class ALightResponse_SI : public AScriptInterface
 
 public:
     ALightResponse_SI();
-    ~ALightResponse_SI();
 
     AScriptInterface * cloneBase() const override {return new ALightResponse_SI();}
 
@@ -78,13 +76,11 @@ public slots:
 
 private:
     ALightResponseHub & LRHub;
-    ALrfPlotter       * LrfPlotter = nullptr;
 
     QString CommonJsonString; // set by SetLRF(QString jsonString) to be used in the case when MakeGroups_xxx is used after LRFs are already set
 
     void clearModel();
     void ifAxialUpdateLrfCenter(LRF * lrf, double x, double y);
-
 
 };
 

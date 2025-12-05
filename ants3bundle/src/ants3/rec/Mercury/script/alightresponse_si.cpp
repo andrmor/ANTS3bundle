@@ -10,12 +10,7 @@
 #include "lrfaxial.h"
 
 ALightResponse_SI::ALightResponse_SI() :
-    LRHub(ALightResponseHub::getInstance()), LrfPlotter(new ALrfPlotter()) {}
-
-ALightResponse_SI::~ALightResponse_SI()
-{
-    delete LrfPlotter;
-}
+    LRHub(ALightResponseHub::getInstance()) {}
 
 // --- High level ---
 
@@ -325,10 +320,11 @@ void ALightResponse_SI::showPlotterWidget(QVariantList sensorSignals, QVariantLi
             DataPositions[iEv][3] = 1.0;
 
     // optional checks if needed
-    LrfPlotter->DataSignals = DataSignals;
-    LrfPlotter->DataPositions = DataPositions;
 
-    emit AScriptHub::getInstance().requestShowPlotterDialog(LrfPlotter);
+    LRHub.LrfPlotter->DataSignals = DataSignals;
+    LRHub.LrfPlotter->DataPositions = DataPositions;
+
+    emit AScriptHub::getInstance().requestShowPlotterDialog(LRHub.LrfPlotter);
 }
 
 void ALightResponse_SI::fitResponse(QVariantList floodSignals, QVariantList floodPositions)

@@ -34,7 +34,9 @@
 
 #ifdef USE_MERCURY
 #include "alrfmouseexplorer.h"
+#include "alrfplotter.h"
 #include "alrfplotterdialog.h"
+#include "alightresponsehub.h"
 #endif
 
 #include <QDebug>
@@ -141,6 +143,8 @@ AMainWindow::AMainWindow() :
 #ifdef USE_MERCURY
     connect(ScriptHub, &AScriptHub::requestShowLightResponseExplorer, this, &AMainWindow::showLightResponseExplorer, Qt::QueuedConnection);
     connect(ScriptHub, &AScriptHub::requestShowPlotterDialog,         this, &AMainWindow::showLrfPlotterDialog,      Qt::QueuedConnection);
+    ALightResponseHub & LRHub = ALightResponseHub::getInstance();
+    connect(LRHub.LrfPlotter, &ALrfPlotter::requestDraw, GraphWin, &AGraphWindow::onDrawRequest, Qt::DirectConnection); // both live in GUI thread
     LrfPlotterDialog = new ALrfPlotterDialog(this);
 #endif
 

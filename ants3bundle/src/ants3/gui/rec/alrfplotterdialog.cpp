@@ -84,7 +84,7 @@ void ALrfPlotterDialog::makeRadialPlot(int iSens)
     bool plotData  = ui->cbRadial_data->isChecked();
     bool plotDiff  = ui->cbRadial_diff->isChecked();
 
-    Plotter->drawRadial1(iSens, plotLrf, plotNodes, plotData || plotDiff, plotDiff);
+    Plotter->drawRadial(iSens, plotLrf, plotNodes, plotData || plotDiff, plotDiff);
 }
 
 void ALrfPlotterDialog::on_sbSensor_editingFinished()

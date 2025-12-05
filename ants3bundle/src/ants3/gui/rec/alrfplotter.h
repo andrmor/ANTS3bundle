@@ -15,13 +15,10 @@ class ALrfPlotter : public QObject
     Q_OBJECT
 
 public:
-    QString drawRadial1(int iSens, bool showLrf, bool showNodes, bool addData, bool differenceOption);   // returns error
+    QString drawRadial(int iSens, bool showLrf, bool showNodes, bool addData, bool differenceOption);   // returns error
 
-
-    //QString drawRadial(int iSens, bool showNodes);   // returns error
+    // TODO
     QString drawXY(int iSens);                       // returns error
-
-    QString drawRadial_Data(int iSens, bool addLRF); // returns error
 
     int countSensors() const;
 
@@ -45,7 +42,7 @@ private:
     void doDrawRadialNodes(int iSens);
 
 signals:
-    void requestDraw(TObject * obj, QString options, bool fFocus);
+    void requestDraw(TObject * obj, QString options, bool transferOwnership, bool focusWindow);
 };
 
 #endif // ALRFPLOTTER_H

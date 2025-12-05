@@ -1,7 +1,9 @@
 #include "alightresponsehub.h"
+#include "alrfplotter.h"
 #include "lrmodel.h"
 
-ALightResponseHub::ALightResponseHub() {}
+ALightResponseHub::ALightResponseHub() :
+    LrfPlotter(new ALrfPlotter()) {}
 
 ALightResponseHub & ALightResponseHub::getInstance()
 {
