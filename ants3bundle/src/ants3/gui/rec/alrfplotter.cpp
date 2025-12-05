@@ -9,7 +9,25 @@
 #include "TGraph.h"
 #include "TGraph2D.h"
 #include "TAxis.h"
+#include "TH2D.h"
 
+QString ALrfPlotter::drawRadial1(int iSens, bool showLrf, bool showNodes, bool addData, bool differenceOption)
+{
+    LRModel * model = ALightResponseHub::getInstance().Model;
+    if (!model) return "Response model is not defined";
+
+    if (iSens < 0 || iSens >= model->GetSensorCount()) return "Invalid sensor index";
+    LRF * lrf = model->GetLRF(iSens);
+    if (!lrf) return "LRF is not defined for the requested sensor";
+
+    if (addData)   doDrawRadialData(iSens, differenceOption);
+    if (showLrf)   doDrawRadialLrf(iSens, addData);
+    if (showNodes) doDrawRadialNodes(iSens);
+
+    return "";
+}
+
+/*
 QString ALrfPlotter::drawRadial(int iSens, bool showNodes)
 {
     LRModel * model = ALightResponseHub::getInstance().Model;
@@ -79,7 +97,6 @@ QString ALrfPlotter::drawRadial(int iSens, bool showNodes)
             emit AScriptHub::getInstance().requestDraw(gN, "Psame", true);
         }
 
-        if (PlotData) drawDataAxial();
         return "";
     }
 
@@ -133,6 +150,8 @@ QString ALrfPlotter::drawRadial(int iSens, bool showNodes)
 
     return "Not implemented LRF type in ALrfDrawer::drawRadial";
 }
+*/
+
 
 QString ALrfPlotter::drawXY(int iSens)
 {
@@ -180,7 +199,6 @@ QString ALrfPlotter::drawXY(int iSens)
     return "";
 }
 
-#include "TH2D.h"
 QString ALrfPlotter::drawRadial_Data(int iSens, bool addLRF)
 {
     LRModel * model = ALightResponseHub::getInstance().Model;
@@ -193,7 +211,8 @@ QString ALrfPlotter::drawRadial_Data(int iSens, bool addLRF)
     LRFaxial * axial = dynamic_cast<LRFaxial*>(lrf);
     if (axial)
     {
-        TH2D * h = new TH2D("", "", 100, 0, 0, 100, 0, 0);
+        TH2D * h = new TH2D("", "", 100, 0, 200,
+                                    100, (FixedVerticalMin ? VerticalMin : 0), (FixedVerticalMax ? VerticalMax : 0));
 
         const size_t numEvents = DataSignals.size();
         for (size_t iEv = 0; iEv < numEvents; iEv++)
@@ -244,7 +263,9 @@ QString ALrfPlotter::drawRadial_Data(int iSens, bool addLRF)
                     double val = axial->evalAxial(r);
                     if (val != 0) g->AddPoint(r, val);
                 }
-                g->SetMinimum(0);
+
+                g->SetMinimum(FixedVerticalMin ? VerticalMin : 0);
+                if (FixedVerticalMax) g->SetMaximum(VerticalMax);
 
                 emit AScriptHub::getInstance().requestDraw(g, "Lsame", true);
         }
@@ -260,15 +281,118 @@ int ALrfPlotter::countSensors() const
     return model->GetSensorCount();
 }
 
-void ALrfPlotter::drawDataAxial()
+void ALrfPlotter::doDrawRadialData(int iSens, bool differenceOption)
 {
-    const size_t numEv = DataSignals.size();
-    if (numEv == 0) return;
-    if (numEv != DataPositions.size()) return;
+    LRModel * model = ALightResponseHub::getInstance().Model;
 
-
-    for (size_t iEv = 0; iEv < numEv; iEv++)
+    LRF * lrf = model->GetLRF(iSens);
+    LRFaxial * axial = dynamic_cast<LRFaxial*>(lrf);
+    if (axial)
     {
+        TH2D * h = new TH2D("", "", 100, 0, 200,
+                            VerticalNumBins, (FixedVerticalMin ? VerticalMin : 0), (FixedVerticalMax ? VerticalMax : 0));
 
+        const size_t numEvents = DataSignals.size();
+        for (size_t iEv = 0; iEv < numEvents; iEv++)
+        {
+            const std::array<double,4> & event = DataPositions[iEv];
+            const double & energy = event[3];
+            const bool goodEvent = (energy > 0);
+            if (!goodEvent) continue;
+            //if (Options.check_z && (pos[2]<Options.z0-Options.dz || pos[2]>Options.z0+Options.dz)) continue;
+
+            double x0 = model->GetX(iSens);
+            double y0 = model->GetY(iSens);
+            double r = hypot(event[0] - x0, event[1] - y0);
+
+            double signal = DataSignals[iEv][iSens];
+            signal /= energy;     //if (Options.scale_by_energy)
+            if (differenceOption)
+            {
+               double diff = signal - axial->evalAxial(r);
+               h->Fill(r, diff);
+            }
+            else h->Fill(r, signal);
+        }
+
+        h->GetXaxis()->SetTitle("Radial distance, mm");
+        h->GetYaxis()->SetTitle(differenceOption ? "Difference" : "Signal");
+
+        emit AScriptHub::getInstance().requestDraw(h, "colz", true);
+    }
+}
+
+void ALrfPlotter::doDrawRadialLrf(int iSens, bool onTopOfData)
+{
+    LRModel * model = ALightResponseHub::getInstance().Model;
+
+    LRF * lrf = model->GetLRF(iSens);
+    LRFaxial * axial = dynamic_cast<LRFaxial*>(lrf);
+    if (axial)
+    {
+        TGraph * g = new TGraph(); // will be owned by the graph window
+        g->SetLineWidth(2);
+        g->SetLineColor(2);
+        g->SetTitle( TString("LRF #") + iSens);
+        g->GetXaxis()->SetTitle("Radial distance, mm");
+        g->GetYaxis()->SetTitle("LRF");
+
+        double from = axial->GetRmin();
+        double to   = axial->getRmax();
+
+        double step = (to - from) / NumPointsInRadialGraph;
+
+        for (size_t iR = 0; iR < NumPointsInRadialGraph; iR++)
+        {
+            double r = step * iR;
+            double val = axial->evalAxial(r);
+            if (val != 0) g->AddPoint(r, val);
+        }
+
+        g->SetMinimum(FixedVerticalMin ? VerticalMin : 0);
+        if (FixedVerticalMax) g->SetMaximum(VerticalMax);
+
+        emit AScriptHub::getInstance().requestDraw(g, onTopOfData ? "Lsame" : "AL", true);
+    }
+}
+
+void ALrfPlotter::doDrawRadialNodes(int iSens)
+{
+    LRModel * model = ALightResponseHub::getInstance().Model;
+    LRF * lrf = model->GetLRF(iSens);
+    LRFaxial * axial = dynamic_cast<LRFaxial*>(lrf);
+    if (axial)
+    {
+        int nodes   = axial->getNint();
+        double rmax = axial->getRmax();
+
+        double Rmin = axial->Compress(0);
+        double Rmax = axial->Compress(rmax);
+        double DX = Rmax - Rmin;
+
+        // !!!*** should be delegated to the library
+        int lastnode = -1;
+        std::vector<double> GrX;
+        for (int ix = 0; ix < 102; ix++)
+        {
+            double x = rmax * ix / 100.0;
+            double X = axial->Compress(x);
+            int node = X * nodes/DX;
+            if (node > lastnode)
+            {
+                GrX.push_back(x);
+                lastnode = node;
+            }
+        }
+
+        TGraph * gN = new TGraph(); // will be owned by the graph window
+        gN->SetMarkerStyle(8);
+        gN->SetMarkerSize(1);
+        gN->SetMarkerColor(2);
+        gN->SetTitle( TString("LRF_nodes #") + iSens);
+        gN->GetXaxis()->SetTitle("Radial distance, mm");
+        gN->GetYaxis()->SetTitle("LRF_nodes");
+        for (double r : GrX) gN->AddPoint(r, axial->evalAxial(r));
+        emit AScriptHub::getInstance().requestDraw(gN, "Psame", true);
     }
 }

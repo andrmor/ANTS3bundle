@@ -15,7 +15,10 @@ class ALrfPlotter : public QObject
     Q_OBJECT
 
 public:
-    QString drawRadial(int iSens, bool showNodes);   // returns error
+    QString drawRadial1(int iSens, bool showLrf, bool showNodes, bool addData, bool differenceOption);   // returns error
+
+
+    //QString drawRadial(int iSens, bool showNodes);   // returns error
     QString drawXY(int iSens);                       // returns error
 
     QString drawRadial_Data(int iSens, bool addLRF); // returns error
@@ -29,8 +32,17 @@ public:
     size_t NumPointsInRadialGraph = 100;
     size_t NumPointsInXYGraph = 100;
 
+    bool   FixedVerticalMin = false;
+    double VerticalMin      = 0;
+    bool   FixedVerticalMax = false;
+    double VerticalMax      = 100.0;
+
+    int    VerticalNumBins  = 100;
+
 private:
-    void drawDataAxial();
+    void doDrawRadialData (int iSens, bool differenceOption);
+    void doDrawRadialLrf  (int iSens, bool onTopOfData);
+    void doDrawRadialNodes(int iSens);
 
 signals:
     void requestDraw(TObject * obj, QString options, bool fFocus);

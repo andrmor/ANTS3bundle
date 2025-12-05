@@ -596,6 +596,9 @@
         </item>
         <item>
          <widget class="QSpinBox" name="sbVerticalBins">
+          <property name="minimum">
+           <number>1</number>
+          </property>
           <property name="maximum">
            <number>9999</number>
           </property>
@@ -629,38 +632,6 @@
     <hint type="sourcelabel">
      <x>200</x>
      <y>128</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>443</x>
-     <y>34</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>cbRadial_data</sender>
-   <signal>clicked()</signal>
-   <receiver>pbRedraw</receiver>
-   <slot>click()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>200</x>
-     <y>157</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>443</x>
-     <y>34</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>cbRadial_diff</sender>
-   <signal>clicked()</signal>
-   <receiver>pbRedraw</receiver>
-   <slot>click()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>200</x>
-     <y>186</y>
     </hint>
     <hint type="destinationlabel">
      <x>443</x>

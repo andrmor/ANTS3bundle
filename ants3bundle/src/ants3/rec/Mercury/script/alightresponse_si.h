@@ -50,10 +50,6 @@ public slots:
     void addFitData(int iSensor, QVariantList xyza);
     void fitResponse(QVariantList floodSignals, QVariantList floodPositions);
 
-    void plotLRF_radial(int iSensor, bool showNodes = false);
-    void plotLRF_xy(int iSensor);
-    void configure_plotLRF(bool plotWithSensorData, QVariantList sensorSignals, QVariantList eventPositions);
-
     void showResponseExplorer();
     void showPlotterWidget(QVariantList sensorSignals, QVariantList eventPositions);
 

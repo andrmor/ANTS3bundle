@@ -2,6 +2,7 @@
 #include "ui_alrfplotterdialog.h"
 #include "alrfplotter.h"
 #include "guitools.h"
+#include "QDoubleValidator"
 #include "lrmodel.h"
 
 #include <QDebug>
@@ -11,6 +12,12 @@ ALrfPlotterDialog::ALrfPlotterDialog(QWidget * parent) :
     ui(new Ui::ALrfPlotterDialog)
 {
     ui->setupUi(this);
+
+    QDoubleValidator * dv = new QDoubleValidator(this);
+    dv->setNotation(QDoubleValidator::ScientificNotation);
+    QList<QLineEdit*> list = findChildren<QLineEdit*>();
+    foreach(QLineEdit *w, list)
+        if (w->objectName().startsWith("led")) w->setValidator(dv);
 
     ui->pbRedraw->setDefault(true);
 }
@@ -28,6 +35,12 @@ void ALrfPlotterDialog::redraw()
         qWarning() << "Plotter is not configured yet";
         return;
     }
+
+    Plotter->FixedVerticalMin = ui->cbVerticalFixMin->isChecked();
+    Plotter->VerticalMin = ui->ledVerticalFixMin->text().toDouble();
+    Plotter->FixedVerticalMax = ui->cbVerticalFixMax->isChecked();
+    Plotter->VerticalMax = ui->ledVerticalFixMax->text().toDouble();
+    Plotter->VerticalNumBins = ui->sbVerticalBins->value();
 
     const int iSens = ui->sbSensor->value();
     const int numSens = Plotter->countSensors();
@@ -66,10 +79,12 @@ void ALrfPlotterDialog::on_pbRedraw_clicked()
 
 void ALrfPlotterDialog::makeRadialPlot(int iSens)
 {
-    if (ui->cbRadial_data->isChecked())
-        Plotter->drawRadial_Data(iSens, ui->cbRadial_lrf->isChecked());
-    else
-        Plotter->drawRadial(iSens, ui->cbRadial_addNodes->isChecked());
+    bool plotLrf   = ui->cbRadial_lrf->isChecked();
+    bool plotNodes = ui->cbRadial_addNodes->isChecked();
+    bool plotData  = ui->cbRadial_data->isChecked();
+    bool plotDiff  = ui->cbRadial_diff->isChecked();
+
+    Plotter->drawRadial1(iSens, plotLrf, plotNodes, plotData || plotDiff, plotDiff);
 }
 
 void ALrfPlotterDialog::on_sbSensor_editingFinished()
@@ -96,5 +111,17 @@ void ALrfPlotterDialog::on_pbNext_clicked()
         ui->sbSensor->setValue(val + 1);
         redraw();
     }
+}
+
+void ALrfPlotterDialog::on_cbRadial_data_clicked(bool checked)
+{
+    if (checked && ui->cbRadial_diff->isChecked()) ui->cbRadial_diff->setChecked(false);
+    redraw();
+}
+
+void ALrfPlotterDialog::on_cbRadial_diff_clicked(bool checked)
+{
+    if (checked && ui->cbRadial_data->isChecked()) ui->cbRadial_data->setChecked(false);
+    redraw();
 }
 

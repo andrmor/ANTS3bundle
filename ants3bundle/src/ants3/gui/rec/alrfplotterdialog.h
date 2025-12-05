@@ -37,6 +37,10 @@ private slots:
 
     void on_pbNext_clicked();
 
+    void on_cbRadial_data_clicked(bool checked);
+
+    void on_cbRadial_diff_clicked(bool checked);
+
 private:
     ALrfPlotter           * Plotter;
     Ui::ALrfPlotterDialog * ui = nullptr;
