@@ -252,6 +252,14 @@ QString ALrfPlotter::drawRadial_Data(int iSens, bool addLRF)
     return "";
 }
 
+int ALrfPlotter::countSensors() const
+{
+    LRModel * model = ALightResponseHub::getInstance().Model;
+    if (!model) return 0;
+
+    return model->GetSensorCount();
+}
+
 void ALrfPlotter::drawDataAxial()
 {
     const size_t numEv = DataSignals.size();

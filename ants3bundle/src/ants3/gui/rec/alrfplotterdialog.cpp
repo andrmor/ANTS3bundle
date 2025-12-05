@@ -1,16 +1,18 @@
 #include "alrfplotterdialog.h"
 #include "ui_alrfplotterdialog.h"
 #include "alrfplotter.h"
+#include "guitools.h"
 #include "lrmodel.h"
 
-ALrfPlotterDialog::ALrfPlotterDialog(ALrfPlotter * plotter, QWidget * parent) :
-    QDialog(parent), Plotter(plotter),
+#include <QDebug>
+
+ALrfPlotterDialog::ALrfPlotterDialog(QWidget * parent) :
+    QDialog(parent),
     ui(new Ui::ALrfPlotterDialog)
 {
     ui->setupUi(this);
 
-    //ui->pbClose->setDefault(false);
-    //ui->pbRedraw->setDefault(true);
+    ui->pbRedraw->setDefault(true);
 }
 
 ALrfPlotterDialog::~ALrfPlotterDialog()
@@ -19,30 +21,51 @@ ALrfPlotterDialog::~ALrfPlotterDialog()
     delete ui;
 }
 
-void ALrfPlotterDialog::triggerRedraw()
+void ALrfPlotterDialog::redraw()
 {
-    QApplication::processEvents();
-    on_pbRedraw_clicked();
-    QApplication::processEvents();
+    if (!Plotter)
+    {
+        qWarning() << "Plotter is not configured yet";
+        return;
+    }
+
+    const int iSens = ui->sbSensor->value();
+    const int numSens = Plotter->countSensors();
+    if (numSens == 0)
+    {
+        guitools::message("There are no light sensors in the current configuration");
+        return;
+    }
+    if (iSens < 0 || iSens > numSens)
+    {
+        guitools::message("Invalid sensor index, should be 0.." + QString::number(numSens-1));
+        return;
+    }
+
+    if (ui->tabwPlotType->currentIndex() == 0)
+    {
+        makeRadialPlot(iSens);
+    }
+}
+
+void ALrfPlotterDialog::showEvent(QShowEvent *event)
+{
+    QDialog::showEvent(event);
+    setAttribute(Qt::WA_Moved); // if this attribute is set, the dialog keeps its prior position when re-opened
 }
 
 void ALrfPlotterDialog::on_pbClose_clicked()
 {
-    reject();
+    setVisible(false);
 }
 
 void ALrfPlotterDialog::on_pbRedraw_clicked()
 {
-    if (ui->tabwPlotType->currentIndex() == 0)
-    {
-        makeRadialPlot();
-    }
+    redraw();
 }
 
-void ALrfPlotterDialog::makeRadialPlot()
+void ALrfPlotterDialog::makeRadialPlot(int iSens)
 {
-    const int iSens = ui->sbSensor->value();
-
     if (ui->cbRadial_data->isChecked())
         Plotter->drawRadial_Data(iSens, ui->cbRadial_lrf->isChecked());
     else
@@ -51,6 +74,27 @@ void ALrfPlotterDialog::makeRadialPlot()
 
 void ALrfPlotterDialog::on_sbSensor_editingFinished()
 {
-    on_pbRedraw_clicked();
+    redraw();
+}
+
+void ALrfPlotterDialog::on_pbPrevious_clicked()
+{
+    int val = ui->sbSensor->value();
+    if (val > 0)
+    {
+        ui->sbSensor->setValue(val - 1);
+        redraw();
+    }
+}
+
+void ALrfPlotterDialog::on_pbNext_clicked()
+{
+    int val = ui->sbSensor->value();
+    const int numSens = Plotter->countSensors();
+    if (val < numSens - 2)
+    {
+        ui->sbSensor->setValue(val + 1);
+        redraw();
+    }
 }
 

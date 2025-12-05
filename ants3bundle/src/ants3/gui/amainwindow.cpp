@@ -32,6 +32,11 @@
 #include "aparticleanalyzerhub.h"
 #include "aphotonfunctionalhub.h"
 
+#ifdef USE_MERCURY
+#include "alrfmouseexplorer.h"
+#include "alrfplotterdialog.h"
+#endif
+
 #include <QDebug>
 #include <QTimer>
 #include <QFile>
@@ -136,6 +141,7 @@ AMainWindow::AMainWindow() :
 #ifdef USE_MERCURY
     connect(ScriptHub, &AScriptHub::requestShowLightResponseExplorer, this, &AMainWindow::showLightResponseExplorer, Qt::QueuedConnection);
     connect(ScriptHub, &AScriptHub::requestShowPlotterDialog,         this, &AMainWindow::showLrfPlotterDialog,      Qt::QueuedConnection);
+    LrfPlotterDialog = new ALrfPlotterDialog(this);
 #endif
 
     // called where all windows connecting to GeoWin are already defined
@@ -198,12 +204,12 @@ void AMainWindow::showLightResponseExplorer(LRModel * model)
 }
 void AMainWindow::showLrfPlotterDialog(ALrfPlotter * plotter)
 {
-    ALrfPlotterDialog * dia = new ALrfPlotterDialog(plotter, this);
-    connect(dia, &ALrfPlotterDialog::rejected, dia, &QObject::deleteLater);
-    dia->showNormal();
-    dia->activateWindow();
+    LrfPlotterDialog->setPlotter(plotter);
+    LrfPlotterDialog->show();
+    LrfPlotterDialog->activateWindow();
     QApplication::processEvents();
-    dia->triggerRedraw();
+    LrfPlotterDialog->redraw();
+    LrfPlotterDialog->setFocus();
 }
 #endif
 

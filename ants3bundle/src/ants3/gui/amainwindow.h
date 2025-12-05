@@ -27,6 +27,10 @@ class AGuiFromScrWin;
 class LRModel;
 class ALrfPlotter;
 
+#ifdef USE_MERCURY
+class ALrfPlotterDialog;
+#endif
+
 class AMainWindow : public AGuiWindow
 {
     Q_OBJECT
@@ -147,6 +151,10 @@ private:
     QString getQuickLoadMessage(int index);
     void changeGeoViewer(bool useJSRoot);
     void connectSignalSlotsForGeoWin();
+
+#ifdef USE_MERCURY
+    ALrfPlotterDialog * LrfPlotterDialog = nullptr;
+#endif
 
 };
 

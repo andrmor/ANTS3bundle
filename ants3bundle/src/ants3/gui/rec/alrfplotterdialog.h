@@ -17,10 +17,15 @@ class ALrfPlotterDialog : public QDialog
     Q_OBJECT
 
 public:
-    ALrfPlotterDialog(ALrfPlotter * plotter, QWidget * parent = nullptr);
+    ALrfPlotterDialog(QWidget * parent = nullptr);
     ~ALrfPlotterDialog();
 
-    void triggerRedraw();
+    void setPlotter(ALrfPlotter * plotter) {Plotter = plotter;}
+
+    void redraw();
+
+protected:
+    void showEvent(QShowEvent *event);
 
 private slots:
     void on_pbClose_clicked();
@@ -28,12 +33,16 @@ private slots:
 
     void on_sbSensor_editingFinished();
 
+    void on_pbPrevious_clicked();
+
+    void on_pbNext_clicked();
+
 private:
     ALrfPlotter           * Plotter;
     Ui::ALrfPlotterDialog * ui = nullptr;
 
 private:
-    void makeRadialPlot();
+    void makeRadialPlot(int iSens);
 };
 
 #endif // ALRFPLOTTERDIALOG_H

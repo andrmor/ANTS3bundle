@@ -15,10 +15,12 @@ class ALrfPlotter : public QObject
     Q_OBJECT
 
 public:
-    QString drawRadial(int iSens, bool showNodes); // returns error
-    QString drawXY(int iSens);                     // returns error
+    QString drawRadial(int iSens, bool showNodes);   // returns error
+    QString drawXY(int iSens);                       // returns error
 
-    QString drawRadial_Data(int iSens, bool addLRF);                     // returns error
+    QString drawRadial_Data(int iSens, bool addLRF); // returns error
+
+    int countSensors() const;
 
     bool PlotData = false;
     std::vector<std::vector<double>>  DataSignals;
