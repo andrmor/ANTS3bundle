@@ -20,7 +20,7 @@ public:
 
     AScriptInterface * cloneBase() const override {return new ALightResponse_SI();}
 
-    void abortRun() override {};  // !!!*** TODO
+    void abortRun() override {};
 
 public slots:
     // High-level interface
@@ -45,8 +45,7 @@ public slots:
 
     void setLRF(QString jsonString);
 
-    void addFitData(int iSensor, QVariantList xyza);
-    void fitResponse(QVariantList floodSignals, QVariantList floodPositions);
+    void fitResponse(QVariantList floodSignals, QVariantList floodPositions, QVariantList goodEventFlag = QVariantList());
 
     void showResponseExplorer();
     void showPlotterWidget(QVariantList sensorSignals, QVariantList eventPositions);
@@ -65,6 +64,7 @@ public slots:
     QVariantList getModelGains();
 
     void clearFitData();
+    void addFitData(int iSensor, QVariantList xyza);  // !!!*** change to "raw"
     void fitSensor(int iSensor);
     void fitGroup(int iGroup);
 

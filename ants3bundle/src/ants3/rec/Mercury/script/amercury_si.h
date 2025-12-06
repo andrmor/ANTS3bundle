@@ -33,7 +33,6 @@ public slots:
     QVariantList getRecStats(); // [status(0 = OK), chi2, cov_xx, cov_yy, cov_xy]
 
     void plot(QString what, int bins, double from, double to);
-
     void configure_plotXY_binning(int xBins, double xFrom, double xTo, int yBins, double yFrom, double yTo);
     void plot_vsRecXY(QString what);
     void configure_plotXY_truePositions(QVariantList truePositions);

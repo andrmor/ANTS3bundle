@@ -327,7 +327,7 @@ void ALightResponse_SI::showPlotterWidget(QVariantList sensorSignals, QVariantLi
     emit AScriptHub::getInstance().requestShowPlotterDialog(LRHub.LrfPlotter);
 }
 
-void ALightResponse_SI::fitResponse(QVariantList floodSignals, QVariantList floodPositions)
+void ALightResponse_SI::fitResponse(QVariantList floodSignals, QVariantList floodPositions, QVariantList goodEventFlag)
 {
     if (!LRHub.Model)
     {
@@ -338,16 +338,25 @@ void ALightResponse_SI::fitResponse(QVariantList floodSignals, QVariantList floo
     const size_t numEv = floodSignals.size();
     if (numEv != floodPositions.size())
     {
-        abort("Mismatch in the seizes of the flood signal and position arrays");
+        abort("Mismatch in the sizes of the flood signal and position arrays");
         return;
     }
 
+    bool haveFilter = !goodEventFlag.empty();
+    if (haveFilter)
+        if (numEv != goodEventFlag.size())
+        {
+            abort("Mismatch in the sizes of the flood data and goodEventFlag arrays");
+            return;
+        }
+
     LRHub.Model->ClearAllFitData();
 
-    // preparing gitting data
+    // preparing fitting data
     const size_t numSens = LRHub.Model->GetSensorCount();
-    std::vector<std::array<double, 4>> data(numEv);
-    std::vector<std::vector<double>> arSig(numEv);
+    std::vector<std::array<double, 3>> vecPositions(numEv);
+    std::vector<std::vector<double>>   vecSignals(numEv);
+    std::vector<bool>                  vecGood(numEv, true);
     for (size_t iEv = 0; iEv < numEv; iEv++)
     {
         QVariantList eventPos = floodPositions[iEv].toList();
@@ -357,9 +366,9 @@ void ALightResponse_SI::fitResponse(QVariantList floodSignals, QVariantList floo
             return;
         }
         for (size_t i = 0; i < 3; i++)
-            data[iEv][i] = eventPos[i].toDouble();
+            vecPositions[iEv][i] = eventPos[i].toDouble();
 
-        arSig[iEv].resize(numSens);
+        vecSignals[iEv].resize(numSens);
         QVariantList eventSignals = floodSignals[iEv].toList();
         if (eventSignals.size() != numSens)
         {
@@ -367,9 +376,9 @@ void ALightResponse_SI::fitResponse(QVariantList floodSignals, QVariantList floo
             return;
         }
         for (size_t iSens = 0; iSens < numSens; iSens++)
-        {
-            arSig[iEv][iSens] = eventSignals[iSens].toDouble();
-        }
+            vecSignals[iEv][iSens] = eventSignals[iSens].toDouble();
+
+        if (haveFilter) vecGood[iEv] = goodEventFlag[iEv].toBool();
     }
 
     const size_t numGroups = LRHub.Model->GetGroupCount();
@@ -378,15 +387,13 @@ void ALightResponse_SI::fitResponse(QVariantList floodSignals, QVariantList floo
     if (estimateGains) gainEstimator = new GainEstimator(LRHub.Model);
 
     // adding fitting data
+    std::vector<double> vecOneSensorSignal(numEv);
     for (size_t iSens = 0; iSens < numSens; iSens++)
     {
-        std::vector<std::array <double, 4>> thisData(data);
         for (size_t iEv = 0; iEv < numEv; iEv++)
-        {
-            thisData[iEv][3] = arSig[iEv][iSens];
-        }
-        LRHub.Model->AddFitData(iSens, thisData);
-        if (estimateGains) gainEstimator->AddData(iSens, thisData);
+            vecOneSensorSignal[iEv] = vecSignals[iEv][iSens];
+        LRHub.Model->AddFitRawData(iSens, vecPositions, vecOneSensorSignal, vecGood);
+        if (estimateGains) gainEstimator->AddRawData(iSens, vecPositions, vecOneSensorSignal, vecGood);
     }
 
     //fitting response for sensors not belonging to any groups
@@ -431,7 +438,6 @@ void ALightResponse_SI::fitResponse(QVariantList floodSignals, QVariantList floo
     // dests
     delete gainEstimator;
 }
-
 
 
 // --- Low level ---
