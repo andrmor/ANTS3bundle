@@ -1,6 +1,5 @@
 #include "compress.h"
 #include "json11.hpp"
-
 #include <stdexcept>
 
 Compress1d* Compress1d::Factory(const Json &json)
@@ -73,6 +72,14 @@ double DualSlopeCompress::Rho(double r) const
     return std::max(0., k>=1 ? val : -val);
 }
 
+double DualSlopeCompress::Rho2R(double rho) const
+{
+    double q = rho - b;
+    double A = a*a - 1;
+    double D = sqrt(lam2*A + q*q);
+    return (a*q + D)/A + r0;
+}
+
 double DualSlopeCompress::RhoDrv(double r) const
 {
     double dr = r - r0;
@@ -87,12 +94,6 @@ void  DualSlopeCompress::ToJsonObject(Json_object &json) const
     json["r0"] = r0;
     json["lam"] = lam;
     json["k"] = k;
-}
-
-double DualSlopeCompress::Compress(double r) const
-{
-    double dr = r - r0;
-    return std::max(0.0, b + dr * a - sqrt(dr * dr + lam2));
 }
 
 void  QuadraticCompress::ToJsonObject(Json_object &json) const

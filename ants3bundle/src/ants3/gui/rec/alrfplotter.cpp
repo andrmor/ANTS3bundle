@@ -163,28 +163,6 @@ void ALrfPlotter::doDrawRadialNodes(int iSens)
     LRFaxial * axial = dynamic_cast<LRFaxial*>(lrf);
     if (axial)
     {
-        int nodes   = axial->getNint();
-        double rmax = axial->getRmax();
-
-        double Rmin = axial->Compress(0);
-        double Rmax = axial->Compress(rmax);
-        double DX = Rmax - Rmin;
-
-        // !!!*** should be delegated to the library
-        int lastnode = -1;
-        std::vector<double> GrX;
-        for (int ix = 0; ix < 102; ix++)
-        {
-            double x = rmax * ix / 100.0;
-            double X = axial->Compress(x);
-            int node = X * nodes/DX;
-            if (node > lastnode)
-            {
-                GrX.push_back(x);
-                lastnode = node;
-            }
-        }
-
         TGraph * gN = new TGraph(); // will be owned by the graph window
         gN->SetMarkerStyle(8);
         gN->SetMarkerSize(1);
@@ -192,6 +170,7 @@ void ALrfPlotter::doDrawRadialNodes(int iSens)
         gN->SetTitle( TString("LRF_nodes #") + iSens);
         gN->GetXaxis()->SetTitle("Radial distance, mm");
         gN->GetYaxis()->SetTitle("LRF_nodes");
+        const std::vector<double> GrX = axial->GetNodes();
         for (double r : GrX) gN->AddPoint(r, axial->evalAxial(r));
         emit requestDraw(gN, "Psame", true, true);
     }

@@ -3,9 +3,11 @@
 
 #include <vector>
 #include <string>
-
+#include <Eigen/Dense>
+//#include "TMath.h"
 #include "Math/Functor.h"
 #include "Minuit2/Minuit2Minimizer.h"
+#include "lrmodel.h"
 
 class LRModel;
 
@@ -74,7 +76,7 @@ public:
     double getSumActiveLRF(double x, double y, double z);
 
     LRModel *getLRModel() {return lrm;}
-    std::string getLRModelJson();
+    std::string getLRModelJson() {return lrm->GetJsonString();}
 
 protected:    
     void checkActive();
@@ -84,7 +86,7 @@ protected:
     double getDistFromSensor(int id, double x, double y);
 
 protected:
-    LRModel * lrm = nullptr;
+    LRModel *lrm;
     bool external_lrm = true;
     int nsensors = 0;
 // cached sensor parameters
@@ -177,7 +179,7 @@ class RecLS : public RecMinuit
 public:
     RecLS(LRModel *lrm, bool weighted = true);
     RecLS(std::string json_str, bool weighted = true);
-    void InitCostFunction() override;
+    virtual void InitCostFunction();
     double Cost(const double *p);
     bool fWeighted = true;
 };
@@ -187,7 +189,7 @@ class RecML : public RecMinuit
 public:
     RecML(LRModel *lrm);
     RecML(std::string json_str);
-    void InitCostFunction() override;
+    virtual void InitCostFunction();
     double Cost(const double *p);
 }; 
 
@@ -196,7 +198,7 @@ class RecCoG : public Reconstructor
 public:
     RecCoG(LRModel *lrm);
     RecCoG(std::string json_str);
-    bool ProcessEvent(std::vector <double> &a, std::vector <bool> &sat) override;
+    virtual bool ProcessEvent(std::vector <double> &a, std::vector <bool> &sat);    
 };
 
 #endif // RECONSTRUCTOR_H

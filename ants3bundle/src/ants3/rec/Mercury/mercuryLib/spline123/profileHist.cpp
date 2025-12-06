@@ -96,7 +96,7 @@ ProfileHist::ProfileHist(int x_dim, double x_min, double x_max) : xdim(x_dim), x
 }
 
 ProfileHist::ProfileHist(int x_dim, double x_min, double x_max, int y_dim, double y_min, double y_max) : 
-                        xdim(x_dim), xmin(x_min), xmax(x_max), ydim(y_dim), ymin(y_min), ymax(y_max)
+                        xdim(x_dim), ydim(y_dim), xmin(x_min), ymin(y_min), xmax(x_max), ymax(y_max)
 {
     data.resize(xdim*ydim);
     dx = xmax - xmin;
@@ -106,8 +106,8 @@ ProfileHist::ProfileHist(int x_dim, double x_min, double x_max, int y_dim, doubl
 }
 
 ProfileHist::ProfileHist(int x_dim, double x_min, double x_max, int y_dim, double y_min, double y_max, 
-                        int z_dim, double z_min, double z_max) : xdim(x_dim), xmin(x_min), xmax(x_max), 
-                        ydim(y_dim), ymin(y_min), ymax(y_max), zdim(z_dim), zmin(z_min), zmax(z_max)
+                        int z_dim, double z_min, double z_max) : xdim(x_dim), ydim(y_dim), zdim(z_dim), 
+                        xmin(x_min), ymin(y_min), zmin(z_min), xmax(x_max), ymax(y_max), zmax(z_max)
 {
     data.resize(xdim*ydim*zdim);
     dx = xmax - xmin;

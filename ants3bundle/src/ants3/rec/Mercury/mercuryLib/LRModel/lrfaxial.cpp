@@ -5,7 +5,7 @@
 #include "json11.hpp"
 #include "profileHist.h"
 
-#include <iostream>
+//#include <iostream>
 #include <string>
 
 LRFaxial::LRFaxial(double rmax, int nint) :
@@ -134,6 +134,15 @@ LRFaxial::~LRFaxial()
     delete bsr;
     delete compress;
     delete bsfit;
+}
+
+std::vector <double> LRFaxial::GetNodes() const
+{
+    std::vector <double> nodes = bsr->GetNodes();
+    if (compress) 
+        for (auto &node : nodes)
+            node = compress->Rho2R(node);
+    return nodes;
 }
 
 bool LRFaxial::isReady() const
@@ -369,11 +378,3 @@ void LRFaxial::ToJsonObject(Json_object &json) const
     if (compress) 
         json["compression"] = compress->GetJsonObject();
 }
-
-
-double LRFaxial::Compress(double r) const
-{
-    if (!compress) return r;
-    return compress->Compress(r);
-}
-

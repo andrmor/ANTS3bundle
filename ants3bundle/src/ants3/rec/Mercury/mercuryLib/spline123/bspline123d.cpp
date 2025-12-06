@@ -1,6 +1,7 @@
 #include "bspline123d.h"
+#include <vector>
 
-#include <iostream>
+//#include <iostream>
 
 #ifdef BSIO
 #include "json11.hpp"
@@ -70,6 +71,16 @@ void BsplineBasis1d::Init(double xmin, double xmax, int n_int)
     dx = xr-xl;
     nbas = nint + 3;
     fValid = true;
+}
+
+std::vector <double> BsplineBasis1d::GetNodes() const
+{
+    std::vector<double> nodes(nint+1); 
+    double ddx = dx/nint;
+    for (int i=0; i<nint; i++)
+        nodes[i] = xl + i*ddx;
+    nodes[nint] = xr;
+    return nodes;
 }
 
 // translate x coordinates into interval index idx and position inside the interval xf

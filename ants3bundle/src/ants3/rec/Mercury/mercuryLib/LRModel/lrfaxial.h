@@ -23,6 +23,7 @@ public:
     virtual bool isReady () const;
     virtual double getRmax() const { return rmax; }
     int getNint() const { return nint; }
+    std::vector <double> GetNodes() const;
     virtual double eval(double x, double y, double z=0.) const;
     virtual double evalraw(double x, double y, double z=0.) const;
     double evalAxial(double r) const;
@@ -64,9 +65,7 @@ public:
     ProfileHist *GetHist();
 
 // relative gain calculation
-    double GetRatio(LRF* other) const;
-
-    double Compress(double r) const;
+    double GetRatio(LRF* other) const;    
 
 protected:
     void Init();

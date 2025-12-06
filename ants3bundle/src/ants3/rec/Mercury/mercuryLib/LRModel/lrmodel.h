@@ -286,6 +286,7 @@ public:
     GainEstimator(std::string lrmtxt);
     ~GainEstimator();
     bool AddData(int id, const std::vector <Vec4data> &data);
+    bool AddRawData(int id, const std::vector <Vec3data> &xyz, const std::vector <double> &a, const std::vector <bool> &good);
     double GetRelativeGain(int id, int refid);
     std::vector <double> GetRelativeGainsList(std::vector <int> ids, int refid);
 //    std::vector <int> GetAllSensors();

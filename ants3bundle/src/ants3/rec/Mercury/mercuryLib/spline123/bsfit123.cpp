@@ -7,7 +7,7 @@
 #include <Eigen/SparseQR>
 #include <Eigen/OrderingMethods>
 
-#include <iostream>
+// #include <iostream>
 
 using Eigen::MatrixXd;
 using Eigen::VectorXd;

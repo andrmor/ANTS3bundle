@@ -51,7 +51,7 @@ class BsplineBase
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
-// sometimes we need spline object just to calculate basis fuctions
+// sometimes we need a spline object just to calculate basis fuctions
 class BsplineBasis1d : public BsplineBase
 {
 public:
@@ -64,6 +64,7 @@ public:
     double GetXmin() const {return xl;}
     double GetXmax() const {return xr;}
     int GetNint() const {return nint;}
+    std::vector <double> GetNodes() const;
     int GetNbas() const {return nbas;}
     double Basis(double x, int n) const;
     std::vector <double> Basis (std::vector <double> &vx, int n) const;

@@ -1123,6 +1123,13 @@ bool GainEstimator::AddData(int id, const std::vector <Vec4data> &data)
     return M->AddFitData(id, data);
 }
 
+bool GainEstimator::AddRawData(int id, const std::vector <Vec3data> &xyz, const std::vector <double> &a, const std::vector <bool> &good)
+{
+    if (M->GetLRF(id) == nullptr)
+        return false;
+    return M->AddFitRawData(id, xyz, a, good);
+}
+
 // ToDo: swap id and refid!
 // returns: 0 if either of LRFs does not exist, -1 if they are incompatible
 double GainEstimator::GetRelativeGain(int id, int refid)

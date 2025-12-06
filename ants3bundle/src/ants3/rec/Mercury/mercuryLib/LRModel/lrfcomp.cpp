@@ -1,7 +1,6 @@
 #include "lrfcomp.h"
 #include "json11.hpp"
 #include "profileHist.h"
-
 #include <stdexcept>
 
 LRFcomp* LRFcomp::clone() const 
