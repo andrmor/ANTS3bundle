@@ -21,7 +21,7 @@ public:
 
     AScriptInterface * cloneBase() const override {return new AMercury_si();}
 
-    void abortRun() override {};  // !!!*** TODO
+    void abortRun() override;
 
 public slots:
     void newReconstructor(QString type, int numThreads);  // 'COG' 'ML' or 'LS'

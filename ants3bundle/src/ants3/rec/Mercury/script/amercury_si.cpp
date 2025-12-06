@@ -11,6 +11,15 @@
 AMercury_si::AMercury_si() :
     LRHub(ALightResponseHub::getInstance()) {}
 
+void AMercury_si::abortRun()
+{
+    if (RecMP)
+    {
+        qDebug() << "Abort requested --> mercury lib";
+        RecMP->Abort();
+    }
+}
+
 void AMercury_si::newReconstructor(QString type, int numThreads)
 {
     if (!LRHub.Model)
