@@ -123,7 +123,7 @@
    <item>
     <widget class="QTabWidget" name="tabwPlotType">
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="tab">
       <attribute name="title">
@@ -300,7 +300,7 @@
             <number>15</number>
            </property>
            <item>
-            <widget class="QCheckBox" name="checkBox_5">
+            <widget class="QCheckBox" name="cbXY_lrf">
              <property name="text">
               <string>LRF</string>
              </property>
@@ -310,14 +310,14 @@
             </widget>
            </item>
            <item>
-            <widget class="QCheckBox" name="checkBox_6">
+            <widget class="QCheckBox" name="cbXY_data">
              <property name="text">
               <string>Data</string>
              </property>
             </widget>
            </item>
            <item>
-            <widget class="QCheckBox" name="checkBox_7">
+            <widget class="QCheckBox" name="cbXY_diff">
              <property name="text">
               <string>Difference</string>
              </property>
@@ -634,7 +634,7 @@
      <y>128</y>
     </hint>
     <hint type="destinationlabel">
-     <x>443</x>
+     <x>438</x>
      <y>34</y>
     </hint>
    </hints>
@@ -650,7 +650,7 @@
      <y>127</y>
     </hint>
     <hint type="destinationlabel">
-     <x>443</x>
+     <x>438</x>
      <y>34</y>
     </hint>
    </hints>
@@ -732,6 +732,22 @@
     <hint type="destinationlabel">
      <x>384</x>
      <y>15</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cbXY_lrf</sender>
+   <signal>clicked()</signal>
+   <receiver>pbRedraw</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>152</x>
+     <y>122</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>388</x>
+     <y>26</y>
     </hint>
    </hints>
   </connection>

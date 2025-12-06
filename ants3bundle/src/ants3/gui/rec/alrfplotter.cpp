@@ -27,7 +27,7 @@ QString ALrfPlotter::drawRadial(int iSens, bool showLrf, bool showNodes, bool ad
     return "";
 }
 
-QString ALrfPlotter::drawXY(int iSens)
+QString ALrfPlotter::drawXY(int iSens, bool showLrf, bool addData, bool differenceOption)
 {
     LRModel * model = ALightResponseHub::getInstance().Model;
     if (!model) return "Response model is not defined";
@@ -36,40 +36,17 @@ QString ALrfPlotter::drawXY(int iSens)
     LRF * lrf = model->GetLRF(iSens);
     if (!lrf) return "LRF is not defined for the requested sensor";
 
-    TGraph2D * g = new TGraph2D(); // will be owned by the graph window
-    g->SetLineWidth(1);
-    g->SetLineColor(4);
-    g->SetTitle( TString("LRF #") + iSens);
-    g->GetXaxis()->SetTitle("X, mm");
-    g->GetYaxis()->SetTitle("Y, mm");
-    g->GetZaxis()->SetTitle("LRF");
-
-    double xFrom = lrf->getXmin();
-    double xTo   = lrf->getXmax();
-    double xStep = (xTo - xFrom) / NumPointsInXYGraph;
-
-    double yFrom = lrf->getYmin();
-    double yTo   = lrf->getYmax();
-    double yStep = (yTo - yFrom) / NumPointsInXYGraph;
-
-    //double minVal = 0;
-    //double maxVal = 0;
-    for (size_t iX = 0; iX < NumPointsInXYGraph; iX++)
+    if (addData)
     {
-        double x = xFrom + xStep * iX;
-        for (size_t iY = 0; iY < NumPointsInXYGraph; iY++)
+        if (differenceOption) doDrawXYDiff(iSens);
+        else
         {
-            double y = yFrom + yStep * iY;
-            double val = lrf->eval(x, y, 0);
-            g->AddPoint(x, y, val);
-
-            //if (val > maxVal) maxVal = val;
-            //if (val < minVal) minVal = val;
+            doDrawXYData(iSens);
+            if (showLrf) doDrawXYLrf(iSens, addData);
         }
     }
-    g->SetMinimum(0);
+    else doDrawXYLrf(iSens, false);
 
-    emit requestDraw(g, "tri", true, true);
     return "";
 }
 
@@ -174,4 +151,108 @@ void ALrfPlotter::doDrawRadialNodes(int iSens)
         for (double r : GrX) gN->AddPoint(r, axial->evalAxial(r));
         emit requestDraw(gN, "Psame", true, true);
     }
+}
+
+// ---- XY ----
+
+void ALrfPlotter::doDrawXYData(int iSens)
+{
+    TGraph2D * g = new TGraph2D(); // will be owned by the graph window
+    g->SetMarkerSize(0.5);
+    g->SetMarkerStyle(20);
+    g->SetMarkerColor(4);
+    g->SetTitle( TString("LRF #") + iSens);
+    g->GetXaxis()->SetTitle("X, mm");
+    g->GetYaxis()->SetTitle("Y, mm");
+    g->GetZaxis()->SetTitle("LRF");
+
+    const size_t numEvents = DataSignals.size();
+    for (size_t iEv = 0; iEv < numEvents; iEv++)
+    {
+        const std::array<double,4> & event = DataPositions[iEv];
+        const double & energy = event[3];
+        const bool goodEvent = (energy > 0);
+        if (!goodEvent) continue;
+        //if (Options.check_z && (pos[2]<Options.z0-Options.dz || pos[2]>Options.z0+Options.dz)) continue;
+
+        double signal = DataSignals[iEv][iSens];
+        signal /= energy;     //if (Options.scale_by_energy)
+        g->AddPoint(event[0], event[1], signal);
+    }
+    g->SetMinimum(0);
+
+    emit requestDraw(g, "p", true, true);
+}
+
+void ALrfPlotter::doDrawXYDiff(int iSens)
+{
+    LRModel * model = ALightResponseHub::getInstance().Model;
+    LRF * lrf = model->GetLRF(iSens);
+
+    TH2D * h  = new TH2D("", "", XPoints, 0, 0, YPoints, 0, 0); // will be owned by the graph window
+    TH2D * h1 = new TH2D("", "", XPoints, 0, 0, YPoints, 0, 0); // normalization (local)
+    h->SetLineColor(4);
+    h->SetTitle( TString("LRF #") + iSens);
+    h->GetXaxis()->SetTitle("X, mm");
+    h->GetYaxis()->SetTitle("Y, mm");
+    h->GetZaxis()->SetTitle("Amplitude/Energy - LRF");
+
+    const size_t numEvents = DataSignals.size();
+    for (size_t iEv = 0; iEv < numEvents; iEv++)
+    {
+        const std::array<double,4> & event = DataPositions[iEv];
+        const double & energy = event[3];
+        const bool goodEvent = (energy > 0);
+        if (!goodEvent) continue;
+        //if (Options.check_z && (pos[2]<Options.z0-Options.dz || pos[2]>Options.z0+Options.dz)) continue;
+
+        double signal = DataSignals[iEv][iSens];
+        signal /= energy;     //if (Options.scale_by_energy)
+        double val = signal - lrf->eval(event[0], event[1], 0);
+        h-> Fill(event[0], event[1], val);
+        h1->Fill(event[0], event[1], 1);
+    }
+
+    h->Divide(h1);
+    delete h1;
+
+    h->SetMinimum(0);
+
+    emit requestDraw(h, "colz", true, true);
+}
+
+void ALrfPlotter::doDrawXYLrf(int iSens, bool onTopOfData)
+{
+    LRModel * model = ALightResponseHub::getInstance().Model;
+    LRF * lrf = model->GetLRF(iSens);
+
+    TGraph2D * g = new TGraph2D(); // will be owned by the graph window
+    g->SetLineWidth(1);
+    g->SetLineColor(2);
+    g->SetTitle( TString("LRF #") + iSens);
+    g->GetXaxis()->SetTitle("X, mm");
+    g->GetYaxis()->SetTitle("Y, mm");
+    g->GetZaxis()->SetTitle("LRF");
+
+    double xFrom = lrf->getXmin();
+    double xTo   = lrf->getXmax();
+    double xStep = (xTo - xFrom) / NumPointsInXYGraph;
+
+    double yFrom = lrf->getYmin();
+    double yTo   = lrf->getYmax();
+    double yStep = (yTo - yFrom) / NumPointsInXYGraph;
+
+    for (size_t iX = 0; iX < NumPointsInXYGraph; iX++)
+    {
+        double x = xFrom + xStep * iX;
+        for (size_t iY = 0; iY < NumPointsInXYGraph; iY++)
+        {
+            double y = yFrom + yStep * iY;
+            double val = lrf->eval(x, y, 0);
+            g->AddPoint(x, y, val);
+        }
+    }
+    g->SetMinimum(0);
+
+    emit requestDraw(g, (onTopOfData ? "triwsame" : "tri"), true, true);
 }

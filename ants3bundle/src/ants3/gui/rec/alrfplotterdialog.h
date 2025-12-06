@@ -41,12 +41,19 @@ private slots:
 
     void on_cbRadial_diff_clicked(bool checked);
 
+    void on_tabwPlotType_currentChanged(int index);
+
+    void on_cbXY_data_clicked(bool checked);
+
+    void on_cbXY_diff_clicked(bool checked);
+
 private:
     ALrfPlotter           * Plotter;
     Ui::ALrfPlotterDialog * ui = nullptr;
 
 private:
     void makeRadialPlot(int iSens);
+    void makeXYPlot(int iSens);
 };
 
 #endif // ALRFPLOTTERDIALOG_H

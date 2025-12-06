@@ -18,7 +18,7 @@ public:
     QString drawRadial(int iSens, bool showLrf, bool showNodes, bool addData, bool differenceOption);   // returns error
 
     // TODO
-    QString drawXY(int iSens);                       // returns error
+    QString drawXY(int iSens, bool showLrf, bool addData, bool differenceOption);                       // returns error
 
     int countSensors() const;
 
@@ -36,10 +36,17 @@ public:
 
     int    VerticalNumBins  = 100;
 
+    int    XPoints = 100;
+    int    YPoints = 100;
+
 private:
     void doDrawRadialData (int iSens, bool differenceOption);
     void doDrawRadialLrf  (int iSens, bool onTopOfData);
     void doDrawRadialNodes(int iSens);
+
+    void doDrawXYData(int iSens);
+    void doDrawXYDiff(int iSens);
+    void doDrawXYLrf (int iSens, bool onTopOfData);
 
 signals:
     void requestDraw(TObject * obj, QString options, bool transferOwnership, bool focusWindow);

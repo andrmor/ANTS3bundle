@@ -59,6 +59,8 @@ void ALrfPlotterDialog::redraw()
     {
         makeRadialPlot(iSens);
     }
+    else
+        makeXYPlot(iSens);
 }
 
 void ALrfPlotterDialog::showEvent(QShowEvent *event)
@@ -85,6 +87,15 @@ void ALrfPlotterDialog::makeRadialPlot(int iSens)
     bool plotDiff  = ui->cbRadial_diff->isChecked();
 
     Plotter->drawRadial(iSens, plotLrf, plotNodes, plotData || plotDiff, plotDiff);
+}
+
+void ALrfPlotterDialog::makeXYPlot(int iSens)
+{
+    bool plotLrf   = ui->cbXY_lrf->isChecked();
+    bool plotData  = ui->cbXY_data->isChecked();
+    bool plotDiff  = ui->cbXY_diff->isChecked();
+
+    Plotter->drawXY(iSens, plotLrf, plotData || plotDiff, plotDiff);
 }
 
 void ALrfPlotterDialog::on_sbSensor_editingFinished()
@@ -122,6 +133,23 @@ void ALrfPlotterDialog::on_cbRadial_data_clicked(bool checked)
 void ALrfPlotterDialog::on_cbRadial_diff_clicked(bool checked)
 {
     if (checked && ui->cbRadial_data->isChecked()) ui->cbRadial_data->setChecked(false);
+    redraw();
+}
+
+void ALrfPlotterDialog::on_tabwPlotType_currentChanged(int index)
+{
+    redraw();
+}
+
+void ALrfPlotterDialog::on_cbXY_data_clicked(bool checked)
+{
+    if (checked && ui->cbXY_diff->isChecked()) ui->cbXY_diff->setChecked(false);
+    redraw();
+}
+
+void ALrfPlotterDialog::on_cbXY_diff_clicked(bool checked)
+{
+    if (checked && ui->cbXY_data->isChecked()) ui->cbXY_data->setChecked(false);
     redraw();
 }
 
