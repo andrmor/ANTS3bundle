@@ -16,8 +16,6 @@ class ALrfPlotter : public QObject
 
 public:
     QString drawRadial(int iSens, bool showLrf, bool showNodes, bool addData, bool differenceOption);   // returns error
-
-    // TODO
     QString drawXY(int iSens, bool showLrf, bool addData, bool differenceOption);                       // returns error
 
     int countSensors() const;
@@ -38,6 +36,8 @@ public:
     int    XPoints = 100;
     int    YPoints = 100;
 
+    int    NumberRadialProfiles = 36;
+
 private:
     void doDrawRadialData (int iSens, bool differenceOption);
     void doDrawRadialLrf  (int iSens, bool onTopOfData);
@@ -46,6 +46,8 @@ private:
     void doDrawXYData(int iSens);
     void doDrawXYDiff(int iSens);
     void doDrawXYLrf (int iSens, bool onTopOfData);
+
+    void doDrawRadialForNonAxial(int iSens);
 
 signals:
     void requestDraw(TObject * obj, QString options, bool transferOwnership, bool focusWindow);

@@ -20,9 +20,16 @@ QString ALrfPlotter::drawRadial(int iSens, bool showLrf, bool showNodes, bool ad
     LRF * lrf = model->GetLRF(iSens);
     if (!lrf) return "LRF is not defined for the requested sensor";
 
-    if (addData)   doDrawRadialData(iSens, differenceOption);
-    if (showLrf)   doDrawRadialLrf(iSens, addData);
-    if (showNodes) doDrawRadialNodes(iSens);
+    if (dynamic_cast<LRFaxial*>(lrf))
+    {
+        // axial and axial3d
+        if (addData)   doDrawRadialData(iSens, differenceOption);
+        if (showLrf)   doDrawRadialLrf(iSens, addData);
+        if (showNodes) doDrawRadialNodes(iSens);
+        return "";
+    }
+
+    doDrawRadialForNonAxial(iSens);
 
     return "";
 }
@@ -260,4 +267,62 @@ void ALrfPlotter::doDrawXYLrf(int iSens, bool onTopOfData)
     if (FixedVerticalMax) g->SetMaximum(VerticalMax);
 
     emit requestDraw(g, (onTopOfData ? "triwsame" : "tri"), true, true);
+}
+
+void ALrfPlotter::doDrawRadialForNonAxial(int iSens)
+{
+    LRModel * model = ALightResponseHub::getInstance().Model;
+    LRF * lrf = model->GetLRF(iSens);
+
+    const double x0 = model->GetX(iSens);
+    const double y0 = model->GetY(iSens);
+
+    double xMax = lrf->getXmax(); double xMin = lrf->getXmin();
+    double yMax = lrf->getYmax(); double yMin = lrf->getYmin();
+    std::vector<std::pair<double,double>> corners = {{xMax,yMax},
+                                                     {xMax,yMin},
+                                                     {xMin,yMin},
+                                                     {xMin,yMax}};
+
+    double maxRadius = 0;
+    for (size_t i = 0; i < 4; i++)
+    {
+        double dx = corners[i].first  - x0;
+        double dy = corners[i].second - y0;
+        double radius = sqrt(dx*dx + dy*dy);
+        if (radius > maxRadius) maxRadius = radius;
+    }
+
+    double rStep = maxRadius / NumPointsInRadialGraph;
+
+    //double z0 = ui->ledZcenter->text().toDouble();
+
+    for (int iProf = 0; iProf < NumberRadialProfiles; iProf++)
+    {
+        TGraph * g = new TGraph(); // will be owned by the graph window
+        g->SetLineWidth(1);
+        g->SetLineColor(2);
+        g->SetTitle( TString("LRF #") + iSens);
+        g->GetXaxis()->SetTitle("Radial distance, mm");
+        g->GetYaxis()->SetTitle("LRF");
+
+        double angle = 2.0 * 3.1415926535 / NumberRadialProfiles * iProf;
+        for (size_t iR = 0; iR < NumPointsInRadialGraph; iR++)
+        {
+            double radius = rStep * iR;
+            double x = x0 + radius * cos(angle);
+            double y = y0 + radius * sin(angle);
+            if (!lrf->inDomain(x, y, 0)) break;
+
+            double val = lrf->eval(x, y, 0);
+            g->AddPoint(radius, val);
+        }
+
+        g->SetMinimum(FixedVerticalMin ? VerticalMin : 0);
+        if (FixedVerticalMax) g->SetMaximum(VerticalMax);
+
+        g->GetHistogram()->GetXaxis()->SetLimits(0, maxRadius);
+
+        emit requestDraw(g, iProf == 0 ? "AL" : "Lsame", true, true);
+    }
 }
