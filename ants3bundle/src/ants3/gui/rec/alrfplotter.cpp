@@ -179,7 +179,9 @@ void ALrfPlotter::doDrawXYData(int iSens)
         signal /= energy;     //if (Options.scale_by_energy)
         g->AddPoint(event[0], event[1], signal);
     }
-    g->SetMinimum(0);
+
+    g->SetMinimum(FixedVerticalMin ? VerticalMin : 0);
+    if (FixedVerticalMax) g->SetMaximum(VerticalMax);
 
     emit requestDraw(g, "p", true, true);
 }
@@ -216,7 +218,8 @@ void ALrfPlotter::doDrawXYDiff(int iSens)
     h->Divide(h1);
     delete h1;
 
-    h->SetMinimum(0);
+    if (FixedVerticalMin) h->SetMinimum(VerticalMin);
+    if (FixedVerticalMax) h->SetMaximum(VerticalMax);
 
     emit requestDraw(h, "colz", true, true);
 }
@@ -252,7 +255,9 @@ void ALrfPlotter::doDrawXYLrf(int iSens, bool onTopOfData)
             g->AddPoint(x, y, val);
         }
     }
-    g->SetMinimum(0);
+
+    g->SetMinimum(FixedVerticalMin ? VerticalMin : 0);
+    if (FixedVerticalMax) g->SetMaximum(VerticalMax);
 
     emit requestDraw(g, (onTopOfData ? "triwsame" : "tri"), true, true);
 }

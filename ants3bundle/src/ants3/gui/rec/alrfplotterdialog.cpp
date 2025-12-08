@@ -2,10 +2,11 @@
 #include "ui_alrfplotterdialog.h"
 #include "alrfplotter.h"
 #include "guitools.h"
-#include "QDoubleValidator"
+
 #include "lrmodel.h"
 
 #include <QDebug>
+#include <QDoubleValidator>
 
 ALrfPlotterDialog::ALrfPlotterDialog(QWidget * parent) :
     QDialog(parent),
@@ -24,17 +25,25 @@ ALrfPlotterDialog::ALrfPlotterDialog(QWidget * parent) :
 
 ALrfPlotterDialog::~ALrfPlotterDialog()
 {
-    qDebug() << "..destr for ALrfPlotterDialog";
     delete ui;
+}
+
+void ALrfPlotterDialog::setPlotter(ALrfPlotter * plotter)
+{
+    Plotter = plotter;
+    HaveData = !Plotter->DataSignals.empty();
 }
 
 void ALrfPlotterDialog::redraw()
 {
     if (!Plotter)
     {
-        qWarning() << "Plotter is not configured yet";
+        qWarning() << "ALrfPlotterDialog: Plotter not provided";
         return;
     }
+
+    Plotter->NumPointsInRadialGraph = ui->sbRadial_points->value();
+    Plotter->NumPointsInXYGraph = ui->sbXY_points->value();
 
     Plotter->FixedVerticalMin = ui->cbVerticalFixMin->isChecked();
     Plotter->VerticalMin = ui->ledVerticalFixMin->text().toDouble();
@@ -55,10 +64,10 @@ void ALrfPlotterDialog::redraw()
         return;
     }
 
+    updateVisibilityAndStatus();
+
     if (ui->tabwPlotType->currentIndex() == 0)
-    {
         makeRadialPlot(iSens);
-    }
     else
         makeXYPlot(iSens);
 }
@@ -96,6 +105,31 @@ void ALrfPlotterDialog::makeXYPlot(int iSens)
     bool plotDiff  = ui->cbXY_diff->isChecked();
 
     Plotter->drawXY(iSens, plotLrf, plotData || plotDiff, plotDiff);
+}
+
+#include "alightresponsehub.h"
+#include "lrf.h"
+#include "lrfaxial3d.h"
+#include "lrfxyz.h"
+void ALrfPlotterDialog::updateVisibilityAndStatus()
+{
+    LRModel * model = ALightResponseHub::getInstance().Model;
+    ui->sbSensor->setToolTip( QString("Number of sensors in the response model: %0").arg(model->GetSensorCount()) );
+
+    const int iSens = ui->sbSensor->value();
+    LRF * lrf = model->GetLRF(iSens);
+
+    bool haveZ = false;
+    if      (dynamic_cast<LRFaxial3d*>(lrf)) haveZ = true;
+    else if (dynamic_cast<LRFxyz*>(lrf))     haveZ = true;
+    ui->frZ->setVisible(haveZ);
+
+    ui->cbRadial_data->setEnabled(HaveData);
+    ui->cbRadial_diff->setEnabled(HaveData);
+    ui->cbXY_data->setEnabled(HaveData);
+    ui->cbXY_diff->setEnabled(HaveData);
+    ui->sbVerticalBins->setEnabled(HaveData);
+    ui->frZrange->setEnabled(HaveData);
 }
 
 void ALrfPlotterDialog::on_sbSensor_editingFinished()

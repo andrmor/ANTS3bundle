@@ -20,7 +20,7 @@ public:
     ALrfPlotterDialog(QWidget * parent = nullptr);
     ~ALrfPlotterDialog();
 
-    void setPlotter(ALrfPlotter * plotter) {Plotter = plotter;}
+    void setPlotter(ALrfPlotter * plotter);
 
     void redraw();
 
@@ -51,9 +51,12 @@ private:
     ALrfPlotter           * Plotter;
     Ui::ALrfPlotterDialog * ui = nullptr;
 
+    bool HaveData = false;
+
 private:
     void makeRadialPlot(int iSens);
     void makeXYPlot(int iSens);
+    void updateVisibilityAndStatus();
 };
 
 #endif // ALRFPLOTTERDIALOG_H

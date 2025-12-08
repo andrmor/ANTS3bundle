@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>522</width>
-    <height>436</height>
+    <width>533</width>
+    <height>336</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -123,7 +123,7 @@
    <item>
     <widget class="QTabWidget" name="tabwPlotType">
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="tab">
       <attribute name="title">
@@ -145,7 +145,7 @@
        </item>
        <item>
         <layout class="QVBoxLayout" name="verticalLayout_3">
-         <item>
+         <item alignment="Qt::AlignmentFlag::AlignHCenter">
           <widget class="QLabel" name="label_7">
            <property name="font">
             <font>
@@ -153,7 +153,7 @@
             </font>
            </property>
            <property name="text">
-            <string>Plot options:</string>
+            <string>Plot:</string>
            </property>
           </widget>
          </item>
@@ -218,7 +218,7 @@
        </item>
        <item>
         <layout class="QVBoxLayout" name="verticalLayout_4">
-         <item>
+         <item alignment="Qt::AlignmentFlag::AlignHCenter">
           <widget class="QLabel" name="label_8">
            <property name="text">
             <string>Options:</string>
@@ -228,9 +228,36 @@
          <item>
           <widget class="QCheckBox" name="cbRadial_addNodes">
            <property name="text">
-            <string>Add node positions</string>
+            <string>Add nodes</string>
            </property>
           </widget>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_7">
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+           <item>
+            <widget class="QLabel" name="label_2">
+             <property name="text">
+              <string>Points:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QSpinBox" name="sbRadial_points">
+             <property name="minimum">
+              <number>1</number>
+             </property>
+             <property name="maximum">
+              <number>9999</number>
+             </property>
+             <property name="value">
+              <number>100</number>
+             </property>
+            </widget>
+           </item>
+          </layout>
          </item>
          <item>
           <spacer name="verticalSpacer">
@@ -290,7 +317,7 @@
             </font>
            </property>
            <property name="text">
-            <string>Plot options:</string>
+            <string>Plot:</string>
            </property>
           </widget>
          </item>
@@ -363,11 +390,31 @@
           </widget>
          </item>
          <item>
-          <widget class="QCheckBox" name="checkBox_8">
-           <property name="text">
-            <string>Add node positions</string>
+          <layout class="QHBoxLayout" name="horizontalLayout_8">
+           <property name="topMargin">
+            <number>0</number>
            </property>
-          </widget>
+           <item>
+            <widget class="QLabel" name="label_11">
+             <property name="text">
+              <string>Points:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QSpinBox" name="sbXY_points">
+             <property name="minimum">
+              <number>1</number>
+             </property>
+             <property name="maximum">
+              <number>9999</number>
+             </property>
+             <property name="value">
+              <number>100</number>
+             </property>
+            </widget>
+           </item>
+          </layout>
          </item>
          <item>
           <spacer name="verticalSpacer_4">
@@ -404,16 +451,16 @@
    <item>
     <widget class="QFrame" name="frZ">
      <property name="enabled">
-      <bool>false</bool>
+      <bool>true</bool>
      </property>
      <property name="minimumSize">
       <size>
        <width>0</width>
-       <height>50</height>
+       <height>0</height>
       </size>
      </property>
      <property name="frameShape">
-      <enum>QFrame::Shape::StyledPanel</enum>
+      <enum>QFrame::Shape::NoFrame</enum>
      </property>
      <property name="frameShadow">
       <enum>QFrame::Shadow::Raised</enum>
@@ -432,7 +479,7 @@
        <number>0</number>
       </property>
       <item>
-       <spacer name="horizontalSpacer_11">
+       <spacer name="horizontalSpacer_6">
         <property name="orientation">
          <enum>Qt::Orientation::Horizontal</enum>
         </property>
@@ -453,6 +500,12 @@
       </item>
       <item>
        <widget class="QLineEdit" name="ledZ">
+        <property name="minimumSize">
+         <size>
+          <width>65</width>
+          <height>0</height>
+         </size>
+        </property>
         <property name="maximumSize">
          <size>
           <width>100</width>
@@ -472,9 +525,9 @@
        </widget>
       </item>
       <item>
-       <widget class="QFrame" name="frame">
+       <widget class="QFrame" name="frZrange">
         <property name="frameShape">
-         <enum>QFrame::Shape::StyledPanel</enum>
+         <enum>QFrame::Shape::NoFrame</enum>
         </property>
         <property name="frameShadow">
          <enum>QFrame::Shadow::Raised</enum>
@@ -501,6 +554,12 @@
          </item>
          <item>
           <widget class="QLineEdit" name="ledZrange">
+           <property name="minimumSize">
+            <size>
+             <width>65</width>
+             <height>0</height>
+            </size>
+           </property>
            <property name="maximumSize">
             <size>
              <width>100</width>
@@ -526,7 +585,7 @@
         </property>
         <property name="sizeHint" stdset="0">
          <size>
-          <width>40</width>
+          <width>100</width>
           <height>20</height>
          </size>
         </property>
@@ -536,7 +595,7 @@
     </widget>
    </item>
    <item>
-    <widget class="QFrame" name="frame_2">
+    <widget class="QFrame" name="frVertical">
      <property name="minimumSize">
       <size>
        <width>0</width>
@@ -550,6 +609,18 @@
       <enum>QFrame::Shadow::Raised</enum>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_8">
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
       <item>
        <widget class="QLabel" name="label_12">
         <property name="text">
@@ -560,6 +631,19 @@
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout_6">
         <item>
+         <spacer name="horizontalSpacer_11">
+          <property name="orientation">
+           <enum>Qt::Orientation::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
          <widget class="QCheckBox" name="cbVerticalFixMin">
           <property name="text">
            <string>fixed min of</string>
@@ -568,6 +652,15 @@
         </item>
         <item>
          <widget class="QLineEdit" name="ledVerticalFixMin">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>65</width>
+            <height>0</height>
+           </size>
+          </property>
           <property name="text">
            <string>0</string>
           </property>
@@ -582,6 +675,15 @@
         </item>
         <item>
          <widget class="QLineEdit" name="ledVerticalFixMax">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>65</width>
+            <height>0</height>
+           </size>
+          </property>
           <property name="text">
            <string>100</string>
           </property>
@@ -606,6 +708,19 @@
            <number>100</number>
           </property>
          </widget>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer_13">
+          <property name="orientation">
+           <enum>Qt::Orientation::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
         </item>
        </layout>
       </item>
@@ -646,7 +761,7 @@
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>432</x>
+     <x>426</x>
      <y>127</y>
     </hint>
     <hint type="destinationlabel">
@@ -662,8 +777,8 @@
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>91</x>
-     <y>371</y>
+     <x>107</x>
+     <y>340</y>
     </hint>
     <hint type="destinationlabel">
      <x>387</x>
@@ -678,8 +793,8 @@
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>171</x>
-     <y>373</y>
+     <x>192</x>
+     <y>341</y>
     </hint>
     <hint type="destinationlabel">
      <x>421</x>
@@ -694,8 +809,8 @@
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>242</x>
-     <y>376</y>
+     <x>307</x>
+     <y>340</y>
     </hint>
     <hint type="destinationlabel">
      <x>393</x>
@@ -710,8 +825,8 @@
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>356</x>
-     <y>365</y>
+     <x>378</x>
+     <y>341</y>
     </hint>
     <hint type="destinationlabel">
      <x>396</x>
@@ -726,8 +841,8 @@
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>469</x>
-     <y>377</y>
+     <x>516</x>
+     <y>342</y>
     </hint>
     <hint type="destinationlabel">
      <x>384</x>
@@ -748,6 +863,38 @@
     <hint type="destinationlabel">
      <x>388</x>
      <y>26</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cbVerticalFixMin</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>ledVerticalFixMin</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>60</x>
+     <y>331</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>158</x>
+     <y>324</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cbVerticalFixMax</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>ledVerticalFixMax</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>272</x>
+     <y>323</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>365</x>
+     <y>326</y>
     </hint>
    </hints>
   </connection>

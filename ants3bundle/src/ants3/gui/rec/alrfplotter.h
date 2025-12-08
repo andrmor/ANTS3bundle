@@ -22,7 +22,6 @@ public:
 
     int countSensors() const;
 
-    bool PlotData = false;
     std::vector<std::vector<double>>  DataSignals;
     std::vector<std::array<double,4>> DataPositions; // XYZE
 
