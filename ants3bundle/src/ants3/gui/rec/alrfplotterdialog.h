@@ -34,17 +34,14 @@ private slots:
     void on_sbSensor_editingFinished();
 
     void on_pbPrevious_clicked();
-
     void on_pbNext_clicked();
 
     void on_cbRadial_data_clicked(bool checked);
-
     void on_cbRadial_diff_clicked(bool checked);
 
     void on_tabwPlotType_currentChanged(int index);
 
     void on_cbXY_data_clicked(bool checked);
-
     void on_cbXY_diff_clicked(bool checked);
 
 private:

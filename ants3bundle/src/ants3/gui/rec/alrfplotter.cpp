@@ -73,10 +73,18 @@ void ALrfPlotter::doDrawRadialData(int iSens, bool differenceOption)
     LRFaxial * axial = dynamic_cast<LRFaxial*>(lrf);
     if (axial)
     {
-        TH2D * h = new TH2D("", "", 100, 0, 200,
-                            VerticalNumBins, (FixedVerticalMin ? VerticalMin : 0), (FixedVerticalMax ? VerticalMax : 0));
-
         const size_t numEvents = DataSignals.size();
+
+        double x0 = model->GetX(iSens);
+        double y0 = model->GetY(iSens);
+
+        double maxR = 0;
+        if (!UseFixedRange) maxR = computeRadialDataSpan(x0, y0);
+
+        TH2D * h = new TH2D("", "",
+                            XDataBins,       (UseFixedRange    ? RangeMin    : 0), (UseFixedRange    ? RangeMax    : maxR),
+                            VerticalNumBins, (UseFixedVertical ? VerticalMin : 0), (UseFixedVertical ? VerticalMax : 0));
+
         for (size_t iEv = 0; iEv < numEvents; iEv++)
         {
             const std::array<double,4> & event = DataPositions[iEv];
@@ -85,8 +93,6 @@ void ALrfPlotter::doDrawRadialData(int iSens, bool differenceOption)
             if (!goodEvent) continue;
             //if (Options.check_z && (pos[2]<Options.z0-Options.dz || pos[2]>Options.z0+Options.dz)) continue;
 
-            double x0 = model->GetX(iSens);
-            double y0 = model->GetY(iSens);
             double r = hypot(event[0] - x0, event[1] - y0);
 
             double signal = DataSignals[iEv][iSens];
@@ -104,6 +110,25 @@ void ALrfPlotter::doDrawRadialData(int iSens, bool differenceOption)
 
         emit requestDraw(h, "colz", true, true);
     }
+}
+
+double ALrfPlotter::computeRadialDataSpan(double x0, double y0)
+{
+    double maxRange = 0;
+    const size_t numEvents = DataSignals.size();
+    for (size_t iEv = 0; iEv < numEvents; iEv++)
+    {
+        const std::array<double,4> & event = DataPositions[iEv];
+        const double & energy = event[3];
+        const bool goodEvent = (energy > 0);
+        if (!goodEvent) continue;
+        //if (Options.check_z && (pos[2]<Options.z0-Options.dz || pos[2]>Options.z0+Options.dz)) continue;
+
+        double r = hypot(event[0] - x0, event[1] - y0);
+        if (r > maxRange) maxRange = r;
+
+    }
+    return maxRange;
 }
 
 void ALrfPlotter::doDrawRadialLrf(int iSens, bool onTopOfData)
@@ -133,8 +158,10 @@ void ALrfPlotter::doDrawRadialLrf(int iSens, bool onTopOfData)
             if (val != 0) g->AddPoint(r, val);
         }
 
-        g->SetMinimum(FixedVerticalMin ? VerticalMin : 0);
-        if (FixedVerticalMax) g->SetMaximum(VerticalMax);
+        g->SetMinimum(UseFixedVertical ? VerticalMin : 0);
+        if (UseFixedVertical && (VerticalMax > VerticalMin)) g->SetMaximum(VerticalMax);
+
+        if (UseFixedRange && (RangeMin < RangeMax)) g->GetHistogram()->GetXaxis()->SetLimits(RangeMin, RangeMax);
 
         emit requestDraw(g, onTopOfData ? "Lsame" : "AL", true, true);
     }
@@ -187,8 +214,8 @@ void ALrfPlotter::doDrawXYData(int iSens)
         g->AddPoint(event[0], event[1], signal);
     }
 
-    g->SetMinimum(FixedVerticalMin ? VerticalMin : 0);
-    if (FixedVerticalMax) g->SetMaximum(VerticalMax);
+    g->SetMinimum(UseFixedVertical ? VerticalMin : 0);
+    if (UseFixedVertical) g->SetMaximum(VerticalMax);
 
     emit requestDraw(g, "p", true, true);
 }
@@ -198,8 +225,8 @@ void ALrfPlotter::doDrawXYDiff(int iSens)
     LRModel * model = ALightResponseHub::getInstance().Model;
     LRF * lrf = model->GetLRF(iSens);
 
-    TH2D * h  = new TH2D("", "", XPoints, 0, 0, YPoints, 0, 0); // will be owned by the graph window
-    TH2D * h1 = new TH2D("", "", XPoints, 0, 0, YPoints, 0, 0); // normalization (local)
+    TH2D * h  = new TH2D("", "", XDataBins, 0, 0, YDataBins, 0, 0); // will be owned by the graph window
+    TH2D * h1 = new TH2D("", "", XDataBins, 0, 0, YDataBins, 0, 0); // normalization (local)
     h->SetLineColor(4);
     h->SetTitle( TString("LRF #") + iSens);
     h->GetXaxis()->SetTitle("X, mm");
@@ -225,8 +252,11 @@ void ALrfPlotter::doDrawXYDiff(int iSens)
     h->Divide(h1);
     delete h1;
 
-    if (FixedVerticalMin) h->SetMinimum(VerticalMin);
-    if (FixedVerticalMax) h->SetMaximum(VerticalMax);
+    if (UseFixedVertical)
+    {
+        h->SetMinimum(VerticalMin);
+        h->SetMaximum(VerticalMax);
+    }
 
     emit requestDraw(h, "colz", true, true);
 }
@@ -263,8 +293,8 @@ void ALrfPlotter::doDrawXYLrf(int iSens, bool onTopOfData)
         }
     }
 
-    g->SetMinimum(FixedVerticalMin ? VerticalMin : 0);
-    if (FixedVerticalMax) g->SetMaximum(VerticalMax);
+    g->SetMinimum(UseFixedVertical ? VerticalMin : 0);
+    if (UseFixedVertical) g->SetMaximum(VerticalMax);
 
     emit requestDraw(g, (onTopOfData ? "triwsame" : "tri"), true, true);
 }
@@ -318,8 +348,8 @@ void ALrfPlotter::doDrawRadialForNonAxial(int iSens)
             g->AddPoint(radius, val);
         }
 
-        g->SetMinimum(FixedVerticalMin ? VerticalMin : 0);
-        if (FixedVerticalMax) g->SetMaximum(VerticalMax);
+        g->SetMinimum(UseFixedVertical ? VerticalMin : 0);
+        if (UseFixedVertical) g->SetMaximum(VerticalMax);
 
         g->GetHistogram()->GetXaxis()->SetLimits(0, maxRadius);
 

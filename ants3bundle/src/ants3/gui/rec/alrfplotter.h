@@ -9,6 +9,7 @@
 
 class LRModel;
 class TObject;
+class LRFaxial;
 
 class ALrfPlotter : public QObject
 {
@@ -26,15 +27,16 @@ public:
     size_t NumPointsInRadialGraph = 100;
     size_t NumPointsInXYGraph = 100;
 
-    bool   FixedVerticalMin = false;
+    bool   UseFixedVertical   = false;
     double VerticalMin      = 0;
-    bool   FixedVerticalMax = false;
     double VerticalMax      = 100.0;
-
     int    VerticalNumBins  = 100;
 
-    int    XPoints = 100;
-    int    YPoints = 100;
+    bool   UseFixedRange = false;
+    double RangeMin      = 0;
+    double RangeMax      = 100.0;
+    int    XDataBins     = 100;
+    int    YDataBins     = 100;
 
     int    NumberRadialProfiles = 36;
 
@@ -47,7 +49,9 @@ private:
     void doDrawXYDiff(int iSens);
     void doDrawXYLrf (int iSens, bool onTopOfData);
 
-    void doDrawRadialForNonAxial(int iSens);
+    void doDrawRadialForNonAxial(int iSens); // !!!*** todo: set angular step instead
+
+    double computeRadialDataSpan(double x0, double y0);
 
 signals:
     void requestDraw(TObject * obj, QString options, bool transferOwnership, bool focusWindow);

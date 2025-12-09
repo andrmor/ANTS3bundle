@@ -42,14 +42,19 @@ void ALrfPlotterDialog::redraw()
         return;
     }
 
-    Plotter->NumPointsInRadialGraph = ui->sbRadial_points->value();
-    Plotter->NumPointsInXYGraph = ui->sbXY_points->value();
+    Plotter->NumPointsInRadialGraph = ui->sbLRFpoints->value();
+    Plotter->NumPointsInXYGraph = ui->sbLRFpoints->value();
 
-    Plotter->FixedVerticalMin = ui->cbVerticalFixMin->isChecked();
-    Plotter->VerticalMin = ui->ledVerticalFixMin->text().toDouble();
-    Plotter->FixedVerticalMax = ui->cbVerticalFixMax->isChecked();
-    Plotter->VerticalMax = ui->ledVerticalFixMax->text().toDouble();
-    Plotter->VerticalNumBins = ui->sbVerticalBins->value();
+    Plotter->UseFixedVertical = ui->cbVerticalFixMin->isChecked();
+    Plotter->VerticalMin      = ui->ledVerticalFixMin->text().toDouble();
+    Plotter->VerticalMax      = ui->ledVerticalFixMax->text().toDouble();
+    Plotter->VerticalNumBins  = ui->sbVerticalBins->value();
+
+    Plotter->UseFixedRange = ui->cbRangeFixMin->isChecked();
+    Plotter->RangeMin      = ui->ledRangeFixMin->text().toDouble();
+    Plotter->RangeMax      = ui->ledRangeFixMax->text().toDouble();
+    Plotter->XDataBins     = ui->sbDataBins->value();
+    Plotter->XDataBins     = ui->sbDataBins->value();
 
     const int iSens = ui->sbSensor->value();
     const int numSens = Plotter->countSensors();
