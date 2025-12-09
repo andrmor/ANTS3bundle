@@ -78,12 +78,22 @@ void ALrfPlotter::doDrawRadialData(int iSens, bool differenceOption)
         double x0 = model->GetX(iSens);
         double y0 = model->GetY(iSens);
 
-        double maxR = 0;
-        if (!UseFixedRange) maxR = computeRadialDataSpan(x0, y0);
+        double xFrom, xTo, yFrom, yTo;
+        computeRadialDataSpan(iSens, differenceOption, xFrom, xTo, yFrom, yTo);
+        if (UseFixedRange)
+        {
+            xFrom = RangeMin;
+            xTo   = RangeMax;
+        }
+        if (UseFixedVertical)
+        {
+            yFrom = VerticalMin;
+            yTo   = VerticalMax;
+        }
 
         TH2D * h = new TH2D("", "",
-                            XDataBins,       (UseFixedRange    ? RangeMin    : 0), (UseFixedRange    ? RangeMax    : maxR),
-                            VerticalNumBins, (UseFixedVertical ? VerticalMin : 0), (UseFixedVertical ? VerticalMax : 0));
+                            XDataBins,       xFrom, xTo,
+                            VerticalNumBins, yFrom, yTo);
 
         for (size_t iEv = 0; iEv < numEvents; iEv++)
         {
@@ -112,10 +122,21 @@ void ALrfPlotter::doDrawRadialData(int iSens, bool differenceOption)
     }
 }
 
-double ALrfPlotter::computeRadialDataSpan(double x0, double y0)
+void ALrfPlotter::computeRadialDataSpan(int iSens, bool differenceOption, double & xFrom, double & xTo, double & yFrom, double & yTo)
 {
-    double maxRange = 0;
+    LRModel * model = ALightResponseHub::getInstance().Model;
+
+    LRF * lrf = model->GetLRF(iSens);
+    LRFaxial * axial = dynamic_cast<LRFaxial*>(lrf);
+
     const size_t numEvents = DataSignals.size();
+
+    double x0 = model->GetX(iSens);
+    double y0 = model->GetY(iSens);
+
+    xFrom = xTo = 0;
+    yFrom = yTo = 0;
+
     for (size_t iEv = 0; iEv < numEvents; iEv++)
     {
         const std::array<double,4> & event = DataPositions[iEv];
@@ -125,10 +146,17 @@ double ALrfPlotter::computeRadialDataSpan(double x0, double y0)
         //if (Options.check_z && (pos[2]<Options.z0-Options.dz || pos[2]>Options.z0+Options.dz)) continue;
 
         double r = hypot(event[0] - x0, event[1] - y0);
-        if (r > maxRange) maxRange = r;
+        if (r < xFrom) xFrom = r;
+        if (r > xTo)   xTo   = r;
 
+        double val = DataSignals[iEv][iSens];
+        val /= energy;
+        if (differenceOption)
+            val = val - axial->evalAxial(r);
+
+        if (val < yFrom) yFrom = val;
+        if (val > yTo)   yTo   = val;
     }
-    return maxRange;
 }
 
 void ALrfPlotter::doDrawRadialLrf(int iSens, bool onTopOfData)
@@ -349,9 +377,10 @@ void ALrfPlotter::doDrawRadialForNonAxial(int iSens)
         }
 
         g->SetMinimum(UseFixedVertical ? VerticalMin : 0);
-        if (UseFixedVertical) g->SetMaximum(VerticalMax);
+        if (UseFixedVertical && (VerticalMax > VerticalMin)) g->SetMaximum(VerticalMax);
 
-        g->GetHistogram()->GetXaxis()->SetLimits(0, maxRadius);
+        if (UseFixedRange && (RangeMin < RangeMax)) g->GetHistogram()->GetXaxis()->SetLimits(RangeMin, RangeMax);
+        else                                        g->GetHistogram()->GetXaxis()->SetLimits(0, maxRadius);
 
         emit requestDraw(g, iProf == 0 ? "AL" : "Lsame", true, true);
     }

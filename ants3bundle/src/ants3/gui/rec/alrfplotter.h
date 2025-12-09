@@ -51,7 +51,7 @@ private:
 
     void doDrawRadialForNonAxial(int iSens); // !!!*** todo: set angular step instead
 
-    double computeRadialDataSpan(double x0, double y0);
+    void computeRadialDataSpan(int iSens, bool differenceOption, double & xFrom, double & xTo, double & yFrom, double & yTo);
 
 signals:
     void requestDraw(TObject * obj, QString options, bool transferOwnership, bool focusWindow);

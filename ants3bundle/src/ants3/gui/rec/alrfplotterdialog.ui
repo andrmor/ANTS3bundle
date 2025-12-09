@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>533</width>
-    <height>462</height>
+    <height>466</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -566,7 +566,7 @@
         </property>
        </widget>
       </item>
-      <item alignment="Qt::AlignmentFlag::AlignHCenter">
+      <item>
        <widget class="QLabel" name="label_12">
         <property name="text">
          <string>LRF and amplitude scale:</string>
@@ -914,8 +914,8 @@
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>200</x>
-     <y>125</y>
+     <x>213</x>
+     <y>124</y>
     </hint>
     <hint type="destinationlabel">
      <x>438</x>
@@ -930,12 +930,76 @@
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>426</x>
-     <y>124</y>
+     <x>429</x>
+     <y>123</y>
     </hint>
     <hint type="destinationlabel">
      <x>438</x>
      <y>34</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>sbVerticalBins</sender>
+   <signal>editingFinished()</signal>
+   <receiver>pbRedraw</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>333</x>
+     <y>330</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>384</x>
+     <y>15</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cbXY_lrf</sender>
+   <signal>clicked()</signal>
+   <receiver>pbRedraw</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>321</x>
+     <y>124</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>388</x>
+     <y>26</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cbRangeFixMin</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>ledRangeFixMin</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>185</x>
+     <y>373</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>304</x>
+     <y>374</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cbRangeFixMin</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>ledRangeFixMax</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>147</x>
+     <y>373</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>408</x>
+     <y>372</y>
     </hint>
    </hints>
   </connection>
@@ -952,6 +1016,38 @@
     <hint type="destinationlabel">
      <x>387</x>
      <y>18</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cbVerticalFixMin</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>ledVerticalFixMax</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>239</x>
+     <y>282</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>417</x>
+     <y>303</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cbVerticalFixMin</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>ledVerticalFixMin</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>175</x>
+     <y>298</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>325</x>
+     <y>299</y>
     </hint>
    </hints>
   </connection>
@@ -988,98 +1084,82 @@
    </hints>
   </connection>
   <connection>
-   <sender>sbVerticalBins</sender>
-   <signal>editingFinished()</signal>
-   <receiver>pbRedraw</receiver>
-   <slot>click()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>333</x>
-     <y>330</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>384</x>
-     <y>15</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>cbXY_lrf</sender>
+   <sender>cbRangeFixMin</sender>
    <signal>clicked()</signal>
    <receiver>pbRedraw</receiver>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>321</x>
-     <y>125</y>
+     <x>130</x>
+     <y>377</y>
     </hint>
     <hint type="destinationlabel">
-     <x>388</x>
-     <y>26</y>
+     <x>374</x>
+     <y>24</y>
     </hint>
    </hints>
   </connection>
   <connection>
-   <sender>cbVerticalFixMin</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>ledVerticalFixMin</receiver>
-   <slot>setEnabled(bool)</slot>
+   <sender>ledRangeFixMin</sender>
+   <signal>editingFinished()</signal>
+   <receiver>pbRedraw</receiver>
+   <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>175</x>
-     <y>298</y>
+     <x>293</x>
+     <y>387</y>
     </hint>
     <hint type="destinationlabel">
-     <x>325</x>
-     <y>299</y>
+     <x>376</x>
+     <y>12</y>
     </hint>
    </hints>
   </connection>
   <connection>
-   <sender>cbRangeFixMin</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>ledRangeFixMin</receiver>
-   <slot>setEnabled(bool)</slot>
+   <sender>ledRangeFixMax</sender>
+   <signal>editingFinished()</signal>
+   <receiver>pbRedraw</receiver>
+   <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>185</x>
-     <y>373</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>304</x>
-     <y>374</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>cbVerticalFixMin</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>ledVerticalFixMax</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>239</x>
-     <y>282</y>
-    </hint>
-    <hint type="destinationlabel">
      <x>380</x>
-     <y>278</y>
+     <y>385</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>409</x>
+     <y>23</y>
     </hint>
    </hints>
   </connection>
   <connection>
-   <sender>cbRangeFixMin</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>ledRangeFixMax</receiver>
-   <slot>setEnabled(bool)</slot>
+   <sender>sbLRFpoints</sender>
+   <signal>editingFinished()</signal>
+   <receiver>pbRedraw</receiver>
+   <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>147</x>
-     <y>373</y>
+     <x>243</x>
+     <y>412</y>
     </hint>
     <hint type="destinationlabel">
-     <x>408</x>
-     <y>372</y>
+     <x>372</x>
+     <y>13</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>sbDataBins</sender>
+   <signal>editingFinished()</signal>
+   <receiver>pbRedraw</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>363</x>
+     <y>409</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>424</x>
+     <y>11</y>
     </hint>
    </hints>
   </connection>
