@@ -2,8 +2,13 @@
 #include "ui_alrfplotterdialog.h"
 #include "alrfplotter.h"
 #include "guitools.h"
+#include "alightresponsehub.h"
 
 #include "lrmodel.h"
+#include "lrf.h"
+#include "lrfaxial.h"
+#include "lrfaxial3d.h"
+#include "lrfxyz.h"
 
 #include <QDebug>
 #include <QDoubleValidator>
@@ -17,7 +22,7 @@ ALrfPlotterDialog::ALrfPlotterDialog(QWidget * parent) :
     QDoubleValidator * dv = new QDoubleValidator(this);
     dv->setNotation(QDoubleValidator::ScientificNotation);
     QList<QLineEdit*> list = findChildren<QLineEdit*>();
-    foreach(QLineEdit *w, list)
+    foreach(QLineEdit * w, list)
         if (w->objectName().startsWith("led")) w->setValidator(dv);
 
     ui->pbRedraw->setDefault(true);
@@ -65,13 +70,14 @@ void ALrfPlotterDialog::redraw()
     }
     if (iSens < 0 || iSens > numSens)
     {
+        ui->sbSensor->setValue(0);
         guitools::message("Invalid sensor index, should be 0.." + QString::number(numSens-1));
         return;
     }
 
     updateVisibilityAndStatus();
 
-    if (ui->tabwPlotType->currentIndex() == 0)
+    if (ui->cobPlotType->currentIndex() == 0)
         makeRadialPlot(iSens);
     else
         makeXYPlot(iSens);
@@ -95,27 +101,23 @@ void ALrfPlotterDialog::on_pbRedraw_clicked()
 
 void ALrfPlotterDialog::makeRadialPlot(int iSens)
 {
-    bool plotLrf   = ui->cbRadial_lrf->isChecked();
+    bool plotLrf   = ui->cbLrf->isChecked();
     bool plotNodes = ui->cbRadial_addNodes->isChecked();
-    bool plotData  = ui->cbRadial_data->isChecked();
-    bool plotDiff  = ui->cbRadial_diff->isChecked();
+    bool plotData  = ui->cbData->isChecked();
+    bool plotDiff  = ui->cbDiff->isChecked();
 
     Plotter->drawRadial(iSens, plotLrf, plotNodes, plotData || plotDiff, plotDiff);
 }
 
 void ALrfPlotterDialog::makeXYPlot(int iSens)
 {
-    bool plotLrf   = ui->cbXY_lrf->isChecked();
-    bool plotData  = ui->cbXY_data->isChecked();
-    bool plotDiff  = ui->cbXY_diff->isChecked();
+    bool plotLrf   = ui->cbLrf->isChecked();
+    bool plotData  = ui->cbData->isChecked();
+    bool plotDiff  = ui->cbDiff->isChecked();
 
     Plotter->drawXY(iSens, plotLrf, plotData || plotDiff, plotDiff);
 }
 
-#include "alightresponsehub.h"
-#include "lrf.h"
-#include "lrfaxial3d.h"
-#include "lrfxyz.h"
 void ALrfPlotterDialog::updateVisibilityAndStatus()
 {
     LRModel * model = ALightResponseHub::getInstance().Model;
@@ -129,12 +131,28 @@ void ALrfPlotterDialog::updateVisibilityAndStatus()
     else if (dynamic_cast<LRFxyz*>(lrf))     haveZ = true;
     ui->frZ->setVisible(haveZ);
 
-    ui->cbRadial_data->setEnabled(HaveData);
-    ui->cbRadial_diff->setEnabled(HaveData);
-    ui->cbXY_data->setEnabled(HaveData);
-    ui->cbXY_diff->setEnabled(HaveData);
+    ui->cbData->setEnabled(HaveData);
+    ui->cbDiff->setEnabled(HaveData);
     ui->sbVerticalBins->setEnabled(HaveData);
     ui->frZrange->setEnabled(HaveData);
+
+    if (HaveData)
+    {
+        bool dataOrDiff = ui->cbData->isChecked() || ui->cbDiff->isChecked();
+        ui->sbDataBins->setEnabled(dataOrDiff);
+        ui->sbVerticalBins->setEnabled(dataOrDiff);
+        ui->ledZrange->setEnabled(dataOrDiff);
+    }
+
+    bool showLrf = ui->cbLrf->isChecked();
+    ui->cbRadial_addNodes->setEnabled(showLrf);
+    ui->sbLRFpoints->setEnabled(showLrf);
+
+    bool showProfiles = false;
+    if (ui->cobPlotType->currentIndex() == 0)
+        if (!dynamic_cast<LRFaxial*>(lrf))
+            showProfiles = true;
+    ui->sbNumProfiles->setEnabled(showProfiles);
 }
 
 void ALrfPlotterDialog::on_sbSensor_editingFinished()
@@ -163,32 +181,14 @@ void ALrfPlotterDialog::on_pbNext_clicked()
     }
 }
 
-void ALrfPlotterDialog::on_cbRadial_data_clicked(bool checked)
+void ALrfPlotterDialog::on_cbData_clicked(bool checked)
 {
-    if (checked && ui->cbRadial_diff->isChecked()) ui->cbRadial_diff->setChecked(false);
+    if (checked && ui->cbDiff->isChecked()) ui->cbDiff->setChecked(false);
     redraw();
 }
 
-void ALrfPlotterDialog::on_cbRadial_diff_clicked(bool checked)
+void ALrfPlotterDialog::on_cbDiff_clicked(bool checked)
 {
-    if (checked && ui->cbRadial_data->isChecked()) ui->cbRadial_data->setChecked(false);
+    if (checked && ui->cbData->isChecked()) ui->cbData->setChecked(false);
     redraw();
 }
-
-void ALrfPlotterDialog::on_tabwPlotType_currentChanged(int index)
-{
-    redraw();
-}
-
-void ALrfPlotterDialog::on_cbXY_data_clicked(bool checked)
-{
-    if (checked && ui->cbXY_diff->isChecked()) ui->cbXY_diff->setChecked(false);
-    redraw();
-}
-
-void ALrfPlotterDialog::on_cbXY_diff_clicked(bool checked)
-{
-    if (checked && ui->cbXY_data->isChecked()) ui->cbXY_data->setChecked(false);
-    redraw();
-}
-
