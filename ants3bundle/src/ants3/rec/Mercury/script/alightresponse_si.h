@@ -48,7 +48,8 @@ public slots:
     void fitResponse(QVariantList floodSignals, QVariantList floodPositions, QVariantList goodEventFlag = QVariantList());
 
     void showResponseExplorer();
-    void showPlotterWidget(QVariantList sensorSignals, QVariantList eventPositions);
+    void showLrfPlotterWidget(QVariantList sensorSignals, QVariantList eventPositions);
+    void showLrfPlotterWidget();
 
     // Low-level interface
     void enableSensor(int iSensor, bool enableFlag);

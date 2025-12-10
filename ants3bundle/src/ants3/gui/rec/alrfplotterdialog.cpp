@@ -26,6 +26,7 @@ ALrfPlotterDialog::ALrfPlotterDialog(QWidget * parent) :
         if (w->objectName().startsWith("led")) w->setValidator(dv);
 
     ui->pbRedraw->setDefault(true);
+    ui->pbRedraw->setVisible(false);
 }
 
 ALrfPlotterDialog::~ALrfPlotterDialog()
@@ -136,6 +137,7 @@ void ALrfPlotterDialog::updateVisibilityAndStatus()
     ui->cbData->setEnabled(HaveData);
     ui->cbDiff->setEnabled(HaveData);
     ui->sbVerticalBins->setEnabled(HaveData);
+    ui->sbDataBins->setEnabled(HaveData);
     ui->frZrange->setEnabled(HaveData);
 
     if (HaveData)
@@ -147,7 +149,7 @@ void ALrfPlotterDialog::updateVisibilityAndStatus()
     }
 
     bool showLrf = ui->cbLrf->isChecked();
-    ui->cbRadial_addNodes->setEnabled(showLrf);
+    ui->cbRadial_addNodes->setEnabled(ui->cobPlotType->currentIndex() == 0 && showLrf && dynamic_cast<LRFaxial*>(lrf));
     ui->sbLRFpoints->setEnabled(showLrf);
 
     bool showProfiles = false;

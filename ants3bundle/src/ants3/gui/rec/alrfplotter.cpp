@@ -52,7 +52,7 @@ QString ALrfPlotter::drawXY(int iSens, bool showLrf, bool addData, bool differen
             if (showLrf) doDrawXYLrf(iSens, addData);
         }
     }
-    else doDrawXYLrf(iSens, false);
+    else if (showLrf) doDrawXYLrf(iSens, false);
 
     return "";
 }

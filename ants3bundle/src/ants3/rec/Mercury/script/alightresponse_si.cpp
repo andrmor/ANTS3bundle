@@ -251,7 +251,7 @@ void ALightResponse_SI::showResponseExplorer()
 }
 
 #include "alrfplotterdialog.h"
-void ALightResponse_SI::showPlotterWidget(QVariantList sensorSignals, QVariantList eventPositions)
+void ALightResponse_SI::showLrfPlotterWidget(QVariantList sensorSignals, QVariantList eventPositions)
 {
     if (!LRHub.Model)
     {
@@ -323,6 +323,20 @@ void ALightResponse_SI::showPlotterWidget(QVariantList sensorSignals, QVariantLi
 
     LRHub.LrfPlotter->DataSignals = DataSignals;
     LRHub.LrfPlotter->DataPositions = DataPositions;
+
+    emit AScriptHub::getInstance().requestShowPlotterDialog(LRHub.LrfPlotter);
+}
+
+void ALightResponse_SI::showLrfPlotterWidget()
+{
+    if (!LRHub.Model)
+    {
+        abort("Light response model is not defined");
+        return;
+    }
+
+    LRHub.LrfPlotter->DataSignals.clear();
+    LRHub.LrfPlotter->DataPositions.clear();
 
     emit AScriptHub::getInstance().requestShowPlotterDialog(LRHub.LrfPlotter);
 }
