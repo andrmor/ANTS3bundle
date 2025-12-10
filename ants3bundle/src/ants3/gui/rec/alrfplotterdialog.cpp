@@ -59,7 +59,9 @@ void ALrfPlotterDialog::redraw()
     Plotter->RangeMin      = ui->ledRangeFixMin->text().toDouble();
     Plotter->RangeMax      = ui->ledRangeFixMax->text().toDouble();
     Plotter->XDataBins     = ui->sbDataBins->value();
-    Plotter->XDataBins     = ui->sbDataBins->value();
+    Plotter->YDataBins     = ui->sbDataBins->value();
+
+    Plotter->NumberRadialProfiles = ui->sbNumProfiles->value();
 
     const int iSens = ui->sbSensor->value();
     const int numSens = Plotter->countSensors();

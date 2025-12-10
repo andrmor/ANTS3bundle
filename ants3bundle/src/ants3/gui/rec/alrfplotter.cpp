@@ -116,7 +116,7 @@ void ALrfPlotter::doDrawRadialData(int iSens, bool differenceOption)
         }
 
         h->GetXaxis()->SetTitle("Radial distance, mm");
-        h->GetYaxis()->SetTitle(differenceOption ? "Difference" : "Signal");
+        h->GetYaxis()->SetTitle(differenceOption ? "Difference" : "Amplitude/Energy");
 
         emit requestDraw(h, "colz", true, true);
     }
@@ -220,13 +220,6 @@ void ALrfPlotter::doDrawRadialNodes(int iSens)
 void ALrfPlotter::doDrawXYData(int iSens)
 {
     TGraph2D * g = new TGraph2D(); // will be owned by the graph window
-    g->SetMarkerSize(0.5);
-    g->SetMarkerStyle(20);
-    g->SetMarkerColor(4);
-    g->SetTitle( TString("LRF #") + iSens);
-    g->GetXaxis()->SetTitle("X, mm");
-    g->GetYaxis()->SetTitle("Y, mm");
-    g->GetZaxis()->SetTitle("LRF");
 
     const size_t numEvents = DataSignals.size();
     for (size_t iEv = 0; iEv < numEvents; iEv++)
@@ -244,6 +237,14 @@ void ALrfPlotter::doDrawXYData(int iSens)
 
     g->SetMinimum(UseFixedVertical ? VerticalMin : 0);
     if (UseFixedVertical) g->SetMaximum(VerticalMax);
+
+    g->SetMarkerSize(0.5);
+    g->SetMarkerStyle(20);
+    g->SetMarkerColor(4);
+    g->SetTitle( TString("LRF #") + iSens);
+    g->GetXaxis()->SetTitle("X, mm");
+    g->GetYaxis()->SetTitle("Y, mm");
+    g->GetZaxis()->SetTitle("Amplitude/Energy");
 
     emit requestDraw(g, "p", true, true);
 }
@@ -295,12 +296,6 @@ void ALrfPlotter::doDrawXYLrf(int iSens, bool onTopOfData)
     LRF * lrf = model->GetLRF(iSens);
 
     TGraph2D * g = new TGraph2D(); // will be owned by the graph window
-    g->SetLineWidth(1);
-    g->SetLineColor(2);
-    g->SetTitle( TString("LRF #") + iSens);
-    g->GetXaxis()->SetTitle("X, mm");
-    g->GetYaxis()->SetTitle("Y, mm");
-    g->GetZaxis()->SetTitle("LRF");
 
     double xFrom = lrf->getXmin();
     double xTo   = lrf->getXmax();
@@ -323,6 +318,13 @@ void ALrfPlotter::doDrawXYLrf(int iSens, bool onTopOfData)
 
     g->SetMinimum(UseFixedVertical ? VerticalMin : 0);
     if (UseFixedVertical) g->SetMaximum(VerticalMax);
+
+    g->SetLineWidth(1);
+    g->SetLineColor(2);
+    g->SetTitle( TString("LRF #") + iSens);
+    g->GetXaxis()->SetTitle("X, mm");
+    g->GetYaxis()->SetTitle("Y, mm");
+    g->GetZaxis()->SetTitle("LRF");
 
     emit requestDraw(g, (onTopOfData ? "triwsame" : "tri"), true, true);
 }
