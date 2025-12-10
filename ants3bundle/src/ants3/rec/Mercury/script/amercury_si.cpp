@@ -9,7 +9,50 @@
 #include "TH2D.h"
 
 AMercury_si::AMercury_si() :
-    LRHub(ALightResponseHub::getInstance()) {}
+    LRHub(ALightResponseHub::getInstance())
+{
+    Description = "A module for position reconstrucion of events based on 'Mercury' library of Vladimir Solovov";
+
+    Help["newReconstructor"] = "Create a reconstructor of a type defined by the 'type' argument:\n"
+                               "'COG' (center of gravity), 'ML' (statistical, with maximum likelihood optimization) or 'LS' (statistical, with least squares optmization).\n"
+                               "The second argument defines the number of threads used in reconstruction.\n"
+                               "Requires the response model to be defined in 'response' script unit";
+
+    Help["reconstructEvents"] = "Reconstruct event positions using the provided array of sensor amplitudes.\n"
+                                "The first dimension of the array is events, the second is sensor amplitudes";
+
+    Help["getRecXYZE"] = "Get array with reconstruction data for all events. Each event is an array of [X Y Z Energy].\n"
+                         "Energy is 0 if reconstruction failed for that event";
+
+    Help["getRecStats"] = "Get array with reconstruction stats for statistical reconstruction. For each event the following data are reported:\n"
+                          "[Status Chi2 CovarianceXX CovarianceYY Covariance XY], where Status = 0 signifies successful reconstruction";
+
+    Help["plot"] = "Plot 1-dimenional reconstruction-related data. The available 'what' options are:\n"
+        "Energy, Chi2, Status and All. The 'All' option results in generation of plots with all available 1D options.\n"
+        "Note that setting 'from' and 'to' arguments to zero results in autamtic axis ranges";
+
+    Help["configure_plotXY_binning"] = "Configures XY binning for plot_vsRecXY and plot_vsTrueXY methods";
+
+    Help["plot_vsRecXY"] = "Plot reconstruction-related data vs reconstructed XY position. The available 'what' options are:\n"
+                           "Energy, Chi2, Status, Density and All. The 'All' option results in generation of plots with all available 2D options";
+
+    Help["configure_plotXY_truePositions"] = "Configures true position data (array of [X Y Z] sub-arrays for all events) to be used in plot_vsTrueXY method";
+
+    Help["plot_vsTrueXY"] = "Plot reconstruction-related data vs true XY position. The available 'what' options are:\n"
+                            "Energy, Chi2, Status, Density, BiasX, BiasY, ErrorX, ErrorY and All. The 'All' option results in generation of plots with all available 2D options";
+
+    Help["configure_COG"] = "Configure COG reconstructor: 'signalAbsoluteCutoff' and 'signalRelativeCutoff' define the limits on sensor amplitudes:\n"
+                            "For a given event, when a sensor signal is below that limit, this sensor is not considered in the reconstruction.\n"
+                            "The limit can be given as an absolute value (the first argument) or as a fraction of the amplitude of the sensor with the strongest amplitude in the event (the second argument)";
+
+    Help["configure_statistical"] = "Configure statistical reconstruction: whether ot not to reconstruct energy and Z. If Z is not to be reconstructed, 'fixedZ' argument sets the assumed Z position";
+    Help["setCutoffRadius"] = "Define the cut-off radius from the center of the sensor with the maximum amplitude in an event.\n"
+                              "All sensors, situated further (center-to-center distance), are not considered in the reconstruction of the event";
+    Help["configure_statistical_step"] = "Fine-tuning of statistical reconstruction by providing the initial steps in the optimization process.\n"
+                                         "The default values are 1 1 1 0";
+    Help["configure_statistical_Minuit"] = "Fine-tuning of statistical reconstruction by providing the Minuit optimizer parameters: the tolerance, maximum number of iterations and maximumum number of function calls.\n"
+                                           "The default values are 0.001 1000 and 500";
+}
 
 void AMercury_si::abortRun()
 {
@@ -78,6 +121,7 @@ void AMercury_si::reconstructEvents(QVariantList sensorSignalsOverAllEvents)
     RecMP->ProcessEvents(A);
 }
 
+/*
 QVariantList AMercury_si::getRecXYZ()
 {
     QVariantList res;
@@ -102,6 +146,7 @@ QVariantList AMercury_si::getRecXYZ()
         res.emplaceBack(QVariantList{x[i], y[i], z[i]});
     return res;
 }
+*/
 
 QVariantList AMercury_si::getRecXYZE()
 {
@@ -112,10 +157,12 @@ QVariantList AMercury_si::getRecXYZE()
         return res;
     }
 
-    const std::vector<double> & x = RecMP->rec_x;
-    const std::vector<double> & y = RecMP->rec_y;
-    const std::vector<double> & z = RecMP->rec_z;
-    const std::vector<double> & e = RecMP->rec_e;
+    const std::vector<int>    & good = RecMP->rec_status;
+    const std::vector<double> & x    = RecMP->rec_x;
+    const std::vector<double> & y    = RecMP->rec_y;
+    const std::vector<double> & z    = RecMP->rec_z;
+    const std::vector<double> & e    = RecMP->rec_e;
+
 
     const size_t size = x.size();
     if (size != y.size() || size != z.size() || size != e.size())
@@ -124,8 +171,15 @@ QVariantList AMercury_si::getRecXYZE()
         return res;
     }
 
+    bool bStatistical = (dynamic_cast<RecMinuitMP*>(RecMP));  // !!!*** output energy handling should be in the library
     for (size_t i = 0; i < size; i++)
-        res.emplaceBack(QVariantList{x[i], y[i], z[i], e[i]});
+    {
+        double energy;
+        if (bStatistical) energy = (good[i] == 0 ? e[i] : 0);
+        else              energy = 1.0;
+
+        res.emplaceBack(QVariantList{x[i], y[i], z[i], energy });
+    }
     return res;
 }
 
@@ -190,9 +244,9 @@ void AMercury_si::plot(QString what, int bins, double from, double to)
     case EachValidOption:
         plotStatusHist();
         emit AScriptHub::getInstance().requestAddToBasket("Status");
-        plotChi2Hist(bins, from, to);
+        plotChi2Hist(bins, 0, 0);
         emit AScriptHub::getInstance().requestAddToBasket("Chi2");
-        plotEnergyHist(bins, from, to);
+        plotEnergyHist(bins, 0, 0);
         emit AScriptHub::getInstance().requestAddToBasket("Energy");
         break;
     default:

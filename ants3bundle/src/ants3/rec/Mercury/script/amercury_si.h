@@ -28,8 +28,8 @@ public slots:
 
     void reconstructEvents(QVariantList sensorSignalsOverAllEvents); // add filter optional parameter? just bool, can set it for sat as well?
 
-    QVariantList getRecXYZ();   // status info: what happens with the returned coordinates if the reconstruction fails?
-    QVariantList getRecXYZE();
+    //QVariantList getRecXYZ();
+    QVariantList getRecXYZE(); // x y z energy     energy = 0 if fail rec
     QVariantList getRecStats(); // [status(0 = OK), chi2, cov_xx, cov_yy, cov_xy]
 
     void plot(QString what, int bins, double from, double to);
