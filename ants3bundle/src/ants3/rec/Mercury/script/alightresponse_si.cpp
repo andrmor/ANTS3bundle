@@ -53,12 +53,7 @@ void ALightResponse_SI::newResponseModel(QVariantList sensorPositions)
 
 void ALightResponse_SI::saveResponseModel(QString fileName)
 {
-    if (!LRHub.Model)
-    {
-        abort("Model was not created yet!");
-        return;
-    }
-
+    if (!checkModel()) return;
     QString jsonStr = LRHub.Model->GetJsonString().data();
     bool ok = ftools::saveTextToFile(jsonStr, fileName);
     if (!ok) abort("Failed to save response to file: " + fileName);
@@ -75,11 +70,7 @@ void ALightResponse_SI::loadResponseModel(QString fileName)
 
 void ALightResponse_SI::defineSensorGroups(QString type, int numNodes)
 {
-    if (!LRHub.Model)
-    {
-        abort("Model was not created yet!");
-        return;
-    }
+    if (!checkModel()) return;
 
     if      (type == "Common")    LRHub.Model->MakeGroupsCommon();
     else if (type == "ByRadius")  LRHub.Model->MakeGroupsByRadius();
@@ -175,11 +166,7 @@ QString ALightResponse_SI::newLRF_xyz(int intervalsX, double minX, double maxX,
 
 void ALightResponse_SI::setLRF(QString jsonString)
 {
-    if (!LRHub.Model)
-    {
-        abort("Model was not created yet!");
-        return;
-    }
+    if (!checkModel()) return;
 
     LRF * lrfToClone = LRF::mkFromJson(jsonString.toLatin1().data());
     if (!lrfToClone)
@@ -220,19 +207,30 @@ void ALightResponse_SI::clearFitData()
 
 void ALightResponse_SI::addFitData(int iSensor, QVariantList amplitudes, QVariantList positions, QVariantList goodEventFlag)
 {
-    if (!LRHub.Model) return;
+    if (!checkModelAndSensor(iSensor)) return;
+
+    bool haveGood = !goodEventFlag.empty();
 
     const qsizetype numEvents = amplitudes.size();
+    if (positions.size() != numEvents ||
+        (haveGood && goodEventFlag.size() != numEvents))
+    {
+        abort("addFitData: mismtach in array sizes");
+        return;
+    }
 
     std::vector<std::array<double, 3>> xyz(numEvents);
     std::vector<double>                a(numEvents);
     std::vector<bool>                  good(numEvents, true);
 
-    bool haveGood = !goodEventFlag.empty();
-
     for (qsizetype iEv = 0; iEv < numEvents; iEv++)
     {
         QVariantList event = positions[iEv].toList();
+        if (event.size() < 3)
+        {
+            abort("addFitData: 'positions' argument should be array of [x, y, z] arrays");
+            return;
+        }
 
         for (size_t i = 0; i < 3; i++)
             xyz[iEv][i] = event[i].toDouble();
@@ -243,33 +241,36 @@ void ALightResponse_SI::addFitData(int iSensor, QVariantList amplitudes, QVarian
             good[iEv] = goodEventFlag[iEv].toDouble();
     }
 
-    LRHub.Model->AddFitRawData(iSensor, xyz, a, good);
+    bool ok = LRHub.Model->AddFitRawData(iSensor, xyz, a, good);
+    if (!ok)
+    {
+        abort("addFitData: failed to add data");
+        return;
+    }
 }
 
 void ALightResponse_SI::fitSensor(int iSensor)
 {
-    if (LRHub.Model) LRHub.Model->FitSensor(iSensor);
+    if (!checkModelAndSensor(iSensor)) return;
+    LRHub.Model->FitSensor(iSensor);
 }
 
 void ALightResponse_SI::fitGroup(int iGroup)
 {
-    if (LRHub.Model) LRHub.Model->FitGroup(iGroup);
+    if (!checkModelAndGroup(iGroup)) return;
+    LRHub.Model->FitGroup(iGroup);
 }
 
 void ALightResponse_SI::showResponseExplorer()
 {
-    if (!LRHub.Model) abort("Light response model is not defined");
-    else emit AScriptHub::getInstance().requestShowLightResponseExplorer(LRHub.Model);
+    if (!checkModel()) return;
+    emit AScriptHub::getInstance().requestShowLightResponseExplorer(LRHub.Model);
 }
 
 #include "alrfplotterdialog.h"
 void ALightResponse_SI::showLrfPlotterWidget(QVariantList sensorSignals, QVariantList eventPositions)
 {
-    if (!LRHub.Model)
-    {
-        abort("Light response model is not defined");
-        return;
-    }
+    if (!checkModel()) return;
 
     if (sensorSignals.empty() && eventPositions.empty()) return; // using already defined data
     const size_t numEvents = sensorSignals.size();
@@ -341,11 +342,7 @@ void ALightResponse_SI::showLrfPlotterWidget(QVariantList sensorSignals, QVarian
 
 void ALightResponse_SI::showLrfPlotterWidget()
 {
-    if (!LRHub.Model)
-    {
-        abort("Light response model is not defined");
-        return;
-    }
+    if (!checkModel()) return;
 
     LRHub.LrfPlotter->DataSignals.clear();
     LRHub.LrfPlotter->DataPositions.clear();
@@ -355,13 +352,9 @@ void ALightResponse_SI::showLrfPlotterWidget()
 
 void ALightResponse_SI::fitResponse(QVariantList floodSignals, QVariantList floodPositions, QVariantList goodEventFlag)
 {
-    if (!LRHub.Model)
-    {
-        abort("Model was not created yet!");
-        return;
-    }
+    if (!checkModel()) return;
 
-    const size_t numEv = floodSignals.size();
+    const qsizetype numEv = floodSignals.size();
     if (numEv != floodPositions.size())
     {
         abort("Mismatch in the sizes of the flood signal and position arrays");
@@ -379,11 +372,11 @@ void ALightResponse_SI::fitResponse(QVariantList floodSignals, QVariantList floo
     LRHub.Model->ClearAllFitData();
 
     // preparing fitting data
-    const size_t numSens = LRHub.Model->GetSensorCount();
+    const qsizetype numSens = LRHub.Model->GetSensorCount();
     std::vector<std::array<double, 3>> vecPositions(numEv);
     std::vector<std::vector<double>>   vecSignals(numEv);
     std::vector<bool>                  vecGood(numEv, true);
-    for (size_t iEv = 0; iEv < numEv; iEv++)
+    for (qsizetype iEv = 0; iEv < numEv; iEv++)
     {
         QVariantList eventPos = floodPositions[iEv].toList();
         if (eventPos.size() < 3)
@@ -401,7 +394,7 @@ void ALightResponse_SI::fitResponse(QVariantList floodSignals, QVariantList floo
             abort("Bad format of floodSignals array");
             return;
         }
-        for (size_t iSens = 0; iSens < numSens; iSens++)
+        for (qsizetype iSens = 0; iSens < numSens; iSens++)
             vecSignals[iEv][iSens] = eventSignals[iSens].toDouble();
 
         if (haveFilter) vecGood[iEv] = goodEventFlag[iEv].toBool();
@@ -414,16 +407,16 @@ void ALightResponse_SI::fitResponse(QVariantList floodSignals, QVariantList floo
 
     // adding fitting data
     std::vector<double> vecOneSensorSignal(numEv);
-    for (size_t iSens = 0; iSens < numSens; iSens++)
+    for (qsizetype iSens = 0; iSens < numSens; iSens++)
     {
-        for (size_t iEv = 0; iEv < numEv; iEv++)
+        for (qsizetype iEv = 0; iEv < numEv; iEv++)
             vecOneSensorSignal[iEv] = vecSignals[iEv][iSens];
         LRHub.Model->AddFitRawData(iSens, vecPositions, vecOneSensorSignal, vecGood);
         if (estimateGains) gainEstimator->AddRawData(iSens, vecPositions, vecOneSensorSignal, vecGood);
     }
 
     //fitting response for sensors not belonging to any groups
-    for (size_t iSens = 0; iSens < numSens; iSens++)
+    for (qsizetype iSens = 0; iSens < numSens; iSens++)
     {
         if (LRHub.Model->GetGroup(iSens) == -1)
             LRHub.Model->FitSensor(iSens);
@@ -470,19 +463,16 @@ void ALightResponse_SI::fitResponse(QVariantList floodSignals, QVariantList floo
 
 void ALightResponse_SI::enableSensor(int iSensor, bool enableFlag)
 {
-    if (!LRHub.Model)
-    {
-        abort("Light response model is not defined");
-        return;
-    }
-    if (iSensor < 0 || iSensor >= LRHub.Model->GetSensorCount())
-    {
-        abort("Bad sensor index: " + QString::number(iSensor));
-        return;
-    }
+    if (!checkModelAndSensor(iSensor)) return;
 
     if (enableFlag) LRHub.Model->SetEnabled(iSensor);
     else            LRHub.Model->SetDisabled(iSensor);
+}
+
+int ALightResponse_SI::countSensors()
+{
+    if (LRHub.Model) return LRHub.Model->GetSensorCount();
+    else return 0;
 }
 
 /*
@@ -501,35 +491,16 @@ int ALightResponse_SI::countGroups()
 QVariantList ALightResponse_SI::getGroupMembers(int iGroup)
 {
     QVariantList vl;
-    if (!LRHub.Model)
-    {
-        abort("Light response model is not defined");
-        return vl;
-    }
-    if (iGroup < 0 || iGroup > LRHub.Model->GetGroupCount())
-    {
-        abort("Invalid sensor group index: " + QString::number(iGroup));
-        return vl;
-    }
+    if (!checkModelAndGroup(iGroup)) return vl;
 
     const std::set<int> & memSet = LRHub.Model->GroupMembers(iGroup);
     std::for_each(memSet.begin(), memSet.end(), [&vl](const int & n){vl.push_back(n);});
     return vl;
 }
 
-void ALightResponse_SI::setLRF_Sensor(int iSensor, QString jsonString)
+void ALightResponse_SI::setLrf_Sensor(int iSensor, QString jsonString)
 {
-    if (!LRHub.Model)
-    {
-        abort("Model was not created yet!");
-        return;
-    }
-
-    if (iSensor < 0 || iSensor >= LRHub.Model->GetSensorCount())
-    {
-        abort("SetLRF_Sensor: invalid sensor index");
-        return;
-    }
+    if (!checkModelAndSensor(iSensor)) return;
 
     QJsonObject json = jstools::strToJson(jsonString);
     if (json["type"] == "Axial" || json["type"] == "Axial3D")
@@ -547,19 +518,9 @@ void ALightResponse_SI::setLRF_Sensor(int iSensor, QString jsonString)
     LRHub.Model->SetJsonLRF(iSensor, jsonString.toLatin1().data());
 }
 
-void ALightResponse_SI::setLRF_Group(int iGroup, QString jsonString)
+void ALightResponse_SI::setLrf_Group(int iGroup, QString jsonString)
 {
-    if (!LRHub.Model)
-    {
-        abort("Model was not created yet!");
-        return;
-    }
-
-    if (iGroup < 0 || iGroup >= LRHub.Model->GetGroupCount())
-    {
-        abort("SetLRF_Group: invalid group index");
-        return;
-    }
+    if (!checkModelAndGroup(iGroup)) return;
 
     QJsonObject json = jstools::strToJson(jsonString);
     if (json["type"] == "Axial" || json["type"] == "Axial3D")
@@ -572,46 +533,25 @@ void ALightResponse_SI::setLRF_Group(int iGroup, QString jsonString)
     LRHub.Model->SetGroupJsonLRF(iGroup, jsonString.toLatin1().data());
 }
 
-void ALightResponse_SI::setModelGains(QVariantList gains)
+void ALightResponse_SI::setSensorGain(int iSensor, double gain)
 {
-    if (!LRHub.Model)
-    {
-        abort("Light response model is not defined");
-        return;
-    }
-    size_t size = gains.size();
-    if (size != LRHub.Model->GetSensorCount())
-    {
-        abort("gains array length is not equal to the number of sensors");
-        return;
-    }
-
-    for (int i = 0; i < size; i++)
-        LRHub.Model->SetGain(i, gains[i].toDouble());
+    if (!checkModelAndSensor(iSensor)) return;
+    LRHub.Model->SetGain(iSensor, gain);
 }
 
-QVariantList ALightResponse_SI::getModelGains()
+double ALightResponse_SI::getSensorGain(int iSensor)
 {
-    QVariantList vl;
-    if (!LRHub.Model)
-    {
-        abort("Light response model is not defined");
-        return vl;
-    }
-
-    int size = LRHub.Model->GetSensorCount();
-    for (int i = 0; i < size; i++)
-        vl << LRHub.Model->GetGain(i);
-    return vl;
+    if (!checkModelAndSensor(iSensor)) return 0;
+    return LRHub.Model->GetGain(iSensor);
 }
 
-double ALightResponse_SI::eval(int iSensor, double x, double y, double z)
+double ALightResponse_SI::evaluateLrf(int iSensor, double x, double y, double z)
 {
     if (LRHub.Model) return LRHub.Model->Eval(iSensor, x, y, z);
     else return 0;
 }
 
-double ALightResponse_SI::eval(int iSensor, QVariantList xyz)
+double ALightResponse_SI::evaluateLrf(int iSensor, QVariantList xyz)
 {
     if (xyz.length() != 3) return 0;
 
@@ -624,11 +564,7 @@ double ALightResponse_SI::eval(int iSensor, QVariantList xyz)
 
 QString ALightResponse_SI::getModel()
 {
-    if (!LRHub.Model)
-    {
-        abort("Model was not created yet!");
-        return "";
-    }
+    if (!checkModel()) return "";
     return LRHub.Model->GetJsonString().data();
 }
 
@@ -651,4 +587,45 @@ void ALightResponse_SI::ifAxialUpdateLrfCenter(LRF *lrf, double x, double y)
 {
     LRFaxial * axlrf = dynamic_cast<LRFaxial*>(lrf);
     if (axlrf) axlrf->SetOrigin(x, y);
+}
+
+bool ALightResponse_SI::checkModel()
+{
+    if (!LRHub.Model)
+    {
+        abort("Model was not created yet!");
+        return false;
+    }
+    return true;
+}
+
+bool ALightResponse_SI::checkModelAndSensor(int iSensor)
+{
+    if (!LRHub.Model)
+    {
+        abort("Model was not created yet!");
+        return false;
+    }
+    if (iSensor < 0 || iSensor >= LRHub.Model->GetSensorCount())
+    {
+        abort("Invalid sensor index: " + QString::number(iSensor));
+        return false;
+    }
+    return true;
+}
+
+bool ALightResponse_SI::checkModelAndGroup(int iGroup)
+{
+    if (!LRHub.Model)
+    {
+        abort("Model was not created yet!");
+        return false;
+    }
+    if (iGroup < 0 || iGroup >= LRHub.Model->GetGroupCount())
+    {
+        abort("Invalid sensor group index: " + QString::number(iGroup));
+        return false;
+    }
+
+    return true;
 }

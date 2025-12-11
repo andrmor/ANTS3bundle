@@ -55,22 +55,23 @@ public slots:
     void enableSensor(int iSensor, bool enableFlag);
 
     //void clearGroups();
+    int  countSensors();
     int  countGroups();
     QVariantList getGroupMembers(int iGroup);
 
-    void setLRF_Sensor(int iSensor, QString jsonString);     // sets x0 y0 of axial if not present in the lrfjson
-    void setLRF_Group(int iGroup, QString jsonString);       // sets x0 y0 of axial if not present in the lrfjson
+    void setLrf_Sensor(int iSensor, QString jsonString);     // sets x0 y0 of axial if not present in the lrfjson
+    void setLrf_Group(int iGroup, QString jsonString);       // sets x0 y0 of axial if not present in the lrfjson
 
-    void         setModelGains(QVariantList gains);
-    QVariantList getModelGains();
+    void   setSensorGain(int iSensor, double gain);
+    double getSensorGain(int iSensor);
 
     void clearFitData();
     void addFitData(int iSensor, QVariantList amplitudes, QVariantList positions, QVariantList goodEventFlag = QVariantList()); // !!!*** add checks
     void fitSensor(int iSensor); // !!!*** check lrf
     void fitGroup(int iGroup);   // !!!*** check lrf
 
-    double eval(int iSensor, double x, double y, double z);
-    double eval(int iSensor, QVariantList xyz);
+    double evaluateLrf(int iSensor, double x, double y, double z);
+    double evaluateLrf(int iSensor, QVariantList xyz);
 
     QString getModel();
     void    setModel(QString jsonString);
@@ -78,10 +79,14 @@ public slots:
 private:
     ALightResponseHub & LRHub;
 
-    QString CommonJsonString; // set by SetLRF(QString jsonString) to be used in the case when MakeGroups_xxx is used after LRFs are already set
+    QString CommonJsonString; // set by SetLRF(QString jsonString) to be used in the case when defineSensorGroups() is used after LRFs are already set
 
     void clearModel();
     void ifAxialUpdateLrfCenter(LRF * lrf, double x, double y);
+
+    bool checkModel();
+    bool checkModelAndSensor(int iSensor);
+    bool checkModelAndGroup(int iGroup);
 
 };
 

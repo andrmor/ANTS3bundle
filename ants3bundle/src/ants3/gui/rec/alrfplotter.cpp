@@ -115,6 +115,7 @@ void ALrfPlotter::doDrawRadialData(int iSens, bool differenceOption)
             else h->Fill(r, signal);
         }
 
+        h->SetTitle( TString(differenceOption ? "Diff" : "Data") + iSens );
         h->GetXaxis()->SetTitle("Radial distance, mm");
         h->GetYaxis()->SetTitle(differenceOption ? "Difference" : "Amplitude/Energy");
 
@@ -168,11 +169,6 @@ void ALrfPlotter::doDrawRadialLrf(int iSens, bool onTopOfData)
     if (axial)
     {
         TGraph * g = new TGraph(); // will be owned by the graph window
-        g->SetLineWidth(2);
-        g->SetLineColor(2);
-        g->SetTitle( TString("LRF #") + iSens);
-        g->GetXaxis()->SetTitle("Radial distance, mm");
-        g->GetYaxis()->SetTitle("LRF");
 
         double from = axial->GetRmin();
         double to   = axial->getRmax();
@@ -190,6 +186,12 @@ void ALrfPlotter::doDrawRadialLrf(int iSens, bool onTopOfData)
         if (UseFixedVertical && (VerticalMax > VerticalMin)) g->SetMaximum(VerticalMax);
 
         if (UseFixedRange && (RangeMin < RangeMax)) g->GetHistogram()->GetXaxis()->SetLimits(RangeMin, RangeMax);
+
+        g->SetLineWidth(2);
+        g->SetLineColor(2);
+        g->SetTitle( TString("LRF #") + iSens);
+        g->GetXaxis()->SetTitle("Radial distance, mm");
+        g->GetYaxis()->SetTitle("LRF");
 
         emit requestDraw(g, onTopOfData ? "Lsame" : "AL", true, true);
     }
@@ -241,7 +243,7 @@ void ALrfPlotter::doDrawXYData(int iSens)
     g->SetMarkerSize(0.5);
     g->SetMarkerStyle(20);
     g->SetMarkerColor(4);
-    g->SetTitle( TString("LRF #") + iSens);
+    g->SetTitle( TString("Data #") + iSens);
     g->GetXaxis()->SetTitle("X, mm");
     g->GetYaxis()->SetTitle("Y, mm");
     g->GetZaxis()->SetTitle("Amplitude/Energy");
@@ -257,7 +259,7 @@ void ALrfPlotter::doDrawXYDiff(int iSens)
     TH2D * h  = new TH2D("", "", XDataBins, 0, 0, YDataBins, 0, 0); // will be owned by the graph window
     TH2D * h1 = new TH2D("", "", XDataBins, 0, 0, YDataBins, 0, 0); // normalization (local)
     h->SetLineColor(4);
-    h->SetTitle( TString("LRF #") + iSens);
+    h->SetTitle( TString("Diff #") + iSens);
     h->GetXaxis()->SetTitle("X, mm");
     h->GetYaxis()->SetTitle("Y, mm");
     h->GetZaxis()->SetTitle("Amplitude/Energy - LRF");
@@ -360,11 +362,6 @@ void ALrfPlotter::doDrawRadialForNonAxial(int iSens)
     for (int iProf = 0; iProf < NumberRadialProfiles; iProf++)
     {
         TGraph * g = new TGraph(); // will be owned by the graph window
-        g->SetLineWidth(1);
-        g->SetLineColor(2);
-        g->SetTitle( TString("LRF #") + iSens);
-        g->GetXaxis()->SetTitle("Radial distance, mm");
-        g->GetYaxis()->SetTitle("LRF");
 
         double angle = 2.0 * 3.1415926535 / NumberRadialProfiles * iProf;
         for (size_t iR = 0; iR < NumPointsInRadialGraph; iR++)
@@ -383,6 +380,12 @@ void ALrfPlotter::doDrawRadialForNonAxial(int iSens)
 
         if (UseFixedRange && (RangeMin < RangeMax)) g->GetHistogram()->GetXaxis()->SetLimits(RangeMin, RangeMax);
         else                                        g->GetHistogram()->GetXaxis()->SetLimits(0, maxRadius);
+
+        g->SetLineWidth(1);
+        g->SetLineColor(2);
+        g->SetTitle( TString("Prof_") + iProf);
+        g->GetXaxis()->SetTitle("Radial distance, mm");
+        g->GetYaxis()->SetTitle("LRF");
 
         emit requestDraw(g, iProf == 0 ? "AL" : "Lsame", true, true);
     }
