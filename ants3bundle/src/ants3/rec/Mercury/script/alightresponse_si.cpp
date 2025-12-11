@@ -218,20 +218,32 @@ void ALightResponse_SI::clearFitData()
     if (LRHub.Model) LRHub.Model->ClearAllFitData();
 }
 
-void ALightResponse_SI::addFitData(int iSensor, QVariantList xyza)
+void ALightResponse_SI::addFitData(int iSensor, QVariantList amplitudes, QVariantList positions, QVariantList goodEventFlag)
 {
     if (!LRHub.Model) return;
 
-    const size_t size = xyza.size();
-    std::vector<std::array <double, 4>> data(size);
-    for (size_t iEv = 0; iEv < size; iEv++)
+    const qsizetype numEvents = amplitudes.size();
+
+    std::vector<std::array<double, 3>> xyz(numEvents);
+    std::vector<double>                a(numEvents);
+    std::vector<bool>                  good(numEvents, true);
+
+    bool haveGood = !goodEventFlag.empty();
+
+    for (qsizetype iEv = 0; iEv < numEvents; iEv++)
     {
-        QVariantList event = xyza[iEv].toList();
-        for (size_t i = 0; i < 4; i++)
-            data[iEv][i] = event[i].toDouble();
+        QVariantList event = positions[iEv].toList();
+
+        for (size_t i = 0; i < 3; i++)
+            xyz[iEv][i] = event[i].toDouble();
+
+        a[iEv] = amplitudes[iEv].toDouble();
+
+        if (haveGood)
+            good[iEv] = goodEventFlag[iEv].toDouble();
     }
 
-    LRHub.Model->AddFitData(iSensor, data);
+    LRHub.Model->AddFitRawData(iSensor, xyz, a, good);
 }
 
 void ALightResponse_SI::fitSensor(int iSensor)
@@ -473,10 +485,12 @@ void ALightResponse_SI::enableSensor(int iSensor, bool enableFlag)
     else            LRHub.Model->SetDisabled(iSensor);
 }
 
+/*
 void ALightResponse_SI::clearGroups()
 {
     if (LRHub.Model) LRHub.Model->ResetGroups();
 }
+*/
 
 int ALightResponse_SI::countGroups()
 {
@@ -518,7 +532,7 @@ void ALightResponse_SI::setLRF_Sensor(int iSensor, QString jsonString)
     }
 
     QJsonObject json = jstools::strToJson(jsonString);
-    if (json["type"] == "Axial")
+    if (json["type"] == "Axial" || json["type"] == "Axial3D")
     {
         const ASensorHub & SensHub = ASensorHub::getConstInstance();
         int num = SensHub.countSensors();
@@ -548,7 +562,7 @@ void ALightResponse_SI::setLRF_Group(int iGroup, QString jsonString)
     }
 
     QJsonObject json = jstools::strToJson(jsonString);
-    if (json["type"] == "Axial")
+    if (json["type"] == "Axial" || json["type"] == "Axial3D")
     {
         if (!json.contains("x0")) json["x0"] = LRHub.Model->GetGroupX(iGroup);
         if (!json.contains("y0")) json["y0"] = LRHub.Model->GetGroupY(iGroup);

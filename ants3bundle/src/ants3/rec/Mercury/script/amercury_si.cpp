@@ -18,8 +18,12 @@ AMercury_si::AMercury_si() :
                                "The second argument defines the number of threads used in reconstruction.\n"
                                "Requires the response model to be defined in 'response' script unit";
 
-    Help["reconstructEvents"] = "Reconstruct event positions using the provided array of sensor amplitudes.\n"
-                                "The first dimension of the array is events, the second is sensor amplitudes";
+    Help["reconstructEvents"] = {{1, "Reconstruct event positions from the provided array of sensor amplitudes.\n"
+                                     "The first dimension of the array is events, the second is sensor amplitudes"},
+                                 {2, "Reconstruct event positions from the provided array of sensor amplitudes.\n"
+                                     "The first dimension of that array is events, the second is sensor amplitudes.\n"
+                                     "The second argument gives per-event information on which sesors to ignore:\n"
+                                     "(e.g., due to saturation) and thus is array of arrays of bools: true signifies a sensor to ignore"}};
 
     Help["getRecXYZE"] = "Get array with reconstruction data for all events. Each event is an array of [X Y Z Energy].\n"
                          "Energy is 0 if reconstruction failed for that event";
@@ -104,21 +108,62 @@ void AMercury_si::reconstructEvents(QVariantList sensorSignalsOverAllEvents)
         return;
     }
 
-    std::vector<std::vector<double>> A(numEvents);
-
-    size_t numEl = 0;
+    std::vector<std::vector<double>> amplitudes(numEvents);
 
     for (size_t iEv = 0; iEv < numEvents; iEv++)
     {
         QVariantList sensSignals = sensorSignalsOverAllEvents[iEv].toList();
-        numEl = sensSignals.size();
+        qsizetype numEl = sensSignals.size();
 
-        A[iEv].resize(numEl);
-        for (size_t i = 0; i < numEl; i++)
-            A[iEv][i] = sensSignals[i].toDouble();
+        amplitudes[iEv].resize(numEl);
+        for (qsizetype i = 0; i < numEl; i++)
+            amplitudes[iEv][i] = sensSignals[i].toDouble();
     }
 
-    RecMP->ProcessEvents(A);
+    RecMP->ProcessEvents(amplitudes);
+}
+
+void AMercury_si::reconstructEvents(QVariantList sensorSignalsOverAllEvents, QVariantList ignoreSensorsByEvent)
+{
+    if (!RecMP)
+    {
+        abort("Reconstructor was not created yet");
+        return;
+    }
+
+    const size_t numEvents = sensorSignalsOverAllEvents.size();
+    if (numEvents == 0)
+    {
+        abort("The array with events for reconstructEvents is empty");
+        return;
+    }
+
+    std::vector<std::vector<double>> amplitudes(numEvents);
+    std::vector<std::vector<bool>>   ignoreSens(numEvents);
+
+    for (size_t iEv = 0; iEv < numEvents; iEv++)
+    {
+        QVariantList vlSensSignals = sensorSignalsOverAllEvents[iEv].toList();
+        QVariantList vlIgnores     = ignoreSensorsByEvent[iEv].toList();
+
+        qsizetype numEl = vlSensSignals.size();
+        if (vlIgnores.size() != numEl)
+        {
+            abort("reconstructEvents: inconsistent number of elements in argument arrays");
+            return;
+        }
+
+        amplitudes[iEv].resize(numEl);
+        ignoreSens[iEv].resize(numEl);
+
+        for (qsizetype i = 0; i < numEl; i++)
+        {
+            amplitudes[iEv][i] = vlSensSignals[i].toDouble();
+            ignoreSens[iEv][i] = vlIgnores[i].toBool();
+        }
+    }
+
+    RecMP->ProcessEvents(amplitudes, ignoreSens);
 }
 
 /*

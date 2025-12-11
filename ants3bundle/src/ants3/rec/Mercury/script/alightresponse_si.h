@@ -54,7 +54,7 @@ public slots:
     // Low-level interface
     void enableSensor(int iSensor, bool enableFlag);
 
-    void clearGroups();
+    //void clearGroups();
     int  countGroups();
     QVariantList getGroupMembers(int iGroup);
 
@@ -65,9 +65,9 @@ public slots:
     QVariantList getModelGains();
 
     void clearFitData();
-    void addFitData(int iSensor, QVariantList xyza);  // !!!*** change to "raw"
-    void fitSensor(int iSensor);
-    void fitGroup(int iGroup);
+    void addFitData(int iSensor, QVariantList amplitudes, QVariantList positions, QVariantList goodEventFlag = QVariantList()); // !!!*** add checks
+    void fitSensor(int iSensor); // !!!*** check lrf
+    void fitGroup(int iGroup);   // !!!*** check lrf
 
     double eval(int iSensor, double x, double y, double z);
     double eval(int iSensor, QVariantList xyz);
