@@ -40,3 +40,5 @@
 @FastNeutron_Cylinder.json Cylindrical moderator, neutrons up to ~5 MeV
 @FastNeutron_SimpleCube.json Cubic moderator, equidistant arrays, neutrons up to ~5 MeV
 @FastNeutron_OptimizedCube.json Cubic moderator, three layers of arrays, neutrons up to ~5 MeV
+* Dark matter
+@LZ.json A simplified model of dark matter detector of LZ collaboration

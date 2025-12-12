@@ -16,6 +16,8 @@ ALightResponse_SI::ALightResponse_SI() :
                   "Documentation can be found here:\n"
                   "https://mercurydocs.readthedocs.io/en/latest/index.html";
 
+    // High level
+
     Help["newResponseModel"] = "Define a new response model with the sensor xyz positions defined by the sensorPositions array.\n"
                                "The sensor LRFs have to be configured by the user, as wll as, optionally, the division of sensors into groups.";
 
@@ -54,6 +56,8 @@ ALightResponse_SI::ALightResponse_SI() :
     Help["showLrfPlotterWidget"] = "Shows a GUI widget which plots the LRF of a given sensor, as a function of radial or XY position.\n"
                                    "If optional sensorSignals and eventPositions arguments are supplied (by-event arrays of sensor signals and the corresponding position),\n"
                                    "the widget can be used to visually explore the difference between the LRFs and the signal data";
+
+    // Low level
 
     Help["enableSensor"] = "Enable or disable a given sensor. Disabled sensors are not used in position reconstruction";
 
