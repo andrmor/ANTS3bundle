@@ -10,7 +10,79 @@
 #include "lrfaxial.h"
 
 ALightResponse_SI::ALightResponse_SI() :
-    LRHub(ALightResponseHub::getInstance()) {}
+    LRHub(ALightResponseHub::getInstance())
+{
+    Description = "A module for position response parameterization based on 'Mercury' library of Vladimir Solovov.\n"
+                  "Documentation can be found here:\n"
+                  "https://mercurydocs.readthedocs.io/en/latest/index.html";
+
+    Help["newResponseModel"] = "Define a new response model with the sensor xyz positions defined by the sensorPositions array.\n"
+                               "The sensor LRFs have to be configured by the user, as wll as, optionally, the division of sensors into groups.";
+
+    Help["loadResponseModel"] = "Load the response model previously saved to a file";
+    Help["saveResponseModel"] = "Save the currently defined response model to a file";
+
+    Help["defineSensorGroups"] = "Define the sensor groups of the response model based on a specific symmetry of the sensor array, given by the first argument.\n"
+                                 "The valid options are: 'Common', 'ByRadius', 'Rectangle', 'Square', 'Hexagon' and 'Polygon'.\n"
+                                 "In the case of polygon, the second argument defines the number of polygon edges";
+
+    Help["newLRF_axial"] = "Creates an 'Axial' LRF and returns its json string.\n"
+                           "The arguments define the number of nodes, as well as the radial range. It is generally a good idea to have minR = 0";
+    Help["newLRF_axial3D"] = "Creates an 'Axial3D' LRF and returns its json string.\n"
+                             "The arguments define the number of nodes in radial direction, the radial range, the number of intervals in Z direction and the Z range";
+    Help["newLRF_xy"] = "Creates an LRF of type 'LRFxy' and returns its json string.\n"
+                        "The arguments define the number of intervals and the corresponding ranges in X and Y directions";
+    Help["newLRF_xy"] = "Creates an LRF of type 'LRFxyz' and returns its json string.\n"
+                        "The arguments define the number of intervals and the corresponding ranges in X, Y and Z directions";
+
+    Help["configureLRF_AxialCompression"] = "Add compression information to an existent LRF of 'Axial' or 'Axial3D' types.\n"
+                                            "Note that this method returns the modified json string of the initial LRF with added compression!";
+
+    Help["configureLRF_Constrains"] = "Add constrains on LRFs to be used in LRF fitting process.\n"
+                                      "Note that this method returns the modified json string of the initial LRF with added constrain info!";
+
+    Help["setLRF"] = "Set default LRF for all sensors and sensor groups (defined or to be defined)";
+
+    Help["fitResponse"] = "Fit response model using the provided flood-field irradiation data.\n"
+                          "floodSignals array lists, per event, amplitude for all sensors;\n"
+                          "floodPosition array lists, per event, true or guessed [XYZ] positions;\n"
+                          "optional goodEventFlag array lists, per event, boolean values serving as a 'bad event' flag:\n"
+                          "false value identifies those events which have to be disregarded in fitting.";
+
+    Help["showResponseExplorer"] = "Shows a GUI widget which plots the sensor array and visualizes the sensor amplitudes (LRF values) based on the position of the source, given by the current mouse position";
+
+    Help["showLrfPlotterWidget"] = "Shows a GUI widget which plots the LRF of a given sensor, as a function of radial or XY position.\n"
+                                   "If optional sensorSignals and eventPositions arguments are supplied (by-event arrays of sensor signals and the corresponding position),\n"
+                                   "the widget can be used to visually explore the difference between the LRFs and the signal data";
+
+    Help["enableSensor"] = "Enable or disable a given sensor. Disabled sensors are not used in position reconstruction";
+
+    Help["countSensors"] = "Return number of sensors in the current response model";
+    Help["countGroups"] = "Return number of sensors groups defined in the current response model";
+    Help["getGroupMembers"] = "Return indexes of the sensors belonging to a given sensor group";
+
+    Help["setLrf_Sensor"] = "Set LRF for a given sensor.\n"
+                            "Warning! It is not recommended to mix the 'high level' setLRF method and 'low level' setLrf_Sensor and setLrf_Group methods";
+    Help["setLrf_Group"] = "Set LRF for a given sensor group.\n"
+                            "Warning! It is not recommended to mix the 'high level' setLRF method and 'low level' setLrf_Sensor and setLrf_Group methods";
+
+    Help["getSensorGain"] = "Return the sensor gain (within its group!) for a given sensor";
+    Help["setSensorGain"] = "Sets the sensor gain (within its group!) for a given sensor";
+
+    Help["clearFitData"] = "Clears all fitting data previously defined for sensors";
+    Help["addFitData"] = "Add fit data for a given sensor.\n"
+                         "'amplitudes' array lists, per event, amplitude for all sensors;\n"
+                         "'positions' array lists, per event, true or guessed [XYZ] positions;\n"
+                          "optional goodEventFlag array lists, per event, boolean values serving as a 'bad event' flag:\n"
+                          "false value identifies those events which have to be disregarded in fitting.";
+    Help["fitSensor"] = "Fit data (perform LRF paramerization) for a given sensor and previously provided fit data (see addFitData method).";
+    Help["fitGroup"] = "Fit data (perform LRF paramerization) for a given sensor group and previously provided fit data for all the sensors of that group (see addFitData method).";
+
+    Help["evaluateLrf"] = "Return the LRF value for the sensor, assuming that the source is at the given position";
+
+    Help["getModel"] = "Return json string of the currently defined response model";
+    Help["setModel"] = "Configures the response model based on the configuration provided as json string";
+}
 
 // --- High level ---
 
@@ -103,9 +175,9 @@ QString ALightResponse_SI::configureLRF_AxialCompression(QString LRF, double k, 
         abort("LRF should be a json object string");
         return "";
     }
-    if (json["type"] != "Axial")
+    if (json["type"] != "Axial" || json["type"] != "Axial3D")
     {
-        abort("Compression can be applied only to Axial type LRFs");
+        abort("Compression can be applied only to Axial and Axial3D LRF types");
         return "";
     }
 
@@ -253,12 +325,16 @@ void ALightResponse_SI::fitSensor(int iSensor)
 {
     if (!checkModelAndSensor(iSensor)) return;
     LRHub.Model->FitSensor(iSensor);
+    LRF * lrf = LRHub.Model->GetLRF(iSensor);
+    if (!lrf || !lrf->isValid()) abort("Failed to fit LRF for sensor # " + QString::number(iSensor));
 }
 
 void ALightResponse_SI::fitGroup(int iGroup)
 {
     if (!checkModelAndGroup(iGroup)) return;
     LRHub.Model->FitGroup(iGroup);
+    LRF * lrf = LRHub.Model->GetGroupLRF(iGroup);
+    if (!lrf || !lrf->isValid()) abort("Failed to fit LRF for sensor group # " + QString::number(iGroup));
 }
 
 void ALightResponse_SI::showResponseExplorer()
@@ -474,13 +550,6 @@ int ALightResponse_SI::countSensors()
     if (LRHub.Model) return LRHub.Model->GetSensorCount();
     else return 0;
 }
-
-/*
-void ALightResponse_SI::clearGroups()
-{
-    if (LRHub.Model) LRHub.Model->ResetGroups();
-}
-*/
 
 int ALightResponse_SI::countGroups()
 {

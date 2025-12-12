@@ -29,7 +29,7 @@ public slots:
     void loadResponseModel(QString fileName);
     void saveResponseModel(QString fileName);
 
-    void defineSensorGroups(QString type, int numNodes = 3);
+    void defineSensorGroups(QString type, int numNodes = 3); // Common, ByRadius, Rectangle, Square, Hexagon, Polygon
 
     QString newLRF_axial(int intervals, double minR, double maxR);
     QString newLRF_axial3D(int intervalsR, double minR, double maxR,
@@ -54,7 +54,6 @@ public slots:
     // Low-level interface
     void enableSensor(int iSensor, bool enableFlag);
 
-    //void clearGroups();
     int  countSensors();
     int  countGroups();
     QVariantList getGroupMembers(int iGroup);
@@ -66,9 +65,9 @@ public slots:
     double getSensorGain(int iSensor);
 
     void clearFitData();
-    void addFitData(int iSensor, QVariantList amplitudes, QVariantList positions, QVariantList goodEventFlag = QVariantList()); // !!!*** add checks
-    void fitSensor(int iSensor); // !!!*** check lrf
-    void fitGroup(int iGroup);   // !!!*** check lrf
+    void addFitData(int iSensor, QVariantList amplitudes, QVariantList positions, QVariantList goodEventFlag = QVariantList());
+    void fitSensor(int iSensor);
+    void fitGroup(int iGroup);
 
     double evaluateLrf(int iSensor, double x, double y, double z);
     double evaluateLrf(int iSensor, QVariantList xyz);
@@ -79,7 +78,7 @@ public slots:
 private:
     ALightResponseHub & LRHub;
 
-    QString CommonJsonString; // set by SetLRF(QString jsonString) to be used in the case when defineSensorGroups() is used after LRFs are already set
+    QString CommonJsonString; // set by SetLRF(QString jsonString) to be used in the case when defineSensorGroups() is triggered after LRFs are already set
 
     void clearModel();
     void ifAxialUpdateLrfCenter(LRF * lrf, double x, double y);

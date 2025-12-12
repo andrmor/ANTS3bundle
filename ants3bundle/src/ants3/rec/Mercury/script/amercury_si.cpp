@@ -11,7 +11,9 @@
 AMercury_si::AMercury_si() :
     LRHub(ALightResponseHub::getInstance())
 {
-    Description = "A module for position reconstrucion of events based on 'Mercury' library of Vladimir Solovov";
+    Description = "A module for position reconstrucion of events based on 'Mercury' library of Vladimir Solovov.\n"
+                  "Documentation can be found here:\n"
+                  "https://mercurydocs.readthedocs.io/en/latest/index.html";
 
     Help["newReconstructor"] = "Create a reconstructor of a type defined by the 'type' argument:\n"
                                "'COG' (center of gravity), 'ML' (statistical, with maximum likelihood optimization) or 'LS' (statistical, with least squares optmization).\n"
