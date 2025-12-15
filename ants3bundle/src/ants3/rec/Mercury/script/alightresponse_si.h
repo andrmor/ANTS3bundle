@@ -66,6 +66,7 @@ public slots:
 
     void clearFitData();
     void addFitData(int iSensor, QVariantList amplitudes, QVariantList positions, QVariantList goodEventFlag = QVariantList());
+    void computeGroupGains(int iGroup);
     void fitSensor(int iSensor);
     void fitGroup(int iGroup);
 

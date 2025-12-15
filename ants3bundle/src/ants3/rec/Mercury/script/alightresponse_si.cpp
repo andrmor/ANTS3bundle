@@ -179,7 +179,7 @@ QString ALightResponse_SI::configureLRF_AxialCompression(QString LRF, double k, 
         abort("LRF should be a json object string");
         return "";
     }
-    if (json["type"] != "Axial" || json["type"] != "Axial3D")
+    if (json["type"] != "Axial" && json["type"] != "Axial3D")
     {
         abort("Compression can be applied only to Axial and Axial3D LRF types");
         return "";
@@ -323,6 +323,29 @@ void ALightResponse_SI::addFitData(int iSensor, QVariantList amplitudes, QVarian
         abort("addFitData: failed to add data");
         return;
     }
+}
+
+void ALightResponse_SI::computeGroupGains(int iGroup)
+{
+    if (!checkModelAndGroup(iGroup)) return;
+
+    GainEstimator gainEstimator(LRHub.Model);
+
+    std::set<int> & groupSet = LRHub.Model->GroupMembers(iGroup);
+    const size_t size = groupSet.size();
+    std::vector<int> groupVec;
+    groupVec.reserve(size);
+    for (auto itr = groupSet.begin(); itr != groupSet.end(); itr++)
+        groupVec.push_back(*itr);
+
+    std::vector<double> relGains = gainEstimator.GetRelativeGainsList(groupVec, groupVec.front());
+    double sumGain = 0;
+    for (size_t i = 0; i < size; i++)
+        sumGain += 1.0/relGains[i];
+    sumGain /= size;
+
+    for (size_t i = 0; i < size; i++)
+        LRHub.Model->SetGain(groupVec[i], 1.0/relGains[i]/sumGain);
 }
 
 void ALightResponse_SI::fitSensor(int iSensor)
@@ -502,10 +525,6 @@ void ALightResponse_SI::fitResponse(QVariantList floodSignals, QVariantList floo
             LRHub.Model->FitSensor(iSens);
     }
 
-    // fitting response for groups
-    for (size_t iGr = 0; iGr < numGroups; iGr++)
-        LRHub.Model->FitGroup(iGr);
-
     if (estimateGains)
     {
         for (size_t iGr = 0; iGr < numGroups; iGr++)
@@ -533,6 +552,10 @@ void ALightResponse_SI::fitResponse(QVariantList floodSignals, QVariantList floo
             }
         }
     }
+
+    // fitting response for groups
+    for (size_t iGr = 0; iGr < numGroups; iGr++)
+        LRHub.Model->FitGroup(iGr);
 
     // dests
     delete gainEstimator;
