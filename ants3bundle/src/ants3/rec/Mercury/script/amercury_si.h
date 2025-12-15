@@ -61,7 +61,7 @@ private:
 
     void resetReconstructor();
 
-    enum EPlotOption {ErrorOption, EnergyOption, Chi2Option, StatusOption, DensityOption, BiasXOption, BiasYOption, ErrorXOption, ErrorYOption, EachValidOption};
+    enum EPlotOption {ErrorOption, EnergyOption, Chi2Option, StatusOption, DensityOption, BiasXOption, BiasYOption, ResXOption, ResYOption, EachValidOption};
     EPlotOption whatFromString(QString what);
 
     void doPlot_vsXY(bool vsTrue, EPlotOption opt, const std::vector<double> & x, const std::vector<double> & y);
@@ -75,7 +75,7 @@ private:
     void plotStatusXYHist (const std::vector<double> & x, const std::vector<double> & y, QString titleSuffix);
     void plotDensityXYHist(const std::vector<double> & x, const std::vector<double> & y, QString titleSuffix);
     void plotBiasXYHist   (const std::vector<double> & x, const std::vector<double> & y, QString titleSuffix, bool vsX);
-    void plotSigmaXYHist  (const std::vector<double> & x, const std::vector<double> & y, QString titleSuffix, bool vsX);
+    void plotResXYHist  (const std::vector<double> & x, const std::vector<double> & y, QString titleSuffix, bool vsX);
 };
 
 #endif // AMERCURY_SI_H

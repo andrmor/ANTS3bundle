@@ -45,7 +45,9 @@ AMercury_si::AMercury_si() :
     Help["configure_plotXY_truePositions"] = "Configures true position data (array of [X Y Z] sub-arrays for all events) to be used in plot_vsTrueXY method";
 
     Help["plot_vsTrueXY"] = "Plot reconstruction-related data vs true XY position. The available 'what' options are:\n"
-                            "Energy, Chi2, Status, Density, BiasX, BiasY, ErrorX, ErrorY and All. The 'All' option results in generation of plots with all available 2D options";
+                            "Energy, Chi2, Status, Density, BiasX, BiasY, ResX, ResY and All. The 'All' option results in generation of plots with all available 2D options.\n"
+                            "Bias is mean difference between the true and reconstructed;\n"
+                            "Res is a quick-and-dirty estimate of resolution, obtained as 2.35 * RMS of (RecPos - Bias_this_bin - TruePos)";
 
     Help["configure_COG"] = "Configure COG reconstructor: 'signalAbsoluteCutoff' and 'signalRelativeCutoff' define the limits on sensor amplitudes:\n"
                             "For a given event, when a sensor signal is below that limit, this sensor is not considered in the reconstruction.\n"
@@ -443,7 +445,7 @@ void AMercury_si::plot_vsTrueXY(QString what)
 void AMercury_si::doPlot_vsXY(bool vsTrue, EPlotOption opt, const std::vector<double> & x, const std::vector<double> & y)
 {
     if (!vsTrue)
-        if (opt == BiasXOption || opt == BiasYOption || opt == ErrorXOption || opt == ErrorYOption)
+        if (opt == BiasXOption || opt == BiasYOption || opt == ResXOption || opt == ResYOption)
         {
             abort("Bias and Error options are available only for 2D plots vs true positions");
             return;
@@ -470,11 +472,11 @@ void AMercury_si::doPlot_vsXY(bool vsTrue, EPlotOption opt, const std::vector<do
     case BiasYOption:
         plotBiasXYHist(x, y, titleSuffix, false);
         break;
-    case ErrorXOption:
-        plotSigmaXYHist(x, y, titleSuffix, true);
+    case ResXOption:
+        plotResXYHist(x, y, titleSuffix, true);
         break;
-    case ErrorYOption:
-        plotSigmaXYHist(x, y, titleSuffix, false);
+    case ResYOption:
+        plotResXYHist(x, y, titleSuffix, false);
         break;
     case EachValidOption:
         plotStatusXYHist(x, y, titleSuffix);  emit AScriptHub::getInstance().requestAddToBasket("Status" + titleSuffix);
@@ -485,8 +487,8 @@ void AMercury_si::doPlot_vsXY(bool vsTrue, EPlotOption opt, const std::vector<do
         {
             plotBiasXYHist(x, y, titleSuffix, true);   emit AScriptHub::getInstance().requestAddToBasket("BiasX" + titleSuffix);
             plotBiasXYHist(x, y, titleSuffix, false);  emit AScriptHub::getInstance().requestAddToBasket("BiasY" + titleSuffix);
-            plotSigmaXYHist(x, y, titleSuffix, true);  emit AScriptHub::getInstance().requestAddToBasket("ErrorX" + titleSuffix);
-            plotSigmaXYHist(x, y, titleSuffix, false); emit AScriptHub::getInstance().requestAddToBasket("ErrorY" + titleSuffix);
+            plotResXYHist(x, y, titleSuffix, true);  emit AScriptHub::getInstance().requestAddToBasket("ResX" + titleSuffix);
+            plotResXYHist(x, y, titleSuffix, false); emit AScriptHub::getInstance().requestAddToBasket("ResY" + titleSuffix);
         }
         break;
     default:
@@ -620,7 +622,7 @@ void AMercury_si::plotBiasXYHist(const std::vector<double> & x, const std::vecto
     delete histNorm;
 }
 
-void AMercury_si::plotSigmaXYHist(const std::vector<double> & x, const std::vector<double> & y, QString titleSuffix, bool vsX)
+void AMercury_si::plotResXYHist(const std::vector<double> & x, const std::vector<double> & y, QString titleSuffix, bool vsX)
 {
     TH2D * hist     = create2Dhist();
     TH2D * histNorm = create2Dhist();
@@ -629,23 +631,38 @@ void AMercury_si::plotSigmaXYHist(const std::vector<double> & x, const std::vect
     const std::vector<double> & recX   = RecMP->rec_x;
     const std::vector<double> & recY   = RecMP->rec_y;
 
+    //computing bias
+    TH2D * histB     = create2Dhist();
+    TH2D * histNormB = create2Dhist();
     for (size_t i = 0; i < status.size(); i++)
     {
         if (status[i] != 0) continue;
-        const double delta = (vsX ? recX[i] - x[i] : recY[i] - y[i]);
+        histB-> Fill(x[i], y[i], (vsX ? recX[i] - x[i] : recY[i] - y[i]));
+        histNormB->Fill(x[i], y[i], 1);
+    }
+    histB->Divide(histNormB);
+    delete histNormB;
+
+    for (size_t i = 0; i < status.size(); i++)
+    {
+        if (status[i] != 0) continue;
+        double delta = (vsX ? recX[i] - x[i] : recY[i] - y[i]);
+        const double bias = histB->GetBinContent(histB->FindBin(x[i], y[i])); // it is <rec - true>
+        delta -= bias;
         hist->Fill(x[i], y[i], delta * delta);
         histNorm->Fill(x[i], y[i], 1);
     }
     hist->Divide(histNorm);
 
     for (int bin = 0; bin <= hist->GetNcells(); bin++)
-        hist->SetBinContent(bin, sqrt(hist->GetBinContent(bin)));
+        hist->SetBinContent(bin, 2.35 * sqrt(hist->GetBinContent(bin)));
 
-    hist->GetZaxis()->SetTitle(vsX ? "RMS error in X" : "RMS error in Y");
-    QString title = QString(vsX ? "ErrorX" : "ErrorY") + titleSuffix;
+    hist->GetZaxis()->SetTitle(vsX ? "Resolution estimate in X" : "Resolution estimate in Y");
+    QString title = QString(vsX ? "ResX" : "ResY") + titleSuffix;
     hist->SetTitle(title.toLatin1().data());
 
     emit AScriptHub::getInstance().requestDraw(hist, "colz", true);
+    delete histB;
     delete histNorm;
 }
 
@@ -726,8 +743,8 @@ AMercury_si::EPlotOption AMercury_si::whatFromString(QString what)
     if (what == "DENSITY") return DensityOption;
     if (what == "BIASX")   return BiasXOption;
     if (what == "BIASY")   return BiasYOption;
-    if (what == "ERRORX")  return ErrorXOption;
-    if (what == "ERRORY")  return ErrorYOption;
+    if (what == "RESX")    return ResXOption;
+    if (what == "RESY")    return ResYOption;
     if (what == "ALL")     return EachValidOption;
 
     return ErrorOption;
