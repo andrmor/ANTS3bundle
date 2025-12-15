@@ -331,7 +331,7 @@ void AMaterial::writeToJson(QJsonObject & json) const
         {
             QJsonArray el;
             el << rec.first << rec.second.real() << rec.second.imag();
-            ar.append(el);
+            ar.push_back(el);
         }
         json["RefIndexComplex_Wave"] = ar;
     }

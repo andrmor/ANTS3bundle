@@ -3115,8 +3115,8 @@ Wavelengths shoul be given in increasing order</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>280</x>
-     <y>267</y>
+     <x>92</x>
+     <y>242</y>
     </hint>
     <hint type="destinationlabel">
      <x>438</x>
@@ -3435,8 +3435,8 @@ Wavelengths shoul be given in increasing order</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>168</x>
-     <y>308</y>
+     <x>201</x>
+     <y>334</y>
     </hint>
     <hint type="destinationlabel">
      <x>438</x>
@@ -3627,8 +3627,8 @@ Wavelengths shoul be given in increasing order</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>280</x>
-     <y>267</y>
+     <x>92</x>
+     <y>242</y>
     </hint>
     <hint type="destinationlabel">
      <x>526</x>
@@ -3947,8 +3947,8 @@ Wavelengths shoul be given in increasing order</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>304</x>
-     <y>256</y>
+     <x>92</x>
+     <y>242</y>
     </hint>
     <hint type="destinationlabel">
      <x>493</x>
@@ -3963,12 +3963,28 @@ Wavelengths shoul be given in increasing order</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>523</x>
-     <y>252</y>
+     <x>92</x>
+     <y>242</y>
     </hint>
     <hint type="destinationlabel">
      <x>547</x>
      <y>40</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cobNAbsOrComplex</sender>
+   <signal>activated(int)</signal>
+   <receiver>pbUpdateTmpMaterial</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>585</x>
+     <y>239</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>601</x>
+     <y>37</y>
     </hint>
    </hints>
   </connection>

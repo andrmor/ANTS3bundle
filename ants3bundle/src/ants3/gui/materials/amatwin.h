@@ -81,6 +81,11 @@ private slots:
     void on_pbShowPrimSpectrum_customContextMenuRequested(const QPoint &pos);
     void on_pbShowSecSpectrum_customContextMenuRequested(const QPoint &pos);
     void on_pbLoadFromLibrary_clicked();
+    void on_pbComputeNlambda_clicked();
+    void on_pbAbsImport_clicked();
+    void on_pbImportNWave_clicked();
+    void on_pbListNCrystalMaterials_clicked();
+    void on_pbInspectNCrystalMaterial_clicked();
 
     //user or code controlled change - safe or only GUI
     void on_ledRayleigh_textChanged(const QString & arg1);
@@ -95,16 +100,6 @@ private slots:
     void on_actionLoad_from_material_library_triggered();
     void on_actionAdd_default_material_triggered();
     void on_actionRemove_selected_material_triggered();
-
-    void on_pbComputeNlambda_clicked();
-
-    void on_pbAbsImport_clicked();
-
-    void on_pbImportNWave_clicked();
-
-    void on_pbListNCrystalMaterials_clicked();
-
-    void on_pbInspectNCrystalMaterial_clicked();
 
 private:
     AGeometryHub & Geometry;
