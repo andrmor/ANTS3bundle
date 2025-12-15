@@ -80,7 +80,7 @@
            <widget class="QComboBox" name="cobSimType">
             <property name="font">
              <font>
-              <bold>true</bold>
+              <fontweight>DemiBold</fontweight>
              </font>
             </property>
             <item>
@@ -168,7 +168,7 @@
                <widget class="QComboBox" name="cobNodeGenerationMode">
                 <property name="font">
                  <font>
-                  <bold>true</bold>
+                  <fontweight>DemiBold</fontweight>
                  </font>
                 </property>
                 <property name="contextMenuPolicy">
@@ -1014,8 +1014,14 @@
                  <layout class="QHBoxLayout" name="horizontalLayout_15">
                   <item>
                    <widget class="QLabel" name="label_90">
+                    <property name="font">
+                     <font>
+                      <kerning>true</kerning>
+                      <fontweight>Medium</fontweight>
+                     </font>
+                    </property>
                     <property name="text">
-                     <string>Number:</string>
+                     <string>Number of bombs:</string>
                     </property>
                    </widget>
                   </item>
@@ -1035,7 +1041,7 @@
                   <item>
                    <widget class="QLabel" name="label_254">
                     <property name="text">
-                     <string>Shape:</string>
+                     <string>    Shape:</string>
                     </property>
                     <property name="alignment">
                      <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
@@ -1736,8 +1742,8 @@
                <widget class="QLabel" name="label_80">
                 <property name="font">
                  <font>
-                  <bold>false</bold>
                   <kerning>true</kerning>
+                  <fontweight>Medium</fontweight>
                  </font>
                 </property>
                 <property name="text">
