@@ -93,3 +93,14 @@ PET:Reconstruction
 #info
 PET reconstruction of simulated data (requires CASToR library)
 #end
+
+#file
+MercuryShowEvents.txt
+#tags
+Mercury:Reconstruction
+#info
+Show true and reconstructed event positions at the geometry window (requires Mercury library)
+#end
+
+
+
