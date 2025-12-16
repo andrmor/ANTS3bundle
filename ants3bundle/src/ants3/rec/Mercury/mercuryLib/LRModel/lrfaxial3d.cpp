@@ -10,7 +10,7 @@
 // ToDo: this gets pretty ugly, think about inheriting directly from LRF
 
 LRFaxial3d::LRFaxial3d(double rmax, int nint, double zmin, double zmax,
-            int nintz) : LRFaxial(rmax, nint)
+            int nintz) : LRFaxial(0, 0, rmax, nint)
 {
 //    this->rmax = rmax;
 //    this->nint = nint;

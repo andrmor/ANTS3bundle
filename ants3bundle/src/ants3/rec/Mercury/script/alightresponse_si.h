@@ -82,7 +82,7 @@ private:
     QString CommonJsonString; // set by SetLRF(QString jsonString) to be used in the case when defineSensorGroups() is triggered after LRFs are already set
 
     void clearModel();
-    void ifAxialUpdateLrfCenter(LRF * lrf, double x, double y);
+    void updateLrfOrigin(LRF * lrf, double x, double y);
 
     bool checkModel();
     bool checkModelAndSensor(int iSensor);

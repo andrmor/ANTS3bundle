@@ -165,7 +165,7 @@ void ALightResponse_SI::defineSensorGroups(QString type, int numNodes)
 
 QString ALightResponse_SI::newLRF_axial(int intervals, double minR, double maxR)
 {
-    LRFaxial lrf(maxR, intervals);
+    LRFaxial lrf(0,0, maxR, intervals);
     lrf.SetRmin(minR);
     return QString(lrf.GetJsonString().data());
 }
@@ -255,7 +255,7 @@ void ALightResponse_SI::setLRF(QString jsonString)
     for (size_t iGr = 0; iGr < numGroups; iGr++)
     {
         LRF * lrf = lrfToClone->clone();
-        ifAxialUpdateLrfCenter(lrf, LRHub.Model->GetGroupX(iGr), LRHub.Model->GetGroupY(iGr));
+        updateLrfOrigin(lrf, LRHub.Model->GetGroupX(iGr), LRHub.Model->GetGroupY(iGr));
         LRHub.Model->SetGroupLRF(iGr, lrf);
     }
 
@@ -268,7 +268,7 @@ void ALightResponse_SI::setLRF(QString jsonString)
         if (iGr != -1) continue;
 
         LRF * lrf = lrfToClone->clone();
-        ifAxialUpdateLrfCenter(lrf, SensHub.getSensorData(iSens)->Position[0], SensHub.getSensorData(iSens)->Position[1]);
+        updateLrfOrigin(lrf, SensHub.getSensorData(iSens)->Position[0], SensHub.getSensorData(iSens)->Position[1]);
         LRHub.Model->SetLRF(iSens, lrf);
     }
 
@@ -599,16 +599,12 @@ void ALightResponse_SI::setLrf_Sensor(int iSensor, QString jsonString)
     if (!checkModelAndSensor(iSensor)) return;
 
     QJsonObject json = jstools::strToJson(jsonString);
-    if (json["type"] == "Axial" || json["type"] == "Axial3D")
+    if (json["type"] == "Axial" || json["type"] == "Axial3D" || json["type"] == "Formula1")
     {
         const ASensorHub & SensHub = ASensorHub::getConstInstance();
-        int num = SensHub.countSensors();
-        if (iSensor <= num)
-        {
-            if (!json.contains("x0")) json["x0"] = SensHub.getSensorData(iSensor)->Position[0];
-            if (!json.contains("y0")) json["y0"] = SensHub.getSensorData(iSensor)->Position[1];
-            jsonString = jstools::jsonToString(json);
-        }
+        if (!json.contains("x0")) json["x0"] = SensHub.getSensorData(iSensor)->Position[0];
+        if (!json.contains("y0")) json["y0"] = SensHub.getSensorData(iSensor)->Position[1];
+        jsonString = jstools::jsonToString(json);
     }
 
     LRHub.Model->SetJsonLRF(iSensor, jsonString.toLatin1().data());
@@ -619,7 +615,7 @@ void ALightResponse_SI::setLrf_Group(int iGroup, QString jsonString)
     if (!checkModelAndGroup(iGroup)) return;
 
     QJsonObject json = jstools::strToJson(jsonString);
-    if (json["type"] == "Axial" || json["type"] == "Axial3D")
+    if (json["type"] == "Axial" || json["type"] == "Axial3D" || json["type"] == "Formula1")
     {
         if (!json.contains("x0")) json["x0"] = LRHub.Model->GetGroupX(iGroup);
         if (!json.contains("y0")) json["y0"] = LRHub.Model->GetGroupY(iGroup);
@@ -679,10 +675,14 @@ void ALightResponse_SI::clearModel()
     CommonJsonString.clear();
 }
 
-void ALightResponse_SI::ifAxialUpdateLrfCenter(LRF *lrf, double x, double y)
+#include "lrformula1.h"
+void ALightResponse_SI::updateLrfOrigin(LRF *lrf, double x, double y)
 {
     LRFaxial * axlrf = dynamic_cast<LRFaxial*>(lrf);
     if (axlrf) axlrf->SetOrigin(x, y);
+
+    LRFormula1 * flrf = dynamic_cast<LRFormula1*>(lrf);
+    if (flrf) flrf->SetOrigin(x, y);
 }
 
 bool ALightResponse_SI::checkModel()

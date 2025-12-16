@@ -7,6 +7,7 @@ ReconstructorMP::ReconstructorMP(LRModel *lrm, int n_threads)
     for (int i=0; i<n_threads; i++) {
         recs.push_back(new RecCoG(lrm));
     }
+    progress.resize(n_threads, 0);
 }
 
 ReconstructorMP::ReconstructorMP(std::string json_str, int n_threads)
@@ -14,6 +15,7 @@ ReconstructorMP::ReconstructorMP(std::string json_str, int n_threads)
     for (int i=0; i<n_threads; i++) {
         recs.push_back(new RecCoG(json_str));
     }
+    progress.resize(n_threads, 0);
 }
 
 ReconstructorMP::~ReconstructorMP()
@@ -61,6 +63,7 @@ void ReconstructorMP::ProcessEvents (std::vector <std::vector <double> > &A, std
     }
     jmax[n_thr-1] = n_evt;
     abort = false;
+    std::fill(progress.begin(), progress.end(), 0);
 
     #pragma omp parallel for
     for (int i=0; i<n_thr; i++) {
@@ -79,6 +82,7 @@ void ReconstructorMP::ProcessEvents (std::vector <std::vector <double> > &A, std
             cov_xx[j] = recs[i]->getCovXX();
             cov_yy[j] = recs[i]->getCovYY();
             cov_xy[j] = recs[i]->getCovXY();
+            progress[i] += 1;
         }
     }
 }
@@ -110,6 +114,7 @@ void ReconstructorMP::ProcessEvents (std::vector <std::vector <double> > &A, std
     }
     jmax[n_thr-1] = n_evt;
     abort = false;
+    std::fill(progress.begin(), progress.end(), 0);
 
     #pragma omp parallel for
     for (int i=0; i<n_thr; i++) {
@@ -128,8 +133,17 @@ void ReconstructorMP::ProcessEvents (std::vector <std::vector <double> > &A, std
             cov_xx[j] = recs[i]->getCovXX();
             cov_yy[j] = recs[i]->getCovYY();
             cov_xy[j] = recs[i]->getCovXY();
+            progress[i] += 1;
         }
     }
+}
+
+int ReconstructorMP::getProgress()
+{
+    int acc = 0;
+    for (auto n: progress)
+        acc += n;
+    return acc;
 }
 
 RecLS_MP::RecLS_MP(LRModel *lrm, int n_threads, bool weighted)
@@ -137,12 +151,14 @@ RecLS_MP::RecLS_MP(LRModel *lrm, int n_threads, bool weighted)
     for (int i=0; i<n_threads; i++) {
         recs.push_back(new RecLS(lrm, weighted));
     }
+    progress.resize(n_threads, 0);
 }
 RecLS_MP::RecLS_MP(std::string json_str, int n_threads, bool weighted)
 {
     for (int i=0; i<n_threads; i++) {
         recs.push_back(new RecLS(json_str, weighted));
     }
+    progress.resize(n_threads, 0);
 }
 
 RecML_MP::RecML_MP(LRModel *lrm, int n_threads)
@@ -150,10 +166,12 @@ RecML_MP::RecML_MP(LRModel *lrm, int n_threads)
     for (int i=0; i<n_threads; i++) {
         recs.push_back(new RecML(lrm));
     }
+    progress.resize(n_threads, 0);
 }
 RecML_MP::RecML_MP(std::string json_str, int n_threads)
 {
     for (int i=0; i<n_threads; i++) {
         recs.push_back(new RecML(json_str));
     }
+    progress.resize(n_threads, 0);
 }

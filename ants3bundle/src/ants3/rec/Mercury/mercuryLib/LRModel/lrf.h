@@ -87,6 +87,7 @@ protected:
     bool non_negative = false;
     std::string json_err;
 public:       
+    static std::string error_msg;
     static std::string gjson_err;
 };
 

@@ -5,8 +5,8 @@
 #include <string>
 #include <Eigen/Dense>
 //#include "TMath.h"
-#include "Math/Functor.h"
-#include "Minuit2/Minuit2Minimizer.h"
+//#include "Math/Functor.h"
+//#include "Minuit2/Minuit2Minimizer.h"
 #include "lrmodel.h"
 #include "reconstructor.h"
 
@@ -46,6 +46,7 @@ public:
     void setEnergyCalibration(double val) {for (auto r : recs) r->setEnergyCalibration(val);}
 
     void Abort() {abort = true;};
+    int getProgress();
 
 // reconstruction result
     std::vector <int> rec_status;         // returned status of reconstruction
@@ -61,7 +62,8 @@ public:
     std::vector <double> cov_xy;		// covariance xy
 
 // reconstructors
-    std::vector <Reconstructor*> recs;   
+    std::vector <Reconstructor*> recs;
+    std::vector <int> progress; 
 // abort flag
     bool abort = false;
 };

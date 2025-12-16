@@ -311,6 +311,7 @@ SOURCES += \
     photonSim/interfaceRules/aunifiedrule.cpp \
     photonSim/photonFunctional/aphotonfunctionalhub.cpp \
     photonSim/photonFunctional/aphotonfunctionalmodel.cpp \
+    rec/Mercury/mercuryLib/LRModel/lrformula1.cpp \
     rec/Mercury/script/alightresponse_si.cpp \
     rec/PET/acastorimageloader.cpp \
     script/ScriptInterfaces/ageo_si.cpp \
@@ -474,6 +475,7 @@ HEADERS += \
     photonSim/aphotonloghandler.h \
     photonSim/photonFunctional/aphotonfunctionalhub.h \
     photonSim/photonFunctional/aphotonfunctionalmodel.h \
+    rec/Mercury/mercuryLib/LRModel/lrformula1.h \
     rec/Mercury/script/alightresponse_si.h \
     rec/PET/acastorimageloader.h \
     rec/PET/apetcoincidencefinderconfig.h \

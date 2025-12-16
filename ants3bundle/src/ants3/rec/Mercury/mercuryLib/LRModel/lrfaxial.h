@@ -11,7 +11,7 @@ class Compress1d;
 class LRFaxial : public LRF
 {
 public:
-    LRFaxial(double rmax, int nint);
+    LRFaxial(double x0, double y0, double rmax, int nint);
     LRFaxial(const Json &json);
     LRFaxial(std::string &json_str);    
 //    LRFaxial(const LRFaxial &obj); // copy constructor

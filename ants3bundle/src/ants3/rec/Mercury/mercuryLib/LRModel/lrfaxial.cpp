@@ -8,8 +8,8 @@
 //#include <iostream>
 #include <string>
 
-LRFaxial::LRFaxial(double rmax, int nint) :
-    rmax(rmax), nint(nint)
+LRFaxial::LRFaxial(double x0, double y0, double rmax, int nint) :
+    x0(x0), y0(y0), rmax(rmax), nint(nint)
 {
     bsr = new Bspline1d(rmin, rmax, nint);
     Init();
