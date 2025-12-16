@@ -238,7 +238,13 @@ void ALrfPlotter::doDrawXYData(int iSens)
     }
 
     g->SetMinimum(UseFixedVertical ? VerticalMin : 0);
-    if (UseFixedVertical) g->SetMaximum(VerticalMax);
+    if (UseFixedVertical && (VerticalMax > VerticalMin)) g->SetMaximum(VerticalMax);
+
+    if (UseFixedRange && (RangeMin < RangeMax))
+    {
+        g->GetHistogram()->GetXaxis()->SetLimits(RangeMin, RangeMax);
+        g->GetHistogram()->GetYaxis()->SetLimits(RangeMin, RangeMax);
+    }
 
     g->SetMarkerSize(0.5);
     g->SetMarkerStyle(20);
@@ -319,7 +325,13 @@ void ALrfPlotter::doDrawXYLrf(int iSens, bool onTopOfData)
     }
 
     g->SetMinimum(UseFixedVertical ? VerticalMin : 0);
-    if (UseFixedVertical) g->SetMaximum(VerticalMax);
+    if (UseFixedVertical && (VerticalMax > VerticalMin)) g->SetMaximum(VerticalMax);
+
+    if (UseFixedRange && (RangeMin < RangeMax))
+    {
+        g->GetHistogram()->GetXaxis()->SetLimits(RangeMin, RangeMax);
+        g->GetHistogram()->GetYaxis()->SetLimits(RangeMin, RangeMax);
+    }
 
     g->SetLineWidth(1);
     g->SetLineColor(2);

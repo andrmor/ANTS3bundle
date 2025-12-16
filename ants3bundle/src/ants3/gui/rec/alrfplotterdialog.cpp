@@ -27,6 +27,8 @@ ALrfPlotterDialog::ALrfPlotterDialog(QWidget * parent) :
 
     ui->pbRedraw->setDefault(true);
     ui->pbRedraw->setVisible(false);
+
+    ui->cobPlotType->setCurrentIndex(1);
 }
 
 ALrfPlotterDialog::~ALrfPlotterDialog()
@@ -128,6 +130,8 @@ void ALrfPlotterDialog::updateVisibilityAndStatus()
 
     const int iSens = ui->sbSensor->value();
     LRF * lrf = model->GetLRF(iSens);
+
+    ui->labLrfType->setText(lrf->type().data());
 
     bool haveZ = false;
     if      (dynamic_cast<LRFaxial3d*>(lrf)) haveZ = true;
