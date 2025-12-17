@@ -223,10 +223,9 @@ AScriptHub::AScriptHub()
 
     addCommonInterface(new ACore_SI(),         "core");
 
-    //addCommonInterface(new AMath_SI(),         "math");  // conflicts with inbuild Python module "math"
     JavaScriptM->registerInterface(new AMath_SI(), "math");
 #ifdef ANTS3_PYTHON
-    PythonM->registerInterface(new AMath_SI(),     "Math");
+    PythonM->registerInterface(new AMath_SI(),     "Math"); // otherwise conflicts with inbuild Python module "math"
 #endif
 
     addCommonInterface(new AConfig_SI(),       "config");
@@ -242,10 +241,15 @@ AScriptHub::AScriptHub()
     addCommonInterface(new ATree_SI(),         "tree");
     addCommonInterface(new ARootStyle_SI(),    "root");
     addCommonInterface(new APet_si(),          "pet");
+
 #ifdef USE_MERCURY
-    addCommonInterface(new ALightResponse_SI(),"response");
-    addCommonInterface(new AMercury_si(),      "mercury");
+    JavaScriptM->registerInterface(new ALightResponse_SI(EScriptLanguage::JavaScript), "response");
+    #ifdef ANTS3_PYTHON
+        PythonM->registerInterface(new ALightResponse_SI(EScriptLanguage::Python), "response");
+    #endif
+    addCommonInterface(new AMercury_si(), "mercury");
 #endif
+
     addCommonInterface(new ADemo_SI(),         "demo");
 
 #ifdef WEBSOCKETS

@@ -9,12 +9,16 @@
 #include "lrmodel.h"
 #include "lrfaxial.h"
 
-ALightResponse_SI::ALightResponse_SI() :
+ALightResponse_SI::ALightResponse_SI(EScriptLanguage lang) :
     LRHub(ALightResponseHub::getInstance())
 {
+    Lang = lang;
+
     Description = "A module for position response parameterization based on 'Mercury' library of Vladimir Solovov.\n"
                   "Documentation can be found here:\n"
                   "https://mercurydocs.readthedocs.io/en/latest/index.html";
+
+    QString obj = (lang == EScriptLanguage::JavaScript ? "object" : "dictionary");
 
     // High level
 
@@ -28,20 +32,20 @@ ALightResponse_SI::ALightResponse_SI() :
                                  "The valid options are: 'Common', 'ByRadius', 'Rectangle', 'Square', 'Hexagon' and 'Polygon'.\n"
                                  "In the case of polygon, the second argument defines the number of polygon edges";
 
-    Help["newLRF_axial"] = "Creates an 'Axial' LRF and returns its json string.\n"
-                           "The arguments define the number of nodes, as well as the radial range. It is generally a good idea to have minR = 0";
-    Help["newLRF_axial3D"] = "Creates an 'Axial3D' LRF and returns its json string.\n"
-                             "The arguments define the number of nodes in radial direction, the radial range, the number of intervals in Z direction and the Z range";
-    Help["newLRF_xy"] = "Creates an LRF of type 'LRFxy' and returns its json string.\n"
-                        "The arguments define the number of intervals and the corresponding ranges in X and Y directions";
-    Help["newLRF_xy"] = "Creates an LRF of type 'LRFxyz' and returns its json string.\n"
-                        "The arguments define the number of intervals and the corresponding ranges in X, Y and Z directions";
+    Help["newLRF_axial"] = QString("Return a new 'Axial' LRF " + obj +
+                                   ".\nThe arguments define the number of nodes, as well as the radial range. It is generally a good idea to have minR = 0");
+    Help["newLRF_axial3D"] = QString("Return a new 'Axial3D' LRF " + obj +
+                                     ".\nThe arguments define the number of nodes in radial direction, the radial range, the number of intervals in Z direction and the Z range");
+    Help["newLRF_xy"] = QString("Return a new 'LRFxy' LRF " + obj +
+                                ".\nThe arguments define the number of intervals and the corresponding ranges in X and Y directions");
+    Help["newLRF_xyz"] = QString("Return a new 'LRFxyz' LRF " + obj +
+                                 ".\nThe arguments define the number of intervals and the corresponding ranges in X, Y and Z directions");
 
-    Help["configureLRF_AxialCompression"] = "Add compression information to an existent LRF of 'Axial' or 'Axial3D' types.\n"
-                                            "Note that this method returns the modified json string of the initial LRF with added compression!";
+    Help["configureLRF_AxialCompression"] = QString("Add compression information to an existent LRF of 'Axial' or 'Axial3D' types.\n"
+                                                    "Note that this method returns a modified LRF " + obj + " of the initial LRF with added compression!");
 
-    Help["configureLRF_Constrains"] = "Add constrains on LRFs to be used in LRF fitting process.\n"
-                                      "Note that this method returns the modified json string of the initial LRF with added constrain info!";
+    Help["configureLRF_Constrains"] = QString("Add constrains on LRFs to be used in LRF fitting process.\n"
+                                              "Note that this method returns a modified LRF " + obj + " of the initial LRF with added constrain info!");
 
     Help["setLRF"] = "Set default LRF for all sensors and sensor groups (defined or to be defined)";
 
@@ -160,29 +164,33 @@ void ALightResponse_SI::defineSensorGroups(QString type, int numNodes)
         return;
     }
 
-    if (!CommonJsonString.isEmpty()) setLRF(CommonJsonString);
+    if (!DefaultLrf.isEmpty()) setLRF(DefaultLrf);
 }
 
-QString ALightResponse_SI::newLRF_axial(int intervals, double minR, double maxR)
+QVariantMap ALightResponse_SI::newLRF_axial(int intervals, double minR, double maxR)
 {
     LRFaxial lrf(0,0, maxR, intervals);
     lrf.SetRmin(minR);
-    return QString(lrf.GetJsonString().data());
+
+    QJsonDocument doc = QJsonDocument::fromJson(lrf.GetJsonString().data());
+    QJsonObject js = doc.object();
+    return js.toVariantMap();
 }
 
-QString ALightResponse_SI::configureLRF_AxialCompression(QString LRF, double k, double lambda, double r0)
+QVariantMap ALightResponse_SI::configureLRF_AxialCompression(QVariantMap lrf, double k, double lambda, double r0)
 {
-    QJsonObject json = jstools::strToJson(LRF);
+    QJsonDocument doc = QJsonDocument::fromVariant(lrf);
+    QJsonObject json = doc.object();
 
     if (json.isEmpty())
     {
-        abort("LRF should be a json object string");
-        return "";
+        abort( QString("Lrf argument should be %1").arg(Lang == EScriptLanguage::JavaScript ? "an object" : "a dictionary") );
+        return QVariantMap();
     }
     if (json["type"] != "Axial" && json["type"] != "Axial3D")
     {
-        abort("Compression can be applied only to Axial and Axial3D LRF types");
-        return "";
+        abort("Compression can be only applied to Axial and Axial3D LRF types");
+        return QVariantMap();
     }
 
     QJsonObject js;
@@ -192,17 +200,18 @@ QString ALightResponse_SI::configureLRF_AxialCompression(QString LRF, double k, 
     js["r0"]     = r0;
     json["compression"] = js;
 
-    return jstools::jsonToString(json);
+    return json.toVariantMap();
 }
 
-QString ALightResponse_SI::configureLRF_Constrains(QString LRF, bool nonNegative, bool nonIncreasing, bool flattop)
+QVariantMap ALightResponse_SI::configureLRF_Constrains(QVariantMap lrf, bool nonNegative, bool nonIncreasing, bool flattop)
 {
-    QJsonObject json = jstools::strToJson(LRF);
+    QJsonDocument doc = QJsonDocument::fromVariant(lrf);
+    QJsonObject json = doc.object();
 
     if (json.isEmpty())
     {
-        abort("LRF should be a json object string");
-        return "";
+        abort( QString("Lrf argument should be %1").arg(Lang == EScriptLanguage::JavaScript ? "an object" : "a dictionary") );
+        return QVariantMap();
     }
 
     QJsonArray ar;
@@ -211,43 +220,54 @@ QString ALightResponse_SI::configureLRF_Constrains(QString LRF, bool nonNegative
     if (flattop) ar.push_back("flattop");
     json["constraints"] = ar;
 
-    return jstools::jsonToString(json);
+    return json.toVariantMap();
 }
 
 #include "lrfaxial3d.h"
-QString ALightResponse_SI::newLRF_axial3D(int intervalsR, double minR, double maxR, int intervalsZ, double minZ, double maxZ)
+QVariantMap ALightResponse_SI::newLRF_axial3D(int intervalsR, double minR, double maxR, int intervalsZ, double minZ, double maxZ)
 {
     LRFaxial3d lrf(maxR, intervalsR, minZ, maxZ, intervalsZ);
     lrf.SetRmin(minR);
-    return QString(lrf.GetJsonString().data());
+
+    QJsonDocument doc = QJsonDocument::fromJson(lrf.GetJsonString().data());
+    QJsonObject js = doc.object();
+    return js.toVariantMap();
 }
 
 #include "lrfxy.h"
-QString ALightResponse_SI::newLRF_xy(int intervalsX, double minX, double maxX, int intervalsY, double minY, double maxY)
+QVariantMap ALightResponse_SI::newLRF_xy(int intervalsX, double minX, double maxX, int intervalsY, double minY, double maxY)
 {
     LRFxy lrf(minX, maxX, intervalsX, minY, maxY, intervalsY);
-    return QString(lrf.GetJsonString().data());
+
+    QJsonDocument doc = QJsonDocument::fromJson(lrf.GetJsonString().data());
+    QJsonObject js = doc.object();
+    return js.toVariantMap();
 }
 
 #include "lrfxyz.h"
-QString ALightResponse_SI::newLRF_xyz(int intervalsX, double minX, double maxX,
+QVariantMap ALightResponse_SI::newLRF_xyz(int intervalsX, double minX, double maxX,
                                       int intervalsY, double minY, double maxY,
                                       int intervalsZ, double minZ, double maxZ)
 {
     LRFxyz lrf(minX, maxX, intervalsX,
                minY, maxY, intervalsY,
                minZ, maxZ, intervalsZ);
-    return QString(lrf.GetJsonString().data());
+
+    QJsonDocument doc = QJsonDocument::fromJson(lrf.GetJsonString().data());
+    QJsonObject js = doc.object();
+    return js.toVariantMap();
 }
 
-void ALightResponse_SI::setLRF(QString jsonString)
+void ALightResponse_SI::setLRF(QVariantMap lrf)
 {
     if (!checkModel()) return;
 
-    LRF * lrfToClone = LRF::mkFromJson(jsonString.toLatin1().data());
+    QJsonDocument doc = QJsonDocument::fromVariant(lrf);
+
+    LRF * lrfToClone = LRF::mkFromJson(doc.toJson().data());
     if (!lrfToClone)
     {
-        abort("Failed to make LRF from jsonString");
+        abort( QString("Invalid LRF ").arg(Lang == EScriptLanguage::JavaScript ? "object" : "dictionary") );
         return;
     }
 
@@ -272,7 +292,7 @@ void ALightResponse_SI::setLRF(QString jsonString)
         LRHub.Model->SetLRF(iSens, lrf);
     }
 
-    CommonJsonString = jsonString;
+    DefaultLrf = lrf;
 }
 
 
@@ -672,11 +692,11 @@ void ALightResponse_SI::clearModel()
 {
     delete LRHub.Model; LRHub.Model = nullptr;
 
-    CommonJsonString.clear();
+    DefaultLrf.clear();
 }
 
 #include "lrformula1.h"
-void ALightResponse_SI::updateLrfOrigin(LRF *lrf, double x, double y)
+void ALightResponse_SI::updateLrfOrigin(LRF * lrf, double x, double y)
 {
     LRFaxial * axlrf = dynamic_cast<LRFaxial*>(lrf);
     if (axlrf) axlrf->SetOrigin(x, y);

@@ -16,9 +16,9 @@ class ALightResponse_SI : public AScriptInterface
     Q_OBJECT
 
 public:
-    ALightResponse_SI();
+    ALightResponse_SI(EScriptLanguage lang);
 
-    AScriptInterface * cloneBase() const override {return new ALightResponse_SI();}
+    AScriptInterface * cloneBase() const override {return new ALightResponse_SI(Lang);}
 
     void abortRun() override {};
 
@@ -31,19 +31,19 @@ public slots:
 
     void defineSensorGroups(QString type, int numNodes = 3); // Common, ByRadius, Rectangle, Square, Hexagon, Polygon
 
-    QString newLRF_axial(int intervals, double minR, double maxR);
-    QString newLRF_axial3D(int intervalsR, double minR, double maxR,
+    QVariantMap newLRF_axial(int intervals, double minR, double maxR);
+    QVariantMap newLRF_axial3D(int intervalsR, double minR, double maxR,
+                               int intervalsZ, double minZ, double maxZ);
+    QVariantMap newLRF_xy(int intervalsX, double minX, double maxX,
+                          int intervalsY, double minY, double maxY);
+    QVariantMap newLRF_xyz(int intervalsX, double minX, double maxX,
+                           int intervalsY, double minY, double maxY,
                            int intervalsZ, double minZ, double maxZ);
-    QString newLRF_xy(int intervalsX, double minX, double maxX,
-                      int intervalsY, double minY, double maxY);
-    QString newLRF_xyz(int intervalsX, double minX, double maxX,
-                       int intervalsY, double minY, double maxY,
-                       int intervalsZ, double minZ, double maxZ);
 
-    QString configureLRF_AxialCompression(QString LRF, double k, double lambda, double r0);
-    QString configureLRF_Constrains(QString LRF, bool nonNegative, bool nonIncreasing, bool flattop);
+    QVariantMap configureLRF_AxialCompression(QVariantMap lrf, double k, double lambda, double r0);
+    QVariantMap configureLRF_Constrains(QVariantMap lrf, bool nonNegative, bool nonIncreasing, bool flattop);
 
-    void setLRF(QString jsonString);
+    void setLRF(QVariantMap lrf);
 
     void fitResponse(QVariantList floodSignals, QVariantList floodPositions, QVariantList goodEventFlag = QVariantList());
 
@@ -79,7 +79,7 @@ public slots:
 private:
     ALightResponseHub & LRHub;
 
-    QString CommonJsonString; // set by SetLRF(QString jsonString) to be used in the case when defineSensorGroups() is triggered after LRFs are already set
+    QVariantMap DefaultLrf; // initialized by setLRF; to be used when defineSensorGroups() is triggered after LRFs are already set
 
     void clearModel();
     void updateLrfOrigin(LRF * lrf, double x, double y);
