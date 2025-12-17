@@ -39,11 +39,18 @@ private slots:
     void on_cbData_clicked(bool checked);
     void on_cbDiff_clicked(bool checked);
 
+    void on_cobPlotType_currentIndexChanged(int index);
+
 private:
     ALrfPlotter           * Plotter;
     Ui::ALrfPlotterDialog * ui = nullptr;
 
     bool HaveData = false;
+
+    bool    storedFix = false;
+    QString storedMin = "0";
+    QString storedMax = "100";
+    int     storedBins = 100;
 
 private:
     void makeRadialPlot(int iSens);

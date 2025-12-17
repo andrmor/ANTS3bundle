@@ -80,10 +80,10 @@ void ALrfPlotter::doDrawRadialData(int iSens, bool differenceOption)
 
         double xFrom, xTo, yFrom, yTo;
         computeRadialDataSpan(iSens, differenceOption, xFrom, xTo, yFrom, yTo);
-        if (UseFixedRange)
+        if (UseFixedRangeX)
         {
-            xFrom = RangeMin;
-            xTo   = RangeMax;
+            xFrom = RangeMinX;
+            xTo   = RangeMaxX;
         }
         if (UseFixedVertical)
         {
@@ -160,6 +160,32 @@ void ALrfPlotter::computeRadialDataSpan(int iSens, bool differenceOption, double
     }
 }
 
+void ALrfPlotter::computeXYDataSpan(double &xFrom, double &xTo, double &yFrom, double &yTo)
+{
+    //LRModel * model = ALightResponseHub::getInstance().Model;
+    //LRF * lrf = model->GetLRF(iSens);
+
+    const size_t numEvents = DataSignals.size();
+
+    xFrom = xTo = 0;
+    yFrom = yTo = 0;
+
+    for (size_t iEv = 0; iEv < numEvents; iEv++)
+    {
+        const std::array<double,4> & event = DataPositions[iEv];
+        const double & energy = event[3];
+        const bool goodEvent = (energy > 0);
+        if (!goodEvent) continue;
+        //if (Options.check_z && (pos[2]<Options.z0-Options.dz || pos[2]>Options.z0+Options.dz)) continue;
+
+        if (event[0] < xFrom) xFrom = event[0];
+        if (event[0] > xTo)   xTo   = event[0];
+
+        if (event[1] < yFrom) yFrom = event[1];
+        if (event[1] > yTo)   yTo   = event[1];
+    }
+}
+
 void ALrfPlotter::doDrawRadialLrf(int iSens, bool onTopOfData)
 {
     LRModel * model = ALightResponseHub::getInstance().Model;
@@ -185,7 +211,7 @@ void ALrfPlotter::doDrawRadialLrf(int iSens, bool onTopOfData)
         g->SetMinimum(UseFixedVertical ? VerticalMin : 0);
         if (UseFixedVertical && (VerticalMax > VerticalMin)) g->SetMaximum(VerticalMax);
 
-        if (UseFixedRange && (RangeMin < RangeMax)) g->GetHistogram()->GetXaxis()->SetLimits(RangeMin, RangeMax);
+        if (UseFixedRangeX && (RangeMinX < RangeMaxX)) g->GetHistogram()->GetXaxis()->SetLimits(RangeMinX, RangeMaxX);
 
         g->SetLineWidth(2);
         g->SetLineColor(2);
@@ -240,11 +266,10 @@ void ALrfPlotter::doDrawXYData(int iSens)
     g->SetMinimum(UseFixedVertical ? VerticalMin : 0);
     if (UseFixedVertical && (VerticalMax > VerticalMin)) g->SetMaximum(VerticalMax);
 
-    if (UseFixedRange && (RangeMin < RangeMax))
-    {
-        g->GetHistogram()->GetXaxis()->SetLimits(RangeMin, RangeMax);
-        g->GetHistogram()->GetYaxis()->SetLimits(RangeMin, RangeMax);
-    }
+    if (UseFixedRangeX && (RangeMinX < RangeMaxX))
+        g->GetHistogram()->GetXaxis()->SetLimits(RangeMinX, RangeMaxX);
+    if (UseFixedRangeY && (RangeMinY < RangeMaxY))
+        g->GetHistogram()->GetYaxis()->SetLimits(RangeMinY, RangeMaxY);
 
     g->SetMarkerSize(0.5);
     g->SetMarkerStyle(20);
@@ -262,8 +287,23 @@ void ALrfPlotter::doDrawXYDiff(int iSens)
     LRModel * model = ALightResponseHub::getInstance().Model;
     LRF * lrf = model->GetLRF(iSens);
 
-    TH2D * h  = new TH2D("", "", XDataBins, 0, 0, YDataBins, 0, 0); // will be owned by the graph window
-    TH2D * h1 = new TH2D("", "", XDataBins, 0, 0, YDataBins, 0, 0); // normalization (local)
+    // can be computed once, but then need to add method setData to trigger recalc
+    double xFrom, xTo, yFrom, yTo;
+    computeXYDataSpan(xFrom, xTo, yFrom, yTo);
+
+    if (UseFixedRangeX)
+    {
+        xFrom = RangeMinX;
+        xTo   = RangeMaxX;
+    }
+    if (UseFixedRangeY)
+    {
+        yFrom = RangeMinY;
+        yTo   = RangeMaxY;
+    }
+
+    TH2D * h  = new TH2D("", "", XDataBins, xFrom, xTo, YDataBins, yFrom, yTo); // will be owned by the graph window
+    TH2D * h1 = new TH2D("", "", XDataBins, xFrom, xTo, YDataBins, yFrom, yTo); // normalization (local)
     h->SetLineColor(4);
     h->SetTitle( TString("Diff #") + iSens);
     h->GetXaxis()->SetTitle("X, mm");
@@ -281,7 +321,8 @@ void ALrfPlotter::doDrawXYDiff(int iSens)
 
         double signal = DataSignals[iEv][iSens];
         signal /= energy;     //if (Options.scale_by_energy)
-        double val = signal - lrf->eval(event[0], event[1], 0);
+        double lrfVal = model->Eval(iSens, (double*)event.data());
+        double val = signal - lrfVal;
         h-> Fill(event[0], event[1], val);
         h1->Fill(event[0], event[1], 1);
     }
@@ -305,6 +346,9 @@ void ALrfPlotter::doDrawXYLrf(int iSens, bool onTopOfData)
 
     TGraph2D * g = new TGraph2D(); // will be owned by the graph window
 
+    double x0 = model->GetX(iSens);
+    double y0 = model->GetY(iSens);
+
     double xFrom = lrf->getXmin();
     double xTo   = lrf->getXmax();
     double xStep = (xTo - xFrom) / NumPointsInXYGraph;
@@ -313,13 +357,14 @@ void ALrfPlotter::doDrawXYLrf(int iSens, bool onTopOfData)
     double yTo   = lrf->getYmax();
     double yStep = (yTo - yFrom) / NumPointsInXYGraph;
 
+    // !!!*** z control
     for (size_t iX = 0; iX < NumPointsInXYGraph; iX++)
     {
-        double x = xFrom + xStep * iX;
+        double x = x0 + xFrom + xStep * iX;
         for (size_t iY = 0; iY < NumPointsInXYGraph; iY++)
         {
-            double y = yFrom + yStep * iY;
-            double val = lrf->eval(x, y, 0);
+            double y = y0 + yFrom + yStep * iY;
+            double val = model->Eval(iSens, x, y, 0);
             g->AddPoint(x, y, val);
         }
     }
@@ -327,11 +372,10 @@ void ALrfPlotter::doDrawXYLrf(int iSens, bool onTopOfData)
     g->SetMinimum(UseFixedVertical ? VerticalMin : 0);
     if (UseFixedVertical && (VerticalMax > VerticalMin)) g->SetMaximum(VerticalMax);
 
-    if (UseFixedRange && (RangeMin < RangeMax))
-    {
-        g->GetHistogram()->GetXaxis()->SetLimits(RangeMin, RangeMax);
-        g->GetHistogram()->GetYaxis()->SetLimits(RangeMin, RangeMax);
-    }
+    if (UseFixedRangeX && (RangeMinX < RangeMaxX))
+        g->GetHistogram()->GetXaxis()->SetLimits(RangeMinX, RangeMaxX);
+    if (UseFixedRangeY && (RangeMinY < RangeMaxY))
+        g->GetHistogram()->GetYaxis()->SetLimits(RangeMinY, RangeMaxY);
 
     g->SetLineWidth(1);
     g->SetLineColor(2);
@@ -390,8 +434,10 @@ void ALrfPlotter::doDrawRadialForNonAxial(int iSens)
         g->SetMinimum(UseFixedVertical ? VerticalMin : 0);
         if (UseFixedVertical && (VerticalMax > VerticalMin)) g->SetMaximum(VerticalMax);
 
-        if (UseFixedRange && (RangeMin < RangeMax)) g->GetHistogram()->GetXaxis()->SetLimits(RangeMin, RangeMax);
-        else                                        g->GetHistogram()->GetXaxis()->SetLimits(0, maxRadius);
+        if (UseFixedRangeX && (RangeMinX < RangeMaxX))
+            g->GetHistogram()->GetXaxis()->SetLimits(RangeMinX, RangeMaxX);
+        else
+            g->GetHistogram()->GetXaxis()->SetLimits(0, maxRadius);
 
         g->SetLineWidth(1);
         g->SetLineColor(2);

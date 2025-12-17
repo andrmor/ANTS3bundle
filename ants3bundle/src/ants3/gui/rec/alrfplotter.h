@@ -32,9 +32,12 @@ public:
     double VerticalMax      = 100.0;
     int    VerticalNumBins  = 100;
 
-    bool   UseFixedRange = false;
-    double RangeMin      = 0;
-    double RangeMax      = 100.0;
+    bool   UseFixedRangeX = false;
+    bool   UseFixedRangeY = false;
+    double RangeMinX      = 0;
+    double RangeMaxX      = 100.0;
+    double RangeMinY      = 0;
+    double RangeMaxY      = 100.0;
     int    XDataBins     = 100;
     int    YDataBins     = 100;
 
@@ -52,6 +55,7 @@ private:
     void doDrawRadialForNonAxial(int iSens); // !!!*** todo: set angular step instead
 
     void computeRadialDataSpan(int iSens, bool differenceOption, double & xFrom, double & xTo, double & yFrom, double & yTo);
+    void computeXYDataSpan(double & xFrom, double & yFrom, double & xTo, double & yTo);
 
 signals:
     void requestDraw(TObject * obj, QString options, bool transferOwnership, bool focusWindow);

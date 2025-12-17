@@ -53,16 +53,20 @@ void ALrfPlotterDialog::redraw()
     Plotter->NumPointsInRadialGraph = ui->sbLRFpoints->value();
     Plotter->NumPointsInXYGraph = ui->sbLRFpoints->value();
 
-    Plotter->UseFixedVertical = ui->cbVerticalFixMin->isChecked();
-    Plotter->VerticalMin      = ui->ledVerticalFixMin->text().toDouble();
-    Plotter->VerticalMax      = ui->ledVerticalFixMax->text().toDouble();
-    Plotter->VerticalNumBins  = ui->sbVerticalBins->value();
+    Plotter->UseFixedVertical = ui->cbFixRangeVal->isChecked();
+    Plotter->VerticalMin      = ui->ledRangeMinValue->text().toDouble();
+    Plotter->VerticalMax      = ui->ledRangeMaxValue->text().toDouble();
+    Plotter->VerticalNumBins  = ui->sbDataBinsValue->value();
 
-    Plotter->UseFixedRange = ui->cbRangeFixMin->isChecked();
-    Plotter->RangeMin      = ui->ledRangeFixMin->text().toDouble();
-    Plotter->RangeMax      = ui->ledRangeFixMax->text().toDouble();
-    Plotter->XDataBins     = ui->sbDataBins->value();
-    Plotter->YDataBins     = ui->sbDataBins->value();
+    Plotter->UseFixedRangeX = ui->cbFixRangeX->isChecked();
+    Plotter->RangeMinX      = ui->ledRangeMinX->text().toDouble();
+    Plotter->RangeMaxX      = ui->ledRangeMaxX->text().toDouble();
+    Plotter->XDataBins     = ui->sbDataBinsX->value();
+
+    Plotter->UseFixedRangeY = ui->cbFixRangeY->isChecked();
+    Plotter->RangeMinY      = ui->ledRangeMinY->text().toDouble();
+    Plotter->RangeMaxY      = ui->ledRangeMaxY->text().toDouble();
+    Plotter->YDataBins     = ui->sbDataBinsY->value();
 
     Plotter->NumberRadialProfiles = ui->sbNumProfiles->value();
 
@@ -140,27 +144,30 @@ void ALrfPlotterDialog::updateVisibilityAndStatus()
 
     ui->cbData->setEnabled(HaveData);
     ui->cbDiff->setEnabled(HaveData);
-    ui->sbVerticalBins->setEnabled(HaveData);
-    ui->sbDataBins->setEnabled(HaveData);
+    ui->sbDataBinsValue->setEnabled(HaveData);
+    ui->sbDataBinsX->setEnabled(HaveData);
+    ui->sbDataBinsY->setEnabled(HaveData);
     ui->frZrange->setEnabled(HaveData);
 
     if (HaveData)
     {
         bool dataOrDiff = ui->cbData->isChecked() || ui->cbDiff->isChecked();
-        ui->sbDataBins->setEnabled(dataOrDiff);
-        ui->sbVerticalBins->setEnabled(dataOrDiff);
+        ui->sbDataBinsX->setEnabled(dataOrDiff);
+        ui->sbDataBinsY->setEnabled(dataOrDiff);
+        ui->sbDataBinsValue->setEnabled(dataOrDiff);
         ui->ledZrange->setEnabled(dataOrDiff);
     }
 
     bool showLrf = ui->cbLrf->isChecked();
-    ui->cbRadial_addNodes->setEnabled(ui->cobPlotType->currentIndex() == 0 && showLrf && dynamic_cast<LRFaxial*>(lrf));
+    ui->cbRadial_addNodes->setVisible(ui->cobPlotType->currentIndex() == 0 && showLrf && dynamic_cast<LRFaxial*>(lrf));
     ui->sbLRFpoints->setEnabled(showLrf);
 
     bool showProfiles = false;
     if (ui->cobPlotType->currentIndex() == 0)
         if (!dynamic_cast<LRFaxial*>(lrf))
             showProfiles = true;
-    ui->sbNumProfiles->setEnabled(showProfiles);
+    ui->sbNumProfiles->setVisible(showProfiles);
+    ui->labNumProf->setVisible(showProfiles);
 }
 
 void ALrfPlotterDialog::on_sbSensor_editingFinished()
@@ -200,3 +207,35 @@ void ALrfPlotterDialog::on_cbDiff_clicked(bool checked)
     if (checked && ui->cbData->isChecked()) ui->cbData->setChecked(false);
     redraw();
 }
+
+void ALrfPlotterDialog::on_cobPlotType_currentIndexChanged(int index)
+{
+    bool xy = (index != 0);
+
+    ui->labYax->setVisible(xy);
+    ui->cbFixRangeY->setVisible(xy);
+    ui->ledRangeMinY->setVisible(xy);
+    ui->labYto->setVisible(xy);
+    ui->ledRangeMaxY->setVisible(xy);
+    ui->labYBins->setVisible(xy);
+    ui->sbDataBinsY->setVisible(xy);
+
+    ui->labXaxis->setText(xy ? "Y axis:" : "Radial axis:");
+
+    bool on = ui->cbFixRangeX->isChecked();
+    ui->cbFixRangeX->setChecked(storedFix);
+    storedFix = on;
+
+    QString str = ui->ledRangeMinX->text();
+    ui->ledRangeMinX->setText(storedMin);
+    storedMin = str;
+
+    str = ui->ledRangeMaxX->text();
+    ui->ledRangeMaxX->setText(storedMax);
+    storedMax = str;
+
+    int bins = ui->sbDataBinsX->value();
+    ui->sbDataBinsX->setValue(storedBins);
+    storedBins = bins;
+}
+
