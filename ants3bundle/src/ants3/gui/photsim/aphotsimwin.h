@@ -43,9 +43,6 @@ private slots:
 
     void on_pbdWave_clicked();
     void on_sbMaxNumbPhTransitions_editingFinished();
-    void on_cbRndCheckBeforeTrack_clicked();
-    void on_cbRndCheckBeforeTrack_toggled(bool checked);
-    void on_pbQEacceleratorHelp_clicked();
 
     void on_cobSimType_activated(int index);
     void on_cobNumPhotonsMode_activated(int index);
@@ -166,6 +163,10 @@ private slots:
     void on_tbwResults_tabBarClicked(int index);
 
     void on_twSensors_tabBarClicked(int index);
+
+    void on_cobTracingMode_currentIndexChanged(int index);
+
+    void on_pbHelpAdvanced_clicked();
 
 private:
     APhotonSimSettings & SimSet;

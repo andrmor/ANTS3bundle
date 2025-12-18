@@ -16,7 +16,7 @@
 
 class QJsonObject;
 
-enum class EPhotSimType  {PhotonBombs, FromEnergyDepo, IndividualPhotons, FromLRFs};
+enum class EPhotSimType  {PhotonBombs, FromEnergyDepo, IndividualPhotons};
 enum class EBombGen      {Single, Grid, Flood, File};
 
 class AWaveResSettings
@@ -55,10 +55,12 @@ class APhotOptSettings
 {
 public:
     int    MaxPhotonTransitions  = 500;
-    bool   CheckQeBeforeTracking = false;
+
+    enum EPhotonTracingMode {Normal, CheckQeBefore, LRF};
+    EPhotonTracingMode TracingMode = Normal;
 
     void   writeToJson(QJsonObject & json) const;
-    void   readFromJson(const QJsonObject & json);
+    void   readFromJson(const QJsonObject & json); // !!!*** error reporting
 
     void   clear();
 };

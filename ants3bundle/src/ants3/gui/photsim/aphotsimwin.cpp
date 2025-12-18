@@ -71,7 +71,7 @@ APhotSimWin::APhotSimWin(QWidget * parent) :
 
     YellowCircle = guitools::createColorCirclePixmap({15,15}, Qt::yellow);
     ui->labAdvancedBombOn->setPixmap(YellowCircle);
-    ui->labSkipTracingON->setPixmap(YellowCircle);
+    ui->labAdvancedModeEnabled->setPixmap(YellowCircle);
     ui->labPhotonsPerBombWarning->setPixmap(YellowCircle); ui->labPhotonsPerBombWarning->setVisible(false);
 
     gvSensors = new ASensorDrawWidget(this);
@@ -85,6 +85,10 @@ APhotSimWin::APhotSimWin(QWidget * parent) :
     LogForm->setVisible(ui->cbLogAdditionalFilters->isChecked());
     //LogForm->setNumber(100);
     LogForm->setNumberInvisible();
+
+    ui->labAdvancedModeEnabled->setVisible(false);
+    ui->frLRF->setVisible(false);
+    ui->labNoMercury->setVisible(false);
 
     updateGui();
 }
@@ -172,10 +176,10 @@ void APhotSimWin::updateGui()
     switch (SimSet.SimType)
     {
     default:
+        qWarning() << "Invalid sim type option!";
     case EPhotSimType::PhotonBombs       : index = 0; break;
     case EPhotSimType::FromEnergyDepo    : index = 1; break;
     case EPhotSimType::IndividualPhotons : index = 2; break;
-    case EPhotSimType::FromLRFs          : index = 3; break;
     }
     ui->cobSimType->setCurrentIndex(index);
 
@@ -321,8 +325,6 @@ void APhotSimWin::updatePhotonFileGui()
 
 void APhotSimWin::updateGeneralSettingsGui()
 {
-    ui->twGeneralOption->setEnabled(SimSet.SimType != EPhotSimType::FromLRFs);
-
     ui->cbWaveResolved->setChecked(SimSet.WaveSet.Enabled);
     ui->fWaveOptions->setEnabled(SimSet.WaveSet.Enabled);
     ui->ledWaveFrom->setText(QString::number(SimSet.WaveSet.From));
@@ -331,7 +333,14 @@ void APhotSimWin::updateGeneralSettingsGui()
     ui->labWaveNodes->setText(QString::number(SimSet.WaveSet.countNodes()));
 
     ui->sbMaxNumbPhTransitions->setValue(SimSet.OptSet.MaxPhotonTransitions);
-    ui->cbRndCheckBeforeTrack->setChecked(SimSet.OptSet.CheckQeBeforeTracking);
+    int index = 0;
+    switch (SimSet.OptSet.TracingMode)
+    {
+    case APhotOptSettings::Normal :        index = 0; break;
+    case APhotOptSettings::CheckQeBefore : index = 1; break;
+    case APhotOptSettings::LRF :           index = 2; break;
+    }
+    ui->cobTracingMode->setCurrentIndex(index);
 }
 
 void APhotSimWin::on_pbdWave_clicked()
@@ -385,32 +394,15 @@ void APhotSimWin::on_sbMaxNumbPhTransitions_editingFinished()
     SimSet.OptSet.MaxPhotonTransitions  = ui->sbMaxNumbPhTransitions->value();
 }
 
-void APhotSimWin::on_cbRndCheckBeforeTrack_clicked()
-{
-    SimSet.OptSet.CheckQeBeforeTracking = ui->cbRndCheckBeforeTrack->isChecked();
-}
-
-void APhotSimWin::on_pbQEacceleratorHelp_clicked()
-{
-    QString str;
-    str += "In this mode first the maximum detection efficiency over all sensors is calculated. "
-           "Before tracing each photon, a random number is generated "
-           "and the max det.eff. is checked against it. If the generated number is larger, "
-           "there is no chance that the photon will be detected, so tracing is skipped.\n\n"
-           "WARNING: do NOT use this mode if you are interested in statistics of traced photons "
-           "as it will be distorted!";
-    guitools::message(str, this);
-}
-
 void APhotSimWin::on_cobSimType_activated(int index)
 {
     switch (index)
     {
     default:
+        qWarning() << "Invalid sim type option!";
     case 0 : SimSet.SimType = EPhotSimType::PhotonBombs;       break;
     case 1 : SimSet.SimType = EPhotSimType::FromEnergyDepo;    break;
     case 2 : SimSet.SimType = EPhotSimType::IndividualPhotons; break;
-    case 3 : SimSet.SimType = EPhotSimType::FromLRFs;          break;
     }
 }
 
@@ -1986,10 +1978,25 @@ void APhotSimWin::on_pbSingleSourceShow_clicked()
     emit requestShowPosition(pos, false);
 }
 
-void APhotSimWin::on_cbRndCheckBeforeTrack_toggled(bool checked)
+void APhotSimWin::on_cobTracingMode_currentIndexChanged(int index)
 {
-    ui->labSkipTracingON->setVisible(checked);
-    ui->twGeneralOption->setTabIcon(1, (checked ? YellowCircle : QIcon()));
+    if (index == 2)
+    {
+#ifdef USE_MERCURY
+        ui->frLRF->setVisible(true);
+#else
+        ui->labNoMercury->setVisible(true);
+#endif
+    }
+else
+    {
+        ui->frLRF->setVisible(false);
+        ui->labNoMercury->setVisible(false);
+    }
+
+    ui->labAdvancedModeEnabled->setVisible(index != 0);
+    ui->twSignals->setTabIcon(0, (index == 0 ? QIcon() : YellowCircle));
+
 }
 
 void APhotSimWin::on_sbEvent_editingFinished()
@@ -2135,3 +2142,17 @@ void APhotSimWin::resetViewportOnNewData()
     //gvSensors->resetViewport(); // viewport cannot be updated before the widget is visible
     QTimer::singleShot(0, gvSensors, [this](){gvSensors->resetViewport();});
 }
+
+
+void APhotSimWin::on_pbHelpAdvanced_clicked()
+{
+    QString str;
+    str += "In this mode first the maximum detection efficiency over all sensors is calculated. "
+           "Before tracing each photon, a random number is generated "
+           "and the max det.eff. is checked against it. If the generated number is larger, "
+           "there is no chance that the photon will be detected, so tracing is skipped.\n\n"
+           "WARNING: do NOT use this mode if you are interested in statistics of traced photons "
+           "as it will be distorted!";
+    guitools::message(str, this);
+}
+
