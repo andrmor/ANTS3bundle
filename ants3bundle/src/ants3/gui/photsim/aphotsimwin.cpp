@@ -2156,3 +2156,35 @@ void APhotSimWin::on_pbHelpAdvanced_clicked()
     guitools::message(str, this);
 }
 
+#ifdef USE_MERCURY
+#include "alightresponsehub.h"
+#include "alrfmouseexplorer.h"
+void APhotSimWin::on_pbLoadLrModel_clicked()
+{
+
+}
+void APhotSimWin::on_pbShowLrmExplorer_clicked()
+{
+    ALightResponseHub & LRHub = ALightResponseHub::getInstance();
+    if (!LRHub.Model)
+    {
+        guitools::message("Model is not defined!\nLoad a model or use 'response' scripting unit to define a new one", this);
+        return;
+    }
+
+    ALrfMouseExplorer * expl = new ALrfMouseExplorer(LRHub.Model, 0, this);
+    expl->Start();
+    expl->deleteLater();
+}
+void APhotSimWin::on_pbShowLrfPlotter_clicked()
+{
+    ALightResponseHub & LRHub = ALightResponseHub::getInstance();
+    if (!LRHub.Model)
+    {
+        guitools::message("Model is not defined!\nLoad a model or use 'response' scripting unit to define a new one", this);
+        return;
+    }
+
+    emit requestShowLrfPlotterDialog();
+}
+#endif

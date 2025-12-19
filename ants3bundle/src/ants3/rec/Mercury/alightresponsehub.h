@@ -4,7 +4,7 @@
 #include <QObject>
 
 class LRModel;
-class ALrfPlotter;;
+class ALrfPlotter;
 
 class ALightResponseHub : public QObject
 {

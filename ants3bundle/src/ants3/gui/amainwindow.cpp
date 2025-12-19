@@ -141,8 +141,9 @@ AMainWindow::AMainWindow() :
     connect(&AScriptHub::getInstance(), &AScriptHub::requestUpdateGui, this, &AMainWindow::updateAllGuiFromConfig);
 
 #ifdef USE_MERCURY
-    connect(ScriptHub, &AScriptHub::requestShowLightResponseExplorer, this, &AMainWindow::showLightResponseExplorer, Qt::QueuedConnection);
-    connect(ScriptHub, &AScriptHub::requestShowPlotterDialog,         this, &AMainWindow::showLrfPlotterDialog,      Qt::QueuedConnection);
+    connect(ScriptHub,  &AScriptHub::requestShowLightResponseExplorer, this, &AMainWindow::showLightResponseExplorer, Qt::QueuedConnection);
+    connect(ScriptHub,  &AScriptHub::requestShowPlotterDialog,         this, &AMainWindow::showLrfPlotterDialog,      Qt::QueuedConnection);
+    connect(PhotSimWin, &APhotSimWin::requestShowLrfPlotterDialog,     this, &AMainWindow::showLrfPlotterDialog,      Qt::DirectConnection);
     ALightResponseHub & LRHub = ALightResponseHub::getInstance();
     connect(LRHub.LrfPlotter, &ALrfPlotter::requestDraw, GraphWin, &AGraphWindow::onDrawRequest, Qt::DirectConnection); // both live in GUI thread
     LrfPlotterDialog = new ALrfPlotterDialog(this);
@@ -206,8 +207,10 @@ void AMainWindow::showLightResponseExplorer(LRModel * model)
     expl->Start();
     expl->deleteLater();
 }
-void AMainWindow::showLrfPlotterDialog(ALrfPlotter * plotter)
+void AMainWindow::showLrfPlotterDialog()
 {
+    ALrfPlotter * plotter = ALightResponseHub::getInstance().LrfPlotter;
+
     LrfPlotterDialog->setPlotter(plotter);
     LrfPlotterDialog->show();
     LrfPlotterDialog->activateWindow();

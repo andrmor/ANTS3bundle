@@ -168,6 +168,14 @@ private slots:
 
     void on_pbHelpAdvanced_clicked();
 
+#ifdef USE_MERCURY
+    void on_pbLoadLrModel_clicked();
+    void on_pbShowLrmExplorer_clicked();
+    void on_pbShowLrfPlotter_clicked();
+signals:
+    void requestShowLrfPlotterDialog();
+#endif
+
 private:
     APhotonSimSettings & SimSet;
     const AMonitorHub  & MonitorHub;
