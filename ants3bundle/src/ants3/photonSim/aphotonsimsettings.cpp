@@ -275,6 +275,14 @@ void APhotOptSettings::writeToJson(QJsonObject &json) const
         case LRF           : str = "LRF";     break;
     }
     json["TracingMode"] = str;
+
+    // LRF-based signal generation
+    {
+        QJsonObject js;
+            js["PhotonsPerNode"] = LRF_photonsPerNode;
+            js["PhotoElectrons"] = LRF_photoElectrons;
+        json["LRF"] = js;
+    }
 }
 
 void APhotOptSettings::readFromJson(const QJsonObject &json)
@@ -295,6 +303,16 @@ void APhotOptSettings::readFromJson(const QJsonObject &json)
         }
     }
 
+    // LRF-based signal generation
+    {
+        QJsonObject js;
+        if (jstools::parseJson(json, "LRF", js))
+        {
+            jstools::parseJson(js, "PhotonsPerNode", LRF_photonsPerNode);
+            jstools::parseJson(js, "PhotoElectrons", LRF_photoElectrons);
+            // !!!*** error control
+        }
+    }
 }
 
 void APhotOptSettings::clear()

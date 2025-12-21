@@ -59,6 +59,9 @@ public:
     enum EPhotonTracingMode {Normal, CheckQeBefore, LRF};
     EPhotonTracingMode TracingMode = Normal;
 
+    int    LRF_photonsPerNode = 20000;
+    double LRF_photoElectrons = 1.0;
+
     void   writeToJson(QJsonObject & json) const;
     void   readFromJson(const QJsonObject & json); // !!!*** error reporting
 

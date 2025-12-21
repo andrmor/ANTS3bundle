@@ -16,3 +16,12 @@ const ALightResponseHub &ALightResponseHub::getConstInstance()
     return ALightResponseHub::getInstance();
 }
 
+QString ALightResponseHub::makeModel(const QString & text)
+{
+    delete Model; Model = nullptr;
+    Model = new LRModel(text.toLatin1().data());
+    if (!Model) return "Failed to generate the model";
+    //if (Model->isValid()) return "Failed to generate model from the provided text";
+    return "";
+}
+

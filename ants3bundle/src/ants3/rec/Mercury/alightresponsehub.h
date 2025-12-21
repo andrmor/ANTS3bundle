@@ -14,6 +14,8 @@ public:
     static ALightResponseHub & getInstance();
     static const ALightResponseHub & getConstInstance();
 
+    QString makeModel(const QString & text); // returns error message
+
 private:
     ALightResponseHub();
     ~ALightResponseHub(){}

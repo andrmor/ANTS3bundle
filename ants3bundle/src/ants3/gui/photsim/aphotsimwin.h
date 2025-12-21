@@ -168,10 +168,15 @@ private slots:
 
     void on_pbHelpAdvanced_clicked();
 
+    void on_sbLRM_photonsPerNode_editingFinished();
+    void on_ledLRF_photoElectrons_editingFinished();
+    void on_cobTracingMode_activated(int index);
+
 #ifdef USE_MERCURY
     void on_pbLoadLrModel_clicked();
     void on_pbShowLrmExplorer_clicked();
     void on_pbShowLrfPlotter_clicked();
+
 signals:
     void requestShowLrfPlotterDialog();
 #endif

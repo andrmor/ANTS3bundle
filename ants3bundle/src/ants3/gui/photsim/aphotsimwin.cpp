@@ -23,6 +23,11 @@
 #include "aphotonlogsettingsform.h"
 #include "asensorsignalarray.h"
 
+#ifdef USE_MERCURY
+#include "alightresponsehub.h"
+#include "alrfmouseexplorer.h"
+#endif
+
 #include <QDebug>
 #include <QLabel>
 #include <QFileDialog>
@@ -341,6 +346,29 @@ void APhotSimWin::updateGeneralSettingsGui()
     case APhotOptSettings::LRF :           index = 2; break;
     }
     ui->cobTracingMode->setCurrentIndex(index);
+
+#ifdef USE_MERCURY
+    ALightResponseHub & LRHub = ALightResponseHub::getInstance();
+
+    bool modelIsReady = false;
+    QString txtStatus = "Not ready";
+    if (LRHub.Model)
+    {
+        // !!!*** check model is valid
+        modelIsReady = true;
+        txtStatus = "Ready";
+    }
+    ui->labLrModelStatus->setText(txtStatus);
+
+    ui->pbShowLrmExplorer->setEnabled(modelIsReady);
+    ui->pbShowLrfPlotter->setEnabled(modelIsReady);
+    ui->sbLRM_photonsPerNode->setEnabled(modelIsReady);
+    ui->ledLRF_photoElectrons->setEnabled(modelIsReady);
+
+    ui->ledLRF_photoElectrons->setText(QString::number(SimSet.OptSet.LRF_photoElectrons));
+    ui->sbLRM_photonsPerNode->setValue(SimSet.OptSet.LRF_photonsPerNode);
+
+#endif
 }
 
 void APhotSimWin::on_pbdWave_clicked()
@@ -2157,10 +2185,23 @@ void APhotSimWin::on_pbHelpAdvanced_clicked()
 }
 
 #ifdef USE_MERCURY
-#include "alightresponsehub.h"
-#include "alrfmouseexplorer.h"
 void APhotSimWin::on_pbLoadLrModel_clicked()
 {
+    QString fileName = guitools::dialogLoadFile(this, "Load response model from file", "*");
+    if (fileName.isEmpty()) return;
+
+    QString txt;
+    bool ok = ftools::loadTextFromFile(txt, fileName);
+    if (!ok)
+    {
+        guitools::message("Failed to open file: " + fileName, this);
+        return;
+    }
+
+    ALightResponseHub & LRHub = ALightResponseHub::getInstance();
+    QString err = LRHub.makeModel(txt);
+    if (!err.isEmpty()) guitools::message("Failed to load the model:\n" + err);
+    updateGeneralSettingsGui();
 
 }
 void APhotSimWin::on_pbShowLrmExplorer_clicked()
@@ -2188,3 +2229,25 @@ void APhotSimWin::on_pbShowLrfPlotter_clicked()
     emit requestShowLrfPlotterDialog();
 }
 #endif
+
+void APhotSimWin::on_sbLRM_photonsPerNode_editingFinished()
+{
+    SimSet.OptSet.LRF_photonsPerNode = ui->sbLRM_photonsPerNode->value();
+}
+
+void APhotSimWin::on_ledLRF_photoElectrons_editingFinished()
+{
+    SimSet.OptSet.LRF_photoElectrons = ui->ledLRF_photoElectrons->text().toDouble();
+}
+
+void APhotSimWin::on_cobTracingMode_activated(int index)
+{
+    switch (index)
+    {
+    default: qWarning() << "Not implemented Tracing Mode, defaulting to 'Normal'";
+    case 0: SimSet.OptSet.TracingMode = APhotOptSettings::Normal;        break;
+    case 1: SimSet.OptSet.TracingMode = APhotOptSettings::CheckQeBefore; break;
+    case 2: SimSet.OptSet.TracingMode = APhotOptSettings::LRF;           break;
+    }
+}
+
