@@ -14,6 +14,7 @@ public:
     static ALightResponseHub & getInstance();
     static const ALightResponseHub & getConstInstance();
 
+    void    clearModel();
     QString makeModel(const QString & text); // returns error message
 
 private:

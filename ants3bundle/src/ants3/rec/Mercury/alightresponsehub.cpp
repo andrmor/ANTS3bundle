@@ -16,6 +16,11 @@ const ALightResponseHub &ALightResponseHub::getConstInstance()
     return ALightResponseHub::getInstance();
 }
 
+void ALightResponseHub::clearModel()
+{
+    delete Model; Model = nullptr;
+}
+
 QString ALightResponseHub::makeModel(const QString & text)
 {
     delete Model; Model = nullptr;
