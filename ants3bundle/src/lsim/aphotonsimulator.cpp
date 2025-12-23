@@ -707,6 +707,10 @@ bool APhotonSimulator::simulateBombsFromFile()
 
 // ---
 
+#ifdef USE_MERCURY
+#include "alightresponsehub.h"
+#endif
+
 void APhotonSimulator::loadConfig()
 {
     QJsonObject json;
@@ -748,6 +752,13 @@ void APhotonSimulator::loadConfig()
     bool ok = APhotonFunctionalHub::getInstance().updateRuntimeProperties();
     if (!ok) terminate(AErrorHub::getQError());
     LOG.flush();
+
+#ifdef USE_MERCURY
+    Error = ALightResponseHub::getInstance().readFromJson(json);
+    if (!Error.isEmpty()) terminate(Error);
+    LOG << "If provided, loaded response model.";
+    LOG.flush();
+#endif
 }
 
 void APhotonSimulator::doBeforeEvent()

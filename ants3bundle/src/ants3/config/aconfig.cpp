@@ -13,7 +13,6 @@
 
 #ifdef USE_MERCURY
 #include "alightresponsehub.h"
-#include "lrmodel.h"
 #endif
 
 #include <QDebug>
@@ -88,14 +87,7 @@ void AConfig::writeToJson(QJsonObject & json, bool addRuntimeExport) const
     APhotonSimHub::getConstInstance().writeToJson(json, addRuntimeExport);
 
 #ifdef USE_MERCURY
-    {
-        ALightResponseHub & LRHub = ALightResponseHub::getInstance();
-        QJsonObject js;
-            QString txt;
-            if (LRHub.Model) txt = LRHub.Model->GetJsonString().data();
-            js["Model"] = txt;
-        json["LightResponse"] = js;
-    }
+    ALightResponseHub::getInstance().writeToJson(json);
 #endif
 }
 
@@ -168,29 +160,19 @@ QString AConfig::tryReadFromJson(const QJsonObject & json)
     AParticleSimHub::getInstance().readFromJson(json);
     if (AErrorHub::isError()) return AErrorHub::getQError();
 
-    APhotonFunctionalHub::getInstance().readFromJson(json);
-    if (AErrorHub::isError()) return AErrorHub::getQError();
+    Error = APhotonFunctionalHub::getInstance().readFromJson(json);
+    if (!Error.isEmpty()) return AErrorHub::getQError();
 
     AParticleAnalyzerHub::getInstance().clear(); // only need to clear loaded data, the config is in the geometry tree
 
 #ifdef USE_MERCURY
     {
-        ALightResponseHub & LRHub = ALightResponseHub::getInstance();
-        QJsonObject js;
-        if (jstools::parseJson(json, "LightResponse", js))
-        {
-            LRHub.clearModel();
-            QString txt;
-            jstools::parseJson(js, "Model", txt);
-            if (!txt.isEmpty())
-            {
-                QString err = LRHub.makeModel(txt);
-                qWarning() << "Load responsemodel failed:" << err;
-            }
-        }
+        Error = ALightResponseHub::getInstance().readFromJson(json);
+        if (!Error.isEmpty()) return AErrorHub::getQError();
     }
 #endif
 
+    if (AErrorHub::isError()) return AErrorHub::getQError();
     return "";
 }
 

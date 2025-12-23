@@ -82,6 +82,7 @@ ants3_mercury{
         rec/Mercury/mercuryLib/LRModel/lrfio.cpp \
         rec/Mercury/mercuryLib/LRModel/lrfxy.cpp \
         rec/Mercury/mercuryLib/LRModel/lrfxyz.cpp \
+        rec/Mercury/mercuryLib/LRModel/lrformula1.cpp \
         rec/Mercury/mercuryLib/LRModel/lrmodel.cpp \
         rec/Mercury/mercuryLib/LRModel/transform.cpp \
         rec/Mercury/mercuryLib/lib/json11.cpp \
@@ -91,6 +92,7 @@ ants3_mercury{
         rec/Mercury/mercuryLib/spline123/bspline123d.cpp \
         rec/Mercury/mercuryLib/spline123/profileHist.cpp \
         rec/Mercury/alightresponsehub.cpp \
+        rec/Mercury/script/alightresponse_si.cpp \
         rec/Mercury/script/amercury_si.cpp \
         gui/rec/alrfplotter.cpp \
         gui/rec/alrfmouseexplorer.cpp \
@@ -106,6 +108,7 @@ ants3_mercury{
         rec/Mercury/mercuryLib/LRModel/lrfio.h \
         rec/Mercury/mercuryLib/LRModel/lrfxy.h \
         rec/Mercury/mercuryLib/LRModel/lrfxyz.h \
+        rec/Mercury/mercuryLib/LRModel/lrformula1.h \
         rec/Mercury/mercuryLib/LRModel/lrmodel.h \
         rec/Mercury/mercuryLib/LRModel/transform.h \
         rec/Mercury/mercuryLib/lib/eiquadprog.hpp \
@@ -116,6 +119,7 @@ ants3_mercury{
         rec/Mercury/mercuryLib/spline123/bspline123d.h \
         rec/Mercury/mercuryLib/spline123/profileHist.h \
         rec/Mercury/alightresponsehub.h \
+        rec/Mercury/script/alightresponse_si.h \
         rec/Mercury/script/amercury_si.h \
         gui/rec/alrfplotter.h \
         gui/rec/alrfmouseexplorer.h \
@@ -311,8 +315,6 @@ SOURCES += \
     photonSim/interfaceRules/aunifiedrule.cpp \
     photonSim/photonFunctional/aphotonfunctionalhub.cpp \
     photonSim/photonFunctional/aphotonfunctionalmodel.cpp \
-    rec/Mercury/mercuryLib/LRModel/lrformula1.cpp \
-    rec/Mercury/script/alightresponse_si.cpp \
     rec/PET/acastorimageloader.cpp \
     script/ScriptInterfaces/ageo_si.cpp \
     script/ScriptInterfaces/ageowin_si.cpp \
@@ -475,8 +477,6 @@ HEADERS += \
     photonSim/aphotonloghandler.h \
     photonSim/photonFunctional/aphotonfunctionalhub.h \
     photonSim/photonFunctional/aphotonfunctionalmodel.h \
-    rec/Mercury/mercuryLib/LRModel/lrformula1.h \
-    rec/Mercury/script/alightresponse_si.h \
     rec/PET/acastorimageloader.h \
     rec/PET/apetcoincidencefinderconfig.h \
     farm/afarmnoderecord.h \

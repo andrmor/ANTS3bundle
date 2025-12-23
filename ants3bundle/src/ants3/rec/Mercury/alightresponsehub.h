@@ -5,6 +5,7 @@
 
 class LRModel;
 class ALrfPlotter;
+class QJsonObject;
 
 class ALightResponseHub : public QObject
 {
@@ -16,6 +17,9 @@ public:
 
     void    clearModel();
     QString makeModel(const QString & text); // returns error message
+
+    void    writeToJson(QJsonObject & json) const;
+    QString readFromJson(const QJsonObject & json);
 
 private:
     ALightResponseHub();

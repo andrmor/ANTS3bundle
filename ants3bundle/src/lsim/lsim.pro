@@ -1,3 +1,5 @@
+CONFIG += ants3_mercury     #enables Mercury library for position reconstructio
+
 QT -= gui
 
 CONFIG += console
@@ -29,6 +31,62 @@ INCLUDEPATH += ../ants3/particleSim # see comments below, needed only for calori
 DEFINES += QT
 
 DEFINES += NOT_NEED_MAT_COMPOSITION
+
+# Mercury
+ants3_mercury{
+  DEFINES += USE_MERCURY
+
+    QMAKE_CXXFLAGS += -fopenmp
+    QMAKE_LFLAGS += -fopenmp
+    LIBS += -fopenmp
+
+    INCLUDEPATH += /usr/include/eigen3
+    INCLUDEPATH += ../ants3/rec/Mercury
+    INCLUDEPATH += ../ants3/rec/Mercury/mercuryLib
+    INCLUDEPATH += ../ants3/rec/Mercury/mercuryLib/lib
+    INCLUDEPATH += ../ants3/rec/Mercury/mercuryLib/LRModel
+    INCLUDEPATH += ../ants3/rec/Mercury/mercuryLib/spline123
+    INCLUDEPATH += ../ants3/gui/rec   # !!!*** TMP
+
+    SOURCES += \
+        ../ants3/rec/Mercury/mercuryLib/LRModel/compress.cpp \
+        ../ants3/rec/Mercury/mercuryLib/LRModel/lrf.cpp \
+        ../ants3/rec/Mercury/mercuryLib/LRModel/lrfaxial.cpp \
+        ../ants3/rec/Mercury/mercuryLib/LRModel/lrfaxial3d.cpp \
+        ../ants3/rec/Mercury/mercuryLib/LRModel/lrfcomp.cpp \
+        ../ants3/rec/Mercury/mercuryLib/LRModel/lrfio.cpp \
+        ../ants3/rec/Mercury/mercuryLib/LRModel/lrfxy.cpp \
+        ../ants3/rec/Mercury/mercuryLib/LRModel/lrfxyz.cpp \
+        ../ants3/rec/Mercury/mercuryLib/LRModel/lrformula1.cpp \
+        ../ants3/rec/Mercury/mercuryLib/LRModel/lrmodel.cpp \
+        ../ants3/rec/Mercury/mercuryLib/LRModel/transform.cpp \
+        ../ants3/rec/Mercury/mercuryLib/lib/json11.cpp \
+        ../ants3/rec/Mercury/mercuryLib/spline123/bsfit123.cpp \
+        ../ants3/rec/Mercury/mercuryLib/spline123/bspline123d.cpp \
+        ../ants3/rec/Mercury/mercuryLib/spline123/profileHist.cpp \
+        ../ants3/rec/Mercury/alightresponsehub.cpp \
+        ../ants3/gui/rec/alrfplotter.cpp  # !!!*** TMP
+
+    HEADERS += \
+        ../ants3/rec/Mercury/mercuryLib/LRModel/compress.h \
+        ../ants3/rec/Mercury/mercuryLib/LRModel/lrf.h \
+        ../ants3/rec/Mercury/mercuryLib/LRModel/lrfaxial.h \
+        ../ants3/rec/Mercury/mercuryLib/LRModel/lrfaxial3d.h \
+        ../ants3/rec/Mercury/mercuryLib/LRModel/lrfcomp.h \
+        ../ants3/rec/Mercury/mercuryLib/LRModel/lrfio.h \
+        ../ants3/rec/Mercury/mercuryLib/LRModel/lrfxy.h \
+        ../ants3/rec/Mercury/mercuryLib/LRModel/lrfxyz.h \
+        ../ants3/rec/Mercury/mercuryLib/LRModel/lrformula1.h \
+        ../ants3/rec/Mercury/mercuryLib/LRModel/lrmodel.h \
+        ../ants3/rec/Mercury/mercuryLib/LRModel/transform.h \
+        ../ants3/rec/Mercury/mercuryLib/lib/eiquadprog.hpp \
+        ../ants3/rec/Mercury/mercuryLib/lib/json11.hpp \
+        ../ants3/rec/Mercury/mercuryLib/spline123/bsfit123.h \
+        ../ants3/rec/Mercury/mercuryLib/spline123/bspline123d.h \
+        ../ants3/rec/Mercury/mercuryLib/spline123/profileHist.h \
+        ../ants3/rec/Mercury/alightresponsehub.h \
+        ../ants3/gui/rec/alrfplotter.h      # !!!*** TMP
+}
 
 SOURCES += \
         ../ants3/geo/acalorimeter.cpp \   # not needed for functionality, can be removed using a new DEFINE
