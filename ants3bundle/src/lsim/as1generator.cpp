@@ -8,13 +8,21 @@
 #include "amaterialhub.h"
 #include "adeporecord.h"
 
+#ifdef USE_MERCURY
+#include "lrmodel.h"
+#include "asensorhub.h"
+#include "alightresponsehub.h"
+#include "alightsensorevent.h"
+#endif
+
 #include <QDebug>
 
-AS1Generator::AS1Generator(APhotonTracer & photonTracer) :
+AS1Generator::AS1Generator(APhotonTracer & photonTracer, ALightSensorEvent & event) :
     PhotonTracer(photonTracer),
     SimSet(APhotonSimHub::getConstInstance().Settings),
     RandomHub(ARandomHub::getInstance()),
-    MatHub(AMaterialHub::getConstInstance()) {}
+    MatHub(AMaterialHub::getConstInstance()),
+    Event(event) {}
 
 void AS1Generator::generate(ADepoRecord & rec)
 {
@@ -34,6 +42,20 @@ void AS1Generator::generate(ADepoRecord & rec)
 
     int NumPhotons = (int)Photons;
     Remainer = Photons - NumPhotons;
+
+#ifdef USE_MERCURY
+    if (SimSet.OptSet.TracingMode == APhotOptSettings::LRF)
+    {
+
+        const int numSens = ASensorHub::getConstInstance().countSensors(); // !!!*** check existance of the model
+        for (int iSens = 0; iSens < numSens; iSens++)
+        {
+            double meanSignal = ALightResponseHub::getInstance().Model->Eval(iSens, rec.Pos.data()) * NumPhotons / SimSet.OptSet.LRF_photonsPerNode;
+            Event.PMhits[iSens] += RandomHub.poisson(meanSignal * SimSet.OptSet.LRF_photoElectrons);
+        }
+        return;
+    }
+#endif
 
     APhoton Photon;
     for (int i = 0; i < 3; i++) Photon.r[i] = rec.Pos[i];

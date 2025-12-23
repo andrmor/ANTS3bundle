@@ -123,7 +123,7 @@ void APhotonSimulator::start()
 
 void APhotonSimulator::setupCommonProperties()
 {
-    gRandom->SetSeed(SimSet.RunSet.Seed);
+    gRandom->SetSeed(SimSet.RunSet.Seed);  // !!!*** can be removed after random samplers use the same generator (see CustomHist->GetRandom())
     RandomHub.setSeed(SimSet.RunSet.Seed);
 
     AMaterialHub::getInstance().updateRuntimeProperties();
@@ -332,7 +332,7 @@ void APhotonSimulator::setupFromDepo()
     bool ok = DepoHandler->init();
     if (!ok) terminate(AErrorHub::getQError());
 
-    S1Gen = new AS1Generator(*Tracer);
+    S1Gen = new AS1Generator(*Tracer, *Event);
     S2Gen = new AS2Generator(*Tracer);
 }
 
@@ -806,7 +806,7 @@ void APhotonSimulator::generateAndTracePhotons_primary(const ANodeRecord & node)
         for (int iSens = 0; iSens < numSens; iSens++)
         {
             double meanSignal = ALightResponseHub::getInstance().Model->Eval(iSens, node.R) * node.NumPhot / SimSet.OptSet.LRF_photonsPerNode;
-            Event->PMhits[iSens] += gRandom->PoissonD(meanSignal * SimSet.OptSet.LRF_photoElectrons);
+            Event->PMhits[iSens] += RandomHub.poisson(meanSignal * SimSet.OptSet.LRF_photoElectrons);
         }
         return;
     }
