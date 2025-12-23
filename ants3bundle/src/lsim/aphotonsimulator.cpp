@@ -34,6 +34,7 @@
 
 #include "TGeoManager.h"
 #include "TGeoNavigator.h"
+#include "TRandom.h"
 
 APhotonSimulator::APhotonSimulator(const QString & dir, const QString & fileName, int id) :
     WorkingDir(dir), ConfigFN(fileName), ID(id),
@@ -94,6 +95,7 @@ void APhotonSimulator::start()
         simulateFromDepo();
         break;
     case EPhotSimType::IndividualPhotons :
+        if (SimSet.OptSet.TracingMode == APhotOptSettings::LRF) terminate("Cannot trace individual photons in the LRF simulation mode");
         setupIndividualPhotons();
         simulateIndividualPhotons();
         break;
@@ -119,10 +121,9 @@ void APhotonSimulator::start()
     QCoreApplication::exit();
 }
 
-#include "TRandom.h"
 void APhotonSimulator::setupCommonProperties()
 {
-    gRandom->SetSeed(SimSet.RunSet.Seed); // !!!*** can be removed after random samplers use the same generator (see CustomHist->GetRandom())
+    gRandom->SetSeed(SimSet.RunSet.Seed);
     RandomHub.setSeed(SimSet.RunSet.Seed);
 
     AMaterialHub::getInstance().updateRuntimeProperties();
@@ -793,8 +794,24 @@ void APhotonSimulator::simulatePhotonBomb(ANodeRecord & node, bool overrideNumPh
     if (SimSet.RunSet.SavePhotonBombs) savePhotonBomb(node);
 }
 
+#ifdef USE_MERCURY
+#include "lrmodel.h"
+#endif
 void APhotonSimulator::generateAndTracePhotons_primary(const ANodeRecord & node)
 {
+#ifdef USE_MERCURY
+    if (SimSet.OptSet.TracingMode == APhotOptSettings::LRF)
+    {
+        const int numSens = ASensorHub::getConstInstance().countSensors(); // !!!*** check existance of the model
+        for (int iSens = 0; iSens < numSens; iSens++)
+        {
+            double meanSignal = ALightResponseHub::getInstance().Model->Eval(iSens, node.R) * node.NumPhot / SimSet.OptSet.LRF_photonsPerNode;
+            Event->PMhits[iSens] += gRandom->PoissonD(meanSignal * SimSet.OptSet.LRF_photoElectrons);
+        }
+        return;
+    }
+#endif
+
     const APhotonAdvancedSettings & AdvSet = SimSet.BombSet.AdvancedSettings;
 
     for (int i = 0; i < 3; i++) Photon.r[i] = node.R[i];

@@ -391,7 +391,7 @@ bool LRModel::InDomain(int id, double *pos_world)
     return f ? f->inDomain(x, y, z) : false;
 }
 
-double LRModel::Eval(int id, double *pos_world)
+double LRModel::Eval(int id, const double *pos_world)
 {
     double x = pos_world[0];
     double y = pos_world[1];

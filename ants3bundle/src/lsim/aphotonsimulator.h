@@ -41,8 +41,8 @@ protected:
     APhotonSimSettings & SimSet;
     ARandomHub         & RandomHub;
 
-    APhotonTracer * Tracer = nullptr;
-    ALightSensorEvent     * Event  = nullptr;
+    APhotonTracer      * Tracer = nullptr;
+    ALightSensorEvent  * Event  = nullptr;
 
     APhoton Photon;
 
