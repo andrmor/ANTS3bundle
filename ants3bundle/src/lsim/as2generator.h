@@ -9,6 +9,7 @@ class ARandomHub;
 class AMaterialHub;
 class TGeoManager;
 class ADepoRecord;
+class ALightSensorEvent;
 
 struct DiffSigmas
 {
@@ -22,7 +23,7 @@ struct DiffSigmas
 class AS2Generator
 {
 public:
-    AS2Generator(APhotonTracer & photonTracer);
+    AS2Generator(APhotonTracer & photonTracer, ALightSensorEvent & event);
 
     void generate(ADepoRecord & rec);
     void clearRemainer() {PhotonRemainer = 0; ElectronRemainer = 0;}
@@ -32,8 +33,8 @@ private:
     const APhotonSimSettings & SimSet;
     ARandomHub               & RandomHub;
     const AMaterialHub       & MatHub;
-
     TGeoManager              * GeoManager = nullptr;
+    ALightSensorEvent        & Event;
 
     int NumElectrons;
     int NumPhotons;

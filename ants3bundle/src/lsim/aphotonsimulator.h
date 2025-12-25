@@ -110,6 +110,8 @@ private:
 
     void    createCustomDist(const std::vector<std::pair<int, double>> & dist);
 
+    void    checkReadyForLrfMode();
+
 private:
     TVector3 ColDirUnitary;
     double   CosConeAngle;

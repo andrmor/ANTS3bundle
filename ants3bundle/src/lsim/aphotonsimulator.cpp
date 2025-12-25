@@ -137,6 +137,9 @@ void APhotonSimulator::setupCommonProperties()
 
     Event->init();
     Tracer->configureTracer();  // Should be called after ASensorHub.updateRuntimeProperties()
+
+    // checks
+    if (SimSet.OptSet.TracingMode == APhotOptSettings::LRF) checkReadyForLrfMode();
 }
 
 QString APhotonSimulator::openOutput()
@@ -333,7 +336,7 @@ void APhotonSimulator::setupFromDepo()
     if (!ok) terminate(AErrorHub::getQError());
 
     S1Gen = new AS1Generator(*Tracer, *Event);
-    S2Gen = new AS2Generator(*Tracer);
+    S2Gen = new AS2Generator(*Tracer, *Event);
 }
 
 #include "adeporecord.h"
@@ -757,9 +760,11 @@ void APhotonSimulator::loadConfig()
 #ifdef USE_MERCURY
     Error = ALightResponseHub::getInstance().readFromJson(json);
     if (!Error.isEmpty()) terminate(Error);
-    LOG << "If provided, loaded response model.";
+    LOG << "Loaded response hub.";
     LOG.flush();
 #endif
+
+    // check model, check sensor count in the model, check LRF_photonsPerNode != 0   !!!***
 }
 
 void APhotonSimulator::doBeforeEvent()
@@ -794,23 +799,13 @@ void APhotonSimulator::simulatePhotonBomb(ANodeRecord & node, bool overrideNumPh
     if (SimSet.RunSet.SavePhotonBombs) savePhotonBomb(node);
 }
 
-#ifdef USE_MERCURY
-#include "lrmodel.h"
-#endif
 void APhotonSimulator::generateAndTracePhotons_primary(const ANodeRecord & node)
 {
-#ifdef USE_MERCURY
     if (SimSet.OptSet.TracingMode == APhotOptSettings::LRF)
     {
-        const int numSens = ASensorHub::getConstInstance().countSensors(); // !!!*** check existance of the model
-        for (int iSens = 0; iSens < numSens; iSens++)
-        {
-            double meanSignal = ALightResponseHub::getInstance().Model->Eval(iSens, node.R) * node.NumPhot / SimSet.OptSet.LRF_photonsPerNode;
-            Event->PMhits[iSens] += RandomHub.poisson(meanSignal * SimSet.OptSet.LRF_photoElectrons);
-        }
+        Event->generateHitsForLrfMode(node.NumPhot, node.R);
         return;
     }
-#endif
 
     const APhotonAdvancedSettings & AdvSet = SimSet.BombSet.AdvancedSettings;
 
@@ -973,4 +968,22 @@ void APhotonSimulator::generateReceipt(const QString & optionalError)
     if (!bSuccess) receipt["Error"] = optionalError;
 
     jstools::saveJsonToFile(receipt, WorkingDir + "/" + SimSet.RunSet.FileNameReceipt);
+}
+
+#ifdef USE_MERCURY
+#include "lrmodel.h"
+#endif
+void APhotonSimulator::checkReadyForLrfMode()
+{
+#ifdef USE_MERCURY
+    ALightResponseHub & LRHub = ALightResponseHub::getInstance();
+    if (!LRHub.Model) terminate("Light response model not provided");
+
+    const ASensorHub & SensHub = ASensorHub::getConstInstance();
+    if (LRHub.Model->GetSensorCount() != SensHub.countSensors()) terminate("Light response model has inconsistent number of sensors");
+
+    if (SimSet.OptSet.LRF_photonsPerNode == 0) terminate("LRF_photonsPerNode parameter cannot be zero");
+#else
+    terminate("LRF-based simulation mode enabled, but Ants3 was compiled witout Mercury library");
+#endif
 }
