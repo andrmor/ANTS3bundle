@@ -94,6 +94,7 @@ APhotSimWin::APhotSimWin(QWidget * parent) :
     ui->labAdvancedModeEnabled->setVisible(false);
     ui->frLRF->setVisible(false);
     ui->labNoMercury->setVisible(false);
+    ui->frLimitBombPosition->setVisible(ui->cobNodeGenerationMode->currentIndex() != 0);
 
     updateGui();
 }
@@ -1641,6 +1642,7 @@ void APhotSimWin::on_cobNodeGenerationMode_currentIndexChanged(int index)
     //ui->cobNumPhotonsMode->setDisabled(bFromFile);
     //ui->swNumPhotons->setDisabled(bFromFile);
     ui->labPhotonsPerBombWarning->setVisible(bFromFile);
+    ui->frLimitBombPosition->setVisible(index != 0);
 }
 
 // ---
@@ -2250,4 +2252,3 @@ void APhotSimWin::on_cobTracingMode_activated(int index)
     case 2: SimSet.OptSet.TracingMode = APhotOptSettings::LRF;           break;
     }
 }
-
