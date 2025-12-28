@@ -11,6 +11,10 @@
 #include "aphotonfunctionalhub.h"
 #include "aparticleanalyzerhub.h"
 
+#ifdef USE_MERCURY
+#include "alightresponsehub.h"
+#endif
+
 #include <QDebug>
 #include <QFile>
 
@@ -81,6 +85,10 @@ void AConfig::writeToJson(QJsonObject & json, bool addRuntimeExport) const
 
     AParticleSimHub::getConstInstance().writeToJson(json, addRuntimeExport);
     APhotonSimHub::getConstInstance().writeToJson(json, addRuntimeExport);
+
+#ifdef USE_MERCURY
+    ALightResponseHub::getInstance().writeToJson(json);
+#endif
 }
 
 QString AConfig::readFromJson(const QJsonObject & json, bool updateGui)
@@ -152,11 +160,19 @@ QString AConfig::tryReadFromJson(const QJsonObject & json)
     AParticleSimHub::getInstance().readFromJson(json);
     if (AErrorHub::isError()) return AErrorHub::getQError();
 
-    APhotonFunctionalHub::getInstance().readFromJson(json);
-    if (AErrorHub::isError()) return AErrorHub::getQError();
+    Error = APhotonFunctionalHub::getInstance().readFromJson(json);
+    if (!Error.isEmpty()) return AErrorHub::getQError();
 
     AParticleAnalyzerHub::getInstance().clear(); // only need to clear loaded data, the config is in the geometry tree
 
+#ifdef USE_MERCURY
+    {
+        Error = ALightResponseHub::getInstance().readFromJson(json);
+        if (!Error.isEmpty()) return AErrorHub::getQError();
+    }
+#endif
+
+    if (AErrorHub::isError()) return AErrorHub::getQError();
     return "";
 }
 

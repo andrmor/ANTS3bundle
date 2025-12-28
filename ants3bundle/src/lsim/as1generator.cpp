@@ -7,14 +7,16 @@
 #include "aphotongenerator.h"
 #include "amaterialhub.h"
 #include "adeporecord.h"
+#include "alightsensorevent.h"
 
 #include <QDebug>
 
-AS1Generator::AS1Generator(APhotonTracer & photonTracer) :
+AS1Generator::AS1Generator(APhotonTracer & photonTracer, ALightSensorEvent & event) :
     PhotonTracer(photonTracer),
     SimSet(APhotonSimHub::getConstInstance().Settings),
     RandomHub(ARandomHub::getInstance()),
-    MatHub(AMaterialHub::getConstInstance()) {}
+    MatHub(AMaterialHub::getConstInstance()),
+    Event(event) {}
 
 void AS1Generator::generate(ADepoRecord & rec)
 {
@@ -34,6 +36,12 @@ void AS1Generator::generate(ADepoRecord & rec)
 
     int NumPhotons = (int)Photons;
     Remainer = Photons - NumPhotons;
+
+    if (SimSet.OptSet.TracingMode == APhotOptSettings::LRF)
+    {
+        Event.generateHitsForLrfMode(NumPhotons, rec.Pos.data());
+        return;
+    }
 
     APhoton Photon;
     for (int i = 0; i < 3; i++) Photon.r[i] = rec.Pos[i];

@@ -6,11 +6,12 @@ class APhotonSimSettings;
 class ARandomHub;
 class AMaterialHub;
 class ADepoRecord;
+class ALightSensorEvent;
 
 class AS1Generator
 {
 public:
-    AS1Generator(APhotonTracer & photonTracer);
+    AS1Generator(APhotonTracer & photonTracer, ALightSensorEvent & event);
 
     void generate(ADepoRecord & rec);
     void clearRemainer() {Remainer = 0;}
@@ -20,6 +21,7 @@ private:
     const APhotonSimSettings & SimSet;
     ARandomHub               & RandomHub;
     const AMaterialHub       & MatHub;
+    ALightSensorEvent        & Event;    // only used in LRF mode
 
     double Remainer = 0;  // is it still a good concept? !!!***
 };

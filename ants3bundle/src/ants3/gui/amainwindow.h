@@ -25,7 +25,7 @@ class A3Global;
 class AConfigExampleBrowser;
 class AGuiFromScrWin;
 class LRModel;
-class ALrfPlotter;
+//class ALrfPlotter;
 
 #ifdef USE_MERCURY
 class ALrfPlotterDialog;
@@ -139,7 +139,7 @@ private slots:
 
 #ifdef USE_MERCURY
     void showLightResponseExplorer(LRModel * model);
-    void showLrfPlotterDialog(ALrfPlotter * plotter);
+    void showLrfPlotterDialog();
 #endif
 
 protected:

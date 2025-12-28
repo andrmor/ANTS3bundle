@@ -4,7 +4,8 @@
 #include <QObject>
 
 class LRModel;
-class ALrfPlotter;;
+class ALrfPlotter;
+class QJsonObject;
 
 class ALightResponseHub : public QObject
 {
@@ -13,6 +14,12 @@ class ALightResponseHub : public QObject
 public:
     static ALightResponseHub & getInstance();
     static const ALightResponseHub & getConstInstance();
+
+    void    clearModel();
+    QString makeModel(const QString & text); // returns error message
+
+    void    writeToJson(QJsonObject & json) const;
+    QString readFromJson(const QJsonObject & json);
 
 private:
     ALightResponseHub();

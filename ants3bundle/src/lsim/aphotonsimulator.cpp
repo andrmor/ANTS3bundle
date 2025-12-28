@@ -34,6 +34,7 @@
 
 #include "TGeoManager.h"
 #include "TGeoNavigator.h"
+#include "TRandom.h"
 
 APhotonSimulator::APhotonSimulator(const QString & dir, const QString & fileName, int id) :
     WorkingDir(dir), ConfigFN(fileName), ID(id),
@@ -94,6 +95,7 @@ void APhotonSimulator::start()
         simulateFromDepo();
         break;
     case EPhotSimType::IndividualPhotons :
+        if (SimSet.OptSet.TracingMode == APhotOptSettings::LRF) terminate("Cannot trace individual photons in the LRF simulation mode");
         setupIndividualPhotons();
         simulateIndividualPhotons();
         break;
@@ -119,10 +121,9 @@ void APhotonSimulator::start()
     QCoreApplication::exit();
 }
 
-#include "TRandom.h"
 void APhotonSimulator::setupCommonProperties()
 {
-    gRandom->SetSeed(SimSet.RunSet.Seed); // !!!*** can be removed after random samplers use the same generator (see CustomHist->GetRandom())
+    gRandom->SetSeed(SimSet.RunSet.Seed);  // !!!*** can be removed after random samplers use the same generator (see CustomHist->GetRandom())
     RandomHub.setSeed(SimSet.RunSet.Seed);
 
     AMaterialHub::getInstance().updateRuntimeProperties();
@@ -136,6 +137,9 @@ void APhotonSimulator::setupCommonProperties()
 
     Event->init();
     Tracer->configureTracer();  // Should be called after ASensorHub.updateRuntimeProperties()
+
+    // checks
+    if (SimSet.OptSet.TracingMode == APhotOptSettings::LRF) checkReadyForLrfMode();
 }
 
 QString APhotonSimulator::openOutput()
@@ -331,8 +335,8 @@ void APhotonSimulator::setupFromDepo()
     bool ok = DepoHandler->init();
     if (!ok) terminate(AErrorHub::getQError());
 
-    S1Gen = new AS1Generator(*Tracer);
-    S2Gen = new AS2Generator(*Tracer);
+    S1Gen = new AS1Generator(*Tracer, *Event);
+    S2Gen = new AS2Generator(*Tracer, *Event);
 }
 
 #include "adeporecord.h"
@@ -707,6 +711,10 @@ bool APhotonSimulator::simulateBombsFromFile()
 
 // ---
 
+#ifdef USE_MERCURY
+#include "alightresponsehub.h"
+#endif
+
 void APhotonSimulator::loadConfig()
 {
     QJsonObject json;
@@ -748,6 +756,15 @@ void APhotonSimulator::loadConfig()
     bool ok = APhotonFunctionalHub::getInstance().updateRuntimeProperties();
     if (!ok) terminate(AErrorHub::getQError());
     LOG.flush();
+
+#ifdef USE_MERCURY
+    Error = ALightResponseHub::getInstance().readFromJson(json);
+    if (!Error.isEmpty()) terminate(Error);
+    LOG << "Loaded response hub.";
+    LOG.flush();
+#endif
+
+    // check model, check sensor count in the model, check LRF_photonsPerNode != 0   !!!***
 }
 
 void APhotonSimulator::doBeforeEvent()
@@ -784,6 +801,12 @@ void APhotonSimulator::simulatePhotonBomb(ANodeRecord & node, bool overrideNumPh
 
 void APhotonSimulator::generateAndTracePhotons_primary(const ANodeRecord & node)
 {
+    if (SimSet.OptSet.TracingMode == APhotOptSettings::LRF)
+    {
+        Event->generateHitsForLrfMode(node.NumPhot, node.R);
+        return;
+    }
+
     const APhotonAdvancedSettings & AdvSet = SimSet.BombSet.AdvancedSettings;
 
     for (int i = 0; i < 3; i++) Photon.r[i] = node.R[i];
@@ -945,4 +968,22 @@ void APhotonSimulator::generateReceipt(const QString & optionalError)
     if (!bSuccess) receipt["Error"] = optionalError;
 
     jstools::saveJsonToFile(receipt, WorkingDir + "/" + SimSet.RunSet.FileNameReceipt);
+}
+
+#ifdef USE_MERCURY
+#include "lrmodel.h"
+#endif
+void APhotonSimulator::checkReadyForLrfMode()
+{
+#ifdef USE_MERCURY
+    ALightResponseHub & LRHub = ALightResponseHub::getInstance();
+    if (!LRHub.Model) terminate("Light response model not provided");
+
+    const ASensorHub & SensHub = ASensorHub::getConstInstance();
+    if (LRHub.Model->GetSensorCount() != SensHub.countSensors()) terminate("Light response model has inconsistent number of sensors");
+
+    if (SimSet.OptSet.LRF_photonsPerNode == 0) terminate("LRF_photonsPerNode parameter cannot be zero");
+#else
+    terminate("LRF-based simulation mode enabled, but Ants3 was compiled witout Mercury library");
+#endif
 }

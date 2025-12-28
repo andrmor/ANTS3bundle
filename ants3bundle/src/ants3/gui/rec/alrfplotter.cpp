@@ -3,7 +3,6 @@
 #include "lrf.h"
 #include "lrfaxial.h"
 #include "lrfxy.h"
-#include "ascripthub.h"
 #include "alightresponsehub.h"
 
 #include "TGraph.h"

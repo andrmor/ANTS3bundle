@@ -41,8 +41,8 @@ protected:
     APhotonSimSettings & SimSet;
     ARandomHub         & RandomHub;
 
-    APhotonTracer * Tracer = nullptr;
-    ALightSensorEvent     * Event  = nullptr;
+    APhotonTracer      * Tracer = nullptr;
+    ALightSensorEvent  * Event  = nullptr;
 
     APhoton Photon;
 
@@ -109,6 +109,8 @@ private:
     void    reportProgress();
 
     void    createCustomDist(const std::vector<std::pair<int, double>> & dist);
+
+    void    checkReadyForLrfMode();
 
 private:
     TVector3 ColDirUnitary;

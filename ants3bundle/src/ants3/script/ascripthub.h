@@ -81,7 +81,7 @@ signals:
     void requestDrawCollection(std::vector<std::pair<TObject*, QString>> objectsAndOptions, bool fFocus); // connected using Queued Connection inside graphwindow class; object ownership is transferred to graph window!
     void requestAddToBasket(QString title);
     void requestShowLightResponseExplorer(LRModel * model); // mercury SI
-    void requestShowPlotterDialog(ALrfPlotter * plotter);   // mercury SI
+    void requestShowPlotterDialog();   // mercury SI
 
 private:
     AJScriptManager      * JavaScriptM = nullptr;

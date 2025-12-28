@@ -175,7 +175,7 @@ public:
 // Evaluation
     bool InDomain(int id, double *pos_world);
 // ToDo:    void DoTransform(int id, double *pos_world) {};
-    double Eval(int id, double *pos_world);
+    double Eval(int id, const double *pos_world);
     double EvalLocal(int id, double *pos_local) { return GetLRF(id)->eval(pos_local)*GetGain(id); }
     double EvalDrvX(int id, double *pos_world);
     double EvalDrvY(int id, double *pos_world);

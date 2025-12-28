@@ -9,17 +9,19 @@
 #include "ageometryhub.h"
 #include "adeporecord.h"
 #include "aphotongenerator.h"
+#include "alightsensorevent.h"
 
 #include <QDebug>
 
 #include "TGeoManager.h"
 
-AS2Generator::AS2Generator(APhotonTracer & photonTracer) :
+AS2Generator::AS2Generator(APhotonTracer & photonTracer, ALightSensorEvent &event) :
     PhotonTracer(photonTracer),
     SimSet(APhotonSimHub::getConstInstance().Settings),
     RandomHub(ARandomHub::getInstance()),
     MatHub(AMaterialHub::getConstInstance()),
-    GeoManager(AGeometryHub::getInstance().GeoManager) {}
+    GeoManager(AGeometryHub::getInstance().GeoManager),
+    Event(event) {}
 
 // in ANTS2 PhotonRemainer resets on new particle, ElectronRemainer resets on new event   Need update? !!!***
 void AS2Generator::generate(ADepoRecord & rec) //uses MW->EnergyVector as the input parameter
@@ -85,15 +87,16 @@ void AS2Generator::generateLight(double * xyPosition, double time)
     const double Zspan = GeoManager->GetStep();
 
     //generate photons
-    if (DiffusionRecords.empty()) // || SimSet->fLRFsim)
+    if (DiffusionRecords.empty() || SimSet.OptSet.TracingMode == APhotOptSettings::LRF)
     {
         const double Photons = NumElectrons * PhotonsPerElectron + PhotonRemainer;
         NumPhotons     = (int)Photons;
         PhotonRemainer = Photons - (double)NumPhotons;
 
-        //if (PhotonGenerator->SimSet->fLRFsim) PhotonGenerator->GenerateSignalsForLrfMode(NumPhotons, DepoPosition, PhotonTracker->getEvent());
-        //else
-        generateAndTracePhotons(xyPosition, time, NumPhotons, MatIndexSecScint, Zstart, Zspan);
+        if (SimSet.OptSet.TracingMode == APhotOptSettings::LRF)
+            Event.generateHitsForLrfMode(NumPhotons, xyPosition);
+        else
+            generateAndTracePhotons(xyPosition, time, NumPhotons, MatIndexSecScint, Zstart, Zspan);
     }
     else
     {
@@ -132,7 +135,10 @@ void AS2Generator::generateLight(double * xyPosition, double time)
             PhotonRemainer = Photons - (double)NumPhotonsThisEl;
             NumPhotons += NumPhotonsThisEl;
 
-            generateAndTracePhotons(pos, time, NumPhotonsThisEl, MatIndexSecScint, Zstart, Zspan);
+            if (SimSet.OptSet.TracingMode == APhotOptSettings::LRF)
+                Event.generateHitsForLrfMode(NumPhotons, xyPosition);
+            else
+                generateAndTracePhotons(pos, time, NumPhotonsThisEl, MatIndexSecScint, Zstart, Zspan);
         }
     }
 }

@@ -266,19 +266,59 @@ QString APhotonsPerBombSettings::readFromJson(const QJsonObject & json)
 void APhotOptSettings::writeToJson(QJsonObject &json) const
 {
     json["MaxPhotonTransitions"]  = MaxPhotonTransitions;
-    json["CheckQeBeforeTracking"] = CheckQeBeforeTracking;
+
+    QString str;
+    switch (TracingMode)
+    {
+        case Normal        : str = "Normal";  break;
+        case CheckQeBefore : str = "CheckQE"; break;
+        case LRF           : str = "LRF";     break;
+    }
+    json["TracingMode"] = str;
+
+    // LRF-based signal generation
+    {
+        QJsonObject js;
+            js["PhotonsPerNode"] = LRF_photonsPerNode;
+            js["PhotoElectrons"] = LRF_photoElectrons;
+        json["LRF"] = js;
+    }
 }
 
 void APhotOptSettings::readFromJson(const QJsonObject &json)
 {
     jstools::parseJson(json, "MaxPhotonTransitions",  MaxPhotonTransitions);
-    jstools::parseJson(json, "CheckQeBeforeTracking", CheckQeBeforeTracking);
+
+    QString str;
+    bool ok = jstools::parseJson(json, "TracingMode", str);
+    if (ok)
+    {
+        if      (str == "Normal")  TracingMode = Normal;
+        else if (str == "CheckQE") TracingMode = CheckQeBefore;
+        else if (str == "LRF")     TracingMode = LRF;
+        else
+        {
+            TracingMode = Normal;
+            qWarning() << "Bad option in TracingMode";
+        }
+    }
+
+    // LRF-based signal generation
+    {
+        QJsonObject js;
+        if (jstools::parseJson(json, "LRF", js))
+        {
+            jstools::parseJson(js, "PhotonsPerNode", LRF_photonsPerNode);
+            jstools::parseJson(js, "PhotoElectrons", LRF_photoElectrons);
+            // !!!*** error control
+        }
+    }
 }
 
 void APhotOptSettings::clear()
 {
     MaxPhotonTransitions  = 500;
-    CheckQeBeforeTracking = false;
+    TracingMode = Normal;
 }
 
 // ---
@@ -677,7 +717,6 @@ void APhotonSimSettings::writeToJson(QJsonObject & json, bool addRuntimeExport) 
         case EPhotSimType::PhotonBombs       : str = "bomb"; break;
         case EPhotSimType::FromEnergyDepo    : str = "depo"; break;
         case EPhotSimType::IndividualPhotons : str = "indi"; break;
-        case EPhotSimType::FromLRFs          : str = "lrf";  break;
         }
         jsSim["SimulationType"] = str;
     }
@@ -733,7 +772,6 @@ QString APhotonSimSettings::readFromJson(const QJsonObject & json)
         if      (str == "bomb") SimType = EPhotSimType::PhotonBombs;
         else if (str == "depo") SimType = EPhotSimType::FromEnergyDepo;
         else if (str == "indi") SimType = EPhotSimType::IndividualPhotons;
-        else if (str == "lrf")  SimType = EPhotSimType::FromLRFs;
         else
         {
             SimType = EPhotSimType::PhotonBombs;

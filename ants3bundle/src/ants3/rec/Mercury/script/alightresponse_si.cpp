@@ -460,7 +460,7 @@ void ALightResponse_SI::showLrfPlotterWidget(QVariantList sensorSignals, QVarian
     LRHub.LrfPlotter->DataSignals = DataSignals;
     LRHub.LrfPlotter->DataPositions = DataPositions;
 
-    emit AScriptHub::getInstance().requestShowPlotterDialog(LRHub.LrfPlotter);
+    emit AScriptHub::getInstance().requestShowPlotterDialog();
 }
 
 void ALightResponse_SI::showLrfPlotterWidget()
@@ -470,7 +470,7 @@ void ALightResponse_SI::showLrfPlotterWidget()
     LRHub.LrfPlotter->DataSignals.clear();
     LRHub.LrfPlotter->DataPositions.clear();
 
-    emit AScriptHub::getInstance().requestShowPlotterDialog(LRHub.LrfPlotter);
+    emit AScriptHub::getInstance().requestShowPlotterDialog();
 }
 
 void ALightResponse_SI::fitResponse(QVariantList floodSignals, QVariantList floodPositions, QVariantList goodEventFlag)

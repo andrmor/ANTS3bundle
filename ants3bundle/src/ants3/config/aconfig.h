@@ -34,6 +34,8 @@ public:
     // ParticleSim config is handled by AParticleSimHub singleton
     // PhotonSim   config is handled by APhotonSimHub   singleton
 
+    // LightResponse config is handled by ALightResponseHub singleton (if Mercury lib is enabled)
+
     QJsonObject JSON;
 
     QString     ConfigName = "--";
