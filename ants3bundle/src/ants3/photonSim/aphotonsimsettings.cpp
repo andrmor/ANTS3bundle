@@ -697,6 +697,15 @@ void APhotSimRunSettings::clear()
 void APhotonSimSettings::writeToJson(QJsonObject & json, bool addRuntimeExport) const
 {
     QJsonObject jsSim;
+
+    // Scint
+    {
+        QJsonObject js;
+            js["Primary"]   = PrimaryScint;
+            js["Secondary"] = SecondaryScint;
+        jsSim["Scintillation"] = js;
+    }
+
     // Wave
     {
         QJsonObject js;
@@ -752,6 +761,28 @@ QString APhotonSimSettings::readFromJson(const QJsonObject & json)
     bool ok = jstools::parseJson(json, "PhotonSim", jsSim);
     if (!ok) return "Json does not contain photon sim settings!\n";
 
+    // Scint
+    {
+        QJsonObject js;
+        ok = jstools::parseJson(jsSim, "Scintillation", js);
+        if (ok)
+        {
+            jstools::parseJson(js, "Primary", PrimaryScint);
+            jstools::parseJson(js, "Secondary", SecondaryScint);
+        }
+        else
+        {
+            // old system, compatibility
+            QJsonObject js;
+            ok = jstools::parseJson(jsSim, "Deposition", js);
+            if (ok)
+            {
+                jstools::parseJson(js, "Primary",   PrimaryScint);
+                jstools::parseJson(js, "Secondary", SecondaryScint);
+            }
+        }
+    }
+
     // Wave
     {
         QJsonObject js;
@@ -806,6 +837,9 @@ QString APhotonSimSettings::readFromJson(const QJsonObject & json)
 
 void APhotonSimSettings::clear()
 {
+    PrimaryScint = true;
+    SecondaryScint = false;
+
     SimType = EPhotSimType::PhotonBombs;
 
     BombSet.clear();
@@ -824,20 +858,20 @@ void APhotonDepoSettings::clear()
 {
     AFileSettingsBase::clear();
 
-    Primary          = true;
-    Secondary        = false;
+    //Primary          = true;
+    //Secondary        = false;
 }
 
 void APhotonDepoSettings::doWriteToJson(QJsonObject &json) const
 {
-    json["Primary"]    = Primary;
-    json["Secondary"]  = Secondary;
+    //json["Primary"]    = Primary;
+    //json["Secondary"]  = Secondary;
 }
 
 void APhotonDepoSettings::doReadFromJson(const QJsonObject &json)
 {
-    jstools::parseJson(json, "Primary",   Primary);
-    jstools::parseJson(json, "Secondary", Secondary);
+    //jstools::parseJson(json, "Primary",   Primary);
+    //jstools::parseJson(json, "Secondary", Secondary);
 }
 
 // ----

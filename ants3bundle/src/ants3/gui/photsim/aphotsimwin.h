@@ -107,8 +107,6 @@ private slots:
     // deposition from file
     void on_pbChangeDepositionFile_clicked();
     void on_leDepositionFile_editingFinished();
-    void on_cbPrimaryScint_clicked(bool checked);
-    void on_cbSecondaryScint_clicked(bool checked);
     void on_pbAnalyzeDepositionFile_clicked();
     void on_pbCollectDepoFileStatistics_clicked();
     void on_pbAdvancedBombSettings_clicked();
@@ -172,6 +170,13 @@ private slots:
     void on_ledLRF_photoElectrons_editingFinished();
     void on_cobTracingMode_activated(int index);
 
+    void on_leSkipOutsideMaterial_editingFinished();
+    void on_cbSkipByVolume_clicked(bool checked);
+    void on_leSkipOutsideVolume_editingFinished();
+    void on_cbSkipByMaterial_clicked(bool checked);
+
+    void on_cobScintType_activated(int index);
+
 #ifdef USE_MERCURY
     void on_pbLoadLrModel_clicked();
     void on_pbShowLrmExplorer_clicked();
@@ -180,6 +185,7 @@ private slots:
 signals:
     void requestShowLrfPlotterDialog();
 #endif
+
 
 private:
     APhotonSimSettings & SimSet;

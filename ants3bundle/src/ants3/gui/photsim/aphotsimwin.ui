@@ -85,7 +85,7 @@
             </widget>
            </item>
            <item>
-            <widget class="QComboBox" name="comboBox">
+            <widget class="QComboBox" name="cobScintType">
              <property name="sizePolicy">
               <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
                <horstretch>0</horstretch>
@@ -3567,89 +3567,6 @@
              </widget>
             </item>
             <item>
-             <spacer name="verticalSpacer_22">
-              <property name="orientation">
-               <enum>Qt::Orientation::Vertical</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>20</width>
-                <height>40</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item>
-             <widget class="QLabel" name="label_23">
-              <property name="text">
-               <string>Generate:</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignmentFlag::AlignCenter</set>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_41">
-              <property name="topMargin">
-               <number>0</number>
-              </property>
-              <item>
-               <spacer name="horizontalSpacer_42">
-                <property name="orientation">
-                 <enum>Qt::Orientation::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-              <item>
-               <layout class="QVBoxLayout" name="verticalLayout_10">
-                <property name="spacing">
-                 <number>3</number>
-                </property>
-                <property name="leftMargin">
-                 <number>25</number>
-                </property>
-                <item>
-                 <widget class="QCheckBox" name="cbPrimaryScint">
-                  <property name="text">
-                   <string>Primary scintillation</string>
-                  </property>
-                  <property name="checked">
-                   <bool>true</bool>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QCheckBox" name="cbSecondaryScint">
-                  <property name="text">
-                   <string>Secondary scintillation</string>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-              <item>
-               <spacer name="horizontalSpacer_43">
-                <property name="orientation">
-                 <enum>Qt::Orientation::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-             </layout>
-            </item>
-            <item>
              <spacer name="verticalSpacer_17">
               <property name="orientation">
                <enum>Qt::Orientation::Vertical</enum>
@@ -5486,8 +5403,8 @@
      <y>60</y>
     </hint>
     <hint type="destinationlabel">
-     <x>104</x>
-     <y>68</y>
+     <x>109</x>
+     <y>135</y>
     </hint>
    </hints>
   </connection>
@@ -5498,12 +5415,12 @@
    <slot>setCurrentIndex(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>343</x>
-     <y>120</y>
+     <x>336</x>
+     <y>497</y>
     </hint>
     <hint type="destinationlabel">
-     <x>587</x>
-     <y>136</y>
+     <x>580</x>
+     <y>513</y>
     </hint>
    </hints>
   </connection>
@@ -5514,8 +5431,8 @@
    <slot>setCurrentIndex(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>412</x>
-     <y>169</y>
+     <x>411</x>
+     <y>115</y>
     </hint>
     <hint type="destinationlabel">
      <x>104</x>
@@ -5531,11 +5448,11 @@
    <hints>
     <hint type="sourcelabel">
      <x>419</x>
-     <y>260</y>
+     <y>166</y>
     </hint>
     <hint type="destinationlabel">
-     <x>74</x>
-     <y>392</y>
+     <x>61</x>
+     <y>236</y>
     </hint>
    </hints>
   </connection>
@@ -5546,12 +5463,12 @@
    <slot>setCurrentIndex(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>447</x>
-     <y>347</y>
+     <x>363</x>
+     <y>237</y>
     </hint>
     <hint type="destinationlabel">
-     <x>427</x>
-     <y>391</y>
+     <x>363</x>
+     <y>265</y>
     </hint>
    </hints>
   </connection>
@@ -5562,12 +5479,12 @@
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>218</x>
-     <y>281</y>
+     <x>178</x>
+     <y>180</y>
     </hint>
     <hint type="destinationlabel">
-     <x>124</x>
-     <y>252</y>
+     <x>112</x>
+     <y>153</y>
     </hint>
    </hints>
   </connection>
@@ -5578,12 +5495,12 @@
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>369</x>
-     <y>281</y>
+     <x>305</x>
+     <y>180</y>
     </hint>
     <hint type="destinationlabel">
-     <x>124</x>
-     <y>252</y>
+     <x>112</x>
+     <y>153</y>
     </hint>
    </hints>
   </connection>
@@ -5594,12 +5511,12 @@
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>505</x>
-     <y>281</y>
+     <x>433</x>
+     <y>180</y>
     </hint>
     <hint type="destinationlabel">
-     <x>124</x>
-     <y>252</y>
+     <x>112</x>
+     <y>153</y>
     </hint>
    </hints>
   </connection>
@@ -5610,12 +5527,12 @@
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>187</x>
-     <y>334</y>
+     <x>158</x>
+     <y>232</y>
     </hint>
     <hint type="destinationlabel">
-     <x>124</x>
-     <y>252</y>
+     <x>112</x>
+     <y>153</y>
     </hint>
    </hints>
   </connection>
@@ -5626,12 +5543,12 @@
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>264</x>
-     <y>334</y>
+     <x>219</x>
+     <y>232</y>
     </hint>
     <hint type="destinationlabel">
-     <x>124</x>
-     <y>252</y>
+     <x>112</x>
+     <y>153</y>
     </hint>
    </hints>
   </connection>
@@ -5642,12 +5559,12 @@
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>326</x>
-     <y>334</y>
+     <x>281</x>
+     <y>232</y>
     </hint>
     <hint type="destinationlabel">
-     <x>124</x>
-     <y>252</y>
+     <x>112</x>
+     <y>153</y>
     </hint>
    </hints>
   </connection>
@@ -5658,12 +5575,12 @@
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>419</x>
-     <y>335</y>
+     <x>341</x>
+     <y>232</y>
     </hint>
     <hint type="destinationlabel">
-     <x>124</x>
-     <y>252</y>
+     <x>112</x>
+     <y>153</y>
     </hint>
    </hints>
   </connection>
@@ -5674,12 +5591,12 @@
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>563</x>
-     <y>334</y>
+     <x>470</x>
+     <y>232</y>
     </hint>
     <hint type="destinationlabel">
-     <x>124</x>
-     <y>252</y>
+     <x>112</x>
+     <y>153</y>
     </hint>
    </hints>
   </connection>
@@ -5690,12 +5607,12 @@
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>43</x>
-     <y>365</y>
+     <x>30</x>
+     <y>265</y>
     </hint>
     <hint type="destinationlabel">
-     <x>124</x>
-     <y>252</y>
+     <x>112</x>
+     <y>153</y>
     </hint>
    </hints>
   </connection>
@@ -5706,12 +5623,12 @@
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>43</x>
-     <y>397</y>
+     <x>30</x>
+     <y>297</y>
     </hint>
     <hint type="destinationlabel">
-     <x>124</x>
-     <y>252</y>
+     <x>112</x>
+     <y>153</y>
     </hint>
    </hints>
   </connection>
@@ -5722,12 +5639,12 @@
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>187</x>
-     <y>366</y>
+     <x>158</x>
+     <y>264</y>
     </hint>
     <hint type="destinationlabel">
-     <x>124</x>
-     <y>252</y>
+     <x>112</x>
+     <y>153</y>
     </hint>
    </hints>
   </connection>
@@ -5738,12 +5655,12 @@
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>187</x>
-     <y>398</y>
+     <x>158</x>
+     <y>296</y>
     </hint>
     <hint type="destinationlabel">
-     <x>124</x>
-     <y>252</y>
+     <x>112</x>
+     <y>153</y>
     </hint>
    </hints>
   </connection>
@@ -5754,12 +5671,12 @@
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>264</x>
-     <y>366</y>
+     <x>219</x>
+     <y>264</y>
     </hint>
     <hint type="destinationlabel">
-     <x>124</x>
-     <y>252</y>
+     <x>112</x>
+     <y>153</y>
     </hint>
    </hints>
   </connection>
@@ -5770,12 +5687,12 @@
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>264</x>
-     <y>398</y>
+     <x>219</x>
+     <y>296</y>
     </hint>
     <hint type="destinationlabel">
-     <x>124</x>
-     <y>252</y>
+     <x>112</x>
+     <y>153</y>
     </hint>
    </hints>
   </connection>
@@ -5786,12 +5703,12 @@
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>326</x>
-     <y>366</y>
+     <x>281</x>
+     <y>264</y>
     </hint>
     <hint type="destinationlabel">
-     <x>124</x>
-     <y>252</y>
+     <x>112</x>
+     <y>153</y>
     </hint>
    </hints>
   </connection>
@@ -5802,12 +5719,12 @@
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>326</x>
-     <y>398</y>
+     <x>281</x>
+     <y>296</y>
     </hint>
     <hint type="destinationlabel">
-     <x>124</x>
-     <y>252</y>
+     <x>112</x>
+     <y>153</y>
     </hint>
    </hints>
   </connection>
@@ -5818,12 +5735,12 @@
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>419</x>
-     <y>367</y>
+     <x>341</x>
+     <y>264</y>
     </hint>
     <hint type="destinationlabel">
-     <x>124</x>
-     <y>252</y>
+     <x>112</x>
+     <y>153</y>
     </hint>
    </hints>
   </connection>
@@ -5834,12 +5751,12 @@
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>419</x>
-     <y>399</y>
+     <x>341</x>
+     <y>296</y>
     </hint>
     <hint type="destinationlabel">
-     <x>124</x>
-     <y>252</y>
+     <x>112</x>
+     <y>153</y>
     </hint>
    </hints>
   </connection>
@@ -5850,12 +5767,12 @@
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>563</x>
-     <y>366</y>
+     <x>470</x>
+     <y>264</y>
     </hint>
     <hint type="destinationlabel">
-     <x>124</x>
-     <y>252</y>
+     <x>112</x>
+     <y>153</y>
     </hint>
    </hints>
   </connection>
@@ -5866,12 +5783,12 @@
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>563</x>
-     <y>398</y>
+     <x>470</x>
+     <y>296</y>
     </hint>
     <hint type="destinationlabel">
-     <x>124</x>
-     <y>252</y>
+     <x>112</x>
+     <y>153</y>
     </hint>
    </hints>
   </connection>
@@ -6074,12 +5991,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>96</x>
-     <y>67</y>
+     <x>221</x>
+     <y>131</y>
     </hint>
     <hint type="destinationlabel">
-     <x>185</x>
-     <y>84</y>
+     <x>120</x>
+     <y>171</y>
     </hint>
    </hints>
   </connection>
@@ -6090,12 +6007,12 @@
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>119</x>
-     <y>97</y>
+     <x>165</x>
+     <y>169</y>
     </hint>
     <hint type="destinationlabel">
-     <x>288</x>
-     <y>59</y>
+     <x>465</x>
+     <y>134</y>
     </hint>
    </hints>
   </connection>
@@ -6106,12 +6023,12 @@
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>243</x>
-     <y>100</y>
+     <x>278</x>
+     <y>169</y>
     </hint>
     <hint type="destinationlabel">
-     <x>293</x>
-     <y>68</y>
+     <x>465</x>
+     <y>134</y>
     </hint>
    </hints>
   </connection>
@@ -6122,12 +6039,44 @@
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>347</x>
-     <y>102</y>
+     <x>407</x>
+     <y>169</y>
     </hint>
     <hint type="destinationlabel">
-     <x>340</x>
-     <y>67</y>
+     <x>465</x>
+     <y>134</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cbSkipByMaterial</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>leSkipOutsideMaterial</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>99</x>
+     <y>409</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>198</x>
+     <y>410</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cbSkipByVolume</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>leSkipOutsideVolume</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>372</x>
+     <y>410</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>429</x>
+     <y>411</y>
     </hint>
    </hints>
   </connection>

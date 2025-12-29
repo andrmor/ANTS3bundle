@@ -289,6 +289,13 @@ void APhotSimWin::updatePhotBombGui()
     ui->ledFloodZfrom->setText(QString::number(fset.Zfrom));
     ui->ledFloodZto->setText(QString::number(fset.Zto));
 
+    // skip node position by mat / volume
+    const APhotonAdvancedSettings & skipNodeSettings = APhotonSimHub::getConstInstance().Settings.BombSet.AdvancedSettings;
+    ui->cbSkipByVolume->setChecked(skipNodeSettings.bOnlyVolume);
+    ui->leSkipOutsideVolume->setText(skipNodeSettings.Volume);
+    ui->cbSkipByMaterial->setChecked(skipNodeSettings.bOnlyMaterial);
+    ui->leSkipOutsideMaterial->setText(skipNodeSettings.Material);
+
     updateAdvancedBombIndicator();
 }
 
@@ -300,9 +307,6 @@ void APhotSimWin::updateDepoGui()
     QString strEvents = "--";
     if (SimSet.DepoSet.isValidated()) strEvents = QString::number(SimSet.DepoSet.NumEvents);
     ui->labDepositionEvents->setText(strEvents);
-
-    ui->cbPrimaryScint->setChecked(SimSet.DepoSet.Primary);
-    ui->cbSecondaryScint->setChecked(SimSet.DepoSet.Secondary);
 }
 
 void APhotSimWin::updateBombFileGui()
@@ -331,6 +335,17 @@ void APhotSimWin::updatePhotonFileGui()
 
 void APhotSimWin::updateGeneralSettingsGui()
 {
+    int index = 0;
+    if      ( SimSet.PrimaryScint && !SimSet.SecondaryScint) index = 0;
+    else if (!SimSet.PrimaryScint &&  SimSet.SecondaryScint) index = 1;
+    else if ( SimSet.PrimaryScint &&  SimSet.SecondaryScint) index = 2;
+    else
+    {
+        qWarning() << "Neither primary nor secondary scintillations were selected, defaulting to primary";
+        index = 0;
+    }
+    ui->cobScintType->setCurrentIndex(index);
+
     ui->cbWaveResolved->setChecked(SimSet.WaveSet.Enabled);
     ui->fWaveOptions->setEnabled(SimSet.WaveSet.Enabled);
     ui->ledWaveFrom->setText(QString::number(SimSet.WaveSet.From));
@@ -339,7 +354,7 @@ void APhotSimWin::updateGeneralSettingsGui()
     ui->labWaveNodes->setText(QString::number(SimSet.WaveSet.countNodes()));
 
     ui->sbMaxNumbPhTransitions->setValue(SimSet.OptSet.MaxPhotonTransitions);
-    int index = 0;
+    index = 0;
     switch (SimSet.OptSet.TracingMode)
     {
     case APhotOptSettings::Normal :        index = 0; break;
@@ -1389,14 +1404,6 @@ void APhotSimWin::on_leDepositionFile_editingFinished()
         updateDepoGui();
     }
 }
-void APhotSimWin::on_cbPrimaryScint_clicked(bool checked)
-{
-    SimSet.DepoSet.Primary = checked;
-}
-void APhotSimWin::on_cbSecondaryScint_clicked(bool checked)
-{
-    SimSet.DepoSet.Secondary = checked;
-}
 
 void APhotSimWin::on_pbAnalyzeDepositionFile_clicked()
 {
@@ -2252,3 +2259,38 @@ void APhotSimWin::on_cobTracingMode_activated(int index)
     case 2: SimSet.OptSet.TracingMode = APhotOptSettings::LRF;           break;
     }
 }
+
+void APhotSimWin::on_cbSkipByMaterial_clicked(bool checked)
+{
+    APhotonAdvancedSettings & s = APhotonSimHub::getInstance().Settings.BombSet.AdvancedSettings;
+    s.bOnlyMaterial = checked;
+}
+
+void APhotSimWin::on_leSkipOutsideMaterial_editingFinished()
+{
+    APhotonAdvancedSettings & s = APhotonSimHub::getInstance().Settings.BombSet.AdvancedSettings;
+    s.Material = ui->leSkipOutsideMaterial->text();
+}
+
+void APhotSimWin::on_cbSkipByVolume_clicked(bool checked)
+{
+    APhotonAdvancedSettings & s = APhotonSimHub::getInstance().Settings.BombSet.AdvancedSettings;
+    s.bOnlyVolume = checked;
+}
+
+void APhotSimWin::on_leSkipOutsideVolume_editingFinished()
+{
+    APhotonAdvancedSettings & s = APhotonSimHub::getInstance().Settings.BombSet.AdvancedSettings;
+    s.Volume = ui->leSkipOutsideVolume->text();
+}
+
+void APhotSimWin::on_cobScintType_activated(int index)
+{
+    switch (index)
+    {
+    case 0: SimSet.PrimaryScint = true;  SimSet.SecondaryScint = false; break;
+    case 1: SimSet.PrimaryScint = false; SimSet.SecondaryScint = true;  break;
+    case 2: SimSet.PrimaryScint = true;  SimSet.SecondaryScint = true;  break;
+    }
+}
+

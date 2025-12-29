@@ -287,9 +287,8 @@ public:
 class APhotonDepoSettings : public AFileSettingsBase
 {
 public:
-    bool   Primary   = true;
-    bool   Secondary = false;
-
+    //bool   Primary   = true;
+    //bool   Secondary = false;
     void   clear() override;
 
 protected:
@@ -308,6 +307,9 @@ public:
 class APhotonSimSettings
 {
 public:
+    bool PrimaryScint   = true;
+    bool SecondaryScint = false;
+
     EPhotSimType         SimType = EPhotSimType::PhotonBombs;
 
     APhotonBombsSettings BombSet;

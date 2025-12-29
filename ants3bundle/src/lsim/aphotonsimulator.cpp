@@ -346,21 +346,21 @@ void APhotonSimulator::simulateFromDepo()
     {
         doBeforeEvent();
 
-        if (SimSet.DepoSet.Primary)   S1Gen->clearRemainer();
-        if (SimSet.DepoSet.Secondary) S2Gen->clearRemainer();
+        if (SimSet.PrimaryScint)   S1Gen->clearRemainer();
+        if (SimSet.SecondaryScint) S2Gen->clearRemainer();
 
         ADepoRecord depoRec;
         while (DepoHandler->readNextRecordSameEvent(depoRec))
         {
             // error control in generators? !!!***
-            if (SimSet.DepoSet.Primary)
+            if (SimSet.PrimaryScint)
             {
                 S1Gen->generate(depoRec);
                 //ErrorString = "Error executing S1 generation!";
                 //return false;
             }
 
-            if (SimSet.DepoSet.Secondary)
+            if (SimSet.SecondaryScint)
             {
                 S2Gen->generate(depoRec);
                 //ErrorString = "Error executing S2 generation!";
