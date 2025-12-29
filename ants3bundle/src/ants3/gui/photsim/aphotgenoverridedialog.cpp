@@ -22,11 +22,11 @@ APhotGenOverrideDialog::APhotGenOverrideDialog(QWidget *parent) :
 
     ui->fPointSourceWave->setEnabled(false);
 
-    const APhotonAdvancedSettings & s = APhotonSimHub::getConstInstance().Settings.BombSet.AdvancedSettings;
+    const APhGenOverrideSettings & s = APhotonSimHub::getConstInstance().Settings.PhGenOverrideSet;
 
     int index = 0;
-    if      (s.DirectionMode == APhotonAdvancedSettings::Fixed) index = 1;
-    else if (s.DirectionMode == APhotonAdvancedSettings::Cone)  index = 2;
+    if      (s.DirectionMode == APhGenOverrideSettings::Fixed) index = 1;
+    else if (s.DirectionMode == APhGenOverrideSettings::Cone)  index = 2;
     ui->cobDirectionMode->setCurrentIndex(index);
 
     ui->ledDX->setText(QString::number(s.DirDX));
@@ -51,14 +51,14 @@ APhotGenOverrideDialog::~APhotGenOverrideDialog()
 
 void APhotGenOverrideDialog::on_pbAccept_clicked()
 {
-    APhotonAdvancedSettings & s = APhotonSimHub::getInstance().Settings.BombSet.AdvancedSettings;
+    APhGenOverrideSettings & s = APhotonSimHub::getInstance().Settings.PhGenOverrideSet;
 
     switch (ui->cobDirectionMode->currentIndex())
     {
     default:
-    case 0: s.DirectionMode = APhotonAdvancedSettings::Isotropic; break;
-    case 1: s.DirectionMode = APhotonAdvancedSettings::Fixed;     break;
-    case 2: s.DirectionMode = APhotonAdvancedSettings::Cone;      break;
+    case 0: s.DirectionMode = APhGenOverrideSettings::Isotropic; break;
+    case 1: s.DirectionMode = APhGenOverrideSettings::Fixed;     break;
+    case 2: s.DirectionMode = APhGenOverrideSettings::Cone;      break;
     }
     s.DirDX = ui->ledDX->text().toDouble();
     s.DirDY = ui->ledDY->text().toDouble();

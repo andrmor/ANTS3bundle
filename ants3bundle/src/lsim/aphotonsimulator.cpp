@@ -235,24 +235,25 @@ void APhotonSimulator::setupPhotonBombs()
 
     CurrentEvent = SimSet.RunSet.EventFrom;
 
-    const APhotonAdvancedSettings & AdvSet = SimSet.BombSet.AdvancedSettings;
+    const APhGenOverrideSettings & PhGenOverSet = SimSet.PhGenOverrideSet;
+    const APhotonBombAdvancedSettings & SkipSet = SimSet.BombSet.AdvancedSettings;
 
     // Direction inits
-    Photon.v[0] = AdvSet.DirDX;
-    Photon.v[1] = AdvSet.DirDY;
-    Photon.v[2] = AdvSet.DirDZ;
+    Photon.v[0] = PhGenOverSet.DirDX;
+    Photon.v[1] = PhGenOverSet.DirDY;
+    Photon.v[2] = PhGenOverSet.DirDZ;
     Photon.ensureUnitaryLength();    // if fixed direction, it will be this always. otherwise override later
     ColDirUnitary = TVector3(Photon.v);
-    CosConeAngle = cos(AdvSet.ConeAngle * TMath::Pi() / 180.0);
+    CosConeAngle = cos(PhGenOverSet.ConeAngle * TMath::Pi() / 180.0);
 
     // Wavelength
     Photon.waveIndex = -1;
-    if (AdvSet.bFixWave)
-        Photon.waveIndex = SimSet.WaveSet.toIndex(AdvSet.FixedWavelength);
+    if (PhGenOverSet.bFixWave)
+        Photon.waveIndex = SimSet.WaveSet.toIndex(PhGenOverSet.FixedWavelength);
 
     // Limiters
-    if (AdvSet.bOnlyVolume)   LimitToVolume   = TString(AdvSet.Volume.toLatin1().data());
-    if (AdvSet.bOnlyMaterial) LimitToMaterial = AMaterialHub::getConstInstance().findMaterial(AdvSet.Material);
+    if (SkipSet.bOnlyVolume)   LimitToVolume   = TString(SkipSet.Volume.toLatin1().data());
+    if (SkipSet.bOnlyMaterial) LimitToMaterial = AMaterialHub::getConstInstance().findMaterial(SkipSet.Material);
 
     // custom distribution of photons per bomb
     if (SimSet.BombSet.PhotonsPerBomb.Mode == APhotonsPerBombSettings::Custom)
@@ -511,8 +512,8 @@ bool APhotonSimulator::simulateGrid()
 
 bool APhotonSimulator::simulateFlood()
 {
-    const AFloodSettings          & FloodSet = SimSet.BombSet.FloodSettings;
-    const APhotonAdvancedSettings & AdvSet   = SimSet.BombSet.AdvancedSettings;
+    const AFloodSettings              & FloodSet = SimSet.BombSet.FloodSettings;
+    const APhotonBombAdvancedSettings & AdvSet = SimSet.BombSet.AdvancedSettings;
 
     //extracting flood parameters
     double Xfrom, Xto, Yfrom, Yto, CenterX, CenterY, RadiusIn, RadiusOut;
@@ -782,7 +783,7 @@ void APhotonSimulator::doAfterEvent()
 
 void APhotonSimulator::simulatePhotonBomb(ANodeRecord & node, bool overrideNumPhotons)
 {
-    const APhotonAdvancedSettings & AdvSet = SimSet.BombSet.AdvancedSettings;
+    const APhotonBombAdvancedSettings & AdvSet = SimSet.BombSet.AdvancedSettings;
     if ( (AdvSet.bOnlyVolume   && !isInsideLimitingVolume(node.R)) ||
          (AdvSet.bOnlyMaterial && !isInsideLimitingMaterial(node.R)) )
     {
@@ -807,7 +808,7 @@ void APhotonSimulator::generateAndTracePhotons_primary(const ANodeRecord & node)
         return;
     }
 
-    const APhotonAdvancedSettings & AdvSet = SimSet.BombSet.AdvancedSettings;
+    const APhGenOverrideSettings & PhGenOverSet = SimSet.PhGenOverrideSet;
 
     for (int i = 0; i < 3; i++) Photon.r[i] = node.R[i];
 
@@ -825,9 +826,9 @@ void APhotonSimulator::generateAndTracePhotons_primary(const ANodeRecord & node)
     for (int i = 0; i < node.NumPhot; i++)
     {
         // Direction
-        if      (AdvSet.DirectionMode == APhotonAdvancedSettings::Isotropic)
+        if      (PhGenOverSet.DirectionMode == APhGenOverrideSettings::Isotropic)
             Photon.generateRandomDir();
-        else if (AdvSet.DirectionMode == APhotonAdvancedSettings::Cone)
+        else if (PhGenOverSet.DirectionMode == APhGenOverrideSettings::Cone)
         {
             const double z = CosConeAngle + RandomHub.uniform() * (1.0 - CosConeAngle);
             const double tmp = sqrt(1.0 - z*z);
@@ -839,15 +840,15 @@ void APhotonSimulator::generateAndTracePhotons_primary(const ANodeRecord & node)
         //else it is already set
 
         // Wavelength
-        if (!AdvSet.bFixWave)
+        if (!PhGenOverSet.bFixWave)
             APhotonGenerator::generateWave(Photon, MatIndex); // else waveindex is already set
 
         // Time
         Photon.time = node.Time;
-        if (!AdvSet.bFixDecay)
+        if (!PhGenOverSet.bFixDecay)
             APhotonGenerator::generateTime(Photon, MatIndex);
         else
-            Photon.time += RandomHub.exp(AdvSet.DecayTime);
+            Photon.time += RandomHub.exp(PhGenOverSet.DecayTime);
 
         Tracer->tracePhoton(Photon);
     }
@@ -907,7 +908,7 @@ void APhotonSimulator::generateAndTracePhotons_secondary(ANodeRecord & node)
 
     const double driftSpeed = MatHub.getDriftSpeed(MatIndexSecScint);
 
-    const APhotonAdvancedSettings & AdvSet = SimSet.BombSet.AdvancedSettings;
+    const APhGenOverrideSettings & PhGenOverSet = SimSet.PhGenOverrideSet;
     for (int iPh = 0; iPh < node.NumPhot; iPh++)
     {
         //random z inside this secondary scintillator
@@ -922,9 +923,9 @@ void APhotonSimulator::generateAndTracePhotons_secondary(ANodeRecord & node)
         }
 
         // Direction
-        if      (AdvSet.DirectionMode == APhotonAdvancedSettings::Isotropic)
+        if      (PhGenOverSet.DirectionMode == APhGenOverrideSettings::Isotropic)
             Photon.generateRandomDir();
-        else if (AdvSet.DirectionMode == APhotonAdvancedSettings::Cone)
+        else if (PhGenOverSet.DirectionMode == APhGenOverrideSettings::Cone)
         {
             const double z = CosConeAngle + RandomHub.uniform() * (1.0 - CosConeAngle);
             const double tmp = sqrt(1.0 - z*z);
@@ -936,14 +937,14 @@ void APhotonSimulator::generateAndTracePhotons_secondary(ANodeRecord & node)
         //else it is already set
 
         // Wavelength
-        if (!AdvSet.bFixWave)
+        if (!PhGenOverSet.bFixWave)
             APhotonGenerator::generateWave(Photon, MatIndexSecScint); // else waveindex is already set
 
         // Time
-        if (!AdvSet.bFixDecay)
+        if (!PhGenOverSet.bFixDecay)
             APhotonGenerator::generateTime(Photon, MatIndexSecScint);
         else
-            Photon.time += RandomHub.exp(AdvSet.DecayTime);
+            Photon.time += RandomHub.exp(PhGenOverSet.DecayTime);
 
         Tracer->tracePhoton(Photon);
     }

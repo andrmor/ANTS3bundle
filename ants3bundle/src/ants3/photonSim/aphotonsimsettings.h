@@ -155,24 +155,9 @@ public:
     //void           clearStatistics(){}
 };
 
-class APhotonAdvancedSettings
+class APhotonBombAdvancedSettings
 {
 public:
-    enum AModeEnum {Isotropic, Fixed, Cone};
-
-    AModeEnum DirectionMode = Isotropic;
-    double    DirDX         = 0;
-    double    DirDY         = 0;
-    double    DirDZ         = 1.0;
-    double    ConeAngle     = 10.0;
-
-    bool      bFixWave      = false;
-    //int       WaveIndex     = -1;
-    double    FixedWavelength = 550.0;
-
-    bool      bFixDecay     = false;
-    double    DecayTime     = 5.0; // in ns
-
     bool      bOnlyVolume   = false;
     QString   Volume;
     bool      bOnlyMaterial = false;
@@ -197,7 +182,7 @@ public:
     AFloodSettings    FloodSettings;
     ABombFileSettings BombFileSettings;
 
-    APhotonAdvancedSettings AdvancedSettings;
+    APhotonBombAdvancedSettings AdvancedSettings;
 
     void    writeToJson(QJsonObject & json) const;
     QString readFromJson(const QJsonObject & json);
@@ -297,7 +282,30 @@ protected:
 class APhotonFileSettings : public AFileSettingsBase
 {
 public:
-    // so far no specific properties, so completely delegate to the base class!
+    // there are no specific properties --> delegate to the base class
+};
+
+class APhGenOverrideSettings
+{
+public:
+    enum AModeEnum {Isotropic, Fixed, Cone};
+
+    AModeEnum DirectionMode = Isotropic;
+    double    DirDX         = 0;
+    double    DirDY         = 0;
+    double    DirDZ         = 1.0;
+    double    ConeAngle     = 10.0;
+
+    bool      bFixWave      = false;
+    double    FixedWavelength = 550.0;
+
+    bool      bFixDecay     = false;
+    double    DecayTime     = 5.0; // in ns
+
+    void clear();
+
+    void writeToJson(QJsonObject & json) const;
+    void readFromJson(const QJsonObject & json);
 };
 
 // ===
@@ -318,6 +326,8 @@ public:
     APhotOptSettings     OptSet;
 
     APhotSimRunSettings  RunSet;
+
+    APhGenOverrideSettings PhGenOverrideSet;
 
     void    writeToJson(QJsonObject & json, bool addRuntimeExport) const;
     QString readFromJson(const QJsonObject & json);

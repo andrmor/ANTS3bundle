@@ -290,7 +290,7 @@ void APhotSimWin::updatePhotBombGui()
     ui->ledFloodZto->setText(QString::number(fset.Zto));
 
     // skip node position by mat / volume
-    const APhotonAdvancedSettings & skipNodeSettings = APhotonSimHub::getConstInstance().Settings.BombSet.AdvancedSettings;
+    const APhotonBombAdvancedSettings & skipNodeSettings = APhotonSimHub::getConstInstance().Settings.BombSet.AdvancedSettings;
     ui->cbSkipByVolume->setChecked(skipNodeSettings.bOnlyVolume);
     ui->leSkipOutsideVolume->setText(skipNodeSettings.Volume);
     ui->cbSkipByMaterial->setChecked(skipNodeSettings.bOnlyMaterial);
@@ -1553,9 +1553,9 @@ void APhotSimWin::on_pbAdvancedBombSettings_clicked()
 
 void APhotSimWin::updateAdvancedBombIndicator()
 {
-    const APhotonAdvancedSettings & s = SimSet.BombSet.AdvancedSettings;
+    const APhGenOverrideSettings & s = SimSet.PhGenOverrideSet;
 
-    bool on = (s.DirectionMode != APhotonAdvancedSettings::Isotropic || s.bFixWave || s.bFixDecay || s.bOnlyVolume || s.bOnlyMaterial);
+    bool on = (s.DirectionMode != APhGenOverrideSettings::Isotropic || s.bFixWave || s.bFixDecay);
     ui->labAdvancedBombOn->setVisible(on);
 }
 
@@ -2262,19 +2262,19 @@ void APhotSimWin::on_cobTracingMode_activated(int index)
 
 void APhotSimWin::on_cbSkipByMaterial_clicked(bool checked)
 {
-    APhotonAdvancedSettings & s = APhotonSimHub::getInstance().Settings.BombSet.AdvancedSettings;
+    APhotonBombAdvancedSettings & s = APhotonSimHub::getInstance().Settings.BombSet.AdvancedSettings;
     s.bOnlyMaterial = checked;
 }
 
 void APhotSimWin::on_leSkipOutsideMaterial_editingFinished()
 {
-    APhotonAdvancedSettings & s = APhotonSimHub::getInstance().Settings.BombSet.AdvancedSettings;
+    APhotonBombAdvancedSettings & s = APhotonSimHub::getInstance().Settings.BombSet.AdvancedSettings;
     s.Material = ui->leSkipOutsideMaterial->text();
 }
 
 void APhotSimWin::on_cbSkipByVolume_clicked(bool checked)
 {
-    APhotonAdvancedSettings & s = APhotonSimHub::getInstance().Settings.BombSet.AdvancedSettings;
+    APhotonBombAdvancedSettings & s = APhotonSimHub::getInstance().Settings.BombSet.AdvancedSettings;
     s.bOnlyVolume = checked;
 }
 
@@ -2283,7 +2283,7 @@ void APhotSimWin::on_leSkipOutsideVolume_editingFinished()
     // !!!***
     // check volume * mat exist
 
-    APhotonAdvancedSettings & s = APhotonSimHub::getInstance().Settings.BombSet.AdvancedSettings;
+    APhotonBombAdvancedSettings & s = APhotonSimHub::getInstance().Settings.BombSet.AdvancedSettings;
     s.Volume = ui->leSkipOutsideVolume->text();
 }
 
