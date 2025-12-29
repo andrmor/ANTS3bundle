@@ -24,17 +24,11 @@ private slots:
     void on_pbCancel_clicked();
 
     void on_cobDirectionMode_currentIndexChanged(int index);
+
     void on_cbFixWave_toggled(bool checked);
     void on_cbFixedDecay_toggled(bool checked);
-    void on_cbSkipByVolume_toggled(bool checked);
-    void on_cbSkipByMaterial_toggled(bool checked);
     void on_pbFixedWavelengthInfo_clicked();
-
     void on_ledFixedWavelength_editingFinished();
-
-    void on_cbSecondaryScint_toggled(bool checked);
-
-    void on_pbSecScintInfo_clicked();
 
 private:
     Ui::ABombAdvancedDialog *ui;

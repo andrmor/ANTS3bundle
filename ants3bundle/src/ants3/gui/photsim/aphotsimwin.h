@@ -175,17 +175,14 @@ private slots:
     void on_leSkipOutsideVolume_editingFinished();
     void on_cbSkipByMaterial_clicked(bool checked);
 
-    void on_cobScintType_activated(int index);
-
 #ifdef USE_MERCURY
     void on_pbLoadLrModel_clicked();
     void on_pbShowLrmExplorer_clicked();
     void on_pbShowLrfPlotter_clicked();
-
-signals:
-    void requestShowLrfPlotterDialog();
 #endif
 
+    void on_cobScintType_activated(int index);
+    void on_pbHelpScintType_clicked();
 
 private:
     APhotonSimSettings & SimSet;
@@ -258,6 +255,7 @@ signals:
     void requestShowGeoMarkers();
     void requestShowPosition(double * pos, bool keepTracks);
     void requestConfigureExchangeDir();
+    void requestShowLrfPlotterDialog();
 };
 
 #endif // APHOTSIMWIN_H

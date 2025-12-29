@@ -179,8 +179,6 @@ public:
     QString   Material;
     int       MaxNodeAttempts = 1000;
 
-    bool      SecondaryScintillation = false;
-
     void clear();
 
     void writeToJson(QJsonObject & json) const;

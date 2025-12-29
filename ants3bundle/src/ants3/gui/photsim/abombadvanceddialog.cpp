@@ -39,16 +39,6 @@ ABombAdvancedDialog::ABombAdvancedDialog(QWidget *parent) :
     ui->cbFixedDecay->setChecked(s.bFixDecay);
     ui->ledDecayTime->setText(QString::number(s.DecayTime));
 
-    ui->cbSkipByVolume->setChecked(s.bOnlyVolume);
-    ui->leSkipOutsideVolume->setText(s.Volume);
-
-    ui->cbSkipByMaterial->setChecked(s.bOnlyMaterial);
-    ui->leSkipOutsideMaterial->setText(s.Material);
-
-    ui->cbSecondaryScint->setChecked(s.SecondaryScintillation);
-
-    ui->pbCND_applyChanges->setVisible(false);
-
     on_cobDirectionMode_currentIndexChanged(ui->cobDirectionMode->currentIndex());
 }
 
@@ -79,14 +69,6 @@ void ABombAdvancedDialog::on_pbAccept_clicked()
     s.bFixDecay = ui->cbFixedDecay->isChecked();
     s.DecayTime = ui->ledDecayTime->text().toDouble();
 
-    s.bOnlyVolume = ui->cbSkipByVolume->isChecked();
-    s.Volume = ui->leSkipOutsideVolume->text();
-
-    s.bOnlyMaterial = ui->cbSkipByMaterial->isChecked();
-    s.Material = ui->leSkipOutsideMaterial->text();
-
-    s.SecondaryScintillation = ui->cbSecondaryScint->isChecked();
-
     accept();
 }
 
@@ -113,18 +95,6 @@ void ABombAdvancedDialog::on_cbFixedDecay_toggled(bool checked)
     ui->twAdvSimOpt->setTabIcon(2, (checked ? YellowCircle : QIcon()));
 }
 
-void ABombAdvancedDialog::on_cbSkipByVolume_toggled(bool)
-{
-    bool flag = ui->cbSkipByVolume->isChecked() || ui->cbSkipByMaterial->isChecked();
-    ui->twAdvSimOpt->setTabIcon(3, (flag ? YellowCircle : QIcon()));
-}
-
-void ABombAdvancedDialog::on_cbSkipByMaterial_toggled(bool)
-{
-    bool flag = ui->cbSkipByVolume->isChecked() || ui->cbSkipByMaterial->isChecked();
-    ui->twAdvSimOpt->setTabIcon(3, (flag ? YellowCircle : QIcon()));
-}
-
 void ABombAdvancedDialog::on_pbFixedWavelengthInfo_clicked()
 {
     guitools::message("If not checked, the wavelength of the generated photons is defined by the emission spectrum of the material at the emission position.\n"
@@ -149,18 +119,3 @@ void ABombAdvancedDialog::on_ledFixedWavelength_editingFinished()
 {
     updateFixedWavelengthGui();
 }
-
-void ABombAdvancedDialog::on_cbSecondaryScint_toggled(bool checked)
-{
-    ui->twAdvSimOpt->setTabIcon(4, (checked ? YellowCircle : QIcon()));
-}
-
-void ABombAdvancedDialog::on_pbSecScintInfo_clicked()
-{
-    QString txt = "Note that generation and drift of ionization electrons are not simulated in photon bomb mode!\n\n"
-                  "The configured number of photon is generated uniformly over the line crossing the first object with the SecondayScintillator role found in (0,0,1) direction from the node position.\n\n"
-                  "The emission time is computed based on the drift time (diffusion is ignored) and the secondary scintillation time properties of the scintillator material.\n\n"
-                  "In wavelength-resolved mode, the secondary scintillation emission spectrum of the scintillator is used.";
-    guitools::message(txt, this);
-}
-

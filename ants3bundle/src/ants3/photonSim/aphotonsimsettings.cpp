@@ -970,8 +970,6 @@ void APhotonAdvancedSettings::clear()
     bOnlyMaterial    = false;
     Material.clear();
     MaxNodeAttempts = 1000;
-
-    SecondaryScintillation = false;
 }
 
 void APhotonAdvancedSettings::writeToJson(QJsonObject & json) const
@@ -1025,8 +1023,6 @@ void APhotonAdvancedSettings::writeToJson(QJsonObject & json) const
             js["MaxNodeAttempts"] = MaxNodeAttempts;
         json["SkipBombs"] = js;
     }
-
-    json["SecondaryScintillation"] = SecondaryScintillation;
 }
 
 void APhotonAdvancedSettings::readFromJson(const QJsonObject &json)
@@ -1085,8 +1081,6 @@ void APhotonAdvancedSettings::readFromJson(const QJsonObject &json)
         jstools::parseJson(js, "Material",        Material);
         jstools::parseJson(js, "MaxNodeAttempts", MaxNodeAttempts);
     }
-
-    jstools::parseJson(json, "SecondaryScintillation", SecondaryScintillation);
 }
 
 void APhotonLogSettings::writeToJson(QJsonObject & json) const

@@ -793,8 +793,8 @@ void APhotonSimulator::simulatePhotonBomb(ANodeRecord & node, bool overrideNumPh
         if (overrideNumPhotons) node.NumPhot = getNumPhotonsThisBomb();
     }
 
-    if (!AdvSet.SecondaryScintillation) generateAndTracePhotons_primary(node);
-    else                                generateAndTracePhotons_secondary(node);
+    if (SimSet.PrimaryScint)   generateAndTracePhotons_primary(node);
+    if (SimSet.SecondaryScint) generateAndTracePhotons_secondary(node);
 
     if (SimSet.RunSet.SavePhotonBombs) savePhotonBomb(node);
 }

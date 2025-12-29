@@ -1555,7 +1555,7 @@ void APhotSimWin::updateAdvancedBombIndicator()
 {
     const APhotonAdvancedSettings & s = SimSet.BombSet.AdvancedSettings;
 
-    bool on = (s.DirectionMode != APhotonAdvancedSettings::Isotropic || s.bFixWave || s.bFixDecay || s.bOnlyVolume || s.bOnlyMaterial || s.SecondaryScintillation);
+    bool on = (s.DirectionMode != APhotonAdvancedSettings::Isotropic || s.bFixWave || s.bFixDecay || s.bOnlyVolume || s.bOnlyMaterial);
     ui->labAdvancedBombOn->setVisible(on);
 }
 
@@ -2292,5 +2292,14 @@ void APhotSimWin::on_cobScintType_activated(int index)
     case 1: SimSet.PrimaryScint = false; SimSet.SecondaryScint = true;  break;
     case 2: SimSet.PrimaryScint = true;  SimSet.SecondaryScint = true;  break;
     }
+}
+
+void APhotSimWin::on_pbHelpScintType_clicked()
+{
+    QString txt = "Note that generation and drift of ionization electrons are not simulated in photon bomb mode!\n\n"
+                  "The configured number of photon is generated uniformly over the line crossing the first object with the SecondayScintillator role found in (0,0,1) direction from the node position.\n\n"
+                  "The emission time is computed based on the drift time (diffusion is ignored) and the secondary scintillation time properties of the scintillator material.\n\n"
+                  "In wavelength-resolved mode, the secondary scintillation emission spectrum of the scintillator is used.";
+    guitools::message(txt, this);
 }
 
