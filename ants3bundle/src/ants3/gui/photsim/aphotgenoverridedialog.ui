@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>ABombAdvancedDialog</class>
- <widget class="QDialog" name="ABombAdvancedDialog">
+ <class>APhotGenOverrideDialog</class>
+ <widget class="QDialog" name="APhotGenOverrideDialog">
   <property name="geometry">
    <rect>
     <x>0</x>

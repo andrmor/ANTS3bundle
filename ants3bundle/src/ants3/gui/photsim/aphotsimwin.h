@@ -172,7 +172,7 @@ private slots:
 
     void on_leSkipOutsideMaterial_editingFinished();
     void on_cbSkipByVolume_clicked(bool checked);
-    void on_leSkipOutsideVolume_editingFinished();
+    void on_leSkipOutsideVolume_editingFinished();   // !!!*** checks!
     void on_cbSkipByMaterial_clicked(bool checked);
 
 #ifdef USE_MERCURY

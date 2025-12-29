@@ -246,6 +246,7 @@ SOURCES += \
     gui/photsim/afunctionalmodelwidget.cpp \
     gui/photsim/ainterfaceruletester.cpp \
     gui/photsim/aphotfunctwindow.cpp \
+    gui/photsim/aphotgenoverridedialog.cpp \
     gui/photsim/aphotonlogsettingsform.cpp \
     gui/photsim/aphotsimwin.cpp \
     gui/photsim/asensordrawwidget.cpp \
@@ -281,7 +282,6 @@ SOURCES += \
     gui/particleSim/aparticlesimoutputdialog.cpp \
     gui/particleSim/aparticlesimwin.cpp \
     gui/particleSim/aparticlesourcedialog.cpp \
-    gui/photsim/abombadvanceddialog.cpp \
     gui/photsim/ainterfaceruledialog.cpp \
     gui/photsim/ainterfacerulewin.cpp \
     gui/photsim/ainterfacewidgetfactory.cpp \
@@ -464,6 +464,7 @@ HEADERS += \
     gui/particleSim/aparticlesourcedialogbase.h \
     gui/photsim/afunctionalmodelwidget.h \
     gui/photsim/aphotfunctwindow.h \
+    gui/photsim/aphotgenoverridedialog.h \
     gui/photsim/aphotonlogsettingsform.h \
     gui/raster/agraphrasterwindow.h \
     gui/raster/arasterwindow.h \
@@ -536,7 +537,6 @@ HEADERS += \
     gui/particleSim/aparticlesimoutputdialog.h \
     gui/particleSim/aparticlesimwin.h \
     gui/particleSim/aparticlesourcedialog.h \
-    gui/photsim/abombadvanceddialog.h \
     gui/photsim/ainterfaceruledialog.h \
     gui/photsim/ainterfacerulewin.h \
     gui/photsim/ainterfacewidgetfactory.h \
@@ -707,6 +707,7 @@ FORMS += \
         gui/particleSim/aworldsizewarningdialog.ui \
         gui/photsim/ainterfaceruletester.ui \
         gui/photsim/aphotfunctwindow.ui \
+        gui/photsim/aphotgenoverridedialog.ui \
         gui/photsim/aphotonlogsettingsform.ui \
         gui/photsim/aphotsimwin.ui \
         gui/photsim/asensordrawwidget.ui \
@@ -725,7 +726,6 @@ FORMS += \
         gui/particleSim/aparticlesimoutputdialog.ui \
         gui/particleSim/aparticlesimwin.ui \
         gui/particleSim/aparticlesourcedialog.ui \
-        gui/photsim/abombadvanceddialog.ui \
         gui/geom/ageotreewin.ui \
         gui/geom/agridelementdialog.ui \
         gui/geom/amonitordelegateform.ui \

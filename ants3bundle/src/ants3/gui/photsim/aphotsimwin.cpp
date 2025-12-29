@@ -1543,10 +1543,10 @@ void APhotSimWin::on_pbdUpdateScanSettings_clicked()
     }
 }
 
-#include "abombadvanceddialog.h"
+#include "aphotgenoverridedialog.h"
 void APhotSimWin::on_pbAdvancedBombSettings_clicked()
 {
-    ABombAdvancedDialog dia(this);
+    APhotGenOverrideDialog dia(this);
     dia.exec();
     updateAdvancedBombIndicator();
 }
@@ -2280,6 +2280,9 @@ void APhotSimWin::on_cbSkipByVolume_clicked(bool checked)
 
 void APhotSimWin::on_leSkipOutsideVolume_editingFinished()
 {
+    // !!!***
+    // check volume * mat exist
+
     APhotonAdvancedSettings & s = APhotonSimHub::getInstance().Settings.BombSet.AdvancedSettings;
     s.Volume = ui->leSkipOutsideVolume->text();
 }

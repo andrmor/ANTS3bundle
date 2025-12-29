@@ -1,14 +1,16 @@
-#include "abombadvanceddialog.h"
-#include "ui_abombadvanceddialog.h"
+#include "aphotgenoverridedialog.h"
+#include "ui_aphotgenoverridedialog.h"
 #include "aphotonsimhub.h"
 #include "guitools.h"
 #include "aphotonsimhub.h"
 
-ABombAdvancedDialog::ABombAdvancedDialog(QWidget *parent) :
+APhotGenOverrideDialog::APhotGenOverrideDialog(QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::ABombAdvancedDialog)
+    ui(new Ui::APhotGenOverrideDialog)
 {
     ui->setupUi(this);
+
+    setWindowTitle("Photon gneration overrides");
 
     YellowCircle = guitools::createColorCirclePixmap({15,15}, Qt::yellow);
 
@@ -42,12 +44,12 @@ ABombAdvancedDialog::ABombAdvancedDialog(QWidget *parent) :
     on_cobDirectionMode_currentIndexChanged(ui->cobDirectionMode->currentIndex());
 }
 
-ABombAdvancedDialog::~ABombAdvancedDialog()
+APhotGenOverrideDialog::~APhotGenOverrideDialog()
 {
     delete ui;
 }
 
-void ABombAdvancedDialog::on_pbAccept_clicked()
+void APhotGenOverrideDialog::on_pbAccept_clicked()
 {
     APhotonAdvancedSettings & s = APhotonSimHub::getInstance().Settings.BombSet.AdvancedSettings;
 
@@ -72,12 +74,12 @@ void ABombAdvancedDialog::on_pbAccept_clicked()
     accept();
 }
 
-void ABombAdvancedDialog::on_pbCancel_clicked()
+void APhotGenOverrideDialog::on_pbCancel_clicked()
 {
     reject();
 }
 
-void ABombAdvancedDialog::on_cobDirectionMode_currentIndexChanged(int index)
+void APhotGenOverrideDialog::on_cobDirectionMode_currentIndexChanged(int index)
 {
     ui->frNonIsotropic->setEnabled(index != 0);
     ui->fConeForPhotonGen->setEnabled(index == 2);
@@ -85,24 +87,24 @@ void ABombAdvancedDialog::on_cobDirectionMode_currentIndexChanged(int index)
     ui->twAdvSimOpt->setTabIcon(0, (index == 0 ? QIcon() : YellowCircle));
 }
 
-void ABombAdvancedDialog::on_cbFixWave_toggled(bool checked)
+void APhotGenOverrideDialog::on_cbFixWave_toggled(bool checked)
 {
     ui->twAdvSimOpt->setTabIcon(1, (checked ? YellowCircle : QIcon()));
 }
 
-void ABombAdvancedDialog::on_cbFixedDecay_toggled(bool checked)
+void APhotGenOverrideDialog::on_cbFixedDecay_toggled(bool checked)
 {
     ui->twAdvSimOpt->setTabIcon(2, (checked ? YellowCircle : QIcon()));
 }
 
-void ABombAdvancedDialog::on_pbFixedWavelengthInfo_clicked()
+void APhotGenOverrideDialog::on_pbFixedWavelengthInfo_clicked()
 {
     guitools::message("If not checked, the wavelength of the generated photons is defined by the emission spectrum of the material at the emission position.\n"
                       "\nIn case the emission spectrum is not defined, the photons are generated with waveindex of -1, and non-wavelength resolved properties of all materials is used in tracking of this photon\n"
                       "\nIf the slected wavelength is outside of the configured wavelength range, the generated photons will have waveindex of -1", this);
 }
 
-void ABombAdvancedDialog::updateFixedWavelengthGui()
+void APhotGenOverrideDialog::updateFixedWavelengthGui()
 {
     const APhotonSimHub & SimSet = APhotonSimHub::getConstInstance();
     const AWaveResSettings & WaveSet = SimSet.Settings.WaveSet;
@@ -115,7 +117,7 @@ void ABombAdvancedDialog::updateFixedWavelengthGui()
     ui->labFixedWaveIndex->setText(QString::number(iwave));
 }
 
-void ABombAdvancedDialog::on_ledFixedWavelength_editingFinished()
+void APhotGenOverrideDialog::on_ledFixedWavelength_editingFinished()
 {
     updateFixedWavelengthGui();
 }
