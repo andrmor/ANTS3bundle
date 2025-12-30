@@ -300,7 +300,7 @@ public:
     double    FixedWavelength = 550.0;
 
     bool      bFixDecay     = false;
-    double    DecayTime     = 5.0; // in ns
+    double    DecayTime     = 0; // in ns
 
     void clear();
 

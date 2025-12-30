@@ -7,16 +7,18 @@ class ARandomHub;
 class AMaterialHub;
 class ADepoRecord;
 class ALightSensorEvent;
+class APhotonGenerator;
 
 class AS1Generator
 {
 public:
-    AS1Generator(APhotonTracer & photonTracer, ALightSensorEvent & event);
+    AS1Generator(APhotonGenerator & photonGenerator, APhotonTracer & photonTracer, ALightSensorEvent & event);
 
     void generate(ADepoRecord & rec);
     void clearRemainer() {Remainer = 0;}
 
 private:
+    APhotonGenerator         & PhotonGenerator;
     APhotonTracer            & PhotonTracer;
     const APhotonSimSettings & SimSet;
     ARandomHub               & RandomHub;

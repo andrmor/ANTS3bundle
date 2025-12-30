@@ -3,6 +3,7 @@
 
 #include <vector>
 
+class APhotonGenerator;
 class APhotonTracer;
 class APhotonSimSettings;
 class ARandomHub;
@@ -23,12 +24,13 @@ struct DiffSigmas
 class AS2Generator
 {
 public:
-    AS2Generator(APhotonTracer & photonTracer, ALightSensorEvent & event);
+    AS2Generator(APhotonGenerator & photonGenerator, APhotonTracer & photonTracer, ALightSensorEvent & event);
 
     void generate(ADepoRecord & rec);
     void clearRemainer() {PhotonRemainer = 0; ElectronRemainer = 0;}
 
 private:
+    APhotonGenerator         & PhotonGenerator;
     APhotonTracer            & PhotonTracer;
     const APhotonSimSettings & SimSet;
     ARandomHub               & RandomHub;

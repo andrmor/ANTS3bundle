@@ -2306,3 +2306,8 @@ void APhotSimWin::on_pbHelpScintType_clicked()
     guitools::message(txt, this);
 }
 
+void APhotSimWin::on_cbWaveResolved_clicked(bool checked)
+{
+    SimSet.WaveSet.Enabled = checked;
+}
+

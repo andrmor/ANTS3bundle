@@ -15,7 +15,8 @@
 
 #include "TGeoManager.h"
 
-AS2Generator::AS2Generator(APhotonTracer & photonTracer, ALightSensorEvent &event) :
+AS2Generator::AS2Generator(APhotonGenerator & photonGenerator, APhotonTracer & photonTracer, ALightSensorEvent &event) :
+    PhotonGenerator (photonGenerator),
     PhotonTracer(photonTracer),
     SimSet(APhotonSimHub::getConstInstance().Settings),
     RandomHub(ARandomHub::getInstance()),
@@ -145,23 +146,23 @@ void AS2Generator::generateLight(double * xyPosition, double time)
 
 void AS2Generator::generateAndTracePhotons(double * Position, double Time, int NumPhotonsToGenerate, int MatIndexSecScint, double Zstart, double Zspan)
 {
-    APhoton Photon;
-    Photon.r[0] = Position[0];
-    Photon.r[1] = Position[1];
-    Photon.SecondaryScint = true;
+    APhoton photon;
+    photon.r[0] = Position[0];
+    photon.r[1] = Position[1];
+    photon.SecondaryScint = true;
 
     const double DriftSpeed = MatHub.getDriftSpeed(MatIndexSecScint);
     for (int iPhoton = 0; iPhoton < NumPhotonsToGenerate; iPhoton++)
     {
         //random z inside secondary scintillator
         const double z = Zspan * RandomHub.uniform();
-        Photon.r[2] = Zstart + z;
-        Photon.time = Time + z / DriftSpeed;
+        photon.r[2] = Zstart + z;
+        photon.time = Time + z / DriftSpeed;
 
-        Photon.generateRandomDir();
-        APhotonGenerator::generateWave(Photon, MatIndexSecScint);
-        APhotonGenerator::generateTime(Photon, MatIndexSecScint);
+        PhotonGenerator.generateDirection(photon);
+        PhotonGenerator.generateWave(photon, MatIndexSecScint);
+        PhotonGenerator.generateTime(photon, MatIndexSecScint);
 
-        PhotonTracer.tracePhoton(Photon);
+        PhotonTracer.tracePhoton(photon);
     }
 }

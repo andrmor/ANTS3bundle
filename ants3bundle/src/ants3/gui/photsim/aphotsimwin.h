@@ -184,6 +184,8 @@ private slots:
     void on_cobScintType_activated(int index);
     void on_pbHelpScintType_clicked();
 
+    void on_cbWaveResolved_clicked(bool checked);
+
 private:
     APhotonSimSettings & SimSet;
     const AMonitorHub  & MonitorHub;

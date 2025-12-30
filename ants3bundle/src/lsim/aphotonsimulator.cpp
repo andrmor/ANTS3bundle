@@ -53,6 +53,7 @@ APhotonSimulator::~APhotonSimulator()
 {
     delete S2Gen;
     delete S1Gen;
+    delete PhotonGenerator;
 
     delete PhotFileHandler;
     delete DepoHandler;
@@ -137,6 +138,9 @@ void APhotonSimulator::setupCommonProperties()
 
     Event->init();
     Tracer->configureTracer();  // Should be called after ASensorHub.updateRuntimeProperties()
+
+    PhotonGenerator = new APhotonGenerator();
+    PhotonGenerator->init();
 
     // checks
     if (SimSet.OptSet.TracingMode == APhotOptSettings::LRF) checkReadyForLrfMode();
@@ -243,8 +247,8 @@ void APhotonSimulator::setupPhotonBombs()
     Photon.v[1] = PhGenOverSet.DirDY;
     Photon.v[2] = PhGenOverSet.DirDZ;
     Photon.ensureUnitaryLength();    // if fixed direction, it will be this always. otherwise override later
-    ColDirUnitary = TVector3(Photon.v);
-    CosConeAngle = cos(PhGenOverSet.ConeAngle * TMath::Pi() / 180.0);
+    //ColDirUnitary = TVector3(Photon.v);
+    //CosConeAngle = cos(PhGenOverSet.ConeAngle * TMath::Pi() / 180.0);
 
     // Wavelength
     Photon.waveIndex = -1;
@@ -329,6 +333,7 @@ void APhotonSimulator::simulatePhotonBombs()
     }
 }
 
+#include "aphotongenerator.h"
 void APhotonSimulator::setupFromDepo()
 {
     SimSet.DepoSet.FileName = WorkingDir + '/' + SimSet.DepoSet.FileName;
@@ -336,8 +341,8 @@ void APhotonSimulator::setupFromDepo()
     bool ok = DepoHandler->init();
     if (!ok) terminate(AErrorHub::getQError());
 
-    S1Gen = new AS1Generator(*Tracer, *Event);
-    S2Gen = new AS2Generator(*Tracer, *Event);
+    S1Gen = new AS1Generator(*PhotonGenerator, *Tracer, *Event);
+    S2Gen = new AS2Generator(*PhotonGenerator, *Tracer, *Event);
 }
 
 #include "adeporecord.h"
@@ -825,30 +830,11 @@ void APhotonSimulator::generateAndTracePhotons_primary(const ANodeRecord & node)
 
     for (int i = 0; i < node.NumPhot; i++)
     {
-        // Direction
-        if      (PhGenOverSet.DirectionMode == APhGenOverrideSettings::Isotropic)
-            Photon.generateRandomDir();
-        else if (PhGenOverSet.DirectionMode == APhGenOverrideSettings::Cone)
-        {
-            const double z = CosConeAngle + RandomHub.uniform() * (1.0 - CosConeAngle);
-            const double tmp = sqrt(1.0 - z*z);
-            const double phi = RandomHub.uniform() * 2.0 * TMath::Pi();
-            TVector3 K1(tmp*cos(phi), tmp*sin(phi), z);
-            K1.RotateUz(ColDirUnitary);
-            for (int i = 0; i < 3; i++) Photon.v[i] = K1[i];
-        }
-        //else it is already set
+        PhotonGenerator->generateDirection(Photon);
+        PhotonGenerator->generateWave(Photon, MatIndex);
 
-        // Wavelength
-        if (!PhGenOverSet.bFixWave)
-            APhotonGenerator::generateWave(Photon, MatIndex); // else waveindex is already set
-
-        // Time
         Photon.time = node.Time;
-        if (!PhGenOverSet.bFixDecay)
-            APhotonGenerator::generateTime(Photon, MatIndex);
-        else
-            Photon.time += RandomHub.exp(PhGenOverSet.DecayTime);
+        PhotonGenerator->generateTime(Photon, MatIndex);
 
         Tracer->tracePhoton(Photon);
     }
@@ -908,7 +894,6 @@ void APhotonSimulator::generateAndTracePhotons_secondary(ANodeRecord & node)
 
     const double driftSpeed = MatHub.getDriftSpeed(MatIndexSecScint);
 
-    const APhGenOverrideSettings & PhGenOverSet = SimSet.PhGenOverrideSet;
     for (int iPh = 0; iPh < node.NumPhot; iPh++)
     {
         //random z inside this secondary scintillator
@@ -922,29 +907,9 @@ void APhotonSimulator::generateAndTracePhotons_secondary(ANodeRecord & node)
             //Photon.time += RandomHub.gauss(0, sigmaTime);
         }
 
-        // Direction
-        if      (PhGenOverSet.DirectionMode == APhGenOverrideSettings::Isotropic)
-            Photon.generateRandomDir();
-        else if (PhGenOverSet.DirectionMode == APhGenOverrideSettings::Cone)
-        {
-            const double z = CosConeAngle + RandomHub.uniform() * (1.0 - CosConeAngle);
-            const double tmp = sqrt(1.0 - z*z);
-            const double phi = RandomHub.uniform() * 2.0 * TMath::Pi();
-            TVector3 K1(tmp*cos(phi), tmp*sin(phi), z);
-            K1.RotateUz(ColDirUnitary);
-            for (int i = 0; i < 3; i++) Photon.v[i] = K1[i];
-        }
-        //else it is already set
-
-        // Wavelength
-        if (!PhGenOverSet.bFixWave)
-            APhotonGenerator::generateWave(Photon, MatIndexSecScint); // else waveindex is already set
-
-        // Time
-        if (!PhGenOverSet.bFixDecay)
-            APhotonGenerator::generateTime(Photon, MatIndexSecScint);
-        else
-            Photon.time += RandomHub.exp(PhGenOverSet.DecayTime);
+        PhotonGenerator->generateDirection(Photon);
+        PhotonGenerator->generateWave(Photon, MatIndexSecScint);
+        PhotonGenerator->generateTime(Photon, MatIndexSecScint);
 
         Tracer->tracePhoton(Photon);
     }

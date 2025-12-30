@@ -11,7 +11,8 @@
 
 #include <QDebug>
 
-AS1Generator::AS1Generator(APhotonTracer & photonTracer, ALightSensorEvent & event) :
+AS1Generator::AS1Generator(APhotonGenerator & photonGenerator, APhotonTracer & photonTracer, ALightSensorEvent & event) :
+    PhotonGenerator(photonGenerator),
     PhotonTracer(photonTracer),
     SimSet(APhotonSimHub::getConstInstance().Settings),
     RandomHub(ARandomHub::getInstance()),
@@ -43,16 +44,16 @@ void AS1Generator::generate(ADepoRecord & rec)
         return;
     }
 
-    APhoton Photon;
-    for (int i = 0; i < 3; i++) Photon.r[i] = rec.Pos[i];
-    Photon.time = rec.Time;  // can be adjusted by PhotonGenerator!
+    APhoton photon;
+    for (int i = 0; i < 3; i++) photon.r[i] = rec.Pos[i];
+    photon.time = rec.Time;  // can be adjusted by PhotonGenerator!
 
     for (int iPhot = 0; iPhot < NumPhotons; iPhot++)
     {
-        Photon.generateRandomDir();
-        APhotonGenerator::generateWave(Photon, rec.MatIndex);
-        APhotonGenerator::generateTime(Photon, rec.MatIndex);
+        PhotonGenerator.generateDirection(photon);
+        PhotonGenerator.generateWave(photon, rec.MatIndex);
+        PhotonGenerator.generateTime(photon, rec.MatIndex);
 
-        PhotonTracer.tracePhoton(Photon);
+        PhotonTracer.tracePhoton(photon);
     }
 }

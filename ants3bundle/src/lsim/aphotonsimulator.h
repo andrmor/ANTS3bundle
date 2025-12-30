@@ -18,6 +18,7 @@ class QTextStream;
 class ARandomHub;
 class ADepositionFileHandler;
 class APhotonFileHandler;
+class APhotonGenerator;
 class AS1Generator;
 class AS2Generator;
 class TH1D;
@@ -67,6 +68,7 @@ protected:
     ADepositionFileHandler * DepoHandler     = nullptr;
     APhotonFileHandler     * PhotFileHandler = nullptr;
 
+    APhotonGenerator       * PhotonGenerator = nullptr;
     AS1Generator           * S1Gen           = nullptr;
     AS2Generator           * S2Gen           = nullptr;
 
@@ -113,9 +115,9 @@ private:
     void    checkReadyForLrfMode();
 
 private:
-    TVector3 ColDirUnitary;
-    double   CosConeAngle;
-    TString  LimitToVolume;  // !!!*** change to pointer?
+    //TVector3 ColDirUnitary;
+    //double   CosConeAngle;
+    TString  LimitToVolume;
     int      LimitToMaterial;
 };
 
