@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>604</width>
+    <width>581</width>
     <height>648</height>
    </rect>
   </property>
@@ -30,7 +30,7 @@
     <item>
      <widget class="QTabWidget" name="twSignals">
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="tab_11">
        <attribute name="title">
@@ -2060,30 +2060,6 @@
                    </widget>
                   </item>
                   <item>
-                   <widget class="QLabel" name="label_254">
-                    <property name="text">
-                     <string>    Shape:</string>
-                    </property>
-                    <property name="alignment">
-                     <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QComboBox" name="cobFloodShape">
-                    <item>
-                     <property name="text">
-                      <string>rectangle</string>
-                     </property>
-                    </item>
-                    <item>
-                     <property name="text">
-                      <string>circle/ring</string>
-                     </property>
-                    </item>
-                   </widget>
-                  </item>
-                  <item>
                    <spacer name="horizontalSpacer_14">
                     <property name="orientation">
                      <enum>Qt::Orientation::Horizontal</enum>
@@ -2112,40 +2088,140 @@
                  </spacer>
                 </item>
                 <item>
+                 <layout class="QHBoxLayout" name="horizontalLayout_41">
+                  <property name="topMargin">
+                   <number>0</number>
+                  </property>
+                  <item>
+                   <spacer name="horizontalSpacer_42">
+                    <property name="orientation">
+                     <enum>Qt::Orientation::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                  <item>
+                   <widget class="QLabel" name="label_254">
+                    <property name="font">
+                     <font>
+                      <kerning>true</kerning>
+                      <fontweight>Medium</fontweight>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>    Shape:</string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QComboBox" name="cobFloodShape">
+                    <item>
+                     <property name="text">
+                      <string>rectangle</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>circle/ring</string>
+                     </property>
+                    </item>
+                   </widget>
+                  </item>
+                  <item>
+                   <spacer name="horizontalSpacer_43">
+                    <property name="orientation">
+                     <enum>Qt::Orientation::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                 </layout>
+                </item>
+                <item>
                  <layout class="QHBoxLayout" name="horizontalLayout_18">
                   <property name="spacing">
                    <number>3</number>
                   </property>
+                  <item>
+                   <spacer name="horizontalSpacer_13">
+                    <property name="orientation">
+                     <enum>Qt::Orientation::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
                   <item>
                    <widget class="QStackedWidget" name="swFloodShape">
                     <property name="currentIndex">
                      <number>0</number>
                     </property>
                     <widget class="QWidget" name="page_7">
-                     <layout class="QGridLayout" name="gridLayout_8">
+                     <layout class="QGridLayout" name="gridLayout">
+                      <property name="leftMargin">
+                       <number>0</number>
+                      </property>
+                      <property name="topMargin">
+                       <number>0</number>
+                      </property>
+                      <property name="rightMargin">
+                       <number>0</number>
+                      </property>
+                      <property name="bottomMargin">
+                       <number>0</number>
+                      </property>
                       <item row="0" column="0">
                        <widget class="QLabel" name="label_139">
                         <property name="text">
-                         <string>X  from</string>
+                         <string>X:  from</string>
                         </property>
                        </widget>
                       </item>
                       <item row="0" column="1">
                        <widget class="QLineEdit" name="ledFloodXfrom">
+                        <property name="maximumSize">
+                         <size>
+                          <width>100</width>
+                          <height>16777215</height>
+                         </size>
+                        </property>
                         <property name="text">
                          <string>-15</string>
                         </property>
                        </widget>
                       </item>
-                      <item row="0" column="2">
+                      <item row="0" column="2" alignment="Qt::AlignmentFlag::AlignHCenter">
                        <widget class="QLabel" name="label_214">
                         <property name="text">
-                         <string>mm to</string>
+                         <string>to</string>
                         </property>
                        </widget>
                       </item>
                       <item row="0" column="3">
                        <widget class="QLineEdit" name="ledFloodXto">
+                        <property name="maximumSize">
+                         <size>
+                          <width>100</width>
+                          <height>16777215</height>
+                         </size>
+                        </property>
                         <property name="text">
                          <string>15</string>
                         </property>
@@ -2161,26 +2237,38 @@
                       <item row="1" column="0">
                        <widget class="QLabel" name="label_245">
                         <property name="text">
-                         <string>Y  from</string>
+                         <string>Y:  from</string>
                         </property>
                        </widget>
                       </item>
                       <item row="1" column="1">
                        <widget class="QLineEdit" name="ledFloodYfrom">
+                        <property name="maximumSize">
+                         <size>
+                          <width>100</width>
+                          <height>16777215</height>
+                         </size>
+                        </property>
                         <property name="text">
                          <string>-15</string>
                         </property>
                        </widget>
                       </item>
-                      <item row="1" column="2">
+                      <item row="1" column="2" alignment="Qt::AlignmentFlag::AlignHCenter">
                        <widget class="QLabel" name="label_246">
                         <property name="text">
-                         <string>mm to</string>
+                         <string>to</string>
                         </property>
                        </widget>
                       </item>
                       <item row="1" column="3">
                        <widget class="QLineEdit" name="ledFloodYto">
+                        <property name="maximumSize">
+                         <size>
+                          <width>100</width>
+                          <height>16777215</height>
+                         </size>
+                        </property>
                         <property name="text">
                          <string>15</string>
                         </property>
@@ -2197,32 +2285,66 @@
                     </widget>
                     <widget class="QWidget" name="page_8">
                      <layout class="QGridLayout" name="gridLayout_9">
-                      <item row="0" column="0">
-                       <widget class="QLabel" name="label_257">
-                        <property name="text">
-                         <string>Center X=</string>
-                        </property>
-                        <property name="alignment">
-                         <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="0" column="1">
-                       <widget class="QLineEdit" name="ledFloodCenterX">
-                        <property name="text">
-                         <string>0</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="0" column="2">
+                      <property name="leftMargin">
+                       <number>0</number>
+                      </property>
+                      <property name="topMargin">
+                       <number>0</number>
+                      </property>
+                      <property name="rightMargin">
+                       <number>0</number>
+                      </property>
+                      <property name="bottomMargin">
+                       <number>0</number>
+                      </property>
+                      <item row="0" column="2" alignment="Qt::AlignmentFlag::AlignRight">
                        <widget class="QLabel" name="label_256">
                         <property name="text">
                          <string>Y=</string>
                         </property>
                        </widget>
                       </item>
+                      <item row="1" column="3">
+                       <widget class="QLineEdit" name="ledFloodInnerDiameter">
+                        <property name="maximumSize">
+                         <size>
+                          <width>100</width>
+                          <height>16777215</height>
+                         </size>
+                        </property>
+                        <property name="text">
+                         <string>0</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="1" column="1">
+                       <widget class="QLineEdit" name="ledFloodOuterDiameter">
+                        <property name="maximumSize">
+                         <size>
+                          <width>100</width>
+                          <height>16777215</height>
+                         </size>
+                        </property>
+                        <property name="text">
+                         <string>40</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="1" column="2" alignment="Qt::AlignmentFlag::AlignRight">
+                       <widget class="QLabel" name="label_266">
+                        <property name="text">
+                         <string>inner</string>
+                        </property>
+                       </widget>
+                      </item>
                       <item row="0" column="3">
                        <widget class="QLineEdit" name="ledFloodCenterY">
+                        <property name="maximumSize">
+                         <size>
+                          <width>100</width>
+                          <height>16777215</height>
+                         </size>
+                        </property>
                         <property name="text">
                          <string>0</string>
                         </property>
@@ -2231,28 +2353,44 @@
                       <item row="1" column="0">
                        <widget class="QLabel" name="label_259">
                         <property name="text">
-                         <string>Diam. outer</string>
+                         <string>Outer diameter</string>
                         </property>
                        </widget>
                       </item>
-                      <item row="1" column="1">
-                       <widget class="QLineEdit" name="ledFloodOuterDiameter">
-                        <property name="text">
-                         <string>40</string>
+                      <item row="0" column="1">
+                       <widget class="QLineEdit" name="ledFloodCenterX">
+                        <property name="maximumSize">
+                         <size>
+                          <width>100</width>
+                          <height>16777215</height>
+                         </size>
                         </property>
-                       </widget>
-                      </item>
-                      <item row="1" column="2">
-                       <widget class="QLabel" name="label_266">
-                        <property name="text">
-                         <string>inner</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="1" column="3">
-                       <widget class="QLineEdit" name="ledFloodInnerDiameter">
                         <property name="text">
                          <string>0</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="0" column="0">
+                       <widget class="QLabel" name="label_257">
+                        <property name="text">
+                         <string>Center:   X=</string>
+                        </property>
+                        <property name="alignment">
+                         <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="0" column="4">
+                       <widget class="QLabel" name="label_23">
+                        <property name="text">
+                         <string>mm</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="1" column="4">
+                       <widget class="QLabel" name="label_31">
+                        <property name="text">
+                         <string>mm</string>
                         </property>
                        </widget>
                       </item>
@@ -2261,202 +2399,200 @@
                    </widget>
                   </item>
                   <item>
-                   <widget class="Line" name="line_37">
+                   <spacer name="horizontalSpacer_87">
                     <property name="orientation">
-                     <enum>Qt::Orientation::Vertical</enum>
+                     <enum>Qt::Orientation::Horizontal</enum>
                     </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                 </layout>
+                </item>
+                <item>
+                 <layout class="QHBoxLayout" name="horizontalLayout_69">
+                  <property name="topMargin">
+                   <number>10</number>
+                  </property>
+                  <item>
+                   <spacer name="horizontalSpacer_88">
+                    <property name="orientation">
+                     <enum>Qt::Orientation::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                  <item>
+                   <widget class="QComboBox" name="cobFloodZmode">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <item>
+                     <property name="text">
+                      <string>Fixed Z:</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>Z in range</string>
+                     </property>
+                    </item>
                    </widget>
                   </item>
                   <item>
-                   <layout class="QVBoxLayout" name="verticalLayout_4">
-                    <property name="spacing">
-                     <number>0</number>
+                   <widget class="QFrame" name="frZfixed">
+                    <property name="minimumSize">
+                     <size>
+                      <width>0</width>
+                      <height>0</height>
+                     </size>
                     </property>
-                    <item>
-                     <layout class="QHBoxLayout" name="horizontalLayout_16">
-                      <property name="spacing">
-                       <number>3</number>
-                      </property>
-                      <property name="leftMargin">
-                       <number>3</number>
-                      </property>
-                      <property name="topMargin">
-                       <number>3</number>
-                      </property>
-                      <property name="rightMargin">
-                       <number>3</number>
-                      </property>
-                      <property name="bottomMargin">
-                       <number>3</number>
-                      </property>
-                      <item>
-                       <widget class="QLabel" name="label_247">
-                        <property name="sizePolicy">
-                         <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-                          <horstretch>0</horstretch>
-                          <verstretch>0</verstretch>
-                         </sizepolicy>
-                        </property>
-                        <property name="text">
-                         <string>  Z:</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item>
-                       <widget class="QComboBox" name="cobFloodZmode">
-                        <property name="sizePolicy">
-                         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-                          <horstretch>0</horstretch>
-                          <verstretch>0</verstretch>
-                         </sizepolicy>
-                        </property>
-                        <item>
-                         <property name="text">
-                          <string>fixed</string>
-                         </property>
-                        </item>
-                        <item>
-                         <property name="text">
-                          <string>range</string>
-                         </property>
-                        </item>
-                       </widget>
-                      </item>
-                      <item>
-                       <spacer name="horizontalSpacer_13">
-                        <property name="orientation">
-                         <enum>Qt::Orientation::Horizontal</enum>
-                        </property>
-                        <property name="sizeHint" stdset="0">
-                         <size>
-                          <width>40</width>
-                          <height>20</height>
-                         </size>
-                        </property>
-                       </spacer>
-                      </item>
-                     </layout>
-                    </item>
-                    <item>
-                     <widget class="QStackedWidget" name="swScanFloodZ">
-                      <property name="currentIndex">
-                       <number>0</number>
-                      </property>
-                      <widget class="QWidget" name="page_4">
-                       <layout class="QHBoxLayout" name="horizontalLayout_19">
-                        <property name="spacing">
-                         <number>3</number>
-                        </property>
-                        <property name="leftMargin">
-                         <number>3</number>
-                        </property>
-                        <property name="topMargin">
-                         <number>3</number>
-                        </property>
-                        <property name="rightMargin">
-                         <number>3</number>
-                        </property>
-                        <property name="bottomMargin">
-                         <number>3</number>
-                        </property>
-                        <item>
-                         <widget class="QLineEdit" name="ledFloodZ">
-                          <property name="maximumSize">
-                           <size>
-                            <width>100</width>
-                            <height>16777215</height>
-                           </size>
-                          </property>
-                          <property name="text">
-                           <string>0</string>
-                          </property>
-                         </widget>
-                        </item>
-                        <item>
-                         <widget class="QLabel" name="label_250">
-                          <property name="text">
-                           <string>mm</string>
-                          </property>
-                         </widget>
-                        </item>
-                        <item>
-                         <spacer name="horizontalSpacer_15">
-                          <property name="orientation">
-                           <enum>Qt::Orientation::Horizontal</enum>
-                          </property>
-                          <property name="sizeHint" stdset="0">
-                           <size>
-                            <width>40</width>
-                            <height>20</height>
-                           </size>
-                          </property>
-                         </spacer>
-                        </item>
-                       </layout>
+                    <property name="frameShape">
+                     <enum>QFrame::Shape::NoFrame</enum>
+                    </property>
+                    <property name="frameShadow">
+                     <enum>QFrame::Shadow::Raised</enum>
+                    </property>
+                    <layout class="QHBoxLayout" name="horizontalLayout_16">
+                     <property name="leftMargin">
+                      <number>0</number>
+                     </property>
+                     <property name="topMargin">
+                      <number>0</number>
+                     </property>
+                     <property name="rightMargin">
+                      <number>0</number>
+                     </property>
+                     <property name="bottomMargin">
+                      <number>0</number>
+                     </property>
+                     <item>
+                      <widget class="QLineEdit" name="ledFloodZ">
+                       <property name="maximumSize">
+                        <size>
+                         <width>100</width>
+                         <height>16777215</height>
+                        </size>
+                       </property>
+                       <property name="text">
+                        <string>0</string>
+                       </property>
                       </widget>
-                      <widget class="QWidget" name="page_6">
-                       <layout class="QHBoxLayout" name="horizontalLayout_17">
-                        <property name="spacing">
-                         <number>3</number>
-                        </property>
-                        <property name="leftMargin">
-                         <number>3</number>
-                        </property>
-                        <property name="topMargin">
-                         <number>3</number>
-                        </property>
-                        <property name="rightMargin">
-                         <number>3</number>
-                        </property>
-                        <property name="bottomMargin">
-                         <number>3</number>
-                        </property>
-                        <item>
-                         <widget class="QLabel" name="label_249">
-                          <property name="text">
-                           <string>from</string>
-                          </property>
-                          <property name="alignment">
-                           <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
-                          </property>
-                         </widget>
-                        </item>
-                        <item>
-                         <widget class="QLineEdit" name="ledFloodZfrom">
-                          <property name="text">
-                           <string>-2.49</string>
-                          </property>
-                         </widget>
-                        </item>
-                        <item>
-                         <widget class="QLabel" name="label_251">
-                          <property name="text">
-                           <string>mm  to</string>
-                          </property>
-                          <property name="alignment">
-                           <set>Qt::AlignmentFlag::AlignCenter</set>
-                          </property>
-                         </widget>
-                        </item>
-                        <item>
-                         <widget class="QLineEdit" name="ledFloodZto">
-                          <property name="text">
-                           <string>2.49</string>
-                          </property>
-                         </widget>
-                        </item>
-                        <item>
-                         <widget class="QLabel" name="label_248">
-                          <property name="text">
-                           <string>mm</string>
-                          </property>
-                         </widget>
-                        </item>
-                       </layout>
+                     </item>
+                     <item>
+                      <widget class="QLabel" name="label_250">
+                       <property name="text">
+                        <string>mm</string>
+                       </property>
                       </widget>
-                     </widget>
-                    </item>
-                   </layout>
+                     </item>
+                    </layout>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QFrame" name="frZrange">
+                    <property name="minimumSize">
+                     <size>
+                      <width>0</width>
+                      <height>0</height>
+                     </size>
+                    </property>
+                    <property name="frameShape">
+                     <enum>QFrame::Shape::NoFrame</enum>
+                    </property>
+                    <property name="frameShadow">
+                     <enum>QFrame::Shadow::Raised</enum>
+                    </property>
+                    <layout class="QHBoxLayout" name="horizontalLayout_70">
+                     <property name="leftMargin">
+                      <number>0</number>
+                     </property>
+                     <property name="topMargin">
+                      <number>0</number>
+                     </property>
+                     <property name="rightMargin">
+                      <number>0</number>
+                     </property>
+                     <property name="bottomMargin">
+                      <number>0</number>
+                     </property>
+                     <item>
+                      <widget class="QLabel" name="label_48">
+                       <property name="text">
+                        <string>from</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QLineEdit" name="ledFloodZfrom">
+                       <property name="maximumSize">
+                        <size>
+                         <width>100</width>
+                         <height>16777215</height>
+                        </size>
+                       </property>
+                       <property name="text">
+                        <string>-2.49</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item alignment="Qt::AlignmentFlag::AlignHCenter">
+                      <widget class="QLabel" name="label_251">
+                       <property name="text">
+                        <string>to</string>
+                       </property>
+                       <property name="alignment">
+                        <set>Qt::AlignmentFlag::AlignCenter</set>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QLineEdit" name="ledFloodZto">
+                       <property name="maximumSize">
+                        <size>
+                         <width>100</width>
+                         <height>16777215</height>
+                        </size>
+                       </property>
+                       <property name="text">
+                        <string>2.49</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QLabel" name="label_248">
+                       <property name="text">
+                        <string>mm</string>
+                       </property>
+                      </widget>
+                     </item>
+                    </layout>
+                   </widget>
+                  </item>
+                  <item>
+                   <spacer name="horizontalSpacer_89">
+                    <property name="orientation">
+                     <enum>Qt::Orientation::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
                   </item>
                  </layout>
                 </item>
@@ -2911,6 +3047,12 @@
                   <horstretch>0</horstretch>
                   <verstretch>0</verstretch>
                  </sizepolicy>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>150</width>
+                  <height>16777215</height>
+                 </size>
                 </property>
                 <property name="font">
                  <font>
@@ -5453,22 +5595,6 @@
     <hint type="destinationlabel">
      <x>61</x>
      <y>145</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>cobFloodZmode</sender>
-   <signal>currentIndexChanged(int)</signal>
-   <receiver>swScanFloodZ</receiver>
-   <slot>setCurrentIndex(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>105</x>
-     <y>145</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>111</x>
-     <y>144</y>
     </hint>
    </hints>
   </connection>

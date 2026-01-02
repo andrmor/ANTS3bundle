@@ -186,6 +186,8 @@ private slots:
 
     void on_cbWaveResolved_clicked(bool checked);
 
+    void on_cobFloodZmode_currentIndexChanged(int index);
+
 private:
     APhotonSimSettings & SimSet;
     const AMonitorHub  & MonitorHub;

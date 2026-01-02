@@ -95,6 +95,7 @@ APhotSimWin::APhotSimWin(QWidget * parent) :
     ui->frLRF->setVisible(false);
     ui->labNoMercury->setVisible(false);
     ui->frLimitBombPosition->setVisible(ui->cobNodeGenerationMode->currentIndex() != 0);
+    on_cobFloodZmode_currentIndexChanged(ui->cobFloodZmode->currentIndex());
 
     updateGui();
 }
@@ -2309,5 +2310,11 @@ void APhotSimWin::on_pbHelpScintType_clicked()
 void APhotSimWin::on_cbWaveResolved_clicked(bool checked)
 {
     SimSet.WaveSet.Enabled = checked;
+}
+
+void APhotSimWin::on_cobFloodZmode_currentIndexChanged(int index)
+{
+    ui->frZfixed->setVisible(index == 0);
+    ui->frZrange->setVisible(index == 1);
 }
 
