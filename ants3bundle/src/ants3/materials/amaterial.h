@@ -53,7 +53,8 @@ public:
 
     // primary scintillation
     double PhotonYield = 0;
-    double IntrEnergyRes = 0;
+    //double IntrEnergyRes = 0;
+    double FanoS1 = 1.0;
     std::vector<std::pair<double,double>> PrimarySpectrum;
     std::vector<std::pair<double,double>> PriScint_Decay; // elements: {value, weight}
     std::vector<std::pair<double,double>> PriScint_Raise; // elements: {value, weight}

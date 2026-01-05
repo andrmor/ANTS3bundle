@@ -273,7 +273,7 @@ void AMaterial::clear()
     SecondarySpectrum.clear();
 
     PhotonYield = 0;
-    IntrEnergyRes = 0;
+    FanoS1 = 1.0;
 
     _GeoMat = nullptr; //if created, will be deleted by TGeoManager
     _GeoMed = nullptr; //if created, will be deleted by TGeoManager
@@ -339,7 +339,7 @@ void AMaterial::writeToJson(QJsonObject & json) const
     json["RefIndexImporter"] = RefIndexImporter;
 
     json["PhotonYield"] = PhotonYield;
-    json["IntrEnergyRes"] = IntrEnergyRes;
+    json["FanoS1"] = FanoS1;
 
     {
         QJsonArray ar;
@@ -450,8 +450,8 @@ bool AMaterial::readFromJson(const QJsonObject & json)
     jstools::parseJson(json, "ReemissionProb", ReemissionProb);
     jstools::parseJson(json, "IgnoreEnergyConservationInReemission", IgnoreEnergyConservationInReemission);
 
-    jstools::parseJson(json, "PhotonYield",   PhotonYield);
-    jstools::parseJson(json, "IntrEnergyRes", IntrEnergyRes);
+    jstools::parseJson(json, "PhotonYield", PhotonYield);
+    jstools::parseJson(json, "FanoS1", FanoS1);
 
     jstools::parseJson(json, "RefIndexImporter", RefIndexImporter);
 

@@ -188,10 +188,10 @@ double AMaterialHub::getS1PhotonYield(int iMat, const QString & particle) const
     //else return ***;
 }
 
-double AMaterialHub::getS1IntrEnRes(int iMat, const QString & particle) const
+double AMaterialHub::getS1FanoFactor(int iMat) const
 {
     if (iMat < 0 || iMat >= (int)Materials.size()) return 0;
-    return Materials[iMat]->IntrEnergyRes;
+    return Materials[iMat]->FanoS1;
 }
 
 void AMaterialHub::copyToMaterials(const AMaterial & tmpMaterial)

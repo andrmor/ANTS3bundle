@@ -22,25 +22,50 @@ AS1Generator::AS1Generator(APhotonGenerator & photonGenerator, APhotonTracer & p
 void AS1Generator::generate(ADepoRecord & rec)
 {
     const double PhotonYield = MatHub.getS1PhotonYield(rec.MatIndex, rec.Particle);
-    const double EnergyRes   = MatHub.getS1IntrEnRes  (rec.MatIndex, rec.Particle);
+    const double FanoS1      = MatHub.getS1FanoFactor(rec.MatIndex);
 
-    double Photons;
-    if (EnergyRes == 0)
-        Photons = rec.Energy * PhotonYield + Remainer;
+    double meanPhotons = rec.Energy * PhotonYield;
+    int    numPhotons = 0;
+    if (FanoS1 == 1.0)
+    {
+        if (meanPhotons > 25.0)
+        {
+            double sigma = std::sqrt(meanPhotons);
+            numPhotons = int(RandomHub.gauss(meanPhotons, sigma) + 0.5);
+        }
+        else
+            numPhotons = RandomHub.poisson(meanPhotons);
+    }
+    else if (FanoS1 == 0)
+        numPhotons = int(meanPhotons + 0.5); // avoid! results in problems with events with many low energy deposition nodes
     else
     {
-        const double mean  =  rec.Energy * PhotonYield + Remainer;
-        const double sigma = EnergyRes * mean / 2.35482;
-        Photons = RandomHub.gauss(mean, sigma);
+        if (meanPhotons > 25.0)
+        {
+            double sigma = std::sqrt(FanoS1 * meanPhotons);
+            numPhotons = int(RandomHub.gauss(meanPhotons, sigma) + 0.5);
+        }
+        else
+        {
+            if (FanoS1 < 1.0)
+            {
+                double p = 1.0 - FanoS1;
+                int n = int(meanPhotons / p + 0.5);                 // !!!*** what if meanPhotons/p < 0.5 ???
+                double p_adj = ( n == 0 ? p : meanPhotons / n);     // still see above
+                numPhotons = RandomHub.binomial(n, p_adj);
+            }
+            else
+            {
+                double p = 1.0 / FanoS1;
+                double n = meanPhotons * p / (1 - p);
+                numPhotons = RandomHub.negativeBinomial(n, p);
+            }
+        }
     }
-    Photons += Remainer; Remainer = 0;
-
-    int NumPhotons = (int)Photons;
-    Remainer = Photons - NumPhotons;
 
     if (SimSet.OptSet.TracingMode == APhotOptSettings::LRF)
     {
-        Event.generateHitsForLrfMode(NumPhotons, rec.Pos.data());
+        Event.generateHitsForLrfMode(numPhotons, rec.Pos.data());
         return;
     }
 
@@ -48,7 +73,7 @@ void AS1Generator::generate(ADepoRecord & rec)
     for (int i = 0; i < 3; i++) photon.r[i] = rec.Pos[i];
     photon.time = rec.Time;  // can be adjusted by PhotonGenerator!
 
-    for (int iPhot = 0; iPhot < NumPhotons; iPhot++)
+    for (int iPhot = 0; iPhot < numPhotons; iPhot++)
     {
         PhotonGenerator.generateDirection(photon);
         PhotonGenerator.generateWave(photon, rec.MatIndex);
