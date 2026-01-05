@@ -614,35 +614,42 @@ QVariantList ALightResponse_SI::getGroupMembers(int iGroup)
     return vl;
 }
 
-void ALightResponse_SI::setLrf_Sensor(int iSensor, QString jsonString)
+#include "lrformulaxy.h"
+void ALightResponse_SI::setLrf_Sensor(int iSensor, QVariantMap lrf)
 {
     if (!checkModelAndSensor(iSensor)) return;
 
-    QJsonObject json = jstools::strToJson(jsonString);
-    if (json["type"] == "Axial" || json["type"] == "Axial3D" || json["type"] == "Formula1")
+    QJsonDocument doc = QJsonDocument::fromVariant(lrf);
+    LRF * lrfObject = LRF::mkFromJson(doc.toJson().data());
+    if (!lrfObject)
     {
-        const ASensorHub & SensHub = ASensorHub::getConstInstance();
-        if (!json.contains("x0")) json["x0"] = SensHub.getSensorData(iSensor)->Position[0];
-        if (!json.contains("y0")) json["y0"] = SensHub.getSensorData(iSensor)->Position[1];
-        jsonString = jstools::jsonToString(json);
+        abort( QString("Invalid LRF ").arg(Lang == EScriptLanguage::JavaScript ? "object" : "dictionary") );
+        return;
     }
 
-    LRHub.Model->SetJsonLRF(iSensor, jsonString.toLatin1().data());
+    const ASensorHub & SensHub = ASensorHub::getConstInstance();
+    updateLrfOrigin(lrfObject, SensHub.getSensorData(iSensor)->Position[0], SensHub.getSensorData(iSensor)->Position[1]);
+
+    LRFormulaXY * formula = dynamic_cast<LRFormulaXY*>(lrfObject);
+    if (formula) formula->InitVF();
+
+    LRHub.Model->SetLRF(iSensor, lrfObject);
 }
 
-void ALightResponse_SI::setLrf_Group(int iGroup, QString jsonString)
+void ALightResponse_SI::setLrf_Group(int iGroup, QVariantMap lrf)
 {
     if (!checkModelAndGroup(iGroup)) return;
 
-    QJsonObject json = jstools::strToJson(jsonString);
-    if (json["type"] == "Axial" || json["type"] == "Axial3D" || json["type"] == "Formula1")
+    QJsonDocument doc = QJsonDocument::fromVariant(lrf);
+    LRF * lrfObject = LRF::mkFromJson(doc.toJson().data());
+    if (!lrfObject)
     {
-        if (!json.contains("x0")) json["x0"] = LRHub.Model->GetGroupX(iGroup);
-        if (!json.contains("y0")) json["y0"] = LRHub.Model->GetGroupY(iGroup);
-        jsonString = jstools::jsonToString(json);
+        abort( QString("Invalid LRF ").arg(Lang == EScriptLanguage::JavaScript ? "object" : "dictionary") );
+        return;
     }
 
-    LRHub.Model->SetGroupJsonLRF(iGroup, jsonString.toLatin1().data());
+    updateLrfOrigin(lrfObject, LRHub.Model->GetGroupX(iGroup), LRHub.Model->GetGroupY(iGroup));
+    LRHub.Model->SetGroupLRF(iGroup, lrfObject);
 }
 
 void ALightResponse_SI::setSensorGain(int iSensor, double gain)

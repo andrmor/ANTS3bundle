@@ -1,0 +1,85 @@
+#ifndef LRFORMULAXY_H
+#define LRFORMULAXY_H
+
+#include "lrf.h"
+#include "profileHist.h"
+#include <cmath>
+
+#include <Eigen/Core>
+#include <unsupported/Eigen/NonLinearOptimization>
+#include <unsupported/Eigen/NumericalDiff>
+
+#include "wformula.h"
+
+class LRFormulaXY : public LRF
+{
+public:
+    LRFormulaXY(double xmin, double xmax, double ymin, double ymax);
+    LRFormulaXY(const Json &json);
+    LRFormulaXY(std::string &json_str);
+    ~LRFormulaXY();
+
+    virtual LRFormulaXY* clone() const;
+
+    virtual bool inDomain(double x, double y, double z=0.) const;
+    virtual bool isReady () const;
+    virtual double getRmax() const;
+    virtual double eval(double x, double y, double z=0.) const;
+    virtual double evalDrvX(double x, double y, double z=0.) const {return 0.;}
+    virtual double evalDrvY(double x, double y, double z=0.) const {return 0.;}
+
+    virtual bool fitData(const std::vector <LRFdata> &data);
+    virtual bool addData(const std::vector <LRFdata> &data);
+    virtual bool doFit();
+    virtual void clearData() { if (h1) h1->Clear(); }
+
+    virtual std::string type() const { return std::string("FormulaXY"); }
+    virtual void ToJsonObject(Json_object &json) const;
+
+//  VFormula-related calls
+    // setters
+    void SetParameter(std::string name, double val);
+    void SetExpression(std::string expr) {expression = expr;}
+    // call this to update the virtual machine if parameter names of expression were changed
+    std::string InitVF();  
+
+    // getters
+    double GetParameter(std::string name);
+    std::vector<double> GetParVector() const {return parvals;}
+
+// VM-debugging
+    std::vector<std::string> GetPrg() {return vf->GetPrg();}
+    std::vector<std::string> GetConstMap() {return vf->GetConstMap();}
+    std::vector<std::string> GetVarMap() {return vf->GetVarMap();}
+    std::vector<std::string> GetOperMap() {return vf->GetOperMap();}
+    std::vector<std::string> GetFuncMap() {return vf->GetFuncMap();} 
+    std::string GetVersion() {return std::string("0.01");} 
+
+    ProfileHist *GetHist() {return h1;}
+
+// relative gain calculation
+    double GetRatio(LRF* other) const; 
+
+protected:
+    void Init();
+
+protected:
+// rectangular domain
+    double rmax;
+
+// prof. histogram used for binned fitting
+ProfileHist2D *h1 = nullptr; 
+int nbinsx = 20;
+int nbinsy = 20;
+
+// VFormula
+WFormula *vf = nullptr;
+std::string expression = std::string("");   // expression to parse
+// vectors because parameters passed in a vector to functors
+std::vector<std::string> parnames;             // parameter names
+std::vector<double> parvals;                   // parameter values
+std::map<std::string, size_t> parmap;          // map for bookkeeping
+
+};
+
+#endif // LRFORMULAXY_H

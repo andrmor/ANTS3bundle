@@ -1,6 +1,6 @@
 #include "aopticaldataimportdialog.h"
 #include "ui_aopticaldataimportdialog.h"
-#include "vformula.h"
+#include "tools/vformula.h"
 #include "guitools.h"
 #include "ajsontools.h"
 

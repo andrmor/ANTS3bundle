@@ -46,7 +46,8 @@ ants3_mercury{
     INCLUDEPATH += ../ants3/rec/Mercury/mercuryLib/lib
     INCLUDEPATH += ../ants3/rec/Mercury/mercuryLib/LRModel
     INCLUDEPATH += ../ants3/rec/Mercury/mercuryLib/spline123
-    INCLUDEPATH += ../ants3/gui/rec   # !!!*** TMP
+    INCLUDEPATH += ../ants3/rec/Mercury/script
+    INCLUDEPATH += ../ants3/gui/rec  # tmp!
 
     SOURCES += \
         ../ants3/rec/Mercury/mercuryLib/LRModel/compress.cpp \
@@ -60,12 +61,17 @@ ants3_mercury{
         ../ants3/rec/Mercury/mercuryLib/LRModel/lrformula1.cpp \
         ../ants3/rec/Mercury/mercuryLib/LRModel/lrmodel.cpp \
         ../ants3/rec/Mercury/mercuryLib/LRModel/transform.cpp \
+        ../ants3/rec/Mercury/mercuryLib/LRModel/lrformulav.cpp \
+        ../ants3/rec/Mercury/mercuryLib/LRModel/lrformulaxy.cpp \
         ../ants3/rec/Mercury/mercuryLib/lib/json11.cpp \
+        ../ants3/rec/Mercury/mercuryLib/lib/wformula.cpp \
+        ../ants3/rec/Mercury/mercuryLib/reconstructor.cpp \
+        ../ants3/rec/Mercury/mercuryLib/reconstructor_mp.cpp \
         ../ants3/rec/Mercury/mercuryLib/spline123/bsfit123.cpp \
         ../ants3/rec/Mercury/mercuryLib/spline123/bspline123d.cpp \
         ../ants3/rec/Mercury/mercuryLib/spline123/profileHist.cpp \
         ../ants3/rec/Mercury/alightresponsehub.cpp \
-        ../ants3/gui/rec/alrfplotter.cpp  # !!!*** TMP
+        ../ants3/gui/rec/alrfplotter.cpp # tmp!
 
     HEADERS += \
         ../ants3/rec/Mercury/mercuryLib/LRModel/compress.h \
@@ -79,13 +85,19 @@ ants3_mercury{
         ../ants3/rec/Mercury/mercuryLib/LRModel/lrformula1.h \
         ../ants3/rec/Mercury/mercuryLib/LRModel/lrmodel.h \
         ../ants3/rec/Mercury/mercuryLib/LRModel/transform.h \
+        ../ants3/rec/Mercury/mercuryLib/LRModel/lrformulav.h \
+        ../ants3/rec/Mercury/mercuryLib/LRModel/lrformulaxy.h \
         ../ants3/rec/Mercury/mercuryLib/lib/eiquadprog.hpp \
         ../ants3/rec/Mercury/mercuryLib/lib/json11.hpp \
+        ../ants3/rec/Mercury/mercuryLib/lib/functor.h \
+        ../ants3/rec/Mercury/mercuryLib/lib/wformula.h \
+        ../ants3/rec/Mercury/mercuryLib/reconstructor.h \
+        ../ants3/rec/Mercury/mercuryLib/reconstructor_mp.h \
         ../ants3/rec/Mercury/mercuryLib/spline123/bsfit123.h \
         ../ants3/rec/Mercury/mercuryLib/spline123/bspline123d.h \
         ../ants3/rec/Mercury/mercuryLib/spline123/profileHist.h \
         ../ants3/rec/Mercury/alightresponsehub.h \
-        ../ants3/gui/rec/alrfplotter.h      # !!!*** TMP
+        ../ants3/gui/rec/alrfplotter.h  # tmp!
 }
 
 SOURCES += \

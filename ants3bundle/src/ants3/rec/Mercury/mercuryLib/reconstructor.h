@@ -114,8 +114,16 @@ protected:
     double rec_abs_cutoff = 0.;
     double rec_rel_cutoff = 0.;
 
-// reconstruction result
+// reconstruction result status
+// status = 0 : Success
+// status = 1 : Covariance was made pos defined (ToDo: the result still considered valid by MINUIT)
+// status = 2 : Hesse is invalid
+// status = 3 : Edm is above max
+// status = 4 : Reached call limit
+// status = 5 : Covariance is not positive defined
     int rec_status;         // returned status of reconstruction
+
+// reconstruction result
     double rec_x;			// reconstructed X position
     double rec_y;			// reconstructed Y position
     double rec_z;			// reconstructed Z position

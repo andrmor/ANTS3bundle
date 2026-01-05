@@ -1,54 +1,70 @@
-#ifndef LRFORMULA1_H
-#define LRFORMULA1_H
+#ifndef LRFORMULAV_H
+#define LRFORMULAV_H
 
 #include "lrf.h"
 #include "profileHist.h"
 #include <cmath>
 
 #include <Eigen/Core>
+#include <cstddef>
+#include <string>
 #include <unsupported/Eigen/NonLinearOptimization>
 #include <unsupported/Eigen/NumericalDiff>
 #include <vector>
+#include <map>
 
-enum Func {
-    Gauss = 0,
-    Sech,
-    Sech2,
-    Cauchy
-}; 
+#include "wformula.h"
 
-class LRFormula1 : public LRF
+class LRFormulaV : public LRF
 {
 public:
- LRFormula1(double x0, double y0, double rmax);
- LRFormula1(const Json &json);
- LRFormula1(std::string &json_str);    
+ LRFormulaV(double x0, double y0, double rmax);
+ LRFormulaV(const Json &json);
+ LRFormulaV(std::string &json_str);    
 //    LRFormula1(const LRFormula1 &obj); // copy constructor
-    LRFormula1();
+    LRFormulaV();
 
-    virtual LRFormula1* clone() const;
+    virtual LRFormulaV* clone() const;
 
     virtual bool inDomain(double x, double y, double z=0.) const;
     virtual bool isReady () const;
     virtual double getRmax() const { return rmax; }
     virtual double eval(double x, double y, double z=0.) const;
     double evalAxial(double r) const;
-    double evalDrv(double r) const;
-    virtual double evalDrvX(double x, double y, double z=0.) const;
-    virtual double evalDrvY(double x, double y, double z=0.) const;
+//    double evalDrv(double r) const;
+    virtual double evalDrvX(double x, double y, double z=0.) const {return 0.;}
+    virtual double evalDrvY(double x, double y, double z=0.) const {return 0.;}
 
     virtual bool fitData(const std::vector <LRFdata> &data);
     virtual bool addData(const std::vector <LRFdata> &data);
     virtual bool doFit();
     virtual void clearData() { if (h1) h1->Clear(); }
 
-    virtual std::string type() const { return std::string("Formula1"); }
+    virtual std::string type() const { return std::string("FormulaV"); }
     virtual void ToJsonObject(Json_object &json) const;
 
     void SetOrigin(double x, double y) {x0 = x; y0 = y; Init();}
     void SetRmin(double r) { rmin = std::max(r, 0.); Init();}
     void SetRmax(double r) { rmax = r; Init();}
-    void SetParameters(double a_, double c_, double s_) {a = a_; c = c_; s = s_;}
+
+//  VFormula-related calls
+    // setters
+    void SetParameter(std::string name, double val);
+    void SetExpression(std::string expr) {expression = expr;}
+    // call this to update the virtual machine if parameter names of expression were changed
+    std::string InitVF();  
+
+    // getters
+    double GetParameter(std::string name);
+    std::vector<double> GetParVector() const {return parvals;}
+
+// VM-debugging
+    std::vector<std::string> GetPrg() {return vf->GetPrg();}
+    std::vector<std::string> GetConstMap() {return vf->GetConstMap();}
+    std::vector<std::string> GetVarMap() {return vf->GetVarMap();}
+    std::vector<std::string> GetOperMap() {return vf->GetOperMap();}
+    std::vector<std::string> GetFuncMap() {return vf->GetFuncMap();} 
+    std::string GetVersion() {return std::string("1.0");}   
 
 // calculation of radius + provision for compression
     double R(double x, double y) const {return sqrt((x-x0)*(x-x0)+(y-y0)*(y-y0));}
@@ -59,7 +75,7 @@ public:
     double GetOriginX() const {return x0;}
     double GetOriginY() const {return y0;}
     ProfileHist *GetHist() {return h1;}
-    std::vector<double> GetParameters() const {return {a, c, s};}
+    
 
 // relative gain calculation
     double GetRatio(LRF* other) const; 
@@ -79,15 +95,16 @@ protected:
     ProfileHist1D *h1 = nullptr; 
     int nbins = 20;
 
-// formula type and parameters
-    Func ftype = Gauss;
-    double c = 0.;   // additive constant
-    double s = 1.;   // width
-    double a = 0.;   // amplitude
-    // as this is an axial response, mean is always 0
+// VFormula
+    WFormula *vf = nullptr;
+    std::string expression = std::string("");   // expression to parse
+// vectors because parameters passed in a vector to functors
+    std::vector<std::string> parnames;             // parameter names
+    std::vector<double> parvals;                   // parameter values
+    std::map<std::string, size_t> parmap;          // map for bookkeeping
 
 // safeguards
     double rzerod = 1e-6; // derivatives are assumed to be zero below this radius 
 };
 
-#endif // LRFORMULA1_H
+#endif // LRFORMULAV_H

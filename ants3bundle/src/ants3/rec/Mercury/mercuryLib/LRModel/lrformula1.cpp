@@ -8,6 +8,90 @@
 #include <string>
 #include <algorithm>
 
+#include "functor.h"
+
+// parameter naming scheme
+// a - amplitude
+// s - width
+// c - additive constant
+// mean is always 0
+
+// Universal functor
+struct UniFunctor : Functor<double> {
+    Eigen::VectorXd x;
+    Eigen::VectorXd y;
+    Func type;
+
+    UniFunctor(const Eigen::VectorXd& x_, const Eigen::VectorXd& y_, const Func type_)
+        : Functor<double>(3, x_.size()), x(x_), y(y_), type(type_) {}
+
+    // Compute residuals: f(p) = model(p) - y
+    int operator()(const Eigen::VectorXd& p, Eigen::VectorXd& fvec) const {
+        double a = p[0];
+        double s = p[1];
+        double c = p[2];
+
+        Eigen::ArrayXd dx(x), t;
+
+        switch (type) {
+            case Gauss:
+                fvec = a*exp(-dx*dx/2/s/s) + c - y.array();
+                break;
+            case Sech:
+                fvec = a/cosh(dx/s) + c - y.array();
+                break;
+            case Sech2:
+                t = 1/cosh(dx/s);
+                fvec = a*t*t + c - y.array();
+                break;
+            case Cauchy:
+                fvec = a/(1 + dx*dx/s/s) + c - y.array();
+
+        }
+
+        return 0;
+    }
+};
+
+// Universal functor with weights
+struct UniFunctorW : Functor<double> {
+    Eigen::VectorXd x;
+    Eigen::VectorXd y;
+    Eigen::VectorXd w;
+    Func type;
+
+    UniFunctorW(const Eigen::VectorXd& x_, const Eigen::VectorXd& y_, const Eigen::VectorXd& w_, const Func type_)
+        : Functor<double>(3, x_.size()), x(x_), y(y_), w(w_), type(type_) {}
+
+    // Compute residuals: f(p) = model(p) - y
+    int operator()(const Eigen::VectorXd& p, Eigen::VectorXd& fvec) const {
+        double a = p[0];
+        double s = p[1];
+        double c = p[2];
+
+        Eigen::ArrayXd dx(x), t, f;
+        dx /= s;
+
+        switch (type) {
+            case Gauss:
+                f = exp(-dx*dx/2);
+                break;
+            case Sech:
+                f = 1/cosh(dx);
+                break;
+            case Sech2:
+                t = 1/cosh(dx);
+                f = t*t;
+                break;
+            case Cauchy:
+                f = 1/(1 + dx*dx);
+        }
+        fvec = (f*a + c - y.array()) * sqrt(w.array());
+
+        return 0;
+    }
+};
+
 LRFormula1::LRFormula1(double x0, double y0, double rmax) :
     x0(x0), y0(y0), rmax(rmax)
 {

@@ -442,7 +442,7 @@ bool LRModel::FitNotBinnedData(int id, const std::vector <Vec4data> &data)
         trdata.push_back(d);
     }
     LRF *f = GetLRF(id);
-    return f ? f->addData(trdata) : false;
+    return f ? f->fitData(trdata) : false;
 }
 
 bool LRModel::AddFitData(int id, const std::vector <Vec4data> &data)

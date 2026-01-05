@@ -58,8 +58,8 @@ public slots:
     int  countGroups();
     QVariantList getGroupMembers(int iGroup);
 
-    void setLrf_Sensor(int iSensor, QString jsonString);     // sets x0 y0 of axial if not present in the lrfjson
-    void setLrf_Group(int iGroup, QString jsonString);       // sets x0 y0 of axial if not present in the lrfjson
+    void setLrf_Sensor(int iSensor, QVariantMap lrf);     // sets x0 y0 of axial if not present in the lrfjson
+    void setLrf_Group(int iGroup, QVariantMap lrf);       // sets x0 y0 of axial if not present in the lrfjson
 
     void   setSensorGain(int iSensor, double gain);
     double getSensorGain(int iSensor);

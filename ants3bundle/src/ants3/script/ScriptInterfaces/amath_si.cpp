@@ -550,7 +550,7 @@ QVariantList AMath_SI::fftMulti(QVariantList arrayOfArrays, int maxN)
     return res;
 }
 
-#include "vformula.h"
+#include "tools/vformula.h"
 double AMath_SI::evalFormula(QString formula, QVariantList varNames, QVariantList varValues)
 {
     VFormula p1;

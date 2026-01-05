@@ -7,6 +7,8 @@
 #include "lrfxyz.h"
 #include "lrfcomp.h"
 #include "lrformula1.h"
+#include "lrformulav.h"
+#include "lrformulaxy.h"
 
 std::string LRF::gjson_err("no error");
 
@@ -30,7 +32,11 @@ LRF* LRF::mkFromJson(const Json &json){
     else if (type == "Composite")
         lrf = new LRFcomp(json);
     else if (type == "Formula1")
-        lrf = new LRFormula1(json);   
+        lrf = new LRFormula1(json);
+    else if (type == "FormulaV")
+        lrf = new LRFormulaV(json);
+    else if (type == "FormulaXY")
+        lrf = new LRFormulaXY(json); 
     else {
         gjson_err = std::string("unknown type");
         return nullptr; // unknown type

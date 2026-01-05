@@ -85,7 +85,10 @@ ants3_mercury{
         rec/Mercury/mercuryLib/LRModel/lrformula1.cpp \
         rec/Mercury/mercuryLib/LRModel/lrmodel.cpp \
         rec/Mercury/mercuryLib/LRModel/transform.cpp \
+        rec/Mercury/mercuryLib/LRModel/lrformulav.cpp \
+        rec/Mercury/mercuryLib/LRModel/lrformulaxy.cpp \
         rec/Mercury/mercuryLib/lib/json11.cpp \
+        rec/Mercury/mercuryLib/lib/wformula.cpp \
         rec/Mercury/mercuryLib/reconstructor.cpp \
         rec/Mercury/mercuryLib/reconstructor_mp.cpp \
         rec/Mercury/mercuryLib/spline123/bsfit123.cpp \
@@ -111,8 +114,12 @@ ants3_mercury{
         rec/Mercury/mercuryLib/LRModel/lrformula1.h \
         rec/Mercury/mercuryLib/LRModel/lrmodel.h \
         rec/Mercury/mercuryLib/LRModel/transform.h \
+        rec/Mercury/mercuryLib/LRModel/lrformulav.h \
+        rec/Mercury/mercuryLib/LRModel/lrformulaxy.h \
         rec/Mercury/mercuryLib/lib/eiquadprog.hpp \
         rec/Mercury/mercuryLib/lib/json11.hpp \
+        rec/Mercury/mercuryLib/lib/functor.h \
+        rec/Mercury/mercuryLib/lib/wformula.h \
         rec/Mercury/mercuryLib/reconstructor.h \
         rec/Mercury/mercuryLib/reconstructor_mp.h \
         rec/Mercury/mercuryLib/spline123/bsfit123.h \
