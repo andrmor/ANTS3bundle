@@ -30,12 +30,17 @@ void AS2Generator::generate(ADepoRecord & rec) //uses MW->EnergyVector as the in
     GeoManager->SetCurrentPoint(rec.Pos.data());
     GeoManager->FindNode();
 
+    double meanElectrons = 0;
     const double & W = MatHub[rec.MatIndex]->W;
-    double Electrons = ( W > 0 ? rec.Energy/W : 0 );
-    Electrons += ElectronRemainer;
+    if (W > 0) meanElectrons = rec.Energy / W;
 
-    NumElectrons = (int)Electrons;
-    ElectronRemainer = Electrons - (double)NumElectrons;
+    if (meanElectrons > 25.0)  // TRandom2: Gauss 40 ns/call, Poisson(70) 840 ns/call
+    {
+        double sigma = std::sqrt(meanElectrons);
+        NumPhotons = int(RandomHub.gauss(meanElectrons, sigma) + 0.5);
+    }
+    else
+        NumPhotons = RandomHub.poisson(meanElectrons);
 
     if (NumElectrons > 0)
     {
@@ -90,9 +95,15 @@ void AS2Generator::generateLight(double * xyPosition, double time)
     //generate photons
     if (DiffusionRecords.empty() || SimSet.OptSet.TracingMode == APhotOptSettings::LRF)
     {
-        const double Photons = NumElectrons * PhotonsPerElectron + PhotonRemainer;
-        NumPhotons     = (int)Photons;
-        PhotonRemainer = Photons - (double)NumPhotons;
+        const double meanPhotons = NumElectrons * PhotonsPerElectron;
+
+        if (meanPhotons > 25.0)  // TRandom2: Gauss 40 ns/call, Poisson(70) 840 ns/call
+        {
+            double sigma = std::sqrt(meanPhotons);
+            NumPhotons = int(RandomHub.gauss(meanPhotons, sigma) + 0.5);
+        }
+        else
+            NumPhotons = RandomHub.poisson(meanPhotons);
 
         if (SimSet.OptSet.TracingMode == APhotOptSettings::LRF)
             Event.generateHitsForLrfMode(NumPhotons, xyPosition);
@@ -131,13 +142,20 @@ void AS2Generator::generateLight(double * xyPosition, double time)
                 continue;
             }
 
-            double Photons = PhotonsPerElectron + PhotonRemainer;
-            int NumPhotonsThisEl = (int)Photons;
-            PhotonRemainer = Photons - (double)NumPhotonsThisEl;
+            double meanPhotons = PhotonsPerElectron;
+            int NumPhotonsThisEl = 0;
+            if (meanPhotons > 25.0)  // TRandom2: Gauss 40 ns/call, Poisson(70) 840 ns/call
+            {
+                double sigma = std::sqrt(meanPhotons);
+                NumPhotonsThisEl = int(RandomHub.gauss(meanPhotons, sigma) + 0.5);
+            }
+            else
+                NumPhotonsThisEl = RandomHub.poisson(meanPhotons);
+
             NumPhotons += NumPhotonsThisEl;
 
             if (SimSet.OptSet.TracingMode == APhotOptSettings::LRF)
-                Event.generateHitsForLrfMode(NumPhotons, xyPosition);
+                Event.generateHitsForLrfMode(NumPhotonsThisEl, xyPosition);
             else
                 generateAndTracePhotons(pos, time, NumPhotonsThisEl, MatIndexSecScint, Zstart, Zspan);
         }

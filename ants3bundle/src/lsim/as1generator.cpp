@@ -28,7 +28,7 @@ void AS1Generator::generate(ADepoRecord & rec)
     int    numPhotons = 0;
     if (FanoS1 == 1.0)
     {
-        if (meanPhotons > 25.0)
+        if (meanPhotons > 25.0)  // TRandom2: Gauss 40 ns/call, Poisson(70) 840 ns/call
         {
             double sigma = std::sqrt(meanPhotons);
             numPhotons = int(RandomHub.gauss(meanPhotons, sigma) + 0.5);
@@ -37,7 +37,7 @@ void AS1Generator::generate(ADepoRecord & rec)
             numPhotons = RandomHub.poisson(meanPhotons);
     }
     else if (FanoS1 == 0)
-        numPhotons = int(meanPhotons + 0.5); // avoid! results in problems with events with many low energy deposition nodes
+        numPhotons = int(meanPhotons + 0.5); // avoid! events with many low energy deposition nodes --> less photons than expected
     else
     {
         if (meanPhotons > 25.0)

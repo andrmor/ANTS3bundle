@@ -352,8 +352,6 @@ void APhotonSimulator::simulateFromDepo()
     {
         doBeforeEvent();
 
-        if (SimSet.SecondaryScint) S2Gen->clearRemainer();
-
         ADepoRecord depoRec;
         while (DepoHandler->readNextRecordSameEvent(depoRec))
         {

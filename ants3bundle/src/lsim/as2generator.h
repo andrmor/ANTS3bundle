@@ -27,7 +27,6 @@ public:
     AS2Generator(APhotonGenerator & photonGenerator, APhotonTracer & photonTracer, ALightSensorEvent & event);
 
     void generate(ADepoRecord & rec);
-    void clearRemainer() {PhotonRemainer = 0; ElectronRemainer = 0;}
 
 private:
     APhotonGenerator         & PhotonGenerator;
@@ -38,13 +37,9 @@ private:
     TGeoManager              * GeoManager = nullptr;
     ALightSensorEvent        & Event;
 
-    int NumElectrons;
-    int NumPhotons;
+    int NumElectrons = 0;
+    int NumPhotons   = 0;
 
-    double PhotonRemainer   = 0;
-    double ElectronRemainer = 0;
-
-    //double BaseTime;
     std::vector<DiffSigmas> DiffusionRecords;
 
 private:
