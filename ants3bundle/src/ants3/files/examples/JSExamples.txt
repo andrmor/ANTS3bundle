@@ -102,5 +102,13 @@ Mercury:Reconstruction
 Show true and reconstructed event positions at the geometry window (requires Mercury library)
 #end
 
+#file
+FanoTester.txt
+#tags
+Scintillation:Statistics
+#info
+Show true and reconstructed event positions at the geometry window (requires Mercury library)
+#end
+
 
 
