@@ -258,6 +258,35 @@ QVariantMap ALightResponse_SI::newLRF_xyz(int intervalsX, double minX, double ma
     return js.toVariantMap();
 }
 
+#include "lrformulaxy.h"
+QVariantMap ALightResponse_SI::newLRF_formulaXY(QString expression, QVariantList parameterNames, QVariantList initialValues, double minX, double maxX, double minY, double maxY)
+{
+    LRFormulaXY lrf(minX, maxX, minY, maxY);
+
+    lrf.SetExpression(expression.toStdString());
+
+    const int numPar = parameterNames.size();
+    if (numPar != initialValues.size())
+    {
+        abort("newLRF_formulaXY: Mismatch in parameterNames and initialValues sizes");
+        return QVariantMap();
+    }
+
+    for (int iPar = 0; iPar < numPar; iPar++)
+        lrf.SetParameter(parameterNames[iPar].toString().toStdString(), initialValues[iPar].toDouble());
+
+    std::string err = lrf.InitVF();
+    if (!err.empty())
+    {
+        abort("newLRF_formulaXY: " + QString(err.data()));
+        return QVariantMap();
+    }
+
+    QJsonDocument doc = QJsonDocument::fromJson(lrf.GetJsonString().data());
+    QJsonObject js = doc.object();
+    return js.toVariantMap();
+}
+
 void ALightResponse_SI::setLRF(QVariantMap lrf)
 {
     if (!checkModel()) return;
@@ -274,9 +303,9 @@ void ALightResponse_SI::setLRF(QVariantMap lrf)
     const size_t numGroups = LRHub.Model->GetGroupCount();
     for (size_t iGr = 0; iGr < numGroups; iGr++)
     {
-        LRF * lrf = lrfToClone->clone();
-        updateLrfOrigin(lrf, LRHub.Model->GetGroupX(iGr), LRHub.Model->GetGroupY(iGr));
-        LRHub.Model->SetGroupLRF(iGr, lrf);
+        LRF * clonedLrf = lrfToClone->clone();
+        updateLrfOrigin(clonedLrf, LRHub.Model->GetGroupX(iGr), LRHub.Model->GetGroupY(iGr));
+        LRHub.Model->SetGroupLRF(iGr, clonedLrf);
     }
 
     // find sensors not belonging to any group
@@ -287,9 +316,10 @@ void ALightResponse_SI::setLRF(QVariantMap lrf)
         int iGr = LRHub.Model->GetGroup(iSens);
         if (iGr != -1) continue;
 
-        LRF * lrf = lrfToClone->clone();
-        updateLrfOrigin(lrf, SensHub.getSensorData(iSens)->Position[0], SensHub.getSensorData(iSens)->Position[1]);
-        LRHub.Model->SetLRF(iSens, lrf);
+        LRF * clonedLrf = lrfToClone->clone();
+        updateLrfOrigin(clonedLrf, SensHub.getSensorData(iSens)->Position[0], SensHub.getSensorData(iSens)->Position[1]);
+        //qDebug() << iSens << clonedLrf->GetJsonString();
+        LRHub.Model->SetLRF(iSens, clonedLrf);
     }
 
     DefaultLrf = lrf;
@@ -702,14 +732,17 @@ void ALightResponse_SI::clearModel()
     DefaultLrf.clear();
 }
 
-#include "lrformula1.h"
 void ALightResponse_SI::updateLrfOrigin(LRF * lrf, double x, double y)
 {
     LRFaxial * axlrf = dynamic_cast<LRFaxial*>(lrf);
     if (axlrf) axlrf->SetOrigin(x, y);
 
-    LRFormula1 * flrf = dynamic_cast<LRFormula1*>(lrf);
-    if (flrf) flrf->SetOrigin(x, y);
+    LRFormulaXY * flrf = dynamic_cast<LRFormulaXY*>(lrf);
+    if (flrf)
+    {
+        flrf->SetOrigin(x, y);
+        flrf->InitVF();
+    }
 }
 
 bool ALightResponse_SI::checkModel()

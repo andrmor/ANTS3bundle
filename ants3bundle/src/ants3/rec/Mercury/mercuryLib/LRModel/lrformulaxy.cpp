@@ -8,6 +8,8 @@
 #include <algorithm>
 
 // Universal functor
+// 3 - number of fixed constants in vf
+// ToDo: calculate it automatically (probably add this to WFormula)
 struct FunctorXY : Functor<double> {
     Eigen::VectorXd x;
     Eigen::VectorXd y;
@@ -15,12 +17,12 @@ struct FunctorXY : Functor<double> {
     WFormula *vf;
 
     FunctorXY(const Eigen::VectorXd& x_, const Eigen::VectorXd& y_, const Eigen::VectorXd& a_, WFormula *vf_)
-        : Functor<double>(vf_->GetConstCount()-1, x_.size()), x(x_), y(y_), a(a_), vf(vf_){}
+        : Functor<double>(vf_->GetConstCount()-3, x_.size()), x(x_), y(y_), a(a_), vf(vf_){}
 
     // Compute residuals: f(p) = model(p) - a
     int operator()(const Eigen::VectorXd& p, Eigen::VectorXd& fvec) const {
-        for (size_t i=1; i<vf->GetConstCount(); i++)
-            vf->SetConstant(i, p[i-1]);
+        for (size_t i=3; i<vf->GetConstCount(); i++)
+            vf->SetConstant(i, p[i-3]);
 
         fvec = vf->Eval(x.array(), y.array()) - a.array();
         return 0;
@@ -41,8 +43,8 @@ struct FunctorXYW : Functor<double> {
 
     // Compute weighted residuals: f(p) = (model(p) - a) * sqrt(w)
     int operator()(const Eigen::VectorXd& p, Eigen::VectorXd& fvec) const {
-        for (size_t i=1; i<vf->GetConstCount(); i++)
-            vf->SetConstant(i, p[i-1]);
+        for (size_t i=3; i<vf->GetConstCount(); i++)
+            vf->SetConstant(i, p[i-3]);
 
         fvec = (vf->Eval(x.array(), y.array()) - a.array()) * sqrt(w.array());
         return 0;
@@ -81,6 +83,9 @@ LRFormulaXY::LRFormulaXY(const Json &json)
     if (xmax <= xmin || ymax<=ymin)
         return;
     
+    x0 = json["x0"].number_value();
+    y0 = json["y0"].number_value();
+
 // get WFormula expression and parameters
 
     parnames.clear();
@@ -105,6 +110,8 @@ std::string LRFormulaXY::InitVF()
 {
     delete vf;
     vf = new WFormula();
+    vf -> AddConstant("x0", x0);
+    vf -> AddConstant("y0", y0);
 //    std::cout << "InitVF\n";
     for (size_t i = 0; i<parnames.size(); i++) {
 //        std::cout << "name: " << parnames[i] << " = " << parvals[i] << std::endl;
@@ -187,39 +194,39 @@ bool LRFormulaXY::fitData(const std::vector <LRFdata> &data)
         va.push_back(d.val);
     }
 
-     //  map std::vectors to ArrayXd objects
- // caveat: the data memory is shared between two objects!
- Eigen::Map<Eigen::ArrayXd> x(vx.data(), static_cast<Eigen::Index>(vx.size()));
- Eigen::Map<Eigen::ArrayXd> y(vy.data(), static_cast<Eigen::Index>(vy.size()));
- Eigen::Map<Eigen::ArrayXd> a(va.data(), static_cast<Eigen::Index>(va.size()));
+    //  map std::vectors to ArrayXd objects
+    // caveat: the data memory is shared between two objects!
+    Eigen::Map<Eigen::ArrayXd> x(vx.data(), static_cast<Eigen::Index>(vx.size()));
+    Eigen::Map<Eigen::ArrayXd> y(vy.data(), static_cast<Eigen::Index>(vy.size()));
+    Eigen::Map<Eigen::ArrayXd> a(va.data(), static_cast<Eigen::Index>(va.size()));
 
-// use current parameter set as initial guess
- Eigen::VectorXd p(parvals.size());
- for (size_t i=0; i<parvals.size(); i++)
-     p(i) = parvals[i];
+    // use current parameter set as initial guess
+    Eigen::VectorXd p(parvals.size());
+    for (size_t i=0; i<parvals.size(); i++)
+        p(i) = parvals[i];
 
- // Wrap with numerical differentiation
- FunctorXY functor(x, y, a, vf);
+    // Wrap with numerical differentiation
+    FunctorXY functor(x, y, a, vf);
 
- Eigen::NumericalDiff<FunctorXY> numDiff(functor);
- Eigen::LevenbergMarquardt<Eigen::NumericalDiff<FunctorXY>> lm(numDiff);
+    Eigen::NumericalDiff<FunctorXY> numDiff(functor);
+    Eigen::LevenbergMarquardt<Eigen::NumericalDiff<FunctorXY>> lm(numDiff);
 
- // Run LM optimization
- lm.parameters.maxfev = 200;   // max iterations
- lm.parameters.ftol = 1e-7;
- lm.parameters.xtol = 1e-7;
+    // Run LM optimization
+    lm.parameters.maxfev = maxfev;   // max iterations
+    lm.parameters.ftol = ftol;
+    lm.parameters.xtol = xtol;
 
- auto status = lm.minimize(p);
- if (status != 1 && status != 2 && status != 3) {
-//        error_msg = std::string("FormulaV: LM fit failed with status ") + std::to_string(status);
-     throw std::runtime_error(std::string("FormulaXY: LM fit failed with status ") + std::to_string(status));
-     return false;
- }
+    auto status = lm.minimize(p);
+    if (status != 1 && status != 2 && status != 3) {
+        error_msg = std::string("FormulaV: LM fit failed with status ") + std::to_string(status);
+//        throw std::runtime_error(std::string("FormulaXY: LM fit failed with status ") + std::to_string(status));
+        return false;
+    }
 
- for (size_t i=0; i<parvals.size(); i++)
-     parvals[i] = p(i);
+    for (size_t i=0; i<parvals.size(); i++)
+        parvals[i] = p(i);
 
- return true;
+    return true;
 }
 
 bool LRFormulaXY::addData(const std::vector <LRFdata> &data)
@@ -247,10 +254,13 @@ bool LRFormulaXY::doFit()
     // extract the accumulated binned data from the profile histogram
         for (int ix=0; ix<nbinsx; ix++)
           for (int iy=0; iy<nbinsy; iy++) {
+            double w = h1->GetBinEntries(ix, iy);
+            if (w == 0.)
+                continue;
             vx.push_back(h1->GetBinCenterX(ix));
             vy.push_back(h1->GetBinCenterY(iy));
             va.push_back(h1->GetBinMean(ix, iy));
-            vw.push_back(h1->GetBinEntries(ix, iy));
+            vw.push_back(w);
         }
 
     int nbins = nbinsx * nbinsy;
@@ -271,14 +281,14 @@ bool LRFormulaXY::doFit()
     Eigen::LevenbergMarquardt<Eigen::NumericalDiff<FunctorXYW>> lm(numDiff);
 
     // Run LM optimization
-    lm.parameters.maxfev = 200;   // max iterations
-    lm.parameters.ftol = 1e-7;
-    lm.parameters.xtol = 1e-7;
+    lm.parameters.maxfev = maxfev;   // max iterations
+    lm.parameters.ftol = ftol;
+    lm.parameters.xtol = xtol;
 
     auto status = lm.minimize(p);
     if (status != 1 && status != 2 && status != 3) {
-//        error_msg = std::string("FormulaV: LM fit failed with status ") + std::to_string(status);
-        throw std::runtime_error(std::string("FormulaXY: weighted LM fit failed with status ") + std::to_string(status));
+        error_msg = std::string("FormulaXY: weighted LM fit failed with status ") + std::to_string(status);
+//        throw std::runtime_error(std::string("FormulaXY: weighted LM fit failed with status ") + std::to_string(status));
         return false;
     }
 
@@ -295,6 +305,9 @@ void LRFormulaXY::ToJsonObject(Json_object &json) const
     json["xmax"] = xmax;
     json["ymin"] = ymin;
     json["ymax"] = ymax;
+
+    json["x0"] = x0;
+    json["y0"] = y0;
 
     json["expression"] = expression;
     json["parnames"] = parnames;

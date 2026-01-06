@@ -230,6 +230,35 @@ LRF *LRModel::GetGroupLRF(int gid)
     return Group.at(gid).glrf;
 }
 
+std::vector<double> LRModel::GetLimits(int id)
+{
+    LRF *lrf = GetLRF(id);
+    double xmin = lrf->getXmin();
+    double xmax = lrf->getXmax();
+    double ymin = lrf->getYmin();
+    double ymax = lrf->getYmax();
+    double z = 0.;
+
+    Transform *tr = GetTransform(id);
+    if (tr) {
+        double p0x = xmin, p0y = ymin;
+        double p1x = xmax, p1y = ymin;
+        double p2x = xmax, p2y = ymax;
+        double p3x = xmin, p3y = ymax;
+        tr->DoInvTransform(&p0x, &p0y, &z);
+        tr->DoInvTransform(&p1x, &p1y, &z);
+        tr->DoInvTransform(&p2x, &p2y, &z);
+        tr->DoInvTransform(&p3x, &p3y, &z);
+        xmin =std::min({p0x, p1x, p2x, p3x});
+        xmax =std::max({p0x, p1x, p2x, p3x});
+        ymin =std::min({p0y, p1y, p2y, p3y});
+        ymax =std::max({p0y, p1y, p2y, p3y});
+    }
+
+    return std::vector<double> ({xmin, xmax, ymin, ymax});
+}
+
+
 // Evaluation: direct coordinates versions
 
 bool LRModel::InDomain(int id, double x, double y, double z)

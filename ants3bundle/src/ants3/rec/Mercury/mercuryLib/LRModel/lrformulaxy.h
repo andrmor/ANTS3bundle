@@ -36,11 +36,14 @@ public:
     virtual std::string type() const { return std::string("FormulaXY"); }
     virtual void ToJsonObject(Json_object &json) const;
 
+    void SetOrigin(double x, double y) {x0 = x; y0 = y;}
+
 //  VFormula-related calls
     // setters
+    void SetConstant(std::string name, double val);
     void SetParameter(std::string name, double val);
     void SetExpression(std::string expr) {expression = expr;}
-    // call this to update the virtual machine if parameter names of expression were changed
+    // call this to update the virtual machine if parameter names or expression were changed
     std::string InitVF();  
 
     // getters
@@ -64,22 +67,32 @@ protected:
     void Init();
 
 protected:
-// rectangular domain
+    double x0 = 0., y0 = 0.;  // a point of reference in the XY-plane, normally a center of a sensor
     double rmax;
 
 // prof. histogram used for binned fitting
-ProfileHist2D *h1 = nullptr; 
-int nbinsx = 20;
-int nbinsy = 20;
+    ProfileHist2D *h1 = nullptr; 
+    int nbinsx = 20;
+    int nbinsy = 20;
 
 // VFormula
-WFormula *vf = nullptr;
-std::string expression = std::string("");   // expression to parse
-// vectors because parameters passed in a vector to functors
-std::vector<std::string> parnames;             // parameter names
-std::vector<double> parvals;                   // parameter values
-std::map<std::string, size_t> parmap;          // map for bookkeeping
+    WFormula *vf = nullptr;
+    std::string expression = std::string("");   // expression to parse
+    // vectors because parameters passed in a vector to functors
+    std::vector<std::string> parnames;             // parameter names
+    std::vector<double> parvals;                   // parameter values
 
+// Minimizer parameters
+    int maxfev = 200;   // max iterations
+    double ftol = 1e-7;
+    double xtol = 1e-7;
+
+public: 
+    void SetMaxFEV(int val) {maxfev = val;}
+    void SetFtol(int val) {ftol = val;}
+    void SetXtol(int val) {xtol = val;}
 };
+
+
 
 #endif // LRFORMULAXY_H

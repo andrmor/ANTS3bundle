@@ -10,6 +10,8 @@
 #include "TAxis.h"
 #include "TH2D.h"
 
+#include<QDebug>
+
 QString ALrfPlotter::drawRadial(int iSens, bool showLrf, bool showNodes, bool addData, bool differenceOption)
 {
     LRModel * model = ALightResponseHub::getInstance().Model;
@@ -341,28 +343,36 @@ void ALrfPlotter::doDrawXYDiff(int iSens)
 void ALrfPlotter::doDrawXYLrf(int iSens, bool onTopOfData)
 {
     LRModel * model = ALightResponseHub::getInstance().Model;
-    LRF * lrf = model->GetLRF(iSens);
+    qDebug() << "aaaaaaa" << iSens << "in 0,0 -->" << model->Eval(iSens, 0, 0, 0);
+    //LRF * lrf = model->GetLRF(iSens);
 
     TGraph2D * g = new TGraph2D(); // will be owned by the graph window
 
-    double x0 = model->GetX(iSens);
-    double y0 = model->GetY(iSens);
+    //double x0 = model->GetX(iSens);
+    //double y0 = model->GetY(iSens);
 
-    double xFrom = lrf->getXmin();
-    double xTo   = lrf->getXmax();
+    std::vector<double> xyLimits = model->GetLimits(iSens);
+    double xFrom = xyLimits[0];
+    double xTo = xyLimits[1];
+    double yFrom = xyLimits[2];
+    double yTo = xyLimits[3];
+
+    //double xFrom = lrf->getXmin();
+    //double xTo   = lrf->getXmax();
     double xStep = (xTo - xFrom) / NumPointsInXYGraph;
 
-    double yFrom = lrf->getYmin();
-    double yTo   = lrf->getYmax();
+    //double yFrom = lrf->getYmin();
+    //double yTo   = lrf->getYmax();
     double yStep = (yTo - yFrom) / NumPointsInXYGraph;
 
     // !!!*** z control
     for (size_t iX = 0; iX < NumPointsInXYGraph; iX++)
     {
-        double x = x0 + xFrom + xStep * iX;
+        double x = xFrom + xStep * iX;
         for (size_t iY = 0; iY < NumPointsInXYGraph; iY++)
         {
-            double y = y0 + yFrom + yStep * iY;
+            double y = yFrom + yStep * iY;
+
             double val = model->Eval(iSens, x, y, 0);
             g->AddPoint(x, y, val);
         }
@@ -389,13 +399,18 @@ void ALrfPlotter::doDrawXYLrf(int iSens, bool onTopOfData)
 void ALrfPlotter::doDrawRadialForNonAxial(int iSens)
 {
     LRModel * model = ALightResponseHub::getInstance().Model;
-    LRF * lrf = model->GetLRF(iSens);
+    //LRF * lrf = model->GetLRF(iSens);
 
     const double x0 = model->GetX(iSens);
     const double y0 = model->GetY(iSens);
 
-    double xMax = lrf->getXmax(); double xMin = lrf->getXmin();
-    double yMax = lrf->getYmax(); double yMin = lrf->getYmin();
+    std::vector<double> xyLimits= model->GetLimits(iSens);
+    double xMin = xyLimits[0];
+    double xMax = xyLimits[1];
+    double yMin = xyLimits[2];
+    double yMax = xyLimits[3];
+    //double xMax = lrf->getXmax(); double xMin = lrf->getXmin();
+    //double yMax = lrf->getYmax(); double yMin = lrf->getYmin();
     std::vector<std::pair<double,double>> corners = {{xMax,yMax},
                                                      {xMax,yMin},
                                                      {xMin,yMin},
@@ -424,9 +439,12 @@ void ALrfPlotter::doDrawRadialForNonAxial(int iSens)
             double radius = rStep * iR;
             double x = x0 + radius * cos(angle);
             double y = y0 + radius * sin(angle);
-            if (!lrf->inDomain(x, y, 0)) break;
+            //if (!lrf->inDomain(x, y, 0)) break;
+            if (!model->InDomain(iSens, x, y, 0)) break;
 
-            double val = lrf->eval(x, y, 0);
+            //double val = lrf->eval(x, y, 0);
+            double val = model->Eval(iSens, x, y, 0);
+            //qDebug() << "#" << iSens << "   " << x << y << "-->" << val;
             g->AddPoint(radius, val);
         }
 

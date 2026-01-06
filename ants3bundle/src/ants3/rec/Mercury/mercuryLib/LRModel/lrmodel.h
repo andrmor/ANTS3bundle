@@ -155,6 +155,8 @@ public:
     std::string GetGroupJsonLRF(int gid) {LRF *p; return (p = GetGroupLRF(gid)) ? p->GetJsonString() : "";}
     void SetDefaultLRF(LRF *default_lrf) {DefaultLRF = default_lrf;}
     void SetDefaultJsonLRF(std::string json_str) {DefaultLRF = LRF::mkFromJson(json_str);}
+    std::vector<double> GetLimits(int id);
+    bool isValid(int id) {LRF *p; return (p = GetLRF(id)) ? p->isValid() : false;}
 
 // Access to Profile Histograms
     std::vector <int> GetHistBins(int id);
