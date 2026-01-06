@@ -1287,6 +1287,7 @@ void ADrawExplorerWidget::fwhm(int index)
     //qDebug() << "sigma:"<<sigma;
     double FWHM = sigma * 2.0*TMath::Sqrt(2.0*TMath::Log(2.0));
     double rel = FWHM/mid;
+    double fano = (mid != 0 ? sigma*sigma / mid : 0);
 
     //draw fit line
     DrawObjects.insert(DrawObjects.begin()+index+1, ADrawObject(f, "same"));
@@ -1305,7 +1306,7 @@ void ADrawExplorerWidget::fwhm(int index)
     la->SetLineColor(1);
     la->SetTextAlign( (0 + 1) * 10 + 2);
     //QString text = QString("FWHM = %1\nmean = %2\nfwhm/mean = %3").arg(FWHM).arg(mid).arg(rel);
-    QString text = QString("Mean: %0  Sigma: %1\nfwhm: %2  fwhm/mean: %3").arg(mid).arg(sigma).arg(FWHM).arg(rel);
+    QString text = QString("Mean: %0  Sigma: %1\nfwhm: %2\nfwhm/mean: %3\nFano: %4").arg(mid).arg(sigma).arg(FWHM).arg(rel).arg(fano);
     const QStringList sl = text.split("\n");
     for (const QString & s : sl) la->AddText(s.toLatin1());
     GraphWindow.registerTObject(la);
