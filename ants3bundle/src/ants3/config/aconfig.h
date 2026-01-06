@@ -67,8 +67,8 @@ public:
     QString doRedo();
     void updateUndoMaxDepth(int newDepth);
 
-    void replaceEmptyOutputDirsWithTemporary();
-    void clearTemporaryOutputDirs();
+    void replaceEmptyInputOutputDirsWithTemporary();
+    void clearTemporaryInputOutputDirs();
 
 private:
     QString tryReadFromJson(const QJsonObject & json); // resets error hub on call

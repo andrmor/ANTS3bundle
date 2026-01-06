@@ -175,7 +175,7 @@ AMainWindow::AMainWindow() :
     ui->menuFile->setToolTipsVisible(true);
     ui->menuFile->setToolTipDuration(1000);
 
-    Config.replaceEmptyOutputDirsWithTemporary();
+    Config.replaceEmptyInputOutputDirsWithTemporary();
 
   // Finalizing
     Config.createUndo();
@@ -708,7 +708,7 @@ void AMainWindow::on_pbNew_clicked()
 
     Config.ConfigName = "";
     Config.ConfigDescription = "";
-    Config.replaceEmptyOutputDirsWithTemporary();
+    Config.replaceEmptyInputOutputDirsWithTemporary();
     Config.updateJSONfromConfig();
 
     Config.clearUndo();

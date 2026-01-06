@@ -63,9 +63,9 @@ QString AConfig::load(const QString & fileName, bool bUpdateGui)
 
 QString AConfig::save(const QString & fileName)
 {
-    clearTemporaryOutputDirs();
+    clearTemporaryInputOutputDirs();
     updateJSONfromConfig();
-    replaceEmptyOutputDirsWithTemporary();
+    replaceEmptyInputOutputDirsWithTemporary();
 
     bool ok = jstools::saveJsonToFile(JSON, fileName);
     if (ok) return "";
@@ -97,7 +97,7 @@ QString AConfig::readFromJson(const QJsonObject & json, bool updateGui)
     if (err.isEmpty())
     {
         JSON = json;
-        replaceEmptyOutputDirsWithTemporary();
+        replaceEmptyInputOutputDirsWithTemporary();
         if (updateGui) emit configLoaded();
         return "";
     }
@@ -108,22 +108,28 @@ QString AConfig::readFromJson(const QJsonObject & json, bool updateGui)
     }
 }
 
-void AConfig::replaceEmptyOutputDirsWithTemporary()
+void AConfig::replaceEmptyInputOutputDirsWithTemporary()
 {
     QString & photonSimOutputDir = APhotonSimHub::getInstance().Settings.RunSet.OutputDirectory;
     if (photonSimOutputDir.isEmpty()) photonSimOutputDir = A3Global::getConstInstance().TmpOutputDir;
 
     std::string & particleSimOutputDir = AParticleSimHub::getInstance().Settings.RunSet.OutputDirectory;
     if (particleSimOutputDir.empty()) particleSimOutputDir = A3Global::getConstInstance().TmpOutputDir.toLatin1().data();
+
+    QString & depoFileName = APhotonSimHub::getInstance().Settings.DepoSet.FileName;
+    if (depoFileName.isEmpty()) depoFileName = A3Global::getConstInstance().TmpOutputDir + "/Deposition.dat";
 }
 
-void AConfig::clearTemporaryOutputDirs()
+void AConfig::clearTemporaryInputOutputDirs()
 {
     QString & photonSimOutputDir = APhotonSimHub::getInstance().Settings.RunSet.OutputDirectory;
     if (photonSimOutputDir == A3Global::getConstInstance().TmpOutputDir) photonSimOutputDir.clear();
 
     std::string & particleSimOutputDir = AParticleSimHub::getInstance().Settings.RunSet.OutputDirectory;
     if (particleSimOutputDir == std::string(A3Global::getConstInstance().TmpOutputDir.toLatin1().data())) particleSimOutputDir.clear();
+
+    QString & depoFileName = APhotonSimHub::getInstance().Settings.DepoSet.FileName;
+    if (depoFileName == A3Global::getConstInstance().TmpOutputDir + "/Deposition.dat") depoFileName.clear();
 }
 
 QString AConfig::tryReadFromJson(const QJsonObject & json)

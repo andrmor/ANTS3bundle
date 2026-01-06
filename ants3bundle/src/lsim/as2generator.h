@@ -44,6 +44,7 @@ private:
     void generateLight(int numElectrons, double * xyPosition, double time);
     void generateAndTracePhotons(double * Position, double Time, int NumPhotonsToGenerate, int MatIndexSecScint, double Zstart, double Zspan);
 
+
 };
 
 #endif // as2generator_H
