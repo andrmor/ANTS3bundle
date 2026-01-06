@@ -116,26 +116,26 @@ int APhotonGenerator::sampleFromMean(double mean, double fanoFactor)
         if (mean > 25.0)  // TRandom2: Gauss 40 ns/call, Poisson(70) 840 ns/call
         {
             double sigma = std::sqrt(mean);
-            return int(RandomHub.gauss(mean, sigma) + 0.5);
+            return std::round(RandomHub.gauss(mean, sigma));
         }
         else
             return RandomHub.poisson(mean);
     }
 
     if (fanoFactor == 0)
-        return int(mean + 0.5); // avoid! events with many low energy deposition nodes --> less photons than expected
+        return std::round(mean); // avoid! events with many low energy deposition nodes --> less photons than expected
 
     if (mean > 25.0)
     {
         double sigma = std::sqrt(fanoFactor * mean);
-        return int(RandomHub.gauss(mean, sigma) + 0.5);
+        return std::round(RandomHub.gauss(mean, sigma));
     }
     else
     {
         if (fanoFactor < 1.0)
         {
             double p = 1.0 - fanoFactor;
-            int n = int(mean / p + 0.5);                 // !!!*** what if meanPhotons/p < 0.5 ???
+            int n = std::round(mean / p);                 // !!!*** what if meanPhotons/p < 0.5 ???
             double p_adj = ( n == 0 ? p : mean / n);     // still see above
             return RandomHub.binomial(n, p_adj);
         }
