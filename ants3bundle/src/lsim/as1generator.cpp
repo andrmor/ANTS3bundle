@@ -25,7 +25,11 @@ void AS1Generator::generate(ADepoRecord & rec)
     const double fanoS1      = MatHub.getS1FanoFactor(rec.MatIndex);
 
     double meanPhotons = rec.Energy * photonYield;
-    int    numPhotons = PhotonGenerator.sampleFromMean(meanPhotons, fanoS1);
+    //if (fanoS1 == 0)
+    //{
+    //    have to keep remainer?
+    //}
+    int numPhotons = PhotonGenerator.sampleFromMean(meanPhotons, fanoS1);
 
     if (SimSet.OptSet.TracingMode == APhotOptSettings::LRF)
     {
