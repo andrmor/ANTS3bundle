@@ -14,6 +14,8 @@ public:
     void generateWave(APhoton & Photon, int iMaterial);  // !!!*** TH1.random to custom?
     void generateTime(APhoton & Photon, int iMaterial);
 
+    int  sampleFromMean(double mean, double fanoFactor);
+
 protected:
     TVector3 ColDirUnitary{0, 0, 1.0};
     double   CosConeAngle = 0;

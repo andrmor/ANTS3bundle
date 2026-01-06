@@ -37,15 +37,13 @@ private:
     TGeoManager              * GeoManager = nullptr;
     ALightSensorEvent        & Event;
 
-    int NumElectrons = 0;
-    int NumPhotons   = 0;
-
     std::vector<DiffSigmas> DiffusionRecords;
 
 private:
     bool doDrift(double & time);
-    void generateLight(double * xyPosition, double time);
+    void generateLight(int numElectrons, double * xyPosition, double time);
     void generateAndTracePhotons(double * Position, double Time, int NumPhotonsToGenerate, int MatIndexSecScint, double Zstart, double Zspan);
+
 };
 
 #endif // as2generator_H

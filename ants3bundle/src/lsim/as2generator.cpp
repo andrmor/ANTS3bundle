@@ -24,7 +24,6 @@ AS2Generator::AS2Generator(APhotonGenerator & photonGenerator, APhotonTracer & p
     GeoManager(AGeometryHub::getInstance().GeoManager),
     Event(event) {}
 
-// in ANTS2 PhotonRemainer resets on new particle, ElectronRemainer resets on new event   Need update? !!!***
 void AS2Generator::generate(ADepoRecord & rec) //uses MW->EnergyVector as the input parameter
 {
     GeoManager->SetCurrentPoint(rec.Pos.data());
@@ -34,48 +33,42 @@ void AS2Generator::generate(ADepoRecord & rec) //uses MW->EnergyVector as the in
     const double & W = MatHub[rec.MatIndex]->W;
     if (W > 0) meanElectrons = rec.Energy / W;
 
-    if (meanElectrons > 25.0)  // TRandom2: Gauss 40 ns/call, Poisson(70) 840 ns/call
+    int numElectrons = PhotonGenerator.sampleFromMean(meanElectrons, 1.0);
+    if (numElectrons > 0)
     {
-        double sigma = std::sqrt(meanElectrons);
-        NumPhotons = int(RandomHub.gauss(meanElectrons, sigma) + 0.5);
-    }
-    else
-        NumPhotons = RandomHub.poisson(meanElectrons);
-
-    if (NumElectrons > 0)
-    {
-        double Time = rec.Time;
-        bool foundSecScint = doDrift(Time); // updates Time!
-        if (foundSecScint) generateLight(rec.Pos.data(), Time);
+        double time = rec.Time;
+        bool foundSecScint = doDrift(time); // updates time!
+        if (foundSecScint) generateLight(numElectrons, rec.Pos.data(), time);
     }
 }
 
 bool AS2Generator::doDrift(double & time)
 {
-    //field is always in z direction, electrons drift up!
+    //field is assumed in z direction, electrons drift upward!
+
     DiffusionRecords.clear();
-    GeoManager->SetCurrentDirection(0, 0, 1.0);  //up
+    GeoManager->SetCurrentDirection(0, 0, 1.0);
 
     const char * marker = GeoManager->GetCurrentVolume()->GetTitle();
     while (marker[0] != '2')
     {
         //drifting up until entered secondary scintillator (marker[0] == '2') or the position is outside of the defined geometry
-        const int ThisMatIndex = GeoManager->GetCurrentVolume()->GetMaterial()->GetIndex();
+        const int thisMatIndex = GeoManager->GetCurrentVolume()->GetMaterial()->GetIndex();
 
         GeoManager->FindNextBoundaryAndStep();
         if (GeoManager->IsOutside()) return false;
 
-        const double Step = GeoManager->GetStep();
-        const double DriftSpeed = MatHub.getDriftSpeed(ThisMatIndex);
-        if (DriftSpeed != 0)
+        const double step = GeoManager->GetStep();
+        const double driftSpeed = MatHub.getDriftSpeed(thisMatIndex);
+        if (driftSpeed != 0)
         {
-            time += Step / DriftSpeed;
+            time += step / driftSpeed;
 
-            const double SigmaTime       = MatHub.getDiffusionSigmaTime(ThisMatIndex, Step);
-            const double SigmaTransverse = MatHub.getDiffusionSigmaTransverse(ThisMatIndex, Step);
+            const double sigmaTime       = MatHub.getDiffusionSigmaTime(thisMatIndex, step);
+            const double sigmaTransverse = MatHub.getDiffusionSigmaTransverse(thisMatIndex, step);
 
-            if (SigmaTime != 0 || SigmaTransverse != 0)
-                DiffusionRecords.push_back( DiffSigmas(SigmaTime, SigmaTransverse) );
+            if (sigmaTime != 0 || sigmaTransverse != 0)
+                DiffusionRecords.push_back( DiffSigmas(sigmaTime, sigmaTransverse) );
         }
 
         marker = GeoManager->GetCurrentVolume()->GetTitle();
@@ -83,10 +76,10 @@ bool AS2Generator::doDrift(double & time)
     return true;
 }
 
-void AS2Generator::generateLight(double * xyPosition, double time)
+void AS2Generator::generateLight(int numElectrons, double * xyPosition, double time)
 {
-    const int    MatIndexSecScint = GeoManager->GetCurrentVolume()->GetMaterial()->GetIndex();
-    const double PhotonsPerElectron = MatHub[MatIndexSecScint]->SecScintPhotonYield;
+    const int    matIndexSecScint = GeoManager->GetCurrentVolume()->GetMaterial()->GetIndex();
+    const double photonsPerElectron = MatHub[matIndexSecScint]->SecScintPhotonYield;
     const double Zstart = GeoManager->GetCurrentPoint()[2];
 
     GeoManager->FindNextBoundary();
@@ -95,25 +88,20 @@ void AS2Generator::generateLight(double * xyPosition, double time)
     //generate photons
     if (DiffusionRecords.empty() || SimSet.OptSet.TracingMode == APhotOptSettings::LRF)
     {
-        const double meanPhotons = NumElectrons * PhotonsPerElectron;
-
-        if (meanPhotons > 25.0)  // TRandom2: Gauss 40 ns/call, Poisson(70) 840 ns/call
+        double meanPhotons = numElectrons * photonsPerElectron;
+        int    numPhotons = PhotonGenerator.sampleFromMean(meanPhotons, 1.0);
+        if (numPhotons > 0)
         {
-            double sigma = std::sqrt(meanPhotons);
-            NumPhotons = int(RandomHub.gauss(meanPhotons, sigma) + 0.5);
+            if (SimSet.OptSet.TracingMode == APhotOptSettings::LRF)
+                Event.generateHitsForLrfMode(numPhotons, xyPosition);
+            else
+                generateAndTracePhotons(xyPosition, time, numPhotons, matIndexSecScint, Zstart, Zspan);
         }
-        else
-            NumPhotons = RandomHub.poisson(meanPhotons);
-
-        if (SimSet.OptSet.TracingMode == APhotOptSettings::LRF)
-            Event.generateHitsForLrfMode(NumPhotons, xyPosition);
-        else
-            generateAndTracePhotons(xyPosition, time, NumPhotons, MatIndexSecScint, Zstart, Zspan);
     }
     else
     {
         //diffusion is in effect
-        for (int iElectron = 0; iElectron < NumElectrons; iElectron++)
+        for (int iElectron = 0; iElectron < numElectrons; iElectron++)
         {
             double pos[3];
             pos[0] = xyPosition[0];
@@ -142,22 +130,15 @@ void AS2Generator::generateLight(double * xyPosition, double time)
                 continue;
             }
 
-            double meanPhotons = PhotonsPerElectron;
-            int NumPhotonsThisEl = 0;
-            if (meanPhotons > 25.0)  // TRandom2: Gauss 40 ns/call, Poisson(70) 840 ns/call
+            double meanPhotons = photonsPerElectron;
+            int    numPhotons = PhotonGenerator.sampleFromMean(meanPhotons, 1.0);
+            if (numPhotons > 0)
             {
-                double sigma = std::sqrt(meanPhotons);
-                NumPhotonsThisEl = int(RandomHub.gauss(meanPhotons, sigma) + 0.5);
+                if (SimSet.OptSet.TracingMode == APhotOptSettings::LRF)
+                    Event.generateHitsForLrfMode(numPhotons, xyPosition);
+                else
+                    generateAndTracePhotons(pos, time, numPhotons, matIndexSecScint, Zstart, Zspan);
             }
-            else
-                NumPhotonsThisEl = RandomHub.poisson(meanPhotons);
-
-            NumPhotons += NumPhotonsThisEl;
-
-            if (SimSet.OptSet.TracingMode == APhotOptSettings::LRF)
-                Event.generateHitsForLrfMode(NumPhotonsThisEl, xyPosition);
-            else
-                generateAndTracePhotons(pos, time, NumPhotonsThisEl, MatIndexSecScint, Zstart, Zspan);
         }
     }
 }
