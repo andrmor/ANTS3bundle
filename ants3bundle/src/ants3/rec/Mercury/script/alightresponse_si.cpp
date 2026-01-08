@@ -287,6 +287,40 @@ QVariantMap ALightResponse_SI::newLRF_formulaXY(QString expression, QVariantList
     return js.toVariantMap();
 }
 
+QVariantMap ALightResponse_SI::newLRF_formulaR(QString expression, QVariantList parameterNames, QVariantList initialValues, double maxR)
+{
+    return newLRF_formulaR(expression, parameterNames, initialValues, maxR, 0, 0);
+}
+
+#include "lrformulav.h"
+QVariantMap ALightResponse_SI::newLRF_formulaR(QString expression, QVariantList parameterNames, QVariantList initialValues, double maxR, double originX, double originY)
+{
+    LRFormulaV lrf(originX, originY, maxR);
+
+    lrf.SetExpression(expression.toStdString());
+
+    const int numPar = parameterNames.size();
+    if (numPar != initialValues.size())
+    {
+        abort("newLRF_formulaR: Mismatch in parameterNames and initialValues sizes");
+        return QVariantMap();
+    }
+
+    for (int iPar = 0; iPar < numPar; iPar++)
+        lrf.SetParameter(parameterNames[iPar].toString().toStdString(), initialValues[iPar].toDouble());
+
+    std::string err = lrf.InitVF();
+    if (!err.empty())
+    {
+        abort("newLRF_formulaR: " + QString(err.data()));
+        return QVariantMap();
+    }
+
+    QJsonDocument doc = QJsonDocument::fromJson(lrf.GetJsonString().data());
+    QJsonObject js = doc.object();
+    return js.toVariantMap();
+}
+
 void ALightResponse_SI::setLRF(QVariantMap lrf)
 {
     if (!checkModel()) return;
@@ -735,13 +769,26 @@ void ALightResponse_SI::clearModel()
 void ALightResponse_SI::updateLrfOrigin(LRF * lrf, double x, double y)
 {
     LRFaxial * axlrf = dynamic_cast<LRFaxial*>(lrf);
-    if (axlrf) axlrf->SetOrigin(x, y);
+    if (axlrf)
+    {
+        axlrf->SetOrigin(x, y);
+        return;
+    }
 
     LRFormulaXY * flrf = dynamic_cast<LRFormulaXY*>(lrf);
     if (flrf)
     {
         flrf->SetOrigin(x, y);
         flrf->InitVF();
+        return;
+    }
+
+    LRFormulaV * lrfV = dynamic_cast<LRFormulaV*>(lrf);
+    if (lrfV)
+    {
+        lrfV->SetOrigin(x, y);
+        lrfV->InitVF();
+        return;
     }
 }
 

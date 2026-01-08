@@ -41,6 +41,10 @@ public slots:
                            int intervalsZ, double minZ, double maxZ);
     QVariantMap newLRF_formulaXY(QString expression, QVariantList parameterNames, QVariantList initialValues,
                                  double minX, double maxX, double minY, double maxY);
+    QVariantMap newLRF_formulaR(QString expression, QVariantList parameterNames, QVariantList initialValues,
+                                 double maxR);
+    QVariantMap newLRF_formulaR(QString expression, QVariantList parameterNames, QVariantList initialValues,
+                                double maxR, double originX, double originY);
 
     QVariantMap configureLRF_AxialCompression(QVariantMap lrf, double k, double lambda, double r0);
     QVariantMap configureLRF_Constrains(QVariantMap lrf, bool nonNegative, bool nonIncreasing, bool flattop);
