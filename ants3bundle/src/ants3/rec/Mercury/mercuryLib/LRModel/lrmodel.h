@@ -214,6 +214,7 @@ public:
     void ClearSensorFitData(int id);
     void ClearGroupFitData(int gid);
     void ClearAllFitData();
+    int GetFitStatus(int id) {LRF *p; return (p = GetLRF(id)) ? p->fit_status : -100;}
 
 // Correction factors (light collection)
     bool SetRefPoint(double x, double y, double z=0);
@@ -261,8 +262,9 @@ public:
     void ReadGroup(const Json &json);
 
 // Reporting
-    std::string GetLRFError() {return LRF::gjson_err;}
-    std::string GetError() {return lrm_err;}     
+    std::string GetError() {return lrm_err;}
+    std::string GetJSONError() {return LRF::gjson_err;}
+    std::string GetLRFError(int id) {LRF *p; return (p = GetLRF(id)) ? p->error_msg : "";}
 
 // Utility
     double GetMaxR(int id, const std::vector <LRFdata> &data) const;

@@ -53,7 +53,7 @@ WFormula::WFormula()
 
     AddConstant("pi", M_PI);
 
-    AddVariable("x");
+//    AddVariable("x");
 //    AddVariable("y", 0.);
 //    AddVariable("z", 0.);
 }

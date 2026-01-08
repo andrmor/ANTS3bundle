@@ -103,6 +103,16 @@ protected:
     std::vector<double> parvals;                   // parameter values
     std::map<std::string, size_t> parmap;          // map for bookkeeping
 
+// Minimizer parameters
+    int maxfev = 200;   // max iterations
+    double ftol = 1e-5;
+    double xtol = 1e-5;
+
+public: 
+    void SetMaxFEV(int val) {maxfev = val;}
+    void SetFtol(int val) {ftol = val;}
+    void SetXtol(int val) {xtol = val;}
+
 // safeguards
     double rzerod = 1e-6; // derivatives are assumed to be zero below this radius 
 };
