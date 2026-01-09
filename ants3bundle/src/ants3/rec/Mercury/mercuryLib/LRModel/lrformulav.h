@@ -37,6 +37,7 @@ public:
 
     virtual bool fitData(const std::vector <LRFdata> &data);
     virtual bool addData(const std::vector <LRFdata> &data);
+    bool addDataPy(const std::vector <Vec4data> &data);
     virtual bool doFit();
     virtual void clearData() { if (h1) h1->Clear(); }
 

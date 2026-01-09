@@ -201,9 +201,9 @@ bool LRFormulaXY::fitData(const std::vector <LRFdata> &data)
 
     //  map std::vectors to ArrayXd objects
     // caveat: the data memory is shared between two objects!
-    Eigen::Map<Eigen::ArrayXd> x(vx.data(), static_cast<Eigen::Index>(vx.size()));
-    Eigen::Map<Eigen::ArrayXd> y(vy.data(), static_cast<Eigen::Index>(vy.size()));
-    Eigen::Map<Eigen::ArrayXd> a(va.data(), static_cast<Eigen::Index>(va.size()));
+    Eigen::Map<Eigen::VectorXd> x(vx.data(), static_cast<Eigen::Index>(vx.size()));
+    Eigen::Map<Eigen::VectorXd> y(vy.data(), static_cast<Eigen::Index>(vy.size()));
+    Eigen::Map<Eigen::VectorXd> a(va.data(), static_cast<Eigen::Index>(va.size()));
 
     // use current parameter set as initial guess
     Eigen::VectorXd p(parvals.size());
@@ -223,7 +223,7 @@ bool LRFormulaXY::fitData(const std::vector <LRFdata> &data)
 
     auto status = lm.minimize(p);
     fit_status = status;
-    if (status < 1 || status > 3) {
+    if (status < 1 || status > 4) {
         error_msg = std::string("FormulaV: LM fit failed with status ") + std::to_string(status);
 //        throw std::runtime_error(std::string("FormulaXY: LM fit failed with status ") + std::to_string(status));
         return false;
@@ -248,6 +248,18 @@ bool LRFormulaXY::addData(const std::vector <LRFdata> &data)
     return true;
 }
 
+bool LRFormulaXY::addDataPy(const std::vector <Vec4data> &data){
+    if (!h1)
+        h1 = new ProfileHist2D(nbinsx, xmin, xmax, nbinsy, ymin, ymax);
+
+    for (auto d : data) {
+        if ( !inDomain(d[0], d[1]) )
+            continue;
+        h1->Fill(d[0], d[1], d[3]);
+    }
+    return true;
+}
+
 bool LRFormulaXY::doFit()
 {
     if (!h1 || h1->GetEntriesTotal() == 0. ) {
@@ -258,22 +270,22 @@ bool LRFormulaXY::doFit()
 
     std::vector<double> vx, vy, va, vw;
     // extract the accumulated binned data from the profile histogram
-        for (int ix=0; ix<nbinsx; ix++)
-          for (int iy=0; iy<nbinsy; iy++) {
-            double w = h1->GetBinEntries(ix, iy);
-            if (w == 0.)
-                continue;
+    for (int ix=0; ix<nbinsx; ix++)
+        for (int iy=0; iy<nbinsy; iy++) {
+        double w = h1->GetBinEntries(ix, iy);
+        if (w > 0.5) {
             vx.push_back(h1->GetBinCenterX(ix));
             vy.push_back(h1->GetBinCenterY(iy));
             va.push_back(h1->GetBinMean(ix, iy));
             vw.push_back(w);
         }
+    }
 
-    int nbins = nbinsx * nbinsy;
-    Eigen::Map<Eigen::ArrayXd> x(vx.data(), nbins);
-    Eigen::Map<Eigen::ArrayXd> y(vy.data(), nbins);
-    Eigen::Map<Eigen::ArrayXd> a(va.data(), nbins);
-    Eigen::Map<Eigen::ArrayXd> w(vw.data(), nbins);
+    int nbins = vw.size(); //nbinsx * nbinsy;
+    Eigen::Map<Eigen::VectorXd> x(vx.data(), nbins);
+    Eigen::Map<Eigen::VectorXd> y(vy.data(), nbins);
+    Eigen::Map<Eigen::VectorXd> a(va.data(), nbins);
+    Eigen::Map<Eigen::VectorXd> w(vw.data(), nbins);
 
     // use current parameter set as initial guess
     Eigen::VectorXd p(parvals.size());
@@ -290,10 +302,14 @@ bool LRFormulaXY::doFit()
     lm.parameters.maxfev = maxfev;   // max iterations
     lm.parameters.ftol = ftol;
     lm.parameters.xtol = xtol;
+    qtol = lm.parameters.xtol;
 
     auto status = lm.minimize(p);
     fit_status = status;
-    if (status < 1 || status > 3) {
+    fvec = lm.fvec;
+    fjac = lm.fjac;
+
+    if (status < 1 || status > 4) {
         error_msg = std::string("FormulaXY: weighted LM fit failed with status ") + std::to_string(status);
 //        throw std::runtime_error(std::string("FormulaXY: weighted LM fit failed with status ") + std::to_string(status));
         return false;

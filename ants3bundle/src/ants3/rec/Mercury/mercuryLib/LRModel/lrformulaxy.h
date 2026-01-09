@@ -30,6 +30,7 @@ public:
 
     virtual bool fitData(const std::vector <LRFdata> &data);
     virtual bool addData(const std::vector <LRFdata> &data);
+    bool addDataPy(const std::vector <Vec4data> &data);
     virtual bool doFit();
     virtual void clearData() { if (h1) h1->Clear(); }
 
@@ -82,12 +83,18 @@ protected:
     std::vector<std::string> parnames;             // parameter names
     std::vector<double> parvals;                   // parameter values
 
+public:
 // Minimizer parameters
     int maxfev = 200;   // max iterations
     double ftol = 1e-5;
     double xtol = 1e-5;
+    double qtol = -1.;
+// Minimizer output
+    Eigen::VectorXd fvec;
+//    Eigen::VectorXd fjac;
+    Eigen::MatrixXd fjac;
 
-public: 
+ 
     void SetMaxFEV(int val) {maxfev = val;}
     void SetFtol(int val) {ftol = val;}
     void SetXtol(int val) {xtol = val;}
