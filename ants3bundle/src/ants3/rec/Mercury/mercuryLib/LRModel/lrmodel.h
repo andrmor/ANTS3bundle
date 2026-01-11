@@ -269,6 +269,7 @@ public:
 // Utility
     double GetMaxR(int id, const std::vector <LRFdata> &data) const;
     double GetGroupMaxR(int gid, const std::vector <LRFdata> &data) const;
+    bool isThreadSafe() const;
 
 protected:
     std::vector <LRSensor> Sensor;

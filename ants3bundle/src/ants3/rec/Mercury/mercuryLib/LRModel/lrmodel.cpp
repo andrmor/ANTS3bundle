@@ -1114,6 +1114,20 @@ double LRModel::GetGroupMaxR(int gid, const std::vector <LRFdata> &data) const
     return maxr;
 }
 
+bool LRModel::isThreadSafe() const
+{
+    bool result = true;
+    for (auto s: Sensor) {
+        if (s.lrf)
+            result = result && s.lrf->thread_safe;
+    }
+    for (auto g: Group) {
+        if (g.glrf)
+            result = result && g.glrf->thread_safe;
+    }
+    return result;
+}
+
 // ============ Gain estimator ===============
 
 // We'll be using gain estimator to equalize the sensors in the same group 

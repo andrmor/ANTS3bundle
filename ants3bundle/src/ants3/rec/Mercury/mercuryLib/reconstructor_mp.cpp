@@ -148,8 +148,13 @@ int ReconstructorMP::getProgress()
 
 RecLS_MP::RecLS_MP(LRModel *lrm, int n_threads, bool weighted)
 {
-    for (int i=0; i<n_threads; i++) {
-        recs.push_back(new RecLS(lrm->GetJsonString(), weighted));
+    if (lrm->isThreadSafe())
+        for (int i=0; i<n_threads; i++)
+            recs.push_back( new RecLS(lrm, weighted));
+    else {
+        std::string json_str = lrm->GetJsonString();
+        for (int i=0; i<n_threads; i++)
+            recs.push_back( new RecLS(json_str, weighted));
     }
     progress.resize(n_threads, 0);
 }
@@ -163,8 +168,13 @@ RecLS_MP::RecLS_MP(std::string json_str, int n_threads, bool weighted)
 
 RecML_MP::RecML_MP(LRModel *lrm, int n_threads)
 {
-    for (int i=0; i<n_threads; i++) {
-        recs.push_back(new RecML(lrm->GetJsonString()));
+    if (lrm->isThreadSafe())
+        for (int i=0; i<n_threads; i++)
+            recs.push_back( new RecML(lrm));
+    else {
+        std::string json_str = lrm->GetJsonString();
+        for (int i=0; i<n_threads; i++)
+            recs.push_back( new RecML(json_str));
     }
     progress.resize(n_threads, 0);
 }

@@ -71,6 +71,7 @@ void LRFormulaXY::Init()
     double rmax2 = std::max({xmax*xmax+ymax*ymax, xmin*xmin+ymax*ymax, 
                              xmin*xmin+ymin*ymin, xmax*xmax+ymin*ymin});
     rmax = sqrt(rmax2);
+    thread_safe = false;
 }
 
 LRFormulaXY::LRFormulaXY(const Json &json)

@@ -73,6 +73,7 @@ void LRFormulaV::Init()
     xmax = x0+rmax;
     ymin = y0-rmax;
     ymax = y0+rmax;
+    thread_safe = false;
     init_done = true;
 }
 
@@ -165,29 +166,7 @@ double LRFormulaV::evalAxial(double r) const
 //    std::cout << vf->Eval(Eigen::ArrayXd::Constant(1, r)) << std::endl;
     return vf->Eval(Eigen::ArrayXd::Constant(1, r))[0];
 }
-/*
-double LRFormulaV::evalDrv(double r) const
-{
-    if (!isReady())
-        return 0;
 
-    double t = r/s;
-    double sch;
-    
-    switch (ftype) {
-        case Gauss:
-            return -a*exp(-t*t/2)*t/s;
-        case Sech:
-            return -a/tanh(t)/cosh(t)/s;
-        case Sech2:
-            sch = 1/cosh(t);
-            return -2*a*sch*sch*tanh(t)/s;
-        case Cauchy:
-            t = s*s + r*r;
-            return -2*a*s*s*r/t/t;
-    }
-}
-*/
 // double LRFormulaV::evalDrvX(double x, double y, double /*z*/) const
 // {
 //     double r = R(x,y);
@@ -256,8 +235,8 @@ bool LRFormulaV::fitData(const std::vector <LRFdata> &data)
     auto status = lm.minimize(p);
     fit_status = status;
     if (status < 1 || status > 4) {
-//        error_msg = std::string("FormulaV: LM fit failed with status ") + std::to_string(status);
-        throw std::runtime_error(std::string("FormulaV: LM fit failed with status ") + std::to_string(status));
+        error_msg = std::string("FormulaV: LM fit failed with status ") + std::to_string(status);
+//        throw std::runtime_error(std::string("FormulaV: LM fit failed with status ") + std::to_string(status));
         return false;
     }
 
@@ -335,8 +314,8 @@ bool LRFormulaV::doFit()
     auto status = lm.minimize(p);
     fit_status = status;
     if (status < 1 || status > 4) {
-//        error_msg = std::string("FormulaV: LM fit failed with status ") + std::to_string(status);
-        throw std::runtime_error(std::string("FormulaV: LM fit failed with status ") + std::to_string(status));
+        error_msg = std::string("FormulaV: LM fit failed with status ") + std::to_string(status);
+//        throw std::runtime_error(std::string("FormulaV: LM fit failed with status ") + std::to_string(status));
         return false;
     }
 

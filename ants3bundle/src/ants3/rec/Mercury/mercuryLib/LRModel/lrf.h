@@ -90,6 +90,7 @@ public:
     std::string error_msg;
     static std::string gjson_err;
     int fit_status = 10;
+    bool thread_safe = true;
 };
 
 #endif // LRF_H
