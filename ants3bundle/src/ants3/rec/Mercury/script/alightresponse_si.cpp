@@ -41,6 +41,16 @@ ALightResponse_SI::ALightResponse_SI(EScriptLanguage lang) :
     Help["newLRF_xyz"] = QString("Return a new 'LRFxyz' LRF " + obj +
                                  ".\nThe arguments define the number of intervals and the corresponding ranges in X, Y and Z directions");
 
+    Help["newLRF_formulaXY"] = QString("Return a new 'LRformulaXY' LRF " + obj + ". x and y in the formula expression are the global coordinates."
+                                 ".\nThe arguments are the formula expression string, an array with the parameter names, "
+                                 "an array with the parameter values and the XY minmax ranges where the LRF is defined.\n"
+                                 "Note that the exression can contain x0 and y0 constants, which are the xy coordinates of the sensor center.");
+
+    Help["newLRF_formulaR"] = QString("Return a new 'LRformulaR' LRF " + obj + ". r in th efomula expression is the radius from the sensor center."
+                                       ".\nThe arguments are the formula expression string, an array with the parameter names, "
+                                       "an array with the parameter values, the maximum radius where the LRF is defined,\n"
+                                       "and, optionally, the overrides for the sensor center coordinates.");
+
     Help["configureLRF_AxialCompression"] = QString("Add compression information to an existent LRF of 'Axial' or 'Axial3D' types.\n"
                                                     "Note that this method returns a modified LRF " + obj + " of the initial LRF with added compression!");
 
