@@ -408,7 +408,9 @@ bool WFormula::ShuntingYard()
             while (!OpStack.empty()) {
                 Token op2 = OpStack.top();
                 // <=  assuming all operators are left-associative
-                if ((op2.type == TokOper && OperRank[op2.addr] <= rank) || op2.type == TokUnary) {
+                //if ((op2.type == TokOper && OperRank[op2.addr] <= rank) || op2.type == TokUnary) {
+                if ((op2.type == TokOper && OperRank[op2.addr] <= rank)
+                    || (op2.type == TokUnary && token.string.compare("^") != 0)) {
                     Command.push_back(MkCmd(CmdOper, op2.addr));
                     OpStack.pop();
                 } else {

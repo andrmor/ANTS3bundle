@@ -256,8 +256,16 @@ void APhotonSimulator::setupPhotonBombs()
         Photon.waveIndex = SimSet.WaveSet.toIndex(PhGenOverSet.FixedWavelength);
 
     // Limiters
-    if (SkipSet.bOnlyVolume)   LimitToVolume   = TString(SkipSet.Volume.toLatin1().data());
-    if (SkipSet.bOnlyMaterial) LimitToMaterial = AMaterialHub::getConstInstance().findMaterial(SkipSet.Material);
+    if (SimSet.BombSet.GenerationMode == EBombGen::Single)
+    {
+        SimSet.BombSet.AdvancedSettings.bOnlyMaterial = false;
+        SimSet.BombSet.AdvancedSettings.bOnlyVolume   = false;
+    }
+    else
+    {
+        if (SkipSet.bOnlyVolume)   LimitToVolume   = TString(SkipSet.Volume.toLatin1().data());
+        if (SkipSet.bOnlyMaterial) LimitToMaterial = AMaterialHub::getConstInstance().findMaterial(SkipSet.Material);
+    }
 
     // custom distribution of photons per bomb
     if (SimSet.BombSet.PhotonsPerBomb.Mode == APhotonsPerBombSettings::Custom)
