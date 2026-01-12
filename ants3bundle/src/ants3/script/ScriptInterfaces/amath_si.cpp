@@ -692,3 +692,4 @@ QVariantList AMath_SI::evaluateVFormulaVector(QVariantList arrayWithValuesOfVari
 
     return res;
 }
+

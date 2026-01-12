@@ -179,7 +179,7 @@ bool LRFormula1::isReady() const
 bool LRFormula1::inDomain(double x, double y, double /*z*/) const
 {
     double r2 = R2(x,y);
-    return (r2 < rmax2) && (r2 > rmin2);
+    return (r2 <= rmax2) && (r2 >= rmin2);
 }
 
 double LRFormula1::eval(double x, double y, double /*z*/) const

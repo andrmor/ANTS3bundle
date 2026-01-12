@@ -85,12 +85,12 @@ LRFaxial3d::LRFaxial3d(const Json &json) : LRFaxial(json)
       
     if (json["response"]["tpspline3"].is_object()) {
         bs2r = new Bspline2d(json["response"]["tpspline3"]);
-        if (bs2r->isInvalid()) {
-            json_err = std::string("LRFaxial3D: invalid response");
-            return;
+        if (bs2r->IsReady()) {
+            valid = true;
         }
         nint = bs2r->GetNintX();
         nintz = bs2r->GetNintY();
+        return;
     } else if (nint < 1 || nintz < 1) {
         json_err = std::string("LRFaxial3D: nint or nintz is invalid or missing");
         return;
@@ -99,8 +99,6 @@ LRFaxial3d::LRFaxial3d(const Json &json) : LRFaxial(json)
         std::cout << RhoZ(zmin) << " , " << RhoZ(zmax) << std::endl;
         bs2r = new Bspline2d(Rho(rmin), Rho(rmax), nint, RhoZ(zmin), RhoZ(zmax), nintz);
     }
-
-    valid = true;
 }
 
 LRFaxial3d::~LRFaxial3d()
@@ -116,7 +114,7 @@ bool LRFaxial3d::isReady() const
 
 bool LRFaxial3d::inDomain(double x, double y, double z) const
 {
-    return LRFaxial::inDomain(x, y) && z>zmin && z<zmax;
+    return LRFaxial::inDomain(x, y) && z >= zmin && z <= zmax;
 }
 
 double LRFaxial3d::eval(double x, double y, double z) const

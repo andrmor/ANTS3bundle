@@ -340,7 +340,7 @@ void ALightResponse_SI::setLRF(QVariantMap lrf)
     LRF * lrfToClone = LRF::mkFromJson(doc.toJson().data());
     if (!lrfToClone)
     {
-        abort( QString("Invalid LRF ").arg(Lang == EScriptLanguage::JavaScript ? "object" : "dictionary") );
+        abort( QString("Invalid LRF %0").arg(Lang == EScriptLanguage::JavaScript ? "object" : "dictionary") );
         return;
     }
 
@@ -697,7 +697,7 @@ void ALightResponse_SI::setLrf_Sensor(int iSensor, QVariantMap lrf)
     LRF * lrfObject = LRF::mkFromJson(doc.toJson().data());
     if (!lrfObject)
     {
-        abort( QString("Invalid LRF ").arg(Lang == EScriptLanguage::JavaScript ? "object" : "dictionary") );
+        abort( QString("Invalid LRF %0").arg(Lang == EScriptLanguage::JavaScript ? "object" : "dictionary") );
         return;
     }
 
@@ -718,7 +718,7 @@ void ALightResponse_SI::setLrf_Group(int iGroup, QVariantMap lrf)
     LRF * lrfObject = LRF::mkFromJson(doc.toJson().data());
     if (!lrfObject)
     {
-        abort( QString("Invalid LRF ").arg(Lang == EScriptLanguage::JavaScript ? "object" : "dictionary") );
+        abort( QString("Invalid LRF %0").arg(Lang == EScriptLanguage::JavaScript ? "object" : "dictionary") );
         return;
     }
 

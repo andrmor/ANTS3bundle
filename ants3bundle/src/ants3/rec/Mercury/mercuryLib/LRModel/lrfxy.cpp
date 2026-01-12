@@ -53,20 +53,18 @@ LRFxy::LRFxy(const Json &json)
 // read response
     if (json["response"].is_object()) {
         bsr = new Bspline2d(json["response"]);
-        if (bsr->isInvalid()) {
-            json_err = std::string("LRFxy: invalid response");
-            return;            
+        if (bsr->IsReady()) {
+            valid = true;         
         }
         nintx = bsr->GetNintX();
         ninty = bsr->GetNintY();
+        return;   
     } else if (nintx < 1 || ninty < 1) {
         json_err = std::string("LRFxy: nintx or ninty is invalid or missing");
         return;
     } else {
         bsr = new Bspline2d(xmin, xmax, nintx, ymin, ymax, ninty);
     }
-
-    valid = true;
 }
 
 LRFxy::LRFxy(std::string &json_str) : LRFxy(Json::parse(json_str, json_err)) {}
@@ -83,7 +81,7 @@ bool LRFxy::isReady() const
 
 bool LRFxy::inDomain(double x, double y, double /*z*/) const
 {
-    return x>xmin && x<xmax && y>ymin && y<ymax;
+    return x>=xmin && x<=xmax && y>=ymin && y<=ymax;
 }
 
 // TODO: Check WTF is Rmax for

@@ -61,21 +61,19 @@ LRFxyz::LRFxyz(const Json &json)
 // read response
     if (json["response"].is_object()) {
         bsr = new Bspline3d(json["response"]);
-        if (bsr->isInvalid()) {
-            json_err = std::string("LRFxyz: invalid response");
-            return;            
+        if (bsr->IsReady()) {
+            valid = true;           
         }
         nintx = bsr->GetNintX();
         ninty = bsr->GetNintY();
         nintz = bsr->GetNintZ();
+        return; 
     } else if (nintx < 1 || ninty < 1 || nintz < 1) {
         json_err = std::string("LRFxyz: nintx/ninty/nintz is invalid or missing");
         return;
     } else {
         bsr = new Bspline3d(xmin, xmax, nintx, ymin, ymax, ninty, zmin, zmax, nintz);
     }
-
-    valid = true;
 }
 
 LRFxyz::LRFxyz(std::string &json_str) : LRFxyz(Json::parse(json_str, json_err)) {}
@@ -92,7 +90,7 @@ bool LRFxyz::isReady() const
 
 bool LRFxyz::inDomain(double x, double y, double z) const
 {
-    return x>xmin && x<xmax && y>ymin && y<ymax && z>zmin && z<zmax;
+    return x>=xmin && x<=xmax && y>=ymin && y<=ymax && z>=zmin && z<=zmax;
 }
 
 // TODO: Check WTF is Rmax for

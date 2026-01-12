@@ -1,0 +1,24 @@
+var formula = "a*exp(-0.5*((x-x0)/sigma)^2 - 0.5*((y-y0)/sigma)^2)"
+
+math.configureVFormula(formula, ["x", "y"], ["a", "sigma", "x0", "y0"])
+math.setVFormulaConstants([500, 40, 100, -50])
+
+var numBins = 100
+var range = 300.0
+hist.new2D("h", numBins, -range, range, numBins, -range, range)
+
+for (var ix = 0; ix < numBins; ix++)
+{
+    var x = -range + ix * 2 * range / numBins + 0.1
+    for (var iy = 0; iy < numBins; iy++)
+    {
+        var y = -range + iy * 2 * range / numBins + 0.1
+        var lrf = math.evaluateVFormula([x, y])
+        hist.fill("h", x, y, lrf)
+    }
+}
+
+hist.setMinimum("h", 0)
+hist.setAxisTitles("h", "X, mm", "Y, mm", "LRF")
+hist.draw("h", "colz")
+

@@ -112,19 +112,17 @@ LRFaxial::LRFaxial(const Json &json)
 
     if (json["response"]["bspline3"].is_object()) {
         bsr = new Bspline1d(json["response"]["bspline3"]);
-        if (bsr->isInvalid()) {
-            json_err = std::string("LRFaxial: invalid response");
-            return;
+        if (bsr->IsReady ()) {
+            valid = true;
         }
         nint = bsr->GetNint();
+        return;
     } else if (nint < 1) {
-        json_err = std::string("LRFaxial: nint is invalid or missing");
+        json_err = std::string("LRFaxial: nint is invalid or missing in JSON");
         return;
     } else {
         bsr = new Bspline1d(Rho(rmin), Rho(rmax), nint);
     }
-
-    valid = true;
 }
 
 LRFaxial::LRFaxial(std::string &json_str) : LRFaxial(Json::parse(json_str, json_err)) {}
@@ -153,7 +151,7 @@ bool LRFaxial::isReady() const
 bool LRFaxial::inDomain(double x, double y, double /*z*/) const
 {
     double r2 = R2(x,y);
-    return (r2 < rmax2) && (r2 > rmin2);
+    return (r2 <= rmax2) && (r2 >= rmin2);
 }
 
 double LRFaxial::Rho(double r) const

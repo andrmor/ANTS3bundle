@@ -306,6 +306,7 @@ Bspline1d::Bspline1d(const Json &json) : BsplineBasis1d(json)
         c[i] = data[i].number_value();
 
     SetCoef(c);
+    fReady = true;
 }
 
 Bspline1d::Bspline1d(std::string &json_str) : Bspline1d(Json::parse(json_str, json_err)) {}
@@ -590,6 +591,7 @@ Bspline2d::Bspline2d(const Json &json) : BsplineBasis2d(json)
         c[i] = data[i].number_value();
 
     SetCoef(c);
+    fReady = true;
 }
 
 Bspline2d::Bspline2d(std::string &json_str) : Bspline2d(Json::parse(json_str, json_err)) {}

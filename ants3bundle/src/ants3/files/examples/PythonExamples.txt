@@ -61,3 +61,20 @@ Calorimeter:Efficiency
 #info
 Compute detection effeciency for 10B-RPC neutron detector examples
 #end
+
+#file
+VFormula1D.txt
+#tags
+VFormula:Graph
+#info
+Show graph generated using VFormula
+#end
+
+#file
+VFormula2D.txt
+#tags
+VFormula:Histogram
+#info
+Show histogram generated using VFormula
+#end
+

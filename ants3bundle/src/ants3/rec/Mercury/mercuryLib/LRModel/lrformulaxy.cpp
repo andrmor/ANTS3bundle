@@ -150,7 +150,7 @@ bool LRFormulaXY::isReady() const
 
 bool LRFormulaXY::inDomain(double x, double y, double /*z*/) const
 {
-    return x>xmin && x<xmax && y>ymin && y<ymax;
+    return x>=xmin && x<=xmax && y>=ymin && y<=ymax;
 }
 
 double LRFormulaXY::getRmax() const
