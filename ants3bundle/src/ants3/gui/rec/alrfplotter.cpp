@@ -343,13 +343,8 @@ void ALrfPlotter::doDrawXYDiff(int iSens)
 void ALrfPlotter::doDrawXYLrf(int iSens, bool onTopOfData)
 {
     LRModel * model = ALightResponseHub::getInstance().Model;
-    qDebug() << "aaaaaaa" << iSens << "in 0,0 -->" << model->Eval(iSens, 0, 0, 0);
-    //LRF * lrf = model->GetLRF(iSens);
 
     TGraph2D * g = new TGraph2D(); // will be owned by the graph window
-
-    //double x0 = model->GetX(iSens);
-    //double y0 = model->GetY(iSens);
 
     std::vector<double> xyLimits = model->GetLimits(iSens);
     double xFrom = xyLimits[0];
@@ -357,12 +352,7 @@ void ALrfPlotter::doDrawXYLrf(int iSens, bool onTopOfData)
     double yFrom = xyLimits[2];
     double yTo = xyLimits[3];
 
-    //double xFrom = lrf->getXmin();
-    //double xTo   = lrf->getXmax();
     double xStep = (xTo - xFrom) / NumPointsInXYGraph;
-
-    //double yFrom = lrf->getYmin();
-    //double yTo   = lrf->getYmax();
     double yStep = (yTo - yFrom) / NumPointsInXYGraph;
 
     // !!!*** z control
@@ -409,6 +399,7 @@ void ALrfPlotter::doDrawRadialForNonAxial(int iSens)
     double xMax = xyLimits[1];
     double yMin = xyLimits[2];
     double yMax = xyLimits[3];
+    qDebug() << xMin << xMax;
     //double xMax = lrf->getXmax(); double xMin = lrf->getXmin();
     //double yMax = lrf->getYmax(); double yMin = lrf->getYmin();
     std::vector<std::pair<double,double>> corners = {{xMax,yMax},

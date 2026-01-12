@@ -6,6 +6,7 @@
 #include <cmath>
 #include "json11.hpp"
 //#include <complex>
+#include <cstddef>
 #include <iostream>
 
 double LRSensor::GetRadius() const
@@ -49,6 +50,15 @@ void LRModel::ClearAll()
     }
     Sensor.clear();
     Group.clear();
+}
+
+bool LRModel::isModelValid()
+{
+    size_t nsens = GetSensorCount();
+    for (size_t i=0; i<nsens; i++)
+        if (!isValid(i))
+            return false;
+    return true;
 }
 
 void LRModel::ResetGroups()

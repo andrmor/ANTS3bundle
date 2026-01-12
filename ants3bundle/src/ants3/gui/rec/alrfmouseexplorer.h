@@ -10,6 +10,7 @@ class ALrfGraphicsView;
 class QPointF;
 class QComboBox;
 class QLineEdit;
+class QLabel;
 
 class ALrfMouseExplorer : public QDialog
 {
@@ -28,12 +29,16 @@ private:
     LRModel    * LRFs = nullptr;
     ASensorHub & SensHub;
 
+    QLabel     * lInvalid = nullptr;
     QComboBox  * cobSG = nullptr;
     QLineEdit  * ledZ = nullptr;
+
+    bool ModelValid = false;
 
 public slots:
     void paintLRFonDialog(QPointF * pos);
     void onCobActivated(int);
+    void checkModel();
 
 };
 

@@ -551,6 +551,7 @@ QVariantList AMath_SI::fftMulti(QVariantList arrayOfArrays, int maxN)
 }
 
 #include "tools/vformula.h"
+/*
 double AMath_SI::evalFormula(QString formula, QVariantList varNames, QVariantList varValues)
 {
     VFormula p1;
@@ -584,6 +585,109 @@ double AMath_SI::evalFormula(QString formula, QVariantList varNames, QVariantLis
     {
         abort("VFormula eval error!\n" + QString(p.ErrorString.data()));
         return 0;
+    }
+
+    return res;
+}
+*/
+
+void AMath_SI::configureVFormula(QString expression, QVariantList namesOfVariables, QVariantList namesOfConstants)
+{
+    delete Formula;
+    Formula = new VFormula();
+
+    FormulaNames.clear();
+    FormulaValues.clear();
+
+    NumberVariables = namesOfVariables.size();
+    NumberConstants = namesOfConstants.size();
+
+    FormulaValues.resize(NumberVariables + NumberConstants);
+
+    for (int i = 0; i < NumberVariables; i++) FormulaNames.push_back(std::string(namesOfVariables[i].toString().toLatin1()));
+    for (int i = 0; i < NumberConstants; i++) FormulaNames.push_back(std::string(namesOfConstants[i].toString().toLatin1()));
+
+    Formula->setVariableNames(FormulaNames);
+
+    bool ok = Formula->parse(expression.toLatin1().data());
+    if (!ok)
+    {
+        abort("VFormula parse error!\n" + QString(Formula->ErrorString.data()));
+        return;
+    }
+
+    ok = Formula->validate();
+    if (!ok)
+    {
+        abort("VFormula validation error!\n" + QString(Formula->ErrorString.data()));
+        return;
+    }
+}
+
+void AMath_SI::setVFormulaConstants(QVariantList valuesOfConstants)
+{
+    if (valuesOfConstants.size() != NumberConstants)
+    {
+        abort("Invalid number of constant values. Expected array of " + QString::number(NumberConstants) + " values");
+        return;
+    }
+
+    for (int i = 0; i < valuesOfConstants.size(); i++)
+    {
+        FormulaValues[NumberVariables + i] = valuesOfConstants[i].toDouble();
+    }
+}
+
+double AMath_SI::evaluateVFormula(QVariantList valuesOfVariables)
+{
+    if (valuesOfVariables.size() != NumberVariables)
+    {
+        abort("Invalid number of variable values. Expected array of " + QString::number(NumberVariables) + " values");
+        return 0;
+    }
+
+    for (int i = 0; i < valuesOfVariables.size(); i++)
+    {
+        FormulaValues[i] = valuesOfVariables[i].toDouble();
+    }
+
+    double res = Formula->eval(FormulaValues);
+
+    if (!Formula->ErrorString.empty())
+    {
+        abort("VFormula eval error!\n" + QString(Formula->ErrorString.data()));
+        return 0;
+    }
+
+    return res;
+}
+
+QVariantList AMath_SI::evaluateVFormulaVector(QVariantList arrayWithValuesOfVariables)
+{
+    QVariantList res;
+
+    for (int iR = 0; iR < arrayWithValuesOfVariables.size(); iR++)
+    {
+        QVariantList valuesOfVariables = arrayWithValuesOfVariables[iR].toList();
+        if (valuesOfVariables.size() != NumberVariables)
+        {
+            abort("Invalid number of variable values. Expected sub-array of " + QString::number(NumberVariables) + " values");
+            return QVariantList();
+        }
+
+        for (int i = 0; i < valuesOfVariables.size(); i++)
+        {
+            FormulaValues[i] = valuesOfVariables[i].toDouble();
+        }
+
+        double val = Formula->eval(FormulaValues);
+        if (!Formula->ErrorString.empty())
+        {
+            abort("VFormula eval error!\n" + QString(Formula->ErrorString.data()));
+            return res;
+        }
+
+        res.push_back(val);
     }
 
     return res;

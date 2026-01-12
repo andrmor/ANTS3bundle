@@ -11,6 +11,7 @@
 #include <QHBoxLayout>
 #include <QPointF>
 #include <QDebug>
+#include <QFont>
 
 #include <vector>
 
@@ -24,6 +25,11 @@ ALrfMouseExplorer::ALrfMouseExplorer(LRModel * model, double suggestedZ, QWidget
     setWindowTitle("LRF viewer");
 
     QVBoxLayout * mainLayout = new QVBoxLayout;
+
+    // invalid label
+    lInvalid = new QLabel("Model is invalid!");
+    QFont font = lInvalid->font(); font.setBold(true); lInvalid->setFont(font);
+    mainLayout->addWidget(lInvalid, 0, Qt::AlignCenter);
 
     //tools
     QHBoxLayout * hbox = new QHBoxLayout;
@@ -74,6 +80,10 @@ ALrfMouseExplorer::~ALrfMouseExplorer()
 
 void ALrfMouseExplorer::Start()
 {
+    checkModel();
+    qDebug() << ModelValid;
+    lInvalid->setVisible(!ModelValid);
+
     resize(800,800);
     show();
     GrView->show();
@@ -94,6 +104,8 @@ bool isSetContains(const std::set<int> & set, int val)
 
 void ALrfMouseExplorer::paintLRFonDialog(QPointF * pos)
 {
+    if (!ModelValid) return;
+
     double r[3];
     r[0] = pos->x();
     r[1] = -pos->y(); //inverted!
@@ -154,5 +166,10 @@ void ALrfMouseExplorer::onCobActivated(int)
 {
     QPointF tmpp(0,0);
     paintLRFonDialog(&tmpp);
+}
+
+void ALrfMouseExplorer::checkModel()
+{
+    ModelValid = LRFs->isModelValid();
 }
 

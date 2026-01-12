@@ -119,6 +119,8 @@ public:
     bool GroupExists(int gid) const {return gid>=0 && gid<Group.size();}
 //    int GetLRFCount() const {return Lrf.size();}
 
+    bool isModelValid();
+
     void ClearAll();
     void ResetGroups();
     void AddSensor(int id, double x, double y);
