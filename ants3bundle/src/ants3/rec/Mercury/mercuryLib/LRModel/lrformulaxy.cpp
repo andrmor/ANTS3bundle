@@ -57,6 +57,7 @@ LRFormulaXY::LRFormulaXY(double xmin, double xmax, double ymin, double ymax)
     this->xmin = xmin; this->xmax = xmax;
     this->ymin = ymin; this->ymax = ymax;
     Init();
+    InitVF();
 }
 
 LRFormulaXY* LRFormulaXY::clone() const 
@@ -132,7 +133,7 @@ std::string LRFormulaXY::InitVF()
     if (!vf->Validate())
         return("Validation error: " + vf->GetErrorString());
 
-    valid = true;    
+    ready = true;    
     return std::string("");
 }
 
@@ -145,7 +146,7 @@ LRFormulaXY::~LRFormulaXY()
 
 bool LRFormulaXY::isReady() const
 {
-    return valid;
+    return ready;
 }
 
 bool LRFormulaXY::inDomain(double x, double y, double /*z*/) const

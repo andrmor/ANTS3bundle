@@ -27,7 +27,8 @@ public:
     virtual LRFormulaV* clone() const;
 
     virtual bool inDomain(double x, double y, double z=0.) const;
-    virtual bool isReady () const;
+    virtual bool isValid() const {return vf;}
+    virtual bool isReady() const;
     virtual double getRmax() const { return rmax; }
     virtual double eval(double x, double y, double z=0.) const;
     double evalAxial(double r) const;
@@ -90,7 +91,6 @@ protected:
     double rmax = 0.;	// domain
     double rmin2;   // domain
     double rmax2;	// domain
-    bool init_done = false;
 
 // prof. histogram used for binned fitting
     ProfileHist1D *h1 = nullptr; 
@@ -116,6 +116,7 @@ public:
 
 // safeguards
     double rzerod = 1e-6; // derivatives are assumed to be zero below this radius 
+    bool ready = false;
 };
 
 #endif // LRFORMULAV_H

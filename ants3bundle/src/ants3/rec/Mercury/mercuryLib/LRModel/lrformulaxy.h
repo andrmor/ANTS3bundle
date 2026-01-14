@@ -22,6 +22,7 @@ public:
     virtual LRFormulaXY* clone() const;
 
     virtual bool inDomain(double x, double y, double z=0.) const;
+    virtual bool isValid() const {return vf;}
     virtual bool isReady () const;
     virtual double getRmax() const;
     virtual double eval(double x, double y, double z=0.) const;
@@ -98,6 +99,9 @@ public:
     void SetMaxFEV(int val) {maxfev = val;}
     void SetFtol(int val) {ftol = val;}
     void SetXtol(int val) {xtol = val;}
+
+// safeguards
+    bool ready = false;
 };
 
 #endif // LRFORMULAXY_H

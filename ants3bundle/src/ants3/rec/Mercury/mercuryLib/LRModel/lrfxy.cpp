@@ -53,11 +53,9 @@ LRFxy::LRFxy(const Json &json)
 // read response
     if (json["response"].is_object()) {
         bsr = new Bspline2d(json["response"]);
-        if (bsr->IsReady()) {
-            valid = true;         
-        }
         nintx = bsr->GetNintX();
         ninty = bsr->GetNintY();
+        ready = true;
         return;   
     } else if (nintx < 1 || ninty < 1) {
         json_err = std::string("LRFxy: nintx or ninty is invalid or missing");
@@ -140,10 +138,10 @@ bool LRFxy::fitData(const std::vector <LRFdata> &data)
     if (status) {
         delete bsr;
         bsr = F->MakeSpline();
+        ready = true;
     } 
 
     delete F;
-    valid = status;
     return status;
 }
 
@@ -168,10 +166,9 @@ bool LRFxy::doFit()
     if (bsfit2d->BinnedFit()) {
         delete bsr;
         bsr = bsfit2d->MakeSpline();
-        valid = true;
+        ready = true;
         return true;        
     } else {
-        valid = false;
         return false;
     }
 }

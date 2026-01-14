@@ -53,8 +53,8 @@ public:
     virtual void clearData() = 0;
 
     virtual std::string type() const = 0;
-    virtual bool isValid() const { return valid; }
-//    virtual bool isReady () const;
+    virtual bool isValid() const = 0; // returns true when the LRF is good for fitting
+    virtual bool isReady() const = 0; // returns true when the LRF is good for evaluation
 
     virtual double getRmax() const = 0;
     virtual double getXmin() const {return xmin;}
@@ -79,7 +79,6 @@ public:
     static LRF* mkFromJson(std::string &&json_str);
 
 protected:
-    bool valid = false; // indicates if the LRF can be used for reconstruction
     double xmin, xmax; 	// xrange
     double ymin, ymax; 	// yrange
     double zmin, zmax; 	// zrange

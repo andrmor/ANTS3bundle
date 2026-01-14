@@ -17,6 +17,7 @@ public:
     virtual LRFaxial3d* clone() const;
 
     virtual bool inDomain(double x, double y, double z) const;
+    virtual bool isValid () const {return bs2r;}
     virtual bool isReady () const;
 
     int getNintZ() const {return nintz;}

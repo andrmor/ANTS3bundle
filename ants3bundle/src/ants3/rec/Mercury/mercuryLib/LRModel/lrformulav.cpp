@@ -56,6 +56,7 @@ LRFormulaV::LRFormulaV(double x0, double y0, double rmax) :
     x0(x0), y0(y0), rmax(rmax)
 {
     Init();
+    InitVF();
 }
 
 LRFormulaV* LRFormulaV::clone() const 
@@ -74,7 +75,6 @@ void LRFormulaV::Init()
     ymin = y0-rmax;
     ymax = y0+rmax;
     thread_safe = false;
-    init_done = true;
 }
 
 LRFormulaV::LRFormulaV(const Json &json)
@@ -137,13 +137,13 @@ std::string LRFormulaV::InitVF()
     if (!vf->Validate())
         return("Validation error: " + vf->GetErrorString());
 
-    valid = true;    
+    ready = true;    
     return std::string("");
 }
 
 bool LRFormulaV::isReady() const
 {
-    return valid; // bsr && bsr->IsReady();
+    return ready;
 }
 
 bool LRFormulaV::inDomain(double x, double y, double /*z*/) const

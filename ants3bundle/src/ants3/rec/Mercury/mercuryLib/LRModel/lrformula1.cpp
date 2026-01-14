@@ -112,7 +112,7 @@ void LRFormula1::Init()
     xmax = x0+rmax;
     ymin = y0-rmax;
     ymax = y0+rmax;
-    init_done = true;
+    valid = true;
 }
 
 LRFormula1::LRFormula1(const Json &json)
@@ -134,6 +134,7 @@ LRFormula1::LRFormula1(const Json &json)
     }
 
     Init();
+    valid = true;
 
 // get function name and parameters
     if (!json["function"].is_string()) {
@@ -164,7 +165,7 @@ LRFormula1::LRFormula1(const Json &json)
     c = json["c"].number_value();
     s = json["s"].number_value();
 
-    valid = true;
+    ready = true;
 }
 
 LRFormula1::LRFormula1(std::string &json_str) : LRFormula1(Json::parse(json_str, gjson_err)) {}
@@ -173,7 +174,7 @@ LRFormula1::LRFormula1(std::string &json_str) : LRFormula1(Json::parse(json_str,
 
 bool LRFormula1::isReady() const
 {
-    return true; // bsr && bsr->IsReady();
+    return ready;
 }
 
 bool LRFormula1::inDomain(double x, double y, double /*z*/) const
@@ -284,6 +285,8 @@ bool LRFormula1::fitData(const std::vector <LRFdata> &data)
     a = p(0);
     s = p(1);
     c = p(2);
+
+    ready = true;
     return true;
 }
 
@@ -353,6 +356,7 @@ bool LRFormula1::doFit()
     a = p(0);
     s = p(1);
     c = p(2);
+    ready = true;
     return true;
 }
 

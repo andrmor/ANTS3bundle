@@ -20,6 +20,7 @@ public:
     virtual LRFaxial* clone() const;
 
     virtual bool inDomain(double x, double y, double z=0.) const;
+    virtual bool isValid () const {return bsr;}
     virtual bool isReady () const;
     virtual double getRmax() const { return rmax; }
     int getNint() const { return nint; }

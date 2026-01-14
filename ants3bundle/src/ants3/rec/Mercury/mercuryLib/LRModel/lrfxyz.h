@@ -19,6 +19,7 @@ public:
     virtual LRFxyz* clone() const;
 
     virtual bool inDomain(double x, double y, double z) const;
+    virtual bool isValid() const {return bsr;}
     virtual bool isReady () const;
     virtual double getRmax() const;
     int getNintX() const {return nintx;}
@@ -63,6 +64,9 @@ protected:
 // how to treat low stats
     double min_weight = 1;  // minimal accepted bin count
     double missing_factor = 1; // multiplication factor for 2nd derivative
+
+// safeguards
+    bool ready = false;
 };
 
 #endif // LRFXYZ_H

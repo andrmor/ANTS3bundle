@@ -18,6 +18,7 @@ public:
     virtual LRFxy* clone() const;
 
     virtual bool inDomain(double x, double y, double z=0.) const;
+    virtual bool isValid() const {return bsr;}
     virtual bool isReady () const;
     virtual double getRmax() const;
     int getNintX() const {return nintx;}
@@ -57,6 +58,9 @@ protected:
     double y0 = 0.;
     bool top_down = false;
     double rmax;
+
+// safeguards
+    bool ready = false;
 };
 
 #endif // LRFXY_H

@@ -112,9 +112,6 @@ LRFaxial::LRFaxial(const Json &json)
 
     if (json["response"]["bspline3"].is_object()) {
         bsr = new Bspline1d(json["response"]["bspline3"]);
-        if (bsr->IsReady ()) {
-            valid = true;
-        }
         nint = bsr->GetNint();
         return;
     } else if (nint < 1) {
@@ -247,7 +244,6 @@ bool LRFaxial::fitData(const std::vector <LRFdata> &data)
     } 
 
     delete F;
-    valid = status;
     return status;
 }
 
@@ -272,10 +268,8 @@ bool LRFaxial::doFit()
     if (bsfit->BinnedFit()) {
         delete bsr;
         bsr = bsfit->MakeSpline();
-        valid = true;
         return true;        
     } else {
-        valid = false;
         return false;
     }
 }

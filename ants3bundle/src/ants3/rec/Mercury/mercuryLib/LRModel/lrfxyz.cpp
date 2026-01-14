@@ -61,12 +61,10 @@ LRFxyz::LRFxyz(const Json &json)
 // read response
     if (json["response"].is_object()) {
         bsr = new Bspline3d(json["response"]);
-        if (bsr->IsReady()) {
-            valid = true;           
-        }
         nintx = bsr->GetNintX();
         ninty = bsr->GetNintY();
         nintz = bsr->GetNintZ();
+        ready = true;
         return; 
     } else if (nintx < 1 || ninty < 1 || nintz < 1) {
         json_err = std::string("LRFxyz: nintx/ninty/nintz is invalid or missing");
@@ -174,10 +172,10 @@ bool LRFxyz::fitData(const std::vector <LRFdata> &data)
     if (status) {
         delete bsr;
         bsr = F->MakeSpline();
+        ready = true;
     } 
 
     delete F;
-    valid = status;
     return status;
 }
 
@@ -202,10 +200,9 @@ bool LRFxyz::doFit()
     if (bsfit3d->BinnedFit()) {
         delete bsr;
         bsr = bsfit3d->MakeSpline();
-        valid = true;
+        ready = true;
         return true;        
     } else {
-        valid = false;
         return false;
     }
 }

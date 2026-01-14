@@ -17,7 +17,8 @@ public:
     virtual LRFcomp* clone() const;
 
     virtual bool inDomain(double x, double y, double z=0.) const;
-    virtual bool isValid () const;
+    virtual bool isValid() const;
+    virtual bool isReady() const; 
     virtual double getRmax() const;
     virtual double eval(double x, double y, double z=0.) const;
     virtual double evalDrvX(double x, double y, double z=0.) const;
