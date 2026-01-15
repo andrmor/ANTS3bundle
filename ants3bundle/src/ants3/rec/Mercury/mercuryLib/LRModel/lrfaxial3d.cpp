@@ -87,6 +87,7 @@ LRFaxial3d::LRFaxial3d(const Json &json) : LRFaxial(json)
         bs2r = new Bspline2d(json["response"]["tpspline3"]);
         nint = bs2r->GetNintX();
         nintz = bs2r->GetNintY();
+        ready = true;
         return;
     } else if (nint < 1 || nintz < 1) {
         json_err = std::string("LRFaxial3D: nint or nintz is invalid or missing");
@@ -106,7 +107,7 @@ LRFaxial3d::~LRFaxial3d()
 
 bool LRFaxial3d::isReady() const
 {
-    return true; // (bs2r != 0) && bs2r->IsReady();
+    return ready;
 }
 
 bool LRFaxial3d::inDomain(double x, double y, double z) const
@@ -171,6 +172,7 @@ bool LRFaxial3d::fitData(const std::vector <LRFdata> &data)
     if (status) {
         delete bs2r;
         bs2r = F->MakeSpline();
+        ready = true;
     } 
 
     delete F;
@@ -198,6 +200,7 @@ bool LRFaxial3d::doFit()
     if (bs2fit->BinnedFit()) {
         delete bs2r;
         bs2r = bs2fit->MakeSpline();
+        ready = true;
         return true;        
     } else {
         return false;

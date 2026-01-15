@@ -120,6 +120,7 @@ public:
 //    int GetLRFCount() const {return Lrf.size();}
 
     bool isModelValid();
+    bool isModelReady();
 
     void ClearAll();
     void ResetGroups();
@@ -159,6 +160,7 @@ public:
     void SetDefaultJsonLRF(std::string json_str) {DefaultLRF = LRF::mkFromJson(json_str);}
     std::vector<double> GetLimits(int id);
     bool isValid(int id) {LRF *p; return (p = GetLRF(id)) ? p->isValid() : false;}
+    bool isReady(int id) {LRF *p; return (p = GetLRF(id)) ? p->isReady() : false;}
 
 // Access to Profile Histograms
     std::vector <int> GetHistBins(int id);

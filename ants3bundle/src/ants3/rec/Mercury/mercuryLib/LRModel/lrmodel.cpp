@@ -61,6 +61,15 @@ bool LRModel::isModelValid()
     return true;
 }
 
+bool LRModel::isModelReady()
+{
+    size_t nsens = GetSensorCount();
+    for (size_t i=0; i<nsens; i++)
+        if (!isReady(i))
+            return false;
+    return true;
+}
+
 void LRModel::ResetGroups()
 {
     for (int gid=0; gid<GetGroupCount(); gid++) {

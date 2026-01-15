@@ -33,7 +33,7 @@ private:
     QComboBox  * cobSG = nullptr;
     QLineEdit  * ledZ = nullptr;
 
-    bool ModelValid = false;
+    bool ModelIsReady = false;
 
 public slots:
     void paintLRFonDialog(QPointF * pos);

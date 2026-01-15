@@ -83,7 +83,7 @@ LRFxyz::~LRFxyz()
 
 bool LRFxyz::isReady() const
 {
-    return true; // bsr && bsr->IsReady();
+    return ready;
 }
 
 bool LRFxyz::inDomain(double x, double y, double z) const

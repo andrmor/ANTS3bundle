@@ -233,7 +233,8 @@ bool LRFormulaXY::fitData(const std::vector <LRFdata> &data)
 
     for (size_t i=0; i<parvals.size(); i++)
         parvals[i] = p(i);
-
+    
+    ready = true;
     return true;
 }
 
@@ -319,7 +320,8 @@ bool LRFormulaXY::doFit()
 
     for (size_t i=0; i<parvals.size(); i++)
         parvals[i] = p(i);
-
+    
+    ready = true;
     return true;
 }
 

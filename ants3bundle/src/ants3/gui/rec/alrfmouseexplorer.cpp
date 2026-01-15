@@ -81,8 +81,8 @@ ALrfMouseExplorer::~ALrfMouseExplorer()
 void ALrfMouseExplorer::Start()
 {
     checkModel();
-    qDebug() << ModelValid;
-    lInvalid->setVisible(!ModelValid);
+    qDebug() << ModelIsReady;
+    lInvalid->setVisible(!ModelIsReady);
 
     resize(800,800);
     show();
@@ -104,7 +104,7 @@ bool isSetContains(const std::set<int> & set, int val)
 
 void ALrfMouseExplorer::paintLRFonDialog(QPointF * pos)
 {
-    if (!ModelValid) return;
+    if (!ModelIsReady) return;
 
     double r[3];
     r[0] = pos->x();
@@ -170,6 +170,7 @@ void ALrfMouseExplorer::onCobActivated(int)
 
 void ALrfMouseExplorer::checkModel()
 {
-    ModelValid = LRFs->isModelValid();
+    qDebug() << "aaaaa" << LRFs->isModelValid() << LRFs->isModelReady();
+    ModelIsReady = LRFs->isModelValid() && LRFs->isModelReady();
 }
 

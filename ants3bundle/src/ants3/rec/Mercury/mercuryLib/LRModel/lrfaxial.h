@@ -87,7 +87,8 @@ protected:
     bool flattop = false;   // set to true if you want to have zero derivative at the origin
     bool non_increasing = false;
 
-    bool init_done = false;
+// safeguards
+    bool ready = false;
 };
 
 #endif // LRFAXIAL_H

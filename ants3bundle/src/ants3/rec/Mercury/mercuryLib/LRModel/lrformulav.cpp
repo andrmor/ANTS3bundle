@@ -243,6 +243,7 @@ bool LRFormulaV::fitData(const std::vector <LRFdata> &data)
     for (size_t i=0; i<parvals.size(); i++)
         parvals[i] = p(i);
 
+    ready = true;
     return true;
 }
 
@@ -321,7 +322,8 @@ bool LRFormulaV::doFit()
 
     for (size_t i=0; i<parvals.size(); i++)
         parvals[i] = p(i);
-
+    
+    ready = true;
     return true;
 }
 

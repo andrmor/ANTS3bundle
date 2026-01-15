@@ -74,7 +74,7 @@ LRFxy::~LRFxy()
 
 bool LRFxy::isReady() const
 {
-    return true; // bsr && bsr->IsReady();
+    return ready;
 }
 
 bool LRFxy::inDomain(double x, double y, double /*z*/) const

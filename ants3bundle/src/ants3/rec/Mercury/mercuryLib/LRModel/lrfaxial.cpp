@@ -32,7 +32,6 @@ void LRFaxial::Init()
     xmax = x0+rmax;
     ymin = y0-rmax;
     ymax = y0+rmax;
-    init_done = true;
 }
 
 void LRFaxial::SetOrigin(double x0, double y0)
@@ -113,6 +112,7 @@ LRFaxial::LRFaxial(const Json &json)
     if (json["response"]["bspline3"].is_object()) {
         bsr = new Bspline1d(json["response"]["bspline3"]);
         nint = bsr->GetNint();
+        ready = true;
         return;
     } else if (nint < 1) {
         json_err = std::string("LRFaxial: nint is invalid or missing in JSON");
@@ -142,7 +142,7 @@ std::vector <double> LRFaxial::GetNodes() const
 
 bool LRFaxial::isReady() const
 {
-    return true; // bsr && bsr->IsReady();
+    return ready;
 }
 
 bool LRFaxial::inDomain(double x, double y, double /*z*/) const
@@ -241,6 +241,7 @@ bool LRFaxial::fitData(const std::vector <LRFdata> &data)
     if (status) {
         delete bsr;
         bsr = F->MakeSpline();
+        ready = true;
     } 
 
     delete F;
@@ -268,6 +269,7 @@ bool LRFaxial::doFit()
     if (bsfit->BinnedFit()) {
         delete bsr;
         bsr = bsfit->MakeSpline();
+        ready = true;
         return true;        
     } else {
         return false;
