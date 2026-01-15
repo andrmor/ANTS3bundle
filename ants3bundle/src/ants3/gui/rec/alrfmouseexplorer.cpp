@@ -20,7 +20,8 @@
 ALrfMouseExplorer::ALrfMouseExplorer(LRModel * model, double suggestedZ, QWidget * parent) :
     QDialog(parent), SensHub(ASensorHub::getInstance())
 {
-    LRFs = new LRModel(model->GetJsonString());
+    //LRFs = new LRModel(model->GetJsonString());
+    LRFs = model;
     setModal(true);
     setWindowTitle("LRF viewer");
 
