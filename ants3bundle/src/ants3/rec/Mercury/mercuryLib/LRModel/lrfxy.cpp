@@ -55,7 +55,7 @@ LRFxy::LRFxy(const Json &json)
         bsr = new Bspline2d(json["response"]);
         nintx = bsr->GetNintX();
         ninty = bsr->GetNintY();
-        ready = true;
+        ready = bsr->IsReady();
         return;   
     } else if (nintx < 1 || ninty < 1) {
         json_err = std::string("LRFxy: nintx or ninty is invalid or missing");

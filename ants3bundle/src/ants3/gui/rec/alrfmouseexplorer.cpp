@@ -28,8 +28,8 @@ ALrfMouseExplorer::ALrfMouseExplorer(LRModel * model, double suggestedZ, QWidget
     QVBoxLayout * mainLayout = new QVBoxLayout;
 
     // invalid label
-    lInvalid = new QLabel("Model is invalid!");
-    QFont font = lInvalid->font(); font.setBold(true); lInvalid->setFont(font);
+    lInvalid = new QLabel("Model is not valid!");
+    QFont font = lInvalid->font(); font.setBold(true); font.setWeight(QFont::DemiBold); lInvalid->setFont(font);
     mainLayout->addWidget(lInvalid, 0, Qt::AlignCenter);
 
     //tools
@@ -82,7 +82,6 @@ ALrfMouseExplorer::~ALrfMouseExplorer()
 void ALrfMouseExplorer::Start()
 {
     checkModel();
-    qDebug() << ModelIsReady;
     lInvalid->setVisible(!ModelIsReady);
 
     resize(800,800);
@@ -171,7 +170,6 @@ void ALrfMouseExplorer::onCobActivated(int)
 
 void ALrfMouseExplorer::checkModel()
 {
-    qDebug() << "aaaaa" << LRFs->isModelValid() << LRFs->isModelReady();
     ModelIsReady = LRFs->isModelValid() && LRFs->isModelReady();
 }
 

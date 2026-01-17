@@ -64,7 +64,7 @@ LRFxyz::LRFxyz(const Json &json)
         nintx = bsr->GetNintX();
         ninty = bsr->GetNintY();
         nintz = bsr->GetNintZ();
-        ready = true;
+        ready = bsr->IsReady();
         return; 
     } else if (nintx < 1 || ninty < 1 || nintz < 1) {
         json_err = std::string("LRFxyz: nintx/ninty/nintz is invalid or missing");

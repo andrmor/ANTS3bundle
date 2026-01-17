@@ -1,5 +1,6 @@
 #include "bspline123d.h"
 #include <vector>
+#include <stdexcept>
 
 //#include <iostream>
 
@@ -187,6 +188,8 @@ double Bspline1d::Eval_slow(double x) const
 
 double Bspline1d::Eval(double x) const
 {
+    if (!fReady)
+        throw std::runtime_error(std::string("Bspline1d: spline isn't ready for Eval()"));
     int ix;
     double xf;
 
@@ -461,6 +464,9 @@ double Bspline2d::Eval_slow(double x, double y) const
 
 double Bspline2d::Eval(double x, double y) const
 {
+    if (!fReady)
+        throw std::runtime_error(std::string("Bspline2d: spline isn't ready for Eval()"));
+
     int ix, iy;
     double xf, yf;
     if (!bsx.Locate(x, &ix, &xf) || !bsy.Locate(y, &iy, &yf))
@@ -732,6 +738,9 @@ void Bspline3d::Init()
 
 double Bspline3d::Eval(double x, double y, double z) const
 {
+    if (!fReady)
+        throw std::runtime_error(std::string("Bspline3d: spline isn't ready for Eval()"));
+
     int ix, iy, iz;
     double xf, yf, zf;
 //    std::cout << x << " " << y << " " << z << "\n";

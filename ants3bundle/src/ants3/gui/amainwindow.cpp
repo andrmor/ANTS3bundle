@@ -215,7 +215,7 @@ void AMainWindow::showLrfPlotterDialog()
     LrfPlotterDialog->show();
     LrfPlotterDialog->activateWindow();
     QApplication::processEvents();
-    LrfPlotterDialog->redraw();
+    LrfPlotterDialog->start();
     LrfPlotterDialog->setFocus();
 }
 #endif

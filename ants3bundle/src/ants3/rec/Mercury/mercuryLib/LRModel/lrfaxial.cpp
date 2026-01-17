@@ -112,7 +112,7 @@ LRFaxial::LRFaxial(const Json &json)
     if (json["response"]["bspline3"].is_object()) {
         bsr = new Bspline1d(json["response"]["bspline3"]);
         nint = bsr->GetNint();
-        ready = true;
+        ready = bsr->IsReady();
         return;
     } else if (nint < 1) {
         json_err = std::string("LRFaxial: nint is invalid or missing in JSON");

@@ -87,7 +87,7 @@ LRFaxial3d::LRFaxial3d(const Json &json) : LRFaxial(json)
         bs2r = new Bspline2d(json["response"]["tpspline3"]);
         nint = bs2r->GetNintX();
         nintz = bs2r->GetNintY();
-        ready = true;
+        ready = bs2r->IsReady();
         return;
     } else if (nint < 1 || nintz < 1) {
         json_err = std::string("LRFaxial3D: nint or nintz is invalid or missing");

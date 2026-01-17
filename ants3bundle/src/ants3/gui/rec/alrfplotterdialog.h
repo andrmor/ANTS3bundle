@@ -23,6 +23,7 @@ public:
     void setPlotter(ALrfPlotter * plotter);
 
     void redraw();
+    void start();
 
 protected:
     void showEvent(QShowEvent *event);

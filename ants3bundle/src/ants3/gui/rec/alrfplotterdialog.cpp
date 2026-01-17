@@ -92,6 +92,19 @@ void ALrfPlotterDialog::redraw()
         makeXYPlot(iSens);
 }
 
+void ALrfPlotterDialog::start()
+{
+    LRModel * model = ALightResponseHub::getInstance().Model;
+    if (!model->isModelValid() || !model->isModelReady())
+    {
+        guitools::message("Model is not ready!", this);
+        reject();
+        return;
+    }
+
+    redraw();
+}
+
 void ALrfPlotterDialog::showEvent(QShowEvent *event)
 {
     QDialog::showEvent(event);
