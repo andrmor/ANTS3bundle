@@ -610,8 +610,8 @@ void Bspline2d::ToJsonObject(Json::object &json) const
     json["ymax"] = bsy.GetXmax();
     json["xintervals"] = nintx;
     json["yintervals"] = ninty;
-
-    json["data"] = GetCoef();
+    if (fReady)
+        json["data"] = GetCoef();
 }
 
 Json::object Bspline2d::GetJsonObject() const
@@ -889,12 +889,13 @@ void Bspline3d::ToJsonObject(Json::object &json) const
     json["zmin"] = bsz.GetXmin();
     json["zmax"] = bsz.GetXmax();
     json["zintervals"] = nintz;
-
-    std::vector < std::vector <double> > data;
-    for (int i=0; i<nbasz; i++) {
-        data.push_back(Zplane[i]->GetCoef());
+    if (fReady) {
+        std::vector < std::vector <double> > data;
+        for (int i=0; i<nbasz; i++) {
+            data.push_back(Zplane[i]->GetCoef());
+        }
+        json["data"] = data;
     }
-    json["data"] = data;
 }
 
 Json::object Bspline3d::GetJsonObject() const

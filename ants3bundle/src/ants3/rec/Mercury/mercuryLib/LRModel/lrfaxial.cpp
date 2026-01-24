@@ -21,6 +21,7 @@ LRFaxial* LRFaxial::clone() const
     copy->bsr = bsr ? new Bspline1d(*bsr) : nullptr;
     copy->compress = compress ? compress->clone() : nullptr;
     copy->bsfit = bsfit ? bsfit->clone() : nullptr;
+    copy->ready = false;
     return copy;
 }
 

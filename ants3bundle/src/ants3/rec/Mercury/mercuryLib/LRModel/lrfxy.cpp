@@ -18,6 +18,7 @@ LRFxy* LRFxy::clone() const
     LRFxy *copy = new LRFxy(*this);
     copy->bsr = bsr ? new Bspline2d(*bsr) : nullptr;
     copy->bsfit2d = bsfit2d ? bsfit2d->clone() : nullptr;
+    copy->ready = false;
     return copy;
 }
 
@@ -193,6 +194,10 @@ void LRFxy::ToJsonObject(Json_object &json) const
     json["xmax"] = xmax;
     json["ymin"] = ymin;
     json["ymax"] = ymax;
+    if (!bsr) {
+        json["nintx"] = nintx;
+        json["ninty"] = ninty;
+    }
 
     std::vector <std::string> cstr;
     if (non_negative) cstr.push_back("non-negative");

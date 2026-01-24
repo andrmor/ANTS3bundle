@@ -31,6 +31,7 @@ LRFaxial3d* LRFaxial3d::clone() const
 // an example of an ugly part: need keep track of unused stuff 
     copy->bsr = nullptr;
     copy->bsfit = nullptr;
+    copy->ready = false;
     return copy;
 }
 
