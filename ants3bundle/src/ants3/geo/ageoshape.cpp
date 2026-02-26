@@ -1514,8 +1514,8 @@ void AGeoTrd1::introduceGeoConstValues(QString & errorStr)
     const AGeoConsts & GC = AGeoConsts::getConstInstance();
 
     bool ok;
-    ok = GC.updateDoubleParameter(errorStr, str2dx1, dx1); if (!ok) errorStr += " in X1 size\n";
-    ok = GC.updateDoubleParameter(errorStr, str2dx2, dx2); if (!ok) errorStr += " in X2 size\n";
+    ok = GC.updateDoubleParameter(errorStr, str2dx1, dx1, false); if (!ok) errorStr += " in X1 size\n";
+    ok = GC.updateDoubleParameter(errorStr, str2dx2, dx2, false); if (!ok) errorStr += " in X2 size\n";
     ok = GC.updateDoubleParameter(errorStr, str2dy,  dy);  if (!ok) errorStr += " in Y size\n";
     ok = GC.updateDoubleParameter(errorStr, str2dz,  dz);  if (!ok) errorStr += " in Z size\n";
 }
@@ -1695,10 +1695,10 @@ void AGeoTrd2::introduceGeoConstValues(QString & errorStr)
     const AGeoConsts & GC = AGeoConsts::getConstInstance();
 
     bool ok;
-    ok = GC.updateDoubleParameter(errorStr, str2dx1, dx1); if (!ok) errorStr += " in X1 size\n";
-    ok = GC.updateDoubleParameter(errorStr, str2dx2, dx2); if (!ok) errorStr += " in X2 size\n";
-    ok = GC.updateDoubleParameter(errorStr, str2dy1, dy1); if (!ok) errorStr += " in Y1 size\n";
-    ok = GC.updateDoubleParameter(errorStr, str2dy2, dy2); if (!ok) errorStr += " in Y2 size\n";
+    ok = GC.updateDoubleParameter(errorStr, str2dx1, dx1, false); if (!ok) errorStr += " in X1 size\n";
+    ok = GC.updateDoubleParameter(errorStr, str2dx2, dx2, false); if (!ok) errorStr += " in X2 size\n";
+    ok = GC.updateDoubleParameter(errorStr, str2dy1, dy1, false); if (!ok) errorStr += " in Y1 size\n";
+    ok = GC.updateDoubleParameter(errorStr, str2dy2, dy2, false); if (!ok) errorStr += " in Y2 size\n";
     ok = GC.updateDoubleParameter(errorStr, str2dz,  dz);  if (!ok) errorStr += " in Z size\n";
 }
 
