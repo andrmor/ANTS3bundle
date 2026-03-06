@@ -897,9 +897,9 @@ void ASensorWindow::on_pbCompteEffectivePDE_clicked()
     //qDebug() << "Converting data to standart wavelength: From To Nodes"<<WaveFrom<<WaveTo<<WaveNodes;
     const AWaveResSettings & WaveSet = APhotonSimHub::getConstInstance().Settings.WaveSet;
     std::vector<double> spec;
-    WaveSet.toStandardBins(MatHub[iMat]->PrimarySpectrum, spec);
+    WaveSet.toStandardBins(MatHub[iMat]->PrimarySpectrum, spec, AWaveResSettings::ExpandWithZero);
     std::vector<double> pde;
-    WaveSet.toStandardBins(SensHub.model(iSensorModel)->PDE_spectral, pde);
+    WaveSet.toStandardBins(SensHub.model(iSensorModel)->PDE_spectral, pde, AWaveResSettings::ExpandWithZero);
 
     double weightedSum = 0;
     double weights = 0;

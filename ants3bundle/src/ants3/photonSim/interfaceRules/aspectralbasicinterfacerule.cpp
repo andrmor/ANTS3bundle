@@ -119,9 +119,9 @@ void ASpectralBasicInterfaceRule::initializeWaveResolved()
 {
     if (WaveSet.Enabled)
     {
-        WaveSet.toStandardBins(Wave, ProbLoss, ProbLossBinned);
-        WaveSet.toStandardBins(Wave, ProbRef,  ProbRefBinned);
-        WaveSet.toStandardBins(Wave, ProbDiff, ProbDiffBinned);
+        WaveSet.toStandardBins(Wave, ProbLoss, ProbLossBinned, AWaveResSettings::ExpandWithLastValues);
+        WaveSet.toStandardBins(Wave, ProbRef,  ProbRefBinned, AWaveResSettings::ExpandWithLastValues);
+        WaveSet.toStandardBins(Wave, ProbDiff, ProbDiffBinned, AWaveResSettings::ExpandWithLastValues);
 
         effectiveWaveIndex = WaveSet.toIndex(effectiveWavelength);
     }

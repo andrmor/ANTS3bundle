@@ -124,7 +124,7 @@ QString APFM_OpticalFiber::updateRuntimeProperties()
         if (MaxAngleSpectrum_deg.empty())
             _TanMaxAngleSpectrumBinned = std::vector<double>(WaveSet.countNodes(), MaxAngle_deg);
         else
-            WaveSet.toStandardBins(MaxAngleSpectrum_deg, _TanMaxAngleSpectrumBinned);
+            WaveSet.toStandardBins(MaxAngleSpectrum_deg, _TanMaxAngleSpectrumBinned, AWaveResSettings::ExpandWithLastValues);
 
         for (size_t i = 0; i < _TanMaxAngleSpectrumBinned.size(); i++)
             _TanMaxAngleSpectrumBinned[i] = tan(_TanMaxAngleSpectrumBinned[i] * 3.1415926535 / 180.0);
@@ -227,7 +227,7 @@ QString APFM_ThinLens::updateRuntimeProperties()
     if (WaveSet.Enabled)
     {
         if (!FocalLengthSpectrum_mm.empty())
-            WaveSet.toStandardBins(FocalLengthSpectrum_mm, _FocalLengthBinned);
+            WaveSet.toStandardBins(FocalLengthSpectrum_mm, _FocalLengthBinned, AWaveResSettings::ExpandWithLastValues);
         else _FocalLengthBinned = std::vector<double>(WaveSet.countNodes(), FocalLength_mm);
     }
     return "";
@@ -361,7 +361,7 @@ QString APFM_Filter::updateRuntimeProperties()
     if (WaveSet.Enabled)
     {
         if (!TransmissionSpectrum.empty())
-            WaveSet.toStandardBins(TransmissionSpectrum, _TransmissionBinned);
+            WaveSet.toStandardBins(TransmissionSpectrum, _TransmissionBinned, AWaveResSettings::ExpandWithZero);
         else _TransmissionBinned = std::vector<double>(WaveSet.countNodes(), GrayTransmission);
     }
     return "";

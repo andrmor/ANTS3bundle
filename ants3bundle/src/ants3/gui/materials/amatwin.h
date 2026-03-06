@@ -75,7 +75,7 @@ private slots:
     void on_ledPressure_editingFinished();
     void on_cobPressureUnits_activated(int index);
     void on_ledCustoimScatterMFP_editingFinished();
-    void on_pbShowNlambda_customContextMenuRequested(const QPoint &pos);
+    void on_pbShowNlambda_customContextMenuRequested(const QPoint &pos);  // !!!*** potential conflict, change to updateRuntime --> show
     void on_pbShowABSlambda_customContextMenuRequested(const QPoint &pos);
     void on_pbShowReemProbLambda_customContextMenuRequested(const QPoint &pos);
     void on_pbShowPrimSpectrum_customContextMenuRequested(const QPoint &pos);

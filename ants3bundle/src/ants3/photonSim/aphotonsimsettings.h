@@ -39,9 +39,13 @@ public:
     int    toIndex(double wavelength) const;   // TODO: compare with fast method!
     int    toIndexFast(double wavelength) const; //not safe
 
-    void   toStandardBins(const std::vector<double> & wavelength, const std::vector<double> & value, std::vector<double> & binnedValue) const;
-    void   toStandardBins(const std::vector<std::pair<double,double>> & waveAndData, std::vector<double> & binnedValue) const;
-    void   toStandardBins(const std::vector<std::pair<double,std::complex<double>>> & waveReIm, std::vector<std::complex<double>> & reIm) const;
+    enum   EConverterOptions {ExpandWithZero, ExpandWithLastValues}; // policy to fill binned values outside the defined range in wavelength
+    // "contract" is the following:
+    // probability-related parameters (e.g. emission spectra, PDE, reemission probability) expand with zeros
+    // all other types of parameters  (e.g. index, coefficient, angle) expand with last values
+    void   toStandardBins(const std::vector<double> & wavelength, const std::vector<double> & value, std::vector<double> & binnedValue, EConverterOptions options) const;
+    void   toStandardBins(const std::vector<std::pair<double,double>> & waveAndData, std::vector<double> & binnedValue, EConverterOptions options) const;
+    void   toStandardBins(const std::vector<std::pair<double,std::complex<double>>> & waveReIm, std::vector<std::complex<double>> & reIm, EConverterOptions options) const;
 
     void   getWavelengthBins(std::vector<double> & wavelength) const;
     std::vector<double> getVectorOfIndexes() const;

@@ -68,7 +68,7 @@ int AWaveResSettings::toIndexFast(double wavelength) const
     return round( (wavelength - From) / Step );
 }
 
-void AWaveResSettings::toStandardBins(const std::vector<double> & wavelength, const std::vector<double> & value, std::vector<double> & binnedValue) const
+void AWaveResSettings::toStandardBins(const std::vector<double> & wavelength, const std::vector<double> & value, std::vector<double> & binnedValue, EConverterOptions options) const
 {
     binnedValue.clear();
 
@@ -77,17 +77,25 @@ void AWaveResSettings::toStandardBins(const std::vector<double> & wavelength, co
     for (int iP = 0; iP < points; iP++)
     {
         wave = From + Step * iP;
-        if (wave <= wavelength.front()) binned = 0; // before November 2024: value.front();
+        if (wave <= wavelength.front())
+        {
+            if (options == ExpandWithZero) binned = 0;
+            else                           binned = value.front();
+        }
         else
         {
-            if (wave >= wavelength.back()) binned = 0; // before November 2024: value.back();
-            else                           binned = getInterpolatedValue(wave, wavelength, value);
+            if (wave >= wavelength.back())
+            {
+                if (options == ExpandWithZero) binned = 0;
+                else                           binned = value.back();
+            }
+            else binned = getInterpolatedValue(wave, wavelength, value);
         }
         binnedValue.push_back(binned);
     }
 }
 
-void AWaveResSettings::toStandardBins(const std::vector<std::pair<double,double>> & waveAndData, std::vector<double> & binnedValue) const
+void AWaveResSettings::toStandardBins(const std::vector<std::pair<double,double>> & waveAndData, std::vector<double> & binnedValue, EConverterOptions options) const
 {
     std::vector<double> wavVec, valVec;
 
@@ -97,10 +105,10 @@ void AWaveResSettings::toStandardBins(const std::vector<std::pair<double,double>
         valVec.push_back(pair.second);
     }
 
-    toStandardBins(wavVec, valVec, binnedValue);
+    toStandardBins(wavVec, valVec, binnedValue, options);
 }
 
-void AWaveResSettings::toStandardBins(const std::vector<std::pair<double, std::complex<double>>> & waveReIm, std::vector<std::complex<double>> & reIm) const
+void AWaveResSettings::toStandardBins(const std::vector<std::pair<double, std::complex<double>>> & waveReIm, std::vector<std::complex<double>> & reIm, EConverterOptions options) const
 {
     std::vector<double> wavelength, realValue, imagValue, realBinned, imagBinned;
 
@@ -111,8 +119,8 @@ void AWaveResSettings::toStandardBins(const std::vector<std::pair<double, std::c
         imagValue.push_back(rec.second.imag());
     }
 
-    toStandardBins(wavelength, realValue, realBinned);
-    toStandardBins(wavelength, imagValue, imagBinned);
+    toStandardBins(wavelength, realValue, realBinned, options);
+    toStandardBins(wavelength, imagValue, imagBinned, options);
 
     reIm.clear();
     for (size_t i = 0; i < realBinned.size(); i++)

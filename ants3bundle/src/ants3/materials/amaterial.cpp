@@ -168,16 +168,16 @@ void AMaterial::updateRuntimeOpticalProperties()
         {
             if (!RefIndex_Wave.empty())
             {
-                WaveSet.toStandardBins(RefIndex_Wave, _RefIndex_WaveBinned);
+                WaveSet.toStandardBins(RefIndex_Wave, _RefIndex_WaveBinned, AWaveResSettings::ExpandWithLastValues);
                 for (double d : _RefIndex_WaveBinned) _RefIndex_Comlex_WaveBinned.push_back({d, 0}); // !!!*** still need?
             }
-            if (!AbsCoeff_Wave.empty()) WaveSet.toStandardBins(AbsCoeff_Wave, _AbsCoeff_WaveBinned);
+            if (!AbsCoeff_Wave.empty()) WaveSet.toStandardBins(AbsCoeff_Wave, _AbsCoeff_WaveBinned, AWaveResSettings::ExpandWithLastValues);
         }
         else
         {
             if (!RefIndexComplex_Wave.empty())
             {
-                WaveSet.toStandardBins(RefIndexComplex_Wave, _RefIndex_Comlex_WaveBinned);
+                WaveSet.toStandardBins(RefIndexComplex_Wave, _RefIndex_Comlex_WaveBinned, AWaveResSettings::ExpandWithLastValues);
                 for (auto & cri : _RefIndex_Comlex_WaveBinned)
                     if (cri.imag() > 0) cri = std::conj(cri);
 
@@ -190,7 +190,7 @@ void AMaterial::updateRuntimeOpticalProperties()
         }
 
         if (!ReemissionProb_Wave.empty())
-            WaveSet.toStandardBins(ReemissionProb_Wave, _ReemissionProb_WaveBinned);
+            WaveSet.toStandardBins(ReemissionProb_Wave, _ReemissionProb_WaveBinned, AWaveResSettings::ExpandWithZero);
 
         if (RayleighMFP != 0)
         {
@@ -208,7 +208,7 @@ void AMaterial::updateRuntimeOpticalProperties()
         {
             delete _PrimarySpectrumHist; _PrimarySpectrumHist = new TH1D("", "Primary scintillation", WaveNodes, WaveSet.From, WaveSet.To + WaveSet.Step);
             std::vector<double> y;
-            WaveSet.toStandardBins(PrimarySpectrum, y);
+            WaveSet.toStandardBins(PrimarySpectrum, y, AWaveResSettings::ExpandWithZero);
             for (int j = 1; j < WaveNodes + 1; j++)  _PrimarySpectrumHist->SetBinContent(j, y[j-1]);
             _PrimarySpectrumHist->GetIntegral(); //to make thread safe
         }
@@ -217,7 +217,7 @@ void AMaterial::updateRuntimeOpticalProperties()
         {
             delete _SecondarySpectrumHist; _SecondarySpectrumHist = new TH1D("","Secondary scintillation", WaveNodes, WaveSet.From, WaveSet.To + WaveSet.Step);
             std::vector<double> y;
-            WaveSet.toStandardBins(SecondarySpectrum, y);
+            WaveSet.toStandardBins(SecondarySpectrum, y, AWaveResSettings::ExpandWithZero);
             for (int j = 1; j<WaveNodes+1; j++)  _SecondarySpectrumHist->SetBinContent(j, y[j-1]);
             _SecondarySpectrumHist->GetIntegral(); //to make thread safe
         }

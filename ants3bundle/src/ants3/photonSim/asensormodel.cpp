@@ -364,7 +364,7 @@ QString ASensorModel::updateRuntimeProperties()
         QString err = checkPDE_spectral();
         if (!err.isEmpty()) return err;
 
-        SimSet.WaveSet.toStandardBins(PDE_spectral, PDEbinned);
+        SimSet.WaveSet.toStandardBins(PDE_spectral, PDEbinned, AWaveResSettings::ExpandWithZero);
         _MaxPDE_spectral = *std::max_element(PDEbinned.begin(), PDEbinned.end());
     }
 

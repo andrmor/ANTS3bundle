@@ -771,7 +771,7 @@ void AMatWin::on_pbShowNlambda_clicked()
 void AMatWin::on_pbShowNlambda_customContextMenuRequested(const QPoint &)
 {
     const AWaveResSettings & WaveSet = APhotonSimHub::getInstance().Settings.WaveSet;
-    WaveSet.toStandardBins(tmpMaterial.RefIndex_Wave, tmpMaterial._RefIndex_WaveBinned);
+    WaveSet.toStandardBins(tmpMaterial.RefIndex_Wave, tmpMaterial._RefIndex_WaveBinned, AWaveResSettings::ExpandWithLastValues);
     std::vector<double> indexes = WaveSet.getVectorOfIndexes();
     TGraph * g = AGraphBuilder::graph(indexes, tmpMaterial._RefIndex_WaveBinned);
     AGraphBuilder::configure(g, "Refractive index",
