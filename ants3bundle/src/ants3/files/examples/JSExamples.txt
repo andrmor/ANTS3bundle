@@ -131,7 +131,15 @@ ReconstructEvents_ClinicalAnger.txt
 #tags
 PositionReconstruction:StatisticalReconstruction:Mercury
 #info
-Reconstruct position/energy of events using Mercury library for the clinical Anger camera example
+Reconstruct position/energy of events using Mercury library for the Clinical Anger camera config example
+#end
+
+#file
+ReconstructEvents_CompactAnger.txt
+#tags
+PositionReconstruction:StatisticalReconstruction:Mercury
+#info
+Reconstruct position/energy of events using Mercury library for the Compact Anger camera or Neutron Anger config examples
 #end
 
 #file
@@ -142,4 +150,19 @@ PositionReconstruction:CoG:Mercury
 Reconstruct position/energy of events using Centroid method of Mercury library
 #end
 
+#file
+MakeIndividualLRFs_ClinicalAnger.txt
+#tags
+LRF:ResponseModel:Mercury
+#info
+Make and fill Light Response Model using Mercury library for the Clinical Anger camera config example
+#end
+
+#file
+ReconstructEvents_CompactAnger.txt
+#tags
+LRF:ResponseModel:Mercury
+#info
+Make and fill Light Response Model using Mercury library for the Compact Anger camera and Neutron Anger config examples
+#end
 
