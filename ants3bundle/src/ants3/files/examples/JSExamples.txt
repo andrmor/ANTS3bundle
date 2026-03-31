@@ -129,9 +129,17 @@ Show histogram generated using VFormula
 #file
 ReconstructEvents_ClinicalAnger.txt
 #tags
-PositionReconstruction
+PositionReconstruction:StatisticalReconstruction:Mercury
 #info
 Reconstruct position/energy of events using Mercury library for the clinical Anger camera example
+#end
+
+#file
+CentroidReconstruction_Mercury.txt
+#tags
+PositionReconstruction:CoG:Mercury
+#info
+Reconstruct position/energy of events using Centroid method of Mercury library
 #end
 
 
