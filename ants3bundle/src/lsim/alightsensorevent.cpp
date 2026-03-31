@@ -97,7 +97,29 @@ void ALightSensorEvent::convertHitsToSignals()
     {
         const ASensorModel * model = SensorHub.sensorModelFast(ipm);
         PMhits[ipm] = model->convertHitsToSignal(PMhits[ipm]);
+
+        if (SensorHub.useSensorGains())
+            PMhits[ipm] *= SensorHub.getSensorGain(ipm);
+
+        // not implemented in Ants3
+        //PMhits[ipm] = model->simulateDigitalization(PMhits[ipm]);
     }
+}
+
+#ifdef USE_MERCURY
+#include "alightresponsehub.h"
+#include "lrmodel.h"
+#include "alightsensorevent.h"
+#endif
+void ALightSensorEvent::generateHitsForLrfMode(int numPhotons, const double * position)
+{
+#ifdef USE_MERCURY
+    for (int iSens = 0; iSens < numPMs; iSens++)
+    {
+        double meanSignal = ALightResponseHub::getInstance().Model->Eval(iSens, position) * numPhotons / SimSet.OptSet.LRF_photonsPerNode;
+        PMhits[iSens] += RandomHub.poisson(meanSignal * SimSet.OptSet.LRF_photoElectrons);
+    }
+#endif
 }
 
 void ALightSensorEvent::addDarkCounts()

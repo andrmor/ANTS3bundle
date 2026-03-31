@@ -114,7 +114,7 @@ void AGeoWin_SI::addMarkers(QVariantList XYZs, int color, int style, double size
 {
     if (XYZs.isEmpty())
     {
-        abort("XYZs should contain non-empty array of coordinates: [[x0,y0,z0], [x1,y1,z1], ... ]");
+        abort("addMarkers: XYZs should contain non-empty array of coordinates: [[x0,y0,z0], [x1,y1,z1], ... ]");
         return;
     }
 

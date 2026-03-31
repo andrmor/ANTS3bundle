@@ -16,7 +16,7 @@
 
 class QJsonObject;
 
-enum class EPhotSimType  {PhotonBombs, FromEnergyDepo, IndividualPhotons, FromLRFs};
+enum class EPhotSimType  {PhotonBombs, FromEnergyDepo, IndividualPhotons};
 enum class EBombGen      {Single, Grid, Flood, File};
 
 class AWaveResSettings
@@ -39,9 +39,13 @@ public:
     int    toIndex(double wavelength) const;   // TODO: compare with fast method!
     int    toIndexFast(double wavelength) const; //not safe
 
-    void   toStandardBins(const std::vector<double> & wavelength, const std::vector<double> & value, std::vector<double> & binnedValue) const;
-    void   toStandardBins(const std::vector<std::pair<double,double>> & waveAndData, std::vector<double> & binnedValue) const;
-    void   toStandardBins(const std::vector<std::pair<double,std::complex<double>>> & waveReIm, std::vector<std::complex<double>> & reIm) const;
+    enum   EConverterOptions {ExpandWithZero, ExpandWithLastValues}; // policy to fill binned values outside the defined range in wavelength
+    // "contract" is the following:
+    // probability-related parameters (e.g. emission spectra, PDE, reemission probability) expand with zeros
+    // all other types of parameters  (e.g. index, coefficient, angle) expand with last values
+    void   toStandardBins(const std::vector<double> & wavelength, const std::vector<double> & value, std::vector<double> & binnedValue, EConverterOptions options) const;
+    void   toStandardBins(const std::vector<std::pair<double,double>> & waveAndData, std::vector<double> & binnedValue, EConverterOptions options) const;
+    void   toStandardBins(const std::vector<std::pair<double,std::complex<double>>> & waveReIm, std::vector<std::complex<double>> & reIm, EConverterOptions options) const;
 
     void   getWavelengthBins(std::vector<double> & wavelength) const;
     std::vector<double> getVectorOfIndexes() const;
@@ -55,10 +59,15 @@ class APhotOptSettings
 {
 public:
     int    MaxPhotonTransitions  = 500;
-    bool   CheckQeBeforeTracking = false;
+
+    enum EPhotonTracingMode {Normal, CheckQeBefore, LRF};
+    EPhotonTracingMode TracingMode = Normal;
+
+    int    LRF_photonsPerNode = 20000;
+    double LRF_photoElectrons = 1.0;
 
     void   writeToJson(QJsonObject & json) const;
-    void   readFromJson(const QJsonObject & json);
+    void   readFromJson(const QJsonObject & json); // !!!*** error reporting
 
     void   clear();
 };
@@ -150,31 +159,14 @@ public:
     //void           clearStatistics(){}
 };
 
-class APhotonAdvancedSettings
+class APhotonBombAdvancedSettings
 {
 public:
-    enum AModeEnum {Isotropic, Fixed, Cone};
-
-    AModeEnum DirectionMode = Isotropic;
-    double    DirDX         = 0;
-    double    DirDY         = 0;
-    double    DirDZ         = 1.0;
-    double    ConeAngle     = 10.0;
-
-    bool      bFixWave      = false;
-    //int       WaveIndex     = -1;
-    double    FixedWavelength = 550.0;
-
-    bool      bFixDecay     = false;
-    double    DecayTime     = 5.0; // in ns
-
     bool      bOnlyVolume   = false;
     QString   Volume;
     bool      bOnlyMaterial = false;
     QString   Material;
     int       MaxNodeAttempts = 1000;
-
-    bool      SecondaryScintillation = false;
 
     void clear();
 
@@ -194,7 +186,7 @@ public:
     AFloodSettings    FloodSettings;
     ABombFileSettings BombFileSettings;
 
-    APhotonAdvancedSettings AdvancedSettings;
+    APhotonBombAdvancedSettings AdvancedSettings;
 
     void    writeToJson(QJsonObject & json) const;
     QString readFromJson(const QJsonObject & json);
@@ -282,9 +274,8 @@ public:
 class APhotonDepoSettings : public AFileSettingsBase
 {
 public:
-    bool   Primary   = true;
-    bool   Secondary = false;
-
+    //bool   Primary   = true;
+    //bool   Secondary = false;
     void   clear() override;
 
 protected:
@@ -295,7 +286,30 @@ protected:
 class APhotonFileSettings : public AFileSettingsBase
 {
 public:
-    // so far no specific properties, so completely delegate to the base class!
+    // there are no specific properties --> delegate to the base class
+};
+
+class APhGenOverrideSettings
+{
+public:
+    enum AModeEnum {Isotropic, Fixed, Cone};
+
+    AModeEnum DirectionMode = Isotropic;
+    double    DirDX         = 0;
+    double    DirDY         = 0;
+    double    DirDZ         = 1.0;
+    double    ConeAngle     = 10.0;
+
+    bool      bFixWave      = false;
+    double    FixedWavelength = 550.0;
+
+    bool      bFixDecay     = false;
+    double    DecayTime     = 0; // in ns
+
+    void clear();
+
+    void writeToJson(QJsonObject & json) const;
+    void readFromJson(const QJsonObject & json);
 };
 
 // ===
@@ -303,6 +317,9 @@ public:
 class APhotonSimSettings
 {
 public:
+    bool PrimaryScint   = true;
+    bool SecondaryScint = false;
+
     EPhotSimType         SimType = EPhotSimType::PhotonBombs;
 
     APhotonBombsSettings BombSet;
@@ -313,6 +330,8 @@ public:
     APhotOptSettings     OptSet;
 
     APhotSimRunSettings  RunSet;
+
+    APhGenOverrideSettings PhGenOverrideSet;
 
     void    writeToJson(QJsonObject & json, bool addRuntimeExport) const;
     QString readFromJson(const QJsonObject & json);

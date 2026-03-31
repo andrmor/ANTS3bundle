@@ -1,0 +1,49 @@
+// Need to load example config with compact Anger camera or Anger neutron camera!
+// Then run a Photon simulation, photon bumbs in Flood mode, 1e4 or 1e5 events
+
+// ------------- Configuration -------------
+// Select the data directory
+var dir = config.getKeyValue("PhotonSim.Run.OutputDirectory") // "/home/username/.config/ants3/TmpOutput"
+var NumberOfEventMarkers = 100
+// -----------------------------------------
+    
+var sig = core.loadNumericArray(dir + "/SensorSignals.txt")
+var numEv = sig.length
+if (numEv == 0) core.abort("There are no events!")
+core.print("Loaded", numEv, "events")
+
+var truePos = core.loadNumericArray(dir + "/PhotonBombs.txt")
+if (truePos.length != numEv) core.abort("Failed to load photon bomb positions!")
+
+mercury.newReconstructor("ML", 15)
+//mercury.newReconstructor("COG", 15)
+//mercury.configure_COG(0,0,0)
+mercury.setCutoffRadius(15)
+
+core.print("Staring reconstruction");
+var start = core.getTimeMarkMilliseconds()
+mercury.reconstructEvents(sig)
+var stop = core.getTimeMarkMilliseconds()
+core.print("Elapsed time:", stop-start, "ms")
+
+// Show event position markers
+geowin.clearMarkers()
+var arRec  = []
+var arTrue = []
+for (var iEv = 0; iEv < 100; iEv++)
+{
+    arTrue.push(truePos[iEv])
+    
+    // Energy = 0 --> reconstruction failed
+    if (recPosE[iEv][3] > 0) arRec.push(recPosE[iEv])
+}
+geowin.addMarkers(arTrue, 4, 7, 2)
+geowin.addMarkers(arRec,  2, 2, 2)
+geowin.showWindow()
+
+// Show reconstruction data
+mercury.plot("All", 100, 0, 0)
+mercury.configure_plotXY_binning(34, -17, 17, 34, -17, 17)
+mercury.plot_vsRecXY("All")
+mercury.configure_plotXY_truePositions(truePos)
+mercury.plot_vsTrueXY("All")

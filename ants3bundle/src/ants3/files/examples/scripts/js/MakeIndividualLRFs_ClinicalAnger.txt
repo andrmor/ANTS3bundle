@@ -1,0 +1,29 @@
+var dir = config.getKeyValue("PhotonSim.Run.OutputDirectory") // "/home/username/.config/ants3/TmpOutput"
+
+var sensXYZ = sens.getSensorPositions()
+var numSens = sensXYZ.length
+if (numSens == 0) core.abort("There are no light sensors in the current configuration!")
+core.print("Detector config has", numSens, "light sensors")
+response.newResponseModel(sensXYZ)
+
+var lrf = response.newLRF_axial(10, 0, 500)
+lrf = response.configureLRF_AxialCompression(lrf, 5, 50, 150)
+lrf = response.configureLRF_Constrains(lrf, true, false, true)
+response.setLRF(lrf)
+
+//response.defineSensorGroups("ByRadius") // good option for small training datasets
+    
+var sig = core.loadNumericArray(dir + "/SensorSignals.txt")
+var pos = core.loadNumericArray(dir + "/PhotonBombs.txt")
+response.fitResponse(sig, pos)
+
+// Show LRF explorer widget
+response.showResponseExplorer()
+
+// Show LRF plotter widget
+for (var ii = 0; ii < pos.length; ii++)
+{
+    pos[ii].length = 4
+    pos[ii][3] = 1 // can be made better if the energy is not constant: e.g. pos[ii][3] = pos[ii][4]/4200
+}
+response.showLrfPlotterWidget(sig, pos)

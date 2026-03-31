@@ -58,7 +58,7 @@ public:
     void    copyMaterialToTmp(int imat, AMaterial & tmpMaterial);
 
     double  getS1PhotonYield(int iMat, const QString & particle = "") const; // !!!*** not implemented!
-    double  getS1IntrEnRes(int iMat, const QString & particle = "") const;   // !!!*** not implemented!
+    double  getS1FanoFactor(int iMat) const;
 
     int     countMaterials() const {return Materials.size();}
     QString getMaterialName(int matIndex) const;

@@ -9,6 +9,7 @@ class ASensorWindow;
 
 class ASensorHub;
 class TObject;
+class QDoubleValidator;
 
 class ASensorWindow : public AGuiWindow
 {
@@ -76,14 +77,34 @@ private slots:
     void on_pbShowCustomPhElSig_clicked();
     void on_pbRemoveCustomPhElSig_clicked();
     void on_lepElNoiseSigma_editingFinished();
-    void on_lepElGainFactor_editingFinished();
+    //void on_lepElGainFactor_editingFinished();
     void on_pbTestPhElSignal_clicked();
 
     void on_pbCompteEffectivePDE_clicked();
 
+    void on_cbGains_clicked(bool checked);
+
+    void on_pbGains_Clear_clicked();
+
+    void on_pbGains_Randomize_clicked();
+
+    void on_cbGains_ShowTable_toggled(bool checked);
+
+    void onGainCellEditingFinished();
+
+    void on_pbGains_Load_clicked();
+
+    void on_pbGains_Save_clicked();
+
+    void on_pbGains_Save_customContextMenuRequested(const QPoint &pos);
+
 private:
     ASensorHub & SensHub;
     Ui::ASensorWindow * ui = nullptr;
+
+    const int RowHeight = 23;
+
+    QDoubleValidator * CellValidator = nullptr;
 
     void updateNumPixels();
     void onModelIndexChanged();
@@ -92,6 +113,8 @@ private:
     void updateAngularButtons();
     void updateAreaButtons();
     void updatePhElToSigButtons();
+    void updateGains();
+    void showTableWithGains();
 
 signals:
     void requestShowSensorModels(int iModel);

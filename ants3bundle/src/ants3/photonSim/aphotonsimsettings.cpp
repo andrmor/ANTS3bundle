@@ -68,7 +68,7 @@ int AWaveResSettings::toIndexFast(double wavelength) const
     return round( (wavelength - From) / Step );
 }
 
-void AWaveResSettings::toStandardBins(const std::vector<double> & wavelength, const std::vector<double> & value, std::vector<double> & binnedValue) const
+void AWaveResSettings::toStandardBins(const std::vector<double> & wavelength, const std::vector<double> & value, std::vector<double> & binnedValue, EConverterOptions options) const
 {
     binnedValue.clear();
 
@@ -77,17 +77,25 @@ void AWaveResSettings::toStandardBins(const std::vector<double> & wavelength, co
     for (int iP = 0; iP < points; iP++)
     {
         wave = From + Step * iP;
-        if (wave <= wavelength.front()) binned = 0; // before November 2024: value.front();
+        if (wave <= wavelength.front())
+        {
+            if (options == ExpandWithZero) binned = 0;
+            else                           binned = value.front();
+        }
         else
         {
-            if (wave >= wavelength.back()) binned = 0; // before November 2024: value.back();
-            else                           binned = getInterpolatedValue(wave, wavelength, value);
+            if (wave >= wavelength.back())
+            {
+                if (options == ExpandWithZero) binned = 0;
+                else                           binned = value.back();
+            }
+            else binned = getInterpolatedValue(wave, wavelength, value);
         }
         binnedValue.push_back(binned);
     }
 }
 
-void AWaveResSettings::toStandardBins(const std::vector<std::pair<double,double>> & waveAndData, std::vector<double> & binnedValue) const
+void AWaveResSettings::toStandardBins(const std::vector<std::pair<double,double>> & waveAndData, std::vector<double> & binnedValue, EConverterOptions options) const
 {
     std::vector<double> wavVec, valVec;
 
@@ -97,10 +105,10 @@ void AWaveResSettings::toStandardBins(const std::vector<std::pair<double,double>
         valVec.push_back(pair.second);
     }
 
-    toStandardBins(wavVec, valVec, binnedValue);
+    toStandardBins(wavVec, valVec, binnedValue, options);
 }
 
-void AWaveResSettings::toStandardBins(const std::vector<std::pair<double, std::complex<double>>> & waveReIm, std::vector<std::complex<double>> & reIm) const
+void AWaveResSettings::toStandardBins(const std::vector<std::pair<double, std::complex<double>>> & waveReIm, std::vector<std::complex<double>> & reIm, EConverterOptions options) const
 {
     std::vector<double> wavelength, realValue, imagValue, realBinned, imagBinned;
 
@@ -111,8 +119,8 @@ void AWaveResSettings::toStandardBins(const std::vector<std::pair<double, std::c
         imagValue.push_back(rec.second.imag());
     }
 
-    toStandardBins(wavelength, realValue, realBinned);
-    toStandardBins(wavelength, imagValue, imagBinned);
+    toStandardBins(wavelength, realValue, realBinned, options);
+    toStandardBins(wavelength, imagValue, imagBinned, options);
 
     reIm.clear();
     for (size_t i = 0; i < realBinned.size(); i++)
@@ -266,19 +274,59 @@ QString APhotonsPerBombSettings::readFromJson(const QJsonObject & json)
 void APhotOptSettings::writeToJson(QJsonObject &json) const
 {
     json["MaxPhotonTransitions"]  = MaxPhotonTransitions;
-    json["CheckQeBeforeTracking"] = CheckQeBeforeTracking;
+
+    QString str;
+    switch (TracingMode)
+    {
+        case Normal        : str = "Normal";  break;
+        case CheckQeBefore : str = "CheckQE"; break;
+        case LRF           : str = "LRF";     break;
+    }
+    json["TracingMode"] = str;
+
+    // LRF-based signal generation
+    {
+        QJsonObject js;
+            js["PhotonsPerNode"] = LRF_photonsPerNode;
+            js["PhotoElectrons"] = LRF_photoElectrons;
+        json["LRF"] = js;
+    }
 }
 
 void APhotOptSettings::readFromJson(const QJsonObject &json)
 {
     jstools::parseJson(json, "MaxPhotonTransitions",  MaxPhotonTransitions);
-    jstools::parseJson(json, "CheckQeBeforeTracking", CheckQeBeforeTracking);
+
+    QString str;
+    bool ok = jstools::parseJson(json, "TracingMode", str);
+    if (ok)
+    {
+        if      (str == "Normal")  TracingMode = Normal;
+        else if (str == "CheckQE") TracingMode = CheckQeBefore;
+        else if (str == "LRF")     TracingMode = LRF;
+        else
+        {
+            TracingMode = Normal;
+            qWarning() << "Bad option in TracingMode";
+        }
+    }
+
+    // LRF-based signal generation
+    {
+        QJsonObject js;
+        if (jstools::parseJson(json, "LRF", js))
+        {
+            jstools::parseJson(js, "PhotonsPerNode", LRF_photonsPerNode);
+            jstools::parseJson(js, "PhotoElectrons", LRF_photoElectrons);
+            // !!!*** error control
+        }
+    }
 }
 
 void APhotOptSettings::clear()
 {
     MaxPhotonTransitions  = 500;
-    CheckQeBeforeTracking = false;
+    TracingMode = Normal;
 }
 
 // ---
@@ -657,18 +705,36 @@ void APhotSimRunSettings::clear()
 void APhotonSimSettings::writeToJson(QJsonObject & json, bool addRuntimeExport) const
 {
     QJsonObject jsSim;
+
+    // Scint
+    {
+        QJsonObject js;
+            js["Primary"]   = PrimaryScint;
+            js["Secondary"] = SecondaryScint;
+        jsSim["Scintillation"] = js;
+    }
+
     // Wave
     {
         QJsonObject js;
         WaveSet.writeToJson(js);
         jsSim["WaveResolved"] = js;
     }
-    // Max trans and QE check before trace
+
+    // Max transitions
     {
         QJsonObject js;
         OptSet.writeToJson(js);
         jsSim["Optimization"] = js;
     }
+
+    // Photon generation overrides
+    {
+        QJsonObject js;
+        PhGenOverrideSet.writeToJson(js);
+        jsSim["PhGenOverrides"] = js;
+    }
+
     // Type
     {
         QString str;
@@ -677,10 +743,10 @@ void APhotonSimSettings::writeToJson(QJsonObject & json, bool addRuntimeExport) 
         case EPhotSimType::PhotonBombs       : str = "bomb"; break;
         case EPhotSimType::FromEnergyDepo    : str = "depo"; break;
         case EPhotSimType::IndividualPhotons : str = "indi"; break;
-        case EPhotSimType::FromLRFs          : str = "lrf";  break;
         }
         jsSim["SimulationType"] = str;
     }
+
     // Particular modes
     {
         QJsonObject js;
@@ -713,6 +779,28 @@ QString APhotonSimSettings::readFromJson(const QJsonObject & json)
     bool ok = jstools::parseJson(json, "PhotonSim", jsSim);
     if (!ok) return "Json does not contain photon sim settings!\n";
 
+    // Scint
+    {
+        QJsonObject js;
+        ok = jstools::parseJson(jsSim, "Scintillation", js);
+        if (ok)
+        {
+            jstools::parseJson(js, "Primary", PrimaryScint);
+            jstools::parseJson(js, "Secondary", SecondaryScint);
+        }
+        else
+        {
+            // old system, compatibility
+            QJsonObject js;
+            ok = jstools::parseJson(jsSim, "Deposition", js);
+            if (ok)
+            {
+                jstools::parseJson(js, "Primary",   PrimaryScint);
+                jstools::parseJson(js, "Secondary", SecondaryScint);
+            }
+        }
+    }
+
     // Wave
     {
         QJsonObject js;
@@ -720,12 +808,21 @@ QString APhotonSimSettings::readFromJson(const QJsonObject & json)
         if (!ok) return "Json does not contain wavelength-related settings!\n";
         WaveSet.readFromJson(js);
     }
-    // Max trans and QE check before trace
+
+    // Max transitions
     {
         QJsonObject js;
         jstools::parseJson(jsSim, "Optimization", js);
         OptSet.readFromJson(js);
     }
+
+    // Photon generation overrides
+    {
+        QJsonObject js;
+        jstools::parseJson(jsSim, "PhGenOverrides", js);
+        PhGenOverrideSet.readFromJson(js);
+    }
+
     // Type
     {
         QString str = "undefined";
@@ -733,13 +830,13 @@ QString APhotonSimSettings::readFromJson(const QJsonObject & json)
         if      (str == "bomb") SimType = EPhotSimType::PhotonBombs;
         else if (str == "depo") SimType = EPhotSimType::FromEnergyDepo;
         else if (str == "indi") SimType = EPhotSimType::IndividualPhotons;
-        else if (str == "lrf")  SimType = EPhotSimType::FromLRFs;
         else
         {
             SimType = EPhotSimType::PhotonBombs;
             return QString("Unknown photon simulation mode: %1").arg(str);
         }
     }
+
     // Particular modes
     {
         QJsonObject js;
@@ -756,6 +853,7 @@ QString APhotonSimSettings::readFromJson(const QJsonObject & json)
         jstools::parseJson(jsSim, "PhotonFile", js);
         PhotFileSet.readFromJson(js);
     }
+
     //Run
     {
         QJsonObject js;
@@ -768,6 +866,9 @@ QString APhotonSimSettings::readFromJson(const QJsonObject & json)
 
 void APhotonSimSettings::clear()
 {
+    PrimaryScint = true;
+    SecondaryScint = false;
+
     SimType = EPhotSimType::PhotonBombs;
 
     BombSet.clear();
@@ -776,6 +877,8 @@ void APhotonSimSettings::clear()
 
     WaveSet.clear();
     OptSet.clear();
+
+    PhGenOverrideSet.clear();
 
     RunSet.clear();
 }
@@ -786,20 +889,20 @@ void APhotonDepoSettings::clear()
 {
     AFileSettingsBase::clear();
 
-    Primary          = true;
-    Secondary        = false;
+    //Primary          = true;
+    //Secondary        = false;
 }
 
 void APhotonDepoSettings::doWriteToJson(QJsonObject &json) const
 {
-    json["Primary"]    = Primary;
-    json["Secondary"]  = Secondary;
+    //json["Primary"]    = Primary;
+    //json["Secondary"]  = Secondary;
 }
 
 void APhotonDepoSettings::doReadFromJson(const QJsonObject &json)
 {
-    jstools::parseJson(json, "Primary",   Primary);
-    jstools::parseJson(json, "Secondary", Secondary);
+    //jstools::parseJson(json, "Primary",   Primary);
+    //jstools::parseJson(json, "Secondary", Secondary);
 }
 
 // ----
@@ -879,7 +982,42 @@ QString AGridSettings::readFromJson(const QJsonObject &json)
 
 // ----
 
-void APhotonAdvancedSettings::clear()
+void APhotonBombAdvancedSettings::clear()
+{
+    bOnlyVolume    = false;
+    Volume.clear();
+    bOnlyMaterial    = false;
+    Material.clear();
+    MaxNodeAttempts = 1000;
+}
+
+void APhotonBombAdvancedSettings::writeToJson(QJsonObject & json) const
+{
+    QJsonObject js;
+        js["EnableOnlyVol"]   = bOnlyVolume;
+        js["Volume"]          = Volume;
+        js["EnableOnlyMat"]   = bOnlyMaterial;
+        js["Material"]        = Material;
+        js["MaxNodeAttempts"] = MaxNodeAttempts;
+    json["SkipBombs"] = js;
+}
+
+void APhotonBombAdvancedSettings::readFromJson(const QJsonObject & json)
+{
+    clear();
+
+    QJsonObject js;
+    jstools::parseJson(json, "SkipBombs", js);
+        jstools::parseJson(js, "EnableOnlyVol",   bOnlyVolume);
+        jstools::parseJson(js, "Volume",          Volume);
+        jstools::parseJson(js, "EnableOnlyMat",   bOnlyMaterial);
+        jstools::parseJson(js, "Material",        Material);
+        jstools::parseJson(js, "MaxNodeAttempts", MaxNodeAttempts);
+}
+
+// ----
+
+void APhGenOverrideSettings::clear()
 {
     DirectionMode = Isotropic;
     DirDX         = 0;
@@ -892,72 +1030,51 @@ void APhotonAdvancedSettings::clear()
 
     bFixDecay     = false;
     DecayTime  = 5.0; // in ns
-
-    bOnlyVolume    = false;
-    Volume.clear();
-    bOnlyMaterial    = false;
-    Material.clear();
-    MaxNodeAttempts = 1000;
-
-    SecondaryScintillation = false;
 }
 
-void APhotonAdvancedSettings::writeToJson(QJsonObject & json) const
+void APhGenOverrideSettings::writeToJson(QJsonObject & json) const
 {
     // Direction
     {
         QJsonObject js;
-            QString DirStr;
-            switch (DirectionMode)
-            {
-            case Isotropic : DirStr = "Isotropic"; break;
-            case Fixed     : DirStr = "Fixed";     break;
-            case Cone      : DirStr = "Cone";     break;
-            }
-            js["DirectionMode"] = DirStr;
+        QString DirStr;
+        switch (DirectionMode)
+        {
+        case Isotropic : DirStr = "Isotropic"; break;
+        case Fixed     : DirStr = "Fixed";     break;
+        case Cone      : DirStr = "Cone";     break;
+        }
+        js["DirectionMode"] = DirStr;
 
-            //js["DirDX"] = DirDX;
-            //js["DirDY"] = DirDY;
-            //js["DirDZ"] = DirDZ;
-            QJsonArray ar;
-            ar << DirDX << DirDY << DirDZ;
-            js["DirectionVector"] = ar;
+        //js["DirDX"] = DirDX;
+        //js["DirDY"] = DirDY;
+        //js["DirDZ"] = DirDZ;
+        QJsonArray ar;
+        ar << DirDX << DirDY << DirDZ;
+        js["DirectionVector"] = ar;
 
-            js["ConeAngle"] = ConeAngle;
+        js["ConeAngle"] = ConeAngle;
         json["Direction"] = js;
     }
 
     // Wave index
     {
         QJsonObject js;
-            js["Enabled"] = bFixWave;
-            js["FixedWavelength"] = FixedWavelength;
+        js["Enabled"] = bFixWave;
+        js["FixedWavelength"] = FixedWavelength;
         json["Wave"] = js;
     }
 
     // Decay time
     {
         QJsonObject js;
-            js["Enabled"]   = bFixDecay;
-            js["DecayTime"] = DecayTime;
+        js["Enabled"]   = bFixDecay;
+        js["DecayTime"] = DecayTime;
         json["Time"] = js;
     }
-
-    // Skip bombs
-    {
-        QJsonObject js;
-            js["EnableOnlyVol"]   = bOnlyVolume;
-            js["Volume"]          = Volume;
-            js["EnableOnlyMat"]   = bOnlyMaterial;
-            js["Material"]        = Material;
-            js["MaxNodeAttempts"] = MaxNodeAttempts;
-        json["SkipBombs"] = js;
-    }
-
-    json["SecondaryScintillation"] = SecondaryScintillation;
 }
 
-void APhotonAdvancedSettings::readFromJson(const QJsonObject &json)
+void APhGenOverrideSettings::readFromJson(const QJsonObject &json)
 {
     clear();
 
@@ -1002,20 +1119,9 @@ void APhotonAdvancedSettings::readFromJson(const QJsonObject &json)
         jstools::parseJson(js, "Enabled",   bFixDecay);
         jstools::parseJson(js, "DecayTime", DecayTime);
     }
-
-    // Skip bombs
-    {
-        QJsonObject js;
-        jstools::parseJson(json, "SkipBombs", js);
-        jstools::parseJson(js, "EnableOnlyVol",   bOnlyVolume);
-        jstools::parseJson(js, "Volume",          Volume);
-        jstools::parseJson(js, "EnableOnlyMat",   bOnlyMaterial);
-        jstools::parseJson(js, "Material",        Material);
-        jstools::parseJson(js, "MaxNodeAttempts", MaxNodeAttempts);
-    }
-
-    jstools::parseJson(json, "SecondaryScintillation", SecondaryScintillation);
 }
+
+// ----
 
 void APhotonLogSettings::writeToJson(QJsonObject & json) const
 {

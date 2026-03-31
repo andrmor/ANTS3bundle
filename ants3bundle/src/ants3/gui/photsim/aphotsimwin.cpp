@@ -23,6 +23,11 @@
 #include "aphotonlogsettingsform.h"
 #include "asensorsignalarray.h"
 
+#ifdef USE_MERCURY
+#include "alightresponsehub.h"
+#include "alrfmouseexplorer.h"
+#endif
+
 #include <QDebug>
 #include <QLabel>
 #include <QFileDialog>
@@ -71,7 +76,7 @@ APhotSimWin::APhotSimWin(QWidget * parent) :
 
     YellowCircle = guitools::createColorCirclePixmap({15,15}, Qt::yellow);
     ui->labAdvancedBombOn->setPixmap(YellowCircle);
-    ui->labSkipTracingON->setPixmap(YellowCircle);
+    ui->labAdvancedModeEnabled->setPixmap(YellowCircle);
     ui->labPhotonsPerBombWarning->setPixmap(YellowCircle); ui->labPhotonsPerBombWarning->setVisible(false);
 
     gvSensors = new ASensorDrawWidget(this);
@@ -85,6 +90,12 @@ APhotSimWin::APhotSimWin(QWidget * parent) :
     LogForm->setVisible(ui->cbLogAdditionalFilters->isChecked());
     //LogForm->setNumber(100);
     LogForm->setNumberInvisible();
+
+    ui->labAdvancedModeEnabled->setVisible(false);
+    ui->frLRF->setVisible(false);
+    ui->labNoMercury->setVisible(false);
+    ui->frLimitBombPosition->setVisible(ui->cobNodeGenerationMode->currentIndex() != 0);
+    on_cobFloodZmode_currentIndexChanged(ui->cobFloodZmode->currentIndex());
 
     updateGui();
 }
@@ -172,10 +183,10 @@ void APhotSimWin::updateGui()
     switch (SimSet.SimType)
     {
     default:
+        qWarning() << "Invalid sim type option!";
     case EPhotSimType::PhotonBombs       : index = 0; break;
     case EPhotSimType::FromEnergyDepo    : index = 1; break;
     case EPhotSimType::IndividualPhotons : index = 2; break;
-    case EPhotSimType::FromLRFs          : index = 3; break;
     }
     ui->cobSimType->setCurrentIndex(index);
 
@@ -279,6 +290,13 @@ void APhotSimWin::updatePhotBombGui()
     ui->ledFloodZfrom->setText(QString::number(fset.Zfrom));
     ui->ledFloodZto->setText(QString::number(fset.Zto));
 
+    // skip node position by mat / volume
+    const APhotonBombAdvancedSettings & skipNodeSettings = APhotonSimHub::getConstInstance().Settings.BombSet.AdvancedSettings;
+    ui->cbSkipByVolume->setChecked(skipNodeSettings.bOnlyVolume);
+    ui->leSkipOutsideVolume->setText(skipNodeSettings.Volume);
+    ui->cbSkipByMaterial->setChecked(skipNodeSettings.bOnlyMaterial);
+    ui->leSkipOutsideMaterial->setText(skipNodeSettings.Material);
+
     updateAdvancedBombIndicator();
 }
 
@@ -290,9 +308,6 @@ void APhotSimWin::updateDepoGui()
     QString strEvents = "--";
     if (SimSet.DepoSet.isValidated()) strEvents = QString::number(SimSet.DepoSet.NumEvents);
     ui->labDepositionEvents->setText(strEvents);
-
-    ui->cbPrimaryScint->setChecked(SimSet.DepoSet.Primary);
-    ui->cbSecondaryScint->setChecked(SimSet.DepoSet.Secondary);
 }
 
 void APhotSimWin::updateBombFileGui()
@@ -321,7 +336,16 @@ void APhotSimWin::updatePhotonFileGui()
 
 void APhotSimWin::updateGeneralSettingsGui()
 {
-    ui->twGeneralOption->setEnabled(SimSet.SimType != EPhotSimType::FromLRFs);
+    int index = 0;
+    if      ( SimSet.PrimaryScint && !SimSet.SecondaryScint) index = 0;
+    else if (!SimSet.PrimaryScint &&  SimSet.SecondaryScint) index = 1;
+    else if ( SimSet.PrimaryScint &&  SimSet.SecondaryScint) index = 2;
+    else
+    {
+        qWarning() << "Neither primary nor secondary scintillations were selected, defaulting to primary";
+        index = 0;
+    }
+    ui->cobScintType->setCurrentIndex(index);
 
     ui->cbWaveResolved->setChecked(SimSet.WaveSet.Enabled);
     ui->fWaveOptions->setEnabled(SimSet.WaveSet.Enabled);
@@ -331,7 +355,37 @@ void APhotSimWin::updateGeneralSettingsGui()
     ui->labWaveNodes->setText(QString::number(SimSet.WaveSet.countNodes()));
 
     ui->sbMaxNumbPhTransitions->setValue(SimSet.OptSet.MaxPhotonTransitions);
-    ui->cbRndCheckBeforeTrack->setChecked(SimSet.OptSet.CheckQeBeforeTracking);
+    index = 0;
+    switch (SimSet.OptSet.TracingMode)
+    {
+    case APhotOptSettings::Normal :        index = 0; break;
+    case APhotOptSettings::CheckQeBefore : index = 1; break;
+    case APhotOptSettings::LRF :           index = 2; break;
+    }
+    ui->cobTracingMode->setCurrentIndex(index);
+
+#ifdef USE_MERCURY
+    ALightResponseHub & LRHub = ALightResponseHub::getInstance();
+
+    bool modelIsReady = false;
+    QString txtStatus = "Not ready";
+    if (LRHub.Model)
+    {
+        // !!!*** check model is valid
+        modelIsReady = true;
+        txtStatus = "Ready";
+    }
+    ui->labLrModelStatus->setText(txtStatus);
+
+    ui->pbShowLrmExplorer->setEnabled(modelIsReady);
+    ui->pbShowLrfPlotter->setEnabled(modelIsReady);
+    ui->sbLRM_photonsPerNode->setEnabled(modelIsReady);
+    ui->ledLRF_photoElectrons->setEnabled(modelIsReady);
+
+    ui->ledLRF_photoElectrons->setText(QString::number(SimSet.OptSet.LRF_photoElectrons));
+    ui->sbLRM_photonsPerNode->setValue(SimSet.OptSet.LRF_photonsPerNode);
+
+#endif
 }
 
 void APhotSimWin::on_pbdWave_clicked()
@@ -385,32 +439,15 @@ void APhotSimWin::on_sbMaxNumbPhTransitions_editingFinished()
     SimSet.OptSet.MaxPhotonTransitions  = ui->sbMaxNumbPhTransitions->value();
 }
 
-void APhotSimWin::on_cbRndCheckBeforeTrack_clicked()
-{
-    SimSet.OptSet.CheckQeBeforeTracking = ui->cbRndCheckBeforeTrack->isChecked();
-}
-
-void APhotSimWin::on_pbQEacceleratorHelp_clicked()
-{
-    QString str;
-    str += "In this mode first the maximum detection efficiency over all sensors is calculated. "
-           "Before tracing each photon, a random number is generated "
-           "and the max det.eff. is checked against it. If the generated number is larger, "
-           "there is no chance that the photon will be detected, so tracing is skipped.\n\n"
-           "WARNING: do NOT use this mode if you are interested in statistics of traced photons "
-           "as it will be distorted!";
-    guitools::message(str, this);
-}
-
 void APhotSimWin::on_cobSimType_activated(int index)
 {
     switch (index)
     {
     default:
+        qWarning() << "Invalid sim type option!";
     case 0 : SimSet.SimType = EPhotSimType::PhotonBombs;       break;
     case 1 : SimSet.SimType = EPhotSimType::FromEnergyDepo;    break;
     case 2 : SimSet.SimType = EPhotSimType::IndividualPhotons; break;
-    case 3 : SimSet.SimType = EPhotSimType::FromLRFs;          break;
     }
 }
 
@@ -1368,14 +1405,6 @@ void APhotSimWin::on_leDepositionFile_editingFinished()
         updateDepoGui();
     }
 }
-void APhotSimWin::on_cbPrimaryScint_clicked(bool checked)
-{
-    SimSet.DepoSet.Primary = checked;
-}
-void APhotSimWin::on_cbSecondaryScint_clicked(bool checked)
-{
-    SimSet.DepoSet.Secondary = checked;
-}
 
 void APhotSimWin::on_pbAnalyzeDepositionFile_clicked()
 {
@@ -1515,19 +1544,19 @@ void APhotSimWin::on_pbdUpdateScanSettings_clicked()
     }
 }
 
-#include "abombadvanceddialog.h"
+#include "aphotgenoverridedialog.h"
 void APhotSimWin::on_pbAdvancedBombSettings_clicked()
 {
-    ABombAdvancedDialog dia(this);
+    APhotGenOverrideDialog dia(this);
     dia.exec();
     updateAdvancedBombIndicator();
 }
 
 void APhotSimWin::updateAdvancedBombIndicator()
 {
-    const APhotonAdvancedSettings & s = SimSet.BombSet.AdvancedSettings;
+    const APhGenOverrideSettings & s = SimSet.PhGenOverrideSet;
 
-    bool on = (s.DirectionMode != APhotonAdvancedSettings::Isotropic || s.bFixWave || s.bFixDecay || s.bOnlyVolume || s.bOnlyMaterial || s.SecondaryScintillation);
+    bool on = (s.DirectionMode != APhGenOverrideSettings::Isotropic || s.bFixWave || s.bFixDecay);
     ui->labAdvancedBombOn->setVisible(on);
 }
 
@@ -1621,6 +1650,7 @@ void APhotSimWin::on_cobNodeGenerationMode_currentIndexChanged(int index)
     //ui->cobNumPhotonsMode->setDisabled(bFromFile);
     //ui->swNumPhotons->setDisabled(bFromFile);
     ui->labPhotonsPerBombWarning->setVisible(bFromFile);
+    ui->frLimitBombPosition->setVisible(index != 0);
 }
 
 // ---
@@ -1986,10 +2016,25 @@ void APhotSimWin::on_pbSingleSourceShow_clicked()
     emit requestShowPosition(pos, false);
 }
 
-void APhotSimWin::on_cbRndCheckBeforeTrack_toggled(bool checked)
+void APhotSimWin::on_cobTracingMode_currentIndexChanged(int index)
 {
-    ui->labSkipTracingON->setVisible(checked);
-    ui->twGeneralOption->setTabIcon(1, (checked ? YellowCircle : QIcon()));
+    if (index == 2)
+    {
+#ifdef USE_MERCURY
+        ui->frLRF->setVisible(true);
+#else
+        ui->labNoMercury->setVisible(true);
+#endif
+    }
+else
+    {
+        ui->frLRF->setVisible(false);
+        ui->labNoMercury->setVisible(false);
+    }
+
+    ui->labAdvancedModeEnabled->setVisible(index != 0);
+    ui->twSignals->setTabIcon(0, (index == 0 ? QIcon() : YellowCircle));
+
 }
 
 void APhotSimWin::on_sbEvent_editingFinished()
@@ -2135,3 +2180,141 @@ void APhotSimWin::resetViewportOnNewData()
     //gvSensors->resetViewport(); // viewport cannot be updated before the widget is visible
     QTimer::singleShot(0, gvSensors, [this](){gvSensors->resetViewport();});
 }
+
+
+void APhotSimWin::on_pbHelpAdvanced_clicked()
+{
+    QString str;
+    str += "In this mode first the maximum detection efficiency over all sensors is calculated. "
+           "Before tracing each photon, a random number is generated "
+           "and the max det.eff. is checked against it. If the generated number is larger, "
+           "there is no chance that the photon will be detected, so tracing is skipped.\n\n"
+           "WARNING: do NOT use this mode if you are interested in statistics of traced photons "
+           "as it will be distorted!";
+    guitools::message(str, this);
+}
+
+#ifdef USE_MERCURY
+void APhotSimWin::on_pbLoadLrModel_clicked()
+{
+    QString fileName = guitools::dialogLoadFile(this, "Load response model from file", "*");
+    if (fileName.isEmpty()) return;
+
+    QString txt;
+    bool ok = ftools::loadTextFromFile(txt, fileName);
+    if (!ok)
+    {
+        guitools::message("Failed to open file: " + fileName, this);
+        return;
+    }
+
+    ALightResponseHub & LRHub = ALightResponseHub::getInstance();
+    QString err = LRHub.makeModel(txt);
+    if (!err.isEmpty()) guitools::message("Failed to load the model:\n" + err);
+    updateGeneralSettingsGui();
+
+}
+void APhotSimWin::on_pbShowLrmExplorer_clicked()
+{
+    ALightResponseHub & LRHub = ALightResponseHub::getInstance();
+    if (!LRHub.Model)
+    {
+        guitools::message("Model is not defined!\nLoad a model or use 'response' scripting unit to define a new one", this);
+        return;
+    }
+
+    ALrfMouseExplorer * expl = new ALrfMouseExplorer(LRHub.Model, 0, this);
+    expl->Start();
+    expl->deleteLater();
+}
+void APhotSimWin::on_pbShowLrfPlotter_clicked()
+{
+    ALightResponseHub & LRHub = ALightResponseHub::getInstance();
+    if (!LRHub.Model)
+    {
+        guitools::message("Model is not defined!\nLoad a model or use 'response' scripting unit to define a new one", this);
+        return;
+    }
+
+    emit requestShowLrfPlotterDialog();
+}
+#endif
+
+void APhotSimWin::on_sbLRM_photonsPerNode_editingFinished()
+{
+    SimSet.OptSet.LRF_photonsPerNode = ui->sbLRM_photonsPerNode->value();
+}
+
+void APhotSimWin::on_ledLRF_photoElectrons_editingFinished()
+{
+    SimSet.OptSet.LRF_photoElectrons = ui->ledLRF_photoElectrons->text().toDouble();
+}
+
+void APhotSimWin::on_cobTracingMode_activated(int index)
+{
+    switch (index)
+    {
+    default: qWarning() << "Not implemented Tracing Mode, defaulting to 'Normal'";
+    case 0: SimSet.OptSet.TracingMode = APhotOptSettings::Normal;        break;
+    case 1: SimSet.OptSet.TracingMode = APhotOptSettings::CheckQeBefore; break;
+    case 2: SimSet.OptSet.TracingMode = APhotOptSettings::LRF;           break;
+    }
+}
+
+void APhotSimWin::on_cbSkipByMaterial_clicked(bool checked)
+{
+    APhotonBombAdvancedSettings & s = APhotonSimHub::getInstance().Settings.BombSet.AdvancedSettings;
+    s.bOnlyMaterial = checked;
+}
+
+void APhotSimWin::on_leSkipOutsideMaterial_editingFinished()
+{
+    APhotonBombAdvancedSettings & s = APhotonSimHub::getInstance().Settings.BombSet.AdvancedSettings;
+    s.Material = ui->leSkipOutsideMaterial->text();
+}
+
+void APhotSimWin::on_cbSkipByVolume_clicked(bool checked)
+{
+    APhotonBombAdvancedSettings & s = APhotonSimHub::getInstance().Settings.BombSet.AdvancedSettings;
+    s.bOnlyVolume = checked;
+}
+
+void APhotSimWin::on_leSkipOutsideVolume_editingFinished()
+{
+    // !!!***
+    // check volume * mat exist
+
+    APhotonBombAdvancedSettings & s = APhotonSimHub::getInstance().Settings.BombSet.AdvancedSettings;
+    s.Volume = ui->leSkipOutsideVolume->text();
+}
+
+void APhotSimWin::on_cobScintType_activated(int index)
+{
+    switch (index)
+    {
+    case 0: SimSet.PrimaryScint = true;  SimSet.SecondaryScint = false; break;
+    case 1: SimSet.PrimaryScint = false; SimSet.SecondaryScint = true;  break;
+    case 2: SimSet.PrimaryScint = true;  SimSet.SecondaryScint = true;  break;
+    }
+}
+
+void APhotSimWin::on_pbHelpScintType_clicked()
+{
+    QString txt = "Note that generation and drift of ionization electrons are not simulated in photon bomb mode!\n\n"
+                  "The configured number of photon is generated uniformly over the line crossing the first object with the SecondayScintillator role found in (0,0,1) direction from the node position.\n\n"
+                  "The emission time is computed based on the drift time (diffusion is ignored) and the secondary scintillation time properties of the scintillator material.\n\n"
+                  "In wavelength-resolved mode, the secondary scintillation emission spectrum of the scintillator is used.";
+    guitools::message(txt, this);
+}
+
+void APhotSimWin::on_cbWaveResolved_clicked(bool checked)
+{
+    SimSet.WaveSet.Enabled = checked;
+}
+
+void APhotSimWin::on_cobFloodZmode_currentIndexChanged(int index)
+{
+    ui->frZfixed->setVisible(index == 0);
+    ui->frZrange->setVisible(index == 1);
+}
+

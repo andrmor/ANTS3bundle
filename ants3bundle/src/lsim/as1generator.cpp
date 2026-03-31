@@ -7,44 +7,46 @@
 #include "aphotongenerator.h"
 #include "amaterialhub.h"
 #include "adeporecord.h"
+#include "alightsensorevent.h"
 
 #include <QDebug>
 
-AS1Generator::AS1Generator(APhotonTracer & photonTracer) :
+AS1Generator::AS1Generator(APhotonGenerator & photonGenerator, APhotonTracer & photonTracer, ALightSensorEvent & event) :
+    PhotonGenerator(photonGenerator),
     PhotonTracer(photonTracer),
     SimSet(APhotonSimHub::getConstInstance().Settings),
     RandomHub(ARandomHub::getInstance()),
-    MatHub(AMaterialHub::getConstInstance()) {}
+    MatHub(AMaterialHub::getConstInstance()),
+    Event(event) {}
 
 void AS1Generator::generate(ADepoRecord & rec)
 {
-    const double PhotonYield = MatHub.getS1PhotonYield(rec.MatIndex, rec.Particle);
-    const double EnergyRes   = MatHub.getS1IntrEnRes  (rec.MatIndex, rec.Particle);
+    const double photonYield = MatHub.getS1PhotonYield(rec.MatIndex, rec.Particle);
+    const double fanoS1      = MatHub.getS1FanoFactor(rec.MatIndex);
 
-    double Photons;
-    if (EnergyRes == 0)
-        Photons = rec.Energy * PhotonYield + Remainer;
-    else
+    double meanPhotons = rec.Energy * photonYield;
+    //if (fanoS1 == 0)
+    //{
+    //    have to keep remainer?
+    //}
+    int numPhotons = PhotonGenerator.sampleFromMean(meanPhotons, fanoS1);
+
+    if (SimSet.OptSet.TracingMode == APhotOptSettings::LRF)
     {
-        const double mean  =  rec.Energy * PhotonYield + Remainer;
-        const double sigma = EnergyRes * mean / 2.35482;
-        Photons = RandomHub.gauss(mean, sigma);
+        Event.generateHitsForLrfMode(numPhotons, rec.Pos.data());
+        return;
     }
-    Photons += Remainer; Remainer = 0;
 
-    int NumPhotons = (int)Photons;
-    Remainer = Photons - NumPhotons;
+    APhoton photon;
+    for (int i = 0; i < 3; i++) photon.r[i] = rec.Pos[i];
+    photon.time = rec.Time;  // can be adjusted by PhotonGenerator!
 
-    APhoton Photon;
-    for (int i = 0; i < 3; i++) Photon.r[i] = rec.Pos[i];
-    Photon.time = rec.Time;  // can be adjusted by PhotonGenerator!
-
-    for (int iPhot = 0; iPhot < NumPhotons; iPhot++)
+    for (int iPhot = 0; iPhot < numPhotons; iPhot++)
     {
-        Photon.generateRandomDir();
-        APhotonGenerator::generateWave(Photon, rec.MatIndex);
-        APhotonGenerator::generateTime(Photon, rec.MatIndex);
+        PhotonGenerator.generateDirection(photon);
+        PhotonGenerator.generateWave(photon, rec.MatIndex);
+        PhotonGenerator.generateTime(photon, rec.MatIndex);
 
-        PhotonTracer.tracePhoton(Photon);
+        PhotonTracer.tracePhoton(photon);
     }
 }

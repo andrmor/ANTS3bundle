@@ -1,5 +1,5 @@
 {
-    "ConfigDescription": "Anger camera with NaI scintillator and 37 PMTs;\nFor full cycle simulation, first run a particle simulation, then follow with the optical one using the energy deposition data (Deposition.dat)",
+    "ConfigDescription": "Camera with NaI scintillator and 37 PMTs.\nNote that sensor gains are different!\nThe light response model is loaded (independent responses for each sensor).\nFor full cycle simulation, first run a particle simulation, then follow with the optical one using the energy deposition data (Deposition.dat).\nCheck position reconstruction script examples for \"Clinical gamma camera\"",
     "ConfigName": "Clinical gamma camera",
     "Geometry": {
         "GeoConsts": [
@@ -355,6 +355,9 @@
         "VolumeRules": [
         ]
     },
+    "LightResponse": {
+        "Model": "{\"groups\": [], \"n_groups\": 0, \"n_sensors\": 37, \"sensors\": [{\"LRF\": {\"compression\": {\"k\": 5, \"lam\": 50, \"method\": \"dualslope\", \"r0\": 150}, \"constraints\": [\"non-negative\", \"flattop\"], \"response\": {\"bspline3\": {\"data\": [746.10587269279642, 701.73562171053663, 746.10587269279642, 335.30508400149478, 98.227098957935667, 48.703767368356459, 21.891186229276045, 12.399287986193356, 6.0568498539457165, 2.4969539920051225, 4.7063243989803993, 340.6256087208165, 501.74446194439219], \"intervals\": 10, \"xmax\": 500, \"xmin\": 0}}, \"rmax\": 500, \"rmin\": 0, \"type\": \"Axial\", \"x0\": 0, \"y0\": 0}, \"disabled\": false, \"gain\": 1, \"group_id\": -1, \"id\": 0, \"x\": 0, \"y\": 0}, {\"LRF\": {\"compression\": {\"k\": 5, \"lam\": 50, \"method\": \"dualslope\", \"r0\": 150}, \"constraints\": [\"non-negative\", \"flattop\"], \"response\": {\"bspline3\": {\"data\": [554.26933598486119, 526.77297331659702, 554.26933598486119, 251.42412614792403, 72.638018702288932, 36.9461003333995, 16.468858904193795, 9.8505597010943013, 5.4213471274557197, 1.6052819189112282, 1.13926434185928, 0.26882970020651431, 104.90405535826865], \"intervals\": 10, \"xmax\": 500, \"xmin\": 0}}, \"rmax\": 500, \"rmin\": 0, \"type\": \"Axial\", \"x0\": 78, \"y0\": 0}, \"disabled\": false, \"gain\": 1, \"group_id\": -1, \"id\": 1, \"x\": 78, \"y\": 0}, {\"LRF\": {\"compression\": {\"k\": 5, \"lam\": 50, \"method\": \"dualslope\", \"r0\": 150}, \"constraints\": [\"non-negative\", \"flattop\"], \"response\": {\"bspline3\": {\"data\": [769.91771165695923, 731.34806550453186, 769.91771165695934, 348.25020158649562, 101.68097191823819, 51.223907624428541, 23.058299965287016, 13.706045344314328, 7.440635717261836, 2.3031542096444237, 1.4361891642760845, 1.3659981310014351, 80.374176604276627], \"intervals\": 10, \"xmax\": 500, \"xmin\": 0}}, \"rmax\": 500, \"rmin\": 0, \"type\": \"Axial\", \"x0\": 39, \"y0\": -67.54998149576987}, \"disabled\": false, \"gain\": 1, \"group_id\": -1, \"id\": 2, \"x\": 39, \"y\": -67.54998149576987}, {\"LRF\": {\"compression\": {\"k\": 5, \"lam\": 50, \"method\": \"dualslope\", \"r0\": 150}, \"constraints\": [\"non-negative\", \"flattop\"], \"response\": {\"bspline3\": {\"data\": [646.08657059688949, 604.23705606598662, 646.08657059688937, 289.45013991702211, 85.206921099647701, 42.714259768170535, 19.21123792595742, 11.444104701304271, 6.252804661927085, 1.861766607151323, 1.3278557747913886, 0.41464380779079846, 83.041780560092135], \"intervals\": 10, \"xmax\": 500, \"xmin\": 0}}, \"rmax\": 500, \"rmin\": 0, \"type\": \"Axial\", \"x0\": -39, \"y0\": -67.54998149576987}, \"disabled\": false, \"gain\": 1, \"group_id\": -1, \"id\": 3, \"x\": -39, \"y\": -67.54998149576987}, {\"LRF\": {\"compression\": {\"k\": 5, \"lam\": 50, \"method\": \"dualslope\", \"r0\": 150}, \"constraints\": [\"non-negative\", \"flattop\"], \"response\": {\"bspline3\": {\"data\": [805.08518988322407, 753.89340661187669, 805.08518988322419, 363.40845583551555, 105.82503668847264, 53.416247000532834, 23.878736484187428, 14.261776707511366, 7.81478813606134, 2.2781556301723302, 1.7296852243601599, 0.34384888433625804, 124.90855446900065], \"intervals\": 10, \"xmax\": 500, \"xmin\": 0}}, \"rmax\": 500, \"rmin\": 0, \"type\": \"Axial\", \"x0\": -78, \"y0\": 0}, \"disabled\": false, \"gain\": 1, \"group_id\": -1, \"id\": 4, \"x\": -78, \"y\": 0}, {\"LRF\": {\"compression\": {\"k\": 5, \"lam\": 50, \"method\": \"dualslope\", \"r0\": 150}, \"constraints\": [\"non-negative\", \"flattop\"], \"response\": {\"bspline3\": {\"data\": [871.91699278288138, 826.27111038871783, 871.91699278288149, 396.85395849186165, 114.27215866736506, 58.427022016185433, 25.837715474316742, 15.581631451010708, 8.4518747289101928, 2.5427413568975941, 1.7624424510923105, 0.9159585327098444, 104.02876778092678], \"intervals\": 10, \"xmax\": 500, \"xmin\": 0}}, \"rmax\": 500, \"rmin\": 0, \"type\": \"Axial\", \"x0\": -39, \"y0\": 67.54998149576987}, \"disabled\": false, \"gain\": 1, \"group_id\": -1, \"id\": 5, \"x\": -39, \"y\": 67.54998149576987}, {\"LRF\": {\"compression\": {\"k\": 5, \"lam\": 50, \"method\": \"dualslope\", \"r0\": 150}, \"constraints\": [\"non-negative\", \"flattop\"], \"response\": {\"bspline3\": {\"data\": [455.18773354238169, 433.58737338729122, 455.18773354238169, 205.50367761550174, 60.195778610706029, 30.52033501688172, 13.619064562697021, 8.1145513598810428, 4.4147903659232162, 1.3255499374111293, 0.90521238695878647, 0.54610158251729568, 58.461699953106972], \"intervals\": 10, \"xmax\": 500, \"xmin\": 0}}, \"rmax\": 500, \"rmin\": 0, \"type\": \"Axial\", \"x0\": 39, \"y0\": 67.54998149576987}, \"disabled\": false, \"gain\": 1, \"group_id\": -1, \"id\": 6, \"x\": 39, \"y\": 67.54998149576987}, {\"LRF\": {\"compression\": {\"k\": 5, \"lam\": 50, \"method\": \"dualslope\", \"r0\": 150}, \"constraints\": [\"non-negative\", \"flattop\"], \"response\": {\"bspline3\": {\"data\": [603.70848372939008, 576.19533030198306, 603.70848372938997, 275.19984345116609, 86.622063597094552, 48.463223157156911, 18.998831691098502, 12.374494872471219, 5.4924551048228869, 2.3412049912270154, 0.89698003293784612, 0.92972959789750986, 0.7620503793154525], \"intervals\": 10, \"xmax\": 500, \"xmin\": 0}}, \"rmax\": 500, \"rmin\": 0, \"type\": \"Axial\", \"x0\": 156, \"y0\": 0}, \"disabled\": false, \"gain\": 1, \"group_id\": -1, \"id\": 7, \"x\": 156, \"y\": 0}, {\"LRF\": {\"compression\": {\"k\": 5, \"lam\": 50, \"method\": \"dualslope\", \"r0\": 150}, \"constraints\": [\"non-negative\", \"flattop\"], \"response\": {\"bspline3\": {\"data\": [712.67343700555045, 664.2769018138107, 712.67343700555034, 323.27987121448655, 94.741834767679592, 52.442218101170624, 24.606897403270384, 13.124711077476686, 6.5094338266047362, 2.4288032984205397, 1.0135479241229703, 1.0258011036055454, 1.844525833627243], \"intervals\": 10, \"xmax\": 500, \"xmin\": 0}}, \"rmax\": 500, \"rmin\": 0, \"type\": \"Axial\", \"x0\": 117, \"y0\": -67.54998149576987}, \"disabled\": false, \"gain\": 1, \"group_id\": -1, \"id\": 8, \"x\": 117, \"y\": -67.54998149576987}, {\"LRF\": {\"compression\": {\"k\": 5, \"lam\": 50, \"method\": \"dualslope\", \"r0\": 150}, \"constraints\": [\"non-negative\", \"flattop\"], \"response\": {\"bspline3\": {\"data\": [545.54911072159337, 505.88578394889544, 545.54911072159337, 247.33182643620003, 77.686561803170747, 43.611367411853628, 17.023188412133393, 11.060564754677628, 4.9142084359072413, 2.1214025993173036, 0.82222998986540963, 0.78834520105808281, 0.85702983332955596], \"intervals\": 10, \"xmax\": 500, \"xmin\": 0}}, \"rmax\": 500, \"rmin\": 0, \"type\": \"Axial\", \"x0\": 78, \"y0\": -135.09996299153974}, \"disabled\": false, \"gain\": 1, \"group_id\": -1, \"id\": 9, \"x\": 78, \"y\": -135.09996299153974}, {\"LRF\": {\"compression\": {\"k\": 5, \"lam\": 50, \"method\": \"dualslope\", \"r0\": 150}, \"constraints\": [\"non-negative\", \"flattop\"], \"response\": {\"bspline3\": {\"data\": [676.80236149540326, 638.36570013040227, 676.80236149540326, 309.30958453072418, 90.205502913474447, 49.528009523652912, 23.70765903918614, 12.339537893552938, 6.3061326235899173, 2.2345288954985847, 1.0526734075258413, 0.81229579614744074, 3.3896840846694878], \"intervals\": 10, \"xmax\": 500, \"xmin\": 0}}, \"rmax\": 500, \"rmin\": 0, \"type\": \"Axial\", \"x0\": 0, \"y0\": -135.09996299153974}, \"disabled\": false, \"gain\": 1, \"group_id\": -1, \"id\": 10, \"x\": 0, \"y\": -135.09996299153974}, {\"LRF\": {\"compression\": {\"k\": 5, \"lam\": 50, \"method\": \"dualslope\", \"r0\": 150}, \"constraints\": [\"non-negative\", \"flattop\"], \"response\": {\"bspline3\": {\"data\": [732.98145929727855, 694.30427669898029, 732.98145929727843, 336.14758289417387, 104.41444130126864, 59.200432398732673, 22.708262312467202, 15.073714486622613, 6.5893687722406398, 2.9195839256866853, 1.0322565782370474, 1.1851985995093457, 0.7116385261807745], \"intervals\": 10, \"xmax\": 500, \"xmin\": 0}}, \"rmax\": 500, \"rmin\": 0, \"type\": \"Axial\", \"x0\": -78, \"y0\": -135.09996299153974}, \"disabled\": false, \"gain\": 1, \"group_id\": -1, \"id\": 11, \"x\": -78, \"y\": -135.09996299153974}, {\"LRF\": {\"compression\": {\"k\": 5, \"lam\": 50, \"method\": \"dualslope\", \"r0\": 150}, \"constraints\": [\"non-negative\", \"flattop\"], \"response\": {\"bspline3\": {\"data\": [747.95329259924961, 711.27177630340304, 747.95329259924972, 340.26187034665719, 100.57232729987207, 54.621944185429093, 26.394438264916406, 13.720897570894968, 6.9033045285648091, 2.5535244187417678, 1.1061838133372677, 1.0513774339464868, 3.0756129199791884], \"intervals\": 10, \"xmax\": 500, \"xmin\": 0}}, \"rmax\": 500, \"rmin\": 0, \"type\": \"Axial\", \"x0\": -117, \"y0\": -67.54998149576987}, \"disabled\": false, \"gain\": 1, \"group_id\": -1, \"id\": 12, \"x\": -117, \"y\": -67.54998149576987}, {\"LRF\": {\"compression\": {\"k\": 5, \"lam\": 50, \"method\": \"dualslope\", \"r0\": 150}, \"constraints\": [\"non-negative\", \"flattop\"], \"response\": {\"bspline3\": {\"data\": [622.35933094496522, 576.28290885167087, 622.35933094496522, 281.33080153674848, 89.201233116378319, 49.37649176834293, 19.567906589789576, 12.49150049763856, 5.7107309665751922, 2.3161812919267843, 0.95561502102314655, 0.8679738636947214, 1.6674277785913019], \"intervals\": 10, \"xmax\": 500, \"xmin\": 0}}, \"rmax\": 500, \"rmin\": 0, \"type\": \"Axial\", \"x0\": -156, \"y0\": 0}, \"disabled\": false, \"gain\": 1, \"group_id\": -1, \"id\": 13, \"x\": -156, \"y\": 0}, {\"LRF\": {\"compression\": {\"k\": 5, \"lam\": 50, \"method\": \"dualslope\", \"r0\": 150}, \"constraints\": [\"non-negative\", \"flattop\"], \"response\": {\"bspline3\": {\"data\": [449.24703601267322, 416.33831290316937, 449.24703601267322, 202.2156044910756, 60.256336118909118, 32.52827109042758, 15.763427563664807, 8.2244158101042348, 4.1134879204447392, 1.5027032054369316, 0.68038213619745302, 0.53190475559773831, 2.8950849000611076], \"intervals\": 10, \"xmax\": 500, \"xmin\": 0}}, \"rmax\": 500, \"rmin\": 0, \"type\": \"Axial\", \"x0\": -117, \"y0\": 67.54998149576987}, \"disabled\": false, \"gain\": 1, \"group_id\": -1, \"id\": 14, \"x\": -117, \"y\": 67.54998149576987}, {\"LRF\": {\"compression\": {\"k\": 5, \"lam\": 50, \"method\": \"dualslope\", \"r0\": 150}, \"constraints\": [\"non-negative\", \"flattop\"], \"response\": {\"bspline3\": {\"data\": [758.75041971146777, 717.32163302493018, 758.75041971146777, 344.43036527647217, 109.64117703558672, 60.088828192410432, 23.995003103114485, 15.333014804592286, 6.9193075718651897, 2.8847502260094831, 1.1404887449978762, 1.1811427825675154, 0.74374873515889406], \"intervals\": 10, \"xmax\": 500, \"xmin\": 0}}, \"rmax\": 500, \"rmin\": 0, \"type\": \"Axial\", \"x0\": -78, \"y0\": 135.09996299153974}, \"disabled\": false, \"gain\": 1, \"group_id\": -1, \"id\": 15, \"x\": -78, \"y\": 135.09996299153974}, {\"LRF\": {\"compression\": {\"k\": 5, \"lam\": 50, \"method\": \"dualslope\", \"r0\": 150}, \"constraints\": [\"non-negative\", \"flattop\"], \"response\": {\"bspline3\": {\"data\": [590.43438799656917, 558.11077049790197, 590.43438799656917, 267.24957398312614, 79.486526730705407, 43.043073107705681, 20.760056142058946, 10.995403145038702, 5.3453501424571446, 2.0560869768853762, 0.82352188634886647, 0.84905793650499506, 1.6455756658181686], \"intervals\": 10, \"xmax\": 500, \"xmin\": 0}}, \"rmax\": 500, \"rmin\": 0, \"type\": \"Axial\", \"x0\": 0, \"y0\": 135.09996299153974}, \"disabled\": false, \"gain\": 1, \"group_id\": -1, \"id\": 16, \"x\": 0, \"y\": 135.09996299153974}, {\"LRF\": {\"compression\": {\"k\": 5, \"lam\": 50, \"method\": \"dualslope\", \"r0\": 150}, \"constraints\": [\"non-negative\", \"flattop\"], \"response\": {\"bspline3\": {\"data\": [571.15120093254461, 543.96336841172865, 571.1512009325445, 260.7009663228269, 82.162542050689225, 45.833744630199305, 17.823630432058337, 11.603006327036338, 5.2107761620080639, 2.2021257354356347, 0.87725774327395933, 0.78292118800897614, 1.5152135797615898], \"intervals\": 10, \"xmax\": 500, \"xmin\": 0}}, \"rmax\": 500, \"rmin\": 0, \"type\": \"Axial\", \"x0\": 78, \"y0\": 135.09996299153974}, \"disabled\": false, \"gain\": 1, \"group_id\": -1, \"id\": 17, \"x\": 78, \"y\": 135.09996299153974}, {\"LRF\": {\"compression\": {\"k\": 5, \"lam\": 50, \"method\": \"dualslope\", \"r0\": 150}, \"constraints\": [\"non-negative\", \"flattop\"], \"response\": {\"bspline3\": {\"data\": [667.55930824028508, 628.4971261265398, 667.55930824028508, 301.22555912034039, 89.434658695949139, 48.607994324234795, 23.75573887450107, 12.002760607491165, 6.2450431211561801, 2.1567545140461899, 1.0489776755272957, 0.77024848901114096, 3.3801727413126268], \"intervals\": 10, \"xmax\": 500, \"xmin\": 0}}, \"rmax\": 500, \"rmin\": 0, \"type\": \"Axial\", \"x0\": 117, \"y0\": 67.54998149576987}, \"disabled\": false, \"gain\": 1, \"group_id\": -1, \"id\": 18, \"x\": 117, \"y\": 67.54998149576987}, {\"LRF\": {\"compression\": {\"k\": 5, \"lam\": 50, \"method\": \"dualslope\", \"r0\": 150}, \"constraints\": [\"non-negative\", \"flattop\"], \"response\": {\"bspline3\": {\"data\": [477.77500051396134, 392.58498804250257, 477.77500051396134, 212.91573483864875, 63.707639716905433, 32.656298706494496, 15.116416747100628, 9.0449191939994495, 4.6798769188208613, 2.0074037309731665, 0.92991963847397552, 0.6899581319592677, 0.25604407763470716], \"intervals\": 10, \"xmax\": 500, \"xmin\": 0}}, \"rmax\": 500, \"rmin\": 0, \"type\": \"Axial\", \"x0\": 234, \"y0\": 0}, \"disabled\": false, \"gain\": 1, \"group_id\": -1, \"id\": 19, \"x\": 234, \"y\": 0}, {\"LRF\": {\"compression\": {\"k\": 5, \"lam\": 50, \"method\": \"dualslope\", \"r0\": 150}, \"constraints\": [\"non-negative\", \"flattop\"], \"response\": {\"bspline3\": {\"data\": [647.87865470995303, 592.80536726320224, 647.87865470995303, 294.04604745376417, 90.506354815798559, 48.661373183733048, 22.474571392960456, 13.871701075377693, 7.1586893008688701, 3.1999374807247452, 1.5075349753212295, 1.1294993757624576, 1.4133111692659124], \"intervals\": 10, \"xmax\": 500, \"xmin\": 0}}, \"rmax\": 500, \"rmin\": 0, \"type\": \"Axial\", \"x0\": 195, \"y0\": -67.54998149576987}, \"disabled\": false, \"gain\": 1, \"group_id\": -1, \"id\": 20, \"x\": 195, \"y\": -67.54998149576987}, {\"LRF\": {\"compression\": {\"k\": 5, \"lam\": 50, \"method\": \"dualslope\", \"r0\": 150}, \"constraints\": [\"non-negative\", \"flattop\"], \"response\": {\"bspline3\": {\"data\": [621.18576346798102, 559.80839827931004, 621.18576346798102, 283.08506240390068, 86.647697383746035, 45.824137007011871, 21.894079888539888, 13.04374541393009, 6.9296657342379246, 3.0411617752747322, 1.4385795067664495, 1.0996206597297484, 1.065358597091461], \"intervals\": 10, \"xmax\": 500, \"xmin\": 0}}, \"rmax\": 500, \"rmin\": 0, \"type\": \"Axial\", \"x0\": 156, \"y0\": -135.09996299153974}, \"disabled\": false, \"gain\": 1, \"group_id\": -1, \"id\": 21, \"x\": 156, \"y\": -135.09996299153974}, {\"LRF\": {\"compression\": {\"k\": 5, \"lam\": 50, \"method\": \"dualslope\", \"r0\": 150}, \"constraints\": [\"non-negative\", \"flattop\"], \"response\": {\"bspline3\": {\"data\": [738.658739129987, 609.7476374696073, 738.658739129987, 329.02226337360497, 99.915135582881078, 50.153669440998492, 23.900008844096906, 13.864767515297022, 7.1945575775579993, 3.111351311627824, 1.4428232648180914, 1.0752584474063471, 0.64430027548808], \"intervals\": 10, \"xmax\": 500, \"xmin\": 0}}, \"rmax\": 500, \"rmin\": 0, \"type\": \"Axial\", \"x0\": 117, \"y0\": -202.6499444873096}, \"disabled\": false, \"gain\": 1, \"group_id\": -1, \"id\": 22, \"x\": 117, \"y\": -202.6499444873096}, {\"LRF\": {\"compression\": {\"k\": 5, \"lam\": 50, \"method\": \"dualslope\", \"r0\": 150}, \"constraints\": [\"non-negative\", \"flattop\"], \"response\": {\"bspline3\": {\"data\": [736.16577997158379, 666.97259705509646, 736.16577997158367, 340.65497601714219, 102.77316799440403, 55.892931088568773, 25.614427103813064, 15.792855773734036, 8.2916624702705484, 3.5743362801128993, 1.7446786228858133, 1.3003048708912694, 1.0520521208163485], \"intervals\": 10, \"xmax\": 500, \"xmin\": 0}}, \"rmax\": 500, \"rmin\": 0, \"type\": \"Axial\", \"x0\": 39, \"y0\": -202.6499444873096}, \"disabled\": false, \"gain\": 1, \"group_id\": -1, \"id\": 23, \"x\": 39, \"y\": -202.6499444873096}, {\"LRF\": {\"compression\": {\"k\": 5, \"lam\": 50, \"method\": \"dualslope\", \"r0\": 150}, \"constraints\": [\"non-negative\", \"flattop\"], \"response\": {\"bspline3\": {\"data\": [570.85789789144064, 530.15019868863089, 570.85789789144064, 264.51409902145321, 79.443642968089677, 43.255322000108926, 20.094370469669563, 12.183245313041331, 6.4066624337862406, 2.8384551485252265, 1.3083976561799235, 1.0592905413548048, 0.67905147578477454], \"intervals\": 10, \"xmax\": 500, \"xmin\": 0}}, \"rmax\": 500, \"rmin\": 0, \"type\": \"Axial\", \"x0\": -39, \"y0\": -202.6499444873096}, \"disabled\": false, \"gain\": 1, \"group_id\": -1, \"id\": 24, \"x\": -39, \"y\": -202.6499444873096}, {\"LRF\": {\"compression\": {\"k\": 5, \"lam\": 50, \"method\": \"dualslope\", \"r0\": 150}, \"constraints\": [\"non-negative\", \"flattop\"], \"response\": {\"bspline3\": {\"data\": [818.07632059346406, 666.94313250768141, 818.07632059346406, 366.14253816674227, 110.07190172383146, 55.583316045082029, 26.403471045827693, 15.326222488637253, 8.00879210178541, 3.4482422126468957, 1.5736593466487361, 1.2060137704802518, 0.46179924982772003], \"intervals\": 10, \"xmax\": 500, \"xmin\": 0}}, \"rmax\": 500, \"rmin\": 0, \"type\": \"Axial\", \"x0\": -117, \"y0\": -202.6499444873096}, \"disabled\": false, \"gain\": 1, \"group_id\": -1, \"id\": 25, \"x\": -117, \"y\": -202.6499444873096}, {\"LRF\": {\"compression\": {\"k\": 5, \"lam\": 50, \"method\": \"dualslope\", \"r0\": 150}, \"constraints\": [\"non-negative\", \"flattop\"], \"response\": {\"bspline3\": {\"data\": [765.81766782405953, 710.61484207047772, 765.81766782405953, 353.5940583040699, 108.53460631335295, 57.467898009769165, 27.161642835400954, 16.212975711908523, 8.7672268362844203, 3.7232226707227918, 1.8552590040566925, 1.3103896146317862, 1.4367828256987056], \"intervals\": 10, \"xmax\": 500, \"xmin\": 0}}, \"rmax\": 500, \"rmin\": 0, \"type\": \"Axial\", \"x0\": -156, \"y0\": -135.09996299153971}, \"disabled\": false, \"gain\": 1, \"group_id\": -1, \"id\": 26, \"x\": -156, \"y\": -135.09996299153971}, {\"LRF\": {\"compression\": {\"k\": 5, \"lam\": 50, \"method\": \"dualslope\", \"r0\": 150}, \"constraints\": [\"non-negative\", \"flattop\"], \"response\": {\"bspline3\": {\"data\": [704.76926694111535, 642.2616551117618, 704.76926694111535, 322.73920020105879, 98.891306466419692, 53.057928334075633, 24.558473022165465, 15.074356620741129, 7.9057686381255863, 3.4425595977160768, 1.6394040954092137, 1.2945430759491852, 1.0857556937919119], \"intervals\": 10, \"xmax\": 500, \"xmin\": 0}}, \"rmax\": 500, \"rmin\": 0, \"type\": \"Axial\", \"x0\": -195, \"y0\": -67.549981495769842}, \"disabled\": false, \"gain\": 1, \"group_id\": -1, \"id\": 27, \"x\": -195, \"y\": -67.549981495769842}, {\"LRF\": {\"compression\": {\"k\": 5, \"lam\": 50, \"method\": \"dualslope\", \"r0\": 150}, \"constraints\": [\"non-negative\", \"flattop\"], \"response\": {\"bspline3\": {\"data\": [605.22765492606368, 494.66626812665589, 605.22765492606368, 271.48585248019759, 81.390776593343375, 41.326528975507394, 19.354765630088011, 11.358880529454447, 5.945668716494164, 2.5198466583839845, 1.1847849733066034, 0.84880200491988445, 0.63267336647772887], \"intervals\": 10, \"xmax\": 500, \"xmin\": 0}}, \"rmax\": 500, \"rmin\": 0, \"type\": \"Axial\", \"x0\": -234, \"y0\": 2.8421709430404007e-14}, \"disabled\": false, \"gain\": 1, \"group_id\": -1, \"id\": 28, \"x\": -234, \"y\": 2.8421709430404007e-14}, {\"LRF\": {\"compression\": {\"k\": 5, \"lam\": 50, \"method\": \"dualslope\", \"r0\": 150}, \"constraints\": [\"non-negative\", \"flattop\"], \"response\": {\"bspline3\": {\"data\": [796.99900693669952, 724.86116313729372, 796.9990069366994, 365.98561247040254, 110.95746703264193, 59.690536115280409, 27.967793744737214, 16.962984018595208, 8.8304802022853455, 3.9102158100493742, 1.8673042309290826, 1.4637492119535467, 0.94732400971572128], \"intervals\": 10, \"xmax\": 500, \"xmin\": 0}}, \"rmax\": 500, \"rmin\": 0, \"type\": \"Axial\", \"x0\": -195, \"y0\": 67.549981495769899}, \"disabled\": false, \"gain\": 1, \"group_id\": -1, \"id\": 29, \"x\": -195, \"y\": 67.549981495769899}, {\"LRF\": {\"compression\": {\"k\": 5, \"lam\": 50, \"method\": \"dualslope\", \"r0\": 150}, \"constraints\": [\"non-negative\", \"flattop\"], \"response\": {\"bspline3\": {\"data\": [582.81917836896446, 549.87104020487652, 582.81917836896434, 272.94034431921528, 81.660344635817069, 45.047910369012705, 20.366098683171753, 12.783649930149149, 6.5230449775274595, 2.8865839853961823, 1.3437047348106308, 1.1199163827179446, 0.73885205630346606], \"intervals\": 10, \"xmax\": 500, \"xmin\": 0}}, \"rmax\": 500, \"rmin\": 0, \"type\": \"Axial\", \"x0\": -156, \"y0\": 135.09996299153977}, \"disabled\": false, \"gain\": 1, \"group_id\": -1, \"id\": 30, \"x\": -156, \"y\": 135.09996299153977}, {\"LRF\": {\"compression\": {\"k\": 5, \"lam\": 50, \"method\": \"dualslope\", \"r0\": 150}, \"constraints\": [\"non-negative\", \"flattop\"], \"response\": {\"bspline3\": {\"data\": [708.00681875092323, 616.32199329964942, 708.00681875092323, 327.90966023130585, 95.610634871905646, 49.578513581537933, 22.825014309687106, 13.722846405851818, 7.0701252527893237, 3.01462325321019, 1.4043291679536571, 1.0743940903321796, 0.47245274961063521], \"intervals\": 10, \"xmax\": 500, \"xmin\": 0}}, \"rmax\": 500, \"rmin\": 0, \"type\": \"Axial\", \"x0\": -117, \"y0\": 202.64994448730965}, \"disabled\": false, \"gain\": 1, \"group_id\": -1, \"id\": 31, \"x\": -117, \"y\": 202.64994448730965}, {\"LRF\": {\"compression\": {\"k\": 5, \"lam\": 50, \"method\": \"dualslope\", \"r0\": 150}, \"constraints\": [\"non-negative\", \"flattop\"], \"response\": {\"bspline3\": {\"data\": [797.9040911016499, 723.97419824746123, 797.90409110164978, 366.38791415522172, 112.44365327053605, 59.472827697398387, 27.75335382774837, 17.130952088127852, 8.9100286644698006, 3.9250234238821471, 1.8937902438405998, 1.4344310684524797, 0.90427578725095081], \"intervals\": 10, \"xmax\": 500, \"xmin\": 0}}, \"rmax\": 500, \"rmin\": 0, \"type\": \"Axial\", \"x0\": -39, \"y0\": 202.64994448730965}, \"disabled\": false, \"gain\": 1, \"group_id\": -1, \"id\": 32, \"x\": -39, \"y\": 202.64994448730965}, {\"LRF\": {\"compression\": {\"k\": 5, \"lam\": 50, \"method\": \"dualslope\", \"r0\": 150}, \"constraints\": [\"non-negative\", \"flattop\"], \"response\": {\"bspline3\": {\"data\": [792.95937188432549, 729.89832081702787, 792.95937188432549, 366.8538436566983, 112.47491023078138, 59.745227884749234, 27.596383638822672, 17.158216732168064, 8.8146317887922034, 3.9751594036979458, 1.8113640462108995, 1.4557708221352466, 1.3606891485152073], \"intervals\": 10, \"xmax\": 500, \"xmin\": 0}}, \"rmax\": 500, \"rmin\": 0, \"type\": \"Axial\", \"x0\": 39, \"y0\": 202.64994448730965}, \"disabled\": false, \"gain\": 1, \"group_id\": -1, \"id\": 33, \"x\": 39, \"y\": 202.64994448730965}, {\"LRF\": {\"compression\": {\"k\": 5, \"lam\": 50, \"method\": \"dualslope\", \"r0\": 150}, \"constraints\": [\"non-negative\", \"flattop\"], \"response\": {\"bspline3\": {\"data\": [640.42090112938581, 541.30946714839854, 640.42090112938581, 290.61800719907774, 85.12551999772468, 45.018258644776054, 20.299040511358275, 12.145391242566262, 6.3150825680058311, 2.7141704521069276, 1.2594522518258511, 0.91994308656556945, 0.60383689086522829], \"intervals\": 10, \"xmax\": 500, \"xmin\": 0}}, \"rmax\": 500, \"rmin\": 0, \"type\": \"Axial\", \"x0\": 117, \"y0\": 202.64994448730965}, \"disabled\": false, \"gain\": 1, \"group_id\": -1, \"id\": 34, \"x\": 117, \"y\": 202.64994448730965}, {\"LRF\": {\"compression\": {\"k\": 5, \"lam\": 50, \"method\": \"dualslope\", \"r0\": 150}, \"constraints\": [\"non-negative\", \"flattop\"], \"response\": {\"bspline3\": {\"data\": [724.42673624547183, 662.25487466328809, 724.42673624547183, 337.02777804883914, 100.40275122534666, 54.855428144373285, 25.208560321652641, 15.436413885457792, 8.1113935466528826, 3.528795456290561, 1.7537568042770737, 1.2418058683601625, 1.5912006870224475], \"intervals\": 10, \"xmax\": 500, \"xmin\": 0}}, \"rmax\": 500, \"rmin\": 0, \"type\": \"Axial\", \"x0\": 156, \"y0\": 135.09996299153977}, \"disabled\": false, \"gain\": 1, \"group_id\": -1, \"id\": 35, \"x\": 156, \"y\": 135.09996299153977}, {\"LRF\": {\"compression\": {\"k\": 5, \"lam\": 50, \"method\": \"dualslope\", \"r0\": 150}, \"constraints\": [\"non-negative\", \"flattop\"], \"response\": {\"bspline3\": {\"data\": [628.98314130063204, 566.99909970289309, 628.98314130063216, 288.48174963117958, 87.742795765597094, 47.453286600983475, 21.623641768299823, 13.453717920073316, 6.9506591937271942, 3.0886096646572745, 1.4738171293401643, 1.1057703314411895, 0.94353642166801432], \"intervals\": 10, \"xmax\": 500, \"xmin\": 0}}, \"rmax\": 500, \"rmin\": 0, \"type\": \"Axial\", \"x0\": 195, \"y0\": 67.549981495769899}, \"disabled\": false, \"gain\": 1, \"group_id\": -1, \"id\": 36, \"x\": 195, \"y\": 67.549981495769899}]}"
+    },
     "Materials": [
         {
             "*Name": "Air",
@@ -363,6 +366,7 @@
             ],
             "Comments": "",
             "Composition": {
+                "CompositionType": "Geant4",
                 "CustomComposition": {
                     "CompositionString": "H",
                     "Density": 1e-24,
@@ -376,15 +380,15 @@
                     "UseMeanExcitationEnergy": false
                 },
                 "Geant4Material": "G4_AIR",
-                "UseGeant4Material": true
+                "NCrystalMaterialName": ""
             },
             "CustomScatterMFP": 0,
             "Dielectric": true,
             "ElDiffusionL": 0,
             "ElDiffusionT": 0,
             "ElDriftVelo": 0,
+            "FanoS1": 1,
             "IgnoreEnergyConservationInReemission": false,
-            "IntrEnergyRes": 0,
             "PhotonYield": 0,
             "PrimScintDecay": [
                 [
@@ -431,6 +435,7 @@
             ],
             "Comments": "",
             "Composition": {
+                "CompositionType": "Direct",
                 "CustomComposition": {
                     "CompositionString": "SiO2:72 + MgO:6 + CaO:9 + Na2O:13",
                     "Density": 2.5,
@@ -444,15 +449,15 @@
                     "UseMeanExcitationEnergy": false
                 },
                 "Geant4Material": "",
-                "UseGeant4Material": false
+                "NCrystalMaterialName": ""
             },
             "CustomScatterMFP": 0,
             "Dielectric": true,
             "ElDiffusionL": 0,
             "ElDiffusionT": 0,
             "ElDriftVelo": 0,
+            "FanoS1": 1,
             "IgnoreEnergyConservationInReemission": false,
-            "IntrEnergyRes": 0,
             "PhotonYield": 0,
             "PrimScintDecay": [
                 [
@@ -499,6 +504,7 @@
             ],
             "Comments": "",
             "Composition": {
+                "CompositionType": "Direct",
                 "CustomComposition": {
                     "CompositionString": "NaI",
                     "Density": 3.67,
@@ -512,15 +518,15 @@
                     "UseMeanExcitationEnergy": false
                 },
                 "Geant4Material": "",
-                "UseGeant4Material": false
+                "NCrystalMaterialName": ""
             },
             "CustomScatterMFP": 0,
             "Dielectric": true,
             "ElDiffusionL": 0,
             "ElDiffusionT": 0,
             "ElDriftVelo": 0,
+            "FanoS1": 1,
             "IgnoreEnergyConservationInReemission": false,
-            "IntrEnergyRes": 0,
             "PhotonYield": 38,
             "PrimScintDecay": [
                 [
@@ -627,6 +633,7 @@
             ],
             "Comments": "",
             "Composition": {
+                "CompositionType": "Direct",
                 "CustomComposition": {
                     "CompositionString": "C7H8OSi/94+SiO2/6",
                     "Density": 1.02,
@@ -640,15 +647,15 @@
                     "UseMeanExcitationEnergy": false
                 },
                 "Geant4Material": "",
-                "UseGeant4Material": false
+                "NCrystalMaterialName": ""
             },
             "CustomScatterMFP": 0,
             "Dielectric": true,
             "ElDiffusionL": 0,
             "ElDiffusionT": 0,
             "ElDriftVelo": 0,
+            "FanoS1": 1,
             "IgnoreEnergyConservationInReemission": false,
-            "IntrEnergyRes": 0,
             "PhotonYield": 0,
             "PrimScintDecay": [
                 [
@@ -690,23 +697,15 @@
         }
     ],
     "ParticleSim": {
-        "ClusterMerge": false,
-        "ClusterMergeRadius": 0.1,
-        "ClusterMergeTime": 1,
         "Events": 100,
         "Geant4Settings": {
-            "AddScintillatorsToSensitiveVolumes": true,
             "Commands": [
                 "/run/setCut 0.7 mm"
             ],
             "PhysicsList": "QGSP_BIC_HP",
-            "ScintSensitiveVolumes": [
-                "Scintillator"
-            ],
-            "SensitiveVolumes": [
-            ],
             "StepLimits": [
             ],
+            "UseNCrystal": false,
             "UseTSphys": false
         },
         "GenerationFromFile": {
@@ -755,6 +754,7 @@
                             },
                             "Generation": {
                                 "BtBPair": false,
+                                "HalfLifeLinked": 0,
                                 "LinkedTo": 0,
                                 "LinkingProbability": 0,
                                 "StatWeight": 1,
@@ -775,6 +775,7 @@
                             },
                             "Generation": {
                                 "BtBPair": true,
+                                "HalfLifeLinked": 0,
                                 "LinkedTo": 0,
                                 "LinkingProbability": 0.90329,
                                 "StatWeight": 1,
@@ -827,7 +828,8 @@
                         "SpreadSigmaPrefUnit": "ns",
                         "SpreadWidth": 100,
                         "SpreadWidthPrefUnit": "ns"
-                    }
+                    },
+                    "Type": "Standard"
                 },
                 {
                     "Activity": 1,
@@ -862,6 +864,7 @@
                             },
                             "Generation": {
                                 "BtBPair": false,
+                                "HalfLifeLinked": 0,
                                 "LinkedTo": 0,
                                 "LinkingProbability": 0,
                                 "StatWeight": 0.856,
@@ -882,6 +885,7 @@
                             },
                             "Generation": {
                                 "BtBPair": false,
+                                "HalfLifeLinked": 0,
                                 "LinkedTo": 0,
                                 "LinkingProbability": 0,
                                 "StatWeight": 0.1068,
@@ -934,7 +938,8 @@
                         "SpreadSigmaPrefUnit": "ns",
                         "SpreadWidth": 100,
                         "SpreadWidthPrefUnit": "ns"
-                    }
+                    },
+                    "Type": "Standard"
                 }
             ]
         },
@@ -948,7 +953,9 @@
             "AsciiPrecision": 6,
             "CalorimeterSettings": {
                 "Enabled": false,
-                "FileName": "Calorimeters.json"
+                "FileName": "Calorimeters.json",
+                "LogFileName": "CalorimeterLog.dat",
+                "SaveEnergyDepositionLog": false
             },
             "FileNameDeposition": "Deposition.dat",
             "FileNameSaveConfig": "Config_ParticleSim.json",
@@ -960,6 +967,11 @@
             "OutputDirectory": "",
             "SaveConfig": false,
             "SaveDeposition": true,
+            "SaveDepositionIncludeScintillators": true,
+            "SaveDepositionScintVolumes": [
+            ],
+            "SaveDepositionVolumes": [
+            ],
             "SaveParticles": {
                 "Enabled": false,
                 "FileName": "OutputParticles.dat",
@@ -980,41 +992,45 @@
     "PhotonSim": {
         "Deposition": {
             "FileFormat": "Undefined",
-            "FileName": "/home/andr/.config/ants3/TmpOutput/Deposition.dat",
+            "FileName": "",
             "LastModified": 1746462884688,
-            "NumEvents": 100,
-            "Primary": true,
-            "Secondary": false
+            "NumEvents": 100
         },
         "Optimization": {
-            "CheckQeBeforeTracking": false,
-            "MaxPhotonTransitions": 500
+            "LRF": {
+                "PhotoElectrons": 1,
+                "PhotonsPerNode": 20000
+            },
+            "MaxPhotonTransitions": 500,
+            "TracingMode": "Normal"
+        },
+        "PhGenOverrides": {
+            "Direction": {
+                "ConeAngle": 10,
+                "DirectionMode": "Isotropic",
+                "DirectionVector": [
+                    0,
+                    0,
+                    1
+                ]
+            },
+            "Time": {
+                "DecayTime": 5,
+                "Enabled": false
+            },
+            "Wave": {
+                "Enabled": false,
+                "FixedWavelength": 550
+            }
         },
         "PhotonBombs": {
             "Advanced": {
-                "Direction": {
-                    "ConeAngle": 10,
-                    "DirectionMode": "Isotropic",
-                    "DirectionVector": [
-                        0,
-                        0,
-                        1
-                    ]
-                },
                 "SkipBombs": {
                     "EnableOnlyMat": false,
                     "EnableOnlyVol": false,
                     "Material": "",
                     "MaxNodeAttempts": 1000,
                     "Volume": ""
-                },
-                "Time": {
-                    "DecayTime": 5,
-                    "Enabled": false
-                },
-                "Wave": {
-                    "Enabled": false,
-                    "FixedWavelength": 550
                 }
             },
             "File": {
@@ -1027,17 +1043,17 @@
                 "CenterX": 0,
                 "CenterY": 0,
                 "InnerDiameter": 0,
-                "Number": 100,
-                "OuterDiameter": 300,
-                "Shape": "rectangle",
+                "Number": 10000,
+                "OuterDiameter": 470,
+                "Shape": "ring",
                 "Xfrom": -150,
                 "Xto": 150,
                 "Yfrom": -150,
                 "Yto": 150,
                 "Zfixed": 0,
-                "Zfrom": -6,
+                "Zfrom": -6.25,
                 "Zmode": "range",
-                "Zto": 6
+                "Zto": -3.25
             },
             "GenerationMode": "flood",
             "Grid": {
@@ -1074,7 +1090,7 @@
             "PhotonsPerBomb": {
                 "CustomDist": [
                 ],
-                "FixedNumber": 1000,
+                "FixedNumber": 6000,
                 "Mode": "constant",
                 "NormalMean": 100,
                 "NormalSigma": 10,
@@ -1123,17 +1139,21 @@
             },
             "SaveConfig": false,
             "SaveMonitors": false,
-            "SavePhotonBombs": false,
+            "SavePhotonBombs": true,
             "SaveSensorLog": false,
             "SaveSensorSignals": true,
             "SaveStatistics": true,
-            "SaveTracks": true,
+            "SaveTracks": false,
             "Seed": 0,
             "SensorLogAngle": false,
             "SensorLogTime": true,
             "SensorLogWave": false,
             "SensorLogXY": false,
             "UpperTimeLimit": 1000000000
+        },
+        "Scintillation": {
+            "Primary": true,
+            "Secondary": false
         },
         "SimulationType": "bomb",
         "WaveResolved": {
@@ -1228,7 +1248,6 @@
                 },
                 "PhElToSignals": {
                     "AverageSignalPerPhEl": 1,
-                    "ElectronicGainFactor": 1,
                     "GammaShape": 2,
                     "Model": "Constant",
                     "NormalSigma": 0,
@@ -1246,7 +1265,49 @@
                     "isSiPM": false
                 }
             }
-        ]
+        ],
+        "SensorGains": {
+            "Enabled": true,
+            "Gains": [
+                1.164,
+                0.868,
+                1.207,
+                1.006,
+                1.2570000000000001,
+                1.365,
+                0.713,
+                0.9380000000000001,
+                1.108,
+                0.843,
+                1.055,
+                1.139,
+                1.169,
+                0.96,
+                0.6980000000000001,
+                1.176,
+                0.921,
+                0.886,
+                1.038,
+                0.741,
+                0.921,
+                0.881,
+                1.1460000000000001,
+                1.052,
+                0.8180000000000001,
+                1.2690000000000001,
+                1.098,
+                1.004,
+                0.9380000000000001,
+                1.135,
+                0.84,
+                1.118,
+                1.1360000000000001,
+                1.135,
+                1.002,
+                1.035,
+                0.893
+            ]
+        }
     },
     "gui": {
         "GeometryWindow": {

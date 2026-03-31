@@ -342,7 +342,7 @@ void AFileHandlerBase::skipToNextEventRecord()
 
 bool AFileHandlerBase::copyToFileBuffered(int fromEvent, int toEvent, const QString & fileName, ADataIOBase & buffer)
 {
-    qDebug() << "!!!----->" << fromEvent << toEvent;
+    //qDebug() << "!!!----->" << fromEvent << toEvent;
     bool ok = gotoEvent(fromEvent);
     if (!ok)
     {

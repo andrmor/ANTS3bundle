@@ -11,6 +11,7 @@
 @SurfaceWaveShifter.json A minimal configuration featuring optical interface rule for wavelength shifter
 @ThinLens.json Example demonstrating how to configure thin lens for optical simulation using a PhotonFuncional object
 @OpticalGrid.json Optical grid: comparison with an array of wires
+@FanoTester.json Configuration which can be used to test effect of fano factor of the material on scintillation statistics
 * Gamma cameras
 ** PMT-based
 @GammaCamera37PMTs.json Gamma camera with NaI scintillator and 37 PMTs
@@ -40,3 +41,5 @@
 @FastNeutron_Cylinder.json Cylindrical moderator, neutrons up to ~5 MeV
 @FastNeutron_SimpleCube.json Cubic moderator, equidistant arrays, neutrons up to ~5 MeV
 @FastNeutron_OptimizedCube.json Cubic moderator, three layers of arrays, neutrons up to ~5 MeV
+* Dark matter
+@LZ.json A simplified model of dark matter detector of LZ collaboration

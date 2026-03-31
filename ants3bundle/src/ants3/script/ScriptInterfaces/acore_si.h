@@ -99,6 +99,7 @@ public slots:
     QString str(double value, int precision);
     QString toStr(QVariant var);
     double  arraySum(QVariantList array);
+    QVariantList arrayColumn(QVariantList array, int columnIndex);
     QString getExamplesDir();
     void    processEvents();
     void    reportProgress(int percents);

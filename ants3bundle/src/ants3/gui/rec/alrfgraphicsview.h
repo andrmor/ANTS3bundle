@@ -1,0 +1,30 @@
+#ifndef ALRFGRAPHICSVIEW_H
+#define ALRFGRAPHICSVIEW_H
+
+#include <QObject>
+#include <QGraphicsView>
+
+class ALrfGraphicsView : public QGraphicsView
+{
+    Q_OBJECT
+public:
+    ALrfGraphicsView(QWidget * parent = nullptr);
+    ALrfGraphicsView(QGraphicsScene * scene, QWidget * parent = nullptr);
+    void setCursorMode(int mode) {CursorMode = mode;}
+
+protected:
+    void wheelEvent ( QWheelEvent * event ) override;
+    void mouseMoveEvent(QMouseEvent * event) override;
+    void enterEvent(QEnterEvent * event) override;
+    void mousePressEvent(QMouseEvent * event) override;
+    void mouseReleaseEvent(QMouseEvent * event) override;
+
+private:
+    QPointF MousePosition;
+    int CursorMode = 0;
+
+signals:
+    void mouseMovedSignal(QPointF * Pos);
+};
+
+#endif // ALRFGRAPHICSVIEW_H

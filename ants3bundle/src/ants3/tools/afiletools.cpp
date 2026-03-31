@@ -284,3 +284,37 @@ QString ftools::saveDoubleVectorsToFile(const std::vector<std::vector<double> *>
     outFile.close();
     return "";
 }
+
+QString ftools::saveArrayOfDoublesToFile(const QString & fileName, const std::vector<double> & vec)
+{
+    if (vec.empty()) return "No data to save!";
+
+    QFile outFile(fileName);
+    outFile.open(QIODevice::WriteOnly);
+    if (!outFile.isOpen()) return "Cannot open file " + fileName + " for output";
+
+    QTextStream outStream(&outFile);
+
+    for (double val : vec)
+        outStream << val << '\n';
+
+    outFile.close();
+    return "";
+}
+
+QString ftools::saveArrayOfDoublePairsToFile(const QString &fileName, const std::vector<std::pair<double, double>> & vec)
+{
+    if (vec.empty()) return "No data to save!";
+
+    QFile outFile(fileName);
+    outFile.open(QIODevice::WriteOnly);
+    if (!outFile.isOpen()) return "Cannot open file " + fileName + " for output";
+
+    QTextStream outStream(&outFile);
+
+    for (const std::pair<double, double> & pair : vec)
+        outStream << pair.first << " " << pair.second << '\n';
+
+    outFile.close();
+    return "";
+}

@@ -1,7 +1,7 @@
 #include "atrackinghistorycrawler.h"
 #include "atrackingdataimporter.h"
 #include "athreadpool.h"
-#include "vformula.h"
+#include "tools/vformula.h"
 #include "ath.h"
 
 #include <QDebug>

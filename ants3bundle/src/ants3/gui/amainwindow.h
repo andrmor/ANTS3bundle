@@ -24,6 +24,12 @@ class QTimer;
 class A3Global;
 class AConfigExampleBrowser;
 class AGuiFromScrWin;
+class LRModel;
+//class ALrfPlotter;
+
+#ifdef USE_MERCURY
+class ALrfPlotterDialog;
+#endif
 
 class AMainWindow : public AGuiWindow
 {
@@ -131,6 +137,11 @@ private slots:
     // run time
     void rootTimerTimeout();
 
+#ifdef USE_MERCURY
+    void showLightResponseExplorer(LRModel * model);
+    void showLrfPlotterDialog();
+#endif
+
 protected:
     void closeEvent(QCloseEvent * event);
 
@@ -140,6 +151,10 @@ private:
     QString getQuickLoadMessage(int index);
     void changeGeoViewer(bool useJSRoot);
     void connectSignalSlotsForGeoWin();
+
+#ifdef USE_MERCURY
+    ALrfPlotterDialog * LrfPlotterDialog = nullptr;
+#endif
 
 };
 

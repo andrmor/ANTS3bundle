@@ -1,0 +1,20 @@
+var dir = "/home/andr/WORK/ReconModule/Cases/Clinical/Out"
+var showEvents = 10
+
+var recPosE = mercury.getRecXYZE()
+
+var truePos = core.loadNumericArray(dir + "/PhotonBombs.txt")
+var numEv = recPosE.length
+if (truePos.length != numEv) core.abort("Mismtach in reconstructed and reue position data!")
+
+geowin.clearMarkers()
+var arRec  = []
+var arTrue = []
+for (var iEv = 0; iEv < numEv && iEv < showEvents; iEv++)
+{
+    if (recPosE[iEv][3] == 0) continue
+    arRec.push(recPosE[iEv])
+    arTrue.push(truePos[iEv])
+}
+geowin.addMarkers(arTrue, 4, 7, 2)
+geowin.addMarkers(arRec,  2, 2, 2)

@@ -251,3 +251,85 @@ void guitools::parseJsonToQTabWidget(const QJsonObject &json, const QString &nam
     bool ok = jstools::parseJson(json, name, num);
     if (ok) tw->setCurrentIndex(num);
 }
+
+#include <QGraphicsItem>
+#include <QGraphicsScene>
+#include "ageoobject.h"
+#include "ageoshape.h"
+QGraphicsItem * guitools::addGeoObjectToScene(AGeoObject * obj, QGraphicsScene * scene, double GVscale, QBrush & brush)
+{
+    //pen
+    double minSize = obj->Shape->minSize();
+    if (minSize == 0) minSize = 1.0; // !!!*** check
+    QPen pen(Qt::black);
+    pen.setWidth(2.0 * minSize / 30.0);
+
+    QGraphicsItem * item = nullptr;
+    const QString shapeType = obj->Shape->getShapeType();
+    if (shapeType == "TGeoBBox")
+    {
+        AGeoBox * box = static_cast<AGeoBox*>(obj->Shape);
+        double sizex = box->dx * GVscale;
+        double sizey = box->dy * GVscale;
+        item = scene->addRect(-sizex, -sizey, 2.0*sizex, 2.0*sizey, pen, brush);
+    }
+    else if (shapeType == "TGeoTube")
+    {
+        AGeoTube * tube = static_cast<AGeoTube*>(obj->Shape);
+        double radius = tube->rmax * GVscale;
+        item = scene->addEllipse( -radius, -radius, 2.0*radius, 2.0*radius, pen, brush);
+    }
+    else if (shapeType == "TGeoTrd1")
+    {
+        AGeoTrd1 * trap = static_cast<AGeoTrd1*>(obj->Shape);
+        double height = trap->dz * GVscale;
+        double dx1 = trap->dx1 * GVscale;
+        double dx2 = trap->dx2 * GVscale;
+        double rot = (obj->Orientation[1] > 0 ? 180.0 : 0);
+        rot -= obj->Orientation[0];
+        rot *= 3.1415926535/180.0;
+        QPolygon polygon;
+        polygon << QPoint(-dx1, height);
+        polygon << QPoint(+dx1, height);
+        polygon << QPoint(+dx2, -height);
+        polygon << QPoint(-dx2, -height);
+        polygon << QPoint(-dx1, height);
+        for (QPoint & point : polygon)
+        {
+            double x = point.x() * cos(rot) - point.y() * sin(rot);
+            double y = point.x() * sin(rot) + point.y() * cos(rot);
+            point.setX(x);
+            point.setY(y);
+        }
+        item = scene->addPolygon(polygon, pen, brush);
+    }
+    else if (shapeType == "TGeoPolygon")
+    {
+        AGeoPolygon * pgon = static_cast<AGeoPolygon*>(obj->Shape);
+        const int nEdges = pgon->nedges;
+        const double size = pgon->minSize();
+
+        double rot = obj->Orientation[0];
+        if (rot == 0) rot = obj->Orientation[2];
+        rot *= 3.1415926535/180.0;
+
+        double radius = size * GVscale;
+        QPolygon polygon;
+        for (int j = 0; j < nEdges+1; j++)
+        {
+            double angle = 2.0 * 3.1415926535/nEdges * j + rot;
+            double x = radius * cos(angle);
+            double y = radius * sin(angle);
+            polygon << QPoint(x, y);
+        }
+        item = scene->addPolygon(polygon, pen, brush);
+    }
+    else
+    {
+        qDebug() << "Representing" << shapeType << "shaped sensor with a square of size 20 mm";
+        double size = 10.0;
+        item = scene->addRect(-size, -size, 2.0*size, 2.0*size, pen, brush);
+    }
+
+    return item;
+}

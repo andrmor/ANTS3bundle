@@ -43,9 +43,6 @@ private slots:
 
     void on_pbdWave_clicked();
     void on_sbMaxNumbPhTransitions_editingFinished();
-    void on_cbRndCheckBeforeTrack_clicked();
-    void on_cbRndCheckBeforeTrack_toggled(bool checked);
-    void on_pbQEacceleratorHelp_clicked();
 
     void on_cobSimType_activated(int index);
     void on_cobNumPhotonsMode_activated(int index);
@@ -110,8 +107,6 @@ private slots:
     // deposition from file
     void on_pbChangeDepositionFile_clicked();
     void on_leDepositionFile_editingFinished();
-    void on_cbPrimaryScint_clicked(bool checked);
-    void on_cbSecondaryScint_clicked(bool checked);
     void on_pbAnalyzeDepositionFile_clicked();
     void on_pbCollectDepoFileStatistics_clicked();
     void on_pbAdvancedBombSettings_clicked();
@@ -166,6 +161,32 @@ private slots:
     void on_tbwResults_tabBarClicked(int index);
 
     void on_twSensors_tabBarClicked(int index);
+
+    void on_cobTracingMode_currentIndexChanged(int index);
+
+    void on_pbHelpAdvanced_clicked();
+
+    void on_sbLRM_photonsPerNode_editingFinished();
+    void on_ledLRF_photoElectrons_editingFinished();
+    void on_cobTracingMode_activated(int index);
+
+    void on_leSkipOutsideMaterial_editingFinished();
+    void on_cbSkipByVolume_clicked(bool checked);
+    void on_leSkipOutsideVolume_editingFinished();   // !!!*** checks!
+    void on_cbSkipByMaterial_clicked(bool checked);
+
+#ifdef USE_MERCURY
+    void on_pbLoadLrModel_clicked();
+    void on_pbShowLrmExplorer_clicked();
+    void on_pbShowLrfPlotter_clicked();
+#endif
+
+    void on_cobScintType_activated(int index);
+    void on_pbHelpScintType_clicked();
+
+    void on_cbWaveResolved_clicked(bool checked);
+
+    void on_cobFloodZmode_currentIndexChanged(int index);
 
 private:
     APhotonSimSettings & SimSet;
@@ -238,6 +259,7 @@ signals:
     void requestShowGeoMarkers();
     void requestShowPosition(double * pos, bool keepTracks);
     void requestConfigureExchangeDir();
+    void requestShowLrfPlotterDialog();
 };
 
 #endif // APHOTSIMWIN_H

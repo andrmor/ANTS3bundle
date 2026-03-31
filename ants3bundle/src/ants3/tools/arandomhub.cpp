@@ -40,6 +40,23 @@ double ARandomHub::poisson(double mean)
     return RandGen->Poisson(mean);
 }
 
+double ARandomHub::binomial(double ntot, double prob)
+{
+    return RandGen->Binomial(ntot, prob);
+}
+
+double ARandomHub::negativeBinomial(double ntot, double prob)
+{
+    if (ntot <= 0.0 || prob <= 0.0 || prob >= 1.0)
+        return 0;
+
+    // Gamma-Poisson mixture
+    double scale = (1.0 - prob) / prob;
+    double lambda = gamma(ntot, scale);
+
+    return RandGen->Poisson(lambda);
+}
+
 double ARandomHub::getPosUniRand() const // random number in (0,1) range (guaranteed u>0)
 {
     double x;

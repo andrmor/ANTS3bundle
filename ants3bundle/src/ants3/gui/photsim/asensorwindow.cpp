@@ -30,6 +30,11 @@ ASensorWindow::ASensorWindow(QWidget *parent) :
     dvp->setBottom(0);
     foreach(QLineEdit * w, list) if (w->objectName().startsWith("lep")) w->setValidator(dvp);
 
+    ui->cbGains_ShowTable->setChecked(false);
+
+    CellValidator = new QDoubleValidator(this);
+    CellValidator->setBottom(0);
+
     updateGui();
 }
 
@@ -84,7 +89,7 @@ void ASensorWindow::updateGui()
         }
         ui->cobSignalModel->setCurrentIndex(index);
         on_cobSignalModel_currentIndexChanged(index);
-        ui->lepElGainFactor->setText(QString::number(mod->ElectronicGainFactor));
+        //ui->lepElGainFactor->setText(QString::number(mod->ElectronicGainFactor));
         ui->lepAverageSignalPerPhE->setText(QString::number(mod->AverageSignalPerPhEl));
         ui->lepNormalSigma->setText(QString::number(mod->NormalSigma));
         ui->lepGammaShape->setText(QString::number(mod->GammaShape));
@@ -95,6 +100,8 @@ void ASensorWindow::updateGui()
     updateAreaButtons();
     updatePhElToSigButtons();
     onMaterialsChanged();
+
+    updateGains();
 }
 
 #include "amaterialhub.h"
@@ -155,6 +162,21 @@ void ASensorWindow::updateHeader()
 {
     ui->labNumSensors->setText( QString::number(SensHub.countSensors()) );
     ui->labNumModels->setText( QString::number(SensHub.countModels()) );
+
+    ui->labDefinedGains->setVisible(SensHub.UseSensorGains);
+    ui->labNumGains->setVisible(SensHub.UseSensorGains);
+    if (SensHub.UseSensorGains)
+    {
+        ui->labNumGains->setText( QString::number(SensHub.SensorGains.size()) );
+        ui->labGainMissmatch->setVisible( SensHub.countSensors() != SensHub.SensorGains.size() );
+        ui->tabWidget->setTabIcon(1, SensHub.countSensors() == SensHub.SensorGains.size() ? QIcon() : guitools::createColorCircleIcon(ui->tabWidget->iconSize(), Qt::red) );
+    }
+    else
+    {
+        ui->tabWidget->setTabIcon(1, QIcon());
+        ui->labGainMissmatch->setVisible(false);
+    }
+
 }
 
 void ASensorWindow::on_cobSensorType_currentIndexChanged(int index)
@@ -677,6 +699,7 @@ void ASensorWindow::on_cobSignalModel_activated(int index)
     }
 }
 
+/*
 void ASensorWindow::on_lepElGainFactor_editingFinished()
 {
     int iModel = ui->cobModel->currentIndex();
@@ -685,6 +708,7 @@ void ASensorWindow::on_lepElGainFactor_editingFinished()
 
     mod->ElectronicGainFactor = ui->lepElGainFactor->text().toDouble();
 }
+*/
 
 void ASensorWindow::on_lepAverageSignalPerPhE_editingFinished()
 {
@@ -771,11 +795,19 @@ void ASensorWindow::updatePhElToSigButtons()
     ui->pbRemoveCustomPhElSig->setDisabled(mod->SinglePhElPHS.empty());
 }
 
+void ASensorWindow::updateGains()
+{
+    ui->cbGains->setChecked(SensHub.UseSensorGains);
+
+    if (ui->cbGains_ShowTable->isChecked()) showTableWithGains();
+}
+
 #include <QDialog>
 #include <QSpinBox>
 #include <QDoubleValidator>
 static int    lastSelectedTimes = 100000;
 static double lastSelectedPhEl = 1.0;
+static double lastSelectedGain = 1.0;
 void ASensorWindow::on_pbTestPhElSignal_clicked()
 {
     int iModel = ui->cobModel->currentIndex();
@@ -799,19 +831,28 @@ void ASensorWindow::on_pbTestPhElSignal_clicked()
         QLineEdit * lePE = new QLineEdit(QString::number(lastSelectedPhEl)); lePE->setMaximumWidth(80);
         QDoubleValidator * dv = new QDoubleValidator(dialog); dv->setBottom(0); lePE->setValidator(dv);
         lay->addWidget(lePE);
-        lay->addWidget(new QLabel("photoelectrons"));
+        lay->addWidget(new QLabel("ph.e-"));
         QSpinBox * sbTimes = new QSpinBox(); sbTimes->setMaximum(1e9); sbTimes->setMinimum(1); sbTimes->setValue(lastSelectedTimes);
         lay->addWidget(sbTimes);
         lay->addWidget(new QLabel("times"));
+        lay->addStretch();
     vlay->addLayout(lay);
+    QHBoxLayout * layGain = new QHBoxLayout();
+        layGain->addWidget(new QLabel("assume sensor gain of"));
+        QLineEdit * ledGain = new QLineEdit(QString::number(lastSelectedGain)); ledGain->setMaximumWidth(80);
+            ledGain->setValidator(dv);
+        layGain->addWidget(ledGain);
+        layGain->addStretch();
+    vlay->addLayout(layGain);
 
-    auto click = [this, mod, dialog, lePE, sbTimes]()
+    auto click = [this, mod, dialog, lePE, sbTimes, ledGain]()
     {
         lastSelectedPhEl = lePE->text().toDouble();
         lastSelectedTimes = sbTimes->value();
+        lastSelectedGain = ledGain->text().toDouble();
         auto hist1D = new TH1D("", "Signal distribution", 100, 0, 0);
         for (int i = 0; i < lastSelectedTimes; i++)
-            hist1D->Fill(mod->convertHitsToSignal(lastSelectedPhEl));
+            hist1D->Fill(mod->convertHitsToSignal(lastSelectedPhEl) * lastSelectedGain);
         hist1D->SetXTitle("Sensor signal");
         emit requestDraw(hist1D, "hist", true, true);
 
@@ -856,9 +897,9 @@ void ASensorWindow::on_pbCompteEffectivePDE_clicked()
     //qDebug() << "Converting data to standart wavelength: From To Nodes"<<WaveFrom<<WaveTo<<WaveNodes;
     const AWaveResSettings & WaveSet = APhotonSimHub::getConstInstance().Settings.WaveSet;
     std::vector<double> spec;
-    WaveSet.toStandardBins(MatHub[iMat]->PrimarySpectrum, spec);
+    WaveSet.toStandardBins(MatHub[iMat]->PrimarySpectrum, spec, AWaveResSettings::ExpandWithZero);
     std::vector<double> pde;
-    WaveSet.toStandardBins(SensHub.model(iSensorModel)->PDE_spectral, pde);
+    WaveSet.toStandardBins(SensHub.model(iSensorModel)->PDE_spectral, pde, AWaveResSettings::ExpandWithZero);
 
     double weightedSum = 0;
     double weights = 0;
@@ -877,5 +918,179 @@ void ASensorWindow::on_pbCompteEffectivePDE_clicked()
 
     ui->ledEffectivePDE->setText(QString::number(weightedSum/weights, 'g', 4));
     on_ledEffectivePDE_editingFinished();
+}
+
+
+void ASensorWindow::on_cbGains_clicked(bool checked)
+{
+    SensHub.UseSensorGains = checked;
+
+    if (checked)
+    {
+        if (ui->cbGains_ShowTable->isChecked())
+            showTableWithGains();
+    }
+    else ui->cbGains_ShowTable->setChecked(false);
+
+    updateHeader();
+}
+
+void ASensorWindow::on_pbGains_Clear_clicked()
+{
+    SensHub.SensorGains.resize(SensHub.countSensors());
+    std::fill(SensHub.SensorGains.begin(), SensHub.SensorGains.end(), 1.0);
+
+    if (ui->cbGains_ShowTable->isChecked()) showTableWithGains();
+    updateHeader();
+}
+
+#include "arandomhub.h"
+void ASensorWindow::on_pbGains_Randomize_clicked()
+{
+    double mean  = ui->ledGains_Mean->text().toDouble();
+    double sigma = ui->ledGains_Sigma->text().toDouble();
+
+    SensHub.SensorGains.resize(SensHub.countSensors());
+    for (size_t i = 0; i < SensHub.SensorGains.size(); i++)
+    {
+        double val = ARandomHub::getInstance().gauss(mean, sigma);
+        int rounded = val * 1000;
+        SensHub.SensorGains[i] = 0.001 * rounded;
+    }
+
+    if (ui->cbGains_ShowTable->isChecked()) showTableWithGains();
+    updateHeader();
+}
+
+void ASensorWindow::showTableWithGains()
+{
+    ui->twGains->clearContents();
+
+    const size_t num = SensHub.SensorGains.size();
+    ui->twGains->setRowCount(num);
+
+    QStringList headerLabels;
+    for (size_t iSens = 0; iSens < num; iSens++)
+    {
+        QLineEdit * te = new QLineEdit("", 0);
+        te->setValidator(CellValidator);
+        te->setAlignment(Qt::AlignHCenter);
+        te->setFrame(false);
+        QObject::connect(te, &QLineEdit::editingFinished, this, &ASensorWindow::onGainCellEditingFinished);
+        ui->twGains->setCellWidget(iSens, 0, te);
+
+        te->setText( QString::number(SensHub.SensorGains[iSens]) );
+
+        ui->twGains->setRowHeight(iSens, RowHeight);
+        headerLabels << QString::number(iSens);
+    }
+
+    ui->twGains->setVerticalHeaderLabels(headerLabels);
+}
+
+void ASensorWindow::on_cbGains_ShowTable_toggled(bool checked)
+{
+    ui->twGains->setVisible(checked);
+    if (checked) showTableWithGains();
+
+    ui->spGainLower->changeSize(10, 10, QSizePolicy::Minimum,
+                                checked? QSizePolicy::Ignored : QSizePolicy::Expanding);
+}
+
+void ASensorWindow::onGainCellEditingFinished()
+{
+    int row = ui->twGains->currentRow();
+    if (row >= 0 && row < SensHub.SensorGains.size())
+    {
+        QWidget * widget = ui->twGains->cellWidget(row, 0);
+        QLineEdit * le = dynamic_cast<QLineEdit*>(widget);
+        if (le) SensHub.SensorGains[row] = le->text().toDouble();
+        else guitools::message("Cell widget not found!", this);
+    }
+    else guitools::message("Cell not found!", this);
+}
+
+#include <QFileInfo>
+void ASensorWindow::on_pbGains_Load_clicked()
+{
+    QString fileName = guitools::dialogLoadFile(this, "Load gains from a text file", "*.*");
+    if (fileName.isEmpty()) return;
+
+    if (!QFileInfo::exists(fileName))
+    {
+        guitools::message("File does not exist: " + fileName);
+        return;
+    }
+
+    QFile file(fileName);
+    if(!file.open(QIODevice::ReadOnly | QFile::Text))
+    {
+        guitools::message("Cannot open file: "+fileName);
+        return;
+    }
+
+    QTextStream in(&file);
+    const QRegularExpression rx("(\\ |\\,|\\:|\\t)"); //separators: ' ' or ',' or ':' or '\t'
+
+    std::vector<double> vec;
+
+    while (!in.atEnd())
+    {
+        const QString line = in.readLine();
+        if (line.startsWith('#') || line.startsWith("//")) continue; // it is a comment
+
+        const QStringList fields = line.split(rx, Qt::SkipEmptyParts);
+        if (fields.isEmpty()) continue;
+
+        bool bOK;
+        double first = fields.first().toDouble(&bOK);
+        if (!bOK)
+        {
+            guitools::message("Bad format of the file: numeric values are expected");
+            return;
+        }
+
+        if      (fields.size() == 1)
+            vec.push_back(first);
+        else if (fields.size() == 2)
+        {
+            double second = fields[1].toDouble(&bOK);
+            if (!bOK)
+            {
+                guitools::message("Bad format of the file: numeric values are expected");
+                return;
+            }
+            vec.push_back(second);
+        }
+    }
+    file.close();
+
+    SensHub.SensorGains = vec;
+
+    updateHeader();
+    if (ui->cbGains_ShowTable->isChecked()) showTableWithGains();
+}
+
+void ASensorWindow::on_pbGains_Save_clicked()
+{
+    QString fn = guitools::dialogSaveFile(this, "Save gains to text file", "*.*");
+    if (fn.isEmpty()) return;
+
+    QString err = ftools::saveArrayOfDoublesToFile(fn, SensHub.SensorGains);
+    if (!err.isEmpty()) guitools::message(err, this);
+}
+
+void ASensorWindow::on_pbGains_Save_customContextMenuRequested(const QPoint &)
+{
+    QString fn = guitools::dialogSaveFile(this, "Save gains to text file (with sensor index)", "*.*");
+    if (fn.isEmpty()) return;
+
+    const size_t size = SensHub.SensorGains.size();
+    std::vector<std::pair<double, double>> vec(size);
+    for (size_t i = 0; i < size; i++)
+        vec[i] = {i, SensHub.SensorGains[i]};
+
+    QString err = ftools::saveArrayOfDoublePairsToFile(fn, vec);
+    if (!err.isEmpty()) guitools::message(err, this);
 }
 

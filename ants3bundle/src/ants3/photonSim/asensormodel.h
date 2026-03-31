@@ -46,12 +46,13 @@ public:
 
     enum    EPhElToSignal {Constant, Normal, Gamma, Custom};
     EPhElToSignal PhElToSignalModel = Constant;
-    double  ElectronicGainFactor = 1.0;
+    //double  ElectronicGainFactor = 1.0;  // no more a part of sensor model --> standalone in SensorHub
     double  AverageSignalPerPhEl = 1.0;
     double  NormalSigma = 0;
     double  GammaShape  = 2.0;
     std::vector<std::pair<double,double>> SinglePhElPHS;
     double  convertHitsToSignal(double phel) const;
+    //double  simulateDigitalization(double signal) const;  // not implemented
 
     QString updateRuntimeProperties();
 

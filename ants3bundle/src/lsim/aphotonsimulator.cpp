@@ -34,6 +34,7 @@
 
 #include "TGeoManager.h"
 #include "TGeoNavigator.h"
+#include "TRandom.h"
 
 APhotonSimulator::APhotonSimulator(const QString & dir, const QString & fileName, int id) :
     WorkingDir(dir), ConfigFN(fileName), ID(id),
@@ -52,6 +53,7 @@ APhotonSimulator::~APhotonSimulator()
 {
     delete S2Gen;
     delete S1Gen;
+    delete PhotonGenerator;
 
     delete PhotFileHandler;
     delete DepoHandler;
@@ -94,6 +96,7 @@ void APhotonSimulator::start()
         simulateFromDepo();
         break;
     case EPhotSimType::IndividualPhotons :
+        if (SimSet.OptSet.TracingMode == APhotOptSettings::LRF) terminate("Cannot trace individual photons in the LRF simulation mode");
         setupIndividualPhotons();
         simulateIndividualPhotons();
         break;
@@ -119,10 +122,9 @@ void APhotonSimulator::start()
     QCoreApplication::exit();
 }
 
-#include "TRandom.h"
 void APhotonSimulator::setupCommonProperties()
 {
-    gRandom->SetSeed(SimSet.RunSet.Seed); // !!!*** can be removed after random samplers use the same generator (see CustomHist->GetRandom())
+    gRandom->SetSeed(SimSet.RunSet.Seed);  // !!!*** can be removed after random samplers use the same generator (see CustomHist->GetRandom())
     RandomHub.setSeed(SimSet.RunSet.Seed);
 
     AMaterialHub::getInstance().updateRuntimeProperties();
@@ -136,6 +138,12 @@ void APhotonSimulator::setupCommonProperties()
 
     Event->init();
     Tracer->configureTracer();  // Should be called after ASensorHub.updateRuntimeProperties()
+
+    PhotonGenerator = new APhotonGenerator();
+    PhotonGenerator->init();
+
+    // checks
+    if (SimSet.OptSet.TracingMode == APhotOptSettings::LRF) checkReadyForLrfMode();
 }
 
 QString APhotonSimulator::openOutput()
@@ -208,6 +216,7 @@ void APhotonSimulator::saveSensorHits()
     Event->addDarkCounts();
     Event->convertHitsToSignals();
 
+
     for (float sig : Event->PMhits) *StreamSensorHits << sig << ' ';
     *StreamSensorHits << '\n';
 }
@@ -230,24 +239,33 @@ void APhotonSimulator::setupPhotonBombs()
 
     CurrentEvent = SimSet.RunSet.EventFrom;
 
-    const APhotonAdvancedSettings & AdvSet = SimSet.BombSet.AdvancedSettings;
+    const APhGenOverrideSettings & PhGenOverSet = SimSet.PhGenOverrideSet;
+    const APhotonBombAdvancedSettings & SkipSet = SimSet.BombSet.AdvancedSettings;
 
     // Direction inits
-    Photon.v[0] = AdvSet.DirDX;
-    Photon.v[1] = AdvSet.DirDY;
-    Photon.v[2] = AdvSet.DirDZ;
+    Photon.v[0] = PhGenOverSet.DirDX;
+    Photon.v[1] = PhGenOverSet.DirDY;
+    Photon.v[2] = PhGenOverSet.DirDZ;
     Photon.ensureUnitaryLength();    // if fixed direction, it will be this always. otherwise override later
-    ColDirUnitary = TVector3(Photon.v);
-    CosConeAngle = cos(AdvSet.ConeAngle * TMath::Pi() / 180.0);
+    //ColDirUnitary = TVector3(Photon.v);
+    //CosConeAngle = cos(PhGenOverSet.ConeAngle * TMath::Pi() / 180.0);
 
     // Wavelength
     Photon.waveIndex = -1;
-    if (AdvSet.bFixWave)
-        Photon.waveIndex = SimSet.WaveSet.toIndex(AdvSet.FixedWavelength);
+    if (PhGenOverSet.bFixWave)
+        Photon.waveIndex = SimSet.WaveSet.toIndex(PhGenOverSet.FixedWavelength);
 
     // Limiters
-    if (AdvSet.bOnlyVolume)   LimitToVolume   = TString(AdvSet.Volume.toLatin1().data());
-    if (AdvSet.bOnlyMaterial) LimitToMaterial = AMaterialHub::getConstInstance().findMaterial(AdvSet.Material);
+    if (SimSet.BombSet.GenerationMode == EBombGen::Single)
+    {
+        SimSet.BombSet.AdvancedSettings.bOnlyMaterial = false;
+        SimSet.BombSet.AdvancedSettings.bOnlyVolume   = false;
+    }
+    else
+    {
+        if (SkipSet.bOnlyVolume)   LimitToVolume   = TString(SkipSet.Volume.toLatin1().data());
+        if (SkipSet.bOnlyMaterial) LimitToMaterial = AMaterialHub::getConstInstance().findMaterial(SkipSet.Material);
+    }
 
     // custom distribution of photons per bomb
     if (SimSet.BombSet.PhotonsPerBomb.Mode == APhotonsPerBombSettings::Custom)
@@ -323,6 +341,7 @@ void APhotonSimulator::simulatePhotonBombs()
     }
 }
 
+#include "aphotongenerator.h"
 void APhotonSimulator::setupFromDepo()
 {
     SimSet.DepoSet.FileName = WorkingDir + '/' + SimSet.DepoSet.FileName;
@@ -330,8 +349,8 @@ void APhotonSimulator::setupFromDepo()
     bool ok = DepoHandler->init();
     if (!ok) terminate(AErrorHub::getQError());
 
-    S1Gen = new AS1Generator(*Tracer);
-    S2Gen = new AS2Generator(*Tracer);
+    S1Gen = new AS1Generator(*PhotonGenerator, *Tracer, *Event);
+    S2Gen = new AS2Generator(*PhotonGenerator, *Tracer, *Event);
 }
 
 #include "adeporecord.h"
@@ -341,21 +360,21 @@ void APhotonSimulator::simulateFromDepo()
     {
         doBeforeEvent();
 
-        if (SimSet.DepoSet.Primary)   S1Gen->clearRemainer();
-        if (SimSet.DepoSet.Secondary) S2Gen->clearRemainer();
+        //if (SimSet.PrimaryScint)   S1Gen->clearRemainer();
+        //if (SimSet.SecondaryScint) S1Gen->clearRemainers();
 
         ADepoRecord depoRec;
         while (DepoHandler->readNextRecordSameEvent(depoRec))
         {
             // error control in generators? !!!***
-            if (SimSet.DepoSet.Primary)
+            if (SimSet.PrimaryScint)
             {
                 S1Gen->generate(depoRec);
                 //ErrorString = "Error executing S1 generation!";
                 //return false;
             }
 
-            if (SimSet.DepoSet.Secondary)
+            if (SimSet.SecondaryScint)
             {
                 S2Gen->generate(depoRec);
                 //ErrorString = "Error executing S2 generation!";
@@ -506,8 +525,8 @@ bool APhotonSimulator::simulateGrid()
 
 bool APhotonSimulator::simulateFlood()
 {
-    const AFloodSettings          & FloodSet = SimSet.BombSet.FloodSettings;
-    const APhotonAdvancedSettings & AdvSet   = SimSet.BombSet.AdvancedSettings;
+    const AFloodSettings              & FloodSet = SimSet.BombSet.FloodSettings;
+    const APhotonBombAdvancedSettings & AdvSet = SimSet.BombSet.AdvancedSettings;
 
     //extracting flood parameters
     double Xfrom, Xto, Yfrom, Yto, CenterX, CenterY, RadiusIn, RadiusOut;
@@ -706,6 +725,10 @@ bool APhotonSimulator::simulateBombsFromFile()
 
 // ---
 
+#ifdef USE_MERCURY
+#include "alightresponsehub.h"
+#endif
+
 void APhotonSimulator::loadConfig()
 {
     QJsonObject json;
@@ -747,6 +770,15 @@ void APhotonSimulator::loadConfig()
     bool ok = APhotonFunctionalHub::getInstance().updateRuntimeProperties();
     if (!ok) terminate(AErrorHub::getQError());
     LOG.flush();
+
+#ifdef USE_MERCURY
+    Error = ALightResponseHub::getInstance().readFromJson(json);
+    if (!Error.isEmpty()) terminate(Error);
+    LOG << "Loaded response hub.";
+    LOG.flush();
+#endif
+
+    // check model, check sensor count in the model, check LRF_photonsPerNode != 0   !!!***
 }
 
 void APhotonSimulator::doBeforeEvent()
@@ -764,7 +796,7 @@ void APhotonSimulator::doAfterEvent()
 
 void APhotonSimulator::simulatePhotonBomb(ANodeRecord & node, bool overrideNumPhotons)
 {
-    const APhotonAdvancedSettings & AdvSet = SimSet.BombSet.AdvancedSettings;
+    const APhotonBombAdvancedSettings & AdvSet = SimSet.BombSet.AdvancedSettings;
     if ( (AdvSet.bOnlyVolume   && !isInsideLimitingVolume(node.R)) ||
          (AdvSet.bOnlyMaterial && !isInsideLimitingMaterial(node.R)) )
     {
@@ -775,15 +807,21 @@ void APhotonSimulator::simulatePhotonBomb(ANodeRecord & node, bool overrideNumPh
         if (overrideNumPhotons) node.NumPhot = getNumPhotonsThisBomb();
     }
 
-    if (!AdvSet.SecondaryScintillation) generateAndTracePhotons_primary(node);
-    else                                generateAndTracePhotons_secondary(node);
+    if (SimSet.PrimaryScint)   generateAndTracePhotons_primary(node);
+    if (SimSet.SecondaryScint) generateAndTracePhotons_secondary(node);
 
     if (SimSet.RunSet.SavePhotonBombs) savePhotonBomb(node);
 }
 
 void APhotonSimulator::generateAndTracePhotons_primary(const ANodeRecord & node)
 {
-    const APhotonAdvancedSettings & AdvSet = SimSet.BombSet.AdvancedSettings;
+    if (SimSet.OptSet.TracingMode == APhotOptSettings::LRF)
+    {
+        Event->generateHitsForLrfMode(node.NumPhot, node.R);
+        return;
+    }
+
+    const APhGenOverrideSettings & PhGenOverSet = SimSet.PhGenOverrideSet;
 
     for (int i = 0; i < 3; i++) Photon.r[i] = node.R[i];
 
@@ -800,30 +838,11 @@ void APhotonSimulator::generateAndTracePhotons_primary(const ANodeRecord & node)
 
     for (int i = 0; i < node.NumPhot; i++)
     {
-        // Direction
-        if      (AdvSet.DirectionMode == APhotonAdvancedSettings::Isotropic)
-            Photon.generateRandomDir();
-        else if (AdvSet.DirectionMode == APhotonAdvancedSettings::Cone)
-        {
-            const double z = CosConeAngle + RandomHub.uniform() * (1.0 - CosConeAngle);
-            const double tmp = sqrt(1.0 - z*z);
-            const double phi = RandomHub.uniform() * 2.0 * TMath::Pi();
-            TVector3 K1(tmp*cos(phi), tmp*sin(phi), z);
-            K1.RotateUz(ColDirUnitary);
-            for (int i = 0; i < 3; i++) Photon.v[i] = K1[i];
-        }
-        //else it is already set
+        PhotonGenerator->generateDirection(Photon);
+        PhotonGenerator->generateWave(Photon, MatIndex);
 
-        // Wavelength
-        if (!AdvSet.bFixWave)
-            APhotonGenerator::generateWave(Photon, MatIndex); // else waveindex is already set
-
-        // Time
         Photon.time = node.Time;
-        if (!AdvSet.bFixDecay)
-            APhotonGenerator::generateTime(Photon, MatIndex);
-        else
-            Photon.time += RandomHub.exp(AdvSet.DecayTime);
+        PhotonGenerator->generateTime(Photon, MatIndex);
 
         Tracer->tracePhoton(Photon);
     }
@@ -883,7 +902,6 @@ void APhotonSimulator::generateAndTracePhotons_secondary(ANodeRecord & node)
 
     const double driftSpeed = MatHub.getDriftSpeed(MatIndexSecScint);
 
-    const APhotonAdvancedSettings & AdvSet = SimSet.BombSet.AdvancedSettings;
     for (int iPh = 0; iPh < node.NumPhot; iPh++)
     {
         //random z inside this secondary scintillator
@@ -897,29 +915,9 @@ void APhotonSimulator::generateAndTracePhotons_secondary(ANodeRecord & node)
             //Photon.time += RandomHub.gauss(0, sigmaTime);
         }
 
-        // Direction
-        if      (AdvSet.DirectionMode == APhotonAdvancedSettings::Isotropic)
-            Photon.generateRandomDir();
-        else if (AdvSet.DirectionMode == APhotonAdvancedSettings::Cone)
-        {
-            const double z = CosConeAngle + RandomHub.uniform() * (1.0 - CosConeAngle);
-            const double tmp = sqrt(1.0 - z*z);
-            const double phi = RandomHub.uniform() * 2.0 * TMath::Pi();
-            TVector3 K1(tmp*cos(phi), tmp*sin(phi), z);
-            K1.RotateUz(ColDirUnitary);
-            for (int i = 0; i < 3; i++) Photon.v[i] = K1[i];
-        }
-        //else it is already set
-
-        // Wavelength
-        if (!AdvSet.bFixWave)
-            APhotonGenerator::generateWave(Photon, MatIndexSecScint); // else waveindex is already set
-
-        // Time
-        if (!AdvSet.bFixDecay)
-            APhotonGenerator::generateTime(Photon, MatIndexSecScint);
-        else
-            Photon.time += RandomHub.exp(AdvSet.DecayTime);
+        PhotonGenerator->generateDirection(Photon);
+        PhotonGenerator->generateWave(Photon, MatIndexSecScint);
+        PhotonGenerator->generateTime(Photon, MatIndexSecScint);
 
         Tracer->tracePhoton(Photon);
     }
@@ -944,4 +942,22 @@ void APhotonSimulator::generateReceipt(const QString & optionalError)
     if (!bSuccess) receipt["Error"] = optionalError;
 
     jstools::saveJsonToFile(receipt, WorkingDir + "/" + SimSet.RunSet.FileNameReceipt);
+}
+
+#ifdef USE_MERCURY
+#include "lrmodel.h"
+#endif
+void APhotonSimulator::checkReadyForLrfMode()
+{
+#ifdef USE_MERCURY
+    ALightResponseHub & LRHub = ALightResponseHub::getInstance();
+    if (!LRHub.Model) terminate("Light response model not provided");
+
+    const ASensorHub & SensHub = ASensorHub::getConstInstance();
+    if (LRHub.Model->GetSensorCount() != SensHub.countSensors()) terminate("Light response model has inconsistent number of sensors");
+
+    if (SimSet.OptSet.LRF_photonsPerNode == 0) terminate("LRF_photonsPerNode parameter cannot be zero");
+#else
+    terminate("LRF-based simulation mode enabled, but Ants3 was compiled witout Mercury library");
+#endif
 }

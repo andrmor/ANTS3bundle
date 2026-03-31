@@ -6,6 +6,7 @@
 #include <QVariantList>
 
 class ARandomHub;
+class VFormula;
 
 class AMath_SI : public AScriptInterface
 {
@@ -59,10 +60,22 @@ public slots:
     QVariantList fft(QVariantList array, int maxN = -1);
     QVariantList fftMulti(QVariantList arrayOfArrays, int maxN = -1);
 
-    double evalFormula(QString formula, QVariantList varNames, QVariantList varValues);
+    //double evalFormula(QString formula, QVariantList varNames, QVariantList varValues);
+
+    void   configureVFormula(QString expression, QVariantList namesOfVariables, QVariantList namesOfConstants);
+    void   setVFormulaConstants(QVariantList valuesOfConstants);
+    double evaluateVFormula(QVariantList valuesOfVariables);
+    QVariantList evaluateVFormulaVector(QVariantList arrayWithValuesOfVariables);
 
 private:
     ARandomHub & RandomHub;
+
+    // VFormula related
+    VFormula * Formula = nullptr;
+    int NumberVariables = 0;
+    int NumberConstants = 0;
+    std::vector<std::string> FormulaNames;  // first variables then constants
+    std::vector<double>      FormulaValues;
 };
 
 #endif // AMATHSCRIPTINTERFACE_H

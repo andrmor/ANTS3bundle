@@ -1,0 +1,19 @@
+var formula = "a*exp(-0.5*(r/sigma)^2)"
+
+math.configureVFormula(formula, ["r"], ["a", "sigma"])
+math.setVFormulaConstants([500, 40])
+
+graph.new1D("g")
+for (var i = 0; i < 100; i++)
+{
+    var r = i*3.0 
+    var lrf = math.evaluateVFormula([r])
+    graph.addPoint("g", r, lrf)
+}
+
+graph.setAxisTitles("g", "r, mm", "LRF")
+graph.draw("g", "APL")
+
+
+
+

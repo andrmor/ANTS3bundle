@@ -5,6 +5,8 @@ QT -= gui
 CONFIG += c++17 console
 CONFIG -= app_bundle
 
+QMAKE_CXXFLAGS += -O2
+
 G4DIR = $$system(geant4-config --prefix)
 #message($$G4DIR)
 G4INCLUDE = $$join(G4DIR,,,/include/Geant4)

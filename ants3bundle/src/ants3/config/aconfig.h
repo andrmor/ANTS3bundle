@@ -34,6 +34,8 @@ public:
     // ParticleSim config is handled by AParticleSimHub singleton
     // PhotonSim   config is handled by APhotonSimHub   singleton
 
+    // LightResponse config is handled by ALightResponseHub singleton (if Mercury lib is enabled)
+
     QJsonObject JSON;
 
     QString     ConfigName = "--";
@@ -65,8 +67,8 @@ public:
     QString doRedo();
     void updateUndoMaxDepth(int newDepth);
 
-    void replaceEmptyOutputDirsWithTemporary();
-    void clearTemporaryOutputDirs();
+    void replaceEmptyInputOutputDirsWithTemporary();
+    void clearTemporaryInputOutputDirs();
 
 private:
     QString tryReadFromJson(const QJsonObject & json); // resets error hub on call
