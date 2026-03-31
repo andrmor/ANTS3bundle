@@ -212,7 +212,6 @@ QVariantList AMercury_si::getRecXYZE()
     const std::vector<double> & z    = RecMP->rec_z;
     const std::vector<double> & e    = RecMP->rec_e;
 
-
     const size_t size = x.size();
     if (size != y.size() || size != z.size() || size != e.size())
     {
@@ -220,14 +219,23 @@ QVariantList AMercury_si::getRecXYZE()
         return res;
     }
 
-    bool bStatistical = (dynamic_cast<RecMinuitMP*>(RecMP));  // !!!*** output energy handling should be in the library
+    bool bStatistical = (dynamic_cast<RecMinuitMP*>(RecMP));
+    double thisZ = Z0;
     for (size_t i = 0; i < size; i++)
     {
         double energy;
-        if (bStatistical) energy = (good[i] == 0 ? e[i] : 0);
-        else              energy = 1.0;
 
-        res.emplaceBack(QVariantList{x[i], y[i], z[i], energy });
+        if (bStatistical)
+        {
+            energy = (good[i] == 0 ? e[i] : 0);
+            thisZ = z[i];
+        }
+        else
+        {
+            energy = 1.0;
+        }
+
+        res.emplaceBack(QVariantList{x[i], y[i], thisZ, energy});
     }
     return res;
 }
@@ -666,7 +674,7 @@ void AMercury_si::plotResXYHist(const std::vector<double> & x, const std::vector
     delete histNorm;
 }
 
-void AMercury_si::configure_COG(double signalAbsoluteCutoff, double signalRelativeCutoff)
+void AMercury_si::configure_COG(double signalAbsoluteCutoff, double signalRelativeCutoff, double z0)
 {
     if (!RecMP)
     {
@@ -676,6 +684,7 @@ void AMercury_si::configure_COG(double signalAbsoluteCutoff, double signalRelati
 
     RecMP->setCogAbsCutoff(signalAbsoluteCutoff);
     RecMP->setCogRelCutoff(signalRelativeCutoff);
+    Z0 = z0;
 }
 
 void AMercury_si::configure_statistical(bool reconstructEnergy, bool reconstructZ, double fixedZ)

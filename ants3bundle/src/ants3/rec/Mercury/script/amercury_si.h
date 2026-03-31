@@ -40,7 +40,7 @@ public slots:
     void plot_vsTrueXY(QString what);
 
     // --- Low level ---
-    void configure_COG(double signalAbsoluteCutoff, double signalRelativeCutoff);
+    void configure_COG(double signalAbsoluteCutoff, double signalRelativeCutoff, double z0);
     void configure_statistical(bool reconstructEnergy, bool reconstructZ, double fixedZ);
     void setCutoffRadius(double val); // !!!*** set both cog and statistical, include the method for stat (CoG result or strongest sensor)
     void configure_statistical_step(double initialStepX, double initialStepY, double initialStepZ, double initialStepEnergy);  //  defaults are 1 1 1 0
@@ -56,6 +56,7 @@ private:
     double XTo   = 0;
     double YFrom = 0;
     double YTo   = 0;
+    double Z0    = 0;
 
     std::vector<double> XTruePositions, YTruePositions;
 

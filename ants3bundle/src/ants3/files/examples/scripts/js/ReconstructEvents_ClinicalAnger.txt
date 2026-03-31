@@ -1,5 +1,6 @@
-// Need to load example config with clinical anger camera (GammaCamera37PMTs)!
-// Then run a Photon simulation (by default it is set to 10000photon bombs)
+// Steps to make before running the script:
+// Load example config with clinical Anger camera (GammaCamera37PMTs)
+// Run a Photon simulation: by default it is set to 10000 photon bombs
 
 // ------------- Configuration -------------
 // Select the data directory
@@ -30,7 +31,7 @@ var recPosE = mercury.getRecXYZE()
 geowin.clearMarkers()
 var arRec  = []
 var arTrue = []
-for (var iEv = 0; iEv < 100; iEv++)
+for (var iEv = 0; iEv < NumberOfEventMarkers; iEv++)
 {
     arTrue.push(truePos[iEv])
     
@@ -45,6 +46,5 @@ geowin.showWindow()
 mercury.plot("All", 100, 0,0)
 mercury.configure_plotXY_binning(60, -270, 270, 60, -270, 270)
 mercury.plot_vsRecXY("All")
-var pos = core.loadNumericArray(dir + "/PhotonBombs.txt")
-mercury.configure_plotXY_truePositions(pos)
+mercury.configure_plotXY_truePositions(truePos)
 mercury.plot_vsTrueXY("All")
