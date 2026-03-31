@@ -126,3 +126,12 @@ VFormula:Histogram
 Show histogram generated using VFormula
 #end
 
+#file
+ReconstructEvents_ClinicalAnger.txt
+#tags
+PositionReconstruction
+#info
+Reconstruct position/energy of events using Mercury library for the clinical Anger camera example
+#end
+
+
