@@ -95,6 +95,7 @@ class ASingleSettings
 {
 public:
     double  Position[3];
+    QString PositionStr[3];
 
     void    clearSettings();
 

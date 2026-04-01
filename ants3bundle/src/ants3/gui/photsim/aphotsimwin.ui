@@ -1311,11 +1311,11 @@
                    </widget>
                   </item>
                   <item>
-                   <widget class="QLineEdit" name="ledSingleX">
+                   <widget class="AOneLineTextEdit" name="ledSingleX">
                     <property name="maximumSize">
                      <size>
                       <width>100</width>
-                      <height>16777215</height>
+                      <height>25</height>
                      </size>
                     </property>
                     <property name="text">
@@ -1344,11 +1344,11 @@
                    </widget>
                   </item>
                   <item>
-                   <widget class="QLineEdit" name="ledSingleY">
+                   <widget class="AOneLineTextEdit" name="ledSingleY">
                     <property name="maximumSize">
                      <size>
                       <width>100</width>
-                      <height>16777215</height>
+                      <height>25</height>
                      </size>
                     </property>
                     <property name="text">
@@ -1377,11 +1377,11 @@
                    </widget>
                   </item>
                   <item>
-                   <widget class="QLineEdit" name="ledSingleZ">
+                   <widget class="AOneLineTextEdit" name="ledSingleZ">
                     <property name="maximumSize">
                      <size>
                       <width>100</width>
-                      <height>16777215</height>
+                      <height>25</height>
                      </size>
                     </property>
                     <property name="text">
@@ -5532,6 +5532,13 @@
    </layout>
   </widget>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>AOneLineTextEdit</class>
+   <extends>QLineEdit</extends>
+   <header>aonelinetextedit.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections>
   <connection>
@@ -5561,7 +5568,7 @@
      <y>497</y>
     </hint>
     <hint type="destinationlabel">
-     <x>580</x>
+     <x>524</x>
      <y>513</y>
     </hint>
    </hints>
@@ -5573,7 +5580,7 @@
    <slot>setCurrentIndex(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>411</x>
+     <x>400</x>
      <y>115</y>
     </hint>
     <hint type="destinationlabel">
@@ -5637,8 +5644,8 @@
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>97</x>
-     <y>138</y>
+     <x>90</x>
+     <y>152</y>
     </hint>
     <hint type="destinationlabel">
      <x>112</x>
@@ -5685,8 +5692,8 @@
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>79</x>
-     <y>146</y>
+     <x>70</x>
+     <y>152</y>
     </hint>
     <hint type="destinationlabel">
      <x>112</x>
@@ -5829,8 +5836,8 @@
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>79</x>
-     <y>149</y>
+     <x>70</x>
+     <y>152</y>
     </hint>
     <hint type="destinationlabel">
      <x>112</x>
@@ -5845,7 +5852,7 @@
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>79</x>
+     <x>70</x>
      <y>152</y>
     </hint>
     <hint type="destinationlabel">
@@ -5925,12 +5932,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>69</x>
-     <y>169</y>
+     <x>74</x>
+     <y>94</y>
     </hint>
     <hint type="destinationlabel">
-     <x>74</x>
-     <y>170</y>
+     <x>79</x>
+     <y>94</y>
     </hint>
    </hints>
   </connection>
@@ -5941,12 +5948,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>83</x>
-     <y>169</y>
+     <x>88</x>
+     <y>94</y>
     </hint>
     <hint type="destinationlabel">
-     <x>88</x>
-     <y>170</y>
+     <x>93</x>
+     <y>94</y>
     </hint>
    </hints>
   </connection>
@@ -5957,12 +5964,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>97</x>
-     <y>169</y>
+     <x>102</x>
+     <y>94</y>
     </hint>
     <hint type="destinationlabel">
-     <x>102</x>
-     <y>170</y>
+     <x>107</x>
+     <y>94</y>
     </hint>
    </hints>
   </connection>
@@ -5973,12 +5980,12 @@
    <slot>setHidden(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>55</x>
-     <y>143</y>
+     <x>60</x>
+     <y>94</y>
     </hint>
     <hint type="destinationlabel">
-     <x>106</x>
-     <y>173</y>
+     <x>110</x>
+     <y>94</y>
     </hint>
    </hints>
   </connection>
@@ -5989,12 +5996,12 @@
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>55</x>
-     <y>143</y>
+     <x>60</x>
+     <y>94</y>
     </hint>
     <hint type="destinationlabel">
-     <x>106</x>
-     <y>170</y>
+     <x>110</x>
+     <y>94</y>
     </hint>
    </hints>
   </connection>
@@ -6005,12 +6012,12 @@
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>69</x>
-     <y>169</y>
+     <x>74</x>
+     <y>94</y>
     </hint>
     <hint type="destinationlabel">
-     <x>106</x>
-     <y>170</y>
+     <x>110</x>
+     <y>94</y>
     </hint>
    </hints>
   </connection>
@@ -6021,12 +6028,12 @@
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>83</x>
-     <y>169</y>
+     <x>88</x>
+     <y>94</y>
     </hint>
     <hint type="destinationlabel">
-     <x>106</x>
-     <y>170</y>
+     <x>110</x>
+     <y>94</y>
     </hint>
    </hints>
   </connection>
@@ -6037,12 +6044,12 @@
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>97</x>
-     <y>169</y>
+     <x>102</x>
+     <y>94</y>
     </hint>
     <hint type="destinationlabel">
-     <x>106</x>
-     <y>170</y>
+     <x>110</x>
+     <y>94</y>
     </hint>
    </hints>
   </connection>
@@ -6053,12 +6060,12 @@
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>74</x>
-     <y>170</y>
+     <x>79</x>
+     <y>94</y>
     </hint>
     <hint type="destinationlabel">
-     <x>106</x>
-     <y>170</y>
+     <x>110</x>
+     <y>94</y>
     </hint>
    </hints>
   </connection>
@@ -6069,12 +6076,12 @@
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>88</x>
-     <y>170</y>
+     <x>93</x>
+     <y>94</y>
     </hint>
     <hint type="destinationlabel">
-     <x>106</x>
-     <y>170</y>
+     <x>110</x>
+     <y>94</y>
     </hint>
    </hints>
   </connection>
@@ -6085,12 +6092,12 @@
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>102</x>
-     <y>170</y>
+     <x>107</x>
+     <y>94</y>
     </hint>
     <hint type="destinationlabel">
-     <x>106</x>
-     <y>170</y>
+     <x>110</x>
+     <y>94</y>
     </hint>
    </hints>
   </connection>
@@ -6101,12 +6108,12 @@
    <slot>setHidden(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>409</x>
-     <y>541</y>
+     <x>397</x>
+     <y>562</y>
     </hint>
     <hint type="destinationlabel">
-     <x>325</x>
-     <y>543</y>
+     <x>313</x>
+     <y>564</y>
     </hint>
    </hints>
   </connection>
@@ -6117,12 +6124,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>221</x>
-     <y>131</y>
+     <x>113</x>
+     <y>76</y>
     </hint>
     <hint type="destinationlabel">
-     <x>120</x>
-     <y>171</y>
+     <x>113</x>
+     <y>76</y>
     </hint>
    </hints>
   </connection>
@@ -6133,12 +6140,12 @@
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>165</x>
-     <y>169</y>
+     <x>83</x>
+     <y>76</y>
     </hint>
     <hint type="destinationlabel">
-     <x>465</x>
-     <y>134</y>
+     <x>113</x>
+     <y>76</y>
     </hint>
    </hints>
   </connection>
@@ -6149,12 +6156,12 @@
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>278</x>
-     <y>169</y>
+     <x>83</x>
+     <y>76</y>
     </hint>
     <hint type="destinationlabel">
-     <x>465</x>
-     <y>134</y>
+     <x>113</x>
+     <y>76</y>
     </hint>
    </hints>
   </connection>
@@ -6165,12 +6172,12 @@
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>407</x>
-     <y>169</y>
+     <x>83</x>
+     <y>76</y>
     </hint>
     <hint type="destinationlabel">
-     <x>465</x>
-     <y>134</y>
+     <x>113</x>
+     <y>76</y>
     </hint>
    </hints>
   </connection>

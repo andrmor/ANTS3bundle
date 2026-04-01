@@ -5,6 +5,7 @@
 #include <QAbstractItemView>
 #include <QScrollBar>
 
+/*
 AOneLineTextEdit::AOneLineTextEdit(const QString & txt, QWidget * parent) : QPlainTextEdit(parent)
 {
     setText(txt);
@@ -30,6 +31,34 @@ AOneLineTextEdit::AOneLineTextEdit(const QString & txt, QWidget * parent) : QPla
 
     connect(this, &AOneLineTextEdit::textChanged, this, &AOneLineTextEdit::clearTooltip);
 }
+*/
+
+#include <QLineEdit>
+AOneLineTextEdit::AOneLineTextEdit(QWidget * parent) : QPlainTextEdit(parent)
+{
+    setTabChangesFocus(true);
+    setWordWrapMode(QTextOption::NoWrap);
+    setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    //setFixedHeight(sizeHint().height());
+    QLineEdit tempLineEdit;
+    setFixedHeight(tempLineEdit.sizeHint().height());
+    setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+
+    //setContentsMargins(0,0,0,0);
+    document()->setDocumentMargin(2); // !!!*** hard coded!
+
+    setAcceptDrops(false);
+    setCenterOnScroll(true);
+    setTabChangesFocus(false);
+
+    QPalette p = palette();
+    //p.setColor(QPalette::Disabled, QPalette::Base, QColor(235,235,235));
+    p.setColor(QPalette::Disabled, QPalette::Base, p.color(QPalette::AlternateBase));
+    setPalette(p);
+
+    connect(this, &AOneLineTextEdit::textChanged, this, &AOneLineTextEdit::clearTooltip);
+}
 
 #include "ageoconsts.h"
 void AOneLineTextEdit::setText(const QString & text)
@@ -38,6 +67,13 @@ void AOneLineTextEdit::setText(const QString & text)
     appendPlainText(text);
 
     if (text.isEmpty()) return;
+
+    updateTooltip();
+}
+
+void AOneLineTextEdit::updateTooltip()
+{
+    const QString text = document()->toPlainText();
 
     bool ok;
     double val = text.toDouble(&ok);

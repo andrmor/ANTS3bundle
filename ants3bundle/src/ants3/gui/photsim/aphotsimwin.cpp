@@ -22,6 +22,8 @@
 #include "aphotonloghandler.h"
 #include "aphotonlogsettingsform.h"
 #include "asensorsignalarray.h"
+#include "aonelinetextedit.h"
+#include "ageobasedelegate.h"
 
 #ifdef USE_MERCURY
 #include "alightresponsehub.h"
@@ -68,6 +70,12 @@ APhotSimWin::APhotSimWin(QWidget * parent) :
     for (QPushButton * pb : qAsConst(listDummyButtons))
         if (pb->objectName().startsWith("pbd"))
             pb->setVisible(false);
+
+    QDoubleValidator * doubVal = new QDoubleValidator(this);
+    QList<QLineEdit*> listLineEdits = findChildren<QLineEdit*>();
+    for (QLineEdit * le : qAsConst(listLineEdits))
+        if (le->objectName().startsWith("led"))
+            le->setValidator(doubVal);
 
     ui->cbSensorsAll->setChecked(true);
     ui->cbRandomSeed->setChecked(true);
@@ -198,6 +206,11 @@ void APhotSimWin::updateGui()
     updateMonitorGui();
 
     updateGeneralSettingsGui();
+
+    for (AOneLineTextEdit * le : {ui->ledSingleX, ui->ledSingleY, ui->ledSingleZ})
+    {
+        AGeoBaseDelegate::configureHighligherAndCompleter(le);
+    }
 }
 
 void APhotSimWin::updatePhotBombGui()
@@ -243,9 +256,12 @@ void APhotSimWin::updatePhotBombGui()
 
     //Single
     const ASingleSettings & sset = SimSet.BombSet.SingleSettings;
-    ui->ledSingleX->setText(QString::number(sset.Position[0]));
-    ui->ledSingleY->setText(QString::number(sset.Position[1]));
-    ui->ledSingleZ->setText(QString::number(sset.Position[2]));
+        //ui->ledSingleX->setText(QString::number(sset.Position[0]));
+    ui->ledSingleX->setText(sset.PositionStr[0].isEmpty() ? QString::number(sset.Position[0]) : sset.PositionStr[0]);
+        //ui->ledSingleY->setText(QString::number(sset.Position[1]));
+    ui->ledSingleY->setText(sset.PositionStr[1].isEmpty() ? QString::number(sset.Position[1]) : sset.PositionStr[1]);
+        //ui->ledSingleZ->setText(QString::number(sset.Position[2]));
+    ui->ledSingleZ->setText(sset.PositionStr[2].isEmpty() ? QString::number(sset.Position[2]) : sset.PositionStr[2]);
 
     //Grid
     const AGridSettings & g = SimSet.BombSet.GridSettings;
@@ -480,17 +496,35 @@ void APhotSimWin::on_cobNodeGenerationMode_activated(int index)
 
 void APhotSimWin::on_ledSingleX_editingFinished()
 {
-    SimSet.BombSet.SingleSettings.Position[0] = ui->ledSingleX->text().toDouble();
+    double val = 0;
+    QString str;
+    AGeoBaseDelegate::processEditBox("single X position", ui->ledSingleX, val, str, this);
+    ui->ledSingleX->updateTooltip();
+
+    SimSet.BombSet.SingleSettings.Position[0]    = val;
+    SimSet.BombSet.SingleSettings.PositionStr[0] = str;
 }
 
 void APhotSimWin::on_ledSingleY_editingFinished()
 {
-    SimSet.BombSet.SingleSettings.Position[1] = ui->ledSingleY->text().toDouble();
+    double val = 0;
+    QString str;
+    AGeoBaseDelegate::processEditBox("single Y position", ui->ledSingleY, val, str, this);
+    ui->ledSingleY->updateTooltip();
+
+    SimSet.BombSet.SingleSettings.Position[1]    = val;
+    SimSet.BombSet.SingleSettings.PositionStr[1] = str;
 }
 
 void APhotSimWin::on_ledSingleZ_editingFinished()
 {
-    SimSet.BombSet.SingleSettings.Position[2] = ui->ledSingleZ->text().toDouble();
+    double val = 0;
+    QString str;
+    AGeoBaseDelegate::processEditBox("single Z position", ui->ledSingleZ, val, str, this);
+    ui->ledSingleZ->updateTooltip();
+
+    SimSet.BombSet.SingleSettings.Position[2]    = val;
+    SimSet.BombSet.SingleSettings.PositionStr[2] = str;
 }
 
 void APhotSimWin::on_pbSimulate_clicked()
@@ -2009,11 +2043,16 @@ void APhotSimWin::showBombsMultiple(bool showMessages)
 
 void APhotSimWin::on_pbSingleSourceShow_clicked()
 {
+    /*
     double pos[3];
     pos[0] = ui->ledSingleX->text().toDouble();
     pos[1] = ui->ledSingleY->text().toDouble();
     pos[2] = ui->ledSingleZ->text().toDouble();
     emit requestShowPosition(pos, false);
+    */
+
+    const ASingleSettings & sset = SimSet.BombSet.SingleSettings;
+    emit requestShowPosition(sset.Position, false);
 }
 
 void APhotSimWin::on_cobTracingMode_currentIndexChanged(int index)

@@ -161,7 +161,7 @@ bool AGeoConsts::evaluateFormula(QString & error, QString str, double & returnVa
     if (!f || !f->IsValid())
     {
         delete f;
-        error += QString("String (%0) produces an invalid TFormula").arg(str);
+        error += QString("String (%0) is invalid TFormula expression").arg(str);
         return false;
     }
 

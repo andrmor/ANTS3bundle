@@ -257,7 +257,7 @@ signals:
     void requestClearGeoMarkers(int All_Rec_True);
     void requestAddPhotonNodeGeoMarker(const ANodeRecord & record);
     void requestShowGeoMarkers();
-    void requestShowPosition(double * pos, bool keepTracks);
+    void requestShowPosition(const double * pos, bool keepTracks);
     void requestConfigureExchangeDir();
     void requestShowLrfPlotterDialog();
 };

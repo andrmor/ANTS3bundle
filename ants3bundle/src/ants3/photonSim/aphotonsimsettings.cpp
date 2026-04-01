@@ -333,24 +333,45 @@ void APhotOptSettings::clear()
 
 void ASingleSettings::clearSettings()
 {
-    Position[0] = Position[1] = Position[2] = 0;
+    for (size_t i = 0; i < 3; i++)
+    {
+        Position[i] = 0;
+        PositionStr[i].clear();
+    }
 }
 
-void ASingleSettings::writeToJson(QJsonObject &json) const
+void ASingleSettings::writeToJson(QJsonObject & json) const
 {
-    QJsonObject js;
+    {
         QJsonArray ar;
-        for (int i = 0; i < 3 ; i++) ar.push_back(Position[i]);
-    json["Position"] = ar;
+            for (size_t i = 0; i < 3 ; i++) ar.push_back(Position[i]);
+        json["Position"] = ar;
+    }
+
+    {
+        QJsonArray ar;
+            for (size_t i = 0; i < 3 ; i++) ar.push_back(PositionStr[i]);
+        json["PositionStr"] = ar;
+    }
 }
 
 QString ASingleSettings::readFromJson(const QJsonObject & json)
 {
-    QJsonArray ar;
-    bool ok = jstools::parseJson(json, "Position", ar);
-    if (ok && ar.size() == 3)
-        for (int i = 0; i < 3 ; i++) Position[i] = ar[i].toDouble();
-    else return "Error in single photon bomb position data";
+    {
+        QJsonArray ar;
+        bool ok = jstools::parseJson(json, "Position", ar);
+        if (ok && ar.size() == 3)
+            for (int i = 0; i < 3 ; i++) Position[i] = ar[i].toDouble();
+        else return "Error in single photon bomb position data (double)";
+    }
+
+    {
+        QJsonArray ar;
+        bool ok = jstools::parseJson(json, "PositionStr", ar);
+        if (ok && ar.size() == 3)
+            for (int i = 0; i < 3 ; i++) PositionStr[i] = ar[i].toString();
+        else return "Error in single photon bomb position data (string)";
+    }
     return "";
 }
 
