@@ -30,3 +30,18 @@ void APhotonSimHub::clear()
 {
     Settings.clear();
 }
+
+void APhotonSimHub::updateGeoConstRelatedSimProperties()
+{
+    Settings.BombSet.updateGeoConstRelatedSimProperties();
+}
+
+QString APhotonSimHub::isGeoConstInUse(const QRegularExpression & nameRegExp) const
+{
+    return Settings.BombSet.isGeoConstInUse(nameRegExp);
+}
+
+void APhotonSimHub::replaceGeoConstName(const QRegularExpression & nameRegExp, const QString & newName)
+{
+    Settings.BombSet.replaceGeoConstName(nameRegExp, newName);
+}

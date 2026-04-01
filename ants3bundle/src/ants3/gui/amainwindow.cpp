@@ -244,6 +244,8 @@ void AMainWindow::onRebuildGeometryRequested()
     emit GeoTreeWin->requestClearGeoMarkers(0);
     if (GeoWin->isVisible()) GeoWin->ShowGeometry(false);
     PhotFunWin->updateGui();
+
+    PhotSimWin->updateGui();
 }
 
 void AMainWindow::on_pbGeometry_clicked()

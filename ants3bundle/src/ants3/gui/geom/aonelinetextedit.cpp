@@ -67,7 +67,6 @@ void AOneLineTextEdit::setText(const QString & text)
     appendPlainText(text);
 
     if (text.isEmpty()) return;
-
     updateTooltip();
 }
 
@@ -82,15 +81,17 @@ void AOneLineTextEdit::updateTooltip()
         QString errorStr;
         bool ok = AGeoConsts::getConstInstance().evaluateFormula(errorStr, text, val);
 
-        QString toolTip;
+        QString tipStr;
         if (ok)
         {
-            if (bIntegerTooltip) toolTip = QString::number((int)val);
-            else                 toolTip = QString::number(val);
+            if (bIntegerTooltip) tipStr = QString::number((int)val);
+            else                 tipStr = QString::number(val);
         }
-        else                     toolTip = errorStr;
+        else                     tipStr = errorStr;
 
-        setToolTip(toolTip);
+        qDebug() << "aaaaaaaaaaaaaaaaaaaaaaaaaaa" << text << val << tipStr;
+        viewport()->setToolTip(tipStr);
+        qDebug() << "bbbbb" << toolTip();
         setToolTipDuration(1000);
     }
 }

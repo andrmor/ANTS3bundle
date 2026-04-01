@@ -101,6 +101,10 @@ public:
 
     void    writeToJson(QJsonObject & json) const;
     QString readFromJson(const QJsonObject & json);
+
+    void    updateGeoConstRelatedSimProperties();
+    QString isGeoConstInUse(const QRegularExpression & nameRegExp) const;
+    void    replaceGeoConstName(const QRegularExpression & nameRegExp, const QString & newName);
 };
 
 struct APhScanRecord
@@ -193,6 +197,10 @@ public:
     QString readFromJson(const QJsonObject & json);
 
     void    clear();
+
+    void    updateGeoConstRelatedSimProperties();
+    QString isGeoConstInUse(const QRegularExpression & nameRegExp) const;
+    void    replaceGeoConstName(const QRegularExpression & nameRegExp, const QString & newName);
 };
 
 class AVolumeIndexPair

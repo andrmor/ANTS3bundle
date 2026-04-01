@@ -375,6 +375,36 @@ QString ASingleSettings::readFromJson(const QJsonObject & json)
     return "";
 }
 
+#include "ageoconsts.h"
+void ASingleSettings::updateGeoConstRelatedSimProperties()
+{
+    const AGeoConsts & GC = AGeoConsts::getConstInstance();
+    QString errorStr;
+
+    for (size_t i = 0; i < 3; i++)
+    {
+        if (PositionStr[i].isEmpty()) continue;
+
+        Position[i] = 0;
+        bool ok = GC.updateDoubleParameter(errorStr, PositionStr[i], Position[i], false, false, false);
+        if (!ok) qWarning() << "Error in Photon Bomb single X" << errorStr;
+    }
+}
+
+QString ASingleSettings::isGeoConstInUse(const QRegularExpression & nameRegExp) const
+{
+    if (PositionStr[0].contains(nameRegExp)) return "Photon simulation->Photon bombs->Single->X position";
+    if (PositionStr[1].contains(nameRegExp)) return "Photon simulation->Photon bombs->Single->Y position";
+    if (PositionStr[2].contains(nameRegExp)) return "Photon simulation->Photon bombs->Single->Z position";
+    return "";
+}
+
+void ASingleSettings::replaceGeoConstName(const QRegularExpression & nameRegExp, const QString & newName)
+{
+    for (size_t i = 0; i < 3; i++)
+        PositionStr[i].replace(nameRegExp, newName);
+}
+
 // ---
 
 void AFloodSettings::clearSettings()
@@ -582,6 +612,21 @@ void APhotonBombsSettings::clear()
     BombFileSettings.clear();
 
     AdvancedSettings.clear();
+}
+
+void APhotonBombsSettings::updateGeoConstRelatedSimProperties()
+{
+    SingleSettings.updateGeoConstRelatedSimProperties();
+}
+
+QString APhotonBombsSettings::isGeoConstInUse(const QRegularExpression & nameRegExp) const
+{
+    return SingleSettings.isGeoConstInUse(nameRegExp);
+}
+
+void APhotonBombsSettings::replaceGeoConstName(const QRegularExpression & nameRegExp, const QString & newName)
+{
+    SingleSettings.replaceGeoConstName(nameRegExp, newName);
 }
 
 // ---

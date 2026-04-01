@@ -208,9 +208,7 @@ void APhotSimWin::updateGui()
     updateGeneralSettingsGui();
 
     for (AOneLineTextEdit * le : {ui->ledSingleX, ui->ledSingleY, ui->ledSingleZ})
-    {
         AGeoBaseDelegate::configureHighligherAndCompleter(le);
-    }
 }
 
 void APhotSimWin::updatePhotBombGui()
