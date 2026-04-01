@@ -89,9 +89,8 @@ void AOneLineTextEdit::updateTooltip()
         }
         else                     tipStr = errorStr;
 
-        qDebug() << "aaaaaaaaaaaaaaaaaaaaaaaaaaa" << text << val << tipStr;
+        setToolTip(tipStr);
         viewport()->setToolTip(tipStr);
-        qDebug() << "bbbbb" << toolTip();
         setToolTipDuration(1000);
     }
 }

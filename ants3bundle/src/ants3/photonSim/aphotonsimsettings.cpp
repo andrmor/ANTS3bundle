@@ -411,36 +411,36 @@ void AFloodSettings::clearSettings()
 {
     Number   = 100;
     Shape    = Rectangular;
-    Xfrom    = -15.0;
-    Xto      =  15.0;
-    Yfrom    = -15.0;
-    Yto      =  15.0;
-    X0       = 0;
-    Y0       = 0;
-    OuterDiameter   = 300.0;
-    InnerDiameter   = 0;
+    Xfrom    = -15.0;       XfromStr.clear();
+    Xto      =  15.0;       XtoStr.clear();
+    Yfrom    = -15.0;       YfromStr.clear();
+    Yto      =  15.0;       YtoStr.clear();
+    X0       = 0;           X0Str.clear();
+    Y0       = 0;           Y0Str.clear();
+    OuterDiameter = 300.0;  OuterDiameterStr.clear();
+    InnerDiameter = 0;      InnerDiameterStr.clear();
     Zmode    = Fixed;
-    Zfixed   = 0;
-    Zfrom    = 0;
-    Zto      = 0;
+    Zfixed   = 0;           ZfixedStr.clear();
+    Zfrom    = 0;           ZfromStr.clear();
+    Zto      = 0;           ZtoStr.clear();
 }
 
 void AFloodSettings::writeToJson(QJsonObject &json) const
 {
     json["Number"]        = Number;
     json["Shape"]         = (Shape == Rectangular ? "rectangle" : "ring");
-    json["Xfrom"]         = Xfrom;
-    json["Xto"]           = Xto;
-    json["Yfrom"]         = Yfrom;
-    json["Yto"]           = Yto;
-    json["CenterX"]       = X0;
-    json["CenterY"]       = Y0;
-    json["OuterDiameter"] = OuterDiameter;
-    json["InnerDiameter"] = InnerDiameter;
+    json["Xfrom"]         = Xfrom;          json["XfromStr"]         = XfromStr;
+    json["Xto"]           = Xto;            json["XtoStr"]           = XtoStr;
+    json["Yfrom"]         = Yfrom;          json["YfromStr"]         = YfromStr;
+    json["Yto"]           = Yto;            json["YtoStr"]           = YtoStr;
+    json["CenterX"]       = X0;             json["CenterXStr"]       = X0Str;
+    json["CenterY"]       = Y0;             json["CenterYStr"]       = Y0Str;
+    json["OuterDiameter"] = OuterDiameter;  json["OuterDiameterStr"] = OuterDiameterStr;
+    json["InnerDiameter"] = InnerDiameter;  json["InnerDiameterStr"] = InnerDiameterStr;
     json["Zmode"]         = (Zmode == Fixed ? "fixed" : "range");
-    json["Zfixed"]        = Zfixed;
-    json["Zfrom"]         = Zfrom;
-    json["Zto"]           = Zto;
+    json["Zfixed"]        = Zfixed;         json["ZfixedStr"]        = ZfixedStr;
+    json["Zfrom"]         = Zfrom;          json["ZfromStr"]         = ZfromStr;
+    json["Zto"]           = Zto;            json["ZtoStr"]           = ZtoStr;
 }
 
 QString AFloodSettings::readFromJson(const QJsonObject & json)
@@ -455,16 +455,16 @@ QString AFloodSettings::readFromJson(const QJsonObject & json)
     else if (shapeStr == "ring")      Shape = Ring;
     else return "Unknown flood shape: " + shapeStr;
 
-    jstools::parseJson(json, "Xfrom", Xfrom);
-    jstools::parseJson(json, "Xto",   Xto);
-    jstools::parseJson(json, "Yfrom", Yfrom);
-    jstools::parseJson(json, "Yto",   Yto);
+    jstools::parseJson(json, "Xfrom", Xfrom);                   jstools::parseJson(json, "XfromStr", XfromStr);
+    jstools::parseJson(json, "Xto",   Xto);                     jstools::parseJson(json, "XtoStr",   XtoStr);
+    jstools::parseJson(json, "Yfrom", Yfrom);                   jstools::parseJson(json, "YfromStr", YfromStr);
+    jstools::parseJson(json, "Yto",   Yto);                     jstools::parseJson(json, "YtoStr",   YtoStr);
 
-    jstools::parseJson(json, "CenterX", X0);
-    jstools::parseJson(json, "CenterY", Y0);
+    jstools::parseJson(json, "CenterX", X0);                    jstools::parseJson(json, "CenterXStr", X0Str);
+    jstools::parseJson(json, "CenterY", Y0);                    jstools::parseJson(json, "CenterYStr", Y0Str);
 
-    jstools::parseJson(json, "OuterDiameter", OuterDiameter);
-    jstools::parseJson(json, "InnerDiameter", InnerDiameter);
+    jstools::parseJson(json, "OuterDiameter", OuterDiameter);   jstools::parseJson(json, "OuterDiameterStr", OuterDiameterStr);
+    jstools::parseJson(json, "InnerDiameter", InnerDiameter);   jstools::parseJson(json, "InnerDiameterStr", InnerDiameterStr);
 
     QString zStr = "undefined";
     jstools::parseJson(json, "Zmode", zStr);
@@ -472,11 +472,24 @@ QString AFloodSettings::readFromJson(const QJsonObject & json)
     else if (zStr == "range") Zmode = Range;
     else return "Unknown Z mode for flood: " + zStr;
 
-    jstools::parseJson(json, "Zfixed", Zfixed);
-    jstools::parseJson(json, "Zfrom",  Zfrom);
-    jstools::parseJson(json, "Zto",    Zto);
+    jstools::parseJson(json, "Zfixed", Zfixed);                 jstools::parseJson(json, "ZfixedStr", ZfixedStr);
+    jstools::parseJson(json, "Zfrom",  Zfrom);                  jstools::parseJson(json, "ZfromStr",  ZfromStr);
+    jstools::parseJson(json, "Zto",    Zto);                    jstools::parseJson(json, "ZtoStr",    ZtoStr);
 
     return "";
+}
+
+void AFloodSettings::updateGeoConstRelatedSimProperties()
+{
+    const AGeoConsts & GC = AGeoConsts::getConstInstance();
+    QString errorStr;
+
+    if (!XfromStr.isEmpty())
+    {
+        Xfrom = 0;
+        bool ok = GC.updateDoubleParameter(errorStr, XfromStr, Xfrom, false, false, false);
+        if (!ok) qWarning() << "Error in Photon Bomb Flood Xfrom" << errorStr;
+    }
 }
 
 // ---
@@ -617,6 +630,7 @@ void APhotonBombsSettings::clear()
 void APhotonBombsSettings::updateGeoConstRelatedSimProperties()
 {
     SingleSettings.updateGeoConstRelatedSimProperties();
+    FloodSettings. updateGeoConstRelatedSimProperties();
 }
 
 QString APhotonBombsSettings::isGeoConstInUse(const QRegularExpression & nameRegExp) const

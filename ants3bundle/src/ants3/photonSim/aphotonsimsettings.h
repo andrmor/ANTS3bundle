@@ -140,22 +140,25 @@ public:
 
     int        Number   = 100;
     AShapeEnum Shape    = Rectangular;
-    double     Xfrom    = -15.0;
-    double     Xto      =  15.0;
-    double     Yfrom    = -15.0;
-    double     Yto      =  15.0;
-    double     X0       = 0;
-    double     Y0       = 0;
-    double     OuterDiameter   = 300.0;
-    double     InnerDiameter   = 0;
+    double     Xfrom    = -15.0;        QString    XfromStr;
+    double     Xto      =  15.0;        QString    XtoStr;
+    double     Yfrom    = -15.0;        QString    YfromStr;
+    double     Yto      =  15.0;        QString    YtoStr;
+    double     X0       = 0;            QString    X0Str;
+    double     Y0       = 0;            QString    Y0Str;
+    double     OuterDiameter   = 300.0; QString    OuterDiameterStr;
+    double     InnerDiameter   = 0;     QString    InnerDiameterStr;
     AZEnum     Zmode    = Fixed;
-    double     Zfixed   = 0;
-    double     Zfrom    = 0;
-    double     Zto      = 0;
+    double     Zfixed   = 0;            QString    ZfixedStr;
+    double     Zfrom    = 0;            QString    ZfromStr;
+    double     Zto      = 0;            QString    ZtoStr;
 
     void    clearSettings();
+
     void    writeToJson(QJsonObject & json) const;
     QString readFromJson(const QJsonObject & json);
+
+    void    updateGeoConstRelatedSimProperties();
 };
 
 class ABombFileSettings : public AFileSettingsBase

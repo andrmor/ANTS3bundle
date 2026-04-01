@@ -1240,7 +1240,7 @@
                <enum>QFrame::Shadow::Sunken</enum>
               </property>
               <property name="currentIndex">
-               <number>0</number>
+               <number>2</number>
               </property>
               <widget class="QWidget" name="twSingleScan1Page1">
                <layout class="QVBoxLayout" name="verticalLayout">
@@ -2195,11 +2195,11 @@
                        </widget>
                       </item>
                       <item row="0" column="1">
-                       <widget class="QLineEdit" name="ledFloodXfrom">
+                       <widget class="AOneLineTextEdit" name="ledFloodXfrom">
                         <property name="maximumSize">
                          <size>
                           <width>100</width>
-                          <height>16777215</height>
+                          <height>25</height>
                          </size>
                         </property>
                         <property name="text">
@@ -2215,11 +2215,11 @@
                        </widget>
                       </item>
                       <item row="0" column="3">
-                       <widget class="QLineEdit" name="ledFloodXto">
+                       <widget class="AOneLineTextEdit" name="ledFloodXto">
                         <property name="maximumSize">
                          <size>
                           <width>100</width>
-                          <height>16777215</height>
+                          <height>25</height>
                          </size>
                         </property>
                         <property name="text">
@@ -2242,11 +2242,11 @@
                        </widget>
                       </item>
                       <item row="1" column="1">
-                       <widget class="QLineEdit" name="ledFloodYfrom">
+                       <widget class="AOneLineTextEdit" name="ledFloodYfrom">
                         <property name="maximumSize">
                          <size>
                           <width>100</width>
-                          <height>16777215</height>
+                          <height>25</height>
                          </size>
                         </property>
                         <property name="text">
@@ -2262,11 +2262,11 @@
                        </widget>
                       </item>
                       <item row="1" column="3">
-                       <widget class="QLineEdit" name="ledFloodYto">
+                       <widget class="AOneLineTextEdit" name="ledFloodYto">
                         <property name="maximumSize">
                          <size>
                           <width>100</width>
-                          <height>16777215</height>
+                          <height>25</height>
                          </size>
                         </property>
                         <property name="text">
@@ -2305,11 +2305,11 @@
                        </widget>
                       </item>
                       <item row="1" column="3">
-                       <widget class="QLineEdit" name="ledFloodInnerDiameter">
+                       <widget class="AOneLineTextEdit" name="ledFloodInnerDiameter">
                         <property name="maximumSize">
                          <size>
                           <width>100</width>
-                          <height>16777215</height>
+                          <height>25</height>
                          </size>
                         </property>
                         <property name="text">
@@ -2318,11 +2318,11 @@
                        </widget>
                       </item>
                       <item row="1" column="1">
-                       <widget class="QLineEdit" name="ledFloodOuterDiameter">
+                       <widget class="AOneLineTextEdit" name="ledFloodOuterDiameter">
                         <property name="maximumSize">
                          <size>
                           <width>100</width>
-                          <height>16777215</height>
+                          <height>25</height>
                          </size>
                         </property>
                         <property name="text">
@@ -2338,11 +2338,11 @@
                        </widget>
                       </item>
                       <item row="0" column="3">
-                       <widget class="QLineEdit" name="ledFloodCenterY">
+                       <widget class="AOneLineTextEdit" name="ledFloodCenterY">
                         <property name="maximumSize">
                          <size>
                           <width>100</width>
-                          <height>16777215</height>
+                          <height>25</height>
                          </size>
                         </property>
                         <property name="text">
@@ -2358,11 +2358,11 @@
                        </widget>
                       </item>
                       <item row="0" column="1">
-                       <widget class="QLineEdit" name="ledFloodCenterX">
+                       <widget class="AOneLineTextEdit" name="ledFloodCenterX">
                         <property name="maximumSize">
                          <size>
                           <width>100</width>
-                          <height>16777215</height>
+                          <height>25</height>
                          </size>
                         </property>
                         <property name="text">
@@ -2479,11 +2479,11 @@
                       <number>0</number>
                      </property>
                      <item>
-                      <widget class="QLineEdit" name="ledFloodZ">
+                      <widget class="AOneLineTextEdit" name="ledFloodZ">
                        <property name="maximumSize">
                         <size>
                          <width>100</width>
-                         <height>16777215</height>
+                         <height>25</height>
                         </size>
                        </property>
                        <property name="text">
@@ -2536,11 +2536,11 @@
                       </widget>
                      </item>
                      <item>
-                      <widget class="QLineEdit" name="ledFloodZfrom">
+                      <widget class="AOneLineTextEdit" name="ledFloodZfrom">
                        <property name="maximumSize">
                         <size>
                          <width>100</width>
-                         <height>16777215</height>
+                         <height>25</height>
                         </size>
                        </property>
                        <property name="text">
@@ -2559,11 +2559,11 @@
                       </widget>
                      </item>
                      <item>
-                      <widget class="QLineEdit" name="ledFloodZto">
+                      <widget class="AOneLineTextEdit" name="ledFloodZto">
                        <property name="maximumSize">
                         <size>
                          <width>100</width>
-                         <height>16777215</height>
+                         <height>25</height>
                         </size>
                        </property>
                        <property name="text">
