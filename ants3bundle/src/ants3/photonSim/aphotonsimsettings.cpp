@@ -479,17 +479,68 @@ QString AFloodSettings::readFromJson(const QJsonObject & json)
     return "";
 }
 
+void updateParameter(QString & str, double & val, const QString & message, bool bForbidZero = false, bool bForbidNegative = false)
+{
+    if (str.isEmpty()) return;
+
+    const AGeoConsts & GC = AGeoConsts::getConstInstance();
+    val = 0;
+    QString errorStr;
+    bool ok = GC.updateDoubleParameter(errorStr, str, val, bForbidZero, bForbidNegative, false);
+    if (!ok) qWarning() << "Error in Photon sim->Photon Bombs->Flood->" << message << ":" << errorStr;
+}
+
 void AFloodSettings::updateGeoConstRelatedSimProperties()
 {
-    const AGeoConsts & GC = AGeoConsts::getConstInstance();
-    QString errorStr;
+    updateParameter(XfromStr, Xfrom, "Xfrom");
+    updateParameter(XtoStr,   Xto,   "Xto");
+    updateParameter(YfromStr, Yfrom, "Yfrom");
+    updateParameter(YtoStr,   Yto,   "Yto");
+    updateParameter(X0Str,    X0,    "X0");
+    updateParameter(Y0Str,    Y0,    "Y0");
 
-    if (!XfromStr.isEmpty())
-    {
-        Xfrom = 0;
-        bool ok = GC.updateDoubleParameter(errorStr, XfromStr, Xfrom, false, false, false);
-        if (!ok) qWarning() << "Error in Photon Bomb Flood Xfrom" << errorStr;
-    }
+    updateParameter(OuterDiameterStr, OuterDiameter, "OuterDiameter", true, true);
+    updateParameter(InnerDiameterStr, InnerDiameter, "InnerDiameter", false, true);
+
+    updateParameter(ZfixedStr, Zfixed, "Zfixed");
+    updateParameter(ZfromStr,  Zfrom,  "Zfrom");
+    updateParameter(ZtoStr,    Zto,    "Zto");
+}
+
+QString AFloodSettings::isGeoConstInUse(const QRegularExpression & nameRegExp) const
+{
+    if (XfromStr.contains(nameRegExp)) return "Photon simulation->Photon bombs->Flood->X from";
+    if (XtoStr.  contains(nameRegExp)) return "Photon simulation->Photon bombs->Flood->X to";
+    if (YfromStr.contains(nameRegExp)) return "Photon simulation->Photon bombs->Flood->Y from";
+    if (YtoStr.  contains(nameRegExp)) return "Photon simulation->Photon bombs->Flood->Y to";
+    if (X0Str.   contains(nameRegExp)) return "Photon simulation->Photon bombs->Flood->X center";
+    if (Y0Str.   contains(nameRegExp)) return "Photon simulation->Photon bombs->Flood->Y center";
+
+    if (OuterDiameterStr.contains(nameRegExp)) return "Photon simulation->Photon bombs->Flood->Outer Diameter";
+    if (InnerDiameterStr.contains(nameRegExp)) return "Photon simulation->Photon bombs->Flood->Inner Diameter";
+
+    if (ZfixedStr.contains(nameRegExp)) return "Photon simulation->Photon bombs->Flood->Z fixed";
+    if (ZfromStr. contains(nameRegExp)) return "Photon simulation->Photon bombs->Flood->Z from";
+    if (ZtoStr.   contains(nameRegExp)) return "Photon simulation->Photon bombs->Flood->Z to";
+
+    return "";
+}
+
+void AFloodSettings::replaceGeoConstName(const QRegularExpression &nameRegExp, const QString &newName)
+{
+    XfromStr.replace(nameRegExp, newName);
+    XtoStr.  replace(nameRegExp, newName);
+    YfromStr.replace(nameRegExp, newName);
+    YtoStr.  replace(nameRegExp, newName);
+    X0Str.   replace(nameRegExp, newName);
+    Y0Str.   replace(nameRegExp, newName);
+
+    OuterDiameterStr.replace(nameRegExp, newName);
+    InnerDiameterStr.replace(nameRegExp, newName);
+
+    ZfixedStr.replace(nameRegExp, newName);
+    ZfromStr. replace(nameRegExp, newName);
+    ZtoStr.   replace(nameRegExp, newName);
 }
 
 // ---
@@ -635,12 +686,17 @@ void APhotonBombsSettings::updateGeoConstRelatedSimProperties()
 
 QString APhotonBombsSettings::isGeoConstInUse(const QRegularExpression & nameRegExp) const
 {
-    return SingleSettings.isGeoConstInUse(nameRegExp);
+    QString str;
+    str = SingleSettings.isGeoConstInUse(nameRegExp); if (!str.isEmpty()) return str;
+    str = FloodSettings. isGeoConstInUse(nameRegExp); if (!str.isEmpty()) return str;
+
+    return "";
 }
 
 void APhotonBombsSettings::replaceGeoConstName(const QRegularExpression & nameRegExp, const QString & newName)
 {
     SingleSettings.replaceGeoConstName(nameRegExp, newName);
+    FloodSettings. replaceGeoConstName(nameRegExp, newName);
 }
 
 // ---

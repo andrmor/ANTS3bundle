@@ -43,7 +43,7 @@ public:
     void    setNewComment(int index, const QString & txt);
     bool    isIndexValid(int index);
 
-    void    updateInConfigJson(); // when setNewValue is used in script, GeoConst section of JSON of the config has to be update to avoid override after running config.updateConfig()
+    void    updateInConfigJson(); // when setNewValue is used in script, GeoConst section of JSON of the config has to be updated to avoid override after running config.updateConfig()
 
     QString checkifValidAndGetDoublefromExpression(int index);
     QString isGeoConstsBelowInUse(int index) const;

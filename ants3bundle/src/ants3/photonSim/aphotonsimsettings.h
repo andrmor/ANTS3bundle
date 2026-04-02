@@ -159,6 +159,8 @@ public:
     QString readFromJson(const QJsonObject & json);
 
     void    updateGeoConstRelatedSimProperties();
+    QString isGeoConstInUse(const QRegularExpression & nameRegExp) const;
+    void    replaceGeoConstName(const QRegularExpression & nameRegExp, const QString & newName);
 };
 
 class ABombFileSettings : public AFileSettingsBase
