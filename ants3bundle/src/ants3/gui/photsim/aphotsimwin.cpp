@@ -105,6 +105,9 @@ APhotSimWin::APhotSimWin(QWidget * parent) :
     ui->frLimitBombPosition->setVisible(ui->cobNodeGenerationMode->currentIndex() != 0);
     on_cobFloodZmode_currentIndexChanged(ui->cobFloodZmode->currentIndex());
 
+    on_cbSecondAxis_toggled(ui->cbSecondAxis->isChecked());
+    on_cbThirdAxis_toggled(ui->cbThirdAxis->isChecked());
+
     updateGui();
 }
 
@@ -2410,3 +2413,20 @@ void APhotSimWin::on_cobFloodZmode_currentIndexChanged(int index)
     ui->frZrange->setVisible(index == 1);
 }
 
+void APhotSimWin::on_cbSecondAxis_toggled(bool checked)
+{
+    ui->led1X->setEnabled(checked);
+    ui->led1Y->setEnabled(checked);
+    ui->led1Z->setEnabled(checked);
+    ui->sb1nodes->setEnabled(checked);
+    ui->cob1dir->setEnabled(checked);
+}
+
+void APhotSimWin::on_cbThirdAxis_toggled(bool checked)
+{
+    ui->led2X->setEnabled(checked);
+    ui->led2Y->setEnabled(checked);
+    ui->led2Z->setEnabled(checked);
+    ui->sb2nodes->setEnabled(checked);
+    ui->cob2dir->setEnabled(checked);
+}

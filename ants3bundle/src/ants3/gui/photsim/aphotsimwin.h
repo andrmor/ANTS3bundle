@@ -189,6 +189,10 @@ private slots:
 
     void on_cobFloodZmode_currentIndexChanged(int index);
 
+    void on_cbSecondAxis_toggled(bool checked);
+
+    void on_cbThirdAxis_toggled(bool checked);
+
 private:
     APhotonSimSettings & SimSet;
     const AMonitorHub  & MonitorHub;
