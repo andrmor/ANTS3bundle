@@ -52,6 +52,8 @@ public:
     void    updateJSONfromConfig();
     QString updateConfigFromJSON(bool updateGui);
 
+    void overrideGeoConstsInJson(); // used only from script
+
     QString load(const QString & fileName, bool bUpdateGui);
     QString save(const QString & fileName);
 

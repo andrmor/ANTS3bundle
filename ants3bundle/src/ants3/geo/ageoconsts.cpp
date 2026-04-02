@@ -380,6 +380,16 @@ bool AGeoConsts::isIndexValid(int index)
     return true;
 }
 
+#ifdef LSIM
+void AGeoConsts::updateInConfigJson() {} // lsim does not know about config
+#else
+#include "aconfig.h"
+void AGeoConsts::updateInConfigJson()
+{
+    AConfig::getInstance().overrideGeoConstsInJson();
+}
+#endif
+
 QString AGeoConsts::checkifValidAndGetDoublefromExpression(int index)
 {
     QString errorStr;

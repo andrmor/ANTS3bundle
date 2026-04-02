@@ -48,6 +48,19 @@ QString AConfig::updateConfigFromJSON(bool updateGui)
     return readFromJson(JSON, updateGui);
 }
 
+#include "ageoconsts.h"
+void AConfig::overrideGeoConstsInJson()
+{
+    QJsonObject js;
+    jstools::parseJson(JSON, "Geometry", js);
+
+    QJsonArray arrGC;
+    AGeoConsts::getConstInstance().writeToJsonArr(arrGC);
+    js["GeoConsts"] = arrGC;
+
+    JSON["Geometry"] = js;
+}
+
 QString AConfig::load(const QString & fileName, bool bUpdateGui)
 {
     QJsonObject json;
