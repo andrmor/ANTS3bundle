@@ -3,6 +3,7 @@
 #include "ajsontools.h"
 #include "aerrorhub.h"
 #include "aphotonsimhub.h"
+#include "aparticlesimhub.h"
 
 #include "TFormula.h"
 
@@ -304,6 +305,9 @@ bool AGeoConsts::rename(int index, const QString & newName, AGeoObject * world, 
     replaceGeoConstName(rec.RegExp, newName, index);
     world->replaceGeoConstNameRecursive(rec.RegExp, newName);
     APhotonSimHub::getInstance().replaceGeoConstName(rec.RegExp, newName);
+#ifndef LSIM
+    AParticleSimHub::getInstance().replaceGeoConstName(rec.RegExp, newName);
+#endif
     updateRunTimeProperties();
     return true;
 }
@@ -430,6 +434,12 @@ QString AGeoConsts::isGeoConstInUse(const QRegularExpression & nameRegExp, int i
 
     QString str = APhotonSimHub::getInstance().isGeoConstInUse(nameRegExp);
     if (!str.isEmpty()) return QString(" cannot be removed, it is in used by:\n\n%1").arg(str);
+
+#ifndef LSIM
+    str = AParticleSimHub::getInstance().isGeoConstInUse(nameRegExp);
+    if (!str.isEmpty()) return QString(" cannot be removed, it is in used by:\n\n%1").arg(str);
+#endif
+
     return "";
 }
 
@@ -488,4 +498,7 @@ void AGeoConsts::updateRunTimeProperties()
 void AGeoConsts::updateSimProperties()
 {
     APhotonSimHub::getInstance().updateGeoConstRelatedSimProperties();
+#ifndef LSIM
+    AParticleSimHub::getInstance().updateGeoConstRelatedSimProperties();
+#endif
 }

@@ -7,6 +7,7 @@
 #include "aparticlesourceplotter.h"
 #include "agraphbuilder.h"
 #include "amaterialhub.h"
+#include "ageobasedelegate.h"
 
 #include <QDebug>
 #include <QDoubleValidator>
@@ -34,6 +35,9 @@ AParticleSourceDialog::AParticleSourceDialog(const AParticleSourceRecord_Standar
     QList<QLineEdit*> list = this->findChildren<QLineEdit *>();
     foreach(QLineEdit *w, list) if (w->objectName().startsWith("led")) w->setValidator(dv);
 
+    for (AOneLineTextEdit * le : {ui->ledGunOriginX, ui->ledGunOriginY, ui->ledGunOriginZ })
+        AGeoBaseDelegate::configureHighligherAndCompleter(le);
+
     ui->pbUpdateRecord->setDefault(true);
     ui->pbUpdateRecord->setVisible(false);
 
@@ -44,9 +48,12 @@ AParticleSourceDialog::AParticleSourceDialog(const AParticleSourceRecord_Standar
     ui->ledGun2DSize->setText(QString::number(2.0 * Rec.Size2));
     ui->ledGun3DSize->setText(QString::number(2.0 * Rec.Size3));
 
-    ui->ledGunOriginX->setText(QString::number(Rec.X0));
-    ui->ledGunOriginY->setText(QString::number(Rec.Y0));
-    ui->ledGunOriginZ->setText(QString::number(Rec.Z0));
+        //ui->ledGunOriginX->setText(QString::number(Rec.X0));
+    ui->ledGunOriginX->setText(Rec.X0Str.isEmpty() ? QString::number(Rec.X0) : Rec.X0Str);
+        //ui->ledGunOriginY->setText(QString::number(Rec.Y0));
+    ui->ledGunOriginY->setText(Rec.Y0Str.isEmpty() ? QString::number(Rec.Y0) : Rec.Y0Str);
+        //ui->ledGunOriginZ->setText(QString::number(Rec.Z0));
+    ui->ledGunOriginZ->setText(Rec.Z0Str.isEmpty() ? QString::number(Rec.Z0) : Rec.Z0Str);
 
     ui->cbAxialDistribution->setChecked(Rec.UseAxialDistribution);
     int index = 0;
@@ -433,6 +440,17 @@ void AParticleSourceDialog::on_cobEnergySigmaUnits_activated(int)
     on_pbUpdateRecord_clicked();
 }
 
+
+void AParticleSourceDialog::processGeoConstAwareEditFinished(AOneLineTextEdit * edit, QString & str, double & val, const QString & name, QWidget * parent)
+{
+    double doubleVal = 0;
+    QString stringVal;
+    AGeoBaseDelegate::processEditBox(name, edit, doubleVal, stringVal, parent);
+    edit->updateTooltip();
+    val = doubleVal;
+    str = stringVal;
+}
+
 void AParticleSourceDialog::on_pbUpdateRecord_clicked()
 {
     LocalRec.Name = ui->leSourceName->text().toLatin1().data();
@@ -454,9 +472,12 @@ void AParticleSourceDialog::on_pbUpdateRecord_clicked()
     LocalRec.MaterialLimited = ui->cbSourceLimitmat->isChecked();
     LocalRec.LimtedToMatName = ui->leSourceLimitMaterial->text().toLatin1().data();
 
-    LocalRec.X0 = ui->ledGunOriginX->text().toDouble();
-    LocalRec.Y0 = ui->ledGunOriginY->text().toDouble();
-    LocalRec.Z0 = ui->ledGunOriginZ->text().toDouble();
+        //LocalRec.X0 = ui->ledGunOriginX->text().toDouble();
+    processGeoConstAwareEditFinished(ui->ledGunOriginX, LocalRec.X0Str, LocalRec.X0, "Center X", this);
+        //LocalRec.Y0 = ui->ledGunOriginY->text().toDouble();
+    processGeoConstAwareEditFinished(ui->ledGunOriginY, LocalRec.Y0Str, LocalRec.Y0, "Center Y", this);
+        //LocalRec.Z0 = ui->ledGunOriginZ->text().toDouble();
+    processGeoConstAwareEditFinished(ui->ledGunOriginZ, LocalRec.Z0Str, LocalRec.Z0, "Center Z", this);
 
     LocalRec.UseAxialDistribution = ui->cbAxialDistribution->isChecked();
     switch (ui->cobAxialDistributionType->currentIndex())

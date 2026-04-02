@@ -31,6 +31,10 @@ public:
     void readFromJson(const QJsonObject & json);
 
     void clear();
+
+    void    updateGeoConstRelatedSimProperties();
+    QString isGeoConstInUse(const QRegularExpression & nameRegExp) const;
+    void    replaceGeoConstName(const QRegularExpression & nameRegExp, const QString & newName);
 };
 
 #endif // APARTICLESIMHUB_H

@@ -147,3 +147,23 @@ bool ASourceGeneratorSettings::readFromJson(const QJsonObject & json)
 
     return true;
 }
+
+#ifndef JSON11
+void ASourceGeneratorSettings::updateGeoConstRelatedSimProperties()
+{
+    for (AParticleSourceRecordBase * ps : SourceData)
+        ps->updateGeoConstRelatedSimProperties();
+}
+
+QString ASourceGeneratorSettings::isGeoConstInUse(const QRegularExpression & nameRegExp) const
+{
+    for (AParticleSourceRecordBase * ps : SourceData)
+        ps->isGeoConstInUse(nameRegExp);
+}
+
+void ASourceGeneratorSettings::replaceGeoConstName(const QRegularExpression &nameRegExp, const QString &newName)
+{
+    for (AParticleSourceRecordBase * ps : SourceData)
+        ps->replaceGeoConstName(nameRegExp, newName);
+}
+#endif
