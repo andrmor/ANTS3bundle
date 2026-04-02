@@ -18,6 +18,7 @@ class ASensorDrawWidget;
 class AFileHandlerBase;
 class APhotonLogHandler;
 class APhotonLogSettingsForm;
+class AOneLineTextEdit;
 
 class APhotSimWin : public AGuiWindow
 {
@@ -248,6 +249,8 @@ private:
     void resetViewportOnNewData();
 
     void showBombsMultiple(bool showMessages);
+
+    void processGeoConstAwareEditFinished(AOneLineTextEdit * edit, QString & str, double & val, const QString & name, QWidget * parent);
 
 signals:
     void requestShowGeometry(bool ActivateWindow = true, bool SAME = true, bool ColorUpdateAllowed = true);

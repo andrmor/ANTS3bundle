@@ -681,6 +681,7 @@ void APhotonBombsSettings::clear()
 void APhotonBombsSettings::updateGeoConstRelatedSimProperties()
 {
     SingleSettings.updateGeoConstRelatedSimProperties();
+    GridSettings.  updateGeoConstRelatedSimProperties();
     FloodSettings. updateGeoConstRelatedSimProperties();
 }
 
@@ -688,14 +689,15 @@ QString APhotonBombsSettings::isGeoConstInUse(const QRegularExpression & nameReg
 {
     QString str;
     str = SingleSettings.isGeoConstInUse(nameRegExp); if (!str.isEmpty()) return str;
+    str = GridSettings.  isGeoConstInUse(nameRegExp); if (!str.isEmpty()) return str;
     str = FloodSettings. isGeoConstInUse(nameRegExp); if (!str.isEmpty()) return str;
-
     return "";
 }
 
 void APhotonBombsSettings::replaceGeoConstName(const QRegularExpression & nameRegExp, const QString & newName)
 {
     SingleSettings.replaceGeoConstName(nameRegExp, newName);
+    GridSettings.  replaceGeoConstName(nameRegExp, newName);
     FloodSettings. replaceGeoConstName(nameRegExp, newName);
 }
 
@@ -1058,62 +1060,111 @@ int AGridSettings::getNumEvents() const
 
 void AGridSettings::clearSettings()
 {
-    for (int i=0; i<3; i++)
+    for (size_t i = 0; i < 3; i++)
         ScanRecords[i] = APhScanRecord();
     ScanRecords[0].bEnabled = true;
-
     ScanRecords[1].DX = 0; ScanRecords[1].DY = 10.0;
     ScanRecords[2].DX = 0; ScanRecords[2].DZ = 10.0;
+
+    X0 = 0; X0Str.clear();
+    Y0 = 0; Y0Str.clear();
+    Z0 = 0; Z0Str.clear();
 }
 
-void AGridSettings::writeToJson(QJsonObject &json) const
+void AGridSettings::writeToJson(QJsonObject & json) const
 {
-    json["ScanX0"] = X0;
-    json["ScanY0"] = Y0;
-    json["ScanZ0"] = Z0;
+    json["ScanX0"] = X0;    json["ScanX0Str"] = X0Str;
+    json["ScanY0"] = Y0;    json["ScanY0Str"] = Y0Str;
+    json["ScanZ0"] = Z0;    json["ScanZ0Str"] = Z0Str;
 
     QJsonArray ar;
-        for (int i = 0; i < 3; i++)
+        for (size_t i = 0; i < 3; i++)
         {
             QJsonObject js;
                 const APhScanRecord & r = ScanRecords[i];
                 js["Enabled"]   = r.bEnabled;
                 js["BiDirect"] = r.bBiDirect;
                 js["Nodes"]     = r.Nodes;
-                js["dX"]        = r.DX;
-                js["dY"]        = r.DY;
-                js["dZ"]        = r.DZ;
+                js["dX"]        = r.DX;     js["dXStr"] = r.DXStr;
+                js["dY"]        = r.DY;     js["dYStr"] = r.DYStr;
+                js["dZ"]        = r.DZ;     js["dZStr"] = r.DZStr;
             ar.append(js);
         }
-        json["AxesData"] = ar;
+    json["AxesData"] = ar;
 }
 
-QString AGridSettings::readFromJson(const QJsonObject &json)
+QString AGridSettings::readFromJson(const QJsonObject & json)
 {
     clearSettings();
 
-    jstools::parseJson(json, "ScanX0", X0);
-    jstools::parseJson(json, "ScanY0", Y0);
-    jstools::parseJson(json, "ScanZ0", Z0);
+    jstools::parseJson(json, "ScanX0", X0);     jstools::parseJson(json, "ScanX0Str", X0Str);
+    jstools::parseJson(json, "ScanY0", Y0);     jstools::parseJson(json, "ScanY0Str", Y0Str);
+    jstools::parseJson(json, "ScanZ0", Z0);     jstools::parseJson(json, "ScanZ0Str", Z0Str);
 
     QJsonArray ar;
     bool bOK = jstools::parseJson(json, "AxesData", ar);
     if (!bOK || ar.size() != 3) return "Bad format in photon sim grid settings";
 
-    for (int i = 0; i < 3; i++)
+    for (size_t i = 0; i < 3; i++)
     {
         QJsonObject js = ar[i].toObject();
         APhScanRecord & r = ScanRecords[i];
         jstools::parseJson(js, "Enabled",  r.bEnabled);
         jstools::parseJson(js, "BiDirect", r.bBiDirect);
         jstools::parseJson(js, "Nodes",    r.Nodes);
-        jstools::parseJson(js, "dX",       r.DX);
-        jstools::parseJson(js, "dY",       r.DY);
-        jstools::parseJson(js, "dZ",       r.DZ);
+        jstools::parseJson(js, "dX",       r.DX);       jstools::parseJson(js, "dXStr", r.DXStr);
+        jstools::parseJson(js, "dY",       r.DY);       jstools::parseJson(js, "dYStr", r.DYStr);
+        jstools::parseJson(js, "dZ",       r.DZ);       jstools::parseJson(js, "dZStr", r.DZStr);
     }
 
     ScanRecords[0].bEnabled = true;
     return "";
+}
+
+void AGridSettings::updateGeoConstRelatedSimProperties()
+{
+    updateParameter(X0Str, X0, "X origin");
+    updateParameter(Y0Str, Y0, "Y origin");
+    updateParameter(Z0Str, Z0, "Z origin");
+
+    for (size_t i = 0; i < 3; i++)
+    {
+        APhScanRecord & sr = ScanRecords[i];
+        updateParameter(sr.DXStr, sr.DX, QString("X step [%1]").arg(i));
+        updateParameter(sr.DYStr, sr.DY, QString("Y step [%1]").arg(i));
+        updateParameter(sr.DZStr, sr.DZ, QString("Z step [%1]").arg(i));
+    }
+}
+
+QString AGridSettings::isGeoConstInUse(const QRegularExpression & nameRegExp) const
+{
+    if (X0Str.contains(nameRegExp)) return "Photon simulation->Photon bombs->Grid->X origin";
+    if (Y0Str.contains(nameRegExp)) return "Photon simulation->Photon bombs->Grid->Y origin";
+    if (Z0Str.contains(nameRegExp)) return "Photon simulation->Photon bombs->Grid->Z origin";
+
+    for (size_t i = 0; i < 3; i++)
+    {
+        const APhScanRecord & sr = ScanRecords[i];
+        if (sr.DXStr.contains(nameRegExp)) return QString("Photon simulation->Photon bombs->Grid->X step [%0])").arg(i);
+        if (sr.DYStr.contains(nameRegExp)) return QString("Photon simulation->Photon bombs->Grid->Y step [%0])").arg(i);
+        if (sr.DZStr.contains(nameRegExp)) return QString("Photon simulation->Photon bombs->Grid->Z step [%0])").arg(i);
+    }
+
+    return "";
+}
+
+void AGridSettings::replaceGeoConstName(const QRegularExpression & nameRegExp, const QString & newName)
+{
+    X0Str.replace(nameRegExp, newName);
+    Y0Str.replace(nameRegExp, newName);
+    Z0Str.replace(nameRegExp, newName);
+
+    for (APhScanRecord & sr : ScanRecords)
+    {
+        sr.DXStr.replace(nameRegExp, newName);
+        sr.DYStr.replace(nameRegExp, newName);
+        sr.DZStr.replace(nameRegExp, newName);
+    }
 }
 
 // ----

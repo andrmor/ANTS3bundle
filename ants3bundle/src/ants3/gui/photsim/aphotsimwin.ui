@@ -1240,7 +1240,7 @@
                <enum>QFrame::Shadow::Sunken</enum>
               </property>
               <property name="currentIndex">
-               <number>0</number>
+               <number>1</number>
               </property>
               <widget class="QWidget" name="twSingleScan1Page1">
                <layout class="QVBoxLayout" name="verticalLayout">
@@ -1580,11 +1580,11 @@
                    </widget>
                   </item>
                   <item>
-                   <widget class="QLineEdit" name="ledOriginX">
+                   <widget class="AOneLineTextEdit" name="ledOriginX">
                     <property name="maximumSize">
                      <size>
                       <width>75</width>
-                      <height>16777215</height>
+                      <height>25</height>
                      </size>
                     </property>
                     <property name="text">
@@ -1613,11 +1613,11 @@
                    </widget>
                   </item>
                   <item>
-                   <widget class="QLineEdit" name="ledOriginY">
+                   <widget class="AOneLineTextEdit" name="ledOriginY">
                     <property name="maximumSize">
                      <size>
                       <width>75</width>
-                      <height>16777215</height>
+                      <height>25</height>
                      </size>
                     </property>
                     <property name="text">
@@ -1646,11 +1646,11 @@
                    </widget>
                   </item>
                   <item>
-                   <widget class="QLineEdit" name="ledOriginZ">
+                   <widget class="AOneLineTextEdit" name="ledOriginZ">
                     <property name="maximumSize">
                      <size>
                       <width>75</width>
-                      <height>16777215</height>
+                      <height>25</height>
                      </size>
                     </property>
                     <property name="text">
@@ -1730,14 +1730,14 @@
                    </widget>
                   </item>
                   <item row="1" column="1">
-                   <widget class="QLineEdit" name="led0X">
+                   <widget class="AOneLineTextEdit" name="led0X">
                     <property name="enabled">
                      <bool>true</bool>
                     </property>
                     <property name="maximumSize">
                      <size>
-                      <width>55</width>
-                      <height>16777215</height>
+                      <width>70</width>
+                      <height>25</height>
                      </size>
                     </property>
                     <property name="text">
@@ -1746,14 +1746,14 @@
                    </widget>
                   </item>
                   <item row="1" column="2">
-                   <widget class="QLineEdit" name="led0Y">
+                   <widget class="AOneLineTextEdit" name="led0Y">
                     <property name="enabled">
                      <bool>true</bool>
                     </property>
                     <property name="maximumSize">
                      <size>
-                      <width>55</width>
-                      <height>16777215</height>
+                      <width>70</width>
+                      <height>25</height>
                      </size>
                     </property>
                     <property name="text">
@@ -1762,14 +1762,14 @@
                    </widget>
                   </item>
                   <item row="1" column="3">
-                   <widget class="QLineEdit" name="led0Z">
+                   <widget class="AOneLineTextEdit" name="led0Z">
                     <property name="enabled">
                      <bool>true</bool>
                     </property>
                     <property name="maximumSize">
                      <size>
-                      <width>55</width>
-                      <height>16777215</height>
+                      <width>70</width>
+                      <height>25</height>
                      </size>
                     </property>
                     <property name="text">
@@ -1779,8 +1779,14 @@
                   </item>
                   <item row="1" column="4">
                    <widget class="QSpinBox" name="sb0nodes">
+                    <property name="maximumSize">
+                     <size>
+                      <width>75</width>
+                      <height>16777215</height>
+                     </size>
+                    </property>
                     <property name="maximum">
-                     <number>10000</number>
+                     <number>9999</number>
                     </property>
                     <property name="value">
                      <number>20</number>
@@ -1809,14 +1815,14 @@
                    </widget>
                   </item>
                   <item row="2" column="1">
-                   <widget class="QLineEdit" name="led1X">
+                   <widget class="AOneLineTextEdit" name="led1X">
                     <property name="enabled">
                      <bool>true</bool>
                     </property>
                     <property name="maximumSize">
                      <size>
-                      <width>55</width>
-                      <height>16777215</height>
+                      <width>70</width>
+                      <height>25</height>
                      </size>
                     </property>
                     <property name="text">
@@ -1825,14 +1831,14 @@
                    </widget>
                   </item>
                   <item row="2" column="2">
-                   <widget class="QLineEdit" name="led1Y">
+                   <widget class="AOneLineTextEdit" name="led1Y">
                     <property name="enabled">
                      <bool>true</bool>
                     </property>
                     <property name="maximumSize">
                      <size>
-                      <width>55</width>
-                      <height>16777215</height>
+                      <width>70</width>
+                      <height>25</height>
                      </size>
                     </property>
                     <property name="text">
@@ -1841,14 +1847,14 @@
                    </widget>
                   </item>
                   <item row="2" column="3">
-                   <widget class="QLineEdit" name="led1Z">
+                   <widget class="AOneLineTextEdit" name="led1Z">
                     <property name="enabled">
                      <bool>true</bool>
                     </property>
                     <property name="maximumSize">
                      <size>
-                      <width>55</width>
-                      <height>16777215</height>
+                      <width>70</width>
+                      <height>25</height>
                      </size>
                     </property>
                     <property name="text">
@@ -1861,8 +1867,14 @@
                     <property name="enabled">
                      <bool>true</bool>
                     </property>
+                    <property name="maximumSize">
+                     <size>
+                      <width>75</width>
+                      <height>16777215</height>
+                     </size>
+                    </property>
                     <property name="maximum">
-                     <number>10000</number>
+                     <number>9999</number>
                     </property>
                     <property name="value">
                      <number>20</number>
@@ -1894,14 +1906,14 @@
                    </widget>
                   </item>
                   <item row="3" column="1">
-                   <widget class="QLineEdit" name="led2X">
+                   <widget class="AOneLineTextEdit" name="led2X">
                     <property name="enabled">
                      <bool>true</bool>
                     </property>
                     <property name="maximumSize">
                      <size>
-                      <width>55</width>
-                      <height>16777215</height>
+                      <width>70</width>
+                      <height>25</height>
                      </size>
                     </property>
                     <property name="text">
@@ -1910,14 +1922,14 @@
                    </widget>
                   </item>
                   <item row="3" column="2">
-                   <widget class="QLineEdit" name="led2Y">
+                   <widget class="AOneLineTextEdit" name="led2Y">
                     <property name="enabled">
                      <bool>true</bool>
                     </property>
                     <property name="maximumSize">
                      <size>
-                      <width>55</width>
-                      <height>16777215</height>
+                      <width>70</width>
+                      <height>25</height>
                      </size>
                     </property>
                     <property name="text">
@@ -1926,14 +1938,14 @@
                    </widget>
                   </item>
                   <item row="3" column="3">
-                   <widget class="QLineEdit" name="led2Z">
+                   <widget class="AOneLineTextEdit" name="led2Z">
                     <property name="enabled">
                      <bool>true</bool>
                     </property>
                     <property name="maximumSize">
                      <size>
-                      <width>55</width>
-                      <height>16777215</height>
+                      <width>70</width>
+                      <height>25</height>
                      </size>
                     </property>
                     <property name="text">
@@ -1946,8 +1958,14 @@
                     <property name="enabled">
                      <bool>true</bool>
                     </property>
+                    <property name="maximumSize">
+                     <size>
+                      <width>75</width>
+                      <height>16777215</height>
+                     </size>
+                    </property>
                     <property name="maximum">
-                     <number>10000</number>
+                     <number>9999</number>
                     </property>
                     <property name="value">
                      <number>5</number>

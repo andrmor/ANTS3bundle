@@ -112,24 +112,31 @@ struct APhScanRecord
     bool   bEnabled  = false;
     bool   bBiDirect = false;
     int    Nodes     = 10;
-    double DX        = 10.0;
-    double DY        = 0;
-    double DZ        = 0;
+    double DX        = 10.0;    QString DXStr;
+    double DY        = 0;       QString DYStr;
+    double DZ        = 0;       QString DZStr;
 };
 class AGridSettings
 {
 public:
     AGridSettings();
 
-    double X0 = 0;
-    double Y0 = 0;
-    double Z0 = 0;
+    double X0 = 0;  QString X0Str;
+    double Y0 = 0;  QString Y0Str;
+    double Z0 = 0;  QString Z0Str;
+
     APhScanRecord ScanRecords[3];
 
     int     getNumEvents() const;
+
     void    clearSettings();
+
     void    writeToJson(QJsonObject & json) const;
     QString readFromJson(const QJsonObject & json);
+
+    void    updateGeoConstRelatedSimProperties();
+    QString isGeoConstInUse(const QRegularExpression & nameRegExp) const;
+    void    replaceGeoConstName(const QRegularExpression & nameRegExp, const QString & newName);
 };
 
 class AFloodSettings

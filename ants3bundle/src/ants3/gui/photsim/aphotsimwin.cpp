@@ -210,7 +210,11 @@ void APhotSimWin::updateGui()
     for (AOneLineTextEdit * le : {ui->ledSingleX, ui->ledSingleY, ui->ledSingleZ,
                                   ui->ledFloodXfrom, ui->ledFloodXto, ui->ledFloodYfrom, ui->ledFloodYto, ui->ledFloodCenterX, ui->ledFloodCenterY,
                                   ui->ledFloodOuterDiameter, ui->ledFloodInnerDiameter,
-                                  ui->ledFloodZ, ui->ledFloodZfrom, ui->ledFloodZto})
+                                  ui->ledFloodZ, ui->ledFloodZfrom, ui->ledFloodZto,
+                                  ui->ledOriginX, ui->ledOriginY, ui->ledOriginZ,
+                                  ui->led0X, ui->led0Y, ui->led0Z,
+                                  ui->led1X, ui->led1Y, ui->led1Z,
+                                  ui->led2X, ui->led2Y, ui->led2Z})
         AGeoBaseDelegate::configureHighligherAndCompleter(le);
 }
 
@@ -266,14 +270,17 @@ void APhotSimWin::updatePhotBombGui()
 
     //Grid
     const AGridSettings & g = SimSet.BombSet.GridSettings;
-    ui->ledOriginX->setText(QString::number(g.X0));
-    ui->ledOriginY->setText(QString::number(g.Y0));
-    ui->ledOriginZ->setText(QString::number(g.Z0));
+        //ui->ledOriginX->setText(QString::number(g.X0));
+    ui->ledOriginX->setText(g.X0Str.isEmpty() ? QString::number(g.X0) : g.X0Str);
+        //ui->ledOriginY->setText(QString::number(g.Y0));
+    ui->ledOriginY->setText(g.Y0Str.isEmpty() ? QString::number(g.Y0) : g.Y0Str);
+        //ui->ledOriginZ->setText(QString::number(g.Z0));
+    ui->ledOriginZ->setText(g.Z0Str.isEmpty() ? QString::number(g.Z0) : g.Z0Str);
     ui->cbSecondAxis->setChecked(g.ScanRecords[1].bEnabled);
     ui->cbThirdAxis-> setChecked(g.ScanRecords[2].bEnabled);
-    for (int i = 0; i < 3; i++)
+    for (size_t i = 0; i < 3; i++)
     {
-        QLineEdit *leDX, *leDY, *leDZ;
+        AOneLineTextEdit *leDX, *leDY, *leDZ;
         QSpinBox  *sbNodes;
         QComboBox *cobBiDir;
         switch (i)
@@ -283,9 +290,12 @@ void APhotSimWin::updatePhotBombGui()
         case 2: leDX = ui->led2X; leDY = ui->led2Y; leDZ = ui->led2Z; sbNodes = ui->sb2nodes; cobBiDir = ui->cob2dir; break;
         }
         const APhScanRecord & r = g.ScanRecords[i];
-        leDX->setText(QString::number(r.DX));
-        leDY->setText(QString::number(r.DY));
-        leDZ->setText(QString::number(r.DZ));
+            //leDX->setText(QString::number(r.DX));
+        leDX->setText(r.DXStr.isEmpty() ? QString::number(r.DX) : r.DXStr);
+            //leDY->setText(QString::number(r.DY));
+        leDY->setText(r.DYStr.isEmpty() ? QString::number(r.DY) : r.DYStr);
+            //leDZ->setText(QString::number(r.DZ));
+        leDZ->setText(r.DZStr.isEmpty() ? QString::number(r.DZ) : r.DZStr);
         sbNodes->setValue(r.Nodes);
         cobBiDir->setCurrentIndex(r.bBiDirect ? 1 : 0);
     }
@@ -845,7 +855,7 @@ void APhotSimWin::on_cobFloodShape_activated(int index)
     SimSet.BombSet.FloodSettings.Shape = (index == 0 ? AFloodSettings::Rectangular : AFloodSettings::Ring);
 }
 
-void processGeoConstAwareEditFinished(AOneLineTextEdit * edit, QString & str, double & val, const QString & name, QWidget * parent)
+void APhotSimWin::processGeoConstAwareEditFinished(AOneLineTextEdit * edit, QString & str, double & val, const QString & name, QWidget * parent)
 {
     double doubleVal = 0;
     QString stringVal;
@@ -1584,31 +1594,39 @@ void APhotSimWin::on_pbdUpdateScanSettings_clicked()
 {
     AGridSettings & g = SimSet.BombSet.GridSettings;
 
-    g.X0 = ui->ledOriginX->text().toDouble();
-    g.Y0 = ui->ledOriginY->text().toDouble();
-    g.Z0 = ui->ledOriginZ->text().toDouble();
+        //g.X0 = ui->ledOriginX->text().toDouble();
+    processGeoConstAwareEditFinished(ui->ledOriginX, g.X0Str, g.X0, "X origin", this);
+        //g.Y0 = ui->ledOriginY->text().toDouble();
+    processGeoConstAwareEditFinished(ui->ledOriginY, g.Y0Str, g.Y0, "Y origin", this);
+        //g.Z0 = ui->ledOriginZ->text().toDouble();
+    processGeoConstAwareEditFinished(ui->ledOriginZ, g.Z0Str, g.Z0, "Z origin", this);
 
     g.ScanRecords[1].bEnabled = ui->cbSecondAxis->isChecked();
     g.ScanRecords[2].bEnabled = ui->cbThirdAxis->isChecked();
 
     for (int i = 0; i < 3; i++)
     {
-        QLineEdit *leDX, *leDY, *leDZ;
+        AOneLineTextEdit *leDX, *leDY, *leDZ;
         QSpinBox  *sbNodes;
         QComboBox *cobBiDir;
+        QString tmpStr;
         switch (i)
         {
-        case 0: leDX = ui->led0X; leDY = ui->led0Y; leDZ = ui->led0Z; sbNodes = ui->sb0nodes; cobBiDir = ui->cob0dir; break;
-        case 1: leDX = ui->led1X; leDY = ui->led1Y; leDZ = ui->led1Z; sbNodes = ui->sb1nodes; cobBiDir = ui->cob1dir; break;
-        case 2: leDX = ui->led2X; leDY = ui->led2Y; leDZ = ui->led2Z; sbNodes = ui->sb2nodes; cobBiDir = ui->cob2dir; break;
+        case 0: leDX = ui->led0X; leDY = ui->led0Y; leDZ = ui->led0Z; sbNodes = ui->sb0nodes; cobBiDir = ui->cob0dir; tmpStr = "1"; break;
+        case 1: leDX = ui->led1X; leDY = ui->led1Y; leDZ = ui->led1Z; sbNodes = ui->sb1nodes; cobBiDir = ui->cob1dir; tmpStr = "2"; break;
+        case 2: leDX = ui->led2X; leDY = ui->led2Y; leDZ = ui->led2Z; sbNodes = ui->sb2nodes; cobBiDir = ui->cob2dir; tmpStr = "3"; break;
         }
 
         APhScanRecord & r = g.ScanRecords[i];
 
-        r.DX        = leDX->text().toDouble();
-        r.DY        = leDY->text().toDouble();
-        r.DZ        = leDZ->text().toDouble();
-        r.Nodes     = sbNodes->value();
+            //r.DX = leDX->text().toDouble();
+        processGeoConstAwareEditFinished(leDX, r.DXStr, r.DX, QString("Step in X [%1]").arg(tmpStr), this);
+            //r.DY = leDY->text().toDouble();
+        processGeoConstAwareEditFinished(leDY, r.DYStr, r.DY, QString("Step in Y [%1]").arg(tmpStr), this);
+            //r.DZ = leDZ->text().toDouble();
+        processGeoConstAwareEditFinished(leDZ, r.DZStr, r.DZ, QString("Step in Z [%1]").arg(tmpStr), this);
+
+        r.Nodes = sbNodes->value();
         r.bBiDirect = (cobBiDir->currentIndex() == 1);
     }
 }
