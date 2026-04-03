@@ -18,6 +18,7 @@ class ASensorDrawWidget;
 class AFileHandlerBase;
 class APhotonLogHandler;
 class APhotonLogSettingsForm;
+class AOneLineTextEdit;
 
 class APhotSimWin : public AGuiWindow
 {
@@ -188,6 +189,10 @@ private slots:
 
     void on_cobFloodZmode_currentIndexChanged(int index);
 
+    void on_cbSecondAxis_toggled(bool checked);
+
+    void on_cbThirdAxis_toggled(bool checked);
+
 private:
     APhotonSimSettings & SimSet;
     const AMonitorHub  & MonitorHub;
@@ -249,6 +254,8 @@ private:
 
     void showBombsMultiple(bool showMessages);
 
+    void processGeoConstAwareEditFinished(AOneLineTextEdit * edit, QString & str, double & val, const QString & name, QWidget * parent);
+
 signals:
     void requestShowGeometry(bool ActivateWindow = true, bool SAME = true, bool ColorUpdateAllowed = true);
     void requestShowTracks(bool activateWindow = false);
@@ -257,7 +264,7 @@ signals:
     void requestClearGeoMarkers(int All_Rec_True);
     void requestAddPhotonNodeGeoMarker(const ANodeRecord & record);
     void requestShowGeoMarkers();
-    void requestShowPosition(double * pos, bool keepTracks);
+    void requestShowPosition(const double * pos, bool keepTracks);
     void requestConfigureExchangeDir();
     void requestShowLrfPlotterDialog();
 };

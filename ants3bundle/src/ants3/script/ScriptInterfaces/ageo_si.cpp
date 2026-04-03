@@ -60,9 +60,10 @@ AGeo_SI::AGeo_SI() :
                                 "and return array of [X Y Z MaterualIndex VolumeName NodeIndex] for all volumes on the way until final exit to the World\n"
                                 "the X Y Z are coordinates of the entrance points";
 
-    Help["getGeoConstValue"] = "Get value of the Geo Constant identified by the provided name";
-    Help["setGeoConstValue"] = "Set value of the Geo Constant identified by the provided name to the new value.\n"
-                               "Note that if an expression was previously defined for that Geo Constant, it will be cleared";
+    Help["getGeoConstValue"] = "Get value of the GeoConstant identified by the provided name";
+    Help["setGeoConstValue"] = "Set value of the GeoConstant identified by the provided name to the new value.\n"
+                               "Note that if an expression was previously defined for that GeoConstant, it will be cleared.\n"
+                               "Calling this method also updates this corresponding record in the config json, so calling config.updateConfig() later is safe.";
 }
 
 AGeo_SI::~AGeo_SI()
@@ -1671,6 +1672,8 @@ void AGeo_SI::setGeoConstValue(QString name, double value)
     }
 
     GC.setNewValue(index, value);
+
+    GC.updateInConfigJson();
 }
 
 AGeoObject * AGeo_SI::findObject(const QString & Object)

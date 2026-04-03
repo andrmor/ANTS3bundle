@@ -833,7 +833,7 @@ void AGeometryWindow::onRequestAddTrackFromScript(TVirtualGeoTrack * track)
     emit taskRequestedFromScriptCompleted();
 }
 
-void AGeometryWindow::ShowPoint(double * r, bool keepTracks)
+void AGeometryWindow::ShowPoint(const double *r, bool keepTracks)
 {
     clearGeoMarkers();
 

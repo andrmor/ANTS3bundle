@@ -253,6 +253,11 @@ void AParticleSourceRecord_Standard::doClear()
     X0    = 0;
     Y0    = 0;
     Z0    = 0;
+#ifndef JSON11
+    X0Str.clear();
+    Y0Str.clear();
+    Z0Str.clear();
+#endif
 
     Phi   = 0;
     Theta = 0;
@@ -261,6 +266,11 @@ void AParticleSourceRecord_Standard::doClear()
     Size1 = 10.0;
     Size2 = 10.0;
     Size3 = 10.0;
+#ifndef JSON11
+    Size1Str.clear();
+    Size2Str.clear();
+    Size3Str.clear();
+#endif
 
     UseAxialDistribution = false;
     AxialDistributionType = GaussAxial;
@@ -357,10 +367,13 @@ void AParticleSourceRecord_Standard::doWriteToJson(QJsonObject & json) const
                 case Cylinder  : str = "Cylinder";  break;
                 }
             js["Shape"] = str;
-            js["Position"] = QJsonArray{X0, Y0, Z0};
-            js["Size1"] = Size1;
-            js["Size2"] = Size2;
-            js["Size3"] = Size3;
+
+            js["Position"] = QJsonArray{X0, Y0, Z0};    js["PositionStr"] = QJsonArray{X0Str, Y0Str, Z0Str};
+
+            js["Size1"] = Size1;    js["Size1Str"] = Size1Str;
+            js["Size2"] = Size2;    js["Size2Str"] = Size2Str;
+            js["Size3"] = Size3;    js["Size3Str"] = Size3Str;
+
             QJsonObject jsAxial;
                 jsAxial["Enabled"] = UseAxialDistribution;
                 QString strAx;
@@ -467,6 +480,53 @@ void AParticleSourceRecord_Standard::doWriteToJson(QJsonObject & json) const
         json["Particles"] = ar;
     }
 }
+
+#include "ageoconsts.h"
+void updateGeoConstRelatedParameter(QString & str, double & val, const QString & message, bool bForbidZero = false, bool bForbidNegative = false, bool bMakeHalf = false)
+{
+    if (str.isEmpty()) return;
+
+    const AGeoConsts & GC = AGeoConsts::getConstInstance();
+    val = 0;
+    QString errorStr;
+    bool ok = GC.updateDoubleParameter(errorStr, str, val, bForbidZero, bForbidNegative, bMakeHalf);
+    if (!ok) qWarning() << "Error in Particle sim->Source->" << message << ":" << errorStr;
+}
+
+void AParticleSourceRecord_Standard::updateGeoConstRelatedSimProperties()
+{
+    updateGeoConstRelatedParameter(X0Str, X0, "X position");
+    updateGeoConstRelatedParameter(Y0Str, Y0, "Y position");
+    updateGeoConstRelatedParameter(Z0Str, Z0, "Z position");
+
+    updateGeoConstRelatedParameter(Size1Str, Size1, "Size1", true, true, true);
+    updateGeoConstRelatedParameter(Size2Str, Size2, "Size2", true, true, true);
+    updateGeoConstRelatedParameter(Size3Str, Size3, "Size3", true, true, true);
+}
+
+QString AParticleSourceRecord_Standard::isGeoConstInUse(const QRegularExpression & nameRegExp) const
+{
+    if (X0Str.contains(nameRegExp)) return "Particle simulation->Source->X position";
+    if (Y0Str.contains(nameRegExp)) return "Particle simulation->Source->Y position";
+    if (Z0Str.contains(nameRegExp)) return "Particle simulation->Source->Z position";
+
+    if (Size1Str.contains(nameRegExp)) return "Particle simulation->Source->Size1";
+    if (Size2Str.contains(nameRegExp)) return "Particle simulation->Source->Size2";
+    if (Size3Str.contains(nameRegExp)) return "Particle simulation->Source->Size3";
+
+    return "";
+}
+
+void AParticleSourceRecord_Standard::replaceGeoConstName(const QRegularExpression & nameRegExp, const QString & newName)
+{
+    X0Str.replace(nameRegExp, newName);
+    Y0Str.replace(nameRegExp, newName);
+    Z0Str.replace(nameRegExp, newName);
+
+    Size1Str.replace(nameRegExp, newName);
+    Size2Str.replace(nameRegExp, newName);
+    Size3Str.replace(nameRegExp, newName);
+}
 #endif
 
 AParticleSourceRecord_Standard::ETimeUnits AParticleSourceRecord_Standard::strToTimeUnits(const std::string & str) const
@@ -519,9 +579,25 @@ bool AParticleSourceRecord_Standard::doReadFromJson(const JsonObject & json)
                 }
                 else ; // !!!*** error
 
+#ifndef JSON11
+                JsonArray psjs;
+                bool ok = jstools::parseJson(js, "PositionStr", psjs);
+                if (ok && psjs.size() == 3)
+                {
+                    X0Str = psjs[0].toString();
+                    Y0Str = psjs[1].toString();
+                    Z0Str = psjs[2].toString();
+                }
+#endif
+
             jstools::parseJson(js, "Size1", Size1);
             jstools::parseJson(js, "Size2", Size2);
             jstools::parseJson(js, "Size3", Size3);
+#ifndef JSON11
+            jstools::parseJson(js, "Size1Str", Size1Str);
+            jstools::parseJson(js, "Size2Str", Size2Str);
+            jstools::parseJson(js, "Size3Str", Size3Str);
+#endif
 
             JsonObject jsAxial;
             jstools::parseJson(js, "AxialDistributionForRound", jsAxial);
@@ -805,10 +881,19 @@ void AParticleSourceRecord_EcoMug::doClear()
 
     Size1 = 50.0;
     Size2 = 50.0;
+#ifndef JSON11
+    Size1Str.clear();
+    Size2Str.clear();
+#endif
 
     X0 = 0;
     Y0 = 0;
     Z0 = 0;
+#ifndef JSON11
+    X0Str.clear();
+    Y0Str.clear();
+    Z0Str.clear();
+#endif
 }
 
 std::string AParticleSourceRecord_EcoMug::check() const
@@ -881,10 +966,43 @@ void AParticleSourceRecord_EcoMug::doWriteToJson(QJsonObject & json) const
     }
     json["Shape"] = str;
 
-    json["Size1"] = Size1;
-    json["Size2"] = Size2;
+    json["Size1"] = Size1;  json["Size1Str"] = Size1Str;
+    json["Size2"] = Size2;  json["Size2Str"] = Size2Str;
 
     json["Position"] = QJsonArray{X0, Y0, Z0};
+    json["PositionStr"] = QJsonArray{X0Str, Y0Str, Z0Str};
+}
+
+void AParticleSourceRecord_EcoMug::updateGeoConstRelatedSimProperties()
+{
+    updateGeoConstRelatedParameter(X0Str, X0, "X center");
+    updateGeoConstRelatedParameter(Y0Str, Y0, "Y center");
+    updateGeoConstRelatedParameter(Z0Str, Z0, "Z center");
+
+    updateGeoConstRelatedParameter(Size1Str, Size1, "Size1", true, true, false);
+    updateGeoConstRelatedParameter(Size2Str, Size2, "Size2", true, true, false);
+}
+
+QString AParticleSourceRecord_EcoMug::isGeoConstInUse(const QRegularExpression &nameRegExp) const
+{
+    if (X0Str.contains(nameRegExp)) return "Particle simulation->Source->X center";
+    if (Y0Str.contains(nameRegExp)) return "Particle simulation->Source->Y center";
+    if (Z0Str.contains(nameRegExp)) return "Particle simulation->Source->Z center";
+
+    if (Size1Str.contains(nameRegExp)) return "Particle simulation->Source->Size1";
+    if (Size2Str.contains(nameRegExp)) return "Particle simulation->Source->Size2";
+
+    return "";
+}
+
+void AParticleSourceRecord_EcoMug::replaceGeoConstName(const QRegularExpression &nameRegExp, const QString &newName)
+{
+    X0Str.replace(nameRegExp, newName);
+    Y0Str.replace(nameRegExp, newName);
+    Z0Str.replace(nameRegExp, newName);
+
+    Size1Str.replace(nameRegExp, newName);
+    Size2Str.replace(nameRegExp, newName);
 }
 #endif
 
@@ -918,7 +1036,23 @@ bool AParticleSourceRecord_EcoMug::doReadFromJson(const JsonObject & json)
     }
     else ; // !!!*** error
 
+#ifndef JSON11
+    JsonArray psjs;
+    bool ok = jstools::parseJson(json, "PositionStr", psjs);
+    if (ok && psjs.size() == 3)
+    {
+        X0Str = psjs[0].toString();
+        Y0Str = psjs[1].toString();
+        Z0Str = psjs[2].toString();
+    }
+#endif
+
     jstools::parseJson(json, "Size1", Size1);
     jstools::parseJson(json, "Size2", Size2);
+#ifndef JSON11
+    jstools::parseJson(json, "Size1Str", Size1Str);
+    jstools::parseJson(json, "Size2Str", Size2Str);
+#endif
+
     return true;
 }

@@ -76,7 +76,7 @@ public slots:
     void onRequestSaveImageFromScript(QString fileName);
     void onRequestAddMarkersFromScript(AGeoMarkerClass * markers);
     void onRequestAddTrackFromScript(TVirtualGeoTrack * track);
-    void ShowPoint(double * r, bool keepTracks = false);
+    void ShowPoint(const double * r, bool keepTracks = false);
     void addGenerationMarker(const double * Pos);
     void FocusVolume(QString name);
     void CenterView(double * r);

@@ -36,6 +36,10 @@ public:
 #else
     void        writeToJson(QJsonObject & json) const;
     bool        readFromJson(const QJsonObject & json); // Error handling !!!***
+
+    void        updateGeoConstRelatedSimProperties();
+    QString     isGeoConstInUse(const QRegularExpression & nameRegExp) const;
+    void        replaceGeoConstName(const QRegularExpression & nameRegExp, const QString & newName);
 #endif
 
 };

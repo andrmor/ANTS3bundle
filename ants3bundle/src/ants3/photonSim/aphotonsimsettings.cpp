@@ -333,25 +333,76 @@ void APhotOptSettings::clear()
 
 void ASingleSettings::clearSettings()
 {
-    Position[0] = Position[1] = Position[2] = 0;
+    for (size_t i = 0; i < 3; i++)
+    {
+        Position[i] = 0;
+        PositionStr[i].clear();
+    }
 }
 
-void ASingleSettings::writeToJson(QJsonObject &json) const
+void ASingleSettings::writeToJson(QJsonObject & json) const
 {
-    QJsonObject js;
+    {
         QJsonArray ar;
-        for (int i = 0; i < 3 ; i++) ar.push_back(Position[i]);
-    json["Position"] = ar;
+            for (size_t i = 0; i < 3 ; i++) ar.push_back(Position[i]);
+        json["Position"] = ar;
+    }
+
+    {
+        QJsonArray ar;
+            for (size_t i = 0; i < 3 ; i++) ar.push_back(PositionStr[i]);
+        json["PositionStr"] = ar;
+    }
 }
 
 QString ASingleSettings::readFromJson(const QJsonObject & json)
 {
-    QJsonArray ar;
-    bool ok = jstools::parseJson(json, "Position", ar);
-    if (ok && ar.size() == 3)
-        for (int i = 0; i < 3 ; i++) Position[i] = ar[i].toDouble();
-    else return "Error in single photon bomb position data";
+    {
+        QJsonArray ar;
+        bool ok = jstools::parseJson(json, "Position", ar);
+        if (ok && ar.size() == 3)
+            for (int i = 0; i < 3 ; i++) Position[i] = ar[i].toDouble();
+        else return "Error in single photon bomb position data (double)";
+    }
+
+    {
+        QJsonArray ar;
+        bool ok = jstools::parseJson(json, "PositionStr", ar);
+        if (ok && ar.size() == 3)
+            for (int i = 0; i < 3 ; i++) PositionStr[i] = ar[i].toString();
+        else return "Error in single photon bomb position data (string)";
+    }
     return "";
+}
+
+#include "ageoconsts.h"
+void ASingleSettings::updateGeoConstRelatedSimProperties()
+{
+    const AGeoConsts & GC = AGeoConsts::getConstInstance();
+    QString errorStr;
+
+    for (size_t i = 0; i < 3; i++)
+    {
+        if (PositionStr[i].isEmpty()) continue;
+
+        Position[i] = 0;
+        bool ok = GC.updateDoubleParameter(errorStr, PositionStr[i], Position[i], false, false, false);
+        if (!ok) qWarning() << "Error in Photon Bomb single X" << errorStr;
+    }
+}
+
+QString ASingleSettings::isGeoConstInUse(const QRegularExpression & nameRegExp) const
+{
+    if (PositionStr[0].contains(nameRegExp)) return "Photon simulation->Photon bombs->Single->X position";
+    if (PositionStr[1].contains(nameRegExp)) return "Photon simulation->Photon bombs->Single->Y position";
+    if (PositionStr[2].contains(nameRegExp)) return "Photon simulation->Photon bombs->Single->Z position";
+    return "";
+}
+
+void ASingleSettings::replaceGeoConstName(const QRegularExpression & nameRegExp, const QString & newName)
+{
+    for (size_t i = 0; i < 3; i++)
+        PositionStr[i].replace(nameRegExp, newName);
 }
 
 // ---
@@ -360,36 +411,36 @@ void AFloodSettings::clearSettings()
 {
     Number   = 100;
     Shape    = Rectangular;
-    Xfrom    = -15.0;
-    Xto      =  15.0;
-    Yfrom    = -15.0;
-    Yto      =  15.0;
-    X0       = 0;
-    Y0       = 0;
-    OuterDiameter   = 300.0;
-    InnerDiameter   = 0;
+    Xfrom    = -15.0;       XfromStr.clear();
+    Xto      =  15.0;       XtoStr.clear();
+    Yfrom    = -15.0;       YfromStr.clear();
+    Yto      =  15.0;       YtoStr.clear();
+    X0       = 0;           X0Str.clear();
+    Y0       = 0;           Y0Str.clear();
+    OuterDiameter = 300.0;  OuterDiameterStr.clear();
+    InnerDiameter = 0;      InnerDiameterStr.clear();
     Zmode    = Fixed;
-    Zfixed   = 0;
-    Zfrom    = 0;
-    Zto      = 0;
+    Zfixed   = 0;           ZfixedStr.clear();
+    Zfrom    = 0;           ZfromStr.clear();
+    Zto      = 0;           ZtoStr.clear();
 }
 
 void AFloodSettings::writeToJson(QJsonObject &json) const
 {
     json["Number"]        = Number;
     json["Shape"]         = (Shape == Rectangular ? "rectangle" : "ring");
-    json["Xfrom"]         = Xfrom;
-    json["Xto"]           = Xto;
-    json["Yfrom"]         = Yfrom;
-    json["Yto"]           = Yto;
-    json["CenterX"]       = X0;
-    json["CenterY"]       = Y0;
-    json["OuterDiameter"] = OuterDiameter;
-    json["InnerDiameter"] = InnerDiameter;
+    json["Xfrom"]         = Xfrom;          json["XfromStr"]         = XfromStr;
+    json["Xto"]           = Xto;            json["XtoStr"]           = XtoStr;
+    json["Yfrom"]         = Yfrom;          json["YfromStr"]         = YfromStr;
+    json["Yto"]           = Yto;            json["YtoStr"]           = YtoStr;
+    json["CenterX"]       = X0;             json["CenterXStr"]       = X0Str;
+    json["CenterY"]       = Y0;             json["CenterYStr"]       = Y0Str;
+    json["OuterDiameter"] = OuterDiameter;  json["OuterDiameterStr"] = OuterDiameterStr;
+    json["InnerDiameter"] = InnerDiameter;  json["InnerDiameterStr"] = InnerDiameterStr;
     json["Zmode"]         = (Zmode == Fixed ? "fixed" : "range");
-    json["Zfixed"]        = Zfixed;
-    json["Zfrom"]         = Zfrom;
-    json["Zto"]           = Zto;
+    json["Zfixed"]        = Zfixed;         json["ZfixedStr"]        = ZfixedStr;
+    json["Zfrom"]         = Zfrom;          json["ZfromStr"]         = ZfromStr;
+    json["Zto"]           = Zto;            json["ZtoStr"]           = ZtoStr;
 }
 
 QString AFloodSettings::readFromJson(const QJsonObject & json)
@@ -404,16 +455,16 @@ QString AFloodSettings::readFromJson(const QJsonObject & json)
     else if (shapeStr == "ring")      Shape = Ring;
     else return "Unknown flood shape: " + shapeStr;
 
-    jstools::parseJson(json, "Xfrom", Xfrom);
-    jstools::parseJson(json, "Xto",   Xto);
-    jstools::parseJson(json, "Yfrom", Yfrom);
-    jstools::parseJson(json, "Yto",   Yto);
+    jstools::parseJson(json, "Xfrom", Xfrom);                   jstools::parseJson(json, "XfromStr", XfromStr);
+    jstools::parseJson(json, "Xto",   Xto);                     jstools::parseJson(json, "XtoStr",   XtoStr);
+    jstools::parseJson(json, "Yfrom", Yfrom);                   jstools::parseJson(json, "YfromStr", YfromStr);
+    jstools::parseJson(json, "Yto",   Yto);                     jstools::parseJson(json, "YtoStr",   YtoStr);
 
-    jstools::parseJson(json, "CenterX", X0);
-    jstools::parseJson(json, "CenterY", Y0);
+    jstools::parseJson(json, "CenterX", X0);                    jstools::parseJson(json, "CenterXStr", X0Str);
+    jstools::parseJson(json, "CenterY", Y0);                    jstools::parseJson(json, "CenterYStr", Y0Str);
 
-    jstools::parseJson(json, "OuterDiameter", OuterDiameter);
-    jstools::parseJson(json, "InnerDiameter", InnerDiameter);
+    jstools::parseJson(json, "OuterDiameter", OuterDiameter);   jstools::parseJson(json, "OuterDiameterStr", OuterDiameterStr);
+    jstools::parseJson(json, "InnerDiameter", InnerDiameter);   jstools::parseJson(json, "InnerDiameterStr", InnerDiameterStr);
 
     QString zStr = "undefined";
     jstools::parseJson(json, "Zmode", zStr);
@@ -421,11 +472,75 @@ QString AFloodSettings::readFromJson(const QJsonObject & json)
     else if (zStr == "range") Zmode = Range;
     else return "Unknown Z mode for flood: " + zStr;
 
-    jstools::parseJson(json, "Zfixed", Zfixed);
-    jstools::parseJson(json, "Zfrom",  Zfrom);
-    jstools::parseJson(json, "Zto",    Zto);
+    jstools::parseJson(json, "Zfixed", Zfixed);                 jstools::parseJson(json, "ZfixedStr", ZfixedStr);
+    jstools::parseJson(json, "Zfrom",  Zfrom);                  jstools::parseJson(json, "ZfromStr",  ZfromStr);
+    jstools::parseJson(json, "Zto",    Zto);                    jstools::parseJson(json, "ZtoStr",    ZtoStr);
 
     return "";
+}
+
+void updateParameter(QString & str, double & val, const QString & message, bool bForbidZero = false, bool bForbidNegative = false)
+{
+    if (str.isEmpty()) return;
+
+    const AGeoConsts & GC = AGeoConsts::getConstInstance();
+    val = 0;
+    QString errorStr;
+    bool ok = GC.updateDoubleParameter(errorStr, str, val, bForbidZero, bForbidNegative, false);
+    if (!ok) qWarning() << "Error in Photon sim->Photon Bombs->Flood->" << message << ":" << errorStr;
+}
+
+void AFloodSettings::updateGeoConstRelatedSimProperties()
+{
+    updateParameter(XfromStr, Xfrom, "Xfrom");
+    updateParameter(XtoStr,   Xto,   "Xto");
+    updateParameter(YfromStr, Yfrom, "Yfrom");
+    updateParameter(YtoStr,   Yto,   "Yto");
+    updateParameter(X0Str,    X0,    "X0");
+    updateParameter(Y0Str,    Y0,    "Y0");
+
+    updateParameter(OuterDiameterStr, OuterDiameter, "OuterDiameter", true, true);
+    updateParameter(InnerDiameterStr, InnerDiameter, "InnerDiameter", false, true);
+
+    updateParameter(ZfixedStr, Zfixed, "Zfixed");
+    updateParameter(ZfromStr,  Zfrom,  "Zfrom");
+    updateParameter(ZtoStr,    Zto,    "Zto");
+}
+
+QString AFloodSettings::isGeoConstInUse(const QRegularExpression & nameRegExp) const
+{
+    if (XfromStr.contains(nameRegExp)) return "Photon simulation->Photon bombs->Flood->X from";
+    if (XtoStr.  contains(nameRegExp)) return "Photon simulation->Photon bombs->Flood->X to";
+    if (YfromStr.contains(nameRegExp)) return "Photon simulation->Photon bombs->Flood->Y from";
+    if (YtoStr.  contains(nameRegExp)) return "Photon simulation->Photon bombs->Flood->Y to";
+    if (X0Str.   contains(nameRegExp)) return "Photon simulation->Photon bombs->Flood->X center";
+    if (Y0Str.   contains(nameRegExp)) return "Photon simulation->Photon bombs->Flood->Y center";
+
+    if (OuterDiameterStr.contains(nameRegExp)) return "Photon simulation->Photon bombs->Flood->Outer Diameter";
+    if (InnerDiameterStr.contains(nameRegExp)) return "Photon simulation->Photon bombs->Flood->Inner Diameter";
+
+    if (ZfixedStr.contains(nameRegExp)) return "Photon simulation->Photon bombs->Flood->Z fixed";
+    if (ZfromStr. contains(nameRegExp)) return "Photon simulation->Photon bombs->Flood->Z from";
+    if (ZtoStr.   contains(nameRegExp)) return "Photon simulation->Photon bombs->Flood->Z to";
+
+    return "";
+}
+
+void AFloodSettings::replaceGeoConstName(const QRegularExpression &nameRegExp, const QString &newName)
+{
+    XfromStr.replace(nameRegExp, newName);
+    XtoStr.  replace(nameRegExp, newName);
+    YfromStr.replace(nameRegExp, newName);
+    YtoStr.  replace(nameRegExp, newName);
+    X0Str.   replace(nameRegExp, newName);
+    Y0Str.   replace(nameRegExp, newName);
+
+    OuterDiameterStr.replace(nameRegExp, newName);
+    InnerDiameterStr.replace(nameRegExp, newName);
+
+    ZfixedStr.replace(nameRegExp, newName);
+    ZfromStr. replace(nameRegExp, newName);
+    ZtoStr.   replace(nameRegExp, newName);
 }
 
 // ---
@@ -561,6 +676,29 @@ void APhotonBombsSettings::clear()
     BombFileSettings.clear();
 
     AdvancedSettings.clear();
+}
+
+void APhotonBombsSettings::updateGeoConstRelatedSimProperties()
+{
+    SingleSettings.updateGeoConstRelatedSimProperties();
+    GridSettings.  updateGeoConstRelatedSimProperties();
+    FloodSettings. updateGeoConstRelatedSimProperties();
+}
+
+QString APhotonBombsSettings::isGeoConstInUse(const QRegularExpression & nameRegExp) const
+{
+    QString str;
+    str = SingleSettings.isGeoConstInUse(nameRegExp); if (!str.isEmpty()) return str;
+    str = GridSettings.  isGeoConstInUse(nameRegExp); if (!str.isEmpty()) return str;
+    str = FloodSettings. isGeoConstInUse(nameRegExp); if (!str.isEmpty()) return str;
+    return "";
+}
+
+void APhotonBombsSettings::replaceGeoConstName(const QRegularExpression & nameRegExp, const QString & newName)
+{
+    SingleSettings.replaceGeoConstName(nameRegExp, newName);
+    GridSettings.  replaceGeoConstName(nameRegExp, newName);
+    FloodSettings. replaceGeoConstName(nameRegExp, newName);
 }
 
 // ---
@@ -922,62 +1060,111 @@ int AGridSettings::getNumEvents() const
 
 void AGridSettings::clearSettings()
 {
-    for (int i=0; i<3; i++)
+    for (size_t i = 0; i < 3; i++)
         ScanRecords[i] = APhScanRecord();
     ScanRecords[0].bEnabled = true;
-
     ScanRecords[1].DX = 0; ScanRecords[1].DY = 10.0;
     ScanRecords[2].DX = 0; ScanRecords[2].DZ = 10.0;
+
+    X0 = 0; X0Str.clear();
+    Y0 = 0; Y0Str.clear();
+    Z0 = 0; Z0Str.clear();
 }
 
-void AGridSettings::writeToJson(QJsonObject &json) const
+void AGridSettings::writeToJson(QJsonObject & json) const
 {
-    json["ScanX0"] = X0;
-    json["ScanY0"] = Y0;
-    json["ScanZ0"] = Z0;
+    json["ScanX0"] = X0;    json["ScanX0Str"] = X0Str;
+    json["ScanY0"] = Y0;    json["ScanY0Str"] = Y0Str;
+    json["ScanZ0"] = Z0;    json["ScanZ0Str"] = Z0Str;
 
     QJsonArray ar;
-        for (int i = 0; i < 3; i++)
+        for (size_t i = 0; i < 3; i++)
         {
             QJsonObject js;
                 const APhScanRecord & r = ScanRecords[i];
                 js["Enabled"]   = r.bEnabled;
                 js["BiDirect"] = r.bBiDirect;
                 js["Nodes"]     = r.Nodes;
-                js["dX"]        = r.DX;
-                js["dY"]        = r.DY;
-                js["dZ"]        = r.DZ;
+                js["dX"]        = r.DX;     js["dXStr"] = r.DXStr;
+                js["dY"]        = r.DY;     js["dYStr"] = r.DYStr;
+                js["dZ"]        = r.DZ;     js["dZStr"] = r.DZStr;
             ar.append(js);
         }
-        json["AxesData"] = ar;
+    json["AxesData"] = ar;
 }
 
-QString AGridSettings::readFromJson(const QJsonObject &json)
+QString AGridSettings::readFromJson(const QJsonObject & json)
 {
     clearSettings();
 
-    jstools::parseJson(json, "ScanX0", X0);
-    jstools::parseJson(json, "ScanY0", Y0);
-    jstools::parseJson(json, "ScanZ0", Z0);
+    jstools::parseJson(json, "ScanX0", X0);     jstools::parseJson(json, "ScanX0Str", X0Str);
+    jstools::parseJson(json, "ScanY0", Y0);     jstools::parseJson(json, "ScanY0Str", Y0Str);
+    jstools::parseJson(json, "ScanZ0", Z0);     jstools::parseJson(json, "ScanZ0Str", Z0Str);
 
     QJsonArray ar;
     bool bOK = jstools::parseJson(json, "AxesData", ar);
     if (!bOK || ar.size() != 3) return "Bad format in photon sim grid settings";
 
-    for (int i = 0; i < 3; i++)
+    for (size_t i = 0; i < 3; i++)
     {
         QJsonObject js = ar[i].toObject();
         APhScanRecord & r = ScanRecords[i];
         jstools::parseJson(js, "Enabled",  r.bEnabled);
         jstools::parseJson(js, "BiDirect", r.bBiDirect);
         jstools::parseJson(js, "Nodes",    r.Nodes);
-        jstools::parseJson(js, "dX",       r.DX);
-        jstools::parseJson(js, "dY",       r.DY);
-        jstools::parseJson(js, "dZ",       r.DZ);
+        jstools::parseJson(js, "dX",       r.DX);       jstools::parseJson(js, "dXStr", r.DXStr);
+        jstools::parseJson(js, "dY",       r.DY);       jstools::parseJson(js, "dYStr", r.DYStr);
+        jstools::parseJson(js, "dZ",       r.DZ);       jstools::parseJson(js, "dZStr", r.DZStr);
     }
 
     ScanRecords[0].bEnabled = true;
     return "";
+}
+
+void AGridSettings::updateGeoConstRelatedSimProperties()
+{
+    updateParameter(X0Str, X0, "X origin");
+    updateParameter(Y0Str, Y0, "Y origin");
+    updateParameter(Z0Str, Z0, "Z origin");
+
+    for (size_t i = 0; i < 3; i++)
+    {
+        APhScanRecord & sr = ScanRecords[i];
+        updateParameter(sr.DXStr, sr.DX, QString("X step [%1]").arg(i));
+        updateParameter(sr.DYStr, sr.DY, QString("Y step [%1]").arg(i));
+        updateParameter(sr.DZStr, sr.DZ, QString("Z step [%1]").arg(i));
+    }
+}
+
+QString AGridSettings::isGeoConstInUse(const QRegularExpression & nameRegExp) const
+{
+    if (X0Str.contains(nameRegExp)) return "Photon simulation->Photon bombs->Grid->X origin";
+    if (Y0Str.contains(nameRegExp)) return "Photon simulation->Photon bombs->Grid->Y origin";
+    if (Z0Str.contains(nameRegExp)) return "Photon simulation->Photon bombs->Grid->Z origin";
+
+    for (size_t i = 0; i < 3; i++)
+    {
+        const APhScanRecord & sr = ScanRecords[i];
+        if (sr.DXStr.contains(nameRegExp)) return QString("Photon simulation->Photon bombs->Grid->X step [%0])").arg(i);
+        if (sr.DYStr.contains(nameRegExp)) return QString("Photon simulation->Photon bombs->Grid->Y step [%0])").arg(i);
+        if (sr.DZStr.contains(nameRegExp)) return QString("Photon simulation->Photon bombs->Grid->Z step [%0])").arg(i);
+    }
+
+    return "";
+}
+
+void AGridSettings::replaceGeoConstName(const QRegularExpression & nameRegExp, const QString & newName)
+{
+    X0Str.replace(nameRegExp, newName);
+    Y0Str.replace(nameRegExp, newName);
+    Z0Str.replace(nameRegExp, newName);
+
+    for (APhScanRecord & sr : ScanRecords)
+    {
+        sr.DXStr.replace(nameRegExp, newName);
+        sr.DYStr.replace(nameRegExp, newName);
+        sr.DZStr.replace(nameRegExp, newName);
+    }
 }
 
 // ----

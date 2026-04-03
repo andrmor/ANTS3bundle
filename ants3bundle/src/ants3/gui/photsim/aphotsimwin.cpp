@@ -22,6 +22,8 @@
 #include "aphotonloghandler.h"
 #include "aphotonlogsettingsform.h"
 #include "asensorsignalarray.h"
+#include "aonelinetextedit.h"
+#include "ageobasedelegate.h"
 
 #ifdef USE_MERCURY
 #include "alightresponsehub.h"
@@ -69,6 +71,12 @@ APhotSimWin::APhotSimWin(QWidget * parent) :
         if (pb->objectName().startsWith("pbd"))
             pb->setVisible(false);
 
+    QDoubleValidator * doubVal = new QDoubleValidator(this);
+    QList<QLineEdit*> listLineEdits = findChildren<QLineEdit*>();
+    for (QLineEdit * le : qAsConst(listLineEdits))
+        if (le->objectName().startsWith("led"))
+            le->setValidator(doubVal);
+
     ui->cbSensorsAll->setChecked(true);
     ui->cbRandomSeed->setChecked(true);
 
@@ -96,6 +104,9 @@ APhotSimWin::APhotSimWin(QWidget * parent) :
     ui->labNoMercury->setVisible(false);
     ui->frLimitBombPosition->setVisible(ui->cobNodeGenerationMode->currentIndex() != 0);
     on_cobFloodZmode_currentIndexChanged(ui->cobFloodZmode->currentIndex());
+
+    on_cbSecondAxis_toggled(ui->cbSecondAxis->isChecked());
+    on_cbThirdAxis_toggled(ui->cbThirdAxis->isChecked());
 
     updateGui();
 }
@@ -198,6 +209,16 @@ void APhotSimWin::updateGui()
     updateMonitorGui();
 
     updateGeneralSettingsGui();
+
+    for (AOneLineTextEdit * le : {ui->ledSingleX, ui->ledSingleY, ui->ledSingleZ,
+                                  ui->ledFloodXfrom, ui->ledFloodXto, ui->ledFloodYfrom, ui->ledFloodYto, ui->ledFloodCenterX, ui->ledFloodCenterY,
+                                  ui->ledFloodOuterDiameter, ui->ledFloodInnerDiameter,
+                                  ui->ledFloodZ, ui->ledFloodZfrom, ui->ledFloodZto,
+                                  ui->ledOriginX, ui->ledOriginY, ui->ledOriginZ,
+                                  ui->led0X, ui->led0Y, ui->led0Z,
+                                  ui->led1X, ui->led1Y, ui->led1Z,
+                                  ui->led2X, ui->led2Y, ui->led2Z})
+        AGeoBaseDelegate::configureHighligherAndCompleter(le);
 }
 
 void APhotSimWin::updatePhotBombGui()
@@ -243,20 +264,26 @@ void APhotSimWin::updatePhotBombGui()
 
     //Single
     const ASingleSettings & sset = SimSet.BombSet.SingleSettings;
-    ui->ledSingleX->setText(QString::number(sset.Position[0]));
-    ui->ledSingleY->setText(QString::number(sset.Position[1]));
-    ui->ledSingleZ->setText(QString::number(sset.Position[2]));
+        //ui->ledSingleX->setText(QString::number(sset.Position[0]));
+    ui->ledSingleX->setText(sset.PositionStr[0].isEmpty() ? QString::number(sset.Position[0]) : sset.PositionStr[0]);
+        //ui->ledSingleY->setText(QString::number(sset.Position[1]));
+    ui->ledSingleY->setText(sset.PositionStr[1].isEmpty() ? QString::number(sset.Position[1]) : sset.PositionStr[1]);
+        //ui->ledSingleZ->setText(QString::number(sset.Position[2]));
+    ui->ledSingleZ->setText(sset.PositionStr[2].isEmpty() ? QString::number(sset.Position[2]) : sset.PositionStr[2]);
 
     //Grid
     const AGridSettings & g = SimSet.BombSet.GridSettings;
-    ui->ledOriginX->setText(QString::number(g.X0));
-    ui->ledOriginY->setText(QString::number(g.Y0));
-    ui->ledOriginZ->setText(QString::number(g.Z0));
+        //ui->ledOriginX->setText(QString::number(g.X0));
+    ui->ledOriginX->setText(g.X0Str.isEmpty() ? QString::number(g.X0) : g.X0Str);
+        //ui->ledOriginY->setText(QString::number(g.Y0));
+    ui->ledOriginY->setText(g.Y0Str.isEmpty() ? QString::number(g.Y0) : g.Y0Str);
+        //ui->ledOriginZ->setText(QString::number(g.Z0));
+    ui->ledOriginZ->setText(g.Z0Str.isEmpty() ? QString::number(g.Z0) : g.Z0Str);
     ui->cbSecondAxis->setChecked(g.ScanRecords[1].bEnabled);
     ui->cbThirdAxis-> setChecked(g.ScanRecords[2].bEnabled);
-    for (int i = 0; i < 3; i++)
+    for (size_t i = 0; i < 3; i++)
     {
-        QLineEdit *leDX, *leDY, *leDZ;
+        AOneLineTextEdit *leDX, *leDY, *leDZ;
         QSpinBox  *sbNodes;
         QComboBox *cobBiDir;
         switch (i)
@@ -266,9 +293,12 @@ void APhotSimWin::updatePhotBombGui()
         case 2: leDX = ui->led2X; leDY = ui->led2Y; leDZ = ui->led2Z; sbNodes = ui->sb2nodes; cobBiDir = ui->cob2dir; break;
         }
         const APhScanRecord & r = g.ScanRecords[i];
-        leDX->setText(QString::number(r.DX));
-        leDY->setText(QString::number(r.DY));
-        leDZ->setText(QString::number(r.DZ));
+            //leDX->setText(QString::number(r.DX));
+        leDX->setText(r.DXStr.isEmpty() ? QString::number(r.DX) : r.DXStr);
+            //leDY->setText(QString::number(r.DY));
+        leDY->setText(r.DYStr.isEmpty() ? QString::number(r.DY) : r.DYStr);
+            //leDZ->setText(QString::number(r.DZ));
+        leDZ->setText(r.DZStr.isEmpty() ? QString::number(r.DZ) : r.DZStr);
         sbNodes->setValue(r.Nodes);
         cobBiDir->setCurrentIndex(r.bBiDirect ? 1 : 0);
     }
@@ -277,18 +307,29 @@ void APhotSimWin::updatePhotBombGui()
     const AFloodSettings & fset = SimSet.BombSet.FloodSettings;
     ui->sbFloodNumber->setValue(fset.Number);
     ui->cobFloodShape->setCurrentIndex(fset.Shape == AFloodSettings::Rectangular ? 0 : 1);
-    ui->ledFloodXfrom->setText(QString::number(fset.Xfrom));
-    ui->ledFloodXto->setText(QString::number(fset.Xto));
-    ui->ledFloodYfrom->setText(QString::number(fset.Yfrom));
-    ui->ledFloodYto->setText(QString::number(fset.Yto));
-    ui->ledFloodCenterX->setText(QString::number(fset.X0));
-    ui->ledFloodCenterY->setText(QString::number(fset.Y0));
-    ui->ledFloodOuterDiameter->setText(QString::number(fset.OuterDiameter));
-    ui->ledFloodInnerDiameter->setText(QString::number(fset.InnerDiameter));
+        //ui->ledFloodXfrom->setText(QString::number(fset.Xfrom));
+    ui->ledFloodXfrom->setText(fset.XfromStr.isEmpty() ? QString::number(fset.Xfrom) : fset.XfromStr);
+        //ui->ledFloodXto->setText(QString::number(fset.Xto));
+    ui->ledFloodXto->setText(fset.XtoStr.isEmpty() ? QString::number(fset.Xto) : fset.XtoStr);
+        //ui->ledFloodYfrom->setText(QString::number(fset.Yfrom));
+    ui->ledFloodYfrom->setText(fset.YfromStr.isEmpty() ? QString::number(fset.Yfrom) : fset.YfromStr);
+        //ui->ledFloodYto->setText(QString::number(fset.Yto));
+    ui->ledFloodYto->setText(fset.YtoStr.isEmpty() ? QString::number(fset.Yto) : fset.YtoStr);
+        //ui->ledFloodCenterX->setText(QString::number(fset.X0));
+    ui->ledFloodCenterX->setText(fset.X0Str.isEmpty() ? QString::number(fset.X0) : fset.X0Str);
+        //ui->ledFloodCenterY->setText(QString::number(fset.Y0));
+    ui->ledFloodCenterY->setText(fset.Y0Str.isEmpty() ? QString::number(fset.Y0) : fset.Y0Str);
+        //ui->ledFloodOuterDiameter->setText(QString::number(fset.OuterDiameter));
+    ui->ledFloodOuterDiameter->setText(fset.OuterDiameterStr.isEmpty() ? QString::number(fset.OuterDiameter) : fset.OuterDiameterStr);
+        //ui->ledFloodInnerDiameter->setText(QString::number(fset.InnerDiameter));
+    ui->ledFloodInnerDiameter->setText(fset.InnerDiameterStr.isEmpty() ? QString::number(fset.InnerDiameter) : fset.InnerDiameterStr);
     ui->cobFloodZmode->setCurrentIndex(fset.Zmode == AFloodSettings::Fixed ? 0 : 1);
-    ui->ledFloodZ->setText(QString::number(fset.Zfixed));
-    ui->ledFloodZfrom->setText(QString::number(fset.Zfrom));
-    ui->ledFloodZto->setText(QString::number(fset.Zto));
+        //ui->ledFloodZ->setText(QString::number(fset.Zfixed));
+    ui->ledFloodZ->setText(fset.ZfixedStr.isEmpty() ? QString::number(fset.Zfixed) : fset.ZfixedStr);
+        //ui->ledFloodZfrom->setText(QString::number(fset.Zfrom));
+    ui->ledFloodZfrom->setText(fset.ZfromStr.isEmpty() ? QString::number(fset.Zfrom) : fset.ZfromStr);
+        //ui->ledFloodZto->setText(QString::number(fset.Zto));
+    ui->ledFloodZto->setText(fset.ZtoStr.isEmpty() ? QString::number(fset.Zto) : fset.ZtoStr);
 
     // skip node position by mat / volume
     const APhotonBombAdvancedSettings & skipNodeSettings = APhotonSimHub::getConstInstance().Settings.BombSet.AdvancedSettings;
@@ -480,17 +521,35 @@ void APhotSimWin::on_cobNodeGenerationMode_activated(int index)
 
 void APhotSimWin::on_ledSingleX_editingFinished()
 {
-    SimSet.BombSet.SingleSettings.Position[0] = ui->ledSingleX->text().toDouble();
+    double val = 0;
+    QString str;
+    AGeoBaseDelegate::processEditBox("single X position", ui->ledSingleX, val, str, this);
+    ui->ledSingleX->updateTooltip();
+
+    SimSet.BombSet.SingleSettings.Position[0]    = val;
+    SimSet.BombSet.SingleSettings.PositionStr[0] = str;
 }
 
 void APhotSimWin::on_ledSingleY_editingFinished()
 {
-    SimSet.BombSet.SingleSettings.Position[1] = ui->ledSingleY->text().toDouble();
+    double val = 0;
+    QString str;
+    AGeoBaseDelegate::processEditBox("single Y position", ui->ledSingleY, val, str, this);
+    ui->ledSingleY->updateTooltip();
+
+    SimSet.BombSet.SingleSettings.Position[1]    = val;
+    SimSet.BombSet.SingleSettings.PositionStr[1] = str;
 }
 
 void APhotSimWin::on_ledSingleZ_editingFinished()
 {
-    SimSet.BombSet.SingleSettings.Position[2] = ui->ledSingleZ->text().toDouble();
+    double val = 0;
+    QString str;
+    AGeoBaseDelegate::processEditBox("single Z position", ui->ledSingleZ, val, str, this);
+    ui->ledSingleZ->updateTooltip();
+
+    SimSet.BombSet.SingleSettings.Position[2]    = val;
+    SimSet.BombSet.SingleSettings.PositionStr[2] = str;
 }
 
 void APhotSimWin::on_pbSimulate_clicked()
@@ -793,41 +852,61 @@ void APhotSimWin::on_sbFloodNumber_editingFinished()
 {
     SimSet.BombSet.FloodSettings.Number = ui->sbFloodNumber->value();
 }
+
 void APhotSimWin::on_cobFloodShape_activated(int index)
 {
     SimSet.BombSet.FloodSettings.Shape = (index == 0 ? AFloodSettings::Rectangular : AFloodSettings::Ring);
 }
+
+void APhotSimWin::processGeoConstAwareEditFinished(AOneLineTextEdit * edit, QString & str, double & val, const QString & name, QWidget * parent)
+{
+    double doubleVal = 0;
+    QString stringVal;
+    AGeoBaseDelegate::processEditBox(name, edit, doubleVal, stringVal, parent);
+    edit->updateTooltip();
+    val = doubleVal;
+    str = stringVal;
+}
+
 void APhotSimWin::on_ledFloodXfrom_editingFinished()
 {
-    SimSet.BombSet.FloodSettings.Xfrom = ui->ledFloodXfrom->text().toDouble();
+    //SimSet.BombSet.FloodSettings.Xfrom = ui->ledFloodXfrom->text().toDouble();
+    processGeoConstAwareEditFinished(ui->ledFloodXfrom, SimSet.BombSet.FloodSettings.XfromStr, SimSet.BombSet.FloodSettings.Xfrom, "X from", this);
 }
 void APhotSimWin::on_ledFloodXto_editingFinished()
 {
-    SimSet.BombSet.FloodSettings.Xto   = ui->ledFloodXto->text().toDouble();
+    //SimSet.BombSet.FloodSettings.Xto   = ui->ledFloodXto->text().toDouble();
+    processGeoConstAwareEditFinished(ui->ledFloodXto, SimSet.BombSet.FloodSettings.XtoStr, SimSet.BombSet.FloodSettings.Xto, "X to", this);
 }
 void APhotSimWin::on_ledFloodYfrom_editingFinished()
 {
-    SimSet.BombSet.FloodSettings.Yfrom = ui->ledFloodYfrom->text().toDouble();
+    //SimSet.BombSet.FloodSettings.Yfrom = ui->ledFloodYfrom->text().toDouble();
+    processGeoConstAwareEditFinished(ui->ledFloodYfrom, SimSet.BombSet.FloodSettings.YfromStr, SimSet.BombSet.FloodSettings.Yfrom, "Y from", this);
 }
 void APhotSimWin::on_ledFloodYto_editingFinished()
 {
-    SimSet.BombSet.FloodSettings.Yto   = ui->ledFloodYto->text().toDouble();
+    //SimSet.BombSet.FloodSettings.Yto   = ui->ledFloodYto->text().toDouble();
+    processGeoConstAwareEditFinished(ui->ledFloodYto, SimSet.BombSet.FloodSettings.YtoStr, SimSet.BombSet.FloodSettings.Yto, "Y to", this);
 }
 void APhotSimWin::on_ledFloodCenterX_editingFinished()
 {
-    SimSet.BombSet.FloodSettings.X0 = ui->ledFloodCenterX->text().toDouble();
+    //SimSet.BombSet.FloodSettings.X0 = ui->ledFloodCenterX->text().toDouble();
+    processGeoConstAwareEditFinished(ui->ledFloodCenterX, SimSet.BombSet.FloodSettings.X0Str, SimSet.BombSet.FloodSettings.X0, "X center", this);
 }
 void APhotSimWin::on_ledFloodCenterY_editingFinished()
 {
-    SimSet.BombSet.FloodSettings.Y0 = ui->ledFloodCenterY->text().toDouble();
+    //SimSet.BombSet.FloodSettings.Y0 = ui->ledFloodCenterY->text().toDouble();
+    processGeoConstAwareEditFinished(ui->ledFloodCenterY, SimSet.BombSet.FloodSettings.Y0Str, SimSet.BombSet.FloodSettings.Y0, "Y center", this);
 }
 void APhotSimWin::on_ledFloodOuterDiameter_editingFinished()
 {
-    SimSet.BombSet.FloodSettings.OuterDiameter = ui->ledFloodOuterDiameter->text().toDouble();
+    //SimSet.BombSet.FloodSettings.OuterDiameter = ui->ledFloodOuterDiameter->text().toDouble();
+    processGeoConstAwareEditFinished(ui->ledFloodOuterDiameter, SimSet.BombSet.FloodSettings.OuterDiameterStr, SimSet.BombSet.FloodSettings.OuterDiameter, "Outer diameter", this);
 }
 void APhotSimWin::on_ledFloodInnerDiameter_editingFinished()
 {
-    SimSet.BombSet.FloodSettings.InnerDiameter = ui->ledFloodInnerDiameter->text().toDouble();
+    //SimSet.BombSet.FloodSettings.InnerDiameter = ui->ledFloodInnerDiameter->text().toDouble();
+    processGeoConstAwareEditFinished(ui->ledFloodInnerDiameter, SimSet.BombSet.FloodSettings.InnerDiameterStr, SimSet.BombSet.FloodSettings.InnerDiameter, "Inner diameter", this);
 }
 void APhotSimWin::on_cobFloodZmode_activated(int index)
 {
@@ -835,15 +914,18 @@ void APhotSimWin::on_cobFloodZmode_activated(int index)
 }
 void APhotSimWin::on_ledFloodZ_editingFinished()
 {
-    SimSet.BombSet.FloodSettings.Zfixed = ui->ledFloodZ->text().toDouble();
+    //SimSet.BombSet.FloodSettings.Zfixed = ui->ledFloodZ->text().toDouble();
+    processGeoConstAwareEditFinished(ui->ledFloodZ, SimSet.BombSet.FloodSettings.ZfixedStr, SimSet.BombSet.FloodSettings.Zfixed, "Z fixed", this);
 }
 void APhotSimWin::on_ledFloodZfrom_editingFinished()
 {
-    SimSet.BombSet.FloodSettings.Zfrom = ui->ledFloodZfrom->text().toDouble();
+    //SimSet.BombSet.FloodSettings.Zfrom = ui->ledFloodZfrom->text().toDouble();
+    processGeoConstAwareEditFinished(ui->ledFloodZfrom, SimSet.BombSet.FloodSettings.ZfromStr, SimSet.BombSet.FloodSettings.Zfrom, "Z from", this);
 }
 void APhotSimWin::on_ledFloodZto_editingFinished()
 {
-    SimSet.BombSet.FloodSettings.Zto = ui->ledFloodZto->text().toDouble();
+    //SimSet.BombSet.FloodSettings.Zto = ui->ledFloodZto->text().toDouble();
+    processGeoConstAwareEditFinished(ui->ledFloodZto, SimSet.BombSet.FloodSettings.ZtoStr, SimSet.BombSet.FloodSettings.Zto, "Z to", this);
 }
 
 void APhotSimWin::on_sbNumPhotons_editingFinished()
@@ -1515,31 +1597,39 @@ void APhotSimWin::on_pbdUpdateScanSettings_clicked()
 {
     AGridSettings & g = SimSet.BombSet.GridSettings;
 
-    g.X0 = ui->ledOriginX->text().toDouble();
-    g.Y0 = ui->ledOriginY->text().toDouble();
-    g.Z0 = ui->ledOriginZ->text().toDouble();
+        //g.X0 = ui->ledOriginX->text().toDouble();
+    processGeoConstAwareEditFinished(ui->ledOriginX, g.X0Str, g.X0, "X origin", this);
+        //g.Y0 = ui->ledOriginY->text().toDouble();
+    processGeoConstAwareEditFinished(ui->ledOriginY, g.Y0Str, g.Y0, "Y origin", this);
+        //g.Z0 = ui->ledOriginZ->text().toDouble();
+    processGeoConstAwareEditFinished(ui->ledOriginZ, g.Z0Str, g.Z0, "Z origin", this);
 
     g.ScanRecords[1].bEnabled = ui->cbSecondAxis->isChecked();
     g.ScanRecords[2].bEnabled = ui->cbThirdAxis->isChecked();
 
     for (int i = 0; i < 3; i++)
     {
-        QLineEdit *leDX, *leDY, *leDZ;
+        AOneLineTextEdit *leDX, *leDY, *leDZ;
         QSpinBox  *sbNodes;
         QComboBox *cobBiDir;
+        QString tmpStr;
         switch (i)
         {
-        case 0: leDX = ui->led0X; leDY = ui->led0Y; leDZ = ui->led0Z; sbNodes = ui->sb0nodes; cobBiDir = ui->cob0dir; break;
-        case 1: leDX = ui->led1X; leDY = ui->led1Y; leDZ = ui->led1Z; sbNodes = ui->sb1nodes; cobBiDir = ui->cob1dir; break;
-        case 2: leDX = ui->led2X; leDY = ui->led2Y; leDZ = ui->led2Z; sbNodes = ui->sb2nodes; cobBiDir = ui->cob2dir; break;
+        case 0: leDX = ui->led0X; leDY = ui->led0Y; leDZ = ui->led0Z; sbNodes = ui->sb0nodes; cobBiDir = ui->cob0dir; tmpStr = "1"; break;
+        case 1: leDX = ui->led1X; leDY = ui->led1Y; leDZ = ui->led1Z; sbNodes = ui->sb1nodes; cobBiDir = ui->cob1dir; tmpStr = "2"; break;
+        case 2: leDX = ui->led2X; leDY = ui->led2Y; leDZ = ui->led2Z; sbNodes = ui->sb2nodes; cobBiDir = ui->cob2dir; tmpStr = "3"; break;
         }
 
         APhScanRecord & r = g.ScanRecords[i];
 
-        r.DX        = leDX->text().toDouble();
-        r.DY        = leDY->text().toDouble();
-        r.DZ        = leDZ->text().toDouble();
-        r.Nodes     = sbNodes->value();
+            //r.DX = leDX->text().toDouble();
+        processGeoConstAwareEditFinished(leDX, r.DXStr, r.DX, QString("Step in X [%1]").arg(tmpStr), this);
+            //r.DY = leDY->text().toDouble();
+        processGeoConstAwareEditFinished(leDY, r.DYStr, r.DY, QString("Step in Y [%1]").arg(tmpStr), this);
+            //r.DZ = leDZ->text().toDouble();
+        processGeoConstAwareEditFinished(leDZ, r.DZStr, r.DZ, QString("Step in Z [%1]").arg(tmpStr), this);
+
+        r.Nodes = sbNodes->value();
         r.bBiDirect = (cobBiDir->currentIndex() == 1);
     }
 }
@@ -2009,11 +2099,16 @@ void APhotSimWin::showBombsMultiple(bool showMessages)
 
 void APhotSimWin::on_pbSingleSourceShow_clicked()
 {
+    /*
     double pos[3];
     pos[0] = ui->ledSingleX->text().toDouble();
     pos[1] = ui->ledSingleY->text().toDouble();
     pos[2] = ui->ledSingleZ->text().toDouble();
     emit requestShowPosition(pos, false);
+    */
+
+    const ASingleSettings & sset = SimSet.BombSet.SingleSettings;
+    emit requestShowPosition(sset.Position, false);
 }
 
 void APhotSimWin::on_cobTracingMode_currentIndexChanged(int index)
@@ -2318,3 +2413,20 @@ void APhotSimWin::on_cobFloodZmode_currentIndexChanged(int index)
     ui->frZrange->setVisible(index == 1);
 }
 
+void APhotSimWin::on_cbSecondAxis_toggled(bool checked)
+{
+    ui->led1X->setEnabled(checked);
+    ui->led1Y->setEnabled(checked);
+    ui->led1Z->setEnabled(checked);
+    ui->sb1nodes->setEnabled(checked);
+    ui->cob1dir->setEnabled(checked);
+}
+
+void APhotSimWin::on_cbThirdAxis_toggled(bool checked)
+{
+    ui->led2X->setEnabled(checked);
+    ui->led2Y->setEnabled(checked);
+    ui->led2Z->setEnabled(checked);
+    ui->sb2nodes->setEnabled(checked);
+    ui->cob2dir->setEnabled(checked);
+}

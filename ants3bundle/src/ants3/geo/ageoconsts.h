@@ -1,9 +1,10 @@
 #ifndef AGEOCONSTS_H
 #define AGEOCONSTS_H
 
-#include <vector>
 #include <QString>
 #include <QRegularExpression>
+
+#include <vector>
 
 class QJsonArray;
 class AGeoObject;
@@ -22,7 +23,7 @@ struct AGeoConstRecord
     QString Index;
 };
 
-class AGeoConsts final
+class AGeoConsts
 {
 public:
     static       AGeoConsts & getInstance();
@@ -42,10 +43,12 @@ public:
     void    setNewComment(int index, const QString & txt);
     bool    isIndexValid(int index);
 
+    void    updateInConfigJson(); // when setNewValue is used in script, GeoConst section of JSON of the config has to be updated to avoid override after running config.updateConfig()
+
     QString checkifValidAndGetDoublefromExpression(int index);
     QString isGeoConstsBelowInUse(int index) const;
 
-    QString isGeoConstInUse(const QRegularExpression & nameRegExp, int index) const;
+    QString isGeoConstInUse(const QRegularExpression & nameRegExp, int index, AGeoObject * world) const;
     void    replaceGeoConstName(const QRegularExpression & nameRegExp, const QString & newName, int index);
 
     QString getName(int index) const;
@@ -91,6 +94,7 @@ private:
     std::vector<QRegularExpression> ForbiddenVarsRExp;
 
     void updateRunTimeProperties();
+    void updateSimProperties();
 };
 
 #endif // AGEOCONSTS_H

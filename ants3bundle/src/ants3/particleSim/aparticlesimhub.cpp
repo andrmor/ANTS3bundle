@@ -33,3 +33,18 @@ void AParticleSimHub::clear()
 {
     Settings.clearSettings();
 }
+
+void AParticleSimHub::updateGeoConstRelatedSimProperties()
+{
+    Settings.SourceGenSettings.updateGeoConstRelatedSimProperties();
+}
+
+QString AParticleSimHub::isGeoConstInUse(const QRegularExpression & nameRegExp) const
+{
+    return Settings.SourceGenSettings.isGeoConstInUse(nameRegExp);
+}
+
+void AParticleSimHub::replaceGeoConstName(const QRegularExpression & nameRegExp, const QString & newName)
+{
+    Settings.SourceGenSettings.replaceGeoConstName(nameRegExp, newName);
+}
