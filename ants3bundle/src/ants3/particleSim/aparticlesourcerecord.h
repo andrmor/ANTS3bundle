@@ -130,6 +130,11 @@ struct AParticleSourceRecord_Standard : public AParticleSourceRecordBase
     double      Size1 = 10.0;   // Half-size or radius
     double      Size2 = 10.0;   // Half-size or radius
     double      Size3 = 10.0;   // Half-size or radius
+#ifndef JSON11
+    QString     Size1Str;
+    QString     Size2Str;
+    QString     Size3Str;
+#endif
 
     // Axial distribution for round
     bool        UseAxialDistribution = false;

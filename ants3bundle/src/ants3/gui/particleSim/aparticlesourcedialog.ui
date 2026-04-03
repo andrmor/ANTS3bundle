@@ -267,11 +267,11 @@ If material with this name does not exist, this limitation is not applied.</stri
          </widget>
         </item>
         <item>
-         <widget class="QLineEdit" name="ledGun1DSize">
+         <widget class="AOneLineTextEdit" name="ledGun1DSize">
           <property name="maximumSize">
            <size>
             <width>75</width>
-            <height>16777215</height>
+            <height>25</height>
            </size>
           </property>
           <property name="text">
@@ -290,11 +290,11 @@ If material with this name does not exist, this limitation is not applied.</stri
          </widget>
         </item>
         <item>
-         <widget class="QLineEdit" name="ledGun2DSize">
+         <widget class="AOneLineTextEdit" name="ledGun2DSize">
           <property name="maximumSize">
            <size>
             <width>75</width>
-            <height>16777215</height>
+            <height>25</height>
            </size>
           </property>
           <property name="text">
@@ -313,11 +313,11 @@ If material with this name does not exist, this limitation is not applied.</stri
          </widget>
         </item>
         <item>
-         <widget class="QLineEdit" name="ledGun3DSize">
+         <widget class="AOneLineTextEdit" name="ledGun3DSize">
           <property name="maximumSize">
            <size>
             <width>75</width>
-            <height>16777215</height>
+            <height>25</height>
            </size>
           </property>
           <property name="text">

@@ -266,6 +266,11 @@ void AParticleSourceRecord_Standard::doClear()
     Size1 = 10.0;
     Size2 = 10.0;
     Size3 = 10.0;
+#ifndef JSON11
+    Size1Str.clear();
+    Size2Str.clear();
+    Size3Str.clear();
+#endif
 
     UseAxialDistribution = false;
     AxialDistributionType = GaussAxial;
@@ -362,11 +367,13 @@ void AParticleSourceRecord_Standard::doWriteToJson(QJsonObject & json) const
                 case Cylinder  : str = "Cylinder";  break;
                 }
             js["Shape"] = str;
-            js["Position"] = QJsonArray{X0, Y0, Z0};
-            js["PositionStr"] = QJsonArray{X0Str, Y0Str, Z0Str};
-            js["Size1"] = Size1;
-            js["Size2"] = Size2;
-            js["Size3"] = Size3;
+
+            js["Position"] = QJsonArray{X0, Y0, Z0};    js["PositionStr"] = QJsonArray{X0Str, Y0Str, Z0Str};
+
+            js["Size1"] = Size1;    js["Size1Str"] = Size1Str;
+            js["Size2"] = Size2;    js["Size2Str"] = Size2Str;
+            js["Size3"] = Size3;    js["Size3Str"] = Size3Str;
+
             QJsonObject jsAxial;
                 jsAxial["Enabled"] = UseAxialDistribution;
                 QString strAx;
@@ -475,14 +482,14 @@ void AParticleSourceRecord_Standard::doWriteToJson(QJsonObject & json) const
 }
 
 #include "ageoconsts.h"
-void updateGeoConstRelatedParameter(QString & str, double & val, const QString & message, bool bForbidZero = false, bool bForbidNegative = false)
+void updateGeoConstRelatedParameter(QString & str, double & val, const QString & message, bool bForbidZero = false, bool bForbidNegative = false, bool bMakeHalf = false)
 {
     if (str.isEmpty()) return;
 
     const AGeoConsts & GC = AGeoConsts::getConstInstance();
     val = 0;
     QString errorStr;
-    bool ok = GC.updateDoubleParameter(errorStr, str, val, bForbidZero, bForbidNegative, false);
+    bool ok = GC.updateDoubleParameter(errorStr, str, val, bForbidZero, bForbidNegative, bMakeHalf);
     if (!ok) qWarning() << "Error in Particle sim->Source->" << message << ":" << errorStr;
 }
 
@@ -491,6 +498,10 @@ void AParticleSourceRecord_Standard::updateGeoConstRelatedSimProperties()
     updateGeoConstRelatedParameter(X0Str, X0, "X position");
     updateGeoConstRelatedParameter(Y0Str, Y0, "Y position");
     updateGeoConstRelatedParameter(Z0Str, Z0, "Z position");
+
+    updateGeoConstRelatedParameter(Size1Str, Size1, "Size1", true, true, true);
+    updateGeoConstRelatedParameter(Size2Str, Size2, "Size2", true, true, true);
+    updateGeoConstRelatedParameter(Size3Str, Size3, "Size3", true, true, true);
 }
 
 QString AParticleSourceRecord_Standard::isGeoConstInUse(const QRegularExpression & nameRegExp) const
@@ -498,6 +509,10 @@ QString AParticleSourceRecord_Standard::isGeoConstInUse(const QRegularExpression
     if (X0Str.contains(nameRegExp)) return "Particle simulation->Source->X position";
     if (Y0Str.contains(nameRegExp)) return "Particle simulation->Source->Y position";
     if (Z0Str.contains(nameRegExp)) return "Particle simulation->Source->Z position";
+
+    if (Size1Str.contains(nameRegExp)) return "Particle simulation->Source->Size1";
+    if (Size2Str.contains(nameRegExp)) return "Particle simulation->Source->Size2";
+    if (Size3Str.contains(nameRegExp)) return "Particle simulation->Source->Size3";
 
     return "";
 }
@@ -507,6 +522,10 @@ void AParticleSourceRecord_Standard::replaceGeoConstName(const QRegularExpressio
     X0Str.replace(nameRegExp, newName);
     Y0Str.replace(nameRegExp, newName);
     Z0Str.replace(nameRegExp, newName);
+
+    Size1Str.replace(nameRegExp, newName);
+    Size2Str.replace(nameRegExp, newName);
+    Size3Str.replace(nameRegExp, newName);
 }
 #endif
 
@@ -574,6 +593,11 @@ bool AParticleSourceRecord_Standard::doReadFromJson(const JsonObject & json)
             jstools::parseJson(js, "Size1", Size1);
             jstools::parseJson(js, "Size2", Size2);
             jstools::parseJson(js, "Size3", Size3);
+#ifndef JSON11
+            jstools::parseJson(js, "Size1Str", Size1Str);
+            jstools::parseJson(js, "Size2Str", Size2Str);
+            jstools::parseJson(js, "Size3Str", Size3Str);
+#endif
 
             JsonObject jsAxial;
             jstools::parseJson(js, "AxialDistributionForRound", jsAxial);
