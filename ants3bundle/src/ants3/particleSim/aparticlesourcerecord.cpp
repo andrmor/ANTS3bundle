@@ -881,10 +881,19 @@ void AParticleSourceRecord_EcoMug::doClear()
 
     Size1 = 50.0;
     Size2 = 50.0;
+#ifndef JSON11
+    Size1Str.clear();
+    Size2Str.clear();
+#endif
 
     X0 = 0;
     Y0 = 0;
     Z0 = 0;
+#ifndef JSON11
+    X0Str.clear();
+    Y0Str.clear();
+    Z0Str.clear();
+#endif
 }
 
 std::string AParticleSourceRecord_EcoMug::check() const
@@ -957,10 +966,43 @@ void AParticleSourceRecord_EcoMug::doWriteToJson(QJsonObject & json) const
     }
     json["Shape"] = str;
 
-    json["Size1"] = Size1;
-    json["Size2"] = Size2;
+    json["Size1"] = Size1;  json["Size1Str"] = Size1Str;
+    json["Size2"] = Size2;  json["Size2Str"] = Size2Str;
 
     json["Position"] = QJsonArray{X0, Y0, Z0};
+    json["PositionStr"] = QJsonArray{X0Str, Y0Str, Z0Str};
+}
+
+void AParticleSourceRecord_EcoMug::updateGeoConstRelatedSimProperties()
+{
+    updateGeoConstRelatedParameter(X0Str, X0, "X center");
+    updateGeoConstRelatedParameter(Y0Str, Y0, "Y center");
+    updateGeoConstRelatedParameter(Z0Str, Z0, "Z center");
+
+    updateGeoConstRelatedParameter(Size1Str, Size1, "Size1", true, true, false);
+    updateGeoConstRelatedParameter(Size2Str, Size2, "Size2", true, true, false);
+}
+
+QString AParticleSourceRecord_EcoMug::isGeoConstInUse(const QRegularExpression &nameRegExp) const
+{
+    if (X0Str.contains(nameRegExp)) return "Particle simulation->Source->X center";
+    if (Y0Str.contains(nameRegExp)) return "Particle simulation->Source->Y center";
+    if (Z0Str.contains(nameRegExp)) return "Particle simulation->Source->Z center";
+
+    if (Size1Str.contains(nameRegExp)) return "Particle simulation->Source->Size1";
+    if (Size2Str.contains(nameRegExp)) return "Particle simulation->Source->Size2";
+
+    return "";
+}
+
+void AParticleSourceRecord_EcoMug::replaceGeoConstName(const QRegularExpression &nameRegExp, const QString &newName)
+{
+    X0Str.replace(nameRegExp, newName);
+    Y0Str.replace(nameRegExp, newName);
+    Z0Str.replace(nameRegExp, newName);
+
+    Size1Str.replace(nameRegExp, newName);
+    Size2Str.replace(nameRegExp, newName);
 }
 #endif
 
@@ -994,7 +1036,23 @@ bool AParticleSourceRecord_EcoMug::doReadFromJson(const JsonObject & json)
     }
     else ; // !!!*** error
 
+#ifndef JSON11
+    JsonArray psjs;
+    bool ok = jstools::parseJson(json, "PositionStr", psjs);
+    if (ok && psjs.size() == 3)
+    {
+        X0Str = psjs[0].toString();
+        Y0Str = psjs[1].toString();
+        Z0Str = psjs[2].toString();
+    }
+#endif
+
     jstools::parseJson(json, "Size1", Size1);
     jstools::parseJson(json, "Size2", Size2);
+#ifndef JSON11
+    jstools::parseJson(json, "Size1Str", Size1Str);
+    jstools::parseJson(json, "Size2Str", Size2Str);
+#endif
+
     return true;
 }

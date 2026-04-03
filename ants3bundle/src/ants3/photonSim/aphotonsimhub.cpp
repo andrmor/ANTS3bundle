@@ -19,6 +19,8 @@ void APhotonSimHub::writeToJson(QJsonObject & json, bool addRuntimeExport) const
 
 QString APhotonSimHub::readFromJson(const QJsonObject & json)
 {
+    Settings.clear();
+
     QString ErrorString = Settings.readFromJson(json);
 
     if (ErrorString.isEmpty()) emit settingsChanged();

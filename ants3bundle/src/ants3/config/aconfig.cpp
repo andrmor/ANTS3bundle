@@ -149,6 +149,10 @@ QString AConfig::tryReadFromJson(const QJsonObject & json)
 {
     AErrorHub::clear();
 
+    // to eliminate cross-talk in GeoConst-related sim properties, clear sim hubs first
+    APhotonSimHub::getInstance().clear();
+    AParticleSimHub::getInstance().clear();
+
     bool ok = jstools::parseJson(json, "ConfigName",        ConfigName);
     if (!ok) return "Not a configuration file!";
     ok      = jstools::parseJson(json, "ConfigDescription", ConfigDescription);

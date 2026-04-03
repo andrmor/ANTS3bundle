@@ -223,11 +223,20 @@ struct AParticleSourceRecord_EcoMug : public AParticleSourceRecordBase
 
     double Size1 = 50.0; // FullSizeX or Radius
     double Size2 = 50.0; // FullSizeY or Height
+#ifndef JSON11
+    QString Size1Str;
+    QString Size2Str;
+#endif
 
     // position
     double X0 = 0;
     double Y0 = 0;
     double Z0 = 0;
+#ifndef JSON11
+    QString X0Str;
+    QString Y0Str;
+    QString Z0Str;
+#endif
 
     void doClear() override;
     std::string check() const override;
@@ -236,10 +245,14 @@ struct AParticleSourceRecord_EcoMug : public AParticleSourceRecordBase
     void getSuggestedWorldHalfSize(double & XY, double & Z) const override;
 
 #ifdef JSON11
-    bool doReadFromJson(const json11::Json::object & /*json*/) override;
+    bool doReadFromJson(const json11::Json::object & json) override;
 #else
-    bool doReadFromJson(const QJsonObject & /*json*/) override;
-    void doWriteToJson(QJsonObject & /*json*/) const override;
+    bool doReadFromJson(const QJsonObject & json) override;
+    void doWriteToJson(QJsonObject & json) const override;
+
+    void    updateGeoConstRelatedSimProperties() override;
+    QString isGeoConstInUse(const QRegularExpression & nameRegExp) const override;
+    void    replaceGeoConstName(const QRegularExpression & nameRegExp, const QString & newName) override;
 #endif
 
 };

@@ -14,7 +14,6 @@ class AParticleSourceDialog;
 class TObject;
 class QLineEdit;
 class QComboBox;
-class AOneLineTextEdit;
 
 class AParticleSourceDialog : public AParticleSourceDialogBase
 {
@@ -101,8 +100,6 @@ private:
     void updateTimeWithUnitsIndication(double time_ns, AParticleSourceRecord_Standard::ETimeUnits prefUnits, QLineEdit * led, QComboBox * cob);
     void readTimeWithUnits(QLineEdit * led, QComboBox * cob, double & time_ns, AParticleSourceRecord_Standard::ETimeUnits &prefUnits);
 
-    void processGeoConstAwareEditFinished(AOneLineTextEdit * edit, QString & str, double & val, const QString & name, QWidget * parent,
-                                          bool bForbidZero = false, bool bForbidNegative = false, bool bMakeHalf = false); // !!!*** to base or consolidate
 };
 
 #endif // APARTICLESOURCEDIALOG_H

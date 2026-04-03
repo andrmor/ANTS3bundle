@@ -444,17 +444,6 @@ void AParticleSourceDialog::on_cobEnergySigmaUnits_activated(int)
     on_pbUpdateRecord_clicked();
 }
 
-
-void AParticleSourceDialog::processGeoConstAwareEditFinished(AOneLineTextEdit * edit, QString & str, double & val, const QString & name, QWidget * parent, bool bForbidZero, bool bForbidNegative, bool bMakeHalf)
-{
-    double doubleVal = 0;
-    QString stringVal;
-    AGeoBaseDelegate::processEditBox(name, edit, doubleVal, stringVal, parent, bForbidZero, bForbidNegative, bMakeHalf);
-    edit->updateTooltip();
-    val = doubleVal;
-    str = stringVal;
-}
-
 void AParticleSourceDialog::on_pbUpdateRecord_clicked()
 {
     LocalRec.Name = ui->leSourceName->text().toLatin1().data();
@@ -469,11 +458,11 @@ void AParticleSourceDialog::on_pbUpdateRecord_clicked()
     case 5 : LocalRec.Shape = AParticleSourceRecord_Standard::Cylinder;  break;
     }
 
-    //LocalRec.Size1 = 0.5 * ui->ledGun1DSize->text().toDouble();
+        //LocalRec.Size1 = 0.5 * ui->ledGun1DSize->text().toDouble();
     processGeoConstAwareEditFinished(ui->ledGun1DSize, LocalRec.Size1Str, LocalRec.Size1, "Size1", this, true, true, true);
-    //LocalRec.Size2 = 0.5 * ui->ledGun2DSize->text().toDouble();
+        //LocalRec.Size2 = 0.5 * ui->ledGun2DSize->text().toDouble();
     processGeoConstAwareEditFinished(ui->ledGun2DSize, LocalRec.Size2Str, LocalRec.Size2, "Size2", this, true, true, true);
-    //LocalRec.Size3 = 0.5 * ui->ledGun3DSize->text().toDouble();
+        //LocalRec.Size3 = 0.5 * ui->ledGun3DSize->text().toDouble();
     processGeoConstAwareEditFinished(ui->ledGun3DSize, LocalRec.Size3Str, LocalRec.Size3, "Size3", this, true, true, true);
 
     LocalRec.MaterialLimited = ui->cbSourceLimitmat->isChecked();

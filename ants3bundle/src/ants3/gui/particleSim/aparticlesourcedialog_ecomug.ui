@@ -204,11 +204,11 @@
          </widget>
         </item>
         <item>
-         <widget class="QLineEdit" name="ledSize1">
+         <widget class="AOneLineTextEdit" name="ledSize1">
           <property name="maximumSize">
            <size>
             <width>75</width>
-            <height>16777215</height>
+            <height>25</height>
            </size>
           </property>
           <property name="text">
@@ -227,11 +227,11 @@
          </widget>
         </item>
         <item>
-         <widget class="QLineEdit" name="ledSize2">
+         <widget class="AOneLineTextEdit" name="ledSize2">
           <property name="maximumSize">
            <size>
             <width>75</width>
-            <height>16777215</height>
+            <height>25</height>
            </size>
           </property>
           <property name="text">
@@ -299,11 +299,11 @@
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="ledX">
+      <widget class="AOneLineTextEdit" name="ledX">
        <property name="maximumSize">
         <size>
          <width>75</width>
-         <height>16777215</height>
+         <height>25</height>
         </size>
        </property>
        <property name="text">
@@ -319,11 +319,11 @@
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="ledY">
+      <widget class="AOneLineTextEdit" name="ledY">
        <property name="maximumSize">
         <size>
          <width>75</width>
-         <height>16777215</height>
+         <height>25</height>
         </size>
        </property>
        <property name="text">
@@ -339,11 +339,11 @@
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="ledZ">
+      <widget class="AOneLineTextEdit" name="ledZ">
        <property name="maximumSize">
         <size>
          <width>75</width>
-         <height>16777215</height>
+         <height>25</height>
         </size>
        </property>
        <property name="text">
@@ -602,6 +602,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>AOneLineTextEdit</class>
+   <extends>QLineEdit</extends>
+   <header>aonelinetextedit.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections>
   <connection>
