@@ -193,6 +193,10 @@ private slots:
 
     void on_cbThirdAxis_toggled(bool checked);
 
+    void on_cbSkipByMaterial_clicked();
+
+    void on_cbSkipByVolume_clicked();
+
 private:
     APhotonSimSettings & SimSet;
     const AMonitorHub  & MonitorHub;
@@ -267,6 +271,8 @@ signals:
     void requestShowPosition(const double * pos, bool keepTracks);
     void requestConfigureExchangeDir();
     void requestShowLrfPlotterDialog();
+
+    void photonSourcesChanged();
 };
 
 #endif // APHOTSIMWIN_H

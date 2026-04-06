@@ -691,38 +691,46 @@ void AGeometryWindow::showPhotonTunnel(int from, int to)
 #include "aparticlesourceplotter.h"
 #include "aphotonsourceplotter.h"
 #include "aparticlesimhub.h"
+#include "aphotonsimhub.h"
 void AGeometryWindow::showSources()
 {
     ClearTracks(false);
+
     if (ui->pbShowParticleSources->isChecked())
     {
-        if (EditedParticleSource)
+        if (AParticleSimHub::getInstance().Settings.GenerationMode == AParticleSimSettings::Sources)
         {
-            AParticleSourcePlotter::plotSource(EditedParticleSource);
-        }
-        else
-        {
-            ASourceGeneratorSettings & simSet = AParticleSimHub::getInstance().Settings.SourceGenSettings;
-            for (AParticleSourceRecordBase * source : simSet.SourceData)
+            if (EditedParticleSource)
             {
-                if (source->Activity == 0) continue;
-                AParticleSourcePlotter::plotSource(source);
+                AParticleSourcePlotter::plotSource(EditedParticleSource);
             }
+            else
+            {
+                ASourceGeneratorSettings & simSet = AParticleSimHub::getInstance().Settings.SourceGenSettings;
+                for (AParticleSourceRecordBase * source : simSet.SourceData)
+                {
+                    if (source->Activity == 0) continue;
+                    AParticleSourcePlotter::plotSource(source);
+                }
+            }
+            ShowTracks();
         }
-        ShowTracks();
     }
     else if (ui->pbShowPhotonSources->isChecked())
     {
-        AGeoMarkerClass * marks = APhotonSourcePlotter::plotSource();
-        if (marks)
+        if (APhotonSimHub::getConstInstance().Settings.SimType == EPhotSimType::PhotonBombs)
         {
-            clearGeoMarkers(0); // !!!***
-            GeoMarkers.push_back(marks);
-            // show is in the caller
-        }
-        else
-        {
-
+            AGeoMarkerClass * marks = APhotonSourcePlotter::plotSource();
+            if (marks)
+            {
+                clearGeoMarkers(0); // !!!***
+                GeoMarkers.push_back(marks);
+                // show is in the caller
+            }
+            else
+            {
+                ShowTracks();
+            }
         }
     }
 }
@@ -829,6 +837,11 @@ void AGeometryWindow::onParticleSourceChangedInEditMode(AParticleSourceRecordBas
         ShowGeometry(false, true, false);
         EditedParticleSource = nullptr;
     }
+}
+
+void AGeometryWindow::onPhotonSourcesChanged()
+{
+    if (ui->pbShowPhotonSources->isChecked()) ShowGeometry(false, true, false);
 }
 
 void AGeometryWindow::ShowTracks(bool activateWindow)
@@ -1616,6 +1629,7 @@ void AGeometryWindow::on_pbShowParticleSources_clicked(bool /*checked*/)
 
 void AGeometryWindow::on_pbShowPhotonSources_clicked(bool checked)
 {
-
+    if (!checked) clearGeoMarkers(0);
+    on_pbShowGeometry_clicked();
 }
 

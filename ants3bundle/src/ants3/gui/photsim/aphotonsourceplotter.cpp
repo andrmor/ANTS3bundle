@@ -25,22 +25,43 @@ bool APhotonSourcePlotter::isInsideLimitingVolume(const double * r, const TStrin
     return (node->GetVolume() && node->GetVolume()->GetName() == LimitToVolume);
 }
 
+TVirtualGeoTrack *APhotonSourcePlotter::createTrack()
+{
+    TGeoManager * gGeoManager = AGeometryHub::getInstance().GeoManager;
+    Int_t track_index = gGeoManager->AddTrack(1,22);
+    TVirtualGeoTrack * track = gGeoManager->GetTrack(track_index);
+    track->SetLineWidth(3);
+    track->SetLineColor(51);
+    return track;
+}
+
+void APhotonSourcePlotter::formCircle(double radius, double x0, double y0, double z)
+{
+    TVirtualGeoTrack * track = createTrack();
+    for (int i = 0; i < 51; i++)
+    {
+        double x = radius * cos(pi / 25.0 * i);
+        double y = radius * sin(pi / 25.0 * i);
+        track->AddPoint(x0 + x, y0 + y, z, 0);
+    }
+}
+
 AGeoMarkerClass * APhotonSourcePlotter::plotSource()
 {
-    APhotonBombsSettings & simSet = APhotonSimHub::getInstance().Settings.BombSet;
-    switch (simSet.GenerationMode)
+    APhotonBombsSettings & bombSet = APhotonSimHub::getInstance().Settings.BombSet;
+    switch (bombSet.GenerationMode)
     {
     case EBombGen::Single:
     {
-        AGeoMarkerClass * marks = new AGeoMarkerClass(AGeoMarkerClass::Source, 3, 10, kBlue);
-        marks->SetNextPoint(simSet.SingleSettings.Position[0], simSet.SingleSettings.Position[1], simSet.SingleSettings.Position[2]);
+        AGeoMarkerClass * marks = new AGeoMarkerClass(AGeoMarkerClass::Source, 3, 3, 51);
+        marks->SetNextPoint(bombSet.SingleSettings.Position[0], bombSet.SingleSettings.Position[1], bombSet.SingleSettings.Position[2]);
         return marks;
     }
     case EBombGen::Grid:
     {
-        AGeoMarkerClass * marks = new AGeoMarkerClass(AGeoMarkerClass::Source, 3, 10, kBlue);
-        const AGridSettings & ScanSet = simSet.GridSettings;
-        const APhotonBombAdvancedSettings & AdvSet = simSet.AdvancedSettings;
+        AGeoMarkerClass * marks = new AGeoMarkerClass(AGeoMarkerClass::Source, 3, 3, 51);
+        const AGridSettings & ScanSet = bombSet.GridSettings;
+        const APhotonBombAdvancedSettings & AdvSet = bombSet.AdvancedSettings;
 
         TString LimitToVolume;
         int LimitToMaterial;
@@ -99,7 +120,67 @@ AGeoMarkerClass * APhotonSourcePlotter::plotSource()
                 }
         return marks;
     }
-    case EBombGen::Flood: break;
+    case EBombGen::Flood :
+    {
+        const AFloodSettings & fs = bombSet.FloodSettings;
+        switch (fs.Shape)
+        {
+        case (AFloodSettings::Rectangular):
+        {
+            TVirtualGeoTrack * track = createTrack();
+            if (fs.Zmode == AFloodSettings::Fixed)
+            {
+                track->AddPoint(fs.Xfrom, fs.Yfrom, fs.Zfixed, 0);
+                track->AddPoint(fs.Xfrom, fs.Yto,   fs.Zfixed, 0);
+                track->AddPoint(fs.Xto,   fs.Yto,   fs.Zfixed, 0);
+                track->AddPoint(fs.Xto,   fs.Yfrom, fs.Zfixed, 0);
+                track->AddPoint(fs.Xfrom, fs.Yfrom, fs.Zfixed, 0);
+            }
+            else
+            {
+                track->AddPoint(fs.Xfrom, fs.Yfrom, fs.Zfrom, 0);
+                track->AddPoint(fs.Xfrom, fs.Yto,   fs.Zfrom, 0);
+                track->AddPoint(fs.Xto,   fs.Yto,   fs.Zfrom, 0);
+                track->AddPoint(fs.Xto,   fs.Yfrom, fs.Zfrom, 0);
+                track->AddPoint(fs.Xfrom, fs.Yfrom, fs.Zfrom, 0);
+
+                track->AddPoint(fs.Xfrom, fs.Yfrom, fs.Zto, 0);
+                track->AddPoint(fs.Xfrom, fs.Yto,   fs.Zto, 0);
+                    track->AddPoint(fs.Xfrom, fs.Yto,   fs.Zfrom, 0);
+                    track->AddPoint(fs.Xfrom, fs.Yto,   fs.Zto, 0);
+                track->AddPoint(fs.Xto,   fs.Yto,   fs.Zto, 0);
+                    track->AddPoint(fs.Xto,   fs.Yto,   fs.Zfrom, 0);
+                    track->AddPoint(fs.Xto,   fs.Yto,   fs.Zto, 0);
+                track->AddPoint(fs.Xto,   fs.Yfrom, fs.Zto, 0);
+                    track->AddPoint(fs.Xto,   fs.Yfrom, fs.Zfrom, 0);
+                    track->AddPoint(fs.Xto,   fs.Yfrom, fs.Zto, 0);
+                track->AddPoint(fs.Xfrom, fs.Yfrom, fs.Zto, 0);
+            }
+            break;
+        }
+        case (AFloodSettings::Ring):
+        {
+            if (fs.Zmode == AFloodSettings::Fixed)
+            {
+                formCircle(0.5 * fs.OuterDiameter, fs.X0, fs.Y0, fs.Zfixed);
+                if (fs.InnerDiameter != 0)
+                    formCircle(0.5 * fs.InnerDiameter, fs.X0, fs.Y0, fs.Zfixed);
+            }
+            else
+            {
+                formCircle(0.5 * fs.OuterDiameter, fs.X0, fs.Y0, fs.Zfrom);
+                formCircle(0.5 * fs.OuterDiameter, fs.X0, fs.Y0, fs.Zto);
+                if (fs.InnerDiameter != 0)
+                {
+                    formCircle(0.5 * fs.InnerDiameter, fs.X0, fs.Y0, fs.Zfrom);
+                    formCircle(0.5 * fs.InnerDiameter, fs.X0, fs.Y0, fs.Zto);
+                }
+            }
+            break;
+        }
+        }
+
+    }
     default: break;
     }
     return nullptr;

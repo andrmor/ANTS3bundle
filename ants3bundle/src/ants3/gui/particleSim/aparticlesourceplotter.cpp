@@ -64,7 +64,7 @@ void AParticleSourcePlotter::plotSource(const AParticleSourceRecord_Standard & p
     }
     switch (p.Shape)
     {
-    case AParticleSourceRecord_Standard::Point :
+    case AParticleSourceRecord_Standard::Point : // !!!***
     {
         //gGeoManager->SetCurrentPoint(X0,Y0,Z0);
         //gGeoManager->DrawCurrentPoint(9);

@@ -517,6 +517,8 @@ void APhotSimWin::on_cobNodeGenerationMode_activated(int index)
     case 2 : SimSet.BombSet.GenerationMode = EBombGen::Flood;  break;
     case 3 : SimSet.BombSet.GenerationMode = EBombGen::File;   break;
     }
+
+    emit photonSourcesChanged();
 }
 
 void APhotSimWin::on_ledSingleX_editingFinished()
@@ -528,6 +530,8 @@ void APhotSimWin::on_ledSingleX_editingFinished()
 
     SimSet.BombSet.SingleSettings.Position[0]    = val;
     SimSet.BombSet.SingleSettings.PositionStr[0] = str;
+
+    emit photonSourcesChanged();
 }
 
 void APhotSimWin::on_ledSingleY_editingFinished()
@@ -539,6 +543,8 @@ void APhotSimWin::on_ledSingleY_editingFinished()
 
     SimSet.BombSet.SingleSettings.Position[1]    = val;
     SimSet.BombSet.SingleSettings.PositionStr[1] = str;
+
+    emit photonSourcesChanged();
 }
 
 void APhotSimWin::on_ledSingleZ_editingFinished()
@@ -550,6 +556,8 @@ void APhotSimWin::on_ledSingleZ_editingFinished()
 
     SimSet.BombSet.SingleSettings.Position[2]    = val;
     SimSet.BombSet.SingleSettings.PositionStr[2] = str;
+
+    emit photonSourcesChanged();
 }
 
 void APhotSimWin::on_pbSimulate_clicked()
@@ -856,6 +864,7 @@ void APhotSimWin::on_sbFloodNumber_editingFinished()
 void APhotSimWin::on_cobFloodShape_activated(int index)
 {
     SimSet.BombSet.FloodSettings.Shape = (index == 0 ? AFloodSettings::Rectangular : AFloodSettings::Ring);
+    emit photonSourcesChanged();
 }
 
 void APhotSimWin::processGeoConstAwareEditFinished(AOneLineTextEdit * edit, QString & str, double & val, const QString & name, QWidget * parent)
@@ -866,6 +875,8 @@ void APhotSimWin::processGeoConstAwareEditFinished(AOneLineTextEdit * edit, QStr
     edit->updateTooltip();
     val = doubleVal;
     str = stringVal;
+
+    emit photonSourcesChanged();
 }
 
 void APhotSimWin::on_ledFloodXfrom_editingFinished()
@@ -911,6 +922,7 @@ void APhotSimWin::on_ledFloodInnerDiameter_editingFinished()
 void APhotSimWin::on_cobFloodZmode_activated(int index)
 {
     SimSet.BombSet.FloodSettings.Zmode = (index == 0 ? AFloodSettings::Fixed : AFloodSettings::Range);
+    emit photonSourcesChanged();
 }
 void APhotSimWin::on_ledFloodZ_editingFinished()
 {
@@ -1632,6 +1644,8 @@ void APhotSimWin::on_pbdUpdateScanSettings_clicked()
         r.Nodes = sbNodes->value();
         r.bBiDirect = (cobBiDir->currentIndex() == 1);
     }
+
+    emit photonSourcesChanged();
 }
 
 #include "aphotgenoverridedialog.h"
@@ -2366,6 +2380,7 @@ void APhotSimWin::on_leSkipOutsideMaterial_editingFinished()
 {
     APhotonBombAdvancedSettings & s = APhotonSimHub::getInstance().Settings.BombSet.AdvancedSettings;
     s.Material = ui->leSkipOutsideMaterial->text();
+    emit photonSourcesChanged();
 }
 
 void APhotSimWin::on_cbSkipByVolume_clicked(bool checked)
@@ -2381,6 +2396,7 @@ void APhotSimWin::on_leSkipOutsideVolume_editingFinished()
 
     APhotonBombAdvancedSettings & s = APhotonSimHub::getInstance().Settings.BombSet.AdvancedSettings;
     s.Volume = ui->leSkipOutsideVolume->text();
+    emit photonSourcesChanged();
 }
 
 void APhotSimWin::on_cobScintType_activated(int index)
@@ -2430,3 +2446,14 @@ void APhotSimWin::on_cbThirdAxis_toggled(bool checked)
     ui->sb2nodes->setEnabled(checked);
     ui->cob2dir->setEnabled(checked);
 }
+
+void APhotSimWin::on_cbSkipByMaterial_clicked()
+{
+    emit photonSourcesChanged();
+}
+
+void APhotSimWin::on_cbSkipByVolume_clicked()
+{
+    emit photonSourcesChanged();
+}
+

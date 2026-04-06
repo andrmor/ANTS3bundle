@@ -17,6 +17,7 @@ private:
     static bool isInsideLimitingVolume(const double * r, const TString & LimitToVolume);
     static TVirtualGeoTrack * createTrack();
 
+    static void formCircle(double radius, double x0, double y0, double z);
 };
 
 #endif // APHOTONSOURCEPLOTTER_H

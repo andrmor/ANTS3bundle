@@ -110,6 +110,7 @@ public slots:
 
     void onParticleSourcesChanged();
     void onParticleSourceChangedInEditMode(AParticleSourceRecordBase * source);
+    void onPhotonSourcesChanged();
 
 private slots:
     void on_cobViewer_currentIndexChanged(int index);
