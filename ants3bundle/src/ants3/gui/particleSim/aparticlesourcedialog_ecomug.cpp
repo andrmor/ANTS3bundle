@@ -132,7 +132,7 @@ void AParticleSourceDialog_EcoMug::on_pbReject_clicked()
 void AParticleSourceDialog_EcoMug::on_pbGunTest_clicked()
 {
     AParticleSourcePlotter::clearTracks();
-    if (ui->pbShowSource->isChecked()) AParticleSourcePlotter::plotSource(LocalRec);
+    //if (ui->pbShowSource->isChecked()) AParticleSourcePlotter::plotSource(LocalRec);
 
     ASourceGeneratorSettings settings;
     settings.SourceData.push_back(&LocalRec);
@@ -202,19 +202,12 @@ void AParticleSourceDialog_EcoMug::on_pbUpdateRecord_clicked()
         //LocalRec.Z0 = ui->ledZ->text().toDouble();
     processGeoConstAwareEditFinished(ui->ledZ, LocalRec.Z0Str, LocalRec.Z0, "Center Z", this);
 
-    if (ui->pbShowSource->isChecked())
-    {
-        AParticleSourcePlotter::clearTracks();
-        AParticleSourcePlotter::plotSource(LocalRec);
-        emit requestShowSource();
-    }
-}
-
-void AParticleSourceDialog_EcoMug::on_pbShowSource_clicked(bool checked)
-{
-    AParticleSourcePlotter::clearTracks();
-    if (checked) AParticleSourcePlotter::plotSource(LocalRec);
-    emit requestShowSource();
+    //if (ui->pbShowSource->isChecked())
+    //{
+        //AParticleSourcePlotter::clearTracks();
+        //AParticleSourcePlotter::plotSource(LocalRec);
+        emit sourceRecordChangedInEditMode(&LocalRec);
+    //}
 }
 
 void AParticleSourceDialog_EcoMug::on_pbRef_clicked()

@@ -27,7 +27,7 @@ protected:
 
 signals:
     void requestTestParticleGun(AParticleGun * gun, int num, bool fillStatistics);
-    void requestShowSource();
+    void sourceRecordChangedInEditMode(AParticleSourceRecordBase * sourceRecord);
     void requestDraw(TObject * obj, QString options, bool transferOwnership, bool focusWindow);
 
 };

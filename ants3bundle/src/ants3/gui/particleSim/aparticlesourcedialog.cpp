@@ -220,7 +220,7 @@ void AParticleSourceDialog::on_pbReject_clicked()
 void AParticleSourceDialog::on_pbGunTest_clicked()
 {
     AParticleSourcePlotter::clearTracks();
-    if (ui->pbShowSource->isChecked()) AParticleSourcePlotter::plotSource(LocalRec);
+    //if (ui->pbShowSource->isChecked()) AParticleSourcePlotter::plotSource(LocalRec);
 
     ASourceGeneratorSettings settings;
     settings.SourceData.push_back(&LocalRec);
@@ -577,12 +577,12 @@ void AParticleSourceDialog::on_pbUpdateRecord_clicked()
     updateParticleInfo();
     updateColorLimitingMat();
 
-    if (ui->pbShowSource->isChecked())
-    {
-        AParticleSourcePlotter::clearTracks();
-        AParticleSourcePlotter::plotSource(LocalRec);
-        emit requestShowSource();
-    }
+    //if (ui->pbShowSource->isChecked())
+    //{
+        //AParticleSourcePlotter::clearTracks();
+        //AParticleSourcePlotter::plotSource(LocalRec);
+        emit sourceRecordChangedInEditMode(&LocalRec);
+    //}
 }
 
 void AParticleSourceDialog::on_sbLinkedTo_editingFinished()
@@ -693,12 +693,14 @@ void AParticleSourceDialog::updateTimeButtons()
     ui->pbTimeCustomDelete->setEnabled(distrLoaded);
 }
 
+/*
 void AParticleSourceDialog::on_pbShowSource_clicked(bool checked)
 {
     AParticleSourcePlotter::clearTracks();
     if (checked) AParticleSourcePlotter::plotSource(LocalRec);
-    emit requestShowSource();
+    emit sourceRecordChangedInEditMode(&LocalRec);
 }
+*/
 
 void AParticleSourceDialog::on_pbHelpParticle_clicked()
 {

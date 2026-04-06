@@ -15,6 +15,7 @@ class ACameraControlDialog;
 class AGeoMarkerClass;
 class ANodeRecord;
 class TVirtualGeoTrack;
+class AParticleSourceRecordBase;
 
 namespace Ui {
 class AGeometryWindow;
@@ -63,9 +64,9 @@ protected:
     void closeEvent(QCloseEvent * event) override;
 
 public slots:
+    void ShowGeometry(bool ActivateWindow = true, bool SAME = true, bool ColorUpdateAllowed = true);
     void ClearRootCanvas();
     void onNewConfigLoaded();
-    void ShowGeometry(bool ActivateWindow = true, bool SAME = true, bool ColorUpdateAllowed = true);
     void onRequestRedrawFromScript();
     void showRecursive(QString objectName);
     void UpdateRootCanvas();
@@ -106,6 +107,9 @@ public slots:
 
     void onRequestShowConnection(int from, int to);
     void onRequestShowAllConnections();
+
+    void onParticleSourcesChanged();
+    void onParticleSourceChangedInEditMode(AParticleSourceRecordBase * source);
 
 private slots:
     void on_cobViewer_currentIndexChanged(int index);
@@ -150,6 +154,9 @@ private slots:
 
     void on_actionSet_number_of_segments_triggered();
 
+    void on_pbShowParticleSources_clicked(bool checked);
+    void on_pbShowPhotonSources_clicked(bool checked);
+
 private:
     bool                    UseJSRoot = false;
     AGeometryHub          & Geometry;
@@ -173,6 +180,8 @@ private:
     AGeoWriter GeoWriter;
     int LastShowObjectType = 0;
 
+    AParticleSourceRecordBase * EditedParticleSource = nullptr;
+
 private:
     void redrawWebView(QString extraArguments = "");
     void prepareGeoManager(bool ColorUpdateAllowed = true);
@@ -189,6 +198,8 @@ private:
     void onWebPageReplyViewPort(const QVariant & reply);
 
     void showPhotonTunnel(int from, int to);
+
+    void showSources();
 
 signals:
     void requestChangeGeoViewer(bool useJSRoot);

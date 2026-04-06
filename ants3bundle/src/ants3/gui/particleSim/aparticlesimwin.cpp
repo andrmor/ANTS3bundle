@@ -15,7 +15,7 @@
 #include "acalorimeter.h"
 #include "ajsontools.h"
 #include "aparticletrackvisuals.h"
-#include "aparticlesourceplotter.h"
+//#include "aparticlesourceplotter.h"
 #include "adispatcherinterface.h"
 #include "ageoobject.h"
 #include "ath.h"
@@ -504,7 +504,7 @@ void AParticleSimWin::on_pbEditParticleSource_clicked()
 
     ParticleSourceDialog = AParticleSourceDialogBase::factory(SourceGenSettings.SourceData[isource], this);
     connect(ParticleSourceDialog, &AParticleSourceDialogBase::requestTestParticleGun, this, &AParticleSimWin::testParticleGun);
-    connect(ParticleSourceDialog, &AParticleSourceDialogBase::requestShowSource,      this, &AParticleSimWin::onRequestShowSource);
+    connect(ParticleSourceDialog, &AParticleSourceDialogBase::sourceRecordChangedInEditMode, this, &AParticleSimWin::onSourceRecordChangedInEditMode);
     connect(ParticleSourceDialog, &AParticleSourceDialogBase::requestDraw,            this, &AParticleSimWin::requestDraw);
     connect(ParticleSourceDialog, &AParticleSourceDialogBase::accepted,               this, &AParticleSimWin::onParticleSourceAccepted);
     ParticleSourceDialog->setModal(true);
@@ -525,7 +525,8 @@ void AParticleSimWin::onParticleSourceAccepted()
     checkWorldSize(ps);
 
     updateSourceList();
-    if (ui->pbGunShowSource->isChecked()) on_pbGunShowSource_toggled(true);
+    //if (ui->pbGunShowSource->isChecked()) on_pbGunShowSource_toggled(true);
+    emit particleSourcesChanged();
 }
 
 #include "aworldsizewarningdialog.h"
@@ -571,7 +572,8 @@ void AParticleSimWin::on_pbAddSource_clicked()
     updateSourceList();
     ui->lwDefinedParticleSources->setCurrentRow(SimSet.SourceGenSettings.getNumSources() - 1);
 
-    if (ui->pbGunShowSource->isChecked()) on_pbGunShowSource_toggled(true);
+    //if (ui->pbGunShowSource->isChecked()) on_pbGunShowSource_toggled(true);
+    emit particleSourcesChanged();
 }
 
 void AParticleSimWin::on_pbCloneSource_clicked()
@@ -589,7 +591,8 @@ void AParticleSimWin::on_pbCloneSource_clicked()
     updateSourceList();
     ui->lwDefinedParticleSources->setCurrentRow(index+1);
 
-    if (ui->pbGunShowSource->isChecked()) on_pbGunShowSource_toggled(true);
+    //if (ui->pbGunShowSource->isChecked()) on_pbGunShowSource_toggled(true);
+    emit particleSourcesChanged();
 }
 
 void AParticleSimWin::on_pbRemoveSource_clicked()
@@ -615,7 +618,8 @@ void AParticleSimWin::on_pbRemoveSource_clicked()
     SimSet.SourceGenSettings.remove(isource);
     updateSourceList();
 
-    if (ui->pbGunShowSource->isChecked()) on_pbGunShowSource_toggled(true);
+    //if (ui->pbGunShowSource->isChecked()) on_pbGunShowSource_toggled(true);
+    emit particleSourcesChanged();
 }
 
 void AParticleSimWin::updateSourceList()
@@ -686,7 +690,8 @@ void AParticleSimWin::updateSourceList()
         curRow = 0;
     ui->lwDefinedParticleSources->setCurrentRow(curRow);
 
-    if (ui->pbGunShowSource->isChecked()) on_pbGunShowSource_toggled(true);
+    //if (ui->pbGunShowSource->isChecked()) on_pbGunShowSource_toggled(true);
+    emit particleSourcesChanged();
 }
 
 void AParticleSimWin::updateGeneralControlInResults()
@@ -718,6 +723,7 @@ void AParticleSimWin::on_pbGunTest_clicked()
         return;
     }
 
+    /*
     AParticleSourcePlotter::clearTracks();
     if (ui->cobParticleGenerationMode->currentIndex() == 0)
     {
@@ -725,6 +731,8 @@ void AParticleSimWin::on_pbGunTest_clicked()
             for (AParticleSourceRecordBase * source : SimSet.SourceGenSettings.SourceData)
                 AParticleSourcePlotter::plotSource(source);
     }
+    */
+
 
     emit requestBusyStatus(true);   // -->   !!!***
     onBusyStatusChange(true);
@@ -813,6 +821,7 @@ void AParticleSimWin::testParticleGun(AParticleGun * gun, int numParticles, bool
     };
 
     emit requestClearMarkers(0);
+    emit requestShowGeometry(true, true, false);
 
     for (int iRun = 0; iRun < numParticles; iRun++)
     {
@@ -823,7 +832,6 @@ void AParticleSimWin::testParticleGun(AParticleGun * gun, int numParticles, bool
 
     if (gun->AbortRequested) return;
 
-    emit requestShowGeometry(true, true, false);
     emit requestShowTracks();
 
     if (fillStatistics)
@@ -861,6 +869,7 @@ void AParticleSimWin::disableGui(bool flag)
     qApp->processEvents();
 }
 
+/*
 void AParticleSimWin::on_pbGunShowSource_toggled(bool checked)
 {
     AParticleSourcePlotter::clearTracks();
@@ -881,6 +890,7 @@ void AParticleSimWin::on_pbGunShowSource_toggled(bool checked)
         emit requestShowGeometry(false, true, true);
     }
 }
+*/
 
 void AParticleSimWin::on_cobParticleGenerationMode_activated(int index)
 {
@@ -1059,10 +1069,9 @@ void AParticleSimWin::onNewConfigStartedInGui()
     ui->sbSeed->setValue(1000);
 }
 
-void AParticleSimWin::onRequestShowSource()
+void AParticleSimWin::onSourceRecordChangedInEditMode(AParticleSourceRecordBase * sourceRecord)
 {
-    emit requestShowGeometry(false, true, true);
-    emit requestShowTracks();
+    emit particleSourceChangedInEditMode(sourceRecord);
 }
 
 void AParticleSimWin::on_pbShowTracks_clicked()
@@ -2809,7 +2818,8 @@ void AParticleSimWin::on_pbLoadFromLibrary_clicked()
     updateSourceList();
     ui->lwDefinedParticleSources->setCurrentRow(SimSet.SourceGenSettings.getNumSources() - 1);
 
-    if (ui->pbGunShowSource->isChecked()) on_pbGunShowSource_toggled(true);
+    //if (ui->pbGunShowSource->isChecked()) on_pbGunShowSource_toggled(true);
+    emit particleSourcesChanged();
 }
 
 void AParticleSimWin::on_pbAbort_clicked()
@@ -3689,4 +3699,3 @@ void AParticleSimWin::on_pbOfferPhysLists_clicked()
     ui->lePhysicsList->setText( cob->currentText() );
     on_lePhysicsList_editingFinished();
 }
-

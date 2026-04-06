@@ -224,6 +224,8 @@ void AGeometryWindow::showGeometryRasterWindow(bool same)
     else      Geometry.Top->Draw("");
     PostDraw();
 
+    if (ui->pbShowParticleSources->isChecked() || ui->pbShowPhotonSources->isChecked()) showSources();
+
     showGeoMarkers();
 
     UpdateRootCanvas();
@@ -686,6 +688,30 @@ void AGeometryWindow::showPhotonTunnel(int from, int to)
     track->AddPoint(toPos[0], toPos[1], toPos[2], 0);
 }
 
+#include "aparticlesourceplotter.h"
+#include "aparticlesimhub.h"
+void AGeometryWindow::showSources()
+{
+    ClearTracks(false);
+    if (ui->pbShowParticleSources->isChecked())
+    {
+        if (EditedParticleSource)
+        {
+            AParticleSourcePlotter::plotSource(EditedParticleSource);
+        }
+        else
+        {
+            ASourceGeneratorSettings & simSet = AParticleSimHub::getInstance().Settings.SourceGenSettings;
+            for (AParticleSourceRecordBase * source : simSet.SourceData)
+            {
+                if (source->Activity == 0) continue;
+                AParticleSourcePlotter::plotSource(source);
+            }
+        }
+        ShowTracks();
+    }
+}
+
 void AGeometryWindow::onRequestShowConnection(int from, int to)
 {
     ClearTracks();
@@ -773,6 +799,21 @@ void AGeometryWindow::on_cbColor_toggled(bool checked)
 void AGeometryWindow::on_pbShowTracks_clicked()
 {
     ShowTracks();
+}
+
+void AGeometryWindow::onParticleSourcesChanged()
+{
+    if (ui->pbShowParticleSources->isChecked()) ShowGeometry(false, true, false);
+}
+
+void AGeometryWindow::onParticleSourceChangedInEditMode(AParticleSourceRecordBase * source)
+{
+    if (ui->pbShowParticleSources->isChecked())
+    {
+        EditedParticleSource = source;
+        ShowGeometry(false, true, false);
+        EditedParticleSource = nullptr;
+    }
 }
 
 void AGeometryWindow::ShowTracks(bool activateWindow)
@@ -1552,3 +1593,14 @@ void AGeometryWindow::on_actionSet_number_of_segments_triggered()
     guitools::inputInteger("Number of segments in TGeo viewer", A3Global::getInstance().NumSegmentsTGeo, 3, 1000, this);
     on_pbShowGeometry_clicked();
 }
+
+void AGeometryWindow::on_pbShowParticleSources_clicked(bool /*checked*/)
+{
+    on_pbShowGeometry_clicked();
+}
+
+void AGeometryWindow::on_pbShowPhotonSources_clicked(bool checked)
+{
+
+}
+
