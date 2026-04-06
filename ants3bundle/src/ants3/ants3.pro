@@ -255,6 +255,7 @@ SOURCES += \
     gui/photsim/aphotfunctwindow.cpp \
     gui/photsim/aphotgenoverridedialog.cpp \
     gui/photsim/aphotonlogsettingsform.cpp \
+    gui/photsim/aphotonsourceplotter.cpp \
     gui/photsim/aphotsimwin.cpp \
     gui/photsim/asensordrawwidget.cpp \
     config/aconfig.cpp \
@@ -473,6 +474,7 @@ HEADERS += \
     gui/photsim/aphotfunctwindow.h \
     gui/photsim/aphotgenoverridedialog.h \
     gui/photsim/aphotonlogsettingsform.h \
+    gui/photsim/aphotonsourceplotter.h \
     gui/raster/agraphrasterwindow.h \
     gui/raster/arasterwindow.h \
     gui/rec/alrfplotterdialog.h \

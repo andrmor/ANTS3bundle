@@ -689,6 +689,7 @@ void AGeometryWindow::showPhotonTunnel(int from, int to)
 }
 
 #include "aparticlesourceplotter.h"
+#include "aphotonsourceplotter.h"
 #include "aparticlesimhub.h"
 void AGeometryWindow::showSources()
 {
@@ -709,6 +710,20 @@ void AGeometryWindow::showSources()
             }
         }
         ShowTracks();
+    }
+    else if (ui->pbShowPhotonSources->isChecked())
+    {
+        AGeoMarkerClass * marks = APhotonSourcePlotter::plotSource();
+        if (marks)
+        {
+            clearGeoMarkers(0); // !!!***
+            GeoMarkers.push_back(marks);
+            // show is in the caller
+        }
+        else
+        {
+
+        }
     }
 }
 
