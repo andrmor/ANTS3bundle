@@ -1076,6 +1076,9 @@ void AParticleSimWin::onSourceRecordChangedInEditMode(AParticleSourceRecordBase 
 
 void AParticleSimWin::on_pbShowTracks_clicked()
 {
+    AGeometryHub::getInstance().GeoManager->ClearTracks();
+    emit requestShowGeometry(true, true, true); // can clear tracks now
+
     QString fileName = ui->leTrackingDataFile->text();
     LastFile_Tracking = fileName;
     if (!fileName.contains('/')) fileName = ui->leWorkingDirectory->text() + '/' + fileName;
@@ -1111,7 +1114,6 @@ void AParticleSimWin::on_pbShowTracks_clicked()
         return;
     }
 
-    emit requestShowGeometry(true, true, true);
     emit requestShowTracks();
 }
 

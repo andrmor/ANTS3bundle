@@ -69,7 +69,7 @@ QString ATrackingDataExplorer::buildTracks(const QString & fileName, const QStri
                                            const int MaxTracks, int LimitToEvent)
 {
     AbortEventProcessingFlag = false;
-    Geometry.GeoManager->ClearTracks();
+    //Geometry.GeoManager->ClearTracks();
 
     ATrackingDataImporter tdi(fileName);
     if (!tdi.ErrorString.isEmpty()) return tdi.ErrorString;

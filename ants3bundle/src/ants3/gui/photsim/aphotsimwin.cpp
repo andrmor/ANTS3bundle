@@ -1035,6 +1035,7 @@ void APhotSimWin::loadAndShowTracks(bool suppressMessage, int selectedEvent)
 
     TGeoManager * GeoManager = AGeometryHub::getInstance().GeoManager;
     GeoManager->ClearTracks();
+    emit requestShowGeometry(); // can clear tracks now
 
     bool bSkipNextEvent = false;
 
@@ -1103,7 +1104,6 @@ void APhotSimWin::loadAndShowTracks(bool suppressMessage, int selectedEvent)
         else delete track;
     }
 
-    emit requestShowGeometry(); // !!!***
     emit requestShowTracks();
 }
 
