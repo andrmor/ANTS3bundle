@@ -2111,20 +2111,6 @@ void APhotSimWin::showBombsMultiple(bool showMessages)
     emit requestShowGeoMarkers();
 }
 
-void APhotSimWin::on_pbSingleSourceShow_clicked()
-{
-    /*
-    double pos[3];
-    pos[0] = ui->ledSingleX->text().toDouble();
-    pos[1] = ui->ledSingleY->text().toDouble();
-    pos[2] = ui->ledSingleZ->text().toDouble();
-    emit requestShowPosition(pos, false);
-    */
-
-    const ASingleSettings & sset = SimSet.BombSet.SingleSettings;
-    emit requestShowPosition(sset.Position, false);
-}
-
 void APhotSimWin::on_cobTracingMode_currentIndexChanged(int index)
 {
     if (index == 2)

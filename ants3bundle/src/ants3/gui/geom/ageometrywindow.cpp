@@ -695,6 +695,9 @@ void AGeometryWindow::showPhotonTunnel(int from, int to)
 void AGeometryWindow::showSources()
 {
     ClearTracks(false);
+    bool triggerShowTracks = false;
+
+    clearSourceMarkers();
 
     if (ui->pbShowParticleSources->isChecked())
     {
@@ -713,26 +716,23 @@ void AGeometryWindow::showSources()
                     AParticleSourcePlotter::plotSource(source);
                 }
             }
-            ShowTracks();
+            triggerShowTracks = true;
         }
     }
-    else if (ui->pbShowPhotonSources->isChecked())
+
+    if (ui->pbShowPhotonSources->isChecked())
     {
         if (APhotonSimHub::getConstInstance().Settings.SimType == EPhotSimType::PhotonBombs)
         {
-            AGeoMarkerClass * marks = APhotonSourcePlotter::plotSource();
+            AGeoMarkerClass * marks = APhotonSourcePlotter::plotSource(GeoMarkerSize - 2);
             if (marks)
-            {
-                clearGeoMarkers(0); // !!!***
-                GeoMarkers.push_back(marks);
-                // show is in the caller
-            }
+                GeoMarkers.push_back(marks); // show is in the caller
             else
-            {
-                ShowTracks();
-            }
+                triggerShowTracks = true;
         }
     }
+
+    if (triggerShowTracks) ShowTracks();
 }
 
 void AGeometryWindow::onRequestShowConnection(int from, int to)
@@ -780,6 +780,18 @@ void AGeometryWindow::ClearTracks(bool bRefreshWindow)
             UpdateRootCanvas();
         }
         else ShowGeometry(false);
+    }
+}
+
+void AGeometryWindow::clearSourceMarkers()
+{
+    for (int i = GeoMarkers.size() - 1; i > -1; i--)
+    {
+        if (GeoMarkers[i]->Type == AGeoMarkerClass::Source)
+        {
+            delete GeoMarkers[i];
+            GeoMarkers.erase(GeoMarkers.begin() + i);
+        }
     }
 }
 
@@ -1089,15 +1101,14 @@ void AGeometryWindow::on_actionSize_1_triggered()
 {
     GeoMarkerSize++;
     ShowGeometry();
-
     ui->actionSize_2->setEnabled(true);
 }
 
 void AGeometryWindow::on_actionSize_2_triggered()
 {
-    if (GeoMarkerSize>0) GeoMarkerSize--;
+    if (GeoMarkerSize > 0) GeoMarkerSize--;
 
-    if (GeoMarkerSize==0) ui->actionSize_2->setEnabled(false);
+    if (GeoMarkerSize == 0) ui->actionSize_2->setEnabled(false);
     else ui->actionSize_2->setEnabled(true);
 
     ShowGeometry();

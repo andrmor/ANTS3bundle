@@ -58,6 +58,7 @@ public:
     void ShowTracksAndMarkers();
 
     void ClearTracks(bool bRefreshWindow = true);
+    void clearSourceMarkers();
 
 protected:
     bool event(QEvent *event) override; // !!!***

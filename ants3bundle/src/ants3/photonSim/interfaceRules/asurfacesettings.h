@@ -35,7 +35,7 @@ public:
 
     // General settings
     bool OrientationProbabilityCorrection = true;
-    bool KillPhotonsRefractedBackward = false; // affects nly rough surface. There is a possibility for a photon to refract through a microfacet in the backward direction
+    bool KillPhotonsRefractedBackward = false; // affects only rough surface. There is a possibility for a photon to refract through a microfacet in the backward direction
 
     void writeToJson(QJsonObject & json) const;
     void readFromJson(const QJsonObject & json);

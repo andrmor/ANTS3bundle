@@ -498,18 +498,18 @@
   </action>
   <action name="actionSize_1">
    <property name="enabled">
-    <bool>false</bool>
+    <bool>true</bool>
    </property>
    <property name="text">
-    <string>Size +1</string>
+    <string>Increase size</string>
    </property>
   </action>
   <action name="actionSize_2">
    <property name="enabled">
-    <bool>false</bool>
+    <bool>true</bool>
    </property>
    <property name="text">
-    <string>Size -1</string>
+    <string>Decrease size</string>
    </property>
   </action>
   <action name="actionDefault_zoom_1">
