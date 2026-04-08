@@ -53,7 +53,8 @@ void AScriptHub::abort(const QString & message, EScriptLanguage lang)
 
     ADispatcherInterface::getInstance().abortTask();
 
-    QString str = "<p style='color:red;'>Aborted: " + message + "</p>";
+    //QString str = "<p style='color:red;'>Aborted: " + message + "</p>";
+    QString str = "<span style='color:red;'>Aborted: " + message + "</span>";
 #ifdef ANTS3_PYTHON
     if (lang == EScriptLanguage::Python)     QTimer::singleShot(2, [str](){ emit AScriptHub::getInstance().outputHtml_P(str); } );
 #endif
