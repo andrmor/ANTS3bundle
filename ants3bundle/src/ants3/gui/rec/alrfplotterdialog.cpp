@@ -70,6 +70,9 @@ void ALrfPlotterDialog::redraw()
 
     Plotter->NumberRadialProfiles = ui->sbNumProfiles->value();
 
+    Plotter->Z = ui->ledZ->text().toDouble();
+    Plotter->RangeZ = ui->ledZrange->text().toDouble();
+
     const int iSens = ui->sbSensor->value();
     const int numSens = Plotter->countSensors();
     if (numSens == 0)

@@ -9,6 +9,7 @@
 
 class LRModel;
 class TObject;
+class LRF;
 class LRFaxial;
 
 class ALrfPlotter : public QObject
@@ -25,9 +26,9 @@ public:
     std::vector<std::array<double,4>> DataPositions; // XYZE
 
     size_t NumPointsInRadialGraph = 100;
-    size_t NumPointsInXYGraph = 100;
+    size_t NumPointsInXYGraph     = 100;
 
-    bool   UseFixedVertical   = false;
+    bool   UseFixedVertical = false;
     double VerticalMin      = 0;
     double VerticalMax      = 100.0;
     int    VerticalNumBins  = 100;
@@ -43,9 +44,12 @@ public:
 
     int    NumberRadialProfiles = 36;
 
+    double Z = 0;
+    double RangeZ = 1.0;
+
 private:
     void doDrawRadialData (int iSens, bool differenceOption);
-    void doDrawRadialLrf  (int iSens, bool onTopOfData);
+    void doDrawRadialLrf  (int iSens, bool onTopOfData); // !!!*** axial3d -> evalAxial
     void doDrawRadialNodes(int iSens);
 
     void doDrawXYData(int iSens);
@@ -56,6 +60,8 @@ private:
 
     void computeRadialDataSpan(int iSens, bool differenceOption, double & xFrom, double & xTo, double & yFrom, double & yTo);
     void computeXYDataSpan(double & xFrom, double & yFrom, double & xTo, double & yTo);
+
+    bool is3D(LRF * lrf) const;
 
 signals:
     void requestDraw(TObject * obj, QString options, bool transferOwnership, bool focusWindow);
