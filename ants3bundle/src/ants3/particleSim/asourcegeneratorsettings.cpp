@@ -158,7 +158,12 @@ void ASourceGeneratorSettings::updateGeoConstRelatedSimProperties()
 QString ASourceGeneratorSettings::isGeoConstInUse(const QRegularExpression & nameRegExp) const
 {
     for (AParticleSourceRecordBase * ps : SourceData)
-        ps->isGeoConstInUse(nameRegExp);
+    {
+        QString str = ps->isGeoConstInUse(nameRegExp);
+        if (!str.isEmpty()) return str;
+    }
+
+    return "";
 }
 
 void ASourceGeneratorSettings::replaceGeoConstName(const QRegularExpression &nameRegExp, const QString &newName)
