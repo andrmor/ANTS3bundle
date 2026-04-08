@@ -1023,6 +1023,8 @@ void APhotSimWin::on_pbLoadAndShowTracks_clicked()
 
 void APhotSimWin::loadAndShowTracks(bool suppressMessage, int selectedEvent)
 {
+
+
     QString FileName = ui->leTracksFile->text();
     if (!FileName.contains('/')) FileName = ui->leResultsWorkingDir->text() + '/' + FileName;
 
@@ -1985,8 +1987,8 @@ void APhotSimWin::showBombSingleEvent(bool suppressMessages)
 {
     TGeoManager * GeoManager = AGeometryHub::getInstance().GeoManager;
     GeoManager->ClearTracks();
-
     emit requestClearGeoMarkers(0);
+    emit requestShowGeometry(true, true, true);
 
     QString err = updateBombHandler();
     if (!err.isEmpty())
@@ -2088,9 +2090,12 @@ void APhotSimWin::on_pbShowBombsMultiple_clicked()
 
 void APhotSimWin::showBombsMultiple(bool showMessages)
 {
-    emit requestShowGeometry(true);
-
-    emit requestClearGeoMarkers(0);
+    if (!showMessages)
+    {
+        // auto use, do not clear and redraw
+        emit requestClearGeoMarkers(0);
+        emit requestShowGeometry(true);
+    }
 
     QString err = updateBombHandler();
     if (!err.isEmpty())
@@ -2207,10 +2212,10 @@ void APhotSimWin::showLogRecord()
 
     TGeoManager * GeoManager = AGeometryHub::getInstance().GeoManager;
     GeoManager->ClearTracks();
+    emit requestShowGeometry();
 
     LogHandler->populateTrack();
 
-    emit requestShowGeometry();
     emit requestShowTracks();
 }
 
@@ -2249,10 +2254,10 @@ void APhotSimWin::on_pbPhotonLog_ShowAll_clicked()
 
     TGeoManager * GeoManager = AGeometryHub::getInstance().GeoManager;
     GeoManager->ClearTracks();
+    emit requestShowGeometry();
 
     LogHandler->populateAllTracks(doFiltering, sets);
 
-    emit requestShowGeometry();
     emit requestShowTracks();
 }
 

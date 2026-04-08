@@ -1463,10 +1463,12 @@ void AParticleSimWin::on_pbEventView_clicked()
         QString fileName = ui->leTrackingDataFile->text();
         if (!fileName.contains('/')) fileName = ui->leWorkingDirectory->text() + '/' + fileName;
 
+        AGeometryHub::getInstance().GeoManager->ClearTracks();
+        emit requestShowGeometry(true, true, true);
+
         ATrackingDataExplorer explorer;
         explorer.buildTracksForEventRecord(CurrentEventRecord, ui->cbEVsupressSec->isChecked());
 
-        emit requestShowGeometry(true, true, true);
         emit requestShowTracks();
     }
 }

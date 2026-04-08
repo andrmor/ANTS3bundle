@@ -121,8 +121,6 @@ QString ATrackingDataExplorer::buildTracks(const QString & fileName, const QStri
 
 void ATrackingDataExplorer::buildTracksForEventRecord(AEventTrackingRecord * record, bool skipTracksForSecondaries)
 {
-    Geometry.GeoManager->ClearTracks();
-
     if (!record) return;
 
     int iTrack = 0;
