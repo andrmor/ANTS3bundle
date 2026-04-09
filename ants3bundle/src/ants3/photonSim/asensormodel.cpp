@@ -280,19 +280,19 @@ bool ASensorModel::getPixelHit(double x, double y, size_t & binX, size_t & binY)
     if (SiPM)
     {
         //qDebug() << "Checking hit for local x,y:" << x << y << ", showing nothing if there were no pixel hit";
-        if (x < - _HalfSensitiveSizeX || x > _HalfSensitiveSizeX) return false;
-        if (y < - _HalfSensitiveSizeY || y > _HalfSensitiveSizeY) return false;
+        if (x <= - _HalfSensitiveSizeX || x >= _HalfSensitiveSizeX) return false;
+        if (y <= - _HalfSensitiveSizeY || y >= _HalfSensitiveSizeY) return false;
 
         x += _HalfSensitiveSizeX;  // [0, FullSizeX]
         y += _HalfSensitiveSizeY;  // [0, FullSizeY]
+        //qDebug() << "  shifted x,y:" << x << y;
 
-        if (std::fmod(x, _PixelPitchX) > PixelSizeX) return false;
-        if (std::fmod(y, _PixelPitchY) > PixelSizeY) return false;
+        if (std::fmod(x, _PixelPitchX) >= PixelSizeX) return false;
+        if (std::fmod(y, _PixelPitchY) >= PixelSizeY) return false;
 
         binX = x / _PixelPitchX;
         binY = y / _PixelPitchY;
-        //const int index = iy * PixelsX + ix;
-        //qDebug() << "-->Hit detected; xBin,yBin,index:"<< xBin << yBin << index;
+        //qDebug() << "  -->Hit detected; xBin,yBin,index:"<< binX << binY;
         return true;
     }
     else return false;

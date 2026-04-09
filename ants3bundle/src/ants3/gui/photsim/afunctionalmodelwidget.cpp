@@ -220,7 +220,7 @@ AFunctionalModelWidget_OpticalFiber::AFunctionalModelWidget_OpticalFiber(const A
     leMaxAngle = new QLineEdit(); leMaxAngle->setValidator(DoubleValidator);
     connect(leMaxAngle, &QLineEdit::editingFinished, this, &AFunctionalModelWidget_ThinLens::modified);
     lay->addWidget(leMaxAngle);
-    lay->addWidget(new QLabel("mm"));
+    lay->addWidget(new QLabel("deg"));
     lay->addStretch();
     MainLayout->addLayout(lay);
 
