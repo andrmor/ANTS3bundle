@@ -56,12 +56,24 @@ void ASensorWindow::updateGui()
     ui->cobModel->setCurrentIndex(iModel);
     on_cobModel_activated(iModel);
 
+    updateModelGui();
+
     ui->cobAssignmentMode->setCurrentIndex(SensHub.isPersistentModelAssignment() ? 1 : 0);
 
+    onMaterialsChanged();
+
+    updateGains();
+}
+
+void ASensorWindow::updateModelGui()
+{
+    int iModel = ui->cobModel->currentIndex();
     ASensorModel * mod = SensHub.model(iModel); // can be nullptr
 
     if (mod)
     {
+        ui->leModelName->setText(mod->Name);
+
         ui->cobSensorType->setCurrentIndex(mod->SiPM ? 1 : 0);
         ui->sbPixelsX->setValue(mod->PixelsX);
         ui->sbPixelsY->setValue(mod->PixelsY);
@@ -69,6 +81,9 @@ void ASensorWindow::updateGui()
         ui->lepPixelSizeY->setText(QString::number(mod->PixelSizeY));
         ui->lepPixelSpacingX->setText(QString::number(mod->PixelSpacingX));
         ui->lepPixelSpacingY->setText(QString::number(mod->PixelSpacingY));
+        updateNumPixels();
+
+        ui->ledEffectivePDE->setText( QString::number(mod->PDE_effective) );
 
         ui->lepAreaStepX->setText(QString::number(mod->StepX));
         ui->lepAreaStepY->setText(QString::number(mod->StepY));
@@ -98,10 +113,8 @@ void ASensorWindow::updateGui()
     updatePdeButtons();
     updateAngularButtons();
     updateAreaButtons();
-    updatePhElToSigButtons();
-    onMaterialsChanged();
 
-    updateGains();
+    updatePhElToSigButtons();
 }
 
 #include "amaterialhub.h"
@@ -112,50 +125,21 @@ void ASensorWindow::onMaterialsChanged()
     ui->cobMaterialForPDE->addItems(list);
 }
 
-void ASensorWindow::on_cobModel_activated(int index)
+void ASensorWindow::on_cobModel_activated(int)
 {
-    if (index == -1) return;
-
-    ui->sbModelIndex->setValue(index);
-    onModelIndexChanged();
-}
-
-void ASensorWindow::on_sbModelIndex_editingFinished()
-{
-    const int index = ui->sbModelIndex->value();
-    if (index >= ui->cobModel->count())
-        guitools::message("Mismatch on number of models!", this);
-    else ui->cobModel->setCurrentIndex(index);
-
     onModelIndexChanged();
 }
 
 void ASensorWindow::onModelIndexChanged()
 {
-    const int index = ui->sbModelIndex->value();
-    ASensorModel * mod = SensHub.model(index);
-    if (!mod)
-    {
-        guitools::message("This sensor model does not exist!", this);
-        return;
-    }
+    int index = ui->cobModel->currentIndex();
+    if (index == -1) return;
 
-    const int numInUse = SensHub.countSensorsOfModel(index);
+    int numInUse = SensHub.countSensorsOfModel(index);
     ui->labNumSensorsThisModel->setText(QString::number(numInUse));
     ui->pbRemoveModel->setEnabled( numInUse == 0 );
 
-    ui->leModelName->setText(mod->Name);
-
-    ui->ledEffectivePDE->setText( QString::number(mod->PDE_effective) );
-
-    updatePdeButtons();
-    updateAngularButtons();
-    updateAreaButtons();
-
-    ui->cobSensorType->setCurrentIndex(mod->SiPM ? 1 : 0);
-    ui->sbPixelsX->setValue(mod->PixelsX);
-    ui->sbPixelsY->setValue(mod->PixelsY);
-    updateNumPixels();
+    updateModelGui();
 }
 
 void ASensorWindow::updateHeader()
@@ -341,7 +325,7 @@ void ASensorWindow::on_cobAssignmentMode_activated(int index)
 
 void ASensorWindow::on_pbShowSensorsOfThisModel_clicked()
 {
-    emit requestShowSensorModels(ui->sbModelIndex->value());
+    emit requestShowSensorModels(ui->cobModel->currentIndex());
 }
 
 void ASensorWindow::updatePdeButtons()
@@ -869,7 +853,7 @@ void ASensorWindow::on_pbTestPhElSignal_clicked()
 #include "amaterialhub.h"
 void ASensorWindow::on_pbCompteEffectivePDE_clicked()
 {
-    int iSensorModel = ui->sbModelIndex->value();
+    int iSensorModel = ui->cobModel->currentIndex();
     if (iSensorModel < 0 || iSensorModel >= SensHub.countModels())
     {
         guitools::message("Sensor model does not exist!", this);
@@ -1094,3 +1078,43 @@ void ASensorWindow::on_pbGains_Save_customContextMenuRequested(const QPoint &)
     if (!err.isEmpty()) guitools::message(err, this);
 }
 
+#include "ajsontools.h"
+void ASensorWindow::on_actionSave_sensor_triggered()
+{
+    int iModel = ui->cobModel->currentIndex();
+    if (iModel < 0 || iModel >= SensHub.countModels()) return;
+    ASensorModel * mod = SensHub.model(iModel);
+
+    QString fn = guitools::dialogSaveFile(this, "Save this sensor model to file", "*.json");
+    if (fn.isEmpty()) return;
+    if (!fn.endsWith(".json")) fn += ".json";
+
+    QJsonObject json;
+    mod->writeToJson(json);
+    bool ok = jstools::saveJsonToFile(json, fn);
+    if (!ok) guitools::message("Cannot open file for writing!", this);
+}
+
+void ASensorWindow::on_actionLoad_sensor_triggered()
+{
+    QString fn = guitools::dialogLoadFile(this, "Append new sensor model from file", "*.json");
+    if (fn.isEmpty()) return;
+
+    QJsonObject json;
+    bool ok = jstools::loadJsonFromFile(json, fn);
+    if (!ok) guitools::message("Cannot open file for reading!", this);
+
+    ASensorModel model;
+    QString err = model.readFromJson(json);
+    if (!err.isEmpty())
+    {
+        guitools::message(err, this);
+        return;
+    }
+
+    int index = SensHub.addModel(model);
+    updateGui();
+
+    ui->cobModel->setCurrentIndex(index);
+    onModelIndexChanged();
+}
