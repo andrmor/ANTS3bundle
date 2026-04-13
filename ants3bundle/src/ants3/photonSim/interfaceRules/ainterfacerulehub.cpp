@@ -95,6 +95,20 @@ void AInterfaceRuleHub::onMaterialRemoved(int iMat)
     }
 
     MaterialRules.erase(MaterialRules.begin() + iMat);
+
+    // updating indexes of materials above iMat
+    for (auto & rv : MaterialRules)
+        for (auto & r : rv)
+            if (r)
+            {
+                int iFrom = r->getMaterialFrom();
+                int iTo   = r->getMaterialTo();
+
+                if (iFrom > iMat) iFrom--;
+                if (iTo   > iMat) iTo--;
+
+                r->updateMatIndices(iFrom, iTo);
+            }
 }
 
 void AInterfaceRuleHub::clearRules()
