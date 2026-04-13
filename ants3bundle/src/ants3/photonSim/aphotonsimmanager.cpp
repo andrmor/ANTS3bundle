@@ -134,9 +134,11 @@ bool APhotonSimManager::simulate(int numLocalProc)
     qDebug() << "Running simulation...";
     QJsonObject Reply = Dispatcher.performTask(Request);
 
+    /*
     qDebug() << "\n\n---------------------";
     qDebug() << Reply;
     qDebug() << "---------------------\n\n";
+    */
 
     processReply(Reply);
 
