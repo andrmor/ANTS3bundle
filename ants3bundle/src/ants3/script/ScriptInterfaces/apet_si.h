@@ -22,7 +22,7 @@ public:
     void abortRun() override;  // !!!*** TODO
 
 public slots:
-    void createScanner(QString scannerName, double scannerRadius, double crystalDepth, double crystalSize, double minAngle_deg);
+    void createScanner(QString scannerName, double scannerRadius, double crystalDepth, double crystalSize, double minAngle_deg, QVariantList crystalArray = QVariantList());
 
     void configureBuilderTimeWindows(QVariantList arrayOfTimeFromAndTimeTo);
     void configureBuilderClustering(double maxTimeDeltaCluster, double clusterTime, double integrationTime, double deadTime);
@@ -47,11 +47,14 @@ public slots:
 
     QVariantList loadImage(QString fileName);
 
+    void directSaveCoincideneData(QVariantList coincData, QString scannerName, QString outputDir, QString headerFileName, QString binFileName);
+
 private slots:
     void onReadReady();
 
 private:
     bool makeLUT(QString fileName);
+    bool makeCustomLUT(QString fileName, QVariantList crystalArray);
 
     QProcess * Process = nullptr;
 

@@ -74,7 +74,7 @@ void APet_si::abortRun()
     // if (Process) abort it
 }
 
-void APet_si::createScanner(QString scannerName, double scannerRadius, double crystalDepth, double crystalSize, double minAngle_deg)
+void APet_si::createScanner(QString scannerName, double scannerRadius, double crystalDepth, double crystalSize, double minAngle_deg, QVariantList crystalArray)
 {
     QString castorStr;
     const QStringList environment = QProcess::systemEnvironment();
@@ -107,15 +107,25 @@ void APet_si::createScanner(QString scannerName, double scannerRadius, double cr
         return;
     }
 
-    size_t numScint = AGeometryHub::getConstInstance().countScintillators();
-    if (numScint == 0)
+    size_t numScint = 0;
+    if (crystalArray.isEmpty())
     {
-        abort("Current configuration does not have defined scintillators!");
-        return;
-    }
+        numScint = AGeometryHub::getConstInstance().countScintillators();
+        if (numScint == 0)
+        {
+            abort("Current configuration does not have defined scintillators!");
+            return;
+        }
 
-    bool ok = makeLUT(castorStr + "/scanner/" + scannerName + ".lut");
-    if (!ok) return;
+        bool ok = makeLUT(castorStr + "/scanner/" + scannerName + ".lut");
+        if (!ok) return;
+    }
+    else
+    {
+        numScint = crystalArray.size();
+        bool ok = makeCustomLUT(castorStr + "/scanner/" + scannerName + ".lut", crystalArray);
+        if (!ok) return;
+    }
 
     QString numScintStr = QString::number(numScint);
 
@@ -168,6 +178,56 @@ bool APet_si::makeLUT(QString fileName)
             outStream.write((char*)&tmp, sizeof(float));
         }
     }
+    outStream.close();
+    return true;
+}
+
+bool APet_si::makeCustomLUT(QString fileName, QVariantList crystalArray)
+{
+    const int size = crystalArray.size();
+    if (size == 0)
+    {
+        abort("crystalArray is empty!");
+        return false;
+    }
+
+    std::vector<AVector3> pos(size);
+    std::vector<AVector3> ori(size);
+
+    for (int iScint = 0; iScint < size; iScint++)
+    {
+        QVariantList scint = crystalArray[iScint].toList();
+        if (scint.size() != 6)
+        {
+            abort("Element size in crystalArray is not 6 (should be x,y,z, phi,theta,psi)");
+            return false;
+        }
+
+        pos[iScint] = {scint[0].toDouble(), scint[1].toDouble(), scint[2].toDouble()};
+        ori[iScint] = {scint[3].toDouble(), scint[4].toDouble(), scint[5].toDouble()};
+    }
+
+    std::ofstream outStream(fileName.toLatin1().data(), std::ios::out | std::ios::binary );
+    if (!outStream.is_open())
+    {
+        abort("Cannot open file for writing: " + fileName);
+        return false;
+    }
+
+    for (size_t iScint = 0; iScint < pos.size(); iScint++)
+    {
+        for (size_t i = 0; i < 3; i++)
+        {
+            float tmp = (float)pos[iScint][i];
+            outStream.write((char*)&tmp, sizeof(float));
+        }
+        for (size_t i = 0; i < 3; i++)
+        {
+            float tmp = (float)ori[iScint][i];
+            outStream.write((char*)&tmp, sizeof(float));
+        }
+    }
+
     outStream.close();
     return true;
 }
@@ -447,4 +507,31 @@ QVariantList APet_si::loadImage(QString fileName)
     vl.push_back(parameters);
 
     return vl;
+}
+
+void APet_si::directSaveCoincideneData(QVariantList coincData, QString scannerName, QString outputDir, QString headerFileName, QString binFileName)
+{
+    const qsizetype size = coincData.size();
+    if (size == 0)
+    {
+        abort("Empty data in directSaveCoincideneData");
+        return;
+    }
+    std::vector<APetCoincidencePair> pairs(size);
+    for (qsizetype iEv = 0; iEv < size; iEv++)
+    {
+        QVariantList event = coincData[iEv].toList();
+        if (event.size() != 2)
+        {
+            abort("coincData element size is not 2 (iScint1, iScint2)");
+        }
+        int iScint1 = event[0].toInt();
+        int iScint2 = event[1].toInt();
+        pairs[iEv] = {{iScint1, 0, 0}, {iScint2, 0, 0}};
+    }
+
+    APetCoincidenceFinder cf(scannerName, 0, "", false);
+    cf.write(pairs, false, outputDir, headerFileName, binFileName);
+    if (!cf.ErrorString.isEmpty())
+        abort(cf.ErrorString);
 }
