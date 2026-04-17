@@ -517,21 +517,92 @@ void APet_si::directSaveCoincideneData(QVariantList coincData, QString scannerNa
         abort("Empty data in directSaveCoincideneData");
         return;
     }
-    std::vector<APetCoincidencePair> pairs(size);
+    std::vector<APetCoincidencePair> coincAr(size);
     for (qsizetype iEv = 0; iEv < size; iEv++)
     {
         QVariantList event = coincData[iEv].toList();
-        if (event.size() != 2)
+        if (event.size() < 2)
         {
-            abort("coincData element size is not 2 (iScint1, iScint2)");
+            abort("coincData element size is less than 2 (Expected: iScint1 iScint2 [optional timeStamp_ms]");
+            return;
         }
         int iScint1 = event[0].toInt();
         int iScint2 = event[1].toInt();
-        pairs[iEv] = {{iScint1, 0, 0}, {iScint2, 0, 0}};
+
+        double timestamp = 0;
+        if (event.size() > 2) timestamp = event[2].toDouble(); // should be in ms
+
+        coincAr[iEv] = {{iScint1, timestamp, 0}, {iScint2, timestamp, 0}};
     }
 
     APetCoincidenceFinder cf(scannerName, 0, "", false);
-    cf.write(pairs, false, outputDir, headerFileName, binFileName);
+    cf.write(coincAr, false, outputDir, headerFileName, binFileName);
     if (!cf.ErrorString.isEmpty())
         abort(cf.ErrorString);
+}
+
+void APet_si::reconstructDynamic(QString coincFileName, QString gatesFileName, QString deformationFileName, QString outDir, int numThreads)
+{
+    Process = new QProcess();
+    Process->setProcessChannelMode(QProcess::MergedChannels);
+
+    bool isRunning = true;
+    QObject::connect(Process, static_cast<void(QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished), [&isRunning](){isRunning = false; qDebug() << "----CASTOR FINISHED!-----";});
+    //QObject::connect(process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), [=](int exitCode, QProcess::ExitStatus exitStatus){ /* ... */ });
+
+    QObject::connect(Process, &QProcess::readyReadStandardOutput, this, &APet_si::onReadReady);
+
+    //castor-recon -df Tor.cdh -opti MLEM -it 10:16 -proj joseph -conv gaussian,2.0,2.5,3.5::psf -dim 128,128,128 -vox 3.0,3.0,3.0 -dout /home/andr/WORK/ANTS3/castor/Out/Tor/images
+    QString program = "castor-recon";
+    QStringList args;
+    args << "-df" << coincFileName;
+    if (numThreads > 1) args << "-th" << QString::number(numThreads);
+    args << "-opti" << AlgorithmName;
+    args << "-it" << QString("%1:%2").arg(NumIterations).arg(NumSubsets);
+    args << "-proj" << "joseph";                    // !
+
+    //args << "-g" << "/home/andr/WORK/GAGG/PET/Out1M/ReducedSim/gates_config.txt";
+    args << "-g" << gatesFileName;
+        //args << "-rm" << "/home/andr/WORK/GAGG/PET/Out1M/ReducedSim/motion_config.txt";
+        //args << "-im" << "deformationRigid,0,0,0,0,0,0,0,0,0,0,0,180"; // -im deformationRigid,tx1,ty1,tz1,ra1,rb1,rc1,tx2,ty2,tz2,ra2,rb2,rc2
+    //args << "-im" << "deformationRigid:/home/andr/WORK/GAGG/PET/Out1M/ReducedSim/motion_config.txt";
+    args << "-im" << "deformationRigid:"+deformationFileName;
+
+    //args << "-conv" << "gaussian,2.0,2.5,3.5::psf";
+    args << "-conv" << QString("gaussian,%1,%2,%3::psf").arg(TransaxialFWHM_mm).arg(AxialFWHM_mm).arg(NumberOfSigmas);
+    if (IgnoreTOF) args << "-ignore-TOF";
+    //args << "-dim" << "128,128,128";
+    args << "-dim" << QString("%1,%2,%3").arg(NumVoxels[0]).arg(NumVoxels[1]).arg(NumVoxels[2]);
+    //args << "-vox" << "3.0,3.0,3.0";
+    args << "-vox" << QString("%1,%2,%3").arg(SizeVoxels[0]).arg(SizeVoxels[1]).arg(SizeVoxels[2]);
+    args << "-dout" << outDir;
+
+    qDebug() << "Starting external process:" << program << " with arguments:\n" << args;
+
+    Process->start(program, args);
+    bool ok = Process->waitForStarted(1000);
+    if (!ok)
+    {
+        abort("Failed to start reconstruction using castor-recon");
+        return;
+    }
+
+    while (isRunning)
+    {
+        //bool ok = Process->waitForFinished(100); // ms
+        //if (ok) break;
+
+        QThread::usleep(100);
+        QApplication::processEvents();
+
+        if (AScriptHub::isAborted(Lang))
+        {
+            Process->terminate();
+            break;
+        }
+    }
+
+    QString err = Process->errorString();
+    if (!err.isEmpty() && err != "Unknown error")
+        abort("Reconstruction failed:\n" + err);
 }

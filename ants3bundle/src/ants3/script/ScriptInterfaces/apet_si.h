@@ -48,6 +48,7 @@ public slots:
     QVariantList loadImage(QString fileName);
 
     void directSaveCoincideneData(QVariantList coincData, QString scannerName, QString outputDir, QString headerFileName, QString binFileName);
+    void reconstructDynamic(QString coincFileName, QString gatesFileName, QString deformationFileName, QString outDir, int numThreads);
 
 private slots:
     void onReadReady();
