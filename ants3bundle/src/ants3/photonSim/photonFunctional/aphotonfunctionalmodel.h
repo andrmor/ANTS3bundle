@@ -77,14 +77,15 @@ public:
     bool applyModel(APhotonExchangeData & photonData, int index, int linkedToIndex) override;
 
     double Length_mm = 100.0;
+    double CoreDiameter = 1.0; // in mm
 
-    double MaxAngle_deg = 30.0;
-    std::vector<std::pair<double,double>> MaxAngleSpectrum_deg;
+    double CutOffAngle_deg = 30.0;
+    std::vector<std::pair<double,double>> CutOffAngleSpectrum_deg;
     // refractive index and and attenuation data are taken from the target material   --> !!!*** in check enforce same material target and trigger
 
     // runtime
-    double _TanMaxAngle;
-    std::vector<double> _TanMaxAngleSpectrumBinned;
+    //double _TanMaxAngle;
+    std::vector<double> _cutOffAngleSpectrumBinned;
 };
 
 class APFM_ThinLens : public APhotonFunctionalModel

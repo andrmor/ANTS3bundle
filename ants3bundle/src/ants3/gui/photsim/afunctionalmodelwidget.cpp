@@ -211,39 +211,46 @@ AFunctionalModelWidget_OpticalFiber::AFunctionalModelWidget_OpticalFiber(const A
     leLength = new QLineEdit(); leLength->setValidator(DoubleValidator);
     connect(leLength, &QLineEdit::editingFinished, this, &AFunctionalModelWidget_ThinLens::modified);
     lay->addWidget(leLength);
-    lay->addWidget(new QLabel("mm"));
+    lay->addWidget(new QLabel("mm  "));
     lay->addStretch();
+    lay->addWidget(new QLabel("Core diameter:"));
+    leCoreDiameter = new QLineEdit(); leCoreDiameter->setValidator(DoubleValidator);
+    connect(leCoreDiameter, &QLineEdit::editingFinished, this, &AFunctionalModelWidget_ThinLens::modified);
+    lay->addWidget(leCoreDiameter);
+    lay->addWidget(new QLabel("mm"));
     MainLayout->addLayout(lay);
 
     lay = new QHBoxLayout(); lay->setContentsMargins(3,0,3,0);
-    lay->addWidget( new QLabel(QString("Max angle for not %0-resolved sim:").arg(QChar(0x3bb))) );
+    lay->addWidget( new QLabel(QString("Cut-off angle:")) );
     leMaxAngle = new QLineEdit(); leMaxAngle->setValidator(DoubleValidator);
+    leMaxAngle->setToolTip("The model kills all photons that have angle of incidence (projected, for the first interaction) at the fiber side wall smaller than this value");
     connect(leMaxAngle, &QLineEdit::editingFinished, this, &AFunctionalModelWidget_ThinLens::modified);
     lay->addWidget(leMaxAngle);
-    lay->addWidget(new QLabel("deg"));
+    lay->addWidget(new QLabel("deg;  "));
     lay->addStretch();
-    MainLayout->addLayout(lay);
-
-    lay = new QHBoxLayout(); lay->setContentsMargins(3,0,3,0);
-    lay->addWidget( new QLabel(QString("    Max angle vs %0:").arg(QChar(0x3bb))) );
-
-    pbShow = new QPushButton("Show", this);
+    lay->addWidget(new QLabel(QString("vs %0:").arg(QChar(0x3bb))));
+    pbShow = new QPushButton("Show", this); pbShow->setMaximumWidth(55);
     connect(pbShow, &QPushButton::clicked, this, &AFunctionalModelWidget_OpticalFiber::onShowClicked);
     pbShow->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(pbShow, &QPushButton::customContextMenuRequested, this, &AFunctionalModelWidget_OpticalFiber::onShowRightClicked);
     lay->addWidget(pbShow);
-    pbLoad = new QPushButton("Load", this);
+    pbLoad = new QPushButton("Load", this);  pbLoad->setMaximumWidth(55);
     connect(pbLoad, &QPushButton::clicked, this, &AFunctionalModelWidget_OpticalFiber::onLoadClicked);
     lay->addWidget(pbLoad);
-    pbDelete = new QPushButton("X", this); pbDelete->setMaximumWidth(25);
+    pbDelete = new QPushButton("X", this); pbDelete->setMaximumWidth(20);
     connect(pbDelete, &QPushButton::clicked, this, &AFunctionalModelWidget_OpticalFiber::onDeleteClicked);
     lay->addWidget(pbDelete);
-    lay->addStretch();
     MainLayout->addLayout(lay);
 
+    //lay = new QHBoxLayout(); lay->setContentsMargins(3,0,3,0);
+    //lay->addWidget( new QLabel(QString("    Max angle vs %0:").arg(QChar(0x3bb))) );
+    //lay->addStretch();
+    //MainLayout->addLayout(lay);
+
     leLength->setText(QString::number(model->Length_mm));
-    leMaxAngle->setText(QString::number(model->MaxAngle_deg));
-    Spectrum = model->MaxAngleSpectrum_deg;
+    leCoreDiameter->setText(QString::number(model->CoreDiameter));
+    leMaxAngle->setText(QString::number(model->CutOffAngle_deg));
+    Spectrum = model->CutOffAngleSpectrum_deg;
     updateButtons();
 }
 
@@ -253,8 +260,9 @@ QString AFunctionalModelWidget_OpticalFiber::updateModel(APhotonFunctionalModel 
     if (ofm)
     {
         ofm->Length_mm = leLength->text().toDouble();
-        ofm->MaxAngle_deg = leMaxAngle->text().toDouble();
-        ofm->MaxAngleSpectrum_deg = Spectrum;
+        ofm->CoreDiameter = leCoreDiameter->text().toDouble();
+        ofm->CutOffAngle_deg = leMaxAngle->text().toDouble();
+        ofm->CutOffAngleSpectrum_deg = Spectrum;
     }
     return "";
 }
@@ -314,7 +322,7 @@ void AFunctionalModelWidget_OpticalFiber::onShowRightClicked(const QPoint &)
     }
 
     APFM_OpticalFiber tmpMod;
-    tmpMod.MaxAngleSpectrum_deg = Spectrum;
+    tmpMod.CutOffAngleSpectrum_deg = Spectrum;
     QString err = tmpMod.updateRuntimeProperties();
     if (!err.isEmpty())
     {
@@ -322,7 +330,7 @@ void AFunctionalModelWidget_OpticalFiber::onShowRightClicked(const QPoint &)
         return;
     }
 
-    if (tmpMod._TanMaxAngleSpectrumBinned.empty())
+    if (tmpMod._cutOffAngleSpectrumBinned.empty())
     {
         guitools::message("Wavelength-resolved binned data are empty!", this);
         return;
@@ -331,7 +339,7 @@ void AFunctionalModelWidget_OpticalFiber::onShowRightClicked(const QPoint &)
     {
         std::vector<double> wavelength;
         WaveSet.getWavelengthBins(wavelength);
-        TGraph * g = AGraphBuilder::graph(wavelength, tmpMod._TanMaxAngleSpectrumBinned);
+        TGraph * g = AGraphBuilder::graph(wavelength, tmpMod._cutOffAngleSpectrumBinned);
         AGraphBuilder::configure(g, "Binned Max Angle vs wavelength",
                                  "Wavelength, nm", "Max angle, mm",
                                  4, 20, 1,

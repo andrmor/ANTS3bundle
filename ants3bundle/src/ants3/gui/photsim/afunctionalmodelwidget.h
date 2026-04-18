@@ -80,6 +80,7 @@ public:
 
 protected:
     QLineEdit * leLength = nullptr;
+    QLineEdit * leCoreDiameter = nullptr;
     QLineEdit * leMaxAngle = nullptr;
 
     QPushButton * pbShow = nullptr;
