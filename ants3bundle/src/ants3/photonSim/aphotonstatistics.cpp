@@ -15,7 +15,7 @@ APhotonStatistics::~APhotonStatistics()
 
 void APhotonStatistics::clear()
 {
-    Absorbed = InterfaceRuleLoss = HitSensor = Escaped = LossOnGrid = TracingSkipped = MaxTransitions = GeneratedOutside = MonitorKill = 0;
+    Absorbed = InterfaceRuleLoss = HitSensor = Escaped = LossOnGrid = TracingSkipped = MaxTransitions = GeneratedOutside = MonitorKill = FunctionalKill = 0;
 
     FresnelTransmitted = FresnelReflected = BulkAbsorption = Rayleigh = Reemission = CustomScatter = 0;
     InterfaceRuleForward = InterfaceRuleBack = 0;
@@ -89,6 +89,7 @@ void APhotonStatistics::append(const APhotonStatistics & from)
     MaxTransitions       += from.MaxTransitions;
     GeneratedOutside     += from.GeneratedOutside;
     MonitorKill          += from.MonitorKill;
+    FunctionalKill       += from.FunctionalKill;
 
     FresnelTransmitted   += from.FresnelTransmitted;
     FresnelReflected     += from.FresnelReflected;
@@ -112,6 +113,7 @@ void APhotonStatistics::writeToJson(QJsonObject & json) const
     json["MaxTransitions"]       = (double)MaxTransitions;
     json["GeneratedOutside"]     = (double)GeneratedOutside;
     json["MonitorKill"]          = (double)MonitorKill;
+    json["FunctionalKill"]       = (double)FunctionalKill;
 
     json["FresnelTransmitted"]   = (double)FresnelTransmitted;
     json["FresnelReflected"]     = (double)FresnelReflected;
@@ -140,6 +142,7 @@ void APhotonStatistics::readFromJson(const QJsonObject & json)
     jstools::parseJson(json, "MaxTransitions"      , MaxTransitions);
     jstools::parseJson(json, "GeneratedOutside"    , GeneratedOutside);
     jstools::parseJson(json, "MonitorKill"         , MonitorKill);
+    jstools::parseJson(json, "FunctionalKill"      , FunctionalKill);
 
     jstools::parseJson(json, "FresnelTransmitted"  , FresnelTransmitted);
     jstools::parseJson(json, "FresnelReflected"    , FresnelReflected);
@@ -159,5 +162,5 @@ void APhotonStatistics::readFromJson(const QJsonObject & json)
 
 long APhotonStatistics::countPhotons()
 {
-    return Absorbed + InterfaceRuleLoss + HitSensor + Escaped + LossOnGrid + TracingSkipped + MaxTransitions + GeneratedOutside + MonitorKill;
+    return Absorbed + InterfaceRuleLoss + HitSensor + Escaped + LossOnGrid + TracingSkipped + MaxTransitions + GeneratedOutside + MonitorKill + FunctionalKill;
 }

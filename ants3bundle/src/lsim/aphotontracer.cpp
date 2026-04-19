@@ -524,6 +524,7 @@ void APhotonTracer::checkSpecialVolume(TGeoNode * NodeAfterInterface, bool & ret
         if (!photonTrackingContinues)
         {
             returnEndTracingFlag = true;
+            SimStat.FunctionalKill++;
             if (SaveLog) PhLog.push_back( APhotonHistoryLog(Navigator->GetCurrentPoint(), NameTo, VolumeIndexTo, Photon.time, Photon.waveIndex, APhotonHistoryLog::Functional_Kill) );
             return;
         }

@@ -1138,7 +1138,7 @@ void APhotSimWin::loadStatistics(bool suppressMessage)
     Stat.readFromJson(json);
 
     const int sum = Stat.Absorbed + Stat.InterfaceRuleLoss + Stat.HitSensor + Stat.Escaped + Stat.LossOnGrid + Stat.TracingSkipped +
-                    Stat.MaxTransitions + Stat.GeneratedOutside + Stat.MonitorKill;
+                    Stat.MaxTransitions + Stat.GeneratedOutside + Stat.MonitorKill + Stat.FunctionalKill;
 
     QString s;
     s = "Absorption (bulk): "      + QString::number(Stat.BulkAbsorption)       + "\n" +
@@ -1161,6 +1161,7 @@ void APhotSimWin::loadStatistics(bool suppressMessage)
         "InterfaceRule loss: "     + QString::number(Stat.InterfaceRuleLoss)    + "\n" +
         "Max transitions reached: "+ QString::number(Stat.MaxTransitions)       + "\n" +
         "Monitor kill: "           + QString::number(Stat.MonitorKill)          + "\n" +
+        "Functional model kill: "  + QString::number(Stat.FunctionalKill)       + "\n" +
         "Optical grid loss: "      + QString::number(Stat.LossOnGrid)           + "\n" +
         "Tracing skipped: "        + QString::number(Stat.TracingSkipped)       + "\n" +
         "---\n"
