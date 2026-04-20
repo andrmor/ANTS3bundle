@@ -73,7 +73,7 @@ AFunctionalModelWidget_ThinLens::AFunctionalModelWidget_ThinLens(const APFM_Thin
 
     lay->addWidget( new QLabel(QString("Focal length for not %0-resolved sim:").arg(QChar(0x3bb))) );
     leFocalLength = new QLineEdit(); leFocalLength->setValidator(DoubleValidator);
-    connect(leFocalLength, &QLineEdit::editingFinished, this, &AFunctionalModelWidget_ThinLens::modified);
+    connect(leFocalLength, &QLineEdit::editingFinished, this, &AFunctionalModelWidget::modified);
     lay->addWidget(leFocalLength);
     lay->addWidget(new QLabel("mm"));
     lay->addStretch(2);
@@ -209,13 +209,13 @@ AFunctionalModelWidget_OpticalFiber::AFunctionalModelWidget_OpticalFiber(const A
 
     lay->addWidget( new QLabel(QString("Length:")) );
     leLength = new QLineEdit(); leLength->setValidator(DoubleValidator);
-    connect(leLength, &QLineEdit::editingFinished, this, &AFunctionalModelWidget_ThinLens::modified);
+    connect(leLength, &QLineEdit::editingFinished, this, &AFunctionalModelWidget::modified);
     lay->addWidget(leLength);
     lay->addWidget(new QLabel("mm  "));
     lay->addStretch();
     lay->addWidget(new QLabel("Core diameter:"));
     leCoreDiameter = new QLineEdit(); leCoreDiameter->setValidator(DoubleValidator);
-    connect(leCoreDiameter, &QLineEdit::editingFinished, this, &AFunctionalModelWidget_ThinLens::modified);
+    connect(leCoreDiameter, &QLineEdit::editingFinished, this, &AFunctionalModelWidget::modified);
     lay->addWidget(leCoreDiameter);
     lay->addWidget(new QLabel("mm"));
     MainLayout->addLayout(lay);
@@ -224,22 +224,44 @@ AFunctionalModelWidget_OpticalFiber::AFunctionalModelWidget_OpticalFiber(const A
     lay->addWidget( new QLabel(QString("Cut-off angle:")) );
     leMaxAngle = new QLineEdit(); leMaxAngle->setValidator(DoubleValidator);
     leMaxAngle->setToolTip("The model kills all photons that have angle of incidence (projected, for the first interaction) at the fiber side wall smaller than this value");
-    connect(leMaxAngle, &QLineEdit::editingFinished, this, &AFunctionalModelWidget_ThinLens::modified);
+    connect(leMaxAngle, &QLineEdit::editingFinished, this, &AFunctionalModelWidget::modified);
     lay->addWidget(leMaxAngle);
     lay->addWidget(new QLabel("deg;  "));
     lay->addStretch();
     lay->addWidget(new QLabel(QString("vs %0:").arg(QChar(0x3bb))));
-    pbShow = new QPushButton("Show", this); pbShow->setMaximumWidth(55);
-    connect(pbShow, &QPushButton::clicked, this, &AFunctionalModelWidget_OpticalFiber::onShowClicked);
-    pbShow->setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(pbShow, &QPushButton::customContextMenuRequested, this, &AFunctionalModelWidget_OpticalFiber::onShowRightClicked);
-    lay->addWidget(pbShow);
-    pbLoad = new QPushButton("Load", this);  pbLoad->setMaximumWidth(55);
-    connect(pbLoad, &QPushButton::clicked, this, &AFunctionalModelWidget_OpticalFiber::onLoadClicked);
-    lay->addWidget(pbLoad);
-    pbDelete = new QPushButton("X", this); pbDelete->setMaximumWidth(20);
-    connect(pbDelete, &QPushButton::clicked, this, &AFunctionalModelWidget_OpticalFiber::onDeleteClicked);
-    lay->addWidget(pbDelete);
+    pbShowAng = new QPushButton("Show", this); pbShowAng->setMaximumWidth(55);
+    connect(pbShowAng, &QPushButton::clicked, this, &AFunctionalModelWidget_OpticalFiber::onShowAngClicked);
+    pbShowAng->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(pbShowAng, &QPushButton::customContextMenuRequested, this, &AFunctionalModelWidget_OpticalFiber::onShowAngRightClicked);
+    lay->addWidget(pbShowAng);
+    pbLoadAng = new QPushButton("Load", this);  pbLoadAng->setMaximumWidth(55);
+    connect(pbLoadAng, &QPushButton::clicked, this, &AFunctionalModelWidget_OpticalFiber::onLoadAngClicked);
+    lay->addWidget(pbLoadAng);
+    pbDeleteAng = new QPushButton("X", this); pbDeleteAng->setMaximumWidth(20);
+    connect(pbDeleteAng, &QPushButton::clicked, this, &AFunctionalModelWidget_OpticalFiber::onDeleteAngClicked);
+    lay->addWidget(pbDeleteAng);
+    MainLayout->addLayout(lay);
+
+    lay = new QHBoxLayout(); lay->setContentsMargins(3,0,3,0);
+    lay->addWidget( new QLabel(QString("Effective absortion:")) );
+    leAbs = new QLineEdit(); leAbs->setValidator(DoubleValidator);
+    leAbs->setToolTip("'Effective' as average photon path can be significantly longer than the fiber length");
+    connect(leAbs, &QLineEdit::editingFinished, this, &AFunctionalModelWidget::modified);
+    lay->addWidget(leAbs);
+    lay->addWidget(new QLabel("mm-1;  "));
+    lay->addStretch();
+    lay->addWidget(new QLabel(QString("vs %0:").arg(QChar(0x3bb))));
+    pbShowAbsorb = new QPushButton("Show", this); pbShowAbsorb->setMaximumWidth(55);
+    connect(pbShowAbsorb, &QPushButton::clicked, this, &AFunctionalModelWidget_OpticalFiber::onShowAbsorbClicked);
+    pbShowAbsorb->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(pbShowAbsorb, &QPushButton::customContextMenuRequested, this, &AFunctionalModelWidget_OpticalFiber::onShowAbsorbRightClicked);
+    lay->addWidget(pbShowAbsorb);
+    pbLoadAbsorb = new QPushButton("Load", this);  pbLoadAbsorb->setMaximumWidth(55);
+    connect(pbLoadAbsorb, &QPushButton::clicked, this, &AFunctionalModelWidget_OpticalFiber::onLoadAbsorbClicked);
+    lay->addWidget(pbLoadAbsorb);
+    pbDeleteAbsorb = new QPushButton("X", this); pbDeleteAbsorb->setMaximumWidth(20);
+    connect(pbDeleteAbsorb, &QPushButton::clicked, this, &AFunctionalModelWidget_OpticalFiber::onDeleteAbsorbClicked);
+    lay->addWidget(pbDeleteAbsorb);
     MainLayout->addLayout(lay);
 
     //lay = new QHBoxLayout(); lay->setContentsMargins(3,0,3,0);
@@ -250,7 +272,9 @@ AFunctionalModelWidget_OpticalFiber::AFunctionalModelWidget_OpticalFiber(const A
     leLength->setText(QString::number(model->Length_mm));
     leCoreDiameter->setText(QString::number(model->CoreDiameter));
     leMaxAngle->setText(QString::number(model->CutOffAngle_deg));
-    Spectrum = model->CutOffAngleSpectrum_deg;
+    AngSpectrum = model->CutOffAngleSpectrum_deg;
+    leAbs->setText(QString::number(model->AbsCoeff));
+    AbsorbSpectrum = model->AbsCoeffSpectrum;
     updateButtons();
 }
 
@@ -262,20 +286,27 @@ QString AFunctionalModelWidget_OpticalFiber::updateModel(APhotonFunctionalModel 
         ofm->Length_mm = leLength->text().toDouble();
         ofm->CoreDiameter = leCoreDiameter->text().toDouble();
         ofm->CutOffAngle_deg = leMaxAngle->text().toDouble();
-        ofm->CutOffAngleSpectrum_deg = Spectrum;
+        ofm->CutOffAngleSpectrum_deg = AngSpectrum;
+        ofm->AbsCoeff = leAbs->text().toDouble();
+        ofm->AbsCoeffSpectrum = AbsorbSpectrum;
     }
     return "";
 }
 
 void AFunctionalModelWidget_OpticalFiber::updateButtons()
 {
-    bool bHaveSpectrum = (!Spectrum.empty());
+    bool bHaveAngSpectrum = (!AngSpectrum.empty());
 
-    pbShow->setEnabled(bHaveSpectrum);
-    pbDelete->setEnabled(bHaveSpectrum);
+    pbShowAng->setEnabled(bHaveAngSpectrum);
+    pbDeleteAng->setEnabled(bHaveAngSpectrum);
+
+    bool bHaveAbsorbSpectrum = (!AbsorbSpectrum.empty());
+
+    pbShowAbsorb->setEnabled(bHaveAbsorbSpectrum);
+    pbDeleteAbsorb->setEnabled(bHaveAbsorbSpectrum);
 }
 
-void AFunctionalModelWidget_OpticalFiber::onLoadClicked()
+void AFunctionalModelWidget_OpticalFiber::onLoadAngClicked()
 {
     QString fileName = guitools::dialogLoadFile(this, "Load file with two columns: wavelength[nm] MaxAngle[deg]", "Data files (*.txt *.dat); All files (*.*)");
     if (fileName.isEmpty()) return;
@@ -294,17 +325,17 @@ void AFunctionalModelWidget_OpticalFiber::onLoadClicked()
             }
         }
 
-        Spectrum = tmp;
+        AngSpectrum = tmp;
         updateButtons();
         emit modified();
     }
 }
 
-void AFunctionalModelWidget_OpticalFiber::onShowClicked()
+void AFunctionalModelWidget_OpticalFiber::onShowAngClicked()
 {
-    if (Spectrum.empty()) return;
+    if (AngSpectrum.empty()) return;
 
-    TGraph * g = AGraphBuilder::graph(Spectrum);
+    TGraph * g = AGraphBuilder::graph(AngSpectrum);
     AGraphBuilder::configure(g, "Max angle vs wavelength",
                              "Wavelength, nm", "Max angle, mm",
                              2, 20, 1,
@@ -312,7 +343,7 @@ void AFunctionalModelWidget_OpticalFiber::onShowClicked()
     emit requestDraw(g, "APL", true, true);
 }
 
-void AFunctionalModelWidget_OpticalFiber::onShowRightClicked(const QPoint &)
+void AFunctionalModelWidget_OpticalFiber::onShowAngRightClicked(const QPoint &)
 {
     const AWaveResSettings & WaveSet = APhotonSimHub::getInstance().Settings.WaveSet;
     if (!WaveSet.Enabled)
@@ -322,7 +353,7 @@ void AFunctionalModelWidget_OpticalFiber::onShowRightClicked(const QPoint &)
     }
 
     APFM_OpticalFiber tmpMod;
-    tmpMod.CutOffAngleSpectrum_deg = Spectrum;
+    tmpMod.CutOffAngleSpectrum_deg = AngSpectrum;
     QString err = tmpMod.updateRuntimeProperties();
     if (!err.isEmpty())
     {
@@ -348,9 +379,89 @@ void AFunctionalModelWidget_OpticalFiber::onShowRightClicked(const QPoint &)
     }
 }
 
-void AFunctionalModelWidget_OpticalFiber::onDeleteClicked()
+void AFunctionalModelWidget_OpticalFiber::onDeleteAngClicked()
 {
-    Spectrum.clear();
+    AngSpectrum.clear();
+    updateButtons();
+    emit modified();
+}
+
+void AFunctionalModelWidget_OpticalFiber::onLoadAbsorbClicked()
+{
+    QString fileName = guitools::dialogLoadFile(this, "Load file with two columns: wavelength[nm] Absorption[mm-1]", "Data files (*.txt *.dat); All files (*.*)");
+    if (fileName.isEmpty()) return;
+
+    std::vector<std::pair<double,double>> tmp;
+    QString err = ftools::loadPairs(fileName, tmp, true);
+    if (!err.isEmpty()) guitools::message(err, this);
+    else
+    {
+        for (const auto & p : tmp)
+        {
+            if (p.second < 1e-60)
+            {
+                guitools::message("Absorption values should be positive!", this);
+                return;
+            }
+        }
+
+        AbsorbSpectrum = tmp;
+        updateButtons();
+        emit modified();
+    }
+}
+
+void AFunctionalModelWidget_OpticalFiber::onShowAbsorbClicked()
+{
+    if (AbsorbSpectrum.empty()) return;
+
+    TGraph * g = AGraphBuilder::graph(AbsorbSpectrum);
+    AGraphBuilder::configure(g, "Absorption vs wavelength",
+                             "Wavelength, nm", "Absorption, mm-1",
+                             2, 20, 1,
+                             2, 1,  1);
+    emit requestDraw(g, "APL", true, true);
+}
+
+void AFunctionalModelWidget_OpticalFiber::onShowAbsorbRightClicked(const QPoint &)
+{
+    const AWaveResSettings & WaveSet = APhotonSimHub::getInstance().Settings.WaveSet;
+    if (!WaveSet.Enabled)
+    {
+        guitools::message("Simulation is currently configured not to be wavelength-resolved!", this);
+        return;
+    }
+
+    APFM_OpticalFiber tmpMod;
+    tmpMod.AbsCoeffSpectrum = AbsorbSpectrum;
+    QString err = tmpMod.updateRuntimeProperties();
+    if (!err.isEmpty())
+    {
+        guitools::message(err, this);
+        return;
+    }
+
+    if (tmpMod._absCoeffSpectrumBinned.empty())
+    {
+        guitools::message("Wavelength-resolved binned data are empty!", this);
+        return;
+    }
+    else
+    {
+        std::vector<double> wavelength;
+        WaveSet.getWavelengthBins(wavelength);
+        TGraph * g = AGraphBuilder::graph(wavelength, tmpMod._absCoeffSpectrumBinned);
+        AGraphBuilder::configure(g, "Absorption vs wavelength",
+                                 "Wavelength, nm", "Absorption, mm-1",
+                                 4, 20, 1,
+                                 4, 1,  1);
+        emit requestDraw(g, "APL", true, true);
+    }
+}
+
+void AFunctionalModelWidget_OpticalFiber::onDeleteAbsorbClicked()
+{
+    AbsorbSpectrum.clear();
     updateButtons();
     emit modified();
 }
@@ -372,7 +483,7 @@ AFunctionalModelWidget_Filter::AFunctionalModelWidget_Filter(const APFM_Filter *
     lay->addWidget(new QLabel(":"));
 
     leTransmission = new QLineEdit(); leTransmission->setValidator(DoubleValidator);
-    connect(leTransmission, &QLineEdit::editingFinished, this, &AFunctionalModelWidget_ThinLens::modified);
+    connect(leTransmission, &QLineEdit::editingFinished, this, &AFunctionalModelWidget::modified);
     lay->addWidget(leTransmission);
 
     lay->addStretch(1);

@@ -81,11 +81,16 @@ public:
 
     double CutOffAngle_deg = 30.0;
     std::vector<std::pair<double,double>> CutOffAngleSpectrum_deg;
+
+    double AbsCoeff = 0; // mm-1
+    std::vector<std::pair<double,double>> AbsCoeffSpectrum; // mm-1
+
     // refractive index and and attenuation data are taken from the target material   --> !!!*** in check enforce same material target and trigger
 
     // runtime
     //double _TanMaxAngle;
     std::vector<double> _cutOffAngleSpectrumBinned;
+    std::vector<double> _absCoeffSpectrumBinned;
 };
 
 class APFM_ThinLens : public APhotonFunctionalModel

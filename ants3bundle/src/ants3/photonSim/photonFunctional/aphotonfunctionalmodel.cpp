@@ -81,10 +81,19 @@ void APFM_OpticalFiber::writeSettingsToJson(QJsonObject & json) const
     json["Length_mm"] = Length_mm;
     json["CoreDiameter"] = CoreDiameter;
     json["CutOffAngle_deg"] = CutOffAngle_deg;
+    json["AbsCoeff"] = AbsCoeff;
 
-    QJsonArray ar;
-    jstools::writeDPairVectorToArray(CutOffAngleSpectrum_deg, ar);
-    json["CutOffAngleSpectrum_deg"] = ar;
+    {
+        QJsonArray ar;
+        jstools::writeDPairVectorToArray(CutOffAngleSpectrum_deg, ar);
+        json["CutOffAngleSpectrum_deg"] = ar;
+    }
+
+    {
+        QJsonArray ar;
+        jstools::writeDPairVectorToArray(AbsCoeffSpectrum, ar);
+        json["AbsCoeffSpectrum"] = ar;
+    }
 }
 
 void APFM_OpticalFiber::readSettingsFromJson(const QJsonObject & json)
@@ -94,11 +103,21 @@ void APFM_OpticalFiber::readSettingsFromJson(const QJsonObject & json)
     CoreDiameter = 1.0;
     jstools::parseJson(json, "CoreDiameter", CoreDiameter);
     jstools::parseJson(json, "CutOffAngle_deg", CutOffAngle_deg);
+    jstools::parseJson(json, "AbsCoeff", AbsCoeff);
 
-    CutOffAngleSpectrum_deg.clear();
-    QJsonArray ar;
-    jstools::parseJson(json, "CutOffAngleSpectrum_deg", ar);
-    jstools::readDPairVectorFromArray(ar, CutOffAngleSpectrum_deg);
+    {
+        CutOffAngleSpectrum_deg.clear();
+        QJsonArray ar;
+        jstools::parseJson(json, "CutOffAngleSpectrum_deg", ar);
+        jstools::readDPairVectorFromArray(ar, CutOffAngleSpectrum_deg);
+    }
+
+    {
+        AbsCoeffSpectrum.clear();
+        QJsonArray ar;
+        jstools::parseJson(json, "AbsCoeffSpectrum", ar);
+        jstools::readDPairVectorFromArray(ar, AbsCoeffSpectrum);
+    }
 }
 
 QString APFM_OpticalFiber::printSettingsToString() const
@@ -110,6 +129,11 @@ QString APFM_OpticalFiber::printSettingsToString() const
     else
         txt += QString("CutOffAngle(%0): %1 points; for not wavelength-resolved sim: %2 deg").arg(QChar(0x3bb)).arg(CutOffAngleSpectrum_deg.size()).arg(CutOffAngle_deg);
 
+    if (AbsCoeffSpectrum.empty())
+        txt += QString(" AbsCoeff = %1 mm-1").arg(AbsCoeff);
+    else
+        txt += QString(" AbsCoeff(%0): %1 points; for not wavelength-resolved sim: %2 mm-1").arg(QChar(0x3bb)).arg(AbsCoeffSpectrum.size()).arg(AbsCoeff);
+
     return txt;
 }
 
@@ -118,9 +142,9 @@ QString APFM_OpticalFiber::updateRuntimeProperties()
     QString err = APFM_OpticalFiber::checkModel();
     if (!err.isEmpty()) return err;
 
+    const AWaveResSettings & WaveSet = APhotonSimHub::getInstance().Settings.WaveSet;
     //_TanMaxAngle = tan(MaxAngle_deg * 3.1415926535 / 180.0);
     _cutOffAngleSpectrumBinned.clear();
-    const AWaveResSettings & WaveSet = APhotonSimHub::getInstance().Settings.WaveSet;
     if (WaveSet.Enabled)
     {
         if (CutOffAngleSpectrum_deg.empty())
@@ -130,6 +154,15 @@ QString APFM_OpticalFiber::updateRuntimeProperties()
 
         //for (size_t i = 0; i < _TanMaxAngleSpectrumBinned.size(); i++)
         //    _TanMaxAngleSpectrumBinned[i] = tan(_TanMaxAngleSpectrumBinned[i] * 3.1415926535 / 180.0);
+    }
+
+    _absCoeffSpectrumBinned.clear();
+    if (WaveSet.Enabled)
+    {
+        if (AbsCoeffSpectrum.empty())
+            _absCoeffSpectrumBinned = std::vector<double>(WaveSet.countNodes(), AbsCoeff);
+        else
+            WaveSet.toStandardBins(AbsCoeffSpectrum, _absCoeffSpectrumBinned, AWaveResSettings::ExpandWithLastValues);
     }
 
     return "";
@@ -265,7 +298,8 @@ bool APFM_OpticalFiber::applyModel(APhotonExchangeData & photonData, int index, 
     const AGeoObject * obj = std::get<0>(AGeometryHub::getConstInstance().PhotonFunctionals[index]);
     const int iMat = obj->Material;
     const AMaterial * mat = AMaterialHub::getConstInstance()[iMat];
-    const double absCoeff = mat->getAbsorptionCoefficient(photonData.WaveIndex); // mm-1
+    //const double absCoeff = mat->getAbsorptionCoefficient(photonData.WaveIndex); // mm-1
+    const double absCoeff = (photonData.WaveIndex == -1 ? AbsCoeff : _absCoeffSpectrumBinned[photonData.WaveIndex]); // mm-1
     const double absProb = 1.0 - exp( - absCoeff * Length_mm);
     //qDebug() << "abs prob:" << absProb;
     if (ARandomHub::getInstance().uniform() < absProb) return false;
