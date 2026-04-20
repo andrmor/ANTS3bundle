@@ -81,7 +81,7 @@ void APFM_OpticalFiber::writeSettingsToJson(QJsonObject & json) const
     json["Length_mm"] = Length_mm;
     json["CoreDiameter"] = CoreDiameter;
     json["CutOffAngle_deg"] = CutOffAngle_deg;
-    json["AbsCoeff"] = AbsCoeff;
+    //json["AbsCoeff"] = AbsCoeff;
 
     {
         QJsonArray ar;
@@ -89,11 +89,13 @@ void APFM_OpticalFiber::writeSettingsToJson(QJsonObject & json) const
         json["CutOffAngleSpectrum_deg"] = ar;
     }
 
+    /*
     {
         QJsonArray ar;
         jstools::writeDPairVectorToArray(AbsCoeffSpectrum, ar);
         json["AbsCoeffSpectrum"] = ar;
     }
+    */
 }
 
 void APFM_OpticalFiber::readSettingsFromJson(const QJsonObject & json)
@@ -103,7 +105,7 @@ void APFM_OpticalFiber::readSettingsFromJson(const QJsonObject & json)
     CoreDiameter = 1.0;
     jstools::parseJson(json, "CoreDiameter", CoreDiameter);
     jstools::parseJson(json, "CutOffAngle_deg", CutOffAngle_deg);
-    jstools::parseJson(json, "AbsCoeff", AbsCoeff);
+    //jstools::parseJson(json, "AbsCoeff", AbsCoeff);
 
     {
         CutOffAngleSpectrum_deg.clear();
@@ -112,12 +114,14 @@ void APFM_OpticalFiber::readSettingsFromJson(const QJsonObject & json)
         jstools::readDPairVectorFromArray(ar, CutOffAngleSpectrum_deg);
     }
 
+    /*
     {
         AbsCoeffSpectrum.clear();
         QJsonArray ar;
         jstools::parseJson(json, "AbsCoeffSpectrum", ar);
         jstools::readDPairVectorFromArray(ar, AbsCoeffSpectrum);
     }
+    */
 }
 
 QString APFM_OpticalFiber::printSettingsToString() const
@@ -129,10 +133,12 @@ QString APFM_OpticalFiber::printSettingsToString() const
     else
         txt += QString("CutOffAngle(%0): %1 points; for not wavelength-resolved sim: %2 deg").arg(QChar(0x3bb)).arg(CutOffAngleSpectrum_deg.size()).arg(CutOffAngle_deg);
 
+    /*
     if (AbsCoeffSpectrum.empty())
         txt += QString(" AbsCoeff = %1 mm-1").arg(AbsCoeff);
     else
         txt += QString(" AbsCoeff(%0): %1 points; for not wavelength-resolved sim: %2 mm-1").arg(QChar(0x3bb)).arg(AbsCoeffSpectrum.size()).arg(AbsCoeff);
+    */
 
     return txt;
 }
@@ -156,6 +162,7 @@ QString APFM_OpticalFiber::updateRuntimeProperties()
         //    _TanMaxAngleSpectrumBinned[i] = tan(_TanMaxAngleSpectrumBinned[i] * 3.1415926535 / 180.0);
     }
 
+    /*
     _absCoeffSpectrumBinned.clear();
     if (WaveSet.Enabled)
     {
@@ -164,6 +171,7 @@ QString APFM_OpticalFiber::updateRuntimeProperties()
         else
             WaveSet.toStandardBins(AbsCoeffSpectrum, _absCoeffSpectrumBinned, AWaveResSettings::ExpandWithLastValues);
     }
+    */
 
     return "";
 }
@@ -261,22 +269,9 @@ bool APFM_OpticalFiber::applyModel(APhotonExchangeData & photonData, int index, 
     // check angle inside is within max angle
     if (photonData.LocalDirection[2] == 0) return false;
     const double tanAngle = sqrt(photonData.LocalDirection[0]*photonData.LocalDirection[0] + photonData.LocalDirection[1]*photonData.LocalDirection[1]) / fabs(photonData.LocalDirection[2]);
-    const AWaveResSettings & WaveSet = APhotonSimHub::getInstance().Settings.WaveSet;
-
-    /*
-    double maxTan;
-    if (photonData.WaveIndex == -1 || !WaveSet.Enabled)
-        maxTan = _TanMaxAngle;
-    else
-        maxTan = _TanMaxAngleSpectrumBinned[photonData.WaveIndex];
-    */
-    //qDebug() << "\ntan:" << tanAngle << " max tan:" << maxTan;
-    // old model
-    //if (tanAngle > maxTan) return false;
 
     //qDebug() << photonData.LocalPosition[0] << photonData.LocalPosition[1] << photonData.LocalPosition[2] ;
     //qDebug() << photonData.LocalDirection[0] << photonData.LocalDirection[1] << photonData.LocalDirection[2] ;
-
 
     bool bFail = false;
     double angleIncidence = computeAngleOfIncidence(0.5*CoreDiameter, photonData.LocalPosition[0], photonData.LocalPosition[1],
@@ -285,22 +280,24 @@ bool APFM_OpticalFiber::applyModel(APhotonExchangeData & photonData, int index, 
 
     //qDebug() << bFail << angleIncidence;
 
+    const AWaveResSettings & WaveSet = APhotonSimHub::getInstance().Settings.WaveSet;
     double cutOff;
     if (photonData.WaveIndex == -1 || !WaveSet.Enabled)
         cutOff = CutOffAngle_deg;
     else
         cutOff = _cutOffAngleSpectrumBinned[photonData.WaveIndex];
-
     if (angleIncidence < cutOff) return false;
 
+    const double inverseCosine = sqrt(1.0 + tanAngle * tanAngle);
 
     // check absorption
     const AGeoObject * obj = std::get<0>(AGeometryHub::getConstInstance().PhotonFunctionals[index]);
     const int iMat = obj->Material;
     const AMaterial * mat = AMaterialHub::getConstInstance()[iMat];
-    //const double absCoeff = mat->getAbsorptionCoefficient(photonData.WaveIndex); // mm-1
-    const double absCoeff = (photonData.WaveIndex == -1 ? AbsCoeff : _absCoeffSpectrumBinned[photonData.WaveIndex]); // mm-1
-    const double absProb = 1.0 - exp( - absCoeff * Length_mm);
+    const double absCoeff = mat->getAbsorptionCoefficient(photonData.WaveIndex); // mm-1
+    //const double absCoeff = (photonData.WaveIndex == -1 ? AbsCoeff : _absCoeffSpectrumBinned[photonData.WaveIndex]); // mm-1
+    const double photonPath = Length_mm * inverseCosine;
+    const double absProb = 1.0 - exp( - absCoeff * photonPath);
     //qDebug() << "abs prob:" << absProb;
     if (ARandomHub::getInstance().uniform() < absProb) return false;
 
@@ -316,7 +313,7 @@ bool APFM_OpticalFiber::applyModel(APhotonExchangeData & photonData, int index, 
 
     // time increase
     const double speed = mat->getSpeedOfLight(photonData.WaveIndex); // mm/ns
-    const double deltaT = Length_mm * sqrt(1.0 + tanAngle * tanAngle) / speed;
+    const double deltaT = Length_mm * inverseCosine / speed;
     //qDebug() << "t0" << photonData.Time << "speed" << speed << "deltaT" << deltaT;
     photonData.Time += deltaT;
 

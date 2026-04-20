@@ -45,6 +45,15 @@
             },
             {
                 "Container": "World",
+                "Name": "_#_PrototypeContainer_#_",
+                "Type": {
+                    "Type": "PrototypeCollection"
+                },
+                "fActive": true,
+                "fExpanded": true
+            },
+            {
+                "Container": "World",
                 "Name": "Stack1",
                 "Phi": 0,
                 "Psi": 0,
@@ -202,9 +211,6 @@
                 "SpecialRole": {
                     "Model": {
                         "Settings": {
-                            "AbsCoeff": 0,
-                            "AbsCoeffSpectrum": [
-                            ],
                             "CoreDiameter": 1,
                             "CutOffAngleSpectrum_deg": [
                             ],
@@ -270,9 +276,6 @@
                 "SpecialRole": {
                     "Model": {
                         "Settings": {
-                            "AbsCoeff": 0,
-                            "AbsCoeffSpectrum": [
-                            ],
                             "CoreDiameter": 1,
                             "CutOffAngleSpectrum_deg": [
                             ],
@@ -343,15 +346,6 @@
                 "fExpanded": true,
                 "style": 1,
                 "width": 1
-            },
-            {
-                "Container": "World",
-                "Name": "_#_PrototypeContainer_#_",
-                "Type": {
-                    "Type": "PrototypeCollection"
-                },
-                "fActive": true,
-                "fExpanded": true
             }
         ]
     },
@@ -505,7 +499,7 @@
         },
         {
             "*Name": "FiberCore",
-            "AbsCoeff": 0,
+            "AbsCoeff": 2e-04,
             "BulkAbsorptionWave": [
                 [
                     367,
@@ -1814,9 +1808,6 @@
                 "LinkedTo": 1,
                 "Model": {
                     "Settings": {
-                        "AbsCoeff": 0,
-                        "AbsCoeffSpectrum": [
-                        ],
                         "CoreDiameter": 1,
                         "CutOffAngleSpectrum_deg": [
                         ],
@@ -1831,9 +1822,6 @@
                 "LinkedTo": 0,
                 "Model": {
                     "Settings": {
-                        "AbsCoeff": 0,
-                        "AbsCoeffSpectrum": [
-                        ],
                         "CoreDiameter": 1,
                         "CutOffAngleSpectrum_deg": [
                         ],
@@ -2042,7 +2030,7 @@
         },
         "SimulationType": "bomb",
         "WaveResolved": {
-            "Enabled": false,
+            "Enabled": true,
             "From": 400,
             "Step": 5,
             "To": 650

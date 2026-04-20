@@ -242,6 +242,7 @@ AFunctionalModelWidget_OpticalFiber::AFunctionalModelWidget_OpticalFiber(const A
     lay->addWidget(pbDeleteAng);
     MainLayout->addLayout(lay);
 
+    /*
     lay = new QHBoxLayout(); lay->setContentsMargins(3,0,3,0);
     lay->addWidget( new QLabel(QString("Effective absortion:")) );
     leAbs = new QLineEdit(); leAbs->setValidator(DoubleValidator);
@@ -263,6 +264,7 @@ AFunctionalModelWidget_OpticalFiber::AFunctionalModelWidget_OpticalFiber(const A
     connect(pbDeleteAbsorb, &QPushButton::clicked, this, &AFunctionalModelWidget_OpticalFiber::onDeleteAbsorbClicked);
     lay->addWidget(pbDeleteAbsorb);
     MainLayout->addLayout(lay);
+    */
 
     //lay = new QHBoxLayout(); lay->setContentsMargins(3,0,3,0);
     //lay->addWidget( new QLabel(QString("    Max angle vs %0:").arg(QChar(0x3bb))) );
@@ -273,8 +275,8 @@ AFunctionalModelWidget_OpticalFiber::AFunctionalModelWidget_OpticalFiber(const A
     leCoreDiameter->setText(QString::number(model->CoreDiameter));
     leMaxAngle->setText(QString::number(model->CutOffAngle_deg));
     AngSpectrum = model->CutOffAngleSpectrum_deg;
-    leAbs->setText(QString::number(model->AbsCoeff));
-    AbsorbSpectrum = model->AbsCoeffSpectrum;
+    //leAbs->setText(QString::number(model->AbsCoeff));
+    //AbsorbSpectrum = model->AbsCoeffSpectrum;
     updateButtons();
 }
 
@@ -287,8 +289,8 @@ QString AFunctionalModelWidget_OpticalFiber::updateModel(APhotonFunctionalModel 
         ofm->CoreDiameter = leCoreDiameter->text().toDouble();
         ofm->CutOffAngle_deg = leMaxAngle->text().toDouble();
         ofm->CutOffAngleSpectrum_deg = AngSpectrum;
-        ofm->AbsCoeff = leAbs->text().toDouble();
-        ofm->AbsCoeffSpectrum = AbsorbSpectrum;
+        //ofm->AbsCoeff = leAbs->text().toDouble();
+        //ofm->AbsCoeffSpectrum = AbsorbSpectrum;
     }
     return "";
 }
@@ -296,14 +298,14 @@ QString AFunctionalModelWidget_OpticalFiber::updateModel(APhotonFunctionalModel 
 void AFunctionalModelWidget_OpticalFiber::updateButtons()
 {
     bool bHaveAngSpectrum = (!AngSpectrum.empty());
-
     pbShowAng->setEnabled(bHaveAngSpectrum);
     pbDeleteAng->setEnabled(bHaveAngSpectrum);
 
+    /*
     bool bHaveAbsorbSpectrum = (!AbsorbSpectrum.empty());
-
     pbShowAbsorb->setEnabled(bHaveAbsorbSpectrum);
     pbDeleteAbsorb->setEnabled(bHaveAbsorbSpectrum);
+    */
 }
 
 void AFunctionalModelWidget_OpticalFiber::onLoadAngClicked()
@@ -386,6 +388,7 @@ void AFunctionalModelWidget_OpticalFiber::onDeleteAngClicked()
     emit modified();
 }
 
+/*
 void AFunctionalModelWidget_OpticalFiber::onLoadAbsorbClicked()
 {
     QString fileName = guitools::dialogLoadFile(this, "Load file with two columns: wavelength[nm] Absorption[mm-1]", "Data files (*.txt *.dat); All files (*.*)");
@@ -465,6 +468,7 @@ void AFunctionalModelWidget_OpticalFiber::onDeleteAbsorbClicked()
     updateButtons();
     emit modified();
 }
+*/
 
 // ---
 
