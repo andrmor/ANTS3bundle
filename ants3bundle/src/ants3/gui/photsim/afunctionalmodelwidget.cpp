@@ -157,7 +157,7 @@ void AFunctionalModelWidget_ThinLens::onShowRightClicked(const QPoint &)
 
     APFM_ThinLens tmpMod;
     tmpMod.FocalLengthSpectrum_mm = Spectrum;
-    QString err = tmpMod.updateRuntimeProperties();
+    QString err = tmpMod.updateRuntimeProperties(-1);
     if (!err.isEmpty())
     {
         guitools::message(err, this);
@@ -213,17 +213,19 @@ AFunctionalModelWidget_OpticalFiber::AFunctionalModelWidget_OpticalFiber(const A
     lay->addWidget(leLength);
     lay->addWidget(new QLabel("mm  "));
     lay->addStretch();
+    /*
     lay->addWidget(new QLabel("Core diameter:"));
     leCoreDiameter = new QLineEdit(); leCoreDiameter->setValidator(DoubleValidator);
     connect(leCoreDiameter, &QLineEdit::editingFinished, this, &AFunctionalModelWidget::modified);
     lay->addWidget(leCoreDiameter);
     lay->addWidget(new QLabel("mm"));
+    */
     MainLayout->addLayout(lay);
 
     lay = new QHBoxLayout(); lay->setContentsMargins(3,0,3,0);
     lay->addWidget( new QLabel(QString("Cut-off angle:")) );
     leMaxAngle = new QLineEdit(); leMaxAngle->setValidator(DoubleValidator);
-    leMaxAngle->setToolTip("The model kills all photons that have angle of incidence (projected, for the first interaction) at the fiber side wall smaller than this value");
+    leMaxAngle->setToolTip("The model kills all photons that have angle of incidence (projected, for the first interaction) at the fiber side wall smaller than this value.\nSet to 90 to kill all and 0 to accept all photons.");
     connect(leMaxAngle, &QLineEdit::editingFinished, this, &AFunctionalModelWidget::modified);
     lay->addWidget(leMaxAngle);
     lay->addWidget(new QLabel("deg;  "));
@@ -272,7 +274,6 @@ AFunctionalModelWidget_OpticalFiber::AFunctionalModelWidget_OpticalFiber(const A
     //MainLayout->addLayout(lay);
 
     leLength->setText(QString::number(model->Length_mm));
-    leCoreDiameter->setText(QString::number(model->CoreDiameter));
     leMaxAngle->setText(QString::number(model->CutOffAngle_deg));
     AngSpectrum = model->CutOffAngleSpectrum_deg;
     //leAbs->setText(QString::number(model->AbsCoeff));
@@ -286,7 +287,6 @@ QString AFunctionalModelWidget_OpticalFiber::updateModel(APhotonFunctionalModel 
     if (ofm)
     {
         ofm->Length_mm = leLength->text().toDouble();
-        ofm->CoreDiameter = leCoreDiameter->text().toDouble();
         ofm->CutOffAngle_deg = leMaxAngle->text().toDouble();
         ofm->CutOffAngleSpectrum_deg = AngSpectrum;
         //ofm->AbsCoeff = leAbs->text().toDouble();
@@ -356,7 +356,7 @@ void AFunctionalModelWidget_OpticalFiber::onShowAngRightClicked(const QPoint &)
 
     APFM_OpticalFiber tmpMod;
     tmpMod.CutOffAngleSpectrum_deg = AngSpectrum;
-    QString err = tmpMod.updateRuntimeProperties();
+    QString err = tmpMod.updateRuntimeProperties(-1);
     if (!err.isEmpty())
     {
         guitools::message(err, this);
@@ -596,7 +596,7 @@ void AFunctionalModelWidget_Filter::onShowRightClicked(const QPoint &)
 
     APFM_Filter tmpMod;
     tmpMod.TransmissionSpectrum = Spectrum;
-    QString err = tmpMod.updateRuntimeProperties();
+    QString err = tmpMod.updateRuntimeProperties(-1);
     if (!err.isEmpty())
     {
         guitools::message(err, this);

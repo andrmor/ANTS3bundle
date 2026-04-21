@@ -7,6 +7,7 @@
 
 class QJsonObject;
 class AGeoObject;
+class AMaterial;
 
 class APhotonExchangeData
 {
@@ -36,7 +37,7 @@ public:
 
     virtual QString printSettingsToString() const = 0; // used in gui / scripting
 
-    virtual QString updateRuntimeProperties() {return "";}
+    virtual QString updateRuntimeProperties(int /*iModel*/) {return "";} // iModel is the index of the functional object record; if -1, some runtime properties will not be updated!
 
     virtual bool applyModel(APhotonExchangeData & photonData, int index, int linkedToIndex) = 0;
     // photonData on call contains Trigger data, on return should return data for Target
@@ -72,12 +73,11 @@ public:
 
     QString printSettingsToString() const override;
 
-    QString updateRuntimeProperties() override;
+    QString updateRuntimeProperties(int iModel) override;
 
     bool applyModel(APhotonExchangeData & photonData, int index, int linkedToIndex) override;
 
     double Length_mm = 100.0;
-    double CoreDiameter = 1.0; // in mm
 
     double CutOffAngle_deg = 30.0;
     std::vector<std::pair<double,double>> CutOffAngleSpectrum_deg;
@@ -90,6 +90,8 @@ public:
     //double _TanMaxAngle;
     std::vector<double> _cutOffAngleSpectrumBinned;
     //std::vector<double> _absCoeffSpectrumBinned;
+    double _radius = 0;
+    const AMaterial * _material = nullptr;
 };
 
 class APFM_ThinLens : public APhotonFunctionalModel
@@ -104,7 +106,7 @@ public:
 
     QString printSettingsToString() const override;
 
-    QString updateRuntimeProperties() override;
+    QString updateRuntimeProperties(int /*iModel*/) override;
 
     bool applyModel(APhotonExchangeData & photonData, int index, int linkedToIndex) override;
 
@@ -131,7 +133,7 @@ public:
 
     QString printSettingsToString() const override;
 
-    QString updateRuntimeProperties() override;
+    QString updateRuntimeProperties(int /*iModel*/) override;
 
     bool applyModel(APhotonExchangeData & photonData, int index, int linkedToIndex) override;
 

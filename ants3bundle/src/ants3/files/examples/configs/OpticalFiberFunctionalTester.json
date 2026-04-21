@@ -1,8 +1,14 @@
 {
-    "ConfigDescription": "",
+    "ConfigDescription": "Photons are emitted from the zero plane;\nabove there is a full simulatuion model of a fiber;\nBelow the fiber is simulated using a functional model.\nNote: if FiberL is changed, adjust the corresponding Length parameter at the Functional window.\nMonitors (\"Up\" and \"Low\") can be used to compare the number of hits, angular and time distributions.\nNote that \"Kill photon after X transitions\" parameter has to be very high when directly simulating  optical fibers!",
     "ConfigName": "Fiber functional model tester",
     "Geometry": {
         "GeoConsts": [
+            [
+                "FiberD",
+                1,
+                "",
+                ""
+            ],
             [
                 "FiberL",
                 1000,
@@ -97,6 +103,7 @@
                     "shape": 1,
                     "size1": 0.5,
                     "size2": 100,
+                    "str2size1": "FiberD",
                     "timeBins": 1000,
                     "timeFrom": 0,
                     "timeTo": 10,
@@ -128,7 +135,7 @@
                     "rmax": 0.55,
                     "rmin": 0,
                     "str2dz": "FiberL",
-                    "str2rmax": "1+0.1"
+                    "str2rmax": "FiberD+0.1"
                 },
                 "Theta": 0,
                 "Type": {
@@ -154,7 +161,8 @@
                     "dz": 500,
                     "rmax": 0.5,
                     "rmin": 0,
-                    "str2dz": "FiberL"
+                    "str2dz": "FiberL",
+                    "str2rmax": "FiberD"
                 },
                 "Theta": 0,
                 "Type": {
@@ -180,7 +188,8 @@
                     "dz": 0.1,
                     "rmax": 0.5,
                     "rmin": 0,
-                    "str2dz": "Gap"
+                    "str2dz": "Gap",
+                    "str2rmax": "FiberD"
                 },
                 "Theta": 0,
                 "Type": {
@@ -206,16 +215,16 @@
                     "dz": 0.25,
                     "rmax": 0.5,
                     "rmin": 0,
-                    "str2dz": "ElL"
+                    "str2dz": "ElL",
+                    "str2rmax": "FiberD"
                 },
                 "SpecialRole": {
                     "Model": {
                         "Settings": {
-                            "CoreDiameter": 1,
                             "CutOffAngleSpectrum_deg": [
                             ],
-                            "CutOffAngle_deg": 80,
-                            "Length_mm": 100
+                            "CutOffAngle_deg": 80.6332,
+                            "Length_mm": 1000
                         },
                         "Type": "OpticalFiber"
                     },
@@ -245,7 +254,8 @@
                     "dz": 0.25,
                     "rmax": 1,
                     "rmin": 0,
-                    "str2dz": "ElL"
+                    "str2dz": "ElL",
+                    "str2rmax": "2*FiberD"
                 },
                 "Theta": 0,
                 "Type": {
@@ -271,16 +281,16 @@
                     "dz": 0.25,
                     "rmax": 0.5,
                     "rmin": 0,
-                    "str2dz": "ElL"
+                    "str2dz": "ElL",
+                    "str2rmax": "FiberD"
                 },
                 "SpecialRole": {
                     "Model": {
                         "Settings": {
-                            "CoreDiameter": 1,
                             "CutOffAngleSpectrum_deg": [
                             ],
                             "CutOffAngle_deg": 90,
-                            "Length_mm": 100
+                            "Length_mm": 1000
                         },
                         "Type": "OpticalFiber"
                     },
@@ -328,6 +338,7 @@
                     "shape": 1,
                     "size1": 0.5,
                     "size2": 100,
+                    "str2size1": "FiberD",
                     "timeBins": 1000,
                     "timeFrom": 0,
                     "timeTo": 10,
@@ -1640,7 +1651,7 @@
             ],
             "RayleighMFP": 0,
             "RayleighWave": 500,
-            "ReemissionProb": 0.95,
+            "ReemissionProb": 0,
             "ReemissionProbabilityWave": [
             ],
             "RefIndex": 1.5,
@@ -1808,7 +1819,6 @@
                 "LinkedTo": 1,
                 "Model": {
                     "Settings": {
-                        "CoreDiameter": 1,
                         "CutOffAngleSpectrum_deg": [
                         ],
                         "CutOffAngle_deg": 80.6332,
@@ -1822,7 +1832,6 @@
                 "LinkedTo": 0,
                 "Model": {
                     "Settings": {
-                        "CoreDiameter": 1,
                         "CutOffAngleSpectrum_deg": [
                         ],
                         "CutOffAngle_deg": 90,
@@ -1892,7 +1901,7 @@
                 "InnerDiameterStr": "",
                 "Number": 10000,
                 "OuterDiameter": 0.999,
-                "OuterDiameterStr": "",
+                "OuterDiameterStr": "0.999*FiberD",
                 "Shape": "ring",
                 "Xfrom": -15,
                 "XfromStr": "",

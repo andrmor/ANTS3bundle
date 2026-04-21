@@ -281,7 +281,7 @@ bool APhotonFunctionalHub::updateRuntimeProperties()
             runTimeRec.LinkedIndex = iDR;
         }
 
-        QString err = runTimeRec.Model->updateRuntimeProperties();
+        QString err = runTimeRec.Model->updateRuntimeProperties(iDR);
         if (!err.isEmpty()) // paranoic
         {
             AErrorHub::addQError(QString("Functional model for index %0 error:\n").arg(iDR) + err);

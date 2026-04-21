@@ -679,7 +679,7 @@ bool AGeoObjectDelegate::updateObject(AGeoObject * obj) const  //react to false 
             }
 
             PhFunModelWidget->updateModel(LocalPhFunModel);
-            QString err = LocalPhFunModel->updateRuntimeProperties();
+            QString err = LocalPhFunModel->updateRuntimeProperties(-1);
             if (!err.isEmpty())
             {
                 QMessageBox::warning(ParentWidget, "Warning", "Error in functional model:\n" + err);

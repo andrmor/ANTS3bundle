@@ -79,31 +79,19 @@ QString APFM_OpticalFiber::checkModel() const
 void APFM_OpticalFiber::writeSettingsToJson(QJsonObject & json) const
 {
     json["Length_mm"] = Length_mm;
-    json["CoreDiameter"] = CoreDiameter;
     json["CutOffAngle_deg"] = CutOffAngle_deg;
-    //json["AbsCoeff"] = AbsCoeff;
 
     {
         QJsonArray ar;
         jstools::writeDPairVectorToArray(CutOffAngleSpectrum_deg, ar);
         json["CutOffAngleSpectrum_deg"] = ar;
     }
-
-    /*
-    {
-        QJsonArray ar;
-        jstools::writeDPairVectorToArray(AbsCoeffSpectrum, ar);
-        json["AbsCoeffSpectrum"] = ar;
-    }
-    */
 }
 
 void APFM_OpticalFiber::readSettingsFromJson(const QJsonObject & json)
 {
     CutOffAngle_deg = 80.0;
     jstools::parseJson(json, "Length_mm", Length_mm);
-    CoreDiameter = 1.0;
-    jstools::parseJson(json, "CoreDiameter", CoreDiameter);
     jstools::parseJson(json, "CutOffAngle_deg", CutOffAngle_deg);
     //jstools::parseJson(json, "AbsCoeff", AbsCoeff);
 
@@ -113,37 +101,24 @@ void APFM_OpticalFiber::readSettingsFromJson(const QJsonObject & json)
         jstools::parseJson(json, "CutOffAngleSpectrum_deg", ar);
         jstools::readDPairVectorFromArray(ar, CutOffAngleSpectrum_deg);
     }
-
-    /*
-    {
-        AbsCoeffSpectrum.clear();
-        QJsonArray ar;
-        jstools::parseJson(json, "AbsCoeffSpectrum", ar);
-        jstools::readDPairVectorFromArray(ar, AbsCoeffSpectrum);
-    }
-    */
 }
 
 QString APFM_OpticalFiber::printSettingsToString() const
 {
-    QString txt = QString("L = %0 mm; D = %1 mm; ").arg(Length_mm).arg(CoreDiameter);
+    QString txt = QString("L = %0 mm; ").arg(Length_mm);
 
     if (CutOffAngleSpectrum_deg.empty())
         txt += QString("CutOffAngle = %1 deg").arg(CutOffAngle_deg);
     else
         txt += QString("CutOffAngle(%0): %1 points; for not wavelength-resolved sim: %2 deg").arg(QChar(0x3bb)).arg(CutOffAngleSpectrum_deg.size()).arg(CutOffAngle_deg);
 
-    /*
-    if (AbsCoeffSpectrum.empty())
-        txt += QString(" AbsCoeff = %1 mm-1").arg(AbsCoeff);
-    else
-        txt += QString(" AbsCoeff(%0): %1 points; for not wavelength-resolved sim: %2 mm-1").arg(QChar(0x3bb)).arg(AbsCoeffSpectrum.size()).arg(AbsCoeff);
-    */
-
     return txt;
 }
 
-QString APFM_OpticalFiber::updateRuntimeProperties()
+#include "ageoobject.h"
+#include "ageoshape.h"
+#include "amaterialhub.h"
+QString APFM_OpticalFiber::updateRuntimeProperties(int iModel)
 {
     QString err = APFM_OpticalFiber::checkModel();
     if (!err.isEmpty()) return err;
@@ -172,6 +147,26 @@ QString APFM_OpticalFiber::updateRuntimeProperties()
             WaveSet.toStandardBins(AbsCoeffSpectrum, _absCoeffSpectrumBinned, AWaveResSettings::ExpandWithLastValues);
     }
     */
+
+    if (iModel != -1)
+    {
+        const AGeometryHub & GeoHub = AGeometryHub::getConstInstance();
+        const AGeoObject * obj = std::get<0>(GeoHub.PhotonFunctionals[iModel]);
+        if (!obj->Shape) return "Shape is not defined";
+        AGeoTube * tube = dynamic_cast<AGeoTube*>(obj->Shape);
+        if (tube)
+        {
+            _radius = tube->rmax;
+            if (tube->rmin != 0) return "Photon fiber model cannot accept tube with non-zero inner radius";
+        }
+        else
+        {
+            return "Photon fiber model can be assigned only to 'tube' (cylinder) shaped objects";
+        }
+
+        const int iMat = obj->Material;
+        _material = AMaterialHub::getConstInstance()[iMat];
+    }
 
     return "";
 }
@@ -266,20 +261,17 @@ double computeAngleOfIncidence(double R, double x0, double y0, double dx, double
 #include "amaterialhub.h"
 bool APFM_OpticalFiber::applyModel(APhotonExchangeData & photonData, int index, int /*linkedToIndex*/)
 {
-    // check angle inside is within max angle
     if (photonData.LocalDirection[2] == 0) return false;
-    const double tanAngle = sqrt(photonData.LocalDirection[0]*photonData.LocalDirection[0] + photonData.LocalDirection[1]*photonData.LocalDirection[1]) / fabs(photonData.LocalDirection[2]);
 
     //qDebug() << photonData.LocalPosition[0] << photonData.LocalPosition[1] << photonData.LocalPosition[2] ;
     //qDebug() << photonData.LocalDirection[0] << photonData.LocalDirection[1] << photonData.LocalDirection[2] ;
 
+    // check the insidence angle is within the cut-off
     bool bFail = false;
-    double angleIncidence = computeAngleOfIncidence(0.5*CoreDiameter, photonData.LocalPosition[0], photonData.LocalPosition[1],
+    double angleIncidence = computeAngleOfIncidence(_radius, photonData.LocalPosition[0], photonData.LocalPosition[1],
                                                     photonData.LocalDirection[0], photonData.LocalDirection[1], photonData.LocalDirection[2],
                                                     bFail);
-
     //qDebug() << bFail << angleIncidence;
-
     const AWaveResSettings & WaveSet = APhotonSimHub::getInstance().Settings.WaveSet;
     double cutOff;
     if (photonData.WaveIndex == -1 || !WaveSet.Enabled)
@@ -288,13 +280,13 @@ bool APFM_OpticalFiber::applyModel(APhotonExchangeData & photonData, int index, 
         cutOff = _cutOffAngleSpectrumBinned[photonData.WaveIndex];
     if (angleIncidence < cutOff) return false;
 
+    const double tanAngle = sqrt(photonData.LocalDirection[0]*photonData.LocalDirection[0] + photonData.LocalDirection[1]*photonData.LocalDirection[1]) / fabs(photonData.LocalDirection[2]);
     const double inverseCosine = sqrt(1.0 + tanAngle * tanAngle);
 
     // check absorption
-    const AGeoObject * obj = std::get<0>(AGeometryHub::getConstInstance().PhotonFunctionals[index]);
-    const int iMat = obj->Material;
-    const AMaterial * mat = AMaterialHub::getConstInstance()[iMat];
-    const double absCoeff = mat->getAbsorptionCoefficient(photonData.WaveIndex); // mm-1
+    //const int iMat = obj->Material;
+    //const AMaterial * mat = AMaterialHub::getConstInstance()[iMat];
+    const double absCoeff = _material->getAbsorptionCoefficient(photonData.WaveIndex); // mm-1
     //const double absCoeff = (photonData.WaveIndex == -1 ? AbsCoeff : _absCoeffSpectrumBinned[photonData.WaveIndex]); // mm-1
     const double photonPath = Length_mm * inverseCosine;
     const double absProb = 1.0 - exp( - absCoeff * photonPath);
@@ -303,16 +295,13 @@ bool APFM_OpticalFiber::applyModel(APhotonExchangeData & photonData, int index, 
 
     // teleporting
     //qDebug() << photonData.LocalPosition[2];
-    if (photonData.LocalPosition[2] != 0)
-    {
-        const double sign = photonData.LocalPosition[2] / fabs(photonData.LocalPosition[2]);
-        photonData.LocalPosition[2] -= sign * 1e-9; // safity to be inside
-        photonData.LocalPosition[2] = - photonData.LocalPosition[2]; // on the other side
-    }
+    const double sign = photonData.LocalPosition[2] / fabs(photonData.LocalPosition[2]);
+    photonData.LocalPosition[2] -= sign * 1e-9; // safity to be inside
+    photonData.LocalPosition[2] = - photonData.LocalPosition[2]; // on the other side
     //qDebug() << photonData.LocalPosition[2];
 
     // time increase
-    const double speed = mat->getSpeedOfLight(photonData.WaveIndex); // mm/ns
+    const double speed = _material->getSpeedOfLight(photonData.WaveIndex); // mm/ns
     const double deltaT = Length_mm * inverseCosine / speed;
     //qDebug() << "t0" << photonData.Time << "speed" << speed << "deltaT" << deltaT;
     photonData.Time += deltaT;
@@ -361,7 +350,7 @@ QString APFM_ThinLens::printSettingsToString() const
     return QString("FocalLength(%0): %1 points; for not wavelength-resolved sim: %2 mm").arg(QChar(0x3bb)).arg(FocalLengthSpectrum_mm.size()).arg(FocalLength_mm);
 }
 
-QString APFM_ThinLens::updateRuntimeProperties()
+QString APFM_ThinLens::updateRuntimeProperties(int)
 {
     QString err = APFM_ThinLens::checkModel();
     if (!err.isEmpty()) return err;
@@ -495,7 +484,7 @@ QString APFM_Filter::printSettingsToString() const
     return QString("Transmission(%0): %1 points; for not wavelength-resolved sim: %2").arg(QChar(0x3bb)).arg(TransmissionSpectrum.size()).arg(GrayTransmission);
 }
 
-QString APFM_Filter::updateRuntimeProperties()
+QString APFM_Filter::updateRuntimeProperties(int)
 {
     QString err = APFM_Filter::checkModel();
     if (!err.isEmpty()) return err;

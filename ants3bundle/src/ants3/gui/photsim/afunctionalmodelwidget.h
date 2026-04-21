@@ -80,7 +80,6 @@ public:
 
 protected:
     QLineEdit * leLength = nullptr;
-    QLineEdit * leCoreDiameter = nullptr;
     QLineEdit * leMaxAngle = nullptr;
     //QLineEdit * leAbs = nullptr;
 
