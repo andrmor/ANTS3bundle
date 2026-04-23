@@ -509,6 +509,125 @@ QVariantList APet_si::loadImage(QString fileName)
     return vl;
 }
 
+void APet_si::reduceDeposition(QString depoFileName, QString calorLogFilename, double energyWindow, QString outputDepoFileName)
+{
+    if (!QFileInfo::exists(depoFileName))
+    {
+        abort("Deposition file does not exist: " + depoFileName);
+        return;
+    }
+    if (!QFileInfo::exists(calorLogFilename))
+    {
+        abort("Calorimeter log file does not exist: " + calorLogFilename);
+        return;
+    }
+
+    QFile file(calorLogFilename);
+    if(!file.open(QIODevice::ReadOnly | QFile::Text))
+    {
+        abort("Cannot open file: " + calorLogFilename);
+        return;
+    }
+
+    QTextStream in(&file);
+
+    int numHeads = -1;
+    std::vector<std::vector<double>> calorLog; calorLog.reserve(100000);
+    while (!in.atEnd())
+    {
+        const QString line = in.readLine();
+        const QStringList fields = line.split(' ', Qt::SkipEmptyParts);
+        if (fields.isEmpty()) continue;
+
+        if (numHeads != -1)
+        {
+            if (fields.size() != numHeads)
+            {
+                abort("Bad format of calorimeter log file");
+                return;
+            }
+        }
+        else
+        {
+            numHeads = fields.size();
+            if (numHeads == 0)
+            {
+                abort("Bad format of calorimeter log file");
+                return;
+            }
+        }
+
+        std::vector<double> el(numHeads);
+        for (int i = 0; i < numHeads; i++) el[i] = fields[i].toDouble();
+        calorLog.push_back(el);
+    }
+    file.close();
+    qDebug() << QString("Calorimeter log with %1 detector heads contains %2 events").arg(numHeads).arg(calorLog.size());
+
+    QFile textReaderFile(depoFileName);
+    if (!textReaderFile.open(QIODevice::ReadOnly | QFile::Text))
+    {
+        abort("Cannot open file: " + depoFileName);
+        return;
+    }
+    QTextStream textReaderStream(&textReaderFile);
+
+    QFile textWriterFile(outputDepoFileName);
+    if (!textWriterFile.open(QIODevice::WriteOnly))
+    {
+        abort("Cannot open file: " + outputDepoFileName);
+        return;
+    }
+    QTextStream textWriterStream(&textWriterFile);
+
+    int iEvent = -1;
+    bool bSkipEvent = false;
+    int outEvent = 0;
+    while (!textReaderStream.atEnd())
+    {
+        QString txt = textReaderStream.readLine();
+        if (txt[0] == '#')
+        {
+            // new event
+            iEvent++;
+            if (iEvent % 100000 == 0) qDebug() << 100.0 * iEvent / calorLog.size();
+            if (iEvent >= calorLog.size())
+            {
+                abort("Mismatch in number of events!");
+                return;
+            }
+
+            int numInWin = 0;
+            for (int iHead = 0; iHead < numHeads; iHead++)
+            {
+                const double & en = calorLog[iEvent][iHead];
+                if ( en > 511.0 * (1.0 - energyWindow) && en < 511.0 * (1.0 + energyWindow) ) numInWin++;
+            }
+
+            if (iEvent < 200)
+            {
+                qDebug() << iEvent << calorLog[iEvent] << numInWin;
+            }
+
+            if (numInWin != 2) bSkipEvent = true;
+            else
+            {
+                bSkipEvent = false;
+                textWriterStream << '#' << QString::number(outEvent) << '\n';
+                outEvent++;
+            }
+        }
+        else
+        {
+            if (bSkipEvent) continue;
+            textWriterStream << txt << '\n';
+        }
+    }
+
+    textWriterStream.flush();
+    qDebug() << "Reduced events:" << outEvent << "fraction:" << 100.0*outEvent/iEvent << "%";
+}
+
 void APet_si::directSaveCoincideneData(QVariantList coincData, QString scannerName, QString outputDir, QString headerFileName, QString binFileName)
 {
     const qsizetype size = coincData.size();
@@ -530,7 +649,7 @@ void APet_si::directSaveCoincideneData(QVariantList coincData, QString scannerNa
         int iScint2 = event[1].toInt();
 
         double timestamp = 0;
-        if (event.size() > 2) timestamp = event[2].toDouble(); // should be in ms
+        if (event.size() > 2) timestamp = event[2].toDouble(); // should be in ns !!!
 
         coincAr[iEv] = {{iScint1, timestamp, 0}, {iScint2, timestamp, 0}};
     }
@@ -565,7 +684,7 @@ void APet_si::reconstructDynamic(QString coincFileName, QString gatesFileName, Q
     args << "-g" << gatesFileName;
         //args << "-rm" << "/home/andr/WORK/GAGG/PET/Out1M/ReducedSim/motion_config.txt";
         //args << "-im" << "deformationRigid,0,0,0,0,0,0,0,0,0,0,0,180"; // -im deformationRigid,tx1,ty1,tz1,ra1,rb1,rc1,tx2,ty2,tz2,ra2,rb2,rc2
-    //args << "-im" << "deformationRigid:/home/andr/WORK/GAGG/PET/Out1M/ReducedSim/motion_config.txt";
+        //args << "-im" << "deformationRigid:/home/andr/WORK/GAGG/PET/Out1M/ReducedSim/motion_config.txt";
     args << "-im" << "deformationRigid:"+deformationFileName;
 
     //args << "-conv" << "gaussian,2.0,2.5,3.5::psf";

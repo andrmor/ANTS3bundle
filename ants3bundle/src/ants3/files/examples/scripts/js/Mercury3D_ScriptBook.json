@@ -1,0 +1,54 @@
+{
+    "CurrentTab": 5,
+    "Name": "GAGG",
+    "ScriptTabs": [
+        {
+            "FileName": "/home/andr/WORK/GAGG/Scripts/CoG.txt",
+            "Script": "\n// ------------- Configuration -------------\n// Select the data directory\nvar dir = config.getKeyValue(\"PhotonSim.Run.OutputDirectory\") // \"/home/username/.config/ants3/TmpOutput\"\nvar NumberOfEventMarkers = 100\n// -----------------------------------------\n\nvar sensXYZ = sens.getSensorPositions()\nif (sensXYZ.length == 0) core.abort(\"There are no optical sensors in the current config!\")\nresponse.newResponseModel(sensXYZ)\n    \nvar sig = core.loadNumericArray(dir + \"/SensorSignals.txt\")\nvar numEv = sig.length\nif (numEv == 0) core.abort(\"Failed to load sesnor signal data!\")\ncore.print(\"Loaded\", numEv, \"events\")\n\nvar truePos = core.loadNumericArray(dir + \"/PhotonBombs.txt\")\nif (truePos.length != numEv) core.abort(\"Failed to load photon bomb positions!\")\n\nmercury.newReconstructor(\"COG\", 15)\nmercury.configure_COG(0,0,0)\nmercury.setCutoffRadius(15)\n\ncore.print(\"Staring reconstruction\");\nvar start = core.getTimeMarkMilliseconds()\nmercury.reconstructEvents(sig)\nvar stop = core.getTimeMarkMilliseconds()\ncore.print(\"Elapsed time:\", stop-start, \"ms\")\n\nvar recPosE = mercury.getRecXYZE()\ncore.print(\"Rec array size:\", recPosE.length)\n\n// Show event position markers\ngeowin.clearMarkers()\nvar arRec  = []\nvar arTrue = []\nfor (var iEv = 0; iEv < NumberOfEventMarkers && iEv < truePos.length; iEv++)\n{\n    arTrue.push(truePos[iEv])\n    \n    // Energy = 0 --> reconstruction failed\n    if (recPosE[iEv][3] > 0) arRec.push(recPosE[iEv])\n}\ngeowin.addMarkers(arTrue, 4, 7, 2)\ngeowin.addMarkers(arRec,  2, 2, 2)\ngeowin.showWindow()\n",
+            "TabName": "CoG",
+            "bExplicitlyNamed": false
+        },
+        {
+            "FileName": "/home/andr/WORK/GAGG/Scripts/MakeAxial.txt",
+            "Script": "var dir = config.getKeyValue(\"PhotonSim.Run.OutputDirectory\") // \"/home/username/.config/ants3/TmpOutput\"\n\nvar sensXYZ = sens.getSensorPositions()\nvar numSens = sensXYZ.length\nif (numSens == 0) core.abort(\"There are no light sensors in the current configuration!\")\ncore.print(\"Detector config has\", numSens, \"light sensors\")\nresponse.newResponseModel(sensXYZ)\n\nvar lrf = response.newLRF_axial(10, 0, 40)\nlrf = response.configureLRF_AxialCompression(lrf, 5, 4, 5)\nlrf = response.configureLRF_Constrains(lrf, true, true, true)\nresponse.setLRF(lrf)\n    \nvar sig = core.loadNumericArray(dir + \"/SensorSignals.txt\")\nvar pos = core.loadNumericArray(dir + \"/PhotonBombs.txt\")\nresponse.fitResponse(sig, pos)\n\nresponse.showResponseExplorer()\n\nfor (var ii = 0; ii < pos.length; ii++)\n{\n    pos[ii].length = 4\n    pos[ii][3] = 1 // can be made better if the energy is not constant: e.g. pos[ii][3] = pos[ii][4]/4200\n}\nresponse.showLrfPlotterWidget(sig, pos)\n",
+            "TabName": "MakeAxial",
+            "bExplicitlyNamed": false
+        },
+        {
+            "FileName": "/home/andr/WORK/GAGG/Scripts/StatRecAxial.txt",
+            "Script": "\n// ------------- Configuration -------------\n// Select the data directory\nvar dir = config.getKeyValue(\"PhotonSim.Run.OutputDirectory\") // \"/home/username/.config/ants3/TmpOutput\"\nvar NumberOfEventMarkers = 100\n// -----------------------------------------\n\nvar sig = core.loadNumericArray(dir + \"/SensorSignals.txt\")\nvar numEv = sig.length\nif (numEv == 0) core.abort(\"There are no events!\")\ncore.print(\"Loaded\", numEv, \"events\")\n\nvar truePos = core.loadNumericArray(dir + \"/PhotonBombs.txt\")\nif (truePos.length != numEv) core.abort(\"Failed to load photon bomb positions!\")\n\nmercury.newReconstructor(\"ML\", 15)\nmercury.setCutoffRadius(40)\n\ncore.print(\"Staring reconstruction\");\nvar start = core.getTimeMarkMilliseconds()\nmercury.reconstructEvents(sig)\nvar stop = core.getTimeMarkMilliseconds()\ncore.print(\"Elapsed time:\", stop-start, \"ms\")\n\nvar recPosE = mercury.getRecXYZE()\n\n// Show event position markers\ngeowin.clearMarkers()\nvar arRec  = []\nvar arTrue = []\nfor (var iEv = 0; iEv < NumberOfEventMarkers; iEv++)\n{\n    arTrue.push(truePos[iEv])\n    \n    // Energy = 0 --> reconstruction failed\n    if (recPosE[iEv][3] > 0) arRec.push(recPosE[iEv])\n}\ngeowin.addMarkers(arTrue, 4, 7, 2)\ngeowin.addMarkers(arRec,  2, 2, 2)\ngeowin.showWindow()\n\n// Show reconstruction data\nmercury.plot(\"All\", 100, 0,0)\nmercury.configure_plotXY_binning(81, -40, 40, 81, -40, 40)\nmercury.plot_vsRecXY(\"All\")\nmercury.configure_plotXY_truePositions(truePos)\nmercury.plot_vsTrueXY(\"All\")",
+            "TabName": "StatRecAxial",
+            "bExplicitlyNamed": false
+        },
+        {
+            "FileName": "/home/andr/WORK/GAGG/Scripts/SaveLoadModel.txt",
+            "Script": "//response.saveResponseModel(\"/home/andr/WORK/GAGG/10k/axial3d.json\")\n//response.saveResponseModel(\"/home/andr/WORK/GAGG/100kNoGains/axial3d.json\")\nresponse.loadResponseModel(\"/home/andr/WORK/GAGG/100kNoGains/axial3d.json\")\n\nresponse.showLrfPlotterWidget()",
+            "TabName": "SaveLoadModel",
+            "bExplicitlyNamed": false
+        },
+        {
+            "FileName": "/home/andr/WORK/GAGG/Scripts/MakeAxial3D.txt",
+            "Script": "//var dir = config.getKeyValue(\"PhotonSim.Run.OutputDirectory\") // \"/home/username/.config/ants3/TmpOutput\"\nvar dir = \"/home/andr/WORK/GAGG/100kNoGains\"\n\nvar sensXYZ = sens.getSensorPositions()\nvar numSens = sensXYZ.length\nif (numSens == 0) core.abort(\"There are no light sensors in the current configuration!\")\ncore.print(\"Detector config has\", numSens, \"light sensors\")\nresponse.newResponseModel(sensXYZ)\n\nvar lrf = response.newLRF_axial3D(10, 0, 40, 3, -1.5, 1.5)\nlrf = response.configureLRF_AxialCompression(lrf, 5, 4, 5)\nlrf = response.configureLRF_Constrains(lrf, true, true, true)\nresponse.setLRF(lrf)\n    \nvar sig = core.loadNumericArray(dir + \"/SensorSignals.txt\")\nvar pos = core.loadNumericArray(dir + \"/PhotonBombs.txt\")\nresponse.fitResponse(sig, pos)\n\n// Show LRF explorer widget\nresponse.showResponseExplorer()\n\n/*\n// Waiting for Vladimir to add axialEval for Axial3D LRFs\nfor (var ii = 0; ii < pos.length; ii++)\n{\n    pos[ii].length = 4\n    pos[ii][3] = 1 // can be made better if the energy is not constant: e.g. pos[ii][3] = pos[ii][4]/4200\n}\nresponse.showLrfPlotterWidget(sig, pos)\n*/",
+            "TabName": "MakeAxial3D",
+            "bExplicitlyNamed": false
+        },
+        {
+            "FileName": "/home/andr/WORK/GAGG/Scripts/StatRecAxial3D.txt",
+            "Script": "var dir = \"/home/andr/WORK/GAGG/tmp\"\n\nvar sig = core.loadNumericArray(dir + \"/SensorSignals.txt\")\nvar numEv = sig.length\nif (numEv == 0) core.abort(\"There are no events!\")\ncore.print(\"Loaded\", numEv, \"events\")\n\nvar truePos = core.loadNumericArray(dir + \"/PhotonBombs.txt\")\nif (truePos.length != numEv) core.abort(\"Failed to load photon bomb positions!\")\n\nmercury.newReconstructor(\"ML\", 15)\nmercury.setCutoffRadius(40)\nmercury.configure_COG(0, 0.99, 0)\nmercury.configure_statistical(true, true, 0);\n\ncore.print(\"Staring reconstruction\");\nvar start = core.getTimeMarkMilliseconds()\nmercury.reconstructEvents(sig)\nvar stop = core.getTimeMarkMilliseconds()\ncore.print(\"Elapsed time:\", stop-start, \"ms\")\n\nvar recPosE = mercury.getRecXYZE()\n\nhistName = \"h\"\nhist.new2D(histName, 100, -2, 2,  100, -2, 2)\n\n// Show event position markers\ngeowin.clearMarkers()\nvar arRec  = []\nvar arTrue = []\nfor (var iEv = 0; iEv < recPosE.length; iEv++)\n{\n    if (iEv < 1000) arTrue.push(truePos[iEv])\n    \n    // Energy = 0 --> reconstruction failed\n    if (recPosE[iEv][3] > 0)\n    {\n        if (iEv < 1000) arRec.push(recPosE[iEv])\n        \n        hist.fill(histName, truePos[iEv][2], recPosE[iEv][2], 1)\n    }\n}\ngeowin.addMarkers(arTrue, 4, 7, 2)\ngeowin.addMarkers(arRec,  2, 2, 2)\ngeowin.showWindow()\n\n// Show reconstruction data\nmercury.plot(\"All\", 100, 0,0)\nmercury.configure_plotXY_binning(81, -40, 40, 81, -40, 40)\nmercury.plot_vsRecXY(\"All\")\nmercury.configure_plotXY_truePositions(truePos)\nmercury.plot_vsTrueXY(\"All\")\n\n// vs Z\n\nhist.draw(histName, \"colz\"); grwin.addToBasket(\"zrecvsztrue\")",
+            "TabName": "StatRecAxial3D",
+            "bExplicitlyNamed": false
+        },
+        {
+            "FileName": "/home/andr/WORK/GAGG/PET/Scripts/CalorEnDistr.txt",
+            "Script": "var fn = \"/home/andr/WORK/GAGG/PET/Out1M\" + \"/\" + \"CalorimeterLog.dat\"\nvar data = core.loadNumericArray(fn)\nvar numS1 = 0\nvar numS2 = 0\nvar numCoinc = 0\nvar enWin = 0.10\n\nhist.new1D(\"e1\", 1000, 0, 1000)\nhist.new1D(\"e2\", 1000, 0, 1000)\n\nvar numEv = data.length\nfor (var iEv = 0; iEv < numEv; iEv++)\n{\n    var en1 = data[iEv][0]\n    var en2 = data[iEv][1]\n    \n    hist.fill(\"e1\", en1, 1)\n    hist.fill(\"e2\", en2, 1)\n    \n    var b1 = math.abs(en1-511) < enWin*511\n    var b2 = math.abs(en2-511) < enWin*511\n    \n    if (b1 && b2) \n    {\n        numCoinc++\n        core.print(\" Ev:\", iEv)\n    }\n    else if (b1) numS1++\n    else if (b2) numS2++\n}\n\nhist.draw(\"e1\", \"hist\")\nhist.draw(\"e2\", \"histsame\")\ncore.print(numCoinc/data.length, numS1/data.length, numS2/data.length)",
+            "TabName": "CalorEnDistr",
+            "bExplicitlyNamed": false
+        },
+        {
+            "FileName": "/home/andr/WORK/GAGG/PET/Scripts/SensorSumGoodEv.txt",
+            "Script": "var fn = \"/home/andr/WORK/GAGG/PET/Out1M/ReducedSim\" + \"/\" + \"SensorSignals.txt\"\nvar sensSigs = core.loadNumericArray(fn)\n\nhist.new1D(\"h1\", 1000, 0, 0)\nhist.new1D(\"h2\", 1000, 0, 0)\n\nvar numEv = sensSigs.length\nfor (var iEv = 0; iEv < numEv; iEv++)\n{\n    var sensEv = sensSigs[iEv]\n    var sum1 = 0\n    var sum2 = 0\n    for (var iS = 0; iS < 64; iS++)\n    {\n        sum1 += sensEv[iS]\n        sum2 += sensEv[iS+64]\n    }\n    hist.fill(\"h1\", sum1, 1)\n    hist.fill(\"h2\", sum2, 1)\n    //if (iEv == 295) core.print(sum1, sum2)\n}\n\nhist.draw(\"h1\", \"hist\")\nhist.draw(\"h2\", \"histsame\")\n",
+            "TabName": "SensorSumGoodEv",
+            "bExplicitlyNamed": false
+        }
+    ]
+}

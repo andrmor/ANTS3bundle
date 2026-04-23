@@ -47,6 +47,7 @@ public slots:
 
     QVariantList loadImage(QString fileName);
 
+    void reduceDeposition(QString depoFileName, QString calorLogFilename, double energyWindow, QString outputDepoFileName);
     void directSaveCoincideneData(QVariantList coincData, QString scannerName, QString outputDir, QString headerFileName, QString binFileName);
     void reconstructDynamic(QString coincFileName, QString gatesFileName, QString deformationFileName, QString outDir, int numThreads);
 
