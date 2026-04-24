@@ -2,6 +2,7 @@
 #define A3GLOBAL_H
 
 #include "adrawmarginsrecord.h"
+#include "ageomarkerproperties.h"
 
 #include <QString>
 #include <QJsonObject>
@@ -62,6 +63,9 @@ public:
     // WebSocket server
     int     DefaultWebSocketPort = 1234;
     QString DefaultWebSocketIP = "127.0.0.1";
+
+    // Geo markers
+    AGeoMarkerPropDatabase GeoMarkers;
 
     void    init();
     bool    checkExchangeDir();

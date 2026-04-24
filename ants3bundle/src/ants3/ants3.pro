@@ -213,6 +213,7 @@ SOURCES += \
     ../lsim/anoderecord.cpp \
     ../lsim/aphotonhistorylog.cpp \
     ../lsim/aphotontracer.cpp \
+    gui/ageomarkerproperties.cpp \
     gui/aviewer3dsettings.cpp \
     farm/afarmnoderecord.cpp \
     geo/acalorimeter.cpp \
@@ -227,6 +228,7 @@ SOURCES += \
     gui/amainwindow.cpp \
     gui/atreedatabaseselectordialog.cpp \
     gui/geom/ageoconstexpressiondialog.cpp \
+    gui/geom/ageomarkerpropsdialog.cpp \
     gui/geom/ageotreewin.cpp \
     gui/geom/aparticleanalyzerwidget.cpp \
     gui/geom/ashownumbersdialog.cpp \
@@ -453,10 +455,12 @@ HEADERS += \
     ../lsim/aphotonhistorylog.h \
     ../lsim/aphotontracer.h \
     farm/ademomanager.h \
+    gui/ageomarkerproperties.h \
     gui/aviewer3dsettings.h \
     gui/aitemselectiondialog.h \
     gui/amainwindow.h \
     gui/atreedatabaseselectordialog.h \
+    gui/geom/ageomarkerpropsdialog.h \
     gui/geom/aparticleanalyzerwidget.h \
     gui/graph/adrawmarginsrecord.h \
     gui/graph/agraphwindow.h \

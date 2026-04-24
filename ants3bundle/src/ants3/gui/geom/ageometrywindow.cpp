@@ -1645,3 +1645,12 @@ void AGeometryWindow::on_pbShowPhotonSources_clicked(bool checked)
     on_pbShowGeometry_clicked();
 }
 
+#include "ageomarkerpropsdialog.h"
+void AGeometryWindow::on_actionConfigure_triggered()
+{
+    AGeoMarkerPropsDialog dia(this);
+
+    connect(&dia, &AGeoMarkerPropsDialog::requestRedraw, this, &AGeometryWindow::ShowGeometry);
+
+    dia.exec();
+}

@@ -130,6 +130,13 @@ void A3Global::saveConfig()
         json["Workload"] = js;
     }
 
+    // Geo markers
+    {
+        QJsonObject js;
+            GeoMarkers.writeToJson(js);
+        json["GeoMarkers"] = js;
+    }
+
     QJsonObject mainjson;
         mainjson["ANTS3config"] = json;
     jstools::saveJsonToFile(mainjson, ConfigDir + '/' + ConfigFileName);
@@ -209,6 +216,14 @@ void A3Global::loadConfig()
         QJsonObject js;
             jstools::parseJson(json, "Workload", js);
         AFarmHub::getInstance().readFromJson(js);
+    }
+
+    // Geo markers
+    GeoMarkers.fillDefault();
+    {
+        QJsonObject js;
+        bool ok = jstools::parseJson(json, "GeoMarkers", js);
+        if (ok) GeoMarkers.readFromJson(js);
     }
 }
 

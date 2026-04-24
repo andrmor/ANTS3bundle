@@ -1,0 +1,135 @@
+#include "ageomarkerpropsdialog.h"
+#include "TColor.h"
+#include "arootmarkerconfigurator.h"
+#include "a3global.h"
+#include "arootcolorselectordialog.h"
+
+#include <QLabel>
+#include <QComboBox>
+#include <QLineEdit>
+#include <QPushButton>
+#include <QFrame>
+#include <QVBoxLayout>
+#include <QHBoxLayout>
+#include <QGridLayout>
+
+#include "TROOT.h"
+
+AGeoMarkerPropsDialog::AGeoMarkerPropsDialog(QWidget * parent) :
+    QDialog(parent), GlobSet(A3Global::getInstance())
+{
+    setWindowTitle("Marker configurator");
+
+    QVBoxLayout * layMain = new QVBoxLayout(this);
+
+    QGridLayout * layGr = new QGridLayout();
+
+    QStringList Mstyles = {"1 - small dot","2 - cross","3 - asterisk","4 - circle","5 - diagonal cross","6 - rhomb dot","7 - square dot","8 - large round dot",
+                           "20 - filled circle","21 - filled square","22 - filled triangle","23 - inv filled triangle","24 - circle","25 - square",
+                           "26 - triangle","27 - romb","28 - big cross","29 - filled star","30 - star","32 - inverted triangle","33 - filled romb","34 - filled cross"};
+
+    std::vector<int> map;
+    for (int i=1;  i<9;  i++) map.push_back(i);
+    for (int i=9;  i<20; i++) map.push_back(8);
+    for (int i=20; i<31; i++) map.push_back( 9 + i -20 );
+    map.push_back(3);
+    for (int i=32; i<35; i++) map.push_back( 20 + i - 32 );
+
+    layGr->addWidget(new QLabel("Marker type"), 0, 0, Qt::AlignHCenter);
+    layGr->addWidget(new QLabel("Style"),       0, 1, Qt::AlignHCenter);
+    layGr->addWidget(new QLabel("Size"),        0, 2, Qt::AlignHCenter);
+    layGr->addWidget(new QLabel("Color"),       0, 3, Qt::AlignHCenter);
+
+    LocalData.resize(GlobSet.GeoMarkers.Data.size());
+    int iRec = 0;
+    for (const auto & [type, props] : GlobSet.GeoMarkers.Data)
+    {
+        LocalData[iRec] = {type, props};
+
+        QLabel * labT = new QLabel(type);
+        layGr->addWidget(labT, iRec+1, 0);
+
+        QComboBox * cobStyle = new QComboBox();
+        cobStyle->addItems(Mstyles);
+        layGr->addWidget(cobStyle, iRec+1, 1);
+        connect(cobStyle, &QComboBox::activated, [this, iRec, cobStyle]()
+                {
+                    QString st =cobStyle->currentText();
+                    QStringList l = st.split(" - ");
+                    QString num = l.first();
+                    LocalData[iRec].second.Style = num.toInt();
+                });
+        int iStyle = 1;
+        if (props.Style > 0 && props.Style <= map.size()) iStyle = map[props.Style-1];
+        cobStyle->setCurrentIndex(iStyle - 1);
+
+        QLineEdit * ledSize = new QLineEdit();
+        layGr->addWidget(ledSize, iRec+1, 2);
+        connect(ledSize, &QLineEdit::editingFinished, [this, iRec, ledSize]()
+                {
+                    LocalData[iRec].second.Size = ledSize->text().toDouble();
+                });
+        ledSize->setText(QString::number(props.Size));
+
+        QPushButton * pbColor = new QPushButton("Change");
+        layGr->addWidget(pbColor, iRec+1, 3);
+        connect(pbColor, &QPushButton::clicked, [this, iRec, pbColor]()
+        {
+            ARootColorSelectorDialog dia(LocalData[iRec].second.Color, this);
+            dia.exec();
+            updateColor(pbColor, LocalData[iRec].second.Color);
+        });
+        updateColor(pbColor, props.Color);
+
+        iRec++;
+    }
+
+    layMain->addLayout(layGr);
+
+    layMain->addWidget(new QLabel(""));
+
+    QHBoxLayout * layB = new QHBoxLayout();
+    QPushButton * pbApply = new QPushButton("Apply");
+    connect(pbApply, &QPushButton::clicked, this, &AGeoMarkerPropsDialog::onApply);
+    layB->addWidget(pbApply);
+
+    QPushButton * pbAccept = new QPushButton("Apply and close");
+    connect(pbAccept, &QPushButton::clicked, this, &AGeoMarkerPropsDialog::onApplyAndClose);
+    layB->addWidget(pbAccept);
+
+    layMain->addLayout(layB);
+}
+
+void AGeoMarkerPropsDialog::onApply()
+{
+    copyLocalToGlobal();
+    emit requestRedraw(false, false, true);
+}
+
+void AGeoMarkerPropsDialog::onApplyAndClose()
+{
+    copyLocalToGlobal();
+    emit requestRedraw(false, false, true);
+    accept();
+}
+
+void AGeoMarkerPropsDialog::copyLocalToGlobal()
+{
+    for (const std::pair<QString, AGeoMarkerProperties> & pair : LocalData)
+        GlobSet.GeoMarkers.Data[pair.first] = pair.second;
+}
+
+void AGeoMarkerPropsDialog::updateColor(QPushButton * pb, int color)
+{
+    TColor * tc = gROOT->GetColor(color);
+    int red = 255;
+    int green = 255;
+    int blue = 255;
+    if (tc)
+    {
+        red = 255*tc->GetRed();
+        green = 255*tc->GetGreen();
+        blue = 255*tc->GetBlue();
+    }
+    pb->setStyleSheet( QString("background-color:rgb(%1,%2,%3)").arg(red).arg(green).arg(blue) );
+}

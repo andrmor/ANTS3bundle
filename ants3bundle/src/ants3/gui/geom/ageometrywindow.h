@@ -159,6 +159,8 @@ private slots:
     void on_pbShowParticleSources_clicked(bool checked);
     void on_pbShowPhotonSources_clicked(bool checked);
 
+    void on_actionConfigure_triggered();
+
 private:
     bool                    UseJSRoot = false;
     AGeometryHub          & Geometry;
