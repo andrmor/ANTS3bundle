@@ -49,7 +49,7 @@ public:
 
 private:
     void doDrawRadialData (int iSens, bool differenceOption);
-    void doDrawRadialLrf  (int iSens, bool onTopOfData); // !!!*** axial3d -> evalAxial
+    void doDrawRadialLrf  (int iSens, bool onTopOfData);
     void doDrawRadialNodes(int iSens);
 
     void doDrawXYData(int iSens);

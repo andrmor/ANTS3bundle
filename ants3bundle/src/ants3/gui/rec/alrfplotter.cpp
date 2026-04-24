@@ -201,7 +201,7 @@ void ALrfPlotter::doDrawRadialLrf(int iSens, bool onTopOfData)
 
     LRF * lrf = model->GetLRF(iSens);
     LRFaxial * axial = dynamic_cast<LRFaxial*>(lrf);
-    LRFaxial3d * axial3d = dynamic_cast<LRFaxial3d*>(lrf);
+    //LRFaxial3d * axial3d = dynamic_cast<LRFaxial3d*>(lrf);
     if (axial)
     {
         TGraph * g = new TGraph(); // will be owned by the graph window
@@ -215,10 +215,10 @@ void ALrfPlotter::doDrawRadialLrf(int iSens, bool onTopOfData)
         {
             double r = step * iR;
             double val = 0;
-            if (axial3d)
-                val = 0;  // todo!!!
-            else
-                val = axial->evalAxial(r);
+            //if (axial3d)
+            //    val = axial->evalAxial(r);
+            //else
+                val = axial->evalAxial(r, Z);
 
             if (val != 0) g->AddPoint(r, val);
         }

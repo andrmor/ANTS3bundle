@@ -25,6 +25,7 @@ public:
     virtual double evalraw(double x, double y, double z) const;
     virtual double evalDrvX(double x, double y, double z) const;
     virtual double evalDrvY(double x, double y, double z) const;
+    virtual double evalAxial(double r, double z) const;
 
     virtual bool fitData(const std::vector <LRFdata> &data);
     virtual bool addData(const std::vector <LRFdata> &data);

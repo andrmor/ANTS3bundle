@@ -121,6 +121,11 @@ double LRFaxial3d::eval(double x, double y, double z) const
     return isReady() ? bs2r->Eval(Rho(x, y), RhoZ(z)) : 0.;
 }
 
+double LRFaxial3d::evalAxial(double r, double z) const
+{
+    return isReady() ? bs2r->Eval(r, z) : 0.;
+}
+
 // ToDo: this function doesn't make sense here 
 double LRFaxial3d::evalraw(double x, double y, double z) const
 {
