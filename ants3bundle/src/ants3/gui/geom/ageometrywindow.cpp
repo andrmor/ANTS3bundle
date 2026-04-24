@@ -300,14 +300,11 @@ void AGeometryWindow::copyGeoMarksToGeoManager()
         for (size_t i = 0; i < GeoMarkers.size(); i++)
         {
             AGeoMarkerClass * gm = GeoMarkers[i];
-            //overrides
-            if (gm->Type == AGeoMarkerClass::Recon || gm->Type == AGeoMarkerClass::PrimarySource || gm->Type == AGeoMarkerClass::PointOfOrigin)
-            {
-                gm->SetMarkerStyle(GeoMarkerStyle);
-                gm->SetMarkerSize(GeoMarkerSize);
-            }
+            if (gm->Type != EGeoMarkerType::Undefined)
+                A3Global::getInstance().GeoMarkers.applyProperties(gm);
 
             TPolyMarker3D * mark = new TPolyMarker3D(*gm);
+            mark->SetMarkerSize(mark->GetMarkerSize() + GeoMarkerSizeOffset);
             Geometry.GeoManager->GetListOfTracks()->Add(mark);
         }
     }
@@ -638,11 +635,17 @@ void AGeometryWindow::showGeoMarkers()
         SetAsActiveRootWindow();
         for (AGeoMarkerClass * gm : GeoMarkers)
         {
+            if (gm->Type != EGeoMarkerType::Undefined)
+                A3Global::getInstance().GeoMarkers.applyProperties(gm);
+
+            /*
             if (gm->Type == AGeoMarkerClass::Recon || gm->Type == AGeoMarkerClass::True) // Source has its own styling
             {
                 gm->SetMarkerStyle(GeoMarkerStyle);
                 gm->SetMarkerSize(GeoMarkerSize);
             }
+            */
+
             gm->Draw("same");
         }
         UpdateRootCanvas();
@@ -654,9 +657,9 @@ void AGeometryWindow::showGeoMarkers()
 #include "anoderecord.h"
 void AGeometryWindow::addPhotonNodeGeoMarker(const ANodeRecord & record)
 {
-    if (GeoMarkers.empty() || GeoMarkers.back()->Type != AGeoMarkerClass::True)
+    if (GeoMarkers.empty() || GeoMarkers.back()->Type != EGeoMarkerType::PosTrue)
     {
-        AGeoMarkerClass * gm = new AGeoMarkerClass(AGeoMarkerClass::True, 21, 10, kBlue);
+        AGeoMarkerClass * gm = new AGeoMarkerClass(EGeoMarkerType::PosTrue, 21, 10, kBlue);
         GeoMarkers.push_back(gm);
     }
     GeoMarkers.back()->SetNextPoint(record.R[0], record.R[1], record.R[2]);
@@ -664,7 +667,7 @@ void AGeometryWindow::addPhotonNodeGeoMarker(const ANodeRecord & record)
 
 void AGeometryWindow::addGeoMarkers(const std::vector<std::array<double, 3>> & XYZs, int color, int style, double size)
 {
-    AGeoMarkerClass * M = new AGeoMarkerClass(AGeoMarkerClass::Undefined, style, size, color);
+    AGeoMarkerClass * M = new AGeoMarkerClass(EGeoMarkerType::Undefined, style, size, color);
     for (const auto & pos : XYZs)
         M->SetNextPoint(pos[0], pos[1], pos[2]);
     GeoMarkers.push_back(M);
@@ -724,7 +727,7 @@ void AGeometryWindow::showSources()
     {
         if (APhotonSimHub::getConstInstance().Settings.SimType == EPhotSimType::PhotonBombs)
         {
-            AGeoMarkerClass * marks = APhotonSourcePlotter::plotSource(GeoMarkerSize - 2);
+            AGeoMarkerClass * marks = APhotonSourcePlotter::plotSource(0);
             if (marks)
                 GeoMarkers.push_back(marks); // show is in the caller
             else
@@ -787,7 +790,7 @@ void AGeometryWindow::clearSourceMarkers()
 {
     for (int i = GeoMarkers.size() - 1; i > -1; i--)
     {
-        if (GeoMarkers[i]->Type == AGeoMarkerClass::PrimarySource)
+        if (GeoMarkers[i]->Type == EGeoMarkerType::PrimarySource)
         {
             delete GeoMarkers[i];
             GeoMarkers.erase(GeoMarkers.begin() + i);
@@ -802,14 +805,14 @@ void AGeometryWindow::clearGeoMarkers(int All_Rec_True)
         switch (All_Rec_True)
         {
         case 1:
-            if (GeoMarkers[i]->Type == AGeoMarkerClass::Recon)
+            if (GeoMarkers[i]->Type == EGeoMarkerType::PosReconstructed)
             {
                 delete GeoMarkers[i];
                 GeoMarkers.erase(GeoMarkers.begin() + i);
             }
             break;
         case 2:
-            if (GeoMarkers[i]->Type == AGeoMarkerClass::True)
+            if (GeoMarkers[i]->Type == EGeoMarkerType::PosTrue)
             {
                 delete GeoMarkers[i];
                 GeoMarkers.erase(GeoMarkers.begin() + i);
@@ -918,10 +921,10 @@ void AGeometryWindow::ShowPoint(const double *r, bool keepTracks)
 {
     clearGeoMarkers();
 
-    AGeoMarkerClass * marks = new AGeoMarkerClass(AGeoMarkerClass::PointOfOrigin, 3, 10, kBlack);
+    AGeoMarkerClass * marks = new AGeoMarkerClass(EGeoMarkerType::Undefined, 3, 10, kBlack);
     marks->SetNextPoint(r[0], r[1], r[2]);
     GeoMarkers.push_back(marks);
-    AGeoMarkerClass* marks1 = new AGeoMarkerClass(AGeoMarkerClass::PointOfOrigin, 4, 3, kRed);
+    AGeoMarkerClass* marks1 = new AGeoMarkerClass(EGeoMarkerType::Undefined, 4, 3, kRed);
     marks1->SetNextPoint(r[0], r[1], r[2]);
     GeoMarkers.push_back(marks1);
 
@@ -935,10 +938,10 @@ void AGeometryWindow::ShowPoint(const double *r, bool keepTracks)
 void AGeometryWindow::addGenerationMarker(const double * Pos)
 {
     AGeoMarkerClass * marks = nullptr;
-    if (!GeoMarkers.empty() && GeoMarkers.back()->Type == AGeoMarkerClass::PointOfOrigin) marks = GeoMarkers.back();
+    if (!GeoMarkers.empty() && GeoMarkers.back()->Type == EGeoMarkerType::PointOfOrigin) marks = GeoMarkers.back();
     else
     {
-        marks = new AGeoMarkerClass(AGeoMarkerClass::PointOfOrigin, 7, 1, 1);
+        marks = new AGeoMarkerClass(EGeoMarkerType::PointOfOrigin, 7, 1, 1);
         GeoMarkers.push_back(marks);
     }
 
@@ -1053,7 +1056,7 @@ void AGeometryWindow::on_actionSmall_dot_toggled(bool arg1)
 {
     if (arg1)
     {
-        GeoMarkerStyle = 1;
+        //GeoMarkerStyle = 1;
         ShowGeometry();
     }
 
@@ -1065,7 +1068,7 @@ void AGeometryWindow::on_actionLarge_dot_triggered(bool arg1)
 {
     if (arg1)
     {
-        GeoMarkerStyle = 8;
+        //GeoMarkerStyle = 8;
         ShowGeometry();
     }
 
@@ -1077,7 +1080,7 @@ void AGeometryWindow::on_actionSmall_cross_toggled(bool arg1)
 {
     if (arg1)
     {
-        GeoMarkerStyle = 6;
+        //GeoMarkerStyle = 6;
         ShowGeometry();
     }
 
@@ -1089,7 +1092,7 @@ void AGeometryWindow::on_actionLarge_cross_toggled(bool arg1)
 {
     if (arg1)
     {
-        GeoMarkerStyle = 2;
+        //GeoMarkerStyle = 2;
         ShowGeometry();
     }
 
@@ -1099,17 +1102,19 @@ void AGeometryWindow::on_actionLarge_cross_toggled(bool arg1)
 
 void AGeometryWindow::on_actionSize_1_triggered()
 {
-    GeoMarkerSize++;
+    //GeoMarkerSize++;
     ShowGeometry();
     ui->actionSize_2->setEnabled(true);
 }
 
 void AGeometryWindow::on_actionSize_2_triggered()
 {
+    /*
     if (GeoMarkerSize > 0) GeoMarkerSize--;
 
     if (GeoMarkerSize == 0) ui->actionSize_2->setEnabled(false);
     else ui->actionSize_2->setEnabled(true);
+    */
 
     ShowGeometry();
 }

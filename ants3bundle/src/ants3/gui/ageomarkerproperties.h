@@ -1,12 +1,12 @@
 #ifndef AGEOMARKERPROPERTIES_H
 #define AGEOMARKERPROPERTIES_H
 
+#include "ageomarkerclass.h"
+
 #include <map>
 #include <QString>
 
 class QJsonObject;
-
-enum class EGeoMarkerType {Undefined, PrimarySource, PointOfOrigin, PosTrue, PosReconstructed};
 
 class AGeoMarkerProperties
 {
@@ -22,6 +22,8 @@ public:
     std::map<QString,AGeoMarkerProperties> Data;
 
     void fillDefault();
+
+    void applyProperties(AGeoMarkerClass * gm);
 
     AGeoMarkerProperties getProperties(EGeoMarkerType type);
     void                 setProperties(EGeoMarkerType type, AGeoMarkerProperties properties);

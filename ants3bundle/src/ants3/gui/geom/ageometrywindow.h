@@ -174,8 +174,9 @@ private:
 
     ACameraControlDialog  * CameraControl = nullptr;
 
-    int GeoMarkerSize  = 2;
-    int GeoMarkerStyle = 6;
+    int GeoMarkerSizeOffset  = 0;
+    //int GeoMarkerSize  = 2;
+    //int GeoMarkerStyle = 6;
 
     bool TMPignore = false;
     bool ShowTop = false;

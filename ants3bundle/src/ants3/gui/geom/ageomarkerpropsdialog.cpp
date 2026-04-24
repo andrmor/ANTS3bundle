@@ -74,11 +74,11 @@ AGeoMarkerPropsDialog::AGeoMarkerPropsDialog(QWidget * parent) :
         QPushButton * pbColor = new QPushButton("Change");
         layGr->addWidget(pbColor, iRec+1, 3);
         connect(pbColor, &QPushButton::clicked, [this, iRec, pbColor]()
-        {
-            ARootColorSelectorDialog dia(LocalData[iRec].second.Color, this);
-            dia.exec();
-            updateColor(pbColor, LocalData[iRec].second.Color);
-        });
+                {
+                    ARootColorSelectorDialog dia(LocalData[iRec].second.Color, this);
+                    dia.exec();
+                    updateColor(pbColor, LocalData[iRec].second.Color);
+                });
         updateColor(pbColor, props.Color);
 
         iRec++;

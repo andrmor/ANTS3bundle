@@ -15,6 +15,24 @@ void AGeoMarkerPropDatabase::fillDefault()
     Data["PosReconstructed"] = {1,2,1};
 }
 
+void AGeoMarkerPropDatabase::applyProperties(AGeoMarkerClass * gm)
+{
+    AGeoMarkerProperties props;
+    switch (gm->Type)
+    {
+    case EGeoMarkerType::Undefined        : return;
+    case EGeoMarkerType::PrimarySource    : props = Data["PrimarySource"];    break;
+    case EGeoMarkerType::PointOfOrigin    : props = Data["PointOfOrigin"];    break;
+    case EGeoMarkerType::PosTrue          : props = Data["PosTrue"];          break;
+    case EGeoMarkerType::PosReconstructed : props = Data["PosReconstructed"]; break;
+    default: qCritical() << "AGeoMarkerPropDatabase::applyProperties: not implemented type"; break;
+    }
+
+    gm->SetMarkerStyle(props.Style);
+    gm->SetMarkerSize (props.Size);
+    gm->SetMarkerColor(props.Color);
+}
+
 AGeoMarkerProperties AGeoMarkerPropDatabase::getProperties(EGeoMarkerType type)
 {
     switch (type)

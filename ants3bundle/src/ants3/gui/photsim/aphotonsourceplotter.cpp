@@ -53,13 +53,13 @@ AGeoMarkerClass * APhotonSourcePlotter::plotSource(int sizeDelta)
     {
     case EBombGen::Single:
     {
-        AGeoMarkerClass * marks = new AGeoMarkerClass(AGeoMarkerClass::PrimarySource, 3, 3 + sizeDelta, 51);
+        AGeoMarkerClass * marks = new AGeoMarkerClass(EGeoMarkerType::PrimarySource, 3, 3 + sizeDelta, 51);
         marks->SetNextPoint(bombSet.SingleSettings.Position[0], bombSet.SingleSettings.Position[1], bombSet.SingleSettings.Position[2]);
         return marks;
     }
     case EBombGen::Grid:
     {
-        AGeoMarkerClass * marks = new AGeoMarkerClass(AGeoMarkerClass::PrimarySource, 3, 3 + sizeDelta, 51);
+        AGeoMarkerClass * marks = new AGeoMarkerClass(EGeoMarkerType::PrimarySource, 3, 3 + sizeDelta, 51);
         const AGridSettings & ScanSet = bombSet.GridSettings;
         const APhotonBombAdvancedSettings & AdvSet = bombSet.AdvancedSettings;
 

@@ -118,7 +118,7 @@ void AGeoWin_SI::addMarkers(QVariantList XYZs, int color, int style, double size
         return;
     }
 
-    AGeoMarkerClass * markers = new AGeoMarkerClass(AGeoMarkerClass::Undefined, style, size, color);
+    AGeoMarkerClass * markers = new AGeoMarkerClass(EGeoMarkerType::Undefined, style, size, color);
     for (int i = 0; i < XYZs.size(); i++)
     {
         QVariantList el = XYZs[i].toList();
