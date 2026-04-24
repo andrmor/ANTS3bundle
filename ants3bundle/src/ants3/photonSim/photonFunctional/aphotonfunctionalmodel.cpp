@@ -124,7 +124,6 @@ QString APFM_OpticalFiber::updateRuntimeProperties(int iModel)
     if (!err.isEmpty()) return err;
 
     const AWaveResSettings & WaveSet = APhotonSimHub::getInstance().Settings.WaveSet;
-    //_TanMaxAngle = tan(MaxAngle_deg * 3.1415926535 / 180.0);
     _cutOffAngleSpectrumBinned.clear();
     if (WaveSet.Enabled)
     {
@@ -132,21 +131,7 @@ QString APFM_OpticalFiber::updateRuntimeProperties(int iModel)
             _cutOffAngleSpectrumBinned = std::vector<double>(WaveSet.countNodes(), CutOffAngle_deg);
         else
             WaveSet.toStandardBins(CutOffAngleSpectrum_deg, _cutOffAngleSpectrumBinned, AWaveResSettings::ExpandWithLastValues);
-
-        //for (size_t i = 0; i < _TanMaxAngleSpectrumBinned.size(); i++)
-        //    _TanMaxAngleSpectrumBinned[i] = tan(_TanMaxAngleSpectrumBinned[i] * 3.1415926535 / 180.0);
     }
-
-    /*
-    _absCoeffSpectrumBinned.clear();
-    if (WaveSet.Enabled)
-    {
-        if (AbsCoeffSpectrum.empty())
-            _absCoeffSpectrumBinned = std::vector<double>(WaveSet.countNodes(), AbsCoeff);
-        else
-            WaveSet.toStandardBins(AbsCoeffSpectrum, _absCoeffSpectrumBinned, AWaveResSettings::ExpandWithLastValues);
-    }
-    */
 
     if (iModel != -1)
     {
@@ -167,6 +152,27 @@ QString APFM_OpticalFiber::updateRuntimeProperties(int iModel)
         const int iMat = obj->Material;
         _material = AMaterialHub::getConstInstance()[iMat];
     }
+
+    return "";
+}
+
+QString APFM_OpticalFiber::checkLinkingConsistency(size_t iModelFrom, size_t iModelTo)
+{
+    const AGeometryHub & GeoHub = AGeometryHub::getConstInstance();
+
+    const AGeoObject * objFrom = std::get<0>(GeoHub.PhotonFunctionals[iModelFrom]);
+    const AGeoObject * objTo   = std::get<0>(GeoHub.PhotonFunctionals[iModelTo]);
+    if (!objFrom->Shape) return "Shape 'from' is not defined";
+    if (!objTo  ->Shape) return "Shape 'to' is not defined";
+    const AGeoTube * tubeFrom = dynamic_cast<AGeoTube*>(objFrom->Shape);
+    const AGeoTube * tubeTo   = dynamic_cast<AGeoTube*>(objTo  ->Shape);
+    if (!tubeFrom || !tubeTo) return "Both linked objects of the photon fiber should have tube shape!";
+    if (tubeFrom->rmin != 0 || tubeTo->rmin != 0) return "In/out of the photon fiber cannot have non-zero internal radius";
+    if (tubeFrom->rmax != tubeTo->rmax) return "In/out of the photon fiber should have the same radius";
+
+    const int iMatFrom = objFrom->Material;
+    const int iMatTo   = objTo  ->Material;
+    if (iMatFrom != iMatTo) return "In/out of the photon fiber should have the same material";
 
     return "";
 }

@@ -38,6 +38,7 @@ public:
     virtual QString printSettingsToString() const = 0; // used in gui / scripting
 
     virtual QString updateRuntimeProperties(int /*iModel*/) {return "";} // iModel is the index of the functional object record; if -1, some runtime properties will not be updated!
+    virtual QString checkLinkingConsistency(size_t /*iModelFrom*/, size_t /*iModelTo*/) {return "";}
 
     virtual bool applyModel(APhotonExchangeData & photonData, int index, int linkedToIndex) = 0;
     // photonData on call contains Trigger data, on return should return data for Target
@@ -74,6 +75,7 @@ public:
     QString printSettingsToString() const override;
 
     QString updateRuntimeProperties(int iModel) override;
+    QString checkLinkingConsistency(size_t iModelFrom, size_t iModelTo) override;
 
     bool applyModel(APhotonExchangeData & photonData, int index, int linkedToIndex) override;
 
