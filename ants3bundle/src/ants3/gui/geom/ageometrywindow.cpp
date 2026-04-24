@@ -301,7 +301,7 @@ void AGeometryWindow::copyGeoMarksToGeoManager()
         {
             AGeoMarkerClass * gm = GeoMarkers[i];
             //overrides
-            if (gm->Type == AGeoMarkerClass::Recon || gm->Type == AGeoMarkerClass::Source)
+            if (gm->Type == AGeoMarkerClass::Recon || gm->Type == AGeoMarkerClass::PrimarySource || gm->Type == AGeoMarkerClass::PointOfOrigin)
             {
                 gm->SetMarkerStyle(GeoMarkerStyle);
                 gm->SetMarkerSize(GeoMarkerSize);
@@ -787,7 +787,7 @@ void AGeometryWindow::clearSourceMarkers()
 {
     for (int i = GeoMarkers.size() - 1; i > -1; i--)
     {
-        if (GeoMarkers[i]->Type == AGeoMarkerClass::Source)
+        if (GeoMarkers[i]->Type == AGeoMarkerClass::PrimarySource)
         {
             delete GeoMarkers[i];
             GeoMarkers.erase(GeoMarkers.begin() + i);
@@ -918,10 +918,10 @@ void AGeometryWindow::ShowPoint(const double *r, bool keepTracks)
 {
     clearGeoMarkers();
 
-    AGeoMarkerClass * marks = new AGeoMarkerClass(AGeoMarkerClass::Source, 3, 10, kBlack);
+    AGeoMarkerClass * marks = new AGeoMarkerClass(AGeoMarkerClass::PointOfOrigin, 3, 10, kBlack);
     marks->SetNextPoint(r[0], r[1], r[2]);
     GeoMarkers.push_back(marks);
-    AGeoMarkerClass* marks1 = new AGeoMarkerClass(AGeoMarkerClass::Source, 4, 3, kRed);
+    AGeoMarkerClass* marks1 = new AGeoMarkerClass(AGeoMarkerClass::PointOfOrigin, 4, 3, kRed);
     marks1->SetNextPoint(r[0], r[1], r[2]);
     GeoMarkers.push_back(marks1);
 
@@ -935,10 +935,10 @@ void AGeometryWindow::ShowPoint(const double *r, bool keepTracks)
 void AGeometryWindow::addGenerationMarker(const double * Pos)
 {
     AGeoMarkerClass * marks = nullptr;
-    if (!GeoMarkers.empty() && GeoMarkers.back()->Type == AGeoMarkerClass::Source) marks = GeoMarkers.back();
+    if (!GeoMarkers.empty() && GeoMarkers.back()->Type == AGeoMarkerClass::PointOfOrigin) marks = GeoMarkers.back();
     else
     {
-        marks = new AGeoMarkerClass(AGeoMarkerClass::Source, 7, 1, 1);
+        marks = new AGeoMarkerClass(AGeoMarkerClass::PointOfOrigin, 7, 1, 1);
         GeoMarkers.push_back(marks);
     }
 
@@ -1404,7 +1404,8 @@ void AGeometryWindow::on_pbCameraDialog_clicked()
 void AGeometryWindow::on_pbClearMarkers_clicked()
 {
     clearGeoMarkers();
-    on_pbShowGeometry_clicked();
+    //on_pbShowGeometry_clicked();
+    ShowGeometry(true, false);
 }
 
 void AGeometryWindow::showParticleMonIndexes()

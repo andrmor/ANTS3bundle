@@ -143,6 +143,7 @@ signals:
     void particleSourceChangedInEditMode(AParticleSourceRecordBase * source);
     void requestShowGeometry(bool ActivateWindow, bool SAME, bool ColorUpdateAllowed);
     void requestShowTracks(bool activateWindow = false);
+    void requestShowMarkers();
     void requestDraw(TObject * obj, const QString & options, bool transferOwnership, bool focusWindow);
     void requestAddToBasket(const QString & name);
     void requestShowPosition(double * pos, bool keepTracks);

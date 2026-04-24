@@ -574,6 +574,7 @@ void AMainWindow::connectSignalSlotsForGeoWin()
 
     connect(PartSimWin, &AParticleSimWin::requestShowGeometry,          GeoWin, &AGeometryWindow::ShowGeometry);
     connect(PartSimWin, &AParticleSimWin::requestShowTracks,            GeoWin, &AGeometryWindow::ShowTracks);
+    connect(PartSimWin, &AParticleSimWin::requestShowMarkers,           GeoWin, &AGeometryWindow::showGeoMarkers);
     connect(PartSimWin, &AParticleSimWin::particleSourcesChanged,       GeoWin, &AGeometryWindow::onParticleSourcesChanged); // !!! new
     connect(PartSimWin, &AParticleSimWin::particleSourceChangedInEditMode, GeoWin, &AGeometryWindow::onParticleSourceChangedInEditMode); // !!! new
     connect(PartSimWin, &AParticleSimWin::requestShowPosition,          GeoWin, &AGeometryWindow::ShowPoint);

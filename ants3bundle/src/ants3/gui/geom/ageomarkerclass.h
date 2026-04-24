@@ -6,7 +6,7 @@
 class AGeoMarkerClass : public TPolyMarker3D
 {
 public:
-    enum EType {Undefined, True, Recon, Source};
+    enum EType {Undefined, True, Recon, PointOfOrigin, PrimarySource};
 
     AGeoMarkerClass(EType type, int style, int size, int color) {configure(type, style, size, color);}
     AGeoMarkerClass() {}

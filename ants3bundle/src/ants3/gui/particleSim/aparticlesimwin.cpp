@@ -723,17 +723,6 @@ void AParticleSimWin::on_pbGunTest_clicked()
         return;
     }
 
-    /*
-    AParticleSourcePlotter::clearTracks();
-    if (ui->cobParticleGenerationMode->currentIndex() == 0)
-    {
-        if (ui->pbGunShowSource->isChecked())
-            for (AParticleSourceRecordBase * source : SimSet.SourceGenSettings.SourceData)
-                AParticleSourcePlotter::plotSource(source);
-    }
-    */
-
-
     emit requestBusyStatus(true);   // -->   !!!***
     onBusyStatusChange(true);
 
@@ -820,6 +809,7 @@ void AParticleSimWin::testParticleGun(AParticleGun * gun, int numParticles, bool
         emit requestAddMarker(particle.r);
     };
 
+    gGeoManager->ClearTracks();
     emit requestClearMarkers(0);
     emit requestShowGeometry(true, true, false);
 
@@ -832,6 +822,8 @@ void AParticleSimWin::testParticleGun(AParticleGun * gun, int numParticles, bool
 
     if (gun->AbortRequested) return;
 
+    //emit requestShowGeometry(false, true, true);
+    emit requestShowMarkers();
     emit requestShowTracks();
 
     if (fillStatistics)
@@ -920,6 +912,8 @@ void AParticleSimWin::on_pbSimulate_clicked()
     double seed = 0;
     if (!ui->cbRandomSeed->isChecked()) seed = ui->sbSeed->value();
     SimManager.SimSet.RunSet.Seed = seed;
+
+    emit requestClearMarkers(0);
 
     clearResultsGui();
 
