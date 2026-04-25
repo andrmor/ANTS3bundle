@@ -112,7 +112,7 @@ AGeoMarkerPropsDialog::AGeoMarkerPropsDialog(AGeoMarkerPropDatabase & geoMarkPro
 
     QHBoxLayout * layM = new QHBoxLayout();
     layM->addStretch();
-    layM->addWidget(new QLabel("Global multiplier:"));
+    layM->addWidget(new QLabel("Global size multiplier:"));
     QLineEdit * ledMult = new QLineEdit(); ledMult->setValidator(validator);
     ledMult->setText(QString::number(GeoMarkProps.SizeMultiplier));
     connect(ledMult, &QLineEdit::editingFinished, [this, ledMult]()

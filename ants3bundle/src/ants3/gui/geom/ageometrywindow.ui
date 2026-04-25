@@ -421,9 +421,6 @@
     </property>
     <addaction name="separator"/>
     <addaction name="actionConfigure"/>
-    <addaction name="separator"/>
-    <addaction name="actionSize_1"/>
-    <addaction name="actionSize_2"/>
    </widget>
    <widget class="QMenu" name="menuZoom">
     <property name="title">
@@ -459,22 +456,6 @@
    <addaction name="menuZoom"/>
    <addaction name="menuSettings"/>
   </widget>
-  <action name="actionSize_1">
-   <property name="enabled">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Increase size</string>
-   </property>
-  </action>
-  <action name="actionSize_2">
-   <property name="enabled">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Decrease size</string>
-   </property>
-  </action>
   <action name="actionDefault_zoom_1">
    <property name="text">
     <string>Default zoom +1</string>

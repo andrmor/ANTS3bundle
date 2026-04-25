@@ -500,6 +500,13 @@ void AGeometryWindow::writeToJson(QJsonObject & json) const
             js["Level"]   = ui->sbLimitVisibility->value();
         json["LimitVisibility"] = js;
     }
+
+    // Marker properties
+    {
+        QJsonObject js;
+        GeoMarkProps.writeToJson(js);
+        json["GeoMarkProps"] = js;
+    }
 }
 
 void AGeometryWindow::readFromJson(const QJsonObject & json)
@@ -525,6 +532,13 @@ void AGeometryWindow::readFromJson(const QJsonObject & json)
         int level = 3;
         jstools::parseJson(js, "Level", level);
         ui->sbLimitVisibility->setValue(level);
+    }
+
+    // Marker properties
+    {
+        QJsonObject js;
+        ok = jstools::parseJson(json, "GeoMarkProps", js);
+        if (ok) GeoMarkProps.readFromJson(js);
     }
 
     if (!UseJSRoot) RasterWindow->forceResize();
@@ -1034,25 +1048,6 @@ void AGeometryWindow::on_cbShowAxes_toggled(bool /*checked*/)
         v->ShowAxis(); //it actually toggles show<->hide
     }
     else ShowGeometry(true, false);
-}
-
-void AGeometryWindow::on_actionSize_1_triggered()
-{
-    //GeoMarkerSize++;
-    ShowGeometry();
-    ui->actionSize_2->setEnabled(true);
-}
-
-void AGeometryWindow::on_actionSize_2_triggered()
-{
-    /*
-    if (GeoMarkerSize > 0) GeoMarkerSize--;
-
-    if (GeoMarkerSize == 0) ui->actionSize_2->setEnabled(false);
-    else ui->actionSize_2->setEnabled(true);
-    */
-
-    ShowGeometry();
 }
 
 void AGeometryWindow::Zoom(bool update)

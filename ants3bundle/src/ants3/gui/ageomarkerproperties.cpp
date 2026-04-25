@@ -61,14 +61,42 @@ void AGeoMarkerPropDatabase::setProperties(EGeoMarkerType type, AGeoMarkerProper
     }
 }
 
+#include "ajsontools.h"
 void AGeoMarkerPropDatabase::writeToJson(QJsonObject & json) const
 {
+    json["SizeMultiplier"] = SizeMultiplier;
 
+    QJsonArray ar;
+    for (const auto & [type, props] : Data)
+    {
+        QJsonObject js;
+            js["Type"] = type;
+            QJsonArray el;
+            el << props.Style << props.Size << props.Color;
+            js["Properties"] = el;
+        ar.push_back(js);
+    }
+    json["PropertiesByType"] = ar;
 }
 
 void AGeoMarkerPropDatabase::readFromJson(const QJsonObject & json)
 {
+    jstools::parseJson(json, "SizeMultiplier", SizeMultiplier);
 
+    QJsonArray ar;
+    jstools::parseJson(json, "PropertiesByType", ar);
+    for (int i = 0; i < ar.size(); i++)
+    {
+        QJsonObject js = ar[i].toObject();
+            QString type = "Undefined"; // safe to overrite with anything
+            jstools::parseJson(js, "Type", type);
+            QJsonArray el;
+            jstools::parseJson(js, "Properties", el);
+            if (el.size() > 2)
+            {
+                Data[type] = {el[0].toInt(), (float)el[1].toDouble(), el[2].toInt()}; // style, size, color
+            }
+    }
 }
 
 QString AGeoMarkerPropDatabase::getInfo(QString type)

@@ -124,8 +124,6 @@ private slots:
     void on_pbSide_clicked();
     void on_cobViewType_currentIndexChanged(int index);
     void on_cbShowAxes_toggled(bool checked);
-    void on_actionSize_1_triggered();
-    void on_actionSize_2_triggered();
     void on_actionDefault_zoom_1_triggered();
     void on_actionDefault_zoom_2_triggered();
     void on_actionDefault_zoom_to_0_triggered();
