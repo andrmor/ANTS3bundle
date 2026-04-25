@@ -17,6 +17,7 @@ class QGraphicsItem;
 class AGeoObject;
 class QGraphicsScene;
 class QBrush;
+class QFrame;
 
 namespace guitools
 {
@@ -49,6 +50,8 @@ namespace guitools
     void parseJsonToQTabWidget(const QJsonObject & json, const QString & name, QTabWidget * tw);
 
     QGraphicsItem * addGeoObjectToScene(AGeoObject * obj, QGraphicsScene * scene, double GVscale, QBrush & brush);
+
+    QFrame * makeLine(bool horizontal);
 
 }
 

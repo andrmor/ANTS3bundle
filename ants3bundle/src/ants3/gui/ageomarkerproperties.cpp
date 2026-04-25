@@ -29,7 +29,7 @@ void AGeoMarkerPropDatabase::applyProperties(AGeoMarkerClass * gm)
     }
 
     gm->SetMarkerStyle(props.Style);
-    gm->SetMarkerSize (props.Size);
+    gm->SetMarkerSize (props.Size * SizeMultiplier);
     gm->SetMarkerColor(props.Color);
 }
 
@@ -69,4 +69,15 @@ void AGeoMarkerPropDatabase::writeToJson(QJsonObject & json) const
 void AGeoMarkerPropDatabase::readFromJson(const QJsonObject & json)
 {
 
+}
+
+QString AGeoMarkerPropDatabase::getInfo(QString type)
+{
+    if (type == "Undefined")        return "Custom markers and most of marker types created in scripts";
+    if (type == "PrimarySource")    return "Markers of the primary sources";
+    if (type == "PointOfOrigin")    return "Markers of the generated positions of, e.g., primary particles";
+    if (type == "PosTrue")          return "Markers of the generated photon bombs and 'true' positions plotted from script";
+    if (type == "PosReconstructed") return "Markers of the 'reconstructed' positions plotted from scripts";
+
+    return "Info is not provided for this type";
 }

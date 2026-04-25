@@ -20,6 +20,7 @@ class AGeoMarkerPropDatabase
 {
 public:
     std::map<QString,AGeoMarkerProperties> Data;
+    double SizeMultiplier = 1.0;
 
     void fillDefault();
 
@@ -30,6 +31,9 @@ public:
 
     void writeToJson(QJsonObject & json) const;
     void readFromJson(const QJsonObject & json);
+
+    QString getInfo(QString type);
+
 };
 
 #endif // AGEOMARKERPROPERTIES_H

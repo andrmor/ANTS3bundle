@@ -20,7 +20,7 @@
 
 void guitools::message(QString text, QWidget* parent)
 {
-    QMessageBox mb(0);
+    QMessageBox mb(parent);
     mb.setWindowTitle("ANTS3"); //"ANTS3 message");
     mb.setWindowFlags(mb.windowFlags() | Qt::WindowStaysOnTopHint);
     mb.setText(text);
@@ -332,4 +332,13 @@ QGraphicsItem * guitools::addGeoObjectToScene(AGeoObject * obj, QGraphicsScene *
     }
 
     return item;
+}
+
+QFrame * guitools::makeLine(bool horizontal)
+{
+    QFrame * line = new QFrame();
+    line->setFrameShape(horizontal ? QFrame::HLine : QFrame::VLine);
+    line->setFrameShadow(QFrame::Sunken);
+    line->setLineWidth(1);
+    return line;
 }

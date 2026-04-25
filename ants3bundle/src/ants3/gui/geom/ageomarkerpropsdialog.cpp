@@ -3,6 +3,7 @@
 #include "arootmarkerconfigurator.h"
 #include "a3global.h"
 #include "arootcolorselectordialog.h"
+#include "guitools.h"
 
 #include <QLabel>
 #include <QComboBox>
@@ -55,46 +56,74 @@ AGeoMarkerPropsDialog::AGeoMarkerPropsDialog(AGeoMarkerPropDatabase & geoMarkPro
         QLabel * labT = new QLabel(type);
         layGr->addWidget(labT, iRec+1, 0);
 
-        QComboBox * cobStyle = new QComboBox();
-        cobStyle->addItems(Mstyles);
-        layGr->addWidget(cobStyle, iRec+1, 1);
-        connect(cobStyle, &QComboBox::activated, [this, iRec, cobStyle]()
-                {
-                    QString st =cobStyle->currentText();
-                    QStringList l = st.split(" - ");
-                    QString num = l.first();
-                    LocalData[iRec].second.Style = num.toInt();
-                });
-        int iStyle = 1;
-        if (props.Style > 0 && props.Style <= map.size()) iStyle = map[props.Style-1];
-        cobStyle->setCurrentIndex(iStyle - 1);
+        if (type == "Undefined")
+        {
+            layGr->addWidget(new QLabel("Custom"), iRec+1, 1);
+        }
+        else
+        {
+            QComboBox * cobStyle = new QComboBox();
+            cobStyle->addItems(Mstyles);
+            layGr->addWidget(cobStyle, iRec+1, 1);
+            connect(cobStyle, &QComboBox::activated, [this, iRec, cobStyle]()
+                    {
+                        QString st =cobStyle->currentText();
+                        QStringList l = st.split(" - ");
+                        QString num = l.first();
+                        LocalData[iRec].second.Style = num.toInt();
+                    });
+            int iStyle = 1;
+            if (props.Style > 0 && props.Style <= map.size()) iStyle = map[props.Style-1];
+            cobStyle->setCurrentIndex(iStyle - 1);
 
-        QLineEdit * ledSize = new QLineEdit();
-        ledSize->setValidator(validator);
-        ledSize->setMinimumWidth(50);
-        layGr->addWidget(ledSize, iRec+1, 2);
-        connect(ledSize, &QLineEdit::editingFinished, [this, iRec, ledSize]()
-                {
-                    LocalData[iRec].second.Size = ledSize->text().toDouble();
-                });
-        ledSize->setText(QString::number(props.Size));
+            QLineEdit * ledSize = new QLineEdit();
+            ledSize->setValidator(validator);
+            ledSize->setMinimumWidth(50);
+            layGr->addWidget(ledSize, iRec+1, 2);
+            connect(ledSize, &QLineEdit::editingFinished, [this, iRec, ledSize]()
+                    {
+                        LocalData[iRec].second.Size = ledSize->text().toDouble();
+                    });
+            ledSize->setText(QString::number(props.Size));
 
-        QPushButton * pbColor = new QPushButton("Change");
-        layGr->addWidget(pbColor, iRec+1, 3);
-        connect(pbColor, &QPushButton::clicked, [this, iRec, pbColor]()
-                {
-                    ARootColorSelectorDialog dia(LocalData[iRec].second.Color, this);
-                    dia.exec();
-                    updateColor(pbColor, LocalData[iRec].second.Color);
-                });
-        updateColor(pbColor, props.Color);
+            QPushButton * pbColor = new QPushButton("   ");
+            pbColor->setMinimumHeight(25);
+            pbColor->setFlat(true);
+            layGr->addWidget(pbColor, iRec+1, 3);
+            connect(pbColor, &QPushButton::clicked, [this, iRec, pbColor]()
+                    {
+                        ARootColorSelectorDialog dia(LocalData[iRec].second.Color, this);
+                        dia.exec();
+                        updateColor(pbColor, LocalData[iRec].second.Color);
+                    });
+            updateColor(pbColor, props.Color);
+        }
+
+        QPushButton * pbInfo = new QPushButton("?");
+        pbInfo->setMaximumWidth(20);
+        connect(pbInfo, &QPushButton::clicked, [this, labT](){showInfo(labT->text());});
+        layGr->addWidget(pbInfo, iRec+1, 4);
 
         iRec++;
     }
-
     layMain->addLayout(layGr);
 
-    layMain->addWidget(new QLabel(""));
+    layMain->addWidget(guitools::makeLine(true));
+
+    QHBoxLayout * layM = new QHBoxLayout();
+    layM->addStretch();
+    layM->addWidget(new QLabel("Global multiplier:"));
+    QLineEdit * ledMult = new QLineEdit(); ledMult->setValidator(validator);
+    ledMult->setText(QString::number(GeoMarkProps.SizeMultiplier));
+    connect(ledMult, &QLineEdit::editingFinished, [this, ledMult]()
+            {
+                SizeMultiplier = ledMult->text().toDouble();
+            });
+    layM->addWidget(ledMult);
+    layM->addStretch();
+    layMain->addLayout(layM);
+
+    layMain->addWidget(guitools::makeLine(true));
 
     QHBoxLayout * layB = new QHBoxLayout();
     QPushButton * pbApply = new QPushButton("Apply");
@@ -126,6 +155,7 @@ void AGeoMarkerPropsDialog::copyLocalToGlobal()
 {
     for (const std::pair<QString, AGeoMarkerProperties> & pair : LocalData)
         GeoMarkProps.Data[pair.first] = pair.second;
+    GeoMarkProps.SizeMultiplier = SizeMultiplier;
 }
 
 void AGeoMarkerPropsDialog::updateColor(QPushButton * pb, int color)
@@ -134,11 +164,18 @@ void AGeoMarkerPropsDialog::updateColor(QPushButton * pb, int color)
     int red = 255;
     int green = 255;
     int blue = 255;
+    float alpha = 0.5;
     if (tc)
     {
-        red = 255*tc->GetRed();
-        green = 255*tc->GetGreen();
-        blue = 255*tc->GetBlue();
+        red   = 255 * tc->GetRed();
+        green = 255 * tc->GetGreen();
+        blue  = 255 * tc->GetBlue();
+        alpha = tc->GetAlpha();
     }
-    pb->setStyleSheet( QString("background-color:rgb(%1,%2,%3)").arg(red).arg(green).arg(blue) );
+    pb->setStyleSheet( QString("background-color:rgba(%1,%2,%3,%4);border:none;").arg(red).arg(green).arg(blue).arg(alpha) );
+}
+
+void AGeoMarkerPropsDialog::showInfo(QString type)
+{
+    guitools::message(GeoMarkProps.getInfo(type), this);
 }

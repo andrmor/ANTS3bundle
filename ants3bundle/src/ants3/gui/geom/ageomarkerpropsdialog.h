@@ -17,7 +17,6 @@ class AGeoMarkerPropsDialog : public QDialog
 public:
     AGeoMarkerPropsDialog(AGeoMarkerPropDatabase & geoMarkProps, QWidget * parent);
 
-
 private slots:
     void onApply();
     void onApplyAndClose();
@@ -25,9 +24,11 @@ private slots:
 private:
     AGeoMarkerPropDatabase & GeoMarkProps;
     std::vector<std::pair<QString, AGeoMarkerProperties>> LocalData;
+    double SizeMultiplier = 1.0;
 
     void copyLocalToGlobal();
     void updateColor(QPushButton * pb, int color);
+    void showInfo(QString type);
 
 signals:
     void requestRedraw(bool activateWindow, bool same, bool colorUpdateAllowed);

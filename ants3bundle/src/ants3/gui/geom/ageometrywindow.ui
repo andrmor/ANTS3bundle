@@ -420,10 +420,10 @@
      <string>Markers</string>
     </property>
     <addaction name="separator"/>
+    <addaction name="actionConfigure"/>
+    <addaction name="separator"/>
     <addaction name="actionSize_1"/>
     <addaction name="actionSize_2"/>
-    <addaction name="separator"/>
-    <addaction name="actionConfigure"/>
    </widget>
    <widget class="QMenu" name="menuZoom">
     <property name="title">

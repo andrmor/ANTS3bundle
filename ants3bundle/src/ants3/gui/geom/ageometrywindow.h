@@ -173,7 +173,6 @@ private:
     ACameraControlDialog * CameraControl = nullptr;
 
     AGeoMarkerPropDatabase GeoMarkProps;
-    int GeoMarkerSizeOffset  = 0;
 
     bool TMPignore = false;
     bool ShowTop = false;
