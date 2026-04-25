@@ -88,11 +88,7 @@ AGeometryWindow::AGeometryWindow(bool jsrootViewer, QWidget * parent) :
     ui->cobViewer->setCurrentIndex(UseJSRoot ? 1 : 0);
     TMPignore = false;
 
-    QActionGroup * group = new QActionGroup( this );
-    ui->actionSmall_dot->setActionGroup(group);
-    ui->actionLarge_dot->setActionGroup(group);
-    ui->actionSmall_cross->setActionGroup(group);
-    ui->actionLarge_cross->setActionGroup(group);
+    GeoMarkProps = A3Global::getConstInstance().GeoMarkersDefaults;
 }
 
 AGeometryWindow::~AGeometryWindow()
@@ -301,10 +297,9 @@ void AGeometryWindow::copyGeoMarksToGeoManager()
         {
             AGeoMarkerClass * gm = GeoMarkers[i];
             if (gm->Type != EGeoMarkerType::Undefined)
-                A3Global::getInstance().GeoMarkers.applyProperties(gm);
+                GeoMarkProps.applyProperties(gm);
 
             TPolyMarker3D * mark = new TPolyMarker3D(*gm);
-            mark->SetMarkerSize(mark->GetMarkerSize() + GeoMarkerSizeOffset);
             Geometry.GeoManager->GetListOfTracks()->Add(mark);
         }
     }
@@ -635,17 +630,7 @@ void AGeometryWindow::showGeoMarkers()
         SetAsActiveRootWindow();
         for (AGeoMarkerClass * gm : GeoMarkers)
         {
-            if (gm->Type != EGeoMarkerType::Undefined)
-                A3Global::getInstance().GeoMarkers.applyProperties(gm);
-
-            /*
-            if (gm->Type == AGeoMarkerClass::Recon || gm->Type == AGeoMarkerClass::True) // Source has its own styling
-            {
-                gm->SetMarkerStyle(GeoMarkerStyle);
-                gm->SetMarkerSize(GeoMarkerSize);
-            }
-            */
-
+            if (gm->Type != EGeoMarkerType::Undefined) GeoMarkProps.applyProperties(gm);
             gm->Draw("same");
         }
         UpdateRootCanvas();
@@ -1049,55 +1034,6 @@ void AGeometryWindow::on_cbShowAxes_toggled(bool /*checked*/)
         v->ShowAxis(); //it actually toggles show<->hide
     }
     else ShowGeometry(true, false);
-}
-
-
-void AGeometryWindow::on_actionSmall_dot_toggled(bool arg1)
-{
-    if (arg1)
-    {
-        //GeoMarkerStyle = 1;
-        ShowGeometry();
-    }
-
-    ui->actionSize_1->setEnabled(false);
-    ui->actionSize_2->setEnabled(false);
-}
-
-void AGeometryWindow::on_actionLarge_dot_triggered(bool arg1)
-{
-    if (arg1)
-    {
-        //GeoMarkerStyle = 8;
-        ShowGeometry();
-    }
-
-    ui->actionSize_1->setEnabled(true);
-    ui->actionSize_2->setEnabled(true);
-}
-
-void AGeometryWindow::on_actionSmall_cross_toggled(bool arg1)
-{
-    if (arg1)
-    {
-        //GeoMarkerStyle = 6;
-        ShowGeometry();
-    }
-
-    ui->actionSize_1->setEnabled(false);
-    ui->actionSize_2->setEnabled(false);
-}
-
-void AGeometryWindow::on_actionLarge_cross_toggled(bool arg1)
-{
-    if (arg1)
-    {
-        //GeoMarkerStyle = 2;
-        ShowGeometry();
-    }
-
-    ui->actionSize_1->setEnabled(true);
-    ui->actionSize_2->setEnabled(true);
 }
 
 void AGeometryWindow::on_actionSize_1_triggered()
@@ -1653,9 +1589,7 @@ void AGeometryWindow::on_pbShowPhotonSources_clicked(bool checked)
 #include "ageomarkerpropsdialog.h"
 void AGeometryWindow::on_actionConfigure_triggered()
 {
-    AGeoMarkerPropsDialog dia(this);
-
+    AGeoMarkerPropsDialog dia(GeoMarkProps, this);
     connect(&dia, &AGeoMarkerPropsDialog::requestRedraw, this, &AGeometryWindow::ShowGeometry);
-
     dia.exec();
 }

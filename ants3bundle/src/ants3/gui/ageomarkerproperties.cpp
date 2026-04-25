@@ -8,11 +8,11 @@ void AGeoMarkerPropDatabase::fillDefault()
 
     //enum class EGeoMarkerType {Undefined, PrimarySource, PointOfOrigin, PosTrue, PosReconstructed};
 
-    Data["Undefined"]        = {1,2,1};
-    Data["PrimarySource"]    = {1,2,1};
-    Data["PointOfOrigin"]    = {1,2,1};
-    Data["PosTrue"]          = {1,2,1};
-    Data["PosReconstructed"] = {1,2,1};
+    Data["Undefined"]        = {1,  2.0, 1};
+    Data["PrimarySource"]    = {3,  3.0, 51};
+    Data["PointOfOrigin"]    = {2,  1.5, 860};
+    Data["PosTrue"]          = {5,  2.0, 860};
+    Data["PosReconstructed"] = {2,  2.0, 2};
 }
 
 void AGeoMarkerPropDatabase::applyProperties(AGeoMarkerClass * gm)

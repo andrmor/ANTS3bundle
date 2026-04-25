@@ -12,11 +12,14 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QGridLayout>
+#include <QDoubleValidator>
 
 #include "TROOT.h"
 
-AGeoMarkerPropsDialog::AGeoMarkerPropsDialog(QWidget * parent) :
-    QDialog(parent), GlobSet(A3Global::getInstance())
+//, GlobSet(A3Global::getInstance())
+
+AGeoMarkerPropsDialog::AGeoMarkerPropsDialog(AGeoMarkerPropDatabase & geoMarkProps, QWidget * parent) :
+    QDialog(parent), GeoMarkProps(geoMarkProps)
 {
     setWindowTitle("Marker configurator");
 
@@ -35,14 +38,17 @@ AGeoMarkerPropsDialog::AGeoMarkerPropsDialog(QWidget * parent) :
     map.push_back(3);
     for (int i=32; i<35; i++) map.push_back( 20 + i - 32 );
 
+    QDoubleValidator * validator = new QDoubleValidator(this);
+    validator->setBottom(0);
+
     layGr->addWidget(new QLabel("Marker type"), 0, 0, Qt::AlignHCenter);
     layGr->addWidget(new QLabel("Style"),       0, 1, Qt::AlignHCenter);
     layGr->addWidget(new QLabel("Size"),        0, 2, Qt::AlignHCenter);
     layGr->addWidget(new QLabel("Color"),       0, 3, Qt::AlignHCenter);
 
-    LocalData.resize(GlobSet.GeoMarkers.Data.size());
+    LocalData.resize(GeoMarkProps.Data.size());
     int iRec = 0;
-    for (const auto & [type, props] : GlobSet.GeoMarkers.Data)
+    for (const auto & [type, props] : GeoMarkProps.Data)
     {
         LocalData[iRec] = {type, props};
 
@@ -64,6 +70,8 @@ AGeoMarkerPropsDialog::AGeoMarkerPropsDialog(QWidget * parent) :
         cobStyle->setCurrentIndex(iStyle - 1);
 
         QLineEdit * ledSize = new QLineEdit();
+        ledSize->setValidator(validator);
+        ledSize->setMinimumWidth(50);
         layGr->addWidget(ledSize, iRec+1, 2);
         connect(ledSize, &QLineEdit::editingFinished, [this, iRec, ledSize]()
                 {
@@ -90,6 +98,7 @@ AGeoMarkerPropsDialog::AGeoMarkerPropsDialog(QWidget * parent) :
 
     QHBoxLayout * layB = new QHBoxLayout();
     QPushButton * pbApply = new QPushButton("Apply");
+    pbApply->setDefault(true);
     connect(pbApply, &QPushButton::clicked, this, &AGeoMarkerPropsDialog::onApply);
     layB->addWidget(pbApply);
 
@@ -116,7 +125,7 @@ void AGeoMarkerPropsDialog::onApplyAndClose()
 void AGeoMarkerPropsDialog::copyLocalToGlobal()
 {
     for (const std::pair<QString, AGeoMarkerProperties> & pair : LocalData)
-        GlobSet.GeoMarkers.Data[pair.first] = pair.second;
+        GeoMarkProps.Data[pair.first] = pair.second;
 }
 
 void AGeoMarkerPropsDialog::updateColor(QPushButton * pb, int color)

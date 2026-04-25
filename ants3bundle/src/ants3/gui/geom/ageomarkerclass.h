@@ -10,10 +10,10 @@ class AGeoMarkerClass : public TPolyMarker3D
 public:
     //enum EType {Undefined, True, Recon, PointOfOrigin, PrimarySource};
 
-    AGeoMarkerClass(EGeoMarkerType type, int style, int size, int color) {configure(type, style, size, color);}
+    AGeoMarkerClass(EGeoMarkerType type, int style, float size, int color) {configure(type, style, size, color);}
     AGeoMarkerClass() {}
 
-    void configure(EGeoMarkerType type, int style, int size, int color) {Type = type; SetMarkerStyle(style); SetMarkerSize(size); SetMarkerColor(color);}
+    void configure(EGeoMarkerType type, int style, float size, int color) {Type = type; SetMarkerStyle(style); SetMarkerSize(size); SetMarkerColor(color);}
 
     EGeoMarkerType Type = EGeoMarkerType::Undefined;
 };

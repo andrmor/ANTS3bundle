@@ -64,8 +64,8 @@ public:
     int     DefaultWebSocketPort = 1234;
     QString DefaultWebSocketIP = "127.0.0.1";
 
-    // Geo markers
-    AGeoMarkerPropDatabase GeoMarkers;
+    // Default Geo marker properties
+    AGeoMarkerPropDatabase GeoMarkersDefaults;
 
     void    init();
     bool    checkExchangeDir();

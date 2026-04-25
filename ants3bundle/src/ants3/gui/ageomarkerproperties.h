@@ -11,9 +11,9 @@ class QJsonObject;
 class AGeoMarkerProperties
 {
 public:
-    int Style = 1;
-    int Size  = 2;
-    int Color = 1;
+    int   Style = 1;
+    float Size  = 2.0;
+    int   Color = 1;
 };
 
 class AGeoMarkerPropDatabase

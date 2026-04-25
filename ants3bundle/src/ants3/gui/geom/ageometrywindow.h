@@ -3,6 +3,7 @@
 
 #include "aguiwindow.h"
 #include "ageowriter.h"
+#include "ageomarkerproperties.h"
 
 #include <vector>
 
@@ -28,7 +29,7 @@ class AGeometryWindow : public AGuiWindow
 friend class AShowNumbersDialog;
 
 public:
-    explicit AGeometryWindow(bool jsrootViewer, QWidget * parent);
+    AGeometryWindow(bool jsrootViewer, QWidget * parent);
     ~AGeometryWindow();
 
     bool ModePerspective = true;
@@ -123,10 +124,6 @@ private slots:
     void on_pbSide_clicked();
     void on_cobViewType_currentIndexChanged(int index);
     void on_cbShowAxes_toggled(bool checked);
-    void on_actionSmall_dot_toggled(bool arg1);
-    void on_actionLarge_dot_triggered(bool arg1);
-    void on_actionSmall_cross_toggled(bool arg1);
-    void on_actionLarge_cross_toggled(bool arg1);
     void on_actionSize_1_triggered();
     void on_actionSize_2_triggered();
     void on_actionDefault_zoom_1_triggered();
@@ -161,22 +158,22 @@ private slots:
 
     void on_actionConfigure_triggered();
 
-private:
-    bool                    UseJSRoot = false;
-    AGeometryHub          & Geometry;
 
-    Ui::AGeometryWindow   * ui = nullptr;
+private:
+    bool UseJSRoot = false;
+    AGeometryHub & Geometry;
+
+    Ui::AGeometryWindow * ui = nullptr;
 
     ARasterWindow * RasterWindow = nullptr;
 #ifdef __USE_ANTS_JSROOT__
     QWebEngineView * WebView = nullptr;
 #endif
 
-    ACameraControlDialog  * CameraControl = nullptr;
+    ACameraControlDialog * CameraControl = nullptr;
 
+    AGeoMarkerPropDatabase GeoMarkProps;
     int GeoMarkerSizeOffset  = 0;
-    //int GeoMarkerSize  = 2;
-    //int GeoMarkerStyle = 6;
 
     bool TMPignore = false;
     bool ShowTop = false;

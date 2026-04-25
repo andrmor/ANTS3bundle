@@ -428,7 +428,7 @@ Format: Volume_name  Step_in_mm</string>
              <number>1000000</number>
             </property>
             <property name="value">
-             <number>1000</number>
+             <number>100</number>
             </property>
            </widget>
           </item>

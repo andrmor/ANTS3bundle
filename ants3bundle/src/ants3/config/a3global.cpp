@@ -133,8 +133,8 @@ void A3Global::saveConfig()
     // Geo markers
     {
         QJsonObject js;
-            GeoMarkers.writeToJson(js);
-        json["GeoMarkers"] = js;
+            GeoMarkersDefaults.writeToJson(js);
+        json["GeoMarkersDefaults"] = js;
     }
 
     QJsonObject mainjson;
@@ -219,11 +219,11 @@ void A3Global::loadConfig()
     }
 
     // Geo markers
-    GeoMarkers.fillDefault();
+    GeoMarkersDefaults.fillDefault();
     {
         QJsonObject js;
-        bool ok = jstools::parseJson(json, "GeoMarkers", js);
-        if (ok) GeoMarkers.readFromJson(js);
+        bool ok = jstools::parseJson(json, "GeoMarkersDefaults", js);
+        if (ok) GeoMarkersDefaults.readFromJson(js);
     }
 }
 

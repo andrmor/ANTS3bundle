@@ -8,7 +8,6 @@
 #include <QDialog>
 #include <QObject>
 
-class A3Global;
 class QPushButton;
 
 class AGeoMarkerPropsDialog : public QDialog
@@ -16,16 +15,16 @@ class AGeoMarkerPropsDialog : public QDialog
     Q_OBJECT
 
 public:
-    AGeoMarkerPropsDialog(QWidget * parent);
+    AGeoMarkerPropsDialog(AGeoMarkerPropDatabase & geoMarkProps, QWidget * parent);
 
-    std::vector<std::pair<QString, AGeoMarkerProperties>> LocalData;
 
 private slots:
     void onApply();
     void onApplyAndClose();
 
 private:
-    A3Global & GlobSet;
+    AGeoMarkerPropDatabase & GeoMarkProps;
+    std::vector<std::pair<QString, AGeoMarkerProperties>> LocalData;
 
     void copyLocalToGlobal();
     void updateColor(QPushButton * pb, int color);
