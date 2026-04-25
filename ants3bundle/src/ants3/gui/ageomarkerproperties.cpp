@@ -13,6 +13,8 @@ void AGeoMarkerPropDatabase::fillDefault()
     Data["PointOfOrigin"]    = {2,  1.5, 860};
     Data["PosTrue"]          = {5,  2.0, 860};
     Data["PosReconstructed"] = {2,  2.0, 2};
+
+    SizeMultiplier = 1.0;
 }
 
 void AGeoMarkerPropDatabase::applyProperties(AGeoMarkerClass * gm)

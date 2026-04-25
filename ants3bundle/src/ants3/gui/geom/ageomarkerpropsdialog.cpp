@@ -4,6 +4,7 @@
 #include "a3global.h"
 #include "arootcolorselectordialog.h"
 #include "guitools.h"
+#include "ajsontools.h"
 
 #include <QLabel>
 #include <QComboBox>
@@ -14,19 +15,72 @@
 #include <QHBoxLayout>
 #include <QGridLayout>
 #include <QDoubleValidator>
+#include <QMenuBar>
 
 #include "TROOT.h"
-
-//, GlobSet(A3Global::getInstance())
 
 AGeoMarkerPropsDialog::AGeoMarkerPropsDialog(AGeoMarkerPropDatabase & geoMarkProps, QWidget * parent) :
     QDialog(parent), GeoMarkProps(geoMarkProps)
 {
     setWindowTitle("Marker configurator");
 
+    Validator = new QDoubleValidator(this);
+    Validator->setBottom(0);
+
     QVBoxLayout * layMain = new QVBoxLayout(this);
 
-    QGridLayout * layGr = new QGridLayout();
+    QMenuBar * menuBar = new QMenuBar(this);
+    layMain->setMenuBar(menuBar);
+
+    layGr = new QGridLayout();
+    layMain->addLayout(layGr);
+
+    layMain->addWidget(guitools::makeLine(true));
+
+    QHBoxLayout * layM = new QHBoxLayout();
+        layM->addStretch();
+        layM->addWidget(new QLabel("Global size multiplier:"));
+        ledMult = new QLineEdit(); ledMult->setValidator(Validator);
+            connect(ledMult, &QLineEdit::editingFinished, this, &AGeoMarkerPropsDialog::updateMultiplier);
+        layM->addWidget(ledMult);
+        layM->addStretch();
+    layMain->addLayout(layM);
+
+    layMain->addWidget(guitools::makeLine(true));
+
+    QHBoxLayout * layB = new QHBoxLayout();
+        QPushButton * pbApply = new QPushButton("Apply");
+            pbApply->setDefault(true);
+            connect(pbApply, &QPushButton::clicked, this, &AGeoMarkerPropsDialog::onApply);
+        layB->addWidget(pbApply);
+        QPushButton * pbAccept = new QPushButton("Apply and close");
+            connect(pbAccept, &QPushButton::clicked, this, &AGeoMarkerPropsDialog::onApplyAndClose);
+        layB->addWidget(pbAccept);
+    layMain->addLayout(layB);
+
+    updateGui();
+
+    // populating menu
+    QMenu * fileM = menuBar->addMenu("File");
+    fileM->addAction("Save", this, &AGeoMarkerPropsDialog::save);
+    fileM->addSeparator();
+    fileM->addAction("Load", this, &AGeoMarkerPropsDialog::load);
+
+    QMenu * defM = menuBar->addMenu("Default");   //&File
+    defM->addAction("Load default on this computer", this, &AGeoMarkerPropsDialog::restoreDefault);
+    defM->addSeparator();
+    defM->addAction("Set current as default on this computer", this, &AGeoMarkerPropsDialog::makeDefault);
+    defM->addSeparator();
+    defM->addAction("Load Ants3 default", this, &AGeoMarkerPropsDialog::factoryReset);
+}
+
+void AGeoMarkerPropsDialog::updateGui()
+{
+    while (QLayoutItem * item = layGr->takeAt(0))
+    {
+        delete item->widget();
+        delete item;
+    }
 
     QStringList Mstyles = {"1 - small dot","2 - cross","3 - asterisk","4 - circle","5 - diagonal cross","6 - rhomb dot","7 - square dot","8 - large round dot",
                            "20 - filled circle","21 - filled square","22 - filled triangle","23 - inv filled triangle","24 - circle","25 - square",
@@ -38,9 +92,6 @@ AGeoMarkerPropsDialog::AGeoMarkerPropsDialog(AGeoMarkerPropDatabase & geoMarkPro
     for (int i=20; i<31; i++) map.push_back( 9 + i -20 );
     map.push_back(3);
     for (int i=32; i<35; i++) map.push_back( 20 + i - 32 );
-
-    QDoubleValidator * validator = new QDoubleValidator(this);
-    validator->setBottom(0);
 
     layGr->addWidget(new QLabel("Marker type"), 0, 0, Qt::AlignHCenter);
     layGr->addWidget(new QLabel("Style"),       0, 1, Qt::AlignHCenter);
@@ -57,9 +108,7 @@ AGeoMarkerPropsDialog::AGeoMarkerPropsDialog(AGeoMarkerPropDatabase & geoMarkPro
         layGr->addWidget(labT, iRec+1, 0);
 
         if (type == "Undefined")
-        {
             layGr->addWidget(new QLabel("Custom"), iRec+1, 1);
-        }
         else
         {
             QComboBox * cobStyle = new QComboBox();
@@ -67,7 +116,7 @@ AGeoMarkerPropsDialog::AGeoMarkerPropsDialog(AGeoMarkerPropDatabase & geoMarkPro
             layGr->addWidget(cobStyle, iRec+1, 1);
             connect(cobStyle, &QComboBox::activated, [this, iRec, cobStyle]()
                     {
-                        QString st =cobStyle->currentText();
+                        QString st = cobStyle->currentText();
                         QStringList l = st.split(" - ");
                         QString num = l.first();
                         LocalData[iRec].second.Style = num.toInt();
@@ -77,7 +126,7 @@ AGeoMarkerPropsDialog::AGeoMarkerPropsDialog(AGeoMarkerPropDatabase & geoMarkPro
             cobStyle->setCurrentIndex(iStyle - 1);
 
             QLineEdit * ledSize = new QLineEdit();
-            ledSize->setValidator(validator);
+            ledSize->setValidator(Validator);
             ledSize->setMinimumWidth(50);
             layGr->addWidget(ledSize, iRec+1, 2);
             connect(ledSize, &QLineEdit::editingFinished, [this, iRec, ledSize]()
@@ -106,36 +155,8 @@ AGeoMarkerPropsDialog::AGeoMarkerPropsDialog(AGeoMarkerPropDatabase & geoMarkPro
 
         iRec++;
     }
-    layMain->addLayout(layGr);
 
-    layMain->addWidget(guitools::makeLine(true));
-
-    QHBoxLayout * layM = new QHBoxLayout();
-    layM->addStretch();
-    layM->addWidget(new QLabel("Global size multiplier:"));
-    QLineEdit * ledMult = new QLineEdit(); ledMult->setValidator(validator);
     ledMult->setText(QString::number(GeoMarkProps.SizeMultiplier));
-    connect(ledMult, &QLineEdit::editingFinished, [this, ledMult]()
-            {
-                SizeMultiplier = ledMult->text().toDouble();
-            });
-    layM->addWidget(ledMult);
-    layM->addStretch();
-    layMain->addLayout(layM);
-
-    layMain->addWidget(guitools::makeLine(true));
-
-    QHBoxLayout * layB = new QHBoxLayout();
-    QPushButton * pbApply = new QPushButton("Apply");
-    pbApply->setDefault(true);
-    connect(pbApply, &QPushButton::clicked, this, &AGeoMarkerPropsDialog::onApply);
-    layB->addWidget(pbApply);
-
-    QPushButton * pbAccept = new QPushButton("Apply and close");
-    connect(pbAccept, &QPushButton::clicked, this, &AGeoMarkerPropsDialog::onApplyAndClose);
-    layB->addWidget(pbAccept);
-
-    layMain->addLayout(layB);
 }
 
 void AGeoMarkerPropsDialog::onApply()
@@ -149,6 +170,62 @@ void AGeoMarkerPropsDialog::onApplyAndClose()
     copyLocalToGlobal();
     emit requestRedraw(false, false, true);
     accept();
+}
+
+void AGeoMarkerPropsDialog::updateMultiplier()
+{
+    SizeMultiplier = ledMult->text().toDouble();
+}
+
+void AGeoMarkerPropsDialog::save()
+{
+    QString fn = guitools::dialogSaveFile(this, "Save marker settings to file", "*.json");
+    if (fn.isEmpty()) return;
+    if (!fn.endsWith(".json")) fn += ".json";
+
+    copyLocalToGlobal();
+    QJsonObject json;
+    GeoMarkProps.writeToJson(json);
+    bool ok = jstools::saveJsonToFile(json, fn);
+    if (!ok) guitools::message("Failed to save to file " + fn);
+}
+
+void AGeoMarkerPropsDialog::load()
+{
+    QString fn = guitools::dialogLoadFile(this, "Load marker settings from file", "*.json");
+    if (fn.isEmpty()) return;
+
+    QJsonObject json;
+    bool ok = jstools::loadJsonFromFile(json, fn);
+    if (!ok || json.isEmpty())
+    {
+        guitools::message("Failed to load from file " + fn);
+        return;
+    }
+
+    GeoMarkProps.readFromJson(json);
+    updateGui();
+    emit requestRedraw(false, false, true);
+}
+
+void AGeoMarkerPropsDialog::restoreDefault()
+{
+    GeoMarkProps = A3Global::getInstance().GeoMarkersDefaults;
+    updateGui();
+    emit requestRedraw(false, false, true);
+}
+
+void AGeoMarkerPropsDialog::makeDefault()
+{
+    copyLocalToGlobal();
+    A3Global::getInstance().GeoMarkersDefaults = GeoMarkProps;
+}
+
+void AGeoMarkerPropsDialog::factoryReset()
+{
+    GeoMarkProps.fillDefault();
+    updateGui();
+    emit requestRedraw(false, false, true);
 }
 
 void AGeoMarkerPropsDialog::copyLocalToGlobal()
