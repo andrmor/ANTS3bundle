@@ -25,7 +25,7 @@ public:
     void updatePropsGui();
 
 private slots:
-    void onApply();
+    void applyToGlobalAndRedraw();
     void onApplyAndClose();
     void updateMultiplier();
 

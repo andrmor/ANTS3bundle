@@ -17,6 +17,7 @@
 #include <QDoubleValidator>
 #include <QIntValidator>
 #include <QMenuBar>
+#include <QTimer>
 
 #include "TROOT.h"
 
@@ -24,6 +25,8 @@ AGeoMarkerPropsDialog::AGeoMarkerPropsDialog(AGeoMarkerPropDatabase & geoMarkPro
     QDialog(parent), GeoMarkProps(geoMarkProps)
 {
     setWindowTitle("Marker configurator");
+
+    setWindowModality(Qt::WindowModal);
 
     DoubleValidator = new QDoubleValidator(this);
     DoubleValidator->setBottom(0);
@@ -46,20 +49,20 @@ AGeoMarkerPropsDialog::AGeoMarkerPropsDialog(AGeoMarkerPropDatabase & geoMarkPro
         ledMult = new QLineEdit(); ledMult->setValidator(DoubleValidator);
             connect(ledMult, &QLineEdit::editingFinished, this, &AGeoMarkerPropsDialog::updateMultiplier);
         layM->addWidget(ledMult);
+
+        layM->addStretch();
+        //layM->addWidget(guitools::makeLine(false));
+        QPushButton * pbAccept = new QPushButton("Apply and close");
+        pbAccept->setDefault(false);
+        pbAccept->setAutoDefault(false);
+        connect(pbAccept, &QPushButton::clicked, this, &AGeoMarkerPropsDialog::onApplyAndClose);
+        layM->addWidget(pbAccept);
+
         layM->addStretch();
     layMain->addLayout(layM);
 
-    layMain->addWidget(guitools::makeLine(true));
+    //layMain->addWidget(guitools::makeLine(true));
 
-    QHBoxLayout * layB = new QHBoxLayout();
-        QPushButton * pbApply = new QPushButton("Apply");
-            pbApply->setDefault(true);
-            connect(pbApply, &QPushButton::clicked, this, &AGeoMarkerPropsDialog::onApply);
-        layB->addWidget(pbApply);
-        QPushButton * pbAccept = new QPushButton("Apply and close");
-            connect(pbAccept, &QPushButton::clicked, this, &AGeoMarkerPropsDialog::onApplyAndClose);
-        layB->addWidget(pbAccept);
-    layMain->addLayout(layB);
 
     updatePropsGui();
 
@@ -75,6 +78,9 @@ AGeoMarkerPropsDialog::AGeoMarkerPropsDialog(AGeoMarkerPropDatabase & geoMarkPro
     defM->addAction("Set current as default on this computer", this, &AGeoMarkerPropsDialog::makeDefault);
     defM->addSeparator();
     defM->addAction("Load Ants3 default", this, &AGeoMarkerPropsDialog::factoryReset);
+
+    // shift
+    QTimer::singleShot(0, this, [this](){move(x(), y() + 1.5*height());});
 }
 
 void AGeoMarkerPropsDialog::updatePropsGui()
@@ -124,6 +130,7 @@ void AGeoMarkerPropsDialog::updatePropsGui()
                         QStringList l = st.split(" - ");
                         QString num = l.first();
                         LocalData[iRec].second.Style = num.toInt();
+                        applyToGlobalAndRedraw();
                     });
             int iStyle = 1;
             if (props.Style > 0 && props.Style <= map.size()) iStyle = map[props.Style-1];
@@ -137,6 +144,7 @@ void AGeoMarkerPropsDialog::updatePropsGui()
             connect(ledSize, &QLineEdit::editingFinished, [this, iRec, ledSize]()
                     {
                         LocalData[iRec].second.Size = ledSize->text().toDouble();
+                        applyToGlobalAndRedraw();
                     });
             ledSize->setText(QString::number(props.Size));
 
@@ -148,24 +156,30 @@ void AGeoMarkerPropsDialog::updatePropsGui()
             connect(ledWidth, &QLineEdit::editingFinished, [this, iRec, ledWidth]()
                     {
                         LocalData[iRec].second.LineWidth = ledWidth->text().toInt();
+                        applyToGlobalAndRedraw();
                     });
             ledWidth->setText(QString::number(props.LineWidth));
 
             QPushButton * pbColor = new QPushButton("   ");
             pbColor->setMinimumHeight(25);
             pbColor->setFlat(true);
+            pbColor->setDefault(false);
+            pbColor->setAutoDefault(false);
             layGr->addWidget(pbColor, iRec+1, 4);
             connect(pbColor, &QPushButton::clicked, [this, iRec, pbColor]()
                     {
                         ARootColorSelectorDialog dia(LocalData[iRec].second.Color, this);
                         dia.exec();
                         updateColor(pbColor, LocalData[iRec].second.Color);
+                        applyToGlobalAndRedraw();
                     });
             updateColor(pbColor, props.Color);
         }
 
         QPushButton * pbInfo = new QPushButton("?");
         pbInfo->setMaximumWidth(20);
+        pbInfo->setDefault(false);
+        pbInfo->setAutoDefault(false);
         connect(pbInfo, &QPushButton::clicked, [this, labT](){showInfo(labT->text());});
         layGr->addWidget(pbInfo, iRec+1, 5);
 
@@ -175,7 +189,7 @@ void AGeoMarkerPropsDialog::updatePropsGui()
     ledMult->setText(QString::number(GeoMarkProps.SizeMultiplier));
 }
 
-void AGeoMarkerPropsDialog::onApply()
+void AGeoMarkerPropsDialog::applyToGlobalAndRedraw()
 {
     copyLocalToGlobal();
     emit requestRedraw(false, false, true);
@@ -191,6 +205,7 @@ void AGeoMarkerPropsDialog::onApplyAndClose()
 void AGeoMarkerPropsDialog::updateMultiplier()
 {
     SizeMultiplier = ledMult->text().toDouble();
+    applyToGlobalAndRedraw();
 }
 
 void AGeoMarkerPropsDialog::save()

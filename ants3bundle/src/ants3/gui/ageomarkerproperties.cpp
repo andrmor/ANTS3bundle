@@ -11,11 +11,11 @@ void AGeoMarkerPropDatabase::fillDefault()
 
     //enum class EGeoMarkerType {Undefined, PrimarySource, PointOfOrigin, PosTrue, PosReconstructed};
 
-    Data["Undefined"]        = {1,  2.0, 1};
-    Data["PrimarySource"]    = {3,  3.0, 51};
-    Data["PointOfOrigin"]    = {2,  1.5, 860};
-    Data["PosTrue"]          = {5,  2.0, 860};
-    Data["PosReconstructed"] = {2,  2.0, 2};
+    Data["Undefined"]        = {1,  2.0, 1,   1};
+    Data["PrimarySource"]    = {3,  3.0, 51,  1};
+    Data["PointOfOrigin"]    = {2,  1.5, 860, 2};
+    Data["PosTrue"]          = {5,  2.0, 860, 1};
+    Data["PosReconstructed"] = {2,  2.0, 2,   1};
 
     SizeMultiplier = 1.0;
 }
@@ -38,7 +38,7 @@ void AGeoMarkerPropDatabase::applyProperties(AGeoMarkerClass * gm)
         if (AGeoMarkerPropDatabase::cMap.count(style) > 0)
             style = AGeoMarkerPropDatabase::cMap[style] + 18 * (props.LineWidth - 2);
     }
-    qDebug() << "aaaaaaaaaaaaaa" << props.Style << "with line width of" << props.LineWidth << "-->" << style;
+    //qDebug() << props.Style << "with line width of" << props.LineWidth << "-->" << style;
 
     gm->SetMarkerStyle(style);
     gm->SetMarkerSize (props.Size * SizeMultiplier);
