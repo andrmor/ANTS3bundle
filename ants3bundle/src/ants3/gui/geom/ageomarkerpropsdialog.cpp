@@ -15,6 +15,7 @@
 #include <QHBoxLayout>
 #include <QGridLayout>
 #include <QDoubleValidator>
+#include <QIntValidator>
 #include <QMenuBar>
 
 #include "TROOT.h"
@@ -24,8 +25,10 @@ AGeoMarkerPropsDialog::AGeoMarkerPropsDialog(AGeoMarkerPropDatabase & geoMarkPro
 {
     setWindowTitle("Marker configurator");
 
-    Validator = new QDoubleValidator(this);
-    Validator->setBottom(0);
+    DoubleValidator = new QDoubleValidator(this);
+    DoubleValidator->setBottom(0);
+    IntValidator = new QIntValidator(this);
+    IntValidator->setBottom(1);
 
     QVBoxLayout * layMain = new QVBoxLayout(this);
 
@@ -40,7 +43,7 @@ AGeoMarkerPropsDialog::AGeoMarkerPropsDialog(AGeoMarkerPropDatabase & geoMarkPro
     QHBoxLayout * layM = new QHBoxLayout();
         layM->addStretch();
         layM->addWidget(new QLabel("Global size multiplier:"));
-        ledMult = new QLineEdit(); ledMult->setValidator(Validator);
+        ledMult = new QLineEdit(); ledMult->setValidator(DoubleValidator);
             connect(ledMult, &QLineEdit::editingFinished, this, &AGeoMarkerPropsDialog::updateMultiplier);
         layM->addWidget(ledMult);
         layM->addStretch();
@@ -58,7 +61,7 @@ AGeoMarkerPropsDialog::AGeoMarkerPropsDialog(AGeoMarkerPropDatabase & geoMarkPro
         layB->addWidget(pbAccept);
     layMain->addLayout(layB);
 
-    updateGui();
+    updatePropsGui();
 
     // populating menu
     QMenu * fileM = menuBar->addMenu("File");
@@ -74,7 +77,7 @@ AGeoMarkerPropsDialog::AGeoMarkerPropsDialog(AGeoMarkerPropDatabase & geoMarkPro
     defM->addAction("Load Ants3 default", this, &AGeoMarkerPropsDialog::factoryReset);
 }
 
-void AGeoMarkerPropsDialog::updateGui()
+void AGeoMarkerPropsDialog::updatePropsGui()
 {
     while (QLayoutItem * item = layGr->takeAt(0))
     {
@@ -96,7 +99,8 @@ void AGeoMarkerPropsDialog::updateGui()
     layGr->addWidget(new QLabel("Marker type"), 0, 0, Qt::AlignHCenter);
     layGr->addWidget(new QLabel("Style"),       0, 1, Qt::AlignHCenter);
     layGr->addWidget(new QLabel("Size"),        0, 2, Qt::AlignHCenter);
-    layGr->addWidget(new QLabel("Color"),       0, 3, Qt::AlignHCenter);
+    layGr->addWidget(new QLabel("Width"),       0, 3, Qt::AlignHCenter);
+    layGr->addWidget(new QLabel("Color"),       0, 4, Qt::AlignHCenter);
 
     LocalData.resize(GeoMarkProps.Data.size());
     int iRec = 0;
@@ -126,8 +130,9 @@ void AGeoMarkerPropsDialog::updateGui()
             cobStyle->setCurrentIndex(iStyle - 1);
 
             QLineEdit * ledSize = new QLineEdit();
-            ledSize->setValidator(Validator);
+            ledSize->setValidator(DoubleValidator);
             ledSize->setMinimumWidth(50);
+            ledSize->setMaximumWidth(50);
             layGr->addWidget(ledSize, iRec+1, 2);
             connect(ledSize, &QLineEdit::editingFinished, [this, iRec, ledSize]()
                     {
@@ -135,10 +140,21 @@ void AGeoMarkerPropsDialog::updateGui()
                     });
             ledSize->setText(QString::number(props.Size));
 
+            QLineEdit * ledWidth = new QLineEdit();
+            ledWidth->setValidator(IntValidator);
+            ledWidth->setMinimumWidth(50);
+            ledWidth->setMaximumWidth(50);
+            layGr->addWidget(ledWidth, iRec+1, 3);
+            connect(ledWidth, &QLineEdit::editingFinished, [this, iRec, ledWidth]()
+                    {
+                        LocalData[iRec].second.LineWidth = ledWidth->text().toInt();
+                    });
+            ledWidth->setText(QString::number(props.LineWidth));
+
             QPushButton * pbColor = new QPushButton("   ");
             pbColor->setMinimumHeight(25);
             pbColor->setFlat(true);
-            layGr->addWidget(pbColor, iRec+1, 3);
+            layGr->addWidget(pbColor, iRec+1, 4);
             connect(pbColor, &QPushButton::clicked, [this, iRec, pbColor]()
                     {
                         ARootColorSelectorDialog dia(LocalData[iRec].second.Color, this);
@@ -151,7 +167,7 @@ void AGeoMarkerPropsDialog::updateGui()
         QPushButton * pbInfo = new QPushButton("?");
         pbInfo->setMaximumWidth(20);
         connect(pbInfo, &QPushButton::clicked, [this, labT](){showInfo(labT->text());});
-        layGr->addWidget(pbInfo, iRec+1, 4);
+        layGr->addWidget(pbInfo, iRec+1, 5);
 
         iRec++;
     }
@@ -204,14 +220,14 @@ void AGeoMarkerPropsDialog::load()
     }
 
     GeoMarkProps.readFromJson(json);
-    updateGui();
+    updatePropsGui();
     emit requestRedraw(false, false, true);
 }
 
 void AGeoMarkerPropsDialog::restoreDefault()
 {
     GeoMarkProps = A3Global::getInstance().GeoMarkersDefaults;
-    updateGui();
+    updatePropsGui();
     emit requestRedraw(false, false, true);
 }
 
@@ -224,7 +240,7 @@ void AGeoMarkerPropsDialog::makeDefault()
 void AGeoMarkerPropsDialog::factoryReset()
 {
     GeoMarkProps.fillDefault();
-    updateGui();
+    updatePropsGui();
     emit requestRedraw(false, false, true);
 }
 

@@ -2,6 +2,9 @@
 
 #include <QDebug>
 
+AGeoMarkerPropDatabase::AMarkConvMap AGeoMarkerPropDatabase::cMap = {{2,50}, {3,51}, {4,53}, {5,52,}, {24,53}, {25,54}, {26,55}, {27,56}, {28,57}, {30,58},
+                                                                     {31,51}, {32,59}, {35,60}, {36,61}, {37,62}, {38,63}, {40,64}, {42,65}, {44,66}, {46,67}};
+
 void AGeoMarkerPropDatabase::fillDefault()
 {
     Data.clear();
@@ -29,8 +32,15 @@ void AGeoMarkerPropDatabase::applyProperties(AGeoMarkerClass * gm)
     case EGeoMarkerType::PosReconstructed : props = Data["PosReconstructed"]; break;
     default: qCritical() << "AGeoMarkerPropDatabase::applyProperties: not implemented type"; break;
     }
+    int style = props.Style;
+    if (props.LineWidth > 1)
+    {
+        if (AGeoMarkerPropDatabase::cMap.count(style) > 0)
+            style = AGeoMarkerPropDatabase::cMap[style] + 18 * (props.LineWidth - 2);
+    }
+    qDebug() << "aaaaaaaaaaaaaa" << props.Style << "with line width of" << props.LineWidth << "-->" << style;
 
-    gm->SetMarkerStyle(props.Style);
+    gm->SetMarkerStyle(style);
     gm->SetMarkerSize (props.Size * SizeMultiplier);
     gm->SetMarkerColor(props.Color);
 }
@@ -74,7 +84,7 @@ void AGeoMarkerPropDatabase::writeToJson(QJsonObject & json) const
         QJsonObject js;
             js["Type"] = type;
             QJsonArray el;
-            el << props.Style << props.Size << props.Color;
+            el << props.Style << props.Size << props.Color << props.LineWidth;
             js["Properties"] = el;
         ar.push_back(js);
     }
@@ -94,9 +104,9 @@ void AGeoMarkerPropDatabase::readFromJson(const QJsonObject & json)
             jstools::parseJson(js, "Type", type);
             QJsonArray el;
             jstools::parseJson(js, "Properties", el);
-            if (el.size() > 2)
+            if (el.size() > 3)
             {
-                Data[type] = {el[0].toInt(), (float)el[1].toDouble(), el[2].toInt()}; // style, size, color
+                Data[type] = {el[0].toInt(), (float)el[1].toDouble(), el[2].toInt(), el[3].toInt()}; // style, size, color
             }
     }
 }

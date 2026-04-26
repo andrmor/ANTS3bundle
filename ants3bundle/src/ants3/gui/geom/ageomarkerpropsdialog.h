@@ -12,6 +12,7 @@ class QPushButton;
 class QVBoxLayout;
 class QGridLayout;
 class QDoubleValidator;
+class QIntValidator;
 class QLineEdit;
 
 class AGeoMarkerPropsDialog : public QDialog
@@ -21,7 +22,7 @@ class AGeoMarkerPropsDialog : public QDialog
 public:
     AGeoMarkerPropsDialog(AGeoMarkerPropDatabase & geoMarkProps, QWidget * parent);
 
-    void updateGui();
+    void updatePropsGui();
 
 private slots:
     void onApply();
@@ -42,7 +43,8 @@ private:
     QGridLayout * layGr   = nullptr;
     QLineEdit   * ledMult = nullptr;
 
-    QDoubleValidator * Validator = nullptr;
+    QDoubleValidator * DoubleValidator = nullptr;
+    QIntValidator    * IntValidator    = nullptr;
 
     void copyLocalToGlobal();
     void updateColor(QPushButton * pb, int color);

@@ -14,6 +14,7 @@ public:
     int   Style = 1;
     float Size  = 2.0;
     int   Color = 1;
+    int   LineWidth = 1;
 };
 
 class AGeoMarkerPropDatabase
@@ -21,6 +22,9 @@ class AGeoMarkerPropDatabase
 public:
     std::map<QString,AGeoMarkerProperties> Data;
     double SizeMultiplier = 1.0;
+
+    typedef std::map<int,int> AMarkConvMap;
+    static AMarkConvMap cMap;
 
     void fillDefault();
 
@@ -33,6 +37,8 @@ public:
     void readFromJson(const QJsonObject & json);
 
     QString getInfo(QString type);
+
+
 
 };
 
