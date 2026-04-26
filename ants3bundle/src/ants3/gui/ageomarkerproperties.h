@@ -26,6 +26,8 @@ public:
     typedef std::map<int,int> AMarkConvMap;
     static AMarkConvMap cMap;
 
+    static QString typeToString(EGeoMarkerType type);
+
     void fillDefault();
 
     void applyProperties(AGeoMarkerClass * gm);
@@ -33,13 +35,11 @@ public:
     AGeoMarkerProperties getProperties(EGeoMarkerType type);
     void                 setProperties(EGeoMarkerType type, AGeoMarkerProperties properties);
 
+
     void writeToJson(QJsonObject & json) const;
     void readFromJson(const QJsonObject & json);
 
     QString getInfo(QString type);
-
-
-
 };
 
 #endif // AGEOMARKERPROPERTIES_H

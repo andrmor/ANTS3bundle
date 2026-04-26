@@ -4,6 +4,7 @@
 #include "ageomarkerproperties.h"
 
 #include <vector>
+#include <set>
 
 #include <QDialog>
 #include <QObject>
@@ -14,13 +15,14 @@ class QGridLayout;
 class QDoubleValidator;
 class QIntValidator;
 class QLineEdit;
+class QLabel;
 
 class AGeoMarkerPropsDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    AGeoMarkerPropsDialog(AGeoMarkerPropDatabase & geoMarkProps, QWidget * parent);
+    AGeoMarkerPropsDialog(AGeoMarkerPropDatabase & geoMarkProps, const std::set<QString> & presentMarkerTypes, QWidget * parent);
 
     void updatePropsGui();
 
@@ -37,6 +39,7 @@ private slots:
 
 private:
     AGeoMarkerPropDatabase & GeoMarkProps;
+    std::set<QString> PresentMarkerTypes;
     std::vector<std::pair<QString, AGeoMarkerProperties>> LocalData;
     double SizeMultiplier = 1.0;
 
@@ -46,9 +49,13 @@ private:
     QDoubleValidator * DoubleValidator = nullptr;
     QIntValidator    * IntValidator    = nullptr;
 
+    QStringList      MarkerStyles;
+    std::vector<int> StyleMap;
+
     void copyLocalToGlobal();
     void updateColor(QPushButton * pb, int color);
     void showInfo(QString type);
+    void updateTypePresent(QLabel * lab);
 
 signals:
     void requestRedraw(bool activateWindow, bool same, bool colorUpdateAllowed);

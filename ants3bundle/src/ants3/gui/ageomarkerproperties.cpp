@@ -47,30 +47,26 @@ void AGeoMarkerPropDatabase::applyProperties(AGeoMarkerClass * gm)
 
 AGeoMarkerProperties AGeoMarkerPropDatabase::getProperties(EGeoMarkerType type)
 {
-    switch (type)
-    {
-    case EGeoMarkerType::Undefined        : return Data["Undefined"];
-    case EGeoMarkerType::PrimarySource    : return Data["PrimarySource"];
-    case EGeoMarkerType::PointOfOrigin    : return Data["PointOfOrigin"];
-    case EGeoMarkerType::PosTrue          : return Data["PosTrue"];
-    case EGeoMarkerType::PosReconstructed : return Data["PosReconstructed"];
-    default: qCritical() << "AGeoMarkerPropDatabase::getProperties: not implemented type"; break;
-    }
-
-    return {1,2,1};
+    return Data[typeToString(type)]; // if not implemented in converter, Undefined properties returned
 }
 
 void AGeoMarkerPropDatabase::setProperties(EGeoMarkerType type, AGeoMarkerProperties properties)
 {
+    Data[typeToString(type)] = properties; // if not implemented in converter, Undefined is updated (its safe)
+}
+
+QString AGeoMarkerPropDatabase::typeToString(EGeoMarkerType type)
+{
     switch (type)
     {
-    case EGeoMarkerType::Undefined        : Data["Undefined"]        = properties; return;
-    case EGeoMarkerType::PrimarySource    : Data["PrimarySource"]    = properties; return;
-    case EGeoMarkerType::PointOfOrigin    : Data["PointOfOrigin"]    = properties; return;
-    case EGeoMarkerType::PosTrue          : Data["PosTrue"]          = properties; return;
-    case EGeoMarkerType::PosReconstructed : Data["PosReconstructed"] = properties; return;
-    default: qCritical() << "AGeoMarkerPropDatabase::setProperties: not implemented type";
+    case EGeoMarkerType::Undefined        : return "Undefined";
+    case EGeoMarkerType::PrimarySource    : return "PrimarySource";
+    case EGeoMarkerType::PointOfOrigin    : return "PointOfOrigin";
+    case EGeoMarkerType::PosTrue          : return "PosTrue";
+    case EGeoMarkerType::PosReconstructed : return "PosReconstructed";
+    default: qCritical() << "AGeoMarkerPropDatabase::typeToString: not implemented type";
     }
+    return "Undefined";
 }
 
 #include "ajsontools.h"

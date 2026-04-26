@@ -1584,7 +1584,11 @@ void AGeometryWindow::on_pbShowPhotonSources_clicked(bool checked)
 #include "ageomarkerpropsdialog.h"
 void AGeometryWindow::on_actionConfigure_triggered()
 {
-    AGeoMarkerPropsDialog dia(GeoMarkProps, this);
+    std::set<QString> presentTypes;
+    for (AGeoMarkerClass * gm : GeoMarkers)
+        presentTypes.insert(AGeoMarkerPropDatabase::typeToString(gm->Type));
+
+    AGeoMarkerPropsDialog dia(GeoMarkProps, presentTypes, this);
     connect(&dia, &AGeoMarkerPropsDialog::requestRedraw, this, &AGeometryWindow::ShowGeometry);
     dia.exec();
 }

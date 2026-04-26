@@ -21,8 +21,8 @@
 
 #include "TROOT.h"
 
-AGeoMarkerPropsDialog::AGeoMarkerPropsDialog(AGeoMarkerPropDatabase & geoMarkProps, QWidget * parent) :
-    QDialog(parent), GeoMarkProps(geoMarkProps)
+AGeoMarkerPropsDialog::AGeoMarkerPropsDialog(AGeoMarkerPropDatabase & geoMarkProps, const std::set<QString> &presentMarkerTypes, QWidget * parent) :
+    QDialog(parent), GeoMarkProps(geoMarkProps), PresentMarkerTypes(presentMarkerTypes)
 {
     setWindowTitle("Marker configurator");
 
@@ -32,6 +32,18 @@ AGeoMarkerPropsDialog::AGeoMarkerPropsDialog(AGeoMarkerPropDatabase & geoMarkPro
     DoubleValidator->setBottom(0);
     IntValidator = new QIntValidator(this);
     IntValidator->setBottom(1);
+
+    MarkerStyles = {"1: small dot", "2: cross","3: asterisk","4: circle","5: diagonal cross","6: rhomb dot","7: square dot","8: large round dot",
+                    "20: filled circle", "21: filled square","22: filled triangle","23: inv filled triangle","24: circle","25: square",
+                    "26: triangle", "27: romb","28: big cross","29: filled star","30: star","32: inverted triangle","33: filled romb","34: filled cross",
+                    "35: open diamon cross", "36: open square diagonal", "37: open three triangle", "38: octagon with cross", "39: full three triangles",
+                    "40: open four triangleX", "41: full four triangleX", "42: open double diamond", "43: full double diamond", "44: open four triangle+",
+                    "45: full four triangle+", "46: open cross X", "47: full cross X", "48: four squares X", "49: four squares+"};
+    for (int i = 1;  i < 9;  i++) StyleMap.push_back(i);
+    for (int i = 9;  i < 20; i++) StyleMap.push_back(8);
+    for (int i = 20; i < 31; i++) StyleMap.push_back(9 + i - 20);
+    StyleMap.push_back(3);
+    for (int i = 32; i < 50; i++) StyleMap.push_back(20 + i - 32);
 
     QVBoxLayout * layMain = new QVBoxLayout(this);
 
@@ -49,20 +61,14 @@ AGeoMarkerPropsDialog::AGeoMarkerPropsDialog(AGeoMarkerPropDatabase & geoMarkPro
         ledMult = new QLineEdit(); ledMult->setValidator(DoubleValidator);
             connect(ledMult, &QLineEdit::editingFinished, this, &AGeoMarkerPropsDialog::updateMultiplier);
         layM->addWidget(ledMult);
-
         layM->addStretch();
-        //layM->addWidget(guitools::makeLine(false));
-        QPushButton * pbAccept = new QPushButton("Apply and close");
-        pbAccept->setDefault(false);
-        pbAccept->setAutoDefault(false);
-        connect(pbAccept, &QPushButton::clicked, this, &AGeoMarkerPropsDialog::onApplyAndClose);
+        QPushButton * pbAccept = new QPushButton("Close");
+            pbAccept->setDefault(false);
+            pbAccept->setAutoDefault(false);
+            connect(pbAccept, &QPushButton::clicked, this, &AGeoMarkerPropsDialog::onApplyAndClose);
         layM->addWidget(pbAccept);
-
         layM->addStretch();
     layMain->addLayout(layM);
-
-    //layMain->addWidget(guitools::makeLine(true));
-
 
     updatePropsGui();
 
@@ -91,17 +97,6 @@ void AGeoMarkerPropsDialog::updatePropsGui()
         delete item;
     }
 
-    QStringList Mstyles = {"1 - small dot","2 - cross","3 - asterisk","4 - circle","5 - diagonal cross","6 - rhomb dot","7 - square dot","8 - large round dot",
-                           "20 - filled circle","21 - filled square","22 - filled triangle","23 - inv filled triangle","24 - circle","25 - square",
-                           "26 - triangle","27 - romb","28 - big cross","29 - filled star","30 - star","32 - inverted triangle","33 - filled romb","34 - filled cross"};
-
-    std::vector<int> map;
-    for (int i=1;  i<9;  i++) map.push_back(i);
-    for (int i=9;  i<20; i++) map.push_back(8);
-    for (int i=20; i<31; i++) map.push_back( 9 + i -20 );
-    map.push_back(3);
-    for (int i=32; i<35; i++) map.push_back( 20 + i - 32 );
-
     layGr->addWidget(new QLabel("Marker type"), 0, 0, Qt::AlignHCenter);
     layGr->addWidget(new QLabel("Style"),       0, 1, Qt::AlignHCenter);
     layGr->addWidget(new QLabel("Size"),        0, 2, Qt::AlignHCenter);
@@ -122,18 +117,18 @@ void AGeoMarkerPropsDialog::updatePropsGui()
         else
         {
             QComboBox * cobStyle = new QComboBox();
-            cobStyle->addItems(Mstyles);
+            cobStyle->addItems(MarkerStyles);
             layGr->addWidget(cobStyle, iRec+1, 1);
             connect(cobStyle, &QComboBox::activated, [this, iRec, cobStyle]()
                     {
                         QString st = cobStyle->currentText();
-                        QStringList l = st.split(" - ");
+                        QStringList l = st.split(':');
                         QString num = l.first();
                         LocalData[iRec].second.Style = num.toInt();
                         applyToGlobalAndRedraw();
                     });
             int iStyle = 1;
-            if (props.Style > 0 && props.Style <= map.size()) iStyle = map[props.Style-1];
+            if (props.Style > 0 && props.Style <= StyleMap.size()) iStyle = StyleMap[props.Style-1];
             cobStyle->setCurrentIndex(iStyle - 1);
 
             QLineEdit * ledSize = new QLineEdit();
@@ -175,6 +170,8 @@ void AGeoMarkerPropsDialog::updatePropsGui()
                     });
             updateColor(pbColor, props.Color);
         }
+
+        updateTypePresent(labT);
 
         QPushButton * pbInfo = new QPushButton("?");
         pbInfo->setMaximumWidth(20);
@@ -286,4 +283,16 @@ void AGeoMarkerPropsDialog::updateColor(QPushButton * pb, int color)
 void AGeoMarkerPropsDialog::showInfo(QString type)
 {
     guitools::message(GeoMarkProps.getInfo(type), this);
+}
+
+void AGeoMarkerPropsDialog::updateTypePresent(QLabel * lab)
+{
+    QString text = lab->text();
+    if (std::find(PresentMarkerTypes.begin(), PresentMarkerTypes.end(), text) != PresentMarkerTypes.end())
+    {
+        QFont font = lab->font();
+        font.setBold(true);
+        font.setWeight(QFont::DemiBold);
+        lab->setFont(font);
+    }
 }
