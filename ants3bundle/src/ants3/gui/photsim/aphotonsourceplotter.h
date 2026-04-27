@@ -8,7 +8,7 @@ class TVirtualGeoTrack;
 class APhotonSourcePlotter
 {
 public:
-    static AGeoMarkerClass * plotSource(int defaultSizeDelta);
+    static AGeoMarkerClass * plotSource();
 
     static constexpr double pi = 3.14159265358979323846;
 

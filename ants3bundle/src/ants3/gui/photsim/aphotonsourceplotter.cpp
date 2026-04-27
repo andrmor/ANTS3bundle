@@ -46,20 +46,20 @@ void APhotonSourcePlotter::formCircle(double radius, double x0, double y0, doubl
     }
 }
 
-AGeoMarkerClass * APhotonSourcePlotter::plotSource(int sizeDelta)
+AGeoMarkerClass * APhotonSourcePlotter::plotSource()
 {
     APhotonBombsSettings & bombSet = APhotonSimHub::getInstance().Settings.BombSet;
     switch (bombSet.GenerationMode)
     {
     case EBombGen::Single:
     {
-        AGeoMarkerClass * marks = new AGeoMarkerClass(EGeoMarkerType::PrimarySource, 3, 3 + sizeDelta, 51);
+        AGeoMarkerClass * marks = new AGeoMarkerClass(EGeoMarkerType::PrimarySource, 3, 3, 51);
         marks->SetNextPoint(bombSet.SingleSettings.Position[0], bombSet.SingleSettings.Position[1], bombSet.SingleSettings.Position[2]);
         return marks;
     }
     case EBombGen::Grid:
     {
-        AGeoMarkerClass * marks = new AGeoMarkerClass(EGeoMarkerType::PrimarySource, 3, 3 + sizeDelta, 51);
+        AGeoMarkerClass * marks = new AGeoMarkerClass(EGeoMarkerType::PrimarySource, 3, 3, 51);
         const AGridSettings & ScanSet = bombSet.GridSettings;
         const APhotonBombAdvancedSettings & AdvSet = bombSet.AdvancedSettings;
 

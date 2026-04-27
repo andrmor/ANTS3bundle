@@ -726,7 +726,7 @@ void AGeometryWindow::showSources()
     {
         if (APhotonSimHub::getConstInstance().Settings.SimType == EPhotSimType::PhotonBombs)
         {
-            AGeoMarkerClass * marks = APhotonSourcePlotter::plotSource(0);
+            AGeoMarkerClass * marks = APhotonSourcePlotter::plotSource();
             if (marks)
                 GeoMarkers.push_back(marks); // show is in the caller
             else
