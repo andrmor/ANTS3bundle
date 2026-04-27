@@ -21,6 +21,10 @@ public:
     virtual bool isReady () const;
 
     int getNintZ() const {return nintz;}
+    std::vector <double> GetNodesR() const;
+    std::vector <double> GetNodesZ() const;
+    std::vector <double> GetNodes() const {return GetNodesR();}
+
     virtual double eval(double x, double y, double z) const;
     virtual double evalraw(double x, double y, double z) const;
     virtual double evalDrvX(double x, double y, double z) const;

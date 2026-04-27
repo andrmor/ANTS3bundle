@@ -106,6 +106,24 @@ LRFaxial3d::~LRFaxial3d()
     delete bs2fit;
 }
 
+std::vector <double> LRFaxial3d::GetNodesR() const
+{
+    std::vector <double> nodes = bs2r->GetBSX().GetNodes();
+    if (compress) 
+        for (auto &node : nodes)
+            node = compress->Rho2R(node);
+    return nodes;
+}
+
+std::vector <double> LRFaxial3d::GetNodesZ() const
+{
+    std::vector <double> nodes = bs2r->GetBSY().GetNodes();
+    if (compress_z) 
+        for (auto &node : nodes)
+            node = compress_z->Rho2R(node);
+    return nodes;
+}
+
 bool LRFaxial3d::isReady() const
 {
     return ready;

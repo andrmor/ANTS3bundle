@@ -253,7 +253,7 @@ void ALrfPlotter::doDrawRadialNodes(int iSens)
         gN->GetXaxis()->SetTitle("Radial distance, mm");
         gN->GetYaxis()->SetTitle("LRF_nodes");
         const std::vector<double> GrX = axial->GetNodes();
-        for (double r : GrX) gN->AddPoint(r, axial->evalAxial(r));
+        for (double r : GrX) gN->AddPoint(r, axial->evalAxial(r, Z));
         emit requestDraw(gN, "Psame", true, true);
     }
 }
