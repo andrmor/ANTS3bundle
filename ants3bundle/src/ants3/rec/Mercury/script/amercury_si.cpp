@@ -450,6 +450,94 @@ void AMercury_si::plot_vsTrueXY(QString what)
     doPlot_vsXY(true, opt, XTruePositions, YTruePositions);
 }
 
+#include "ageomarkerclass.h"
+void AMercury_si::showReconstructedPositions(QVariantList XYZE_ofEvents, QVariantList goodEvents)
+{
+    if (XYZE_ofEvents.isEmpty())
+    {
+        abort("showReconstructedPositions: XYZE_ofEvents should contain non-empty array of coordinates: [[x0,y0,z0], [x1,y1,z1], ... ]\n"
+              "or arrays of xyze: [[x0,y0,z0, e0], [x1,y1,z1, e1], ... ] (events with energy=0 are not shown).");
+        return;
+    }
+
+    const int numEvents = XYZE_ofEvents.size();
+    bool haveGoods = false;
+    if (!goodEvents.isEmpty())
+    {
+        if (numEvents != goodEvents.size())
+        {
+            abort("showReconstructedPositions: sizes of XYZE_ofEvents and goodEvents arrays are different");
+            return;
+        }
+        haveGoods = true;
+    }
+
+    AGeoMarkerClass * markers = new AGeoMarkerClass(EGeoMarkerType::PosReconstructed, 20, 1, 1); // properties are auto-updated
+    for (int i = 0; i < numEvents; i++)
+    {
+        QVariantList el = XYZE_ofEvents[i].toList();
+        if (el.size() < 3)
+        {
+            abort("showReconstructedPositions: bad format for coordinates in XYZE_ofEvents");
+            delete markers;
+            return;
+        }
+
+        if (el.size() > 3 && el[3].toDouble() == 0) continue;
+        if (haveGoods && !goodEvents[i].toBool()) continue;
+
+        markers->SetNextPoint(el[0].toDouble(), el[1].toDouble(), el[2].toDouble());
+    }
+
+    AScriptHub & ScrHub = AScriptHub::getInstance();
+    ScrHub.prepareToWait();
+    emit ScrHub.requestAddMarkers(markers);
+    ScrHub.waitForGuiCallFinished(Lang);
+}
+
+void AMercury_si::showTruePositions(QVariantList XYZ_ofEvents, QVariantList goodEvents)
+{
+    if (XYZ_ofEvents.isEmpty())
+    {
+        abort("showTruePositions: XYZ_ofEvents should contain non-empty array of coordinates: [[x0,y0,z0], [x1,y1,z1], ... ]");
+        return;
+    }
+
+    const int numEvents = XYZ_ofEvents.size();
+    bool haveGoods = false;
+    if (!goodEvents.isEmpty())
+    {
+        if (numEvents != goodEvents.size())
+        {
+            abort("showTruePositions: sizes of XYZ_ofEvents and goodEvents arrays are different");
+            return;
+        }
+        haveGoods = true;
+    }
+
+    AGeoMarkerClass * markers = new AGeoMarkerClass(EGeoMarkerType::PosTrue, 20, 1, 1); // properties are auto-updated
+    for (int i = 0; i < numEvents; i++)
+    {
+        QVariantList el = XYZ_ofEvents[i].toList();
+        if (el.size() < 3)
+        {
+            abort("showTruePositions: bad format for coordinates in XYZ_ofEvents");
+            delete markers;
+            return;
+        }
+
+        //if (el.size() > 3 && el[3].toDouble() == 0) continue;
+        if (haveGoods && !goodEvents[i].toBool()) continue;
+
+        markers->SetNextPoint(el[0].toDouble(), el[1].toDouble(), el[2].toDouble());
+    }
+
+    AScriptHub & ScrHub = AScriptHub::getInstance();
+    ScrHub.prepareToWait();
+    emit ScrHub.requestAddMarkers(markers);
+    ScrHub.waitForGuiCallFinished(Lang);
+}
+
 void AMercury_si::doPlot_vsXY(bool vsTrue, EPlotOption opt, const std::vector<double> & x, const std::vector<double> & y)
 {
     if (!vsTrue)

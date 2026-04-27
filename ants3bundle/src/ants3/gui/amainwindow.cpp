@@ -584,6 +584,17 @@ void AMainWindow::connectSignalSlotsForGeoWin()
 
     connect(PhotFunWin, &APhotFunctWindow::requestShowConnection,     GeoWin, &AGeometryWindow::onRequestShowConnection);
     connect(PhotFunWin, &APhotFunctWindow::requestShowAllConnections, GeoWin, &AGeometryWindow::onRequestShowAllConnections);
+
+    // from script
+    AScriptHub * ScrHub = &AScriptHub::getInstance();
+    connect(ScrHub, &AScriptHub::requestRedraw,       GeoWin, &AGeometryWindow::onRequestRedrawFromScript,       Qt::QueuedConnection);
+    connect(ScrHub, &AScriptHub::requestShowTracks,   GeoWin, &AGeometryWindow::onRequestShowTracksFromScript,   Qt::QueuedConnection);
+    connect(ScrHub, &AScriptHub::requestClearTracks,  GeoWin, &AGeometryWindow::onRequestClearTracksFromScript,  Qt::QueuedConnection);
+    connect(ScrHub, &AScriptHub::requestClearMarkers, GeoWin, &AGeometryWindow::onRequestClearMarkersFromScript, Qt::QueuedConnection);
+    connect(ScrHub, &AScriptHub::requestAddMarkers,   GeoWin, &AGeometryWindow::onRequestAddMarkersFromScript,   Qt::QueuedConnection);
+    connect(ScrHub, &AScriptHub::requestAddTrack,     GeoWin, &AGeometryWindow::onRequestAddTrackFromScript,     Qt::QueuedConnection);
+    // and back
+    connect(GeoWin, &AGeometryWindow::taskRequestedFromScriptCompleted, ScrHub, &AScriptHub::onGuiReportTaskCompleted, Qt::DirectConnection);
 }
 
 void AMainWindow::on_leConfigName_editingFinished()

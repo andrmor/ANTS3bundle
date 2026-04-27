@@ -15,6 +15,8 @@ class AGuiFromScrWin;
 class TObject;
 class LRModel;
 class ALrfPlotter;
+class AGeoMarkerClass;
+class TVirtualGeoTrack;
 
 #ifdef ANTS3_PYTHON
     class APythonScriptManager;
@@ -29,7 +31,6 @@ public:
 
     static void              abort(const QString & message, EScriptLanguage lang);
     static bool              isAborted(EScriptLanguage lang);
-
 
     AJScriptManager        & getJScriptManager() {return *JavaScriptM;}
 #ifdef ANTS3_PYTHON
@@ -49,11 +50,17 @@ public:
     void processEvents(EScriptLanguage lang);
     void reportProgress(int percents, EScriptLanguage lang);
 
+    void prepareToWait();
+    void waitForGuiCallFinished(EScriptLanguage lang);
+
     QString getPythonVersion();
 
     QString evaluateScriptAndWaitToFinish(const QString & fileName, EScriptLanguage lang);
 
     void aboutToQuit();
+
+public slots:
+    void onGuiReportTaskCompleted();
 
 private:
     AScriptHub();
@@ -83,6 +90,15 @@ signals:
     void requestShowLightResponseExplorer(LRModel * model); // mercury SI
     void requestShowPlotterDialog();   // mercury SI
 
+    // signals for geo window (which can be dynamically replaced, so connection is also dynamic, see MainWindow::connectSignalSlotsForGeoWin)
+    void requestRedraw();
+    void requestShowTracks();
+    void requestClearTracks();
+    void requestClearMarkers();
+    void requestSaveImage(QString fileName);
+    void requestAddMarkers(AGeoMarkerClass * markers);
+    void requestAddTrack(TVirtualGeoTrack * track);
+
 private:
     AJScriptManager      * JavaScriptM = nullptr;
 #ifdef ANTS3_PYTHON
@@ -90,6 +106,9 @@ private:
 #endif
 
     std::vector<AGeoWin_SI*> geoWinInterfaces;
+
+    // used with queued calls from script to gui to wait for an operation to finish
+    bool WaitingForTaskCompleted = false;
 };
 
 #endif // ASCRIPTHUB_H

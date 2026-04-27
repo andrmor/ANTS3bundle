@@ -38,6 +38,8 @@ public slots:
     void plot_vsRecXY(QString what);
     void configure_plotXY_truePositions(QVariantList truePositions);
     void plot_vsTrueXY(QString what);
+    void showReconstructedPositions(QVariantList XYZE_ofEvents, QVariantList goodEvents = QVariantList());
+    void showTruePositions(QVariantList XYZ_ofEvents, QVariantList goodEvents = QVariantList());
 
     // --- Low level ---
     void configure_COG(double signalAbsoluteCutoff, double signalRelativeCutoff, double z0);
@@ -47,6 +49,7 @@ public slots:
     void configure_statistical_Minuit(double tolerance, int maxIterations, int maxFuncCalls);  //  deafults are 0.001, 1000, 500
 
 private:
+    // do not make a reference to script hub as AMercury_si object generation is inside the script hub constructor
     ALightResponseHub & LRHub;
     ReconstructorMP   * RecMP = nullptr;
 
@@ -76,7 +79,7 @@ private:
     void plotStatusXYHist (const std::vector<double> & x, const std::vector<double> & y, QString titleSuffix);
     void plotDensityXYHist(const std::vector<double> & x, const std::vector<double> & y, QString titleSuffix);
     void plotBiasXYHist   (const std::vector<double> & x, const std::vector<double> & y, QString titleSuffix, bool vsX);
-    void plotResXYHist  (const std::vector<double> & x, const std::vector<double> & y, QString titleSuffix, bool vsX);
+    void plotResXYHist    (const std::vector<double> & x, const std::vector<double> & y, QString titleSuffix, bool vsX);
 };
 
 #endif // AMERCURY_SI_H

@@ -36,6 +36,10 @@
 #include "alightresponse_si.h"
 #endif
 
+#include "TGeoManager.h"
+#include "TVirtualGeoTrack.h"
+#include "TGeoTrack.h"
+
 AScriptHub & AScriptHub::getInstance()
 {
     static AScriptHub instance;
@@ -152,6 +156,21 @@ void AScriptHub::reportProgress(int percents, EScriptLanguage lang)
     processEvents(lang);
 }
 
+void AScriptHub::prepareToWait()
+{
+    WaitingForTaskCompleted = true;
+}
+
+#include <QThread>
+void AScriptHub::waitForGuiCallFinished(EScriptLanguage lang)
+{
+    while (WaitingForTaskCompleted)
+    {
+        processEvents(lang);
+        QThread::usleep(100);
+    }
+}
+
 QString AScriptHub::getPythonVersion()
 {
 #ifdef ANTS3_PYTHON
@@ -212,6 +231,11 @@ void AScriptHub::aboutToQuit()
     if (PythonM->isRunning()) PythonM->abort();
     emit PythonM->doExit();
 #endif
+}
+
+void AScriptHub::onGuiReportTaskCompleted()
+{
+    WaitingForTaskCompleted = false;
 }
 
 AScriptHub::AScriptHub()
