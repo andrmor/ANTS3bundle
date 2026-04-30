@@ -27,22 +27,27 @@ public:
     void reset();
 };
 
-class AParticleTrackVisuals
+class ATrackVisAttributes
 {
 public:
-    static AParticleTrackVisuals & getInstance();
+    static ATrackVisAttributes & getInstance();
 
 private:
-    AParticleTrackVisuals();
+    ATrackVisAttributes();
 
-    AParticleTrackVisuals(const AParticleTrackVisuals&)            = delete;
-    AParticleTrackVisuals(AParticleTrackVisuals&&)                 = delete;
-    AParticleTrackVisuals& operator=(const AParticleTrackVisuals&) = delete;
-    AParticleTrackVisuals& operator=(AParticleTrackVisuals&&)      = delete;
+    ATrackVisAttributes(const ATrackVisAttributes&)            = delete;
+    ATrackVisAttributes(ATrackVisAttributes&&)                 = delete;
+    ATrackVisAttributes& operator=(const ATrackVisAttributes&) = delete;
+    ATrackVisAttributes& operator=(ATrackVisAttributes&&)      = delete;
 
 public:
     ATrackAttributes DefaultAttributes;
     std::map<QString, ATrackAttributes> DefinedAttributes;
+
+    ATrackAttributes PrimaryPhotonTracks;
+    ATrackAttributes SecondaryPhotonTracks;
+    ATrackAttributes HitSensorPhotonTracks;
+    bool UseHitSensorAttributes = true;
 
     ATrackAttributes * getAttributesForParticle(const QString & name); // nullptr if not yet defined
     const QStringList getDefinedParticles() const;
@@ -57,7 +62,8 @@ public:
     void applyToParticleTrack(TVirtualGeoTrack * track, const QString & Particle) const;
 
 private:
-    void clear(); //clear and reset to default values
+    void clearParticleProps();
+    void clearPhotonProps();
 };
 
 #endif // ATRACKDRAWOPTIONS_H

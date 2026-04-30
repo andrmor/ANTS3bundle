@@ -288,7 +288,7 @@ Format: Volume_name  Step_in_mm</string>
           <item>
            <widget class="QPushButton" name="pbConfigureTrackStyles">
             <property name="text">
-             <string>  Configure track visualisation attributes  </string>
+             <string>  Configure track visualisation attributes</string>
             </property>
            </widget>
           </item>

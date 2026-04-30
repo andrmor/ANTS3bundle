@@ -14,7 +14,7 @@
 #include "acalorimeterhub.h"
 #include "acalorimeter.h"
 #include "ajsontools.h"
-#include "aparticletrackvisuals.h"
+#include "atrackvisattributes.h"
 //#include "aparticlesourceplotter.h"
 #include "adispatcherinterface.h"
 #include "ageoobject.h"
@@ -802,7 +802,7 @@ void AParticleSimWin::testParticleGun(AParticleGun * gun, int numParticles, bool
         if (numTracks > 1000) return;
         int track_index = gGeoManager->AddTrack(1, 22);
         TVirtualGeoTrack * track = gGeoManager->GetTrack(track_index);
-        AParticleTrackVisuals::getInstance().applyToParticleTrack(track, particle.particle.data());
+        ATrackVisAttributes::getInstance().applyToParticleTrack(track, particle.particle.data());
         track->AddPoint(particle.r[0], particle.r[1], particle.r[2], 0);
         track->AddPoint(particle.r[0] + particle.v[0]*Length, particle.r[1] + particle.v[1]*Length, particle.r[2] + particle.v[2]*Length, 0);
         numTracks++;
@@ -2275,7 +2275,7 @@ void AParticleSimWin::on_pbConfigureTrackStyles_clicked()
     int res = D.exec();
 
     A3Global & GlobSet = A3Global::getInstance();
-    AParticleTrackVisuals & vis = AParticleTrackVisuals::getInstance();
+    ATrackVisAttributes & vis = ATrackVisAttributes::getInstance();
 
     if (res == QDialog::Accepted)
     {

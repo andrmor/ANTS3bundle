@@ -1,4 +1,4 @@
-#include "aparticletrackvisuals.h"
+#include "atrackvisattributes.h"
 #include "ajsontools.h"
 #include "a3global.h"
 
@@ -41,15 +41,16 @@ void ATrackAttributes::reset()
 
 // ---
 
-AParticleTrackVisuals & AParticleTrackVisuals::getInstance()
+ATrackVisAttributes & ATrackVisAttributes::getInstance()
 {
-    static AParticleTrackVisuals instance;
+    static ATrackVisAttributes instance;
     return instance;
 }
 
-AParticleTrackVisuals::AParticleTrackVisuals()
+ATrackVisAttributes::ATrackVisAttributes()
 {
-    clear();
+    clearParticleProps();
+    clearPhotonProps();
 
     const A3Global & GlobSet = A3Global::getConstInstance();
     if (GlobSet.TrackVisAttributes.isEmpty())
@@ -64,7 +65,7 @@ AParticleTrackVisuals::AParticleTrackVisuals()
     else readFromJson(GlobSet.TrackVisAttributes);
 }
 
-ATrackAttributes * AParticleTrackVisuals::getAttributesForParticle(const QString & name)
+ATrackAttributes * ATrackVisAttributes::getAttributesForParticle(const QString & name)
 {
     auto it = DefinedAttributes.find(name);
     if (it == DefinedAttributes.end()) return nullptr;
@@ -72,19 +73,19 @@ ATrackAttributes * AParticleTrackVisuals::getAttributesForParticle(const QString
     else return &(it->second);
 }
 
-const QStringList AParticleTrackVisuals::getDefinedParticles() const
+const QStringList ATrackVisAttributes::getDefinedParticles() const
 {
     QStringList sl;
     for (auto const & it : DefinedAttributes) sl << it.first;
     return sl;
 }
 
-void AParticleTrackVisuals::defineAttributesForParticle(const QString & name, const ATrackAttributes & att)
+void ATrackVisAttributes::defineAttributesForParticle(const QString & name, const ATrackAttributes & att)
 {
     DefinedAttributes[name] = att;
 }
 
-void AParticleTrackVisuals::writeToJson(QJsonObject &json) const
+void ATrackVisAttributes::writeToJson(QJsonObject &json) const
 {
     json["DefaultAttributes"] = DefaultAttributes.writeToJson();
 
@@ -99,16 +100,24 @@ void AParticleTrackVisuals::writeToJson(QJsonObject &json) const
         ar.push_back(el);
     }
     json["CustomAttribtes"] = ar;
+
+    json["PrimaryPhotonTracks"] = PrimaryPhotonTracks.writeToJson();
+    json["SecondaryPhotonTracks"] = SecondaryPhotonTracks.writeToJson();
+    json["HitSensorPhotonTracks"] = HitSensorPhotonTracks.writeToJson();
+    json["UseHitSensorAttributes"] = UseHitSensorAttributes;
 }
 
-void AParticleTrackVisuals::readFromJson(const QJsonObject &json)
+void ATrackVisAttributes::readFromJson(const QJsonObject & json)
 {
-    clear();
+    clearParticleProps();
+    clearPhotonProps();
     if (json.isEmpty()) return;
 
-    QJsonObject js;
-    jstools::parseJson(json, "DefaultAttributes", js);
-    DefaultAttributes.readFromJson(js);
+    {
+        QJsonObject js;
+        jstools::parseJson(json, "DefaultAttributes", js);
+        DefaultAttributes.readFromJson(js);
+    }
 
     DefinedAttributes.clear();
     QJsonArray ar;
@@ -126,14 +135,36 @@ void AParticleTrackVisuals::readFromJson(const QJsonObject &json)
 
         DefinedAttributes[pn]= ta;
     }
+
+    bool ok = jstools::parseJson(json, "UseHitSensorAttributes", UseHitSensorAttributes);
+    if (ok)
+    {
+        {
+            QJsonObject js;
+            jstools::parseJson(json, "PrimaryPhotonTracks", js);
+            PrimaryPhotonTracks.readFromJson(js);
+        }
+
+        {
+            QJsonObject js;
+            jstools::parseJson(json, "SecondaryPhotonTracks", js);
+            SecondaryPhotonTracks.readFromJson(js);
+        }
+
+        {
+            QJsonObject js;
+            jstools::parseJson(json, "HitSensorPhotonTracks", js);
+            HitSensorPhotonTracks.readFromJson(js);
+        }
+    }
 }
 
-void AParticleTrackVisuals::removeCustom(const QString & name)
+void ATrackVisAttributes::removeCustom(const QString & name)
 {
     DefinedAttributes.erase(name);
 }
 
-void AParticleTrackVisuals::applyToParticleTrack(TVirtualGeoTrack *track, const QString & Particle) const
+void ATrackVisAttributes::applyToParticleTrack(TVirtualGeoTrack *track, const QString & Particle) const
 {
     auto search = DefinedAttributes.find(Particle);
 
@@ -143,10 +174,18 @@ void AParticleTrackVisuals::applyToParticleTrack(TVirtualGeoTrack *track, const 
         search->second.setTrackAttributes(track);
 }
 
-void AParticleTrackVisuals::clear()
+void ATrackVisAttributes::clearParticleProps()
 {
     DefaultAttributes.Color = 15;
     DefaultAttributes.Width = 2;
     DefaultAttributes.Style = 1;
     DefinedAttributes.clear();
+}
+
+void ATrackVisAttributes::clearPhotonProps()
+{
+    PrimaryPhotonTracks   = {7, 1, 1};
+    SecondaryPhotonTracks = {6, 1, 1};
+    HitSensorPhotonTracks = {2, 1, 1};
+    UseHitSensorAttributes = true;
 }

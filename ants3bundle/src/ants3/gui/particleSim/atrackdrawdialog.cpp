@@ -1,8 +1,8 @@
 #include "atrackdrawdialog.h"
 #include "ui_atrackdrawdialog.h"
-#include "aparticletrackvisuals.h"
+#include "atrackvisattributes.h"
 #include "arootlineconfigurator.h"
-#include "aparticletrackvisuals.h"
+#include "atrackvisattributes.h"
 #include "guitools.h"
 
 #include <QMenuBar>
@@ -11,7 +11,7 @@
 #include "TROOT.h"
 
 ATrackDrawDialog::ATrackDrawDialog(QWidget *parent) :
-    QDialog(parent), settings(AParticleTrackVisuals::getInstance()),
+    QDialog(parent), settings(ATrackVisAttributes::getInstance()),
     ui(new Ui::ATrackDrawProperties)
 {
     setWindowTitle("Track visuals");

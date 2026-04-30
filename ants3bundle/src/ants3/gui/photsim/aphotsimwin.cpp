@@ -2449,3 +2449,9 @@ void APhotSimWin::on_cbSkipByVolume_clicked()
     emit photonSourcesChanged();
 }
 
+#include "aphotontrackvisdialog.h"
+void APhotSimWin::on_pbConfigureTracks_clicked()
+{
+    APhotonTrackVisDialog dia(this);
+    dia.exec();
+}

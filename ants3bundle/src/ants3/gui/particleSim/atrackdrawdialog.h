@@ -3,7 +3,7 @@
 
 #include <QDialog>
 
-class AParticleTrackVisuals;
+class ATrackVisAttributes;
 
 namespace Ui {
 class ATrackDrawProperties;
@@ -29,7 +29,7 @@ private slots:
     void load();
 
 private:
-    AParticleTrackVisuals & settings;
+    ATrackVisAttributes & settings;
     Ui::ATrackDrawProperties * ui;
 
     void updateParticleAttributes();

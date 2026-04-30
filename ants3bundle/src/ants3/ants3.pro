@@ -258,6 +258,7 @@ SOURCES += \
     gui/photsim/aphotgenoverridedialog.cpp \
     gui/photsim/aphotonlogsettingsform.cpp \
     gui/photsim/aphotonsourceplotter.cpp \
+    gui/photsim/aphotontrackvisdialog.cpp \
     gui/photsim/aphotsimwin.cpp \
     gui/photsim/asensordrawwidget.cpp \
     config/aconfig.cpp \
@@ -319,6 +320,7 @@ SOURCES += \
     particleSim/aorthopositroniumgammagenerator.cpp \
     particleSim/aparticleanalyzerhub.cpp \
     particleSim/aparticleanalyzersettings.cpp \
+    particleSim/atrackvisattributes.cpp \
     photonSim/aphotonloghandler.cpp \
     photonSim/interfaceRules/asurfaceinterfacerule.cpp \
     photonSim/interfaceRules/asurfacesettings.cpp \
@@ -379,7 +381,6 @@ SOURCES += \
     particleSim/aparticlesimmanager.cpp \
     particleSim/aparticlesimsettings.cpp \
     particleSim/aparticlesourcerecord.cpp \
-    particleSim/aparticletrackvisuals.cpp \
     particleSim/asourcegeneratorsettings.cpp \
     particleSim/asourceparticlegenerator.cpp \
     particleSim/atrackingdataimporter.cpp \
@@ -479,6 +480,7 @@ HEADERS += \
     gui/photsim/aphotgenoverridedialog.h \
     gui/photsim/aphotonlogsettingsform.h \
     gui/photsim/aphotonsourceplotter.h \
+    gui/photsim/aphotontrackvisdialog.h \
     gui/raster/agraphrasterwindow.h \
     gui/raster/arasterwindow.h \
     gui/rec/alrfplotterdialog.h \
@@ -488,6 +490,7 @@ HEADERS += \
     particleSim/aorthopositroniumgammagenerator.h \
     particleSim/aparticleanalyzerhub.h \
     particleSim/aparticleanalyzersettings.h \
+    particleSim/atrackvisattributes.h \
     photonSim/aphotonloghandler.h \
     photonSim/photonFunctional/aphotonfunctionalhub.h \
     photonSim/photonFunctional/aphotonfunctionalmodel.h \
@@ -627,7 +630,6 @@ HEADERS += \
     particleSim/aparticlesimmanager.h \
     particleSim/aparticlesimsettings.h \
     particleSim/aparticlesourcerecord.h \
-    particleSim/aparticletrackvisuals.h \
     particleSim/asourcegeneratorsettings.h \
     particleSim/asourceparticlegenerator.h \
     particleSim/atrackingdataimporter.h \
@@ -722,6 +724,7 @@ FORMS += \
         gui/photsim/aphotfunctwindow.ui \
         gui/photsim/aphotgenoverridedialog.ui \
         gui/photsim/aphotonlogsettingsform.ui \
+        gui/photsim/aphotontrackvisdialog.ui \
         gui/photsim/aphotsimwin.ui \
         gui/photsim/asensordrawwidget.ui \
         gui/ademowindow.ui \

@@ -196,6 +196,8 @@ private slots:
 
     void on_cbSkipByVolume_clicked();
 
+    void on_pbConfigureTracks_clicked();
+
 private:
     APhotonSimSettings & SimSet;
     const AMonitorHub  & MonitorHub;
