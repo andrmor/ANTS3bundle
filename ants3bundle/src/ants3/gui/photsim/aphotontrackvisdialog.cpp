@@ -2,12 +2,17 @@
 #include "ui_aphotontrackvisdialog.h"
 #include "atrackvisattributes.h"
 #include "a3global.h"
+#include "arootcolorselectordialog.h"
+
+#include <QComboBox>
+#include <QSpinBox>
+#include <QPushButton>
 
 #include "TROOT.h"
 #include "TColor.h"
 
 APhotonTrackVisDialog::APhotonTrackVisDialog(QWidget *parent) :
-    QDialog(parent), ui(new Ui::APhotonTrackVisDialog)
+    QDialog(parent), ui(new Ui::APhotonTrackVisDialog), CurrentAts(A3Global::getInstance().CurrentTrackVisAttributes)
 {
     ui->setupUi(this);
 
@@ -16,13 +21,32 @@ APhotonTrackVisDialog::APhotonTrackVisDialog(QWidget *parent) :
     ui->cobStyleSecondary->addItems(styles);
     ui->cobStyleHitSensor->addItems(styles);
 
+    AllTypes = { {&CurrentAts.PrimaryPhotonTracks,   ui->cobStylePrimary,   ui->sbWidthPrimary,   ui->pbColorPrimary},
+                 {&CurrentAts.SecondaryPhotonTracks, ui->cobStyleSecondary, ui->sbWidthSecondary, ui->pbColorSecondary},
+                 {&CurrentAts.HitSensorPhotonTracks, ui->cobStyleHitSensor, ui->sbWidthHitSensor, ui->pbColorHitSensor} };
+
+    for (AProps & prop : AllTypes)
+    {
+        connect(prop.cob, &QComboBox::activated, [prop](int index)
+                {
+                    prop.attr->Style = index + 1;
+                });
+
+        connect(prop.sb, &QSpinBox::valueChanged, [prop](int width)
+                {
+                    prop.attr->Width = width;
+                });
+
+        connect(prop.pb, &QPushButton::clicked, [this, prop]()
+                {
+                    ARootColorSelectorDialog dia(prop.attr->Color, this);
+                    dia.exec();
+                    updateColor(prop.pb, prop.attr->Color);
+                });
+    }
+
     QList<QPushButton*> list = this->findChildren<QPushButton *>();
     foreach(QPushButton * pb, list) {pb->setDefault(false); pb->setAutoDefault(false);}
-
-    ATrackVisAttributes & vis = A3Global::getInstance().CurrentTrackVisAttributes;
-    PrimaryPhotonTracks   = vis.PrimaryPhotonTracks;
-    SecondaryPhotonTracks = vis.SecondaryPhotonTracks;
-    HitSensorPhotonTracks = vis.HitSensorPhotonTracks;
 
     updateGui();
 }
@@ -34,51 +58,23 @@ APhotonTrackVisDialog::~APhotonTrackVisDialog()
 
 void APhotonTrackVisDialog::on_pbClose_clicked()
 {
-    //A3Global & GlobSet = A3Global::getInstance();
-    //ATrackVisAttributes & vis = ATrackVisAttributes::getInstance();
-    //vis.writeToJson(GlobSet.TrackVisAttributes);
-    //GlobSet.saveConfig();
-
-    qDebug() << PrimaryPhotonTracks.Color;
-
     accept();
 }
 
-#include "arootcolorselectordialog.h"
 void APhotonTrackVisDialog::updateGui()
 {
-    const ATrackVisAttributes & opt = A3Global::getInstance().CurrentTrackVisAttributes;
-
-    struct AProps
+    for (AProps & prop : AllTypes)
     {
-        ATrackAttributes & attr;
-        QComboBox   * cob = nullptr;
-        QSpinBox    * sb  = nullptr;
-        QPushButton * pb  = nullptr;
-    };
-    std::vector<AProps> all = { {PrimaryPhotonTracks,   ui->cobStylePrimary,   ui->sbWidthPrimary,   ui->pbColorPrimary},
-                                {SecondaryPhotonTracks, ui->cobStyleSecondary, ui->sbWidthSecondary, ui->pbColorSecondary},
-                                {HitSensorPhotonTracks, ui->cobStyleHitSensor, ui->sbWidthHitSensor, ui->pbColorHitSensor} };
-
-    for (AProps & prop : all)
-    {
-        int iStIndex = prop.attr.Style - 1; // 0 does not exist
+        int iStIndex = prop.attr->Style - 1; // 0 does not exist
         if (iStIndex < 0) iStIndex = 0;
         if (iStIndex < prop.cob->count()) prop.cob->setCurrentIndex(iStIndex);
 
-        if (prop.attr.Width > -1) prop.sb->setValue(prop.attr.Width);
+        if (prop.attr->Width > -1) prop.sb->setValue(prop.attr->Width);
 
-        updateColor(prop.pb, prop.attr.Color);
-        connect(prop.pb, &QPushButton::clicked, [this, prop]()
-        {
-            ARootColorSelectorDialog dia(prop.attr.Color, this);
-            dia.exec();
-            updateColor(prop.pb, prop.attr.Color);
-        });
-
+        updateColor(prop.pb, prop.attr->Color);
     }
 
-    ui->cbEnableHitSensor->setChecked(opt.UseHitSensorAttributes);
+    ui->cbEnableHitSensor->setChecked(CurrentAts.UseHitSensorAttributes);
 }
 
 void APhotonTrackVisDialog::updateColor(QPushButton * pb, int color)

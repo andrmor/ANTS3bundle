@@ -197,3 +197,17 @@ void ATrackVisAttributes::clearPhotonProps()
     HitSensorPhotonTracks = {2, 1, 1};
     UseHitSensorAttributes = true;
 }
+
+void ATrackVisAttributes::importParticleAttributes(ATrackVisAttributes & fromOther)
+{
+    DefaultAttributes = fromOther.DefaultAttributes;
+    DefinedAttributes = fromOther.DefinedAttributes;
+}
+
+void ATrackVisAttributes::importPhotonAttributes(ATrackVisAttributes & fromOther)
+{
+    PrimaryPhotonTracks = fromOther.PrimaryPhotonTracks;
+    SecondaryPhotonTracks = fromOther.SecondaryPhotonTracks;
+    HitSensorPhotonTracks = fromOther.HitSensorPhotonTracks;
+    UseHitSensorAttributes = fromOther.UseHitSensorAttributes;
+}

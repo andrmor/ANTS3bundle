@@ -3,11 +3,17 @@
 
 #include "atrackvisattributes.h"
 
+#include <vector>
+
 #include <QDialog>
 
 namespace Ui {
 class APhotonTrackVisDialog;
 }
+
+class QComboBox;
+class QSpinBox;
+class QPushButton;
 
 class APhotonTrackVisDialog : public QDialog
 {
@@ -23,9 +29,21 @@ private slots:
 private:
     Ui::APhotonTrackVisDialog * ui = nullptr;
 
-    ATrackAttributes PrimaryPhotonTracks;
-    ATrackAttributes SecondaryPhotonTracks;
-    ATrackAttributes HitSensorPhotonTracks;
+    ATrackVisAttributes & CurrentAts;
+
+    struct AProps
+    {
+        ATrackAttributes * attr = nullptr;
+        QComboBox   * cob = nullptr;
+        QSpinBox    * sb  = nullptr;
+        QPushButton * pb  = nullptr;
+    };
+
+    std::vector<AProps> AllTypes;
+
+    //ATrackAttributes PrimaryPhotonTracks;
+    //ATrackAttributes SecondaryPhotonTracks;
+    //ATrackAttributes HitSensorPhotonTracks;
 
     void updateGui();
     void updateColor(QPushButton * pb, int color);

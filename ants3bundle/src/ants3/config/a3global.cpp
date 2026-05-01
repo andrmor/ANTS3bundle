@@ -104,7 +104,7 @@ void A3Global::saveConfig()
     {
         QJsonObject js;
         DefaultTrackVisAttributes.writeToJson(js);
-        json["TrackVisAttributes"] = js;
+        json["DefaultTrackAttributes"] = js;
     }
 
     json["NewGeoObjectAddedLast"] = NewGeoObjectAddedLast;
@@ -192,7 +192,7 @@ void A3Global::loadConfig()
 
     {
         QJsonObject js;
-        ok = jstools::parseJson(json, "TrackVisAttributes", js);
+        ok = jstools::parseJson(json, "DefaultTrackAttributes", js);
         if (ok) DefaultTrackVisAttributes.readFromJson(js);
     }
 

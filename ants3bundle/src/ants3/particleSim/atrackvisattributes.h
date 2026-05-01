@@ -56,6 +56,9 @@ public:
 
     void clearParticleProps();
     void clearPhotonProps();
+
+    void importParticleAttributes(ATrackVisAttributes & fromOther);
+    void importPhotonAttributes(ATrackVisAttributes & fromOther);
 };
 
 #endif // ATRACKDRAWOPTIONS_H
