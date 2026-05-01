@@ -3,6 +3,7 @@
 
 #include "adrawmarginsrecord.h"
 #include "ageomarkerproperties.h"
+#include "atrackvisattributes.h"
 
 #include <QString>
 #include <QJsonObject>
@@ -58,7 +59,8 @@ public:
     bool NewGeoObjectAddedLast = false;
     int  UndoMaxDepth = 3;
 
-    QJsonObject TrackVisAttributes;
+    ATrackVisAttributes DefaultTrackVisAttributes;
+    ATrackVisAttributes CurrentTrackVisAttributes; // can be defined for each config independently
 
     // WebSocket server
     int     DefaultWebSocketPort = 1234;

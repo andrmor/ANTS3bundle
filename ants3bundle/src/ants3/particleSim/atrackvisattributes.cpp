@@ -41,28 +41,16 @@ void ATrackAttributes::reset()
 
 // ---
 
-ATrackVisAttributes & ATrackVisAttributes::getInstance()
-{
-    static ATrackVisAttributes instance;
-    return instance;
-}
-
 ATrackVisAttributes::ATrackVisAttributes()
 {
     clearParticleProps();
     clearPhotonProps();
 
-    const A3Global & GlobSet = A3Global::getConstInstance();
-    if (GlobSet.TrackVisAttributes.isEmpty())
-    {
-        DefinedAttributes["proton"]  = ATrackAttributes(2,1,1);
-        DefinedAttributes["e-"]      = ATrackAttributes(9,1,1);
-        DefinedAttributes["e+"]      = ATrackAttributes(6,1,1);
-        DefinedAttributes["gamma"]   = ATrackAttributes(1,1,1);
-        DefinedAttributes["neutron"] = ATrackAttributes(3,1,1);
-        writeToJson(A3Global::getInstance().TrackVisAttributes);
-    }
-    else readFromJson(GlobSet.TrackVisAttributes);
+    DefinedAttributes["proton"]  = ATrackAttributes(2,1,1);
+    DefinedAttributes["e-"]      = ATrackAttributes(9,1,1);
+    DefinedAttributes["e+"]      = ATrackAttributes(6,1,1);
+    DefinedAttributes["gamma"]   = ATrackAttributes(1,1,1);
+    DefinedAttributes["neutron"] = ATrackAttributes(3,1,1);
 }
 
 ATrackAttributes * ATrackVisAttributes::getAttributesForParticle(const QString & name)
@@ -85,7 +73,13 @@ void ATrackVisAttributes::defineAttributesForParticle(const QString & name, cons
     DefinedAttributes[name] = att;
 }
 
-void ATrackVisAttributes::writeToJson(QJsonObject &json) const
+void ATrackVisAttributes::writeToJson(QJsonObject & json) const
+{
+    writeToJson_particles(json);
+    writeToJson_photons(json);
+}
+
+void ATrackVisAttributes::writeToJson_particles(QJsonObject & json) const
 {
     json["DefaultAttributes"] = DefaultAttributes.writeToJson();
 
@@ -93,14 +87,17 @@ void ATrackVisAttributes::writeToJson(QJsonObject &json) const
     for (auto const & it : DefinedAttributes)
     {
         QJsonArray el;
-            el.push_back(it.first);
-                QJsonObject js;
-                it.second.writeToJson(js);
-            el.push_back(js);
+        el.push_back(it.first);
+        QJsonObject js;
+        it.second.writeToJson(js);
+        el.push_back(js);
         ar.push_back(el);
     }
     json["CustomAttribtes"] = ar;
+}
 
+void ATrackVisAttributes::writeToJson_photons(QJsonObject & json) const
+{
     json["PrimaryPhotonTracks"] = PrimaryPhotonTracks.writeToJson();
     json["SecondaryPhotonTracks"] = SecondaryPhotonTracks.writeToJson();
     json["HitSensorPhotonTracks"] = HitSensorPhotonTracks.writeToJson();
@@ -109,8 +106,13 @@ void ATrackVisAttributes::writeToJson(QJsonObject &json) const
 
 void ATrackVisAttributes::readFromJson(const QJsonObject & json)
 {
+    readFromJson_particles(json);
+    readFromJson_photons(json);
+}
+
+void ATrackVisAttributes::readFromJson_particles(const QJsonObject & json)
+{
     clearParticleProps();
-    clearPhotonProps();
     if (json.isEmpty()) return;
 
     {
@@ -135,6 +137,12 @@ void ATrackVisAttributes::readFromJson(const QJsonObject & json)
 
         DefinedAttributes[pn]= ta;
     }
+}
+
+void ATrackVisAttributes::readFromJson_photons(const QJsonObject & json)
+{
+    clearPhotonProps();
+    if (json.isEmpty()) return;
 
     bool ok = jstools::parseJson(json, "UseHitSensorAttributes", UseHitSensorAttributes);
     if (ok)

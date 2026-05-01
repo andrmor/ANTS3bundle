@@ -4,14 +4,15 @@
 #include "arootlineconfigurator.h"
 #include "atrackvisattributes.h"
 #include "guitools.h"
+#include "a3global.h"
 
 #include <QMenuBar>
 
 #include "TColor.h"
 #include "TROOT.h"
 
-ATrackDrawDialog::ATrackDrawDialog(QWidget *parent) :
-    QDialog(parent), settings(ATrackVisAttributes::getInstance()),
+ATrackDrawDialog::ATrackDrawDialog(QWidget * parent) :
+    QDialog(parent), settings(A3Global::getInstance().CurrentTrackVisAttributes),
     ui(new Ui::ATrackDrawProperties)
 {
     setWindowTitle("Track visuals");
@@ -19,7 +20,7 @@ ATrackDrawDialog::ATrackDrawDialog(QWidget *parent) :
     ui->pbClose->setDefault(true);
 
     QMenuBar* mb = new QMenuBar(this);
-    QMenu* fileMenu = mb->addMenu("&File");
+    QMenu* fileMenu = mb->addMenu("File");
     fileMenu->addAction("Save", this, &ATrackDrawDialog::save);
     fileMenu->addAction("Load", this, &ATrackDrawDialog::load);
     layout()->setMenuBar(mb);

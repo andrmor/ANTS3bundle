@@ -1,7 +1,7 @@
 #include "aphotontrackvisdialog.h"
 #include "ui_aphotontrackvisdialog.h"
 #include "atrackvisattributes.h"
-
+#include "a3global.h"
 
 #include "TROOT.h"
 #include "TColor.h"
@@ -19,7 +19,7 @@ APhotonTrackVisDialog::APhotonTrackVisDialog(QWidget *parent) :
     QList<QPushButton*> list = this->findChildren<QPushButton *>();
     foreach(QPushButton * pb, list) {pb->setDefault(false); pb->setAutoDefault(false);}
 
-    ATrackVisAttributes & vis = ATrackVisAttributes::getInstance();
+    ATrackVisAttributes & vis = A3Global::getInstance().CurrentTrackVisAttributes;
     PrimaryPhotonTracks   = vis.PrimaryPhotonTracks;
     SecondaryPhotonTracks = vis.SecondaryPhotonTracks;
     HitSensorPhotonTracks = vis.HitSensorPhotonTracks;
@@ -47,7 +47,7 @@ void APhotonTrackVisDialog::on_pbClose_clicked()
 #include "arootcolorselectordialog.h"
 void APhotonTrackVisDialog::updateGui()
 {
-    const ATrackVisAttributes & opt = ATrackVisAttributes::getInstance();
+    const ATrackVisAttributes & opt = A3Global::getInstance().CurrentTrackVisAttributes;
 
     struct AProps
     {

@@ -4,6 +4,7 @@
 #include "aeventtrackingrecord.h"
 #include "TGeoTrack.h"
 #include "TGeoManager.h"
+#include "a3global.h"
 #include "atrackvisattributes.h"
 
 #include <QApplication>
@@ -41,7 +42,7 @@ void ATrackingDataExplorer::addTrack(const AParticleTrackingRecord * r,
     {
         TGeoTrack * track = new TGeoTrack(1, 22);
 
-        ATrackVisAttributes::getInstance().applyToParticleTrack(track, r->ParticleName);
+        A3Global::getInstance().CurrentTrackVisAttributes.applyToParticleTrack(track, r->ParticleName);
 
         const std::vector<ATrackingStepData *> & Steps = r->getSteps();
         for (const ATrackingStepData * step : Steps)

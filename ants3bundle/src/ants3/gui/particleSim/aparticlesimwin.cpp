@@ -185,6 +185,13 @@ void AParticleSimWin::writeToJson(QJsonObject & json) const
         }
         json["Analyser"] = jsAn;
     }
+
+    // track properties
+    {
+        QJsonObject js;
+        A3Global::getInstance().CurrentTrackVisAttributes.writeToJson_particles(js);
+        json["ParticleTrackAttributes"] = js;
+    }
 }
 
 void AParticleSimWin::readFromJson(const QJsonObject &json)
@@ -284,6 +291,13 @@ void AParticleSimWin::readFromJson(const QJsonObject &json)
                     guitools::parseJsonToQLineEdit(js, "EventsPerThread", ui->ledEventsPerThread);
             }
         }
+    }
+
+    // track properties
+    {
+        QJsonObject js;
+        bool ok = jstools::parseJson(json, "ParticleTrackAttributes", js);
+        if (ok) A3Global::getInstance().CurrentTrackVisAttributes.readFromJson_particles(js);
     }
 }
 
@@ -802,7 +816,7 @@ void AParticleSimWin::testParticleGun(AParticleGun * gun, int numParticles, bool
         if (numTracks > 1000) return;
         int track_index = gGeoManager->AddTrack(1, 22);
         TVirtualGeoTrack * track = gGeoManager->GetTrack(track_index);
-        ATrackVisAttributes::getInstance().applyToParticleTrack(track, particle.particle.data());
+        A3Global::getInstance().CurrentTrackVisAttributes.applyToParticleTrack(track, particle.particle.data());
         track->AddPoint(particle.r[0], particle.r[1], particle.r[2], 0);
         track->AddPoint(particle.r[0] + particle.v[0]*Length, particle.r[1] + particle.v[1]*Length, particle.r[2] + particle.v[2]*Length, 0);
         numTracks++;
@@ -2271,21 +2285,8 @@ void AParticleSimWin::on_sbShowEvent_editingFinished()
 #include "atrackdrawdialog.h"
 void AParticleSimWin::on_pbConfigureTrackStyles_clicked()
 {
-    ATrackDrawDialog D(this);
-    int res = D.exec();
-
-    A3Global & GlobSet = A3Global::getInstance();
-    ATrackVisAttributes & vis = ATrackVisAttributes::getInstance();
-
-    if (res == QDialog::Accepted)
-    {
-        vis.writeToJson(GlobSet.TrackVisAttributes);
-        GlobSet.saveConfig();
-    }
-    else
-    {
-        vis.readFromJson(GlobSet.TrackVisAttributes);
-    }
+    ATrackDrawDialog dia(this);
+    dia.exec();
 }
 
 void AParticleSimWin::on_cbLimitToParticleTracks_toggled(bool checked)

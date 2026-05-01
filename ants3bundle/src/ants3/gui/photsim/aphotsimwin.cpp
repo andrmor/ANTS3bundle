@@ -142,6 +142,13 @@ void APhotSimWin::writeToJson(QJsonObject & json) const
             js["G3"] = ui->leSensorsG3->text();
         json["SensorGroups"] = js;
     }
+
+    // Track properties
+    {
+        QJsonObject js;
+        A3Global::getInstance().CurrentTrackVisAttributes.writeToJson_photons(js);
+        json["PhotonTrackAttributes"] = js;
+    }
 }
 
 void APhotSimWin::readFromJson(const QJsonObject & json)
@@ -179,6 +186,13 @@ void APhotSimWin::readFromJson(const QJsonObject & json)
             jstools::parseJson(js, "G2", str); ui->leSensorsG2->setText(str);
             jstools::parseJson(js, "G3", str); ui->leSensorsG3->setText(str);
         }
+    }
+
+    // Track properties
+    {
+        QJsonObject js;
+        bool ok = jstools::parseJson(json, "PhotonTrackAttributes", js);
+        if (ok) A3Global::getInstance().CurrentTrackVisAttributes.readFromJson_photons(js);
     }
 }
 

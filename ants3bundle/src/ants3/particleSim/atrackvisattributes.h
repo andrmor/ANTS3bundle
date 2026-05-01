@@ -30,17 +30,8 @@ public:
 class ATrackVisAttributes
 {
 public:
-    static ATrackVisAttributes & getInstance();
-
-private:
     ATrackVisAttributes();
 
-    ATrackVisAttributes(const ATrackVisAttributes&)            = delete;
-    ATrackVisAttributes(ATrackVisAttributes&&)                 = delete;
-    ATrackVisAttributes& operator=(const ATrackVisAttributes&) = delete;
-    ATrackVisAttributes& operator=(ATrackVisAttributes&&)      = delete;
-
-public:
     ATrackAttributes DefaultAttributes;
     std::map<QString, ATrackAttributes> DefinedAttributes;
 
@@ -51,17 +42,18 @@ public:
 
     ATrackAttributes * getAttributesForParticle(const QString & name); // nullptr if not yet defined
     const QStringList getDefinedParticles() const;
-
     void defineAttributesForParticle(const QString & name, const ATrackAttributes & att);
-
-    void writeToJson(QJsonObject & json) const;
-    void readFromJson(const QJsonObject & json);
-
     void removeCustom(const QString & name);
-
     void applyToParticleTrack(TVirtualGeoTrack * track, const QString & Particle) const;
 
-private:
+    void writeToJson(QJsonObject & json) const;
+    void writeToJson_particles(QJsonObject & json) const;
+    void writeToJson_photons(QJsonObject & json) const;
+
+    void readFromJson(const QJsonObject & json);
+    void readFromJson_particles(const QJsonObject & json);
+    void readFromJson_photons(const QJsonObject & json);
+
     void clearParticleProps();
     void clearPhotonProps();
 };

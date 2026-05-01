@@ -101,7 +101,11 @@ void A3Global::saveConfig()
     json["SW_Italic"]      = SW_Italic;
     json["TabInSpaces"]    = TabInSpaces;
 
-    json["TrackVisAttributes"] = TrackVisAttributes;
+    {
+        QJsonObject js;
+        DefaultTrackVisAttributes.writeToJson(js);
+        json["TrackVisAttributes"] = js;
+    }
 
     json["NewGeoObjectAddedLast"] = NewGeoObjectAddedLast;
     json["UndoMaxDepth"] = UndoMaxDepth;
@@ -186,7 +190,11 @@ void A3Global::loadConfig()
     jstools::parseJson(json, "SW_Italic", SW_Italic);
     jstools::parseJson(json, "TabInSpaces", TabInSpaces);
 
-    jstools::parseJson(json, "TrackVisAttributes", TrackVisAttributes);
+    {
+        QJsonObject js;
+        ok = jstools::parseJson(json, "TrackVisAttributes", js);
+        if (ok) DefaultTrackVisAttributes.readFromJson(js);
+    }
 
     jstools::parseJson(json, "NewGeoObjectAddedLast", NewGeoObjectAddedLast);
     jstools::parseJson(json, "UndoMaxDepth", UndoMaxDepth);
