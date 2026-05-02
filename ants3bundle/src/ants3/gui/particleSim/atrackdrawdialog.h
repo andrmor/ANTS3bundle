@@ -28,12 +28,18 @@ private slots:
     void save();
     void load();
 
+    void loadDefault();
+    void setDefault();
+    void updateDefault();
+    void resetAnts3Default();
+
 private:
     ATrackVisAttributes & settings;
-    Ui::ATrackDrawProperties * ui;
+    Ui::ATrackDrawProperties * ui = nullptr;
 
     void updateParticleAttributes();
     void updateParticles(int forceIndex = -1);
+
 };
 
 #endif // ATRACKDRAWPROPERTIES_H

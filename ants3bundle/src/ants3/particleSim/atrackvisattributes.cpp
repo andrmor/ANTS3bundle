@@ -45,12 +45,6 @@ ATrackVisAttributes::ATrackVisAttributes()
 {
     clearParticleProps();
     clearPhotonProps();
-
-    DefinedAttributes["proton"]  = ATrackAttributes(2,1,1);
-    DefinedAttributes["e-"]      = ATrackAttributes(9,1,1);
-    DefinedAttributes["e+"]      = ATrackAttributes(6,1,1);
-    DefinedAttributes["gamma"]   = ATrackAttributes(1,1,1);
-    DefinedAttributes["neutron"] = ATrackAttributes(3,1,1);
 }
 
 ATrackAttributes * ATrackVisAttributes::getAttributesForParticle(const QString & name)
@@ -182,12 +176,27 @@ void ATrackVisAttributes::applyToParticleTrack(TVirtualGeoTrack *track, const QS
         search->second.setTrackAttributes(track);
 }
 
+void ATrackVisAttributes::applyToPhotonTrack(TVirtualGeoTrack * track, bool secondary, bool hit) const
+{
+    if (hit && UseHitSensorAttributes) HitSensorPhotonTracks.setTrackAttributes(track);
+    else
+    {
+        secondary ? SecondaryPhotonTracks.setTrackAttributes(track) : PrimaryPhotonTracks.setTrackAttributes(track);
+    }
+}
+
 void ATrackVisAttributes::clearParticleProps()
 {
     DefaultAttributes.Color = 15;
     DefaultAttributes.Width = 2;
     DefaultAttributes.Style = 1;
+
     DefinedAttributes.clear();
+    DefinedAttributes["proton"]  = ATrackAttributes(2,1,1);
+    DefinedAttributes["e-"]      = ATrackAttributes(9,1,1);
+    DefinedAttributes["e+"]      = ATrackAttributes(6,1,1);
+    DefinedAttributes["gamma"]   = ATrackAttributes(1,1,1);
+    DefinedAttributes["neutron"] = ATrackAttributes(3,1,1);
 }
 
 void ATrackVisAttributes::clearPhotonProps()
@@ -202,6 +211,14 @@ void ATrackVisAttributes::importParticleAttributes(ATrackVisAttributes & fromOth
 {
     DefaultAttributes = fromOther.DefaultAttributes;
     DefinedAttributes = fromOther.DefinedAttributes;
+}
+
+void ATrackVisAttributes::importAndMergeParticleAttributes(ATrackVisAttributes & fromOther)
+{
+    DefaultAttributes = fromOther.DefaultAttributes;
+
+    for (auto const & pair : fromOther.DefinedAttributes)
+        DefinedAttributes[pair.first] = pair.second;
 }
 
 void ATrackVisAttributes::importPhotonAttributes(ATrackVisAttributes & fromOther)

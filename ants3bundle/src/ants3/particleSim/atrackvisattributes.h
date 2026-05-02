@@ -46,6 +46,8 @@ public:
     void removeCustom(const QString & name);
     void applyToParticleTrack(TVirtualGeoTrack * track, const QString & Particle) const;
 
+    void applyToPhotonTrack(TVirtualGeoTrack * track, bool secondary, bool hit) const;
+
     void writeToJson(QJsonObject & json) const;
     void writeToJson_particles(QJsonObject & json) const;
     void writeToJson_photons(QJsonObject & json) const;
@@ -58,6 +60,7 @@ public:
     void clearPhotonProps();
 
     void importParticleAttributes(ATrackVisAttributes & fromOther);
+    void importAndMergeParticleAttributes(ATrackVisAttributes & fromOther);
     void importPhotonAttributes(ATrackVisAttributes & fromOther);
 };
 

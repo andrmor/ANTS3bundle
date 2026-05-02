@@ -15,6 +15,7 @@ APhotonTrackVisDialog::APhotonTrackVisDialog(QWidget *parent) :
     QDialog(parent), ui(new Ui::APhotonTrackVisDialog), CurrentAts(A3Global::getInstance().CurrentTrackVisAttributes)
 {
     ui->setupUi(this);
+    setWindowTitle("Photon track attributes");
 
     QStringList styles = {"Straight", "Short_dash", "Dot", "Short_dash dot", "Dash dot", "Dash 3_dots", "Dash", "Dash 2_dots", "Long_dash", "Long_dash dot"};
     ui->cobStylePrimary->  addItems(styles);
@@ -44,6 +45,11 @@ APhotonTrackVisDialog::APhotonTrackVisDialog(QWidget *parent) :
                     updateColor(prop.pb, prop.attr->Color);
                 });
     }
+
+    connect(ui->cbEnableHitSensor, &QCheckBox::clicked, [this](bool checked)
+            {
+                CurrentAts.UseHitSensorAttributes = checked;
+            });
 
     QList<QPushButton*> list = this->findChildren<QPushButton *>();
     foreach(QPushButton * pb, list) {pb->setDefault(false); pb->setAutoDefault(false);}

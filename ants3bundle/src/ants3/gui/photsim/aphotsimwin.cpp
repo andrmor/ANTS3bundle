@@ -1037,8 +1037,6 @@ void APhotSimWin::on_pbLoadAndShowTracks_clicked()
 
 void APhotSimWin::loadAndShowTracks(bool suppressMessage, int selectedEvent)
 {
-
-
     QString FileName = ui->leTracksFile->text();
     if (!FileName.contains('/')) FileName = ui->leResultsWorkingDir->text() + '/' + FileName;
 
@@ -1058,6 +1056,7 @@ void APhotSimWin::loadAndShowTracks(bool suppressMessage, int selectedEvent)
     bool bSuppressNotHittingSensors = ui->cbSuppressTracksMissing->isChecked();
     bool bEnforceMaxNumTracks = ui->cbTracksMaxInVis->isChecked();
     int maxTracks = ui->sbmaxTracksInVis->value();
+    const A3Global & GlobSet = A3Global::getConstInstance();
 
     int addedTracks = 0;
     QTextStream in(&file);
@@ -1103,17 +1102,12 @@ void APhotSimWin::loadAndShowTracks(bool suppressMessage, int selectedEvent)
 
         TGeoTrack * track = new TGeoTrack(1, 22);
         addedTracks++;
-        int Color = 7;
-        if (bSec) Color = kMagenta;
-        if (bHit) Color = 2;
-        track->SetLineColor(Color);
-        //track->SetLineWidth(th->Width);
-        //track->SetLineStyle(th->Style);
+        GlobSet.CurrentTrackVisAttributes.applyToPhotonTrack(track, bSec, bHit);
 
         for (int iNode = 0; iNode < ar.size(); iNode++)
         {
             QJsonArray el = ar[iNode].toArray();
-            if (el.size() < 3) continue; // !!!***
+            if (el.size() < 3) continue;
             track->AddPoint(el[0].toDouble(), el[1].toDouble(), el[2].toDouble(), 0);
         }
         if (track->GetNpoints() > 1) GeoManager->AddTrack(track);

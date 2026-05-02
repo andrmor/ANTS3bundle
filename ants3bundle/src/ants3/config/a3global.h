@@ -59,8 +59,8 @@ public:
     bool NewGeoObjectAddedLast = false;
     int  UndoMaxDepth = 3;
 
-    ATrackVisAttributes DefaultTrackVisAttributes;
-    ATrackVisAttributes CurrentTrackVisAttributes; // can be defined for each config independently
+    ATrackVisAttributes DefaultTrackVisAttributes; // saved/loaded here
+    ATrackVisAttributes CurrentTrackVisAttributes; // saved/loaded in A3config
 
     // WebSocket server
     int     DefaultWebSocketPort = 1234;
