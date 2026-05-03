@@ -538,6 +538,7 @@ void AGeoTreeWin::on_pbRunTestParticle_clicked()
    }
 
    Geometry.GeoManager->ClearTracks();
+   emit requestShowGeometry(false, true, true);
 
    for (int i=0; i<Tester.Record.size(); i++)
    {
@@ -557,7 +558,6 @@ void AGeoTreeWin::on_pbRunTestParticle_clicked()
        Geometry.GeoManager->AddTrack(track);
    }
 
-   emit requestShowGeometry(false, true, true);
    emit requestShowTracks();
 }
 
