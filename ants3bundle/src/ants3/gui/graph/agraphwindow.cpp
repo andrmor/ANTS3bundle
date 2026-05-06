@@ -1979,8 +1979,30 @@ void AGraphWindow::onBasketDeleteShortcutActivated()
 
 void AGraphWindow::onCursorPositionReceived(double x, double y, bool bOn)
 {
+    double z = 0;
+    bool bZvis = false;
+
+    if (!DrawObjects.empty() && !DrawObjects.front().Multidraw)
+    {
+        TObject *  obj = DrawObjects.front().Pointer;
+        TH2D * h2d = dynamic_cast<TH2D*>(obj);
+        if (h2d)
+        {
+            int bin = h2d->FindBin(x, y);
+            if (bin > 0)
+            {
+                z = h2d->GetBinContent(bin);
+                bZvis = true;
+            }
+        }
+    }
+
     ui->labCursorX->setText(bOn ? QString::number(x, 'g', 4) : "--");
     ui->labCursorY->setText(bOn ? QString::number(y, 'g', 4) : "--");
+    ui->labCursorZ->setText(bOn ? QString::number(z, 'g', 4) : "--");
+
+    ui->labZ->setVisible(bZvis);
+    ui->labCursorZ->setVisible(bZvis);
 }
 
 void AGraphWindow::makeCopyOfDrawObjects()
