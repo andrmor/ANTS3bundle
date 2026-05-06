@@ -230,9 +230,11 @@ void ALegendDialog::onEntrySelectionChanged()
 {
     SelectedObject = nullptr;
 
+    int iCurrent = lwList->currentRow();
+    //qDebug() << "aaaaaaaaaaa" << iCurrent; // can be -1!
     int selSize = lwList->selectedItems().size();
-    if (selSize == 1)
-        SelectedObject = CurrentModel.Model.at(lwList->currentRow()).TObj;
+    if (selSize == 1 && iCurrent != -1)
+        SelectedObject = CurrentModel.Model.at(iCurrent).TObj;
 
     ui->pbThisEntryTextAttributes->setEnabled(selSize != 0);
     ui->pbRemoveSelected->setEnabled(selSize != 0);
