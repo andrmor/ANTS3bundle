@@ -2331,6 +2331,11 @@ void AGraphWindow::clearBasket()
     updateBasketGUI();
 }
 
+void AGraphWindow::saveBasket(QString fileName)
+{
+    Basket->saveBasket(fileName);
+}
+
 void AGraphWindow::on_actionBasic_ROOT_triggered()
 {
     gStyle->SetPalette(57);

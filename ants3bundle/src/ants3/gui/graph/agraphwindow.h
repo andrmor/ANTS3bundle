@@ -47,6 +47,7 @@ public slots:
     void drawLegend(double x1, double y1, double x2, double y2, QString title);
     void configureLegendBorder(int color, int style, int size);
     void clearBasket();
+    void saveBasket(QString fileName);
     void saveGraph(const QString & fileName);
     void setStatPanelVisible(bool flag); // script interface
     void setLogScale(bool X, bool Y);
