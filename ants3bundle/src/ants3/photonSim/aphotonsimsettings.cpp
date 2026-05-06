@@ -830,7 +830,7 @@ void APhotSimRunSettings::clear()
     UpperTimeLimit        = 100;
 
     SaveMonitors          = false;
-    FileNameMonitors      = "PhotonMonitors.txt";
+    FileNameMonitors      = "PhotonMonitors.json";
 
     SaveConfig            = false;
     FileNameConfig        = "Config_OpticalSim.json";

@@ -279,7 +279,7 @@ public:
     double  UpperTimeLimit        = 1e9;
 
     bool    SaveMonitors          = false;
-    QString FileNameMonitors      = "PhotonMonitors.txt";
+    QString FileNameMonitors      = "PhotonMonitors.json";
 
     bool    SaveConfig            = false;
     QString FileNameConfig        = "Config_OpticalSim.json";
