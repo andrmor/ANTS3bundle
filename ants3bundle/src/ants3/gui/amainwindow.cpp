@@ -223,10 +223,20 @@ void AMainWindow::showLrfPlotterDialog()
 #include "amercuryeventexplorer.h"
 void AMainWindow::showEventExplorer(Reconstructor * rec, std::vector<std::vector<double>> * events)
 {
-    AMercuryEventExplorer * expl = new AMercuryEventExplorer(rec, events, this);
-    connect(expl, &AMercuryEventExplorer::requestDraw, GraphWin, &AGraphWindow::onDrawRequest);
-    expl->exec();
-    delete expl;
+    if (!MercuryEventExplorer)
+    {
+        MercuryEventExplorer = new AMercuryEventExplorer();
+        connect(MercuryEventExplorer, &AMercuryEventExplorer::requestDraw, GraphWin, &AGraphWindow::onDrawRequest);
+    }
+
+    QString err = MercuryEventExplorer->start(rec, events); // events will be owned; !!!*** todo: make a local copy of rec !!!
+    if (!err.isEmpty())
+    {
+        qWarning() << err;
+        return;
+    }
+
+    MercuryEventExplorer->show();
 }
 #endif
 
@@ -643,6 +653,11 @@ void AMainWindow::closeEvent(QCloseEvent *)
 {
     qDebug() << "\n<MainWindow shutdown initiated";
     clearFocus();
+
+#ifdef USE_MERCURY
+    delete LrfPlotterDialog; LrfPlotterDialog = nullptr;
+    delete MercuryEventExplorer; MercuryEventExplorer = nullptr;
+#endif
 
     qDebug() << "<Saving position/status of all windows";
     saveWindowGeometries();

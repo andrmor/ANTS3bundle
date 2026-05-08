@@ -553,7 +553,7 @@ void AMercury_si::showEventExplorer(QVariantList sensorSignalsOverAllEvents)
         return;
     }
 
-    std::vector<std::vector<double>> * amplitudes = new std::vector<std::vector<double>>(numEvents);
+    std::vector<std::vector<double>> * amplitudes = new std::vector<std::vector<double>>(numEvents); // will be owned by the Explorer
 
     for (size_t iEv = 0; iEv < numEvents; iEv++)
     {
