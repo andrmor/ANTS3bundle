@@ -90,7 +90,7 @@ signals:
     void requestAddToBasket(QString title);
     void requestShowLightResponseExplorer(LRModel * model); // mercury SI
     void requestShowPlotterDialog();   // mercury SI
-    void requestShowEventExplorer(Reconstructor * rec, std::vector<std::vector<double>> * events);   // mercury SI
+    void requestShowEventExplorer(Reconstructor * rec, std::vector<std::vector<double>> * events, std::vector<std::array<double,3>> * truePositions);   // mercury SI; truePositions can be nullptr
 
     // signals for geo window (which can be dynamically replaced, so connection is also dynamic, see MainWindow::connectSignalSlotsForGeoWin)
     void requestRedraw();

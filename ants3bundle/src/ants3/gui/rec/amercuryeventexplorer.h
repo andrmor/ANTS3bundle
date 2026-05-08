@@ -22,7 +22,7 @@ public:
     AMercuryEventExplorer(QWidget * parent = nullptr);
     ~AMercuryEventExplorer();
 
-    QString start(Reconstructor * reconstructor, std::vector<std::vector<double>> * events);
+    QString start(Reconstructor * reconstructor, std::vector<std::vector<double>> * events, std::vector<std::array<double, 3>> * truePositions);
 
     bool bFinished = false;
 
@@ -53,9 +53,10 @@ private slots:
 private:
     Ui::AMercuryEventExplorer * ui = nullptr;
 
-    LRModel * Model = nullptr;
-    Reconstructor * Rec = nullptr;
-    std::vector<std::vector<double>> * Events = nullptr;
+    LRModel       * Model = nullptr;
+    Reconstructor * Rec   = nullptr;
+    std::vector<std::vector<double>>   * Events        = nullptr;
+    std::vector<std::array<double, 3>> * TruePositions = nullptr;
 
     bool bGood = false;
 

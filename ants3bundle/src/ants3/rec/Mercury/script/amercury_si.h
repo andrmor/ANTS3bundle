@@ -40,7 +40,7 @@ public slots:
     void plot_vsTrueXY(QString what);
     void showReconstructedPositions(QVariantList XYZE_ofEvents, QVariantList goodEvents = QVariantList());
     void showTruePositions(QVariantList XYZ_ofEvents, QVariantList goodEvents = QVariantList());
-    void showEventExplorer(QVariantList sensorSignalsOverAllEvents);
+    void showEventExplorer(QVariantList sensorSignalsOverAllEvents, QVariantList truePositions = QVariantList());
 
     // --- Low level ---
     void configure_COG(double signalAbsoluteCutoff, double signalRelativeCutoff, double z0);

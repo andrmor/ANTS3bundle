@@ -35,13 +35,15 @@ AMercuryEventExplorer::~AMercuryEventExplorer()
 {
     delete ui;
     delete Events;
+    delete TruePositions;
 }
 
-QString AMercuryEventExplorer::start(Reconstructor * reconstructor, std::vector<std::vector<double>> * events)
+QString AMercuryEventExplorer::start(Reconstructor * reconstructor, std::vector<std::vector<double>> * events, std::vector<std::array<double, 3>> * truePositions)
 {
     Model = ALightResponseHub::getInstance().Model;
     Rec = reconstructor;
     delete Events; Events = events;
+    delete TruePositions; TruePositions = truePositions;
 
     bFinished = true;
     if (!Model) return "Model is not defined";
@@ -98,8 +100,12 @@ void AMercuryEventExplorer::onEventChanged()
         txt = QString("Reconstruction results:\nX: %0 Y: %1 Z: %2   E: %3   Chi2: %4").arg(x).arg(y).arg(z).arg(e).arg(chi2/dof);
     }
     else
-    {
         txt = QString("Reconstruction failed\nStatus: %0").arg(Rec->getRecStatus());
+
+    if (TruePositions)
+    {
+        const std::array<double,3> & pos = TruePositions->at(iEvent);
+        txt += QString("\nTrue position:\nX: %0 Y: %1 Z: %2").arg(pos[0]).arg(pos[1]).arg(pos[2]);
     }
 
     ui->pteOut->appendPlainText(txt);
@@ -165,6 +171,12 @@ void AMercuryEventExplorer::showMap()
             break;
         case 1:
             origin = {ui->ledX0->text().toDouble(), ui->ledY0->text().toDouble(), ui->ledZ0->text().toDouble()};
+            break;
+        case 2:
+            origin = {Rec->getGuessX(), Rec->getGuessY(), Rec->getGuessZ()};
+            break;
+        case 3:
+            origin = {TruePositions->at(iEvent)[0], TruePositions->at(iEvent)[1], TruePositions->at(iEvent)[2]};
             break;
     }
 
@@ -322,6 +334,11 @@ void AMercuryEventExplorer::on_sbXbins_editingFinished()
 
 void AMercuryEventExplorer::on_cobMapCenter_currentIndexChanged(int index)
 {
+    if (index == 3 && !TruePositions)
+    {
+        ui->cobMapCenter->setCurrentIndex(0);
+        index = 0;
+    }
     ui->frFixedOrigin->setVisible(index == 1);
     if (ui->pbMap->isChecked()) showMap();
 }

@@ -538,7 +538,7 @@ void AMercury_si::showTruePositions(QVariantList XYZ_ofEvents, QVariantList good
     ScrHub.waitForGuiCallFinished(Lang);
 }
 
-void AMercury_si::showEventExplorer(QVariantList sensorSignalsOverAllEvents)
+void AMercury_si::showEventExplorer(QVariantList sensorSignalsOverAllEvents, QVariantList truePositions)
 {
     if (!RecMP)
     {
@@ -553,7 +553,21 @@ void AMercury_si::showEventExplorer(QVariantList sensorSignalsOverAllEvents)
         return;
     }
 
+    bool bHaveTrue = false;
+    if (!truePositions.isEmpty())
+    {
+        if (numEvents != truePositions.size())
+        {
+            abort("The array with true positions for showEventExplorer has mismatching number of events");
+            return;
+        }
+        bHaveTrue = true;
+    }
+
     std::vector<std::vector<double>> * amplitudes = new std::vector<std::vector<double>>(numEvents); // will be owned by the Explorer
+
+    std::vector<std::array<double,3>> * trues = nullptr;
+    if (bHaveTrue) trues = new std::vector<std::array<double,3>>(numEvents); // will be owned by the Explorer
 
     for (size_t iEv = 0; iEv < numEvents; iEv++)
     {
@@ -563,9 +577,22 @@ void AMercury_si::showEventExplorer(QVariantList sensorSignalsOverAllEvents)
         amplitudes->at(iEv).resize(numEl);
         for (qsizetype i = 0; i < numEl; i++)
             amplitudes->at(iEv)[i] = sensSignals[i].toDouble();
+
+        if (bHaveTrue)
+        {
+            QVariantList position = truePositions[iEv].toList();
+            const qsizetype numEl = position.size();
+            if (numEl > 1)
+            {
+                trues->at(iEv)[0] = position[0].toDouble();
+                trues->at(iEv)[1] = position[1].toDouble();
+            }
+            if (numEl > 2)
+                trues->at(iEv)[2] = position[2].toDouble();
+        }
     }
 
-    emit AScriptHub::getInstance().requestShowEventExplorer(RecMP->getFirstWorker(), amplitudes);
+    emit AScriptHub::getInstance().requestShowEventExplorer(RecMP->getFirstWorker(), amplitudes, trues);
 }
 
 void AMercury_si::doPlot_vsXY(bool vsTrue, EPlotOption opt, const std::vector<double> & x, const std::vector<double> & y)

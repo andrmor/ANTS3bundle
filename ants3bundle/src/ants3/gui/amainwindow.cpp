@@ -221,7 +221,7 @@ void AMainWindow::showLrfPlotterDialog()
 }
 
 #include "amercuryeventexplorer.h"
-void AMainWindow::showEventExplorer(Reconstructor * rec, std::vector<std::vector<double>> * events)
+void AMainWindow::showEventExplorer(Reconstructor * rec, std::vector<std::vector<double>> * events, std::vector<std::array<double, 3>> * truePositions)
 {
     if (!MercuryEventExplorer)
     {
@@ -229,7 +229,7 @@ void AMainWindow::showEventExplorer(Reconstructor * rec, std::vector<std::vector
         connect(MercuryEventExplorer, &AMercuryEventExplorer::requestDraw, GraphWin, &AGraphWindow::onDrawRequest);
     }
 
-    QString err = MercuryEventExplorer->start(rec, events); // events will be owned; !!!*** todo: make a local copy of rec !!!
+    QString err = MercuryEventExplorer->start(rec, events, truePositions); // events will be owned; !!!*** todo: make a local copy of rec !!!
     if (!err.isEmpty())
     {
         qWarning() << err;
