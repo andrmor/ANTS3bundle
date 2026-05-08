@@ -538,6 +538,36 @@ void AMercury_si::showTruePositions(QVariantList XYZ_ofEvents, QVariantList good
     ScrHub.waitForGuiCallFinished(Lang);
 }
 
+void AMercury_si::showEventExplorer(QVariantList sensorSignalsOverAllEvents)
+{
+    if (!RecMP)
+    {
+        abort("Reconstructor was not created yet");
+        return;
+    }
+
+    const size_t numEvents = sensorSignalsOverAllEvents.size();
+    if (numEvents == 0)
+    {
+        abort("The array with events for showEventExplorer is empty");
+        return;
+    }
+
+    std::vector<std::vector<double>> * amplitudes = new std::vector<std::vector<double>>(numEvents);
+
+    for (size_t iEv = 0; iEv < numEvents; iEv++)
+    {
+        QVariantList sensSignals = sensorSignalsOverAllEvents[iEv].toList();
+        qsizetype numEl = sensSignals.size();
+
+        amplitudes->at(iEv).resize(numEl);
+        for (qsizetype i = 0; i < numEl; i++)
+            amplitudes->at(iEv)[i] = sensSignals[i].toDouble();
+    }
+
+    emit AScriptHub::getInstance().requestShowEventExplorer(RecMP->getFirstWorker(), amplitudes);
+}
+
 void AMercury_si::doPlot_vsXY(bool vsTrue, EPlotOption opt, const std::vector<double> & x, const std::vector<double> & y)
 {
     if (!vsTrue)

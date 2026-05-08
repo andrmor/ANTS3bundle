@@ -17,6 +17,7 @@ class LRModel;
 class ALrfPlotter;
 class AGeoMarkerClass;
 class TVirtualGeoTrack;
+class Reconstructor;
 
 #ifdef ANTS3_PYTHON
     class APythonScriptManager;
@@ -89,6 +90,7 @@ signals:
     void requestAddToBasket(QString title);
     void requestShowLightResponseExplorer(LRModel * model); // mercury SI
     void requestShowPlotterDialog();   // mercury SI
+    void requestShowEventExplorer(Reconstructor * rec, std::vector<std::vector<double>> * events);   // mercury SI
 
     // signals for geo window (which can be dynamically replaced, so connection is also dynamic, see MainWindow::connectSignalSlotsForGeoWin)
     void requestRedraw();

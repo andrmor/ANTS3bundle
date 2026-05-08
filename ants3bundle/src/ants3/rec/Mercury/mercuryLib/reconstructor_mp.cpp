@@ -138,6 +138,12 @@ void ReconstructorMP::ProcessEvents (std::vector <std::vector <double> > &A, std
     }
 }
 
+Reconstructor * ReconstructorMP::getFirstWorker()
+{
+    if (recs.empty()) return nullptr;
+    return recs.front();
+}
+
 int ReconstructorMP::getProgress()
 {
     int acc = 0;

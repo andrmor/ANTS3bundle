@@ -24,6 +24,8 @@ public:
     void ProcessEvents (std::vector <std::vector <double> > &A, std::vector <std::vector <bool> > &Sat);
     void ProcessEvents (std::vector <std::vector <double> > &A, std::vector <std::vector <bool> > &Sat, std::vector <std::vector <double> > &Guess);
 
+    Reconstructor * getFirstWorker();
+
 // public interface
 public:
     std::vector <int> getRecStatus() {return rec_status;}

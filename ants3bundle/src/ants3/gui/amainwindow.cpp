@@ -144,6 +144,7 @@ AMainWindow::AMainWindow() :
     connect(ScriptHub,  &AScriptHub::requestShowLightResponseExplorer, this, &AMainWindow::showLightResponseExplorer, Qt::QueuedConnection);
     connect(ScriptHub,  &AScriptHub::requestShowPlotterDialog,         this, &AMainWindow::showLrfPlotterDialog,      Qt::QueuedConnection);
     connect(PhotSimWin, &APhotSimWin::requestShowLrfPlotterDialog,     this, &AMainWindow::showLrfPlotterDialog,      Qt::DirectConnection);
+    connect(ScriptHub,  &AScriptHub::requestShowEventExplorer,         this, &AMainWindow::showEventExplorer,         Qt::QueuedConnection);
     ALightResponseHub & LRHub = ALightResponseHub::getInstance();
     connect(LRHub.LrfPlotter, &ALrfPlotter::requestDraw, GraphWin, &AGraphWindow::onDrawRequest, Qt::DirectConnection); // both live in GUI thread
     LrfPlotterDialog = new ALrfPlotterDialog(this);
@@ -217,6 +218,15 @@ void AMainWindow::showLrfPlotterDialog()
     QApplication::processEvents();
     LrfPlotterDialog->start();
     LrfPlotterDialog->setFocus();
+}
+
+#include "amercuryeventexplorer.h"
+void AMainWindow::showEventExplorer(Reconstructor * rec, std::vector<std::vector<double>> * events)
+{
+    AMercuryEventExplorer * expl = new AMercuryEventExplorer(rec, events, this);
+    connect(expl, &AMercuryEventExplorer::requestDraw, GraphWin, &AGraphWindow::onDrawRequest);
+    expl->exec();
+    delete expl;
 }
 #endif
 

@@ -303,6 +303,7 @@ SOURCES += \
     gui/raster/agraphrasterwindow.cpp \
     gui/raster/arasterwindow.cpp \
     gui/rec/alrfplotterdialog.cpp \
+    gui/rec/amercuryeventexplorer.cpp \
     gui/script/aargumentcounter.cpp \
     gui/script/ageoscriptmaker.cpp \
     gui/script/aguifromscrwin.cpp \
@@ -484,6 +485,7 @@ HEADERS += \
     gui/raster/agraphrasterwindow.h \
     gui/raster/arasterwindow.h \
     gui/rec/alrfplotterdialog.h \
+    gui/rec/amercuryeventexplorer.h \
     gui/script/aargumentcounter.h \
     gui/script/ascriptexampleexplorer.h \
     particleSim/EcoMug/EcoMug.h \
@@ -729,6 +731,7 @@ FORMS += \
         gui/photsim/asensordrawwidget.ui \
         gui/ademowindow.ui \
         gui/photsim/asensorwindow.ui \
+        gui/rec/amercuryeventexplorer.ui \
         gui/script/ascriptexampleexplorer.ui \
         gui/script/ascriptwindow.ui \
         gui/aroottextconfigurator.ui \

@@ -1205,6 +1205,13 @@ void AGraphWindow::updateControls()
 
 void AGraphWindow::onDrawRequest(TObject * obj, QString options, bool transferOwnership, bool focusWindow)
 {
+    if (!obj)
+    {
+        RasterWindow->clearRootCanvas();
+        RasterWindow->updateRootCanvas();
+        return;
+    }
+
     if (focusWindow)
     {
         showAndFocus();
