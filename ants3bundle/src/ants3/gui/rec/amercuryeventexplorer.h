@@ -4,6 +4,7 @@
 #include <vector>
 
 #include <QDialog>
+#include <QString>
 
 namespace Ui {
 class AMercuryEventExplorer;
@@ -43,6 +44,12 @@ private slots:
 
     void on_sbXbins_editingFinished();
 
+    void on_cobMapCenter_currentIndexChanged(int index);
+
+    void on_leMapRootOption_editingFinished();
+
+    void on_cobMapHow_activated(int index);
+
 private:
     Ui::AMercuryEventExplorer * ui = nullptr;
 
@@ -51,6 +58,9 @@ private:
     std::vector<std::vector<double>> * Events = nullptr;
 
     bool bGood = false;
+
+    QString MapRootOption_2D = "colz";
+    QString MapRootOption_3D = "box3";
 
     void onEventChanged();
     void showSignals();

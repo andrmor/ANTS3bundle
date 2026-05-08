@@ -20,9 +20,10 @@ AMercuryEventExplorer::AMercuryEventExplorer(QWidget * parent) :
 
     QDoubleValidator * doubVal = new QDoubleValidator(this);
     QList<QLineEdit*> leList = this->findChildren<QLineEdit*>();
-    foreach(QLineEdit * led, leList) {led->setValidator(doubVal);}
+    foreach(QLineEdit * le, leList) if (le->objectName().startsWith("led")) le->setValidator(doubVal);
 
     ui->pbUpdateMap->setVisible(false);
+    ui->frFixedOrigin->setVisible(false);
 
     QList<QPushButton*> pbList = this->findChildren<QPushButton*>();
     foreach(QPushButton * pb, pbList) {pb->setDefault(false); pb->setAutoDefault(false);}
@@ -157,9 +158,14 @@ void AMercuryEventExplorer::showMap()
 
     std::array<double, 3> origin;
 
-    if (true)
+    switch (ui->cobMapCenter->currentIndex())
     {
-        origin = {Rec->getRecX(), Rec->getRecY(), Rec->getRecZ()};
+        case 0:
+            origin = {Rec->getRecX(), Rec->getRecY(), Rec->getRecZ()};
+            break;
+        case 1:
+            origin = {ui->ledX0->text().toDouble(), ui->ledY0->text().toDouble(), ui->ledZ0->text().toDouble()};
+            break;
     }
 
     int binsX = ui->sbXbins->value();
@@ -250,12 +256,12 @@ void AMercuryEventExplorer::showMap()
                     }
                 }
             }
-            emit requestDraw(h3, "box3", true, true);
+            emit requestDraw(h3, MapRootOption_3D, true, true);
             return;
         }
     }
 
-    emit requestDraw(h2, "colz", true, true);
+    emit requestDraw(h2, MapRootOption_2D, true, true);
 }
 
 void AMercuryEventExplorer::on_pbSignalVsModel_clicked(bool checked)
@@ -311,6 +317,26 @@ void AMercuryEventExplorer::on_ledXrange_editingFinished()
 void AMercuryEventExplorer::on_sbXbins_editingFinished()
 {
     if (ui->cbSymmetricXY->isChecked()) ui->sbYbins->setValue(ui->sbXbins->value());
+    if (ui->pbMap->isChecked()) showMap();
+}
+
+void AMercuryEventExplorer::on_cobMapCenter_currentIndexChanged(int index)
+{
+    ui->frFixedOrigin->setVisible(index == 1);
+    if (ui->pbMap->isChecked()) showMap();
+}
+
+void AMercuryEventExplorer::on_leMapRootOption_editingFinished()
+{
+    bool b2D = (ui->cobMapHow->currentIndex() < 3);
+    QString opt = ui->leMapRootOption->text();
+    if (b2D) MapRootOption_2D = opt;
+    else     MapRootOption_3D = opt;
+}
+
+void AMercuryEventExplorer::on_cobMapHow_activated(int index)
+{
+    ui->leMapRootOption->setText(index < 3 ? MapRootOption_2D : MapRootOption_3D);
     if (ui->pbMap->isChecked()) showMap();
 }
 
