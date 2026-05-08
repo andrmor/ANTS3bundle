@@ -18,6 +18,7 @@ class AGeoObject;
 class QGraphicsScene;
 class QBrush;
 class QFrame;
+class TH1;
 
 namespace guitools
 {
@@ -52,6 +53,8 @@ namespace guitools
     QGraphicsItem * addGeoObjectToScene(AGeoObject * obj, QGraphicsScene * scene, double GVscale, QBrush & brush);
 
     QFrame * makeLine(bool horizontal);
+
+    void setHistAxisTitles(TH1 * h, QString xaxis, QString yaxis, QString zaxis);
 
 }
 

@@ -342,3 +342,13 @@ QFrame * guitools::makeLine(bool horizontal)
     line->setLineWidth(1);
     return line;
 }
+
+#include "TH1.h"
+void guitools::setHistAxisTitles(TH1 *h, QString xaxis, QString yaxis, QString zaxis)
+{
+    h->GetXaxis()->SetTitle(xaxis.toLatin1().constData());
+    h->GetYaxis()->SetTitle(yaxis.toLatin1().constData());
+
+    if (h->GetZaxis())
+        h->GetZaxis()->SetTitle(zaxis.toLatin1().constData());
+}

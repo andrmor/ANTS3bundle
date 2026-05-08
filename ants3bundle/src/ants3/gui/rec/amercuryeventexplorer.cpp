@@ -141,6 +141,7 @@ void AMercuryEventExplorer::showSignals()
 
 #include "TH2D.h"
 #include "TH3D.h"
+#include "guitools.h"
 void AMercuryEventExplorer::showMap()
 {
     if (!Model) return;
@@ -183,6 +184,7 @@ void AMercuryEventExplorer::showMap()
     case 0: // XY at fixed Z
         h2 = new TH2D("", "", binsX, origin[0] + startX - 0.5*deltaX, origin[0] - startX + 0.5*deltaX,
                              binsY, origin[1] + startY - 0.5*deltaY, origin[1] - startY + 0.5*deltaY);
+        guitools::setHistAxisTitles(h2, "X, mm", "Y, mm", "");
         for (int ix = 0; ix < binsX; ix++)
         {
             double x = origin[0] + startX + deltaX * ix;
@@ -190,19 +192,49 @@ void AMercuryEventExplorer::showMap()
             {
                 double y = origin[1] + startY + deltaY * iy;
                 double val = (bChi2 ? Rec->getChi2autoE(x, y, fixed, true)/dof : Rec->getLogLHautoE(x, y, fixed));
+                if (val != val) continue; // nan
                 h2->Fill(x, y, val);
             }
         }
         break;
     case 1: // XZ at fixed Y
+        h2 = new TH2D("", "", binsX, origin[0] + startX - 0.5*deltaX, origin[0] - startX + 0.5*deltaX,
+                              binsZ, origin[2] + startZ - 0.5*deltaZ, origin[2] - startZ + 0.5*deltaZ);
+        guitools::setHistAxisTitles(h2, "X, mm", "Z, mm", "");
+        for (int ix = 0; ix < binsX; ix++)
+        {
+            double x = origin[0] + startX + deltaX * ix;
+            for (int iz = 0; iz < binsZ; iz++)
+            {
+                double z = origin[2] + startZ + deltaZ * iz;
+                double val = (bChi2 ? Rec->getChi2autoE(x, fixed, z, true)/dof : Rec->getLogLHautoE(x, fixed, z));
+                if (val != val) continue; // nan
+                h2->Fill(x, z, val);
+            }
+        }
         break;
     case 2: // YZ at fixed X
+        h2 = new TH2D("", "", binsY, origin[1] + startY - 0.5*deltaY, origin[1] - startY + 0.5*deltaY,
+                              binsZ, origin[2] + startZ - 0.5*deltaZ, origin[2] - startZ + 0.5*deltaZ);
+        guitools::setHistAxisTitles(h2, "Y, mm", "Y, mm", "");
+        for (int iy = 0; iy < binsY; iy++)
+        {
+            double y = origin[1] + startY + deltaY * iy;
+            for (int iz = 0; iz < binsZ; iz++)
+            {
+                double z = origin[2] + startZ + deltaZ * iz;
+                double val = (bChi2 ? Rec->getChi2autoE(fixed, y, z, true)/dof : Rec->getLogLHautoE(fixed, y, z));
+                if (val != val) continue; // nan
+                h2->Fill(y, z, val);
+            }
+        }
         break;
     case 3: // 3D
         {
             TH3D * h3 = new TH3D("", "", binsX, origin[0] + startX - 0.5*deltaX, origin[0] - startX + 0.5*deltaX,
                                          binsY, origin[1] + startY - 0.5*deltaY, origin[1] - startY + 0.5*deltaY,
                                          binsZ, origin[2] + startZ - 0.5*deltaZ, origin[2] - startZ + 0.5*deltaZ);
+            guitools::setHistAxisTitles(h3, "X, mm", "Y, mm", "Z, mm");
             for (int ix = 0; ix < binsX; ix++)
             {
                 double x = origin[0] + startX + deltaX * ix;
@@ -213,6 +245,7 @@ void AMercuryEventExplorer::showMap()
                     {
                         double z = origin[2] + startZ + deltaZ * iz;
                         double val = (bChi2 ? Rec->getChi2autoE(x, y, z, true)/dof : Rec->getLogLHautoE(x, y, z));
+                        if (val != val) continue; // nan
                         h3->Fill(x, y, z, val);
                     }
                 }
