@@ -45,11 +45,13 @@ public slots:
     void reconstructEvents(QVariantList sensorSignalsOverAllEvents);
     void reconstructEvents(QVariantList sensorSignalsOverAllEvents, QVariantList ignoreSensorsByEvent);
 
-    //QVariantList getRecXYZ();
+    void showEventExplorer(QVariantList sensorSignalsOverAllEvents, QVariantList truePositions = QVariantList());
+
     QVariantList getRecXYZE(); // [x y z energy];   energy = 0 if fail rec
     QVariantList getRecStats(); // [status(0 = OK), chi2, cov_xx, cov_yy, cov_xy]
 
     void clearEventFilter();
+    void setFilterRecSuccess();
     void setFilterByEnergy(double eMin, double eMax);
     void setFilterByChi2(double chi2Min, double chi2Max);
     int  applyFilter();
@@ -57,13 +59,11 @@ public slots:
     void plot(QString what, int bins, double from, double to);
     void configure_plotXY_binning(int xBins, double xFrom, double xTo, int yBins, double yFrom, double yTo);
     void plot_vsRecXY(QString what);
-    void configure_plotXY_truePositions(QVariantList truePositions);
+    void importTruePositions(QVariantList truePositions);
     void plot_vsTrueXY(QString what);
 
-    void showReconstructedPositions(QVariantList XYZE_ofEvents, QVariantList goodEvents = QVariantList());
-    void showTruePositions(QVariantList XYZ_ofEvents, QVariantList goodEvents = QVariantList());
-
-    void showEventExplorer(QVariantList sensorSignalsOverAllEvents, QVariantList truePositions = QVariantList());
+    void showReconstructedPositions();
+    void showTruePositions(bool invertFilterStatus = false);
 
     // --- Low level ---
     void configure_COG(double signalAbsoluteCutoff, double signalRelativeCutoff, double z0);
@@ -88,7 +88,7 @@ private:
     double YTo   = 0;
     double Z0    = 0;
 
-    std::vector<double> XTruePositions, YTruePositions;
+    std::vector<double> XTruePositions, YTruePositions, ZTruePositions;
 
     void resetReconstructor();
 

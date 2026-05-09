@@ -280,9 +280,89 @@ void AMercury_si::clearEventFilter()
     EventFilter.clear();
 }
 
+void AMercury_si::setFilterRecSuccess()
+{
+    EventFilter.SuccessRec = true;
+}
+
 void AMercury_si::setFilterByEnergy(double eMin, double eMax)
 {
-    EventFilter.
+    EventFilter.ByEnergy = true;
+    EventFilter.EnergyMin = eMin;
+    EventFilter.EnergyMax = eMax;
+}
+
+void AMercury_si::setFilterByChi2(double chi2Min, double chi2Max)
+{
+    EventFilter.ByChi2 = true;
+    EventFilter.Chi2Min = chi2Min;
+    EventFilter.Chi2Max = chi2Max;
+}
+
+int AMercury_si::applyFilter()
+{
+    if (!RecMP)
+    {
+        abort("Reconstructor was not created yet");
+        return 0;
+    }
+
+    const std::vector<int>    & good = RecMP->rec_status;
+    const std::vector<double> & e    = RecMP->rec_e;
+    const std::vector<double> & chi  = RecMP->rec_chi2min;
+    const std::vector<int>    & dof  = RecMP->rec_dof;
+
+    const size_t numEvents = good.size();
+    if (numEvents != EventsPassingFilter.size())
+    {
+        abort("Reconstruction was not yet performed");
+        return 0;
+    }
+
+    bool bStatistical = (dynamic_cast<RecMinuitMP*>(RecMP));
+    int numGood = 0;
+    for (size_t iEv = 0; iEv < numEvents; iEv++)
+    {
+        const bool recSuccess = (good[iEv] == 0);
+        if (EventFilter.SuccessRec && !recSuccess)
+        {
+            EventsPassingFilter[iEv] = false;
+            continue;
+        }
+
+        if (EventFilter.ByChi2)
+        {
+            if (!bStatistical || !recSuccess)
+            {
+                EventsPassingFilter[iEv] = false;
+                continue;
+            }
+            const double chi2 = chi[iEv] / dof[iEv];
+            if (chi2 < EventFilter.Chi2Min || chi2 > EventFilter.Chi2Max)
+            {
+                EventsPassingFilter[iEv] = false;
+                continue;
+            }
+        }
+
+        if (EventFilter.ByEnergy)
+        {
+            double energy;
+            if (!recSuccess) energy = 0;
+            else if (!bStatistical) energy = 1.0;
+            else energy = e[iEv];
+            if (energy < EventFilter.EnergyMin || energy > EventFilter.EnergyMax)
+            {
+                EventsPassingFilter[iEv] = false;
+                continue;
+            }
+        }
+
+        // passed all filters
+        EventsPassingFilter[iEv] = true;
+        numGood++;
+    }
+    return numGood;
 }
 
 #include "TAxis.h"
@@ -406,30 +486,35 @@ void AMercury_si::plot_vsRecXY(QString what)
     doPlot_vsXY(false, opt, x, y);
 }
 
-void AMercury_si::configure_plotXY_truePositions(QVariantList truePositions)
+void AMercury_si::importTruePositions(QVariantList truePositions)
 {
     const size_t num = truePositions.size();
     if (num == 0)
     {
-        abort("TruePositions array is empty");
+        abort("truePositions array is empty");
         return;
     }
 
     XTruePositions.resize(num);
     YTruePositions.resize(num);
-    for (size_t i = 0; i < num; i++)
+    ZTruePositions.resize(num);
+    for (size_t iEv = 0; iEv < num; iEv++)
     {
-        QVariantList el = truePositions[i].toList();
+        QVariantList el = truePositions[iEv].toList();
         if (el.size() < 2)
         {
-            abort("TruePositions array should contain arrays of at least size two (X and Y positions)");
+            abort("truePositions array should contain arrays of XYs or XYZs");
             return;
         }
-        bool ok1, ok2;
-        XTruePositions[i] = el[0].toDouble(&ok1);
-        YTruePositions[i] = el[1].toDouble(&ok2);
-        if (ok1 && ok2) continue;
-        abort("Bad x or y value format in TruePositions array");
+        bool ok0, ok1;
+        XTruePositions[iEv] = el[0].toDouble(&ok0);
+        YTruePositions[iEv] = el[1].toDouble(&ok1);
+        bool ok2 = true;
+        if (el.size() > 2) ZTruePositions[iEv] = el[2].toDouble(&ok2);
+        else               ZTruePositions[iEv] = Z0;
+        if (ok0 && ok1 && ok2) continue;
+
+        abort("Bad x, y or z value format in TruePositions array");
         return;
     }
 }
@@ -465,42 +550,30 @@ void AMercury_si::plot_vsTrueXY(QString what)
 }
 
 #include "ageomarkerclass.h"
-void AMercury_si::showReconstructedPositions(QVariantList XYZE_ofEvents, QVariantList goodEvents)
+void AMercury_si::showReconstructedPositions()
 {
-    if (XYZE_ofEvents.isEmpty())
+    if (!RecMP)
     {
-        abort("showReconstructedPositions: XYZE_ofEvents should contain non-empty array of coordinates: [[x0,y0,z0], [x1,y1,z1], ... ]\n"
-              "or arrays of xyze: [[x0,y0,z0, e0], [x1,y1,z1, e1], ... ] (events with energy=0 are not shown).");
+        abort("Reconstructor was not created yet");
         return;
     }
 
-    const int numEvents = XYZE_ofEvents.size();
-    bool haveGoods = false;
-    if (!goodEvents.isEmpty())
+    const std::vector<double> & x    = RecMP->rec_x;
+    const std::vector<double> & y    = RecMP->rec_y;
+    const std::vector<double> & z    = RecMP->rec_z;
+
+    const int numEvents = x.size();
+    if (numEvents != EventsPassingFilter.size())
     {
-        if (numEvents != goodEvents.size())
-        {
-            abort("showReconstructedPositions: sizes of XYZE_ofEvents and goodEvents arrays are different");
-            return;
-        }
-        haveGoods = true;
+        abort("Reconstruction was not yet performed");
+        return;
     }
 
     AGeoMarkerClass * markers = new AGeoMarkerClass(EGeoMarkerType::PosReconstructed, 20, 1, 1); // properties are auto-updated
-    for (int i = 0; i < numEvents; i++)
+    for (int iEv = 0; iEv < numEvents; iEv++)
     {
-        QVariantList el = XYZE_ofEvents[i].toList();
-        if (el.size() < 3)
-        {
-            abort("showReconstructedPositions: bad format for coordinates in XYZE_ofEvents");
-            delete markers;
-            return;
-        }
-
-        if (el.size() > 3 && el[3].toDouble() == 0) continue;
-        if (haveGoods && !goodEvents[i].toBool()) continue;
-
-        markers->SetNextPoint(el[0].toDouble(), el[1].toDouble(), el[2].toDouble());
+        if (!EventsPassingFilter[iEv]) continue;
+        markers->SetNextPoint(x[iEv], y[iEv], z[iEv]);
     }
 
     AScriptHub & ScrHub = AScriptHub::getInstance();
@@ -509,41 +582,20 @@ void AMercury_si::showReconstructedPositions(QVariantList XYZE_ofEvents, QVarian
     ScrHub.waitForGuiCallFinished(Lang);
 }
 
-void AMercury_si::showTruePositions(QVariantList XYZ_ofEvents, QVariantList goodEvents)
+void AMercury_si::showTruePositions(bool invertFilterStatus)
 {
-    if (XYZ_ofEvents.isEmpty())
+    const int numEvents = XTruePositions.size();
+    if (numEvents != EventsPassingFilter.size())
     {
-        abort("showTruePositions: XYZ_ofEvents should contain non-empty array of coordinates: [[x0,y0,z0], [x1,y1,z1], ... ]");
+        abort("Mismatch in event numbers: true positions and filter status");
         return;
     }
 
-    const int numEvents = XYZ_ofEvents.size();
-    bool haveGoods = false;
-    if (!goodEvents.isEmpty())
-    {
-        if (numEvents != goodEvents.size())
-        {
-            abort("showTruePositions: sizes of XYZ_ofEvents and goodEvents arrays are different");
-            return;
-        }
-        haveGoods = true;
-    }
-
     AGeoMarkerClass * markers = new AGeoMarkerClass(EGeoMarkerType::PosTrue, 20, 1, 1); // properties are auto-updated
-    for (int i = 0; i < numEvents; i++)
+    for (int iEv = 0; iEv < numEvents; iEv++)
     {
-        QVariantList el = XYZ_ofEvents[i].toList();
-        if (el.size() < 3)
-        {
-            abort("showTruePositions: bad format for coordinates in XYZ_ofEvents");
-            delete markers;
-            return;
-        }
-
-        //if (el.size() > 3 && el[3].toDouble() == 0) continue;
-        if (haveGoods && !goodEvents[i].toBool()) continue;
-
-        markers->SetNextPoint(el[0].toDouble(), el[1].toDouble(), el[2].toDouble());
+        if (EventsPassingFilter[iEv] == invertFilterStatus) continue; // no inv, fail rec: (false == false) --> continue
+        markers->SetNextPoint(XTruePositions[iEv], YTruePositions[iEv], ZTruePositions[iEv]);
     }
 
     AScriptHub & ScrHub = AScriptHub::getInstance();
