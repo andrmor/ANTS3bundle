@@ -14,6 +14,18 @@ class LRModel;
 class Reconstructor;
 class TObject;
 
+struct AMarkerPropsRecord
+{
+    double horRec = 0;
+    double verRec = 0;
+
+    double lenHor = 10.0;
+    double lenVert = 10.0;
+
+    double horTrue = 0;
+    double verTrue = 0;
+};
+
 class AMercuryEventExplorer : public QDialog
 {
     Q_OBJECT
@@ -50,6 +62,8 @@ private slots:
 
     void on_cobMapHow_activated(int index);
 
+    void on_cbMapShowMarkers_clicked();
+
 private:
     Ui::AMercuryEventExplorer * ui = nullptr;
 
@@ -66,6 +80,8 @@ private:
     void onEventChanged();
     void showSignals();
     void showMap();
+    void showMarkers(AMarkerPropsRecord rec);
+    void drawMarker(double x0, double y0, double lenX, double lenY, int color);
 
 signals:
     void requestDraw(TObject * obj, QString options, bool transferOwnership, bool focusWindow);

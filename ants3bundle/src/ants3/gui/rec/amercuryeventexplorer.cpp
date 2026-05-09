@@ -195,7 +195,7 @@ void AMercuryEventExplorer::showMap()
     bool bChi2 = (ui->cobMapWhat->currentIndex() == 0);
     int dof  = Rec->getDof();
     double fixed = ui->ledMapFixedCoord->text().toDouble();
-
+    AMarkerPropsRecord markRec;
     TH2D * h2 = nullptr;
     switch (ui->cobMapHow->currentIndex())
     {
@@ -214,6 +214,7 @@ void AMercuryEventExplorer::showMap()
                 h2->Fill(x, y, val);
             }
         }
+        markRec = {Rec->getRecX(), Rec->getRecY(), 0.1 * rangeX, 0.1 * rangeY, (TruePositions ? TruePositions->at(iEvent)[0] : 0), (TruePositions ? TruePositions->at(iEvent)[1] : 0)};
         break;
     case 1: // XZ at fixed Y
         h2 = new TH2D("", "", binsX, origin[0] + startX - 0.5*deltaX, origin[0] - startX + 0.5*deltaX,
@@ -230,11 +231,12 @@ void AMercuryEventExplorer::showMap()
                 h2->Fill(x, z, val);
             }
         }
+        markRec = {Rec->getRecX(), Rec->getRecZ(), 0.1 * rangeX, 0.1 * rangeZ, (TruePositions ? TruePositions->at(iEvent)[0] : 0), (TruePositions ? TruePositions->at(iEvent)[2] : 0)};
         break;
     case 2: // YZ at fixed X
         h2 = new TH2D("", "", binsY, origin[1] + startY - 0.5*deltaY, origin[1] - startY + 0.5*deltaY,
                               binsZ, origin[2] + startZ - 0.5*deltaZ, origin[2] - startZ + 0.5*deltaZ);
-        guitools::setHistAxisTitles(h2, "Y, mm", "Y, mm", "");
+        guitools::setHistAxisTitles(h2, "Y, mm", "Z, mm", "");
         for (int iy = 0; iy < binsY; iy++)
         {
             double y = origin[1] + startY + deltaY * iy;
@@ -246,6 +248,7 @@ void AMercuryEventExplorer::showMap()
                 h2->Fill(y, z, val);
             }
         }
+        markRec = {Rec->getRecY(), Rec->getRecZ(), 0.1 * rangeY, 0.1 * rangeZ, (TruePositions ? TruePositions->at(iEvent)[1] : 0), (TruePositions ? TruePositions->at(iEvent)[2] : 0)};
         break;
     case 3: // 3D
         {
@@ -274,6 +277,41 @@ void AMercuryEventExplorer::showMap()
     }
 
     emit requestDraw(h2, MapRootOption_2D, true, true);
+
+    if (ui->cbMapShowMarkers->isChecked()) showMarkers(markRec);
+}
+
+#include "TLine.h"
+void AMercuryEventExplorer::drawMarker(double x0, double y0, double lenX, double lenY, int color)
+{
+    TLine * l1h = new TLine(x0 - lenX, y0, x0 + lenX, y0);
+    l1h->SetLineWidth(3);
+    l1h->SetLineColor(kWhite);
+    emit requestDraw(l1h, "same", true, false);
+
+    TLine * l1v = new TLine(x0, y0 - lenY, x0, y0 + lenY);
+    l1v->SetLineWidth(3);
+    l1v->SetLineColor(kWhite);
+    emit requestDraw(l1v, "same", true, false);
+
+    TLine * l2h = new TLine(x0 - lenX, y0, x0 + lenX, y0);
+    l2h->SetLineWidth(1);
+    l2h->SetLineColor(color);
+    emit requestDraw(l2h, "same", true, false);
+
+    TLine * l2v = new TLine(x0, y0 - lenY, x0, y0 + lenY);
+    l2v->SetLineWidth(1);
+    l2v->SetLineColor(color);
+    emit requestDraw(l2v, "same", true, false);
+}
+
+void AMercuryEventExplorer::showMarkers(AMarkerPropsRecord rec)
+{
+    QString opt = ui->leMapRootOption->text();
+    if (!opt.contains("col")) return;
+
+    if (TruePositions) drawMarker(rec.horTrue, rec.verTrue, rec.lenHor, rec.lenVert, kBlue);
+    if (bGood)         drawMarker(rec.horRec,  rec.verRec,  rec.lenHor, rec.lenVert, kRed);
 }
 
 void AMercuryEventExplorer::on_pbSignalVsModel_clicked(bool checked)
@@ -349,11 +387,18 @@ void AMercuryEventExplorer::on_leMapRootOption_editingFinished()
     QString opt = ui->leMapRootOption->text();
     if (b2D) MapRootOption_2D = opt;
     else     MapRootOption_3D = opt;
+
+    if (ui->pbMap->isChecked()) showMap();
 }
 
 void AMercuryEventExplorer::on_cobMapHow_activated(int index)
 {
     ui->leMapRootOption->setText(index < 3 ? MapRootOption_2D : MapRootOption_3D);
+    if (ui->pbMap->isChecked()) showMap();
+}
+
+void AMercuryEventExplorer::on_cbMapShowMarkers_clicked()
+{
     if (ui->pbMap->isChecked()) showMap();
 }
 
