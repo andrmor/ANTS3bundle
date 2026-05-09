@@ -12,6 +12,22 @@ class ReconstructorMP;
 class TH1D;
 class TH2D;
 
+class AEventFilterRecord
+{
+public:
+    bool SuccessRec = false;
+
+    bool ByEnergy = false;
+    double EnergyMin = 0;
+    double EnergyMax = 1e99;
+
+    bool ByChi2 = false;
+    double Chi2Min = 0;
+    double Chi2Max = 1e99;
+
+    void clear();
+};
+
 class AMercury_si : public AScriptInterface
 {
     Q_OBJECT
@@ -33,13 +49,20 @@ public slots:
     QVariantList getRecXYZE(); // [x y z energy];   energy = 0 if fail rec
     QVariantList getRecStats(); // [status(0 = OK), chi2, cov_xx, cov_yy, cov_xy]
 
+    void clearEventFilter();
+    void setFilterByEnergy(double eMin, double eMax);
+    void setFilterByChi2(double chi2Min, double chi2Max);
+    int  applyFilter();
+
     void plot(QString what, int bins, double from, double to);
     void configure_plotXY_binning(int xBins, double xFrom, double xTo, int yBins, double yFrom, double yTo);
     void plot_vsRecXY(QString what);
     void configure_plotXY_truePositions(QVariantList truePositions);
     void plot_vsTrueXY(QString what);
+
     void showReconstructedPositions(QVariantList XYZE_ofEvents, QVariantList goodEvents = QVariantList());
     void showTruePositions(QVariantList XYZ_ofEvents, QVariantList goodEvents = QVariantList());
+
     void showEventExplorer(QVariantList sensorSignalsOverAllEvents, QVariantList truePositions = QVariantList());
 
     // --- Low level ---
@@ -53,6 +76,9 @@ private:
     // do not make a reference to script hub as AMercury_si object generation is inside the script hub constructor
     ALightResponseHub & LRHub;
     ReconstructorMP   * RecMP = nullptr;
+
+    std::vector<bool> EventsPassingFilter;
+    AEventFilterRecord EventFilter;
 
     int    XBins = 50;
     int    YBins = 50;

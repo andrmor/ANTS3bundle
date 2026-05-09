@@ -125,6 +125,8 @@ void AMercury_si::reconstructEvents(QVariantList sensorSignalsOverAllEvents)
     }
 
     RecMP->ProcessEvents(amplitudes);
+
+    EventsPassingFilter = std::vector<bool>(numEvents, true);
 }
 
 void AMercury_si::reconstructEvents(QVariantList sensorSignalsOverAllEvents, QVariantList ignoreSensorsByEvent)
@@ -168,6 +170,8 @@ void AMercury_si::reconstructEvents(QVariantList sensorSignalsOverAllEvents, QVa
     }
 
     RecMP->ProcessEvents(amplitudes, ignoreSens);
+
+    EventsPassingFilter = std::vector<bool>(numEvents, true);
 }
 
 /*
@@ -269,6 +273,16 @@ QVariantList AMercury_si::getRecStats()
         else                res.emplaceBack(QVariantList{status[i], 0,                0,         0,         0});
     }
     return res;
+}
+
+void AMercury_si::clearEventFilter()
+{
+    EventFilter.clear();
+}
+
+void AMercury_si::setFilterByEnergy(double eMin, double eMax)
+{
+    EventFilter.
 }
 
 #include "TAxis.h"
@@ -902,4 +916,19 @@ AMercury_si::EPlotOption AMercury_si::whatFromString(QString what)
     if (what == "ALL")     return EachValidOption;
 
     return ErrorOption;
+}
+
+// ---
+
+void AEventFilterRecord::clear()
+{
+    SuccessRec = false;
+
+    ByEnergy = false;
+    EnergyMin = 0;
+    EnergyMax = 1e99;
+
+    ByChi2 = false;
+    Chi2Min = 0;
+    Chi2Max = 1e99;
 }
