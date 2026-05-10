@@ -55,7 +55,7 @@ public slots:
     void setFilterRecSuccess();
     void setFilterByEnergy(double eMin, double eMax);
     void setFilterByChi2(double chi2Min, double chi2Max);
-    int  applyFilter();
+    QString applyFilter();
 
     QVariantList getRecXYZE(bool ignoreFilter = false);  // [x y z energy];   energy = 0 if fail rec
     QVariantList getRecStats(bool ignoreFilter = false); // [status(0 = OK), chi2, cov_xx, cov_yy, cov_xy]

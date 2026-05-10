@@ -312,12 +312,12 @@ void AMercury_si::setFilterByChi2(double chi2Min, double chi2Max)
     EventFilter.Chi2Max = chi2Max;
 }
 
-int AMercury_si::applyFilter()
+QString AMercury_si::applyFilter()
 {
     if (!RecMP)
     {
-        abort("Reconstructor was not created yet");
-        return 0;
+        abort("Reconstructor was not created");
+        return "";
     }
 
     const std::vector<int>    & good = RecMP->rec_status;
@@ -328,18 +328,24 @@ int AMercury_si::applyFilter()
     const size_t numEvents = good.size();
     if (numEvents != PassFilter.size())
     {
-        abort("Reconstruction was not yet performed");
-        return 0;
+        abort("Reconstruction was not performed");
+        return "";
     }
 
     bool bStatistical = (dynamic_cast<RecMinuitMP*>(RecMP));
     int numGood = 0;
+    int numSuc = 0;
+    int killByStat = 0;
+    int killByE = 0;
+    int killByChi2 = 0;
     for (size_t iEv = 0; iEv < numEvents; iEv++)
     {
         const bool recSuccess = (good[iEv] == 0);
+        if (recSuccess) numSuc++;
         if (EventFilter.SuccessRec && !recSuccess)
         {
             PassFilter[iEv] = false;
+            killByStat++;
             continue;
         }
 
@@ -348,12 +354,14 @@ int AMercury_si::applyFilter()
             if (!bStatistical || !recSuccess)
             {
                 PassFilter[iEv] = false;
+                killByChi2++;
                 continue;
             }
             const double chi2 = chi[iEv] / dof[iEv];
             if (chi2 < EventFilter.Chi2Min || chi2 > EventFilter.Chi2Max)
             {
                 PassFilter[iEv] = false;
+                killByChi2++;
                 continue;
             }
         }
@@ -367,6 +375,7 @@ int AMercury_si::applyFilter()
             if (energy < EventFilter.EnergyMin || energy > EventFilter.EnergyMax)
             {
                 PassFilter[iEv] = false;
+                killByE++;
                 continue;
             }
         }
@@ -375,7 +384,15 @@ int AMercury_si::applyFilter()
         PassFilter[iEv] = true;
         numGood++;
     }
-    return numGood;
+
+    QString txt = QString("Events provided: %0").arg(numEvents);
+    txt += QString("  Reconstruction success: %0").arg(numSuc);
+    txt += QString("\nPassing the filter: %0").arg(numGood);
+    if (EventFilter.SuccessRec) txt += QString("\n  killed by status: %0").arg(killByStat);
+    if (EventFilter.ByChi2)     txt += QString("\n  killed by chi2: %0").arg(killByChi2);
+    if (EventFilter.ByEnergy)   txt += QString("\n  killed by energy: %0").arg(killByE);
+
+    return txt;
 }
 
 #include "TAxis.h"
