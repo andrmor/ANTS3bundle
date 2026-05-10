@@ -1745,12 +1745,12 @@
                    <widget class="QComboBox" name="cob0dir">
                     <item>
                      <property name="text">
-                      <string>one direction</string>
+                      <string>symmetric</string>
                      </property>
                     </item>
                     <item>
                      <property name="text">
-                      <string>symmetric</string>
+                      <string>one direction</string>
                      </property>
                     </item>
                    </widget>
@@ -1836,12 +1836,12 @@
                     </property>
                     <item>
                      <property name="text">
-                      <string>one direction</string>
+                      <string>symmetric</string>
                      </property>
                     </item>
                     <item>
                      <property name="text">
-                      <string>symmetric</string>
+                      <string>one direction</string>
                      </property>
                     </item>
                    </widget>
@@ -1927,12 +1927,12 @@
                     </property>
                     <item>
                      <property name="text">
-                      <string>one direction</string>
+                      <string>symmetric</string>
                      </property>
                     </item>
                     <item>
                      <property name="text">
-                      <string>symmetric</string>
+                      <string>one direction</string>
                      </property>
                     </item>
                    </widget>
