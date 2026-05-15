@@ -83,6 +83,9 @@ int main(int argc, char** argv)
     physicsList->RegisterPhysics(new G4StepLimiterPhysics());
     runManager->SetUserInitialization(physicsList);
 
+    if (SM.Settings.G4Set.SimulateAnnihilAcolinearity)
+        SM.configureAcolinearitySimulation(physicsList);
+
     runManager->SetUserInitialization(new ActionInitialization());
 
     G4UImanager* UImanager = G4UImanager::GetUIpointer();

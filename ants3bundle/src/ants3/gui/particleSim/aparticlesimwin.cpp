@@ -3698,3 +3698,11 @@ void AParticleSimWin::on_pbOfferPhysLists_clicked()
     ui->lePhysicsList->setText( cob->currentText() );
     on_lePhysicsList_editingFinished();
 }
+
+#include "aadvancedparticleoptionsdialog.h"
+void AParticleSimWin::on_pbAdvancedOptions_clicked()
+{
+    AAdvancedParticleOptionsDialog dia(this);
+    dia.exec();
+}
+

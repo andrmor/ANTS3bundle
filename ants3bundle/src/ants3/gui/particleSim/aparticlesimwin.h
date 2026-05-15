@@ -308,6 +308,7 @@ private slots:
     void on_pbHelpGetParticles_clicked();
 
     void on_pbOfferPhysLists_clicked();
+    void on_pbAdvancedOptions_clicked();
 };
 
 #endif // APARTICLESIMWIN_H

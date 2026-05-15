@@ -52,6 +52,7 @@ SOURCES += \
         ../ants3/particleSim/aparticlerunsettings.cpp \
         ../ants3/particleSim/aparticlesimsettings.cpp \
         ../ants3/tools/aerrorhub.cpp \
+        afastsimphyshandler.cpp \
         main.cpp \
         ../ants3/particleSim/aparticlesourcerecord.cpp \
         ../ants3/particleSim/aparticlerecord.cpp \
@@ -59,6 +60,7 @@ SOURCES += \
         ../ants3/particleSim/asourceparticlegenerator.cpp \
         ../ants3/tools/ahistogram.cpp \
         ../ants3/tools/avector.cpp \
+        src/AcollinearGammaModel.cc \
         src/ActionInitialization.cc \
         src/DetectorConstruction.cc \
         src/EventAction.cc \
@@ -100,6 +102,8 @@ HEADERS += \
     ../ants3/tools/aerrorhub.h \
     ../ants3/tools/ahistogram.h \
     ../ants3/tools/avector.h \
+    afastsimphyshandler.h \
+    src/AcollinearGammaModel.hh \
     src/ActionInitialization.hh \
     src/DetectorConstruction.hh \
     src/EventAction.hh \

@@ -18,13 +18,13 @@ public:
     bool                     UseTSphys = false;
     bool                     UseNCrystal = false;
 
-    // migrated to RunSettings
-    //std::vector<std::string> SensitiveVolumes;
-    //bool                     AddScintillatorsToSensitiveVolumes = true;
-    //std::vector<std::string> ScintSensitiveVolumes;  // filled automatically
-
     std::vector<std::string> Commands = {"/run/setCut 0.7 mm"};
     std::map<std::string, double> StepLimits;
+
+    bool   SimulateAnnihilAcolinearity = false;
+    int    AcolinearityModel = 0; // 0 - magnitude (e.g. Gate), 1 - 2D - see https://doi.org/10.1088/1361-6560/ad70f1
+    double AcolinearityFWHM  = 0.5; // in deg
+    std::vector<std::string> AcolinearityVolumes;
 
 #ifdef JSON11
     void readFromJson(const json11::Json::object & json);

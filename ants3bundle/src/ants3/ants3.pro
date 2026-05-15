@@ -245,6 +245,7 @@ SOURCES += \
     gui/materials/amatwin.cpp \
     gui/materials/aopticaldataimportdialog.cpp \
     gui/materials/arefractiveindeximportdialog.cpp \
+    gui/particleSim/aadvancedparticleoptionsdialog.cpp \
     gui/particleSim/aeventsdonedialog.cpp \
     gui/particleSim/aparticlesourcedialog_ecomug.cpp \
     gui/particleSim/aparticlesourcedialogbase.cpp \
@@ -474,6 +475,7 @@ HEADERS += \
     gui/materials/aabsorptiondataconverterdialog.h \
     gui/materials/aopticaldataimportdialog.h \
     gui/materials/arefractiveindeximportdialog.h \
+    gui/particleSim/aadvancedparticleoptionsdialog.h \
     gui/particleSim/aparticlesourcedialog_ecomug.h \
     gui/particleSim/aparticlesourcedialogbase.h \
     gui/photsim/afunctionalmodelwidget.h \
@@ -718,6 +720,7 @@ FORMS += \
         gui/materials/aabsorptiondataconverterdialog.ui \
         gui/materials/aopticaldataimportdialog.ui \
         gui/materials/arefractiveindeximportdialog.ui \
+        gui/particleSim/aadvancedparticleoptionsdialog.ui \
         gui/particleSim/aeventsdonedialog.ui \
         gui/particleSim/aparticlesourcedialog_ecomug.ui \
         gui/particleSim/atrackdrawdialog.ui \
