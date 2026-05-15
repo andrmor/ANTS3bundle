@@ -43,6 +43,7 @@ public:
     void    registerNextSensor(ASensorData & sr);
 
     int     addNewModel();
+    int     addModel(const ASensorModel & model);
     int     cloneModel(int iModel);
 
     void    clearAssignment();

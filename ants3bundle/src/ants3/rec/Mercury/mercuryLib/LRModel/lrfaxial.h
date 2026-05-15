@@ -24,10 +24,10 @@ public:
     virtual bool isReady () const;
     virtual double getRmax() const { return rmax; }
     int getNint() const { return nint; }
-    std::vector <double> GetNodes() const;
+    virtual std::vector <double> GetNodes() const;
     virtual double eval(double x, double y, double z=0.) const;
     virtual double evalraw(double x, double y, double z=0.) const;
-    double evalAxial(double r) const;
+    virtual double evalAxial(double r, double z=0.) const;
     virtual double evalDrvX(double x, double y, double z=0.) const;
     virtual double evalDrvY(double x, double y, double z=0.) const;
 //    double fitRData(int npts, const double *r, const double *data);

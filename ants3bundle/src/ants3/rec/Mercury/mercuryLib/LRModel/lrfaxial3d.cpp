@@ -106,6 +106,24 @@ LRFaxial3d::~LRFaxial3d()
     delete bs2fit;
 }
 
+std::vector <double> LRFaxial3d::GetNodesR() const
+{
+    std::vector <double> nodes = bs2r->GetBSX().GetNodes();
+    if (compress) 
+        for (auto &node : nodes)
+            node = compress->Rho2R(node);
+    return nodes;
+}
+
+std::vector <double> LRFaxial3d::GetNodesZ() const
+{
+    std::vector <double> nodes = bs2r->GetBSY().GetNodes();
+    if (compress_z) 
+        for (auto &node : nodes)
+            node = compress_z->Rho2R(node);
+    return nodes;
+}
+
 bool LRFaxial3d::isReady() const
 {
     return ready;
@@ -119,6 +137,11 @@ bool LRFaxial3d::inDomain(double x, double y, double z) const
 double LRFaxial3d::eval(double x, double y, double z) const
 {
     return isReady() ? bs2r->Eval(Rho(x, y), RhoZ(z)) : 0.;
+}
+
+double LRFaxial3d::evalAxial(double r, double z) const
+{
+    return isReady() ? bs2r->Eval(r, z) : 0.;
 }
 
 // ToDo: this function doesn't make sense here 

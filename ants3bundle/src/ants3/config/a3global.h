@@ -2,6 +2,8 @@
 #define A3GLOBAL_H
 
 #include "adrawmarginsrecord.h"
+#include "ageomarkerproperties.h"
+#include "atrackvisattributes.h"
 
 #include <QString>
 #include <QJsonObject>
@@ -57,11 +59,15 @@ public:
     bool NewGeoObjectAddedLast = false;
     int  UndoMaxDepth = 3;
 
-    QJsonObject TrackVisAttributes;
+    ATrackVisAttributes DefaultTrackVisAttributes; // saved/loaded here
+    ATrackVisAttributes CurrentTrackVisAttributes; // saved/loaded in A3config
 
     // WebSocket server
     int     DefaultWebSocketPort = 1234;
     QString DefaultWebSocketIP = "127.0.0.1";
+
+    // Default Geo marker properties
+    AGeoMarkerPropDatabase GeoMarkersDefaults;
 
     void    init();
     bool    checkExchangeDir();

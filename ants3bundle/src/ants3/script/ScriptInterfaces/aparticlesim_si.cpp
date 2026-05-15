@@ -674,6 +674,7 @@ void AParticleSim_SI::buildTracks(int maxTracks)
 }
 
 #include "atrackingdataexplorer.h"
+#include "TGeoManager.h"
 void AParticleSim_SI::buildTracksSpecific(bool skipPrimaries, bool skipPrimNoInter, bool skipSecondaries, QVariantList limitToParticleList, QVariantList excludeParticles, int maxTracks)
 {
     if (TrackingHistoryFileName.isEmpty())
@@ -687,6 +688,7 @@ void AParticleSim_SI::buildTracksSpecific(bool skipPrimaries, bool skipPrimNoInt
     QStringList Exclude;
     for (int i = 0; i < excludeParticles.size(); i++)    Exclude << excludeParticles[i].toString();
 
+    AGeometryHub::getInstance().GeoManager->ClearTracks();
     ATrackingDataExplorer explorer;
     QString err = explorer.buildTracks(TrackingHistoryFileName, LimitTo, Exclude,
                                        skipPrimaries, skipPrimNoInter, skipSecondaries,
@@ -707,6 +709,7 @@ void AParticleSim_SI::buildTracksSingleEvent(int eventIndex)
         return;
     }
 
+    AGeometryHub::getInstance().GeoManager->ClearTracks();
     ATrackingDataExplorer explorer;
     QString err = explorer.buildTracks(TrackingHistoryFileName, QStringList(), QStringList(),
                                        false, false, false,

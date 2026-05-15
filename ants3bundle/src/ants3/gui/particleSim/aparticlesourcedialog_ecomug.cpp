@@ -5,6 +5,7 @@
 #include "aparticlesimsettings.h"
 #include "aparticlesourceplotter.h"
 #include "agraphbuilder.h"
+#include "ageobasedelegate.h"
 
 #include <QDebug>
 #include <QDoubleValidator>
@@ -33,18 +34,26 @@ AParticleSourceDialog_EcoMug::AParticleSourceDialog_EcoMug(const AParticleSource
     QList<QLineEdit*> list = this->findChildren<QLineEdit *>();
     foreach(QLineEdit *w, list) if (w->objectName().startsWith("led")) w->setValidator(dv);
 
+    for (AOneLineTextEdit * le : {ui->ledX, ui->ledY, ui->ledZ, ui->ledSize1, ui->ledSize2 })
+        AGeoBaseDelegate::configureHighligherAndCompleter(le);
+
     ui->pbUpdateRecord->setDefault(true);
     ui->pbUpdateRecord->setVisible(false);
 
     ui->leSourceName->setText(Rec.Name.data());
     ui->cobGeneratorShape->setCurrentIndex(Rec.Shape);
 
-    ui->ledSize1->setText(QString::number(Rec.Size1));
-    ui->ledSize2->setText(QString::number(Rec.Size2));
+        //ui->ledSize1->setText(QString::number(Rec.Size1));
+    ui->ledSize1->setText(Rec.Size1Str.isEmpty() ? QString::number(Rec.Size1) : Rec.Size1Str);
+        //ui->ledSize2->setText(QString::number(Rec.Size2));
+    ui->ledSize2->setText(Rec.Size2Str.isEmpty() ? QString::number(Rec.Size2) : Rec.Size2Str);
 
-    ui->ledX->setText(QString::number(Rec.X0));
-    ui->ledY->setText(QString::number(Rec.Y0));
-    ui->ledZ->setText(QString::number(Rec.Z0));
+        //ui->ledX->setText(QString::number(Rec.X0));
+    ui->ledX->setText(Rec.X0Str.isEmpty() ? QString::number(Rec.X0) : Rec.X0Str);
+        //ui->ledY->setText(QString::number(Rec.Y0));
+    ui->ledY->setText(Rec.Y0Str.isEmpty() ? QString::number(Rec.Y0) : Rec.Y0Str);
+        //ui->ledZ->setText(QString::number(Rec.Z0));
+    ui->ledZ->setText(Rec.Z0Str.isEmpty() ? QString::number(Rec.Z0) : Rec.Z0Str);
 
     restorePersistentSettings();
 }
@@ -123,7 +132,7 @@ void AParticleSourceDialog_EcoMug::on_pbReject_clicked()
 void AParticleSourceDialog_EcoMug::on_pbGunTest_clicked()
 {
     AParticleSourcePlotter::clearTracks();
-    if (ui->pbShowSource->isChecked()) AParticleSourcePlotter::plotSource(LocalRec);
+    //if (ui->pbShowSource->isChecked()) AParticleSourcePlotter::plotSource(LocalRec);
 
     ASourceGeneratorSettings settings;
     settings.SourceData.push_back(&LocalRec);
@@ -181,26 +190,24 @@ void AParticleSourceDialog_EcoMug::on_pbUpdateRecord_clicked()
     case 2 : LocalRec.Shape = AParticleSourceRecord_EcoMug::HalfSphere; break;
     }
 
-    LocalRec.Size1 = ui->ledSize1->text().toDouble();
-    LocalRec.Size2 = ui->ledSize2->text().toDouble();
+        //LocalRec.Size1 = ui->ledSize1->text().toDouble();
+    processGeoConstAwareEditFinished(ui->ledSize1, LocalRec.Size1Str, LocalRec.Size1, "Size1", this, true, true, false);
+        //LocalRec.Size2 = ui->ledSize2->text().toDouble();
+    processGeoConstAwareEditFinished(ui->ledSize2, LocalRec.Size2Str, LocalRec.Size2, "Size2", this, true, true, false);
 
-    LocalRec.X0 = ui->ledX->text().toDouble();
-    LocalRec.Y0 = ui->ledY->text().toDouble();
-    LocalRec.Z0 = ui->ledZ->text().toDouble();
+        //LocalRec.X0 = ui->ledX->text().toDouble();
+    processGeoConstAwareEditFinished(ui->ledX, LocalRec.X0Str, LocalRec.X0, "Center X", this);
+        //LocalRec.Y0 = ui->ledY->text().toDouble();
+    processGeoConstAwareEditFinished(ui->ledY, LocalRec.Y0Str, LocalRec.Y0, "Center Y", this);
+        //LocalRec.Z0 = ui->ledZ->text().toDouble();
+    processGeoConstAwareEditFinished(ui->ledZ, LocalRec.Z0Str, LocalRec.Z0, "Center Z", this);
 
-    if (ui->pbShowSource->isChecked())
-    {
-        AParticleSourcePlotter::clearTracks();
-        AParticleSourcePlotter::plotSource(LocalRec);
-        emit requestShowSource();
-    }
-}
-
-void AParticleSourceDialog_EcoMug::on_pbShowSource_clicked(bool checked)
-{
-    AParticleSourcePlotter::clearTracks();
-    if (checked) AParticleSourcePlotter::plotSource(LocalRec);
-    emit requestShowSource();
+    //if (ui->pbShowSource->isChecked())
+    //{
+        //AParticleSourcePlotter::clearTracks();
+        //AParticleSourcePlotter::plotSource(LocalRec);
+        emit sourceRecordChangedInEditMode(&LocalRec);
+    //}
 }
 
 void AParticleSourceDialog_EcoMug::on_pbRef_clicked()

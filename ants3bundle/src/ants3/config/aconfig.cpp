@@ -48,6 +48,19 @@ QString AConfig::updateConfigFromJSON(bool updateGui)
     return readFromJson(JSON, updateGui);
 }
 
+#include "ageoconsts.h"
+void AConfig::overrideGeoConstsInJson()
+{
+    QJsonObject js;
+    jstools::parseJson(JSON, "Geometry", js);
+
+    QJsonArray arrGC;
+    AGeoConsts::getConstInstance().writeToJsonArr(arrGC);
+    js["GeoConsts"] = arrGC;
+
+    JSON["Geometry"] = js;
+}
+
 QString AConfig::load(const QString & fileName, bool bUpdateGui)
 {
     QJsonObject json;
@@ -135,6 +148,10 @@ void AConfig::clearTemporaryInputOutputDirs()
 QString AConfig::tryReadFromJson(const QJsonObject & json)
 {
     AErrorHub::clear();
+
+    // to eliminate cross-talk in GeoConst-related sim properties, clear sim hubs first
+    APhotonSimHub::getInstance().clear();
+    AParticleSimHub::getInstance().clear();
 
     bool ok = jstools::parseJson(json, "ConfigName",        ConfigName);
     if (!ok) return "Not a configuration file!";

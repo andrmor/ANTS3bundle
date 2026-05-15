@@ -14,8 +14,8 @@
 #include "acalorimeterhub.h"
 #include "acalorimeter.h"
 #include "ajsontools.h"
-#include "aparticletrackvisuals.h"
-#include "aparticlesourceplotter.h"
+#include "atrackvisattributes.h"
+//#include "aparticlesourceplotter.h"
 #include "adispatcherinterface.h"
 #include "ageoobject.h"
 #include "ath.h"
@@ -185,6 +185,13 @@ void AParticleSimWin::writeToJson(QJsonObject & json) const
         }
         json["Analyser"] = jsAn;
     }
+
+    // track properties
+    {
+        QJsonObject js;
+        A3Global::getInstance().CurrentTrackVisAttributes.writeToJson_particles(js);
+        json["ParticleTrackAttributes"] = js;
+    }
 }
 
 void AParticleSimWin::readFromJson(const QJsonObject &json)
@@ -284,6 +291,13 @@ void AParticleSimWin::readFromJson(const QJsonObject &json)
                     guitools::parseJsonToQLineEdit(js, "EventsPerThread", ui->ledEventsPerThread);
             }
         }
+    }
+
+    // track properties
+    {
+        QJsonObject js;
+        bool ok = jstools::parseJson(json, "ParticleTrackAttributes", js);
+        if (ok) A3Global::getInstance().CurrentTrackVisAttributes.readFromJson_particles(js);
     }
 }
 
@@ -504,7 +518,7 @@ void AParticleSimWin::on_pbEditParticleSource_clicked()
 
     ParticleSourceDialog = AParticleSourceDialogBase::factory(SourceGenSettings.SourceData[isource], this);
     connect(ParticleSourceDialog, &AParticleSourceDialogBase::requestTestParticleGun, this, &AParticleSimWin::testParticleGun);
-    connect(ParticleSourceDialog, &AParticleSourceDialogBase::requestShowSource,      this, &AParticleSimWin::onRequestShowSource);
+    connect(ParticleSourceDialog, &AParticleSourceDialogBase::sourceRecordChangedInEditMode, this, &AParticleSimWin::onSourceRecordChangedInEditMode);
     connect(ParticleSourceDialog, &AParticleSourceDialogBase::requestDraw,            this, &AParticleSimWin::requestDraw);
     connect(ParticleSourceDialog, &AParticleSourceDialogBase::accepted,               this, &AParticleSimWin::onParticleSourceAccepted);
     ParticleSourceDialog->setModal(true);
@@ -525,7 +539,8 @@ void AParticleSimWin::onParticleSourceAccepted()
     checkWorldSize(ps);
 
     updateSourceList();
-    if (ui->pbGunShowSource->isChecked()) on_pbGunShowSource_toggled(true);
+    //if (ui->pbGunShowSource->isChecked()) on_pbGunShowSource_toggled(true);
+    emit particleSourcesChanged();
 }
 
 #include "aworldsizewarningdialog.h"
@@ -571,7 +586,8 @@ void AParticleSimWin::on_pbAddSource_clicked()
     updateSourceList();
     ui->lwDefinedParticleSources->setCurrentRow(SimSet.SourceGenSettings.getNumSources() - 1);
 
-    if (ui->pbGunShowSource->isChecked()) on_pbGunShowSource_toggled(true);
+    //if (ui->pbGunShowSource->isChecked()) on_pbGunShowSource_toggled(true);
+    emit particleSourcesChanged();
 }
 
 void AParticleSimWin::on_pbCloneSource_clicked()
@@ -589,7 +605,8 @@ void AParticleSimWin::on_pbCloneSource_clicked()
     updateSourceList();
     ui->lwDefinedParticleSources->setCurrentRow(index+1);
 
-    if (ui->pbGunShowSource->isChecked()) on_pbGunShowSource_toggled(true);
+    //if (ui->pbGunShowSource->isChecked()) on_pbGunShowSource_toggled(true);
+    emit particleSourcesChanged();
 }
 
 void AParticleSimWin::on_pbRemoveSource_clicked()
@@ -615,7 +632,8 @@ void AParticleSimWin::on_pbRemoveSource_clicked()
     SimSet.SourceGenSettings.remove(isource);
     updateSourceList();
 
-    if (ui->pbGunShowSource->isChecked()) on_pbGunShowSource_toggled(true);
+    //if (ui->pbGunShowSource->isChecked()) on_pbGunShowSource_toggled(true);
+    emit particleSourcesChanged();
 }
 
 void AParticleSimWin::updateSourceList()
@@ -686,7 +704,8 @@ void AParticleSimWin::updateSourceList()
         curRow = 0;
     ui->lwDefinedParticleSources->setCurrentRow(curRow);
 
-    if (ui->pbGunShowSource->isChecked()) on_pbGunShowSource_toggled(true);
+    //if (ui->pbGunShowSource->isChecked()) on_pbGunShowSource_toggled(true);
+    emit particleSourcesChanged();
 }
 
 void AParticleSimWin::updateGeneralControlInResults()
@@ -716,14 +735,6 @@ void AParticleSimWin::on_pbGunTest_clicked()
     default:
         guitools::message("This generation mode is not implemented!", this);
         return;
-    }
-
-    AParticleSourcePlotter::clearTracks();
-    if (ui->cobParticleGenerationMode->currentIndex() == 0)
-    {
-        if (ui->pbGunShowSource->isChecked())
-            for (AParticleSourceRecordBase * source : SimSet.SourceGenSettings.SourceData)
-                AParticleSourcePlotter::plotSource(source);
     }
 
     emit requestBusyStatus(true);   // -->   !!!***
@@ -805,14 +816,16 @@ void AParticleSimWin::testParticleGun(AParticleGun * gun, int numParticles, bool
         if (numTracks > 1000) return;
         int track_index = gGeoManager->AddTrack(1, 22);
         TVirtualGeoTrack * track = gGeoManager->GetTrack(track_index);
-        AParticleTrackVisuals::getInstance().applyToParticleTrack(track, particle.particle.data());
+        A3Global::getInstance().CurrentTrackVisAttributes.applyToParticleTrack(track, particle.particle.data());
         track->AddPoint(particle.r[0], particle.r[1], particle.r[2], 0);
         track->AddPoint(particle.r[0] + particle.v[0]*Length, particle.r[1] + particle.v[1]*Length, particle.r[2] + particle.v[2]*Length, 0);
         numTracks++;
         emit requestAddMarker(particle.r);
     };
 
+    gGeoManager->ClearTracks();
     emit requestClearMarkers(0);
+    emit requestShowGeometry(true, true, false);
 
     for (int iRun = 0; iRun < numParticles; iRun++)
     {
@@ -823,7 +836,8 @@ void AParticleSimWin::testParticleGun(AParticleGun * gun, int numParticles, bool
 
     if (gun->AbortRequested) return;
 
-    emit requestShowGeometry(true, true, false);
+    //emit requestShowGeometry(false, true, true);
+    emit requestShowMarkers();
     emit requestShowTracks();
 
     if (fillStatistics)
@@ -861,6 +875,7 @@ void AParticleSimWin::disableGui(bool flag)
     qApp->processEvents();
 }
 
+/*
 void AParticleSimWin::on_pbGunShowSource_toggled(bool checked)
 {
     AParticleSourcePlotter::clearTracks();
@@ -881,6 +896,7 @@ void AParticleSimWin::on_pbGunShowSource_toggled(bool checked)
         emit requestShowGeometry(false, true, true);
     }
 }
+*/
 
 void AParticleSimWin::on_cobParticleGenerationMode_activated(int index)
 {
@@ -910,6 +926,8 @@ void AParticleSimWin::on_pbSimulate_clicked()
     double seed = 0;
     if (!ui->cbRandomSeed->isChecked()) seed = ui->sbSeed->value();
     SimManager.SimSet.RunSet.Seed = seed;
+
+    emit requestClearMarkers(0);
 
     clearResultsGui();
 
@@ -1059,14 +1077,16 @@ void AParticleSimWin::onNewConfigStartedInGui()
     ui->sbSeed->setValue(1000);
 }
 
-void AParticleSimWin::onRequestShowSource()
+void AParticleSimWin::onSourceRecordChangedInEditMode(AParticleSourceRecordBase * sourceRecord)
 {
-    emit requestShowGeometry(false, true, true);
-    emit requestShowTracks();
+    emit particleSourceChangedInEditMode(sourceRecord);
 }
 
 void AParticleSimWin::on_pbShowTracks_clicked()
 {
+    AGeometryHub::getInstance().GeoManager->ClearTracks();
+    emit requestShowGeometry(true, true, true); // can clear tracks now
+
     QString fileName = ui->leTrackingDataFile->text();
     LastFile_Tracking = fileName;
     if (!fileName.contains('/')) fileName = ui->leWorkingDirectory->text() + '/' + fileName;
@@ -1102,7 +1122,6 @@ void AParticleSimWin::on_pbShowTracks_clicked()
         return;
     }
 
-    emit requestShowGeometry(true, true, true);
     emit requestShowTracks();
 }
 
@@ -1452,10 +1471,12 @@ void AParticleSimWin::on_pbEventView_clicked()
         QString fileName = ui->leTrackingDataFile->text();
         if (!fileName.contains('/')) fileName = ui->leWorkingDirectory->text() + '/' + fileName;
 
+        AGeometryHub::getInstance().GeoManager->ClearTracks();
+        emit requestShowGeometry(true, true, true);
+
         ATrackingDataExplorer explorer;
         explorer.buildTracksForEventRecord(CurrentEventRecord, ui->cbEVsupressSec->isChecked());
 
-        emit requestShowGeometry(true, true, true);
         emit requestShowTracks();
     }
 }
@@ -2264,21 +2285,8 @@ void AParticleSimWin::on_sbShowEvent_editingFinished()
 #include "atrackdrawdialog.h"
 void AParticleSimWin::on_pbConfigureTrackStyles_clicked()
 {
-    ATrackDrawDialog D(this);
-    int res = D.exec();
-
-    A3Global & GlobSet = A3Global::getInstance();
-    AParticleTrackVisuals & vis = AParticleTrackVisuals::getInstance();
-
-    if (res == QDialog::Accepted)
-    {
-        vis.writeToJson(GlobSet.TrackVisAttributes);
-        GlobSet.saveConfig();
-    }
-    else
-    {
-        vis.readFromJson(GlobSet.TrackVisAttributes);
-    }
+    ATrackDrawDialog dia(this);
+    dia.exec();
 }
 
 void AParticleSimWin::on_cbLimitToParticleTracks_toggled(bool checked)
@@ -2809,7 +2817,8 @@ void AParticleSimWin::on_pbLoadFromLibrary_clicked()
     updateSourceList();
     ui->lwDefinedParticleSources->setCurrentRow(SimSet.SourceGenSettings.getNumSources() - 1);
 
-    if (ui->pbGunShowSource->isChecked()) on_pbGunShowSource_toggled(true);
+    //if (ui->pbGunShowSource->isChecked()) on_pbGunShowSource_toggled(true);
+    emit particleSourcesChanged();
 }
 
 void AParticleSimWin::on_pbAbort_clicked()
@@ -3689,4 +3698,3 @@ void AParticleSimWin::on_pbOfferPhysLists_clicked()
     ui->lePhysicsList->setText( cob->currentText() );
     on_lePhysicsList_editingFinished();
 }
-

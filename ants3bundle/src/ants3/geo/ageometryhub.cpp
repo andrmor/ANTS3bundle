@@ -1846,5 +1846,5 @@ QString AGeometryHub::checkVolumesExist(const std::vector<std::string> & Volumes
     }
 
     if (NotFoundVolumes.isEmpty()) return "";
-    else return QString("The following volumes/widlcards do not identify any volume in the geometry:\n%1").arg(NotFoundVolumes.join(", "));
+    else return QString("The following volumes/wildcards do not identify any volume in the geometry:\n%1").arg(NotFoundVolumes.join(", "));
 }

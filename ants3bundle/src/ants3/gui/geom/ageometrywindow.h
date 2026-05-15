@@ -3,6 +3,7 @@
 
 #include "aguiwindow.h"
 #include "ageowriter.h"
+#include "ageomarkerproperties.h"
 
 #include <vector>
 
@@ -15,6 +16,7 @@ class ACameraControlDialog;
 class AGeoMarkerClass;
 class ANodeRecord;
 class TVirtualGeoTrack;
+class AParticleSourceRecordBase;
 
 namespace Ui {
 class AGeometryWindow;
@@ -27,7 +29,7 @@ class AGeometryWindow : public AGuiWindow
 friend class AShowNumbersDialog;
 
 public:
-    explicit AGeometryWindow(bool jsrootViewer, QWidget * parent);
+    AGeometryWindow(bool jsrootViewer, QWidget * parent);
     ~AGeometryWindow();
 
     bool ModePerspective = true;
@@ -57,15 +59,16 @@ public:
     void ShowTracksAndMarkers();
 
     void ClearTracks(bool bRefreshWindow = true);
+    void clearSourceMarkers();
 
 protected:
     bool event(QEvent *event) override; // !!!***
     void closeEvent(QCloseEvent * event) override;
 
 public slots:
+    void ShowGeometry(bool ActivateWindow = true, bool SAME = true, bool ColorUpdateAllowed = true);
     void ClearRootCanvas();
     void onNewConfigLoaded();
-    void ShowGeometry(bool ActivateWindow = true, bool SAME = true, bool ColorUpdateAllowed = true);
     void onRequestRedrawFromScript();
     void showRecursive(QString objectName);
     void UpdateRootCanvas();
@@ -76,7 +79,7 @@ public slots:
     void onRequestSaveImageFromScript(QString fileName);
     void onRequestAddMarkersFromScript(AGeoMarkerClass * markers);
     void onRequestAddTrackFromScript(TVirtualGeoTrack * track);
-    void ShowPoint(double * r, bool keepTracks = false);
+    void ShowPoint(const double * r, bool keepTracks = false);
     void addGenerationMarker(const double * Pos);
     void FocusVolume(QString name);
     void CenterView(double * r);
@@ -107,6 +110,10 @@ public slots:
     void onRequestShowConnection(int from, int to);
     void onRequestShowAllConnections();
 
+    void onParticleSourcesChanged();
+    void onParticleSourceChangedInEditMode(AParticleSourceRecordBase * source);
+    void onPhotonSourcesChanged();
+
 private slots:
     void on_cobViewer_currentIndexChanged(int index);
     void on_pbShowGeometry_clicked();
@@ -117,12 +124,6 @@ private slots:
     void on_pbSide_clicked();
     void on_cobViewType_currentIndexChanged(int index);
     void on_cbShowAxes_toggled(bool checked);
-    void on_actionSmall_dot_toggled(bool arg1);
-    void on_actionLarge_dot_triggered(bool arg1);
-    void on_actionSmall_cross_toggled(bool arg1);
-    void on_actionLarge_cross_toggled(bool arg1);
-    void on_actionSize_1_triggered();
-    void on_actionSize_2_triggered();
     void on_actionDefault_zoom_1_triggered();
     void on_actionDefault_zoom_2_triggered();
     void on_actionDefault_zoom_to_0_triggered();
@@ -150,21 +151,26 @@ private slots:
 
     void on_actionSet_number_of_segments_triggered();
 
-private:
-    bool                    UseJSRoot = false;
-    AGeometryHub          & Geometry;
+    void on_pbShowParticleSources_clicked(bool checked);
+    void on_pbShowPhotonSources_clicked(bool checked);
 
-    Ui::AGeometryWindow   * ui = nullptr;
+    void on_actionConfigure_triggered();
+
+
+private:
+    bool UseJSRoot = false;
+    AGeometryHub & Geometry;
+
+    Ui::AGeometryWindow * ui = nullptr;
 
     ARasterWindow * RasterWindow = nullptr;
 #ifdef __USE_ANTS_JSROOT__
     QWebEngineView * WebView = nullptr;
 #endif
 
-    ACameraControlDialog  * CameraControl = nullptr;
+    ACameraControlDialog * CameraControl = nullptr;
 
-    int GeoMarkerSize  = 2;
-    int GeoMarkerStyle = 6;
+    AGeoMarkerPropDatabase GeoMarkProps;
 
     bool TMPignore = false;
     bool ShowTop = false;
@@ -172,6 +178,8 @@ private:
 
     AGeoWriter GeoWriter;
     int LastShowObjectType = 0;
+
+    AParticleSourceRecordBase * EditedParticleSource = nullptr;
 
 private:
     void redrawWebView(QString extraArguments = "");
@@ -189,6 +197,8 @@ private:
     void onWebPageReplyViewPort(const QVariant & reply);
 
     void showPhotonTunnel(int from, int to);
+
+    void showSources();
 
 signals:
     void requestChangeGeoViewer(bool useJSRoot);

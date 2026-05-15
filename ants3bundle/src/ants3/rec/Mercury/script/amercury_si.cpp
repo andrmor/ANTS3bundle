@@ -97,77 +97,83 @@ void AMercury_si::newReconstructor(QString type, int numThreads)
     }
 }
 
-void AMercury_si::reconstructEvents(QVariantList sensorSignalsOverAllEvents)
+void AMercury_si::importSensorSignals(QVariantList sensorSignalsOverAllEvents)
 {
-    if (!RecMP)
-    {
-        abort("Reconstructor was not created yet");
-        return;
-    }
-
     const size_t numEvents = sensorSignalsOverAllEvents.size();
     if (numEvents == 0)
     {
-        abort("The array with events for reconstructEvents is empty");
+        abort("The array with sensor signals is empty");
         return;
     }
 
-    std::vector<std::vector<double>> amplitudes(numEvents);
+    SensorSignals.resize(numEvents);
 
     for (size_t iEv = 0; iEv < numEvents; iEv++)
     {
         QVariantList sensSignals = sensorSignalsOverAllEvents[iEv].toList();
         qsizetype numEl = sensSignals.size();
 
-        amplitudes[iEv].resize(numEl);
+        SensorSignals[iEv].resize(numEl);
         for (qsizetype i = 0; i < numEl; i++)
-            amplitudes[iEv][i] = sensSignals[i].toDouble();
+            SensorSignals[iEv][i] = sensSignals[i].toDouble();
     }
-
-    RecMP->ProcessEvents(amplitudes);
 }
 
-void AMercury_si::reconstructEvents(QVariantList sensorSignalsOverAllEvents, QVariantList ignoreSensorsByEvent)
+void AMercury_si::clearTruePositions()
+{
+    XTruePositions.clear();
+    YTruePositions.clear();
+    ZTruePositions.clear();
+}
+
+void AMercury_si::reconstructEvents()
 {
     if (!RecMP)
     {
-        abort("Reconstructor was not created yet");
+        abort("Reconstructor was not created");
         return;
     }
-
-    const size_t numEvents = sensorSignalsOverAllEvents.size();
-    if (numEvents == 0)
+    if (SensorSignals.empty())
     {
-        abort("The array with events for reconstructEvents is empty");
+        abort("Sensor signals were not imported");
         return;
     }
 
-    std::vector<std::vector<double>> amplitudes(numEvents);
-    std::vector<std::vector<bool>>   ignoreSens(numEvents);
+    RecMP->ProcessEvents(SensorSignals);
+
+    PassFilter = std::vector<bool>(SensorSignals.size(), true);
+}
+
+void AMercury_si::reconstructEvents(QVariantList ignoreSensorsByEvent)
+{
+    if (!RecMP)
+    {
+        abort("Reconstructor was not created");
+        return;
+    }
+
+    const size_t numEvents  = SensorSignals.size();
+    const size_t numSensors = SensorSignals.front().size();
+    std::vector<std::vector<bool>> ignoreSens(numEvents);
 
     for (size_t iEv = 0; iEv < numEvents; iEv++)
     {
-        QVariantList vlSensSignals = sensorSignalsOverAllEvents[iEv].toList();
-        QVariantList vlIgnores     = ignoreSensorsByEvent[iEv].toList();
+        QVariantList vlIgnores = ignoreSensorsByEvent[iEv].toList();
 
-        qsizetype numEl = vlSensSignals.size();
-        if (vlIgnores.size() != numEl)
+        if (vlIgnores.size() != numSensors)
         {
-            abort("reconstructEvents: inconsistent number of elements in argument arrays");
+            abort("reconstructEvents with ignoreSensorsByEvent: inconsistent number of sensors in SensorSignals and ignoreSensorsByEvent arrays");
             return;
         }
 
-        amplitudes[iEv].resize(numEl);
-        ignoreSens[iEv].resize(numEl);
-
-        for (qsizetype i = 0; i < numEl; i++)
-        {
-            amplitudes[iEv][i] = vlSensSignals[i].toDouble();
-            ignoreSens[iEv][i] = vlIgnores[i].toBool();
-        }
+        ignoreSens[iEv].resize(numSensors);
+        for (qsizetype iSens = 0; iSens < numSensors; iSens++)
+            ignoreSens[iEv][iSens] = vlIgnores[iSens].toBool();
     }
 
-    RecMP->ProcessEvents(amplitudes, ignoreSens);
+    RecMP->ProcessEvents(SensorSignals, ignoreSens);
+
+    PassFilter = std::vector<bool>(numEvents, true);
 }
 
 /*
@@ -197,7 +203,7 @@ QVariantList AMercury_si::getRecXYZ()
 }
 */
 
-QVariantList AMercury_si::getRecXYZE()
+QVariantList AMercury_si::getRecXYZE(bool ignoreFilter)
 {
     QVariantList res;
     if (!RecMP)
@@ -212,35 +218,39 @@ QVariantList AMercury_si::getRecXYZE()
     const std::vector<double> & z    = RecMP->rec_z;
     const std::vector<double> & e    = RecMP->rec_e;
 
-    const size_t size = x.size();
-    if (size != y.size() || size != z.size() || size != e.size())
+    const size_t numEvents = x.size();
+    if (numEvents != y.size() || numEvents != z.size() || numEvents != e.size())
     {
-        abort("Mismatch in xyze array sizes");
+        abort("getRecXYZE: Unexpected mismatch in xyze array sizes");
+        return res;
+    }
+    if (!ignoreFilter && numEvents != PassFilter.size())
+    {
+        abort("getRecXYZE: unexpected mismatch in SensorSignals and PassFilter sizes");
         return res;
     }
 
     bool bStatistical = (dynamic_cast<RecMinuitMP*>(RecMP));
     double thisZ = Z0;
-    for (size_t i = 0; i < size; i++)
+    for (size_t iEv = 0; iEv < numEvents; iEv++)
     {
-        double energy;
+        if (!ignoreFilter && !PassFilter[iEv]) continue;
 
+        double energy;
         if (bStatistical)
         {
-            energy = (good[i] == 0 ? e[i] : 0);
-            thisZ = z[i];
+            energy = (good[iEv] == 0 ? e[iEv] : 0);
+            thisZ = z[iEv];
         }
         else
-        {
             energy = 1.0;
-        }
 
-        res.emplaceBack(QVariantList{x[i], y[i], thisZ, energy});
+        res.emplaceBack(QVariantList{x[iEv], y[iEv], thisZ, energy});
     }
     return res;
 }
 
-QVariantList AMercury_si::getRecStats()
+QVariantList AMercury_si::getRecStats(bool ignoreFilter)
 {
     QVariantList res;
     if (!RecMP)
@@ -256,19 +266,133 @@ QVariantList AMercury_si::getRecStats()
     const std::vector<double> & cov_yy = RecMP->cov_yy;
     const std::vector<double> & cov_xy = RecMP->cov_xy;
 
-    const size_t size = status.size();
-    if (size != chi2.size() || size != cov_xx.size() || size != cov_yy.size() || size != cov_xy.size())
+    const size_t numEvents = status.size();
+    if (numEvents != chi2.size() || numEvents != cov_xx.size() || numEvents != cov_yy.size() || numEvents != cov_xy.size())
     {
-        abort("Mismatch in status array sizes");
+        abort("getRecStats: Unexpected mismatch in array sizes");
+        return res;
+    }
+    if (!ignoreFilter && numEvents != PassFilter.size())
+    {
+        abort("getRecStats: unexpected mismatch in SensorSignals and PassFilter sizes");
         return res;
     }
 
-    for (size_t i = 0; i < size; i++)
+    for (size_t iEv = 0; iEv < numEvents; iEv++)
     {
-        if (status[i] == 0) res.emplaceBack(QVariantList{status[i], chi2[i] / dof[i], cov_xx[i], cov_yy[i], cov_xy[i]});
-        else                res.emplaceBack(QVariantList{status[i], 0,                0,         0,         0});
+        if (!ignoreFilter && !PassFilter[iEv]) continue;
+
+        if (status[iEv] == 0) res.emplaceBack(QVariantList{status[iEv], chi2[iEv] / dof[iEv], cov_xx[iEv], cov_yy[iEv], cov_xy[iEv]});
+        else                  res.emplaceBack(QVariantList{status[iEv], 0,                    0,           0,           0});
     }
     return res;
+}
+
+void AMercury_si::clearEventFilter()
+{
+    EventFilter.clear();
+}
+
+void AMercury_si::setFilterRecSuccess()
+{
+    EventFilter.SuccessRec = true;
+}
+
+void AMercury_si::setFilterByEnergy(double eMin, double eMax)
+{
+    EventFilter.ByEnergy = true;
+    EventFilter.EnergyMin = eMin;
+    EventFilter.EnergyMax = eMax;
+}
+
+void AMercury_si::setFilterByChi2(double chi2Min, double chi2Max)
+{
+    EventFilter.ByChi2 = true;
+    EventFilter.Chi2Min = chi2Min;
+    EventFilter.Chi2Max = chi2Max;
+}
+
+QString AMercury_si::applyFilter()
+{
+    if (!RecMP)
+    {
+        abort("Reconstructor was not created");
+        return "";
+    }
+
+    const std::vector<int>    & good = RecMP->rec_status;
+    const std::vector<double> & e    = RecMP->rec_e;
+    const std::vector<double> & chi  = RecMP->rec_chi2min;
+    const std::vector<int>    & dof  = RecMP->rec_dof;
+
+    const size_t numEvents = good.size();
+    if (numEvents != PassFilter.size())
+    {
+        abort("Reconstruction was not performed");
+        return "";
+    }
+
+    bool bStatistical = (dynamic_cast<RecMinuitMP*>(RecMP));
+    int numGood = 0;
+    int numSuc = 0;
+    int killByStat = 0;
+    int killByE = 0;
+    int killByChi2 = 0;
+    for (size_t iEv = 0; iEv < numEvents; iEv++)
+    {
+        const bool recSuccess = (good[iEv] == 0);
+        if (recSuccess) numSuc++;
+        if (EventFilter.SuccessRec && !recSuccess)
+        {
+            PassFilter[iEv] = false;
+            killByStat++;
+            continue;
+        }
+
+        if (EventFilter.ByChi2)
+        {
+            if (!bStatistical || !recSuccess)
+            {
+                PassFilter[iEv] = false;
+                killByChi2++;
+                continue;
+            }
+            const double chi2 = chi[iEv] / dof[iEv];
+            if (chi2 < EventFilter.Chi2Min || chi2 > EventFilter.Chi2Max)
+            {
+                PassFilter[iEv] = false;
+                killByChi2++;
+                continue;
+            }
+        }
+
+        if (EventFilter.ByEnergy)
+        {
+            double energy;
+            if (!recSuccess) energy = 0;
+            else if (!bStatistical) energy = 1.0;
+            else energy = e[iEv];
+            if (energy < EventFilter.EnergyMin || energy > EventFilter.EnergyMax)
+            {
+                PassFilter[iEv] = false;
+                killByE++;
+                continue;
+            }
+        }
+
+        // passed all filters
+        PassFilter[iEv] = true;
+        numGood++;
+    }
+
+    QString txt = QString("Events provided: %0").arg(numEvents);
+    txt += QString("  Reconstruction success: %0").arg(numSuc);
+    txt += QString("\nPassing the filter: %0").arg(numGood);
+    if (EventFilter.SuccessRec) txt += QString("\n  killed by status: %0").arg(killByStat);
+    if (EventFilter.ByChi2)     txt += QString("\n  killed by chi2: %0").arg(killByChi2);
+    if (EventFilter.ByEnergy)   txt += QString("\n  killed by energy: %0").arg(killByE);
+
+    return txt;
 }
 
 #include "TAxis.h"
@@ -319,10 +443,11 @@ void AMercury_si::plotEnergyHist(int bins, double from, double to)
 
     TH1D * h = new TH1D("", "energy", bins, from, to);
     h->GetXaxis()->SetTitle("Energy");
-    for (size_t i = 0; i < status.size(); i++)
+    for (size_t iEv = 0; iEv < status.size(); iEv++)
     {
-        if (status[i] != 0) continue;
-        h->Fill(energy[i], 1);
+        if (!PassFilter[iEv]) continue;
+        if (status[iEv] != 0) continue;
+        h->Fill(energy[iEv], 1);
     }
     emit AScriptHub::getInstance().requestDraw(h, "hist", true);
 }
@@ -335,10 +460,11 @@ void AMercury_si::plotChi2Hist(int bins, double from, double to)
 
     TH1D * h = new TH1D("", "chi2", bins, from, to);
     h->GetXaxis()->SetTitle("Chi2");
-    for (size_t i = 0; i < status.size(); i++)
+    for (size_t iEv = 0; iEv < status.size(); iEv++)
     {
-        if (status[i] != 0) continue;
-        h->Fill(chi2[i] / dof[i], 1);
+        if (!PassFilter[iEv]) continue;
+        if (status[iEv] != 0) continue;
+        h->Fill(chi2[iEv] / dof[iEv], 1);
     }
     emit AScriptHub::getInstance().requestDraw(h, "hist", true);
 }
@@ -348,8 +474,11 @@ void AMercury_si::plotStatusHist()
     const std::vector<int> & status = RecMP->rec_status;
 
     TH1D * h = new TH1D("", "status", 2, 0, 2);
-    for (size_t i = 0; i < status.size(); i++)
-        h->Fill( (status[i] == 0 ? 0 : 1), 1);
+    for (size_t iEv = 0; iEv < status.size(); iEv++)
+    {
+        if (!PassFilter[iEv]) continue;
+        h->Fill( (status[iEv] == 0 ? 0 : 1), 1);
+    }
 
     TAxis * ax = h->GetXaxis();
     ax->SetNdivisions(4, false);
@@ -392,30 +521,35 @@ void AMercury_si::plot_vsRecXY(QString what)
     doPlot_vsXY(false, opt, x, y);
 }
 
-void AMercury_si::configure_plotXY_truePositions(QVariantList truePositions)
+void AMercury_si::importTruePositions(QVariantList truePositions)
 {
     const size_t num = truePositions.size();
     if (num == 0)
     {
-        abort("TruePositions array is empty");
+        abort("truePositions array is empty");
         return;
     }
 
     XTruePositions.resize(num);
     YTruePositions.resize(num);
-    for (size_t i = 0; i < num; i++)
+    ZTruePositions.resize(num);
+    for (size_t iEv = 0; iEv < num; iEv++)
     {
-        QVariantList el = truePositions[i].toList();
+        QVariantList el = truePositions[iEv].toList();
         if (el.size() < 2)
         {
-            abort("TruePositions array should contain arrays of at least size two (X and Y positions)");
+            abort("truePositions array should contain arrays of XYs or XYZs");
             return;
         }
-        bool ok1, ok2;
-        XTruePositions[i] = el[0].toDouble(&ok1);
-        YTruePositions[i] = el[1].toDouble(&ok2);
-        if (ok1 && ok2) continue;
-        abort("Bad x or y value format in TruePositions array");
+        bool ok0, ok1;
+        XTruePositions[iEv] = el[0].toDouble(&ok0);
+        YTruePositions[iEv] = el[1].toDouble(&ok1);
+        bool ok2 = true;
+        if (el.size() > 2) ZTruePositions[iEv] = el[2].toDouble(&ok2);
+        else               ZTruePositions[iEv] = Z0;
+        if (ok0 && ok1 && ok2) continue;
+
+        abort("Bad x, y or z value format in TruePositions array");
         return;
     }
 }
@@ -448,6 +582,110 @@ void AMercury_si::plot_vsTrueXY(QString what)
     }
 
     doPlot_vsXY(true, opt, XTruePositions, YTruePositions);
+}
+
+#include "ageomarkerclass.h"
+void AMercury_si::showReconstructedPositions()
+{
+    if (!RecMP)
+    {
+        abort("Reconstructor was not created yet");
+        return;
+    }
+
+    const std::vector<double> & x    = RecMP->rec_x;
+    const std::vector<double> & y    = RecMP->rec_y;
+    const std::vector<double> & z    = RecMP->rec_z;
+
+    const int numEvents = x.size();
+    if (numEvents != PassFilter.size())
+    {
+        abort("Reconstruction was not yet performed");
+        return;
+    }
+
+    AGeoMarkerClass * markers = new AGeoMarkerClass(EGeoMarkerType::PosReconstructed, 20, 1, 1); // properties are auto-updated
+    for (int iEv = 0; iEv < numEvents; iEv++)
+    {
+        if (!PassFilter[iEv]) continue;
+        markers->SetNextPoint(x[iEv], y[iEv], z[iEv]);
+    }
+
+    AScriptHub & ScrHub = AScriptHub::getInstance();
+    ScrHub.prepareToWait();
+    emit ScrHub.requestAddMarkers(markers);
+    ScrHub.waitForGuiCallFinished(Lang);
+}
+
+void AMercury_si::showTruePositions(bool invertFilterStatus)
+{
+    const int numEvents = XTruePositions.size();
+    if (numEvents != PassFilter.size())
+    {
+        abort("Mismatch in event numbers: true positions and filter status");
+        return;
+    }
+
+    AGeoMarkerClass * markers = new AGeoMarkerClass(EGeoMarkerType::PosTrue, 20, 1, 1); // properties are auto-updated
+    for (int iEv = 0; iEv < numEvents; iEv++)
+    {
+        if (PassFilter[iEv] == invertFilterStatus) continue; // no inv, fail rec: (false == false) --> continue
+        markers->SetNextPoint(XTruePositions[iEv], YTruePositions[iEv], ZTruePositions[iEv]);
+    }
+
+    AScriptHub & ScrHub = AScriptHub::getInstance();
+    ScrHub.prepareToWait();
+    emit ScrHub.requestAddMarkers(markers);
+    ScrHub.waitForGuiCallFinished(Lang);
+}
+
+void AMercury_si::showEventExplorer()
+{
+    if (!RecMP)
+    {
+        abort("Reconstructor was not created yet");
+        return;
+    }
+
+    const size_t numEvents = SensorSignals.size();
+    if (numEvents == 0)
+    {
+        abort("The array with events for showEventExplorer is empty");
+        return;
+    }
+    const size_t numSens = SensorSignals.front().size();
+
+    bool bHaveTrue = false;
+    if (!XTruePositions.empty())
+    {
+        if (numEvents != XTruePositions.size())
+        {
+            abort("showEventExplorer: mismatch in the number of events in SensorSignals and TruePositions");
+            return;
+        }
+        bHaveTrue = true;
+    }
+
+    std::vector<std::vector<double>>  * amplitudes = new std::vector<std::vector<double>>(numEvents); // will be owned by the Explorer
+
+    std::vector<std::array<double,3>> * trues = nullptr;
+    if (bHaveTrue) trues = new std::vector<std::array<double,3>>(numEvents); // will be owned by the Explorer
+
+    for (size_t iEv = 0; iEv < numEvents; iEv++)
+    {
+        amplitudes->at(iEv).resize(numSens);
+        for (size_t iSens = 0; iSens < numSens; iSens++)
+            amplitudes->at(iEv)[iSens] = SensorSignals[iEv][iSens];
+
+        if (bHaveTrue)
+        {
+            trues->at(iEv)[0] = XTruePositions[0];
+            trues->at(iEv)[1] = XTruePositions[1];
+            trues->at(iEv)[2] = XTruePositions[2];
+        }
+    }
+
+    emit AScriptHub::getInstance().requestShowEventExplorer(RecMP->getFirstWorker(), amplitudes, trues);
 }
 
 void AMercury_si::doPlot_vsXY(bool vsTrue, EPlotOption opt, const std::vector<double> & x, const std::vector<double> & y)
@@ -520,11 +758,12 @@ void AMercury_si::plotEnergyXYHist(const std::vector<double> & x, const std::vec
     const std::vector<int>    & status = RecMP->rec_status;
     const std::vector<double> & energy = RecMP->rec_e;
 
-    for (size_t i = 0; i < status.size(); i++)
+    for (size_t iEv = 0; iEv < status.size(); iEv++)
     {
-        if (status[i] != 0) continue;
-        hist->    Fill(x[i], y[i], energy[i]);
-        histNorm->Fill(x[i], y[i], 1);
+        if (!PassFilter[iEv]) continue;
+        if (status[iEv] != 0) continue;
+        hist->    Fill(x[iEv], y[iEv], energy[iEv]);
+        histNorm->Fill(x[iEv], y[iEv], 1);
     }
     hist->Divide(histNorm);
 
@@ -545,11 +784,12 @@ void AMercury_si::plotChi2XYHist(const std::vector<double> & x, const std::vecto
     const std::vector<int>    & dof    = RecMP->rec_dof;
     const std::vector<double> & chi2   = RecMP->rec_chi2min;
 
-    for (size_t i = 0; i < status.size(); i++)
+    for (size_t iEv = 0; iEv < status.size(); iEv++)
     {
-        if (status[i] != 0) continue;
-        hist-> Fill(x[i], y[i], chi2[i] / dof[i]);
-        histNorm->Fill(x[i], y[i], 1);
+        if (!PassFilter[iEv]) continue;
+        if (status[iEv] != 0) continue;
+        hist-> Fill(x[iEv], y[iEv], chi2[iEv] / dof[iEv]);
+        histNorm->Fill(x[iEv], y[iEv], 1);
     }
     hist->Divide(histNorm);
 
@@ -568,10 +808,11 @@ void AMercury_si::plotStatusXYHist(const std::vector<double> & x, const std::vec
 
     const std::vector<int>    & status = RecMP->rec_status;
 
-    for (size_t i = 0; i < status.size(); i++)
+    for (size_t iEv = 0; iEv < status.size(); iEv++)
     {
-        hist->Fill (x[i], y[i], (status[i] == 0 ? 0 : 1));
-        histNorm->Fill(x[i], y[i], 1);
+        if (!PassFilter[iEv]) continue;
+        hist->Fill (x[iEv], y[iEv], (status[iEv] == 0 ? 0 : 1));
+        histNorm->Fill(x[iEv], y[iEv], 1);
     }
     hist->Divide(histNorm);
 
@@ -590,10 +831,11 @@ void AMercury_si::plotDensityXYHist(const std::vector<double> & x, const std::ve
 
     const std::vector<int>    & status = RecMP->rec_status;
 
-    for (size_t i = 0; i < status.size(); i++)
+    for (size_t iEv = 0; iEv < status.size(); iEv++)
     {
-        if (status[i] != 0) continue;
-        hist-> Fill(x[i], y[i], 1);
+        if (!PassFilter[iEv]) continue;
+        if (status[iEv] != 0) continue;
+        hist->Fill(x[iEv], y[iEv], 1);
         // no filling as there is no averaging!
     }
     //hist->Divide(histNorm); // no division!
@@ -614,11 +856,12 @@ void AMercury_si::plotBiasXYHist(const std::vector<double> & x, const std::vecto
     const std::vector<double> & recX   = RecMP->rec_x;
     const std::vector<double> & recY   = RecMP->rec_y;
 
-    for (size_t i = 0; i < status.size(); i++)
+    for (size_t iEv = 0; iEv < status.size(); iEv++)
     {
-        if (status[i] != 0) continue;
-        hist-> Fill(x[i], y[i], (vsX ? recX[i] - x[i] : recY[i] - y[i]));
-        histNorm->Fill(x[i], y[i], 1);
+        if (!PassFilter[iEv]) continue;
+        if (status[iEv] != 0) continue;
+        hist-> Fill(x[iEv], y[iEv], (vsX ? recX[iEv] - x[iEv] : recY[iEv] - y[iEv]));
+        histNorm->Fill(x[iEv], y[iEv], 1);
     }
     hist->Divide(histNorm);
 
@@ -642,11 +885,12 @@ void AMercury_si::plotResXYHist(const std::vector<double> & x, const std::vector
     //computing bias
     TH2D * histB     = create2Dhist();
     TH2D * histNormB = create2Dhist();
-    for (size_t i = 0; i < status.size(); i++)
+    for (size_t iEv = 0; iEv < status.size(); iEv++)
     {
-        if (status[i] != 0) continue;
-        histB-> Fill(x[i], y[i], (vsX ? recX[i] - x[i] : recY[i] - y[i]));
-        histNormB->Fill(x[i], y[i], 1);
+        if (!PassFilter[iEv]) continue;
+        if (status[iEv] != 0) continue;
+        histB-> Fill(x[iEv], y[iEv], (vsX ? recX[iEv] - x[iEv] : recY[iEv] - y[iEv]));
+        histNormB->Fill(x[iEv], y[iEv], 1);
     }
     histB->Divide(histNormB);
     delete histNormB;
@@ -757,4 +1001,19 @@ AMercury_si::EPlotOption AMercury_si::whatFromString(QString what)
     if (what == "ALL")     return EachValidOption;
 
     return ErrorOption;
+}
+
+// ---
+
+void AEventFilterRecord::clear()
+{
+    SuccessRec = false;
+
+    ByEnergy = false;
+    EnergyMin = 0;
+    EnergyMax = 1e99;
+
+    ByChi2 = false;
+    Chi2Min = 0;
+    Chi2Max = 1e99;
 }

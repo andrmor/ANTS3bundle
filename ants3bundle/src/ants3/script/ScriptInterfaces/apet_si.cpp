@@ -74,7 +74,7 @@ void APet_si::abortRun()
     // if (Process) abort it
 }
 
-void APet_si::createScanner(QString scannerName, double scannerRadius, double crystalDepth, double crystalSize, double minAngle_deg)
+void APet_si::createScanner(QString scannerName, double scannerRadius, double crystalDepth, double crystalSize, double minAngle_deg, QVariantList crystalArray)
 {
     QString castorStr;
     const QStringList environment = QProcess::systemEnvironment();
@@ -107,15 +107,25 @@ void APet_si::createScanner(QString scannerName, double scannerRadius, double cr
         return;
     }
 
-    size_t numScint = AGeometryHub::getConstInstance().countScintillators();
-    if (numScint == 0)
+    size_t numScint = 0;
+    if (crystalArray.isEmpty())
     {
-        abort("Current configuration does not have defined scintillators!");
-        return;
-    }
+        numScint = AGeometryHub::getConstInstance().countScintillators();
+        if (numScint == 0)
+        {
+            abort("Current configuration does not have defined scintillators!");
+            return;
+        }
 
-    bool ok = makeLUT(castorStr + "/scanner/" + scannerName + ".lut");
-    if (!ok) return;
+        bool ok = makeLUT(castorStr + "/scanner/" + scannerName + ".lut");
+        if (!ok) return;
+    }
+    else
+    {
+        numScint = crystalArray.size();
+        bool ok = makeCustomLUT(castorStr + "/scanner/" + scannerName + ".lut", crystalArray);
+        if (!ok) return;
+    }
 
     QString numScintStr = QString::number(numScint);
 
@@ -168,6 +178,56 @@ bool APet_si::makeLUT(QString fileName)
             outStream.write((char*)&tmp, sizeof(float));
         }
     }
+    outStream.close();
+    return true;
+}
+
+bool APet_si::makeCustomLUT(QString fileName, QVariantList crystalArray)
+{
+    const int size = crystalArray.size();
+    if (size == 0)
+    {
+        abort("crystalArray is empty!");
+        return false;
+    }
+
+    std::vector<AVector3> pos(size);
+    std::vector<AVector3> ori(size);
+
+    for (int iScint = 0; iScint < size; iScint++)
+    {
+        QVariantList scint = crystalArray[iScint].toList();
+        if (scint.size() != 6)
+        {
+            abort("Element size in crystalArray is not 6 (should be x,y,z, phi,theta,psi)");
+            return false;
+        }
+
+        pos[iScint] = {scint[0].toDouble(), scint[1].toDouble(), scint[2].toDouble()};
+        ori[iScint] = {scint[3].toDouble(), scint[4].toDouble(), scint[5].toDouble()};
+    }
+
+    std::ofstream outStream(fileName.toLatin1().data(), std::ios::out | std::ios::binary );
+    if (!outStream.is_open())
+    {
+        abort("Cannot open file for writing: " + fileName);
+        return false;
+    }
+
+    for (size_t iScint = 0; iScint < pos.size(); iScint++)
+    {
+        for (size_t i = 0; i < 3; i++)
+        {
+            float tmp = (float)pos[iScint][i];
+            outStream.write((char*)&tmp, sizeof(float));
+        }
+        for (size_t i = 0; i < 3; i++)
+        {
+            float tmp = (float)ori[iScint][i];
+            outStream.write((char*)&tmp, sizeof(float));
+        }
+    }
+
     outStream.close();
     return true;
 }
@@ -447,4 +507,221 @@ QVariantList APet_si::loadImage(QString fileName)
     vl.push_back(parameters);
 
     return vl;
+}
+
+void APet_si::reduceDeposition(QString depoFileName, QString calorLogFilename, double energyWindow, QString outputDepoFileName)
+{
+    if (!QFileInfo::exists(depoFileName))
+    {
+        abort("Deposition file does not exist: " + depoFileName);
+        return;
+    }
+    if (!QFileInfo::exists(calorLogFilename))
+    {
+        abort("Calorimeter log file does not exist: " + calorLogFilename);
+        return;
+    }
+
+    QFile file(calorLogFilename);
+    if(!file.open(QIODevice::ReadOnly | QFile::Text))
+    {
+        abort("Cannot open file: " + calorLogFilename);
+        return;
+    }
+
+    QTextStream in(&file);
+
+    int numHeads = -1;
+    std::vector<std::vector<double>> calorLog; calorLog.reserve(100000);
+    while (!in.atEnd())
+    {
+        const QString line = in.readLine();
+        const QStringList fields = line.split(' ', Qt::SkipEmptyParts);
+        if (fields.isEmpty()) continue;
+
+        if (numHeads != -1)
+        {
+            if (fields.size() != numHeads)
+            {
+                abort("Bad format of calorimeter log file");
+                return;
+            }
+        }
+        else
+        {
+            numHeads = fields.size();
+            if (numHeads == 0)
+            {
+                abort("Bad format of calorimeter log file");
+                return;
+            }
+        }
+
+        std::vector<double> el(numHeads);
+        for (int i = 0; i < numHeads; i++) el[i] = fields[i].toDouble();
+        calorLog.push_back(el);
+    }
+    file.close();
+    qDebug() << QString("Calorimeter log with %1 detector heads contains %2 events").arg(numHeads).arg(calorLog.size());
+
+    QFile textReaderFile(depoFileName);
+    if (!textReaderFile.open(QIODevice::ReadOnly | QFile::Text))
+    {
+        abort("Cannot open file: " + depoFileName);
+        return;
+    }
+    QTextStream textReaderStream(&textReaderFile);
+
+    QFile textWriterFile(outputDepoFileName);
+    if (!textWriterFile.open(QIODevice::WriteOnly))
+    {
+        abort("Cannot open file: " + outputDepoFileName);
+        return;
+    }
+    QTextStream textWriterStream(&textWriterFile);
+
+    int iEvent = -1;
+    bool bSkipEvent = false;
+    int outEvent = 0;
+    while (!textReaderStream.atEnd())
+    {
+        QString txt = textReaderStream.readLine();
+        if (txt[0] == '#')
+        {
+            // new event
+            iEvent++;
+            if (iEvent % 100000 == 0) qDebug() << 100.0 * iEvent / calorLog.size();
+            if (iEvent >= calorLog.size())
+            {
+                abort("Mismatch in number of events!");
+                return;
+            }
+
+            int numInWin = 0;
+            for (int iHead = 0; iHead < numHeads; iHead++)
+            {
+                const double & en = calorLog[iEvent][iHead];
+                if ( en > 511.0 * (1.0 - energyWindow) && en < 511.0 * (1.0 + energyWindow) ) numInWin++;
+            }
+
+            if (iEvent < 200)
+            {
+                qDebug() << iEvent << calorLog[iEvent] << numInWin;
+            }
+
+            if (numInWin != 2) bSkipEvent = true;
+            else
+            {
+                bSkipEvent = false;
+                textWriterStream << '#' << QString::number(outEvent) << '\n';
+                outEvent++;
+            }
+        }
+        else
+        {
+            if (bSkipEvent) continue;
+            textWriterStream << txt << '\n';
+        }
+    }
+
+    textWriterStream.flush();
+    qDebug() << "Reduced events:" << outEvent << "fraction:" << 100.0*outEvent/iEvent << "%";
+}
+
+void APet_si::directSaveCoincideneData(QVariantList coincData, QString scannerName, QString outputDir, QString headerFileName, QString binFileName)
+{
+    const qsizetype size = coincData.size();
+    if (size == 0)
+    {
+        abort("Empty data in directSaveCoincideneData");
+        return;
+    }
+    std::vector<APetCoincidencePair> coincAr(size);
+    for (qsizetype iEv = 0; iEv < size; iEv++)
+    {
+        QVariantList event = coincData[iEv].toList();
+        if (event.size() < 2)
+        {
+            abort("coincData element size is less than 2 (Expected: iScint1 iScint2 [optional timeStamp_ms]");
+            return;
+        }
+        int iScint1 = event[0].toInt();
+        int iScint2 = event[1].toInt();
+
+        double timestamp = 0;
+        if (event.size() > 2) timestamp = event[2].toDouble(); // should be in ns !!!
+
+        coincAr[iEv] = {{iScint1, timestamp, 0}, {iScint2, timestamp, 0}};
+    }
+
+    APetCoincidenceFinder cf(scannerName, 0, "", false);
+    cf.write(coincAr, false, outputDir, headerFileName, binFileName);
+    if (!cf.ErrorString.isEmpty())
+        abort(cf.ErrorString);
+}
+
+void APet_si::reconstructDynamic(QString coincFileName, QString gatesFileName, QString deformationFileName, QString outDir, int numThreads)
+{
+    Process = new QProcess();
+    Process->setProcessChannelMode(QProcess::MergedChannels);
+
+    bool isRunning = true;
+    QObject::connect(Process, static_cast<void(QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished), [&isRunning](){isRunning = false; qDebug() << "----CASTOR FINISHED!-----";});
+    //QObject::connect(process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), [=](int exitCode, QProcess::ExitStatus exitStatus){ /* ... */ });
+
+    QObject::connect(Process, &QProcess::readyReadStandardOutput, this, &APet_si::onReadReady);
+
+    //castor-recon -df Tor.cdh -opti MLEM -it 10:16 -proj joseph -conv gaussian,2.0,2.5,3.5::psf -dim 128,128,128 -vox 3.0,3.0,3.0 -dout /home/andr/WORK/ANTS3/castor/Out/Tor/images
+    QString program = "castor-recon";
+    QStringList args;
+    args << "-df" << coincFileName;
+    if (numThreads > 1) args << "-th" << QString::number(numThreads);
+    args << "-opti" << AlgorithmName;
+    args << "-it" << QString("%1:%2").arg(NumIterations).arg(NumSubsets);
+    args << "-proj" << "joseph";                    // !
+
+    //args << "-g" << "/home/andr/WORK/GAGG/PET/Out1M/ReducedSim/gates_config.txt";
+    args << "-g" << gatesFileName;
+        //args << "-rm" << "/home/andr/WORK/GAGG/PET/Out1M/ReducedSim/motion_config.txt";
+        //args << "-im" << "deformationRigid,0,0,0,0,0,0,0,0,0,0,0,180"; // -im deformationRigid,tx1,ty1,tz1,ra1,rb1,rc1,tx2,ty2,tz2,ra2,rb2,rc2
+        //args << "-im" << "deformationRigid:/home/andr/WORK/GAGG/PET/Out1M/ReducedSim/motion_config.txt";
+    args << "-im" << "deformationRigid:"+deformationFileName;
+
+    //args << "-conv" << "gaussian,2.0,2.5,3.5::psf";
+    args << "-conv" << QString("gaussian,%1,%2,%3::psf").arg(TransaxialFWHM_mm).arg(AxialFWHM_mm).arg(NumberOfSigmas);
+    if (IgnoreTOF) args << "-ignore-TOF";
+    //args << "-dim" << "128,128,128";
+    args << "-dim" << QString("%1,%2,%3").arg(NumVoxels[0]).arg(NumVoxels[1]).arg(NumVoxels[2]);
+    //args << "-vox" << "3.0,3.0,3.0";
+    args << "-vox" << QString("%1,%2,%3").arg(SizeVoxels[0]).arg(SizeVoxels[1]).arg(SizeVoxels[2]);
+    args << "-dout" << outDir;
+
+    qDebug() << "Starting external process:" << program << " with arguments:\n" << args;
+
+    Process->start(program, args);
+    bool ok = Process->waitForStarted(1000);
+    if (!ok)
+    {
+        abort("Failed to start reconstruction using castor-recon");
+        return;
+    }
+
+    while (isRunning)
+    {
+        //bool ok = Process->waitForFinished(100); // ms
+        //if (ok) break;
+
+        QThread::usleep(100);
+        QApplication::processEvents();
+
+        if (AScriptHub::isAborted(Lang))
+        {
+            Process->terminate();
+            break;
+        }
+    }
+
+    QString err = Process->errorString();
+    if (!err.isEmpty() && err != "Unknown error")
+        abort("Reconstruction failed:\n" + err);
 }

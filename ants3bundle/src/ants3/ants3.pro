@@ -213,6 +213,7 @@ SOURCES += \
     ../lsim/anoderecord.cpp \
     ../lsim/aphotonhistorylog.cpp \
     ../lsim/aphotontracer.cpp \
+    gui/ageomarkerproperties.cpp \
     gui/aviewer3dsettings.cpp \
     farm/afarmnoderecord.cpp \
     geo/acalorimeter.cpp \
@@ -227,6 +228,7 @@ SOURCES += \
     gui/amainwindow.cpp \
     gui/atreedatabaseselectordialog.cpp \
     gui/geom/ageoconstexpressiondialog.cpp \
+    gui/geom/ageomarkerpropsdialog.cpp \
     gui/geom/ageotreewin.cpp \
     gui/geom/aparticleanalyzerwidget.cpp \
     gui/geom/ashownumbersdialog.cpp \
@@ -255,6 +257,8 @@ SOURCES += \
     gui/photsim/aphotfunctwindow.cpp \
     gui/photsim/aphotgenoverridedialog.cpp \
     gui/photsim/aphotonlogsettingsform.cpp \
+    gui/photsim/aphotonsourceplotter.cpp \
+    gui/photsim/aphotontrackvisdialog.cpp \
     gui/photsim/aphotsimwin.cpp \
     gui/photsim/asensordrawwidget.cpp \
     config/aconfig.cpp \
@@ -299,6 +303,7 @@ SOURCES += \
     gui/raster/agraphrasterwindow.cpp \
     gui/raster/arasterwindow.cpp \
     gui/rec/alrfplotterdialog.cpp \
+    gui/rec/amercuryeventexplorer.cpp \
     gui/script/aargumentcounter.cpp \
     gui/script/ageoscriptmaker.cpp \
     gui/script/aguifromscrwin.cpp \
@@ -316,6 +321,7 @@ SOURCES += \
     particleSim/aorthopositroniumgammagenerator.cpp \
     particleSim/aparticleanalyzerhub.cpp \
     particleSim/aparticleanalyzersettings.cpp \
+    particleSim/atrackvisattributes.cpp \
     photonSim/aphotonloghandler.cpp \
     photonSim/interfaceRules/asurfaceinterfacerule.cpp \
     photonSim/interfaceRules/asurfacesettings.cpp \
@@ -376,7 +382,6 @@ SOURCES += \
     particleSim/aparticlesimmanager.cpp \
     particleSim/aparticlesimsettings.cpp \
     particleSim/aparticlesourcerecord.cpp \
-    particleSim/aparticletrackvisuals.cpp \
     particleSim/asourcegeneratorsettings.cpp \
     particleSim/asourceparticlegenerator.cpp \
     particleSim/atrackingdataimporter.cpp \
@@ -452,10 +457,12 @@ HEADERS += \
     ../lsim/aphotonhistorylog.h \
     ../lsim/aphotontracer.h \
     farm/ademomanager.h \
+    gui/ageomarkerproperties.h \
     gui/aviewer3dsettings.h \
     gui/aitemselectiondialog.h \
     gui/amainwindow.h \
     gui/atreedatabaseselectordialog.h \
+    gui/geom/ageomarkerpropsdialog.h \
     gui/geom/aparticleanalyzerwidget.h \
     gui/graph/adrawmarginsrecord.h \
     gui/graph/agraphwindow.h \
@@ -473,15 +480,19 @@ HEADERS += \
     gui/photsim/aphotfunctwindow.h \
     gui/photsim/aphotgenoverridedialog.h \
     gui/photsim/aphotonlogsettingsform.h \
+    gui/photsim/aphotonsourceplotter.h \
+    gui/photsim/aphotontrackvisdialog.h \
     gui/raster/agraphrasterwindow.h \
     gui/raster/arasterwindow.h \
     gui/rec/alrfplotterdialog.h \
+    gui/rec/amercuryeventexplorer.h \
     gui/script/aargumentcounter.h \
     gui/script/ascriptexampleexplorer.h \
     particleSim/EcoMug/EcoMug.h \
     particleSim/aorthopositroniumgammagenerator.h \
     particleSim/aparticleanalyzerhub.h \
     particleSim/aparticleanalyzersettings.h \
+    particleSim/atrackvisattributes.h \
     photonSim/aphotonloghandler.h \
     photonSim/photonFunctional/aphotonfunctionalhub.h \
     photonSim/photonFunctional/aphotonfunctionalmodel.h \
@@ -621,7 +632,6 @@ HEADERS += \
     particleSim/aparticlesimmanager.h \
     particleSim/aparticlesimsettings.h \
     particleSim/aparticlesourcerecord.h \
-    particleSim/aparticletrackvisuals.h \
     particleSim/asourcegeneratorsettings.h \
     particleSim/asourceparticlegenerator.h \
     particleSim/atrackingdataimporter.h \
@@ -716,10 +726,12 @@ FORMS += \
         gui/photsim/aphotfunctwindow.ui \
         gui/photsim/aphotgenoverridedialog.ui \
         gui/photsim/aphotonlogsettingsform.ui \
+        gui/photsim/aphotontrackvisdialog.ui \
         gui/photsim/aphotsimwin.ui \
         gui/photsim/asensordrawwidget.ui \
         gui/ademowindow.ui \
         gui/photsim/asensorwindow.ui \
+        gui/rec/amercuryeventexplorer.ui \
         gui/script/ascriptexampleexplorer.ui \
         gui/script/ascriptwindow.ui \
         gui/aroottextconfigurator.ui \

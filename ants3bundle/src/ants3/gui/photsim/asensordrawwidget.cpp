@@ -290,15 +290,30 @@ void ASensorDrawWidget::positionToSceneCoordinates(int iSens, double & x, double
         y =  pos[1];
         z =  pos[2];
         break;
-    case 1: // front -> rotate 90 degrees backward
+    case 1: // bottom
+        x =  pos[0];
+        y =  pos[1];
+        z =  -pos[2];
+        break;
+    case 2: // front -> rotate 90 degrees backward
         x =  pos[0];
         y =  pos[2];
         z = -pos[1];
         break;
-    case 2: // side -> rotate 90 degrees backward, then 90 degrees to the left
+    case 3: // back -> rotate 90 degrees backward -
+        x =  pos[0];
+        y =  pos[2];
+        z =  pos[1];
+        break;
+    case 4: // side -> rotate 90 degrees backward, then 90 degrees to the left
         x =  pos[1];
         y =  pos[2];
         z =  pos[0];
+        break;
+    case 5: // side -> rotate 90 degrees backward, then 90 degrees to the left -
+        x =  pos[1];
+        y =  pos[2];
+        z = -pos[0];
         break;
     }
 }

@@ -49,7 +49,7 @@ private slots:
     void on_pbGunLoadSpectrum_clicked();
     void on_pbDeleteSpectrum_clicked();
 
-    void on_pbShowSource_clicked(bool checked);
+    //void on_pbShowSource_clicked(bool checked);
     void on_pbHelpParticle_clicked();
 
     void on_cobAngularMode_currentIndexChanged(int index);
@@ -99,6 +99,7 @@ private:
     void updateFixedEnergy();
     void updateTimeWithUnitsIndication(double time_ns, AParticleSourceRecord_Standard::ETimeUnits prefUnits, QLineEdit * led, QComboBox * cob);
     void readTimeWithUnits(QLineEdit * led, QComboBox * cob, double & time_ns, AParticleSourceRecord_Standard::ETimeUnits &prefUnits);
+
 };
 
 #endif // APARTICLESOURCEDIALOG_H

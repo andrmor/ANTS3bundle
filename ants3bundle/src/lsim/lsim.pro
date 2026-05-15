@@ -30,6 +30,7 @@ INCLUDEPATH += ../ants3/particleSim # see comments below, needed only for calori
 
 DEFINES += QT
 
+DEFINES += LSIM
 DEFINES += NOT_NEED_MAT_COMPOSITION
 
 # Mercury

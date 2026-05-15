@@ -13,10 +13,13 @@ class AOneLineTextEdit : public QPlainTextEdit
     Q_OBJECT
 
 public:
-    AOneLineTextEdit(const QString & txt = "", QWidget * parent = nullptr);    // !!!*** avoid using palettes: clashes with dark theme!
+    //AOneLineTextEdit(const QString & txt = "", QWidget * parent = nullptr);    // !!!*** avoid using palettes: clashes with dark theme!
+    AOneLineTextEdit(QWidget * parent = nullptr);
 
     void setText(const QString & text); // also sets tooltip
     QString text() const;
+
+    void updateTooltip();
 
     void setFrame(bool flag);
 

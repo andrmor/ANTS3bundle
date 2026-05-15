@@ -10,6 +10,7 @@
     #include "js11tools.hh"
 #else
     class QJsonObject;
+    #include <QString>
 #endif
 
 struct AParticleSourceRecordBase
@@ -38,6 +39,10 @@ struct AParticleSourceRecordBase
 
     void writeToJson(QJsonObject & json) const;
     virtual void doWriteToJson(QJsonObject & /*json*/) const {}
+
+    virtual void    updateGeoConstRelatedSimProperties() {}
+    virtual QString isGeoConstInUse(const QRegularExpression & /*nameRegExp*/) const {}
+    virtual void    replaceGeoConstName(const QRegularExpression & /*nameRegExp*/, const QString & /*newName*/) {}
 #endif
 
 static AParticleSourceRecordBase * factory(std::string sourceType);
@@ -106,9 +111,15 @@ struct AParticleSourceRecord_Standard : public AParticleSourceRecordBase
     EShape      Shape    = Point;
 
     // Position
+    // Here and below: G4Ants3 ignores string properties; in ants3 string propery, if defined, has priority!
     double      X0    = 0;
     double      Y0    = 0;
     double      Z0    = 0;
+#ifndef JSON11
+    QString     X0Str;
+    QString     Y0Str;
+    QString     Z0Str;
+#endif
 
     // Orientation
     double      Phi   = 0;
@@ -119,6 +130,11 @@ struct AParticleSourceRecord_Standard : public AParticleSourceRecordBase
     double      Size1 = 10.0;   // Half-size or radius
     double      Size2 = 10.0;   // Half-size or radius
     double      Size3 = 10.0;   // Half-size or radius
+#ifndef JSON11
+    QString     Size1Str;
+    QString     Size2Str;
+    QString     Size3Str;
+#endif
 
     // Axial distribution for round
     bool        UseAxialDistribution = false;
@@ -172,6 +188,10 @@ struct AParticleSourceRecord_Standard : public AParticleSourceRecordBase
 #else
     void doWriteToJson(QJsonObject & json) const override;
     bool doReadFromJson(const QJsonObject & json) override; // !!!*** error handling
+
+    void    updateGeoConstRelatedSimProperties() override;
+    QString isGeoConstInUse(const QRegularExpression & nameRegExp) const override;
+    void    replaceGeoConstName(const QRegularExpression & nameRegExp, const QString & newName) override;
 #endif
 
     bool        isDirectional() const;
@@ -203,11 +223,20 @@ struct AParticleSourceRecord_EcoMug : public AParticleSourceRecordBase
 
     double Size1 = 50.0; // FullSizeX or Radius
     double Size2 = 50.0; // FullSizeY or Height
+#ifndef JSON11
+    QString Size1Str;
+    QString Size2Str;
+#endif
 
     // position
     double X0 = 0;
     double Y0 = 0;
     double Z0 = 0;
+#ifndef JSON11
+    QString X0Str;
+    QString Y0Str;
+    QString Z0Str;
+#endif
 
     void doClear() override;
     std::string check() const override;
@@ -216,10 +245,14 @@ struct AParticleSourceRecord_EcoMug : public AParticleSourceRecordBase
     void getSuggestedWorldHalfSize(double & XY, double & Z) const override;
 
 #ifdef JSON11
-    bool doReadFromJson(const json11::Json::object & /*json*/) override;
+    bool doReadFromJson(const json11::Json::object & json) override;
 #else
-    bool doReadFromJson(const QJsonObject & /*json*/) override;
-    void doWriteToJson(QJsonObject & /*json*/) const override;
+    bool doReadFromJson(const QJsonObject & json) override;
+    void doWriteToJson(QJsonObject & json) const override;
+
+    void    updateGeoConstRelatedSimProperties() override;
+    QString isGeoConstInUse(const QRegularExpression & nameRegExp) const override;
+    void    replaceGeoConstName(const QRegularExpression & nameRegExp, const QString & newName) override;
 #endif
 
 };

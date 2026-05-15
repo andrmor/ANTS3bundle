@@ -29,6 +29,8 @@ class LRModel;
 
 #ifdef USE_MERCURY
 class ALrfPlotterDialog;
+class Reconstructor;
+class AMercuryEventExplorer;
 #endif
 
 class AMainWindow : public AGuiWindow
@@ -140,6 +142,7 @@ private slots:
 #ifdef USE_MERCURY
     void showLightResponseExplorer(LRModel * model);
     void showLrfPlotterDialog();
+    void showEventExplorer(Reconstructor * rec, std::vector<std::vector<double>> * events, std::vector<std::array<double,3>> * truePositions);
 #endif
 
 protected:
@@ -154,6 +157,7 @@ private:
 
 #ifdef USE_MERCURY
     ALrfPlotterDialog * LrfPlotterDialog = nullptr;
+    AMercuryEventExplorer * MercuryEventExplorer = nullptr;
 #endif
 
 };

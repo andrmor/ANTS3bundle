@@ -7,10 +7,6 @@ void AParticleSimSettings::clearSettings()
     GenerationMode = Sources;
     Events         = 1;
 
-    //bClusterMerge  = false;
-    //ClusterRadius  = 0.1;
-    //ClusterTime    = 1.0;
-
     SourceGenSettings.clear();
     FileGenSettings.clear();
 

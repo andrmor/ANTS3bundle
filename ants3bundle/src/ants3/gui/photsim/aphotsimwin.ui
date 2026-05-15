@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>581</width>
-    <height>648</height>
+    <height>679</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -1027,6 +1027,13 @@
           </property>
          </spacer>
         </item>
+        <item>
+         <widget class="QPushButton" name="pbConfigureTracks">
+          <property name="text">
+           <string>  Configure track visualisation attributes</string>
+          </property>
+         </widget>
+        </item>
        </layout>
       </widget>
       <widget class="QWidget" name="tab">
@@ -1311,11 +1318,11 @@
                    </widget>
                   </item>
                   <item>
-                   <widget class="QLineEdit" name="ledSingleX">
+                   <widget class="AOneLineTextEdit" name="ledSingleX">
                     <property name="maximumSize">
                      <size>
                       <width>100</width>
-                      <height>16777215</height>
+                      <height>25</height>
                      </size>
                     </property>
                     <property name="text">
@@ -1344,11 +1351,11 @@
                    </widget>
                   </item>
                   <item>
-                   <widget class="QLineEdit" name="ledSingleY">
+                   <widget class="AOneLineTextEdit" name="ledSingleY">
                     <property name="maximumSize">
                      <size>
                       <width>100</width>
-                      <height>16777215</height>
+                      <height>25</height>
                      </size>
                     </property>
                     <property name="text">
@@ -1377,11 +1384,11 @@
                    </widget>
                   </item>
                   <item>
-                   <widget class="QLineEdit" name="ledSingleZ">
+                   <widget class="AOneLineTextEdit" name="ledSingleZ">
                     <property name="maximumSize">
                      <size>
                       <width>100</width>
-                      <height>16777215</height>
+                      <height>25</height>
                      </size>
                     </property>
                     <property name="text">
@@ -1404,65 +1411,6 @@
                     <property name="sizeHint" stdset="0">
                      <size>
                       <width>80</width>
-                      <height>20</height>
-                     </size>
-                    </property>
-                   </spacer>
-                  </item>
-                 </layout>
-                </item>
-                <item>
-                 <spacer name="verticalSpacer_4">
-                  <property name="orientation">
-                   <enum>Qt::Orientation::Vertical</enum>
-                  </property>
-                  <property name="sizeHint" stdset="0">
-                   <size>
-                    <width>20</width>
-                    <height>40</height>
-                   </size>
-                  </property>
-                 </spacer>
-                </item>
-                <item>
-                 <layout class="QHBoxLayout" name="horizontalLayout_22">
-                  <property name="topMargin">
-                   <number>0</number>
-                  </property>
-                  <item>
-                   <spacer name="horizontalSpacer_22">
-                    <property name="orientation">
-                     <enum>Qt::Orientation::Horizontal</enum>
-                    </property>
-                    <property name="sizeHint" stdset="0">
-                     <size>
-                      <width>40</width>
-                      <height>20</height>
-                     </size>
-                    </property>
-                   </spacer>
-                  </item>
-                  <item>
-                   <widget class="QPushButton" name="pbSingleSourceShow">
-                    <property name="minimumSize">
-                     <size>
-                      <width>150</width>
-                      <height>0</height>
-                     </size>
-                    </property>
-                    <property name="text">
-                     <string>Show position</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <spacer name="horizontalSpacer_23">
-                    <property name="orientation">
-                     <enum>Qt::Orientation::Horizontal</enum>
-                    </property>
-                    <property name="sizeHint" stdset="0">
-                     <size>
-                      <width>40</width>
                       <height>20</height>
                      </size>
                     </property>
@@ -1580,11 +1528,11 @@
                    </widget>
                   </item>
                   <item>
-                   <widget class="QLineEdit" name="ledOriginX">
+                   <widget class="AOneLineTextEdit" name="ledOriginX">
                     <property name="maximumSize">
                      <size>
                       <width>75</width>
-                      <height>16777215</height>
+                      <height>25</height>
                      </size>
                     </property>
                     <property name="text">
@@ -1613,11 +1561,11 @@
                    </widget>
                   </item>
                   <item>
-                   <widget class="QLineEdit" name="ledOriginY">
+                   <widget class="AOneLineTextEdit" name="ledOriginY">
                     <property name="maximumSize">
                      <size>
                       <width>75</width>
-                      <height>16777215</height>
+                      <height>25</height>
                      </size>
                     </property>
                     <property name="text">
@@ -1646,11 +1594,11 @@
                    </widget>
                   </item>
                   <item>
-                   <widget class="QLineEdit" name="ledOriginZ">
+                   <widget class="AOneLineTextEdit" name="ledOriginZ">
                     <property name="maximumSize">
                      <size>
                       <width>75</width>
-                      <height>16777215</height>
+                      <height>25</height>
                      </size>
                     </property>
                     <property name="text">
@@ -1730,14 +1678,14 @@
                    </widget>
                   </item>
                   <item row="1" column="1">
-                   <widget class="QLineEdit" name="led0X">
+                   <widget class="AOneLineTextEdit" name="led0X">
                     <property name="enabled">
                      <bool>true</bool>
                     </property>
                     <property name="maximumSize">
                      <size>
-                      <width>55</width>
-                      <height>16777215</height>
+                      <width>70</width>
+                      <height>25</height>
                      </size>
                     </property>
                     <property name="text">
@@ -1746,14 +1694,14 @@
                    </widget>
                   </item>
                   <item row="1" column="2">
-                   <widget class="QLineEdit" name="led0Y">
+                   <widget class="AOneLineTextEdit" name="led0Y">
                     <property name="enabled">
                      <bool>true</bool>
                     </property>
                     <property name="maximumSize">
                      <size>
-                      <width>55</width>
-                      <height>16777215</height>
+                      <width>70</width>
+                      <height>25</height>
                      </size>
                     </property>
                     <property name="text">
@@ -1762,14 +1710,14 @@
                    </widget>
                   </item>
                   <item row="1" column="3">
-                   <widget class="QLineEdit" name="led0Z">
+                   <widget class="AOneLineTextEdit" name="led0Z">
                     <property name="enabled">
                      <bool>true</bool>
                     </property>
                     <property name="maximumSize">
                      <size>
-                      <width>55</width>
-                      <height>16777215</height>
+                      <width>70</width>
+                      <height>25</height>
                      </size>
                     </property>
                     <property name="text">
@@ -1779,8 +1727,14 @@
                   </item>
                   <item row="1" column="4">
                    <widget class="QSpinBox" name="sb0nodes">
+                    <property name="maximumSize">
+                     <size>
+                      <width>75</width>
+                      <height>16777215</height>
+                     </size>
+                    </property>
                     <property name="maximum">
-                     <number>10000</number>
+                     <number>9999</number>
                     </property>
                     <property name="value">
                      <number>20</number>
@@ -1791,12 +1745,12 @@
                    <widget class="QComboBox" name="cob0dir">
                     <item>
                      <property name="text">
-                      <string>one direction</string>
+                      <string>symmetric</string>
                      </property>
                     </item>
                     <item>
                      <property name="text">
-                      <string>symmetric</string>
+                      <string>one direction</string>
                      </property>
                     </item>
                    </widget>
@@ -1809,14 +1763,14 @@
                    </widget>
                   </item>
                   <item row="2" column="1">
-                   <widget class="QLineEdit" name="led1X">
+                   <widget class="AOneLineTextEdit" name="led1X">
                     <property name="enabled">
                      <bool>true</bool>
                     </property>
                     <property name="maximumSize">
                      <size>
-                      <width>55</width>
-                      <height>16777215</height>
+                      <width>70</width>
+                      <height>25</height>
                      </size>
                     </property>
                     <property name="text">
@@ -1825,14 +1779,14 @@
                    </widget>
                   </item>
                   <item row="2" column="2">
-                   <widget class="QLineEdit" name="led1Y">
+                   <widget class="AOneLineTextEdit" name="led1Y">
                     <property name="enabled">
                      <bool>true</bool>
                     </property>
                     <property name="maximumSize">
                      <size>
-                      <width>55</width>
-                      <height>16777215</height>
+                      <width>70</width>
+                      <height>25</height>
                      </size>
                     </property>
                     <property name="text">
@@ -1841,14 +1795,14 @@
                    </widget>
                   </item>
                   <item row="2" column="3">
-                   <widget class="QLineEdit" name="led1Z">
+                   <widget class="AOneLineTextEdit" name="led1Z">
                     <property name="enabled">
                      <bool>true</bool>
                     </property>
                     <property name="maximumSize">
                      <size>
-                      <width>55</width>
-                      <height>16777215</height>
+                      <width>70</width>
+                      <height>25</height>
                      </size>
                     </property>
                     <property name="text">
@@ -1861,8 +1815,14 @@
                     <property name="enabled">
                      <bool>true</bool>
                     </property>
+                    <property name="maximumSize">
+                     <size>
+                      <width>75</width>
+                      <height>16777215</height>
+                     </size>
+                    </property>
                     <property name="maximum">
-                     <number>10000</number>
+                     <number>9999</number>
                     </property>
                     <property name="value">
                      <number>20</number>
@@ -1876,12 +1836,12 @@
                     </property>
                     <item>
                      <property name="text">
-                      <string>one direction</string>
+                      <string>symmetric</string>
                      </property>
                     </item>
                     <item>
                      <property name="text">
-                      <string>symmetric</string>
+                      <string>one direction</string>
                      </property>
                     </item>
                    </widget>
@@ -1894,14 +1854,14 @@
                    </widget>
                   </item>
                   <item row="3" column="1">
-                   <widget class="QLineEdit" name="led2X">
+                   <widget class="AOneLineTextEdit" name="led2X">
                     <property name="enabled">
                      <bool>true</bool>
                     </property>
                     <property name="maximumSize">
                      <size>
-                      <width>55</width>
-                      <height>16777215</height>
+                      <width>70</width>
+                      <height>25</height>
                      </size>
                     </property>
                     <property name="text">
@@ -1910,14 +1870,14 @@
                    </widget>
                   </item>
                   <item row="3" column="2">
-                   <widget class="QLineEdit" name="led2Y">
+                   <widget class="AOneLineTextEdit" name="led2Y">
                     <property name="enabled">
                      <bool>true</bool>
                     </property>
                     <property name="maximumSize">
                      <size>
-                      <width>55</width>
-                      <height>16777215</height>
+                      <width>70</width>
+                      <height>25</height>
                      </size>
                     </property>
                     <property name="text">
@@ -1926,14 +1886,14 @@
                    </widget>
                   </item>
                   <item row="3" column="3">
-                   <widget class="QLineEdit" name="led2Z">
+                   <widget class="AOneLineTextEdit" name="led2Z">
                     <property name="enabled">
                      <bool>true</bool>
                     </property>
                     <property name="maximumSize">
                      <size>
-                      <width>55</width>
-                      <height>16777215</height>
+                      <width>70</width>
+                      <height>25</height>
                      </size>
                     </property>
                     <property name="text">
@@ -1946,8 +1906,14 @@
                     <property name="enabled">
                      <bool>true</bool>
                     </property>
+                    <property name="maximumSize">
+                     <size>
+                      <width>75</width>
+                      <height>16777215</height>
+                     </size>
+                    </property>
                     <property name="maximum">
-                     <number>10000</number>
+                     <number>9999</number>
                     </property>
                     <property name="value">
                      <number>5</number>
@@ -1961,12 +1927,12 @@
                     </property>
                     <item>
                      <property name="text">
-                      <string>one direction</string>
+                      <string>symmetric</string>
                      </property>
                     </item>
                     <item>
                      <property name="text">
-                      <string>symmetric</string>
+                      <string>one direction</string>
                      </property>
                     </item>
                    </widget>
@@ -2195,11 +2161,11 @@
                        </widget>
                       </item>
                       <item row="0" column="1">
-                       <widget class="QLineEdit" name="ledFloodXfrom">
+                       <widget class="AOneLineTextEdit" name="ledFloodXfrom">
                         <property name="maximumSize">
                          <size>
                           <width>100</width>
-                          <height>16777215</height>
+                          <height>25</height>
                          </size>
                         </property>
                         <property name="text">
@@ -2215,11 +2181,11 @@
                        </widget>
                       </item>
                       <item row="0" column="3">
-                       <widget class="QLineEdit" name="ledFloodXto">
+                       <widget class="AOneLineTextEdit" name="ledFloodXto">
                         <property name="maximumSize">
                          <size>
                           <width>100</width>
-                          <height>16777215</height>
+                          <height>25</height>
                          </size>
                         </property>
                         <property name="text">
@@ -2242,11 +2208,11 @@
                        </widget>
                       </item>
                       <item row="1" column="1">
-                       <widget class="QLineEdit" name="ledFloodYfrom">
+                       <widget class="AOneLineTextEdit" name="ledFloodYfrom">
                         <property name="maximumSize">
                          <size>
                           <width>100</width>
-                          <height>16777215</height>
+                          <height>25</height>
                          </size>
                         </property>
                         <property name="text">
@@ -2262,11 +2228,11 @@
                        </widget>
                       </item>
                       <item row="1" column="3">
-                       <widget class="QLineEdit" name="ledFloodYto">
+                       <widget class="AOneLineTextEdit" name="ledFloodYto">
                         <property name="maximumSize">
                          <size>
                           <width>100</width>
-                          <height>16777215</height>
+                          <height>25</height>
                          </size>
                         </property>
                         <property name="text">
@@ -2305,11 +2271,11 @@
                        </widget>
                       </item>
                       <item row="1" column="3">
-                       <widget class="QLineEdit" name="ledFloodInnerDiameter">
+                       <widget class="AOneLineTextEdit" name="ledFloodInnerDiameter">
                         <property name="maximumSize">
                          <size>
                           <width>100</width>
-                          <height>16777215</height>
+                          <height>25</height>
                          </size>
                         </property>
                         <property name="text">
@@ -2318,11 +2284,11 @@
                        </widget>
                       </item>
                       <item row="1" column="1">
-                       <widget class="QLineEdit" name="ledFloodOuterDiameter">
+                       <widget class="AOneLineTextEdit" name="ledFloodOuterDiameter">
                         <property name="maximumSize">
                          <size>
                           <width>100</width>
-                          <height>16777215</height>
+                          <height>25</height>
                          </size>
                         </property>
                         <property name="text">
@@ -2338,11 +2304,11 @@
                        </widget>
                       </item>
                       <item row="0" column="3">
-                       <widget class="QLineEdit" name="ledFloodCenterY">
+                       <widget class="AOneLineTextEdit" name="ledFloodCenterY">
                         <property name="maximumSize">
                          <size>
                           <width>100</width>
-                          <height>16777215</height>
+                          <height>25</height>
                          </size>
                         </property>
                         <property name="text">
@@ -2358,11 +2324,11 @@
                        </widget>
                       </item>
                       <item row="0" column="1">
-                       <widget class="QLineEdit" name="ledFloodCenterX">
+                       <widget class="AOneLineTextEdit" name="ledFloodCenterX">
                         <property name="maximumSize">
                          <size>
                           <width>100</width>
-                          <height>16777215</height>
+                          <height>25</height>
                          </size>
                         </property>
                         <property name="text">
@@ -2479,11 +2445,11 @@
                       <number>0</number>
                      </property>
                      <item>
-                      <widget class="QLineEdit" name="ledFloodZ">
+                      <widget class="AOneLineTextEdit" name="ledFloodZ">
                        <property name="maximumSize">
                         <size>
                          <width>100</width>
-                         <height>16777215</height>
+                         <height>25</height>
                         </size>
                        </property>
                        <property name="text">
@@ -2536,11 +2502,11 @@
                       </widget>
                      </item>
                      <item>
-                      <widget class="QLineEdit" name="ledFloodZfrom">
+                      <widget class="AOneLineTextEdit" name="ledFloodZfrom">
                        <property name="maximumSize">
                         <size>
                          <width>100</width>
-                         <height>16777215</height>
+                         <height>25</height>
                         </size>
                        </property>
                        <property name="text">
@@ -2559,11 +2525,11 @@
                       </widget>
                      </item>
                      <item>
-                      <widget class="QLineEdit" name="ledFloodZto">
+                      <widget class="AOneLineTextEdit" name="ledFloodZto">
                        <property name="maximumSize">
                         <size>
                          <width>100</width>
-                         <height>16777215</height>
+                         <height>25</height>
                         </size>
                        </property>
                        <property name="text">
@@ -5532,6 +5498,13 @@
    </layout>
   </widget>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>AOneLineTextEdit</class>
+   <extends>QLineEdit</extends>
+   <header>aonelinetextedit.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections>
   <connection>
@@ -5561,7 +5534,7 @@
      <y>497</y>
     </hint>
     <hint type="destinationlabel">
-     <x>580</x>
+     <x>524</x>
      <y>513</y>
     </hint>
    </hints>
@@ -5573,7 +5546,7 @@
    <slot>setCurrentIndex(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>411</x>
+     <x>400</x>
      <y>115</y>
     </hint>
     <hint type="destinationlabel">
@@ -5589,12 +5562,12 @@
    <slot>setCurrentIndex(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>105</x>
-     <y>133</y>
+     <x>364</x>
+     <y>211</y>
     </hint>
     <hint type="destinationlabel">
-     <x>61</x>
-     <y>145</y>
+     <x>141</x>
+     <y>253</y>
     </hint>
    </hints>
   </connection>
@@ -5605,12 +5578,12 @@
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>49</x>
-     <y>138</y>
+     <x>202</x>
+     <y>196</y>
     </hint>
     <hint type="destinationlabel">
-     <x>112</x>
-     <y>132</y>
+     <x>115</x>
+     <y>161</y>
     </hint>
    </hints>
   </connection>
@@ -5621,12 +5594,12 @@
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>73</x>
-     <y>138</y>
+     <x>350</x>
+     <y>196</y>
     </hint>
     <hint type="destinationlabel">
-     <x>112</x>
-     <y>132</y>
+     <x>115</x>
+     <y>161</y>
     </hint>
    </hints>
   </connection>
@@ -5637,12 +5610,12 @@
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>97</x>
-     <y>138</y>
+     <x>486</x>
+     <y>205</y>
     </hint>
     <hint type="destinationlabel">
-     <x>112</x>
-     <y>132</y>
+     <x>115</x>
+     <y>161</y>
     </hint>
    </hints>
   </connection>
@@ -5653,12 +5626,12 @@
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>46</x>
-     <y>146</y>
+     <x>163</x>
+     <y>257</y>
     </hint>
     <hint type="destinationlabel">
-     <x>112</x>
-     <y>132</y>
+     <x>115</x>
+     <y>161</y>
     </hint>
    </hints>
   </connection>
@@ -5669,12 +5642,12 @@
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>62</x>
-     <y>146</y>
+     <x>255</x>
+     <y>257</y>
     </hint>
     <hint type="destinationlabel">
-     <x>112</x>
-     <y>132</y>
+     <x>115</x>
+     <y>161</y>
     </hint>
    </hints>
   </connection>
@@ -5685,12 +5658,12 @@
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>79</x>
-     <y>146</y>
+     <x>346</x>
+     <y>258</y>
     </hint>
     <hint type="destinationlabel">
-     <x>112</x>
-     <y>132</y>
+     <x>115</x>
+     <y>161</y>
     </hint>
    </hints>
   </connection>
@@ -5701,12 +5674,12 @@
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>95</x>
-     <y>146</y>
+     <x>435</x>
+     <y>259</y>
     </hint>
     <hint type="destinationlabel">
-     <x>112</x>
-     <y>132</y>
+     <x>115</x>
+     <y>161</y>
     </hint>
    </hints>
   </connection>
@@ -5717,12 +5690,12 @@
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>111</x>
-     <y>146</y>
+     <x>537</x>
+     <y>257</y>
     </hint>
     <hint type="destinationlabel">
-     <x>112</x>
-     <y>132</y>
+     <x>115</x>
+     <y>161</y>
     </hint>
    </hints>
   </connection>
@@ -5733,12 +5706,12 @@
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>30</x>
-     <y>149</y>
+     <x>34</x>
+     <y>289</y>
     </hint>
     <hint type="destinationlabel">
-     <x>112</x>
-     <y>132</y>
+     <x>115</x>
+     <y>161</y>
     </hint>
    </hints>
   </connection>
@@ -5749,12 +5722,12 @@
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>30</x>
-     <y>152</y>
+     <x>34</x>
+     <y>321</y>
     </hint>
     <hint type="destinationlabel">
-     <x>112</x>
-     <y>132</y>
+     <x>115</x>
+     <y>161</y>
     </hint>
    </hints>
   </connection>
@@ -5765,12 +5738,12 @@
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>46</x>
-     <y>149</y>
+     <x>170</x>
+     <y>290</y>
     </hint>
     <hint type="destinationlabel">
-     <x>112</x>
-     <y>132</y>
+     <x>115</x>
+     <y>161</y>
     </hint>
    </hints>
   </connection>
@@ -5781,12 +5754,12 @@
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>46</x>
-     <y>152</y>
+     <x>170</x>
+     <y>322</y>
     </hint>
     <hint type="destinationlabel">
-     <x>112</x>
-     <y>132</y>
+     <x>115</x>
+     <y>161</y>
     </hint>
    </hints>
   </connection>
@@ -5797,12 +5770,12 @@
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>62</x>
-     <y>149</y>
+     <x>262</x>
+     <y>290</y>
     </hint>
     <hint type="destinationlabel">
-     <x>112</x>
-     <y>132</y>
+     <x>115</x>
+     <y>161</y>
     </hint>
    </hints>
   </connection>
@@ -5813,12 +5786,12 @@
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>62</x>
-     <y>152</y>
+     <x>262</x>
+     <y>322</y>
     </hint>
     <hint type="destinationlabel">
-     <x>112</x>
-     <y>132</y>
+     <x>115</x>
+     <y>161</y>
     </hint>
    </hints>
   </connection>
@@ -5829,12 +5802,12 @@
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>79</x>
-     <y>149</y>
+     <x>346</x>
+     <y>290</y>
     </hint>
     <hint type="destinationlabel">
-     <x>112</x>
-     <y>132</y>
+     <x>115</x>
+     <y>161</y>
     </hint>
    </hints>
   </connection>
@@ -5845,12 +5818,12 @@
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>79</x>
-     <y>152</y>
+     <x>346</x>
+     <y>322</y>
     </hint>
     <hint type="destinationlabel">
-     <x>112</x>
-     <y>132</y>
+     <x>115</x>
+     <y>161</y>
     </hint>
    </hints>
   </connection>
@@ -5861,12 +5834,12 @@
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>95</x>
-     <y>149</y>
+     <x>435</x>
+     <y>291</y>
     </hint>
     <hint type="destinationlabel">
-     <x>112</x>
-     <y>132</y>
+     <x>115</x>
+     <y>161</y>
     </hint>
    </hints>
   </connection>
@@ -5877,12 +5850,12 @@
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>95</x>
-     <y>152</y>
+     <x>435</x>
+     <y>323</y>
     </hint>
     <hint type="destinationlabel">
-     <x>112</x>
-     <y>132</y>
+     <x>115</x>
+     <y>161</y>
     </hint>
    </hints>
   </connection>
@@ -5893,12 +5866,12 @@
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>111</x>
-     <y>149</y>
+     <x>537</x>
+     <y>290</y>
     </hint>
     <hint type="destinationlabel">
-     <x>112</x>
-     <y>132</y>
+     <x>115</x>
+     <y>161</y>
     </hint>
    </hints>
   </connection>
@@ -5909,12 +5882,12 @@
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>111</x>
-     <y>152</y>
+     <x>537</x>
+     <y>322</y>
     </hint>
     <hint type="destinationlabel">
-     <x>112</x>
-     <y>132</y>
+     <x>115</x>
+     <y>161</y>
     </hint>
    </hints>
   </connection>
@@ -6101,12 +6074,12 @@
    <slot>setHidden(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>409</x>
-     <y>541</y>
+     <x>397</x>
+     <y>562</y>
     </hint>
     <hint type="destinationlabel">
-     <x>325</x>
-     <y>543</y>
+     <x>313</x>
+     <y>564</y>
     </hint>
    </hints>
   </connection>
@@ -6117,8 +6090,8 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>221</x>
-     <y>131</y>
+     <x>226</x>
+     <y>133</y>
     </hint>
     <hint type="destinationlabel">
      <x>120</x>
@@ -6133,11 +6106,11 @@
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>165</x>
+     <x>156</x>
      <y>169</y>
     </hint>
     <hint type="destinationlabel">
-     <x>465</x>
+     <x>453</x>
      <y>134</y>
     </hint>
    </hints>
@@ -6149,11 +6122,11 @@
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>278</x>
+     <x>264</x>
      <y>169</y>
     </hint>
     <hint type="destinationlabel">
-     <x>465</x>
+     <x>453</x>
      <y>134</y>
     </hint>
    </hints>
@@ -6165,11 +6138,11 @@
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>407</x>
+     <x>388</x>
      <y>169</y>
     </hint>
     <hint type="destinationlabel">
-     <x>465</x>
+     <x>453</x>
      <y>134</y>
     </hint>
    </hints>

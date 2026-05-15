@@ -2,7 +2,9 @@
 #include "lrmodel.h"
 #include "lrf.h"
 #include "lrfaxial.h"
+#include "lrfaxial3d.h"
 #include "lrfxy.h"
+#include "lrfxyz.h"
 #include "alightresponsehub.h"
 
 #include "TGraph.h"
@@ -31,7 +33,6 @@ QString ALrfPlotter::drawRadial(int iSens, bool showLrf, bool showNodes, bool ad
     }
 
     doDrawRadialForNonAxial(iSens);
-
     return "";
 }
 
@@ -187,12 +188,20 @@ void ALrfPlotter::computeXYDataSpan(double &xFrom, double &xTo, double &yFrom, d
     }
 }
 
+bool ALrfPlotter::is3D(LRF * lrf) const
+{
+    if (dynamic_cast<LRFaxial3d*>(lrf)) return true;
+    if (dynamic_cast<LRFxyz*>(lrf))     return true;
+    return false;
+}
+
 void ALrfPlotter::doDrawRadialLrf(int iSens, bool onTopOfData)
 {
     LRModel * model = ALightResponseHub::getInstance().Model;
 
     LRF * lrf = model->GetLRF(iSens);
     LRFaxial * axial = dynamic_cast<LRFaxial*>(lrf);
+    //LRFaxial3d * axial3d = dynamic_cast<LRFaxial3d*>(lrf);
     if (axial)
     {
         TGraph * g = new TGraph(); // will be owned by the graph window
@@ -205,7 +214,12 @@ void ALrfPlotter::doDrawRadialLrf(int iSens, bool onTopOfData)
         for (size_t iR = 0; iR < NumPointsInRadialGraph; iR++)
         {
             double r = step * iR;
-            double val = axial->evalAxial(r);
+            double val = 0;
+            //if (axial3d)
+            //    val = axial->evalAxial(r);
+            //else
+                val = axial->evalAxial(r, Z);
+
             if (val != 0) g->AddPoint(r, val);
         }
 
@@ -239,7 +253,7 @@ void ALrfPlotter::doDrawRadialNodes(int iSens)
         gN->GetXaxis()->SetTitle("Radial distance, mm");
         gN->GetYaxis()->SetTitle("LRF_nodes");
         const std::vector<double> GrX = axial->GetNodes();
-        for (double r : GrX) gN->AddPoint(r, axial->evalAxial(r));
+        for (double r : GrX) gN->AddPoint(r, axial->evalAxial(r, Z));
         emit requestDraw(gN, "Psame", true, true);
     }
 }
@@ -250,6 +264,10 @@ void ALrfPlotter::doDrawXYData(int iSens)
 {
     TGraph2D * g = new TGraph2D(); // will be owned by the graph window
 
+    LRModel * model = ALightResponseHub::getInstance().Model;
+    LRF * lrf = model->GetLRF(iSens);
+    bool thisSensorUses3D = is3D(lrf);
+
     const size_t numEvents = DataSignals.size();
     for (size_t iEv = 0; iEv < numEvents; iEv++)
     {
@@ -257,7 +275,8 @@ void ALrfPlotter::doDrawXYData(int iSens)
         const double & energy = event[3];
         const bool goodEvent = (energy > 0);
         if (!goodEvent) continue;
-        //if (Options.check_z && (pos[2]<Options.z0-Options.dz || pos[2]>Options.z0+Options.dz)) continue;
+
+        if (thisSensorUses3D && (event[2] < Z - 0.5 * RangeZ || event[2] > Z + 0.5* RangeZ)) continue;
 
         double signal = DataSignals[iEv][iSens];
         signal /= energy;     //if (Options.scale_by_energy)
@@ -311,6 +330,7 @@ void ALrfPlotter::doDrawXYDiff(int iSens)
     h->GetYaxis()->SetTitle("Y, mm");
     h->GetZaxis()->SetTitle("Amplitude/Energy - LRF");
 
+    bool thisSensorUses3D = is3D(lrf);
     const size_t numEvents = DataSignals.size();
     for (size_t iEv = 0; iEv < numEvents; iEv++)
     {
@@ -318,7 +338,7 @@ void ALrfPlotter::doDrawXYDiff(int iSens)
         const double & energy = event[3];
         const bool goodEvent = (energy > 0);
         if (!goodEvent) continue;
-        //if (Options.check_z && (pos[2]<Options.z0-Options.dz || pos[2]>Options.z0+Options.dz)) continue;
+        if (thisSensorUses3D && (event[2] < Z - 0.5 * RangeZ || event[2] > Z + 0.5* RangeZ)) continue;
 
         double signal = DataSignals[iEv][iSens];
         signal /= energy;     //if (Options.scale_by_energy)
@@ -355,7 +375,6 @@ void ALrfPlotter::doDrawXYLrf(int iSens, bool onTopOfData)
     double xStep = (xTo - xFrom) / NumPointsInXYGraph;
     double yStep = (yTo - yFrom) / NumPointsInXYGraph;
 
-    // !!!*** z control
     for (size_t iX = 0; iX < NumPointsInXYGraph; iX++)
     {
         double x = xFrom + xStep * iX;
@@ -363,7 +382,7 @@ void ALrfPlotter::doDrawXYLrf(int iSens, bool onTopOfData)
         {
             double y = yFrom + yStep * iY;
 
-            double val = model->Eval(iSens, x, y, 0);
+            double val = model->Eval(iSens, x, y, Z);
             g->AddPoint(x, y, val);
         }
     }

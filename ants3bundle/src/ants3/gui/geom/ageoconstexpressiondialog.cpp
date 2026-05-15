@@ -25,7 +25,8 @@ AGeoConstExpressionDialog::AGeoConstExpressionDialog(AGeoTreeWin * geoConW, int 
         lMain->addWidget(new QLabel("Use TFormula syntax and constants defined above this one"), 0, Qt::AlignHCenter);
 
         OriginalText = AGeoConsts::getInstance().getExpression(index);
-        ed = new AOneLineTextEdit(OriginalText);
+        ed = new AOneLineTextEdit();
+        ed->setText(OriginalText);
         //ed->setMinimumHeight(30);
         AGeoBaseDelegate::configureHighligherAndCompleter(ed, Index);
         connect(ed, &AOneLineTextEdit::enterPressed, this, &AGeoConstExpressionDialog::onAcceptPressed);

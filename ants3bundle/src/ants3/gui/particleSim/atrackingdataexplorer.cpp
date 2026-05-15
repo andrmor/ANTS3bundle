@@ -4,7 +4,8 @@
 #include "aeventtrackingrecord.h"
 #include "TGeoTrack.h"
 #include "TGeoManager.h"
-#include "aparticletrackvisuals.h"
+#include "a3global.h"
+#include "atrackvisattributes.h"
 
 #include <QApplication>
 
@@ -41,7 +42,7 @@ void ATrackingDataExplorer::addTrack(const AParticleTrackingRecord * r,
     {
         TGeoTrack * track = new TGeoTrack(1, 22);
 
-        AParticleTrackVisuals::getInstance().applyToParticleTrack(track, r->ParticleName);
+        A3Global::getInstance().CurrentTrackVisAttributes.applyToParticleTrack(track, r->ParticleName);
 
         const std::vector<ATrackingStepData *> & Steps = r->getSteps();
         for (const ATrackingStepData * step : Steps)
@@ -69,7 +70,7 @@ QString ATrackingDataExplorer::buildTracks(const QString & fileName, const QStri
                                            const int MaxTracks, int LimitToEvent)
 {
     AbortEventProcessingFlag = false;
-    Geometry.GeoManager->ClearTracks();
+    //Geometry.GeoManager->ClearTracks();
 
     ATrackingDataImporter tdi(fileName);
     if (!tdi.ErrorString.isEmpty()) return tdi.ErrorString;
@@ -121,8 +122,6 @@ QString ATrackingDataExplorer::buildTracks(const QString & fileName, const QStri
 
 void ATrackingDataExplorer::buildTracksForEventRecord(AEventTrackingRecord * record, bool skipTracksForSecondaries)
 {
-    Geometry.GeoManager->ClearTracks();
-
     if (!record) return;
 
     int iTrack = 0;

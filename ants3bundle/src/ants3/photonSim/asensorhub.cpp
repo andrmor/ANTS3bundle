@@ -62,6 +62,12 @@ int ASensorHub::addNewModel()
     return Models.size()-1;
 }
 
+int ASensorHub::addModel(const ASensorModel & model)
+{
+    Models.push_back(model);
+    return Models.size()-1;
+}
+
 int ASensorHub::cloneModel(int iModel)
 {
     if (iModel < 0 || iModel >= (int)Models.size()) return -1;

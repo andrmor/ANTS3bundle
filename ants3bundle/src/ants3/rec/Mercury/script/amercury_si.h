@@ -12,6 +12,22 @@ class ReconstructorMP;
 class TH1D;
 class TH2D;
 
+class AEventFilterRecord
+{
+public:
+    bool SuccessRec = false;
+
+    bool ByEnergy = false;
+    double EnergyMin = 0;
+    double EnergyMax = 1e99;
+
+    bool ByChi2 = false;
+    double Chi2Min = 0;
+    double Chi2Max = 1e99;
+
+    void clear();
+};
+
 class AMercury_si : public AScriptInterface
 {
     Q_OBJECT
@@ -26,18 +42,31 @@ public:
 public slots:
     void newReconstructor(QString type, int numThreads);  // 'COG' 'ML' or 'LS'
 
-    void reconstructEvents(QVariantList sensorSignalsOverAllEvents);
-    void reconstructEvents(QVariantList sensorSignalsOverAllEvents, QVariantList ignoreSensorsByEvent);
+    void importSensorSignals(QVariantList sensorSignalsOverAllEvents);
+    void clearTruePositions();
+    void importTruePositions(QVariantList truePositions);
 
-    //QVariantList getRecXYZ();
-    QVariantList getRecXYZE(); // [x y z energy];   energy = 0 if fail rec
-    QVariantList getRecStats(); // [status(0 = OK), chi2, cov_xx, cov_yy, cov_xy]
+    void reconstructEvents();
+    void reconstructEvents(QVariantList ignoreSensorsByEvent);
+
+    void showEventExplorer();
+
+    void clearEventFilter();
+    void setFilterRecSuccess();
+    void setFilterByEnergy(double eMin, double eMax);
+    void setFilterByChi2(double chi2Min, double chi2Max);
+    QString applyFilter();
+
+    QVariantList getRecXYZE(bool ignoreFilter = false);  // [x y z energy];   energy = 0 if fail rec
+    QVariantList getRecStats(bool ignoreFilter = false); // [status(0 = OK), chi2, cov_xx, cov_yy, cov_xy]
 
     void plot(QString what, int bins, double from, double to);
     void configure_plotXY_binning(int xBins, double xFrom, double xTo, int yBins, double yFrom, double yTo);
     void plot_vsRecXY(QString what);
-    void configure_plotXY_truePositions(QVariantList truePositions);
     void plot_vsTrueXY(QString what);
+
+    void showReconstructedPositions();
+    void showTruePositions(bool invertFilterStatus = false);
 
     // --- Low level ---
     void configure_COG(double signalAbsoluteCutoff, double signalRelativeCutoff, double z0);
@@ -47,8 +76,14 @@ public slots:
     void configure_statistical_Minuit(double tolerance, int maxIterations, int maxFuncCalls);  //  deafults are 0.001, 1000, 500
 
 private:
+    // do not make a reference to script hub as AMercury_si object generation is inside the script hub constructor
     ALightResponseHub & LRHub;
     ReconstructorMP   * RecMP = nullptr;
+
+    std::vector<std::vector<double>> SensorSignals;
+
+    std::vector<bool>  PassFilter;
+    AEventFilterRecord EventFilter;
 
     int    XBins = 50;
     int    YBins = 50;
@@ -58,7 +93,7 @@ private:
     double YTo   = 0;
     double Z0    = 0;
 
-    std::vector<double> XTruePositions, YTruePositions;
+    std::vector<double> XTruePositions, YTruePositions, ZTruePositions;
 
     void resetReconstructor();
 
@@ -76,7 +111,7 @@ private:
     void plotStatusXYHist (const std::vector<double> & x, const std::vector<double> & y, QString titleSuffix);
     void plotDensityXYHist(const std::vector<double> & x, const std::vector<double> & y, QString titleSuffix);
     void plotBiasXYHist   (const std::vector<double> & x, const std::vector<double> & y, QString titleSuffix, bool vsX);
-    void plotResXYHist  (const std::vector<double> & x, const std::vector<double> & y, QString titleSuffix, bool vsX);
+    void plotResXYHist    (const std::vector<double> & x, const std::vector<double> & y, QString titleSuffix, bool vsX);
 };
 
 #endif // AMERCURY_SI_H

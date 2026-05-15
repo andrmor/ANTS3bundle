@@ -190,7 +190,7 @@ double LRFaxial::evalraw(double x, double y, double /*z*/) const
                        : 0 );
 }
 
-double LRFaxial::evalAxial(double r) const
+double LRFaxial::evalAxial(double r, double /*z*/) const
 {
     return isReady() ? bsr->Eval(Rho(r)) : 0;
 }

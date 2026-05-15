@@ -14,10 +14,11 @@ APhotonSimOutputDialog::APhotonSimOutputDialog(QWidget *parent) :
     ui->setupUi(this);
 
     PhotonLog = new APhotonLogSettingsForm(this);
+    PhotonLog->setVisible(false);
     QHBoxLayout * layLog = new QHBoxLayout();
     layLog->setContentsMargins(130,0,0,0);
     layLog->addWidget(PhotonLog);
-    ui->verticalLayout->insertLayout(18, layLog);
+    ui->verticalLayout->insertLayout(ui->verticalLayout->indexOf(ui->hBoxLay_PhLog)+1, layLog);
 
     const APhotSimRunSettings & RunSet = APhotonSimHub::getConstInstance().Settings.RunSet;
 
@@ -123,7 +124,7 @@ void APhotonSimOutputDialog::on_pbChangeDir_clicked()
 
 void APhotonSimOutputDialog::on_cbPhotonLog_toggled(bool checked)
 {
-    PhotonLog->setEnabled(checked);
+    PhotonLog->setVisible(checked);
 }
 
 #include <QDesktopServices>

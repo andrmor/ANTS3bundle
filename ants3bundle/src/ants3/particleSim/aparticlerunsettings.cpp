@@ -274,14 +274,21 @@ void AParticleRunSettings::readFromJson(const QJsonObject & json)
 void AParticleRunSettings::clear()
 {
     OutputDirectory.clear();
+    SaveConfig = false;
+    FileNameSaveConfig = "Config_ParticleSim.json";
 
     Seed = 0;
+
+    AsciiOutput    = true;
+    AsciiPrecision = 6;
 
     SaveTrackingHistory = false;
     FileNameTrackingHistory = "TrackingData.dat";
 
     SaveDeposition = false;
     FileNameDeposition = "Deposition.dat";
+    SaveDepositionVolumes.clear();
+    SaveDepositionIncludeScintillators = true;
 
     SaveSettings.clear();
 
@@ -290,9 +297,6 @@ void AParticleRunSettings::clear()
     CalorimeterSettings.clear();
 
     AnalyzerSettings.clear();
-
-    AsciiOutput    = true;
-    AsciiPrecision = 6;
 
     EventFrom = 0;
     EventTo   = 0;

@@ -81,20 +81,35 @@ public:
 protected:
     QLineEdit * leLength = nullptr;
     QLineEdit * leMaxAngle = nullptr;
+    //QLineEdit * leAbs = nullptr;
 
-    QPushButton * pbShow = nullptr;
-    QPushButton * pbLoad = nullptr;
-    QPushButton * pbDelete = nullptr;
+    QPushButton * pbShowAng = nullptr;
+    QPushButton * pbLoadAng = nullptr;
+    QPushButton * pbDeleteAng = nullptr;
 
-    std::vector<std::pair<double,double>> Spectrum;
+    /*
+    QPushButton * pbShowAbsorb = nullptr;
+    QPushButton * pbLoadAbsorb = nullptr;
+    QPushButton * pbDeleteAbsorb = nullptr;
+    */
+
+    std::vector<std::pair<double,double>> AngSpectrum;
+    //std::vector<std::pair<double,double>> AbsorbSpectrum;
 
     void updateButtons();
 
 private slots:
-    void onLoadClicked();
-    void onShowClicked();
-    void onShowRightClicked(const QPoint &);
-    void onDeleteClicked();
+    void onLoadAngClicked();
+    void onShowAngClicked();
+    void onShowAngRightClicked(const QPoint &);
+    void onDeleteAngClicked();
+
+    /*
+    void onLoadAbsorbClicked();
+    void onShowAbsorbClicked();
+    void onShowAbsorbRightClicked(const QPoint &);
+    void onDeleteAbsorbClicked();
+    */
 
 };
 

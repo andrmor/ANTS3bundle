@@ -95,11 +95,16 @@ class ASingleSettings
 {
 public:
     double  Position[3];
+    QString PositionStr[3];
 
     void    clearSettings();
 
     void    writeToJson(QJsonObject & json) const;
     QString readFromJson(const QJsonObject & json);
+
+    void    updateGeoConstRelatedSimProperties();
+    QString isGeoConstInUse(const QRegularExpression & nameRegExp) const;
+    void    replaceGeoConstName(const QRegularExpression & nameRegExp, const QString & newName);
 };
 
 struct APhScanRecord
@@ -107,24 +112,31 @@ struct APhScanRecord
     bool   bEnabled  = false;
     bool   bBiDirect = false;
     int    Nodes     = 10;
-    double DX        = 10.0;
-    double DY        = 0;
-    double DZ        = 0;
+    double DX        = 10.0;    QString DXStr;
+    double DY        = 0;       QString DYStr;
+    double DZ        = 0;       QString DZStr;
 };
 class AGridSettings
 {
 public:
     AGridSettings();
 
-    double X0 = 0;
-    double Y0 = 0;
-    double Z0 = 0;
+    double X0 = 0;  QString X0Str;
+    double Y0 = 0;  QString Y0Str;
+    double Z0 = 0;  QString Z0Str;
+
     APhScanRecord ScanRecords[3];
 
     int     getNumEvents() const;
+
     void    clearSettings();
+
     void    writeToJson(QJsonObject & json) const;
     QString readFromJson(const QJsonObject & json);
+
+    void    updateGeoConstRelatedSimProperties();
+    QString isGeoConstInUse(const QRegularExpression & nameRegExp) const;
+    void    replaceGeoConstName(const QRegularExpression & nameRegExp, const QString & newName);
 };
 
 class AFloodSettings
@@ -135,22 +147,27 @@ public:
 
     int        Number   = 100;
     AShapeEnum Shape    = Rectangular;
-    double     Xfrom    = -15.0;
-    double     Xto      =  15.0;
-    double     Yfrom    = -15.0;
-    double     Yto      =  15.0;
-    double     X0       = 0;
-    double     Y0       = 0;
-    double     OuterDiameter   = 300.0;
-    double     InnerDiameter   = 0;
+    double     Xfrom    = -15.0;        QString    XfromStr;
+    double     Xto      =  15.0;        QString    XtoStr;
+    double     Yfrom    = -15.0;        QString    YfromStr;
+    double     Yto      =  15.0;        QString    YtoStr;
+    double     X0       = 0;            QString    X0Str;
+    double     Y0       = 0;            QString    Y0Str;
+    double     OuterDiameter   = 300.0; QString    OuterDiameterStr;
+    double     InnerDiameter   = 0;     QString    InnerDiameterStr;
     AZEnum     Zmode    = Fixed;
-    double     Zfixed   = 0;
-    double     Zfrom    = 0;
-    double     Zto      = 0;
+    double     Zfixed   = 0;            QString    ZfixedStr;
+    double     Zfrom    = 0;            QString    ZfromStr;
+    double     Zto      = 0;            QString    ZtoStr;
 
     void    clearSettings();
+
     void    writeToJson(QJsonObject & json) const;
     QString readFromJson(const QJsonObject & json);
+
+    void    updateGeoConstRelatedSimProperties();
+    QString isGeoConstInUse(const QRegularExpression & nameRegExp) const;
+    void    replaceGeoConstName(const QRegularExpression & nameRegExp, const QString & newName);
 };
 
 class ABombFileSettings : public AFileSettingsBase
@@ -192,6 +209,10 @@ public:
     QString readFromJson(const QJsonObject & json);
 
     void    clear();
+
+    void    updateGeoConstRelatedSimProperties();
+    QString isGeoConstInUse(const QRegularExpression & nameRegExp) const;
+    void    replaceGeoConstName(const QRegularExpression & nameRegExp, const QString & newName);
 };
 
 class AVolumeIndexPair
@@ -258,7 +279,7 @@ public:
     double  UpperTimeLimit        = 1e9;
 
     bool    SaveMonitors          = false;
-    QString FileNameMonitors      = "PhotonMonitors.txt";
+    QString FileNameMonitors      = "PhotonMonitors.json";
 
     bool    SaveConfig            = false;
     QString FileNameConfig        = "Config_OpticalSim.json";

@@ -42,8 +42,6 @@ private slots:
     void on_lepPixelSpacingY_editingFinished();
     void on_lepPixelSpacingX_editingFinished();
 
-    void on_sbModelIndex_editingFinished();
-
     void on_cobAssignmentMode_activated(int index); // !!!*** consider more "soft" method instead of global rebuild
 
     void on_pbShowSensorsOfThisModel_clicked();
@@ -98,6 +96,9 @@ private slots:
 
     void on_pbGains_Save_customContextMenuRequested(const QPoint &pos);
 
+    void on_actionSave_sensor_triggered();
+    void on_actionLoad_sensor_triggered();
+
 private:
     ASensorHub & SensHub;
     Ui::ASensorWindow * ui = nullptr;
@@ -105,6 +106,8 @@ private:
     const int RowHeight = 23;
 
     QDoubleValidator * CellValidator = nullptr;
+
+    void updateModelGui();
 
     void updateNumPixels();
     void onModelIndexChanged();

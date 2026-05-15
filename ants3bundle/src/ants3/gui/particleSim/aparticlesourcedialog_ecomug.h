@@ -36,8 +36,6 @@ private slots:
 
     void on_pbGunTest_clicked();
 
-    void on_pbShowSource_clicked(bool checked);
-
     void on_cobGeneratorShape_currentIndexChanged(int index);
 
     void on_pbRef_clicked();

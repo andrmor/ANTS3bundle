@@ -27,7 +27,7 @@ public:
     void readFromJson(const QJsonObject & json);
 
     //photon loss statistics
-    long Absorbed, InterfaceRuleLoss, HitSensor, Escaped, LossOnGrid, TracingSkipped, MaxTransitions, GeneratedOutside, MonitorKill;
+    long Absorbed, InterfaceRuleLoss, HitSensor, Escaped, LossOnGrid, TracingSkipped, MaxTransitions, GeneratedOutside, MonitorKill, FunctionalKill;
 
     //statistics for optical processes
     long FresnelTransmitted, FresnelReflected, BulkAbsorption, Rayleigh, Reemission, CustomScatter;

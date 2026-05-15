@@ -59,22 +59,6 @@
       <widget class="QLineEdit" name="leSourceName"/>
      </item>
      <item>
-      <widget class="QPushButton" name="pbShowSource">
-       <property name="minimumSize">
-        <size>
-         <width>200</width>
-         <height>0</height>
-        </size>
-       </property>
-       <property name="text">
-        <string>Show source</string>
-       </property>
-       <property name="checkable">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item>
       <widget class="QPushButton" name="pbUpdateRecord">
        <property name="text">
         <string>...UpdateRecord</string>
@@ -267,11 +251,11 @@ If material with this name does not exist, this limitation is not applied.</stri
          </widget>
         </item>
         <item>
-         <widget class="QLineEdit" name="ledGun1DSize">
+         <widget class="AOneLineTextEdit" name="ledGun1DSize">
           <property name="maximumSize">
            <size>
             <width>75</width>
-            <height>16777215</height>
+            <height>25</height>
            </size>
           </property>
           <property name="text">
@@ -290,11 +274,11 @@ If material with this name does not exist, this limitation is not applied.</stri
          </widget>
         </item>
         <item>
-         <widget class="QLineEdit" name="ledGun2DSize">
+         <widget class="AOneLineTextEdit" name="ledGun2DSize">
           <property name="maximumSize">
            <size>
             <width>75</width>
-            <height>16777215</height>
+            <height>25</height>
            </size>
           </property>
           <property name="text">
@@ -313,11 +297,11 @@ If material with this name does not exist, this limitation is not applied.</stri
          </widget>
         </item>
         <item>
-         <widget class="QLineEdit" name="ledGun3DSize">
+         <widget class="AOneLineTextEdit" name="ledGun3DSize">
           <property name="maximumSize">
            <size>
             <width>75</width>
-            <height>16777215</height>
+            <height>25</height>
            </size>
           </property>
           <property name="text">
@@ -591,11 +575,11 @@ If material with this name does not exist, this limitation is not applied.</stri
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="ledGunOriginX">
+      <widget class="AOneLineTextEdit" name="ledGunOriginX">
        <property name="maximumSize">
         <size>
          <width>75</width>
-         <height>16777215</height>
+         <height>25</height>
         </size>
        </property>
        <property name="text">
@@ -611,11 +595,11 @@ If material with this name does not exist, this limitation is not applied.</stri
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="ledGunOriginY">
+      <widget class="AOneLineTextEdit" name="ledGunOriginY">
        <property name="maximumSize">
         <size>
          <width>75</width>
-         <height>16777215</height>
+         <height>25</height>
         </size>
        </property>
        <property name="text">
@@ -631,11 +615,11 @@ If material with this name does not exist, this limitation is not applied.</stri
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="ledGunOriginZ">
+      <widget class="AOneLineTextEdit" name="ledGunOriginZ">
        <property name="maximumSize">
         <size>
          <width>75</width>
-         <height>16777215</height>
+         <height>25</height>
         </size>
        </property>
        <property name="text">
@@ -2897,6 +2881,13 @@ If material with this name does not exist, this limitation is not applied.</stri
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>AOneLineTextEdit</class>
+   <extends>QLineEdit</extends>
+   <header>aonelinetextedit.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections>
   <connection>
@@ -3290,8 +3281,8 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>325</x>
-     <y>740</y>
+     <x>282</x>
+     <y>737</y>
     </hint>
     <hint type="destinationlabel">
      <x>603</x>
@@ -3306,8 +3297,8 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>325</x>
-     <y>740</y>
+     <x>333</x>
+     <y>737</y>
     </hint>
     <hint type="destinationlabel">
      <x>603</x>
@@ -3338,8 +3329,8 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>272</x>
-     <y>770</y>
+     <x>258</x>
+     <y>767</y>
     </hint>
     <hint type="destinationlabel">
      <x>603</x>
@@ -3354,8 +3345,8 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>272</x>
-     <y>770</y>
+     <x>258</x>
+     <y>767</y>
     </hint>
     <hint type="destinationlabel">
      <x>603</x>
@@ -3450,8 +3441,8 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>272</x>
-     <y>770</y>
+     <x>258</x>
+     <y>767</y>
     </hint>
     <hint type="destinationlabel">
      <x>603</x>
@@ -3466,8 +3457,8 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>297</x>
-     <y>770</y>
+     <x>291</x>
+     <y>767</y>
     </hint>
     <hint type="destinationlabel">
      <x>603</x>
@@ -3610,8 +3601,8 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>251</x>
-     <y>317</y>
+     <x>265</x>
+     <y>327</y>
     </hint>
     <hint type="destinationlabel">
      <x>520</x>
@@ -3626,8 +3617,8 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>286</x>
-     <y>317</y>
+     <x>300</x>
+     <y>327</y>
     </hint>
     <hint type="destinationlabel">
      <x>633</x>
@@ -3642,8 +3633,8 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>310</x>
-     <y>330</y>
+     <x>335</x>
+     <y>327</y>
     </hint>
     <hint type="destinationlabel">
      <x>559</x>
@@ -3674,8 +3665,8 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>297</x>
-     <y>770</y>
+     <x>291</x>
+     <y>767</y>
     </hint>
     <hint type="destinationlabel">
      <x>568</x>
@@ -3690,8 +3681,8 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>297</x>
-     <y>770</y>
+     <x>291</x>
+     <y>767</y>
     </hint>
     <hint type="destinationlabel">
      <x>567</x>
@@ -3722,8 +3713,8 @@ If material with this name does not exist, this limitation is not applied.</stri
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>350</x>
-     <y>740</y>
+     <x>299</x>
+     <y>737</y>
     </hint>
     <hint type="destinationlabel">
      <x>540</x>
@@ -3739,7 +3730,7 @@ If material with this name does not exist, this limitation is not applied.</stri
    <hints>
     <hint type="sourcelabel">
      <x>350</x>
-     <y>740</y>
+     <y>737</y>
     </hint>
     <hint type="destinationlabel">
      <x>633</x>

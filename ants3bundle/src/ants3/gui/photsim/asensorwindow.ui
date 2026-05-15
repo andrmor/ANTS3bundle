@@ -175,13 +175,6 @@
            </widget>
           </item>
           <item>
-           <widget class="QSpinBox" name="sbModelIndex">
-            <property name="maximum">
-             <number>99999</number>
-            </property>
-           </widget>
-          </item>
-          <item>
            <spacer name="horizontalSpacer_2">
             <property name="orientation">
              <enum>Qt::Orientation::Horizontal</enum>
@@ -191,7 +184,7 @@
             </property>
             <property name="sizeHint" stdset="0">
              <size>
-              <width>10</width>
+              <width>30</width>
               <height>20</height>
              </size>
             </property>
@@ -337,7 +330,7 @@
                </property>
                <item>
                 <property name="text">
-                 <string>PMT</string>
+                 <string>Generic (e.g. PMT)</string>
                 </property>
                </item>
                <item>
@@ -1950,9 +1943,21 @@ A matrix of area factors, lines and columns representing X and Y direction, resp
     <property name="title">
      <string>File</string>
     </property>
+    <addaction name="actionSave_sensor"/>
+    <addaction name="actionLoad_sensor"/>
    </widget>
    <addaction name="menuFile"/>
   </widget>
+  <action name="actionSave_sensor">
+   <property name="text">
+    <string>Save sensor model</string>
+   </property>
+  </action>
+  <action name="actionLoad_sensor">
+   <property name="text">
+    <string>Append sensor model</string>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections>

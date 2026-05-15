@@ -254,6 +254,7 @@ double APetCoincidenceFinder::write(std::vector<APetCoincidencePair> & pairs, bo
         uint32_t iScint1 = cp.Records[0].iScint;
         uint32_t iScint2 = cp.Records[1].iScint;
         uint32_t iTime   = cp.Records[0].Time * 1e-6; // in ms
+        //qDebug() << iTime << iScint1 << iScint2;
         float deltaT     = (cp.Records[0].Time - cp.Records[1].Time) * 1000.0; // in ps
 
         // t1[ms]   t1-t2[ps]  i1   i2

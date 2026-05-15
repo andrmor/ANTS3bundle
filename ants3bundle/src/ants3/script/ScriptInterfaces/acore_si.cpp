@@ -496,6 +496,105 @@ QString ACore_SI::loadText(QString fileName, int numLines)
     return txt;
 }
 
+void ACore_SI::textReader_configure(QString fileName)
+{
+    if (TextReaderFile)
+    {
+        TextReaderFile->close();
+        delete TextReaderStream; TextReaderStream = nullptr;
+        delete TextReaderFile;   TextReaderFile   = nullptr;
+    }
+
+    if (!QFileInfo::exists(fileName))
+    {
+        abort("File does not exist: " + fileName);
+        return;
+    }
+
+    TextReaderFile = new QFile(fileName);
+    if (!TextReaderFile->open(QIODevice::ReadOnly | QFile::Text))
+    {
+        delete TextReaderFile; TextReaderFile = nullptr;
+        abort("Cannot open file: " + fileName);
+        return;
+    }
+
+    TextReaderStream = new QTextStream(TextReaderFile);
+}
+
+QString ACore_SI::textReader_nextLine()
+{
+    if (!TextReaderStream)
+    {
+        abort("Text reader was not yet configured: use textReader_configure(filename)");
+        return "";
+    }
+
+    return TextReaderStream->readLine();
+}
+
+bool ACore_SI::textReader_atEnd()
+{
+    if (!TextReaderStream)
+    {
+        abort("Text reader was not yet configured: use textReader_configure(filename)");
+        return "";
+    }
+    return TextReaderStream->atEnd();
+}
+
+void ACore_SI::textWriter_configure(QString fileName)
+{
+    if (TextWriterFile)
+    {
+        TextWriterFile->close();
+        delete TextWriterStream; TextWriterStream = nullptr;
+        delete TextWriterFile;   TextWriterFile   = nullptr;
+    }
+
+    TextWriterFile = new QFile(fileName);
+    if ( !TextWriterFile->open(QIODevice::WriteOnly) )
+    {
+        abort("Cannot open file: " + fileName);
+        return;
+    }
+
+    TextWriterStream = new QTextStream(TextWriterFile);
+}
+
+void ACore_SI::textWriter_write(QString text)
+{
+    if (!TextWriterStream)
+    {
+        abort("Text writer was not yet configured: use textWriter_configure(filename)");
+        return;
+    }
+
+    *TextWriterStream << text;
+}
+
+void ACore_SI::textWriter_writeLine(QString text)
+{
+    if (!TextWriterStream)
+    {
+        abort("Text writer was not yet configured: use textWriter_configure(filename)");
+        return;
+    }
+
+    *TextWriterStream << text << '\n';
+}
+
+void ACore_SI::textWriter_flush()
+{
+    if (!TextWriterStream)
+    {
+        abort("Text writer was not yet configured: use textWriter_configure(filename)");
+        return;
+    }
+
+    TextWriterStream->flush();
+}
+
 void ACore_SI::saveArray(QVariantList array, QString fileName, bool append)
 {
     if (append && !QFileInfo::exists(fileName))

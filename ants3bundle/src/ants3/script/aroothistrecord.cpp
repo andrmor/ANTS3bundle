@@ -24,19 +24,26 @@ void ARootHistRecord::setTitle(const QString & title)
     h->SetTitle(title.toLatin1().data());
 }
 
-void ARootHistRecord::setAxisTitles(const QString &x_Title, const QString &y_Title, const QString &z_Title)
+void ARootHistRecord::setAxisTitles(const QString & x_Title, const QString & y_Title, const QString & z_Title)
 {
     QMutexLocker locker(&Mutex);
 
     if (Type == "TH1D")
     {
-        TH1D* h = static_cast<TH1D*>(Object);
+        TH1D * h = static_cast<TH1D*>(Object);
         h->SetXTitle(x_Title.toLatin1().data());
         h->SetYTitle(y_Title.toLatin1().data());
     }
     else if (Type == "TH2D")
     {
-        TH2D* h = static_cast<TH2D*>(Object);
+        TH2D * h = static_cast<TH2D*>(Object);
+        h->SetXTitle(x_Title.toLatin1().data());
+        h->SetYTitle(y_Title.toLatin1().data());
+        h->SetZTitle(z_Title.toLatin1().data());
+    }
+    else if (Type == "TH3D")
+    {
+        TH3D * h = static_cast<TH3D*>(Object);
         h->SetXTitle(x_Title.toLatin1().data());
         h->SetYTitle(y_Title.toLatin1().data());
         h->SetZTitle(z_Title.toLatin1().data());
