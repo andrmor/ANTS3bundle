@@ -617,6 +617,7 @@ void ATrackingDataImporter::processNewEvent(bool SeekMode)
     }
 
     CurrentStatus = ExpectingTrack;
+    LastTrackId = -100;
 }
 
 void ATrackingDataImporter::processNewTrack(bool SeekMode)
@@ -640,18 +641,24 @@ void ATrackingDataImporter::processNewTrack(bool SeekMode)
 
     if (!SeekMode)
     {
-        // if primary (parent track == 0), create a new primary record in this event
-        // else a pointer to empty record should be in the list of promised secondaries -> update the record
-        if (isPrimaryRecord())
+        int thisTrackIndex = getNewTrackIndex();
+
+        if (thisTrackIndex == LastTrackId)
         {
+            // this happens only when fast sim model was triggered (e.g. gamma acolinearity sim)
+            processNewTrackAsStep();
+        }
+        else if (isPrimaryRecord())
+        {
+            // if primary (parent track == 0), create a new primary record in this event
             AParticleTrackingRecord * r = createAndInitParticleTrackingRecord();
             CurrentEventRecord->addPrimaryRecord(r);
             CurrentParticleRecord = r;
         }
         else
         {
-            int trIndex = getNewTrackIndex();
-            AParticleTrackingRecord * secrec = PromisedSecondaries[trIndex];  // !!!*** searches twice: here and below in erase!
+            // else a pointer to empty record should be in the list of promised secondaries -> update the record
+            AParticleTrackingRecord * secrec = PromisedSecondaries[thisTrackIndex];  // !!!*** searches twice: here and below in erase!
             if (!secrec)
             {
                 ErrorString = "Promised secondary not found!";
@@ -660,9 +667,9 @@ void ATrackingDataImporter::processNewTrack(bool SeekMode)
 
             updatePromisedSecondary(secrec);
             CurrentParticleRecord = secrec;
-            //PromisedSecondaries.remove(trIndex);
-            PromisedSecondaries.erase(PromisedSecondaries.find(trIndex));
+            PromisedSecondaries.erase(PromisedSecondaries.find(thisTrackIndex));
         }
+        LastTrackId = thisTrackIndex;
     }
 
     CurrentStatus = ExpectingStep;
@@ -686,6 +693,37 @@ void ATrackingDataImporter::processNewStep(bool SeekMode)
     }
 
     CurrentStatus = TrackOngoing;
+}
+
+void ATrackingDataImporter::processNewTrackAsStep()
+{
+    readNewTrack(false);
+
+    ATrackingStepData * step; // = createHistoryStep();
+    if (bBinaryInput)
+    {
+        step = new ATrackingStepData(Bpos,       // [x,y,z]
+                                     Btime,      // time
+                                     BkinEnergy, // energy
+                                     0,          // depoE
+                                     "P->");     // pr
+    }
+    else
+    {
+        //Read-in:
+        //TrackID ParentTrackID ParticleName   X Y Z Time E iMat VolName VolIndex
+        //   0           1           2         3 4 5   6  7   8     9       10
+
+        step = new ATrackingStepData(std::stod(inputSL[3]), // X
+                                     std::stod(inputSL[4]), // Y
+                                     std::stod(inputSL[5]), // Z
+                                     std::stod(inputSL[6]), // time
+                                     std::stod(inputSL[7]), // energy
+                                     0, // depoE
+                                     "P->");    // pr
+    }
+
+    CurrentParticleRecord->addStep(step);
 }
 
 bool ATrackingDataImporter::isErrorInPromises()

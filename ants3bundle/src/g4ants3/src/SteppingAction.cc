@@ -90,7 +90,8 @@ void SteppingAction::UserSteppingAction(const G4Step *step)
     std::string procName;
     if (proc)
     {
-        if (proc->GetProcessType() == fTransportation)
+        const G4ProcessType pType = proc->GetProcessType();
+        if (pType == fTransportation)
         {
             if (step->GetPostStepPoint()->GetStepStatus() != fWorldBoundary)
             {
@@ -98,6 +99,10 @@ void SteppingAction::UserSteppingAction(const G4Step *step)
                 bTransport = true;
             }
             else procName = 'O';
+        }
+        else if (pType == fParameterisation)
+        {
+            procName = 'P';
         }
         else
         {

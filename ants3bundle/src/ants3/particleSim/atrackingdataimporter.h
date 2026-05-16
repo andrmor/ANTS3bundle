@@ -54,6 +54,7 @@ private:
     EStatus CurrentStatus = ExpectingEvent;
 
     int CurrentEvent = -1;
+    int LastTrackId = -100;
 
     int SeekEvent = 0;
 
@@ -108,6 +109,7 @@ private:
     void readString(std::string & str) const;
     bool isAscii();
     void toStringVector(const std::string & line, std::vector<std::string> & vec) const;
+    void processNewTrackAsStep(); // only after FastSim triggered
 };
 
 #endif // ATRACKINGDATAIMPORTER_H
