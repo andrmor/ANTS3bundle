@@ -1,0 +1,129 @@
+// Before running this script:
+// 1) Load configuration example AcolinearityTester.json
+// 2) Run particle simulation
+
+var dir = config.getKeyValue("ParticleSim.RunSettings.OutputDirectory") // "/home/andr/.config/ants3/TmpOutput"
+var fileName = "TrackingData.dat"
+tracks.open(dir + "/" + fileName)
+
+hist.new1D("mag_p", 100, 0, 1)
+hist.new1D("mag_i", 100, 0, 1)
+
+computeAngle([]) // forward declaration :)
+
+var numEv = tracks.countEvents()
+for (var iEv = 0; iEv < numEv; iEv++)
+{
+    tracks.setEvent(iEv)
+    var numPrim = tracks.countPrimaries()
+    if (numPrim == 2)
+    {
+        // back-to-back gamma source was triggered
+        tracks.setPrimary(1)
+        var preStep = tracks.getPreStepRecord()
+        var origin = preStep[0]
+        //core.print("Origin:", origin)
+        tracks.makeStep()
+        var afterStep = tracks.getPostStepRecord()
+        //core.print(afterStep)
+        if (afterStep[5] == "P")
+        {
+            tracks.gotoStep(3)
+            afterStep = tracks.getPostStepRecord()
+        }
+        var pos = afterStep[0]
+        //core.print("After:", pos)
+        var dx = origin[0] - pos[0]
+        var dy = origin[1] - pos[1]
+        var r = math.sqrt(dx*dx + dy*dy)
+        var tan = r / Math.abs(pos[2] - origin[2])
+        var ang = Math.atan(tan)*180.0/3.1415926535
+        hist.fill("mag_p", ang, 1)
+    }
+    else
+    {
+        // this is F18 source
+        //core.print(iEv)
+        tracks.setPrimary(0)
+        var numSec = tracks.countSecondaries()
+        //core.print("--->", numSec)
+        var bFound = false
+        for (var iSec = 0; iSec < numSec; iSec++) // e+ can be absent in the decay of F18
+        {
+            tracks.enterSecondary(iSec)
+            if (tracks.getTrackRecord()[0] == "e+")
+            {
+                bFound = true
+                break
+            }
+            tracks.exitSecondary()
+        }
+        if (!bFound) continue
+        
+        // e+
+        var numSec = tracks.countSecondaries()
+        //core.print("Num sec:", numSec)
+        var arData = []
+        for (var iSec = 0; iSec < numSec; iSec++) // can be other particles and low energy gammas
+        {
+            tracks.enterSecondary(iSec)
+            if (tracks.getTrackRecord()[0] == "gamma")
+            {
+                var step = tracks.getPreStepRecord() // [pos, time, vols, en, ...]
+                if (step[3] > 510 && step[3] < 512)
+                {
+                    // annihil gamma found
+                    var origin = step[0]
+                    tracks.makeStep()
+                    var afterStep = tracks.getPostStepRecord()
+                    //core.print(afterStep)
+                    if (afterStep[5] == "P")
+                    {
+                        tracks.gotoStep(3)
+                        afterStep = tracks.getPostStepRecord()
+                    }
+                    var pos = afterStep[0]
+                    arData.push([origin, pos])
+                }
+            }
+            tracks.exitSecondary()
+        }
+        //core.print(arData)
+        if (arData.length == 0) continue // in flight annihilation?
+        if (arData.length != 2) core.abort("Unexpected number of annihilation gamma candidates")
+        
+        var ang = computeAngle(arData)
+        //core.print(ang)
+        hist.fill("mag_i", ang, 1)
+    }
+}
+
+hist.setTitle("mag_p", "BtBpairs")
+hist.setAxisTitles("mag_p", "Angle, degree", "Number of events")
+hist.setTitle("mag_i", "F18")
+hist.setAxisTitles("mag_i", "Angle, degree", "Number of events")
+hist.draw("mag_p", "hist"); grwin.addToBasket("Gamma pairs")
+hist.draw("mag_i", "hist"); grwin.addToBasket("Isotope source")
+
+function computeAngle(data) // [[or,pos],[or,pos]]
+{
+    if (data.length != 2) return
+    
+    // cos = (a*a + b*b - c*c) / (2ab)
+    var a2 = 0
+    var b2 = 0
+    var c2 = 0
+    for (var i = 0; i < 3; i++)
+    {
+        var delta = data[0][0][i] - data[0][1][i]
+        a2 += delta*delta
+            delta = data[1][0][i] - data[1][1][i]
+        b2 += delta*delta
+            delta = data[0][1][i] - data[1][1][i]
+        c2 += delta*delta
+    }
+    var cosAng = (a2 + b2 - c2) / ( 2.0 * Math.sqrt(a2) * Math.sqrt(b2) )
+    var ang = Math.acos(cosAng)
+    ang *= 180.0 / 3.1415926535
+    return (180.0 - ang)
+}

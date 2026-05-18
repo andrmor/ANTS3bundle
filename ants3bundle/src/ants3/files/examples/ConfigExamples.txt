@@ -5,6 +5,7 @@
 @AnalyzersPT.json Simple example of the usage of a particle monitor and particle analyzer; 130 MeV proton beam generating prompt gammas
 @NCrystalTester.json Test configuration for NCrystal library
 @CosmicMuons.json Test configuration for EcoMug generator of cosmic muons
+@AcolinearityTester.json Test configuration for annihilation gamma acolinearity simulation
 ** Optical sim
 @OpticalTransmissionTester.json Transmission through a sodalime_glass slab: compare with the database data (see example description)
 @InterfaceTester.json Can be used to compare Interface Tester <-> Photon sim results

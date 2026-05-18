@@ -166,3 +166,11 @@ LRF:ResponseModel:Mercury
 Make and fill Light Response Model using Mercury library for the Compact Anger camera and Neutron Anger config examples
 #end
 
+#file
+AcolinearityTester.txt
+#tags
+Analysis:TrackingHistory:Acolinearity
+#info
+Test for annihilation gamma acolinearity simulation
+#end
+
