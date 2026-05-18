@@ -25,8 +25,8 @@ G4bool AcollinearGammaModel::ModelTrigger(const G4FastTrack & fastTrack)
 
     const int Id       = track->GetTrackID();
     const int parentId = track->GetParentID();
-    //out(Id, parentId, PrevID, PrevParentID);
 
+    /*
     if (Id == (PrevID - 1) && parentId == PrevParentID)
     {
         PrevID = -1;
@@ -39,6 +39,24 @@ G4bool AcollinearGammaModel::ModelTrigger(const G4FastTrack & fastTrack)
         PrevParentID = parentId;
         return false;
     }
+    */
+
+    if (parentId == PrevParentID)
+    {
+        if (track->GetGlobalTime() == PrevTime && track->GetPosition() == PrevPos && track->GetMomentumDirection() == -PrevDir)
+        {
+            PrevParentID = -1;
+            return true;
+        }
+    }
+    else
+    {
+        PrevParentID = parentId;
+        PrevTime = track->GetGlobalTime();
+        PrevDir = track->GetMomentumDirection();
+        PrevPos = track->GetPosition();
+    }
+    return false;
 }
 
 void AcollinearGammaModel::DoIt(const G4FastTrack & fastTrack, G4FastStep & step)

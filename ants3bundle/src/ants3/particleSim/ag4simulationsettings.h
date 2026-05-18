@@ -23,7 +23,7 @@ public:
 
     bool   SimulateAnnihilAcolinearity = false;
     int    AcolinearityModel = 0; // 0 - magnitude (e.g. Gate), 1 - 2D - see https://doi.org/10.1088/1361-6560/ad70f1
-    double AcolinearityFWHM  = 0.5; // in deg
+    double AcolinearityFWHM  = 0.55; // in deg
     std::vector<std::string> AcolinearityVolumes;
 
 #ifdef JSON11

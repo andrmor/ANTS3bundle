@@ -20,6 +20,8 @@ public:
 private slots:
     void on_pClose_clicked();
 
+    void on_pbHelpAcolin_clicked();
+
 private:
     Ui::AAdvancedParticleOptionsDialog * ui = nullptr;
 

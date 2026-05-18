@@ -7,6 +7,8 @@ AAdvancedParticleOptionsDialog::AAdvancedParticleOptionsDialog(QWidget * parent)
 {
     ui->setupUi(this);
 
+    setWindowTitle("Advanced settings");
+
     ui->cbAcolin->setChecked(Settings.G4Set.SimulateAnnihilAcolinearity);
     ui->cobAcolModel->setCurrentIndex(Settings.G4Set.AcolinearityModel == 0 ? 0 : 1);
     ui->ledAcolFWHM->setText(QString::number(Settings.G4Set.AcolinearityFWHM));
@@ -81,5 +83,35 @@ void AAdvancedParticleOptionsDialog::on_pClose_clicked()
         Settings.G4Set.AcolinearityVolumes.push_back(str.simplified().toLatin1().data());
 
     accept();
+}
+
+void AAdvancedParticleOptionsDialog::on_pbHelpAcolin_clicked()
+{
+    QString txt;
+
+    txt += "Introduce acolinearity of annihilation gammas (Geant4 v11 does not do it)\n";
+    txt += "\nAvailable models:\n";
+    txt += "1) Gaussian distribution of the _magnitude_ of the angle deviation from back-to-back direction\n";
+    txt += "2) Gaussian distribution independent for each direction components:";
+    txt += " see https://doi.org/10.1088/1361-6560/ad70f1\n";
+    txt += "\nFWHM: Gaussian width in degrees\n";
+    txt += "\nThe model is applied inside the specified volume(s) and recursive for all daughter volumes\n";
+    txt += "The volume names can end with '*', signififying 'starts with'\n";
+    txt += "and separated with space or comma.\n";
+    txt += "\n";
+    txt += "\nThe model is applied at the first tracing step of the affected gamma, ";
+    txt += "and in the tracking history the direction change is indicated with 'P' and 'P->'.\n";
+    txt += "\nThe model is triggered for a gamma with energy in range of [0.510, 0.512] MeV ";
+    txt += "when previously a gamma with such energy was already tracked and:\n";
+    txt += "1) both gammas are either primary or have the same parent;\n";
+    txt += "2) both gammas have the same timestamp and emission position;\n";
+    txt += "3) they have exactly opposite momentum directions.\n";
+    txt += "\nAs in Geant4 the order of particle tracking is reveresed (last added tracked first), ";
+    txt += "the first gamma of the pair receives the change of direction.\n";
+    txt += "\nNote that the Physics List is not modified (FastSimPhysics is used)\n";
+    txt += "\nThis model is applicable both for back-to-back gammas generated with an Ants3 particle source ";
+    txt += "and for gammas generated in annihilations of positrons (using, e.g., source emitting F18 isotopes).";
+
+    guitools::message(txt, this);
 }
 

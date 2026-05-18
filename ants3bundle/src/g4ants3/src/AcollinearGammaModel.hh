@@ -2,6 +2,7 @@
 #define acollineargammamodel_h
 
 #include "G4VFastSimulationModel.hh"
+#include "G4ThreeVector.hh"
 
 class AcollinearGammaModel : public G4VFastSimulationModel
 {
@@ -17,8 +18,11 @@ public:
 protected:
     double Sigma;
 
-    int PrevID       = -1;
+    //int PrevID       = -1;
     int PrevParentID = -1;
+
+    double PrevTime = 0;
+    G4ThreeVector PrevPos, PrevDir;
 };
 
 class AcollinearGammaModel2D : public AcollinearGammaModel
