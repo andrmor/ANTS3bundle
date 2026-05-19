@@ -38,7 +38,7 @@ public:
     explicit AGraphWindow(QWidget * parent);
     ~AGraphWindow();
 
-    void draw(TObject * obj, QString options, bool update = true, bool transferOwnership = true);
+    void draw(TObject * obj, QString options, bool update = true); // always registers obj (becomes the owner)!
 
 public slots:
     void onDrawRequest(TObject * obj, QString options, bool transferOwnership, bool focusWindow);

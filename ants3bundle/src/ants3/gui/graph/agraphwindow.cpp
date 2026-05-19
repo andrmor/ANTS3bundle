@@ -299,7 +299,7 @@ double AGraphWindow::getMaxZ(bool *ok)
     return ui->ledZto->text().toDouble(ok);
 }
 
-void AGraphWindow::draw(TObject * obj, QString options, bool update, bool transferOwnership)
+void AGraphWindow::draw(TObject * obj, QString options, bool update) // always registers obj (becomes the owner)!
 {
     QString optNoSame = (options.simplified()).remove("same", Qt::CaseInsensitive);
     if (obj && optNoSame.isEmpty())
@@ -330,7 +330,7 @@ void AGraphWindow::draw(TObject * obj, QString options, bool update, bool transf
 
     drawSingleObject(obj, options.toLatin1().data(), update);
 
-    if (transferOwnership) registerTObject(obj);
+    registerTObject(obj);
 
     enforceOverlayOff();
     updateControls();
@@ -1212,13 +1212,15 @@ void AGraphWindow::onDrawRequest(TObject * obj, QString options, bool transferOw
         return;
     }
 
+    if (!transferOwnership) obj = obj->Clone();
+
     if (focusWindow)
     {
         showAndFocus();
-        draw(obj, options, true, transferOwnership);
+        draw(obj, options, true);
     }
     else
-        draw(obj, options, true, transferOwnership);
+        draw(obj, options, true);
 
     lwBasket->clearFocus();
 }
@@ -1251,11 +1253,10 @@ void AGraphWindow::onScriptDrawCollectionRequest(std::vector<std::pair<TObject*,
     while (DrawFinished > 0);
 }
 
-void AGraphWindow::processScriptDrawRequest(TObject *obj, QString options, bool fFocus)
+void AGraphWindow::processScriptDrawRequest(TObject * obj, QString options, bool fFocus)
 {
-    //always drawing a copy, so always need to register the object
     if (fFocus) showAndFocus();
-    draw(obj, options.toLatin1().data(), true, true);
+    draw(obj, options.toLatin1().data(), true); // script always sends a copy
 }
 
 void SetMarkerAttributes(TAttMarker* m, const QVariantList& vl)
@@ -1485,7 +1486,7 @@ bool AGraphWindow::onScriptDrawTree(TTree * tree, QString what, QString cond, QS
         SetMarkerAttributes(static_cast<TAttMarker*>(h), vlML.at(0).toList());
         SetLineAttributes(static_cast<TAttLine*>(h), vlML.at(1).toList());
         showAndFocus();
-        draw(h, How.Data(), true, false);
+        draw(h, How.Data(), true);
     }
 
     if (result) *result = "";
@@ -1992,6 +1993,7 @@ void AGraphWindow::onCursorPositionReceived(double x, double y, bool bOn)
     if (!DrawObjects.empty() && !DrawObjects.front().Multidraw)
     {
         TObject *  obj = DrawObjects.front().Pointer;
+        //if (obj) qDebug() << obj->ClassName();
         TH2D * h2d = dynamic_cast<TH2D*>(obj);
         if (h2d)
         {
@@ -2614,7 +2616,7 @@ void AGraphWindow::addTextPanel(QString text, bool bShowFrame, int alignLeftCent
     const QStringList sl = text.split("\n");
     for (const QString & s : sl) la->AddText(s.toLatin1());
 
-    draw(la, "same", true, false); //it seems the Paveltext is owned by drawn object - registration causes crash if used with non-registered object (e.g. script)
+    draw(la, "same", true); // now all objects are registered so this old comment seems to be obsolete, but keep an eye: >> it seems the Paveltext is owned by drawn object - registration causes crash if used with non-registered object (e.g. script) <<
 }
 
 void AGraphWindow::setStatPanelVisible(bool flag)
