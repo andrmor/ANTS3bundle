@@ -3,13 +3,16 @@
 // 2) Run particle simulation
 
 var dir = config.getKeyValue("ParticleSim.RunSettings.OutputDirectory") // "/home/andr/.config/ants3/TmpOutput"
-var fileName = "TrackingData.dat"
-tracks.open(dir + "/" + fileName)
+tracks.open(dir + "/TrackingData.dat")
 
 hist.new1D("mag_p", 100, 0, 1)
 hist.new1D("mag_i", 100, 0, 1)
+hist.new1D("offset", 100, 0, 0)
+hist.new1D("offsetX", 100, 0, 0)
 
-computeAngle([]) // forward declaration :)
+// "forward declarations" for functions
+computeAngle([])
+computeOffset([1,0,0],[0,0,0])
 
 var numEv = tracks.countEvents()
 for (var iEv = 0; iEv < numEv; iEv++)
@@ -61,6 +64,10 @@ for (var iEv = 0; iEv < numEv; iEv++)
         if (!bFound) continue
         
         // e+
+        tracks.gotoLastStep()
+        var anniPos = tracks.getPreStepRecord()[0]
+        hist.fill("offset", computeOffset([15,0,0], anniPos), 1)
+        hist.fill("offsetX", anniPos[0] - 15.0, 1)
         var numSec = tracks.countSecondaries()
         //core.print("Num sec:", numSec)
         var arData = []
@@ -89,8 +96,8 @@ for (var iEv = 0; iEv < numEv; iEv++)
             tracks.exitSecondary()
         }
         //core.print(arData)
-        if (arData.length == 0) continue // in flight annihilation?
-        if (arData.length != 2) core.abort("Unexpected number of annihilation gamma candidates")
+        if (arData.length == 0) continue // in flight annihilation? once was an event with energies of 511.3 and 700.9 --> length of 1
+        if (arData.length > 2) core.abort("Unexpected number of annihilation gamma candidates for event "+ iEv)
         
         var ang = computeAngle(arData)
         //core.print(ang)
@@ -98,12 +105,31 @@ for (var iEv = 0; iEv < numEv; iEv++)
     }
 }
 
+psim.loadMonitorData(dir + "/ParticleMonitors.json")
+var spatAr = psim.getMonitorXY(0)
+var xsize = config.getKeyValue("Geometry.WorldTree[4].Type.size1")
+var ysize = config.getKeyValue("Geometry.WorldTree[4].Type.size2")
+var xbins = config.getKeyValue("Geometry.WorldTree[4].Type.xbins")
+var ybins = config.getKeyValue("Geometry.WorldTree[4].Type.ybins")
+hist.new2D("spat", xbins, -xsize, xsize,  ybins, -ysize, ysize)
+hist.fillArr("spat", spatAr)
+hist.setAxisTitles("spat", "dX, mm", "dY, mm")
+hist.draw("spat", "colz"); grwin.addToBasket("MonitorPairs")
+
+hist.setTitle("offset", "PositronOffsetXYZ")
+hist.setAxisTitles("offset", "Distance from origin to annihilation, mm", "Number of events")
+hist.draw("offset", "hist"); grwin.addToBasket("PositronOffsetXYZ")
+
+hist.setTitle("offsetX", "PositronOffsetX")
+hist.setAxisTitles("offsetX", "X from origin to annihilation, mm", "Number of events")
+hist.draw("offsetX", "hist"); grwin.addToBasket("PositronOffsetX")
+
 hist.setTitle("mag_p", "BtBpairs")
 hist.setAxisTitles("mag_p", "Angle, degree", "Number of events")
 hist.setTitle("mag_i", "F18")
 hist.setAxisTitles("mag_i", "Angle, degree", "Number of events")
-hist.draw("mag_p", "hist"); grwin.addToBasket("Gamma pairs")
-hist.draw("mag_i", "hist"); grwin.addToBasket("Isotope source")
+hist.draw("mag_p", "hist"); grwin.addToBasket("Angle gamma pairs")
+hist.draw("mag_i", "hist"); grwin.addToBasket("Angle isotope source")
 
 function computeAngle(data) // [[or,pos],[or,pos]]
 {
@@ -126,4 +152,15 @@ function computeAngle(data) // [[or,pos],[or,pos]]
     var ang = Math.acos(cosAng)
     ang *= 180.0 / 3.1415926535
     return (180.0 - ang)
+}
+
+function computeOffset(origin, pos)
+{
+    var d2 = 0
+    for (var i = 0; i < 3; i++)
+    {
+        var delta = origin[i] - pos[i]
+        d2 += delta*delta
+    }
+    return Math.sqrt(d2)
 }
