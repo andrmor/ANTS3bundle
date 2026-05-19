@@ -26,6 +26,7 @@ void ASensorModel::clear()
 
     AngularFactors.clear();
     AngularBinned.clear();
+    Angular_Wavelength = 600.0;
 
     AreaFactors.clear();
     StepX = 1.0;
@@ -71,6 +72,7 @@ void ASensorModel::writeToJson(QJsonObject & json) const
             QJsonArray ar;
                 jstools::writeDPairVectorToArray(AngularFactors, ar);
             js["Data"] = ar;
+            js["Angular_Wavelength"] = Angular_Wavelength;
         json["AngularResponse"] = js;
     }
 
@@ -152,6 +154,8 @@ QString ASensorModel::readFromJson(const QJsonObject & json)
         if (!ok) return errStub + "Failed to the array with angular response";
         QString err = checkAngularFactors();
         if (!err.isEmpty()) return errStub + err;
+
+        jstools::parseJson(js, "Angular_Wavelength", Angular_Wavelength);
     }
 
     {
@@ -382,6 +386,10 @@ QString ASensorModel::updateRuntimeProperties()
             AngularBinned.push_back(sens);
             if (sens > _MaxAngularFactor) _MaxAngularFactor = sens;
         }
+
+        if (SimSet.WaveSet.Enabled)
+            if (Angular_Wavelength < SimSet.WaveSet.From || Angular_Wavelength > SimSet.WaveSet.To)
+                return "Wavelength at which the angular distribution was measured: cannot be outside of the defined wavelength range";
     }
 
     if (AreaFactors.empty()) _MaxAreaFactor = 1.0;

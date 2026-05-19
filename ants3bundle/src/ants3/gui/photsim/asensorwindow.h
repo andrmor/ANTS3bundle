@@ -49,12 +49,10 @@ private slots:
     void on_pbLoadPDE_clicked();
     void on_pbRemovePDE_clicked();
     void on_pbShowPDE_clicked();
-    void on_pbShowBinnedPDE_clicked();
 
     void on_pbShowAngular_clicked();
     void on_pbLoadAngular_clicked();
     void on_pbRemoveAngular_clicked();
-    void on_pbShowBinnedAngular_clicked();
 
     void on_pbShowArea_clicked();
     void on_pbLoadArea_clicked();
@@ -98,6 +96,16 @@ private slots:
 
     void on_actionSave_sensor_triggered();
     void on_actionLoad_sensor_triggered();
+
+    void on_pbShowPDE_customContextMenuRequested(const QPoint &pos);
+
+    void on_pbShowAngular_customContextMenuRequested(const QPoint &pos);
+
+    void on_ledAngularWave_editingFinished();
+
+    void on_pbHelpPDEmodeling_clicked();
+
+    void on_cobPDEmodel_activated(int index);
 
 private:
     ASensorHub & SensHub;

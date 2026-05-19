@@ -32,6 +32,8 @@ ASensorWindow::ASensorWindow(QWidget *parent) :
 
     ui->cbGains_ShowTable->setChecked(false);
 
+    ui->frSiPM->setVisible(ui->cobSensorType->currentIndex() == 1);
+
     CellValidator = new QDoubleValidator(this);
     CellValidator->setBottom(0);
 
@@ -84,6 +86,8 @@ void ASensorWindow::updateModelGui()
         updateNumPixels();
 
         ui->ledEffectivePDE->setText( QString::number(mod->PDE_effective) );
+
+        ui->ledAngularWave->setText( QString::number(mod->Angular_Wavelength) );
 
         ui->lepAreaStepX->setText(QString::number(mod->StepX));
         ui->lepAreaStepY->setText(QString::number(mod->StepY));
@@ -165,7 +169,7 @@ void ASensorWindow::updateHeader()
 
 void ASensorWindow::on_cobSensorType_currentIndexChanged(int index)
 {
-    ui->frSiPM->setEnabled(index == 1);
+    ui->frSiPM->setVisible(index == 1);
 }
 
 void ASensorWindow::on_pbAddNewModel_clicked()
@@ -338,7 +342,6 @@ void ASensorWindow::updatePdeButtons()
 
     ui->pbShowPDE->setEnabled(enabled);
     ui->pbRemovePDE->setEnabled(enabled);
-    ui->pbShowBinnedPDE->setEnabled(enabled);
 }
 
 void ASensorWindow::updateAngularButtons()
@@ -351,7 +354,7 @@ void ASensorWindow::updateAngularButtons()
 
     ui->pbShowAngular->setEnabled(enabled);
     ui->pbRemoveAngular->setEnabled(enabled);
-    ui->pbShowBinnedAngular->setEnabled(enabled);
+    ui->frAngularWave->setVisible(enabled && ui->cobPDEmodel->currentIndex() == 1);
 }
 
 void ASensorWindow::updateAreaButtons()
@@ -364,8 +367,7 @@ void ASensorWindow::updateAreaButtons()
 
     ui->pbShowArea->setEnabled(enabled);
     ui->pbRemoveArea->setEnabled(enabled);
-    ui->lepAreaStepX->setEnabled(enabled);
-    ui->lepAreaStepY->setEnabled(enabled);
+    ui->frAreaSteps->setVisible(enabled);
 }
 
 void ASensorWindow::on_pbLoadPDE_clicked()
@@ -417,25 +419,6 @@ void ASensorWindow::on_pbShowPDE_clicked()
     emit requestDraw(gr, "APL", true, true);
 }
 
-void ASensorWindow::on_pbShowBinnedPDE_clicked()
-{
-    int iModel = ui->cobModel->currentIndex();
-    ASensorModel * mod = SensHub.model(iModel);
-    if (!mod) return;
-    if (mod->PDE_spectral.empty()) return;
-
-    mod->updateRuntimeProperties();
-
-    const APhotonSimSettings SimSet = APhotonSimHub::getConstInstance().Settings;
-    std::vector<double> wave;
-    SimSet.WaveSet.getWavelengthBins(wave);
-
-    TGraph * gr = AGraphBuilder::graph(wave, mod->PDEbinned);
-    AGraphBuilder::configure(gr, QString("Binned PDE, model%0").arg(iModel), "Wavelength, nm", "PDE", 4, 20, 1, 4);
-    gr->SetMinimum(0);
-    emit requestDraw(gr, "APL", true, true);
-}
-
 void ASensorWindow::on_pbShowAngular_clicked()
 {
     int iModel = ui->cobModel->currentIndex();
@@ -479,22 +462,6 @@ void ASensorWindow::on_pbRemoveAngular_clicked()
 
     mod->AngularFactors.clear();
     updateAngularButtons();
-}
-void ASensorWindow::on_pbShowBinnedAngular_clicked()
-{
-    int iModel = ui->cobModel->currentIndex();
-    ASensorModel * mod = SensHub.model(iModel);
-    if (!mod) return;
-    if (mod->AngularFactors.empty()) return;
-
-    mod->updateRuntimeProperties();
-
-    std::vector<double> angles;
-    for (int i = 0; i < 91; i++) angles.push_back(i);
-
-    TGraph * gr = AGraphBuilder::graph(angles, mod->AngularBinned);
-    AGraphBuilder::configure(gr, QString("Binned angular sensitivity, model%0").arg(iModel), "Incidence angle, deg", "Sensitivity factor", 4, 20, 1, 4);
-    emit requestDraw(gr, "APL", true, true);
 }
 
 void ASensorWindow::on_pbShowArea_clicked()
@@ -1118,3 +1085,60 @@ void ASensorWindow::on_actionLoad_sensor_triggered()
     ui->cobModel->setCurrentIndex(index);
     onModelIndexChanged();
 }
+
+void ASensorWindow::on_pbShowPDE_customContextMenuRequested(const QPoint &)
+{
+    int iModel = ui->cobModel->currentIndex();
+    ASensorModel * mod = SensHub.model(iModel);
+    if (!mod) return;
+    if (mod->PDE_spectral.empty()) return;
+
+    mod->updateRuntimeProperties();
+
+    const APhotonSimSettings SimSet = APhotonSimHub::getConstInstance().Settings;
+    std::vector<double> wave;
+    SimSet.WaveSet.getWavelengthBins(wave);
+
+    TGraph * gr = AGraphBuilder::graph(wave, mod->PDEbinned);
+    AGraphBuilder::configure(gr, QString("Binned PDE, model%0").arg(iModel), "Wavelength, nm", "PDE", 4, 20, 1, 4);
+    gr->SetMinimum(0);
+    emit requestDraw(gr, "APL", true, true);
+}
+
+void ASensorWindow::on_pbShowAngular_customContextMenuRequested(const QPoint &)
+{
+    int iModel = ui->cobModel->currentIndex();
+    ASensorModel * mod = SensHub.model(iModel);
+    if (!mod) return;
+    if (mod->AngularFactors.empty()) return;
+
+    mod->updateRuntimeProperties();
+
+    std::vector<double> angles;
+    for (int i = 0; i < 91; i++) angles.push_back(i);
+
+    TGraph * gr = AGraphBuilder::graph(angles, mod->AngularBinned);
+    AGraphBuilder::configure(gr, QString("Binned angular sensitivity, model%0").arg(iModel), "Incidence angle, deg", "Sensitivity factor", 4, 20, 1, 4);
+    emit requestDraw(gr, "APL", true, true);
+}
+
+void ASensorWindow::on_pbHelpPDEmodeling_clicked()
+{
+    QString txt = "'Account for the interface' is not yet implemented!";
+    guitools::message(txt, this);
+}
+
+void ASensorWindow::on_ledAngularWave_editingFinished()
+{
+    int iModel = ui->cobModel->currentIndex();
+    ASensorModel * mod = SensHub.model(iModel);
+    if (!mod) return;
+
+    mod->Angular_Wavelength = ui->ledAngularWave->text().toDouble();
+}
+
+void ASensorWindow::on_cobPDEmodel_activated(int)
+{
+    updateAngularButtons();
+}
+
