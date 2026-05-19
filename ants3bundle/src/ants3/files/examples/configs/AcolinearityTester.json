@@ -1,5 +1,5 @@
 {
-    "ConfigDescription": "Check Particle sim ->Settings -> Advanced options\n\nUse script example AcolinearityTester.txt",
+    "ConfigDescription": "Check Particle sim ->Settings -> Advanced options\nUse script example AcolinearityTester.txt",
     "ConfigName": "Tester for gamma acolinearity sim",
     "Geometry": {
         "GeoConsts": [
@@ -13,7 +13,7 @@
                 "ShapeSpecific": {
                     "dx": 45.46633369868303,
                     "dy": 45.46633369868303,
-                    "dz": 45.46633369868303
+                    "dz": 54.31865334794732
                 },
                 "Type": {
                     "FixedSize": false,
@@ -83,6 +83,54 @@
                 "fExpanded": true,
                 "style": 1,
                 "width": 1
+            },
+            {
+                "Container": "World",
+                "Material": 0,
+                "Name": "Mon",
+                "Phi": 0,
+                "Psi": 0,
+                "Theta": 0,
+                "Type": {
+                    "Particle": "gamma",
+                    "PhotonOrParticle": 1,
+                    "Type": "Monitor",
+                    "angleBins": 90,
+                    "angleFrom": 0,
+                    "angleTo": 90,
+                    "bDirect": true,
+                    "bIndirect": true,
+                    "bLower": true,
+                    "bPrimary": true,
+                    "bSecondary": false,
+                    "bStopTracking": false,
+                    "bUpper": true,
+                    "dz": 0.001,
+                    "energyBins": 100,
+                    "energyFrom": 0,
+                    "energyTo": 0,
+                    "energyUnits": "keV",
+                    "shape": 0,
+                    "size1": 1,
+                    "size2": 1,
+                    "timeBins": 10,
+                    "timeFrom": 0,
+                    "timeTo": 0,
+                    "timeUnits": "ns",
+                    "waveBins": 150,
+                    "waveFrom": -1,
+                    "waveTo": 148,
+                    "xbins": 100,
+                    "ybins": 100
+                },
+                "X": -15,
+                "Y": 0,
+                "Z": 50,
+                "color": 2,
+                "fActive": true,
+                "fExpanded": true,
+                "style": 1,
+                "width": 2
             }
         ]
     },
