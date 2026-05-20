@@ -36,10 +36,10 @@ public:
     int     PDE_model = 0; // 0 - simplistic, 1 - interface-aware
     double  PDE_effective = 1.0;
     std::vector<std::pair<double,double>> PDE_spectral;
-    double  getPDE(int iWave) const;
+    double  getPDE(int iWave, int iSensMat) const;
 
     std::vector<std::pair<double,double>> AngularFactors;  // should be defined from 0 to 90.0 incidence angle
-    double  getAngularFactor(double angle) const;  // incidence angle is [-90.0, 90.0]
+    double  getAngularFactor(double angle, int iSensorMat) const;  // incidence angle is [-90.0, 90.0]
     double  Angular_Wavelength = 600.0;
 
     std::vector<std::vector<double>> AreaFactors;

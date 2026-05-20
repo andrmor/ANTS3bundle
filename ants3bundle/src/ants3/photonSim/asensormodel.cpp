@@ -304,19 +304,79 @@ bool ASensorModel::getPixelHit(double x, double y, size_t & binX, size_t & binY)
     else return false;
 }
 
-double ASensorModel::getPDE(int iWave) const
+double ASensorModel::getPDE(int iWave, int iSensorMat) const
 {
-    if (iWave == -1 || PDEbinned.empty()) return PDE_effective;
-    return PDEbinned[iWave];
+    if (PDE_model == 0)
+    {
+        if (iWave == -1 || PDEbinned.empty()) return PDE_effective;
+        return PDEbinned[iWave];
+    }
+
+    int iRecord = -1;
+    for (size_t i = 0; i < _InterfaceAwarePDEfactors.size(); i++)
+    {
+        if (_InterfaceAwarePDEfactors[i].first == iSensorMat)
+        {
+            iRecord = i;
+            break;
+        }
+    }
+
+    if (iRecord != -1)
+    {
+        const AInterfaceAwareRuntimeProps & props = _InterfaceAwarePDEfactors[iRecord].second;
+        if (iWave == -1 || props.PDEbinned.empty()) return props.EffectivePDE;
+        return props.PDEbinned[iWave];
+    }
+    else
+    {
+        // !!!*** report error
+        qCritical() << "_InterfaceAware PDE data for sensor material " <<  iSensorMat << "not found!";
+        exit(666);
+    }
 }
 
-double ASensorModel::getAngularFactor(double angle) const
+double ASensorModel::getAngularFactor(double angle, int iSensorMat) const
 {
-    if (AngularBinned.empty()) return 1.0;
+    if (PDE_model == 0)
+    {
+        if (AngularBinned.empty()) return 1.0;
 
-    int bin = fabs(angle);
-    if (bin > 90) return 0;
-    return AngularBinned[bin];
+        int bin = fabs(angle);
+        if (bin > 90) return 0;
+        return AngularBinned[bin];
+    }
+
+    int iRecord = -1;
+    for (size_t i = 0; i < _InterfaceAwarePDEfactors.size(); i++)
+    {
+        if (_InterfaceAwarePDEfactors[i].first == iSensorMat)
+        {
+            iRecord = i;
+            break;
+        }
+    }
+
+    if (iRecord != -1)
+    {
+        const AInterfaceAwareRuntimeProps & props = _InterfaceAwarePDEfactors[iRecord].second;
+        if (props.AngularBinned.empty()) return 1.0;
+
+        int bin = fabs(angle);
+        if (bin > 90) return 0;
+        return props.AngularBinned[bin];
+    }
+    else
+    {
+        // !!!*** report error
+        qCritical() << "_InterfaceAware PDE data for sensor material " <<  iSensorMat << "not found!";
+        exit(666);
+    }
+
+
+
+
+
 }
 
 double ASensorModel::getAreaFactor(double x, double y) const
@@ -436,6 +496,14 @@ QString ASensorModel::updateRuntimeProperties(const std::vector<int> & seenSenso
 #include "amaterialhub.h"
 void ASensorModel::updateInterfaceAwareRuntimeProps(const std::vector<int> & seenSensorMats)
 {
+    // !!!*** TODO:
+    // EffectivePDE (and PDEbinned if spectrum is there) in the _InterfaceAwarePDEfactors are always there and corrected
+    // Angular scaled to get final value by multiplyintg  Effective (or binned) with angular
+
+
+
+
+
     _InterfaceAwarePDEfactors.resize(seenSensorMats.size());
 
     const AMaterialHub & MatHub = AMaterialHub::getConstInstance();
