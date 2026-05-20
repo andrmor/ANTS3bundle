@@ -1118,22 +1118,26 @@ void ASensorWindow::on_pbShowPDE_customContextMenuRequested(const QPoint &)
     std::vector<double> wave;
     SimSet.WaveSet.getWavelengthBins(wave);
 
-    if ( ui->cobPDEmodel->currentIndex() == 0 ||
-        (ui->cobPDEmodel->currentIndex() == 1 && !mod->AngularFactors.empty()) )
+    if (ui->cobPDEmodel->currentIndex() == 0)
     {
         TGraph * gr = AGraphBuilder::graph(wave, mod->PDEbinned);
-        AGraphBuilder::configure(gr, QString("Binned PDE, model%0").arg(iModel), "Wavelength, nm", "PDE", 4, 20, 1, 4);
+        AGraphBuilder::configure(gr, QString("BinnedPDE_mod%0").arg(iModel), "Wavelength, nm", "PDE", 4, 20, 1, 4);
         gr->SetMinimum(0);
         emit requestDraw(gr, "APL", true, true);
     }
     else
     {
-        for (size_t i = 0; i < mod->_InterfaceAwarePDEfactors.size(); i++)
+        for (size_t i = 0; i < mod->_InterfaceAwarePDE.size(); i++)
         {
-            int iMat = mod->_InterfaceAwarePDEfactors[i].first;
+            int iMat = mod->_InterfaceAwarePDE[i].first;
 
-            TGraph * gr = AGraphBuilder::graph(wave, mod->_InterfaceAwarePDEfactors[i].second.PDEbinned);
-            AGraphBuilder::configure(gr, QString("Binned PDE, model%0, sensor mat%1").arg(iModel).arg(iMat), "Wavelength, nm", "PDE", 4, 20, 1, 4);
+            TGraph * gr = new TGraph();
+            for (size_t iWave = 0; iWave < wave.size(); iWave++)
+            {
+                double pde = mod->PDEbinned[iWave] * mod->_InterfaceAwarePDE[i].second.PdeBinnedFactor[iWave];
+                gr->AddPoint(wave[iWave], pde);
+            }
+            AGraphBuilder::configure(gr, QString("BinnedPDE_%0").arg(AMaterialHub::getConstInstance().getMaterialName(iMat)), "Wavelength, nm", "PDE", 4, 20, 1, 4);
             gr->SetMinimum(0);
             emit requestDraw(gr, (i == 0 ? "APL" : "PLsame"), true, true);
         }
@@ -1163,10 +1167,10 @@ void ASensorWindow::on_pbShowAngular_customContextMenuRequested(const QPoint &)
     }
     else
     {
-        for (size_t i = 0; i < mod->_InterfaceAwarePDEfactors.size(); i++)
+        for (size_t i = 0; i < mod->_InterfaceAwarePDE.size(); i++)
         {
-            int iMat = mod->_InterfaceAwarePDEfactors[i].first;
-            TGraph * gr = AGraphBuilder::graph(angles, mod->_InterfaceAwarePDEfactors[i].second.AngularBinned);
+            int iMat = mod->_InterfaceAwarePDE[i].first;
+            TGraph * gr = AGraphBuilder::graph(angles, mod->_InterfaceAwarePDE[i].second.AngularBinned);
             AGraphBuilder::configure(gr, QString("Binned angular sensitivity, model%0, mat%1").arg(iModel).arg(iMat), "Refracted beam angle, deg", "Sensitivity factor", 4, 20, 1, 4);
             gr->SetMinimum(0);
             emit requestDraw(gr, (i == 0 ? "APL" : "PLsame"), true, true);

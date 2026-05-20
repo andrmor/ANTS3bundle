@@ -313,9 +313,9 @@ double ASensorModel::getPDE(int iWave, int iSensorMat) const
     }
 
     int iRecord = -1;
-    for (size_t i = 0; i < _InterfaceAwarePDEfactors.size(); i++)
+    for (size_t i = 0; i < _InterfaceAwarePDE.size(); i++)
     {
-        if (_InterfaceAwarePDEfactors[i].first == iSensorMat)
+        if (_InterfaceAwarePDE[i].first == iSensorMat)
         {
             iRecord = i;
             break;
@@ -324,9 +324,9 @@ double ASensorModel::getPDE(int iWave, int iSensorMat) const
 
     if (iRecord != -1)
     {
-        const AInterfaceAwareRuntimeProps & props = _InterfaceAwarePDEfactors[iRecord].second;
-        if (iWave == -1 || props.PDEbinned.empty()) return props.EffectivePDE;
-        return props.PDEbinned[iWave];
+        const AInterfaceAwareRuntimeProps & props = _InterfaceAwarePDE[iRecord].second;
+        if (iWave == -1 || props.PdeBinnedFactor.empty()) return PDE_effective * props.EffectivePdeFactor;
+        return PDEbinned[iWave] * props.PdeBinnedFactor[iWave];
     }
     else
     {
@@ -348,9 +348,9 @@ double ASensorModel::getAngularFactor(double angle, int iSensorMat) const
     }
 
     int iRecord = -1;
-    for (size_t i = 0; i < _InterfaceAwarePDEfactors.size(); i++)
+    for (size_t i = 0; i < _InterfaceAwarePDE.size(); i++)
     {
-        if (_InterfaceAwarePDEfactors[i].first == iSensorMat)
+        if (_InterfaceAwarePDE[i].first == iSensorMat)
         {
             iRecord = i;
             break;
@@ -359,7 +359,7 @@ double ASensorModel::getAngularFactor(double angle, int iSensorMat) const
 
     if (iRecord != -1)
     {
-        const AInterfaceAwareRuntimeProps & props = _InterfaceAwarePDEfactors[iRecord].second;
+        const AInterfaceAwareRuntimeProps & props = _InterfaceAwarePDE[iRecord].second;
         if (props.AngularBinned.empty()) return 1.0;
 
         int bin = fabs(angle);
@@ -372,11 +372,6 @@ double ASensorModel::getAngularFactor(double angle, int iSensorMat) const
         qCritical() << "_InterfaceAware PDE data for sensor material " <<  iSensorMat << "not found!";
         exit(666);
     }
-
-
-
-
-
 }
 
 double ASensorModel::getAreaFactor(double x, double y) const
@@ -487,7 +482,7 @@ QString ASensorModel::updateRuntimeProperties(const std::vector<int> & seenSenso
         _PHS->GetIntegral();
     }
 
-    _InterfaceAwarePDEfactors.clear();
+    _InterfaceAwarePDE.clear();
     if (PDE_model == 1) updateInterfaceAwareRuntimeProps(seenSensorMats);
 
     return "";
@@ -496,61 +491,50 @@ QString ASensorModel::updateRuntimeProperties(const std::vector<int> & seenSenso
 #include "amaterialhub.h"
 void ASensorModel::updateInterfaceAwareRuntimeProps(const std::vector<int> & seenSensorMats)
 {
-    // !!!*** TODO:
-    // EffectivePDE (and PDEbinned if spectrum is there) in the _InterfaceAwarePDEfactors are always there and corrected
-    // Angular scaled to get final value by multiplyintg  Effective (or binned) with angular
-
-
-
-
-
-    _InterfaceAwarePDEfactors.resize(seenSensorMats.size());
+    _InterfaceAwarePDE.resize(seenSensorMats.size());
+    const APhotonSimSettings & SimSet = APhotonSimHub::getConstInstance().Settings;
 
     const AMaterialHub & MatHub = AMaterialHub::getConstInstance();
     for (size_t index = 0; index < seenSensorMats.size(); index++)
     {
         int iMat = seenSensorMats[index];
-        _InterfaceAwarePDEfactors[index].first = iMat;
+        _InterfaceAwarePDE[index].first = iMat;
 
-        AInterfaceAwareRuntimeProps & props = _InterfaceAwarePDEfactors[index].second;
+        AInterfaceAwareRuntimeProps & props = _InterfaceAwarePDE[index].second;
 
         // normal incidence, -1 waveindex:  R = ((n1 - n2) / (n1 + n2))^2
         // n1 = 1 (air)
         double n2 = MatHub[iMat]->RefIndex;
         double R = (1.0 - n2) / (1.0 + n2); R *= R;
-        props.EffectivePDE = PDE_effective * 1.0 / (1.0 - R);
-        qDebug() << "EffectivePDE = " << props.EffectivePDE;
+        props.EffectivePdeFactor = 1.0 / (1.0 - R);
+        double factorAtNormal = props.EffectivePdeFactor;
+        qDebug() << "Factor for EffectivePDE = " << props.EffectivePdeFactor;
 
-        bool haveRefIndexSpectrum = !MatHub[iMat]->_RefIndex_WaveBinned.empty();
         bool havePdeSpectrum = !PDEbinned.empty();
-        bool haveAngular = !AngularBinned.empty();
-        if (havePdeSpectrum && haveRefIndexSpectrum)
+        bool haveRefIndexSpectrum = !MatHub[iMat]->_RefIndex_WaveBinned.empty();
+        int iWave = SimSet.WaveSet.toIndex(Angular_Wavelength);
+        if (havePdeSpectrum)
         {
-            props.PDEbinned.resize(PDEbinned.size());
+            props.PdeBinnedFactor.resize(PDEbinned.size());
             for (size_t i = 0; i < PDEbinned.size(); i++)
             {
-                double n2 = MatHub[iMat]->_RefIndex_WaveBinned[i];
+                if (haveRefIndexSpectrum) n2 = MatHub[iMat]->_RefIndex_WaveBinned[i]; // else effective value
                 double R = (1.0 - n2) / (1.0 + n2); R *= R;
-                props.PDEbinned[i] = PDEbinned[i] * 1.0 / (1.0 - R);
+                props.PdeBinnedFactor[i] = 1.0 / (1.0 - R);
             }
+            if (iWave != -1) factorAtNormal = props.PdeBinnedFactor[iWave];
         }
-        qDebug() << "PDEbinned: " << props.PDEbinned;
+        qDebug() << "Factor for PDEbinned: " << props.PdeBinnedFactor;
+        qDebug() << "Normal incidence factor = " << factorAtNormal;
+
+        bool haveAngular = !AngularBinned.empty();
         if (haveAngular)
         {
             // have to redo angular completely
             double nSensor; // need at the measured wavelength
-            const APhotonSimSettings & SimSet = APhotonSimHub::getConstInstance().Settings;
-            if (SimSet.WaveSet.Enabled)
-            {
-                int iWave = SimSet.WaveSet.toIndex(Angular_Wavelength);
-                nSensor = MatHub[iMat]->getRefractiveIndex(iWave);
-            }
-            else
-            {
-                nSensor = MatHub[iMat]->RefIndex;
-            }
+            if (SimSet.WaveSet.Enabled) nSensor = MatHub[iMat]->getRefractiveIndex(iWave);
+            else                        nSensor = MatHub[iMat]->RefIndex;
             std::vector<std::pair<double,double>> dataAngular = AngularFactors;
-            double limitAngle = 0;
             for (std::pair<double,double> & pair : dataAngular)
             {
                 double & angle = pair.first; // insidence
@@ -569,19 +553,15 @@ void ASensorModel::updateInterfaceAwareRuntimeProps(const std::vector<int> & see
                 double Rs = (1.0*cosI - nSensor*cosR) / (1.0*cosI + nSensor*cosR); Rs *= Rs;
                 double Rp = (1.0*cosR - nSensor*cosI) / (1.0*cosR + nSensor*cosI); Rp *= Rp;
                 double R = 0.5 * (Rs + Rp);
-                qDebug() << angle << "R" << R;
+                //qDebug() << angle << "R" << R;
                 double factor;
-                if (R < 1.0)
-                {
-                    factor = 1.0 / (1.0 - R);
-                    limitAngle = angle;
-                }
-                else factor = 0;
+                if (R < 1.0) factor = 1.0 / (1.0 - R) / factorAtNormal;
+                else         factor = 0;
                 pair.second *= factor;
             }
 
-            qDebug() << "-->" << AngularFactors;
-            qDebug() << "-->" << dataAngular;
+            qDebug() << "Angular in air:" << AngularFactors;
+            qDebug() << "Angular for" << MatHub.getMaterialName(iMat) << dataAngular;
 
             props.AngularBinned.resize(91);
             _MaxAngularFactor = 0;
@@ -594,7 +574,7 @@ void ASensorModel::updateInterfaceAwareRuntimeProps(const std::vector<int> & see
                 props.AngularBinned[i] = sens;
                 if (sens > _MaxAngularFactor) _MaxAngularFactor = sens;
             }
-            qDebug() << "FactorAngularBinned: " << props.AngularBinned;
+            qDebug() << "AngularBinned: " << props.AngularBinned;
         }
     }
 }
