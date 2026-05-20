@@ -24,6 +24,7 @@ public:
     bool    getPixelHit(double x, double y, size_t & binX, size_t & binY) const; // returns false if none was hit
     int     getPixelIndex(int binX, int binY) const {return PixelsX * binY + binX;}
 
+    int     PDE_model = 0; // 0 - simplistic, 1 - interface-aware
     double  PDE_effective = 1.0;
     std::vector<std::pair<double,double>> PDE_spectral;
     double  getPDE(int iWave) const;

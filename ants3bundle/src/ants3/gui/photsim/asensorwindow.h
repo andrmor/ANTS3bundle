@@ -20,7 +20,6 @@ public:
     ~ASensorWindow();
 
     void updateGui();
-    void onMaterialsChanged();
 
 private slots:
     //automatic

@@ -6,6 +6,7 @@
 #include "afiletools.h"
 #include "agraphbuilder.h"
 #include "aphotonsimhub.h"
+#include "amaterialhub.h"
 
 #include <QDoubleValidator>
 #include <QDebug>
@@ -62,8 +63,6 @@ void ASensorWindow::updateGui()
 
     ui->cobAssignmentMode->setCurrentIndex(SensHub.isPersistentModelAssignment() ? 1 : 0);
 
-    onMaterialsChanged();
-
     updateGains();
 }
 
@@ -84,6 +83,14 @@ void ASensorWindow::updateModelGui()
         ui->lepPixelSpacingX->setText(QString::number(mod->PixelSpacingX));
         ui->lepPixelSpacingY->setText(QString::number(mod->PixelSpacingY));
         updateNumPixels();
+
+        int modIndex = mod->PDE_model;
+        if (modIndex < 0 || modIndex >= ui->cobPDEmodel->count())
+        {
+            qWarning() << "Unknown PDE model index" << modIndex;
+            modIndex = 0;
+        }
+        ui->cobPDEmodel->setCurrentIndex(modIndex);
 
         ui->ledEffectivePDE->setText( QString::number(mod->PDE_effective) );
 
@@ -119,14 +126,6 @@ void ASensorWindow::updateModelGui()
     updateAreaButtons();
 
     updatePhElToSigButtons();
-}
-
-#include "amaterialhub.h"
-void ASensorWindow::onMaterialsChanged()
-{
-    ui->cobMaterialForPDE->clear();
-    QStringList list = AMaterialHub::getConstInstance().getListOfMaterialNames();
-    ui->cobMaterialForPDE->addItems(list);
 }
 
 void ASensorWindow::on_cobModel_activated(int)
@@ -832,7 +831,23 @@ void ASensorWindow::on_pbCompteEffectivePDE_clicked()
         return;
     }
 
-    int iMat = ui->cobMaterialForPDE->currentIndex();
+    QDialog dia(this);
+    dia.setWindowTitle("Estimate effective PDE");
+    QVBoxLayout * mainLay = new QVBoxLayout(&dia);
+        QHBoxLayout * lay = new QHBoxLayout();
+            lay->addWidget(new QLabel("Primary scintillation from"));
+            QComboBox * cobMats = new QComboBox();
+            cobMats->addItems(AMaterialHub::getInstance().getListOfMaterialNames());
+            lay->addWidget(cobMats);
+        mainLay->addLayout(lay);
+            QPushButton * pbEst = new QPushButton("Compute mean PDE");
+            connect(pbEst, &QPushButton::clicked, &dia, &QDialog::accept);
+        mainLay->addWidget(pbEst);
+
+    int res = dia.exec();
+    if (res == QDialog::Rejected) return;
+
+    int iMat = cobMats->currentIndex();
     AMaterialHub & MatHub = AMaterialHub::getInstance();
     if (iMat < 0 || iMat >= MatHub.countMaterials() )
     {
@@ -1137,8 +1152,13 @@ void ASensorWindow::on_ledAngularWave_editingFinished()
     mod->Angular_Wavelength = ui->ledAngularWave->text().toDouble();
 }
 
-void ASensorWindow::on_cobPDEmodel_activated(int)
+void ASensorWindow::on_cobPDEmodel_activated(int index)
 {
+    int iModel = ui->cobModel->currentIndex();
+    ASensorModel * mod = SensHub.model(iModel);
+    if (!mod) return;
+
+    mod->PDE_model = index;
     updateAngularButtons();
 }
 

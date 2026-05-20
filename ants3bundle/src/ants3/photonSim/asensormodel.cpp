@@ -20,6 +20,7 @@ void ASensorModel::clear()
     PixelSpacingX = 0;
     PixelSpacingY = 0;
 
+    PDE_model = 0;
     PDE_effective = 1.0;
     PDE_spectral.clear();
     PDEbinned.clear();
@@ -60,6 +61,7 @@ void ASensorModel::writeToJson(QJsonObject & json) const
 
     {
         QJsonObject js;
+            js["PDE_model"] = PDE_model;
             js["Effective"] = PDE_effective;
             QJsonArray ar;
                 jstools::writeDPairVectorToArray(PDE_spectral, ar);
@@ -124,50 +126,51 @@ QString ASensorModel::readFromJson(const QJsonObject & json)
 
     {
         QJsonObject js = json["SiPM"].toObject();
-        jstools::parseJson(js, "isSiPM",        SiPM);
-        jstools::parseJson(js, "PixelsX",       PixelsX);
-        jstools::parseJson(js, "PixelsY",       PixelsY);
-        jstools::parseJson(js, "PixelSizeX",    PixelSizeX);
-        jstools::parseJson(js, "PixelSizeY",    PixelSizeY);
-        jstools::parseJson(js, "PixelSpacingX", PixelSpacingX);
-        jstools::parseJson(js, "PixelSpacingY", PixelSpacingY);
+            jstools::parseJson(js, "isSiPM",        SiPM);
+            jstools::parseJson(js, "PixelsX",       PixelsX);
+            jstools::parseJson(js, "PixelsY",       PixelsY);
+            jstools::parseJson(js, "PixelSizeX",    PixelSizeX);
+            jstools::parseJson(js, "PixelSizeY",    PixelSizeY);
+            jstools::parseJson(js, "PixelSpacingX", PixelSpacingX);
+            jstools::parseJson(js, "PixelSpacingY", PixelSpacingY);
     }
 
     QString errStub = "Sensor model " + Name + " : ";
 
     {
         QJsonObject js = json["PDE"].toObject();
-        jstools::parseJson(js, "Effective", PDE_effective);
-        QJsonArray ar;
-        jstools::parseJson(js, "Spectral", ar);
-        bool ok = jstools::readDPairVectorFromArray(ar, PDE_spectral);
-        if (!ok) return errStub + "Failed to read the array with PDE data for a sensor model";
-        QString err = checkPDE_spectral();
-        if (!err.isEmpty()) return errStub + err;
+            jstools::parseJson(js, "PDE_model", PDE_model);
+            jstools::parseJson(js, "Effective", PDE_effective);
+            QJsonArray ar;
+            jstools::parseJson(js, "Spectral", ar);
+            bool ok = jstools::readDPairVectorFromArray(ar, PDE_spectral);
+            if (!ok) return errStub + "Failed to read the array with PDE data for a sensor model";
+            QString err = checkPDE_spectral();
+            if (!err.isEmpty()) return errStub + err;
     }
 
     {
         QJsonObject js = json["AngularResponse"].toObject();
-        QJsonArray ar;
-        jstools::parseJson(js, "Data", ar);
-        bool ok = jstools::readDPairVectorFromArray(ar, AngularFactors);
-        if (!ok) return errStub + "Failed to the array with angular response";
-        QString err = checkAngularFactors();
-        if (!err.isEmpty()) return errStub + err;
+            QJsonArray ar;
+            jstools::parseJson(js, "Data", ar);
+            bool ok = jstools::readDPairVectorFromArray(ar, AngularFactors);
+            if (!ok) return errStub + "Failed to the array with angular response";
+            QString err = checkAngularFactors();
+            if (!err.isEmpty()) return errStub + err;
 
-        jstools::parseJson(js, "Angular_Wavelength", Angular_Wavelength);
+            jstools::parseJson(js, "Angular_Wavelength", Angular_Wavelength);
     }
 
     {
         QJsonObject js = json["AreaResponse"].toObject();
-        jstools::parseJson(js, "StepX", StepX);
-        jstools::parseJson(js, "StepY", StepY);
-        QJsonArray ar;
-        jstools::parseJson(js, "Data", ar);
-        bool ok = jstools::readDVectorOfVectorsFromArray(ar, AreaFactors);
-        if (!ok) return errStub + "Failed to read the file with area response factors";
-        QString err = checkAreaFactors();
-        if (!err.isEmpty()) return errStub + err;
+            jstools::parseJson(js, "StepX", StepX);
+            jstools::parseJson(js, "StepY", StepY);
+            QJsonArray ar;
+            jstools::parseJson(js, "Data", ar);
+            bool ok = jstools::readDVectorOfVectorsFromArray(ar, AreaFactors);
+            if (!ok) return errStub + "Failed to read the file with area response factors";
+            QString err = checkAreaFactors();
+            if (!err.isEmpty()) return errStub + err;
     }
 
     jstools::parseJson(json, "DarkCountRate", DarkCountRate);
@@ -177,23 +180,22 @@ QString ASensorModel::readFromJson(const QJsonObject & json)
 
     {
         QJsonObject js = json["PhElToSignals"].toObject();
-        //jstools::parseJson(js, "ElectronicGainFactor", ElectronicGainFactor);
-        QString str;
-        jstools::parseJson(js, "Model", str);
-        if      (str == "Constant") PhElToSignalModel = Constant;
-        else if (str == "Normal")   PhElToSignalModel = Normal;
-        else if (str == "Gamma")    PhElToSignalModel = Gamma;
-        else if (str == "Custom")   PhElToSignalModel = Custom;
-        else return errStub + "Unknown model of PhEl to signal convertion: " + str;
-        jstools::parseJson(js, "AverageSignalPerPhEl", AverageSignalPerPhEl);
-        jstools::parseJson(js, "NormalSigma", NormalSigma);
-        jstools::parseJson(js, "GammaShape", GammaShape);
-        QJsonArray ar;
-        jstools::parseJson(js, "SinglePhElPHS", ar);
-        bool ok = jstools::readDPairVectorFromArray(ar, SinglePhElPHS);
-        if (!ok) return errStub + "Failed to read the array with SinglePhElPHS";
-        QString err = checkPhElToSignals();
-        if (!err.isEmpty()) return errStub + err;
+            QString str;
+            jstools::parseJson(js, "Model", str);
+            if      (str == "Constant") PhElToSignalModel = Constant;
+            else if (str == "Normal")   PhElToSignalModel = Normal;
+            else if (str == "Gamma")    PhElToSignalModel = Gamma;
+            else if (str == "Custom")   PhElToSignalModel = Custom;
+            else return errStub + "Unknown model of PhEl to signal convertion: " + str;
+            jstools::parseJson(js, "AverageSignalPerPhEl", AverageSignalPerPhEl);
+            jstools::parseJson(js, "NormalSigma", NormalSigma);
+            jstools::parseJson(js, "GammaShape", GammaShape);
+            QJsonArray ar;
+            jstools::parseJson(js, "SinglePhElPHS", ar);
+            bool ok = jstools::readDPairVectorFromArray(ar, SinglePhElPHS);
+            if (!ok) return errStub + "Failed to read the array with SinglePhElPHS";
+            QString err = checkPhElToSignals();
+            if (!err.isEmpty()) return errStub + err;
     }
 
     return "";
