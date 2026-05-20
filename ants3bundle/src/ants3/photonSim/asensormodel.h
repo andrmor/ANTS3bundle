@@ -7,6 +7,15 @@
 class QJsonObject;
 class TH1D;
 
+class AInterfaceAwareRuntimeProps
+{
+public:
+    double              EffectivePDE = 1.0; // used if spectralPDE and angular data ARE NOT provided
+                                            //   OR for photons with -1 waveindex when spectralPDE is provided but angular not
+    std::vector<double> PDEbinned;          // used if spectralPDE data are provided, but not angular
+    std::vector<double> AngularBinned;      // used if spectralPDE data and angular data ARE provided
+};
+
 class ASensorModel
 {
 public:
@@ -56,7 +65,7 @@ public:
     double  convertHitsToSignal(double phel) const;
     //double  simulateDigitalization(double signal) const;  // not implemented
 
-    QString updateRuntimeProperties();
+    QString updateRuntimeProperties(const std::vector<int> & seenSensorMats);
 
     void    clear();
 
@@ -68,7 +77,8 @@ public:
     QString checkAreaFactors() const;
     QString checkPhElToSignals() const;
 
-    //runtime
+    // --- runtime ---
+
     double _HalfSensitiveSizeX;
     double _HalfSensitiveSizeY;
     double _PixelPitchX;
@@ -79,10 +89,14 @@ public:
     double _AverageDarkCounts;
     double _PixelDarkFiringProbability;
 
+    std::vector<std::pair<int, AInterfaceAwareRuntimeProps>> _InterfaceAwarePDEfactors; // {iMatSensor, data} --> cannot limit to one sensor material in the model: this is a property of each individual sensor
+
     double _MaxPDE_spectral = 1.0;
     double _MaxAngularFactor = 1.0;
     double _MaxAreaFactor = 1.0;
 
+private:
+    void updateInterfaceAwareRuntimeProps(const std::vector<int> & seenSensorMats);
 };
 
 #endif // ASENSORMODEL_H

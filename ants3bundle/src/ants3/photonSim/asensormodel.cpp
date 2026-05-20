@@ -345,7 +345,7 @@ double ASensorModel::getMaxQE(bool bWaveRes) const
     return maxQE;
 }
 
-QString ASensorModel::updateRuntimeProperties()
+QString ASensorModel::updateRuntimeProperties(const std::vector<int> & seenSensorMats)
 {
     if (SiPM)
     {
@@ -427,7 +427,108 @@ QString ASensorModel::updateRuntimeProperties()
         _PHS->GetIntegral();
     }
 
+    _InterfaceAwarePDEfactors.clear();
+    if (PDE_model == 1) updateInterfaceAwareRuntimeProps(seenSensorMats);
+
     return "";
+}
+
+#include "amaterialhub.h"
+void ASensorModel::updateInterfaceAwareRuntimeProps(const std::vector<int> & seenSensorMats)
+{
+    _InterfaceAwarePDEfactors.resize(seenSensorMats.size());
+
+    const AMaterialHub & MatHub = AMaterialHub::getConstInstance();
+    for (size_t index = 0; index < seenSensorMats.size(); index++)
+    {
+        int iMat = seenSensorMats[index];
+        _InterfaceAwarePDEfactors[index].first = iMat;
+
+        AInterfaceAwareRuntimeProps & props = _InterfaceAwarePDEfactors[index].second;
+
+        // normal incidence, -1 waveindex:  R = ((n1 - n2) / (n1 + n2))^2
+        // n1 = 1 (air)
+        double n2 = MatHub[iMat]->RefIndex;
+        double R = (1.0 - n2) / (1.0 + n2); R *= R;
+        props.EffectivePDE = PDE_effective * 1.0 / (1.0 - R);
+        qDebug() << "EffectivePDE = " << props.EffectivePDE;
+
+        bool haveRefIndexSpectrum = !MatHub[iMat]->_RefIndex_WaveBinned.empty();
+        bool havePdeSpectrum = !PDEbinned.empty();
+        bool haveAngular = !AngularBinned.empty();
+        if (havePdeSpectrum && haveRefIndexSpectrum)
+        {
+            props.PDEbinned.resize(PDEbinned.size());
+            for (size_t i = 0; i < PDEbinned.size(); i++)
+            {
+                double n2 = MatHub[iMat]->_RefIndex_WaveBinned[i];
+                double R = (1.0 - n2) / (1.0 + n2); R *= R;
+                props.PDEbinned[i] = PDEbinned[i] * 1.0 / (1.0 - R);
+            }
+        }
+        qDebug() << "PDEbinned: " << props.PDEbinned;
+        if (haveAngular)
+        {
+            // have to redo angular completely
+            double nSensor; // need at the measured wavelength
+            const APhotonSimSettings & SimSet = APhotonSimHub::getConstInstance().Settings;
+            if (SimSet.WaveSet.Enabled)
+            {
+                int iWave = SimSet.WaveSet.toIndex(Angular_Wavelength);
+                nSensor = MatHub[iMat]->getRefractiveIndex(iWave);
+            }
+            else
+            {
+                nSensor = MatHub[iMat]->RefIndex;
+            }
+            std::vector<std::pair<double,double>> dataAngular = AngularFactors;
+            double limitAngle = 0;
+            for (std::pair<double,double> & pair : dataAngular)
+            {
+                double & angle = pair.first; // insidence
+                // Snell: n1*sinI = n2*sinR
+                // n1 = 1.0; n2 = nSensor
+                double sinI = sin(angle*3.1415926535/180.0);
+                double sinR = 1.0 * sinI / nSensor;
+                angle = asin(sinR) * 180.0/3.1415926535; // refracted
+
+                // Fresnel:
+                // Rs = ((n1*cosI - n2*cosR)/(n1*cosI + n2*cosR))^2
+                // Rp = ((n1*cosR - n2*cosI)/(n1*cosR + n2*cosI))^2
+                // R = 0.5*(Rs+Rp)
+                double cosI = sqrt(1.0 - sinI * sinI);
+                double cosR = sqrt(1.0 - sinR * sinR);
+                double Rs = (1.0*cosI - nSensor*cosR) / (1.0*cosI + nSensor*cosR); Rs *= Rs;
+                double Rp = (1.0*cosR - nSensor*cosI) / (1.0*cosR + nSensor*cosI); Rp *= Rp;
+                double R = 0.5 * (Rs + Rp);
+                qDebug() << angle << "R" << R;
+                double factor;
+                if (R < 1.0)
+                {
+                    factor = 1.0 / (1.0 - R);
+                    limitAngle = angle;
+                }
+                else factor = 0;
+                pair.second *= factor;
+            }
+
+            qDebug() << "-->" << AngularFactors;
+            qDebug() << "-->" << dataAngular;
+
+            props.AngularBinned.resize(91);
+            _MaxAngularFactor = 0;
+            double lastNonZero = 0;
+            for (int i = 0; i < 91; i++)
+            {
+                double sens = AWaveResSettings::getInterpolatedValue(i, dataAngular);
+                if (sens > 0) lastNonZero = sens;
+                else          sens = lastNonZero;
+                props.AngularBinned[i] = sens;
+                if (sens > _MaxAngularFactor) _MaxAngularFactor = sens;
+            }
+            qDebug() << "FactorAngularBinned: " << props.AngularBinned;
+        }
+    }
 }
 
 double ASensorModel::convertHitsToSignal(double phel) const

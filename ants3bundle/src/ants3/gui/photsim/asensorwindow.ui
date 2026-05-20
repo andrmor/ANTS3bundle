@@ -652,6 +652,13 @@
            <item row="7" column="1">
             <layout class="QHBoxLayout" name="horizontalLayout_4">
              <item>
+              <widget class="QLabel" name="labInAir1">
+               <property name="text">
+                <string>(in air)</string>
+               </property>
+              </widget>
+             </item>
+             <item>
               <widget class="QLineEdit" name="ledEffectivePDE">
                <property name="maximumSize">
                 <size>
@@ -708,6 +715,13 @@
            </item>
            <item row="8" column="1">
             <layout class="QHBoxLayout" name="horizontalLayout_3">
+             <item>
+              <widget class="QLabel" name="labInAir2">
+               <property name="text">
+                <string>(in air)</string>
+               </property>
+              </widget>
+             </item>
              <item>
               <widget class="QPushButton" name="pbShowPDE">
                <property name="minimumSize">
@@ -776,6 +790,13 @@ Wavelengths should be given in increasing order</string>
            </item>
            <item row="9" column="1">
             <layout class="QHBoxLayout" name="horizontalLayout_9">
+             <item>
+              <widget class="QLabel" name="labInAir3">
+               <property name="text">
+                <string>(in air)</string>
+               </property>
+              </widget>
+             </item>
              <item>
               <widget class="QPushButton" name="pbShowAngular">
                <property name="minimumSize">

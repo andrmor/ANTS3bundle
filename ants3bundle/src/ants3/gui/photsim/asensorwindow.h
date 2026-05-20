@@ -106,6 +106,8 @@ private slots:
 
     void on_cobPDEmodel_activated(int index);
 
+    void on_cobPDEmodel_currentIndexChanged(int index);
+
 private:
     ASensorHub & SensHub;
     Ui::ASensorWindow * ui = nullptr;

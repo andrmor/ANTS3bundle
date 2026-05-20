@@ -138,21 +138,25 @@ AGeoObject * ASensorHub::getGeoObject(int iSensor) const
 
 QString ASensorHub::updateRuntimeProperties()
 {
-    for (ASensorModel & model : Models)
-    {
-        QString err = model.updateRuntimeProperties();
-        if (!err.isEmpty()) return err;
-    }
-
-    if (UseSensorGains)
-        if (SensorGains.size() != SensorData.size()) return "Sensor gain vector has invalid size";
-
+    std::vector<int> seenSensorMats;
     for (ASensorData & sd : SensorData)
     {
         const int & index = sd.ModelIndex;
         if (index < 0 || index >= (int)Models.size())
             return QString("Light sensor is assigned an invalid model index (%0)").arg(index);
+
+        int iMat = sd.GeoObj->Material;
+        if (std::find(seenSensorMats.begin(), seenSensorMats.end(), iMat) == seenSensorMats.end()) seenSensorMats.push_back(iMat);
     }
+
+    for (ASensorModel & model : Models)
+    {
+        QString err = model.updateRuntimeProperties(seenSensorMats);
+        if (!err.isEmpty()) return err;
+    }
+
+    if (UseSensorGains)
+        if (SensorGains.size() != SensorData.size()) return "Sensor gain vector has invalid size";
 
     return "";
 }
