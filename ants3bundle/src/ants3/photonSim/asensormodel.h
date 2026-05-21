@@ -90,6 +90,7 @@ public:
 
     std::vector<std::pair<int, AInterfaceAwareRuntimeProps>> _InterfaceAwarePDE; // {iMatSensor, data} --> cannot limit to one sensor material in the model: this is a property of each individual sensor
 
+    double _MaxPDE_effective = 1.0; // applied in the interface-aware mode
     double _MaxPDE_spectral = 1.0;
     double _MaxAngularFactor = 1.0;
     double _MaxAreaFactor = 1.0;

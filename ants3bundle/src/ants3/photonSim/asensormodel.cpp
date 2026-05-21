@@ -394,10 +394,20 @@ double ASensorModel::getAreaFactor(double x, double y) const
 
 double ASensorModel::getMaxQE(bool bWaveRes) const
 {
-    double maxQE = (bWaveRes ? _MaxPDE_spectral : PDE_effective);
-    maxQE *= _MaxAngularFactor;
-    maxQE *= _MaxAreaFactor;
-    return maxQE;
+    if (PDE_model == 0)
+    {
+        double maxQE = (bWaveRes ? _MaxPDE_spectral : PDE_effective);
+        maxQE *= _MaxAngularFactor;
+        maxQE *= _MaxAreaFactor;
+        return maxQE;
+    }
+    else
+    {
+        double maxQE = (bWaveRes ? _MaxPDE_spectral : _MaxPDE_effective);
+        maxQE *= _MaxAngularFactor;
+        maxQE *= _MaxAreaFactor;
+        return maxQE;
+    }
 }
 
 QString ASensorModel::updateRuntimeProperties(const std::vector<int> & seenSensorMats)
@@ -495,6 +505,11 @@ void ASensorModel::updateInterfaceAwareRuntimeProps(const std::vector<int> & see
     const APhotonSimSettings & SimSet = APhotonSimHub::getConstInstance().Settings;
 
     const AMaterialHub & MatHub = AMaterialHub::getConstInstance();
+
+    _MaxPDE_effective = 0;
+    _MaxPDE_spectral  = 0; // set to 1.0 if remains zero at the end (PDE spectral data are not provided)
+    _MaxAngularFactor = 0;
+
     for (size_t index = 0; index < seenSensorMats.size(); index++)
     {
         int iMat = seenSensorMats[index];
@@ -510,6 +525,9 @@ void ASensorModel::updateInterfaceAwareRuntimeProps(const std::vector<int> & see
         double factorAtNormal = props.EffectivePdeFactor;
         qDebug() << "Factor for EffectivePDE = " << props.EffectivePdeFactor;
 
+        double effVal = props.EffectivePdeFactor * PDE_effective;
+        if (effVal > _MaxPDE_effective) _MaxPDE_effective = effVal;
+
         bool havePdeSpectrum = !PDEbinned.empty();
         bool haveRefIndexSpectrum = !MatHub[iMat]->_RefIndex_WaveBinned.empty();
         int iWave = SimSet.WaveSet.toIndex(Angular_Wavelength);
@@ -521,6 +539,9 @@ void ASensorModel::updateInterfaceAwareRuntimeProps(const std::vector<int> & see
                 if (haveRefIndexSpectrum) n2 = MatHub[iMat]->_RefIndex_WaveBinned[i]; // else effective value
                 double R = (1.0 - n2) / (1.0 + n2); R *= R;
                 props.PdeBinnedFactor[i] = 1.0 / (1.0 - R);
+
+                double val = props.PdeBinnedFactor[i] * PDEbinned[i];
+                if (val > _MaxPDE_spectral) _MaxPDE_spectral = val;
             }
             if (iWave != -1) factorAtNormal = props.PdeBinnedFactor[iWave];
         }
@@ -564,7 +585,6 @@ void ASensorModel::updateInterfaceAwareRuntimeProps(const std::vector<int> & see
             qDebug() << "Angular for" << MatHub.getMaterialName(iMat) << dataAngular;
 
             props.AngularBinned.resize(91);
-            _MaxAngularFactor = 0;
             double lastNonZero = 0;
             for (int i = 0; i < 91; i++)
             {
@@ -572,11 +592,18 @@ void ASensorModel::updateInterfaceAwareRuntimeProps(const std::vector<int> & see
                 if (sens > 0) lastNonZero = sens;
                 else          sens = lastNonZero;
                 props.AngularBinned[i] = sens;
-                if (sens > _MaxAngularFactor) _MaxAngularFactor = sens;
+
+                if (sens > _MaxAngularFactor) _MaxAngularFactor = sens; // over all sensor material options
             }
             qDebug() << "AngularBinned: " << props.AngularBinned;
         }
     }
+
+    if (_MaxPDE_effective == 0) _MaxPDE_effective = 1.0; // paranoid
+    qDebug() << "_MaxPDE_effective:" << _MaxPDE_effective;
+    if (_MaxPDE_spectral == 0) _MaxPDE_spectral = 1.0;
+    qDebug() << "_MaxPDE_spectral:" << _MaxPDE_spectral;
+    qDebug() << "_MaxAngularFactor:" << _MaxAngularFactor;
 }
 
 double ASensorModel::convertHitsToSignal(double phel) const
