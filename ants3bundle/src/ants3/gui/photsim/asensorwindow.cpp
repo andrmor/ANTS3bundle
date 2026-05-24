@@ -1156,7 +1156,8 @@ void ASensorWindow::on_pbShowAngular_customContextMenuRequested(const QPoint &)
     ASensorHub::getInstance().updateRuntimeProperties();
 
     std::vector<double> angles;
-    for (int i = 0; i < 91; i++) angles.push_back(i);
+    size_t bins = mod->AngularBinned.size();
+    for (size_t i = 0; i < mod->AngularBinned.size(); i++) angles.push_back(i * 90.0 / (bins - 1));
 
     if ( ui->cobPDEmodel->currentIndex() == 0)
     {

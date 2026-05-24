@@ -342,8 +342,8 @@ double ASensorModel::getAngularFactor(double angle, int iSensorMat) const
     {
         if (AngularBinned.empty()) return 1.0;
 
-        int bin = fabs(angle);
-        if (bin > 90) return 0;
+        int bin = fabs(angle) * (_NumAngularBins - 1) / 90.0;
+        if (bin >= _NumAngularBins) return 0;
         return AngularBinned[bin];
     }
 
@@ -445,12 +445,13 @@ QString ASensorModel::updateRuntimeProperties(const std::vector<int> & seenSenso
         QString err = checkAngularFactors();
         if (!err.isEmpty()) return err;
 
-        AngularBinned.reserve(91);
         _MaxAngularFactor = 0;
-        for (int i = 0; i < 91; i++)
+        AngularBinned.resize(_NumAngularBins);
+        for (int i = 0; i < _NumAngularBins; i++)
         {
-            const double sens = AWaveResSettings::getInterpolatedValue(i, AngularFactors);
-            AngularBinned.push_back(sens);
+            const double angle = 90.0 * i / (_NumAngularBins - 1);
+            const double sens = AWaveResSettings::getInterpolatedValue(angle, AngularFactors);
+            AngularBinned[i] = sens;
             if (sens > _MaxAngularFactor) _MaxAngularFactor = sens;
         }
 
@@ -552,18 +553,18 @@ void ASensorModel::updateInterfaceAwareRuntimeProps(const std::vector<int> & see
         if (haveAngular)
         {
             // have to redo angular completely
-            double nSensor; // need at the measured wavelength
+            double nSensor; // need use the value at the wavelength of th emeasurement
             if (SimSet.WaveSet.Enabled) nSensor = MatHub[iMat]->getRefractiveIndex(iWave);
             else                        nSensor = MatHub[iMat]->RefIndex;
-            std::vector<std::pair<double,double>> dataAngular = AngularFactors;
-            for (std::pair<double,double> & pair : dataAngular)
+            std::vector<std::pair<double,double>> dataAngular(_NumAngularBins);
+            for (int i = 0; i < _NumAngularBins; i++)
             {
-                double & angle = pair.first; // insidence
+                double insAngle = 90.0 * i / (_NumAngularBins - 1);
                 // Snell: n1*sinI = n2*sinR
                 // n1 = 1.0; n2 = nSensor
-                double sinI = sin(angle*3.1415926535/180.0);
+                double sinI = sin(insAngle * 3.1415926535/180.0);
                 double sinR = 1.0 * sinI / nSensor;
-                angle = asin(sinR) * 180.0/3.1415926535; // refracted
+                dataAngular[i].first = asin(sinR) * 180.0/3.1415926535; // refracted angle
 
                 // Fresnel:
                 // Rs = ((n1*cosI - n2*cosR)/(n1*cosI + n2*cosR))^2
@@ -578,17 +579,17 @@ void ASensorModel::updateInterfaceAwareRuntimeProps(const std::vector<int> & see
                 double factor;
                 if (R < 1.0) factor = 1.0 / (1.0 - R) / factorAtNormal;
                 else         factor = 0;
-                pair.second *= factor;
+                dataAngular[i].second = AngularBinned[i] * factor;
             }
 
-            qDebug() << "Angular in air:" << AngularFactors;
             qDebug() << "Angular for" << MatHub.getMaterialName(iMat) << dataAngular;
 
-            props.AngularBinned.resize(91);
+            props.AngularBinned.resize(_NumAngularBins);
             double lastNonZero = 0;
-            for (int i = 0; i < 91; i++)
+            for (int i = 0; i < _NumAngularBins; i++)
             {
-                double sens = AWaveResSettings::getInterpolatedValue(i, dataAngular);
+                const double angle = 90.0 * i / (_NumAngularBins - 1);
+                double sens = AWaveResSettings::getInterpolatedValue(angle, dataAngular);
                 if (sens > 0) lastNonZero = sens;
                 else          sens = lastNonZero;
                 props.AngularBinned[i] = sens;

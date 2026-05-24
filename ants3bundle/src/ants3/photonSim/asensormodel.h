@@ -83,12 +83,14 @@ public:
     double _PixelPitchX;
     double _PixelPitchY;
     std::vector<double> PDEbinned;
-    std::vector<double> AngularBinned; // binned from 0 to 90.0 degrees (91 bins of 1 degree)
+    std::vector<double> AngularBinned; // binned from 0 to 90.0 degrees (inclusive!), with number of bins given by _NumAngularBins
     TH1D * _PHS = nullptr;
     double _AverageDarkCounts;
     double _PixelDarkFiringProbability;
 
     std::vector<std::pair<int, AInterfaceAwareRuntimeProps>> _InterfaceAwarePDE; // {iMatSensor, data} --> cannot limit to one sensor material in the model: this is a property of each individual sensor
+
+    int    _NumAngularBins = 1000;
 
     double _MaxPDE_effective = 1.0; // applied in the interface-aware mode
     double _MaxPDE_spectral = 1.0;
