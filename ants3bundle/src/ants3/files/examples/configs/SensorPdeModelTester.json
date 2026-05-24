@@ -1,6 +1,6 @@
 {
-    "ConfigDescription": "",
-    "ConfigName": "",
+    "ConfigDescription": "Load and run script  SensorPdeModelTester.json",
+    "ConfigName": "Sensor's PDEModel Tester",
     "Geometry": {
         "GeoConsts": [
         ],
@@ -11,9 +11,9 @@
                 "Name": "World",
                 "Shape": "TGeoBBox",
                 "ShapeSpecific": {
-                    "dx": 97.96633369868303,
-                    "dy": 97.96633369868303,
-                    "dz": 50.71633369868303
+                    "dx": 143.43266739736606,
+                    "dy": 143.43266739736606,
+                    "dz": 96.18266739736606
                 },
                 "Type": {
                     "FixedSize": false,
@@ -42,7 +42,7 @@
                 "Psi": 0,
                 "Shape": "TGeoBBox",
                 "ShapeSpecific": {
-                    "dx": 25,
+                    "dx": 50,
                     "dy": 25,
                     "dz": 0.5
                 },
@@ -66,12 +66,12 @@
             {
                 "Container": "World",
                 "Material": 1,
-                "Name": "SensorGlass",
+                "Name": "SensorEpoxy",
                 "Phi": 0,
                 "Psi": 0,
                 "Shape": "TGeoBBox",
                 "ShapeSpecific": {
-                    "dx": 25,
+                    "dx": 50,
                     "dy": 25,
                     "dz": 0.5
                 },
@@ -2309,7 +2309,7 @@
                 "ConeAngle": 10,
                 "DirectionMode": "Fixed",
                 "DirectionVector": [
-                    3,
+                    57.289961484994905,
                     0,
                     -1
                 ]
@@ -2319,8 +2319,8 @@
                 "Enabled": false
             },
             "Wave": {
-                "Enabled": false,
-                "FixedWavelength": 550
+                "Enabled": true,
+                "FixedWavelength": 450
             }
         },
         "PhotonBombs": {
@@ -2485,7 +2485,7 @@
         },
         "SimulationType": "bomb",
         "WaveResolved": {
-            "Enabled": false,
+            "Enabled": true,
             "From": 200,
             "Step": 5,
             "To": 800
@@ -2549,7 +2549,7 @@
                 },
                 "DarkCountRate": 0,
                 "IntegrationTime": 1e-06,
-                "Name": "Ideal_air",
+                "Name": "SensorOfAir",
                 "PDE": {
                     "Effective": 0.5,
                     "PDE_model": 0,
@@ -5089,7 +5089,7 @@
                 },
                 "DarkCountRate": 0,
                 "IntegrationTime": 1e-06,
-                "Name": "Ideal_Epoxy",
+                "Name": "SensorOfEpoxy",
                 "PDE": {
                     "Effective": 0.5,
                     "PDE_model": 1,
