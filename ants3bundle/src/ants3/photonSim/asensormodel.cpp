@@ -362,8 +362,8 @@ double ASensorModel::getAngularFactor(double angle, int iSensorMat) const
         const AInterfaceAwareRuntimeProps & props = _InterfaceAwarePDE[iRecord].second;
         if (props.AngularBinned.empty()) return 1.0;
 
-        int bin = fabs(angle);
-        if (bin > 90) return 0;
+        int bin = fabs(angle) * (_NumAngularBins - 1) / 90.0;
+        if (bin >= _NumAngularBins) return 0;
         return props.AngularBinned[bin];
     }
     else
@@ -565,6 +565,7 @@ void ASensorModel::updateInterfaceAwareRuntimeProps(const std::vector<int> & see
                 double sinI = sin(insAngle * 3.1415926535/180.0);
                 double sinR = 1.0 * sinI / nSensor;
                 dataAngular[i].first = asin(sinR) * 180.0/3.1415926535; // refracted angle
+                qDebug() << insAngle << "-->" << dataAngular[i].first;
 
                 // Fresnel:
                 // Rs = ((n1*cosI - n2*cosR)/(n1*cosI + n2*cosR))^2
@@ -575,14 +576,14 @@ void ASensorModel::updateInterfaceAwareRuntimeProps(const std::vector<int> & see
                 double Rs = (1.0*cosI - nSensor*cosR) / (1.0*cosI + nSensor*cosR); Rs *= Rs;
                 double Rp = (1.0*cosR - nSensor*cosI) / (1.0*cosR + nSensor*cosI); Rp *= Rp;
                 double R = 0.5 * (Rs + Rp);
-                //qDebug() << angle << "R" << R;
                 double factor;
                 if (R < 1.0) factor = 1.0 / (1.0 - R) / factorAtNormal;
                 else         factor = 0;
+                qDebug() << insAngle << cosI << cosR << "R" << R << "factor:" << factor;
                 dataAngular[i].second = AngularBinned[i] * factor;
             }
 
-            qDebug() << "Angular for" << MatHub.getMaterialName(iMat) << dataAngular;
+            //qDebug() << "Angular for" << MatHub.getMaterialName(iMat) << dataAngular;
 
             props.AngularBinned.resize(_NumAngularBins);
             double lastNonZero = 0;
@@ -596,7 +597,7 @@ void ASensorModel::updateInterfaceAwareRuntimeProps(const std::vector<int> & see
 
                 if (sens > _MaxAngularFactor) _MaxAngularFactor = sens; // over all sensor material options
             }
-            qDebug() << "AngularBinned: " << props.AngularBinned;
+            //qDebug() << "AngularBinned: " << props.AngularBinned;
         }
     }
 
