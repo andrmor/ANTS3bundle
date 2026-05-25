@@ -149,6 +149,15 @@ void APhotSimWin::writeToJson(QJsonObject & json) const
         A3Global::getInstance().CurrentTrackVisAttributes.writeToJson_photons(js);
         json["PhotonTrackAttributes"] = js;
     }
+
+    // SensorTable
+    {
+        QJsonObject js;
+            js["ColumnNumber"] = ui->sbSensorTableColumns->value();
+            js["Swap"] = ui->cbSensorTableSwap->isChecked();
+            js["HideIndex"] = ui->cbSensorTableHideIndex->isChecked();
+        json["SensorTable"] = js;
+    }
 }
 
 void APhotSimWin::readFromJson(const QJsonObject & json)
@@ -193,6 +202,21 @@ void APhotSimWin::readFromJson(const QJsonObject & json)
         QJsonObject js;
         bool ok = jstools::parseJson(json, "PhotonTrackAttributes", js);
         if (ok) A3Global::getInstance().CurrentTrackVisAttributes.readFromJson_photons(js);
+    }
+
+    // SensorTable
+    {
+        QJsonObject js;
+        bool ok = jstools::parseJson(json, "SensorTable", js);
+        if (ok)
+        {
+            int num = 1.0;
+            jstools::parseJson(js, "ColumnNumber", num); ui->sbSensorTableColumns->setValue(num);
+            bool bSwap = false;
+            jstools::parseJson(js, "Swap", bSwap); ui->cbSensorTableSwap->setChecked(bSwap);
+            bool bHide = false;
+            jstools::parseJson(js, "HideIndex", bSwap); ui->cbSensorTableHideIndex->setChecked(bHide);
+        }
     }
 }
 
@@ -716,6 +740,18 @@ void APhotSimWin::reshapeSensorSignalTable()
 }
 
 void APhotSimWin::on_sbSensorTableColumns_editingFinished()
+{
+    reshapeSensorSignalTable();
+    showSensorSignals(false);
+}
+
+void APhotSimWin::on_cbSensorTableSwap_clicked()
+{
+    reshapeSensorSignalTable();
+    showSensorSignals(false);
+}
+
+void APhotSimWin::on_cbSensorTableHideIndex_clicked()
 {
     reshapeSensorSignalTable();
     showSensorSignals(false);
@@ -1964,13 +2000,22 @@ void APhotSimWin::showSensorSignalTable(const std::vector<float> & signalArray, 
     const size_t numSensors = signalArray.size();
     const int numColumns = ui->sbSensorTableColumns->value();
 
+    int numRows = ceil(1.0 * numSensors / numColumns);
+    if (numRows < 1) numRows = 1;
+
+    const bool bSwap = ui->cbSensorTableSwap->isChecked();
+    const bool bHide = ui->cbSensorTableHideIndex->isChecked();
+
     double sum = 0;
     int currentRow = 0;
     int currentColumn = 0;
     for (int iSensorIndex : enabledSensors)
         if (iSensorIndex < numSensors)
         {
-            QString txt = QString("#%0: %1").arg(iSensorIndex).arg(signalArray[iSensorIndex]);
+            QString txt;
+            if (bHide) txt = QString("%0").arg(signalArray[iSensorIndex]);
+            else       txt = QString("#%0: %1").arg(iSensorIndex).arg(signalArray[iSensorIndex]);
+
             QTableWidgetItem * item = ui->twSensorTable->item(currentRow, currentColumn);
             if (!item)
             {
@@ -1978,12 +2023,26 @@ void APhotSimWin::showSensorSignalTable(const std::vector<float> & signalArray, 
                 ui->twSensorTable->setItem(currentRow, currentColumn, item);
             }
             item->setText(txt);
-            currentColumn++;
-            if (currentColumn >= numColumns)
+
+            if (!bSwap)
             {
-                currentColumn = 0;
-                currentRow++;
+                currentColumn++;
+                if (currentColumn >= numColumns)
+                {
+                    currentColumn = 0;
+                    currentRow++;
+                }
             }
+            else
+            {
+                currentRow++;
+                if (currentRow >= numRows)
+                {
+                    currentRow = 0;
+                    currentColumn++;
+                }
+            }
+
             sum += signalArray[iSensorIndex];
         }
 
