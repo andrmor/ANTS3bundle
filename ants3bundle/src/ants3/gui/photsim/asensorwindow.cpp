@@ -1181,7 +1181,34 @@ void ASensorWindow::on_pbShowAngular_customContextMenuRequested(const QPoint &)
 
 void ASensorWindow::on_pbHelpPDEmodeling_clicked()
 {
-    QString txt = "'Account for the interface' is not yet implemented!";
+    QString txt = "The photon detection is triggered when a photon _enters_ a sensor\n"
+                  "Thus the photon first has to pass the interface:\n"
+                  "taking into account the defined custom interface rules, and,\n"
+                  "if the materials of the sensor and the surrounding medium have different refractive indexes,\n"
+                  "pass the reflection test based on Fresnel equations.\n"
+                  "\n"
+        "The PDE is computer as a multiplication of three factors (all besides the effective PDE are optional):\n"
+        "1) Base PDE, which is the Effective PDE for photons with waveindex of -1,\n"
+        "   or computed from the spectral PDE data (waveindex is not -1 and the spectral data are provided by the user)\n"
+        "2) Angular factor (if provided by the user), typically of unity at the normal incidence, and describing the sensor\n"
+        "   response as function of the _refracted_ angle\n"
+        "3) Area factor, descriping the spatial response (over the sensor active area, also if provided by the user)\n"
+        "\n"
+        "The user can also select eithe 'Simplistic' or 'Account for the interface' PDE models\n"
+
+        "\nThe Simplistic one does not provide any corrections and the data are used exactly as provided by the user\n"
+        "One of the typical example where this is a good model to use is when the snesor material is set to be the same\n"
+        "as the surrounding one. In this case the angles of incidence and refracted angles are the same, and if the material\n"
+        "is air, the measured angular response can be directly loaded\n"
+        "Be careful in the case when the reflected light from the sensor is important, as in this case there will be none!\n"
+        "\nAccount for the interface model is typically applied when the medium in front of the sensor is not the same as the sensor\n,"
+        "or both are not air\n"
+        "The model assumes that all provided PDE data were measured in air, and automatically correct for the light which was not entering\n"
+        "the sensor due to Freshnel reflection on the surface.\n"
+        "The angular dependence also is converted from insidence to refracted angle.\n"
+        "As large angle data are not present (mind the Snell law), the larges angle provided by user with a non-zero angular response is\n"
+        "assigned for all angles until 90 degrees with missing data\n"
+        "";
     guitools::message(txt, this);
 }
 
