@@ -1,5 +1,5 @@
 {
-    "ConfigDescription": "Load and run script  SensorPdeModelTester.json",
+    "ConfigDescription": "Load and run script  SensorPdeModelTester.txt",
     "ConfigName": "Tester for light sensor PDEModel",
     "Geometry": {
         "GeoConsts": [
