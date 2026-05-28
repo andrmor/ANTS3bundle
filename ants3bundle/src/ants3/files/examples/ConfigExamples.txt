@@ -9,6 +9,7 @@
 ** Optical sim
 @OpticalTransmissionTester.json Transmission through a sodalime_glass slab: compare with the database data (see example description)
 @InterfaceTester.json Can be used to compare Interface Tester <-> Photon sim results
+@SensorPdeModelTester.json Tester for light sensor PDE model with angular dependence
 @OpticalFiberFunctionalTester.json Tester for functional model of the optical fiber
 @FresnelTester.json Cuboid crystal, point source isotropic emission: testing Fresnel --> number of photons exiting from all sides should be the same
 @SurfaceWaveShifter.json A minimal configuration featuring optical interface rule for wavelength shifter

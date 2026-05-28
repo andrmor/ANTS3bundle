@@ -1,6 +1,6 @@
 {
     "ConfigDescription": "Load and run script  SensorPdeModelTester.json",
-    "ConfigName": "Sensor's PDEModel Tester",
+    "ConfigName": "Tester for light sensor PDEModel",
     "Geometry": {
         "GeoConsts": [
         ],
@@ -11,9 +11,9 @@
                 "Name": "World",
                 "Shape": "TGeoBBox",
                 "ShapeSpecific": {
-                    "dx": 143.43266739736606,
-                    "dy": 143.43266739736606,
-                    "dz": 96.18266739736606
+                    "dx": 234.36533479473212,
+                    "dy": 234.36533479473212,
+                    "dz": 187.11533479473212
                 },
                 "Type": {
                     "FixedSize": false,
@@ -42,8 +42,8 @@
                 "Psi": 0,
                 "Shape": "TGeoBBox",
                 "ShapeSpecific": {
-                    "dx": 50,
-                    "dy": 25,
+                    "dx": 100,
+                    "dy": 22.5,
                     "dz": 0.5
                 },
                 "SpecialRole": {
@@ -71,8 +71,8 @@
                 "Psi": 0,
                 "Shape": "TGeoBBox",
                 "ShapeSpecific": {
-                    "dx": 50,
-                    "dy": 25,
+                    "dx": 100,
+                    "dy": 22.5,
                     "dz": 0.5
                 },
                 "SpecialRole": {
@@ -84,7 +84,61 @@
                     "Type": "Single"
                 },
                 "X": 0,
+                "Y": 0,
+                "Z": -5,
+                "color": 4,
+                "fActive": true,
+                "fExpanded": true,
+                "style": 1,
+                "width": 1
+            },
+            {
+                "Container": "World",
+                "Material": 1,
+                "Name": "EpoxyBox",
+                "Phi": 0,
+                "Psi": 0,
+                "Shape": "TGeoBBox",
+                "ShapeSpecific": {
+                    "dx": 100,
+                    "dy": 22.5,
+                    "dz": 7.5
+                },
+                "Theta": 0,
+                "Type": {
+                    "Type": "Single"
+                },
+                "X": 0,
                 "Y": 50,
+                "Z": 0,
+                "color": 4,
+                "fActive": true,
+                "fExpanded": true,
+                "style": 1,
+                "width": 1
+            },
+            {
+                "Container": "EpoxyBox",
+                "Material": 1,
+                "Name": "SensorEpoxy2",
+                "Phi": 0,
+                "Psi": 0,
+                "Shape": "TGeoBBox",
+                "ShapeSpecific": {
+                    "dx": 100,
+                    "dy": 22.5,
+                    "dz": 0.5
+                },
+                "SpecialRole": {
+                    "SensorModel": 1,
+                    "Type": "Sensor"
+                },
+                "Theta": 0,
+                "Type": {
+                    "Type": "Single"
+                },
+                "X": 0,
+                "Y": 0,
                 "Z": -5,
                 "color": 4,
                 "fActive": true,
@@ -96,6 +150,21 @@
     },
     "InterfaceRules": {
         "MaterialRules": [
+            {
+                "Abs": 1,
+                "MatFrom": 1,
+                "MatTo": 0,
+                "Model": "Simplistic",
+                "Scat": 0,
+                "ScatMode": 1,
+                "Spec": 0,
+                "SurfaceProperties": {
+                    "KillPhotonsRefractedBackward": false,
+                    "Model": "Polished",
+                    "OrientationProbabilityCorrection": true
+                },
+                "Symmetric": false
+            }
         ],
         "VolumeRules": [
         ]
@@ -105,13 +174,13 @@
     },
     "Materials": [
         {
-            "*Name": "Vacuum",
+            "*Name": "Air",
             "AbsCoeff": 0,
             "BulkAbsorptionWave": [
             ],
             "Comments": "",
             "Composition": {
-                "CompositionType": "Direct",
+                "CompositionType": "Geant4",
                 "CustomComposition": {
                     "CompositionString": "H",
                     "Density": 1e-24,
@@ -124,7 +193,7 @@
                     "Temperature": 298,
                     "UseMeanExcitationEnergy": false
                 },
-                "Geant4Material": "",
+                "Geant4Material": "G4_AIR",
                 "NCrystalMaterialName": ""
             },
             "CustomScatterMFP": 0,
@@ -2309,7 +2378,7 @@
                 "ConeAngle": 10,
                 "DirectionMode": "Fixed",
                 "DirectionVector": [
-                    57.289961484994905,
+                    0.5,
                     0,
                     -1
                 ]
@@ -2372,10 +2441,10 @@
                     {
                         "BiDirect": false,
                         "Enabled": true,
-                        "Nodes": 2,
+                        "Nodes": 3,
                         "dX": 0,
                         "dXStr": "",
-                        "dY": 100,
+                        "dY": 50,
                         "dYStr": "",
                         "dZ": 0,
                         "dZStr": ""
@@ -2504,36 +2573,72 @@
                             1
                         ],
                         [
-                            11.25,
-                            1.01937
+                            5,
+                            1.00313
                         ],
                         [
-                            22.5,
-                            1.01019
+                            10,
+                            1.00522
                         ],
                         [
-                            33.75,
-                            1.00612
+                            15,
+                            1.01461
+                        ],
+                        [
+                            20,
+                            1.02088
+                        ],
+                        [
+                            25,
+                            1.0261
+                        ],
+                        [
+                            30,
+                            1.03862
+                        ],
+                        [
+                            35,
+                            1.03758
+                        ],
+                        [
+                            40,
+                            1.04384
                         ],
                         [
                             45,
-                            0.98369
+                            1.03236
                         ],
                         [
-                            56.25,
-                            0.994903
+                            50,
+                            1.02088
                         ],
                         [
-                            67.5,
-                            0.981651
+                            55,
+                            1.01044
                         ],
                         [
-                            78.75,
-                            0.913354
+                            60,
+                            1
                         ],
                         [
-                            83,
-                            0.2579
+                            65,
+                            0.969729
+                        ],
+                        [
+                            70,
+                            0.935282
+                        ],
+                        [
+                            75,
+                            0.849687
+                        ],
+                        [
+                            80,
+                            0.688935
+                        ],
+                        [
+                            85,
+                            0.417537
                         ],
                         [
                             90,
@@ -5044,36 +5149,72 @@
                             1
                         ],
                         [
-                            11.25,
-                            1.01937
+                            5,
+                            1.00313
                         ],
                         [
-                            22.5,
-                            1.01019
+                            10,
+                            1.00522
                         ],
                         [
-                            33.75,
-                            1.00612
+                            15,
+                            1.01461
+                        ],
+                        [
+                            20,
+                            1.02088
+                        ],
+                        [
+                            25,
+                            1.0261
+                        ],
+                        [
+                            30,
+                            1.03862
+                        ],
+                        [
+                            35,
+                            1.03758
+                        ],
+                        [
+                            40,
+                            1.04384
                         ],
                         [
                             45,
-                            0.98369
+                            1.03236
                         ],
                         [
-                            56.25,
-                            0.994903
+                            50,
+                            1.02088
                         ],
                         [
-                            67.5,
-                            0.981651
+                            55,
+                            1.01044
                         ],
                         [
-                            78.75,
-                            0.913354
+                            60,
+                            1
                         ],
                         [
-                            83,
-                            0.2579
+                            65,
+                            0.969729
+                        ],
+                        [
+                            70,
+                            0.935282
+                        ],
+                        [
+                            75,
+                            0.849687
+                        ],
+                        [
+                            80,
+                            0.688935
+                        ],
+                        [
+                            85,
+                            0.417537
                         ],
                         [
                             90,
@@ -7789,6 +7930,11 @@
                 "G2Enabled": false,
                 "G3": "",
                 "G3Enabled": false
+            },
+            "SensorTable": {
+                "ColumnNumber": 1,
+                "HideIndex": false,
+                "Swap": false
             }
         }
     }
