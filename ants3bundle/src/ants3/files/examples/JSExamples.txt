@@ -174,3 +174,11 @@ Analysis:TrackingHistory:Acolinearity
 Test for annihilation gamma acolinearity simulation
 #end
 
+#file
+SensorPdeModelTester.txt
+#tags
+Ligh sensor:PDE
+#info
+Test for two options of the PDE model with defined anular dependence of the response
+#end
+

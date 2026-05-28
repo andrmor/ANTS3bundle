@@ -46,12 +46,14 @@ void ALightSensorEvent::clearHits()
     }
 }
 
-bool ALightSensorEvent::checkSensorHit(int ipm, double time, int iWave, double x, double y, double angle, int numTransitions, double rnd)
+bool ALightSensorEvent::checkSensorHit(int ipm, double time, int iWave, double x, double y, double angle, int numTransitions, int iSensorMat, double rnd)
 {
     const ASensorModel * model = SensorHub.sensorModelFast(ipm); // already checked
-    double detectionProb = model->getPDE(iWave);
-    detectionProb *= model->getAngularFactor(angle); // angle is undefined if model has no angular sensitivity data (then always returns 1.0)
+
+    double detectionProb = model->getPDE(iWave, iSensorMat);
+    detectionProb *= model->getAngularFactor(angle, iSensorMat); // angle is undefined if model has no angular sensitivity data (then always returns 1.0)
     detectionProb *= model->getAreaFactor(x, y);
+
     if (rnd > detectionProb) return false; //random number is provided by the tracker (accelerator mechanics!)
 
     if (!model->SiPM)

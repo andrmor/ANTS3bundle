@@ -85,7 +85,7 @@ private:
     ASensorHub& operator=(const ASensorHub&) = delete;
     ASensorHub& operator=(ASensorHub&&)      = delete;
 
-private:  // !!!*** -> public
+private:  // --> public?
     std::vector<ASensorModel> Models;
 
 public:

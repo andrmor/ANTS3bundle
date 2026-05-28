@@ -23,7 +23,7 @@ public:
     void clearHits();
     bool isHitsEmpty() const;
 
-    bool checkSensorHit(int ipm, double time, int iWave, double x, double y, double angle, int numTransitions, double rnd);
+    bool checkSensorHit(int ipm, double time, int iWave, double x, double y, double angle, int numTransitions, int iSensorMat, double rnd);
 
     void  addDarkCounts();
     void  convertHitsToSignals();

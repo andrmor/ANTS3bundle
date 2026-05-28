@@ -145,6 +145,8 @@ private slots:
 
     void on_pbChooseSensorSigFile_clicked();
     void on_sbSensorTableColumns_editingFinished();
+    void on_cbSensorTableSwap_clicked();
+    void on_cbSensorTableHideIndex_clicked();
     void on_pbUpdateSensorIndication_clicked();
     void on_pbSensorStatIndividual_clicked();
     void on_pbSensorStatGroup_clicked();

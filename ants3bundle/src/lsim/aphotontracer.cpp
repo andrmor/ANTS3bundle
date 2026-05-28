@@ -1012,7 +1012,7 @@ void APhotonTracer::processSensorHit(int iSensor)
          (SimSet.RunSet.SaveSensorLog && SimSet.RunSet.SensorLogAngle) ) angle = TMath::ACos(cosAngle)*180.0/3.1415926535;
 
     if (SimSet.OptSet.TracingMode != APhotOptSettings::CheckQeBefore) Rnd = RandomHub.uniform(); // else already have a value
-    bool bDetected = Event.checkSensorHit(iSensor, Photon.time, Photon.waveIndex, local[0], local[1], angle, TransitionCounter, Rnd);
+    bool bDetected = Event.checkSensorHit(iSensor, Photon.time, Photon.waveIndex, local[0], local[1], angle, TransitionCounter, MatIndexTo, Rnd);
 
     //if (bDetected && SimSet.RunSet.SaveSensorLog)
     if (SimSet.RunSet.SaveSensorLog)

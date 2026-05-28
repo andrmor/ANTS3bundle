@@ -6,6 +6,7 @@
 #include "afiletools.h"
 #include "agraphbuilder.h"
 #include "aphotonsimhub.h"
+#include "amaterialhub.h"
 
 #include <QDoubleValidator>
 #include <QDebug>
@@ -31,6 +32,10 @@ ASensorWindow::ASensorWindow(QWidget *parent) :
     foreach(QLineEdit * w, list) if (w->objectName().startsWith("lep")) w->setValidator(dvp);
 
     ui->cbGains_ShowTable->setChecked(false);
+
+    ui->frSiPM->setVisible(ui->cobSensorType->currentIndex() == 1);
+
+    on_cobPDEmodel_currentIndexChanged(ui->cobPDEmodel->currentIndex());
 
     CellValidator = new QDoubleValidator(this);
     CellValidator->setBottom(0);
@@ -60,8 +65,6 @@ void ASensorWindow::updateGui()
 
     ui->cobAssignmentMode->setCurrentIndex(SensHub.isPersistentModelAssignment() ? 1 : 0);
 
-    onMaterialsChanged();
-
     updateGains();
 }
 
@@ -83,7 +86,17 @@ void ASensorWindow::updateModelGui()
         ui->lepPixelSpacingY->setText(QString::number(mod->PixelSpacingY));
         updateNumPixels();
 
+        int modIndex = mod->PDE_model;
+        if (modIndex < 0 || modIndex >= ui->cobPDEmodel->count())
+        {
+            qWarning() << "Unknown PDE model index" << modIndex;
+            modIndex = 0;
+        }
+        ui->cobPDEmodel->setCurrentIndex(modIndex);
+
         ui->ledEffectivePDE->setText( QString::number(mod->PDE_effective) );
+
+        ui->ledAngularWave->setText( QString::number(mod->Angular_Wavelength) );
 
         ui->lepAreaStepX->setText(QString::number(mod->StepX));
         ui->lepAreaStepY->setText(QString::number(mod->StepY));
@@ -115,14 +128,6 @@ void ASensorWindow::updateModelGui()
     updateAreaButtons();
 
     updatePhElToSigButtons();
-}
-
-#include "amaterialhub.h"
-void ASensorWindow::onMaterialsChanged()
-{
-    ui->cobMaterialForPDE->clear();
-    QStringList list = AMaterialHub::getConstInstance().getListOfMaterialNames();
-    ui->cobMaterialForPDE->addItems(list);
 }
 
 void ASensorWindow::on_cobModel_activated(int)
@@ -165,7 +170,7 @@ void ASensorWindow::updateHeader()
 
 void ASensorWindow::on_cobSensorType_currentIndexChanged(int index)
 {
-    ui->frSiPM->setEnabled(index == 1);
+    ui->frSiPM->setVisible(index == 1);
 }
 
 void ASensorWindow::on_pbAddNewModel_clicked()
@@ -338,7 +343,6 @@ void ASensorWindow::updatePdeButtons()
 
     ui->pbShowPDE->setEnabled(enabled);
     ui->pbRemovePDE->setEnabled(enabled);
-    ui->pbShowBinnedPDE->setEnabled(enabled);
 }
 
 void ASensorWindow::updateAngularButtons()
@@ -351,7 +355,7 @@ void ASensorWindow::updateAngularButtons()
 
     ui->pbShowAngular->setEnabled(enabled);
     ui->pbRemoveAngular->setEnabled(enabled);
-    ui->pbShowBinnedAngular->setEnabled(enabled);
+    ui->frAngularWave->setVisible(enabled && ui->cobPDEmodel->currentIndex() == 1);
 }
 
 void ASensorWindow::updateAreaButtons()
@@ -364,8 +368,7 @@ void ASensorWindow::updateAreaButtons()
 
     ui->pbShowArea->setEnabled(enabled);
     ui->pbRemoveArea->setEnabled(enabled);
-    ui->lepAreaStepX->setEnabled(enabled);
-    ui->lepAreaStepY->setEnabled(enabled);
+    ui->frAreaSteps->setVisible(enabled);
 }
 
 void ASensorWindow::on_pbLoadPDE_clicked()
@@ -417,25 +420,6 @@ void ASensorWindow::on_pbShowPDE_clicked()
     emit requestDraw(gr, "APL", true, true);
 }
 
-void ASensorWindow::on_pbShowBinnedPDE_clicked()
-{
-    int iModel = ui->cobModel->currentIndex();
-    ASensorModel * mod = SensHub.model(iModel);
-    if (!mod) return;
-    if (mod->PDE_spectral.empty()) return;
-
-    mod->updateRuntimeProperties();
-
-    const APhotonSimSettings SimSet = APhotonSimHub::getConstInstance().Settings;
-    std::vector<double> wave;
-    SimSet.WaveSet.getWavelengthBins(wave);
-
-    TGraph * gr = AGraphBuilder::graph(wave, mod->PDEbinned);
-    AGraphBuilder::configure(gr, QString("Binned PDE, model%0").arg(iModel), "Wavelength, nm", "PDE", 4, 20, 1, 4);
-    gr->SetMinimum(0);
-    emit requestDraw(gr, "APL", true, true);
-}
-
 void ASensorWindow::on_pbShowAngular_clicked()
 {
     int iModel = ui->cobModel->currentIndex();
@@ -479,22 +463,6 @@ void ASensorWindow::on_pbRemoveAngular_clicked()
 
     mod->AngularFactors.clear();
     updateAngularButtons();
-}
-void ASensorWindow::on_pbShowBinnedAngular_clicked()
-{
-    int iModel = ui->cobModel->currentIndex();
-    ASensorModel * mod = SensHub.model(iModel);
-    if (!mod) return;
-    if (mod->AngularFactors.empty()) return;
-
-    mod->updateRuntimeProperties();
-
-    std::vector<double> angles;
-    for (int i = 0; i < 91; i++) angles.push_back(i);
-
-    TGraph * gr = AGraphBuilder::graph(angles, mod->AngularBinned);
-    AGraphBuilder::configure(gr, QString("Binned angular sensitivity, model%0").arg(iModel), "Incidence angle, deg", "Sensitivity factor", 4, 20, 1, 4);
-    emit requestDraw(gr, "APL", true, true);
 }
 
 void ASensorWindow::on_pbShowArea_clicked()
@@ -589,7 +557,7 @@ void ASensorWindow::on_pbShowPixelMap_clicked()
 
      TH2D * h = new TH2D("", "", numX, -0.5*fullSizeX, 0.5*fullSizeX,   numY, -0.5*fullSizeY, 0.5*fullSizeY);
 
-     mod->updateRuntimeProperties(); // to enable mod->getPixelHit()
+     mod->updateRuntimeProperties(std::vector<int>()); // to enable mod->getPixelHit()
 
      size_t binX = -1;
      size_t binY = -1;
@@ -798,7 +766,7 @@ void ASensorWindow::on_pbTestPhElSignal_clicked()
     ASensorModel * mod = SensHub.model(iModel);
     if (!mod) return;
 
-    QString err = mod->updateRuntimeProperties();
+    QString err = mod->updateRuntimeProperties(std::vector<int>());
     if (!err.isEmpty())
     {
         guitools::message(err, this);
@@ -865,7 +833,23 @@ void ASensorWindow::on_pbCompteEffectivePDE_clicked()
         return;
     }
 
-    int iMat = ui->cobMaterialForPDE->currentIndex();
+    QDialog dia(this);
+    dia.setWindowTitle("Estimate effective PDE");
+    QVBoxLayout * mainLay = new QVBoxLayout(&dia);
+        QHBoxLayout * lay = new QHBoxLayout();
+            lay->addWidget(new QLabel("Primary scintillation from"));
+            QComboBox * cobMats = new QComboBox();
+            cobMats->addItems(AMaterialHub::getInstance().getListOfMaterialNames());
+            lay->addWidget(cobMats);
+        mainLay->addLayout(lay);
+            QPushButton * pbEst = new QPushButton("Compute mean PDE");
+            connect(pbEst, &QPushButton::clicked, &dia, &QDialog::accept);
+        mainLay->addWidget(pbEst);
+
+    int res = dia.exec();
+    if (res == QDialog::Rejected) return;
+
+    int iMat = cobMats->currentIndex();
     AMaterialHub & MatHub = AMaterialHub::getInstance();
     if (iMat < 0 || iMat >= MatHub.countMaterials() )
     {
@@ -1118,3 +1102,142 @@ void ASensorWindow::on_actionLoad_sensor_triggered()
     ui->cobModel->setCurrentIndex(index);
     onModelIndexChanged();
 }
+
+void ASensorWindow::on_pbShowPDE_customContextMenuRequested(const QPoint &)
+{
+    int iModel = ui->cobModel->currentIndex();
+    ASensorModel * mod = SensHub.model(iModel);
+    if (!mod) return;
+    if (mod->PDE_spectral.empty()) return;
+
+    //mod->updateRuntimeProperties(std::vector<int>());
+    AMaterialHub::getInstance().updateRuntimeProperties();
+    ASensorHub::getInstance().updateRuntimeProperties();
+
+    const APhotonSimSettings SimSet = APhotonSimHub::getConstInstance().Settings;
+    std::vector<double> wave;
+    SimSet.WaveSet.getWavelengthBins(wave);
+
+    if (ui->cobPDEmodel->currentIndex() == 0)
+    {
+        TGraph * gr = AGraphBuilder::graph(wave, mod->PDEbinned);
+        AGraphBuilder::configure(gr, QString("BinnedPDE_mod%0").arg(iModel), "Wavelength, nm", "PDE", 4, 20, 1, 4);
+        gr->SetMinimum(0);
+        emit requestDraw(gr, "APL", true, true);
+    }
+    else
+    {
+        for (size_t i = 0; i < mod->_InterfaceAwarePDE.size(); i++)
+        {
+            int iMat = mod->_InterfaceAwarePDE[i].first;
+
+            TGraph * gr = new TGraph();
+            for (size_t iWave = 0; iWave < wave.size(); iWave++)
+            {
+                double pde = mod->PDEbinned[iWave] * mod->_InterfaceAwarePDE[i].second.PdeBinnedFactor[iWave];
+                gr->AddPoint(wave[iWave], pde);
+            }
+            AGraphBuilder::configure(gr, QString("BinnedPDE_%0").arg(AMaterialHub::getConstInstance().getMaterialName(iMat)), "Wavelength, nm", "PDE", 4, 20, 1, 4);
+            gr->SetMinimum(0);
+            emit requestDraw(gr, (i == 0 ? "APL" : "PLsame"), true, true);
+        }
+    }
+}
+
+void ASensorWindow::on_pbShowAngular_customContextMenuRequested(const QPoint &)
+{
+    int iModel = ui->cobModel->currentIndex();
+    ASensorModel * mod = SensHub.model(iModel);
+    if (!mod) return;
+    if (mod->AngularFactors.empty()) return;
+
+    //mod->updateRuntimeProperties(std::vector<int>());
+    AMaterialHub::getInstance().updateRuntimeProperties();
+    ASensorHub::getInstance().updateRuntimeProperties();
+
+    std::vector<double> angles;
+    size_t bins = mod->AngularBinned.size();
+    for (size_t i = 0; i < mod->AngularBinned.size(); i++) angles.push_back(i * 90.0 / (bins - 1));
+
+    if ( ui->cobPDEmodel->currentIndex() == 0)
+    {
+        TGraph * gr = AGraphBuilder::graph(angles, mod->AngularBinned);
+        AGraphBuilder::configure(gr, QString("Binned angular sensitivity, model%0").arg(iModel), "Incidence angle, deg", "Sensitivity factor", 4, 20, 1, 4);
+        gr->SetMinimum(0);
+        emit requestDraw(gr, "APL", true, true);
+    }
+    else
+    {
+        for (size_t i = 0; i < mod->_InterfaceAwarePDE.size(); i++)
+        {
+            int iMat = mod->_InterfaceAwarePDE[i].first;
+            TGraph * gr = AGraphBuilder::graph(angles, mod->_InterfaceAwarePDE[i].second.AngularBinned);
+            AGraphBuilder::configure(gr, QString("BinSens_mat%1_mod%0").arg(iModel).arg(iMat), "Refracted angle, deg", "Sensitivity factor", 4, 20, 1, 4);
+            gr->SetMinimum(0);
+            emit requestDraw(gr, (i == 0 ? "APL" : "PLsame"), true, true);
+
+            gr = AGraphBuilder::graph(mod->_InterfaceAwarePDE[i].second.AngularRefracted);
+            AGraphBuilder::configure(gr, QString("Sens_mat%1_mod%0").arg(iModel).arg(iMat), "Refracted angle, deg", "Sensitivity factor", 2, 31, 1, 2);
+            gr->SetMinimum(0);
+            emit requestDraw(gr, "Psame", true, true);
+        }
+    }
+}
+
+void ASensorWindow::on_pbHelpPDEmodeling_clicked()
+{
+    QString txt = "Photon detection check is triggered when photon _enters_ a sensor.\n"
+                  "Thus the photon first has to pass the interface:\n"
+                  "taking into account the defined custom interface rules, and,\n"
+                  "if the materials of the sensor and of the surrounding medium have different refractive indexes, "
+                  "pass the reflection test based on Fresnel equations.\n"
+                  "\n"
+        "The PDE is computer as a multiplication of three factors (all except the 'Effective PDE' are optional):\n"
+        "1) Base PDE, which is the Effective PDE for photons with waveindex of -1, "
+        "or computed from the spectral PDE data (in case the waveindex is not -1 and the spectral data are provided by the user).\n"
+        "2) Angular factor (if provided by the user), typically of unity at the normal incidence, and describing the sensor n"
+        "response as a function of the _refracted_ angle.\n"
+        "3) Area factor, descriping the spatial response (over the sensor active area, also if provided by the user)\n"
+        "\n"
+        "The user can also select either the 'Simplistic' or 'Account for the interface' PDE model.\n"
+
+        "\n'Simplistic' model does not apply any corrections and the data are used exactly as provided by the user.\n"
+        "One of the cases where this is an adequate model is when the sensor material is set to be the same "
+        "as that of the surrounding medium. In this case the angles of incidence and refraction are the same, and if the material "
+        "is air, the measured angular response can be directly used.\n"
+        "Be careful in the case when the reflected light from the sensor is important, as in this case there will be none!\n"
+        "\n'Account for the interface model' is intended for the case when the medium in front of the sensor is not the same as that of the sensor, "
+        "and, expecially, when the sensor is not in air.\n"
+        "The model assumes that all provided PDE-related data were measured in air, and automatically correct for the fraction of light which was reflected "
+        "during the measurements from the sensor interface.\n"
+        "The angular dependence also is converted from insidence to refracted angle: righ-click on the 'Show' button will plot a graph of the computed angular factor vs refracted angle.\n"
+        "Due to air->material transition, the refracted angle data lack large angle values. Therefore, the largest-angle non-zero value is "
+        "assigned for all angles with missing data.";
+    guitools::message(txt, this);
+}
+
+void ASensorWindow::on_ledAngularWave_editingFinished()
+{
+    int iModel = ui->cobModel->currentIndex();
+    ASensorModel * mod = SensHub.model(iModel);
+    if (!mod) return;
+
+    mod->Angular_Wavelength = ui->ledAngularWave->text().toDouble();
+}
+
+void ASensorWindow::on_cobPDEmodel_activated(int index)
+{
+    int iModel = ui->cobModel->currentIndex();
+    ASensorModel * mod = SensHub.model(iModel);
+    if (!mod) return;
+
+    mod->PDE_model = index;
+    updateAngularButtons();
+}
+void ASensorWindow::on_cobPDEmodel_currentIndexChanged(int index)
+{
+    ui->labInAir1->setVisible(index == 1);
+    ui->labInAir2->setVisible(index == 1);
+    ui->labInAir3->setVisible(index == 1);
+}
+
