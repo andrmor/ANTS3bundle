@@ -1211,7 +1211,7 @@ void ASensorWindow::on_pbHelpPDEmodeling_clicked()
         "The model assumes that all provided PDE-related data were measured in air, and automatically correct for the fraction of light which was reflected "
         "during the measurements from the sensor interface.\n"
         "The angular dependence also is converted from insidence to refracted angle: righ-click on the 'Show' button will plot a graph of the computed angular factor vs refracted angle.\n"
-        "Due to air->material transition, the refracted angle data lack large angle values. Therefore, the largest-angle non-zero binned value is "
+        "Due to air->material transition, the refracted angle data lack large angle values. Therefore, the largest-angle non-zero value is "
         "assigned for all angles with missing data.";
     guitools::message(txt, this);
 }

@@ -556,6 +556,35 @@ void ASensorModel::updateInterfaceAwareRuntimeProps(const std::vector<int> & see
             double nSensor; // need use the value at the wavelength of th emeasurement
             if (SimSet.WaveSet.Enabled) nSensor = MatHub[iMat]->getRefractiveIndex(iWave);
             else                        nSensor = MatHub[iMat]->RefIndex;
+
+            // for GUI and to get the last non-zero value
+            double maxRefractedAngle = 0;
+            double maxValue = 0;
+            props.AngularRefracted.resize(AngularFactors.size());
+            for (size_t i = 0; i < AngularFactors.size(); i++)
+            {
+                double insAngle = AngularFactors[i].first;
+                double sinI = sin(insAngle * 3.1415926535/180.0);
+                double sinR = 1.0 * sinI / nSensor;
+                props.AngularRefracted[i].first = asin(sinR) * 180.0/3.1415926535; // refracted angle
+
+                double cosI = sqrt(1.0 - sinI * sinI);
+                double cosR = sqrt(1.0 - sinR * sinR);
+                double Rs = (1.0*cosI - nSensor*cosR) / (1.0*cosI + nSensor*cosR); Rs *= Rs;
+                double Rp = (1.0*cosR - nSensor*cosI) / (1.0*cosR + nSensor*cosI); Rp *= Rp;
+                double R = 0.5 * (Rs + Rp);
+                double factor;
+                if (R < 1.0) factor = 1.0 / (1.0 - R) / factorAtNormal;
+                else         factor = 0;
+                props.AngularRefracted[i].second = AngularFactors[i].second * factor;
+
+                if (props.AngularRefracted[i].second > 0)
+                {
+                    maxRefractedAngle = props.AngularRefracted[i].first;
+                    maxValue = props.AngularRefracted[i].second;
+                }
+            }
+
             std::vector<std::pair<double,double>> dataAngular(_NumAngularBins);
             for (int i = 0; i < _NumAngularBins; i++)
             {
@@ -567,20 +596,27 @@ void ASensorModel::updateInterfaceAwareRuntimeProps(const std::vector<int> & see
                 dataAngular[i].first = asin(sinR) * 180.0/3.1415926535; // refracted angle
                 //qDebug() << insAngle << "-->" << dataAngular[i].first;
 
-                // Fresnel:
-                // Rs = ((n1*cosI - n2*cosR)/(n1*cosI + n2*cosR))^2
-                // Rp = ((n1*cosR - n2*cosI)/(n1*cosR + n2*cosI))^2
-                // R = 0.5*(Rs+Rp)
-                double cosI = sqrt(1.0 - sinI * sinI);
-                double cosR = sqrt(1.0 - sinR * sinR);
-                double Rs = (1.0*cosI - nSensor*cosR) / (1.0*cosI + nSensor*cosR); Rs *= Rs;
-                double Rp = (1.0*cosR - nSensor*cosI) / (1.0*cosR + nSensor*cosI); Rp *= Rp;
-                double R = 0.5 * (Rs + Rp);
-                double factor;
-                if (R < 1.0) factor = 1.0 / (1.0 - R) / factorAtNormal;
-                else         factor = 0;
-                //qDebug() << insAngle << cosI << cosR << "R" << R << "factor:" << factor;
-                dataAngular[i].second = AngularBinned[i] * factor;
+                if (dataAngular[i].first > maxRefractedAngle)
+                {
+                    dataAngular[i].second = maxValue;
+                }
+                else
+                {
+                    // Fresnel:
+                    // Rs = ((n1*cosI - n2*cosR)/(n1*cosI + n2*cosR))^2
+                    // Rp = ((n1*cosR - n2*cosI)/(n1*cosR + n2*cosI))^2
+                    // R = 0.5*(Rs+Rp)
+                    double cosI = sqrt(1.0 - sinI * sinI);
+                    double cosR = sqrt(1.0 - sinR * sinR);
+                    double Rs = (1.0*cosI - nSensor*cosR) / (1.0*cosI + nSensor*cosR); Rs *= Rs;
+                    double Rp = (1.0*cosR - nSensor*cosI) / (1.0*cosR + nSensor*cosI); Rp *= Rp;
+                    double R = 0.5 * (Rs + Rp);
+                    double factor;
+                    if (R < 1.0) factor = 1.0 / (1.0 - R) / factorAtNormal;
+                    else         factor = 0;
+                    //qDebug() << insAngle << cosI << cosR << "R" << R << "factor:" << factor;
+                    dataAngular[i].second = AngularBinned[i] * factor;
+                }
             }
 
             //qDebug() << "Angular for" << MatHub.getMaterialName(iMat) << dataAngular;
@@ -599,25 +635,7 @@ void ASensorModel::updateInterfaceAwareRuntimeProps(const std::vector<int> & see
             }
             //qDebug() << "AngularBinned: " << props.AngularBinned;
 
-            // Only affects GUI:
-            props.AngularRefracted.resize(AngularFactors.size());
-            for (size_t i = 0; i < AngularFactors.size(); i++)
-            {
-                double insAngle = AngularFactors[i].first;
-                double sinI = sin(insAngle * 3.1415926535/180.0);
-                double sinR = 1.0 * sinI / nSensor;
-                props.AngularRefracted[i].first = asin(sinR) * 180.0/3.1415926535; // refracted angle
 
-                double cosI = sqrt(1.0 - sinI * sinI);
-                double cosR = sqrt(1.0 - sinR * sinR);
-                double Rs = (1.0*cosI - nSensor*cosR) / (1.0*cosI + nSensor*cosR); Rs *= Rs;
-                double Rp = (1.0*cosR - nSensor*cosI) / (1.0*cosR + nSensor*cosI); Rp *= Rp;
-                double R = 0.5 * (Rs + Rp);
-                double factor;
-                if (R < 1.0) factor = 1.0 / (1.0 - R) / factorAtNormal;
-                else         factor = 0;
-                props.AngularRefracted[i].second = AngularFactors[i].second * factor;
-            }
         }
     }
 
