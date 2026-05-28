@@ -13,6 +13,8 @@ public:
     double              EffectivePdeFactor = 1.0;
     std::vector<double> PdeBinnedFactor;
     std::vector<double> AngularBinned;
+
+    std::vector<std::pair<double,double>> AngularRefracted; // used only for visualisation
 };
 
 class ASensorModel
