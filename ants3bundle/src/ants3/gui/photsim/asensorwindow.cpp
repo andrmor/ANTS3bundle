@@ -1212,7 +1212,8 @@ void ASensorWindow::on_pbHelpPDEmodeling_clicked()
         "during the measurements from the sensor interface.\n"
         "The angular dependence also is converted from insidence to refracted angle: righ-click on the 'Show' button will plot a graph of the computed angular factor vs refracted angle.\n"
         "Due to air->material transition, the refracted angle data lack large angle values. Therefore, the largest-angle non-zero value is "
-        "assigned for all angles with missing data.";
+        "assigned for all angles with missing data.\n\n"
+        "See test config: General/Optical sim/SensorPdeModelTester.json";
     guitools::message(txt, this);
 }
 
