@@ -1242,3 +1242,81 @@ void ASensorWindow::on_cobPDEmodel_currentIndexChanged(int index)
     ui->labInAir3->setVisible(index == 1);
 }
 
+#include "TPaveText.h"
+void ASensorWindow::on_pbCheckTimeFraction_clicked()
+{
+    int iSensorModel = ui->cobModel->currentIndex();
+    if (iSensorModel < 0 || iSensorModel >= SensHub.countModels())
+    {
+        guitools::message("Sensor model does not exist!", this);
+        return;
+    }
+
+    double inteTime = ui->lepIntegrationTime->text().toDouble() * 1e9; // in ns
+    if (inteTime == 0)
+    {
+        guitools::message("Use non-zero integration time", this);
+        return;
+    }
+
+    QDialog dia(this);
+    dia.setWindowTitle("Photon fraction estimator");
+    QVBoxLayout * mainLay = new QVBoxLayout(&dia);
+    QHBoxLayout * lay = new QHBoxLayout();
+    lay->addWidget(new QLabel("Primary scintillation from"));
+    QComboBox * cobMats = new QComboBox();
+    cobMats->addItems(AMaterialHub::getInstance().getListOfMaterialNames());
+    lay->addWidget(cobMats);
+    mainLay->addLayout(lay);
+    QPushButton * pbEst = new QPushButton("Compute fraction of photons within integration time");
+    connect(pbEst, &QPushButton::clicked, &dia, &QDialog::accept);
+    mainLay->addWidget(pbEst);
+
+    int res = dia.exec();
+    if (res == QDialog::Rejected) return;
+
+    int iMat = cobMats->currentIndex();
+    AMaterialHub & MatHub = AMaterialHub::getInstance();
+    if (iMat < 0 || iMat >= MatHub.countMaterials() )
+    {
+        guitools::message("Material does not exist!", this);
+        return;
+    }
+    if (MatHub[iMat]->PrimarySpectrum.empty())
+    {
+        guitools::message(QString("Primary scintillation emission spectrum is not defined for the selected material"), this);
+        return;
+    }
+
+    MatHub[iMat]->updateRuntimeOpticalProperties();
+
+    TH1D * h = new TH1D("", "", 100,0,0);
+    const size_t numPhot = 100000;
+    size_t inside = 0;
+    double delta = 1.0 / numPhot;
+    for (size_t iPh = 0; iPh < numPhot; iPh++)
+    {
+        double time = MatHub[iMat]->generatePrimScintTime(ARandomHub::getInstance());
+        h->Fill(time, delta);
+        if (time < inteTime) inside++;
+    }
+    double fraction = 1.0 * inside / numPhot;
+
+    h->GetXaxis()->SetTitle("Time, ns");
+    emit requestDraw(h, "hist", true, true);
+
+    TPaveText * la = new TPaveText(0.3, 0.5, 0.7, 0.6, "NDC");
+    la->SetFillColor(0);
+    la->SetBorderSize(1);
+    la->SetLineColor(1);
+    int alignLeftCenterRight = 0;
+    la->SetTextAlign( (alignLeftCenterRight + 1) * 10 + 2);
+    la->AddText("Fraction of photons emitted");
+
+    QString frtxt = QString::number(fraction, 'g', 4);
+    TString txt = "  within the integration time: " + TString(frtxt.toLatin1().data());
+    qDebug() << txt;
+    la->AddText(txt);
+    emit requestDraw(la, "same", true, true);
+}
+
