@@ -1149,8 +1149,15 @@ A matrix of area factors, lines and columns representing X and Y direction, resp
              </item>
              <item>
               <widget class="QPushButton" name="pbCheckTimeFraction">
+               <property name="contextMenuPolicy">
+                <enum>Qt::ContextMenuPolicy::CustomContextMenu</enum>
+               </property>
                <property name="toolTip">
-                <string>Estimate mean number of scintillation photons emitted within the specified integration time.
+                <string>Left-click:
+Show probability distribution of detecting n dark counts;
+
+Right-click:
+Estimate mean number of scintillation photons emitted within the specified integration time.
 If this number is &lt;&lt; 1, consider either configuring 'signal per ph.e-' conversion factor or using photo sensor log for precise control</string>
                </property>
                <property name="text">

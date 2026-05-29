@@ -1242,8 +1242,50 @@ void ASensorWindow::on_cobPDEmodel_currentIndexChanged(int index)
     ui->labInAir3->setVisible(index == 1);
 }
 
-#include "TPaveText.h"
 void ASensorWindow::on_pbCheckTimeFraction_clicked()
+{
+
+    double darkRate = ui->lepDarkRate->text().toDouble(); // [s-1]
+    if (darkRate == 0)
+    {
+        guitools::message("Define dark count rate", this);
+        return;
+    }
+
+    double inteTime = ui->lepIntegrationTime->text().toDouble(); // [s]
+    if (inteTime == 0)
+    {
+        guitools::message("Use non-zero integration time", this);
+        return;
+    }
+
+    double mean = darkRate * inteTime;
+
+    int min = 0; int max = 0;
+    for (size_t iPh = 0; iPh < 10000; iPh++)
+    {
+        int val = ARandomHub::getInstance().poisson(mean);
+        if (val < min) min = val;
+        if (val > max) max = val;
+    }
+
+    TH1D * h = new TH1D("", "", max-min,min,max);
+    const size_t num = 100000;
+    double delta = 1.0 / num;
+    for (size_t iPh = 0; iPh < num; iPh++)
+    {
+        int val = ARandomHub::getInstance().poisson(mean);
+        h->Fill(val+0.01, delta);
+    }
+
+    h->SetLineWidth(2);
+    h->GetXaxis()->SetTitle("Number of dark counts per event");
+    h->GetYaxis()->SetTitle("Probability");
+    emit requestDraw(h, "hist", true, true);
+}
+
+#include "TPaveText.h"
+void ASensorWindow::on_pbCheckTimeFraction_customContextMenuRequested(const QPoint &)
 {
     int iSensorModel = ui->cobModel->currentIndex();
     if (iSensorModel < 0 || iSensorModel >= SensHub.countModels())

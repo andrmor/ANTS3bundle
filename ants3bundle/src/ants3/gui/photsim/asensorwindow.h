@@ -110,6 +110,8 @@ private slots:
 
     void on_pbCheckTimeFraction_clicked();
 
+    void on_pbCheckTimeFraction_customContextMenuRequested(const QPoint &pos);
+
 private:
     ASensorHub & SensHub;
     Ui::ASensorWindow * ui = nullptr;
