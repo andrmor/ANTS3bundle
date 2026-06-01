@@ -503,7 +503,8 @@ void SessionManager::writeNewEventMarker()
                  outStreamHistory->write((char*)&CurrentEvent, sizeof(int));
             }
             else
-                *outStreamHistory << EventId.data() << '\n';
+                //*outStreamHistory << EventId.data() << '\n';
+                tmpOutStream << EventId.data() << '\n';
         }
 
     if (outStreamExit)
@@ -623,7 +624,8 @@ void SessionManager::saveTrackStart(int trackID, int parentTrackID,
         ss << volName << ' ';
         ss << volIndex;
 
-        *outStreamHistory << ss.rdbuf() << '\n';
+        //*outStreamHistory << ss.rdbuf() << '\n';
+        tmpOutStream << ss.rdbuf() << '\n';
     }
 
 }
@@ -700,7 +702,8 @@ void SessionManager::saveTrackRecord(const std::string & procName,
                 ss << ' ' << isec;
         }
 
-        *outStreamHistory << ss.rdbuf() << '\n';
+        //*outStreamHistory << ss.rdbuf() << '\n';
+        tmpOutStream << ss.rdbuf() << '\n';
     }
 }
 

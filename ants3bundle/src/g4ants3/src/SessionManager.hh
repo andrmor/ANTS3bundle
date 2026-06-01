@@ -141,7 +141,6 @@ private:
     private:
         std::ofstream * outStreamDeposition     = nullptr;
         std::ofstream * outStreamCalorimeterLog = nullptr;
-        std::ofstream * outStreamHistory        = nullptr;
         std::ofstream * outStreamExit           = nullptr;
 
         std::map<std::string, int> ElementToZ;
@@ -153,6 +152,13 @@ private:
         //to report back to ants2
         bool bError;
         std::string ErrorMessage;
+
+    public:
+        int tmpId = 0;
+        std::ofstream * outStreamHistory        = nullptr;
+        std::stringstream tmpOutStream;
+        bool bSaveTmpStream = false;
+
 };
 
 #endif // SESSIONMANAGER_H
