@@ -31,7 +31,9 @@ void TrackingAction::PreUserTrackingAction(const G4Track *track)
 
     if (track->GetParticleDefinition() != G4Gamma::Definition()) return;
     const double energy = track->GetKineticEnergy() / keV;
-    if (energy < 510.0 || energy > 512.0) return;
+    //if (energy < 510.0 || energy > 512.0) return;
+    if (energy < 1519.0 || energy > 1521.0) return;
+
     //qDebug() << "Pass!";
     SM.bSaveTmpStream = true;
 }
