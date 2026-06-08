@@ -598,11 +598,12 @@ void AGeometryWindow::showText(const std::vector<QString> & textVec, int color, 
 
     GeoWriter.setOrientationRoot(p.Lat, p.Long/*, p.Psi*/);
 
+    if (bFullCycle) ShowGeometry(false);
+
     GeoWriter.drawText(textVec, color, onWhat);
 
     if (bFullCycle)
     {
-        ShowGeometry(false);
         Geometry.GeoManager->DrawTracks();
         UpdateRootCanvas();
     }
