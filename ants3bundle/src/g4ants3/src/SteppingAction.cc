@@ -128,7 +128,8 @@ void SteppingAction::UserSteppingAction(const G4Step *step)
     const G4ThreeVector & pos = step->GetPostStepPoint()->GetPosition();
     const double time = step->GetPostStepPoint()->GetGlobalTime()/ns;
     const double kinE = step->GetPostStepPoint()->GetKineticEnergy()/keV;
-    const double depo = step->GetTotalEnergyDeposit()/keV;
+    double depo = step->GetTotalEnergyDeposit()/keV;
+    if (std::fpclassify(depo) == FP_SUBNORMAL) depo = 0; // it seems there is a bug in Geant4. Sometimes a number appears like 3.75e-311  Probably authors miss if only saved in MeV
 
     const std::vector<int> * secondaries = nullptr;
     const int numSec = step->GetNumberOfSecondariesInCurrentStep();
