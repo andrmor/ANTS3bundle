@@ -21,8 +21,8 @@ void ATrackingHistoryCrawler::find(const AFindRecordSelector & criteria, AHistor
     connect(&Timer, &QTimer::timeout, this, [this](){emit reportProgress(NumEventsProcessed);});
     Timer.start();
 
-    if (numThreads < 1) findSingleThread(criteria, processor);
-    else                findMultithread(criteria, processor, numThreads, eventsPerThread);
+    if (numThreads <= 1) findSingleThread(criteria, processor);
+    else                 findMultithread(criteria, processor, numThreads, eventsPerThread);
 
     Timer.stop();
 }
