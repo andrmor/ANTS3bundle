@@ -17,7 +17,8 @@ public:
     explicit AParticleSourceDialogBase(QWidget * parent = nullptr);
     virtual ~AParticleSourceDialogBase(){}
 
-    virtual AParticleSourceRecordBase * getResult() = 0;
+    virtual AParticleSourceRecordBase * getResult() = 0;     // returns copy
+    virtual AParticleSourceRecordBase * borrowResult() = 0;  // returns reference
 
     static AParticleSourceDialogBase * factory(AParticleSourceRecordBase * source, QWidget * parent);
 
@@ -27,7 +28,7 @@ protected:
 
 signals:
     void requestTestParticleGun(AParticleGun * gun, int num, bool fillStatistics);
-    void sourceRecordChangedInEditMode(AParticleSourceRecordBase * sourceRecord);
+    void sourceRecordChanged();
     void requestDraw(TObject * obj, QString options, bool transferOwnership, bool focusWindow);
 
 };

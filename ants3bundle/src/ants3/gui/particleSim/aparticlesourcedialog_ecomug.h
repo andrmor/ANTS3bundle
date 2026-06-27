@@ -24,6 +24,7 @@ public:
     ~AParticleSourceDialog_EcoMug();
 
     AParticleSourceRecordBase * getResult() override;
+    AParticleSourceRecordBase * borrowResult() override {return &LocalRec;}
 
 protected:
     virtual void closeEvent(QCloseEvent * e) override;

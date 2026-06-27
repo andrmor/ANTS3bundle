@@ -706,13 +706,11 @@ void AGeometryWindow::showSources()
     {
         if (AParticleSimHub::getInstance().Settings.GenerationMode == AParticleSimSettings::Sources)
         {
-            if (EditedParticleSource)
-            {
-                AParticleSourcePlotter::plotSource(EditedParticleSource);
-            }
+            ASourceGeneratorSettings & simSet = AParticleSimHub::getInstance().Settings.SourceGenSettings;
+            if (simSet.SourceEdit)
+                AParticleSourcePlotter::plotSource(simSet.SourceEdit);
             else
             {
-                ASourceGeneratorSettings & simSet = AParticleSimHub::getInstance().Settings.SourceGenSettings;
                 for (AParticleSourceRecordBase * source : simSet.SourceData)
                 {
                     if (source->Activity == 0) continue;
@@ -842,16 +840,6 @@ void AGeometryWindow::on_pbShowTracks_clicked()
 void AGeometryWindow::onParticleSourcesChanged()
 {
     if (ui->pbShowParticleSources->isChecked()) ShowGeometry(false, true, false);
-}
-
-void AGeometryWindow::onParticleSourceChangedInEditMode(AParticleSourceRecordBase * source)
-{
-    if (ui->pbShowParticleSources->isChecked())
-    {
-        EditedParticleSource = source;
-        ShowGeometry(false, true, false);
-        EditedParticleSource = nullptr;
-    }
 }
 
 void AGeometryWindow::onPhotonSourcesChanged()

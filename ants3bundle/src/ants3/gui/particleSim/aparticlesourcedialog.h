@@ -24,6 +24,7 @@ public:
     ~AParticleSourceDialog();
 
     AParticleSourceRecordBase * getResult() override;
+    AParticleSourceRecordBase * borrowResult() override {return &LocalRec;}
 
 protected:
     virtual void closeEvent(QCloseEvent * e) override;
@@ -79,7 +80,7 @@ private slots:
 
 private:
     AParticleSourceRecord_Standard         LocalRec;
-    const AParticleSourceRecord_Standard & OriginalRec;
+    const AParticleSourceRecord_Standard & OriginalRec; // used to check were there any changes
 
     Ui::AParticleSourceDialog * ui;
 

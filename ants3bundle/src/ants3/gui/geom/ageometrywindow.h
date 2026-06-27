@@ -111,7 +111,6 @@ public slots:
     void onRequestShowAllConnections();
 
     void onParticleSourcesChanged();
-    void onParticleSourceChangedInEditMode(AParticleSourceRecordBase * source);
     void onPhotonSourcesChanged();
 
 private slots:
@@ -179,7 +178,7 @@ private:
     AGeoWriter GeoWriter;
     int LastShowObjectType = 0;
 
-    AParticleSourceRecordBase * EditedParticleSource = nullptr;
+    //AParticleSourceRecordBase * EditedParticleSource = nullptr;
 
 private:
     void redrawWebView(QString extraArguments = "");

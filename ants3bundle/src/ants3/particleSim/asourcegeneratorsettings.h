@@ -42,6 +42,10 @@ public:
     void        replaceGeoConstName(const QRegularExpression & nameRegExp, const QString & newName);
 #endif
 
+    // only GUI - used to draw source during editing its settings
+    int IndexSourceEdit = -1;
+    AParticleSourceRecordBase * SourceEdit = nullptr;
+
 };
 
 #endif // ASOURCEGENERATORSETTINGS_H

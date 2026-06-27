@@ -202,12 +202,7 @@ void AParticleSourceDialog_EcoMug::on_pbUpdateRecord_clicked()
         //LocalRec.Z0 = ui->ledZ->text().toDouble();
     processGeoConstAwareEditFinished(ui->ledZ, LocalRec.Z0Str, LocalRec.Z0, "Center Z", this);
 
-    //if (ui->pbShowSource->isChecked())
-    //{
-        //AParticleSourcePlotter::clearTracks();
-        //AParticleSourcePlotter::plotSource(LocalRec);
-        emit sourceRecordChangedInEditMode(&LocalRec);
-    //}
+    emit sourceRecordChanged();
 }
 
 void AParticleSourceDialog_EcoMug::on_pbRef_clicked()

@@ -577,12 +577,7 @@ void AParticleSourceDialog::on_pbUpdateRecord_clicked()
     updateParticleInfo();
     updateColorLimitingMat();
 
-    //if (ui->pbShowSource->isChecked())
-    //{
-        //AParticleSourcePlotter::clearTracks();
-        //AParticleSourcePlotter::plotSource(LocalRec);
-        emit sourceRecordChangedInEditMode(&LocalRec);
-    //}
+    emit sourceRecordChanged();
 }
 
 void AParticleSourceDialog::on_sbLinkedTo_editingFinished()

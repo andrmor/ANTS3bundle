@@ -517,29 +517,46 @@ void AParticleSimWin::on_pbEditParticleSource_clicked()
     delete ParticleSourceDialog; ParticleSourceDialog = nullptr;
 
     ParticleSourceDialog = AParticleSourceDialogBase::factory(SourceGenSettings.SourceData[isource], this);
+    SourceGenSettings.IndexSourceEdit = isource;
+    SourceGenSettings.SourceEdit = ParticleSourceDialog->borrowResult();
     connect(ParticleSourceDialog, &AParticleSourceDialogBase::requestTestParticleGun, this, &AParticleSimWin::testParticleGun);
-    connect(ParticleSourceDialog, &AParticleSourceDialogBase::sourceRecordChangedInEditMode, this, &AParticleSimWin::onSourceRecordChangedInEditMode);
+    connect(ParticleSourceDialog, &AParticleSourceDialogBase::sourceRecordChanged,    this, &AParticleSimWin::particleSourcesChanged);
     connect(ParticleSourceDialog, &AParticleSourceDialogBase::requestDraw,            this, &AParticleSimWin::requestDraw);
     connect(ParticleSourceDialog, &AParticleSourceDialogBase::accepted,               this, &AParticleSimWin::onParticleSourceAccepted);
+    connect(ParticleSourceDialog, &AParticleSourceDialogBase::rejected,               this, &AParticleSimWin::onParticleSourceRejected);
     ParticleSourceDialog->setModal(true);
+    emit particleSourcesChanged();
     ParticleSourceDialog->open();
 }
 
 void AParticleSimWin::onParticleSourceAccepted()
 {
-    int isource = ui->lwDefinedParticleSources->currentRow();
-    if (isource == -1) return;
-
     ASourceGeneratorSettings & SourceGenSettings = SimSet.SourceGenSettings;
+
+    SourceGenSettings.IndexSourceEdit = -1;
+    SourceGenSettings.SourceEdit = nullptr;
+
+    const int isource = ui->lwDefinedParticleSources->currentRow();
     const int numSources = SourceGenSettings.getNumSources();
-    if (isource >= numSources) return;
 
-    AParticleSourceRecordBase * ps = ParticleSourceDialog->getResult();
-    SourceGenSettings.replace(isource, ps);
-    checkWorldSize(ps);
+    if (isource > -1 && isource < numSources)
+    {
+        AParticleSourceRecordBase * ps = ParticleSourceDialog->getResult();
+        SourceGenSettings.replace(isource, ps);
+        checkWorldSize(ps);
+        updateSourceList();
+    }
 
-    updateSourceList();
-    //if (ui->pbGunShowSource->isChecked()) on_pbGunShowSource_toggled(true);
+    delete ParticleSourceDialog; ParticleSourceDialog = nullptr;
+    emit particleSourcesChanged();
+}
+
+void AParticleSimWin::onParticleSourceRejected()
+{
+    ASourceGeneratorSettings & SourceGenSettings = SimSet.SourceGenSettings;
+    SourceGenSettings.IndexSourceEdit = -1;
+    SourceGenSettings.SourceEdit = nullptr;
+    delete ParticleSourceDialog; ParticleSourceDialog = nullptr;
     emit particleSourcesChanged();
 }
 
@@ -1075,11 +1092,6 @@ void AParticleSimWin::onNewConfigStartedInGui()
 {
     ui->cbRandomSeed->setChecked(true);
     ui->sbSeed->setValue(1000);
-}
-
-void AParticleSimWin::onSourceRecordChangedInEditMode(AParticleSourceRecordBase * sourceRecord)
-{
-    emit particleSourceChangedInEditMode(sourceRecord);
 }
 
 void AParticleSimWin::on_pbShowTracks_clicked()

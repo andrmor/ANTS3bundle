@@ -48,8 +48,6 @@ public slots:
 
 private slots:
     // auto-updates
-    void onSourceRecordChangedInEditMode(AParticleSourceRecordBase * sourceRecord);
-
     void on_pbSimulate_clicked();
 
     void on_lePhysicsList_editingFinished();
@@ -137,10 +135,10 @@ private slots:
     void on_trwEventView_customContextMenuRequested(const QPoint &pos);
 
     void onParticleSourceAccepted();
+    void onParticleSourceRejected();
 
 signals:
     void particleSourcesChanged();
-    void particleSourceChangedInEditMode(AParticleSourceRecordBase * source);
     void requestShowGeometry(bool ActivateWindow, bool SAME, bool ColorUpdateAllowed);
     void requestShowTracks(bool activateWindow = false);
     void requestShowMarkers();
