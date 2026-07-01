@@ -109,6 +109,7 @@ public slots:
     QString toStr(QVariant var);
     double  arraySum(QVariantList array);
     QVariantList arrayColumn(QVariantList array, int columnIndex);
+    QVariantList arrayMultiply(QVariantList array, double factor, int columnIndex = 0);
     QString getExamplesDir();
     void    processEvents();
     void    reportProgress(int percents);

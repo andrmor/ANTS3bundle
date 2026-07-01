@@ -298,8 +298,8 @@ QVariantList ACore_SI::arrayColumn(QVariantList array, int columnIndex)
 {
     QVariantList vl;
 
-    const int size = array.size();
-    for (int i = 0; i < size; i++)
+    const qsizetype size = array.size();
+    for (qsizetype i = 0; i < size; i++)
     {
         QVariantList el = array[i].toList();
         if (el.isEmpty()) continue;
@@ -309,6 +309,63 @@ QVariantList ACore_SI::arrayColumn(QVariantList array, int columnIndex)
             return vl;
         }
         vl.push_back(el[columnIndex]);
+    }
+
+    return vl;
+}
+
+QVariantList ACore_SI::arrayMultiply(QVariantList array, double factor, int columnIndex)
+{
+    const qsizetype size = array.size();
+    if (size == 0) return QVariantList();
+
+    QVariantList vl(size);
+
+    bool is1D;
+    array.front().toDouble(&is1D);
+    if (columnIndex < 0)
+    {
+        abort("arrayMultiply: columnIndex should be positive");
+        return QVariantList();
+    }
+
+    bool ok;
+    for (int i = 0; i < size; i++)
+    {
+        if (is1D)
+        {
+            double val = array[i].toDouble(&ok);
+            if (ok)
+                vl[i] = val * factor;
+            else
+            {
+                abort("arrayMultiply for 1D array: bad format");
+                return QVariantList();
+            }
+        }
+        else
+        {
+            QVariantList el = array[i].toList();
+            if (el.isEmpty())
+            {
+                abort("arrayMultiply for 2D array: bad format");
+                return QVariantList();
+            }
+            if (columnIndex >= el.size())
+            {
+                abort("arrayMultiply: 2D array invalid columnIndex");
+                return QVariantList();
+            }
+
+            double val = el[columnIndex].toDouble(&ok);
+            if (ok) el[columnIndex] = val * factor;
+            else
+            {
+                abort("arrayMultiply for 2D array: bad format");
+                return QVariantList();
+            }
+            vl[i] = el;
+        }
     }
 
     return vl;
