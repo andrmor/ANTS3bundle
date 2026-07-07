@@ -847,6 +847,45 @@ public:
     QString str2R, str2Rmin, str2Rmax, strPhi1, strDphi;
 };
 
+class AGeoTesselated : public AGeoShape
+{
+public:
+    AGeoTesselated(std::vector<std::vector<std::vector<double>>> & facets) : Facets(facets) {}
+    AGeoTesselated() {}
+
+    QString getShapeType() const override {return "AGeoTesselated";}
+    QString getShortName() const override {return QStringLiteral("Tesselated");}
+    QString getShapeTemplate() const override {return "AGeoTesselated()";}
+    QString getHelp() const override;
+
+    bool readFromString(QString GenerationString) override;
+    //void introduceGeoConstValues(QString & errorStr) override;
+
+    bool isGeoConstInUse(const QRegularExpression &) const override {return false;};
+    //void replaceGeoConstName(const QRegularExpression & nameRegExp, const QString & newName) override;
+
+    TGeoShape * createGeoShape(const QString shapeName = "") override;
+
+    //double getHeight() const override {return 666;}
+    //QString getFullHeightString() override {return str2dz;}
+    //void setHeight(double dz) override {this->dz = dz;}
+    QString getGenerationString(bool useStrings) const override;
+    QString getScriptString(bool useStrings) const override;
+    double maxSize() const override {return 1000.0;} // !!!***
+    //double minSize() const override;
+
+    void writeToJson(QJsonObject& json) const override;
+    void readFromJson(const QJsonObject& json) override;
+
+    bool readFromTShape(TGeoShape* Tshape) override;
+
+    void scale(double factor) override;
+
+    std::vector<std::vector<std::vector<double>>> Facets;  // iFacet iVertex xyz
+
+    QString ErrorWhileCreatingShape;
+};
+
 // --- Dummy shape for stack object: needed to implement stacks of stacks
 class AStackDummyShape : public AGeoBox
 {

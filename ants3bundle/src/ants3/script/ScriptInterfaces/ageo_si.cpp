@@ -815,6 +815,60 @@ void AGeo_SI::composite(QString name, QString compositionString, int iMat, QStri
     GeoObjects.push_back(o);
 }
 
+#include "TGeoShape.h"
+void AGeo_SI::tesselated(QString name, QVariantList facetArray, int iMat, QString container, QVariantList position, QVariantList orientation)
+{
+    std::array<double,3> pos, ori;
+    bool ok = checkPosOri(position, orientation, pos, ori);
+    if (!ok) return;
+
+    AGeoTesselated * shape = new AGeoTesselated();
+
+    const size_t numFacets = facetArray.size();
+    shape->Facets.resize(numFacets);
+
+    for (size_t iFa = 0; iFa < numFacets; iFa++)
+    {
+        QVariantList el = facetArray[iFa].toList();
+        const int numVert = el.size();
+        if (numVert < 3 || numVert > 4)
+        {
+            delete shape;
+            abort("tesselated: facetArray parameter should contain 3 or 4 vertices");
+            return;
+        }
+
+        shape->Facets[iFa].resize(numVert);
+        for (int iVe = 0; iVe < numVert; iVe++)
+        {
+            QVariantList verVL = el[iVe].toList();
+            if (verVL.size() != 3)
+            {
+                delete shape;
+                abort("tesselated: each vertex should be defined using an array of [x y z]");
+                return;
+            }
+            shape->Facets[iFa][iVe].resize(3);
+            for (int i = 0; i < 3; i++)
+                shape->Facets[iFa][iVe][i] = verVL[i].toDouble();
+        }
+    }
+
+    TGeoShape * dummy = shape->createGeoShape("dummy");
+    QString err = shape->ErrorWhileCreatingShape;
+    delete dummy;
+    if (!err.isEmpty())
+    {
+        delete shape;
+        abort("tesselated -->" + err);
+        return;
+    }
+
+    AGeoObject * o = new AGeoObject(name, container, iMat, shape, pos, ori);
+
+    GeoObjects.push_back(o);
+}
+
 /*
 void AGeo_SI::arb8(QString name, QVariantList NodesXY, double h, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi)
 {

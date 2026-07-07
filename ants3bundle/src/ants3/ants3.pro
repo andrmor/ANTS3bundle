@@ -14,7 +14,8 @@ QMAKE_CXXFLAGS += -O2
 
 # CERN ROOT
 INCLUDEPATH += $$system(root-config --incdir)
-LIBS += $$system(root-config --libs) -lGeom -lGeomPainter -lGeomBuilder -lMinuit2 -lSpectrum -ltbb
+#LIBS += $$system(root-config --libs) -lGeom -lGeomPainter -lGeomBuilder -lMinuit2 -lSpectrum -ltbb
+LIBS += $$system(root-config --libs) -lGeom -lGeomPainter -lMinuit2 -lSpectrum -ltbb
 ants3_RootServer {LIBS += -lRHTTP  -lXMLIO}
 
 # PYTHON

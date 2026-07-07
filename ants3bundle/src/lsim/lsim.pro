@@ -11,7 +11,8 @@ QMAKE_CXXFLAGS += -O2
 
 # CERN ROOT
      INCLUDEPATH += $$system(root-config --incdir)
-     LIBS += $$system(root-config --libs) -lGeom -lGeomPainter -lGeomBuilder -lMinuit2 -lSpectrum -ltbb
+     #LIBS += $$system(root-config --libs) -lGeom -lGeomPainter -lGeomBuilder -lMinuit2 -lSpectrum -ltbb
+     LIBS += $$system(root-config --libs) -lGeom -lGeomPainter -lMinuit2 -lSpectrum -ltbb
 
 # You can make your code fail to compile if it uses deprecated APIs.
 # In order to do so, uncomment the following line.
