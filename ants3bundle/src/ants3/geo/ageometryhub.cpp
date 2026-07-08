@@ -1,4 +1,5 @@
 #include "ageometryhub.h"
+#include "TROOT.h"
 #include "ageoobject.h"
 #include "ageoshape.h"
 #include "ageotype.h"
@@ -1308,22 +1309,33 @@ int AGeometryHub::checkGeometryForConflicts()
 {
     if (!GeoManager) return 0;
 
-    const double Precision = 0.01; //overlap search precision - in cm
+    const double precision = 0.001; //overlap search precision - in cm
 
     GeoManager->ClearOverlaps();
     int segments = GeoManager->GetNsegments();
 
-    GeoManager->CheckOverlaps(Precision);
+    /*
+    GeoManager->CheckOverlaps(precision);
     TObjArray * overlaps = GeoManager->GetListOfOverlaps();
     int overlapCount = overlaps->GetEntries();
     if (overlapCount == 0)
     {
         // Repeating the search with sampling
         //qDebug() << "No overlaps found, checking using sampling method..";
-        GeoManager->CheckOverlaps(Precision, "s"); // could be "sd", but the result is the same
+            //GeoManager->CheckOverlaps(precision, "s"); // could be "sd", but the result is the same //    deprecated
+        GeoManager->CheckOverlapsBySampling(precision, 100000);
         overlaps = GeoManager->GetListOfOverlaps();
         overlapCount = overlaps->GetEntries();
     }
+    */
+    // streamlined in root 6.40
+    GeoManager->SetNsegments(40);
+    GeoManager->SetNmeshPoints(2000);
+        //ROOT::EnableImplicitMT(10);
+    GeoManager->CheckOverlaps(precision);
+
+    TObjArray * overlaps = GeoManager->GetListOfOverlaps();
+    int overlapCount = overlaps->GetEntries();
 
     GeoManager->SetNsegments(segments);  //restore back, get auto reset during the check to some bad default value
     return overlapCount;
