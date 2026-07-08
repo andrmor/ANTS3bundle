@@ -853,7 +853,7 @@ public:
     AGeoTesselated(std::vector<std::vector<std::vector<double>>> & facets) : Facets(facets) {}
     AGeoTesselated() {}
 
-    QString getShapeType() const override {return "AGeoTesselated";}
+    QString getShapeType() const override {return "TGeoTesselated";}
     QString getShortName() const override {return QStringLiteral("Tesselated");}
     QString getShapeTemplate() const override {return "AGeoTesselated()";}
     QString getHelp() const override;

@@ -609,4 +609,20 @@ public:
     AGeoPrototypeDelegate(const QStringList & materials, QWidget * parent);
 };
 
+class AGeoTessDelegate : public AGeoObjectDelegate
+{
+    Q_OBJECT
+
+public:
+    AGeoTessDelegate(const QStringList & materials, QWidget * parent);
+
+    bool updateObject(AGeoObject * obj) const override;
+
+    void updateGui(const AGeoObject * obj) override;
+
+protected:
+    QLabel * lInfo = nullptr;
+
+};
+
 #endif // AGEOOBJECTDELEGATE_H
