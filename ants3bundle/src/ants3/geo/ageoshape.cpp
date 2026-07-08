@@ -4402,12 +4402,12 @@ bool AGeoTorus::readFromTShape(TGeoShape *Tshape)
 
 QString AGeoTesselated::getHelp() const
 {
-    return "todo";
+    return "Tessellated objects can only be defined from script. See geo.tessellated() method.";
 }
 
 bool AGeoTesselated::readFromString(QString GenerationString)
 {
-    qDebug() << "aaaaaa";
+    qDebug() << "AGeoTesselated::readFromString triggered --> Not implemented!";
     return false;
 }
 
@@ -4456,14 +4456,24 @@ TGeoShape * AGeoTesselated::createGeoShape(const QString shapeName)
 
 QString AGeoTesselated::getGenerationString(bool useStrings) const
 {
-    qDebug() << "aaaaaa";
+    qDebug() << "AGeoTesselated::getGenerationString triggered --> Not implemented!";
     return "todo";
 }
 
 QString AGeoTesselated::getScriptString(bool useStrings) const
 {
-    qDebug() << "aaaaaa";
+    qDebug() << "AGeoTesselated::getScriptString triggered --> Not implemented!";
     return "todo";
+}
+
+double AGeoTesselated::maxSize() const
+{
+    double max = 10.0;
+    for (size_t iFa = 0; iFa < Facets.size(); iFa++)
+        for (size_t iVe = 0; iVe < Facets[iFa].size(); iVe++)
+            for (size_t i = 0; i < Facets[iFa][iVe].size(); i++)
+                if (Facets[iFa][iVe][i] > max) max = Facets[iFa][iVe][i];
+    return max;
 }
 
 void AGeoTesselated::writeToJson(QJsonObject & json) const
@@ -4488,7 +4498,7 @@ void AGeoTesselated::writeToJson(QJsonObject & json) const
 
 void AGeoTesselated::readFromJson(const QJsonObject & json)
 {
-    qDebug() << "tess read from json";
+    //qDebug() << "tess read from json";
     QJsonArray arMain = json["Vertices"].toArray();
 
     const size_t numFacets = arMain.size();
@@ -4515,7 +4525,7 @@ void AGeoTesselated::readFromJson(const QJsonObject & json)
                 qCritical() << "tesselated: each vertex should be defined using an array of [x y z]"; // !!!***
                 return;
             }
-            Facets[iFa][iVe].resize(numFacets);
+            Facets[iFa][iVe].resize(3);
             for (int i = 0; i < 3; i++)
                 Facets[iFa][iVe][i] = verVL[i].toDouble();
         }
@@ -4524,7 +4534,7 @@ void AGeoTesselated::readFromJson(const QJsonObject & json)
 
 bool AGeoTesselated::readFromTShape(TGeoShape * Tshape)
 {
-    qDebug() << "aaaaaa";
+    qDebug() << "AGeoTesselated::readFromTShape triggered --> Not implemented!";
     return false;
 }
 
