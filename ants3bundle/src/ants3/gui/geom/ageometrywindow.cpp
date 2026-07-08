@@ -213,11 +213,10 @@ void AGeometryWindow::onRequestRedrawFromScript()
 void AGeometryWindow::showGeometryRasterWindow(bool same)
 {
     SetAsActiveRootWindow();
-
     setHideUpdate(true);
     ClearRootCanvas();
     if (same) Geometry.Top->Draw("SAME");  // is it still needed?
-    else      Geometry.Top->Draw("");
+    else Geometry.Top->Draw("");
     PostDraw();
 
     if (ui->pbShowParticleSources->isChecked() || ui->pbShowPhotonSources->isChecked()) showSources();
@@ -352,7 +351,7 @@ void AGeometryWindow::showRecursive(QString objectName)
 
 void AGeometryWindow::PostDraw()
 {
-    TView3D *v = dynamic_cast<TView3D*>(RasterWindow->fCanvas->GetView());
+    TView3D * v = dynamic_cast<TView3D*>(RasterWindow->fCanvas->GetView());
     if (!v)
     {
         qWarning() << "There is no TView3D!";

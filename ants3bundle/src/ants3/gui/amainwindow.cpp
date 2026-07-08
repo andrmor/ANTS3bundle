@@ -156,12 +156,17 @@ AMainWindow::AMainWindow() :
     qDebug() << "Loading geometries of the windows";
     loadWindowGeometries();
 
+    AGeometryHub::getInstance().populateGeoManager(); // added for root 6.40 fixes
+
+    /*
+    // seems to be not needed after the root 6.40 fixes
     bool bShown = GeoWin->isVisible();
+    qDebug() << "aaaaaaaaaa---->";
     GeoWin->show();
     GeoWin->resize(GeoWin->width()+1, GeoWin->height());
     GeoWin->resize(GeoWin->width()-1, GeoWin->height());
     GeoWin->ShowGeometry(false);
-    //if (!bShown) GeoWin->hide(); // has to be in the end!
+    */
 
   // Start ROOT update cycle
     RootUpdateTimer = new QTimer(this);
@@ -183,7 +188,9 @@ AMainWindow::AMainWindow() :
     updateAllGuiFromConfig(); //updateGui();
     ScriptHub->finalizeInit();
 
-    if (!bShown) GeoWin->hide(); // has to be last, if before updateAllGuiFromConfig() and window is hidden --> dark on open
+    onRebuildGeometryRequested();
+
+    //if (!bShown) GeoWin->hide(); // outdated:    has to be last, if before updateAllGuiFromConfig() and window is hidden --> dark on open
 
     qDebug() << "GUI inits completed";
 }

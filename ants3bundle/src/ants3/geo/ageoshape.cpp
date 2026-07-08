@@ -4441,7 +4441,7 @@ TGeoShape * AGeoTesselated::createGeoShape(const QString shapeName)
     }
 
     bool ok = shape->CheckClosure();
-    qDebug() << "Check ok? -->" << ok;
+    //qDebug() << "Check ok? -->" << ok;
     if (!ok)
     {
         delete shape;
@@ -4488,7 +4488,7 @@ void AGeoTesselated::writeToJson(QJsonObject & json) const
 
 void AGeoTesselated::readFromJson(const QJsonObject & json)
 {
-    qDebug() << "here";
+    qDebug() << "tess read from json";
     QJsonArray arMain = json["Vertices"].toArray();
 
     const size_t numFacets = arMain.size();

@@ -27,9 +27,9 @@ bool APhotonSourcePlotter::isInsideLimitingVolume(const double * r, const TStrin
 
 TVirtualGeoTrack *APhotonSourcePlotter::createTrack()
 {
-    TGeoManager * gGeoManager = AGeometryHub::getInstance().GeoManager;
-    Int_t track_index = gGeoManager->AddTrack(1,22);
-    TVirtualGeoTrack * track = gGeoManager->GetTrack(track_index);
+    TGeoManager * GeoManager = AGeometryHub::getInstance().GeoManager;
+    Int_t track_index = GeoManager->AddTrack(1,22);
+    TVirtualGeoTrack * track = GeoManager->GetTrack(track_index);
     track->SetLineWidth(3);
     track->SetLineColor(51);
     return track;

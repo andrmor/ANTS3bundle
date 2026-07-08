@@ -2201,8 +2201,8 @@ void AGeo_SI::updateGeometry(bool CheckOverlaps)
     }
     clearGeoObjects();
 
-    //Detector->BuildDetector_CallFromScript();
     GeoHub.populateGeoManager(false);
+    GeoHub.ScriptUpdatedGeoManager = true;
 
     if (CheckOverlaps)
     {

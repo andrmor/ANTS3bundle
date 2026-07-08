@@ -504,6 +504,7 @@ void AScriptWindow::clearOutput()
     qApp->processEvents();
 }
 
+#include "ageometryhub.h"
 void AScriptWindow::on_pbRunScript_clicked()
 {
     lHelp->hide();
@@ -533,6 +534,9 @@ void AScriptWindow::on_pbRunScript_clicked()
     ui->pbStop->setVisible(true);
     ui->pbRunScript->setVisible(false);
 
+    AGeometryHub & GeoHub = AGeometryHub::getInstance();
+    GeoHub.ScriptUpdatedGeoManager = false;
+
     ScriptManager->evaluate(Script);
     do
     {
@@ -543,6 +547,8 @@ void AScriptWindow::on_pbRunScript_clicked()
 
     ui->pbStop->setVisible(false);
     ui->pbRunScript->setVisible(true);
+
+    if (GeoHub.ScriptUpdatedGeoManager) AGeometryHub::getInstance().populateGeoManager(); // added during root 6.40.02 fixes
 
     if (ScriptManager->isError())
     {
