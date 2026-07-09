@@ -37,6 +37,11 @@ AGeo_SI::AGeo_SI() :
                    "create the composite using, e.g., the generation string \"TGeoCompositeShape( name1 + name2 )\". Note that the logical volume is removed "
                    "from the generation list after it was used by composite object generator!";
 
+    Help["tesselated"] = "Add a tessellated volume (defined by bounding polygons of size 3 or 4).\n"
+                         "It is possible to provide either directly an array of faces with vertixes [iFacet] [iVertex] [xyz],\n"
+                         "or to give separately an array of vertices ([iVertex] [xyz]), and an array of facets using vertex indexes ([iFace] [3or4indexesOfVertexes])"
+                         "The faces should be defined counter-clock wise so the normal is pointed outside of the volume.";
+
     Help["setLineProperties"] = "Set color, width and style of the line for visualisation of the object \"name\".";
     Help["clearWorld"] = "Remove all objects and prototypes leaving only World";
 
