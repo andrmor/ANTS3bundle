@@ -27,6 +27,7 @@
 #include "atree_si.h"
 #include "ageo_si.h"
 #include "asensor_si.h"
+#include "ainterfacerules_si.h"
 #include "aparticlesim_si.h"
 #include "arootstyle_si.h"
 #include "apet_si.h"
@@ -257,6 +258,7 @@ AScriptHub::AScriptHub()
     addCommonInterface(new AFarm_SI(),         "farm");
     addCommonInterface(new AGeo_SI(),          "geo");
     addCommonInterface(new ASensor_SI(),       "sens");
+    addCommonInterface(new AInterfaceRules_SI(), "rules");
     addCommonInterface(new APhotonSim_SI(),    "lsim");
     addCommonInterface(new AParticleSim_SI(),  "psim");
     addCommonInterface(new ATrackRec_SI(),     "tracks");

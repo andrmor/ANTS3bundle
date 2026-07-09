@@ -427,6 +427,20 @@ void AInterfaceRuleDialog::updateSymmetricVisuals()
     bool symmetric = ui->cbSymmetric->isChecked(); // start from this in case there is no rule, then it remembers the settings
     if (Rule) symmetric = Rule->Symmetric;
 
+    if (Rule && !Rule->canBeSymmetric())
+    {
+        // direction-specific rule (e.g. DavisLUT): the same rule cannot be reused for the reverse direction
+        Rule->Symmetric = false;
+        symmetric = false;
+        ui->cbSymmetric->setEnabled(false);
+        ui->cbSymmetric->setToolTip("This rule type is direction-specific and cannot be applied symmetrically");
+    }
+    else
+    {
+        ui->cbSymmetric->setEnabled(true);
+        ui->cbSymmetric->setToolTip("");
+    }
+
     QString txt = "-->";
     if (symmetric) txt = "<-->";
     ui->labArrow->setText(txt);

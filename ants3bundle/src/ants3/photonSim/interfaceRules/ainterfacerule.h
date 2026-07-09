@@ -67,6 +67,7 @@ public:
     int getMaterialTo()   const {return MatTo;}
 
     virtual bool canHaveRoughSurface() const {return false;}
+    virtual bool canBeSymmetric() const {return true;}  // false for direction-specific rules (e.g. DavisLUT)
     bool isPolishedSurface() const    {return SurfaceSettings.isPolished();}
     bool isRoughSurface() const {return SurfaceSettings.isRough();}
     double LocalNormal[3];

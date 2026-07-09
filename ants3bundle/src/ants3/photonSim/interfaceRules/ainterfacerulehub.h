@@ -57,6 +57,8 @@ public:
 
     QString checkAll();
 
+    void announceRulesChanged() {emit rulesLoaded();}   // to sync GUI after modifications from script
+
     std::vector<std::vector<AInterfaceRule*>> MaterialRules; // [fromMatIndex][toMatIndex]      nullptr -> rule not defined, using Fresnel
 
     std::map<std::pair<TString, TString>, AInterfaceRule*> VolumeRules;

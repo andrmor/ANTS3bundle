@@ -23,9 +23,19 @@ ants3_Python {
     #LIBS = -L/usr/lib/python3.10/config-3.10-x86_64-linux-gnu -lcrypt -lpthread -ldl -lutil -lm -lpython3.10
     #LIBS = -L/usr/lib/python3.9/config-3.9-x86_64-linux-gnu -lcrypt -lpthread -ldl -lutil -lm -lpython3.9
 
-    LIBS += $$system(python3-config --libs --embed)
+    # python3-config older than Python 3.8 does not know --embed and prints its usage text:
+    # in that case try explicit modern versions
+    PYTHON_CONFIG = python3-config
+    PYLIBS = $$system($$PYTHON_CONFIG --libs --embed 2>/dev/null)
+    contains(PYLIBS, Usage:) {
+        system(python3.12-config --libs --embed > /dev/null 2>&1)      { PYTHON_CONFIG = python3.12-config }
+        else:system(python3.11-config --libs --embed > /dev/null 2>&1) { PYTHON_CONFIG = python3.11-config }
+        else:system(python3.10-config --libs --embed > /dev/null 2>&1) { PYTHON_CONFIG = python3.10-config }
+        PYLIBS = $$system($$PYTHON_CONFIG --libs --embed 2>/dev/null)
+    }
+    LIBS += $$PYLIBS
 
-    QMAKE_CXXFLAGS += $$system(python3-config --includes)
+    QMAKE_CXXFLAGS += $$system($$PYTHON_CONFIG --includes)
 
     SOURCES += \
         script/Python/apythoninterface.cpp \
@@ -327,11 +337,15 @@ SOURCES += \
     photonSim/interfaceRules/asurfaceinterfacerule.cpp \
     photonSim/interfaceRules/asurfacesettings.cpp \
     photonSim/interfaceRules/aunifiedrule.cpp \
+    photonSim/interfaceRules/alutinterfacerule.cpp \
+    photonSim/interfaceRules/alutsurfacedata.cpp \
+    photonSim/interfaceRules/alutsurfacegenerator.cpp \
     photonSim/photonFunctional/aphotonfunctionalhub.cpp \
     photonSim/photonFunctional/aphotonfunctionalmodel.cpp \
     rec/PET/acastorimageloader.cpp \
     script/ScriptInterfaces/ageo_si.cpp \
     script/ScriptInterfaces/ageowin_si.cpp \
+    script/ScriptInterfaces/ainterfacerules_si.cpp \
     script/ScriptInterfaces/agraphwin_si.cpp \
     script/ScriptInterfaces/agui_si.cpp \
     script/ScriptInterfaces/amsg_si.cpp \
@@ -579,9 +593,13 @@ HEADERS += \
     photonSim/interfaceRules/asurfaceinterfacerule.h \
     photonSim/interfaceRules/asurfacesettings.h \
     photonSim/interfaceRules/aunifiedrule.h \
+    photonSim/interfaceRules/alutinterfacerule.h \
+    photonSim/interfaceRules/alutsurfacedata.h \
+    photonSim/interfaceRules/alutsurfacegenerator.h \
     rec/PET/apeteventbuilderconfig.h \
     script/ScriptInterfaces/ageo_si.h \
     script/ScriptInterfaces/ageowin_si.h \
+    script/ScriptInterfaces/ainterfacerules_si.h \
     script/ScriptInterfaces/agraphwin_si.h \
     script/ScriptInterfaces/agui_si.h \
     script/ScriptInterfaces/amsg_si.h \

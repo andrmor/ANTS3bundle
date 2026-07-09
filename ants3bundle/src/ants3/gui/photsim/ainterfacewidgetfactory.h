@@ -13,7 +13,11 @@ class ASpectralBasicInterfaceRule;
 class FsnpInterfaceRule;
 class ASurfaceInterfaceRule;
 class AUnifiedRule;
+class ALutInterfaceRule;
 class QPushButton;
+class QLabel;
+class QLineEdit;
+class QComboBox;
 class TObject;
 class AInterfaceRuleWidget;
 
@@ -115,6 +119,29 @@ private slots:
     void showLoaded();
     void showBinned();
     void updateButtons();
+};
+
+class ALutInterfaceWidget : public AInterfaceRuleWidget
+{
+    Q_OBJECT
+public:
+    ALutInterfaceWidget(ALutInterfaceRule * rule, QWidget * parent);
+
+protected:
+    ALutInterfaceRule * Rule;
+
+    QLabel      * labInfo;
+    QLabel      * labWarning;
+    QPushButton * pbShowProbabilities;
+    QPushButton * pbShowDistribution;
+    QLineEdit   * leAngle;
+    QComboBox   * cobBranch;
+
+private slots:
+    void loadLut();
+    void showProbabilities();
+    void showDistribution();
+    void updateGui();
 };
 
 #endif // AINTERFACEWIDGETFACTORY_H
