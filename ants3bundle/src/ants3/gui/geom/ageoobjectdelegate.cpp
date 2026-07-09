@@ -3877,7 +3877,7 @@ void AGeoTessDelegate::updateGui(const AGeoObject * obj)
 
     if (tess)
     {
-        lInfo->setText( QString("Number of facets: %0").arg(tess->Facets.size()) );
+        lInfo->setText( QString("Number of vertices: %0; number of facets: %1").arg(tess->Vertices.size()).arg(tess->Faces.size()) );
     }
     else qWarning() << "Update delegate: Tessellated shape not found!";
 }

@@ -10,6 +10,7 @@
 class TGeoShape;
 class QJsonObject;
 class QRegularExpression;
+class TGeoTessellated;
 
 class AGeoShape
 {
@@ -850,7 +851,7 @@ public:
 class AGeoTesselated : public AGeoShape
 {
 public:
-    AGeoTesselated(std::vector<std::vector<std::vector<double>>> & facets) : Facets(facets) {}
+    //AGeoTesselated(std::vector<std::vector<std::vector<double>>> & facets) : Facets(facets) {}
     AGeoTesselated() {}
 
     QString getShapeType() const override {return "TGeoTesselated";}
@@ -881,7 +882,12 @@ public:
 
     void scale(double factor) override;
 
-    std::vector<std::vector<std::vector<double>>> Facets;  // iFacet iVertex xyz
+    void readDataFromShape(TGeoTessellated * shape);
+
+    std::vector<std::vector<double>> Vertices;
+    std::vector<std::vector<int>>    Faces;
+
+    //std::vector<std::vector<std::vector<double>>> Facets;  // iFacet iVertex xyz
 
     QString ErrorWhileCreatingShape;
 };

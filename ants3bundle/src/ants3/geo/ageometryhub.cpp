@@ -1329,8 +1329,8 @@ int AGeometryHub::checkGeometryForConflicts()
     */
 
     // streamlined in root 6.40
-    GeoManager->SetNsegments(50);
-    GeoManager->SetNmeshPoints(2000);
+    GeoManager->SetNsegments(40);
+    GeoManager->SetNmeshPoints(1000);
         //ROOT::EnableImplicitMT(10);
     GeoManager->CheckOverlaps(precision);
 

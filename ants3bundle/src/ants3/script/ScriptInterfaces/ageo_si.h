@@ -74,7 +74,8 @@ public slots:
     //void composite(QString name, QString compositionString, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi);
     void composite(QString name, QString compositionString, int iMat, QString container, QVariantList position, QVariantList orientation);
     //void customTGeo(QString name, QString generationString, int iMat, QString container, double x, double y, double z, double phi, double theta, double psi);
-    void tesselated(QString name, QVariantList facetArray, int iMat, QString container, QVariantList position, QVariantList orientation);
+    void tesselated(QString name, QVariantList facetArrayXYZs, int iMat, QString container, QVariantList position, QVariantList orientation);
+    void tesselated(QString name, QVariantList vertexArray, QVariantList facetArray, int iMat, QString container, QVariantList position, QVariantList orientation);
     void customTGeo(QString name, QString generationString, int iMat, QString container, QVariantList position, QVariantList orientation);
 
     void toScaled(QString name, double xFactor, double yFactor, double zFactor);
