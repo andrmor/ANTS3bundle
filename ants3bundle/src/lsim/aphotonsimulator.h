@@ -64,6 +64,8 @@ protected:
     QTextStream * StreamPhotonBombs   = nullptr;
     QFile       * FileTracks          = nullptr;
     QTextStream * StreamTracks        = nullptr;    // Tracer handles saving tracks to that stream
+    QFile       * FileMonitorLog      = nullptr;
+    QTextStream * StreamMonitorLog    = nullptr;
 
     ADepositionFileHandler * DepoHandler     = nullptr;
     APhotonFileHandler     * PhotFileHandler = nullptr;

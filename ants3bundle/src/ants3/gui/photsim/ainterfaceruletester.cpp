@@ -53,7 +53,7 @@ AInterfaceRuleTester::AInterfaceRuleTester(AInterfaceRule* & ovLocal, int matFro
 
     DummyLightSensorEvent = new ALightSensorEvent();
     QTextStream * dummyStream = nullptr;
-    PhotonTracer = new APhotonTracer(*DummyLightSensorEvent, dummyStream, dummyStream, dummyStream);
+    PhotonTracer = new APhotonTracer(*DummyLightSensorEvent, dummyStream, dummyStream, dummyStream, dummyStream);
     // dont forget to 'configure' with the actual override and photon
 }
 

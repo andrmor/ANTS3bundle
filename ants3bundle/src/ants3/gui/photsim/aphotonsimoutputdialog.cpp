@@ -53,6 +53,9 @@ APhotonSimOutputDialog::APhotonSimOutputDialog(QWidget *parent) :
     ui->cbPhotonLog->setChecked(RunSet.PhotonLogSet.Enabled);
     ui->labPhotonLog->setText(RunSet.PhotonLogSet.FileName);
 
+    ui->cbMonitorLog->setChecked(RunSet.SaveMonitorLog);
+    ui->labMonitorLog->setText(RunSet.FileNameMonitorLog);
+
     ui->cbSaveConfig->setChecked(RunSet.SaveConfig);
 
     PhotonLog->updateGui(RunSet.PhotonLogSet);
@@ -101,6 +104,8 @@ void APhotonSimOutputDialog::on_pbAccept_clicked()
     RunSet.MaxTracks         = ui->sbMaxTracks->value();
 
     RunSet.SavePhotonBombs   = ui->cbBombs->isChecked();
+
+    RunSet.SaveMonitorLog    = ui->cbMonitorLog->isChecked();
 
     RunSet.SaveStatistics    = ui->cbStatistics->isChecked();
     RunSet.UpperTimeLimit    = ui->ledTimeLimit->text().toDouble();

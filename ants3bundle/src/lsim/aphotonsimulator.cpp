@@ -46,7 +46,7 @@ APhotonSimulator::APhotonSimulator(const QString & dir, const QString & fileName
     LOG << "Config file: " << ConfigFN   << "\n";
 
     Event = new ALightSensorEvent();
-    Tracer = new APhotonTracer(*Event, StreamTracks, StreamSensorLog, StreamPhotonLog);
+    Tracer = new APhotonTracer(*Event, StreamTracks, StreamSensorLog, StreamPhotonLog, StreamMonitorLog);
 }
 
 APhotonSimulator::~APhotonSimulator()
@@ -77,6 +77,10 @@ APhotonSimulator::~APhotonSimulator()
     if (FileTracks) FileTracks->close();
     delete StreamTracks;
     delete FileTracks;
+
+    if (FileMonitorLog) FileMonitorLog->close();
+    delete StreamMonitorLog;
+    delete FileMonitorLog;
 }
 
 void APhotonSimulator::start()
@@ -168,7 +172,7 @@ QString APhotonSimulator::openOutput()
         if (!FilePhotonLog->open(QIODevice::WriteOnly | QFile::Text)) return "Cannot open file to save photon log: " + SimSet.RunSet.PhotonLogSet.FileName;
         StreamPhotonLog = new QTextStream(FilePhotonLog);
     }
-//
+
     if (SimSet.RunSet.SavePhotonBombs)
     {
         FilePhotonBombs = new QFile(WorkingDir + '/' + SimSet.RunSet.FileNamePhotonBombs, this);
@@ -183,7 +187,12 @@ QString APhotonSimulator::openOutput()
         StreamTracks = new QTextStream(FileTracks);
     }
 
-
+    if (SimSet.RunSet.SaveMonitorLog)
+    {
+        FileMonitorLog = new QFile(WorkingDir + '/' + SimSet.RunSet.FileNameMonitorLog, this);
+        if (!FileMonitorLog->open(QIODevice::WriteOnly | QFile::Text)) return "Cannot open file to save monitor log: " + SimSet.RunSet.FileNameMonitorLog;
+        StreamMonitorLog = new QTextStream(FileMonitorLog);
+    }
 
     return "";
 }
@@ -208,6 +217,11 @@ void APhotonSimulator::saveEventMarker()
     if (SimSet.RunSet.SaveSensorLog)
     {
         *StreamSensorLog << '#' << CurrentEvent << '\n';
+    }
+
+    if (SimSet.RunSet.SaveMonitorLog)
+    {
+        *StreamMonitorLog << '#' << CurrentEvent << '\n';
     }
 }
 
