@@ -62,6 +62,7 @@ private:
     AFileMerger          PhotonLogFileMerger;
     AFileMerger          TrackFileMerger;
     AFileMerger          BombFileMerger;
+    AFileMerger          MonitorLogFileMerger;
 
     std::vector<QString> StatisticsFiles;
     std::vector<QString> MonitorFiles;

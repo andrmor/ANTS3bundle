@@ -254,6 +254,7 @@ void removePhotonOutputFiles(const APhotSimRunSettings & settings)
     fileNames.push_back(OutputDir + '/' + settings.FileNameMonitors);
     fileNames.push_back(OutputDir + '/' + settings.FileNameReceipt);
     fileNames.push_back(OutputDir + '/' + settings.FileNameConfig);
+    fileNames.push_back(OutputDir + '/' + settings.FileNameMonitorLog);
 
     for (const QString & fn : fileNames) QFile::remove(fn);
 }
@@ -275,11 +276,12 @@ void APhotonSimManager::mergeOutput()
     qDebug() << "Merging output files...";
 
     const QString & OutputDir = SimSet.RunSet.OutputDirectory;
-    if (SimSet.RunSet.SaveSensorSignals) SignalFileMerger   .mergeToFile(OutputDir + '/' + SimSet.RunSet.FileNameSensorSignals);
-    if (SimSet.RunSet.SaveSensorLog)     SensorLogFileMerger.mergeToFile(OutputDir + '/' + SimSet.RunSet.FileNameSensorLog);
-    if (SimSet.RunSet.PhotonLogSet.Enabled) PhotonLogFileMerger.mergeToFile(OutputDir + '/' + SimSet.RunSet.PhotonLogSet.FileName);
-    if (SimSet.RunSet.SaveTracks)        TrackFileMerger    .mergeToFile(OutputDir + '/' + SimSet.RunSet.FileNameTracks);
-    if (SimSet.RunSet.SavePhotonBombs)   BombFileMerger     .mergeToFile(OutputDir + '/' + SimSet.RunSet.FileNamePhotonBombs);
+    if (SimSet.RunSet.SaveSensorSignals)    SignalFileMerger    .mergeToFile(OutputDir + '/' + SimSet.RunSet.FileNameSensorSignals);
+    if (SimSet.RunSet.SaveSensorLog)        SensorLogFileMerger .mergeToFile(OutputDir + '/' + SimSet.RunSet.FileNameSensorLog);
+    if (SimSet.RunSet.PhotonLogSet.Enabled) PhotonLogFileMerger .mergeToFile(OutputDir + '/' + SimSet.RunSet.PhotonLogSet.FileName);
+    if (SimSet.RunSet.SaveTracks)           TrackFileMerger     .mergeToFile(OutputDir + '/' + SimSet.RunSet.FileNameTracks);
+    if (SimSet.RunSet.SavePhotonBombs)      BombFileMerger      .mergeToFile(OutputDir + '/' + SimSet.RunSet.FileNamePhotonBombs);
+    if (SimSet.RunSet.SaveMonitorLog)       MonitorLogFileMerger.mergeToFile(OutputDir + '/' + SimSet.RunSet.FileNameMonitorLog);
 
     APhotonStatistics & Stat = AStatisticsHub::getInstance().SimStat;
     Stat.clear();
@@ -316,6 +318,7 @@ void  APhotonSimManager::clearFileMergers()
     PhotonLogFileMerger.clear();
     TrackFileMerger.clear();
     BombFileMerger.clear();
+    MonitorLogFileMerger.clear();
     StatisticsFiles.clear();
     MonitorFiles.clear();
     ReceiptFiles.clear();
@@ -497,6 +500,12 @@ void APhotonSimManager::configureOutputFiles(A3NodeWorkerConfig & Worker, APhoto
         WorkSet.RunSet.FileNamePhotonBombs  = QString("bombs-%0").arg(iProcess);
         Worker.OutputFiles.push_back(WorkSet.RunSet.FileNamePhotonBombs);
         BombFileMerger.add(ExchangeDir + '/' + WorkSet.RunSet.FileNamePhotonBombs);
+    }
+    if (SimSet.RunSet.SaveMonitorLog)
+    {
+        WorkSet.RunSet.FileNameMonitorLog  = QString("monitorLog-%0").arg(iProcess);
+        Worker.OutputFiles.push_back(WorkSet.RunSet.FileNameMonitorLog);
+        MonitorLogFileMerger.add(ExchangeDir + '/' + WorkSet.RunSet.FileNameMonitorLog);
     }
     if (SimSet.RunSet.SaveStatistics)
     {

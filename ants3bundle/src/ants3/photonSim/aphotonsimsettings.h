@@ -280,6 +280,8 @@ public:
 
     bool    SaveMonitors          = false;
     QString FileNameMonitors      = "PhotonMonitors.json";
+    bool    SaveMonitorLog        = false;
+    QString FileNameMonitorLog    = "PhotonMonitorLog.dat";
 
     bool    SaveConfig            = false;
     QString FileNameConfig        = "Config_OpticalSim.json";
