@@ -38,6 +38,9 @@ void        arrayElementToObject(const QJsonArray & array, size_t index, QJsonOb
 void        writeDPairVectorToArray(const std::vector<std::pair<double, double>> & vec, QJsonArray & ar);
 bool        readDPairVectorFromArray(const QJsonArray & ar, std::vector<std::pair<double, double>> & vec);
 
+void        writeDVectorOfDPairVectorToArray(const std::vector<std::pair<double,std::vector<double>>> & vec, QJsonArray & ar);
+bool        readDVectorOfDPairVectorfromArray(const QJsonArray & ar, std::vector<std::pair<double,std::vector<double>>> & vec);
+
 void        writeDVectorOfVectorsToArray(const std::vector<std::vector<double>> & vec, QJsonArray & ar);
 bool        readDVectorOfVectorsFromArray(const QJsonArray & ar, std::vector<std::vector<double>> & vec);
 

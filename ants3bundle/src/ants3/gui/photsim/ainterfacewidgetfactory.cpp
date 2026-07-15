@@ -10,7 +10,8 @@
 #include "guitools.h"
 #include "aphotonsimhub.h"
 #include "agraphbuilder.h"
-#include "agraphwindow.h"
+//#include "agraphwindow.h"
+#include "alutinterfacerule.h"
 
 #include <QObject>
 #include <QDebug>
@@ -48,6 +49,9 @@ AInterfaceRuleWidget * AInterfaceWidgetFactory::createEditWidget(AInterfaceRule 
 
     AWaveshifterInterfaceRule * wir = dynamic_cast<AWaveshifterInterfaceRule*>(rule);
     if (wir) return new AWaveshifterInterfaceWidget(wir, parent);
+
+    ALutInterfaceRule * lir = dynamic_cast<ALutInterfaceRule*>(rule);
+    if (lir) return new ALUTInterfaceWidget(lir, parent);
 
 
     qWarning() << "Unknown interface rule!";
@@ -520,4 +524,51 @@ AUnifiedInterfaceWidget::AUnifiedInterfaceWidget(AUnifiedRule * rule, QWidget * 
             leAbs->setEnabled(false);
         }
     mainLay->addLayout(hLay);
+}
+
+// --------------
+
+ALUTInterfaceWidget::ALUTInterfaceWidget(ALutInterfaceRule * rule, QWidget * parent) :
+    AInterfaceRuleWidget(parent), Rule(rule)
+{
+    QHBoxLayout * lay = new QHBoxLayout(this);
+        QPushButton * pb = new QPushButton("Load LUT");
+    lay->addWidget(pb);
+        labInfo = new QLabel("");
+        labInfo->setAlignment(Qt::AlignHCenter);
+    lay->addWidget(labInfo);
+
+    QObject::connect(pb, &QPushButton::clicked, this, &ALUTInterfaceWidget::onButtonPressed);
+
+    updateLabelText();
+}
+
+void ALUTInterfaceWidget::updateLabelText()
+{
+    if (Rule->DataReflection.empty() && Rule->DataTransmission.empty()) labInfo->setText("LUT not loaded");
+    else
+    {
+        int size = Rule->DataReflection.size();
+        if (size == 0) size = Rule->DataTransmission.size();
+        QString txt = QString("Incidence theta bins: %0").arg(size);
+        labInfo->setText(txt);
+    }
+}
+
+#include "ajsontools.h"
+void ALUTInterfaceWidget::onButtonPressed()
+{
+    QString fileName = guitools::dialogLoadFile(this, "Load LUT json file", "Json files (*.json);;All files (*.*)");
+    if (fileName.isEmpty()) return;
+
+    QJsonObject json;
+    bool ok = jstools::loadJsonFromFile(json, fileName);
+    if (!ok)
+    {
+        guitools::message("Failed to read json from file!", this);
+        return;
+    }
+    QString err = Rule->loadLUT(json);
+    if (!err.isEmpty()) guitools::message(err, this);
+    updateLabelText();
 }

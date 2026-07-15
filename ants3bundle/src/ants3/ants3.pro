@@ -324,7 +324,9 @@ SOURCES += \
     particleSim/aparticleanalyzerhub.cpp \
     particleSim/aparticleanalyzersettings.cpp \
     particleSim/atrackvisattributes.cpp \
+    photonSim/ageomeshhandler.cpp \
     photonSim/aphotonloghandler.cpp \
+    photonSim/interfaceRules/alutinterfacerule.cpp \
     photonSim/interfaceRules/asurfaceinterfacerule.cpp \
     photonSim/interfaceRules/asurfacesettings.cpp \
     photonSim/interfaceRules/aunifiedrule.cpp \
@@ -496,7 +498,9 @@ HEADERS += \
     particleSim/aparticleanalyzerhub.h \
     particleSim/aparticleanalyzersettings.h \
     particleSim/atrackvisattributes.h \
+    photonSim/ageomeshhandler.h \
     photonSim/aphotonloghandler.h \
+    photonSim/interfaceRules/alutinterfacerule.h \
     photonSim/photonFunctional/aphotonfunctionalhub.h \
     photonSim/photonFunctional/aphotonfunctionalmodel.h \
     rec/PET/acastorimageloader.h \

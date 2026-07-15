@@ -255,3 +255,44 @@ void jstools::arrayElementToObject(const QJsonArray & array, size_t index, QJson
 {
     object = array[index].toObject();
 }
+
+void jstools::writeDVectorOfDPairVectorToArray(const std::vector<std::pair<double, std::vector<double> > > &vec, QJsonArray & ar)
+{
+    for (auto const & pair : vec)
+    {
+        QJsonObject js;
+            js["Value"] = pair.first;
+            QJsonArray elAr;
+                for (auto const & v : pair.second) elAr.append(v);
+            js["Array"] = elAr;
+        ar.push_back(js);
+    }
+}
+
+bool jstools::readDVectorOfDPairVectorfromArray(const QJsonArray & ar, std::vector<std::pair<double, std::vector<double>>> & vec)
+{
+    vec.clear();
+
+    const int size1 = ar.size();
+    vec.reserve(size1);
+    for (int i1 = 0; i1 < size1; i1++)
+    {
+        if ( !ar[i1].isObject() ) return false;
+        const QJsonObject js = ar[i1].toObject();
+
+        double value = 0;
+        bool ok = jstools::parseJson(js, "Value", value);
+        if (!ok) return false;
+
+        QJsonArray elAr;
+        ok = jstools::parseJson(js, "Array", elAr);
+        if (!ok) return false;
+
+        std::vector<double> el(elAr.size());
+        for (int i2 = 0; i2 < elAr.size(); i2++) el[i2] = elAr[i2].toDouble();
+
+        vec.push_back({value, el});
+    }
+
+    return true;
+}

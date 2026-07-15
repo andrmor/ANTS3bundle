@@ -36,6 +36,10 @@ public slots:
     void loadStatistics(QString fileName);
     QVariantList getStatistics_SensorAngular();
 
+    QVariantList buildMesh(int num);
+    int          findIndexFast(double x, double y, double z);
+    int          findIndexSlow(double x, double y, double z);
+
 
 private:
     APhotonSimManager & SimMan;

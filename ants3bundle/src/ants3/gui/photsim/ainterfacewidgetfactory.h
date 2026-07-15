@@ -16,6 +16,8 @@ class AUnifiedRule;
 class QPushButton;
 class TObject;
 class AInterfaceRuleWidget;
+class ALutInterfaceRule;
+class QLabel;
 
 // --- Widget factory ---
 
@@ -116,5 +118,22 @@ private slots:
     void showBinned();
     void updateButtons();
 };
+
+class ALUTInterfaceWidget : public AInterfaceRuleWidget
+{
+    Q_OBJECT
+public:
+    ALUTInterfaceWidget(ALutInterfaceRule * rule, QWidget * parent);
+
+private:
+    ALutInterfaceRule * Rule    = nullptr;
+    QLabel            * labInfo = nullptr;
+
+    void updateLabelText();
+
+private slots:
+    void onButtonPressed();
+};
+
 
 #endif // AINTERFACEWIDGETFACTORY_H

@@ -296,3 +296,113 @@ QVariantList APhotonSim_SI::getStatistics_SensorAngular()
 
     return vl;
 }
+
+#include "ageomeshhandler.h"
+#include <chrono>
+#include <random>
+static AGeoMeshHandler handler;
+QVariantList APhotonSim_SI::buildMesh(int N_target)
+{
+    handler.buildHemisphereMesh(N_target);
+    AGeoMeshHandler::EdgeStats es = handler.edgeLengthStats();
+
+    qDebug() << "Requested N        : " << N_target;
+    qDebug() << "Subdivision freq v : " << handler.v;
+    qDebug() << "Actual triangles   : " << handler.triangles.size() << "  (= 10*v^2)";
+    qDebug() << "Edge spread std/mean: " << (100.0 * es.std / es.mean) << "%\n";
+
+/*
+    // --- correctness: fast lookup vs brute force, on random hemisphere points ---
+    std::mt19937 rng(42);
+    std::uniform_real_distribution<double> unif(-1.0, 1.0);
+    std::uniform_real_distribution<double> unifPos(0.0, 1.0);
+
+    auto randomHemispherePoint = [&]() -> TVector3
+    {
+        TVector3 p;
+        do {
+            p = TVector3(unif(rng), unif(rng), unifPos(rng));
+        } while (p.Mag() < 1e-6);
+        return p.Unit();
+    };
+
+    const int NTEST = 2000;
+    int mismatches = 0;
+    std::vector<TVector3> testPts;
+    testPts.reserve(NTEST);
+    for (int i = 0; i < NTEST; ++i) testPts.push_back(randomHemispherePoint());
+    for (const auto& p : testPts) {
+        int a = handler.mesh.FindTriangleIndex(p);
+        int b = handler.mesh.FindTriangleIndexBruteForce(p);
+        if (a != b) ++mismatches;
+    }
+    qDebug() << "Correctness check (fast vs brute force), " << NTEST << " random points: "
+              << (NTEST - mismatches) << "/" << NTEST << " match\n";
+
+    // centroid round-trip using the FAST lookup
+    int ok = 0;
+    for (size_t i = 0; i < handler.mesh.triangles.size(); ++i) {
+        const auto& t = handler.mesh.triangles[i];
+        TVector3 c = (handler.mesh.vertices[t[0]] + handler.mesh.vertices[t[1]] + handler.mesh.vertices[t[2]]) * (1.0 / 3.0);
+        if (handler.mesh.FindTriangleIndex(c) == static_cast<int>(i)) ++ok;
+    }
+    qDebug() << "Centroid round-trip (fast lookup): " << ok << "/" << handler.mesh.triangles.size()
+              << " correct\n\n";
+
+    // --- benchmark: millions of points ---
+    const long NQ = 3'000'000;
+    std::vector<TVector3> bigBatch;
+    bigBatch.reserve(NQ);
+    for (long k = 0; k < NQ; ++k) bigBatch.push_back(randomHemispherePoint());
+
+    auto t0 = std::chrono::high_resolution_clock::now();
+    long long sum = 0;
+    for (long k = 0; k < NQ; ++k) sum += handler.mesh.FindTriangleIndex(bigBatch[k]);
+    auto t1 = std::chrono::high_resolution_clock::now();
+    double ms = std::chrono::duration<double, std::milli>(t1 - t0).count();
+    qDebug() << "Fast lookup:        " << NQ << " points in " << ms << " ms  ("
+              << (ms * 1000.0 / NQ) << " us/point)  [checksum " << sum << "]\n";
+
+    const long NQ_BF = 20000;  // brute force is O(T); keep small
+    t0 = std::chrono::high_resolution_clock::now();
+    sum = 0;
+    for (long k = 0; k < NQ_BF; ++k) sum += handler.mesh.FindTriangleIndexBruteForce(bigBatch[k]);
+    t1 = std::chrono::high_resolution_clock::now();
+    ms = std::chrono::duration<double, std::milli>(t1 - t0).count();
+    qDebug() << "Brute force lookup: " << NQ_BF << " points in " << ms << " ms  ("
+              << (ms * 1000.0 / NQ_BF) << " us/point)  [checksum " << sum << "]\n";
+
+*/
+
+    QVariantList res;
+
+    QVariantList vertsVL;
+    for (const AGeoMeshHandler::Vec3 & vert : handler.vertices)
+    {
+        QVariantList el;
+        el << vert[0] << vert[1] << vert[2];
+        vertsVL.push_back(el);
+    }
+    res.push_back(vertsVL);
+
+    QVariantList triangsVL;
+    for (const AGeoMeshHandler::Triangle & tri : handler.triangles)
+    {
+        QVariantList el;
+        el << tri[0] << tri[1] << tri[2];
+        triangsVL.push_back(el);
+    }
+    res.push_back(triangsVL);
+
+    return res;
+}
+
+int APhotonSim_SI::findIndexFast(double x, double y, double z)
+{
+    return handler.findTriangleIndex({x, y, z});
+}
+
+int APhotonSim_SI::findIndexSlow(double x, double y, double z)
+{
+    return handler.findTriangleIndexBruteForce({x, y, z});
+}
