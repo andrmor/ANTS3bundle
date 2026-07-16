@@ -301,7 +301,7 @@ QVariantList APhotonSim_SI::getStatistics_SensorAngular()
 #include <chrono>
 #include <random>
 static AGeoMeshHandler handler;
-QVariantList APhotonSim_SI::buildMesh(int N_target)
+int APhotonSim_SI::mesh_build(int N_target)
 {
     handler.buildHemisphereMesh(N_target);
     AGeoMeshHandler::EdgeStats es = handler.edgeLengthStats();
@@ -371,11 +371,12 @@ QVariantList APhotonSim_SI::buildMesh(int N_target)
     ms = std::chrono::duration<double, std::milli>(t1 - t0).count();
     qDebug() << "Brute force lookup: " << NQ_BF << " points in " << ms << " ms  ("
               << (ms * 1000.0 / NQ_BF) << " us/point)  [checksum " << sum << "]\n";
-
 */
+    return handler.triangles.size();
+}
 
-    QVariantList res;
-
+QVariantList APhotonSim_SI::mesh_getVertices()
+{
     QVariantList vertsVL;
     for (const AGeoMeshHandler::Vec3 & vert : handler.vertices)
     {
@@ -383,8 +384,11 @@ QVariantList APhotonSim_SI::buildMesh(int N_target)
         el << vert[0] << vert[1] << vert[2];
         vertsVL.push_back(el);
     }
-    res.push_back(vertsVL);
+    return vertsVL;
+}
 
+QVariantList APhotonSim_SI::mesh_getTriangles()
+{
     QVariantList triangsVL;
     for (const AGeoMeshHandler::Triangle & tri : handler.triangles)
     {
@@ -392,17 +396,17 @@ QVariantList APhotonSim_SI::buildMesh(int N_target)
         el << tri[0] << tri[1] << tri[2];
         triangsVL.push_back(el);
     }
-    res.push_back(triangsVL);
-
-    return res;
+    return triangsVL;
 }
 
-int APhotonSim_SI::findIndexFast(double x, double y, double z)
+int APhotonSim_SI::mesh_findIndex(double x, double y, double z)
 {
     return handler.findTriangleIndex({x, y, z});
 }
 
+/*
 int APhotonSim_SI::findIndexSlow(double x, double y, double z)
 {
     return handler.findTriangleIndexBruteForce({x, y, z});
 }
+*/

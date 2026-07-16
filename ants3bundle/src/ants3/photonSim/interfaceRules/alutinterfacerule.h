@@ -40,9 +40,7 @@ protected:
     void doWriteToJson(QJsonObject & json) const override;
     bool doReadFromJson(const QJsonObject & json) override; // !!!*** error reporting
 
-    QString doCheckOverrideData() override;
-
-    size_t incidentThetaToBin(double incidentTheta); // !!!***
+    QString doCheckOverrideData() override; // !!!*** check increasing order in angle
 
     // runtime
     // vs incident angle bin
@@ -57,9 +55,11 @@ protected:
     bool _GloballyNoTransmission = false;
     bool _GloballyNoAbsorption  = false;
     size_t _NumberIncidentAngleBins = 0;
+    std::vector<double> _DefinedIncidentThetaValues;
 
     void generateRandomPointInTriangle(const std::array<double, 3> & A, const std::array<double, 3> & B, const std::array<double, 3> & C, std::array<double, 3> & result);
     void reflectedLocalToGlobal(const TVector3 & nHat, const TVector3 & aHat, const TVector3 & B_local, TVector3 & photOutGlobal);
+    size_t getClosestInboundThetaIndex(double theta_deg);
 };
 
 #endif // ALUTINTERFACERULE_H

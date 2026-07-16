@@ -15,8 +15,14 @@ ALutInterfaceRule::ALutInterfaceRule(int MatFrom, int MatTo) :
 }
 AInterfaceRule::EInterfaceRuleResult ALutInterfaceRule::calculate(APhoton * Photon, const double * NormalVector)
 {
-    // todo !!!***   photon direction and normal --> incidentThetaBin
-    size_t iInciThetaBin = 0;
+    double cosTheta = Photon->v[0] * NormalVector[0] + Photon->v[1] * NormalVector[1] + Photon->v[2] * NormalVector[2];
+    double theta = std::acos(cosTheta);
+    size_t iInciThetaBin = getClosestInboundThetaIndex(theta * 180.0 / 3.1415926535);
+    /*
+    qDebug() << "ph:" << Photon->v[0] << Photon->v[1] << Photon->v[2];
+    qDebug() << "norm:" << NormalVector[0] << NormalVector[1] << NormalVector[2];
+    qDebug() << theta * 180.0 / 3.1415926535 << "--> bin" << iInciThetaBin;
+    */
 
     // get process
     const std::array<double,3> & relAbsRefTr = _AbsRefTransVsTheta[iInciThetaBin];
@@ -171,9 +177,9 @@ bool ALutInterfaceRule::doReadFromJson(const QJsonObject & json)
 
 QString ALutInterfaceRule::doCheckOverrideData()
 {
-    _GloballyNoReflection  = DataReflection.empty();
+    _GloballyNoReflection   = DataReflection.empty();
     _GloballyNoTransmission = DataTransmission.empty();
-    _GloballyNoAbsorption  = DataAbsorption.empty();
+    _GloballyNoAbsorption   = DataAbsorption.empty();
 
     _NumberIncidentAngleBins = DataReflection.size();
     if (_NumberIncidentAngleBins == 0)
@@ -194,7 +200,8 @@ QString ALutInterfaceRule::doCheckOverrideData()
     size_t meshSizeTransmission = 0;
     for (size_t iInciTheta = 0; iInciTheta < _NumberIncidentAngleBins; iInciTheta++)
     {
-        double probAbs = 0; // !!!***
+        double probAbs = 0;
+        if (!_GloballyNoAbsorption) probAbs = DataAbsorption[iInciTheta].second;
 
         double probRef = 0;
         if (!_GloballyNoReflection)
@@ -257,19 +264,26 @@ QString ALutInterfaceRule::doCheckOverrideData()
         _MeshTransmission->buildHemisphereMesh(meshSizeTransmission);
     }
 
-    return "";
-}
+    std::vector<std::pair<double,std::vector<double>>> * data = nullptr;
+    if (!_GloballyNoReflection) data = &DataTransmission;
+    else data = &DataReflection; // one of these is required
+    _DefinedIncidentThetaValues.resize(_NumberIncidentAngleBins);
+    QString present;
+    for (size_t i = 0; i < _NumberIncidentAngleBins; i++)
+    {
+        _DefinedIncidentThetaValues[i] = data->at(i).first;
+        present += QString("%0 ").arg(DataReflection[i].first);
+    }
+    qDebug() << "Present:" << present << _DefinedIncidentThetaValues;
 
-size_t ALutInterfaceRule::incidentThetaToBin(double incidentTheta)
-{
-    return 0; // !!!*** testing now, update to full later !!!***
+    return "";
 }
 
 void ALutInterfaceRule::generateRandomPointInTriangle(const std::array<double, 3> & A, const std::array<double, 3> & B, const std::array<double, 3> & C,
                                                       std::array<double, 3> & result)
 {
-    qDebug() << A << B << C;
     /*
+    qDebug() << A << B << C;
     double u = ARandomHub::getInstance().uniform();
     double v = ARandomHub::getInstance().uniform();
     double s = std::sqrt(u);
@@ -319,4 +333,23 @@ void ALutInterfaceRule::reflectedLocalToGlobal(const TVector3 & nHat, const TVec
 
     // B_local is arbitrary (not tied to A) -> full 3-component transform
     photOutGlobal = xLocal * B_local[0] + yLocal * B_local[1] + zLocal * B_local[2];
+}
+
+size_t ALutInterfaceRule::getClosestInboundThetaIndex(double theta_deg)
+{
+    auto it = std::lower_bound(_DefinedIncidentThetaValues.begin(), _DefinedIncidentThetaValues.end(), theta_deg);
+
+    // D is <= all elements, so the first element is closest
+    if (it == _DefinedIncidentThetaValues.begin()) return 0;
+
+    // D is > all elements, so the last element is closest
+    if (it == _DefinedIncidentThetaValues.end()) return _DefinedIncidentThetaValues.size() - 1;
+
+    // D is between v[i-1] and v[i]; compare which is closer
+    double after  = *it;
+    double before = *(it - 1);
+
+    return (after - theta_deg < theta_deg - before)
+               ? static_cast<size_t>(it - _DefinedIncidentThetaValues.begin())
+               : static_cast<size_t>(it - _DefinedIncidentThetaValues.begin() - 1);
 }
