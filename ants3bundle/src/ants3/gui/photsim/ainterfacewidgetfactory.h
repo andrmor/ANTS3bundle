@@ -18,6 +18,7 @@ class TObject;
 class AInterfaceRuleWidget;
 class ALutInterfaceRule;
 class QLabel;
+class QComboBox;
 
 // --- Widget factory ---
 
@@ -126,13 +127,23 @@ public:
     ALUTInterfaceWidget(ALutInterfaceRule * rule, QWidget * parent);
 
 private:
-    ALutInterfaceRule * Rule    = nullptr;
-    QLabel            * labInfo = nullptr;
+    ALutInterfaceRule * Rule        = nullptr;
+    QLabel            * labInfo     = nullptr;
+    QComboBox         * cobAngles   = nullptr;
+    QFrame            * frShow      = nullptr;
+    QPushButton       * pbShowRef   = nullptr;
+    QPushButton       * pbShowTrans = nullptr;;
+    QPushButton       * pbShowAbs   = nullptr;
 
-    void updateLabelText();
+    void updateLutGui();
+    void showMesh(bool reflection);
 
 private slots:
-    void onButtonPressed();
+    void onLoadLutPressed();
+    void onShowReflectionPressed();
+    void onShowTransmittedPressed();
+    void onShowAbsorptionPressed();
+
 };
 
 

@@ -531,44 +531,247 @@ AUnifiedInterfaceWidget::AUnifiedInterfaceWidget(AUnifiedRule * rule, QWidget * 
 ALUTInterfaceWidget::ALUTInterfaceWidget(ALutInterfaceRule * rule, QWidget * parent) :
     AInterfaceRuleWidget(parent), Rule(rule)
 {
-    QHBoxLayout * lay = new QHBoxLayout(this);
-        QPushButton * pb = new QPushButton("Load LUT");
-    lay->addWidget(pb);
-        labInfo = new QLabel("");
-        labInfo->setAlignment(Qt::AlignHCenter);
-    lay->addWidget(labInfo);
+    QVBoxLayout * mainLay = new QVBoxLayout(this);
+        QHBoxLayout * lay = new QHBoxLayout();
+            QPushButton * pb = new QPushButton("Load LUT");
+        lay->addWidget(pb);
+            labInfo = new QLabel("");
+            labInfo->setAlignment(Qt::AlignHCenter);
+        lay->addWidget(labInfo);
+    mainLay->addLayout(lay);
+        frShow = new QFrame();
+        QVBoxLayout * layV = new QVBoxLayout(frShow);
+            QHBoxLayout * lay2 = new QHBoxLayout();
+            lay2->setContentsMargins(0,0,0,0);
+            lay2->addWidget(new QLabel("Show:"));
+            pbShowRef = new QPushButton("Reflection");
+            lay2->addWidget(pbShowRef);
+            lay2->addWidget(new QLabel("or"));
+            pbShowTrans = new QPushButton("Transmission");
+            lay2->addWidget(pbShowTrans);
+            lay2->addWidget(new QLabel("for"));
+            cobAngles = new QComboBox();
+            lay2->addWidget(cobAngles);
+            lay2->addWidget(new QLabel("deg incidence"));
+        layV->addLayout(lay2);
+            pbShowAbs = new QPushButton("Show absorption vs angle");
+        layV->addWidget(pbShowAbs, 0, Qt::AlignHCenter);
 
-    QObject::connect(pb, &QPushButton::clicked, this, &ALUTInterfaceWidget::onButtonPressed);
+    mainLay->addWidget(frShow);
 
-    updateLabelText();
+    QObject::connect(pb,          &QPushButton::clicked, this, &ALUTInterfaceWidget::onLoadLutPressed);
+    QObject::connect(pbShowRef  , &QPushButton::clicked, this, &ALUTInterfaceWidget::onShowReflectionPressed);
+    QObject::connect(pbShowTrans, &QPushButton::clicked, this, &ALUTInterfaceWidget::onShowTransmittedPressed);
+    QObject::connect(pbShowAbs,   &QPushButton::clicked, this, &ALUTInterfaceWidget::onShowAbsorptionPressed);
+
+    updateLutGui();
 }
 
-void ALUTInterfaceWidget::updateLabelText()
+void ALUTInterfaceWidget::updateLutGui()
 {
-    if (Rule->DataReflection.empty() && Rule->DataTransmission.empty()) labInfo->setText("LUT not loaded");
+    bool bHaveData = false;
+
+    if (Rule->DataReflection.empty() && Rule->DataTransmission.empty())
+        labInfo->setText("LUT not loaded");
     else
     {
+        bHaveData = true;
         int size = Rule->DataReflection.size();
         if (size == 0) size = Rule->DataTransmission.size();
-        QString txt = QString("Incidence theta bins: %0").arg(size);
+        QString txt = QString("Angle of inceidence bins: %0").arg(size);
         labInfo->setText(txt);
+
+        pbShowRef->  setEnabled(!Rule->DataReflection.empty());
+        pbShowTrans->setEnabled(!Rule->DataTransmission.empty());
+        pbShowAbs->  setEnabled(!Rule->DataAbsorption.empty());
+
+        cobAngles->clear();
+        for (const auto & pair : (Rule->DataReflection.empty() ? Rule->DataTransmission : Rule->DataReflection))
+            cobAngles->addItem(QString::number(pair.first));
     }
+
+    frShow->setEnabled(bHaveData);
 }
 
 #include "ajsontools.h"
-void ALUTInterfaceWidget::onButtonPressed()
+void ALUTInterfaceWidget::onLoadLutPressed()
 {
     QString fileName = guitools::dialogLoadFile(this, "Load LUT json file", "Json files (*.json);;All files (*.*)");
     if (fileName.isEmpty()) return;
 
     QJsonObject json;
     bool ok = jstools::loadJsonFromFile(json, fileName);
-    if (!ok)
+    if (!ok) guitools::message("Failed to read json from file!", this);
+    else
     {
-        guitools::message("Failed to read json from file!", this);
-        return;
+        QString err = Rule->loadLUT(json);
+        if (!err.isEmpty()) guitools::message(err, this);
     }
-    QString err = Rule->loadLUT(json);
-    if (!err.isEmpty()) guitools::message(err, this);
-    updateLabelText();
+    updateLutGui();
+}
+
+void ALUTInterfaceWidget::onShowReflectionPressed()
+{
+    showMesh(true);
+}
+
+void ALUTInterfaceWidget::onShowTransmittedPressed()
+{
+    showMesh(false);
+}
+
+#include "TGraph.h"
+void ALUTInterfaceWidget::onShowAbsorptionPressed()
+{
+    if (Rule->DataAbsorption.empty()) return;
+
+    TGraph * g = new TGraph();
+    for (size_t i = 0; i < Rule->DataAbsorption.size(); i++)
+        g->AddPoint(Rule->DataAbsorption[i].first, Rule->DataAbsorption[i].second);
+    emit requestDraw(g, "APL", true, true);
+}
+
+#include "ageomeshhandler.h"
+#include "TView.h"
+#include "TPolyLine3D.h"
+#include "TPolyMarker3D.h"
+//#include "TEveTriangleSet.h"
+//#include "TEveManager.h"
+#include "TGraph2D.h"
+#include "TColor.h"
+void ALUTInterfaceWidget::showMesh(bool reflection)
+{
+    QString err = Rule->check();
+    if (!err.isEmpty()) return;
+
+    //qDebug() << "Attempting to build";
+    AGeoMeshHandler * mesh = Rule->getTransMesh();
+
+    std::vector<AGeoMeshHandler::Vec3> & vertices = mesh->vertices;
+    std::vector<AGeoMeshHandler::Triangle> triangles = mesh->triangles;
+
+    std::vector<double> & Data = reflection
+        ? Rule->DataReflection  [cobAngles->currentIndex()].second
+        : Rule->DataTransmission[cobAngles->currentIndex()].second;
+
+
+/*
+    const int nPointsPerTriangle = 5;
+    const int numColors = TColor::GetNumberOfColors();
+
+    auto minMax = std::minmax_element(Data.begin(), Data.end());
+    double valMin = *minMax.first;
+    double valMax = *minMax.second;
+    double valRange = (valMax == valMin) ? 1.0 : (valMax - valMin);
+
+    // FIX: Keep vectors strictly sized to numColors (0 to numColors - 1)
+    std::vector<std::vector<double>> colorX(numColors);
+    std::vector<std::vector<double>> colorY(numColors);
+    std::vector<std::vector<double>> colorZ(numColors);
+
+    // 2. Loop over all custom triangles to populate points uniformly
+    for (size_t i = 0; i < triangles.size(); ++i) {
+        double normVal = (Data[i] - valMin) / valRange;
+
+        // Safe protection against floating-point rounding exceeding 1.0
+        if (normVal < 0.0) normVal = 0.0;
+        if (normVal > 1.0) normVal = 1.0;
+
+        // FIX: Calculate a local index from 0 to numColors-1 for our tracking vectors
+        int paletteBin = static_cast<int>(normVal * (numColors - 1));
+
+        // Pull coordinates for the 3 vertices defining this face
+        const auto& p0 = vertices[triangles[i][0]];
+        const auto& p1 = vertices[triangles[i][1]];
+        const auto& p2 = vertices[triangles[i][2]];
+
+        // Approximate a grid that will sum up roughly to nPointsPerTriangle
+        int steps = std::max(2, (int)std::sqrt(2 * nPointsPerTriangle));
+
+        for (int u = 0; u <= steps; ++u) {
+            for (int v = 0; v <= steps - u; ++v) {
+                double w0 = (double)u / steps;
+                double w1 = (double)v / steps;
+                double w2 = 1.0 - w0 - w1;
+
+                // Compute exact internal coordinate position
+                double px = w0 * p0[0] + w1 * p1[0] + w2 * p2[0];
+                double py = w0 * p0[1] + w1 * p1[1] + w2 * p2[1];
+                double pz = w0 * p0[2] + w1 * p1[2] + w2 * p2[2];
+
+                // Safely push back using the guaranteed 0-bounded local index
+                colorX[paletteBin].push_back(px);
+                colorY[paletteBin].push_back(py);
+                colorZ[paletteBin].push_back(pz);
+            }
+        }
+    }
+
+    // 3. Create ONE foundational Graph layer to initialize the 3D frame & viewport
+    TGraph2D *baseGraph = new TGraph2D(vertices.size());
+    for (size_t i = 0; i < vertices.size(); ++i) {
+        baseGraph->SetPoint(i, vertices[i][0], vertices[i][1], vertices[i][2]);
+    }
+    baseGraph->SetMarkerStyle(1);
+    baseGraph->SetMarkerColor(kWhite);
+    //baseGraph->Draw("P"); // Initializes canvas context projections
+    emit requestDraw(baseGraph, "P", true, true);
+
+    // 4. Draw the sampled point clouds on top ("same")
+    for (int bin = 0; bin < numColors; ++bin) {
+        int nPointsInColor = colorX[bin].size();
+        if (nPointsInColor == 0) continue;
+
+        TPolyMarker3D *pm3d = new TPolyMarker3D(nPointsInColor);
+        for (int p = 0; p < nPointsInColor; ++p) {
+            pm3d->SetPoint(p, colorX[bin][p], colorY[bin][p], colorZ[bin][p]);
+        }
+
+        // FIX: Translate the safe local loop index back to ROOT's global color unique ID
+        int actualRootColorIdx = TColor::GetColorPalette(bin);
+
+        pm3d->SetMarkerColor(actualRootColorIdx);
+        pm3d->SetMarkerStyle(20); // Solid circular dot
+        pm3d->SetMarkerSize(0.6);
+
+        //pm3d->Draw("same");
+        emit requestDraw(pm3d, "same", true, false);
+    }
+*/
+
+
+
+    TList * meshList = new TList();
+
+    // Palette Configuration
+    //gStyle->SetPalette(kRainBow);
+    int numColors = TColor::GetNumberOfColors();
+    auto minMax = std::minmax_element(Data.begin(), Data.end());
+    double valMin = *minMax.first;
+    double valMax = *minMax.second;
+    double valRange = (valMax == valMin) ? 1.0 : (valMax - valMin);
+
+    // Reserve space or directly loop
+    for (size_t i = 0; i < triangles.size(); ++i)
+    {
+        double normVal = (Data[i] - valMin) / valRange;
+        int colorIdx = TColor::GetColorPalette(normVal * (numColors - 1));
+
+        const auto& v0 = vertices[triangles[i][0]];
+        const auto& v1 = vertices[triangles[i][1]];
+        const auto& v2 = vertices[triangles[i][2]];
+
+        double x[4] = {v0[0], v1[0], v2[0], v0[0]};
+        double y[4] = {v0[1], v1[1], v2[1], v0[1]};
+        double z[4] = {v0[2], v1[2], v2[2], v0[2]};
+
+        TPolyLine3D *poly = new TPolyLine3D(4, x, y, z);
+        poly->SetLineColor(colorIdx); // When filled, LineColor acts as the brush color for some 3D viewers
+        poly->SetLineWidth(1);
+
+        meshList->Add(poly);
+    }
+
+    emit requestDraw(meshList, "f", true, true);
+
 }

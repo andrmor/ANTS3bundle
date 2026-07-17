@@ -2,20 +2,21 @@
 #include <sstream>
 #include <iomanip>
 
-AGeoMeshHandler::IcosahedronResult AGeoMeshHandler::icosahedron() {
+AGeoMeshHandler::IcosahedronResult AGeoMeshHandler::icosahedron()
+{
     double phi = (1.0 + std::sqrt(5.0)) / 2.0;
-    std::vector<Vec3> verts = {
+    std::vector<Vec3> verts =
+    {
         {-1, phi, 0}, {1, phi, 0}, {-1, -phi, 0}, {1, -phi, 0},
         {0, -1, phi}, {0, 1, phi}, {0, -1, -phi}, {0, 1, -phi},
         {phi, 0, -1}, {phi, 0, 1}, {-phi, 0, -1}, {-phi, 0, 1}
     };
 
     double r = vLength(verts[0]);
-    for (auto& v : verts) {
-        v = vScale(v, 1.0 / r);
-    }
+    for (auto & v : verts) v = vScale(v, 1.0 / r);
 
-    std::vector<Triangle> faces = {
+    std::vector<Triangle> faces =
+    {
         {0, 11, 5}, {0, 5, 1}, {0, 1, 7}, {0, 7, 10}, {0, 10, 11},
         {1, 5, 9}, {5, 11, 4}, {11, 10, 2}, {10, 7, 6}, {7, 1, 8},
         {3, 9, 4}, {3, 4, 2}, {3, 2, 6}, {3, 6, 8}, {3, 8, 9},

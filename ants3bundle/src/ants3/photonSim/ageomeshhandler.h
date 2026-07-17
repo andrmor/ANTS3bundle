@@ -37,10 +37,6 @@ public:
         std::vector<int> cellIndex; // Sized v * v * 2
     };
 
-    struct MeshResult {
-
-    };
-
     struct EdgeStats {
         double mean;
         double std;

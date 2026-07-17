@@ -35,6 +35,8 @@ public:
     std::vector<std::pair<double,double>> DataAbsorption;                   // can be empty
 
     QString loadLUT(const QJsonObject & json);
+    QString check();
+    AGeoMeshHandler * getTransMesh() {return _MeshTransmission;}
 
 protected:
     void doWriteToJson(QJsonObject & json) const override;

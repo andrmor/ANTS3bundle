@@ -120,6 +120,11 @@ QString ALutInterfaceRule::loadLUT(const QJsonObject & json)
     return "";
 }
 
+QString ALutInterfaceRule::check()
+{
+    return doCheckOverrideData();
+}
+
 #include "ajsontools.h"
 void ALutInterfaceRule::doWriteToJson(QJsonObject & json) const
 {
@@ -268,13 +273,13 @@ QString ALutInterfaceRule::doCheckOverrideData()
     if (!_GloballyNoReflection) data = &DataTransmission;
     else data = &DataReflection; // one of these is required
     _DefinedIncidentThetaValues.resize(_NumberIncidentAngleBins);
-    QString present;
+    //QString present;
     for (size_t i = 0; i < _NumberIncidentAngleBins; i++)
     {
         _DefinedIncidentThetaValues[i] = data->at(i).first;
-        present += QString("%0 ").arg(DataReflection[i].first);
+        //present += QString("%0 ").arg(DataReflection[i].first);
     }
-    qDebug() << "Present:" << present << _DefinedIncidentThetaValues;
+    //qDebug() << "Present:" << present << _DefinedIncidentThetaValues;
 
     return "";
 }
