@@ -60,6 +60,15 @@ void ARasterWindow::setAsActiveRootWindow()
 void ARasterWindow::clearRootCanvas()
 {
     fCanvas->Clear();
+
+    /*
+    // Removes the parasitic lines, but slow :(
+    // register the QWidget in TVirtualX, giving its native window id
+    int wid = gVirtualX->AddWindow((ULong_t)winId(), width(), height());
+    fCanvas = new TCanvas("Root Canvas", width(), height(), wid);
+    fCanvas->SetBorderMode(0);
+    fCanvas->SetFillColor(0);
+    */
 }
 
 void ARasterWindow::updateRootCanvas()
