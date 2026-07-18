@@ -683,16 +683,14 @@ void ALUTInterfaceWidget::onShowProbabilitiesPressed()
 #include "TView.h"
 #include "TPolyLine3D.h"
 #include "TPolyMarker3D.h"
-//#include "TEveTriangleSet.h"
-//#include "TEveManager.h"
 #include "TGraph2D.h"
 #include "TColor.h"
+#include "TArrow.h"
 void ALUTInterfaceWidget::showMesh(bool reflection)
 {
     QString err = Rule->check();
     if (!err.isEmpty()) return;
 
-    //qDebug() << "Attempting to build";
     AGeoMeshHandler * mesh = Rule->getTransMesh();
 
     std::vector<AGeoMeshHandler::Vec3> & vertices = mesh->vertices;
@@ -789,6 +787,30 @@ void ALUTInterfaceWidget::showMesh(bool reflection)
 
 
 
+    TGraph2D * baseGraph = new TGraph2D();
+    baseGraph->AddPoint(0,0,1);
+    baseGraph->AddPoint(1,0,0);
+    baseGraph->AddPoint(0,1,0);
+    baseGraph->AddPoint(-1,0,0);
+    baseGraph->AddPoint(0,-1,0);
+    baseGraph->SetMarkerStyle(1);
+    //baseGraph->SetMarkerColor(kWhite);
+    baseGraph->SetMinimum(0);
+    baseGraph->SetMaximum(1);
+    baseGraph->GetXaxis()->SetLimits(-1,1);
+    baseGraph->GetYaxis()->SetLimits(-1,1);
+    emit requestDraw(baseGraph, "P", true, true);
+
+    TPolyLine3D *line3d = new TPolyLine3D(2);
+    line3d->SetPoint(0, -1.0, 0.0, 1); // Start coordinates (x, y, z)
+    line3d->SetPoint(1, 0, 0, 0); // End coordinates (x, y, z)
+    line3d->SetLineColor(kBlue);
+    line3d->SetLineWidth(4);
+    emit requestDraw(line3d, "same", true, false);
+
+
+
+
     TList * meshList = new TList();
 
     // Palette Configuration
@@ -820,6 +842,6 @@ void ALUTInterfaceWidget::showMesh(bool reflection)
         meshList->Add(poly);
     }
 
-    emit requestDraw(meshList, "f", true, true);
+    emit requestDraw(meshList, "fsame", true, true);
 
 }
