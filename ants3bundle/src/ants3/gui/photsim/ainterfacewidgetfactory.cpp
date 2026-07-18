@@ -1,4 +1,5 @@
 #include "ainterfacewidgetfactory.h"
+#include "TH2.h"
 #include "ainterfacerule.h"
 #include "abasicinterfacerule.h"
 #include "ametalinterfacerule.h"
@@ -612,12 +613,16 @@ void ALUTInterfaceWidget::onLoadLutPressed()
 
 void ALUTInterfaceWidget::onShowReflectionPressed()
 {
-    showMesh(true);
+    //showMesh(true);
+    //showMeshNiceButSlow(true);
+    showMeshNiceAndFast(true);
 }
 
 void ALUTInterfaceWidget::onShowTransmittedPressed()
 {
-    showMesh(false);
+    //showMesh(false);
+    //showMeshNiceButSlow(false);
+    showMeshNiceAndFast(false);
 }
 
 #include "TGraph.h"
@@ -700,93 +705,6 @@ void ALUTInterfaceWidget::showMesh(bool reflection)
         ? Rule->DataReflection  [cobAngles->currentIndex()].second
         : Rule->DataTransmission[cobAngles->currentIndex()].second;
 
-
-/*
-    const int nPointsPerTriangle = 5;
-    const int numColors = TColor::GetNumberOfColors();
-
-    auto minMax = std::minmax_element(Data.begin(), Data.end());
-    double valMin = *minMax.first;
-    double valMax = *minMax.second;
-    double valRange = (valMax == valMin) ? 1.0 : (valMax - valMin);
-
-    // FIX: Keep vectors strictly sized to numColors (0 to numColors - 1)
-    std::vector<std::vector<double>> colorX(numColors);
-    std::vector<std::vector<double>> colorY(numColors);
-    std::vector<std::vector<double>> colorZ(numColors);
-
-    // 2. Loop over all custom triangles to populate points uniformly
-    for (size_t i = 0; i < triangles.size(); ++i) {
-        double normVal = (Data[i] - valMin) / valRange;
-
-        // Safe protection against floating-point rounding exceeding 1.0
-        if (normVal < 0.0) normVal = 0.0;
-        if (normVal > 1.0) normVal = 1.0;
-
-        // FIX: Calculate a local index from 0 to numColors-1 for our tracking vectors
-        int paletteBin = static_cast<int>(normVal * (numColors - 1));
-
-        // Pull coordinates for the 3 vertices defining this face
-        const auto& p0 = vertices[triangles[i][0]];
-        const auto& p1 = vertices[triangles[i][1]];
-        const auto& p2 = vertices[triangles[i][2]];
-
-        // Approximate a grid that will sum up roughly to nPointsPerTriangle
-        int steps = std::max(2, (int)std::sqrt(2 * nPointsPerTriangle));
-
-        for (int u = 0; u <= steps; ++u) {
-            for (int v = 0; v <= steps - u; ++v) {
-                double w0 = (double)u / steps;
-                double w1 = (double)v / steps;
-                double w2 = 1.0 - w0 - w1;
-
-                // Compute exact internal coordinate position
-                double px = w0 * p0[0] + w1 * p1[0] + w2 * p2[0];
-                double py = w0 * p0[1] + w1 * p1[1] + w2 * p2[1];
-                double pz = w0 * p0[2] + w1 * p1[2] + w2 * p2[2];
-
-                // Safely push back using the guaranteed 0-bounded local index
-                colorX[paletteBin].push_back(px);
-                colorY[paletteBin].push_back(py);
-                colorZ[paletteBin].push_back(pz);
-            }
-        }
-    }
-
-    // 3. Create ONE foundational Graph layer to initialize the 3D frame & viewport
-    TGraph2D *baseGraph = new TGraph2D(vertices.size());
-    for (size_t i = 0; i < vertices.size(); ++i) {
-        baseGraph->SetPoint(i, vertices[i][0], vertices[i][1], vertices[i][2]);
-    }
-    baseGraph->SetMarkerStyle(1);
-    baseGraph->SetMarkerColor(kWhite);
-    //baseGraph->Draw("P"); // Initializes canvas context projections
-    emit requestDraw(baseGraph, "P", true, true);
-
-    // 4. Draw the sampled point clouds on top ("same")
-    for (int bin = 0; bin < numColors; ++bin) {
-        int nPointsInColor = colorX[bin].size();
-        if (nPointsInColor == 0) continue;
-
-        TPolyMarker3D *pm3d = new TPolyMarker3D(nPointsInColor);
-        for (int p = 0; p < nPointsInColor; ++p) {
-            pm3d->SetPoint(p, colorX[bin][p], colorY[bin][p], colorZ[bin][p]);
-        }
-
-        // FIX: Translate the safe local loop index back to ROOT's global color unique ID
-        int actualRootColorIdx = TColor::GetColorPalette(bin);
-
-        pm3d->SetMarkerColor(actualRootColorIdx);
-        pm3d->SetMarkerStyle(20); // Solid circular dot
-        pm3d->SetMarkerSize(0.6);
-
-        //pm3d->Draw("same");
-        emit requestDraw(pm3d, "same", true, false);
-    }
-*/
-
-
-
     TGraph2D * baseGraph = new TGraph2D();
     baseGraph->AddPoint(0,0,1);
     baseGraph->AddPoint(1,0,0);
@@ -817,20 +735,14 @@ void ALUTInterfaceWidget::showMesh(bool reflection)
     line3d->SetLineWidth(4);
     emit requestDraw(line3d, "same", true, false);
 
-
-
-
     TList * meshList = new TList();
 
-    // Palette Configuration
-    //gStyle->SetPalette(kRainBow);
     int numColors = TColor::GetNumberOfColors();
     auto minMax = std::minmax_element(Data.begin(), Data.end());
     double valMin = *minMax.first;
     double valMax = *minMax.second;
     double valRange = (valMax == valMin) ? 1.0 : (valMax - valMin);
 
-    // Reserve space or directly loop
     for (size_t i = 0; i < triangles.size(); ++i)
     {
         double normVal = (Data[i] - valMin) / valRange;
@@ -852,6 +764,263 @@ void ALUTInterfaceWidget::showMesh(bool reflection)
     }
 
     emit requestDraw(meshList, "fsame", true, true);
+}
+
+void ALUTInterfaceWidget::showMeshNiceButSlow(bool reflection)
+{
+    QString err = Rule->check();
+    if (!err.isEmpty()) return;
+
+    AGeoMeshHandler * mesh = Rule->getTransMesh();
+
+    std::vector<AGeoMeshHandler::Vec3> & vertices = mesh->vertices;
+    std::vector<AGeoMeshHandler::Triangle> triangles = mesh->triangles;
+
+    std::vector<double> & Data = reflection
+                                    ? Rule->DataReflection  [cobAngles->currentIndex()].second
+                                    : Rule->DataTransmission[cobAngles->currentIndex()].second;
 
 
+    const int nPointsPerTriangle = 5;
+    const int numColors = TColor::GetNumberOfColors();
+
+    auto minMax = std::minmax_element(Data.begin(), Data.end());
+    double valMin = *minMax.first;
+    double valMax = *minMax.second;
+    double valRange = (valMax == valMin) ? 1.0 : (valMax - valMin);
+
+    // FIX: Keep vectors strictly sized to numColors (0 to numColors - 1)
+    std::vector<std::vector<double>> colorX(numColors);
+    std::vector<std::vector<double>> colorY(numColors);
+    std::vector<std::vector<double>> colorZ(numColors);
+
+    // 2. Loop over all custom triangles to populate points uniformly
+    for (size_t i = 0; i < triangles.size(); ++i)
+    {
+        double normVal = (Data[i] - valMin) / valRange;
+
+        // Safe protection against floating-point rounding exceeding 1.0
+        if (normVal < 0.0) normVal = 0.0;
+        if (normVal > 1.0) normVal = 1.0;
+
+        // FIX: Calculate a local index from 0 to numColors-1 for our tracking vectors
+        int paletteBin = static_cast<int>(normVal * (numColors - 1));
+
+        // Pull coordinates for the 3 vertices defining this face
+        const auto& p0 = vertices[triangles[i][0]];
+        const auto& p1 = vertices[triangles[i][1]];
+        const auto& p2 = vertices[triangles[i][2]];
+
+        // Approximate a grid that will sum up roughly to nPointsPerTriangle
+        int steps = std::max(2, (int)std::sqrt(2 * nPointsPerTriangle));
+
+        for (int u = 0; u <= steps; ++u)
+        {
+            for (int v = 0; v <= steps - u; ++v)
+            {
+                double w0 = (double)u / steps;
+                double w1 = (double)v / steps;
+                double w2 = 1.0 - w0 - w1;
+
+                // Compute exact internal coordinate position
+                double px = w0 * p0[0] + w1 * p1[0] + w2 * p2[0];
+                double py = w0 * p0[1] + w1 * p1[1] + w2 * p2[1];
+                double pz = w0 * p0[2] + w1 * p1[2] + w2 * p2[2];
+
+                // Safely push back using the guaranteed 0-bounded local index
+                colorX[paletteBin].push_back(px);
+                colorY[paletteBin].push_back(py);
+                colorZ[paletteBin].push_back(pz);
+            }
+        }
+    }
+
+    // 3. Create ONE foundational Graph layer to initialize the 3D frame & viewport
+    TGraph2D *baseGraph = new TGraph2D(vertices.size());
+    for (size_t i = 0; i < vertices.size(); ++i)
+        baseGraph->SetPoint(i, vertices[i][0], vertices[i][1], vertices[i][2]);
+    baseGraph->SetMarkerStyle(1);
+    baseGraph->SetMarkerColor(kWhite);
+    emit requestDraw(baseGraph, "P", true, true);
+
+    // 4. Draw the sampled point clouds on top ("same")
+    for (int bin = 0; bin < numColors; ++bin)
+    {
+        int nPointsInColor = colorX[bin].size();
+        if (nPointsInColor == 0) continue;
+
+        TPolyMarker3D * pm3d = new TPolyMarker3D(nPointsInColor);
+        for (int p = 0; p < nPointsInColor; ++p) {
+            pm3d->SetPoint(p, colorX[bin][p], colorY[bin][p], colorZ[bin][p]);
+        }
+
+        // FIX: Translate the safe local loop index back to ROOT's global color unique ID
+        int actualRootColorIdx = TColor::GetColorPalette(bin);
+
+        pm3d->SetMarkerColor(actualRootColorIdx);
+        pm3d->SetMarkerStyle(20); // Solid circular dot
+        pm3d->SetMarkerSize(0.6);
+
+        //pm3d->Draw("same");
+        emit requestDraw(pm3d, "same", true, false);
+    }
+}
+
+void ALUTInterfaceWidget::showMeshNiceAndFast(bool reflection)
+{
+    QString err = Rule->check();
+    if (!err.isEmpty()) return;
+
+    AGeoMeshHandler * mesh = Rule->getTransMesh();
+
+    std::vector<AGeoMeshHandler::Vec3> & vertices = mesh->vertices;
+    std::vector<AGeoMeshHandler::Triangle> triangles = mesh->triangles;
+
+    std::vector<double> & Data = reflection
+                                    ? Rule->DataReflection  [cobAngles->currentIndex()].second
+                                    : Rule->DataTransmission[cobAngles->currentIndex()].second;
+
+
+    const int nPointsPerTriangle = 5;
+    const int numColors = TColor::GetNumberOfColors();
+
+    auto minMax = std::minmax_element(Data.begin(), Data.end());
+    double valMin = *minMax.first;
+    double valMax = *minMax.second;
+    double valRange = (valMax == valMin) ? 1.0 : (valMax - valMin);
+
+    // FIX: Keep vectors strictly sized to numColors (0 to numColors - 1)
+    std::vector<std::vector<double>> colorX(numColors);
+    std::vector<std::vector<double>> colorY(numColors);
+    std::vector<std::vector<double>> colorZ(numColors);
+
+    // 2. Loop over all custom triangles to populate points uniformly
+    for (size_t i = 0; i < triangles.size(); ++i)
+    {
+        double normVal = (Data[i] - valMin) / valRange;
+
+        // Safe protection against floating-point rounding exceeding 1.0
+        if (normVal < 0.0) normVal = 0.0;
+        if (normVal > 1.0) normVal = 1.0;
+
+        // FIX: Calculate a local index from 0 to numColors-1 for our tracking vectors
+        int paletteBin = static_cast<int>(normVal * (numColors - 1));
+
+        // Pull coordinates for the 3 vertices defining this face
+        const auto& p0 = vertices[triangles[i][0]];
+        const auto& p1 = vertices[triangles[i][1]];
+        const auto& p2 = vertices[triangles[i][2]];
+
+        // Approximate a grid that will sum up roughly to nPointsPerTriangle
+        int steps = std::max(2, (int)std::sqrt(2 * nPointsPerTriangle));
+
+        for (int u = 0; u <= steps; ++u)
+        {
+            for (int v = 0; v <= steps - u; ++v)
+            {
+                double w0 = (double)u / steps;
+                double w1 = (double)v / steps;
+                double w2 = 1.0 - w0 - w1;
+
+                // Compute exact internal coordinate position
+                double px = w0 * p0[0] + w1 * p1[0] + w2 * p2[0];
+                double py = w0 * p0[1] + w1 * p1[1] + w2 * p2[1];
+                double pz = w0 * p0[2] + w1 * p1[2] + w2 * p2[2];
+
+                // Safely push back using the guaranteed 0-bounded local index
+                colorX[paletteBin].push_back(px);
+                colorY[paletteBin].push_back(py);
+                colorZ[paletteBin].push_back(pz);
+            }
+        }
+    }
+
+    /*
+    // 3. Create ONE foundational Graph layer to initialize the 3D frame & viewport
+    TGraph2D *baseGraph = new TGraph2D(vertices.size());
+    for (size_t i = 0; i < vertices.size(); ++i)
+        baseGraph->SetPoint(i, vertices[i][0], vertices[i][1], vertices[i][2]);
+    baseGraph->SetMarkerStyle(1);
+    baseGraph->SetMarkerColor(kWhite);
+    emit requestDraw(baseGraph, "P", true, true);
+    */
+    drawBaseGraph();
+
+
+    // 4. Draw the sampled point clouds on top ("same")
+    TList * meshList = new TList();
+    for (int bin = 0; bin < numColors; ++bin)
+    {
+        int nPointsInColor = colorX[bin].size();
+        if (nPointsInColor == 0) continue;
+
+        TPolyMarker3D * pm3d = new TPolyMarker3D(nPointsInColor);
+        for (int p = 0; p < nPointsInColor; ++p)
+        {
+            pm3d->SetPoint(p, colorX[bin][p], colorY[bin][p], colorZ[bin][p]);
+        }
+
+        // FIX: Translate the safe local loop index back to ROOT's global color unique ID
+        int actualRootColorIdx = TColor::GetColorPalette(bin);
+
+        pm3d->SetMarkerColor(actualRootColorIdx);
+        pm3d->SetMarkerStyle(20); // Solid circular dot
+        pm3d->SetMarkerSize(0.6);
+
+        //pm3d->Draw("same");
+        meshList->Add(pm3d);
+    }
+    emit requestDraw(meshList, "same", true, false);
+
+    drawDirectionLine(cobAngles->currentText().toDouble(), reflection);
+}
+
+void ALUTInterfaceWidget::drawDirectionLine(double angle, bool reflection)
+{
+    angle *= 3.1415926535/180.0;
+    double factor = (reflection ? 1.2 : 0.6);
+
+    TPolyLine3D * line3d = new TPolyLine3D(2);
+    line3d->SetPoint(0, -factor*sin(angle), 0.0, (reflection ? 1.0 : -1.0) * factor*cos(angle));
+    line3d->SetPoint(1, 0, 0, 0);
+    line3d->SetLineColor(kRed);
+    line3d->SetLineWidth(4);
+    emit requestDraw(line3d, "same", true, false);
+
+    TPolyLine3D * line3dout = new TPolyLine3D(2);
+    line3dout->SetPoint(0, 1.2*sin(angle), 0.0, 1.2*cos(angle));
+    line3dout->SetPoint(1, 0, 0, 0);
+    line3dout->SetLineColor(kRed);
+    line3dout->SetLineStyle(2);
+    line3dout->SetLineWidth(2);
+    emit requestDraw(line3dout, "same", true, false);
+}
+
+void ALUTInterfaceWidget::drawBaseGraph()
+{
+    TGraph2D * g = new TGraph2D();
+    g->AddPoint(0,0,1);
+    g->AddPoint(1,0,0);
+    g->AddPoint(0,1,0);
+    g->AddPoint(-1,0,0);
+    g->AddPoint(0,-1,0);
+    g->SetMarkerStyle(1);
+    //baseGraph->SetMarkerColor(kWhite);
+    g->SetMinimum(0);
+    g->SetMaximum(1.1);
+    g->GetXaxis()->SetLimits(-1.1, 1.1);
+    g->GetYaxis()->SetLimits(-1.1, 1.1);
+    g->GetHistogram()->GetXaxis()->SetNdivisions(1, kFALSE);
+    g->GetHistogram()->GetYaxis()->SetNdivisions(1, kFALSE);
+    g->GetHistogram()->GetZaxis()->SetNdivisions(1, kFALSE);
+    g->GetXaxis()->SetLabelSize(0);
+    g->GetYaxis()->SetLabelSize(0);
+    g->GetZaxis()->SetLabelSize(0);
+    g->GetXaxis()->SetTitleSize(0);
+    g->GetYaxis()->SetTitleSize(0);
+    g->GetZaxis()->SetTitleSize(0);
+    g->GetXaxis()->SetTickLength(0);
+    g->GetYaxis()->SetTickLength(0);
+    g->GetZaxis()->SetTickLength(0);
+    emit requestDraw(g, "P", true, true);
 }

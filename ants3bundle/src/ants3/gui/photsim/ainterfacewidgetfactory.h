@@ -137,6 +137,10 @@ private:
 
     void updateLutGui();
     void showMesh(bool reflection);
+    void showMeshNiceButSlow(bool reflection);
+    void showMeshNiceAndFast(bool reflection);
+    void drawDirectionLine(double angle, bool reflection);
+    void drawBaseGraph();
 
 private slots:
     void onLoadLutPressed();
