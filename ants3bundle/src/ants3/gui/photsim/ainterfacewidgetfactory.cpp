@@ -554,7 +554,7 @@ ALUTInterfaceWidget::ALUTInterfaceWidget(ALutInterfaceRule * rule, QWidget * par
             lay2->addWidget(cobAngles);
             lay2->addWidget(new QLabel("deg incidence"));
         layV->addLayout(lay2);
-            pbShowAbs = new QPushButton("Show absorption vs angle");
+            pbShowAbs = new QPushButton("Show fractions vs incidence angle");
         layV->addWidget(pbShowAbs, 0, Qt::AlignHCenter);
 
     mainLay->addWidget(frShow);
@@ -562,7 +562,7 @@ ALUTInterfaceWidget::ALUTInterfaceWidget(ALutInterfaceRule * rule, QWidget * par
     QObject::connect(pb,          &QPushButton::clicked, this, &ALUTInterfaceWidget::onLoadLutPressed);
     QObject::connect(pbShowRef  , &QPushButton::clicked, this, &ALUTInterfaceWidget::onShowReflectionPressed);
     QObject::connect(pbShowTrans, &QPushButton::clicked, this, &ALUTInterfaceWidget::onShowTransmittedPressed);
-    QObject::connect(pbShowAbs,   &QPushButton::clicked, this, &ALUTInterfaceWidget::onShowAbsorptionPressed);
+    QObject::connect(pbShowAbs,   &QPushButton::clicked, this, &ALUTInterfaceWidget::onShowProbabilitiesPressed);
 
     updateLutGui();
 }
@@ -621,14 +621,62 @@ void ALUTInterfaceWidget::onShowTransmittedPressed()
 }
 
 #include "TGraph.h"
-void ALUTInterfaceWidget::onShowAbsorptionPressed()
+void ALUTInterfaceWidget::onShowProbabilitiesPressed()
 {
-    if (Rule->DataAbsorption.empty()) return;
+    std::vector<double> angles;
 
-    TGraph * g = new TGraph();
-    for (size_t i = 0; i < Rule->DataAbsorption.size(); i++)
-        g->AddPoint(Rule->DataAbsorption[i].first, Rule->DataAbsorption[i].second);
-    emit requestDraw(g, "APL", true, true);
+    std::vector<double> reflected;
+    for (const std::pair<double,std::vector<double>> & pair : Rule->DataReflection)
+    {
+        angles.push_back(pair.first);
+        double sum = std::reduce(pair.second.begin(), pair.second.end(), 0.0);
+        reflected.push_back(sum);
+    }
+    bool bHaveRef = !reflected.empty();
+
+    std::vector<double> transmitted;
+    for (const std::pair<double,std::vector<double>> & pair : Rule->DataTransmission)
+    {
+        if (!bHaveRef) angles.push_back(pair.first);
+        double sum = std::reduce(pair.second.begin(), pair.second.end(), 0.0);
+        transmitted.push_back(sum);
+    }
+    bool bHaveTrans = !transmitted.empty();
+
+    std::vector<double> absorbed;
+    for (const std::pair<double,double> & pair : Rule->DataAbsorption)
+        absorbed.push_back(pair.second);
+    bool bHaveAbs = !absorbed.empty();
+
+    for (size_t i = 0; i < angles.size(); i++)
+    {
+        double sum = 0;
+        if (bHaveAbs)   sum += absorbed[i];
+        if (bHaveRef)   sum += reflected[i];
+        if (bHaveTrans) sum += transmitted[i];
+        if (sum == 0) continue;
+
+        if (bHaveAbs)   absorbed[i]    *= 100.0/sum;
+        if (bHaveRef)   reflected[i]   *= 100.0/sum;
+        if (bHaveTrans) transmitted[i] *= 100.0/sum;
+    }
+
+    if (!bHaveRef)   reflected   = std::vector<double>(angles.size(), 0);
+    if (!bHaveTrans) transmitted = std::vector<double>(angles.size(), 0);
+    if (!bHaveAbs)   absorbed    = std::vector<double>(angles.size(), 0);
+
+    TGraph * gR = AGraphBuilder::graph(angles, reflected);   AGraphBuilder::configure(gR, "Reflection",   "Angle of incidence, deg", "Fraction, %",   3, 0, 1,   3, 1, 2);
+    TGraph * gT = AGraphBuilder::graph(angles, transmitted); AGraphBuilder::configure(gT, "Transmission", "Angle of incidence, deg", "Fraction, %",   4, 0, 1,   4, 1, 2);
+    TGraph * gA = AGraphBuilder::graph(angles, absorbed);    AGraphBuilder::configure(gA, "Absorption",   "Angle of incidence, deg", "Fraction, %",   1, 0, 1,   1, 1, 2);
+
+    gR->SetMinimum(0);
+    gR->SetMaximum(105.0);
+
+    emit requestDraw(gR, "AL",    true, false);
+    emit requestDraw(gT, "Lsame", true, false);
+    emit requestDraw(gA, "Lsame", true, true);
+
+    emit requestDrawLegend(0.12,0.12, 0.4,0.25, "");
 }
 
 #include "ageomeshhandler.h"

@@ -142,7 +142,7 @@ private slots:
     void onLoadLutPressed();
     void onShowReflectionPressed();
     void onShowTransmittedPressed();
-    void onShowAbsorptionPressed();
+    void onShowProbabilitiesPressed();
 
 };
 
