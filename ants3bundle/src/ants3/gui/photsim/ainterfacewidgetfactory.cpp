@@ -685,7 +685,7 @@ void ALUTInterfaceWidget::onShowProbabilitiesPressed()
 #include "TPolyMarker3D.h"
 #include "TGraph2D.h"
 #include "TColor.h"
-#include "TArrow.h"
+#include "TMath.h"
 void ALUTInterfaceWidget::showMesh(bool reflection)
 {
     QString err = Rule->check();
@@ -799,6 +799,15 @@ void ALUTInterfaceWidget::showMesh(bool reflection)
     baseGraph->SetMaximum(1);
     baseGraph->GetXaxis()->SetLimits(-1,1);
     baseGraph->GetYaxis()->SetLimits(-1,1);
+    baseGraph->GetXaxis()->SetLabelSize(0);
+    baseGraph->GetYaxis()->SetLabelSize(0);
+    baseGraph->GetZaxis()->SetLabelSize(0);
+    baseGraph->GetXaxis()->SetTitleSize(0);
+    baseGraph->GetYaxis()->SetTitleSize(0);
+    baseGraph->GetZaxis()->SetTitleSize(0);
+    baseGraph->GetXaxis()->SetTickLength(0);
+    baseGraph->GetYaxis()->SetTickLength(0);
+    baseGraph->GetZaxis()->SetTickLength(0);
     emit requestDraw(baseGraph, "P", true, true);
 
     TPolyLine3D *line3d = new TPolyLine3D(2);
@@ -843,5 +852,6 @@ void ALUTInterfaceWidget::showMesh(bool reflection)
     }
 
     emit requestDraw(meshList, "fsame", true, true);
+
 
 }
