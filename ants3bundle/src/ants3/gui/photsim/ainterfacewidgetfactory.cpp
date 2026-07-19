@@ -866,6 +866,16 @@ void ALUTInterfaceWidget::showMeshNiceButSlow(bool reflection)
     }
 }
 
+class AMyPolyMarker3D : public TPolyMarker3D
+{
+public:
+    AMyPolyMarker3D(int n) : TPolyMarker3D(n) {}
+    ~AMyPolyMarker3D(){qDebug() << "-------AMyPolyMarker3D:destr-------";}
+
+    virtual TObject * Clone(const char * newname = "") const {TObject * clone = TPolyMarker3D::Clone(newname); clone->ResetBit(kCanDelete); return clone;}
+};
+
+
 void ALUTInterfaceWidget::showMeshNiceAndFast(bool reflection)
 {
     QString err = Rule->check();
@@ -954,7 +964,8 @@ void ALUTInterfaceWidget::showMeshNiceAndFast(bool reflection)
         int nPointsInColor = colorX[bin].size();
         if (nPointsInColor == 0) continue;
 
-        TPolyMarker3D * pm3d = new TPolyMarker3D(nPointsInColor);
+        //TPolyMarker3D * pm3d = new TPolyMarker3D(nPointsInColor);
+        AMyPolyMarker3D * pm3d = new AMyPolyMarker3D(nPointsInColor);
         pm3d->ResetBit(kCanDelete);
         for (int p = 0; p < nPointsInColor; ++p)
             pm3d->SetPoint(p, colorX[bin][p], colorY[bin][p], colorZ[bin][p]);
@@ -974,19 +985,30 @@ void ALUTInterfaceWidget::showMeshNiceAndFast(bool reflection)
     drawDirectionLine(cobAngles->currentText().toDouble(), reflection);
 }
 
+class AMyPolyLine3D : public TPolyLine3D
+{
+public:
+    AMyPolyLine3D(int n) : TPolyLine3D(n) {}
+    ~AMyPolyLine3D(){qDebug() << "-------AMyPolyLine3D:destr-------";}
+
+    virtual TObject * Clone(const char * newname = "") const {TObject * clone = TPolyLine3D::Clone(newname); clone->ResetBit(kCanDelete); return clone;}
+};
+
 void ALUTInterfaceWidget::drawDirectionLine(double angle, bool reflection)
 {
     angle *= 3.1415926535/180.0;
     double factor = (reflection ? 1.2 : 0.6);
 
-    TPolyLine3D * line3d = new TPolyLine3D(2);
+    AMyPolyLine3D * line3d = new AMyPolyLine3D(2);
+    line3d->ResetBit(kCanDelete);
     line3d->SetPoint(0, -factor*sin(angle), 0.0, (reflection ? 1.0 : -1.0) * factor*cos(angle));
     line3d->SetPoint(1, 0, 0, 0);
     line3d->SetLineColor(kRed);
     line3d->SetLineWidth(4);
     emit requestDraw(line3d, "same", true, false);
 
-    TPolyLine3D * line3dout = new TPolyLine3D(2);
+    AMyPolyLine3D * line3dout = new AMyPolyLine3D(2);
+    line3dout->ResetBit(kCanDelete);
     line3dout->SetPoint(0, 1.2*sin(angle), 0.0, 1.2*cos(angle));
     line3dout->SetPoint(1, 0, 0, 0);
     line3dout->SetLineColor(kRed);
