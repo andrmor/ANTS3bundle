@@ -413,6 +413,7 @@ bool ABasketManager::isMemberOfSpecificMultidraw(int index, int multidrawIndex)
     return false;
 }
 
+/*
 void ABasketManager::saveBasket(const QString & fileName)
 {
     TFile basketFile(fileName.toLocal8Bit().data(), "RECREATE");
@@ -581,6 +582,247 @@ QString ABasketManager::appendBasket(const QString & fileName)
     f.Close();
     return "";
 }
+*/
+
+// ---------------------------------------------------------------------------
+// Updated ABasketManager::saveBasket / ABasketManager::appendBasket
+//
+// Change: obj.Pointer can now be either
+//   (a) a single TObject*  (existing behavior), or
+//   (b) a TList* containing only individual TObject* entries (no recursion:
+//       a TList inside the TList is NOT expected/handled).
+//
+// Approach: each ADrawObject still gets exactly one JSON entry ("js"), but
+// that entry now records whether it represents a list ("IsList" + "ListSize").
+// The number of TKeys written/read for that entry is 1 for a plain object,
+// or ListSize for a TList (one key per list element, in list order).
+// The key-numbering / key-reading index ("objectIndex" / "keyIndex") advances
+// accordingly, so everything downstream (other draw objects, other basket
+// items) stays correctly aligned.
+// ---------------------------------------------------------------------------
+
+void ABasketManager::saveBasket(const QString & fileName)
+{
+    TFile basketFile(fileName.toLocal8Bit().data(), "RECREATE");
+
+    int objectIndex = 0;
+    QJsonArray basketJAr;
+    for (size_t ib = 0; ib < Basket.size(); ib++)
+    {
+        QJsonObject itemJson;
+        itemJson["ItemName"] = Basket[ib].Name;
+
+        QJsonArray itemArray;
+        const std::vector<ADrawObject> & drawObjects = Basket[ib].DrawObjects;
+        for (size_t io = 0; io < drawObjects.size(); io++)
+        {
+            const ADrawObject & obj = drawObjects[io];
+
+            QJsonObject js;
+            obj.writeToJson(js);
+
+            TList * list = dynamic_cast<TList*>(obj.Pointer);
+            if (list)
+            {
+                // obj.Pointer is a flat TList of individual TObjects (no recursion)
+                js["IsList"] = true;
+
+                int listSize = 0;
+                TIter next(list);
+                TObject * elObj;
+                while ( (elObj = next()) )
+                {
+                    TString keyName = "#";
+                    keyName += objectIndex;
+                    objectIndex++;
+
+                    if (elObj) elObj->Write(keyName);
+                    else
+                    {
+                        TNamed dummy("Dummy", "Dummy");
+                        dummy.Write(keyName);
+                    }
+                    listSize++;
+                }
+                js["ListSize"] = listSize;
+            }
+            else
+            {
+                js["IsList"] = false;
+
+                TString keyName = "#";
+                keyName += objectIndex;
+                objectIndex++;
+
+                if (obj.Pointer) obj.Pointer->Write(keyName);
+                else
+                {
+                    TNamed dummy("Dummy", "Dummy");
+                    dummy.Write(keyName);
+                }
+            }
+
+            // Legend linking is unrelated to whether obj.Pointer is a list;
+            // a TLegend is never stored as a TList, so this dynamic_cast simply
+            // returns nullptr in the list case and behaves as before otherwise.
+            TLegend * Legend = dynamic_cast<TLegend*>(obj.Pointer);
+            if (Legend)
+            {
+                QJsonArray links;
+                TList * elist = Legend->GetListOfPrimitives();
+                int num = elist->GetEntries();
+                for (int ie = 0; ie < num; ie++)
+                {
+                    TLegendEntry * en = static_cast<TLegendEntry*>( (*elist).At(ie));
+                    links.append(findPointerInDrawObjects(drawObjects, en->GetObject()));
+                }
+                js["LegendLinks"] = links;
+            }
+
+            itemArray.append(js);
+        }
+        itemJson["ItemObjects"] = itemArray;
+
+        basketJAr.append(itemJson);
+    }
+
+    QJsonDocument doc;
+    doc.setArray(basketJAr);
+    QString descStr(doc.toJson());
+    //qDebug() << descStr;
+
+    TNamed desc;
+    desc.SetTitle(descStr.toLocal8Bit().data());
+    desc.Write("BasketDescription_v2");
+
+    basketFile.Close();
+}
+
+QString ABasketManager::appendBasket(const QString & fileName)
+{
+    TFile f(fileName.toLocal8Bit().data());
+
+    size_t oldBasketSize = Basket.size();
+
+    TNamed * desc = (TNamed*)f.Get("BasketDescription_v2");
+    if (!desc)
+    {
+        f.Close();
+        return QString("%1: this is not a valid ANTS3 basket file!").arg(fileName);
+    }
+
+    QString text = desc->GetTitle();
+    QJsonDocument doc(QJsonDocument::fromJson(text.toLatin1().data()));
+    QJsonArray basketArray = doc.array();
+    int basketSize = basketArray.size();
+
+    int keyIndex = 0;
+    for (int iBasketItem = 0; iBasketItem < basketSize; iBasketItem++ )
+    {
+        QJsonObject itemJson = basketArray[iBasketItem].toObject();
+        QString itemName = itemJson["ItemName"].toString();
+        QJsonArray itemArray = itemJson["ItemObjects"].toArray();
+        const int itemSize = itemArray.size();
+
+        std::vector<ADrawObject> drawObjects;
+        int legendIndex = -1;
+        QJsonArray legendLinks;
+
+        for (int iDrawObj = 0; iDrawObj < itemSize; iDrawObj++)
+        {
+            QJsonObject js = itemArray[iDrawObj].toObject();
+            QString name = js["Name"].toString();
+
+            const bool isList = js.value("IsList").toBool(false);
+
+            TObject * tObj = nullptr;
+
+            if (isList)
+            {
+                // Rebuild a flat TList of individual TObjects (no recursion)
+                const int listSize = js["ListSize"].toInt();
+                TList * newList = new TList();
+
+                for (int iEl = 0; iEl < listSize; iEl++)
+                {
+                    TKey * key = (TKey*)f.GetListOfKeys()->At(keyIndex);
+                    keyIndex++;
+
+                    TObject * elObj = key ? key->ReadObj() : nullptr;
+                    if (!elObj)
+                    {
+                        TString nm( QString("Corrupted_%1_elem%2").arg(name).arg(iEl).toLatin1().data() );
+                        elObj = new TNamed(nm, nm);
+                        qWarning() << "Corrupted TKey in basket file" << fileName << " list object:" << name << "element" << iEl;
+                    }
+                    newList->Add(elObj);
+                }
+                tObj = newList; // never null: an empty/degenerate list is still a valid TList
+            }
+            else
+            {
+                TKey * key = (TKey*)f.GetListOfKeys()->At(keyIndex);
+                keyIndex++;
+
+                tObj = key->ReadObj();
+            }
+
+            if (tObj)
+            {
+                ADrawObject drawObj(tObj, "");
+                drawObj.readFromJson(js);
+                if (drawObj.Multidraw && oldBasketSize != 0) drawObj.shiftMultidrawIndexesBy(oldBasketSize);
+                drawObjects.push_back(drawObj);
+
+                TLegend * legend = dynamic_cast<TLegend*>(tObj);
+                if (legend)
+                {
+                    legendIndex = iDrawObj;
+                    legendLinks = js["LegendLinks"].toArray();
+                }
+            }
+            else
+            {
+                TString nm( QString("Corrupted_%1").arg(name).toLatin1().data() );
+                tObj = new TNamed(nm, nm);
+                qWarning() << "Corrupted TKey in basket file" << fileName << " object:" << name;
+            }
+        }
+
+        if (legendIndex != -1)
+        {
+            TLegend * legend = static_cast<TLegend*>(drawObjects[legendIndex].Pointer);
+            TList * elist = legend->GetListOfPrimitives();
+            const int num = elist->GetEntries();
+            for (int ie = 0; ie < num; ie++)
+            {
+                TLegendEntry * en = static_cast<TLegendEntry*>( (*elist).At(ie) );
+                QString text = en->GetLabel();
+                TObject * tObj = nullptr;
+                int iObj = legendLinks[ie].toInt();
+                if (iObj >= 0 && iObj < drawObjects.size())
+                    tObj = drawObjects[iObj].Pointer;
+                en->SetObject(tObj); // will override the label
+                en->SetLabel(text.toLatin1().data()); // so restore it
+            }
+        }
+
+        if (!drawObjects.empty())
+        {
+            ABasketItem item;
+            item.Name = itemName;
+            item.DrawObjects = drawObjects;
+            item.Type = drawObjects.front().Pointer->ClassName(); // "TList" if the first draw object is a list
+            Basket.push_back(item);
+            drawObjects.clear();
+        }
+    }
+
+    f.Close();
+    return "";
+}
+
+ // ----
 
 QString ABasketManager::appendTxtAsGraph(const QString & fileName)
 {

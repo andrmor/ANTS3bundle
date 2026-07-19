@@ -987,6 +987,7 @@ void ALUTInterfaceWidget::showMeshNiceAndFast(bool reflection)
     emit requestDraw(meshList, "same", true, false);
 
     drawDirectionLine(cobAngles->currentText().toDouble(), reflection);
+    drawSurfaceCircle(100, 0.1);
 }
 
 /*
@@ -1021,6 +1022,26 @@ void ALUTInterfaceWidget::drawDirectionLine(double angle, bool reflection)
     line3dout->SetLineStyle(2);
     line3dout->SetLineWidth(2);
     emit requestDraw(line3dout, "same", true, false);
+}
+
+void ALUTInterfaceWidget::drawSurfaceCircle(int nPoints, double radius)
+{
+    APersistentPolyLine3D * circle = new APersistentPolyLine3D(nPoints + 1);
+
+    for (int i = 0; i <= nPoints; ++i)
+    {
+        double theta = 2.0 * 3.1415926535 * i / nPoints;
+        double x = radius * std::cos(theta);
+        double y = radius * std::sin(theta);
+        double z = 0.0;
+
+        circle->SetPoint(i, x, y, z);
+    }
+
+    circle->SetLineColor(kBlack);
+    circle->SetLineWidth(2);
+
+    emit requestDraw(circle, "same", true, false);
 }
 
 void ALUTInterfaceWidget::drawBaseGraph()

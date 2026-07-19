@@ -140,6 +140,7 @@ private:
     void showMeshNiceButSlow(bool reflection);
     void showMeshNiceAndFast(bool reflection);
     void drawDirectionLine(double angle, bool reflection);
+    void drawSurfaceCircle(int nPoints, double radius);
     void drawBaseGraph();
 
 private slots:

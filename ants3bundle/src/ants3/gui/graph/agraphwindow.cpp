@@ -1221,7 +1221,8 @@ void AGraphWindow::onDrawRequest(TObject * obj, QString options, bool transferOw
         return;
     }
 
-    if (!transferOwnership) obj = obj->Clone();  // !!!*** check - some objects might require custom cloning!
+    //if (!transferOwnership) obj = obj->Clone();  // !!!*** check - some objects might require custom cloning!
+    if (!transferOwnership) obj = ABasketManager::makeCloneOfTObject(obj);
 
     if (focusWindow)
     {
