@@ -955,10 +955,9 @@ void ALUTInterfaceWidget::showMeshNiceAndFast(bool reflection)
         if (nPointsInColor == 0) continue;
 
         TPolyMarker3D * pm3d = new TPolyMarker3D(nPointsInColor);
+        pm3d->ResetBit(kCanDelete);
         for (int p = 0; p < nPointsInColor; ++p)
-        {
             pm3d->SetPoint(p, colorX[bin][p], colorY[bin][p], colorZ[bin][p]);
-        }
 
         // FIX: Translate the safe local loop index back to ROOT's global color unique ID
         int actualRootColorIdx = TColor::GetColorPalette(bin);
