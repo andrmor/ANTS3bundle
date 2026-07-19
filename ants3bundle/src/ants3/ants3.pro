@@ -238,6 +238,7 @@ SOURCES += \
     gui/graph/ahistoptstatdialog.cpp \
     gui/graph/amultidrawrecord.cpp \
     gui/graph/apaletteselectiondialog.cpp \
+    gui/graph/apersistentutils3d.cpp \
     gui/graph/asetmarginsdialog.cpp \
     gui/graph/aviewer3d.cpp \
     gui/graph/aviewer3dsettingsdialog.cpp \
@@ -473,6 +474,7 @@ HEADERS += \
     gui/graph/ahistoptstatdialog.h \
     gui/graph/amultidrawrecord.h \
     gui/graph/apaletteselectiondialog.h \
+    gui/graph/apersistentutils3d.h \
     gui/graph/asetmarginsdialog.h \
     gui/graph/aviewer3dsettingsdialog.h \
     gui/materials/aabsorptiondataconverterdialog.h \

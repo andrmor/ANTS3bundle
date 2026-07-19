@@ -108,25 +108,8 @@ void ABasketManager::add(const QString & name, const std::vector<ADrawObject> & 
             Legend = new TLegend(*OldLegend); // after cloning Legend has invalid object pointers, so have to use copy constructor
             clone = Legend;
         }
-        else if (type.startsWith("TH2"))
-        {
-            // bug in root? causes crash if options were changed. Going copy constructor way
-            if      (type == "TH2D") clone = new TH2D(*static_cast<TH2D*>(tobj));
-            else if (type == "TH2F") clone = new TH2F(*static_cast<TH2F*>(tobj));
-            else if (type == "TH2I") clone = new TH2I(*static_cast<TH2I*>(tobj));
-            else if (type == "TH2S") clone = new TH2S(*static_cast<TH2S*>(tobj));
-            else if (type == "TH2C") clone = new TH2C(*static_cast<TH2C*>(tobj));
-            else clone = tobj->Clone(); //paranoic
-        }
-        else if (type == "TGraph2D")
-        {
-            clone = new TGraph2D(*static_cast<TGraph2D*>(tobj));  // tobj->Clone() unzooms to full xy range
-        }
-        else
-        {
-            clone = tobj->Clone();
-            //qDebug() << "to Basket, old-->cloned" << drObj.Pointer << "-->" << clone;
-        }
+        else clone = ABasketManager::makeCloneOfTObject(tobj);
+
         OldToNew[drObj.Pointer] = clone;
 
         ADrawObject newObj = ADrawObject(clone, options, drObj.bEnabled, drObj.bLogScaleX, drObj.bLogScaleY);
@@ -166,6 +149,44 @@ void ABasketManager::add(const QString & name, const std::vector<ADrawObject> & 
     Basket.push_back(item);
 }
 
+TObject * ABasketManager::makeCloneOfTObject(TObject * tobj)
+{
+    TObject * clone = nullptr;
+    const QString type = tobj->ClassName();
+    if (type.startsWith("TH2"))
+    {
+        // maybe obsolete now! old comment: bug in root? causes crash if options were changed. Going copy constructor way
+        if      (type == "TH2D") clone = new TH2D(*static_cast<TH2D*>(tobj));
+        else if (type == "TH2F") clone = new TH2F(*static_cast<TH2F*>(tobj));
+        else if (type == "TH2I") clone = new TH2I(*static_cast<TH2I*>(tobj));
+        else if (type == "TH2S") clone = new TH2S(*static_cast<TH2S*>(tobj));
+        else if (type == "TH2C") clone = new TH2C(*static_cast<TH2C*>(tobj));
+        else clone = tobj->Clone();
+    }
+    else if (type == "TGraph2D")
+    {
+        clone = new TGraph2D(*static_cast<TGraph2D*>(tobj));  // tobj->Clone() unzooms to full xy range, also forgets axis settings
+        // old comment: // blanc screen on basket redraw (last ROOT checked: 6.36.04) without the next line
+        //if (obj.Options.contains("tri", Qt::CaseInsensitive) || obj.Options.contains("p", Qt::CaseInsensitive))
+        //    ((TGraph2D*)clone)->SetMargin(0); // col and lego work fine. ROOT :)
+    }
+    else if (type == "TList")
+    {
+        TList * oldList = static_cast<TList*>(tobj);
+        TList * newList = new TList();
+        for (TObject * elObj : *oldList)
+        {
+            TObject * cloned = ABasketManager::makeCloneOfTObject(elObj);
+            newList->Add(cloned);
+        }
+        clone = newList;
+    }
+    else
+        clone = tobj->Clone();
+
+    return clone;
+}
+
 void ABasketManager::update(int index, const std::vector<ADrawObject> & drawObjects)
 {
     if (index < 0 || index >= Basket.size()) return;
@@ -202,15 +223,19 @@ std::vector<ADrawObject> ABasketManager::getCopy(int index) const
             }
             else
             {
+                /*
                 TGraph2D * g2 = dynamic_cast<TGraph2D*>(obj.Pointer);
                 if (g2)
                 {
                     clone = new TGraph2D(*g2); // obj->Clone() unzooms to full xy range
-                    // blanc screen on basket redraw (last ROOT checked: 6.36.04) without th enext line
+                    // blanc screen on basket redraw (last ROOT checked: 6.36.04) without the next line
                     if (obj.Options.contains("tri", Qt::CaseInsensitive) || obj.Options.contains("p", Qt::CaseInsensitive))
                         ((TGraph2D*)clone)->SetMargin(0); // col and lego work fine. ROOT :)
                 }
                 else    clone = obj.Pointer->Clone();
+                */
+                clone = ABasketManager::makeCloneOfTObject(obj.Pointer);
+
                 oldToNew[obj.Pointer] = clone;
                 //qDebug() << "From basket, old-->cloned" << obj.Pointer << "-->" << clone;
             }

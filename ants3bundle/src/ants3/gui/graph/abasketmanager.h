@@ -49,6 +49,9 @@ private:
 private:
     int                 findPointerInDrawObjects(const std::vector<ADrawObject> & drawObjects, TObject * obj) const;
     std::vector<size_t> getAllMultidrawsUsingIndex(size_t index);
+
+public:
+    static TObject * makeCloneOfTObject(TObject * tobj);
 };
 
 #endif // ABASKETMANAGER_H
