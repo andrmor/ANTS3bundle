@@ -661,21 +661,21 @@ void ALUTInterfaceWidget::onShowProbabilitiesPressed()
         if (bHaveTrans) sum += transmitted[i];
         if (sum == 0) continue;
 
-        if (bHaveAbs)   absorbed[i]    *= 100.0/sum;
-        if (bHaveRef)   reflected[i]   *= 100.0/sum;
-        if (bHaveTrans) transmitted[i] *= 100.0/sum;
+        if (bHaveAbs)   absorbed[i]    /= sum;
+        if (bHaveRef)   reflected[i]   /= sum;
+        if (bHaveTrans) transmitted[i] /= sum;
     }
 
     if (!bHaveRef)   reflected   = std::vector<double>(angles.size(), 0);
     if (!bHaveTrans) transmitted = std::vector<double>(angles.size(), 0);
     if (!bHaveAbs)   absorbed    = std::vector<double>(angles.size(), 0);
 
-    TGraph * gR = AGraphBuilder::graph(angles, reflected);   AGraphBuilder::configure(gR, "Reflection",   "Angle of incidence, deg", "Fraction, %",   3, 0, 1,   3, 1, 2);
-    TGraph * gT = AGraphBuilder::graph(angles, transmitted); AGraphBuilder::configure(gT, "Transmission", "Angle of incidence, deg", "Fraction, %",   4, 0, 1,   4, 1, 2);
-    TGraph * gA = AGraphBuilder::graph(angles, absorbed);    AGraphBuilder::configure(gA, "Absorption",   "Angle of incidence, deg", "Fraction, %",   1, 0, 1,   1, 1, 2);
+    TGraph * gR = AGraphBuilder::graph(angles, reflected);   AGraphBuilder::configure(gR, "Reflection",   "Angle of incidence, deg", "Fraction",   3, 0, 1,   3, 1, 2);
+    TGraph * gT = AGraphBuilder::graph(angles, transmitted); AGraphBuilder::configure(gT, "Transmission", "Angle of incidence, deg", "Fraction",   4, 0, 1,   4, 1, 2);
+    TGraph * gA = AGraphBuilder::graph(angles, absorbed);    AGraphBuilder::configure(gA, "Absorption",   "Angle of incidence, deg", "Fraction",   1, 0, 1,   1, 1, 2);
 
     gR->SetMinimum(0);
-    gR->SetMaximum(105.0);
+    gR->SetMaximum(1.05);
 
     emit requestDraw(gR, "AL",    true, false);
     emit requestDraw(gT, "Lsame", true, false);
@@ -1047,28 +1047,15 @@ void ALUTInterfaceWidget::drawSurfaceCircle(int nPoints, double radius)
 void ALUTInterfaceWidget::drawBaseGraph()
 {
     TGraph2D * g = new TGraph2D();
-    g->AddPoint(0,0,1);
-    g->AddPoint(1,0,0);
-    g->AddPoint(0,1,0);
-    g->AddPoint(-1,0,0);
-    g->AddPoint(0,-1,0);
-    g->SetMarkerStyle(1);
-    //baseGraph->SetMarkerColor(kWhite);
+    g->AddPoint(1,1,1);
+    g->AddPoint(-1,1,1);
+    g->AddPoint(-1,-1,-1);
+    g->AddPoint(1,-1,-1);
+
     g->SetMinimum(0);
     g->SetMaximum(1.1);
-    g->GetXaxis()->SetLimits(-1.1, 1.1);
-    g->GetYaxis()->SetLimits(-1.1, 1.1);
-    g->GetHistogram()->GetXaxis()->SetNdivisions(1, kFALSE);
-    g->GetHistogram()->GetYaxis()->SetNdivisions(1, kFALSE);
-    g->GetHistogram()->GetZaxis()->SetNdivisions(1, kFALSE);
-    g->GetXaxis()->SetLabelSize(0);
-    g->GetYaxis()->SetLabelSize(0);
-    g->GetZaxis()->SetLabelSize(0);
-    g->GetXaxis()->SetTitleSize(0);
-    g->GetYaxis()->SetTitleSize(0);
-    g->GetZaxis()->SetTitleSize(0);
-    g->GetXaxis()->SetTickLength(0);
-    g->GetYaxis()->SetTickLength(0);
-    g->GetZaxis()->SetTickLength(0);
+
+    //g->GetHistogram()->GetXaxis()->SetNdivisions(101, false); // copy to basket will forget this
+
     emit requestDraw(g, "P", true, true);
 }

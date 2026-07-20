@@ -14,8 +14,8 @@ public:
 
     APersistentPolymarker3D(const APersistentPolymarker3D& polymarker);
 
-    //virtual ~APersistentPolymarker3D() = default;
-    virtual ~APersistentPolymarker3D();
+    virtual ~APersistentPolymarker3D() = default;
+    //virtual ~APersistentPolymarker3D();
 
     virtual TObject* Clone(const char * newname = "") const override;
 
@@ -34,8 +34,8 @@ public:
 
     APersistentPolyLine3D(const APersistentPolyLine3D& polyline);
 
-    //virtual ~APersistentPolyLine3D() = default;
-    virtual ~APersistentPolyLine3D();
+    virtual ~APersistentPolyLine3D() = default;
+    //virtual ~APersistentPolyLine3D();
 
     virtual TObject* Clone(const char * newname = "") const override;
 

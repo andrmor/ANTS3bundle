@@ -21,10 +21,10 @@ APersistentPolymarker3D::APersistentPolymarker3D(Int_t n, Double_t* p, Marker_t 
 APersistentPolymarker3D::APersistentPolymarker3D(const APersistentPolymarker3D & polymarker)
     : TPolyMarker3D(polymarker) { EnforcePersistence(); }
 
-APersistentPolymarker3D::~APersistentPolymarker3D()
-{
-    qDebug() << "----> destr for APersistentPolymarker3D";
-}
+//APersistentPolymarker3D::~APersistentPolymarker3D()
+//{
+//    qDebug() << "----> destr for APersistentPolymarker3D";
+//}
 
 TObject * APersistentPolymarker3D::Clone(const char *) const
 {
@@ -52,10 +52,10 @@ APersistentPolyLine3D::APersistentPolyLine3D(Int_t n, Double_t* p, Option_t* opt
 APersistentPolyLine3D::APersistentPolyLine3D(const APersistentPolyLine3D& polyline)
     : TPolyLine3D(polyline) { EnforcePersistence(); }
 
-APersistentPolyLine3D::~APersistentPolyLine3D()
-{
-    qDebug() << "--++--> destr for APersistentPolyLine3D";
-}
+//APersistentPolyLine3D::~APersistentPolyLine3D()
+//{
+//    qDebug() << "--++--> destr for APersistentPolyLine3D";
+//}
 
 TObject * APersistentPolyLine3D::Clone(const char *) const
 {

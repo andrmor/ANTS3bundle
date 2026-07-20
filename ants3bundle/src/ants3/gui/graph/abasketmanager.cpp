@@ -152,6 +152,8 @@ void ABasketManager::add(const QString & name, const std::vector<ADrawObject> & 
 TObject * ABasketManager::makeCloneOfTObject(TObject * tobj)
 {
     TObject * clone = nullptr;
+    if (!tobj) return clone;
+
     const QString type = tobj->ClassName();
     if (type.startsWith("TH2"))
     {
@@ -165,7 +167,9 @@ TObject * ABasketManager::makeCloneOfTObject(TObject * tobj)
     }
     else if (type == "TGraph2D")
     {
-        clone = new TGraph2D(*static_cast<TGraph2D*>(tobj));  // tobj->Clone() unzooms to full xy range, also forgets axis settings
+        clone = tobj->Clone();
+        // seems obsolete with the current root:
+        //clone = new TGraph2D(*static_cast<TGraph2D*>(tobj));  // tobj->Clone() unzooms to full xy range, also forgets axis settings
         // old comment: // blanc screen on basket redraw (last ROOT checked: 6.36.04) without the next line
         //if (obj.Options.contains("tri", Qt::CaseInsensitive) || obj.Options.contains("p", Qt::CaseInsensitive))
         //    ((TGraph2D*)clone)->SetMargin(0); // col and lego work fine. ROOT :)

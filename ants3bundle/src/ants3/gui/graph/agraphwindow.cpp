@@ -323,6 +323,9 @@ void AGraphWindow::draw(TObject * obj, QString options, bool update) // always r
         updateBasketGUI();
 
         DrawObjects.clear();
+
+        clearRootCanvas();
+        RasterWindow->fCanvas->ReleaseViewer3D();
     }
     DrawObjects.push_back( ADrawObject(obj, options) );
 
@@ -735,6 +738,9 @@ void AGraphWindow::redrawAll()
     clearPads(); // !!!!!!!
     enforceOverlayOff();
     updateBasketGUI();
+
+    clearRootCanvas();
+    RasterWindow->fCanvas->ReleaseViewer3D();
 
     if (DrawObjects.empty())
     {

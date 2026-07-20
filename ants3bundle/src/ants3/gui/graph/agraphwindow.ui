@@ -3036,12 +3036,12 @@ in basket</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>272</x>
-     <y>126</y>
+     <x>371</x>
+     <y>148</y>
     </hint>
     <hint type="destinationlabel">
-     <x>283</x>
-     <y>145</y>
+     <x>364</x>
+     <y>167</y>
     </hint>
    </hints>
   </connection>
