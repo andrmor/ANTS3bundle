@@ -78,7 +78,7 @@ AInterfaceRule::EInterfaceRuleResult ALutInterfaceRule::calculate(APhoton * Phot
 
     TVector3 normalGlobal  (-NormalVector[0], -NormalVector[1], -NormalVector[2]);
     TVector3 photInciGlobal(Photon->v[0],    Photon->v[1],    Photon->v[2]);
-    TVector3 photOutLocal  (pointOnSphereInTriangle[0], pointOnSphereInTriangle[1], -pointOnSphereInTriangle[2]); // minus!
+    TVector3 photOutLocal  (pointOnSphereInTriangle[0], -pointOnSphereInTriangle[1], -pointOnSphereInTriangle[2]); // minus! rotated around X axis
 
     //qDebug() << "N:" << normalGlobal[0] << normalGlobal[1] << normalGlobal[2];
     //qDebug() << "A:" << photInciGlobal[0] << photInciGlobal[1] << photInciGlobal[2];
@@ -87,7 +87,6 @@ AInterfaceRule::EInterfaceRuleResult ALutInterfaceRule::calculate(APhoton * Phot
     TVector3 photOutGlobal;
     reflectedLocalToGlobal(normalGlobal, photInciGlobal, photOutLocal, photOutGlobal);
     //qDebug() << "result:" << photOutGlobal[0] << photOutGlobal[1] << photOutGlobal[2];
-
 
     Photon->v[0] = photOutGlobal[0];
     Photon->v[1] = photOutGlobal[1];

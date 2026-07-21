@@ -137,17 +137,17 @@ private:
 
     void updateLutGui();
     void showMesh(bool reflection);
-    void showMeshNiceButSlow(bool reflection);
-    void showMeshNiceAndFast(bool reflection);
-    void drawDirectionLine(double angle, bool reflection);
+    void showMeshNiceAndFast(bool reflection, bool showTransitionInUpperHemisphere = false);
+    void drawDirectionLine(double angle, int flagRef0Trans1Both2);
     void drawSurfaceCircle(int nPoints, double radius);
-    void drawBaseGraph();
+    void drawBaseGraph(double min, double max);
 
 private slots:
     void onLoadLutPressed();
     void onShowReflectionPressed();
     void onShowTransmittedPressed();
     void onShowProbabilitiesPressed();
+    void onShowBothPressed();
 
 };
 

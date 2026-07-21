@@ -550,10 +550,13 @@ ALUTInterfaceWidget::ALUTInterfaceWidget(ALutInterfaceRule * rule, QWidget * par
             lay2->addWidget(new QLabel("or"));
             pbShowTrans = new QPushButton("Transmission");
             lay2->addWidget(pbShowTrans);
+            lay2->addWidget(new QLabel("or"));
+            QPushButton * pbBoth = new QPushButton("Both");
+            lay2->addWidget(pbBoth);
             lay2->addWidget(new QLabel("for"));
             cobAngles = new QComboBox();
             lay2->addWidget(cobAngles);
-            lay2->addWidget(new QLabel("deg incidence"));
+            lay2->addWidget(new QLabel("deg"));
         layV->addLayout(lay2);
             pbShowAbs = new QPushButton("Show fractions vs incidence angle");
         layV->addWidget(pbShowAbs, 0, Qt::AlignHCenter);
@@ -564,6 +567,7 @@ ALUTInterfaceWidget::ALUTInterfaceWidget(ALutInterfaceRule * rule, QWidget * par
     QObject::connect(pbShowRef  , &QPushButton::clicked, this, &ALUTInterfaceWidget::onShowReflectionPressed);
     QObject::connect(pbShowTrans, &QPushButton::clicked, this, &ALUTInterfaceWidget::onShowTransmittedPressed);
     QObject::connect(pbShowAbs,   &QPushButton::clicked, this, &ALUTInterfaceWidget::onShowProbabilitiesPressed);
+    QObject::connect(pbBoth,      &QPushButton::clicked, this, &ALUTInterfaceWidget::onShowBothPressed);
 
     updateLutGui();
 }
@@ -613,16 +617,35 @@ void ALUTInterfaceWidget::onLoadLutPressed()
 
 void ALUTInterfaceWidget::onShowReflectionPressed()
 {
+    drawBaseGraph(0, 1.0);
+
     //showMesh(true);
-    //showMeshNiceButSlow(true);
     showMeshNiceAndFast(true);
+
+    drawDirectionLine(cobAngles->currentText().toDouble(), 0);
+    drawSurfaceCircle(100, 0.1);
 }
 
 void ALUTInterfaceWidget::onShowTransmittedPressed()
 {
+    drawBaseGraph(0, 1.0);
+
     //showMesh(false);
-    //showMeshNiceButSlow(false);
-    showMeshNiceAndFast(false);
+    showMeshNiceAndFast(false, true);
+
+    drawDirectionLine(cobAngles->currentText().toDouble(), 2);
+    drawSurfaceCircle(100, 0.1);
+}
+
+void ALUTInterfaceWidget::onShowBothPressed()
+{
+    drawBaseGraph(-1.0, 1.0);
+
+    showMeshNiceAndFast(false, false);
+    showMeshNiceAndFast(true);
+
+    drawDirectionLine(cobAngles->currentText().toDouble(), 1);
+    drawSurfaceCircle(100, 0.1);
 }
 
 #include "TGraph.h"
@@ -766,121 +789,8 @@ void ALUTInterfaceWidget::showMesh(bool reflection)
     emit requestDraw(meshList, "fsame", true, true);
 }
 
-void ALUTInterfaceWidget::showMeshNiceButSlow(bool reflection)
-{
-    QString err = Rule->check();
-    if (!err.isEmpty()) return;
-
-    AGeoMeshHandler * mesh = Rule->getTransMesh();
-
-    std::vector<AGeoMeshHandler::Vec3> & vertices = mesh->vertices;
-    std::vector<AGeoMeshHandler::Triangle> triangles = mesh->triangles;
-
-    std::vector<double> & Data = reflection
-                                    ? Rule->DataReflection  [cobAngles->currentIndex()].second
-                                    : Rule->DataTransmission[cobAngles->currentIndex()].second;
-
-
-    const int nPointsPerTriangle = 5;
-    const int numColors = TColor::GetNumberOfColors();
-
-    auto minMax = std::minmax_element(Data.begin(), Data.end());
-    double valMin = *minMax.first;
-    double valMax = *minMax.second;
-    double valRange = (valMax == valMin) ? 1.0 : (valMax - valMin);
-
-    // FIX: Keep vectors strictly sized to numColors (0 to numColors - 1)
-    std::vector<std::vector<double>> colorX(numColors);
-    std::vector<std::vector<double>> colorY(numColors);
-    std::vector<std::vector<double>> colorZ(numColors);
-
-    // 2. Loop over all custom triangles to populate points uniformly
-    for (size_t i = 0; i < triangles.size(); ++i)
-    {
-        double normVal = (Data[i] - valMin) / valRange;
-
-        // Safe protection against floating-point rounding exceeding 1.0
-        if (normVal < 0.0) normVal = 0.0;
-        if (normVal > 1.0) normVal = 1.0;
-
-        // FIX: Calculate a local index from 0 to numColors-1 for our tracking vectors
-        int paletteBin = static_cast<int>(normVal * (numColors - 1));
-
-        // Pull coordinates for the 3 vertices defining this face
-        const auto& p0 = vertices[triangles[i][0]];
-        const auto& p1 = vertices[triangles[i][1]];
-        const auto& p2 = vertices[triangles[i][2]];
-
-        // Approximate a grid that will sum up roughly to nPointsPerTriangle
-        int steps = std::max(2, (int)std::sqrt(2 * nPointsPerTriangle));
-
-        for (int u = 0; u <= steps; ++u)
-        {
-            for (int v = 0; v <= steps - u; ++v)
-            {
-                double w0 = (double)u / steps;
-                double w1 = (double)v / steps;
-                double w2 = 1.0 - w0 - w1;
-
-                // Compute exact internal coordinate position
-                double px = w0 * p0[0] + w1 * p1[0] + w2 * p2[0];
-                double py = w0 * p0[1] + w1 * p1[1] + w2 * p2[1];
-                double pz = w0 * p0[2] + w1 * p1[2] + w2 * p2[2];
-
-                // Safely push back using the guaranteed 0-bounded local index
-                colorX[paletteBin].push_back(px);
-                colorY[paletteBin].push_back(py);
-                colorZ[paletteBin].push_back(pz);
-            }
-        }
-    }
-
-    // 3. Create ONE foundational Graph layer to initialize the 3D frame & viewport
-    TGraph2D *baseGraph = new TGraph2D(vertices.size());
-    for (size_t i = 0; i < vertices.size(); ++i)
-        baseGraph->SetPoint(i, vertices[i][0], vertices[i][1], vertices[i][2]);
-    baseGraph->SetMarkerStyle(1);
-    baseGraph->SetMarkerColor(kWhite);
-    emit requestDraw(baseGraph, "P", true, true);
-
-    // 4. Draw the sampled point clouds on top ("same")
-    for (int bin = 0; bin < numColors; ++bin)
-    {
-        int nPointsInColor = colorX[bin].size();
-        if (nPointsInColor == 0) continue;
-
-        TPolyMarker3D * pm3d = new TPolyMarker3D(nPointsInColor);
-        for (int p = 0; p < nPointsInColor; ++p) {
-            pm3d->SetPoint(p, colorX[bin][p], colorY[bin][p], colorZ[bin][p]);
-        }
-
-        // FIX: Translate the safe local loop index back to ROOT's global color unique ID
-        int actualRootColorIdx = TColor::GetColorPalette(bin);
-
-        pm3d->SetMarkerColor(actualRootColorIdx);
-        pm3d->SetMarkerStyle(20); // Solid circular dot
-        pm3d->SetMarkerSize(0.6);
-
-        //pm3d->Draw("same");
-        emit requestDraw(pm3d, "same", true, false);
-    }
-}
-
-
 #include "apersistentutils3d.h"
-/*
-class AMyPolyMarker3D : public TPolyMarker3D
-{
-public:
-    AMyPolyMarker3D(int n) : TPolyMarker3D(n) {ResetBit(kCanDelete);}
-    AMyPolyMarker3D() : TPolyMarker3D(n) {ResetBit(kCanDelete);}
-    ~AMyPolyMarker3D(){qDebug() << "---++--AMyPolyMarker3D:destr--++---";}
-
-    virtual TObject * Clone(const char * newname = "") const {TObject * clone = TPolyMarker3D::Clone(newname); clone->ResetBit(kCanDelete); return clone;}
-};
-*/
-
-void ALUTInterfaceWidget::showMeshNiceAndFast(bool reflection)
+void ALUTInterfaceWidget::showMeshNiceAndFast(bool reflection, bool showTransitionInUpperHemisphere)
 {
     QString err = Rule->check();
     if (!err.isEmpty()) return;
@@ -894,7 +804,6 @@ void ALUTInterfaceWidget::showMeshNiceAndFast(bool reflection)
                                     ? Rule->DataReflection  [cobAngles->currentIndex()].second
                                     : Rule->DataTransmission[cobAngles->currentIndex()].second;
 
-
     const int nPointsPerTriangle = 5;
     const int numColors = TColor::GetNumberOfColors();
 
@@ -903,12 +812,10 @@ void ALUTInterfaceWidget::showMeshNiceAndFast(bool reflection)
     double valMax = *minMax.second;
     double valRange = (valMax == valMin) ? 1.0 : (valMax - valMin);
 
-    // FIX: Keep vectors strictly sized to numColors (0 to numColors - 1)
     std::vector<std::vector<double>> colorX(numColors);
     std::vector<std::vector<double>> colorY(numColors);
     std::vector<std::vector<double>> colorZ(numColors);
 
-    // 2. Loop over all custom triangles to populate points uniformly
     for (size_t i = 0; i < triangles.size(); ++i)
     {
         double normVal = (Data[i] - valMin) / valRange;
@@ -942,34 +849,30 @@ void ALUTInterfaceWidget::showMeshNiceAndFast(bool reflection)
                 double pz = w0 * p0[2] + w1 * p1[2] + w2 * p2[2];
 
                 // Safely push back using the guaranteed 0-bounded local index
-                colorX[paletteBin].push_back(px);
-                colorY[paletteBin].push_back(py);
-                colorZ[paletteBin].push_back(pz);
+                if (reflection)
+                {
+                    colorX[paletteBin].push_back(px);
+                    colorY[paletteBin].push_back(py);
+                    colorZ[paletteBin].push_back(pz);
+                }
+                else
+                {
+                    colorX[paletteBin].push_back(px);
+                    //  showTransitionInUpperHemisphere - how it is stored
+                    // !showTransitionInUpperHemisphere - rotate around x axis
+                    colorY[paletteBin].push_back(showTransitionInUpperHemisphere ? py : -py);
+                    colorZ[paletteBin].push_back(showTransitionInUpperHemisphere ? pz : -pz);
+                }
             }
         }
     }
 
-    /*
-    // 3. Create ONE foundational Graph layer to initialize the 3D frame & viewport
-    TGraph2D *baseGraph = new TGraph2D(vertices.size());
-    for (size_t i = 0; i < vertices.size(); ++i)
-        baseGraph->SetPoint(i, vertices[i][0], vertices[i][1], vertices[i][2]);
-    baseGraph->SetMarkerStyle(1);
-    baseGraph->SetMarkerColor(kWhite);
-    emit requestDraw(baseGraph, "P", true, true);
-    */
-    drawBaseGraph();
-
-
-    // 4. Draw the sampled point clouds on top ("same")
     TList * meshList = new TList();
     for (int bin = 0; bin < numColors; ++bin)
     {
         int nPointsInColor = colorX[bin].size();
         if (nPointsInColor == 0) continue;
 
-        //TPolyMarker3D * pm3d = new TPolyMarker3D(nPointsInColor);
-        //AMyPolyMarker3D * pm3d = new AMyPolyMarker3D(nPointsInColor);  pm3d->ResetBit(kCanDelete);
         APersistentPolymarker3D * pm3d = new APersistentPolymarker3D(nPointsInColor);
         for (int p = 0; p < nPointsInColor; ++p)
             pm3d->SetPoint(p, colorX[bin][p], colorY[bin][p], colorZ[bin][p]);
@@ -981,40 +884,25 @@ void ALUTInterfaceWidget::showMeshNiceAndFast(bool reflection)
         pm3d->SetMarkerStyle(20); // Solid circular dot
         pm3d->SetMarkerSize(0.6);
 
-        //pm3d->Draw("same");
         meshList->Add(pm3d);
     }
     emit requestDraw(meshList, "same", true, false);
-
-    drawDirectionLine(cobAngles->currentText().toDouble(), reflection);
-    drawSurfaceCircle(100, 0.1);
 }
 
-/*
-class AMyPolyLine3D : public TPolyLine3D
-{
-public:
-    AMyPolyLine3D(int n) : TPolyLine3D(n) {ResetBit(kCanDelete);}
-    ~AMyPolyLine3D(){qDebug() << "-------AMyPolyLine3D:destr-------";}
-
-    virtual TObject * Clone(const char * newname = "") const {TObject * clone = TPolyLine3D::Clone(newname); clone->ResetBit(kCanDelete); return clone;}
-};
-*/
-
-void ALUTInterfaceWidget::drawDirectionLine(double angle, bool reflection)
+void ALUTInterfaceWidget::drawDirectionLine(double angle, int flagRef0Both1Trans2)
 {
     angle *= 3.1415926535/180.0;
-    double factor = (reflection ? 1.2 : 0.6);
+    double factor = 1.2;  //(reflection ? 1.2 : 0.6);
 
-    //AMyPolyLine3D * line3d = new AMyPolyLine3D(2); line3d->ResetBit(kCanDelete);
+    // incoming
     APersistentPolyLine3D * line3d = new APersistentPolyLine3D(2);
-    line3d->SetPoint(0, -factor*sin(angle), 0.0, (reflection ? 1.0 : -1.0) * factor*cos(angle));
+    line3d->SetPoint(0, -factor*sin(angle), 0.0, (flagRef0Both1Trans2 < 2 ? 1.0 : -1.0) * factor*cos(angle));
     line3d->SetPoint(1, 0, 0, 0);
     line3d->SetLineColor(kRed);
     line3d->SetLineWidth(4);
     emit requestDraw(line3d, "same", true, false);
 
-    //AMyPolyLine3D * line3dout = new AMyPolyLine3D(2); line3dout->ResetBit(kCanDelete);
+    // outcoming
     APersistentPolyLine3D * line3dout = new APersistentPolyLine3D(2);
     line3dout->SetPoint(0, 1.2*sin(angle), 0.0, 1.2*cos(angle));
     line3dout->SetPoint(1, 0, 0, 0);
@@ -1022,6 +910,17 @@ void ALUTInterfaceWidget::drawDirectionLine(double angle, bool reflection)
     line3dout->SetLineStyle(2);
     line3dout->SetLineWidth(2);
     emit requestDraw(line3dout, "same", true, false);
+
+    if (flagRef0Both1Trans2 == 1)
+    {
+        APersistentPolyLine3D * line3dout = new APersistentPolyLine3D(2);
+        line3dout->SetPoint(0, 1.2*sin(angle), 0.0, -1.2*cos(angle));
+        line3dout->SetPoint(1, 0, 0, 0);
+        line3dout->SetLineColor(kRed);
+        line3dout->SetLineStyle(2);
+        line3dout->SetLineWidth(2);
+        emit requestDraw(line3dout, "same", true, false);
+    }
 }
 
 void ALUTInterfaceWidget::drawSurfaceCircle(int nPoints, double radius)
@@ -1044,7 +943,7 @@ void ALUTInterfaceWidget::drawSurfaceCircle(int nPoints, double radius)
     emit requestDraw(circle, "same", true, false);
 }
 
-void ALUTInterfaceWidget::drawBaseGraph()
+void ALUTInterfaceWidget::drawBaseGraph(double min, double max)
 {
     TGraph2D * g = new TGraph2D();
     g->AddPoint(1,1,1);
@@ -1052,8 +951,8 @@ void ALUTInterfaceWidget::drawBaseGraph()
     g->AddPoint(-1,-1,-1);
     g->AddPoint(1,-1,-1);
 
-    g->SetMinimum(0);
-    g->SetMaximum(1.1);
+    g->SetMinimum(min);
+    g->SetMaximum(max);
 
     //g->GetHistogram()->GetXaxis()->SetNdivisions(101, false); // copy to basket will forget this
 
