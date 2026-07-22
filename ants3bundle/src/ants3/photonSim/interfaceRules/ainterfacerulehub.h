@@ -69,9 +69,8 @@ private:
     QString readMaterialRulesFromJson(const QJsonObject & json);
     QString readVolumeRulesFromJson(const QJsonObject & json);
 
-
-signals:
-    void rulesLoaded();
+//signals:
+//    void rulesLoaded();
 
 };
 

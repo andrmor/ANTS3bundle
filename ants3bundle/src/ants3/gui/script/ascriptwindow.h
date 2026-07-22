@@ -260,7 +260,7 @@ signals:
     void onAbort();
 //    void onFinish(bool bError);
     void success(QString eval);   // maybe signal of the manager is enough?
-    void requestUpdateConfig();
+    //void requestUpdateConfig();
 
     void requestUpdateGui();
 

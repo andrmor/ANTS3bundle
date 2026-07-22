@@ -505,6 +505,7 @@ void AScriptWindow::clearOutput()
 }
 
 #include "ageometryhub.h"
+#include "aconfig.h"
 void AScriptWindow::on_pbRunScript_clicked()
 {
     lHelp->hide();
@@ -526,7 +527,8 @@ void AScriptWindow::on_pbRunScript_clicked()
         }
     }
 
-    emit requestUpdateConfig();
+    //emit requestUpdateConfig();
+    AConfig::getInstance().updateJSONfromConfig();
 
     const QString Script = getTab()->TextEdit->document()->toPlainText();
 
@@ -536,7 +538,6 @@ void AScriptWindow::on_pbRunScript_clicked()
 
     AGeometryHub & GeoHub = AGeometryHub::getInstance();
     GeoHub.ScriptUpdatedGeoManager = false;
-
     ScriptManager->evaluate(Script);
     do
     {

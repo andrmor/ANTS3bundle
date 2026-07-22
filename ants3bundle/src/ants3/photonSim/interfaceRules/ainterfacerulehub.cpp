@@ -176,7 +176,7 @@ QString AInterfaceRuleHub::readFromJson(const QJsonObject & json)
     err = readVolumeRulesFromJson(js);
     if (!err.isEmpty()) return err;
 
-    emit rulesLoaded();
+    //emit rulesLoaded();
     return "";
 }
 

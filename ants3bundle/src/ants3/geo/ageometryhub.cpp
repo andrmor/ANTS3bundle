@@ -1361,14 +1361,14 @@ QString AGeometryHub::exportGeometry(const QString & fileName)
     writeToJson(json);
     DoScaling = true;
     ScalingFactor = 0.1; // 1[mm] becomes 0.1[cm]
-    populateGeoManager();
+    populateGeoManager(false);
 
     GeoManager->SetName("geometry");
     int res = GeoManager->Export(fileName.toLocal8Bit().data());
 
     DoScaling = false;
     readFromJson(json);
-    populateGeoManager();
+    populateGeoManager(false);
 
     return (res == 0 ? "Failed to export to file "+fileName : "");
 }

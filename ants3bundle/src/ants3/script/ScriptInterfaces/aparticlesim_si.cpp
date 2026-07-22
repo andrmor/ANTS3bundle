@@ -73,9 +73,12 @@ AParticleSim_SI::AParticleSim_SI() :
     Help["getThreeGammasForPositronium"] = "Returns array containing three arrays of gammas [dx,dy,dz,MeV] representing ortho-positronium decay";
 }
 
+#include "ageometryhub.h"
 void AParticleSim_SI::simulate()
 {
     SimMan.simulate();
+
+    AGeometryHub::getInstance().ScriptUpdatedGeoManager = true;
 
     QString err = AErrorHub::getQError();
     if (!err.isEmpty()) abort(err);
