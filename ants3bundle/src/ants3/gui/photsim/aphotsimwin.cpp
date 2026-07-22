@@ -99,7 +99,6 @@ APhotSimWin::APhotSimWin(QWidget * parent) :
     //LogForm->setNumber(100);
     LogForm->setNumberInvisible();
 
-    ui->labAdvancedModeEnabled->setVisible(false);
     ui->frLRF->setVisible(false);
     ui->labNoMercury->setVisible(false);
     ui->frLimitBombPosition->setVisible(ui->cobNodeGenerationMode->currentIndex() != 0);
@@ -107,6 +106,8 @@ APhotSimWin::APhotSimWin(QWidget * parent) :
 
     on_cbSecondAxis_toggled(ui->cbSecondAxis->isChecked());
     on_cbThirdAxis_toggled(ui->cbThirdAxis->isChecked());
+
+    updateSettingsYellowWarnings();
 
     updateGui();
 }
@@ -376,7 +377,7 @@ void APhotSimWin::updatePhotBombGui()
     ui->cbSkipByMaterial->setChecked(skipNodeSettings.bOnlyMaterial);
     ui->leSkipOutsideMaterial->setText(skipNodeSettings.Material);
 
-    updateAdvancedBombIndicator();
+    updateSettingsYellowWarnings();
 }
 
 void APhotSimWin::updateDepoGui()
@@ -927,6 +928,19 @@ void APhotSimWin::processGeoConstAwareEditFinished(AOneLineTextEdit * edit, QStr
     str = stringVal;
 
     emit photonSourcesChanged();
+}
+
+void APhotSimWin::updateSettingsYellowWarnings()
+{
+    const APhGenOverrideSettings & overrideSet = SimSet.PhGenOverrideSet;
+    bool bAdvancedSettingsOn = (overrideSet.DirectionMode != APhGenOverrideSettings::Isotropic || overrideSet.bFixWave || overrideSet.bFixDecay);
+    ui->labAdvancedBombOn->setVisible(bAdvancedSettingsOn);
+
+    const APhotOptSettings & optSet = SimSet.OptSet;
+    bool bAdvancedTracingOn = (optSet.TracingMode != APhotOptSettings::Normal);
+    ui->labAdvancedModeEnabled->setVisible(bAdvancedTracingOn);
+
+    ui->twSignals->setTabIcon(0, (bAdvancedSettingsOn || bAdvancedTracingOn ? YellowCircle : QIcon()));
 }
 
 void APhotSimWin::on_ledFloodXfrom_editingFinished()
@@ -1700,15 +1714,7 @@ void APhotSimWin::on_pbAdvancedBombSettings_clicked()
 {
     APhotGenOverrideDialog dia(this);
     dia.exec();
-    updateAdvancedBombIndicator();
-}
-
-void APhotSimWin::updateAdvancedBombIndicator()
-{
-    const APhGenOverrideSettings & s = SimSet.PhGenOverrideSet;
-
-    bool on = (s.DirectionMode != APhGenOverrideSettings::Isotropic || s.bFixWave || s.bFixDecay);
-    ui->labAdvancedBombOn->setVisible(on);
+    updateSettingsYellowWarnings();
 }
 
 // --- BombFile ---
@@ -2200,9 +2206,7 @@ else
         ui->labNoMercury->setVisible(false);
     }
 
-    ui->labAdvancedModeEnabled->setVisible(index != 0);
-    ui->twSignals->setTabIcon(0, (index == 0 ? QIcon() : YellowCircle));
-
+    updateSettingsYellowWarnings();
 }
 
 void APhotSimWin::on_sbEvent_editingFinished()
@@ -2427,6 +2431,7 @@ void APhotSimWin::on_cobTracingMode_activated(int index)
     case 1: SimSet.OptSet.TracingMode = APhotOptSettings::CheckQeBefore; break;
     case 2: SimSet.OptSet.TracingMode = APhotOptSettings::LRF;           break;
     }
+    updateSettingsYellowWarnings();
 }
 
 void APhotSimWin::on_cbSkipByMaterial_clicked(bool checked)
