@@ -255,6 +255,7 @@ QVariant AConfig_SI::getKeyValue(QString Key)
     return 0;
 }
 
+#include "ageometryhub.h"
 void AConfig_SI::updateConfig()
 {
     if (!bGuiThread)
@@ -262,6 +263,8 @@ void AConfig_SI::updateConfig()
         abort("Only GUI thread can modify detector configuration!");
         return;
     }
+
+    AGeometryHub::getInstance().ScriptUpdatedGeoManager = true;
 
     QString err = Config.updateConfigFromJSON(false);
     if (!err.isEmpty()) abort("Error in configuration JSON:\n" + err);
