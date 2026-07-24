@@ -16,6 +16,8 @@
 @ThinLens.json Example demonstrating how to configure thin lens for optical simulation using a PhotonFuncional object
 @OpticalGrid.json Optical grid: comparison with an array of wires
 @FanoTester.json Configuration which can be used to test effect of fano factor of the material on scintillation statistics
+@LutExtractorConfig.json Configuration for look-up table (LUT) extractor for LUT interface rule
+@LutRuleTester.json Configuration for validation of the LUT interface rule
 * Gamma cameras
 ** PMT-based
 @GammaCamera37PMTs.json Gamma camera with NaI scintillator and 37 PMTs

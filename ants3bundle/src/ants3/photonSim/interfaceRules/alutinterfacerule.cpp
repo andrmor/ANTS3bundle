@@ -97,12 +97,20 @@ AInterfaceRule::EInterfaceRuleResult ALutInterfaceRule::calculate(APhoton * Phot
 
 QString ALutInterfaceRule::getReportLine() const
 {
-    return ""; // !!!***
+    int size = DataReflection.size();
+    if (size == 0) size = DataTransmission.size();
+    QString txt = "--> LUT <--\n";
+    txt += QString("Angle of inceidence bins: %0").arg(size);
+    return txt;
 }
 
 QString ALutInterfaceRule::getLongReportLine() const
 {
-    return ""; // !!!***
+    int size = DataReflection.size();
+    if (size == 0) size = DataTransmission.size();
+    QString txt = "--> LUT <--\n";
+    txt += QString("Angle of inceidence bins: %0").arg(size);
+    return txt;
 }
 
 QString ALutInterfaceRule::getDescription() const

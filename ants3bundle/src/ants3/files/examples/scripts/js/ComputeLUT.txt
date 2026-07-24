@@ -1,0 +1,113 @@
+// Script to build LUT, requires loading example config "LutExtractorConfig.json"
+// -- user config --
+var dir                = "/home/andr/.config/ants3/TmpOutput"
+var outputLUTfile      = "LUT_test.json"
+var approximateLUTbins = 10000 
+var deltaThetaBin      = 2 // degrees
+var thetaMax           = 85     // degrees
+var numPhotons         = 4e5
+// ----
+
+var conesAndNumbers = [[4, 0.0514*numPhotons], [17, 0.0800*numPhotons], [34, 0.0975*numPhotons], [51, 0.0801*numPhotons], [68, 0.0559*numPhotons], [86, 0.6351*numPhotons]]
+var logFile = "PhotonMonitorLog.dat"
+
+var thetaBins = Math.floor(thetaMax / deltaThetaBin) + 1
+core.print("With theta step of", deltaThetaBin, "and max theta of", thetaMax, "-->", thetaBins, "bins")    
+
+var AbsPerTheta = []; AbsPerTheta.length = thetaBins; for (var i = 0; i < thetaBins; i++) AbsPerTheta[i] = 0
+var numBins = lsim.mesh_build(approximateLUTbins)
+
+hist.new1D("thetas", 360, -180, 180)
+hist.new1D("thetaBins", thetaBins, 0, thetaBins)
+for (var iTh = 0; iTh < thetaBins; iTh++)
+{
+    hist.new1D("refBins"   + iTh, numBins, 0, numBins)
+    hist.new1D("transBins" + iTh, numBins, 0, numBins)
+}
+
+for (var iCone = 0; iCone < conesAndNumbers.length; iCone++)
+{
+    core.print("Running simulation with photon cone half-angle of", conesAndNumbers[iCone][0],"and number of photons of", conesAndNumbers[iCone][1])
+    config.replace("PhotonSim.PhGenOverrides.Direction.ConeAngle", conesAndNumbers[iCone][0])
+    config.replace("PhotonSim.PhotonBombs.Flood.Number", conesAndNumbers[iCone][1])
+    config.updateConfig()
+    
+    lsim.simulate()
+    var data = core.load3DArray(dir + "/" + logFile, "#", ['i',  'd','d','d',  'd','d','d']) // index x y z dx dy dz
+    core.print("  data loaded")
+    
+    for (var iEv = 0; iEv < data.length; iEv++)
+    {
+        var event = data[iEv]
+        if (iEv % 10000 == 0) core.print("   ..processing event #",iEv)
+        if (event.length == 0) core.abort("Found empty monitor log record")
+        if (event.length  > 2) core.abort("Found event with more than 2 monitor hit, unexpected!")
+        
+        if (event[0][0] != 0) continue  // photon generated in a direction not suited for analysis (not towards the interface or potentially too close to periphery)
+        
+        var dxIn = event[0][4]
+        var dyIn = event[0][5]
+        var dzIn = Math.abs(event[0][6])
+        var theta = Math.acos(dzIn) * 180.0 / 3.1415926535
+        hist.fill("thetas", theta, 1)
+        var thetaBin = math.round( theta / deltaThetaBin )
+        hist.fill("thetaBins", thetaBin, 1)
+        
+        if (event.length == 1)
+        {
+            // absorption
+            AbsPerTheta[thetaBin]++
+            //core.print(iEv)
+            continue
+        }
+        
+        var phiIn = Math.atan2(dyIn, dxIn);
+        
+        var rec = event[1]
+        var bReflection = (rec[0] == 1) // else transmission
+        var dx = rec[4]
+        var dy = rec[5]
+        var dzOut = Math.abs(rec[6])
+        
+        var cos = Math.cos(-phiIn)
+        var sin = Math.sin(-phiIn)
+        var dxOut = dx * cos - dy * sin
+        var dyOut = dx * sin + dy * cos
+        
+        // transmission data are stored in a similar mesh (upper hemisphere) -> rotate around x axis!
+        var ibin = lsim.mesh_findIndex(dxOut, bReflection ? dyOut : -dyOut, dzOut) // Z is already "rotated" for transmission (abs)
+        hist.fill( bReflection ? "refBins"+thetaBin : "transBins"+thetaBin, ibin+0.01, 1)
+    }
+}
+    
+hist.draw("thetas"); grwin.addToBasket("Thetas")
+hist.draw("thetaBins"); grwin.addToBasket("ThetaBins")
+core.print("Absorption vs theta bin:", AbsPerTheta)
+    
+core.print("Computing LUT...")    
+var arRef   = []; arRef.length   = thetaBins    
+var arTrans = []; arTrans.length = thetaBins
+var arAbs   = []; arAbs.length   = thetaBins
+for (var iTh = 0; iTh < thetaBins; iTh++)
+{
+    core.print("  >processing theta bin", iTh+1, "out of", thetaBins)
+    var Theta = deltaThetaBin * iTh
+    
+    var refData = hist.getData("refBins"+iTh)
+    var refData1D = []; refData1D.length = refData.length
+    for (var ii = 0; ii < refData.length; ii++)
+        refData1D[ii] = refData[ii][1]
+    arRef[iTh] = {"Value":Theta, "Array":refData1D}
+    
+    var transmData = hist.getData("transBins"+iTh)
+    var transmData1D = []; transmData1D.length = transmData.length
+    for (var ii = 0; ii < transmData.length; ii++)
+        transmData1D[ii] = transmData[ii][1]
+    arTrans[iTh] = {"Value":Theta, "Array":transmData1D} 
+    
+    arAbs[iTh] = [Theta, AbsPerTheta[iTh]]
+}
+
+var ob = { "Absorption":arAbs, "Reflection":arRef, "Transmission":arTrans}
+core.saveObject(ob, dir + "/" + outputLUTfile)
+core.print("Done! LUT saved in:" + dir + "/" + outputLUTfile)
