@@ -37,6 +37,7 @@
 
 #include "TApplication.h"
 #include "TH1.h"
+#include "TROOT.h"  // fix for root v6.40.02, see below
 
 Q_DECLARE_METATYPE(TObject*)
 
@@ -54,6 +55,8 @@ int main(int argc, char *argv[])
     char* rootargv[] = {(char*)"dummy"};
     TApplication RootApp("MyROOT", &rootargc, rootargv);
     TH1::AddDirectory(false);  //a histograms objects will not be automatically created in root directory (TDirectory); special case is in TreeView
+
+    ROOT::EnableImplicitMT(1); // fix for root v6.40.02
 
     qDebug() << "Init Qt application";
     std::unique_ptr<QCoreApplication> app;
