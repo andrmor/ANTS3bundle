@@ -1314,6 +1314,8 @@ int AGeometryHub::checkGeometryForConflicts()
     GeoManager->ClearOverlaps();
     int segments = GeoManager->GetNsegments();
 
+    /*
+    // Old way (before ROOT v6.40)
     GeoManager->CheckOverlaps(precision);
     TObjArray * overlaps = GeoManager->GetListOfOverlaps();
     int overlapCount = overlaps->GetEntries();
@@ -1325,13 +1327,12 @@ int AGeometryHub::checkGeometryForConflicts()
         overlaps = GeoManager->GetListOfOverlaps();
         overlapCount = overlaps->GetEntries();
     }
+    */
 
-/*
-    // crashes sometimes in 6.40.02
     // streamlined in root 6.40
     GeoManager->SetNsegments(40);
-    GeoManager->SetNmeshPoints(1000);
-        //ROOT::EnableImplicitMT(10);
+    GeoManager->SetNmeshPoints(2000);
+    ROOT::EnableImplicitMT(1); // crashes in root v6.40.02 if multithreading os enabled
     GeoManager->CheckOverlaps(precision);
 
     TObjArray * overlaps = GeoManager->GetListOfOverlaps();
@@ -1343,7 +1344,6 @@ int AGeometryHub::checkGeometryForConflicts()
     //     overlaps = GeoManager->GetListOfOverlaps();
     //     overlapCount = overlaps->GetEntries();
     // }
-*/
 
     GeoManager->SetNsegments(segments);  //restore back, get auto reset during the check to some bad default value
     return overlapCount;
