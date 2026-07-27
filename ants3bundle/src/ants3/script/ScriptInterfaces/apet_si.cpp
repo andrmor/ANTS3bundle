@@ -367,7 +367,7 @@ void APet_si::configureReconstructionVoxels(int numX, int numY, int numZ, double
         return;
     }
 
-    NumVoxels  = {numX,  numY,  numZ};
+    NumVoxels  = {static_cast<size_t>(numX),  static_cast<size_t>(numY),  static_cast<size_t>(numZ)};
     SizeVoxels = {sizeX, sizeY, sizeZ};
 }
 
