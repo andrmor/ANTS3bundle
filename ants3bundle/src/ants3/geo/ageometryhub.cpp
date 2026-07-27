@@ -1331,8 +1331,8 @@ int AGeometryHub::checkGeometryForConflicts()
 
     // streamlined in root 6.40
     GeoManager->SetNsegments(40);
-    GeoManager->SetNmeshPoints(2000);
-    ROOT::EnableImplicitMT(1); // crashes in root v6.40.02 if multithreading os enabled
+    GeoManager->SetNmeshPoints(2000); // 1000 is default
+    ROOT::EnableImplicitMT(1); // crashes in root v6.40.02 if multithreading (>1) is enabled
     GeoManager->CheckOverlaps(precision);
 
     TObjArray * overlaps = GeoManager->GetListOfOverlaps();
