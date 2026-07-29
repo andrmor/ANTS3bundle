@@ -41,7 +41,7 @@ struct AParticleSourceRecordBase
     virtual void doWriteToJson(QJsonObject & /*json*/) const {}
 
     virtual void    updateGeoConstRelatedSimProperties() {}
-    virtual QString isGeoConstInUse(const QRegularExpression & /*nameRegExp*/) const {}
+    virtual QString isGeoConstInUse(const QRegularExpression & /*nameRegExp*/) const {return "";}
     virtual void    replaceGeoConstName(const QRegularExpression & /*nameRegExp*/, const QString & /*newName*/) {}
 #endif
 

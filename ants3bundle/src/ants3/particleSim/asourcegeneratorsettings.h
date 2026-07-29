@@ -22,7 +22,7 @@ public:
 
     void        clear();
 
-    int         getNumSources() const {return SourceData.size();}
+    size_t      getNumSources() const {return SourceData.size();}
     double      calculateTotalActivity() const;
 
     bool        check() const;

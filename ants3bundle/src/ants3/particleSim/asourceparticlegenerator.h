@@ -13,13 +13,58 @@ class  ASourceGeneratorSettings;
 class  ARandomHub;
 class  G4Navigator;
 class  G4Material;
-class AGunParticle;
+class  AGunParticle;
+struct AParticleSourceRecord_Standard;
+struct AParticleSourceRecord_EcoMug;
+class  ASource_Base;
+
+// ---
+
+class ASourceParticleGenerator : public AParticleGun
+{
+public:
+    ASourceParticleGenerator(const ASourceGeneratorSettings & settings);
+
+    bool init() override; // !!! has to be called before the first use of GenerateEvent()!
+
+    bool generateEvent(std::function<void(const AParticleRecord&)> handler, int iEvent) override;
+
+    AVector3 getCollimationDirection(int iSource) const; // !!!*** to ASource_Standard
+
+    const ASourceGeneratorSettings & Settings;
+
+private:
+    ARandomHub & RandomHub;
+
+    double TotalActivity = 0;
+
+    std::vector<ASource_Base*> Sources;
+
+    void   clearSources();
+
+    int    selectNumberOfPrimaries() const; // !!!*** to size_t
+    size_t selectSource() const;
+};
+
+// --- particular source implementations ---
+
+class ASource_Base
+{
+public:
+    ASource_Base();
+    virtual ~ASource_Base(){};
+
+    virtual bool init() = 0;
+    virtual bool generatePrimary(std::function<void (const AParticleRecord &)> handler, int iEvent) = 0;
+
+    ARandomHub & RandomHub;
+};
 
 class ALinkedParticle
 {
 public:
-    int iParticle; //indexed according to GunParticles index
-    int LinkedTo;  //index of particle it is linked to
+    int iParticle; // indexed according to GunParticles index
+    int LinkedTo;  // index of particle it is linked to
 
     ALinkedParticle() {}
     ALinkedParticle(int iparticle, int linkedto = -1) {iParticle = iparticle; LinkedTo = linkedto;}
@@ -29,57 +74,62 @@ public:
     double TimeStamp = 0;
 };
 
-struct AParticleSourceRecord_Standard;
-struct AParticleSourceRecord_EcoMug;
-class EcoMug;
-
-class ASourceParticleGenerator : public AParticleGun
+class ASource_Standard : public ASource_Base
 {
 public:
-    ASourceParticleGenerator(const ASourceGeneratorSettings & settings);
+    ASource_Standard(const AParticleSourceRecord_Standard * settings);
 
-    bool init() override; // !!! has to be called before the first use of GenerateEvent()!
-    bool generateEvent(std::function<void(const AParticleRecord&)> handler, int iEvent) override; // !!!*** inside
+    bool init() override;
+    bool generatePrimary(std::function<void (const AParticleRecord &)> handler, int iEvent) override;
 
-    AVector3 getCollimationDirection(int iSource) const {return CollimationDirection[iSource];}
+    const AParticleSourceRecord_Standard * Settings;
 
-    const ASourceGeneratorSettings & Settings;
-
-private:
-    ARandomHub & RandomHub;
+    // Run-time
+    double   TotalParticleWeight;
+    AVector3 CollimationDirection;
+    double   CollimationProbability; //collimation probability: solid angle inside cone / 4Pi
 
     //full recipe of emission builder (containes particles linked to particles etc up to the top level individual particle)
-    std::vector<std::vector<std::vector<ALinkedParticle>>> LinkedPartiles; //[isource] [iparticle] []  (includes the record of the particle iteslf (first one)
+    std::vector<std::vector<ALinkedParticle>> LinkedPartiles; //[iparticle] []  (includes the record of the particle iteslf (first one)
 
-    double TotalActivity = 0;
-
-    // consider moving randomSamplers to here too !!!***
-    std::vector<double>   TotalParticleWeight;
-    std::vector<AVector3> CollimationDirection;   //[isource] collimation direction
-    std::vector<double>   CollimationProbability; //[isource] collimation probability: solid angle inside cone / 4Pi
 
 #ifdef GEANT4
-    G4Navigator * Navigator = nullptr;
-    std::vector<G4Material*> LimitedToMat;
+    G4Navigator * Navigator = nullptr;  // !!!*** one should be enough!
+    G4Material  * LimitedToMat = nullptr;
 #else
-    std::vector<int>         LimitedToMat;
+    int           LimitedToMat = 0;
 #endif
 
-    std::vector<EcoMug*> EcoMugGenerators;
+private:
+    void   updateLimitedToMat();  // !!!*** add error handling
+    size_t selectParticle() const;
+    bool   selectPosition(double * R) const;
+    void   doGeneratePosition(double * R) const;
+    double selectTime(int iEvent);
+    void   generateDirection(bool forceIsotropic, double * direction) const;
 
-    void   updateLimitedToMat();
+    // !!!*** error handling:
+    void   processSpecialParticle(const AGunParticle & particle, double * position, double time, bool forceIsotropic, std::function<void (const AParticleRecord &)> handler);
 
-    int    selectNumberOfPrimaries() const;
-    int    selectSource() const;   // !!!*** to size_t
-    size_t selectParticle(int iSource, AParticleSourceRecord_Standard * source) const;
-    bool   selectPosition(int iSource, AParticleSourceRecord_Standard * source, double * R) const;
-    void   generateDirection(size_t iSource, AParticleSourceRecord_Standard * source, bool forceIsotropic, double * direction) const;
-    void   doGeneratePosition(AParticleSourceRecord_Standard * source, double * R) const;
-    double selectTime(AParticleSourceRecord_Standard * source, int iEvent);
-    void   addGeneratedParticle(int iSource, AParticleSourceRecord_Standard * source, int iParticle, double * position, double time, bool forceIsotropic, std::function<void(const AParticleRecord&)> handler);
-    void   processSpecialParticle(const AGunParticle & particle, AParticleSourceRecord_Standard * source, double * position, double time, bool forceIsotropic, std::function<void (const AParticleRecord &)> handler);
-    bool   generatePrimary_StandardSource(int iSource, AParticleSourceRecord_Standard * source, std::function<void (const AParticleRecord &)> handler, int iEvent);
-    bool   generatePrimary_EcoMugSource(int iSource, AParticleSourceRecord_EcoMug * source, std::function<void (const AParticleRecord &)> handler);
+    // old comment, cannot remember the idea --> "override for secondaries to uniform!"
+    void addGeneratedParticle(int iParticle, double * position, double time, bool forceIsotropic, std::function<void (const AParticleRecord &)> handler);
+};
+
+class EcoMug;
+struct AParticleSourceRecord_EcoMug;
+class ASource_EcoMug : public ASource_Base
+{
+public:
+    ASource_EcoMug(const AParticleSourceRecord_EcoMug * settings);
+    ~ASource_EcoMug();
+
+    bool init() override;
+    bool generatePrimary(std::function<void (const AParticleRecord&)> handler, int iEvent) override;
+
+    const AParticleSourceRecord_EcoMug * Settings;
+
+    // Run-time
+    EcoMug * EcoMugGenerator = nullptr;
 };
 
 #endif // ASOURCEPARTICLEGENERATOR_H
