@@ -33,6 +33,9 @@ public:
 
     const ASourceGeneratorSettings & Settings;
 
+protected:
+    void doRequestAbort() override;
+
 private:
     ARandomHub & RandomHub;
 
@@ -58,6 +61,7 @@ public:
     virtual bool generatePrimary(std::function<void (const AParticleRecord &)> handler, int iEvent) = 0;
 
     ARandomHub & RandomHub;
+    bool AbortRequested = false;
 };
 
 class ALinkedParticle

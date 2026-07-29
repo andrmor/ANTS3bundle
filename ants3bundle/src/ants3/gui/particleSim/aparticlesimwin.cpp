@@ -851,9 +851,8 @@ void AParticleSimWin::testParticleGun(AParticleGun * gun, int numParticles, bool
         if (!bOK) break;
     }
 
-    if (gun->AbortRequested) return;
+    if (gun->isAbortRequested()) return;
 
-    //emit requestShowGeometry(false, true, true);
     emit requestShowMarkers();
     emit requestShowTracks();
 
@@ -2835,8 +2834,8 @@ void AParticleSimWin::on_pbLoadFromLibrary_clicked()
 
 void AParticleSimWin::on_pbAbort_clicked()
 {
-    SimManager.Generator_Sources->AbortRequested = true;
-    SimManager.Generator_File->AbortRequested = true;
+    SimManager.Generator_Sources->requestAbort();
+    SimManager.Generator_File->requestAbort();
     SimManager.abort();
 }
 

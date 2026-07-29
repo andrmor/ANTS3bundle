@@ -128,6 +128,12 @@ AVector3 ASourceParticleGenerator::getCollimationDirection(int iSource) const
     return CollimationDirection[iSource];
 }
 
+void ASourceParticleGenerator::doRequestAbort()
+{
+    for (ASource_Base * s : Sources)
+        s->AbortRequested = true;
+}
+
 void ASourceParticleGenerator::clearSources()
 {
     for (ASource_Base * source : Sources)
@@ -169,6 +175,8 @@ ASource_Standard::ASource_Standard(const AParticleSourceRecord_Standard * settin
 
 bool ASource_Standard::init()
 {
+    AbortRequested = false;
+
     for (const AGunParticle & gp : Settings->Particles)
         if (gp.GenerationType == AGunParticle::Independent)
             TotalParticleWeight += gp.StatWeight;
@@ -736,6 +744,8 @@ ASource_EcoMug::~ASource_EcoMug()
 
 bool ASource_EcoMug::init()
 {
+    AbortRequested = false;
+
     delete EcoMugGenerator; EcoMugGenerator = nullptr;
     EcoMugGenerator = new EcoMug();
 
