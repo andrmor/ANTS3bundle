@@ -29,7 +29,7 @@ public:
 
     bool generateEvent(std::function<void(const AParticleRecord&)> handler, int iEvent) override;
 
-    AVector3 getCollimationDirection(int iSource) const; // !!!*** to ASource_Standard
+    bool getFirstSourceCollimationDirection(AVector3 & vec);
 
     const ASourceGeneratorSettings & Settings;
 

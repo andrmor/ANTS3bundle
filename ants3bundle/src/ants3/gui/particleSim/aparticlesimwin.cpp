@@ -777,19 +777,12 @@ void AParticleSimWin::on_pbGunTest_clicked()
 void AParticleSimWin::configureAngleStat(AParticleGun * gun)
 {
     CollectAngle = false;
-    const ASourceParticleGenerator * ps = dynamic_cast<const ASourceParticleGenerator*>(gun);
+    ASourceParticleGenerator * ps = dynamic_cast<ASourceParticleGenerator*>(gun);
     if (!ps) return;
 
-    if (ps->Settings.getNumSources() > 1) return;
+    if (ps->Settings.getNumSources() != 1) return;
 
-    AParticleSourceRecordBase * sr = ps->Settings.SourceData.front();
-    AParticleSourceRecord_Standard * stSource = dynamic_cast<AParticleSourceRecord_Standard*>(sr);
-    if (!stSource) return;
-
-    if (!stSource->isDirectional()) return;
-
-    CollectAngle = true;
-    SourceStatDirection = ps->getCollimationDirection(0);
+    CollectAngle = ps->getFirstSourceCollimationDirection(SourceStatDirection);
 }
 
 #include "TGeoManager.h"

@@ -32,6 +32,8 @@ ASourceParticleGenerator::ASourceParticleGenerator(const ASourceGeneratorSetting
 
 bool ASourceParticleGenerator::init()
 {
+    clearSources();
+
     AbortRequested = false;
 
     size_t numSources = Settings.SourceData.size();
@@ -50,7 +52,6 @@ bool ASourceParticleGenerator::init()
 
     if (!Settings.check()) return false;
 
-    clearSources();
     for (size_t iSource = 0; iSource < numSources; iSource++)
     {
         AParticleSourceRecord_EcoMug * muSource = dynamic_cast<AParticleSourceRecord_EcoMug*>(Settings.SourceData[iSource]);
@@ -123,9 +124,18 @@ bool ASourceParticleGenerator::generateEvent(std::function<void(const AParticleR
     return true;
 }
 
-AVector3 ASourceParticleGenerator::getCollimationDirection(int iSource) const
+bool ASourceParticleGenerator::getFirstSourceCollimationDirection(AVector3 & vec)
 {
-    return CollimationDirection[iSource];
+    init();
+    if (Sources.size() != 1) return false;
+
+    ASource_Standard * ss = dynamic_cast<ASource_Standard*>(Sources.front());
+    if (!ss) return false;
+
+    if (!ss->Settings->isDirectional()) return false;
+
+    vec = ss->CollimationDirection;
+    return true;
 }
 
 void ASourceParticleGenerator::doRequestAbort()
