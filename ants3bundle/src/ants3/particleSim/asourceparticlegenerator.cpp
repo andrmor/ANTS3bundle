@@ -187,6 +187,7 @@ bool ASource_Standard::init()
 {
     AbortRequested = false;
 
+    TotalParticleWeight = 0;
     for (const AGunParticle & gp : Settings->Particles)
         if (gp.GenerationType == AGunParticle::Independent)
             TotalParticleWeight += gp.StatWeight;
