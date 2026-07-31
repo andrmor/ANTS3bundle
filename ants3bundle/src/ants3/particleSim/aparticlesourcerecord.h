@@ -101,7 +101,7 @@ struct AParticleSourceRecord_Standard : public AParticleSourceRecordBase
 {
     virtual std::string getType() const override {return "Standard";}
 
-    enum EShape {Point, Line, Rectangle, Round, Box, Cylinder};
+    enum EShape {Point, Line, Rectangle, Round, Box, Cylinder, Sphere};
     enum EAngularMode {Isotropic, FixedDirection, GaussDispersion, CustomAngular};
     enum EAxialMode {GaussAxial, CustomAxial};
     enum EOffsetMode {FixedOffset, ByEventIndexOffset, CustomDistributionOffset};

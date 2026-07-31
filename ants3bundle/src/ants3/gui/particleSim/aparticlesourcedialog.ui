@@ -137,6 +137,11 @@
          <string>Cylinder</string>
         </property>
        </item>
+       <item>
+        <property name="text">
+         <string>Sphere</string>
+        </property>
+       </item>
       </widget>
      </item>
      <item>

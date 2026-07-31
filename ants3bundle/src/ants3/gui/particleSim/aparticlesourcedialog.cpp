@@ -262,6 +262,7 @@ void AParticleSourceDialog::on_cobGunSourceType_currentIndexChanged(int index)
     case 3: s << "Diameter:" << ""       << "";        break;
     case 4: s << "SizeX:"    << "SizeY:" << "SizeZ:";  break;
     case 5: s << "Diameter:" << ""       << "Height:"; break;
+    case 6: s << "Diameter:" << ""       << "";        break;
     }
     ui->lGun1DSize->setText(s[0]);
     ui->lGun2DSize->setText(s[1]);
@@ -456,6 +457,7 @@ void AParticleSourceDialog::on_pbUpdateRecord_clicked()
     case 3 : LocalRec.Shape = AParticleSourceRecord_Standard::Round;     break;
     case 4 : LocalRec.Shape = AParticleSourceRecord_Standard::Box;       break;
     case 5 : LocalRec.Shape = AParticleSourceRecord_Standard::Cylinder;  break;
+    case 6 : LocalRec.Shape = AParticleSourceRecord_Standard::Sphere;    break;
     }
 
         //LocalRec.Size1 = 0.5 * ui->ledGun1DSize->text().toDouble();

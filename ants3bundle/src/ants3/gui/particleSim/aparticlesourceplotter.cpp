@@ -112,7 +112,6 @@ void AParticleSourcePlotter::plotSource(const AParticleSourceRecord_Standard & p
         track->SetLineColor(9);
         break;
     }
-
     case (AParticleSourceRecord_Standard::Box):
     {
         for (int i=0; i<3; i++)
@@ -165,6 +164,55 @@ void AParticleSourcePlotter::plotSource(const AParticleSourceRecord_Standard & p
             double x = size1*cos(3.1415926535/25.0*i);
             double y = size1*sin(3.1415926535/25.0*i);
             Circ.SetXYZ(x,y,z);
+            Circ.RotateX(Phi);
+            Circ.RotateY(Theta);
+            Circ.RotateZ(Psi);
+            track->AddPoint(X0+Circ[0], Y0+Circ[1], Z0+Circ[2], 0);
+        }
+        track->SetLineWidth(3);
+        track->SetLineColor(9);
+        break;
+    }
+    case (AParticleSourceRecord_Standard::Sphere):
+    {
+        TVector3 Circ;
+        Int_t track_index = GeoManager->AddTrack(1,22);
+        TVirtualGeoTrack *track = GeoManager->GetTrack(track_index);
+        for (int i=0; i<51; i++)
+        {
+            double x = size1*cos(3.1415926535/25.0*i);
+            double y = size1*sin(3.1415926535/25.0*i);
+            Circ.SetXYZ(x,y,0);
+            Circ.RotateX(Phi);
+            Circ.RotateY(Theta);
+            Circ.RotateZ(Psi);
+            track->AddPoint(X0+Circ[0], Y0+Circ[1], Z0+Circ[2], 0);
+        }
+        track->SetLineWidth(3);
+        track->SetLineColor(9);
+
+        track_index = GeoManager->AddTrack(1,22);
+        track = GeoManager->GetTrack(track_index);
+        for (int i=0; i<51; i++)
+        {
+            double y = size1*cos(3.1415926535/25.0*i);
+            double z = size1*sin(3.1415926535/25.0*i);
+            Circ.SetXYZ(0,y,z);
+            Circ.RotateX(Phi);
+            Circ.RotateY(Theta);
+            Circ.RotateZ(Psi);
+            track->AddPoint(X0+Circ[0], Y0+Circ[1], Z0+Circ[2], 0);
+        }
+        track->SetLineWidth(3);
+        track->SetLineColor(9);
+
+        track_index = GeoManager->AddTrack(1,22);
+        track = GeoManager->GetTrack(track_index);
+        for (int i=0; i<51; i++)
+        {
+            double x = size1*cos(3.1415926535/25.0*i);
+            double z = size1*sin(3.1415926535/25.0*i);
+            Circ.SetXYZ(x,0,z);
             Circ.RotateX(Phi);
             Circ.RotateY(Theta);
             Circ.RotateZ(Psi);

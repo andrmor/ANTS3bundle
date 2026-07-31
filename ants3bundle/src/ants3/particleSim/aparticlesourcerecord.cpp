@@ -365,6 +365,7 @@ void AParticleSourceRecord_Standard::doWriteToJson(QJsonObject & json) const
                 case Round     : str = "Round";     break;
                 case Box       : str = "Box";       break;
                 case Cylinder  : str = "Cylinder";  break;
+                case Sphere    : str = "Sphere";    break;
                 }
             js["Shape"] = str;
 
@@ -561,6 +562,7 @@ bool AParticleSourceRecord_Standard::doReadFromJson(const JsonObject & json)
             else if (str == "Round")     Shape = Round;
             else if (str == "Box")       Shape = Box;
             else if (str == "Cylinder")  Shape = Cylinder;
+            else if (str == "Sphere")    Shape = Sphere;
             else ; // !!!*** error
 
             JsonArray pjs;
@@ -760,6 +762,9 @@ std::string AParticleSourceRecord_Standard::check() const
     case Cylinder  :
         if (Size1 <= 0 || Size2 <= 0) return "Diameter and height should be positive";
         break;
+    case Sphere  :
+        if (Size1 <= 0) return "Diameter should be positive";
+        break;
     }
 
     switch (AngularMode)
@@ -841,6 +846,7 @@ std::string AParticleSourceRecord_Standard::getShortDescription() const
     case Round     : str = "Round"; break;
     case Box       : str = "Box"; break;
     case Cylinder  : str = "Cylinder"; break;
+    case Sphere    : str = "Sphere"; break;
     default        : str = "UnknownShape"; break;
     }
 

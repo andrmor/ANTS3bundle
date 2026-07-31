@@ -548,6 +548,22 @@ void ASource_Standard::doGeneratePosition(double * R) const
         R[2] = Z0 + Circ[2];
         return;
     }
+    case AParticleSourceRecord_Standard::Sphere :
+    {
+        double x, y, z;
+        do
+        {
+            x = -1.0 + 2.0 * RandomHub.uniform();
+            y = -1.0 + 2.0 * RandomHub.uniform();
+            z = -1.0 + 2.0 * RandomHub.uniform();
+        }
+        while (x*x + y*y + z*z > 1.0);
+
+        R[0] = X0 + size1 * x;
+        R[1] = Y0 + size1 * y;
+        R[2] = Z0 + size1 * z;
+        return;
+    }
     }
     return;
 }
