@@ -1,6 +1,7 @@
 #include "aparticlesourceplotter.h"
 #include "aparticlesourcerecord.h"
 #include "ageometryhub.h"
+#include "ageomarkerclass.h"
 
 #include "TGeoManager.h"
 #include "TVirtualGeoTrack.h"
@@ -8,19 +9,23 @@
 
 #include <QDebug>
 
-void AParticleSourcePlotter::plotSource(const AParticleSourceRecordBase * source)
+AGeoMarkerClass * AParticleSourcePlotter::plotSource(const AParticleSourceRecordBase * source)
 {
     const AParticleSourceRecord_Standard * stSource = dynamic_cast<const AParticleSourceRecord_Standard*>(source);
-    if (stSource) AParticleSourcePlotter::plotSource(*stSource);
+    if (stSource) return AParticleSourcePlotter::plotSource(*stSource);
     else
     {
         const AParticleSourceRecord_EcoMug * muSource = dynamic_cast<const AParticleSourceRecord_EcoMug*>(source);
-        if (muSource) AParticleSourcePlotter::plotSource(*muSource);
-        else qWarning() << "AParticleSourcePlotter: unknow type of particle source";
+        if (muSource) return AParticleSourcePlotter::plotSource(*muSource);
+        else
+        {
+            qWarning() << "AParticleSourcePlotter: unknow type of particle source";
+            return nullptr;
+        }
     }
 }
 
-void AParticleSourcePlotter::plotSource(const AParticleSourceRecord_Standard & p)
+AGeoMarkerClass * AParticleSourcePlotter::plotSource(const AParticleSourceRecord_Standard & p)
 {
     TGeoManager * GeoManager = AGeometryHub::getInstance().GeoManager;
 
@@ -62,12 +67,17 @@ void AParticleSourcePlotter::plotSource(const AParticleSourceRecord_Standard & p
         V[i].RotateY(Theta);
         V[i].RotateZ(Psi);
     }
+
+    AGeoMarkerClass * marks = nullptr;
+
     switch (p.Shape)
     {
     case AParticleSourceRecord_Standard::Point : // !!!***
     {
         //GeoManager->SetCurrentPoint(X0,Y0,Z0);
         //GeoManager->DrawCurrentPoint(9);
+        marks = new AGeoMarkerClass(EGeoMarkerType::PrimarySource, 3, 3, 51);
+        marks->SetNextPoint(X0, Y0, Z0);
         break;
     }
     case (AParticleSourceRecord_Standard::Line):
@@ -260,6 +270,7 @@ void AParticleSourcePlotter::plotSource(const AParticleSourceRecord_Standard & p
         track->SetLineWidth(1);
         track->SetLineColor(9);
     }
+    return marks;
 }
 
 TVirtualGeoTrack * AParticleSourcePlotter::createTrack()
@@ -272,7 +283,7 @@ TVirtualGeoTrack * AParticleSourcePlotter::createTrack()
     return track;
 }
 
-void AParticleSourcePlotter::plotSource(const AParticleSourceRecord_EcoMug & p)
+AGeoMarkerClass * AParticleSourcePlotter::plotSource(const AParticleSourceRecord_EcoMug & p)
 {
     const double X0 = p.X0;
     const double Y0 = p.Y0;
@@ -339,6 +350,7 @@ void AParticleSourcePlotter::plotSource(const AParticleSourceRecord_EcoMug & p)
         break;
     }
     }
+    return nullptr;
 }
 
 void AParticleSourcePlotter::clearTracks()

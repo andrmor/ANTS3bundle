@@ -707,13 +707,17 @@ void AGeometryWindow::showSources()
         {
             ASourceGeneratorSettings & simSet = AParticleSimHub::getInstance().Settings.SourceGenSettings;
             if (simSet.SourceEdit)
-                AParticleSourcePlotter::plotSource(simSet.SourceEdit);
+            {
+                AGeoMarkerClass * marks = AParticleSourcePlotter::plotSource(simSet.SourceEdit);
+                if (marks) GeoMarkers.push_back(marks); // show is in the caller
+            }
             else
             {
                 for (AParticleSourceRecordBase * source : simSet.SourceData)
                 {
                     if (source->Activity == 0) continue;
-                    AParticleSourcePlotter::plotSource(source);
+                    AGeoMarkerClass * marks = AParticleSourcePlotter::plotSource(source);
+                    if (marks) GeoMarkers.push_back(marks); // show is in the caller
                 }
             }
             triggerShowTracks = true;
@@ -725,10 +729,8 @@ void AGeometryWindow::showSources()
         if (APhotonSimHub::getConstInstance().Settings.SimType == EPhotSimType::PhotonBombs)
         {
             AGeoMarkerClass * marks = APhotonSourcePlotter::plotSource();
-            if (marks)
-                GeoMarkers.push_back(marks); // show is in the caller
-            else
-                triggerShowTracks = true;
+            if (marks) GeoMarkers.push_back(marks); // show is in the caller
+            else       triggerShowTracks = true;
         }
     }
 
