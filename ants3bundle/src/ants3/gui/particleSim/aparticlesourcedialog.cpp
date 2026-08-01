@@ -82,6 +82,7 @@ AParticleSourceDialog::AParticleSourceDialog(const AParticleSourceRecord_Standar
     case AParticleSourceRecord_Standard::FixedDirection  : index = 1; break;
     case AParticleSourceRecord_Standard::GaussDispersion : index = 2; break;
     case AParticleSourceRecord_Standard::CustomAngular   : index = 3; break;
+    case AParticleSourceRecord_Standard::HomogeneousIsotropicField : index = 4; break;
     default : guitools::message("Unknown angular mode, setting to Isotropic!", this);
     }
     ui->cobAngularMode->setCurrentIndex(index);
@@ -493,10 +494,11 @@ void AParticleSourceDialog::on_pbUpdateRecord_clicked()
 
     switch (ui->cobAngularMode->currentIndex())
     {
-    case 0 : LocalRec.AngularMode = AParticleSourceRecord_Standard::Isotropic;  break;
-    case 1 : LocalRec.AngularMode = AParticleSourceRecord_Standard::FixedDirection;  break;
+    case 0 : LocalRec.AngularMode = AParticleSourceRecord_Standard::Isotropic; break;
+    case 1 : LocalRec.AngularMode = AParticleSourceRecord_Standard::FixedDirection; break;
     case 2 : LocalRec.AngularMode = AParticleSourceRecord_Standard::GaussDispersion; break;
-    case 3 : LocalRec.AngularMode = AParticleSourceRecord_Standard::CustomAngular;   break;
+    case 3 : LocalRec.AngularMode = AParticleSourceRecord_Standard::CustomAngular; break;
+    case 4 : LocalRec.AngularMode = AParticleSourceRecord_Standard::HomogeneousIsotropicField; break;
     default:
         qWarning() << "Unknown angular mode!";
         LocalRec.AngularMode = AParticleSourceRecord_Standard::Isotropic;
@@ -753,7 +755,18 @@ void AParticleSourceDialog::on_cobAngularMode_currentIndexChanged(int index)
 
 void AParticleSourceDialog::updateDirectionVisibility()
 {
-    ui->frDirection->setVisible(ui->swAngular->currentIndex() != 0 || ui->cbAngularCutoff->isChecked());
+    int iMode = ui->cobAngularMode->currentIndex();
+
+    if (iMode == 4)
+    {
+        ui->frDirection->setVisible(false);
+        ui->frAngularCutoff->setVisible(false);
+    }
+    else
+    {
+        ui->frDirection->setVisible(iMode != 0 || ui->cbAngularCutoff->isChecked());
+        ui->frAngularCutoff->setVisible(true);
+    }
 }
 void AParticleSourceDialog::on_cbAngularCutoff_toggled(bool)
 {
@@ -1003,3 +1016,10 @@ void AParticleSourceDialog::on_cbEnergyGaussBlur_toggled(bool checked)
     ui->ledEnergySigma->setEnabled(checked);
     ui->cobEnergySigmaUnits->setEnabled(checked);
 }
+
+void AParticleSourceDialog::on_cobAngularMode_activated(int index)
+{
+    if (index == 4) ui->cobGunSourceType->setCurrentIndex(6);
+    on_pbUpdateRecord_clicked();
+}
+

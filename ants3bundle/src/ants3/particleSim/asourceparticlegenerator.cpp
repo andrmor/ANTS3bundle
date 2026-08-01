@@ -320,6 +320,16 @@ bool ASource_Standard::generatePrimary(std::function<void (const AParticleRecord
 
 void ASource_Standard::updateLimitedToMat()
 {
+    if (Settings->AngularMode == AParticleSourceRecord_Standard::HomogeneousIsotropicField)
+    {
+#ifdef GEANT4
+        LimitedToMat = nullptr;
+#else
+        LimitedToMat = -1;
+#endif
+        return;
+    }
+
 #ifdef GEANT4
     Navigator = new G4Navigator();
     SessionManager & SM = SessionManager::getInstance();
@@ -431,6 +441,22 @@ void ASource_Standard::doGeneratePosition(double * R) const
     const double & size1  = Settings->Size1;
     const double & size2  = Settings->Size2;
     const double & size3  = Settings->Size3;
+
+    // special case first:
+    if (Settings->AngularMode == AParticleSourceRecord_Standard::HomogeneousIsotropicField)
+    {
+        double u1 = RandomHub.uniform();
+        double u2 = RandomHub.uniform();
+
+        double theta = 2.0 * M_PI * u1;
+        double z = size1 * (2.0 * u2 - 1.0);            // uniform in [-R, R]
+        double r_xy = std::sqrt(size1 * size1 - z * z); // radius of circle at that z
+
+        R[0] = X0 + r_xy * cos(theta);
+        R[1] = Y0 + r_xy * sin(theta);
+        R[2] = Z0 + z;
+        return;
+    }
 
     switch (Settings->Shape) //source geometry type
     {
@@ -599,9 +625,43 @@ double ASource_Standard::selectTime(int iEvent)
     return time;
 }
 
-void ASource_Standard::generateDirection(bool forceIsotropic, double * direction) const
+void ASource_Standard::generateDirection(bool forceIsotropic, const double * position, double * direction) const
 {
-    if (Settings->AngularMode == AParticleSourceRecord_Standard::Isotropic || forceIsotropic)
+    if (Settings->AngularMode == AParticleSourceRecord_Standard::HomogeneousIsotropicField)
+    {
+        AVector3 P(position);
+        AVector3 C(Settings->X0, Settings->Y0, Settings->Z0);
+
+        // Inward-pointing normal (pole of the hemisphere)
+        AVector3 w = (C - P) * (1.0 / Settings->Size1);
+        w.toUnitVector();
+
+        // Build an orthonormal basis (u, v, w) around w.
+        // TVector3::Orthogonal() returns some vector orthogonal to w.
+        AVector3 u = w.orthogonal();
+        u.toUnitVector();
+        AVector3 v = w.vectorProduct(u);
+        v.toUnitVector();
+
+        // Cosine-weighted sample on the hemisphere
+        double xi1 = RandomHub.uniform();
+        double xi2 = RandomHub.uniform();
+
+        double phi = 2.0 * M_PI * xi1;
+        double r   = std::sqrt(xi2);
+
+        double xl = r * std::cos(phi);
+        double yl = r * std::sin(phi);
+        double zl = std::sqrt(1.0 - xi2);
+
+        // Transform to world coordinates
+        AVector3 D = u * xl + v * yl + w * zl;
+        D.toUnitVector();
+
+        for (size_t i = 0; i < 3; i++) direction[i] = D[i];
+        return;
+    }
+    else if (Settings->AngularMode == AParticleSourceRecord_Standard::Isotropic || forceIsotropic)
     {
         //generating random direction inside the collimation cone
         const double spread   = (Settings->UseCutOff ? Settings->CutOff*3.14159265358979323846/180.0 : 3.14159265358979323846); //max angle away from generation diretion
@@ -724,7 +784,7 @@ void ASource_Standard::addGeneratedParticle(int iParticle, double *position, dou
 #endif
             position, time, energy);
 
-        generateDirection(forceIsotropic, particle.v);
+        generateDirection(forceIsotropic, position, particle.v);
         handler(particle);
 
         if (gp.BtBPair)

@@ -110,7 +110,7 @@ private:
     bool   selectPosition(double * R) const;
     void   doGeneratePosition(double * R) const;
     double selectTime(int iEvent);
-    void   generateDirection(bool forceIsotropic, double * direction) const;
+    void   generateDirection(bool forceIsotropic, const double * position, double * direction) const;
 
     // !!!*** error handling:
     void   processSpecialParticle(const AGunParticle & particle, double * position, double time, bool forceIsotropic, std::function<void (const AParticleRecord &)> handler);

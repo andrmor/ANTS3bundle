@@ -265,6 +265,23 @@ AGeoMarkerClass * AParticleSourcePlotter::plotSource(const AParticleSourceRecord
             track->SetLineColor(9);
         }
     }
+    else if (p.AngularMode == AParticleSourceRecord_Standard::HomogeneousIsotropicField)
+    {
+        length = size1;
+        std::vector<TVector3> points = {{1,0,0},{0.5,0,0}, {-1,0,0},{-0.5,0,0},
+                                        {0,1,0},{0,0.5,0}, {0,-1,0},{0,-0.5,0},
+                                        {0,0,1},{0,0,0.5}, {0,0,-1},{0,0,-0.5} };
+        for (size_t i = 0; i < points.size(); i += 2)
+        {
+            Int_t track_index = GeoManager->AddTrack(1,22);
+            TVirtualGeoTrack * track = GeoManager->GetTrack(track_index);
+
+            track->AddPoint(X0 + points[i]  [0]*length, Y0 + points[i]  [1]*length, Z0 + points[i]  [2]*length, 0);
+            track->AddPoint(X0 + points[i+1][0]*length, Y0 + points[i+1][1]*length, Z0 + points[i+1][2]*length, 0);
+            track->SetLineWidth(1);
+            track->SetLineColor(9);
+        }
+    }
     else
     {
         Int_t track_index = GeoManager->AddTrack(1,22);

@@ -78,6 +78,8 @@ private slots:
 
     void on_leGunParticle_editingFinished();
 
+    void on_cobAngularMode_activated(int index);
+
 private:
     AParticleSourceRecord_Standard         LocalRec;
     const AParticleSourceRecord_Standard & OriginalRec; // used to check were there any changes
