@@ -283,9 +283,9 @@ void AParticleSourceDialog::on_cobGunSourceType_currentIndexChanged(int index)
     ui->lGun3DSize->setVisible(b3);
     ui->ledGun3DSize->setVisible(b3);
 
-    ui->ledGunPhi->setEnabled(index != 0);
-    ui->ledGunTheta->setEnabled(index != 0);
-    ui->ledGunPsi->setEnabled(index > 1);
+    ui->ledGunPhi->setEnabled(index != 0 && index != 6);
+    ui->ledGunTheta->setEnabled(index != 0 && index != 6);
+    ui->ledGunPsi->setEnabled(index > 1 && index != 6);
 
     if (index == 1)
     {

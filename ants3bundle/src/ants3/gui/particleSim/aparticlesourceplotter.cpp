@@ -244,32 +244,54 @@ AGeoMarkerClass * AParticleSourcePlotter::plotSource(const AParticleSourceRecord
         K = K.Unit();
     }
 
-    Int_t track_index = GeoManager->AddTrack(1,22);
-    TVirtualGeoTrack *track = GeoManager->GetTrack(track_index);
     const double WorldSizeXY = AGeometryHub::getInstance().getWorldSizeXY();
     const double WorldSizeZ  = AGeometryHub::getInstance().getWorldSizeZ();
-    double Klength = std::max(WorldSizeXY, WorldSizeZ)*0.5;
+    double length = std::max(WorldSizeXY, WorldSizeZ)*0.5;
 
-    track->AddPoint(X0, Y0, Z0, 0);
-    track->AddPoint(X0+K[0]*Klength, Y0+K[1]*Klength, Z0+K[2]*Klength, 0);
-    track->SetLineWidth(2);
-    track->SetLineColor(9);
+    if (p.AngularMode == AParticleSourceRecord_Standard::Isotropic && (!p.UseCutOff || p.CutOff == 180.0))
+    {
+        // isotropic emission, 4Pi
+        //std::vector<TVector3> points = {{-1.0,0,0},{1.0,0,0},  {0,-1.0,0},{0,1.0,0},  {0,0,-1.0},{0,0,1.0}};
+        length /= sqrt(2.0);
+        std::vector<TVector3> points = {{-1,1,1},{1,-1,-1},  {1,1,1},{-1,-1,-1},  {1,-1,1},{-1,1,-1}, {-1,-1,1},{1,1,-1}};
+        for (size_t i = 0; i < points.size(); i += 2)
+        {
+            Int_t track_index = GeoManager->AddTrack(1,22);
+            TVirtualGeoTrack * track = GeoManager->GetTrack(track_index);
 
-    TVector3 Knorm = K.Orthogonal();
-    TVector3 K1(K);
-    K1.Rotate(Spread, Knorm);
-    for (int i=0; i<8; i++)  //drawing spread
+            track->AddPoint(X0 + points[i]  [0]*length, Y0 + points[i]  [1]*length, Z0 + points[i]  [2]*length, 0);
+            track->AddPoint(X0 + points[i+1][0]*length, Y0 + points[i+1][1]*length, Z0 + points[i+1][2]*length, 0);
+            track->SetLineWidth(1);
+            track->SetLineColor(9);
+        }
+    }
+    else
     {
         Int_t track_index = GeoManager->AddTrack(1,22);
-        TVirtualGeoTrack *track = GeoManager->GetTrack(track_index);
+        TVirtualGeoTrack * track = GeoManager->GetTrack(track_index);
 
         track->AddPoint(X0, Y0, Z0, 0);
-        track->AddPoint(X0+K1[0]*Klength, Y0+K1[1]*Klength, Z0+K1[2]*Klength, 0);
-        K1.Rotate(3.1415926535/4.0, K);
-
-        track->SetLineWidth(1);
+        track->AddPoint(X0+K[0]*length, Y0+K[1]*length, Z0+K[2]*length, 0);
+        track->SetLineWidth(2);
         track->SetLineColor(9);
+
+        TVector3 Knorm = K.Orthogonal();
+        TVector3 K1(K);
+        K1.Rotate(Spread, Knorm);
+        for (int i=0; i<8; i++)  //drawing spread
+        {
+            Int_t track_index = GeoManager->AddTrack(1,22);
+            TVirtualGeoTrack *track = GeoManager->GetTrack(track_index);
+
+            track->AddPoint(X0, Y0, Z0, 0);
+            track->AddPoint(X0+K1[0]*length, Y0+K1[1]*length, Z0+K1[2]*length, 0);
+            K1.Rotate(3.1415926535/4.0, K);
+
+            track->SetLineWidth(1);
+            track->SetLineColor(9);
+        }
     }
+
     return marks;
 }
 
