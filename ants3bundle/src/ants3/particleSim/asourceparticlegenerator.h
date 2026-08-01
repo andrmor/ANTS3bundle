@@ -82,7 +82,7 @@ class ASource_Standard : public ASource_Base
 {
 public:
     ASource_Standard(const AParticleSourceRecord_Standard * settings);
-    ~ASource_Standard();
+    ~ASource_Standard() override;
 
     bool init() override;
     bool generatePrimary(std::function<void (const AParticleRecord &)> handler, int iEvent) override;
@@ -97,9 +97,8 @@ public:
     //full recipe of emission builder (containes particles linked to particles etc up to the top level individual particle)
     std::vector<std::vector<ALinkedParticle>> LinkedPartiles; //[iparticle] []  (includes the record of the particle iteslf (first one)
 
-
 #ifdef GEANT4
-    G4Navigator * Navigator = nullptr;  // !!!*** one should be enough!
+    G4Navigator * Navigator = nullptr;
     G4Material  * LimitedToMat = nullptr;
 #else
     int           LimitedToMat = 0;

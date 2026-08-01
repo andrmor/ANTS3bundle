@@ -349,7 +349,7 @@ void ASource_Standard::updateLimitedToMat()
             Navigator = new G4Navigator();
             Navigator->SetWorldVolume(SM.WorldPV);
         }
-        else SM.terminateSession("Sorce-limiting material not found!");
+        else SM.terminateSession("Source-limiting material not found!");
     }
     LimitedToMat = mat;
 #else
