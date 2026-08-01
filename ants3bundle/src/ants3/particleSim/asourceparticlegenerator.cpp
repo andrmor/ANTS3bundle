@@ -183,6 +183,13 @@ ASource_Base::ASource_Base() :
 ASource_Standard::ASource_Standard(const AParticleSourceRecord_Standard * settings) :
     ASource_Base(), Settings(settings) {}
 
+ASource_Standard::~ASource_Standard()
+{
+#ifdef GEANT4
+    delete Navigator; Navigator = nullptr;
+#endif
+}
+
 bool ASource_Standard::init()
 {
     AbortRequested = false;
@@ -331,15 +338,18 @@ void ASource_Standard::updateLimitedToMat()
     }
 
 #ifdef GEANT4
-    Navigator = new G4Navigator();
-    SessionManager & SM = SessionManager::getInstance();
-    Navigator->SetWorldVolume(SM.WorldPV);
-
     G4Material * mat = nullptr;
     if (Settings->MaterialLimited)
     {
         G4NistManager * man = G4NistManager::Instance();
         mat = man->FindMaterial(Settings->LimtedToMatName);
+        SessionManager & SM = SessionManager::getInstance();
+        if (mat)
+        {
+            Navigator = new G4Navigator();
+            Navigator->SetWorldVolume(SM.WorldPV);
+        }
+        else SM.terminateSession("Sorce-limiting material not found!");
     }
     LimitedToMat = mat;
 #else
@@ -799,8 +809,11 @@ void ASource_Standard::addGeneratedParticle(int iParticle, double *position, dou
         // direct deposition
         SessionManager & SM = SessionManager::getInstance();
 
-        if (!Navigator) Navigator = new G4Navigator();
-        Navigator->SetWorldVolume(SM.WorldPV);
+        if (!Navigator)
+        {
+            Navigator = new G4Navigator();
+            Navigator->SetWorldVolume(SM.WorldPV);
+        }
         G4VPhysicalVolume * vol = Navigator->LocateGlobalPointAndSetup({position[0], position[1], position[2]});
         if (vol)
         {

@@ -82,6 +82,7 @@ class ASource_Standard : public ASource_Base
 {
 public:
     ASource_Standard(const AParticleSourceRecord_Standard * settings);
+    ~ASource_Standard();
 
     bool init() override;
     bool generatePrimary(std::function<void (const AParticleRecord &)> handler, int iEvent) override;
