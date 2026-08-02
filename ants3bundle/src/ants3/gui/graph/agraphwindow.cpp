@@ -976,7 +976,7 @@ void AGraphWindow::redrawAll_Multidraw(ADrawObject & drawObj)
                                 idBox->AddText(idTexts[iPad].simplified().toLatin1().data());
                                 idBox->SetFillStyle(0);
                                 idBox->SetFillColor(0);
-                                idBox->Draw("same");
+                                idBox->Draw("NB same");
                                 pad.tmpObjects.push_back(idBox);
                             }
                         }
