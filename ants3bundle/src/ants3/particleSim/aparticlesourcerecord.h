@@ -41,7 +41,7 @@ struct AParticleSourceRecordBase
     virtual void doWriteToJson(QJsonObject & /*json*/) const {}
 
     virtual void    updateGeoConstRelatedSimProperties() {}
-    virtual QString isGeoConstInUse(const QRegularExpression & /*nameRegExp*/) const {}
+    virtual QString isGeoConstInUse(const QRegularExpression & /*nameRegExp*/) const {return "";}
     virtual void    replaceGeoConstName(const QRegularExpression & /*nameRegExp*/, const QString & /*newName*/) {}
 #endif
 
@@ -101,8 +101,8 @@ struct AParticleSourceRecord_Standard : public AParticleSourceRecordBase
 {
     virtual std::string getType() const override {return "Standard";}
 
-    enum EShape {Point, Line, Rectangle, Round, Box, Cylinder};
-    enum EAngularMode {Isotropic, FixedDirection, GaussDispersion, CustomAngular};
+    enum EShape {Point, Line, Rectangle, Round, Box, Cylinder, Sphere};
+    enum EAngularMode {Isotropic, FixedDirection, GaussDispersion, CustomAngular, HomogeneousIsotropicField};
     enum EAxialMode {GaussAxial, CustomAxial};
     enum EOffsetMode {FixedOffset, ByEventIndexOffset, CustomDistributionOffset};
     enum ESpreadMode {NoSpread, GaussianSpread, UniformSpread, ExponentialSpread};

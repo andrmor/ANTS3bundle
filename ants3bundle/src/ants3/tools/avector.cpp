@@ -207,6 +207,16 @@ AVector3 & AVector3::toUnitVector()
     return *this;
 }
 
+AVector3 AVector3::orthogonal() const
+{
+    double x = r[0] < 0 ? -r[0] : r[0];
+    double y = r[1] < 0 ? -r[1] : r[1];
+    double z = r[2] < 0 ? -r[2] : r[2];
+
+    if (x < y) return ( x < z ? AVector3(    0, r[2], -r[1]) : AVector3(-r[1], r[0], 0) );
+    else       return ( y < z ? AVector3(-r[2],    0,  r[0]) : AVector3(-r[1], r[0], 0) );
+}
+
 // ----
 
 //#include <QDebug>

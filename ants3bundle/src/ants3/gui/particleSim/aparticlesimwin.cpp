@@ -777,19 +777,12 @@ void AParticleSimWin::on_pbGunTest_clicked()
 void AParticleSimWin::configureAngleStat(AParticleGun * gun)
 {
     CollectAngle = false;
-    const ASourceParticleGenerator * ps = dynamic_cast<const ASourceParticleGenerator*>(gun);
+    ASourceParticleGenerator * ps = dynamic_cast<ASourceParticleGenerator*>(gun);
     if (!ps) return;
 
-    if (ps->Settings.getNumSources() > 1) return;
+    if (ps->Settings.getNumSources() != 1) return;
 
-    AParticleSourceRecordBase * sr = ps->Settings.SourceData.front();
-    AParticleSourceRecord_Standard * stSource = dynamic_cast<AParticleSourceRecord_Standard*>(sr);
-    if (!stSource) return;
-
-    if (!stSource->isDirectional()) return;
-
-    CollectAngle = true;
-    SourceStatDirection = ps->getCollimationDirection(0);
+    CollectAngle = ps->getFirstSourceCollimationDirection(SourceStatDirection);
 }
 
 #include "TGeoManager.h"
@@ -851,9 +844,8 @@ void AParticleSimWin::testParticleGun(AParticleGun * gun, int numParticles, bool
         if (!bOK) break;
     }
 
-    if (gun->AbortRequested) return;
+    if (gun->isAbortRequested()) return;
 
-    //emit requestShowGeometry(false, true, true);
     emit requestShowMarkers();
     emit requestShowTracks();
 
@@ -2835,8 +2827,8 @@ void AParticleSimWin::on_pbLoadFromLibrary_clicked()
 
 void AParticleSimWin::on_pbAbort_clicked()
 {
-    SimManager.Generator_Sources->AbortRequested = true;
-    SimManager.Generator_File->AbortRequested = true;
+    SimManager.Generator_Sources->requestAbort();
+    SimManager.Generator_File->requestAbort();
     SimManager.abort();
 }
 
