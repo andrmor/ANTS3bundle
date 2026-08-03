@@ -29,6 +29,7 @@
    * Two new scripting units: "response" (light response model handling) and "mercury" (position reconstruction)
 * Added photon simulation mode based on light response model
 * The concept of intrinsic energy resolution for primary scintillation is replaced with Fano factor formalism
+* Relative gains of the light sensors can be configured directly (see "Sensors" window)
 * Geometry constants can be used in particle and photon sources
 * Add simulation of annihilation gamma acolinearity 
 * Refactor photon simulation GUI
