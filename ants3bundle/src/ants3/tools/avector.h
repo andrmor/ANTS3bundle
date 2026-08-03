@@ -58,6 +58,8 @@ public:
 
     AVector3 & toUnitVector();
 
+    AVector3 orthogonal() const;
+
     double r[3];
 };
 

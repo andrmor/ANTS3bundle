@@ -137,6 +137,11 @@
          <string>Cylinder</string>
         </property>
        </item>
+       <item>
+        <property name="text">
+         <string>Sphere</string>
+        </property>
+       </item>
       </widget>
      </item>
      <item>
@@ -829,6 +834,11 @@ If material with this name does not exist, this limitation is not applied.</stri
          <string>Custom distribution</string>
         </property>
        </item>
+       <item>
+        <property name="text">
+         <string>Homogeneous isotropic field</string>
+        </property>
+       </item>
       </widget>
      </item>
      <item>
@@ -1006,6 +1016,32 @@ If material with this name does not exist, this limitation is not applied.</stri
             </size>
            </property>
           </spacer>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="page_18">
+        <layout class="QHBoxLayout" name="horizontalLayout_40">
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="QLabel" name="label_12">
+           <property name="toolTip">
+            <string>Particles will be generated on the sphere, with the Lambertian distribution of the directions (inward)</string>
+           </property>
+           <property name="text">
+            <string>Requires spherical shape!</string>
+           </property>
+          </widget>
          </item>
         </layout>
        </widget>
@@ -3371,30 +3407,14 @@ If material with this name does not exist, this limitation is not applied.</stri
    </hints>
   </connection>
   <connection>
-   <sender>cobAngularMode</sender>
-   <signal>activated(int)</signal>
-   <receiver>pbUpdateRecord</receiver>
-   <slot>click()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>344</x>
-     <y>286</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>603</x>
-     <y>30</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>ledAngularSigma</sender>
    <signal>editingFinished()</signal>
    <receiver>pbUpdateRecord</receiver>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>446</x>
-     <y>289</y>
+     <x>533</x>
+     <y>296</y>
     </hint>
     <hint type="destinationlabel">
      <x>603</x>

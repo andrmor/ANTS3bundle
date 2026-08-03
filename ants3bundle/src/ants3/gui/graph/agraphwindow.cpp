@@ -323,12 +323,23 @@ void AGraphWindow::draw(TObject * obj, QString options, bool update) // always r
         updateBasketGUI();
 
         DrawObjects.clear();
+
+        clearRootCanvas();
+        RasterWindow->fCanvas->ReleaseViewer3D();
     }
     DrawObjects.push_back( ADrawObject(obj, options) );
 
     if (DrawObjects.size() == 1) updateMargins(&DrawObjects.front());
 
-    drawSingleObject(obj, options.toLatin1().data(), update);
+    // TList requires custom handling!
+//    TList * list = dynamic_cast<TList*>(obj);
+//    if (!list)
+        drawSingleObject(obj, options.toLatin1().data(), update);
+//    else
+//    {
+//        for(TObject * elObj: *list)
+//            drawSingleObject(elObj, options.toLatin1().data(), update);
+//    }
 
     registerTObject(obj);
 
@@ -711,8 +722,9 @@ void AGraphWindow::reshape()
 
 void AGraphWindow::clearPads()
 {
-    TCanvas *c1 = RasterWindow->fCanvas;
-    c1->Clear();
+    //if (Pads.empty()) return;
+
+    clearRootCanvas();
 
     for (const APadProperties & pad : Pads)
         for (const TObject * obj : pad.tmpObjects)
@@ -726,6 +738,9 @@ void AGraphWindow::redrawAll()
     clearPads(); // !!!!!!!
     enforceOverlayOff();
     updateBasketGUI();
+
+    clearRootCanvas();
+    RasterWindow->fCanvas->ReleaseViewer3D();
 
     if (DrawObjects.empty())
     {
@@ -961,7 +976,7 @@ void AGraphWindow::redrawAll_Multidraw(ADrawObject & drawObj)
                                 idBox->AddText(idTexts[iPad].simplified().toLatin1().data());
                                 idBox->SetFillStyle(0);
                                 idBox->SetFillColor(0);
-                                idBox->Draw("same");
+                                idBox->Draw("NB same");
                                 pad.tmpObjects.push_back(idBox);
                             }
                         }
@@ -1212,7 +1227,8 @@ void AGraphWindow::onDrawRequest(TObject * obj, QString options, bool transferOw
         return;
     }
 
-    if (!transferOwnership) obj = obj->Clone();
+    //if (!transferOwnership) obj = obj->Clone();  // !!!*** check - some objects might require custom cloning!
+    if (!transferOwnership) obj = ABasketManager::makeCloneOfTObject(obj);
 
     if (focusWindow)
     {

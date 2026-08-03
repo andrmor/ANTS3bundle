@@ -69,6 +69,7 @@ AInterfaceRule::EInterfaceRuleResult ABasicInterfaceRule::calculate(APhoton * Ph
             if (Photon->v[0]*NormalVector[0] + Photon->v[1]*NormalVector[1] + Photon->v[2]*NormalVector[2] < 0)
             {
                 // qDebug()<<"   scattering back";
+
                 Status = LambertianReflection;
                 return Back;
             }
@@ -107,6 +108,13 @@ AInterfaceRule::EInterfaceRuleResult ABasicInterfaceRule::calculate(APhoton * Ph
 
             double normInverted = 1.0/TMath::Sqrt(norm2);
             Photon->v[0] *= normInverted; Photon->v[1] *= normInverted; Photon->v[2] *= normInverted;
+
+            // this block is used to turn photons "to the left" - was using it for LUT rule tests. Comment the "normal" code above for such tests
+            //double tmp0 = Photon->v[0];
+            //double tmp1 = Photon->v[1];
+            //Photon->v[0] = (tmp0 - tmp1) / sqrt(2);
+            //Photon->v[1] = (tmp0 + tmp1) / sqrt(2);
+
             Status = Transmission;
             return Forward;
         }

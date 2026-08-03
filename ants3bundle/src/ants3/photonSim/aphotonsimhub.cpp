@@ -23,7 +23,7 @@ QString APhotonSimHub::readFromJson(const QJsonObject & json)
 
     QString ErrorString = Settings.readFromJson(json);
 
-    if (ErrorString.isEmpty()) emit settingsChanged();
+    //if (ErrorString.isEmpty()) emit settingsChanged();
 
     return ErrorString;
 }

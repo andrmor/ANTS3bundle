@@ -365,6 +365,7 @@ void AParticleSourceRecord_Standard::doWriteToJson(QJsonObject & json) const
                 case Round     : str = "Round";     break;
                 case Box       : str = "Box";       break;
                 case Cylinder  : str = "Cylinder";  break;
+                case Sphere    : str = "Sphere";    break;
                 }
             js["Shape"] = str;
 
@@ -403,10 +404,11 @@ void AParticleSourceRecord_Standard::doWriteToJson(QJsonObject & json) const
             QString str;
             switch (AngularMode)
             {
-            case Isotropic       : str = "Isotropic"; break;
-            case FixedDirection  : str = "Fixed";   break;
-            case GaussDispersion : str = "Gauss";   break;
-            case CustomAngular   : str = "Custom";  break;
+            case Isotropic : str = "Isotropic"; break;
+            case FixedDirection : str = "Fixed"; break;
+            case GaussDispersion : str = "Gauss"; break;
+            case CustomAngular : str = "Custom"; break;
+            case HomogeneousIsotropicField : str = "HomogeneousIsotropicField"; break;
             }
             js["Mode"]  = str;
             // Direction
@@ -561,6 +563,7 @@ bool AParticleSourceRecord_Standard::doReadFromJson(const JsonObject & json)
             else if (str == "Round")     Shape = Round;
             else if (str == "Box")       Shape = Box;
             else if (str == "Cylinder")  Shape = Cylinder;
+            else if (str == "Sphere")    Shape = Sphere;
             else ; // !!!*** error
 
             JsonArray pjs;
@@ -643,9 +646,10 @@ bool AParticleSourceRecord_Standard::doReadFromJson(const JsonObject & json)
             std::string str;
             jstools::parseJson(js, "Mode", str);
             if      (str == "Isotropic") AngularMode = Isotropic;
-            else if (str == "Fixed")     AngularMode = FixedDirection;
-            else if (str == "Gauss")     AngularMode = GaussDispersion;
-            else if (str == "Custom")    AngularMode = CustomAngular;
+            else if (str == "Fixed") AngularMode = FixedDirection;
+            else if (str == "Gauss") AngularMode = GaussDispersion;
+            else if (str == "Custom") AngularMode = CustomAngular;
+            else if (str == "HomogeneousIsotropicField") AngularMode = HomogeneousIsotropicField;
             // !!!*** error if not found
 
             JsonObject djs;
@@ -760,6 +764,9 @@ std::string AParticleSourceRecord_Standard::check() const
     case Cylinder  :
         if (Size1 <= 0 || Size2 <= 0) return "Diameter and height should be positive";
         break;
+    case Sphere    :
+        if (Size1 <= 0) return "Diameter should be positive";
+        break;
     }
 
     switch (AngularMode)
@@ -771,6 +778,9 @@ std::string AParticleSourceRecord_Standard::check() const
         break;
     case CustomAngular   :
         if (!_AngularSampler.isReady()) return "Angular sampler is not ready: Check angular distribution";
+        break;
+    case HomogeneousIsotropicField   :
+        if (Shape != Sphere) return "Homogeneous isotropic field requires spherical shape of the source";
         break;
     }
     if (UseCutOff && CutOff < 0) return "Negative cut-off angle";
@@ -841,6 +851,7 @@ std::string AParticleSourceRecord_Standard::getShortDescription() const
     case Round     : str = "Round"; break;
     case Box       : str = "Box"; break;
     case Cylinder  : str = "Cylinder"; break;
+    case Sphere    : str = "Sphere"; break;
     default        : str = "UnknownShape"; break;
     }
 

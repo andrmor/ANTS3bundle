@@ -30,7 +30,7 @@ enum class EBulkProcessResult {NotTriggered, Absorbed, Scattered, WaveShifted};
 class APhotonTracer
 {
 public:
-    APhotonTracer(ALightSensorEvent & event, QTextStream* & streamTracks, QTextStream* & streamSensorLog, QTextStream* & streamPhotonLog);
+    APhotonTracer(ALightSensorEvent & event, QTextStream* & streamTracks, QTextStream* & streamSensorLog, QTextStream* & streamPhotonLog, QTextStream* & streamMonitorLog);
 
     void configureTracer();
 
@@ -59,6 +59,7 @@ private:
     QTextStream*             & StreamTracks;
     QTextStream*             & StreamSensorLog;
     QTextStream*             & StreamPhotonLog;
+    QTextStream*             & StreamMonitorLog;
     TGeoManager              * GeoManager   = nullptr;
     TGeoNavigator            * Navigator    = nullptr;
 

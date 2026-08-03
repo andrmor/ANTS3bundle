@@ -139,7 +139,7 @@ void AParticleSourceDialog_EcoMug::on_pbGunTest_clicked()
     settings.SourceData.back()->Activity = 1.0;
     ASourceParticleGenerator gun(settings);
 
-    auto abort = [&gun]{gun.AbortRequested = true;};
+    auto abort = [&gun]{gun.requestAbort();};
     QDialog D(this);
     D.setWindowTitle("Particle generator");
     D.setMinimumWidth(250);

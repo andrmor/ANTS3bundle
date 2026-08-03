@@ -11,6 +11,7 @@
 #include "ametalinterfacerule.h"
 #include "asurfaceinterfacerule.h"
 #include "aunifiedrule.h"
+#include "alutinterfacerule.h"
 
 #include <QDebug>
 #include <QJsonObject>
@@ -33,6 +34,8 @@ AInterfaceRule * AInterfaceRule::interfaceRuleFactory(const QString & Model, int
         return new ASurfaceInterfaceRule(MatFrom, MatTo);
     if (Model == "Unified")
         return new AUnifiedRule(MatFrom, MatTo);
+    if (Model == "LUT")
+        return new ALutInterfaceRule(MatFrom, MatTo);
 
     return nullptr; //undefined override type!
 }
@@ -47,7 +50,8 @@ QStringList AInterfaceRule::getAllInterfaceRuleTypes()
       << "DielectricToMetal"
       << "SurfaceWLS"
       << "RoughSurface"
-      << "Unified";
+      << "Unified"
+      << "LUT";
 
     return l;
 }

@@ -11,7 +11,8 @@ QMAKE_CXXFLAGS += -O2
 
 # CERN ROOT
      INCLUDEPATH += $$system(root-config --incdir)
-     LIBS += $$system(root-config --libs) -lGeom -lGeomPainter -lGeomBuilder -lMinuit2 -lSpectrum -ltbb
+     #LIBS += $$system(root-config --libs) -lGeom -lGeomPainter -lGeomBuilder -lMinuit2 -lSpectrum -ltbb
+     LIBS += $$system(root-config --libs) -lGeom -lGeomPainter -lMinuit2 -lSpectrum -ltbb
 
 # You can make your code fail to compile if it uses deprecated APIs.
 # In order to do so, uncomment the following line.
@@ -112,12 +113,15 @@ SOURCES += \
         ../ants3/photonSim/adepositionfilehandler.cpp \
         ../ants3/photonSim/afilehandlerbase.cpp \
         ../ants3/photonSim/afilesettingsbase.cpp \
+        ../ants3/photonSim/ageomeshhandler.cpp \
         ../ants3/photonSim/aphotonbombfilehandler.cpp \
         ../ants3/photonSim/aphotonfilehandler.cpp \
         ../ants3/photonSim/asensormodel.cpp \
+        ../ants3/photonSim/interfaceRules/alutinterfacerule.cpp \
         ../ants3/photonSim/photonFunctional/aphotonfunctionalhub.cpp \
         ../ants3/photonSim/photonFunctional/aphotonfunctionalmodel.cpp \
         ../ants3/tools/aerrorhub.cpp \
+        ../ants3/tools/ahistogram.cpp \
         ../ants3/tools/ajsontools.cpp \
         ../ants3/tools/afiletools.cpp \
         ../ants3/tools/ajsontoolsroot.cpp \
@@ -180,12 +184,15 @@ HEADERS += \
     ../ants3/photonSim/adepositionfilehandler.h \
     ../ants3/photonSim/afilehandlerbase.h \
     ../ants3/photonSim/afilesettingsbase.h \
+    ../ants3/photonSim/ageomeshhandler.h \
     ../ants3/photonSim/aphotonbombfilehandler.h \
     ../ants3/photonSim/aphotonfilehandler.h \
     ../ants3/photonSim/asensormodel.h \
+    ../ants3/photonSim/interfaceRules/alutinterfacerule.h \
     ../ants3/photonSim/photonFunctional/aphotonfunctionalhub.h \
     ../ants3/photonSim/photonFunctional/aphotonfunctionalmodel.h \
     ../ants3/tools/aerrorhub.h \
+    ../ants3/tools/ahistogram.h \
     ../ants3/tools/ajsontools.h \
     ../ants3/tools/afiletools.h \
     ../ants3/tools/ajsontoolsroot.h \

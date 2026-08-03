@@ -1,6 +1,7 @@
 #ifndef APARTICLESOURCEPLOTTER_H
 #define APARTICLESOURCEPLOTTER_H
 
+#include "ageomarkerclass.h"
 class TVirtualGeoTrack;
 class AParticleSourceRecordBase;
 class AParticleSourceRecord_Standard;
@@ -9,11 +10,11 @@ class AParticleSourceRecord_EcoMug;
 class AParticleSourcePlotter
 {
 public:
-    static void plotSource(const AParticleSourceRecordBase * source);
+    static AGeoMarkerClass * plotSource(const AParticleSourceRecordBase * source);
 
     // next two will be private after adding an abstraction layer for ParticleSourceDialog
-    static void plotSource(const AParticleSourceRecord_Standard & p);
-    static void plotSource(const AParticleSourceRecord_EcoMug & p);
+    static AGeoMarkerClass * plotSource(const AParticleSourceRecord_Standard & p);
+    static AGeoMarkerClass * plotSource(const AParticleSourceRecord_EcoMug & p);
 
     static void clearTracks();
 

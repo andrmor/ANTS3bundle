@@ -1,4 +1,5 @@
 #include "ageometryhub.h"
+#include "TROOT.h"
 #include "ageoobject.h"
 #include "ageoshape.h"
 #include "ageotype.h"
@@ -1308,22 +1309,41 @@ int AGeometryHub::checkGeometryForConflicts()
 {
     if (!GeoManager) return 0;
 
-    const double Precision = 0.01; //overlap search precision - in cm
+    const double precision = 0.001; //overlap search precision - in cm
 
     GeoManager->ClearOverlaps();
     int segments = GeoManager->GetNsegments();
 
-    GeoManager->CheckOverlaps(Precision);
+    /*
+    // Old way (before ROOT v6.40)
+    GeoManager->CheckOverlaps(precision);
     TObjArray * overlaps = GeoManager->GetListOfOverlaps();
     int overlapCount = overlaps->GetEntries();
     if (overlapCount == 0)
     {
         // Repeating the search with sampling
         //qDebug() << "No overlaps found, checking using sampling method..";
-        GeoManager->CheckOverlaps(Precision, "s"); // could be "sd", but the result is the same
+        GeoManager->CheckOverlaps(precision, "s"); // could be "sd", but the result is the same //    deprecated
         overlaps = GeoManager->GetListOfOverlaps();
         overlapCount = overlaps->GetEntries();
     }
+    */
+
+    // streamlined in root 6.40
+    GeoManager->SetNsegments(40);
+    GeoManager->SetNmeshPoints(2000); // 1000 is default
+    ROOT::EnableImplicitMT(1); // crashes in root v6.40.02 if multithreading (>1) is enabled
+    GeoManager->CheckOverlaps(precision);
+
+    TObjArray * overlaps = GeoManager->GetListOfOverlaps();
+    int overlapCount = overlaps->GetEntries();
+    // if (overlapCount == 0)
+    // {
+    //  Legacy! Prints "Info in <TGeoNodeMatrix::CheckOverlaps>: [LEGACY] Checking overlaps by sampling 1000000 points for World and daughters"
+    //     GeoManager->CheckOverlapsBySampling(precision, 1000000);
+    //     overlaps = GeoManager->GetListOfOverlaps();
+    //     overlapCount = overlaps->GetEntries();
+    // }
 
     GeoManager->SetNsegments(segments);  //restore back, get auto reset during the check to some bad default value
     return overlapCount;
@@ -1341,14 +1361,14 @@ QString AGeometryHub::exportGeometry(const QString & fileName)
     writeToJson(json);
     DoScaling = true;
     ScalingFactor = 0.1; // 1[mm] becomes 0.1[cm]
-    populateGeoManager();
+    populateGeoManager(false);
 
     GeoManager->SetName("geometry");
     int res = GeoManager->Export(fileName.toLocal8Bit().data());
 
     DoScaling = false;
     readFromJson(json);
-    populateGeoManager();
+    populateGeoManager(false);
 
     return (res == 0 ? "Failed to export to file "+fileName : "");
 }

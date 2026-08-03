@@ -18,7 +18,17 @@ public:
 
     virtual void setStartEvent(int) {} // for 'from file' generator
 
-    bool         AbortRequested = false;
+    void requestAbort()
+    {
+        AbortRequested = true;
+        doRequestAbort();
+    }
+    bool isAbortRequested() {return AbortRequested;}
+
+protected:
+    bool AbortRequested = false; // clear by init
+
+    virtual void doRequestAbort() {}
 };
 
 #endif // APARTICLEGUN_H

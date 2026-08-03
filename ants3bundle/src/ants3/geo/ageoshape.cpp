@@ -21,6 +21,7 @@
 #include "TGeoScaledShape.h"
 #include "TGeoMatrix.h"
 #include "TGeoTorus.h"
+#include "TGeoTessellated.h"
 
 #include <math.h>
 
@@ -64,6 +65,8 @@ AGeoShape * AGeoShape::GeoShapeFactory(const QString ShapeType)
         return new AGeoComposite();
     else if (ShapeType == "TGeoScaledShape")
         return new AGeoScaledShape();
+    else if (ShapeType == "TGeoTesselated")
+        return new AGeoTesselated();
     else return nullptr;
 }
 
@@ -4393,4 +4396,219 @@ bool AGeoTorus::readFromTShape(TGeoShape *Tshape)
     Dphi = tor->GetDphi();
 
     return true;
+}
+
+// -------------------
+
+QString AGeoTesselated::getHelp() const
+{
+    return "Tessellated objects can only be defined from script. See geo.tessellated() method.";
+}
+
+bool AGeoTesselated::readFromString(QString GenerationString)
+{
+    qDebug() << "AGeoTesselated::readFromString triggered --> Not implemented!";
+    return false;
+}
+
+TGeoShape * AGeoTesselated::createGeoShape(const QString shapeName)
+{
+    ErrorWhileCreatingShape.clear();
+    TGeoTessellated * shape = new TGeoTessellated(shapeName.toLatin1().data());
+
+    const size_t numVert = Vertices.size();
+    for (size_t iVert = 0; iVert < numVert; iVert++)
+    {
+        const std::vector<double> & v = Vertices[iVert];
+        shape->AddVertex({v[0], v[1], v[2]});
+    }
+
+    const size_t numFace = Faces.size();
+    for (size_t iFace = 0; iFace < numFace; iFace++)
+    {
+        const std::vector<int> & f = Faces[iFace];
+        if      (f.size() == 3) shape->AddFacet(f[0], f[1], f[2]);
+        else if (f.size() == 4) shape->AddFacet(f[0], f[1], f[2], f[3]);
+
+        bool ok = shape->FacetCheck(shape->GetNfacets()-1);
+        if (!ok)
+        {
+            delete shape;
+            ErrorWhileCreatingShape = QString("Invalid facet #%0").arg(iFace);
+            qCritical() << ErrorWhileCreatingShape;
+            return nullptr;
+        }
+    }
+
+    bool ok = shape->CheckClosure();
+    qDebug() << "Check tess closure ok? -->" << ok;
+    if (!ok)
+    {
+        delete shape;
+        ErrorWhileCreatingShape = "Failed to close tessellated shape";
+        qCritical() << ErrorWhileCreatingShape;
+        return nullptr;
+    }
+    shape->CloseShape();
+
+    return shape;
+}
+
+QString AGeoTesselated::getGenerationString(bool /*useStrings*/) const
+{
+    qDebug() << "AGeoTesselated::getGenerationString triggered --> Not implemented!";
+    return "--Tessellated: NotImplemented--";
+}
+
+QString AGeoTesselated::getScriptString(bool /*useStrings*/) const
+{
+    qDebug() << "AGeoTesselated::getScriptString triggered --> Not implemented!";
+    return "--Tessellated: NotImplemented--";
+}
+
+double AGeoTesselated::maxSize() const
+{
+    double max = 10.0;
+    for (size_t iVe = 0; iVe < Vertices.size(); iVe++)
+        for (size_t i = 0; i < Vertices[iVe].size(); i++)
+                if (Vertices[iVe][i] > max) max = Vertices[iVe][i];
+    return max;
+}
+
+void AGeoTesselated::writeToJson(QJsonObject & json) const
+{
+    QJsonArray arMain;
+
+    {
+        QJsonArray ar;
+        for (size_t iVe = 0; iVe < Vertices.size(); iVe++)
+        {
+            QJsonArray el;
+            for (size_t i = 0; i < Vertices[iVe].size(); i++)
+                el.push_back(Vertices[iVe][i]);
+            ar.push_back(el);
+        }
+        json["Vertices"] = ar;
+    }
+
+    {
+        QJsonArray ar;
+        for (size_t iFa = 0; iFa < Faces.size(); iFa++)
+        {
+            QJsonArray el;
+            for (size_t i = 0; i < Faces[iFa].size(); i++)
+                el.push_back(Faces[iFa][i]);
+            ar.push_back(el);
+        }
+        json["Facets"] = ar;
+    }
+}
+
+void AGeoTesselated::readFromJson(const QJsonObject & json)
+{
+    //qDebug() << "tess: read vertices from json";
+    {
+        QJsonArray ar = json["Vertices"].toArray();
+        const size_t numVerts = ar.size();
+        Vertices.resize(numVerts);
+
+        for (size_t iVe = 0; iVe < numVerts; iVe++)
+        {
+            QJsonArray thisVert = ar[iVe].toArray();
+            const size_t size = thisVert.size();
+            if (size != 3)
+            {
+                Vertices.clear();
+                Faces.clear();
+                qCritical() << "Tesselated: each vertex should be defined as an array of [x y z]"; // !!!***
+                return;
+            }
+            Vertices[iVe] = {thisVert[0].toDouble(), thisVert[1].toDouble(), thisVert[2].toDouble()};
+        }
+    }
+
+    //qDebug() << "tess: read facets from json";
+    {
+        QJsonArray ar = json["Facets"].toArray();
+        const size_t numFacets = ar.size();
+        Faces.resize(numFacets);
+
+        for (size_t iFa = 0; iFa < numFacets; iFa++)
+        {
+            QJsonArray thisFacet = ar[iFa].toArray();
+            const int num = thisFacet.size();
+            if (num < 3 || num > 4)
+            {
+                Vertices.clear();
+                Faces.clear();
+                qCritical() << "tesselated: each facet should be defined as an array of 3 or 4 vertex indices"; // !!!***
+                return;
+            }
+            Faces[iFa].resize(num);
+            for (int i = 0; i < num; i++)
+                Faces[iFa][i] = thisFacet[i].toInt();
+        }
+    }
+
+    /*
+    qDebug() << "tests";
+    TGeoTessellated * shape = static_cast<TGeoTessellated*>(createGeoShape());
+    int numFace = shape->GetNfacets();
+    int numVert = shape->GetNvertices();
+    qDebug() << "facets:" << numFace << "vertices:" << numVert;
+
+    qDebug() << "Vertices list:";
+    for (int i = 0; i < numVert; i++)
+        qDebug() << "[" << shape->GetVertex(i)[0] << "," << shape->GetVertex(i)[1] << "," << shape->GetVertex(i)[2] << "], ";
+
+    qDebug() << "Facet list:";
+    for (int i = 0; i < numFace; i++)
+    {
+        const TGeoFacet & facet = shape->GetFacet(i);
+        int num = facet.GetNvert();
+        QString tmp = "[ ";
+        for (int ii = 0; ii < num; ii++)
+            tmp += QString("%0, ").arg(facet[ii]);
+        qDebug() << tmp + "],";
+    }
+    */
+
+}
+
+bool AGeoTesselated::readFromTShape(TGeoShape * /*Tshape*/)
+{
+    qDebug() << "AGeoTesselated::readFromTShape triggered --> Not implemented!";
+    return false;
+}
+
+void AGeoTesselated::scale(double factor)
+{
+    for (size_t iVe = 0; iVe < Vertices.size(); iVe++)
+        for (size_t i = 0; i < Vertices[iVe].size(); i++)
+            Vertices[iVe][i] *= factor;
+}
+
+void AGeoTesselated::readDataFromShape(TGeoTessellated * shape)
+{
+    int numFace = shape->GetNfacets();
+    int numVert = shape->GetNvertices();
+    qDebug() << "Compacting TGeoTesselated --> facets:" << numFace << "vertices:" << numVert;
+
+    Vertices.resize(numVert);
+    Faces.resize(numFace);
+
+    for (int iVert = 0; iVert < numVert; iVert++)
+    {
+        const Tessellated::Vertex_t & ver = shape->GetVertex(iVert);
+        Vertices[iVert] = {ver[0], ver[1], ver[2]};
+    }
+
+    for (int iFace = 0; iFace < numFace; iFace++)
+    {
+        const TGeoFacet & facet = shape->GetFacet(iFace);
+        int num = facet.GetNvert();
+        Faces[iFace].resize(num);
+        for (int ii = 0; ii < num; ii++)
+            Faces[iFace][ii] = facet[ii];
+    }
 }

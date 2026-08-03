@@ -23,7 +23,7 @@
 #include "TMath.h"
 #include "TH1D.h"
 
-APhotonTracer::APhotonTracer(ALightSensorEvent & event, QTextStream* & streamTracks, QTextStream* & streamSensorLog, QTextStream* & streamPhotonLog) :
+APhotonTracer::APhotonTracer(ALightSensorEvent & event, QTextStream* & streamTracks, QTextStream* & streamSensorLog, QTextStream* & streamPhotonLog, QTextStream *& streamMonitorLog) :
     MatHub(AMaterialHub::getConstInstance()),
     RuleHub(AInterfaceRuleHub::getConstInstance()),
     SensorHub(ASensorHub::getConstInstance()),
@@ -34,7 +34,8 @@ APhotonTracer::APhotonTracer(ALightSensorEvent & event, QTextStream* & streamTra
     Event(event),
     StreamTracks(streamTracks),
     StreamSensorLog(streamSensorLog),
-    StreamPhotonLog(streamPhotonLog)
+    StreamPhotonLog(streamPhotonLog),
+    StreamMonitorLog(streamMonitorLog)
 {}
 
 void APhotonTracer::configureTracer()
@@ -460,6 +461,15 @@ void APhotonTracer::checkSpecialVolume(TGeoNode * NodeAfterInterface, bool & ret
             double cosAngle = 0;
             for (int i=0; i<3; i++) cosAngle += N[i] * Photon.v[i];
             MonitorHub.PhotonMonitors[iMon].Monitor->fillForPhoton(local[0], local[1], Photon.time, 180.0/3.1415926535*TMath::ACos(cosAngle), Photon.waveIndex);
+            if (SimSet.RunSet.SaveMonitorLog)
+            {
+                // local: x y z dx dy dz time waveIndex
+                *StreamMonitorLog << iMon;
+                *StreamMonitorLog << ' ' << local[0] << ' ' << local[1] << ' ' << local[2];  // local x y z
+                Navigator->MasterToLocalVect(Photon.v, local);
+                *StreamMonitorLog << ' ' << local[0] << ' ' << local[1] << ' ' << local[2];  // local dx dy dz
+                *StreamMonitorLog << ' ' << Photon.time << ' ' << Photon.waveIndex << '\n';
+            }
             if (MonitorHub.PhotonMonitors[iMon].Monitor->isStopsTracking())
             {
                 SimStat.MonitorKill++;

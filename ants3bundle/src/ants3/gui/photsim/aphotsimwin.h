@@ -164,13 +164,13 @@ private slots:
 
     void on_twSensors_tabBarClicked(int index);
 
-    void on_cobTracingMode_currentIndexChanged(int index);
 
     void on_pbHelpAdvanced_clicked();
 
     void on_sbLRM_photonsPerNode_editingFinished();
     void on_ledLRF_photoElectrons_editingFinished();
     void on_cobTracingMode_activated(int index);
+    void on_cobTracingMode_currentIndexChanged(int index);
 
     void on_leSkipOutsideMaterial_editingFinished();
     void on_cbSkipByVolume_clicked(bool checked);
@@ -234,8 +234,6 @@ private:
 
     void disableInterface(bool flag);
 
-    void updateAdvancedBombIndicator();
-
     void setGuiEnabled(bool flag); // make it public to use in global disable/enable?
 
     void doShowEvent();
@@ -262,6 +260,8 @@ private:
     void showBombsMultiple(bool showMessages);
 
     void processGeoConstAwareEditFinished(AOneLineTextEdit * edit, QString & str, double & val, const QString & name, QWidget * parent);
+
+    void updateSettingsYellowWarnings();
 
 signals:
     void requestShowGeometry(bool ActivateWindow = true, bool SAME = true, bool ColorUpdateAllowed = true);

@@ -43,6 +43,8 @@ public:
     TGeoManager * GeoManager = nullptr;
     TGeoVolume  * Top        = nullptr;  // world in TGeoManager
 
+    bool          ScriptUpdatedGeoManager = false; // introduced after root 6.40.02 fixes
+
     void         populateGeoManager(bool notifyRootServer = true);
     void         notifyRootServerGeometryChanged();
 

@@ -3833,3 +3833,51 @@ AGeoPrototypeDelegate::AGeoPrototypeDelegate(const QStringList & materials, QWid
     pbTransform->setVisible(false);
     pbShapeInfo->setVisible(false);
 }
+
+// ---
+
+AGeoTessDelegate::AGeoTessDelegate(const QStringList & materials, QWidget * parent)
+    : AGeoObjectDelegate(materials, parent)
+{
+    DelegateTypeName = "Tessellated";
+
+    ShapeHelp = "A tessellated shape\n"
+                "\n"
+                "The shape is defined by the boundary polygons.\n"
+                "\n"
+                "The XYZ position shifts the coordinates of defined polygons\n"
+                "\n"
+                "Implemented using TGeoTessellated";
+
+    //cbScale->setChecked(false);
+    //cbScale->setVisible(false);
+
+    QHBoxLayout * hl = new QHBoxLayout();
+        hl->setContentsMargins(50, 0, 50, 3);
+        lInfo = new QLabel("");
+        hl->addWidget(lInfo);
+    addLocalLayout(hl);
+}
+
+bool AGeoTessDelegate::updateObject(AGeoObject * obj) const
+{
+    return AGeoObjectDelegate::updateObject(obj);
+}
+
+void AGeoTessDelegate::updateGui(const AGeoObject * obj)
+{
+    AGeoObjectDelegate::updateGui(obj);
+
+    AGeoTesselated * tess = dynamic_cast<AGeoTesselated*>(ShapeCopy);
+    if (!tess)
+    {
+        AGeoScaledShape * scaled = dynamic_cast<AGeoScaledShape*>(ShapeCopy);
+        tess = dynamic_cast<AGeoTesselated*>(scaled->BaseShape);
+    }
+
+    if (tess)
+    {
+        lInfo->setText( QString("Number of vertices: %0; number of facets: %1").arg(tess->Vertices.size()).arg(tess->Faces.size()) );
+    }
+    else qWarning() << "Update delegate: Tessellated shape not found!";
+}

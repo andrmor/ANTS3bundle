@@ -182,3 +182,14 @@ Ligh sensor:PDE
 Test for two options of the PDE model with defined anular dependence of the response
 #end
 
+#file
+ComputeLUT.txt
+#tags
+LUT:Photon simulation:Monitor:MOnitor log
+#info
+Run a series of photon simulations and computes the look-aup table (LUT) for the optical interface
+#end
+
+
+
+

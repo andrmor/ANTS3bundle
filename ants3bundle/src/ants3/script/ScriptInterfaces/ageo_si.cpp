@@ -37,6 +37,11 @@ AGeo_SI::AGeo_SI() :
                    "create the composite using, e.g., the generation string \"TGeoCompositeShape( name1 + name2 )\". Note that the logical volume is removed "
                    "from the generation list after it was used by composite object generator!";
 
+    Help["tesselated"] = "Add a tessellated volume (defined by bounding polygons of size 3 or 4).\n"
+                         "It is possible to provide either directly an array of faces with vertixes [iFacet] [iVertex] [xyz],\n"
+                         "or to give separately an array of vertices ([iVertex] [xyz]), and an array of facets using vertex indexes ([iFace] [3or4indexesOfVertexes])"
+                         "The faces should be defined counter-clock wise so the normal is pointed outside of the volume.";
+
     Help["setLineProperties"] = "Set color, width and style of the line for visualisation of the object \"name\".";
     Help["clearWorld"] = "Remove all objects and prototypes leaving only World";
 
@@ -811,6 +816,145 @@ void AGeo_SI::composite(QString name, QString compositionString, int iMat, QStri
         abort(name + ": failed to create composite shape");
         return;
     }
+
+    GeoObjects.push_back(o);
+}
+
+#include "TGeoShape.h"
+#include "TGeoTessellated.h"
+void AGeo_SI::tesselated(QString name, QVariantList facetArray, int iMat, QString container, QVariantList position, QVariantList orientation)
+{
+    std::array<double,3> pos, ori;
+    bool ok = checkPosOri(position, orientation, pos, ori);
+    if (!ok) return;
+
+    const size_t numFacets = facetArray.size();
+    std::vector<std::vector<double>> Facet;  // iVertex xyz
+
+    TGeoTessellated * tess = new TGeoTessellated();
+
+    for (size_t iFa = 0; iFa < numFacets; iFa++)
+    {
+        QVariantList el = facetArray[iFa].toList();
+        const int numVert = el.size();
+        if (numVert < 3 || numVert > 4)
+        {
+            delete tess;
+            abort("tesselated: facetArray parameter should contain 3 or 4 vertices");
+            return;
+        }
+
+        Facet.resize(numVert);
+        for (int iVe = 0; iVe < numVert; iVe++)
+        {
+            QVariantList verVL = el[iVe].toList();
+            if (verVL.size() != 3)
+            {
+                delete tess;
+                abort("tesselated: each vertex should be defined using an array of [x y z]");
+                return;
+            }
+            Facet[iVe].resize(3);
+            for (int i = 0; i < 3; i++)
+                Facet[iVe][i] = verVL[i].toDouble();
+        }
+
+        if (numVert == 3) tess->AddFacet( {Facet[0][0], Facet[0][1], Facet[0][2]},
+                                          {Facet[1][0], Facet[1][1], Facet[1][2]},
+                                          {Facet[2][0], Facet[2][1], Facet[2][2]} );
+        else              tess->AddFacet( {Facet[0][0], Facet[0][1], Facet[0][2]},
+                                          {Facet[1][0], Facet[1][1], Facet[1][2]},
+                                          {Facet[2][0], Facet[2][1], Facet[2][2]},
+                                          {Facet[3][0], Facet[3][1], Facet[3][2]} );
+
+        bool ok = tess->FacetCheck(tess->GetNfacets()-1);
+        if (!ok)
+        {
+            delete tess;
+            abort( QString("tesselated: invalid facet #%0").arg(iFa) );
+            return;
+        }
+    }
+
+    ok = tess->CheckClosure();
+    qDebug() << "Check tess closure in SI, ok? -->" << ok;
+    if (!ok)
+    {
+        delete tess;
+        abort( "tesselated: failed to close tessellated shape");
+        return;
+    }
+    tess->CloseShape();
+
+    AGeoTesselated * shape = new AGeoTesselated();
+    shape->readDataFromShape(static_cast<TGeoTessellated*>(tess));
+    delete tess;
+
+    AGeoObject * o = new AGeoObject(name, container, iMat, shape, pos, ori);
+
+    GeoObjects.push_back(o);
+}
+
+void AGeo_SI::tesselated(QString name, QVariantList vertexArray, QVariantList facetArray, int iMat, QString container, QVariantList position, QVariantList orientation)
+{
+    std::array<double,3> pos, ori;
+    bool ok = checkPosOri(position, orientation, pos, ori);
+    if (!ok) return;
+
+    AGeoTesselated * shape = new AGeoTesselated();
+
+    const size_t numVertex = vertexArray.size();
+    shape->Vertices.resize(numVertex);
+    for (size_t iVe = 0; iVe < numVertex; iVe++)
+    {
+        QVariantList el = vertexArray[iVe].toList();
+        const int num = el.size();
+        if (num != 3)
+        {
+            delete shape;
+            abort("tesselated: each vertex should be defined using an array of [x y z]");
+            return;
+        }
+        for (int i = 0; i < 3; i++)
+        {
+            shape->Vertices[iVe].resize(3);
+            for (int i = 0; i < 3; i++)
+                shape->Vertices[iVe][i] = el[i].toDouble();
+        }
+    }
+
+    const size_t numFacets = facetArray.size();
+    shape->Faces.resize(numFacets);
+    for (size_t iFa = 0; iFa < numFacets; iFa++)
+    {
+        QVariantList el = facetArray[iFa].toList();
+        const int num = el.size();
+        if (num < 3 || num > 4)
+        {
+            delete shape;
+            abort("tesselated: facetArray parameter should contain 3 or 4 vertex indices (integer values)");
+            return;
+        }
+
+        shape->Faces[iFa].resize(num);
+        for (int i = 0; i < num; i++)
+            shape->Faces[iFa][i] = el[i].toInt();
+    }
+
+    TGeoShape * geoShape = shape->createGeoShape("dummy");
+    QString err = shape->ErrorWhileCreatingShape;
+    if (!err.isEmpty())
+    {
+        delete geoShape;
+        delete shape;
+        abort("tesselated -->" + err);
+        return;
+    }
+
+    shape->readDataFromShape(static_cast<TGeoTessellated*>(geoShape));
+    delete geoShape;
+
+    AGeoObject * o = new AGeoObject(name, container, iMat, shape, pos, ori);
 
     GeoObjects.push_back(o);
 }
@@ -2147,8 +2291,8 @@ void AGeo_SI::updateGeometry(bool CheckOverlaps)
     }
     clearGeoObjects();
 
-    //Detector->BuildDetector_CallFromScript();
     GeoHub.populateGeoManager(false);
+    GeoHub.ScriptUpdatedGeoManager = true;
 
     if (CheckOverlaps)
     {

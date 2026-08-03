@@ -176,7 +176,7 @@ QString AInterfaceRuleHub::readFromJson(const QJsonObject & json)
     err = readVolumeRulesFromJson(js);
     if (!err.isEmpty()) return err;
 
-    emit rulesLoaded();
+    //emit rulesLoaded();
     return "";
 }
 
@@ -283,7 +283,7 @@ QString AInterfaceRuleHub::checkAll()
     {
         if (!NNIpair.second) continue;
         QString es = NNIpair.second->checkOverrideData();
-        if (!err.isEmpty())
+        if (!es.isEmpty())
         {
             const std::pair<TString, TString> & np = NNIpair.first;
             err += QString("In interface rule from %1 to %2:\n").arg(np.first.Data(), np.second.Data()) + es + "\n";

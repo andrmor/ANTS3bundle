@@ -203,6 +203,8 @@ AGeoBaseDelegate * AGeoDelegateWidget::createAndAddGeoObjectDelegate()
         Del = new AGeoCompositeDelegate(Materials.getListOfMaterialNames(), this);
     else if (shape == "TGeoArb8")
         Del = new AGeoArb8Delegate(Materials.getListOfMaterialNames(), this);
+    else if (shape == "TGeoTesselated")
+        Del = new AGeoTessDelegate(Materials.getListOfMaterialNames(), this);
     else
         Del = new AGeoObjectDelegate(Materials.getListOfMaterialNames(), this);
 

@@ -16,6 +16,9 @@ class AUnifiedRule;
 class QPushButton;
 class TObject;
 class AInterfaceRuleWidget;
+class ALutInterfaceRule;
+class QLabel;
+class QComboBox;
 
 // --- Widget factory ---
 
@@ -116,5 +119,37 @@ private slots:
     void showBinned();
     void updateButtons();
 };
+
+class ALUTInterfaceWidget : public AInterfaceRuleWidget
+{
+    Q_OBJECT
+public:
+    ALUTInterfaceWidget(ALutInterfaceRule * rule, QWidget * parent);
+
+private:
+    ALutInterfaceRule * Rule        = nullptr;
+    QLabel            * labInfo     = nullptr;
+    QComboBox         * cobAngles   = nullptr;
+    QFrame            * frShow      = nullptr;
+    QPushButton       * pbShowRef   = nullptr;
+    QPushButton       * pbShowTrans = nullptr;;
+    QPushButton       * pbShowAbs   = nullptr;
+
+    void updateLutGui();
+    void showMesh(bool reflection);
+    void showMeshNiceAndFast(bool reflection, bool showTransitionInUpperHemisphere = false);
+    void drawDirectionLine(double angle, int flagRef0Trans1Both2);
+    void drawSurfaceCircle(int nPoints, double radius);
+    void drawBaseGraph(double min, double max);
+
+private slots:
+    void onLoadLutPressed();
+    void onShowReflectionPressed();
+    void onShowTransmittedPressed();
+    void onShowProbabilitiesPressed();
+    void onShowBothPressed();
+
+};
+
 
 #endif // AINTERFACEWIDGETFACTORY_H

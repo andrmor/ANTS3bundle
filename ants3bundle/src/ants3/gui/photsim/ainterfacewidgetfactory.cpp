@@ -1,4 +1,5 @@
 #include "ainterfacewidgetfactory.h"
+#include "TH2.h"
 #include "ainterfacerule.h"
 #include "abasicinterfacerule.h"
 #include "ametalinterfacerule.h"
@@ -10,7 +11,8 @@
 #include "guitools.h"
 #include "aphotonsimhub.h"
 #include "agraphbuilder.h"
-#include "agraphwindow.h"
+//#include "agraphwindow.h"
+#include "alutinterfacerule.h"
 
 #include <QObject>
 #include <QDebug>
@@ -48,6 +50,9 @@ AInterfaceRuleWidget * AInterfaceWidgetFactory::createEditWidget(AInterfaceRule 
 
     AWaveshifterInterfaceRule * wir = dynamic_cast<AWaveshifterInterfaceRule*>(rule);
     if (wir) return new AWaveshifterInterfaceWidget(wir, parent);
+
+    ALutInterfaceRule * lir = dynamic_cast<ALutInterfaceRule*>(rule);
+    if (lir) return new ALUTInterfaceWidget(lir, parent);
 
 
     qWarning() << "Unknown interface rule!";
@@ -520,4 +525,436 @@ AUnifiedInterfaceWidget::AUnifiedInterfaceWidget(AUnifiedRule * rule, QWidget * 
             leAbs->setEnabled(false);
         }
     mainLay->addLayout(hLay);
+}
+
+// --------------
+
+ALUTInterfaceWidget::ALUTInterfaceWidget(ALutInterfaceRule * rule, QWidget * parent) :
+    AInterfaceRuleWidget(parent), Rule(rule)
+{
+    QVBoxLayout * mainLay = new QVBoxLayout(this);
+        QHBoxLayout * lay = new QHBoxLayout();
+            QPushButton * pb = new QPushButton("Load LUT");
+        lay->addWidget(pb);
+            labInfo = new QLabel("");
+            labInfo->setAlignment(Qt::AlignHCenter);
+        lay->addWidget(labInfo);
+    mainLay->addLayout(lay);
+        frShow = new QFrame();
+        QVBoxLayout * layV = new QVBoxLayout(frShow);
+            QHBoxLayout * lay2 = new QHBoxLayout();
+            lay2->setContentsMargins(0,0,0,0);
+            lay2->addWidget(new QLabel("Show:"));
+            pbShowRef = new QPushButton("Reflection");
+            lay2->addWidget(pbShowRef);
+            lay2->addWidget(new QLabel("or"));
+            pbShowTrans = new QPushButton("Transmission");
+            lay2->addWidget(pbShowTrans);
+            lay2->addWidget(new QLabel("or"));
+            QPushButton * pbBoth = new QPushButton("Both");
+            lay2->addWidget(pbBoth);
+            lay2->addWidget(new QLabel("for"));
+            cobAngles = new QComboBox();
+            lay2->addWidget(cobAngles);
+            lay2->addWidget(new QLabel("deg"));
+        layV->addLayout(lay2);
+            pbShowAbs = new QPushButton("Show fractions vs incidence angle");
+        layV->addWidget(pbShowAbs, 0, Qt::AlignHCenter);
+
+    mainLay->addWidget(frShow);
+
+    QObject::connect(pb,          &QPushButton::clicked, this, &ALUTInterfaceWidget::onLoadLutPressed);
+    QObject::connect(pbShowRef  , &QPushButton::clicked, this, &ALUTInterfaceWidget::onShowReflectionPressed);
+    QObject::connect(pbShowTrans, &QPushButton::clicked, this, &ALUTInterfaceWidget::onShowTransmittedPressed);
+    QObject::connect(pbShowAbs,   &QPushButton::clicked, this, &ALUTInterfaceWidget::onShowProbabilitiesPressed);
+    QObject::connect(pbBoth,      &QPushButton::clicked, this, &ALUTInterfaceWidget::onShowBothPressed);
+
+    updateLutGui();
+}
+
+void ALUTInterfaceWidget::updateLutGui()
+{
+    bool bHaveData = false;
+
+    if (Rule->DataReflection.empty() && Rule->DataTransmission.empty())
+        labInfo->setText("LUT not loaded");
+    else
+    {
+        bHaveData = true;
+        int size = Rule->DataReflection.size();
+        if (size == 0) size = Rule->DataTransmission.size();
+        QString txt = QString("Angle of inceidence bins: %0").arg(size);
+        labInfo->setText(txt);
+
+        pbShowRef->  setEnabled(!Rule->DataReflection.empty());
+        pbShowTrans->setEnabled(!Rule->DataTransmission.empty());
+        pbShowAbs->  setEnabled(!Rule->DataAbsorption.empty());
+
+        cobAngles->clear();
+        for (const auto & pair : (Rule->DataReflection.empty() ? Rule->DataTransmission : Rule->DataReflection))
+            cobAngles->addItem(QString::number(pair.first));
+    }
+
+    frShow->setEnabled(bHaveData);
+}
+
+#include "ajsontools.h"
+void ALUTInterfaceWidget::onLoadLutPressed()
+{
+    QString fileName = guitools::dialogLoadFile(this, "Load LUT json file", "Json files (*.json);;All files (*.*)");
+    if (fileName.isEmpty()) return;
+
+    QJsonObject json;
+    bool ok = jstools::loadJsonFromFile(json, fileName);
+    if (!ok) guitools::message("Failed to read json from file!", this);
+    else
+    {
+        QString err = Rule->loadLUT(json);
+        if (!err.isEmpty()) guitools::message(err, this);
+    }
+    updateLutGui();
+}
+
+void ALUTInterfaceWidget::onShowReflectionPressed()
+{
+    drawBaseGraph(0, 1.0);
+
+    //showMesh(true);
+    showMeshNiceAndFast(true);
+
+    drawDirectionLine(cobAngles->currentText().toDouble(), 0);
+    drawSurfaceCircle(100, 0.1);
+}
+
+void ALUTInterfaceWidget::onShowTransmittedPressed()
+{
+    drawBaseGraph(0, 1.0);
+
+    //showMesh(false);
+    showMeshNiceAndFast(false, true);
+
+    drawDirectionLine(cobAngles->currentText().toDouble(), 2);
+    drawSurfaceCircle(100, 0.1);
+}
+
+void ALUTInterfaceWidget::onShowBothPressed()
+{
+    drawBaseGraph(-1.0, 1.0);
+
+    showMeshNiceAndFast(false, false);
+    showMeshNiceAndFast(true);
+
+    drawDirectionLine(cobAngles->currentText().toDouble(), 1);
+    drawSurfaceCircle(100, 0.1);
+}
+
+#include "TGraph.h"
+void ALUTInterfaceWidget::onShowProbabilitiesPressed()
+{
+    std::vector<double> angles;
+
+    std::vector<double> reflected;
+    for (const std::pair<double,std::vector<double>> & pair : Rule->DataReflection)
+    {
+        angles.push_back(pair.first);
+        double sum = std::reduce(pair.second.begin(), pair.second.end(), 0.0);
+        reflected.push_back(sum);
+    }
+    bool bHaveRef = !reflected.empty();
+
+    std::vector<double> transmitted;
+    for (const std::pair<double,std::vector<double>> & pair : Rule->DataTransmission)
+    {
+        if (!bHaveRef) angles.push_back(pair.first);
+        double sum = std::reduce(pair.second.begin(), pair.second.end(), 0.0);
+        transmitted.push_back(sum);
+    }
+    bool bHaveTrans = !transmitted.empty();
+
+    std::vector<double> absorbed;
+    for (const std::pair<double,double> & pair : Rule->DataAbsorption)
+        absorbed.push_back(pair.second);
+    bool bHaveAbs = !absorbed.empty();
+
+    for (size_t i = 0; i < angles.size(); i++)
+    {
+        double sum = 0;
+        if (bHaveAbs)   sum += absorbed[i];
+        if (bHaveRef)   sum += reflected[i];
+        if (bHaveTrans) sum += transmitted[i];
+        if (sum == 0) continue;
+
+        if (bHaveAbs)   absorbed[i]    /= sum;
+        if (bHaveRef)   reflected[i]   /= sum;
+        if (bHaveTrans) transmitted[i] /= sum;
+    }
+
+    if (!bHaveRef)   reflected   = std::vector<double>(angles.size(), 0);
+    if (!bHaveTrans) transmitted = std::vector<double>(angles.size(), 0);
+    if (!bHaveAbs)   absorbed    = std::vector<double>(angles.size(), 0);
+
+    TGraph * gR = AGraphBuilder::graph(angles, reflected);   AGraphBuilder::configure(gR, "Reflection",   "Angle of incidence, deg", "Fraction",   3, 0, 1,   3, 1, 2);
+    TGraph * gT = AGraphBuilder::graph(angles, transmitted); AGraphBuilder::configure(gT, "Transmission", "Angle of incidence, deg", "Fraction",   4, 0, 1,   4, 1, 2);
+    TGraph * gA = AGraphBuilder::graph(angles, absorbed);    AGraphBuilder::configure(gA, "Absorption",   "Angle of incidence, deg", "Fraction",   1, 0, 1,   1, 1, 2);
+
+    gR->SetMinimum(0);
+    gR->SetMaximum(1.05);
+
+    emit requestDraw(gR, "AL",    true, false);
+    emit requestDraw(gT, "Lsame", true, false);
+    emit requestDraw(gA, "Lsame", true, true);
+
+    emit requestDrawLegend(0.12,0.12, 0.4,0.25, "");
+}
+
+#include "ageomeshhandler.h"
+#include "TView.h"
+#include "TPolyLine3D.h"
+#include "TPolyMarker3D.h"
+#include "TGraph2D.h"
+#include "TColor.h"
+#include "TMath.h"
+void ALUTInterfaceWidget::showMesh(bool reflection)
+{
+    QString err = Rule->check();
+    if (!err.isEmpty()) return;
+
+    AGeoMeshHandler * mesh = Rule->getTransMesh();
+
+    std::vector<AGeoMeshHandler::Vec3> & vertices = mesh->vertices;
+    std::vector<AGeoMeshHandler::Triangle> triangles = mesh->triangles;
+
+    std::vector<double> & Data = reflection
+        ? Rule->DataReflection  [cobAngles->currentIndex()].second
+        : Rule->DataTransmission[cobAngles->currentIndex()].second;
+
+    TGraph2D * baseGraph = new TGraph2D();
+    baseGraph->AddPoint(0,0,1);
+    baseGraph->AddPoint(1,0,0);
+    baseGraph->AddPoint(0,1,0);
+    baseGraph->AddPoint(-1,0,0);
+    baseGraph->AddPoint(0,-1,0);
+    baseGraph->SetMarkerStyle(1);
+    //baseGraph->SetMarkerColor(kWhite);
+    baseGraph->SetMinimum(0);
+    baseGraph->SetMaximum(1);
+    baseGraph->GetXaxis()->SetLimits(-1,1);
+    baseGraph->GetYaxis()->SetLimits(-1,1);
+    baseGraph->GetXaxis()->SetLabelSize(0);
+    baseGraph->GetYaxis()->SetLabelSize(0);
+    baseGraph->GetZaxis()->SetLabelSize(0);
+    baseGraph->GetXaxis()->SetTitleSize(0);
+    baseGraph->GetYaxis()->SetTitleSize(0);
+    baseGraph->GetZaxis()->SetTitleSize(0);
+    baseGraph->GetXaxis()->SetTickLength(0);
+    baseGraph->GetYaxis()->SetTickLength(0);
+    baseGraph->GetZaxis()->SetTickLength(0);
+    emit requestDraw(baseGraph, "P", true, true);
+
+    TPolyLine3D *line3d = new TPolyLine3D(2);
+    line3d->SetPoint(0, -1.0, 0.0, 1); // Start coordinates (x, y, z)
+    line3d->SetPoint(1, 0, 0, 0); // End coordinates (x, y, z)
+    line3d->SetLineColor(kBlue);
+    line3d->SetLineWidth(4);
+    emit requestDraw(line3d, "same", true, false);
+
+    TList * meshList = new TList();
+
+    int numColors = TColor::GetNumberOfColors();
+    auto minMax = std::minmax_element(Data.begin(), Data.end());
+    double valMin = *minMax.first;
+    double valMax = *minMax.second;
+    double valRange = (valMax == valMin) ? 1.0 : (valMax - valMin);
+
+    for (size_t i = 0; i < triangles.size(); ++i)
+    {
+        double normVal = (Data[i] - valMin) / valRange;
+        int colorIdx = TColor::GetColorPalette(normVal * (numColors - 1));
+
+        const auto& v0 = vertices[triangles[i][0]];
+        const auto& v1 = vertices[triangles[i][1]];
+        const auto& v2 = vertices[triangles[i][2]];
+
+        double x[4] = {v0[0], v1[0], v2[0], v0[0]};
+        double y[4] = {v0[1], v1[1], v2[1], v0[1]};
+        double z[4] = {v0[2], v1[2], v2[2], v0[2]};
+
+        TPolyLine3D *poly = new TPolyLine3D(4, x, y, z);
+        poly->SetLineColor(colorIdx); // When filled, LineColor acts as the brush color for some 3D viewers
+        poly->SetLineWidth(1);
+
+        meshList->Add(poly);
+    }
+
+    emit requestDraw(meshList, "fsame", true, true);
+}
+
+#include "apersistentutils3d.h"
+void ALUTInterfaceWidget::showMeshNiceAndFast(bool reflection, bool showTransitionInUpperHemisphere)
+{
+    QString err = Rule->check();
+    if (!err.isEmpty()) return;
+
+    AGeoMeshHandler * mesh = Rule->getTransMesh();
+
+    std::vector<AGeoMeshHandler::Vec3> & vertices = mesh->vertices;
+    std::vector<AGeoMeshHandler::Triangle> triangles = mesh->triangles;
+
+    std::vector<double> & Data = reflection
+                                    ? Rule->DataReflection  [cobAngles->currentIndex()].second
+                                    : Rule->DataTransmission[cobAngles->currentIndex()].second;
+
+    const int nPointsPerTriangle = 5;
+    const int numColors = TColor::GetNumberOfColors();
+
+    auto minMax = std::minmax_element(Data.begin(), Data.end());
+    double valMin = *minMax.first;
+    double valMax = *minMax.second;
+    double valRange = (valMax == valMin) ? 1.0 : (valMax - valMin);
+
+    std::vector<std::vector<double>> colorX(numColors);
+    std::vector<std::vector<double>> colorY(numColors);
+    std::vector<std::vector<double>> colorZ(numColors);
+
+    for (size_t i = 0; i < triangles.size(); ++i)
+    {
+        double normVal = (Data[i] - valMin) / valRange;
+
+        // Safe protection against floating-point rounding exceeding 1.0
+        if (normVal < 0.0) normVal = 0.0;
+        if (normVal > 1.0) normVal = 1.0;
+
+        // FIX: Calculate a local index from 0 to numColors-1 for our tracking vectors
+        int paletteBin = static_cast<int>(normVal * (numColors - 1));
+
+        // Pull coordinates for the 3 vertices defining this face
+        const auto& p0 = vertices[triangles[i][0]];
+        const auto& p1 = vertices[triangles[i][1]];
+        const auto& p2 = vertices[triangles[i][2]];
+
+        // Approximate a grid that will sum up roughly to nPointsPerTriangle
+        int steps = std::max(2, (int)std::sqrt(2 * nPointsPerTriangle));
+
+        for (int u = 0; u <= steps; ++u)
+        {
+            for (int v = 0; v <= steps - u; ++v)
+            {
+                double w0 = (double)u / steps;
+                double w1 = (double)v / steps;
+                double w2 = 1.0 - w0 - w1;
+
+                // Compute exact internal coordinate position
+                double px = w0 * p0[0] + w1 * p1[0] + w2 * p2[0];
+                double py = w0 * p0[1] + w1 * p1[1] + w2 * p2[1];
+                double pz = w0 * p0[2] + w1 * p1[2] + w2 * p2[2];
+
+                // Safely push back using the guaranteed 0-bounded local index
+                if (reflection)
+                {
+                    colorX[paletteBin].push_back(px);
+                    colorY[paletteBin].push_back(py);
+                    colorZ[paletteBin].push_back(pz);
+                }
+                else
+                {
+                    colorX[paletteBin].push_back(px);
+                    //  showTransitionInUpperHemisphere - how it is stored
+                    // !showTransitionInUpperHemisphere - rotate around x axis
+                    colorY[paletteBin].push_back(showTransitionInUpperHemisphere ? py : -py);
+                    colorZ[paletteBin].push_back(showTransitionInUpperHemisphere ? pz : -pz);
+                }
+            }
+        }
+    }
+
+    TList * meshList = new TList();
+    for (int bin = 0; bin < numColors; ++bin)
+    {
+        int nPointsInColor = colorX[bin].size();
+        if (nPointsInColor == 0) continue;
+
+        APersistentPolymarker3D * pm3d = new APersistentPolymarker3D(nPointsInColor);
+        for (int p = 0; p < nPointsInColor; ++p)
+            pm3d->SetPoint(p, colorX[bin][p], colorY[bin][p], colorZ[bin][p]);
+
+        // FIX: Translate the safe local loop index back to ROOT's global color unique ID
+        int actualRootColorIdx = TColor::GetColorPalette(bin);
+
+        pm3d->SetMarkerColor(actualRootColorIdx);
+        pm3d->SetMarkerStyle(20); // Solid circular dot
+        pm3d->SetMarkerSize(0.6);
+
+        meshList->Add(pm3d);
+    }
+    emit requestDraw(meshList, "same", true, false);
+}
+
+void ALUTInterfaceWidget::drawDirectionLine(double angle, int flagRef0Both1Trans2)
+{
+    angle *= 3.1415926535/180.0;
+    double factor = 1.2;  //(reflection ? 1.2 : 0.6);
+
+    // incoming
+    APersistentPolyLine3D * line3d = new APersistentPolyLine3D(2);
+    line3d->SetPoint(0, -factor*sin(angle), 0.0, (flagRef0Both1Trans2 < 2 ? 1.0 : -1.0) * factor*cos(angle));
+    line3d->SetPoint(1, 0, 0, 0);
+    line3d->SetLineColor(kRed);
+    line3d->SetLineWidth(4);
+    emit requestDraw(line3d, "same", true, false);
+
+    // outcoming
+    APersistentPolyLine3D * line3dout = new APersistentPolyLine3D(2);
+    line3dout->SetPoint(0, 1.2*sin(angle), 0.0, 1.2*cos(angle));
+    line3dout->SetPoint(1, 0, 0, 0);
+    line3dout->SetLineColor(kRed);
+    line3dout->SetLineStyle(2);
+    line3dout->SetLineWidth(2);
+    emit requestDraw(line3dout, "same", true, false);
+
+    if (flagRef0Both1Trans2 == 1)
+    {
+        APersistentPolyLine3D * line3dout = new APersistentPolyLine3D(2);
+        line3dout->SetPoint(0, 1.2*sin(angle), 0.0, -1.2*cos(angle));
+        line3dout->SetPoint(1, 0, 0, 0);
+        line3dout->SetLineColor(kRed);
+        line3dout->SetLineStyle(2);
+        line3dout->SetLineWidth(2);
+        emit requestDraw(line3dout, "same", true, false);
+    }
+}
+
+void ALUTInterfaceWidget::drawSurfaceCircle(int nPoints, double radius)
+{
+    APersistentPolyLine3D * circle = new APersistentPolyLine3D(nPoints + 1);
+
+    for (int i = 0; i <= nPoints; ++i)
+    {
+        double theta = 2.0 * 3.1415926535 * i / nPoints;
+        double x = radius * std::cos(theta);
+        double y = radius * std::sin(theta);
+        double z = 0.0;
+
+        circle->SetPoint(i, x, y, z);
+    }
+
+    circle->SetLineColor(kBlack);
+    circle->SetLineWidth(2);
+
+    emit requestDraw(circle, "same", true, false);
+}
+
+void ALUTInterfaceWidget::drawBaseGraph(double min, double max)
+{
+    TGraph2D * g = new TGraph2D();
+    g->AddPoint(1,1,1);
+    g->AddPoint(-1,1,1);
+    g->AddPoint(-1,-1,-1);
+    g->AddPoint(1,-1,-1);
+
+    g->SetMinimum(min);
+    g->SetMaximum(max);
+
+    //g->GetHistogram()->GetXaxis()->SetNdivisions(101, false); // copy to basket will forget this
+
+    emit requestDraw(g, "P", true, true);
 }

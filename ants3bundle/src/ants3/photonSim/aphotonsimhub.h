@@ -35,8 +35,8 @@ public:
     QString isGeoConstInUse(const QRegularExpression & nameRegExp) const;
     void    replaceGeoConstName(const QRegularExpression & nameRegExp, const QString & newName);
 
-signals:
-    void settingsChanged();
+//signals:
+//    void settingsChanged();
 };
 
 #endif // APHOTONSIMHUB_H

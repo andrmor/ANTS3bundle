@@ -213,11 +213,10 @@ void AGeometryWindow::onRequestRedrawFromScript()
 void AGeometryWindow::showGeometryRasterWindow(bool same)
 {
     SetAsActiveRootWindow();
-
     setHideUpdate(true);
     ClearRootCanvas();
     if (same) Geometry.Top->Draw("SAME");  // is it still needed?
-    else      Geometry.Top->Draw("");
+    else Geometry.Top->Draw("");
     PostDraw();
 
     if (ui->pbShowParticleSources->isChecked() || ui->pbShowPhotonSources->isChecked()) showSources();
@@ -352,7 +351,7 @@ void AGeometryWindow::showRecursive(QString objectName)
 
 void AGeometryWindow::PostDraw()
 {
-    TView3D *v = dynamic_cast<TView3D*>(RasterWindow->fCanvas->GetView());
+    TView3D * v = dynamic_cast<TView3D*>(RasterWindow->fCanvas->GetView());
     if (!v)
     {
         qWarning() << "There is no TView3D!";
@@ -708,13 +707,17 @@ void AGeometryWindow::showSources()
         {
             ASourceGeneratorSettings & simSet = AParticleSimHub::getInstance().Settings.SourceGenSettings;
             if (simSet.SourceEdit)
-                AParticleSourcePlotter::plotSource(simSet.SourceEdit);
+            {
+                AGeoMarkerClass * marks = AParticleSourcePlotter::plotSource(simSet.SourceEdit);
+                if (marks) GeoMarkers.push_back(marks); // show is in the caller
+            }
             else
             {
                 for (AParticleSourceRecordBase * source : simSet.SourceData)
                 {
                     if (source->Activity == 0) continue;
-                    AParticleSourcePlotter::plotSource(source);
+                    AGeoMarkerClass * marks = AParticleSourcePlotter::plotSource(source);
+                    if (marks) GeoMarkers.push_back(marks); // show is in the caller
                 }
             }
             triggerShowTracks = true;
@@ -726,10 +729,8 @@ void AGeometryWindow::showSources()
         if (APhotonSimHub::getConstInstance().Settings.SimType == EPhotSimType::PhotonBombs)
         {
             AGeoMarkerClass * marks = APhotonSourcePlotter::plotSource();
-            if (marks)
-                GeoMarkers.push_back(marks); // show is in the caller
-            else
-                triggerShowTracks = true;
+            if (marks) GeoMarkers.push_back(marks); // show is in the caller
+            else       triggerShowTracks = true;
         }
     }
 

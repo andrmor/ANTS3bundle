@@ -1,0 +1,953 @@
+{
+    "ConfigDescription": "Description is empty",
+    "ConfigName": "--",
+    "Geometry": {
+        "GeoConsts": [
+            [
+                "Size",
+                2000,
+                "",
+                ""
+            ],
+            [
+                "delta",
+                1,
+                "",
+                ""
+            ],
+            [
+                "Thick",
+                20,
+                "",
+                ""
+            ]
+        ],
+        "WorldTree": [
+            {
+                "Container": "",
+                "Material": 0,
+                "Name": "World",
+                "Shape": "TGeoBBox",
+                "ShapeSpecific": {
+                    "dx": 1818.6533479473212,
+                    "dy": 1818.6533479473212,
+                    "dz": 1830.2033479473212
+                },
+                "Type": {
+                    "FixedSize": false,
+                    "Type": "World"
+                },
+                "color": 1,
+                "fActive": true,
+                "fExpanded": true,
+                "style": 1,
+                "width": 1
+            },
+            {
+                "Container": "World",
+                "Name": "_#_PrototypeContainer_#_",
+                "Type": {
+                    "Type": "PrototypeCollection"
+                },
+                "fActive": true,
+                "fExpanded": true
+            },
+            {
+                "Container": "World",
+                "Material": 0,
+                "Name": "MonitorIn",
+                "Phi": 0,
+                "Psi": 0,
+                "Theta": 0,
+                "Type": {
+                    "Particle": "",
+                    "PhotonOrParticle": 0,
+                    "Type": "Monitor",
+                    "angleBins": 90,
+                    "angleFrom": 0,
+                    "angleTo": 90,
+                    "bDirect": true,
+                    "bIndirect": true,
+                    "bLower": false,
+                    "bPrimary": true,
+                    "bSecondary": true,
+                    "bStopTracking": false,
+                    "bUpper": true,
+                    "dz": 0.001,
+                    "energyBins": 100,
+                    "energyFrom": 0,
+                    "energyTo": 0,
+                    "energyUnits": "keV",
+                    "shape": 1,
+                    "size1": 125,
+                    "size2": 100,
+                    "str2size1": "0.5*0.25*Size",
+                    "timeBins": 10,
+                    "timeFrom": 0,
+                    "timeTo": 0,
+                    "timeUnits": "ns",
+                    "waveBins": 150,
+                    "waveFrom": -1,
+                    "waveTo": 148,
+                    "xbins": 1000,
+                    "ybins": 1000
+                },
+                "X": 0,
+                "Y": 0,
+                "Z": -0.5,
+                "color": 1,
+                "fActive": true,
+                "fExpanded": true,
+                "strZ": "-0.5*delta",
+                "style": 1,
+                "width": 1
+            },
+            {
+                "Container": "World",
+                "Material": 0,
+                "Name": "MonReflection",
+                "Phi": 0,
+                "Psi": 0,
+                "Theta": 0,
+                "Type": {
+                    "Particle": "",
+                    "PhotonOrParticle": 0,
+                    "Type": "Monitor",
+                    "angleBins": 90,
+                    "angleFrom": 0,
+                    "angleTo": 90,
+                    "bDirect": true,
+                    "bIndirect": true,
+                    "bLower": true,
+                    "bPrimary": true,
+                    "bSecondary": true,
+                    "bStopTracking": true,
+                    "bUpper": true,
+                    "dz": 0.001,
+                    "energyBins": 100,
+                    "energyFrom": 0,
+                    "energyTo": 0,
+                    "energyUnits": "keV",
+                    "shape": 1,
+                    "size1": 1000,
+                    "size2": 1000,
+                    "str2size1": "Size",
+                    "str2size2": "Size",
+                    "timeBins": 10,
+                    "timeFrom": 0,
+                    "timeTo": 0,
+                    "timeUnits": "ns",
+                    "waveBins": 150,
+                    "waveFrom": -1,
+                    "waveTo": 148,
+                    "xbins": 1000,
+                    "ybins": 1000
+                },
+                "X": 0,
+                "Y": 0,
+                "Z": 1,
+                "color": 1,
+                "fActive": true,
+                "fExpanded": true,
+                "strZ": "delta",
+                "style": 1,
+                "width": 1
+            },
+            {
+                "Container": "World",
+                "Material": 1,
+                "Name": "Volume",
+                "Phi": 0,
+                "Psi": 0,
+                "Shape": "TGeoTube",
+                "ShapeSpecific": {
+                    "dz": 10,
+                    "rmax": 1000,
+                    "rmin": 0,
+                    "str2dz": "Thick",
+                    "str2rmax": "Size"
+                },
+                "Theta": 0,
+                "Type": {
+                    "Type": "Single"
+                },
+                "X": 0,
+                "Y": 0,
+                "Z": -11,
+                "color": 2,
+                "fActive": true,
+                "fExpanded": true,
+                "strZ": "-0.5*Thick-delta",
+                "style": 1,
+                "width": 1
+            },
+            {
+                "Container": "Volume",
+                "Material": 1,
+                "Name": "MonTransmission",
+                "Phi": 0,
+                "Psi": 0,
+                "Theta": 0,
+                "Type": {
+                    "Particle": "",
+                    "PhotonOrParticle": 0,
+                    "Type": "Monitor",
+                    "angleBins": 90,
+                    "angleFrom": 0,
+                    "angleTo": 90,
+                    "bDirect": true,
+                    "bIndirect": true,
+                    "bLower": true,
+                    "bPrimary": true,
+                    "bSecondary": true,
+                    "bStopTracking": true,
+                    "bUpper": true,
+                    "dz": 0.001,
+                    "energyBins": 100,
+                    "energyFrom": 0,
+                    "energyTo": 0,
+                    "energyUnits": "keV",
+                    "shape": 1,
+                    "size1": 1000,
+                    "size2": 1000,
+                    "str2size1": "Size",
+                    "str2size2": "Size",
+                    "timeBins": 10,
+                    "timeFrom": 0,
+                    "timeTo": 0,
+                    "timeUnits": "ns",
+                    "waveBins": 150,
+                    "waveFrom": -1,
+                    "waveTo": 148,
+                    "xbins": 1000,
+                    "ybins": 1000
+                },
+                "X": 0,
+                "Y": 0,
+                "Z": 9,
+                "color": 1,
+                "fActive": true,
+                "fExpanded": true,
+                "strZ": "0.5*Thick-delta",
+                "style": 1,
+                "width": 1
+            }
+        ]
+    },
+    "InterfaceRules": {
+        "MaterialRules": [
+            {
+                "MatFrom": 0,
+                "MatTo": 1,
+                "Model": "RoughSurface",
+                "SurfaceProperties": {
+                    "KillPhotonsRefractedBackward": false,
+                    "Model": "Unified",
+                    "OrientationProbabilityCorrection": true,
+                    "SigmaAlpha": 0.6
+                },
+                "Symmetric": false
+            }
+        ],
+        "VolumeRules": [
+        ]
+    },
+    "LightResponse": {
+        "Model": ""
+    },
+    "Materials": [
+        {
+            "*Name": "Vacuum",
+            "AbsCoeff": 0,
+            "BulkAbsorptionWave": [
+            ],
+            "Comments": "",
+            "Composition": {
+                "CompositionType": "Direct",
+                "CustomComposition": {
+                    "CompositionString": "H",
+                    "Density": 1e-24,
+                    "GasProperties": {
+                        "Gas": false,
+                        "PressureUnitsInGui": "bar",
+                        "Pressure_bar": 1
+                    },
+                    "MeanExcitationEnergy_eV": 0,
+                    "Temperature": 298,
+                    "UseMeanExcitationEnergy": false
+                },
+                "Geant4Material": "",
+                "NCrystalMaterialName": ""
+            },
+            "CustomScatterMFP": 0,
+            "Dielectric": true,
+            "ElDiffusionL": 0,
+            "ElDiffusionT": 0,
+            "ElDriftVelo": 0,
+            "FanoS1": 1,
+            "IgnoreEnergyConservationInReemission": false,
+            "PhotonYield": 0,
+            "PrimScintDecay": [
+                [
+                    0,
+                    1
+                ]
+            ],
+            "PrimScintRaise": [
+                [
+                    0,
+                    1
+                ]
+            ],
+            "PrimScintSpectrum": [
+            ],
+            "RayleighMFP": 0,
+            "RayleighWave": 500,
+            "ReemissionProb": 0,
+            "ReemissionProbabilityWave": [
+            ],
+            "RefIndex": 1,
+            "RefIndexComplex": [
+                1,
+                0
+            ],
+            "RefIndexComplex_Wave": [
+            ],
+            "RefIndexImporter": {
+            },
+            "RefIndexWave": [
+            ],
+            "SecScintSpectrum": [
+            ],
+            "SecScint_PhYield": 0,
+            "SecScint_Tau": 0,
+            "Tags": [
+            ],
+            "W": 0
+        },
+        {
+            "*Name": "Scint",
+            "AbsCoeff": 0,
+            "BulkAbsorptionWave": [
+            ],
+            "Comments": "",
+            "Composition": {
+                "CompositionType": "Direct",
+                "CustomComposition": {
+                    "CompositionString": "H",
+                    "Density": 1e-24,
+                    "GasProperties": {
+                        "Gas": false,
+                        "PressureUnitsInGui": "bar",
+                        "Pressure_bar": 1
+                    },
+                    "MeanExcitationEnergy_eV": 0,
+                    "Temperature": 298,
+                    "UseMeanExcitationEnergy": false
+                },
+                "Geant4Material": "",
+                "NCrystalMaterialName": ""
+            },
+            "CustomScatterMFP": 0,
+            "Dielectric": true,
+            "ElDiffusionL": 0,
+            "ElDiffusionT": 0,
+            "ElDriftVelo": 0,
+            "FanoS1": 1,
+            "IgnoreEnergyConservationInReemission": false,
+            "PhotonYield": 0,
+            "PrimScintDecay": [
+                [
+                    0,
+                    1
+                ]
+            ],
+            "PrimScintRaise": [
+                [
+                    0,
+                    1
+                ]
+            ],
+            "PrimScintSpectrum": [
+            ],
+            "RayleighMFP": 0,
+            "RayleighWave": 500,
+            "ReemissionProb": 0,
+            "ReemissionProbabilityWave": [
+            ],
+            "RefIndex": 2,
+            "RefIndexComplex": [
+                1,
+                0
+            ],
+            "RefIndexComplex_Wave": [
+            ],
+            "RefIndexImporter": {
+                "Formula": "1.5130 - 0.003169*lambda*lambda + 0.003962/lambda/lambda",
+                "FormulaUnits": "um",
+                "WavelengthRange": {
+                    "From": 310,
+                    "Step": 1,
+                    "To": 800
+                }
+            },
+            "RefIndexWave": [
+            ],
+            "SecScintSpectrum": [
+            ],
+            "SecScint_PhYield": 0,
+            "SecScint_Tau": 0,
+            "Tags": [
+            ],
+            "W": 0
+        }
+    ],
+    "ParticleSim": {
+        "Events": 1,
+        "Geant4Settings": {
+            "AcolinearityFWHM": 0.55,
+            "AcolinearityModel": 0,
+            "AcolinearityVolumes": [
+            ],
+            "Commands": [
+                "/run/setCut 0.7 mm"
+            ],
+            "PhysicsList": "QGSP_BIC_HP",
+            "SimulateAnnihilAcolinearity": false,
+            "StepLimits": [
+            ],
+            "UseNCrystal": false,
+            "UseTSphys": false
+        },
+        "GenerationFromFile": {
+            "FileFormat": "Undefined",
+            "FileLastModified": 0,
+            "FileName": "",
+            "NumEvents": 0
+        },
+        "GenerationFromSources": {
+            "MultiplePerEvent": {
+                "Enabled": false,
+                "Mode": "Constant",
+                "Number": 1
+            },
+            "ParticleSources": [
+            ]
+        },
+        "ParticleGenerationMode": "Sources",
+        "RunSettings": {
+            "AnalyzerSettings": {
+                "Enabled": false,
+                "FileName": "ParticleAnalyzers.json"
+            },
+            "AsciiOutput": true,
+            "AsciiPrecision": 6,
+            "CalorimeterSettings": {
+                "Enabled": false,
+                "FileName": "Calorimeters.json",
+                "LogFileName": "CalorimeterLog.dat",
+                "SaveEnergyDepositionLog": false
+            },
+            "FileNameDeposition": "Deposition.dat",
+            "FileNameSaveConfig": "Config_ParticleSim.json",
+            "FileNameTrackingHistory": "TrackingData.dat",
+            "MonitorSettings": {
+                "Enabled": false,
+                "FileName": "ParticleMonitors.json"
+            },
+            "OutputDirectory": "",
+            "SaveConfig": false,
+            "SaveDeposition": false,
+            "SaveDepositionIncludeScintillators": true,
+            "SaveDepositionScintVolumes": [
+            ],
+            "SaveDepositionVolumes": [
+            ],
+            "SaveParticles": {
+                "Enabled": false,
+                "FileName": "OutputParticles.dat",
+                "StopTrack": true,
+                "TimeFrom": 0,
+                "TimeTo": 10000000000,
+                "TimeWindow": false,
+                "VolumeName": ""
+            },
+            "SaveTrackingHistory": false,
+            "Seed": 0
+        }
+    },
+    "PhotonFunctional": {
+        "OverritenRecords": [
+        ]
+    },
+    "PhotonSim": {
+        "Deposition": {
+            "FileFormat": "Undefined",
+            "FileName": "",
+            "LastModified": 0,
+            "NumEvents": 0
+        },
+        "Optimization": {
+            "LRF": {
+                "PhotoElectrons": 1,
+                "PhotonsPerNode": 20000
+            },
+            "MaxPhotonTransitions": 500,
+            "TracingMode": "Normal"
+        },
+        "PhGenOverrides": {
+            "Direction": {
+                "ConeAngle": 86,
+                "DirectionMode": "Cone",
+                "DirectionVector": [
+                    0,
+                    0,
+                    -1
+                ]
+            },
+            "Time": {
+                "DecayTime": 0,
+                "Enabled": false
+            },
+            "Wave": {
+                "Enabled": false,
+                "FixedWavelength": 550
+            }
+        },
+        "PhotonBombs": {
+            "Advanced": {
+                "SkipBombs": {
+                    "EnableOnlyMat": false,
+                    "EnableOnlyVol": false,
+                    "Material": "",
+                    "MaxNodeAttempts": 1000,
+                    "Volume": ""
+                }
+            },
+            "File": {
+                "FileFormat": "Undefined",
+                "FileName": "",
+                "LastModified": 0,
+                "NumEvents": 0
+            },
+            "Flood": {
+                "CenterX": 0,
+                "CenterXStr": "",
+                "CenterY": 0,
+                "CenterYStr": "",
+                "InnerDiameter": 0,
+                "InnerDiameterStr": "",
+                "Number": 254040,
+                "OuterDiameter": 300,
+                "OuterDiameterStr": "",
+                "Shape": "rectangle",
+                "Xfrom": -1,
+                "XfromStr": "",
+                "Xto": 1,
+                "XtoStr": "",
+                "Yfrom": -1,
+                "YfromStr": "",
+                "Yto": 1,
+                "YtoStr": "",
+                "Zfixed": 0,
+                "ZfixedStr": "",
+                "Zfrom": 0,
+                "ZfromStr": "",
+                "Zmode": "fixed",
+                "Zto": 0,
+                "ZtoStr": ""
+            },
+            "GenerationMode": "flood",
+            "Grid": {
+                "AxesData": [
+                    {
+                        "BiDirect": false,
+                        "Enabled": true,
+                        "Nodes": 10,
+                        "dX": 10,
+                        "dXStr": "",
+                        "dY": 0,
+                        "dYStr": "",
+                        "dZ": 0,
+                        "dZStr": ""
+                    },
+                    {
+                        "BiDirect": false,
+                        "Enabled": false,
+                        "Nodes": 10,
+                        "dX": 0,
+                        "dXStr": "",
+                        "dY": 10,
+                        "dYStr": "",
+                        "dZ": 0,
+                        "dZStr": ""
+                    },
+                    {
+                        "BiDirect": false,
+                        "Enabled": false,
+                        "Nodes": 10,
+                        "dX": 0,
+                        "dXStr": "",
+                        "dY": 0,
+                        "dYStr": "",
+                        "dZ": 10,
+                        "dZStr": ""
+                    }
+                ],
+                "ScanX0": 0,
+                "ScanX0Str": "",
+                "ScanY0": 0,
+                "ScanY0Str": "",
+                "ScanZ0": 0,
+                "ScanZ0Str": ""
+            },
+            "PhotonsPerBomb": {
+                "CustomDist": [
+                ],
+                "FixedNumber": 1,
+                "Mode": "constant",
+                "NormalMean": 100,
+                "NormalSigma": 10,
+                "PoissonMean": 10,
+                "UniformMax": 12,
+                "UniformMin": 10
+            },
+            "Single": {
+                "Position": [
+                    0,
+                    0,
+                    0
+                ],
+                "PositionStr": [
+                    "",
+                    "",
+                    ""
+                ]
+            }
+        },
+        "PhotonFile": {
+            "FileFormat": "Undefined",
+            "FileName": "",
+            "LastModified": 0,
+            "NumEvents": 0
+        },
+        "Run": {
+            "BinaryFormat": false,
+            "FileNameConfig": "Config_OpticalSim.json",
+            "FileNameMonitorLog": "PhotonMonitorLog.dat",
+            "FileNameMonitors": "PhotonMonitors.json",
+            "FileNamePhotonBombs": "PhotonBombs.txt",
+            "FileNameReceipt": "DummyReceipt.txt",
+            "FileNameSensorLog": "SensorLog.dat",
+            "FileNameSensorSignals": "SensorSignals.txt",
+            "FileNameStatistics": "PhotonStatistics.json",
+            "FileNameTracks": "PhotonTracks.txt",
+            "MaxTracks": 1000,
+            "OutputDirectory": "",
+            "PhotonLog": {
+                "Enabled": false,
+                "FileName": "PhotonLog.txt",
+                "MaxNumber": 1000,
+                "MustInclude_Processes": [
+                ],
+                "MustInclude_Volumes": [
+                ],
+                "MustNotInclude_Processes": [
+                ],
+                "MustNotInclude_Volumes": [
+                ]
+            },
+            "SaveConfig": false,
+            "SaveMonitorLog": true,
+            "SaveMonitors": true,
+            "SavePhotonBombs": false,
+            "SaveSensorLog": false,
+            "SaveSensorSignals": false,
+            "SaveStatistics": true,
+            "SaveTracks": true,
+            "Seed": 0,
+            "SensorLogAngle": false,
+            "SensorLogTime": true,
+            "SensorLogWave": false,
+            "SensorLogXY": false,
+            "UpperTimeLimit": 1000000000
+        },
+        "Scintillation": {
+            "Primary": true,
+            "Secondary": false
+        },
+        "SimulationType": "bomb",
+        "WaveResolved": {
+            "Enabled": false,
+            "From": 200,
+            "Step": 5,
+            "To": 800
+        }
+    },
+    "Sensors": {
+        "ModelAssignment": [
+        ],
+        "Models": [
+            {
+                "AngularResponse": {
+                    "Angular_Wavelength": 600,
+                    "Data": [
+                    ]
+                },
+                "AreaResponse": {
+                    "Data": [
+                    ],
+                    "StepX": 1,
+                    "StepY": 1
+                },
+                "DarkCountRate": 0,
+                "IntegrationTime": 1e-06,
+                "Name": "Ideal",
+                "PDE": {
+                    "Effective": 1,
+                    "PDE_model": 0,
+                    "Spectral": [
+                    ]
+                },
+                "PhElToSignals": {
+                    "AverageSignalPerPhEl": 1,
+                    "GammaShape": 2,
+                    "Model": "Constant",
+                    "NormalSigma": 0,
+                    "SinglePhElPHS": [
+                    ]
+                },
+                "PreampSigma": 0,
+                "SiPM": {
+                    "PixelSizeX": 3,
+                    "PixelSizeY": 3,
+                    "PixelSpacingX": 0,
+                    "PixelSpacingY": 0,
+                    "PixelsX": 50,
+                    "PixelsY": 50,
+                    "isSiPM": false
+                }
+            }
+        ],
+        "SensorGains": {
+            "Enabled": false,
+            "Gains": [
+            ]
+        }
+    },
+    "gui": {
+        "GeometryWindow": {
+            "GeoMarkProps": {
+                "PropertiesByType": [
+                    {
+                        "Properties": [
+                            2,
+                            1.5,
+                            860,
+                            1
+                        ],
+                        "Type": "PointOfOrigin"
+                    },
+                    {
+                        "Properties": [
+                            2,
+                            2,
+                            2,
+                            1
+                        ],
+                        "Type": "PosReconstructed"
+                    },
+                    {
+                        "Properties": [
+                            5,
+                            2,
+                            860,
+                            1
+                        ],
+                        "Type": "PosTrue"
+                    },
+                    {
+                        "Properties": [
+                            3,
+                            3,
+                            51,
+                            1
+                        ],
+                        "Type": "PrimarySource"
+                    },
+                    {
+                        "Properties": [
+                            1,
+                            2,
+                            1,
+                            1
+                        ],
+                        "Type": "Undefined"
+                    }
+                ],
+                "SizeMultiplier": 1
+            },
+            "GeoWriter": {
+                "SizeForAnalyzers": 10,
+                "SizeForCalorimeters": 10,
+                "SizeForMonitors": 10,
+                "SizeForPhotFuncts": 10,
+                "SizeForScints": 10,
+                "SizeForSensors": 10
+            },
+            "LimitVisibility": {
+                "Enabled": false,
+                "Level": 3
+            },
+            "ZoomLevel": 0
+        },
+        "ParticleSimWindow": {
+            "Analyser": {
+                "Statistics": {
+                    "AveragePerBins": false,
+                    "BinsX": 100,
+                    "BinsY": 100,
+                    "BulkOrTransition": 0,
+                    "Cuts": "",
+                    "EnableLimitToCreated": false,
+                    "EnableLimitToEscaping": false,
+                    "EnableLimitToIndex": false,
+                    "EnableLimitToIndexFrom": false,
+                    "EnableLimitToIndexTo": false,
+                    "EnableLimitToMat": false,
+                    "EnableLimitToMatFrom": false,
+                    "EnableLimitToMatTo": false,
+                    "EnableLimitToParticle": false,
+                    "EnableLimitToVolume": false,
+                    "EnableLimitToVolumeFrom": false,
+                    "EnableLimitToVolumeTo": false,
+                    "EnableWhat2": false,
+                    "EnableWhat3": false,
+                    "EventsPerThread": "1",
+                    "FromX": "0",
+                    "FromY": "0",
+                    "HadronicTarget": "",
+                    "LimitParticle": "",
+                    "LimitTime": false,
+                    "LimitToFirstInteractionOfPrimary": false,
+                    "LimitToHadronic": false,
+                    "LimitToIndex": 0,
+                    "LimitToIndexFrom": 0,
+                    "LimitToIndexTo": 0,
+                    "LimitToMat": 0,
+                    "LimitToMatFrom": 0,
+                    "LimitToMatTo": 0,
+                    "LimitToVolume": "",
+                    "LimitToVolumeFrom": "",
+                    "LimitToVolumeTo": "",
+                    "OnlyPrimary": false,
+                    "OnlySecondary": false,
+                    "RequestWhat": 0,
+                    "RequestWhatPlus": -1,
+                    "RequestWhatVsTime": false,
+                    "Threads": 0,
+                    "TimeFrom": "0",
+                    "TimeTo": "1e99",
+                    "ToX": "0",
+                    "ToY": "0",
+                    "What1": "Energy * 1e-3",
+                    "What2": "",
+                    "What3": ""
+                }
+            },
+            "AutoLoadAllResults": true,
+            "ParticleTrackAttributes": {
+                "CustomAttribtes": [
+                    [
+                        "e+",
+                        {
+                            "color": 6,
+                            "style": 1,
+                            "width": 1
+                        }
+                    ],
+                    [
+                        "e-",
+                        {
+                            "color": 9,
+                            "style": 1,
+                            "width": 1
+                        }
+                    ],
+                    [
+                        "gamma",
+                        {
+                            "color": 1,
+                            "style": 1,
+                            "width": 1
+                        }
+                    ],
+                    [
+                        "neutron",
+                        {
+                            "color": 3,
+                            "style": 1,
+                            "width": 1
+                        }
+                    ],
+                    [
+                        "proton",
+                        {
+                            "color": 2,
+                            "style": 1,
+                            "width": 1
+                        }
+                    ]
+                ],
+                "DefaultAttributes": {
+                    "color": 15,
+                    "style": 1,
+                    "width": 2
+                }
+            },
+            "Seed": {
+                "FixedSeed": 1000,
+                "Random": true
+            }
+        },
+        "PhotonSimWindow": {
+            "AutoLoadAllResults": true,
+            "PhotonTrackAttributes": {
+                "HitSensorPhotonTracks": {
+                    "color": 2,
+                    "style": 1,
+                    "width": 1
+                },
+                "PrimaryPhotonTracks": {
+                    "color": 7,
+                    "style": 1,
+                    "width": 1
+                },
+                "SecondaryPhotonTracks": {
+                    "color": 6,
+                    "style": 1,
+                    "width": 1
+                },
+                "UseHitSensorAttributes": true
+            },
+            "Seed": {
+                "FixedSeed": 1000,
+                "Random": true
+            },
+            "SensorGroups": {
+                "AllEnabled": true,
+                "G1": "0-5,7",
+                "G1Enabled": false,
+                "G2": "",
+                "G2Enabled": false,
+                "G3": "",
+                "G3Enabled": false
+            },
+            "SensorTable": {
+                "ColumnNumber": 1,
+                "HideIndex": false,
+                "Swap": false
+            }
+        }
+    }
+}

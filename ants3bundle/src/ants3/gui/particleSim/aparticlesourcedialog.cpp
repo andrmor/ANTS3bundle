@@ -82,6 +82,7 @@ AParticleSourceDialog::AParticleSourceDialog(const AParticleSourceRecord_Standar
     case AParticleSourceRecord_Standard::FixedDirection  : index = 1; break;
     case AParticleSourceRecord_Standard::GaussDispersion : index = 2; break;
     case AParticleSourceRecord_Standard::CustomAngular   : index = 3; break;
+    case AParticleSourceRecord_Standard::HomogeneousIsotropicField : index = 4; break;
     default : guitools::message("Unknown angular mode, setting to Isotropic!", this);
     }
     ui->cobAngularMode->setCurrentIndex(index);
@@ -227,7 +228,7 @@ void AParticleSourceDialog::on_pbGunTest_clicked()
     settings.SourceData.back()->Activity = 1.0;
     ASourceParticleGenerator gun(settings);
 
-    auto abort = [&gun]{gun.AbortRequested = true;};
+    auto abort = [&gun]{gun.requestAbort();};
     QDialog D(this);
     D.setWindowTitle("Particle generator");
     D.setMinimumWidth(250);
@@ -262,6 +263,7 @@ void AParticleSourceDialog::on_cobGunSourceType_currentIndexChanged(int index)
     case 3: s << "Diameter:" << ""       << "";        break;
     case 4: s << "SizeX:"    << "SizeY:" << "SizeZ:";  break;
     case 5: s << "Diameter:" << ""       << "Height:"; break;
+    case 6: s << "Diameter:" << ""       << "";        break;
     }
     ui->lGun1DSize->setText(s[0]);
     ui->lGun2DSize->setText(s[1]);
@@ -282,9 +284,9 @@ void AParticleSourceDialog::on_cobGunSourceType_currentIndexChanged(int index)
     ui->lGun3DSize->setVisible(b3);
     ui->ledGun3DSize->setVisible(b3);
 
-    ui->ledGunPhi->setEnabled(index != 0);
-    ui->ledGunTheta->setEnabled(index != 0);
-    ui->ledGunPsi->setEnabled(index > 1);
+    ui->ledGunPhi->setEnabled(index != 0 && index != 6);
+    ui->ledGunTheta->setEnabled(index != 0 && index != 6);
+    ui->ledGunPsi->setEnabled(index > 1 && index != 6);
 
     if (index == 1)
     {
@@ -456,6 +458,7 @@ void AParticleSourceDialog::on_pbUpdateRecord_clicked()
     case 3 : LocalRec.Shape = AParticleSourceRecord_Standard::Round;     break;
     case 4 : LocalRec.Shape = AParticleSourceRecord_Standard::Box;       break;
     case 5 : LocalRec.Shape = AParticleSourceRecord_Standard::Cylinder;  break;
+    case 6 : LocalRec.Shape = AParticleSourceRecord_Standard::Sphere;    break;
     }
 
         //LocalRec.Size1 = 0.5 * ui->ledGun1DSize->text().toDouble();
@@ -491,10 +494,11 @@ void AParticleSourceDialog::on_pbUpdateRecord_clicked()
 
     switch (ui->cobAngularMode->currentIndex())
     {
-    case 0 : LocalRec.AngularMode = AParticleSourceRecord_Standard::Isotropic;  break;
-    case 1 : LocalRec.AngularMode = AParticleSourceRecord_Standard::FixedDirection;  break;
+    case 0 : LocalRec.AngularMode = AParticleSourceRecord_Standard::Isotropic; break;
+    case 1 : LocalRec.AngularMode = AParticleSourceRecord_Standard::FixedDirection; break;
     case 2 : LocalRec.AngularMode = AParticleSourceRecord_Standard::GaussDispersion; break;
-    case 3 : LocalRec.AngularMode = AParticleSourceRecord_Standard::CustomAngular;   break;
+    case 3 : LocalRec.AngularMode = AParticleSourceRecord_Standard::CustomAngular; break;
+    case 4 : LocalRec.AngularMode = AParticleSourceRecord_Standard::HomogeneousIsotropicField; break;
     default:
         qWarning() << "Unknown angular mode!";
         LocalRec.AngularMode = AParticleSourceRecord_Standard::Isotropic;
@@ -751,7 +755,18 @@ void AParticleSourceDialog::on_cobAngularMode_currentIndexChanged(int index)
 
 void AParticleSourceDialog::updateDirectionVisibility()
 {
-    ui->frDirection->setVisible(ui->swAngular->currentIndex() != 0 || ui->cbAngularCutoff->isChecked());
+    int iMode = ui->cobAngularMode->currentIndex();
+
+    if (iMode == 4)
+    {
+        ui->frDirection->setVisible(false);
+        ui->frAngularCutoff->setVisible(false);
+    }
+    else
+    {
+        ui->frDirection->setVisible(iMode != 0 || ui->cbAngularCutoff->isChecked());
+        ui->frAngularCutoff->setVisible(true);
+    }
 }
 void AParticleSourceDialog::on_cbAngularCutoff_toggled(bool)
 {
@@ -1001,3 +1016,10 @@ void AParticleSourceDialog::on_cbEnergyGaussBlur_toggled(bool checked)
     ui->ledEnergySigma->setEnabled(checked);
     ui->cobEnergySigmaUnits->setEnabled(checked);
 }
+
+void AParticleSourceDialog::on_cobAngularMode_activated(int index)
+{
+    if (index == 4) ui->cobGunSourceType->setCurrentIndex(6);
+    on_pbUpdateRecord_clicked();
+}
+

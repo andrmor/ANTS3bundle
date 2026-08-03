@@ -14,7 +14,8 @@ QMAKE_CXXFLAGS += -O2
 
 # CERN ROOT
 INCLUDEPATH += $$system(root-config --incdir)
-LIBS += $$system(root-config --libs) -lGeom -lGeomPainter -lGeomBuilder -lMinuit2 -lSpectrum -ltbb
+#LIBS += $$system(root-config --libs) -lGeom -lGeomPainter -lGeomBuilder -lMinuit2 -lSpectrum -ltbb
+LIBS += $$system(root-config --libs) -lGeom -lGeomPainter -lMinuit2 -lSpectrum -ltbb
 ants3_RootServer {LIBS += -lRHTTP  -lXMLIO}
 
 # PYTHON
@@ -237,6 +238,7 @@ SOURCES += \
     gui/graph/ahistoptstatdialog.cpp \
     gui/graph/amultidrawrecord.cpp \
     gui/graph/apaletteselectiondialog.cpp \
+    gui/graph/apersistentutils3d.cpp \
     gui/graph/asetmarginsdialog.cpp \
     gui/graph/aviewer3d.cpp \
     gui/graph/aviewer3dsettingsdialog.cpp \
@@ -323,7 +325,9 @@ SOURCES += \
     particleSim/aparticleanalyzerhub.cpp \
     particleSim/aparticleanalyzersettings.cpp \
     particleSim/atrackvisattributes.cpp \
+    photonSim/ageomeshhandler.cpp \
     photonSim/aphotonloghandler.cpp \
+    photonSim/interfaceRules/alutinterfacerule.cpp \
     photonSim/interfaceRules/asurfaceinterfacerule.cpp \
     photonSim/interfaceRules/asurfacesettings.cpp \
     photonSim/interfaceRules/aunifiedrule.cpp \
@@ -470,6 +474,7 @@ HEADERS += \
     gui/graph/ahistoptstatdialog.h \
     gui/graph/amultidrawrecord.h \
     gui/graph/apaletteselectiondialog.h \
+    gui/graph/apersistentutils3d.h \
     gui/graph/asetmarginsdialog.h \
     gui/graph/aviewer3dsettingsdialog.h \
     gui/materials/aabsorptiondataconverterdialog.h \
@@ -495,7 +500,9 @@ HEADERS += \
     particleSim/aparticleanalyzerhub.h \
     particleSim/aparticleanalyzersettings.h \
     particleSim/atrackvisattributes.h \
+    photonSim/ageomeshhandler.h \
     photonSim/aphotonloghandler.h \
+    photonSim/interfaceRules/alutinterfacerule.h \
     photonSim/photonFunctional/aphotonfunctionalhub.h \
     photonSim/photonFunctional/aphotonfunctionalmodel.h \
     rec/PET/acastorimageloader.h \

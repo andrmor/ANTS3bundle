@@ -177,6 +177,7 @@ void ALightResponse_SI::defineSensorGroups(QString type, int numNodes)
     if (!DefaultLrf.isEmpty()) setLRF(DefaultLrf);
 }
 
+#include <QJsonDocument>
 QVariantMap ALightResponse_SI::newLRF_axial(int intervals, double minR, double maxR)
 {
     LRFaxial lrf(0,0, maxR, intervals);
