@@ -714,6 +714,7 @@ void ALUTInterfaceWidget::onShowProbabilitiesPressed()
 #include "TGraph2D.h"
 #include "TColor.h"
 #include "TMath.h"
+#include "TList.h"
 void ALUTInterfaceWidget::showMesh(bool reflection)
 {
     QString err = Rule->check();

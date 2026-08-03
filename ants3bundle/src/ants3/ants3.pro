@@ -156,7 +156,7 @@ ants3_GUI {
 
 # ANTS3 version
 DEFINES += ANTS3_MAJOR=2
-DEFINES += ANTS3_MINOR=0
+DEFINES += ANTS3_MINOR=1
 
 QT += qml   #this is for qjsengine
 
