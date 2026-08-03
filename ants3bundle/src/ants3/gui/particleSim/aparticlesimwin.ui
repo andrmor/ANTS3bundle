@@ -143,6 +143,46 @@ Experimental: Use &quot;Penelope&quot; to choose QGSP_BIC_HP phys list with EM p
          </layout>
         </item>
         <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_3">
+          <property name="topMargin">
+           <number>0</number>
+          </property>
+          <item>
+           <spacer name="horizontalSpacer_7">
+            <property name="orientation">
+             <enum>Qt::Orientation::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QPushButton" name="pbAdvancedOptions">
+            <property name="text">
+             <string>Advanced options</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer_44">
+            <property name="orientation">
+             <enum>Qt::Orientation::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </item>
+        <item>
          <widget class="Line" name="line_3">
           <property name="orientation">
            <enum>Qt::Orientation::Horizontal</enum>
@@ -288,7 +328,7 @@ Format: Volume_name  Step_in_mm</string>
           <item>
            <widget class="QPushButton" name="pbConfigureTrackStyles">
             <property name="text">
-             <string>  Configure track visualisation attributes  </string>
+             <string>  Configure track visualisation attributes</string>
             </property>
            </widget>
           </item>
@@ -428,7 +468,7 @@ Format: Volume_name  Step_in_mm</string>
              <number>1000000</number>
             </property>
             <property name="value">
-             <number>1000</number>
+             <number>100</number>
             </property>
            </widget>
           </item>
@@ -624,36 +664,6 @@ Format: Volume_name  Step_in_mm</string>
                   </property>
                   <property name="text">
                    <string>Load</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="Line" name="line_7">
-                  <property name="minimumSize">
-                   <size>
-                    <width>0</width>
-                    <height>10</height>
-                   </size>
-                  </property>
-                  <property name="orientation">
-                   <enum>Qt::Orientation::Horizontal</enum>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QPushButton" name="pbGunShowSource">
-                  <property name="font">
-                   <font>
-                    <bold>false</bold>
-                    <kerning>true</kerning>
-                   </font>
-                  </property>
-                  <property name="text">
-                   <string>Show all
-sources</string>
-                  </property>
-                  <property name="checkable">
-                   <bool>true</bool>
                   </property>
                  </widget>
                 </item>

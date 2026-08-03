@@ -25,12 +25,16 @@ private:
     AParticleSimHub& operator=(AParticleSimHub&&)      = delete;
 
 public:
-    AParticleSimSettings  Settings;
+    AParticleSimSettings Settings;
 
     void writeToJson(QJsonObject & json, bool exportSimulation) const; // export mode adds g4ants3 settings which are only initialized during simulation initialization phase!
     void readFromJson(const QJsonObject & json);
 
     void clear();
+
+    void    updateGeoConstRelatedSimProperties();
+    QString isGeoConstInUse(const QRegularExpression & nameRegExp) const;
+    void    replaceGeoConstName(const QRegularExpression & nameRegExp, const QString & newName);
 };
 
 #endif // APARTICLESIMHUB_H

@@ -14,10 +14,11 @@ APhotonSimOutputDialog::APhotonSimOutputDialog(QWidget *parent) :
     ui->setupUi(this);
 
     PhotonLog = new APhotonLogSettingsForm(this);
+    PhotonLog->setVisible(false);
     QHBoxLayout * layLog = new QHBoxLayout();
     layLog->setContentsMargins(130,0,0,0);
     layLog->addWidget(PhotonLog);
-    ui->verticalLayout->insertLayout(18, layLog);
+    ui->verticalLayout->insertLayout(ui->verticalLayout->indexOf(ui->hBoxLay_PhLog)+1, layLog);
 
     const APhotSimRunSettings & RunSet = APhotonSimHub::getConstInstance().Settings.RunSet;
 
@@ -56,6 +57,8 @@ APhotonSimOutputDialog::APhotonSimOutputDialog(QWidget *parent) :
 
     PhotonLog->updateGui(RunSet.PhotonLogSet);
     PhotonLog->setEnabled(RunSet.PhotonLogSet.Enabled);
+
+    ui->pbAccept->setDefault(true);
 }
 
 APhotonSimOutputDialog::~APhotonSimOutputDialog()
@@ -121,7 +124,7 @@ void APhotonSimOutputDialog::on_pbChangeDir_clicked()
 
 void APhotonSimOutputDialog::on_cbPhotonLog_toggled(bool checked)
 {
-    PhotonLog->setEnabled(checked);
+    PhotonLog->setVisible(checked);
 }
 
 #include <QDesktopServices>
@@ -130,5 +133,20 @@ void APhotonSimOutputDialog::on_pbChangeDir_customContextMenuRequested(const QPo
     QString txt = ui->leOutputDirectory->text();
     if (txt.isEmpty()) return;
     QDesktopServices::openUrl( QUrl::fromLocalFile(txt) );
+}
+
+
+void APhotonSimOutputDialog::on_pbSensorLogHelp_clicked()
+{
+    QString txt = ""
+                  "The log, event by event, after the event index line (e.g. \"#0\")\n"
+                  "lists info for all photons which _entered_ a light sensor.\n"
+                  "That means that the sensor interface is processed first\n(a photon can be absorbed or reflected!)\n"
+                  "\nThe format, if all data fields are activated, is:\n"
+                  "SensorIndex Time[ns] LocalX[mm] LocalY[mm] Angle[deg] WaveIndex\n"
+                  "If not all fields are activated, the corresponding quantity is not saved.\n"
+                  "Only ascii output is currently implemented."
+        "";
+    guitools::message(txt, this);
 }
 

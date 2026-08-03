@@ -43,6 +43,7 @@ public:
     void    registerNextSensor(ASensorData & sr);
 
     int     addNewModel();
+    int     addModel(const ASensorModel & model);
     int     cloneModel(int iModel);
 
     void    clearAssignment();
@@ -61,6 +62,9 @@ public:
     bool    isPersistentModelAssignment() const {return PersistentModelAssignment;}
     void    exitPersistentMode();
 
+    bool    useSensorGains() const {return UseSensorGains;}
+    double  getSensorGain(int iSensor) const {return SensorGains[iSensor];}
+
     QString updateRuntimeProperties(); // returns error
 
     void    writeToJson(QJsonObject & json) const;
@@ -69,6 +73,8 @@ public:
     void    clear();
 
     double  getMaxQE(bool bWaveRes) const;
+
+    const ASensorData * getSensorData(int iSensor) const;
 
 private:
     ASensorHub();
@@ -79,9 +85,14 @@ private:
     ASensorHub& operator=(const ASensorHub&) = delete;
     ASensorHub& operator=(ASensorHub&&)      = delete;
 
-private:
+private:  // --> public?
     std::vector<ASensorModel> Models;
 
+public:
+    bool UseSensorGains = false;
+    std::vector<double> SensorGains;
+
+private:
     bool PersistentModelAssignment = false;
     std::vector<int> LoadedModelAssignment;
 

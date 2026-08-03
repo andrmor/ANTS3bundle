@@ -538,6 +538,7 @@ void AGeoTreeWin::on_pbRunTestParticle_clicked()
    }
 
    Geometry.GeoManager->ClearTracks();
+   emit requestShowGeometry(false, true, true);
 
    for (int i=0; i<Tester.Record.size(); i++)
    {
@@ -557,7 +558,6 @@ void AGeoTreeWin::on_pbRunTestParticle_clicked()
        Geometry.GeoManager->AddTrack(track);
    }
 
-   emit requestShowGeometry(false, true, true);
    emit requestShowTracks();
 }
 
@@ -692,16 +692,10 @@ void AGeoTreeWin::onRemoveGeoConstFromShortcut()
     QString name = GC.getName(index);
     if (!name.isEmpty())
     {
-        QString constUsingIt = GC.isGeoConstInUse(QRegularExpression("\\b"+name+"\\b"), index);
-        if (!constUsingIt.isEmpty())
+        QString str = GC.isGeoConstInUse(QRegularExpression("\\b"+name+"\\b"), index, Geometry.World);
+        if (!str.isEmpty())
         {
-           guitools::message(QString("\"%1\" cannot be removed.\nThe first geometric constant using it:\n\n%2").arg(name, constUsingIt), this);
-           return;
-        }
-        const AGeoObject * obj = Geometry.World->isGeoConstInUseRecursive(QRegularExpression("\\b"+name+"\\b"));
-        if (obj)
-        {
-           guitools::message(QString("\"%1\" cannot be removed.\nThe first object using it:\n\n%2").arg(name, obj->Name), this);
+           guitools::message(name + str, this);
            return;
         }
     }
@@ -793,16 +787,10 @@ void AGeoTreeWin::on_tabwConstants_customContextMenuRequested(const QPoint &pos)
         QString name = GC.getName(index);
         if (!name.isEmpty())
         {
-            QString constUsingIt = GC.isGeoConstInUse(QRegularExpression("\\b"+name+"\\b"), index);
-            if (!constUsingIt.isEmpty())
+            QString str = GC.isGeoConstInUse(QRegularExpression("\\b"+name+"\\b"), index, Geometry.World);
+            if (!str.isEmpty())
             {
-                guitools::message(QString("\"%1\" cannot be removed.\nThe first geometric constant using it:\n\n%2").arg(name, constUsingIt), ui->tabwConstants);
-                return;
-            }
-            const AGeoObject * obj = Geometry.World->isGeoConstInUseRecursive(QRegularExpression("\\b"+name+"\\b"));
-            if (obj)
-            {
-                guitools::message(QString("\"%1\" cannot be removed.\nThe first object using it:\n\n%2").arg(name, obj->Name), ui->tabwConstants);
+                guitools::message(name + str, this);
                 return;
             }
         }
@@ -830,10 +818,8 @@ void AGeoTreeWin::on_tabwConstants_customContextMenuRequested(const QPoint &pos)
             QString name = GC.getName(iC);
             if (!name.isEmpty())
             {
-                QString constUsingIt = GC.isGeoConstInUse(QRegularExpression("\\b"+name+"\\b"), iC);
-                if (!constUsingIt.isEmpty()) continue;
-                const AGeoObject * obj = Geometry.World->isGeoConstInUseRecursive(QRegularExpression("\\b"+name+"\\b"));
-                if (obj) continue;
+                QString str = GC.isGeoConstInUse(QRegularExpression("\\b"+name+"\\b"), iC, Geometry.World);
+                if (!str.isEmpty()) continue;
             }
 
             GC.removeConstant(iC);

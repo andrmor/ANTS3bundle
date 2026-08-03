@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>631</width>
-    <height>734</height>
+    <width>617</width>
+    <height>731</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -54,7 +54,7 @@
        <item>
         <widget class="QLabel" name="label_11">
          <property name="text">
-          <string>Number of sensors:  </string>
+          <string>Number of sensors:   </string>
          </property>
         </widget>
        </item>
@@ -71,7 +71,7 @@
        <item>
         <widget class="QLabel" name="label_13">
          <property name="text">
-          <string>     Number of models:  </string>
+          <string>     Number of models:   </string>
          </property>
         </widget>
        </item>
@@ -82,6 +82,32 @@
          </property>
          <property name="alignment">
           <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="labDefinedGains">
+         <property name="text">
+          <string>     Defined gains values:   </string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="labNumGains">
+         <property name="text">
+          <string>0</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="labGainMissmatch">
+         <property name="font">
+          <font>
+           <fontweight>DemiBold</fontweight>
+          </font>
+         </property>
+         <property name="text">
+          <string>   missmatch!</string>
          </property>
         </widget>
        </item>
@@ -149,13 +175,6 @@
            </widget>
           </item>
           <item>
-           <widget class="QSpinBox" name="sbModelIndex">
-            <property name="maximum">
-             <number>99999</number>
-            </property>
-           </widget>
-          </item>
-          <item>
            <spacer name="horizontalSpacer_2">
             <property name="orientation">
              <enum>Qt::Orientation::Horizontal</enum>
@@ -165,7 +184,7 @@
             </property>
             <property name="sizeHint" stdset="0">
              <size>
-              <width>10</width>
+              <width>30</width>
               <height>20</height>
              </size>
             </property>
@@ -311,7 +330,7 @@
                </property>
                <item>
                 <property name="text">
-                 <string>PMT</string>
+                 <string>Generic (e.g. PMT)</string>
                 </property>
                </item>
                <item>
@@ -321,25 +340,12 @@
                </item>
               </widget>
              </item>
-             <item>
-              <spacer name="horizontalSpacer_7">
-               <property name="orientation">
-                <enum>Qt::Orientation::Horizontal</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>40</width>
-                 <height>20</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
             </layout>
            </item>
            <item row="4" column="1">
             <widget class="QFrame" name="frSiPM">
              <property name="enabled">
-              <bool>false</bool>
+              <bool>true</bool>
              </property>
              <property name="frameShape">
               <enum>QFrame::Shape::StyledPanel</enum>
@@ -411,7 +417,7 @@
                 <item>
                  <widget class="QLabel" name="label_9">
                   <property name="text">
-                   <string>Total of</string>
+                   <string>Total:</string>
                   </property>
                  </widget>
                 </item>
@@ -495,7 +501,7 @@
                  <widget class="QLineEdit" name="lepPixelSizeX">
                   <property name="maximumSize">
                    <size>
-                    <width>80</width>
+                    <width>75</width>
                     <height>16777215</height>
                    </size>
                   </property>
@@ -512,7 +518,7 @@
                  <widget class="QLineEdit" name="lepPixelSizeY">
                   <property name="maximumSize">
                    <size>
-                    <width>80</width>
+                    <width>75</width>
                     <height>16777215</height>
                    </size>
                   </property>
@@ -581,7 +587,7 @@
                  <widget class="QLineEdit" name="lepPixelSpacingX">
                   <property name="maximumSize">
                    <size>
-                    <width>80</width>
+                    <width>75</width>
                     <height>16777215</height>
                    </size>
                   </property>
@@ -598,7 +604,7 @@
                  <widget class="QLineEdit" name="lepPixelSpacingY">
                   <property name="maximumSize">
                    <size>
-                    <width>80</width>
+                    <width>75</width>
                     <height>16777215</height>
                    </size>
                   </property>
@@ -636,50 +642,54 @@
              </property>
             </widget>
            </item>
-           <item row="6" column="0">
+           <item row="7" column="0">
             <widget class="QLabel" name="label_4">
              <property name="text">
               <string>Effective PDE</string>
              </property>
             </widget>
            </item>
-           <item row="6" column="1">
+           <item row="7" column="1">
             <layout class="QHBoxLayout" name="horizontalLayout_4">
+             <item>
+              <widget class="QLabel" name="labInAir1">
+               <property name="text">
+                <string>(in air)</string>
+               </property>
+              </widget>
+             </item>
              <item>
               <widget class="QLineEdit" name="ledEffectivePDE">
                <property name="maximumSize">
                 <size>
-                 <width>100</width>
+                 <width>75</width>
                  <height>16777215</height>
                 </size>
                </property>
               </widget>
              </item>
              <item>
-              <widget class="Line" name="line_5">
-               <property name="minimumSize">
-                <size>
-                 <width>25</width>
-                 <height>0</height>
-                </size>
-               </property>
-               <property name="frameShadow">
-                <enum>QFrame::Shadow::Plain</enum>
-               </property>
+              <spacer name="horizontalSpacer_5">
                <property name="orientation">
                 <enum>Qt::Orientation::Horizontal</enum>
                </property>
-              </widget>
+               <property name="sizeType">
+                <enum>QSizePolicy::Policy::Fixed</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>10</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
              </item>
              <item>
               <widget class="QPushButton" name="pbCompteEffectivePDE">
                <property name="text">
-                <string>Estimate for emission from</string>
+                <string>Estimate</string>
                </property>
               </widget>
-             </item>
-             <item>
-              <widget class="QComboBox" name="cobMaterialForPDE"/>
              </item>
              <item>
               <spacer name="horizontalSpacer_6">
@@ -696,15 +706,22 @@
              </item>
             </layout>
            </item>
-           <item row="7" column="0">
+           <item row="8" column="0">
             <widget class="QLabel" name="label_5">
              <property name="text">
               <string>Spectral PDE</string>
              </property>
             </widget>
            </item>
-           <item row="7" column="1">
+           <item row="8" column="1">
             <layout class="QHBoxLayout" name="horizontalLayout_3">
+             <item>
+              <widget class="QLabel" name="labInAir2">
+               <property name="text">
+                <string>(in air)</string>
+               </property>
+              </widget>
+             </item>
              <item>
               <widget class="QPushButton" name="pbShowPDE">
                <property name="minimumSize">
@@ -712,6 +729,12 @@
                  <width>0</width>
                  <height>0</height>
                 </size>
+               </property>
+               <property name="contextMenuPolicy">
+                <enum>Qt::ContextMenuPolicy::CustomContextMenu</enum>
+               </property>
+               <property name="toolTip">
+                <string>Right-click to show binned</string>
                </property>
                <property name="text">
                 <string>Show</string>
@@ -756,37 +779,24 @@ Wavelengths should be given in increasing order</string>
                </property>
               </spacer>
              </item>
-             <item>
-              <widget class="QPushButton" name="pbShowBinnedPDE">
-               <property name="text">
-                <string>Show binned</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <spacer name="horizontalSpacer_5">
-               <property name="orientation">
-                <enum>Qt::Orientation::Horizontal</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>40</width>
-                 <height>20</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
             </layout>
            </item>
-           <item row="8" column="0">
+           <item row="9" column="0">
             <widget class="QLabel" name="label_15">
              <property name="text">
               <string>Anglular factors</string>
              </property>
             </widget>
            </item>
-           <item row="8" column="1">
+           <item row="9" column="1">
             <layout class="QHBoxLayout" name="horizontalLayout_9">
+             <item>
+              <widget class="QLabel" name="labInAir3">
+               <property name="text">
+                <string>(in air)</string>
+               </property>
+              </widget>
+             </item>
              <item>
               <widget class="QPushButton" name="pbShowAngular">
                <property name="minimumSize">
@@ -794,6 +804,12 @@ Wavelengths should be given in increasing order</string>
                  <width>0</width>
                  <height>0</height>
                 </size>
+               </property>
+               <property name="contextMenuPolicy">
+                <enum>Qt::ContextMenuPolicy::CustomContextMenu</enum>
+               </property>
+               <property name="toolTip">
+                <string>Right-click to show binned</string>
                </property>
                <property name="text">
                 <string>Show</string>
@@ -830,19 +846,69 @@ Angles should start from 0 and end at 90 degrees, in increasing order.</string>
                <property name="orientation">
                 <enum>Qt::Orientation::Horizontal</enum>
                </property>
+               <property name="sizeType">
+                <enum>QSizePolicy::Policy::Fixed</enum>
+               </property>
                <property name="sizeHint" stdset="0">
                 <size>
-                 <width>40</width>
+                 <width>20</width>
                  <height>20</height>
                 </size>
                </property>
               </spacer>
              </item>
              <item>
-              <widget class="QPushButton" name="pbShowBinnedAngular">
-               <property name="text">
-                <string>Show binned</string>
+              <widget class="QFrame" name="frAngularWave">
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>0</height>
+                </size>
                </property>
+               <property name="frameShape">
+                <enum>QFrame::Shape::NoFrame</enum>
+               </property>
+               <property name="frameShadow">
+                <enum>QFrame::Shadow::Raised</enum>
+               </property>
+               <layout class="QHBoxLayout" name="horizontalLayout_25">
+                <property name="leftMargin">
+                 <number>0</number>
+                </property>
+                <property name="topMargin">
+                 <number>0</number>
+                </property>
+                <property name="rightMargin">
+                 <number>0</number>
+                </property>
+                <property name="bottomMargin">
+                 <number>0</number>
+                </property>
+                <item>
+                 <widget class="QLabel" name="label_43">
+                  <property name="text">
+                   <string>Measured at</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLineEdit" name="ledAngularWave">
+                  <property name="maximumSize">
+                   <size>
+                    <width>75</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLabel" name="label_44">
+                  <property name="text">
+                   <string>nm</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
               </widget>
              </item>
              <item>
@@ -860,14 +926,14 @@ Angles should start from 0 and end at 90 degrees, in increasing order.</string>
              </item>
             </layout>
            </item>
-           <item row="9" column="0">
+           <item row="11" column="0">
             <widget class="QLabel" name="label_16">
              <property name="text">
               <string>Area factors</string>
              </property>
             </widget>
            </item>
-           <item row="9" column="1">
+           <item row="11" column="1">
             <layout class="QHBoxLayout" name="horizontalLayout_10">
              <item>
               <widget class="QPushButton" name="pbShowArea">
@@ -905,59 +971,92 @@ A matrix of area factors, lines and columns representing X and Y direction, resp
                <property name="orientation">
                 <enum>Qt::Orientation::Horizontal</enum>
                </property>
+               <property name="sizeType">
+                <enum>QSizePolicy::Policy::Fixed</enum>
+               </property>
                <property name="sizeHint" stdset="0">
                 <size>
-                 <width>40</width>
+                 <width>20</width>
                  <height>20</height>
                 </size>
                </property>
               </spacer>
              </item>
              <item>
-              <widget class="QLabel" name="label_17">
-               <property name="text">
-                <string>StepX:</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QLineEdit" name="lepAreaStepX">
-               <property name="maximumSize">
+              <widget class="QFrame" name="frAreaSteps">
+               <property name="minimumSize">
                 <size>
-                 <width>50</width>
-                 <height>16777215</height>
+                 <width>0</width>
+                 <height>0</height>
                 </size>
                </property>
-               <property name="text">
-                <string>1</string>
+               <property name="frameShape">
+                <enum>QFrame::Shape::NoFrame</enum>
                </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QLabel" name="label_18">
-               <property name="text">
-                <string>StepY:</string>
+               <property name="frameShadow">
+                <enum>QFrame::Shadow::Raised</enum>
                </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QLineEdit" name="lepAreaStepY">
-               <property name="maximumSize">
-                <size>
-                 <width>50</width>
-                 <height>16777215</height>
-                </size>
-               </property>
-               <property name="text">
-                <string>1</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QLabel" name="label_19">
-               <property name="text">
-                <string>mm</string>
-               </property>
+               <layout class="QHBoxLayout" name="horizontalLayout_26">
+                <property name="leftMargin">
+                 <number>0</number>
+                </property>
+                <property name="topMargin">
+                 <number>0</number>
+                </property>
+                <property name="rightMargin">
+                 <number>0</number>
+                </property>
+                <property name="bottomMargin">
+                 <number>0</number>
+                </property>
+                <item>
+                 <widget class="QLabel" name="label_17">
+                  <property name="text">
+                   <string>StepX:</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLineEdit" name="lepAreaStepX">
+                  <property name="maximumSize">
+                   <size>
+                    <width>50</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                  <property name="text">
+                   <string>1</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLabel" name="label_18">
+                  <property name="text">
+                   <string>StepY:</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLineEdit" name="lepAreaStepY">
+                  <property name="maximumSize">
+                   <size>
+                    <width>50</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                  <property name="text">
+                   <string>1</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLabel" name="label_19">
+                  <property name="text">
+                   <string>mm</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
               </widget>
              </item>
              <item>
@@ -975,27 +1074,27 @@ A matrix of area factors, lines and columns representing X and Y direction, resp
              </item>
             </layout>
            </item>
-           <item row="10" column="0">
+           <item row="12" column="0">
             <widget class="Line" name="line_2">
              <property name="orientation">
               <enum>Qt::Orientation::Horizontal</enum>
              </property>
             </widget>
            </item>
-           <item row="11" column="0">
+           <item row="13" column="0">
             <widget class="QLabel" name="label_28">
              <property name="text">
               <string>Dark count rate</string>
              </property>
             </widget>
            </item>
-           <item row="11" column="1">
+           <item row="13" column="1">
             <layout class="QHBoxLayout" name="horizontalLayout_13">
              <item>
               <widget class="QLineEdit" name="lepDarkRate">
                <property name="maximumSize">
                 <size>
-                 <width>100</width>
+                 <width>75</width>
                  <height>16777215</height>
                 </size>
                </property>
@@ -1013,9 +1112,12 @@ A matrix of area factors, lines and columns representing X and Y direction, resp
                <property name="orientation">
                 <enum>Qt::Orientation::Horizontal</enum>
                </property>
+               <property name="sizeType">
+                <enum>QSizePolicy::Policy::Fixed</enum>
+               </property>
                <property name="sizeHint" stdset="0">
                 <size>
-                 <width>40</width>
+                 <width>20</width>
                  <height>20</height>
                 </size>
                </property>
@@ -1032,7 +1134,7 @@ A matrix of area factors, lines and columns representing X and Y direction, resp
               <widget class="QLineEdit" name="lepIntegrationTime">
                <property name="maximumSize">
                 <size>
-                 <width>100</width>
+                 <width>75</width>
                  <height>16777215</height>
                 </size>
                </property>
@@ -1042,6 +1144,24 @@ A matrix of area factors, lines and columns representing X and Y direction, resp
               <widget class="QLabel" name="label_31">
                <property name="text">
                 <string>s</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="pbCheckTimeFraction">
+               <property name="contextMenuPolicy">
+                <enum>Qt::ContextMenuPolicy::CustomContextMenu</enum>
+               </property>
+               <property name="toolTip">
+                <string>Left-click:
+Show probability distribution of detecting n dark counts;
+
+Right-click:
+Estimate mean number of scintillation photons emitted within the specified integration time.
+If this number is &lt;&lt; 1, consider either configuring 'signal per ph.e-' conversion factor or using photo sensor log for precise control</string>
+               </property>
+               <property name="text">
+                <string>Check</string>
                </property>
               </widget>
              </item>
@@ -1060,31 +1180,43 @@ A matrix of area factors, lines and columns representing X and Y direction, resp
              </item>
             </layout>
            </item>
-           <item row="12" column="0">
+           <item row="14" column="0">
             <widget class="Line" name="line_4">
              <property name="orientation">
               <enum>Qt::Orientation::Horizontal</enum>
              </property>
             </widget>
            </item>
-           <item row="14" column="0">
+           <item row="16" column="0">
             <widget class="QLabel" name="label_33">
              <property name="text">
               <string>Ph.e- to signal</string>
              </property>
             </widget>
            </item>
-           <item row="14" column="1">
+           <item row="16" column="1">
             <layout class="QHBoxLayout" name="horizontalLayout_15">
              <item>
               <widget class="QLabel" name="label_36">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
                <property name="text">
-                <string>Model:</string>
+                <string>Convertion:</string>
                </property>
               </widget>
              </item>
              <item>
               <widget class="QComboBox" name="cobSignalModel">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
                <item>
                 <property name="text">
                  <string>Constant factor</string>
@@ -1112,9 +1244,12 @@ A matrix of area factors, lines and columns representing X and Y direction, resp
                <property name="orientation">
                 <enum>Qt::Orientation::Horizontal</enum>
                </property>
+               <property name="sizeType">
+                <enum>QSizePolicy::Policy::Fixed</enum>
+               </property>
                <property name="sizeHint" stdset="0">
                 <size>
-                 <width>40</width>
+                 <width>10</width>
                  <height>20</height>
                 </size>
                </property>
@@ -1122,6 +1257,12 @@ A matrix of area factors, lines and columns representing X and Y direction, resp
              </item>
              <item>
               <widget class="QPushButton" name="pbTestPhElSignal">
+               <property name="maximumSize">
+                <size>
+                 <width>50</width>
+                 <height>16777215</height>
+                </size>
+               </property>
                <property name="text">
                 <string>Test</string>
                </property>
@@ -1129,7 +1270,7 @@ A matrix of area factors, lines and columns representing X and Y direction, resp
              </item>
             </layout>
            </item>
-           <item row="15" column="1">
+           <item row="17" column="1">
             <widget class="QFrame" name="frPhElToSignal">
              <property name="minimumSize">
               <size>
@@ -1138,7 +1279,7 @@ A matrix of area factors, lines and columns representing X and Y direction, resp
               </size>
              </property>
              <property name="frameShape">
-              <enum>QFrame::Shape::StyledPanel</enum>
+              <enum>QFrame::Shape::NoFrame</enum>
              </property>
              <property name="frameShadow">
               <enum>QFrame::Shadow::Raised</enum>
@@ -1208,7 +1349,7 @@ A matrix of area factors, lines and columns representing X and Y direction, resp
                     <widget class="QLineEdit" name="lepAverageSignalPerPhE">
                      <property name="maximumSize">
                       <size>
-                       <width>100</width>
+                       <width>75</width>
                        <height>16777215</height>
                       </size>
                      </property>
@@ -1236,7 +1377,7 @@ A matrix of area factors, lines and columns representing X and Y direction, resp
                    <enum>QFrame::Shape::NoFrame</enum>
                   </property>
                   <property name="currentIndex">
-                   <number>3</number>
+                   <number>0</number>
                   </property>
                   <widget class="QWidget" name="page_3"/>
                   <widget class="QWidget" name="page_4">
@@ -1264,7 +1405,7 @@ A matrix of area factors, lines and columns representing X and Y direction, resp
                      <widget class="QLineEdit" name="lepNormalSigma">
                       <property name="maximumSize">
                        <size>
-                        <width>100</width>
+                        <width>75</width>
                         <height>16777215</height>
                        </size>
                       </property>
@@ -1310,7 +1451,7 @@ A matrix of area factors, lines and columns representing X and Y direction, resp
                      <widget class="QLineEdit" name="lepGammaShape">
                       <property name="maximumSize">
                        <size>
-                        <width>100</width>
+                        <width>75</width>
                         <height>16777215</height>
                        </size>
                       </property>
@@ -1394,7 +1535,7 @@ A matrix of area factors, lines and columns representing X and Y direction, resp
              </layout>
             </widget>
            </item>
-           <item row="16" column="1">
+           <item row="18" column="1">
             <layout class="QHBoxLayout" name="horizontalLayout_14">
              <item>
               <widget class="QLabel" name="label_32">
@@ -1407,7 +1548,7 @@ A matrix of area factors, lines and columns representing X and Y direction, resp
               <widget class="QLineEdit" name="lepElNoiseSigma">
                <property name="maximumSize">
                 <size>
-                 <width>100</width>
+                 <width>75</width>
                  <height>16777215</height>
                 </size>
                </property>
@@ -1435,58 +1576,457 @@ A matrix of area factors, lines and columns representing X and Y direction, resp
              </item>
             </layout>
            </item>
-           <item row="17" column="1">
-            <layout class="QHBoxLayout" name="horizontalLayout_22">
-             <property name="topMargin">
-              <number>0</number>
+           <item row="1" column="1">
+            <spacer name="verticalSpacer">
+             <property name="orientation">
+              <enum>Qt::Orientation::Vertical</enum>
              </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>40</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item row="15" column="1">
+            <spacer name="verticalSpacer_8">
+             <property name="orientation">
+              <enum>Qt::Orientation::Vertical</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>40</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item row="12" column="1">
+            <spacer name="verticalSpacer_9">
+             <property name="orientation">
+              <enum>Qt::Orientation::Vertical</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>40</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item row="10" column="1">
+            <spacer name="verticalSpacer_10">
+             <property name="orientation">
+              <enum>Qt::Orientation::Vertical</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>40</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item row="5" column="1">
+            <spacer name="verticalSpacer_11">
+             <property name="orientation">
+              <enum>Qt::Orientation::Vertical</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>40</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item row="6" column="0">
+            <widget class="QLabel" name="label_45">
+             <property name="text">
+              <string>PDE modeling</string>
+             </property>
+            </widget>
+           </item>
+           <item row="6" column="1">
+            <layout class="QHBoxLayout" name="horizontalLayout_24">
              <item>
-              <widget class="QLabel" name="label_35">
-               <property name="text">
-                <string>Electronic gain</string>
-               </property>
+              <widget class="QComboBox" name="cobPDEmodel">
+               <item>
+                <property name="text">
+                 <string>Simplistic</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>Acount for the interface</string>
+                </property>
+               </item>
               </widget>
              </item>
              <item>
-              <widget class="QLineEdit" name="lepElGainFactor">
-               <property name="maximumSize">
-                <size>
-                 <width>100</width>
-                 <height>16777215</height>
-                </size>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <spacer name="horizontalSpacer_21">
+              <spacer name="horizontalSpacer_30">
                <property name="orientation">
                 <enum>Qt::Orientation::Horizontal</enum>
                </property>
+               <property name="sizeType">
+                <enum>QSizePolicy::Policy::Fixed</enum>
+               </property>
                <property name="sizeHint" stdset="0">
                 <size>
-                 <width>40</width>
+                 <width>10</width>
                  <height>20</height>
                 </size>
                </property>
               </spacer>
+             </item>
+             <item>
+              <widget class="QPushButton" name="pbHelpPDEmodeling">
+               <property name="maximumSize">
+                <size>
+                 <width>50</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>?</string>
+               </property>
+              </widget>
              </item>
             </layout>
            </item>
           </layout>
          </widget>
         </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="tab_3">
+       <attribute name="title">
+        <string>Gains</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_6">
         <item>
-         <spacer name="verticalSpacer">
+         <spacer name="verticalSpacer_5">
           <property name="orientation">
            <enum>Qt::Orientation::Vertical</enum>
+          </property>
+          <property name="sizeType">
+           <enum>QSizePolicy::Policy::Preferred</enum>
           </property>
           <property name="sizeHint" stdset="0">
            <size>
             <width>20</width>
-            <height>100</height>
+            <height>10</height>
            </size>
           </property>
          </spacer>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_21">
+          <item>
+           <spacer name="horizontalSpacer_21">
+            <property name="orientation">
+             <enum>Qt::Orientation::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="cbGains">
+            <property name="text">
+             <string>Use sensor gains</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer_27">
+            <property name="orientation">
+             <enum>Qt::Orientation::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="QFrame" name="frGains">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="frameShape">
+           <enum>QFrame::Shape::StyledPanel</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Shadow::Raised</enum>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_7">
+           <item>
+            <spacer name="verticalSpacer_6">
+             <property name="orientation">
+              <enum>Qt::Orientation::Vertical</enum>
+             </property>
+             <property name="sizeType">
+              <enum>QSizePolicy::Policy::Fixed</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>18</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_22">
+             <property name="leftMargin">
+              <number>0</number>
+             </property>
+             <property name="rightMargin">
+              <number>0</number>
+             </property>
+             <item>
+              <widget class="QLabel" name="label_40">
+               <property name="minimumSize">
+                <size>
+                 <width>100</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>Manipulate:</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="pbGains_Clear">
+               <property name="font">
+                <font>
+                 <fontweight>DemiBold</fontweight>
+                </font>
+               </property>
+               <property name="text">
+                <string>Clear</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer name="horizontalSpacer_28">
+               <property name="orientation">
+                <enum>Qt::Orientation::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>80</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item>
+              <widget class="Line" name="line_6">
+               <property name="orientation">
+                <enum>Qt::Orientation::Vertical</enum>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer name="horizontalSpacer_29">
+               <property name="orientation">
+                <enum>Qt::Orientation::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>80</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item>
+              <widget class="QPushButton" name="pbGains_Randomize">
+               <property name="font">
+                <font>
+                 <fontweight>DemiBold</fontweight>
+                </font>
+               </property>
+               <property name="text">
+                <string>Randomize</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLabel" name="label_35">
+               <property name="text">
+                <string>mean:</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="ledGains_Mean">
+               <property name="text">
+                <string>1</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLabel" name="label_38">
+               <property name="text">
+                <string>sigma:</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="ledGains_Sigma">
+               <property name="text">
+                <string>0.15</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_23">
+             <property name="leftMargin">
+              <number>0</number>
+             </property>
+             <property name="rightMargin">
+              <number>0</number>
+             </property>
+             <item>
+              <widget class="QLabel" name="label_41">
+               <property name="minimumSize">
+                <size>
+                 <width>100</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>100</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>File:</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="pbGains_Load">
+               <property name="font">
+                <font>
+                 <fontweight>DemiBold</fontweight>
+                </font>
+               </property>
+               <property name="toolTip">
+                <string>One line per sensor, can be either the sensor gain directly or first the sensor index then gain, separated with a space, comma or tab</string>
+               </property>
+               <property name="text">
+                <string>Load gains</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="pbGains_Save">
+               <property name="font">
+                <font>
+                 <fontweight>DemiBold</fontweight>
+                </font>
+               </property>
+               <property name="contextMenuPolicy">
+                <enum>Qt::ContextMenuPolicy::CustomContextMenu</enum>
+               </property>
+               <property name="toolTip">
+                <string>Left-click: save a column of gain values; right-click: save two columns, first is the sensor index, the secomd is the gain</string>
+               </property>
+               <property name="text">
+                <string>Save gains</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <spacer name="verticalSpacer_7">
+             <property name="orientation">
+              <enum>Qt::Orientation::Vertical</enum>
+             </property>
+             <property name="sizeType">
+              <enum>QSizePolicy::Policy::Fixed</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>18</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item alignment="Qt::AlignmentFlag::AlignHCenter">
+            <widget class="QCheckBox" name="cbGains_ShowTable">
+             <property name="text">
+              <string>Show table with gains</string>
+             </property>
+             <property name="checked">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item alignment="Qt::AlignmentFlag::AlignHCenter">
+            <widget class="QTableWidget" name="twGains">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>200</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <attribute name="horizontalHeaderVisible">
+              <bool>false</bool>
+             </attribute>
+             <column>
+              <property name="text">
+               <string>Gains</string>
+              </property>
+             </column>
+            </widget>
+           </item>
+           <item>
+            <spacer name="spGainLower">
+             <property name="orientation">
+              <enum>Qt::Orientation::Vertical</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>40</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
+         </widget>
         </item>
        </layout>
       </widget>
@@ -1623,7 +2163,7 @@ A matrix of area factors, lines and columns representing X and Y direction, resp
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>631</width>
+     <width>617</width>
      <height>22</height>
     </rect>
    </property>
@@ -1631,10 +2171,39 @@ A matrix of area factors, lines and columns representing X and Y direction, resp
     <property name="title">
      <string>File</string>
     </property>
+    <addaction name="actionSave_sensor"/>
+    <addaction name="actionLoad_sensor"/>
    </widget>
    <addaction name="menuFile"/>
   </widget>
+  <action name="actionSave_sensor">
+   <property name="text">
+    <string>Save sensor model</string>
+   </property>
+  </action>
+  <action name="actionLoad_sensor">
+   <property name="text">
+    <string>Append sensor model</string>
+   </property>
+  </action>
  </widget>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>cbGains</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>frGains</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>304</x>
+     <y>127</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>305</x>
+     <y>155</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

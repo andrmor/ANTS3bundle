@@ -281,11 +281,27 @@ bool APhotonFunctionalHub::updateRuntimeProperties()
             runTimeRec.LinkedIndex = iDR;
         }
 
-        QString err = runTimeRec.Model->updateRuntimeProperties();
+        QString err = runTimeRec.Model->updateRuntimeProperties(iDR);
         if (!err.isEmpty()) // paranoic
         {
             AErrorHub::addQError(QString("Functional model for index %0 error:\n").arg(iDR) + err);
             return false;
+        }
+    }
+
+    // checking consistency for linking
+    for (size_t iDR = 0; iDR < RuntimeData.size(); iDR++)
+    {
+        ATunnelRuntimeData & runTimeRec = RuntimeData[iDR];
+        if (runTimeRec.Model->isLink())
+        {
+            size_t linkedTo = RuntimeData[iDR].LinkedIndex;
+            QString err = runTimeRec.Model->checkLinkingConsistency(iDR, linkedTo);
+            if (!err.isEmpty())
+            {
+                AErrorHub::addQError(QString("Functional model link error for indexes %0 and %1:\n").arg(iDR).arg(linkedTo) + err);
+                return false;
+            }
         }
     }
 

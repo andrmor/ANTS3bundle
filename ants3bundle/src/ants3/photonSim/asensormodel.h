@@ -7,6 +7,16 @@
 class QJsonObject;
 class TH1D;
 
+class AInterfaceAwareRuntimeProps
+{
+public:
+    double              EffectivePdeFactor = 1.0;
+    std::vector<double> PdeBinnedFactor;
+    std::vector<double> AngularBinned;
+
+    std::vector<std::pair<double,double>> AngularRefracted; // used only for visualisation
+};
+
 class ASensorModel
 {
 public:
@@ -24,12 +34,14 @@ public:
     bool    getPixelHit(double x, double y, size_t & binX, size_t & binY) const; // returns false if none was hit
     int     getPixelIndex(int binX, int binY) const {return PixelsX * binY + binX;}
 
+    int     PDE_model = 0; // 0 - simplistic, 1 - interface-aware
     double  PDE_effective = 1.0;
     std::vector<std::pair<double,double>> PDE_spectral;
-    double  getPDE(int iWave) const;
+    double  getPDE(int iWave, int iSensMat) const;
 
     std::vector<std::pair<double,double>> AngularFactors;  // should be defined from 0 to 90.0 incidence angle
-    double  getAngularFactor(double angle) const;  // incidence angle is [-90.0, 90.0]
+    double  getAngularFactor(double angle, int iSensorMat) const;  // incidence angle is [-90.0, 90.0]
+    double  Angular_Wavelength = 600.0;
 
     std::vector<std::vector<double>> AreaFactors;
     double  StepX = 1.0;       // in mm
@@ -46,14 +58,15 @@ public:
 
     enum    EPhElToSignal {Constant, Normal, Gamma, Custom};
     EPhElToSignal PhElToSignalModel = Constant;
-    double  ElectronicGainFactor = 1.0;
+    //double  ElectronicGainFactor = 1.0;  // no more a part of sensor model --> standalone in SensorHub
     double  AverageSignalPerPhEl = 1.0;
     double  NormalSigma = 0;
     double  GammaShape  = 2.0;
     std::vector<std::pair<double,double>> SinglePhElPHS;
     double  convertHitsToSignal(double phel) const;
+    //double  simulateDigitalization(double signal) const;  // not implemented
 
-    QString updateRuntimeProperties();
+    QString updateRuntimeProperties(const std::vector<int> & seenSensorMats);
 
     void    clear();
 
@@ -65,21 +78,29 @@ public:
     QString checkAreaFactors() const;
     QString checkPhElToSignals() const;
 
-    //runtime
+    // --- runtime ---
+
     double _HalfSensitiveSizeX;
     double _HalfSensitiveSizeY;
     double _PixelPitchX;
     double _PixelPitchY;
     std::vector<double> PDEbinned;
-    std::vector<double> AngularBinned; // binned from 0 to 90.0 degrees (91 bins of 1 degree)
+    std::vector<double> AngularBinned; // binned from 0 to 90.0 degrees (inclusive!), with number of bins given by _NumAngularBins
     TH1D * _PHS = nullptr;
     double _AverageDarkCounts;
     double _PixelDarkFiringProbability;
 
+    std::vector<std::pair<int, AInterfaceAwareRuntimeProps>> _InterfaceAwarePDE; // {iMatSensor, data} --> cannot limit to one sensor material in the model: this is a property of each individual sensor
+
+    int    _NumAngularBins = 1000;
+
+    double _MaxPDE_effective = 1.0; // applied in the interface-aware mode
     double _MaxPDE_spectral = 1.0;
     double _MaxAngularFactor = 1.0;
     double _MaxAreaFactor = 1.0;
 
+private:
+    void updateInterfaceAwareRuntimeProps(const std::vector<int> & seenSensorMats);
 };
 
 #endif // ASENSORMODEL_H

@@ -2,6 +2,8 @@
 #include "ageoobject.h"
 #include "ajsontools.h"
 #include "aerrorhub.h"
+#include "aphotonsimhub.h"
+#include "aparticlesimhub.h"
 
 #include "TFormula.h"
 
@@ -93,6 +95,8 @@ void AGeoConsts::updateFromExpressions()
 {
     for (int i = 0; i < (int)Records.size(); i++)
         evaluateConstExpression(i);
+
+    updateSimProperties();
 }
 
 void AGeoConsts::writeToJsonArr(QJsonArray & ar) const
@@ -161,7 +165,7 @@ bool AGeoConsts::evaluateFormula(QString & error, QString str, double & returnVa
     if (!f || !f->IsValid())
     {
         delete f;
-        error += QString("String (%0) produces an invalid TFormula").arg(str);
+        error += QString("String (%0) is invalid TFormula expression").arg(str);
         return false;
     }
 
@@ -300,6 +304,10 @@ bool AGeoConsts::rename(int index, const QString & newName, AGeoObject * world, 
 
     replaceGeoConstName(rec.RegExp, newName, index);
     world->replaceGeoConstNameRecursive(rec.RegExp, newName);
+    APhotonSimHub::getInstance().replaceGeoConstName(rec.RegExp, newName);
+#ifndef LSIM
+    AParticleSimHub::getInstance().replaceGeoConstName(rec.RegExp, newName);
+#endif
     updateRunTimeProperties();
     return true;
 }
@@ -336,6 +344,9 @@ bool AGeoConsts::setNewValue(int index, double newValue)
 
     GeoConstValues[index] = newValue;
     Records[index].Expression.clear();
+
+    updateSimProperties();
+
     return true;
 }
 
@@ -355,6 +366,9 @@ QString AGeoConsts::setNewExpression(int index, const QString & newExpression)
 
     QString err = checkifValidAndGetDoublefromExpression(index);
     if (!err.isEmpty()) rec.Expression.clear();
+
+    updateSimProperties();
+
     return err;
 }
 
@@ -369,6 +383,16 @@ bool AGeoConsts::isIndexValid(int index)
     if (index < 0 || index >= (int)Records.size()) return false;
     return true;
 }
+
+#ifdef LSIM
+void AGeoConsts::updateInConfigJson() {} // lsim does not know about config
+#else
+#include "aconfig.h"
+void AGeoConsts::updateInConfigJson()
+{
+    AConfig::getInstance().overrideGeoConstsInJson();
+}
+#endif
 
 QString AGeoConsts::checkifValidAndGetDoublefromExpression(int index)
 {
@@ -399,10 +423,23 @@ QString AGeoConsts::isGeoConstsBelowInUse(int index) const
     return "";
 }
 
-QString AGeoConsts::isGeoConstInUse(const QRegularExpression & nameRegExp, int index) const
+QString AGeoConsts::isGeoConstInUse(const QRegularExpression & nameRegExp, int index, AGeoObject * world) const
 {
     for (int i = index; i < (int)Records.size(); i++)
-        if (Records.at(i).Expression.contains(nameRegExp)) return Records.at(i).Name;
+        if (Records[i].Expression.contains(nameRegExp))
+            return QString(" cannot be removed.\nThe first constant using it:\n\n%1").arg(Records[i].Name);
+
+    const AGeoObject * obj = world->isGeoConstInUseRecursive(nameRegExp);
+    if (obj) return QString(" cannot be removed.\nThe first object using it:\n\n%1").arg(obj->Name);
+
+    QString str = APhotonSimHub::getInstance().isGeoConstInUse(nameRegExp);
+    if (!str.isEmpty()) return QString(" cannot be removed, it is in used by:\n\n%1").arg(str);
+
+#ifndef LSIM
+    str = AParticleSimHub::getInstance().isGeoConstInUse(nameRegExp);
+    if (!str.isEmpty()) return QString(" cannot be removed, it is in used by:\n\n%1").arg(str);
+#endif
+
     return "";
 }
 
@@ -456,4 +493,12 @@ void AGeoConsts::updateRunTimeProperties()
         Records[i].RegExp = QRegularExpression("\\b" + Records.at(i).Name + "\\b");
         Records[i].Index  = QString("[%1]").arg(i);
     }
+}
+
+void AGeoConsts::updateSimProperties()
+{
+    APhotonSimHub::getInstance().updateGeoConstRelatedSimProperties();
+#ifndef LSIM
+    AParticleSimHub::getInstance().updateGeoConstRelatedSimProperties();
+#endif
 }

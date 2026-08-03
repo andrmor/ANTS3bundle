@@ -19,6 +19,8 @@ void APhotonSimHub::writeToJson(QJsonObject & json, bool addRuntimeExport) const
 
 QString APhotonSimHub::readFromJson(const QJsonObject & json)
 {
+    Settings.clear();
+
     QString ErrorString = Settings.readFromJson(json);
 
     if (ErrorString.isEmpty()) emit settingsChanged();
@@ -29,4 +31,19 @@ QString APhotonSimHub::readFromJson(const QJsonObject & json)
 void APhotonSimHub::clear()
 {
     Settings.clear();
+}
+
+void APhotonSimHub::updateGeoConstRelatedSimProperties()
+{
+    Settings.BombSet.updateGeoConstRelatedSimProperties();
+}
+
+QString APhotonSimHub::isGeoConstInUse(const QRegularExpression & nameRegExp) const
+{
+    return Settings.BombSet.isGeoConstInUse(nameRegExp);
+}
+
+void APhotonSimHub::replaceGeoConstName(const QRegularExpression & nameRegExp, const QString & newName)
+{
+    Settings.BombSet.replaceGeoConstName(nameRegExp, newName);
 }

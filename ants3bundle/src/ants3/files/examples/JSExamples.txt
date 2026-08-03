@@ -93,3 +93,92 @@ PET:Reconstruction
 #info
 PET reconstruction of simulated data (requires CASToR library)
 #end
+
+#file
+MercuryShowEvents.txt
+#tags
+Mercury:Reconstruction
+#info
+Show true and reconstructed event positions at the geometry window (requires Mercury library)
+#end
+
+#file
+FanoTester.txt
+#tags
+Scintillation:Statistics
+#info
+Show true and reconstructed event positions at the geometry window (requires Mercury library)
+#end
+
+#file
+VFormula1D.txt
+#tags
+VFormula:Graph
+#info
+Show graph generated using VFormula
+#end
+
+#file
+VFormula2D.txt
+#tags
+VFormula:Histogram
+#info
+Show histogram generated using VFormula
+#end
+
+#file
+ReconstructEvents_ClinicalAnger.txt
+#tags
+PositionReconstruction:StatisticalReconstruction:Mercury
+#info
+Reconstruct position/energy of events using Mercury library for the Clinical Anger camera config example
+#end
+
+#file
+ReconstructEvents_CompactAnger.txt
+#tags
+PositionReconstruction:StatisticalReconstruction:Mercury
+#info
+Reconstruct position/energy of events using Mercury library for the Compact Anger camera or Neutron Anger config examples
+#end
+
+#file
+CentroidReconstruction_Mercury.txt
+#tags
+PositionReconstruction:CoG:Mercury
+#info
+Reconstruct position/energy of events using Centroid method of Mercury library
+#end
+
+#file
+MakeIndividualLRFs_ClinicalAnger.txt
+#tags
+LRF:ResponseModel:Mercury
+#info
+Make and fill Light Response Model using Mercury library for the Clinical Anger camera config example
+#end
+
+#file
+ReconstructEvents_CompactAnger.txt
+#tags
+LRF:ResponseModel:Mercury
+#info
+Make and fill Light Response Model using Mercury library for the Compact Anger camera and Neutron Anger config examples
+#end
+
+#file
+AcolinearityTester.txt
+#tags
+Analysis:TrackingHistory:Acolinearity
+#info
+Test for annihilation gamma acolinearity simulation
+#end
+
+#file
+SensorPdeModelTester.txt
+#tags
+Ligh sensor:PDE
+#info
+Test for two options of the PDE model with defined anular dependence of the response
+#end
+

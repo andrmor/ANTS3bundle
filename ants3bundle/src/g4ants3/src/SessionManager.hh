@@ -22,6 +22,7 @@ class G4LogicalVolume;
 class G4VPhysicalVolume;
 class AParticleGun;
 class PrimaryGeneratorAction;
+class G4VModularPhysicsList;
 
 struct ParticleRecord
 {
@@ -95,6 +96,8 @@ class SessionManager
         void saveParticle(const G4String & particle, double energy, double time, double * PosDir);
 
         bool isEnergyDepoLogger(G4LogicalVolume * vol);
+
+        void configureAcolinearitySimulation(G4VModularPhysicsList * physicsList);
 
 public:
         std::string          WorkingDir;

@@ -31,6 +31,15 @@
 #include "arootstyle_si.h"
 #include "apet_si.h"
 
+#ifdef USE_MERCURY
+#include "amercury_si.h"
+#include "alightresponse_si.h"
+#endif
+
+#include "TGeoManager.h"
+#include "TVirtualGeoTrack.h"
+#include "TGeoTrack.h"
+
 AScriptHub & AScriptHub::getInstance()
 {
     static AScriptHub instance;
@@ -48,7 +57,8 @@ void AScriptHub::abort(const QString & message, EScriptLanguage lang)
 
     ADispatcherInterface::getInstance().abortTask();
 
-    QString str = "<p style='color:red;'>Aborted: " + message + "</p>";
+    //QString str = "<p style='color:red;'>Aborted: " + message + "</p>";
+    QString str = "<span style='color:red;'>Aborted: " + message + "</span>";
 #ifdef ANTS3_PYTHON
     if (lang == EScriptLanguage::Python)     QTimer::singleShot(2, [str](){ emit AScriptHub::getInstance().outputHtml_P(str); } );
 #endif
@@ -146,6 +156,21 @@ void AScriptHub::reportProgress(int percents, EScriptLanguage lang)
     processEvents(lang);
 }
 
+void AScriptHub::prepareToWait()
+{
+    WaitingForTaskCompleted = true;
+}
+
+#include <QThread>
+void AScriptHub::waitForGuiCallFinished(EScriptLanguage lang)
+{
+    while (WaitingForTaskCompleted)
+    {
+        processEvents(lang);
+        QThread::usleep(100);
+    }
+}
+
 QString AScriptHub::getPythonVersion()
 {
 #ifdef ANTS3_PYTHON
@@ -208,6 +233,11 @@ void AScriptHub::aboutToQuit()
 #endif
 }
 
+void AScriptHub::onGuiReportTaskCompleted()
+{
+    WaitingForTaskCompleted = false;
+}
+
 AScriptHub::AScriptHub()
 {
     //qDebug() << ">Creating AJScriptManager and Generating/registering script units";
@@ -218,10 +248,9 @@ AScriptHub::AScriptHub()
 
     addCommonInterface(new ACore_SI(),         "core");
 
-    //addCommonInterface(new AMath_SI(),         "math");  // conflicts with inbuild Python module "math"
     JavaScriptM->registerInterface(new AMath_SI(), "math");
 #ifdef ANTS3_PYTHON
-    PythonM->registerInterface(new AMath_SI(),     "Math");
+    PythonM->registerInterface(new AMath_SI(),     "Math"); // otherwise conflicts with inbuild Python module "math"
 #endif
 
     addCommonInterface(new AConfig_SI(),       "config");
@@ -237,6 +266,15 @@ AScriptHub::AScriptHub()
     addCommonInterface(new ATree_SI(),         "tree");
     addCommonInterface(new ARootStyle_SI(),    "root");
     addCommonInterface(new APet_si(),          "pet");
+
+#ifdef USE_MERCURY
+    JavaScriptM->registerInterface(new ALightResponse_SI(EScriptLanguage::JavaScript), "response");
+    #ifdef ANTS3_PYTHON
+        PythonM->registerInterface(new ALightResponse_SI(EScriptLanguage::Python), "response");
+    #endif
+    addCommonInterface(new AMercury_si(), "mercury");
+#endif
+
     addCommonInterface(new ADemo_SI(),         "demo");
 
 #ifdef WEBSOCKETS

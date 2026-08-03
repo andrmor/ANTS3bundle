@@ -18,12 +18,29 @@ AUnifiedRule::AUnifiedRule(int MatFrom, int MatTo) : AInterfaceRule(MatFrom, Mat
 
 AInterfaceRule::EInterfaceRuleResult AUnifiedRule::calculate(APhoton * Photon, const double * NormalVector)
 {
-    const double Refl = computeRefractionProbability(Photon, NormalVector);
+    double remainingRnd = RandomHub.uniform();
 
-    double rnd = RandomHub.uniform();
+    double reflectionFraction = 0;
+    if (SkipFresnel)
+    {
+        if (AbsorptionOverride > 0)
+        {
+            remainingRnd -= AbsorptionOverride;
+            if (remainingRnd < 0)
+            {
+                Status = Absorption;
+                return Absorbed;
+            }
+        }
+        reflectionFraction = ReflectionOverride;
+    }
+    else
+    {
+        reflectionFraction = computeReflectionProbability(Photon, NormalVector);
+    }
 
-    rnd -= Refl * Cspec;
-    if (rnd < 0)
+    remainingRnd -= reflectionFraction * Cspec;
+    if (remainingRnd < 0)
     {
         // qDebug() << "Specular spike";
         //rotating the vector: K = K - 2*(NK)*N
@@ -34,8 +51,8 @@ AInterfaceRule::EInterfaceRuleResult AUnifiedRule::calculate(APhoton * Photon, c
         return Back;
     }
 
-    rnd -= Refl * Cback;
-    if (rnd < 0)
+    remainingRnd -= reflectionFraction * Cback;
+    if (remainingRnd < 0)
     {
         // qDebug() << "Backscatter spike";
         for (int i = 0; i < 3; i++) Photon->v[i] = -Photon->v[i];
@@ -44,8 +61,8 @@ AInterfaceRule::EInterfaceRuleResult AUnifiedRule::calculate(APhoton * Photon, c
         return Back;
     }
 
-    rnd -= Refl * Cdiflobe;
-    if (rnd < 0)
+    remainingRnd -= reflectionFraction * Cdiflobe;
+    if (remainingRnd < 0)
     {
         // qDebug() << "Lambertian";
         double norm2;
@@ -65,10 +82,10 @@ AInterfaceRule::EInterfaceRuleResult AUnifiedRule::calculate(APhoton * Photon, c
     }
 
     calculateLocalNormal(NormalVector, Photon->v);
-    rnd -= Refl * Cspeclobe;
-    if (rnd < 0)
+    remainingRnd -= reflectionFraction * Cspeclobe;
+    if (remainingRnd < 0)
     {
-        //qDebug() << "Spectral lobe (microfacet reflection)";
+        //qDebug() << "Specular lobe (microfacet reflection)";
         //rotating the vector: K = K - 2*(NK)*N
         double NK = LocalNormal[0]*Photon->v[0]; NK += LocalNormal[1]*Photon->v[1];  NK += LocalNormal[2]*Photon->v[2];
         Photon->v[0] -= 2.0*NK*LocalNormal[0]; Photon->v[1] -= 2.0*NK*LocalNormal[1]; Photon->v[2] -= 2.0*NK*LocalNormal[2];
@@ -110,7 +127,7 @@ AInterfaceRule::EInterfaceRuleResult AUnifiedRule::calculate(APhoton * Photon, c
     return Absorbed;
 }
 
-double AUnifiedRule::computeRefractionProbability(const APhoton * Photon, const double * NormalVector) const
+double AUnifiedRule::computeReflectionProbability(const APhoton * Photon, const double * NormalVector) const
 {
     // has to be synchronized (algorithm) with the method calculateReflectionProbability() of the APhotonTracer class of lsim module!
     // has to be synchronized (algorithm) with the AInterfaceRuleTester calculateReflectionProbability(const APhoton & Photon)
@@ -162,19 +179,34 @@ double AUnifiedRule::computeRefractionProbability(const APhoton * Photon, const 
 
 QString AUnifiedRule::getReportLine() const
 {
-    return "Uni";
+    return "Unified";
 }
 
 QString AUnifiedRule::getLongReportLine() const
 {
-    return "UniLong";
+    QString str = QString("Unified model\n") +
+                  "Reflection fractions:\n" +
+                  "  specular spike:    " + QString::number(Cspec) + "\n" +
+                  "  specular lobe:     " + QString::number(Cspeclobe) + "\n" +
+                  "  diffuse lobe:      " + QString::number(Cdiflobe) + "\n" +
+                  "  backscatter spike: " + QString::number(Cback);
+
+    if (SkipFresnel)
+    {
+        str += QString("\n\n") +
+               "Skipping Fresnel, direct fractions:\n" +
+               "  absorption:  " + QString::number(AbsorptionOverride) +
+               "  reflection:  " + QString::number(ReflectionOverride) +
+               "  transmission: "+ QString::number(1.0 - AbsorptionOverride - ReflectionOverride);
+    }
+    return str;
 }
 
 QString AUnifiedRule::getDescription() const
 {
     QString txt = "Reflection coefficient is calculated using the Fresnel law\n"
                   "and the angle of incidence considering the global normal.\n\n"
-                  "Random generator is used to test the reflection, and if successful,\n"
+                  "Random generator is used to test the reflection, and if it is triggered,\n"
                   "one of the four scenarios is selected based on the user-defined relative probabilities:\n"
                   "1) Specular Spike -> the photon is reflected speculary (global surface)\n"
                   "2) Backscatter Spike -> the photon direction is reversed\n"
@@ -183,7 +215,11 @@ QString AUnifiedRule::getDescription() const
                   "   and the photon is reflected specularly (on this microfacet)\n\n"
                   "If refelection test is failed, the photon is transmitted.\n"
                   "The local normal is sampled based on the rough surface properties,\n"
-                  "an the refracted angle is computed using the Snell's law and the microfacet's normal.";
+                  "an the refracted angle is computed using the Snell's law and the microfacet's normal.\n\n"
+                  "It is also now possible to directly override the Fresnel reflection computation by\n"
+                  "directly configuring the absorption and reflection fractions (the remaining fraction of unity\n"
+                  "is transmission). These fractions are in effect for all wavelengths and angles of incidence."
+                  "";
     return txt;
 }
 
@@ -193,6 +229,14 @@ void AUnifiedRule::doWriteToJson(QJsonObject &json) const
     json["Cspeclobe"] = Cspeclobe;
     json["Cdiflobe"]  = Cdiflobe;
     json["Cback"]     = Cback;
+
+    {
+        QJsonObject js;
+            js["Enabled"] = SkipFresnel;
+            js["AbsorptionOverride"] = AbsorptionOverride;
+            js["ReflectionOverride"] = ReflectionOverride;
+        json["OverrideFresnel"] = js;
+    }
 }
 
 bool AUnifiedRule::doReadFromJson(const QJsonObject &json)
@@ -202,12 +246,34 @@ bool AUnifiedRule::doReadFromJson(const QJsonObject &json)
     jstools::parseJson(json, "Cdiflobe",  Cdiflobe);
     jstools::parseJson(json, "Cback",     Cback);
 
+    {
+        QJsonObject js;
+        bool ok = jstools::parseJson(json, "OverrideFresnel", js);
+        if (ok)
+        {
+            jstools::parseJson(js, "Enabled", SkipFresnel);
+            jstools::parseJson(js, "AbsorptionOverride", AbsorptionOverride);
+            jstools::parseJson(js, "ReflectionOverride", ReflectionOverride);
+        }
+        else
+        {
+            SkipFresnel = false;
+            AbsorptionOverride = 0.05;
+            ReflectionOverride = 0.5;
+        }
+    }
+
     return true;
 }
 
 QString AUnifiedRule::doCheckOverrideData()
 {
     if (Cspec + Cspeclobe + Cdiflobe + Cback != 1.0) return "Sum of all coefficients should be unity!";
+    if (SkipFresnel)
+    {
+        if (AbsorptionOverride < 0 || ReflectionOverride < 0) return "Absorption and Reflection overrides should not be negative";
+        if (AbsorptionOverride + ReflectionOverride > 1.0) return "Absorption plus Reflection overrides should not be larger than unity";
+    }
     return "";
 }
 

@@ -1,0 +1,175 @@
+#include "alrfmouseexplorer.h"
+#include "alrfviewerobject.h"
+#include "asensorhub.h"
+#include "alrfgraphicsview.h"
+
+#include <QPushButton>
+#include <QLabel>
+#include <QLineEdit>
+#include <QComboBox>
+#include <QVBoxLayout>
+#include <QHBoxLayout>
+#include <QPointF>
+#include <QDebug>
+#include <QFont>
+
+#include <vector>
+
+#include "lrmodel.h"
+
+ALrfMouseExplorer::ALrfMouseExplorer(LRModel * model, double suggestedZ, QWidget * parent) :
+    QDialog(parent), SensHub(ASensorHub::getInstance())
+{
+    //LRFs = new LRModel(model->GetJsonString());
+    LRFs = model;
+    setModal(true);
+    setWindowTitle("LRF viewer");
+
+    QVBoxLayout * mainLayout = new QVBoxLayout;
+
+    // invalid label
+    lInvalid = new QLabel("Model is not valid!");
+    QFont font = lInvalid->font(); font.setBold(true); font.setWeight(QFont::DemiBold); lInvalid->setFont(font);
+    mainLayout->addWidget(lInvalid, 0, Qt::AlignCenter);
+
+    //tools
+    QHBoxLayout * hbox = new QHBoxLayout;
+    QLabel * l1 = new QLabel("Sensor selection:");
+    hbox->addWidget(l1);
+
+    cobSG = new QComboBox();
+    for (int igr=0; igr<LRFs->GetGroupCount(); igr++)
+        cobSG->addItem("Group #" + QString::number(igr));
+
+    cobSG->addItem("All");
+    cobSG->setCurrentIndex(cobSG->count()-1);
+    connect(cobSG, &QComboBox::activated, this, &ALrfMouseExplorer::onCobActivated);
+    hbox->addWidget(cobSG);
+
+    QLabel * l2 = new QLabel("Z:");
+    hbox->addWidget(l2);
+
+    ledZ = new QLineEdit(QString::number(suggestedZ));
+    QDoubleValidator * dv = new QDoubleValidator(this);
+    dv->setNotation(QDoubleValidator::ScientificNotation);
+    ledZ->setValidator(dv);
+    hbox->addWidget(ledZ);
+    mainLayout->addLayout(hbox);
+
+    //graphics
+    GrView = new ALrfGraphicsView(this);
+    connect(GrView, &ALrfGraphicsView::mouseMovedSignal, this, &ALrfMouseExplorer::paintLRFonDialog);
+    mainLayout->addWidget(GrView);
+
+    //close button
+    QPushButton * closeB = new QPushButton("Close");
+    mainLayout->addWidget(closeB);
+    connect(closeB, &QPushButton::clicked, this, &ALrfMouseExplorer::accept);
+    setLayout(mainLayout);
+
+    LRFviewObj = new ALrfViewerObject(GrView);
+    LRFviewObj->SetCursorMode(1);
+
+    closeB->setAutoDefault(false);
+}
+
+ALrfMouseExplorer::~ALrfMouseExplorer()
+{
+    delete GrView;
+    delete LRFviewObj;
+}
+
+void ALrfMouseExplorer::Start()
+{
+    checkModel();
+    lInvalid->setVisible(!ModelIsReady);
+
+    resize(800,800);
+    show();
+    GrView->show();
+    LRFviewObj->DrawAll();
+    LRFviewObj->ResetViewport();
+
+    QPointF tmpp(0,0);
+    paintLRFonDialog(&tmpp);
+
+    exec();
+}
+
+bool isSetContains(const std::set<int> & set, int val)
+{
+    const auto search = set.find(val);
+    return (search != set.end());
+}
+
+void ALrfMouseExplorer::paintLRFonDialog(QPointF * pos)
+{
+    if (!ModelIsReady) return;
+
+    double r[3];
+    r[0] = pos->x();
+    r[1] = -pos->y(); //inverted!
+    r[2] = ledZ->text().toDouble();
+    //qDebug() << r[0] << r[1] << r[2];
+    QString title = QString::number(r[0], 'f', 1) +" , "+ QString::number(r[1], 'f', 1) +" , "+ QString::number(r[2], 'f', 1);
+    setWindowTitle(title);
+
+    int numPMs = SensHub.countSensors();
+    std::vector<double> lrfs;
+    lrfs.resize(numPMs);
+
+    int iGroup = cobSG->currentIndex();
+    bool fAll = ( iGroup == cobSG->count()-1 );
+
+    std::set <int> groupMembers;
+    if (!fAll) groupMembers = LRFs->GroupMembers(iGroup);
+
+    double max = -100;
+    for (int ipm = 0; ipm < numPMs; ipm++)
+        if (fAll || isSetContains(groupMembers, ipm))
+        {
+            if (ipm < SensHub.SensorGains.size())
+                lrfs[ipm] = LRFs->Eval(ipm, r);
+            else
+                lrfs[ipm] = 0;
+
+            if (lrfs[ipm] > max) max = lrfs[ipm];
+        }
+
+    for (int ipm = 0; ipm < numPMs; ipm++)
+    {
+        if (fAll || isSetContains(groupMembers, ipm))
+        {
+            LRFviewObj->SetVisible(ipm, true);
+
+            int g = 255 - lrfs[ipm]/max*254.0;
+            LRFviewObj->SetText(ipm, QString::number(lrfs[ipm], 'f', 1));
+
+            if (lrfs[ipm] <= 0)  // to update to isInRange() check
+            {
+                LRFviewObj->SetBrushColor(ipm, Qt::red);
+                LRFviewObj->SetTextColor(ipm, Qt::black);
+            }
+            else
+            {
+                LRFviewObj->SetBrushColor(ipm, QColor(g,g,g));
+                if (g>128) LRFviewObj->SetTextColor(ipm, Qt::black);
+                else LRFviewObj->SetTextColor(ipm, Qt::white);
+            }
+        }
+        else LRFviewObj->SetVisible(ipm, false);
+    }
+    LRFviewObj->DrawAll();
+}
+
+void ALrfMouseExplorer::onCobActivated(int)
+{
+    QPointF tmpp(0,0);
+    paintLRFonDialog(&tmpp);
+}
+
+void ALrfMouseExplorer::checkModel()
+{
+    ModelIsReady = LRFs->isModelValid() && LRFs->isModelReady();
+}
+

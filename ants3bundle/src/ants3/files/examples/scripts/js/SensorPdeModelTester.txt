@@ -1,0 +1,54 @@
+
+graph.new1D("gA")
+graph.setTitle("gA", "Sensor of air")
+graph.setAxisTitles("gA", "Angle of incidence, deg", "Detected photon fraction")
+graph.setMinimum("gA", 0)
+graph.setMaximum("gA", 0.6)
+
+graph.new1D("gE")
+graph.setTitle("gE", "Sensor of epoxy")
+graph.setAxisTitles("gE", "Angle of incidence, deg", "Detected photon fraction")
+graph.setLineProperties("gE", 6, 1, 1)
+graph.setMarkerProperties("gE", 6, 20, 1)
+
+graph.new1D("gEE")
+graph.setTitle("gEE", "Sensor of epoxy in epoxy")
+graph.setAxisTitles("gEE", "Angle of incidence, deg", "Detected photon fraction")
+graph.setLineProperties("gEE", 7, 1, 1)
+graph.setMarkerProperties("gEE", 7, 20, 1)
+
+for (var iAng = 0; iAng < 90; iAng++)
+{
+    var dx = math.tan(iAng * 3.1415926535 / 180.0)
+    config.replace("PhotonSim.PhGenOverrides.Direction.DirectionVector[0]", dx)
+    config.updateConfig()
+    
+    lsim.simulate()
+    
+    var dir = "/home/andr/.config/ants3/TmpOutput"
+    var fileName = dir + "/SensorSignals.txt"
+    
+    var numPhot = config.getKeyValue("PhotonSim.PhotonBombs.PhotonsPerBomb.FixedNumber")
+    var data = core.loadNumericArray(fileName)
+    var sAir = data[0][0] / numPhot
+    var sEpoxy = data[1][1] / numPhot
+    var sEpoxyEpoxy = data[2][2] / numPhot
+    core.print(sAir, sEpoxy, sEpoxyEpoxy)
+    
+    graph.addPoint("gA", iAng, sAir)
+    graph.addPoint("gE", iAng, sEpoxy)
+    graph.addPoint("gEE", iAng, sEpoxyEpoxy)
+    
+    graph.draw("gA", "APL")
+    graph.draw("gE", "PLsame")
+    graph.draw("gEE", "PLsame")
+}
+
+graph.draw("gA", "APL"); grwin.addToBasket("Air")
+graph.draw("gE", "APL"); grwin.addToBasket("Epoxy")
+graph.draw("gEE", "APL"); grwin.addToBasket("EpoxyInEpoxy")
+
+graph.draw("gA", "APL")
+graph.draw("gE", "PLsame")
+graph.draw("gEE", "PLsame")
+grwin.addLegend(0.15, 0.15, 0.5, 0.5)

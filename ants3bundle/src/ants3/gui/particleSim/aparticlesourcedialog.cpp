@@ -7,6 +7,7 @@
 #include "aparticlesourceplotter.h"
 #include "agraphbuilder.h"
 #include "amaterialhub.h"
+#include "ageobasedelegate.h"
 
 #include <QDebug>
 #include <QDoubleValidator>
@@ -34,19 +35,29 @@ AParticleSourceDialog::AParticleSourceDialog(const AParticleSourceRecord_Standar
     QList<QLineEdit*> list = this->findChildren<QLineEdit *>();
     foreach(QLineEdit *w, list) if (w->objectName().startsWith("led")) w->setValidator(dv);
 
+    for (AOneLineTextEdit * le : {ui->ledGunOriginX, ui->ledGunOriginY, ui->ledGunOriginZ,
+                                  ui->ledGun1DSize, ui->ledGun2DSize, ui->ledGun3DSize })
+        AGeoBaseDelegate::configureHighligherAndCompleter(le);
+
     ui->pbUpdateRecord->setDefault(true);
     ui->pbUpdateRecord->setVisible(false);
 
     ui->leSourceName->setText(Rec.Name.data());
     ui->cobGunSourceType->setCurrentIndex(Rec.Shape);
 
-    ui->ledGun1DSize->setText(QString::number(2.0 * Rec.Size1));
-    ui->ledGun2DSize->setText(QString::number(2.0 * Rec.Size2));
-    ui->ledGun3DSize->setText(QString::number(2.0 * Rec.Size3));
+        //ui->ledGun1DSize->setText(QString::number(2.0 * Rec.Size1));
+    ui->ledGun1DSize->setText(Rec.Size1Str.isEmpty() ? QString::number(2.0 * Rec.Size1) : Rec.Size1Str);
+        //ui->ledGun2DSize->setText(QString::number(2.0 * Rec.Size2));
+    ui->ledGun2DSize->setText(Rec.Size2Str.isEmpty() ? QString::number(2.0 * Rec.Size2) : Rec.Size2Str);
+        //ui->ledGun3DSize->setText(QString::number(2.0 * Rec.Size3));
+    ui->ledGun3DSize->setText(Rec.Size3Str.isEmpty() ? QString::number(2.0 * Rec.Size3) : Rec.Size3Str);
 
-    ui->ledGunOriginX->setText(QString::number(Rec.X0));
-    ui->ledGunOriginY->setText(QString::number(Rec.Y0));
-    ui->ledGunOriginZ->setText(QString::number(Rec.Z0));
+        //ui->ledGunOriginX->setText(QString::number(Rec.X0));
+    ui->ledGunOriginX->setText(Rec.X0Str.isEmpty() ? QString::number(Rec.X0) : Rec.X0Str);
+        //ui->ledGunOriginY->setText(QString::number(Rec.Y0));
+    ui->ledGunOriginY->setText(Rec.Y0Str.isEmpty() ? QString::number(Rec.Y0) : Rec.Y0Str);
+        //ui->ledGunOriginZ->setText(QString::number(Rec.Z0));
+    ui->ledGunOriginZ->setText(Rec.Z0Str.isEmpty() ? QString::number(Rec.Z0) : Rec.Z0Str);
 
     ui->cbAxialDistribution->setChecked(Rec.UseAxialDistribution);
     int index = 0;
@@ -209,7 +220,7 @@ void AParticleSourceDialog::on_pbReject_clicked()
 void AParticleSourceDialog::on_pbGunTest_clicked()
 {
     AParticleSourcePlotter::clearTracks();
-    if (ui->pbShowSource->isChecked()) AParticleSourcePlotter::plotSource(LocalRec);
+    //if (ui->pbShowSource->isChecked()) AParticleSourcePlotter::plotSource(LocalRec);
 
     ASourceGeneratorSettings settings;
     settings.SourceData.push_back(&LocalRec);
@@ -447,16 +458,22 @@ void AParticleSourceDialog::on_pbUpdateRecord_clicked()
     case 5 : LocalRec.Shape = AParticleSourceRecord_Standard::Cylinder;  break;
     }
 
-    LocalRec.Size1 = 0.5 * ui->ledGun1DSize->text().toDouble();
-    LocalRec.Size2 = 0.5 * ui->ledGun2DSize->text().toDouble();
-    LocalRec.Size3 = 0.5 * ui->ledGun3DSize->text().toDouble();
+        //LocalRec.Size1 = 0.5 * ui->ledGun1DSize->text().toDouble();
+    processGeoConstAwareEditFinished(ui->ledGun1DSize, LocalRec.Size1Str, LocalRec.Size1, "Size1", this, true, true, true);
+        //LocalRec.Size2 = 0.5 * ui->ledGun2DSize->text().toDouble();
+    processGeoConstAwareEditFinished(ui->ledGun2DSize, LocalRec.Size2Str, LocalRec.Size2, "Size2", this, true, true, true);
+        //LocalRec.Size3 = 0.5 * ui->ledGun3DSize->text().toDouble();
+    processGeoConstAwareEditFinished(ui->ledGun3DSize, LocalRec.Size3Str, LocalRec.Size3, "Size3", this, true, true, true);
 
     LocalRec.MaterialLimited = ui->cbSourceLimitmat->isChecked();
     LocalRec.LimtedToMatName = ui->leSourceLimitMaterial->text().toLatin1().data();
 
-    LocalRec.X0 = ui->ledGunOriginX->text().toDouble();
-    LocalRec.Y0 = ui->ledGunOriginY->text().toDouble();
-    LocalRec.Z0 = ui->ledGunOriginZ->text().toDouble();
+        //LocalRec.X0 = ui->ledGunOriginX->text().toDouble();
+    processGeoConstAwareEditFinished(ui->ledGunOriginX, LocalRec.X0Str, LocalRec.X0, "Center X", this);
+        //LocalRec.Y0 = ui->ledGunOriginY->text().toDouble();
+    processGeoConstAwareEditFinished(ui->ledGunOriginY, LocalRec.Y0Str, LocalRec.Y0, "Center Y", this);
+        //LocalRec.Z0 = ui->ledGunOriginZ->text().toDouble();
+    processGeoConstAwareEditFinished(ui->ledGunOriginZ, LocalRec.Z0Str, LocalRec.Z0, "Center Z", this);
 
     LocalRec.UseAxialDistribution = ui->cbAxialDistribution->isChecked();
     switch (ui->cobAxialDistributionType->currentIndex())
@@ -560,12 +577,7 @@ void AParticleSourceDialog::on_pbUpdateRecord_clicked()
     updateParticleInfo();
     updateColorLimitingMat();
 
-    if (ui->pbShowSource->isChecked())
-    {
-        AParticleSourcePlotter::clearTracks();
-        AParticleSourcePlotter::plotSource(LocalRec);
-        emit requestShowSource();
-    }
+    emit sourceRecordChanged();
 }
 
 void AParticleSourceDialog::on_sbLinkedTo_editingFinished()
@@ -676,12 +688,14 @@ void AParticleSourceDialog::updateTimeButtons()
     ui->pbTimeCustomDelete->setEnabled(distrLoaded);
 }
 
+/*
 void AParticleSourceDialog::on_pbShowSource_clicked(bool checked)
 {
     AParticleSourcePlotter::clearTracks();
     if (checked) AParticleSourcePlotter::plotSource(LocalRec);
-    emit requestShowSource();
+    emit sourceRecordChangedInEditMode(&LocalRec);
 }
+*/
 
 void AParticleSourceDialog::on_pbHelpParticle_clicked()
 {

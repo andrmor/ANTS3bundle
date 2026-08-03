@@ -138,7 +138,7 @@ public:
     void doWriteToJson(QJsonObject & json) const override;
     void readFromJson(const QJsonObject & json) override;
 
-    void introduceGeoConstValues(QString & errorStr) override; // !!!***
+    void introduceGeoConstValues(QString & errorStr) override;
 
     void scale(double factor) override;
 

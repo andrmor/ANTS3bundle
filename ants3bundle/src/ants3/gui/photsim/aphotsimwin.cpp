@@ -22,6 +22,13 @@
 #include "aphotonloghandler.h"
 #include "aphotonlogsettingsform.h"
 #include "asensorsignalarray.h"
+#include "aonelinetextedit.h"
+#include "ageobasedelegate.h"
+
+#ifdef USE_MERCURY
+#include "alightresponsehub.h"
+#include "alrfmouseexplorer.h"
+#endif
 
 #include <QDebug>
 #include <QLabel>
@@ -64,6 +71,12 @@ APhotSimWin::APhotSimWin(QWidget * parent) :
         if (pb->objectName().startsWith("pbd"))
             pb->setVisible(false);
 
+    QDoubleValidator * doubVal = new QDoubleValidator(this);
+    QList<QLineEdit*> listLineEdits = findChildren<QLineEdit*>();
+    for (QLineEdit * le : qAsConst(listLineEdits))
+        if (le->objectName().startsWith("led"))
+            le->setValidator(doubVal);
+
     ui->cbSensorsAll->setChecked(true);
     ui->cbRandomSeed->setChecked(true);
 
@@ -71,7 +84,7 @@ APhotSimWin::APhotSimWin(QWidget * parent) :
 
     YellowCircle = guitools::createColorCirclePixmap({15,15}, Qt::yellow);
     ui->labAdvancedBombOn->setPixmap(YellowCircle);
-    ui->labSkipTracingON->setPixmap(YellowCircle);
+    ui->labAdvancedModeEnabled->setPixmap(YellowCircle);
     ui->labPhotonsPerBombWarning->setPixmap(YellowCircle); ui->labPhotonsPerBombWarning->setVisible(false);
 
     gvSensors = new ASensorDrawWidget(this);
@@ -85,6 +98,15 @@ APhotSimWin::APhotSimWin(QWidget * parent) :
     LogForm->setVisible(ui->cbLogAdditionalFilters->isChecked());
     //LogForm->setNumber(100);
     LogForm->setNumberInvisible();
+
+    ui->labAdvancedModeEnabled->setVisible(false);
+    ui->frLRF->setVisible(false);
+    ui->labNoMercury->setVisible(false);
+    ui->frLimitBombPosition->setVisible(ui->cobNodeGenerationMode->currentIndex() != 0);
+    on_cobFloodZmode_currentIndexChanged(ui->cobFloodZmode->currentIndex());
+
+    on_cbSecondAxis_toggled(ui->cbSecondAxis->isChecked());
+    on_cbThirdAxis_toggled(ui->cbThirdAxis->isChecked());
 
     updateGui();
 }
@@ -119,6 +141,22 @@ void APhotSimWin::writeToJson(QJsonObject & json) const
             js["G2"] = ui->leSensorsG2->text();
             js["G3"] = ui->leSensorsG3->text();
         json["SensorGroups"] = js;
+    }
+
+    // Track properties
+    {
+        QJsonObject js;
+        A3Global::getInstance().CurrentTrackVisAttributes.writeToJson_photons(js);
+        json["PhotonTrackAttributes"] = js;
+    }
+
+    // SensorTable
+    {
+        QJsonObject js;
+            js["ColumnNumber"] = ui->sbSensorTableColumns->value();
+            js["Swap"] = ui->cbSensorTableSwap->isChecked();
+            js["HideIndex"] = ui->cbSensorTableHideIndex->isChecked();
+        json["SensorTable"] = js;
     }
 }
 
@@ -158,6 +196,28 @@ void APhotSimWin::readFromJson(const QJsonObject & json)
             jstools::parseJson(js, "G3", str); ui->leSensorsG3->setText(str);
         }
     }
+
+    // Track properties
+    {
+        QJsonObject js;
+        bool ok = jstools::parseJson(json, "PhotonTrackAttributes", js);
+        if (ok) A3Global::getInstance().CurrentTrackVisAttributes.readFromJson_photons(js);
+    }
+
+    // SensorTable
+    {
+        QJsonObject js;
+        bool ok = jstools::parseJson(json, "SensorTable", js);
+        if (ok)
+        {
+            int num = 1.0;
+            jstools::parseJson(js, "ColumnNumber", num); ui->sbSensorTableColumns->setValue(num);
+            bool bSwap = false;
+            jstools::parseJson(js, "Swap", bSwap); ui->cbSensorTableSwap->setChecked(bSwap);
+            bool bHide = false;
+            jstools::parseJson(js, "HideIndex", bSwap); ui->cbSensorTableHideIndex->setChecked(bHide);
+        }
+    }
 }
 
 void APhotSimWin::onNewConfigStartedInGui()
@@ -172,10 +232,10 @@ void APhotSimWin::updateGui()
     switch (SimSet.SimType)
     {
     default:
+        qWarning() << "Invalid sim type option!";
     case EPhotSimType::PhotonBombs       : index = 0; break;
     case EPhotSimType::FromEnergyDepo    : index = 1; break;
     case EPhotSimType::IndividualPhotons : index = 2; break;
-    case EPhotSimType::FromLRFs          : index = 3; break;
     }
     ui->cobSimType->setCurrentIndex(index);
 
@@ -187,6 +247,16 @@ void APhotSimWin::updateGui()
     updateMonitorGui();
 
     updateGeneralSettingsGui();
+
+    for (AOneLineTextEdit * le : {ui->ledSingleX, ui->ledSingleY, ui->ledSingleZ,
+                                  ui->ledFloodXfrom, ui->ledFloodXto, ui->ledFloodYfrom, ui->ledFloodYto, ui->ledFloodCenterX, ui->ledFloodCenterY,
+                                  ui->ledFloodOuterDiameter, ui->ledFloodInnerDiameter,
+                                  ui->ledFloodZ, ui->ledFloodZfrom, ui->ledFloodZto,
+                                  ui->ledOriginX, ui->ledOriginY, ui->ledOriginZ,
+                                  ui->led0X, ui->led0Y, ui->led0Z,
+                                  ui->led1X, ui->led1Y, ui->led1Z,
+                                  ui->led2X, ui->led2Y, ui->led2Z})
+        AGeoBaseDelegate::configureHighligherAndCompleter(le);
 }
 
 void APhotSimWin::updatePhotBombGui()
@@ -232,20 +302,26 @@ void APhotSimWin::updatePhotBombGui()
 
     //Single
     const ASingleSettings & sset = SimSet.BombSet.SingleSettings;
-    ui->ledSingleX->setText(QString::number(sset.Position[0]));
-    ui->ledSingleY->setText(QString::number(sset.Position[1]));
-    ui->ledSingleZ->setText(QString::number(sset.Position[2]));
+        //ui->ledSingleX->setText(QString::number(sset.Position[0]));
+    ui->ledSingleX->setText(sset.PositionStr[0].isEmpty() ? QString::number(sset.Position[0]) : sset.PositionStr[0]);
+        //ui->ledSingleY->setText(QString::number(sset.Position[1]));
+    ui->ledSingleY->setText(sset.PositionStr[1].isEmpty() ? QString::number(sset.Position[1]) : sset.PositionStr[1]);
+        //ui->ledSingleZ->setText(QString::number(sset.Position[2]));
+    ui->ledSingleZ->setText(sset.PositionStr[2].isEmpty() ? QString::number(sset.Position[2]) : sset.PositionStr[2]);
 
     //Grid
     const AGridSettings & g = SimSet.BombSet.GridSettings;
-    ui->ledOriginX->setText(QString::number(g.X0));
-    ui->ledOriginY->setText(QString::number(g.Y0));
-    ui->ledOriginZ->setText(QString::number(g.Z0));
+        //ui->ledOriginX->setText(QString::number(g.X0));
+    ui->ledOriginX->setText(g.X0Str.isEmpty() ? QString::number(g.X0) : g.X0Str);
+        //ui->ledOriginY->setText(QString::number(g.Y0));
+    ui->ledOriginY->setText(g.Y0Str.isEmpty() ? QString::number(g.Y0) : g.Y0Str);
+        //ui->ledOriginZ->setText(QString::number(g.Z0));
+    ui->ledOriginZ->setText(g.Z0Str.isEmpty() ? QString::number(g.Z0) : g.Z0Str);
     ui->cbSecondAxis->setChecked(g.ScanRecords[1].bEnabled);
     ui->cbThirdAxis-> setChecked(g.ScanRecords[2].bEnabled);
-    for (int i = 0; i < 3; i++)
+    for (size_t i = 0; i < 3; i++)
     {
-        QLineEdit *leDX, *leDY, *leDZ;
+        AOneLineTextEdit *leDX, *leDY, *leDZ;
         QSpinBox  *sbNodes;
         QComboBox *cobBiDir;
         switch (i)
@@ -255,9 +331,12 @@ void APhotSimWin::updatePhotBombGui()
         case 2: leDX = ui->led2X; leDY = ui->led2Y; leDZ = ui->led2Z; sbNodes = ui->sb2nodes; cobBiDir = ui->cob2dir; break;
         }
         const APhScanRecord & r = g.ScanRecords[i];
-        leDX->setText(QString::number(r.DX));
-        leDY->setText(QString::number(r.DY));
-        leDZ->setText(QString::number(r.DZ));
+            //leDX->setText(QString::number(r.DX));
+        leDX->setText(r.DXStr.isEmpty() ? QString::number(r.DX) : r.DXStr);
+            //leDY->setText(QString::number(r.DY));
+        leDY->setText(r.DYStr.isEmpty() ? QString::number(r.DY) : r.DYStr);
+            //leDZ->setText(QString::number(r.DZ));
+        leDZ->setText(r.DZStr.isEmpty() ? QString::number(r.DZ) : r.DZStr);
         sbNodes->setValue(r.Nodes);
         cobBiDir->setCurrentIndex(r.bBiDirect ? 1 : 0);
     }
@@ -266,18 +345,36 @@ void APhotSimWin::updatePhotBombGui()
     const AFloodSettings & fset = SimSet.BombSet.FloodSettings;
     ui->sbFloodNumber->setValue(fset.Number);
     ui->cobFloodShape->setCurrentIndex(fset.Shape == AFloodSettings::Rectangular ? 0 : 1);
-    ui->ledFloodXfrom->setText(QString::number(fset.Xfrom));
-    ui->ledFloodXto->setText(QString::number(fset.Xto));
-    ui->ledFloodYfrom->setText(QString::number(fset.Yfrom));
-    ui->ledFloodYto->setText(QString::number(fset.Yto));
-    ui->ledFloodCenterX->setText(QString::number(fset.X0));
-    ui->ledFloodCenterY->setText(QString::number(fset.Y0));
-    ui->ledFloodOuterDiameter->setText(QString::number(fset.OuterDiameter));
-    ui->ledFloodInnerDiameter->setText(QString::number(fset.InnerDiameter));
+        //ui->ledFloodXfrom->setText(QString::number(fset.Xfrom));
+    ui->ledFloodXfrom->setText(fset.XfromStr.isEmpty() ? QString::number(fset.Xfrom) : fset.XfromStr);
+        //ui->ledFloodXto->setText(QString::number(fset.Xto));
+    ui->ledFloodXto->setText(fset.XtoStr.isEmpty() ? QString::number(fset.Xto) : fset.XtoStr);
+        //ui->ledFloodYfrom->setText(QString::number(fset.Yfrom));
+    ui->ledFloodYfrom->setText(fset.YfromStr.isEmpty() ? QString::number(fset.Yfrom) : fset.YfromStr);
+        //ui->ledFloodYto->setText(QString::number(fset.Yto));
+    ui->ledFloodYto->setText(fset.YtoStr.isEmpty() ? QString::number(fset.Yto) : fset.YtoStr);
+        //ui->ledFloodCenterX->setText(QString::number(fset.X0));
+    ui->ledFloodCenterX->setText(fset.X0Str.isEmpty() ? QString::number(fset.X0) : fset.X0Str);
+        //ui->ledFloodCenterY->setText(QString::number(fset.Y0));
+    ui->ledFloodCenterY->setText(fset.Y0Str.isEmpty() ? QString::number(fset.Y0) : fset.Y0Str);
+        //ui->ledFloodOuterDiameter->setText(QString::number(fset.OuterDiameter));
+    ui->ledFloodOuterDiameter->setText(fset.OuterDiameterStr.isEmpty() ? QString::number(fset.OuterDiameter) : fset.OuterDiameterStr);
+        //ui->ledFloodInnerDiameter->setText(QString::number(fset.InnerDiameter));
+    ui->ledFloodInnerDiameter->setText(fset.InnerDiameterStr.isEmpty() ? QString::number(fset.InnerDiameter) : fset.InnerDiameterStr);
     ui->cobFloodZmode->setCurrentIndex(fset.Zmode == AFloodSettings::Fixed ? 0 : 1);
-    ui->ledFloodZ->setText(QString::number(fset.Zfixed));
-    ui->ledFloodZfrom->setText(QString::number(fset.Zfrom));
-    ui->ledFloodZto->setText(QString::number(fset.Zto));
+        //ui->ledFloodZ->setText(QString::number(fset.Zfixed));
+    ui->ledFloodZ->setText(fset.ZfixedStr.isEmpty() ? QString::number(fset.Zfixed) : fset.ZfixedStr);
+        //ui->ledFloodZfrom->setText(QString::number(fset.Zfrom));
+    ui->ledFloodZfrom->setText(fset.ZfromStr.isEmpty() ? QString::number(fset.Zfrom) : fset.ZfromStr);
+        //ui->ledFloodZto->setText(QString::number(fset.Zto));
+    ui->ledFloodZto->setText(fset.ZtoStr.isEmpty() ? QString::number(fset.Zto) : fset.ZtoStr);
+
+    // skip node position by mat / volume
+    const APhotonBombAdvancedSettings & skipNodeSettings = APhotonSimHub::getConstInstance().Settings.BombSet.AdvancedSettings;
+    ui->cbSkipByVolume->setChecked(skipNodeSettings.bOnlyVolume);
+    ui->leSkipOutsideVolume->setText(skipNodeSettings.Volume);
+    ui->cbSkipByMaterial->setChecked(skipNodeSettings.bOnlyMaterial);
+    ui->leSkipOutsideMaterial->setText(skipNodeSettings.Material);
 
     updateAdvancedBombIndicator();
 }
@@ -290,9 +387,6 @@ void APhotSimWin::updateDepoGui()
     QString strEvents = "--";
     if (SimSet.DepoSet.isValidated()) strEvents = QString::number(SimSet.DepoSet.NumEvents);
     ui->labDepositionEvents->setText(strEvents);
-
-    ui->cbPrimaryScint->setChecked(SimSet.DepoSet.Primary);
-    ui->cbSecondaryScint->setChecked(SimSet.DepoSet.Secondary);
 }
 
 void APhotSimWin::updateBombFileGui()
@@ -321,7 +415,16 @@ void APhotSimWin::updatePhotonFileGui()
 
 void APhotSimWin::updateGeneralSettingsGui()
 {
-    ui->twGeneralOption->setEnabled(SimSet.SimType != EPhotSimType::FromLRFs);
+    int index = 0;
+    if      ( SimSet.PrimaryScint && !SimSet.SecondaryScint) index = 0;
+    else if (!SimSet.PrimaryScint &&  SimSet.SecondaryScint) index = 1;
+    else if ( SimSet.PrimaryScint &&  SimSet.SecondaryScint) index = 2;
+    else
+    {
+        qWarning() << "Neither primary nor secondary scintillations were selected, defaulting to primary";
+        index = 0;
+    }
+    ui->cobScintType->setCurrentIndex(index);
 
     ui->cbWaveResolved->setChecked(SimSet.WaveSet.Enabled);
     ui->fWaveOptions->setEnabled(SimSet.WaveSet.Enabled);
@@ -331,7 +434,37 @@ void APhotSimWin::updateGeneralSettingsGui()
     ui->labWaveNodes->setText(QString::number(SimSet.WaveSet.countNodes()));
 
     ui->sbMaxNumbPhTransitions->setValue(SimSet.OptSet.MaxPhotonTransitions);
-    ui->cbRndCheckBeforeTrack->setChecked(SimSet.OptSet.CheckQeBeforeTracking);
+    index = 0;
+    switch (SimSet.OptSet.TracingMode)
+    {
+    case APhotOptSettings::Normal :        index = 0; break;
+    case APhotOptSettings::CheckQeBefore : index = 1; break;
+    case APhotOptSettings::LRF :           index = 2; break;
+    }
+    ui->cobTracingMode->setCurrentIndex(index);
+
+#ifdef USE_MERCURY
+    ALightResponseHub & LRHub = ALightResponseHub::getInstance();
+
+    bool modelIsReady = false;
+    QString txtStatus = "Not ready";
+    if (LRHub.Model)
+    {
+        // !!!*** check model is valid
+        modelIsReady = true;
+        txtStatus = "Ready";
+    }
+    ui->labLrModelStatus->setText(txtStatus);
+
+    ui->pbShowLrmExplorer->setEnabled(modelIsReady);
+    ui->pbShowLrfPlotter->setEnabled(modelIsReady);
+    ui->sbLRM_photonsPerNode->setEnabled(modelIsReady);
+    ui->ledLRF_photoElectrons->setEnabled(modelIsReady);
+
+    ui->ledLRF_photoElectrons->setText(QString::number(SimSet.OptSet.LRF_photoElectrons));
+    ui->sbLRM_photonsPerNode->setValue(SimSet.OptSet.LRF_photonsPerNode);
+
+#endif
 }
 
 void APhotSimWin::on_pbdWave_clicked()
@@ -385,32 +518,15 @@ void APhotSimWin::on_sbMaxNumbPhTransitions_editingFinished()
     SimSet.OptSet.MaxPhotonTransitions  = ui->sbMaxNumbPhTransitions->value();
 }
 
-void APhotSimWin::on_cbRndCheckBeforeTrack_clicked()
-{
-    SimSet.OptSet.CheckQeBeforeTracking = ui->cbRndCheckBeforeTrack->isChecked();
-}
-
-void APhotSimWin::on_pbQEacceleratorHelp_clicked()
-{
-    QString str;
-    str += "In this mode first the maximum detection efficiency over all sensors is calculated. "
-           "Before tracing each photon, a random number is generated "
-           "and the max det.eff. is checked against it. If the generated number is larger, "
-           "there is no chance that the photon will be detected, so tracing is skipped.\n\n"
-           "WARNING: do NOT use this mode if you are interested in statistics of traced photons "
-           "as it will be distorted!";
-    guitools::message(str, this);
-}
-
 void APhotSimWin::on_cobSimType_activated(int index)
 {
     switch (index)
     {
     default:
+        qWarning() << "Invalid sim type option!";
     case 0 : SimSet.SimType = EPhotSimType::PhotonBombs;       break;
     case 1 : SimSet.SimType = EPhotSimType::FromEnergyDepo;    break;
     case 2 : SimSet.SimType = EPhotSimType::IndividualPhotons; break;
-    case 3 : SimSet.SimType = EPhotSimType::FromLRFs;          break;
     }
 }
 
@@ -439,21 +555,47 @@ void APhotSimWin::on_cobNodeGenerationMode_activated(int index)
     case 2 : SimSet.BombSet.GenerationMode = EBombGen::Flood;  break;
     case 3 : SimSet.BombSet.GenerationMode = EBombGen::File;   break;
     }
+
+    emit photonSourcesChanged();
 }
 
 void APhotSimWin::on_ledSingleX_editingFinished()
 {
-    SimSet.BombSet.SingleSettings.Position[0] = ui->ledSingleX->text().toDouble();
+    double val = 0;
+    QString str;
+    AGeoBaseDelegate::processEditBox("single X position", ui->ledSingleX, val, str, this);
+    ui->ledSingleX->updateTooltip();
+
+    SimSet.BombSet.SingleSettings.Position[0]    = val;
+    SimSet.BombSet.SingleSettings.PositionStr[0] = str;
+
+    emit photonSourcesChanged();
 }
 
 void APhotSimWin::on_ledSingleY_editingFinished()
 {
-    SimSet.BombSet.SingleSettings.Position[1] = ui->ledSingleY->text().toDouble();
+    double val = 0;
+    QString str;
+    AGeoBaseDelegate::processEditBox("single Y position", ui->ledSingleY, val, str, this);
+    ui->ledSingleY->updateTooltip();
+
+    SimSet.BombSet.SingleSettings.Position[1]    = val;
+    SimSet.BombSet.SingleSettings.PositionStr[1] = str;
+
+    emit photonSourcesChanged();
 }
 
 void APhotSimWin::on_ledSingleZ_editingFinished()
 {
-    SimSet.BombSet.SingleSettings.Position[2] = ui->ledSingleZ->text().toDouble();
+    double val = 0;
+    QString str;
+    AGeoBaseDelegate::processEditBox("single Z position", ui->ledSingleZ, val, str, this);
+    ui->ledSingleZ->updateTooltip();
+
+    SimSet.BombSet.SingleSettings.Position[2]    = val;
+    SimSet.BombSet.SingleSettings.PositionStr[2] = str;
+
+    emit photonSourcesChanged();
 }
 
 void APhotSimWin::on_pbSimulate_clicked()
@@ -570,7 +712,7 @@ void APhotSimWin::on_pbLoadAllResults_clicked()
     gvSensors->resetViewport(); // not working if the widget was not yet drawn :(
 
     ui->leBombsFile->setText(Set.FileNamePhotonBombs);
-    on_pbShowBombsMultiple_clicked();
+    showBombsMultiple(false);
 
     ui->leTracksFile->setText(Set.FileNameTracks);
     loadAndShowTracks(true);
@@ -598,6 +740,18 @@ void APhotSimWin::reshapeSensorSignalTable()
 }
 
 void APhotSimWin::on_sbSensorTableColumns_editingFinished()
+{
+    reshapeSensorSignalTable();
+    showSensorSignals(false);
+}
+
+void APhotSimWin::on_cbSensorTableSwap_clicked()
+{
+    reshapeSensorSignalTable();
+    showSensorSignals(false);
+}
+
+void APhotSimWin::on_cbSensorTableHideIndex_clicked()
 {
     reshapeSensorSignalTable();
     showSensorSignals(false);
@@ -756,57 +910,84 @@ void APhotSimWin::on_sbFloodNumber_editingFinished()
 {
     SimSet.BombSet.FloodSettings.Number = ui->sbFloodNumber->value();
 }
+
 void APhotSimWin::on_cobFloodShape_activated(int index)
 {
     SimSet.BombSet.FloodSettings.Shape = (index == 0 ? AFloodSettings::Rectangular : AFloodSettings::Ring);
+    emit photonSourcesChanged();
 }
+
+void APhotSimWin::processGeoConstAwareEditFinished(AOneLineTextEdit * edit, QString & str, double & val, const QString & name, QWidget * parent)
+{
+    double doubleVal = 0;
+    QString stringVal;
+    AGeoBaseDelegate::processEditBox(name, edit, doubleVal, stringVal, parent);
+    edit->updateTooltip();
+    val = doubleVal;
+    str = stringVal;
+
+    emit photonSourcesChanged();
+}
+
 void APhotSimWin::on_ledFloodXfrom_editingFinished()
 {
-    SimSet.BombSet.FloodSettings.Xfrom = ui->ledFloodXfrom->text().toDouble();
+    //SimSet.BombSet.FloodSettings.Xfrom = ui->ledFloodXfrom->text().toDouble();
+    processGeoConstAwareEditFinished(ui->ledFloodXfrom, SimSet.BombSet.FloodSettings.XfromStr, SimSet.BombSet.FloodSettings.Xfrom, "X from", this);
 }
 void APhotSimWin::on_ledFloodXto_editingFinished()
 {
-    SimSet.BombSet.FloodSettings.Xto   = ui->ledFloodXto->text().toDouble();
+    //SimSet.BombSet.FloodSettings.Xto   = ui->ledFloodXto->text().toDouble();
+    processGeoConstAwareEditFinished(ui->ledFloodXto, SimSet.BombSet.FloodSettings.XtoStr, SimSet.BombSet.FloodSettings.Xto, "X to", this);
 }
 void APhotSimWin::on_ledFloodYfrom_editingFinished()
 {
-    SimSet.BombSet.FloodSettings.Yfrom = ui->ledFloodYfrom->text().toDouble();
+    //SimSet.BombSet.FloodSettings.Yfrom = ui->ledFloodYfrom->text().toDouble();
+    processGeoConstAwareEditFinished(ui->ledFloodYfrom, SimSet.BombSet.FloodSettings.YfromStr, SimSet.BombSet.FloodSettings.Yfrom, "Y from", this);
 }
 void APhotSimWin::on_ledFloodYto_editingFinished()
 {
-    SimSet.BombSet.FloodSettings.Yto   = ui->ledFloodYto->text().toDouble();
+    //SimSet.BombSet.FloodSettings.Yto   = ui->ledFloodYto->text().toDouble();
+    processGeoConstAwareEditFinished(ui->ledFloodYto, SimSet.BombSet.FloodSettings.YtoStr, SimSet.BombSet.FloodSettings.Yto, "Y to", this);
 }
 void APhotSimWin::on_ledFloodCenterX_editingFinished()
 {
-    SimSet.BombSet.FloodSettings.X0 = ui->ledFloodCenterX->text().toDouble();
+    //SimSet.BombSet.FloodSettings.X0 = ui->ledFloodCenterX->text().toDouble();
+    processGeoConstAwareEditFinished(ui->ledFloodCenterX, SimSet.BombSet.FloodSettings.X0Str, SimSet.BombSet.FloodSettings.X0, "X center", this);
 }
 void APhotSimWin::on_ledFloodCenterY_editingFinished()
 {
-    SimSet.BombSet.FloodSettings.Y0 = ui->ledFloodCenterY->text().toDouble();
+    //SimSet.BombSet.FloodSettings.Y0 = ui->ledFloodCenterY->text().toDouble();
+    processGeoConstAwareEditFinished(ui->ledFloodCenterY, SimSet.BombSet.FloodSettings.Y0Str, SimSet.BombSet.FloodSettings.Y0, "Y center", this);
 }
 void APhotSimWin::on_ledFloodOuterDiameter_editingFinished()
 {
-    SimSet.BombSet.FloodSettings.OuterDiameter = ui->ledFloodOuterDiameter->text().toDouble();
+    //SimSet.BombSet.FloodSettings.OuterDiameter = ui->ledFloodOuterDiameter->text().toDouble();
+    processGeoConstAwareEditFinished(ui->ledFloodOuterDiameter, SimSet.BombSet.FloodSettings.OuterDiameterStr, SimSet.BombSet.FloodSettings.OuterDiameter, "Outer diameter", this);
 }
 void APhotSimWin::on_ledFloodInnerDiameter_editingFinished()
 {
-    SimSet.BombSet.FloodSettings.InnerDiameter = ui->ledFloodInnerDiameter->text().toDouble();
+    //SimSet.BombSet.FloodSettings.InnerDiameter = ui->ledFloodInnerDiameter->text().toDouble();
+    processGeoConstAwareEditFinished(ui->ledFloodInnerDiameter, SimSet.BombSet.FloodSettings.InnerDiameterStr, SimSet.BombSet.FloodSettings.InnerDiameter, "Inner diameter", this);
 }
 void APhotSimWin::on_cobFloodZmode_activated(int index)
 {
     SimSet.BombSet.FloodSettings.Zmode = (index == 0 ? AFloodSettings::Fixed : AFloodSettings::Range);
+    emit photonSourcesChanged();
 }
 void APhotSimWin::on_ledFloodZ_editingFinished()
 {
-    SimSet.BombSet.FloodSettings.Zfixed = ui->ledFloodZ->text().toDouble();
+    //SimSet.BombSet.FloodSettings.Zfixed = ui->ledFloodZ->text().toDouble();
+    processGeoConstAwareEditFinished(ui->ledFloodZ, SimSet.BombSet.FloodSettings.ZfixedStr, SimSet.BombSet.FloodSettings.Zfixed, "Z fixed", this);
 }
 void APhotSimWin::on_ledFloodZfrom_editingFinished()
 {
-    SimSet.BombSet.FloodSettings.Zfrom = ui->ledFloodZfrom->text().toDouble();
+    //SimSet.BombSet.FloodSettings.Zfrom = ui->ledFloodZfrom->text().toDouble();
+    processGeoConstAwareEditFinished(ui->ledFloodZfrom, SimSet.BombSet.FloodSettings.ZfromStr, SimSet.BombSet.FloodSettings.Zfrom, "Z from", this);
 }
 void APhotSimWin::on_ledFloodZto_editingFinished()
 {
-    SimSet.BombSet.FloodSettings.Zto = ui->ledFloodZto->text().toDouble();
+    //SimSet.BombSet.FloodSettings.Zto = ui->ledFloodZto->text().toDouble();
+    processGeoConstAwareEditFinished(ui->ledFloodZto, SimSet.BombSet.FloodSettings.ZtoStr, SimSet.BombSet.FloodSettings.Zto, "Z to", this);
 }
 
 void APhotSimWin::on_sbNumPhotons_editingFinished()
@@ -904,12 +1085,14 @@ void APhotSimWin::loadAndShowTracks(bool suppressMessage, int selectedEvent)
 
     TGeoManager * GeoManager = AGeometryHub::getInstance().GeoManager;
     GeoManager->ClearTracks();
+    emit requestShowGeometry(); // can clear tracks now
 
     bool bSkipNextEvent = false;
 
     bool bSuppressNotHittingSensors = ui->cbSuppressTracksMissing->isChecked();
     bool bEnforceMaxNumTracks = ui->cbTracksMaxInVis->isChecked();
     int maxTracks = ui->sbmaxTracksInVis->value();
+    const A3Global & GlobSet = A3Global::getConstInstance();
 
     int addedTracks = 0;
     QTextStream in(&file);
@@ -955,24 +1138,18 @@ void APhotSimWin::loadAndShowTracks(bool suppressMessage, int selectedEvent)
 
         TGeoTrack * track = new TGeoTrack(1, 22);
         addedTracks++;
-        int Color = 7;
-        if (bSec) Color = kMagenta;
-        if (bHit) Color = 2;
-        track->SetLineColor(Color);
-        //track->SetLineWidth(th->Width);
-        //track->SetLineStyle(th->Style);
+        GlobSet.CurrentTrackVisAttributes.applyToPhotonTrack(track, bSec, bHit);
 
         for (int iNode = 0; iNode < ar.size(); iNode++)
         {
             QJsonArray el = ar[iNode].toArray();
-            if (el.size() < 3) continue; // !!!***
+            if (el.size() < 3) continue;
             track->AddPoint(el[0].toDouble(), el[1].toDouble(), el[2].toDouble(), 0);
         }
         if (track->GetNpoints() > 1) GeoManager->AddTrack(track);
         else delete track;
     }
 
-    emit requestShowGeometry(); // !!!***
     emit requestShowTracks();
 }
 
@@ -1005,7 +1182,7 @@ void APhotSimWin::loadStatistics(bool suppressMessage)
     Stat.readFromJson(json);
 
     const int sum = Stat.Absorbed + Stat.InterfaceRuleLoss + Stat.HitSensor + Stat.Escaped + Stat.LossOnGrid + Stat.TracingSkipped +
-                    Stat.MaxTransitions + Stat.GeneratedOutside + Stat.MonitorKill;
+                    Stat.MaxTransitions + Stat.GeneratedOutside + Stat.MonitorKill + Stat.FunctionalKill;
 
     QString s;
     s = "Absorption (bulk): "      + QString::number(Stat.BulkAbsorption)       + "\n" +
@@ -1028,6 +1205,7 @@ void APhotSimWin::loadStatistics(bool suppressMessage)
         "InterfaceRule loss: "     + QString::number(Stat.InterfaceRuleLoss)    + "\n" +
         "Max transitions reached: "+ QString::number(Stat.MaxTransitions)       + "\n" +
         "Monitor kill: "           + QString::number(Stat.MonitorKill)          + "\n" +
+        "Functional model kill: "  + QString::number(Stat.FunctionalKill)       + "\n" +
         "Optical grid loss: "      + QString::number(Stat.LossOnGrid)           + "\n" +
         "Tracing skipped: "        + QString::number(Stat.TracingSkipped)       + "\n" +
         "---\n"
@@ -1368,14 +1546,6 @@ void APhotSimWin::on_leDepositionFile_editingFinished()
         updateDepoGui();
     }
 }
-void APhotSimWin::on_cbPrimaryScint_clicked(bool checked)
-{
-    SimSet.DepoSet.Primary = checked;
-}
-void APhotSimWin::on_cbSecondaryScint_clicked(bool checked)
-{
-    SimSet.DepoSet.Secondary = checked;
-}
 
 void APhotSimWin::on_pbAnalyzeDepositionFile_clicked()
 {
@@ -1486,48 +1656,58 @@ void APhotSimWin::on_pbdUpdateScanSettings_clicked()
 {
     AGridSettings & g = SimSet.BombSet.GridSettings;
 
-    g.X0 = ui->ledOriginX->text().toDouble();
-    g.Y0 = ui->ledOriginY->text().toDouble();
-    g.Z0 = ui->ledOriginZ->text().toDouble();
+        //g.X0 = ui->ledOriginX->text().toDouble();
+    processGeoConstAwareEditFinished(ui->ledOriginX, g.X0Str, g.X0, "X origin", this);
+        //g.Y0 = ui->ledOriginY->text().toDouble();
+    processGeoConstAwareEditFinished(ui->ledOriginY, g.Y0Str, g.Y0, "Y origin", this);
+        //g.Z0 = ui->ledOriginZ->text().toDouble();
+    processGeoConstAwareEditFinished(ui->ledOriginZ, g.Z0Str, g.Z0, "Z origin", this);
 
     g.ScanRecords[1].bEnabled = ui->cbSecondAxis->isChecked();
     g.ScanRecords[2].bEnabled = ui->cbThirdAxis->isChecked();
 
     for (int i = 0; i < 3; i++)
     {
-        QLineEdit *leDX, *leDY, *leDZ;
+        AOneLineTextEdit *leDX, *leDY, *leDZ;
         QSpinBox  *sbNodes;
         QComboBox *cobBiDir;
+        QString tmpStr;
         switch (i)
         {
-        case 0: leDX = ui->led0X; leDY = ui->led0Y; leDZ = ui->led0Z; sbNodes = ui->sb0nodes; cobBiDir = ui->cob0dir; break;
-        case 1: leDX = ui->led1X; leDY = ui->led1Y; leDZ = ui->led1Z; sbNodes = ui->sb1nodes; cobBiDir = ui->cob1dir; break;
-        case 2: leDX = ui->led2X; leDY = ui->led2Y; leDZ = ui->led2Z; sbNodes = ui->sb2nodes; cobBiDir = ui->cob2dir; break;
+        case 0: leDX = ui->led0X; leDY = ui->led0Y; leDZ = ui->led0Z; sbNodes = ui->sb0nodes; cobBiDir = ui->cob0dir; tmpStr = "1"; break;
+        case 1: leDX = ui->led1X; leDY = ui->led1Y; leDZ = ui->led1Z; sbNodes = ui->sb1nodes; cobBiDir = ui->cob1dir; tmpStr = "2"; break;
+        case 2: leDX = ui->led2X; leDY = ui->led2Y; leDZ = ui->led2Z; sbNodes = ui->sb2nodes; cobBiDir = ui->cob2dir; tmpStr = "3"; break;
         }
 
         APhScanRecord & r = g.ScanRecords[i];
 
-        r.DX        = leDX->text().toDouble();
-        r.DY        = leDY->text().toDouble();
-        r.DZ        = leDZ->text().toDouble();
-        r.Nodes     = sbNodes->value();
+            //r.DX = leDX->text().toDouble();
+        processGeoConstAwareEditFinished(leDX, r.DXStr, r.DX, QString("Step in X [%1]").arg(tmpStr), this);
+            //r.DY = leDY->text().toDouble();
+        processGeoConstAwareEditFinished(leDY, r.DYStr, r.DY, QString("Step in Y [%1]").arg(tmpStr), this);
+            //r.DZ = leDZ->text().toDouble();
+        processGeoConstAwareEditFinished(leDZ, r.DZStr, r.DZ, QString("Step in Z [%1]").arg(tmpStr), this);
+
+        r.Nodes = sbNodes->value();
         r.bBiDirect = (cobBiDir->currentIndex() == 1);
     }
+
+    emit photonSourcesChanged();
 }
 
-#include "abombadvanceddialog.h"
+#include "aphotgenoverridedialog.h"
 void APhotSimWin::on_pbAdvancedBombSettings_clicked()
 {
-    ABombAdvancedDialog dia(this);
+    APhotGenOverrideDialog dia(this);
     dia.exec();
     updateAdvancedBombIndicator();
 }
 
 void APhotSimWin::updateAdvancedBombIndicator()
 {
-    const APhotonAdvancedSettings & s = SimSet.BombSet.AdvancedSettings;
+    const APhGenOverrideSettings & s = SimSet.PhGenOverrideSet;
 
-    bool on = (s.DirectionMode != APhotonAdvancedSettings::Isotropic || s.bFixWave || s.bFixDecay || s.bOnlyVolume || s.bOnlyMaterial);
+    bool on = (s.DirectionMode != APhGenOverrideSettings::Isotropic || s.bFixWave || s.bFixDecay);
     ui->labAdvancedBombOn->setVisible(on);
 }
 
@@ -1621,6 +1801,7 @@ void APhotSimWin::on_cobNodeGenerationMode_currentIndexChanged(int index)
     //ui->cobNumPhotonsMode->setDisabled(bFromFile);
     //ui->swNumPhotons->setDisabled(bFromFile);
     ui->labPhotonsPerBombWarning->setVisible(bFromFile);
+    ui->frLimitBombPosition->setVisible(index != 0);
 }
 
 // ---
@@ -1730,9 +1911,9 @@ void APhotSimWin::doShowEvent()
 {
     switch (ui->tbwResults->currentIndex())
     {
-    case 2 : showSensorSignals(true);  break;
-    case 3 : showBombSingleEvent();   break;
-    case 4 : showTracksSingleEvent(); break;
+    case 2 : showSensorSignals(true);   break;
+    case 3 : showBombSingleEvent(true); break;
+    case 4 : showTracksSingleEvent();   break;
     default :;
     }
 }
@@ -1819,13 +2000,22 @@ void APhotSimWin::showSensorSignalTable(const std::vector<float> & signalArray, 
     const size_t numSensors = signalArray.size();
     const int numColumns = ui->sbSensorTableColumns->value();
 
+    int numRows = ceil(1.0 * numSensors / numColumns);
+    if (numRows < 1) numRows = 1;
+
+    const bool bSwap = ui->cbSensorTableSwap->isChecked();
+    const bool bHide = ui->cbSensorTableHideIndex->isChecked();
+
     double sum = 0;
     int currentRow = 0;
     int currentColumn = 0;
     for (int iSensorIndex : enabledSensors)
         if (iSensorIndex < numSensors)
         {
-            QString txt = QString("#%0: %1").arg(iSensorIndex).arg(signalArray[iSensorIndex]);
+            QString txt;
+            if (bHide) txt = QString("%0").arg(signalArray[iSensorIndex]);
+            else       txt = QString("#%0: %1").arg(iSensorIndex).arg(signalArray[iSensorIndex]);
+
             QTableWidgetItem * item = ui->twSensorTable->item(currentRow, currentColumn);
             if (!item)
             {
@@ -1833,12 +2023,26 @@ void APhotSimWin::showSensorSignalTable(const std::vector<float> & signalArray, 
                 ui->twSensorTable->setItem(currentRow, currentColumn, item);
             }
             item->setText(txt);
-            currentColumn++;
-            if (currentColumn >= numColumns)
+
+            if (!bSwap)
             {
-                currentColumn = 0;
-                currentRow++;
+                currentColumn++;
+                if (currentColumn >= numColumns)
+                {
+                    currentColumn = 0;
+                    currentRow++;
+                }
             }
+            else
+            {
+                currentRow++;
+                if (currentRow >= numRows)
+                {
+                    currentRow = 0;
+                    currentColumn++;
+                }
+            }
+
             sum += signalArray[iSensorIndex];
         }
 
@@ -1847,15 +2051,19 @@ void APhotSimWin::showSensorSignalTable(const std::vector<float> & signalArray, 
 
 // ------
 
-void APhotSimWin::showBombSingleEvent()
+void APhotSimWin::showBombSingleEvent(bool suppressMessages)
 {
     TGeoManager * GeoManager = AGeometryHub::getInstance().GeoManager;
     GeoManager->ClearTracks();
-
     emit requestClearGeoMarkers(0);
+    emit requestShowGeometry(true, true, true);
 
-    bool ok = updateBombHandler();
-    if (!ok) return;
+    QString err = updateBombHandler();
+    if (!err.isEmpty())
+    {
+        if (!suppressMessages) guitools::message(err, this);
+        return;
+    }
 
     int iEvent = ui->sbEvent->value();
     if (iEvent < 0)
@@ -1873,10 +2081,10 @@ void APhotSimWin::showBombSingleEvent()
     }
     */
 
-    ok = BombFileHandler->gotoEvent(iEvent);
+    bool ok = BombFileHandler->gotoEvent(iEvent);
     if (!ok)
     {
-        guitools::message("Cannot go to this event!", this);
+        if (!suppressMessages) guitools::message("Cannot go to this event!", this);
         return;
     }
 
@@ -1895,16 +2103,12 @@ void APhotSimWin::showTracksSingleEvent()
     loadAndShowTracks(false, iShowEvent);
 }
 
-bool APhotSimWin::updateBombHandler()
+QString APhotSimWin::updateBombHandler()
 {
     QString name = ui->leBombsFile->text();
     if (!name.contains('/')) name = ui->leResultsWorkingDir->text() + '/' + name;
 
-    if (name.isEmpty())
-    {
-        //guitools::message("File name is empty!", this);
-        return false;
-    }
+    if (name.isEmpty()) return "File name is empty!";
 
     if (BombFileSettings->FileName != name || !BombFileHandler->isInitialized())
     {
@@ -1913,14 +2117,10 @@ bool APhotSimWin::updateBombHandler()
         BombFileSettings->FileName = name;
         AErrorHub::clear();
         bool ok = BombFileHandler->init();
-        if (!ok)
-        {
-            //guitools::message(AErrorHub::getQError(), this);
-            return false;
-        }
+        if (!ok) return AErrorHub::getQError();
     }
 
-    return true;
+    return "";
 }
 
 void APhotSimWin::setGuiEnabled(bool flag)
@@ -1953,13 +2153,24 @@ void APhotSimWin::on_pbChooseSensorSigFile_clicked()
 
 void APhotSimWin::on_pbShowBombsMultiple_clicked()
 {
-    emit requestShowGeometry(true);
-//    emit requestShowTracks(); // !!!***
+    showBombsMultiple(true);
+}
 
-    emit requestClearGeoMarkers(0);
+void APhotSimWin::showBombsMultiple(bool showMessages)
+{
+    if (!showMessages)
+    {
+        // auto use, do not clear and redraw
+        emit requestClearGeoMarkers(0);
+        emit requestShowGeometry(true);
+    }
 
-    bool ok = updateBombHandler();
-    if (!ok) return;
+    QString err = updateBombHandler();
+    if (!err.isEmpty())
+    {
+        if (showMessages) guitools::message(err, this);
+        return;
+    }
 
     BombFileHandler->init();
 
@@ -1973,19 +2184,25 @@ void APhotSimWin::on_pbShowBombsMultiple_clicked()
     emit requestShowGeoMarkers();
 }
 
-void APhotSimWin::on_pbSingleSourceShow_clicked()
+void APhotSimWin::on_cobTracingMode_currentIndexChanged(int index)
 {
-    double pos[3];
-    pos[0] = ui->ledSingleX->text().toDouble();
-    pos[1] = ui->ledSingleY->text().toDouble();
-    pos[2] = ui->ledSingleZ->text().toDouble();
-    emit requestShowPosition(pos, false);
-}
+    if (index == 2)
+    {
+#ifdef USE_MERCURY
+        ui->frLRF->setVisible(true);
+#else
+        ui->labNoMercury->setVisible(true);
+#endif
+    }
+else
+    {
+        ui->frLRF->setVisible(false);
+        ui->labNoMercury->setVisible(false);
+    }
 
-void APhotSimWin::on_cbRndCheckBeforeTrack_toggled(bool checked)
-{
-    ui->labSkipTracingON->setVisible(checked);
-    ui->twGeneralOption->setTabIcon(1, (checked ? YellowCircle : QIcon()));
+    ui->labAdvancedModeEnabled->setVisible(index != 0);
+    ui->twSignals->setTabIcon(0, (index == 0 ? QIcon() : YellowCircle));
+
 }
 
 void APhotSimWin::on_sbEvent_editingFinished()
@@ -2063,10 +2280,10 @@ void APhotSimWin::showLogRecord()
 
     TGeoManager * GeoManager = AGeometryHub::getInstance().GeoManager;
     GeoManager->ClearTracks();
+    emit requestShowGeometry();
 
     LogHandler->populateTrack();
 
-    emit requestShowGeometry();
     emit requestShowTracks();
 }
 
@@ -2105,10 +2322,10 @@ void APhotSimWin::on_pbPhotonLog_ShowAll_clicked()
 
     TGeoManager * GeoManager = AGeometryHub::getInstance().GeoManager;
     GeoManager->ClearTracks();
+    emit requestShowGeometry();
 
     LogHandler->populateAllTracks(doFiltering, sets);
 
-    emit requestShowGeometry();
     emit requestShowTracks();
 }
 
@@ -2130,4 +2347,178 @@ void APhotSimWin::resetViewportOnNewData()
     bFreshDataLoaded = false;
     //gvSensors->resetViewport(); // viewport cannot be updated before the widget is visible
     QTimer::singleShot(0, gvSensors, [this](){gvSensors->resetViewport();});
+}
+
+
+void APhotSimWin::on_pbHelpAdvanced_clicked()
+{
+    QString str;
+    str += "In this mode first the maximum detection efficiency over all sensors is calculated. "
+           "Before tracing each photon, a random number is generated "
+           "and the max det.eff. is checked against it. If the generated number is larger, "
+           "there is no chance that the photon will be detected, so tracing is skipped.\n\n"
+           "WARNING: do NOT use this mode if you are interested in statistics of traced photons "
+           "as it will be distorted!";
+    guitools::message(str, this);
+}
+
+#ifdef USE_MERCURY
+void APhotSimWin::on_pbLoadLrModel_clicked()
+{
+    QString fileName = guitools::dialogLoadFile(this, "Load response model from file", "*");
+    if (fileName.isEmpty()) return;
+
+    QString txt;
+    bool ok = ftools::loadTextFromFile(txt, fileName);
+    if (!ok)
+    {
+        guitools::message("Failed to open file: " + fileName, this);
+        return;
+    }
+
+    ALightResponseHub & LRHub = ALightResponseHub::getInstance();
+    QString err = LRHub.makeModel(txt);
+    if (!err.isEmpty()) guitools::message("Failed to load the model:\n" + err);
+    updateGeneralSettingsGui();
+
+}
+void APhotSimWin::on_pbShowLrmExplorer_clicked()
+{
+    ALightResponseHub & LRHub = ALightResponseHub::getInstance();
+    if (!LRHub.Model)
+    {
+        guitools::message("Model is not defined!\nLoad a model or use 'response' scripting unit to define a new one", this);
+        return;
+    }
+
+    ALrfMouseExplorer * expl = new ALrfMouseExplorer(LRHub.Model, 0, this);
+    expl->Start();
+    expl->deleteLater();
+}
+void APhotSimWin::on_pbShowLrfPlotter_clicked()
+{
+    ALightResponseHub & LRHub = ALightResponseHub::getInstance();
+    if (!LRHub.Model)
+    {
+        guitools::message("Model is not defined!\nLoad a model or use 'response' scripting unit to define a new one", this);
+        return;
+    }
+
+    emit requestShowLrfPlotterDialog();
+}
+#endif
+
+void APhotSimWin::on_sbLRM_photonsPerNode_editingFinished()
+{
+    SimSet.OptSet.LRF_photonsPerNode = ui->sbLRM_photonsPerNode->value();
+}
+
+void APhotSimWin::on_ledLRF_photoElectrons_editingFinished()
+{
+    SimSet.OptSet.LRF_photoElectrons = ui->ledLRF_photoElectrons->text().toDouble();
+}
+
+void APhotSimWin::on_cobTracingMode_activated(int index)
+{
+    switch (index)
+    {
+    default: qWarning() << "Not implemented Tracing Mode, defaulting to 'Normal'";
+    case 0: SimSet.OptSet.TracingMode = APhotOptSettings::Normal;        break;
+    case 1: SimSet.OptSet.TracingMode = APhotOptSettings::CheckQeBefore; break;
+    case 2: SimSet.OptSet.TracingMode = APhotOptSettings::LRF;           break;
+    }
+}
+
+void APhotSimWin::on_cbSkipByMaterial_clicked(bool checked)
+{
+    APhotonBombAdvancedSettings & s = APhotonSimHub::getInstance().Settings.BombSet.AdvancedSettings;
+    s.bOnlyMaterial = checked;
+}
+
+void APhotSimWin::on_leSkipOutsideMaterial_editingFinished()
+{
+    APhotonBombAdvancedSettings & s = APhotonSimHub::getInstance().Settings.BombSet.AdvancedSettings;
+    s.Material = ui->leSkipOutsideMaterial->text();
+    emit photonSourcesChanged();
+}
+
+void APhotSimWin::on_cbSkipByVolume_clicked(bool checked)
+{
+    APhotonBombAdvancedSettings & s = APhotonSimHub::getInstance().Settings.BombSet.AdvancedSettings;
+    s.bOnlyVolume = checked;
+}
+
+void APhotSimWin::on_leSkipOutsideVolume_editingFinished()
+{
+    // !!!***
+    // check volume * mat exist
+
+    APhotonBombAdvancedSettings & s = APhotonSimHub::getInstance().Settings.BombSet.AdvancedSettings;
+    s.Volume = ui->leSkipOutsideVolume->text();
+    emit photonSourcesChanged();
+}
+
+void APhotSimWin::on_cobScintType_activated(int index)
+{
+    switch (index)
+    {
+    case 0: SimSet.PrimaryScint = true;  SimSet.SecondaryScint = false; break;
+    case 1: SimSet.PrimaryScint = false; SimSet.SecondaryScint = true;  break;
+    case 2: SimSet.PrimaryScint = true;  SimSet.SecondaryScint = true;  break;
+    }
+}
+
+void APhotSimWin::on_pbHelpScintType_clicked()
+{
+    QString txt = "Note that generation and drift of ionization electrons are not simulated in photon bomb mode!\n\n"
+                  "The configured number of photon is generated uniformly over the line crossing the first object with the SecondayScintillator role found in (0,0,1) direction from the node position.\n\n"
+                  "The emission time is computed based on the drift time (diffusion is ignored) and the secondary scintillation time properties of the scintillator material.\n\n"
+                  "In wavelength-resolved mode, the secondary scintillation emission spectrum of the scintillator is used.";
+    guitools::message(txt, this);
+}
+
+void APhotSimWin::on_cbWaveResolved_clicked(bool checked)
+{
+    SimSet.WaveSet.Enabled = checked;
+}
+
+void APhotSimWin::on_cobFloodZmode_currentIndexChanged(int index)
+{
+    ui->frZfixed->setVisible(index == 0);
+    ui->frZrange->setVisible(index == 1);
+}
+
+void APhotSimWin::on_cbSecondAxis_toggled(bool checked)
+{
+    ui->led1X->setEnabled(checked);
+    ui->led1Y->setEnabled(checked);
+    ui->led1Z->setEnabled(checked);
+    ui->sb1nodes->setEnabled(checked);
+    ui->cob1dir->setEnabled(checked);
+}
+
+void APhotSimWin::on_cbThirdAxis_toggled(bool checked)
+{
+    ui->led2X->setEnabled(checked);
+    ui->led2Y->setEnabled(checked);
+    ui->led2Z->setEnabled(checked);
+    ui->sb2nodes->setEnabled(checked);
+    ui->cob2dir->setEnabled(checked);
+}
+
+void APhotSimWin::on_cbSkipByMaterial_clicked()
+{
+    emit photonSourcesChanged();
+}
+
+void APhotSimWin::on_cbSkipByVolume_clicked()
+{
+    emit photonSourcesChanged();
+}
+
+#include "aphotontrackvisdialog.h"
+void APhotSimWin::on_pbConfigureTracks_clicked()
+{
+    APhotonTrackVisDialog dia(this);
+    dia.exec();
 }

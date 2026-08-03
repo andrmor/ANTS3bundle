@@ -2,6 +2,7 @@
 #include "ascriptobjstore.h"
 #include "arootobjcollection.h"
 #include "arootgraphrecord.h"
+#include "ascripthub.h"
 
 #include <QDebug>
 
@@ -569,7 +570,7 @@ void AGraph_SI::draw(QString graphName, QString options)
     else
     {
         TObject * copy = r->GetObject()->Clone(r->GetObject()->GetName());
-        emit requestDraw(copy, options, true);
+        emit AScriptHub::getInstance().requestDraw(copy, options, true);
         r->LastDrawOption = options;
     }
 }

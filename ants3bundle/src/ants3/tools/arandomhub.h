@@ -24,6 +24,8 @@ public:
     double exp(double tau);
     double gauss(double mean, double sigma);
     double poisson(double mean);
+    double binomial(double ntot, double prob);
+    double negativeBinomial(double ntot, double prob);
     double gamma(double a, double b);
 
 private:

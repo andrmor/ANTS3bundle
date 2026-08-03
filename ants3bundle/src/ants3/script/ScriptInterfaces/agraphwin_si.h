@@ -21,6 +21,7 @@ public:
 public slots:
     void addToBasket(QString title);
     void clearBasket();
+    void saveBasket(QString fileName);
 
     void setLog(bool Xaxis, bool Yaxis);
     void setStatPanelVisible(bool flag);
@@ -47,6 +48,7 @@ signals:
 
     void requestAddToBasket(QString title);
     void requestClearBasket();
+    void requestSaveBasket(QString fileName);
     void requestSetLog(bool Xaxis, bool Yaxis);
     void requestSetStatPanelVisible(bool flag);
     void requestAddLegend(double x1, double y1, double x2, double y2, QString title);

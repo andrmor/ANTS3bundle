@@ -18,6 +18,7 @@ class ASensorDrawWidget;
 class AFileHandlerBase;
 class APhotonLogHandler;
 class APhotonLogSettingsForm;
+class AOneLineTextEdit;
 
 class APhotSimWin : public AGuiWindow
 {
@@ -43,9 +44,6 @@ private slots:
 
     void on_pbdWave_clicked();
     void on_sbMaxNumbPhTransitions_editingFinished();
-    void on_cbRndCheckBeforeTrack_clicked();
-    void on_cbRndCheckBeforeTrack_toggled(bool checked);
-    void on_pbQEacceleratorHelp_clicked();
 
     void on_cobSimType_activated(int index);
     void on_cobNumPhotonsMode_activated(int index);
@@ -54,7 +52,6 @@ private slots:
     void on_ledSingleX_editingFinished();
     void on_ledSingleY_editingFinished();
     void on_ledSingleZ_editingFinished();
-    void on_pbSingleSourceShow_clicked();
 
     void on_sbFloodNumber_editingFinished();
     void on_cobFloodShape_activated(int index);
@@ -110,8 +107,6 @@ private slots:
     // deposition from file
     void on_pbChangeDepositionFile_clicked();
     void on_leDepositionFile_editingFinished();
-    void on_cbPrimaryScint_clicked(bool checked);
-    void on_cbSecondaryScint_clicked(bool checked);
     void on_pbAnalyzeDepositionFile_clicked();
     void on_pbCollectDepoFileStatistics_clicked();
     void on_pbAdvancedBombSettings_clicked();
@@ -150,6 +145,8 @@ private slots:
 
     void on_pbChooseSensorSigFile_clicked();
     void on_sbSensorTableColumns_editingFinished();
+    void on_cbSensorTableSwap_clicked();
+    void on_cbSensorTableHideIndex_clicked();
     void on_pbUpdateSensorIndication_clicked();
     void on_pbSensorStatIndividual_clicked();
     void on_pbSensorStatGroup_clicked();
@@ -166,6 +163,42 @@ private slots:
     void on_tbwResults_tabBarClicked(int index);
 
     void on_twSensors_tabBarClicked(int index);
+
+    void on_cobTracingMode_currentIndexChanged(int index);
+
+    void on_pbHelpAdvanced_clicked();
+
+    void on_sbLRM_photonsPerNode_editingFinished();
+    void on_ledLRF_photoElectrons_editingFinished();
+    void on_cobTracingMode_activated(int index);
+
+    void on_leSkipOutsideMaterial_editingFinished();
+    void on_cbSkipByVolume_clicked(bool checked);
+    void on_leSkipOutsideVolume_editingFinished();   // !!!*** checks!
+    void on_cbSkipByMaterial_clicked(bool checked);
+
+#ifdef USE_MERCURY
+    void on_pbLoadLrModel_clicked();
+    void on_pbShowLrmExplorer_clicked();
+    void on_pbShowLrfPlotter_clicked();
+#endif
+
+    void on_cobScintType_activated(int index);
+    void on_pbHelpScintType_clicked();
+
+    void on_cbWaveResolved_clicked(bool checked);
+
+    void on_cobFloodZmode_currentIndexChanged(int index);
+
+    void on_cbSecondAxis_toggled(bool checked);
+
+    void on_cbThirdAxis_toggled(bool checked);
+
+    void on_cbSkipByMaterial_clicked();
+
+    void on_cbSkipByVolume_clicked();
+
+    void on_pbConfigureTracks_clicked();
 
 private:
     APhotonSimSettings & SimSet;
@@ -214,8 +247,8 @@ private:
     void reshapeSensorSignalTable();
     void loadAllSensorSignals();
 
-    void showBombSingleEvent();
-    bool updateBombHandler();
+    void showBombSingleEvent(bool suppressMessages);
+    QString updateBombHandler();
 
     void loadStatistics(bool suppressMessage);
     void loadMonitorsData(bool suppressMessage);
@@ -226,6 +259,10 @@ private:
     void showLogRecord();
     void resetViewportOnNewData();
 
+    void showBombsMultiple(bool showMessages);
+
+    void processGeoConstAwareEditFinished(AOneLineTextEdit * edit, QString & str, double & val, const QString & name, QWidget * parent);
+
 signals:
     void requestShowGeometry(bool ActivateWindow = true, bool SAME = true, bool ColorUpdateAllowed = true);
     void requestShowTracks(bool activateWindow = false);
@@ -234,8 +271,11 @@ signals:
     void requestClearGeoMarkers(int All_Rec_True);
     void requestAddPhotonNodeGeoMarker(const ANodeRecord & record);
     void requestShowGeoMarkers();
-    void requestShowPosition(double * pos, bool keepTracks);
+    void requestShowPosition(const double * pos, bool keepTracks);
     void requestConfigureExchangeDir();
+    void requestShowLrfPlotterDialog();
+
+    void photonSourcesChanged();
 };
 
 #endif // APHOTSIMWIN_H

@@ -511,7 +511,7 @@ void AMatWin::updateTmpMaterialGui()
     ui->ledEDiffT->setText( QString::number(tmpMaterial.ElDiffusionT) );
 
     ui->ledPrimaryYield->setText(QString::number(tmpMaterial.PhotonYield));
-    ui->ledIntEnergyRes->setText(QString::number(tmpMaterial.IntrEnergyRes));
+    ui->ledIntEnergyRes->setText(QString::number(tmpMaterial.FanoS1));
 
     ui->pteComments->clear();
     ui->pteComments->appendPlainText(tmpMaterial.Comments);
@@ -602,7 +602,7 @@ void AMatWin::on_pbUpdateTmpMaterial_clicked()
     tmpMaterial.RefIndexComplex = { ui->ledReN->text().toDouble(), ui->ledImN->text().toDouble() };
 
     tmpMaterial.PhotonYield = ui->ledPrimaryYield->text().toDouble();
-    tmpMaterial.IntrEnergyRes = ui->ledIntEnergyRes->text().toDouble();
+    tmpMaterial.FanoS1 = ui->ledIntEnergyRes->text().toDouble();
 
     tmpMaterial.W = ui->ledW->text().toDouble()*0.001; //eV -> keV
     tmpMaterial.SecScintPhotonYield = ui->ledSecYield->text().toDouble();
@@ -635,7 +635,7 @@ void AMatWin::on_ledIntEnergyRes_editingFinished()
         return;
     }
 
-    tmpMaterial.IntrEnergyRes = newVal;
+    tmpMaterial.FanoS1 = newVal;
     setWasModified(true);
 }
 
@@ -771,7 +771,7 @@ void AMatWin::on_pbShowNlambda_clicked()
 void AMatWin::on_pbShowNlambda_customContextMenuRequested(const QPoint &)
 {
     const AWaveResSettings & WaveSet = APhotonSimHub::getInstance().Settings.WaveSet;
-    WaveSet.toStandardBins(tmpMaterial.RefIndex_Wave, tmpMaterial._RefIndex_WaveBinned);
+    WaveSet.toStandardBins(tmpMaterial.RefIndex_Wave, tmpMaterial._RefIndex_WaveBinned, AWaveResSettings::ExpandWithLastValues);
     std::vector<double> indexes = WaveSet.getVectorOfIndexes();
     TGraph * g = AGraphBuilder::graph(indexes, tmpMaterial._RefIndex_WaveBinned);
     AGraphBuilder::configure(g, "Refractive index",

@@ -62,6 +62,12 @@ int ASensorHub::addNewModel()
     return Models.size()-1;
 }
 
+int ASensorHub::addModel(const ASensorModel & model)
+{
+    Models.push_back(model);
+    return Models.size()-1;
+}
+
 int ASensorHub::cloneModel(int iModel)
 {
     if (iModel < 0 || iModel >= (int)Models.size()) return -1;
@@ -132,18 +138,31 @@ AGeoObject * ASensorHub::getGeoObject(int iSensor) const
 
 QString ASensorHub::updateRuntimeProperties()
 {
-    for (ASensorModel & model : Models)
-    {
-        QString err = model.updateRuntimeProperties();
-        if (!err.isEmpty()) return err;
-    }
-
     for (ASensorData & sd : SensorData)
     {
         const int & index = sd.ModelIndex;
         if (index < 0 || index >= (int)Models.size())
             return QString("Light sensor is assigned an invalid model index (%0)").arg(index);
     }
+
+    for (int iMod = 0; iMod < Models.size(); iMod++)
+    {
+        ASensorModel & model = Models[iMod];
+
+        std::vector<int> seenSensorMats;
+        for (ASensorData & sd : SensorData)
+        {
+            if (sd.ModelIndex != iMod) continue;
+            int iMat = sd.GeoObj->Material;
+            if (std::find(seenSensorMats.begin(), seenSensorMats.end(), iMat) == seenSensorMats.end()) seenSensorMats.push_back(iMat);
+        }
+
+        QString err = model.updateRuntimeProperties(seenSensorMats);
+        if (!err.isEmpty()) return err;
+    }
+
+    if (UseSensorGains)
+        if (SensorGains.size() != SensorData.size()) return "Sensor gain vector has invalid size";
 
     return "";
 }
@@ -157,6 +176,7 @@ void ASensorHub::exitPersistentMode()
 void ASensorHub::writeToJson(QJsonObject & json) const
 {
     QJsonObject mainJs;
+
         QJsonArray ar;
         for (const ASensorModel & m : Models)
         {
@@ -171,6 +191,18 @@ void ASensorHub::writeToJson(QJsonObject & json) const
             for (const ASensorData & sd : SensorData)
                 arMA << sd.ModelIndex;
         mainJs["ModelAssignment"] = arMA;
+
+        // Gains
+        {
+            QJsonObject js;
+                js["Enabled"] = UseSensorGains;
+                QJsonArray ar;
+                    for (double gain : SensorGains)
+                    ar.push_back(gain);
+                js["Gains"] = ar;
+            mainJs["SensorGains"] = js;
+        }
+
     json["Sensors"] = mainJs;
 }
 
@@ -224,17 +256,38 @@ QString ASensorHub::readFromJson(const QJsonObject & json)
         if (bFoundInvalidModelIndex) return "Bad model index(es) in loaded ModelAssignment";
     }
 
+    // Gains
+    {
+        QJsonObject js;
+        ok = jstools::parseJson(mainJs, "SensorGains", js);
+        if (ok)
+        {
+            jstools::parseJson(js, "Enabled", UseSensorGains);
+            QJsonArray ar;
+            jstools::parseJson(js, "Gains", ar);
+            SensorGains.resize(ar.size());
+            for (size_t i = 0; i < ar.size(); i++)
+                SensorGains[i] = ar[i].toDouble();
+        }
+        else UseSensorGains = false; // compatibility
+    }
+
     return "";
 }
 
 void ASensorHub::clear()
 {
-    LoadedModelAssignment.clear();
-    clearSensors();
-
     Models.clear();
     Models.resize(1);
     Models.front().Name = "Ideal";
+
+    UseSensorGains = false;
+    SensorGains.clear();
+
+    PersistentModelAssignment = false;
+    LoadedModelAssignment.clear();
+
+    clearSensors();
 }
 
 double ASensorHub::getMaxQE(bool bWaveRes) const
@@ -249,6 +302,12 @@ double ASensorHub::getMaxQE(bool bWaveRes) const
     }
     //qDebug() << "----- Max QE:" << maxQE;
     return maxQE;
+}
+
+const ASensorData *ASensorHub::getSensorData(int iSensor) const
+{
+    if (iSensor > -1 && iSensor < SensorData.size()) return &(SensorData[iSensor]);
+    return nullptr;
 }
 
 ASensorHub::ASensorHub()

@@ -6,6 +6,7 @@
 #include <QVariantList>
 #include <QString>
 
+class AScriptHub;
 class AGeometryWindow;
 class AGeoMarkerClass;
 class TGeoTrack;
@@ -40,21 +41,9 @@ public slots:
     void updateView(); // !!!*** case of JSROOT
     */
 
-private slots:
-    void onWindowReportTaskCompleted();
-
 private:
+    AScriptHub      & ScrHub;
     AGeometryWindow * GeometryWindow = nullptr;
-    bool WaitingForTaskCompleted = false;
-
-signals:
-    void requestRedraw();
-    void requestShowTracks();
-    void requestClearTracks();
-    void requestClearMarkers();
-    void requestSaveImage(QString fileName);
-    void requestAddMarkers(AGeoMarkerClass * markers);
-    void requestAddTrack(TGeoTrack * track);
 
 };
 

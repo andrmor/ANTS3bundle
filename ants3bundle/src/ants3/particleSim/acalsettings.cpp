@@ -432,6 +432,9 @@ void ACalSettings::clear()
     Enabled         = false;
     FileName = "Calorimeters.json";
 
+    SaveEnergyDepositionLog = false;
+    LogFileName = "CalorimeterLog.dat";
+
     Calorimeters.clear();
     DelegatingCalorimeters.clear();
 }

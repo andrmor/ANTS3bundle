@@ -32,6 +32,13 @@
 #include "aparticleanalyzerhub.h"
 #include "aphotonfunctionalhub.h"
 
+#ifdef USE_MERCURY
+#include "alrfmouseexplorer.h"
+#include "alrfplotter.h"
+#include "alrfplotterdialog.h"
+#include "alightresponsehub.h"
+#endif
+
 #include <QDebug>
 #include <QTimer>
 #include <QFile>
@@ -43,6 +50,7 @@ AMainWindow::AMainWindow() :
     GlobSet(A3Global::getInstance()),
     ui(new Ui::AMainWindow)
 {
+    qDebug() << "Constructing MainWindow";
     ui->setupUi(this);
 
   // Main signal->slot lines
@@ -50,27 +58,33 @@ AMainWindow::AMainWindow() :
     connect(&Config, &AConfig::requestSaveGuiSettings, this, &AMainWindow::onRequestSaveGuiSettings);
 
   // Create and configure windows
+    qDebug() << "Creating Design window";
     GeoTreeWin = new AGeoTreeWin(this);
     connect(GeoTreeWin, &AGeoTreeWin::requestRebuildGeometry, this,   &AMainWindow::onRebuildGeometryRequested);
 
+    qDebug() << "Creating Geometry window";
     GeoWin = new AGeometryWindow(false, this);
     AScriptHub::getInstance().addCommonInterface(new AGeoWin_SI(GeoWin), "geowin");
     // WARNING! signal / slots for GeoWin have to be connected in the connectSignalSlotsForGeoWin() method below
     // the reason is that the window has to be re-created if viewer is changed to JSROOT
 
+    qDebug() << "Creating Graph window";
     GraphWin = new AGraphWindow(this);
     //GraphWindowClass::connectScriptUnitDrawRequests is used to connect draw requests
     connect(GeoTreeWin, &AGeoTreeWin::requestDraw, GraphWin, &AGraphWindow::onDrawRequest);
 
+    qDebug() << "Creating Material window";
     MatWin = new AMatWin(this);
     MatWin->initWindow();
     connect(MatWin, &AMatWin::requestRebuildDetector, this,     &AMainWindow::onRebuildGeometryRequested);
     connect(MatWin, &AMatWin::requestDraw,            GraphWin, &AGraphWindow::onDrawRequest);
 
+    qDebug() << "Creating Interface rule window";
     RuleWin = new AInterfaceRuleWin(this);
     connect(RuleWin, &AInterfaceRuleWin::requestDraw,       GraphWin, &AGraphWindow::onDrawRequest);
     connect(RuleWin, &AInterfaceRuleWin::requestDrawLegend, GraphWin, &AGraphWindow::drawLegend);
 
+    qDebug() << "Creating Sensor window";
     SensWin = new ASensorWindow(this);
     connect(SensWin, &ASensorWindow::requestDraw, GraphWin, &AGraphWindow::onDrawRequest);
 
@@ -90,7 +104,7 @@ AMainWindow::AMainWindow() :
     AScriptHub * ScriptHub = &AScriptHub::getInstance();
     GuiFromScrWin = new AGuiFromScrWin(this);
     ScriptHub->addGuiScriptUnit(GuiFromScrWin);
-    //qDebug() << "Creating JScript window";
+    qDebug() << "Creating JScript window";
     JScriptWin = new AScriptWindow(EScriptLanguage::JavaScript, this);
     JScriptWin->registerInterfaces();
     connect(ScriptHub,  &AScriptHub::clearOutput_JS,        JScriptWin, &AScriptWindow::clearOutput, Qt::QueuedConnection);
@@ -100,10 +114,11 @@ AMainWindow::AMainWindow() :
     connect(ScriptHub,  &AScriptHub::reportProgress_JS,     JScriptWin, &AScriptWindow::onProgressChanged, Qt::QueuedConnection);
     connect(JScriptWin, &AScriptWindow::requestUpdateGui,   this,       &AMainWindow::updateAllGuiFromConfig);
     connect(GeoTreeWin, &AGeoTreeWin::requestAddJavaScript, JScriptWin, &AScriptWindow::onRequestAddScript);
+    qDebug() << "Loading script tabs...";
     JScriptWin->updateGui();
 
 #ifdef ANTS3_PYTHON
-    //qDebug() << "Creating Python window";
+    qDebug() << "Creating Python window";
     PythonWin = new AScriptWindow(EScriptLanguage::Python, this);
     PythonWin->registerInterfaces();
     connect(ScriptHub,  &AScriptHub::clearOutput_P,           PythonWin, &AScriptWindow::clearOutput);
@@ -113,6 +128,7 @@ AMainWindow::AMainWindow() :
     connect(ScriptHub,  &AScriptHub::reportProgress_P,        PythonWin, &AScriptWindow::onProgressChanged);
     connect(PythonWin,  &AScriptWindow::requestUpdateGui,     this,      &AMainWindow::updateAllGuiFromConfig);
     connect(GeoTreeWin, &AGeoTreeWin::requestAddPythonScript, PythonWin, &AScriptWindow::onRequestAddScript);
+    qDebug() << "Loading script tabs...";
     PythonWin->updateGui();
 #endif
 
@@ -124,9 +140,20 @@ AMainWindow::AMainWindow() :
 
     connect(&AScriptHub::getInstance(), &AScriptHub::requestUpdateGui, this, &AMainWindow::updateAllGuiFromConfig);
 
+#ifdef USE_MERCURY
+    connect(ScriptHub,  &AScriptHub::requestShowLightResponseExplorer, this, &AMainWindow::showLightResponseExplorer, Qt::QueuedConnection);
+    connect(ScriptHub,  &AScriptHub::requestShowPlotterDialog,         this, &AMainWindow::showLrfPlotterDialog,      Qt::QueuedConnection);
+    connect(PhotSimWin, &APhotSimWin::requestShowLrfPlotterDialog,     this, &AMainWindow::showLrfPlotterDialog,      Qt::DirectConnection);
+    connect(ScriptHub,  &AScriptHub::requestShowEventExplorer,         this, &AMainWindow::showEventExplorer,         Qt::QueuedConnection);
+    ALightResponseHub & LRHub = ALightResponseHub::getInstance();
+    connect(LRHub.LrfPlotter, &ALrfPlotter::requestDraw, GraphWin, &AGraphWindow::onDrawRequest, Qt::DirectConnection); // both live in GUI thread
+    LrfPlotterDialog = new ALrfPlotterDialog(this);
+#endif
+
     // called where all windows connecting to GeoWin are already defined
     connectSignalSlotsForGeoWin();
 
+    qDebug() << "Loading geometries of the windows";
     loadWindowGeometries();
 
     bool bShown = GeoWin->isVisible();
@@ -149,7 +176,7 @@ AMainWindow::AMainWindow() :
     ui->menuFile->setToolTipsVisible(true);
     ui->menuFile->setToolTipDuration(1000);
 
-    Config.replaceEmptyOutputDirsWithTemporary();
+    Config.replaceEmptyInputOutputDirsWithTemporary();
 
   // Finalizing
     Config.createUndo();
@@ -157,6 +184,8 @@ AMainWindow::AMainWindow() :
     ScriptHub->finalizeInit();
 
     if (!bShown) GeoWin->hide(); // has to be last, if before updateAllGuiFromConfig() and window is hidden --> dark on open
+
+    qDebug() << "GUI inits completed";
 }
 
 AMainWindow::~AMainWindow()
@@ -169,6 +198,47 @@ void AMainWindow::rootTimerTimeout()
 {
     gSystem->ProcessEvents();
 }
+
+#ifdef USE_MERCURY
+#include "alrfmouseexplorer.h"
+#include "alrfplotterdialog.h"
+void AMainWindow::showLightResponseExplorer(LRModel * model)
+{
+    ALrfMouseExplorer * expl = new ALrfMouseExplorer(model, 0, this);
+    expl->Start();
+    expl->deleteLater();
+}
+void AMainWindow::showLrfPlotterDialog()
+{
+    ALrfPlotter * plotter = ALightResponseHub::getInstance().LrfPlotter;
+
+    LrfPlotterDialog->setPlotter(plotter);
+    LrfPlotterDialog->show();
+    LrfPlotterDialog->activateWindow();
+    QApplication::processEvents();
+    LrfPlotterDialog->start();
+    LrfPlotterDialog->setFocus();
+}
+
+#include "amercuryeventexplorer.h"
+void AMainWindow::showEventExplorer(Reconstructor * rec, std::vector<std::vector<double>> * events, std::vector<std::array<double, 3>> * truePositions)
+{
+    if (!MercuryEventExplorer)
+    {
+        MercuryEventExplorer = new AMercuryEventExplorer();
+        connect(MercuryEventExplorer, &AMercuryEventExplorer::requestDraw, GraphWin, &AGraphWindow::onDrawRequest);
+    }
+
+    QString err = MercuryEventExplorer->start(rec, events, truePositions); // events will be owned; !!!*** todo: make a local copy of rec !!!
+    if (!err.isEmpty())
+    {
+        qWarning() << err;
+        return;
+    }
+
+    MercuryEventExplorer->show();
+}
+#endif
 
 void AMainWindow::updateGui()
 {
@@ -189,10 +259,12 @@ void AMainWindow::onRebuildGeometryRequested()
     MatWin->updateGui();
     RuleWin->updateGui();
     PartSimWin->onMaterialsChanged();
-    SensWin->onMaterialsChanged();
+    SensWin->updateGui();
     emit GeoTreeWin->requestClearGeoMarkers(0);
     if (GeoWin->isVisible()) GeoWin->ShowGeometry(false);
     PhotFunWin->updateGui();
+
+    PhotSimWin->updateGui();
 }
 
 void AMainWindow::on_pbGeometry_clicked()
@@ -517,9 +589,12 @@ void AMainWindow::connectSignalSlotsForGeoWin()
     connect(PhotSimWin, &APhotSimWin::requestAddPhotonNodeGeoMarker,    GeoWin, &AGeometryWindow::addPhotonNodeGeoMarker);
     connect(PhotSimWin, &APhotSimWin::requestShowGeoMarkers,            GeoWin, &AGeometryWindow::showGeoMarkers);
     connect(PhotSimWin, &APhotSimWin::requestShowPosition,              GeoWin, &AGeometryWindow::ShowPoint);
+    connect(PhotSimWin, &APhotSimWin::photonSourcesChanged,             GeoWin, &AGeometryWindow::onPhotonSourcesChanged); // !!! new
 
     connect(PartSimWin, &AParticleSimWin::requestShowGeometry,          GeoWin, &AGeometryWindow::ShowGeometry);
     connect(PartSimWin, &AParticleSimWin::requestShowTracks,            GeoWin, &AGeometryWindow::ShowTracks);
+    connect(PartSimWin, &AParticleSimWin::requestShowMarkers,           GeoWin, &AGeometryWindow::showGeoMarkers);
+    connect(PartSimWin, &AParticleSimWin::particleSourcesChanged,       GeoWin, &AGeometryWindow::onParticleSourcesChanged); // !!! new
     connect(PartSimWin, &AParticleSimWin::requestShowPosition,          GeoWin, &AGeometryWindow::ShowPoint);
     connect(PartSimWin, &AParticleSimWin::requestAddMarker,             GeoWin, &AGeometryWindow::addGenerationMarker);
     connect(PartSimWin, &AParticleSimWin::requestClearMarkers,          GeoWin, &AGeometryWindow::clearGeoMarkers);
@@ -527,6 +602,17 @@ void AMainWindow::connectSignalSlotsForGeoWin()
 
     connect(PhotFunWin, &APhotFunctWindow::requestShowConnection,     GeoWin, &AGeometryWindow::onRequestShowConnection);
     connect(PhotFunWin, &APhotFunctWindow::requestShowAllConnections, GeoWin, &AGeometryWindow::onRequestShowAllConnections);
+
+    // from script
+    AScriptHub * ScrHub = &AScriptHub::getInstance();
+    connect(ScrHub, &AScriptHub::requestRedraw,       GeoWin, &AGeometryWindow::onRequestRedrawFromScript,       Qt::QueuedConnection);
+    connect(ScrHub, &AScriptHub::requestShowTracks,   GeoWin, &AGeometryWindow::onRequestShowTracksFromScript,   Qt::QueuedConnection);
+    connect(ScrHub, &AScriptHub::requestClearTracks,  GeoWin, &AGeometryWindow::onRequestClearTracksFromScript,  Qt::QueuedConnection);
+    connect(ScrHub, &AScriptHub::requestClearMarkers, GeoWin, &AGeometryWindow::onRequestClearMarkersFromScript, Qt::QueuedConnection);
+    connect(ScrHub, &AScriptHub::requestAddMarkers,   GeoWin, &AGeometryWindow::onRequestAddMarkersFromScript,   Qt::QueuedConnection);
+    connect(ScrHub, &AScriptHub::requestAddTrack,     GeoWin, &AGeometryWindow::onRequestAddTrackFromScript,     Qt::QueuedConnection);
+    // and back
+    connect(GeoWin, &AGeometryWindow::taskRequestedFromScriptCompleted, ScrHub, &AScriptHub::onGuiReportTaskCompleted, Qt::DirectConnection);
 }
 
 void AMainWindow::on_leConfigName_editingFinished()
@@ -565,6 +651,11 @@ void AMainWindow::closeEvent(QCloseEvent *)
 {
     qDebug() << "\n<MainWindow shutdown initiated";
     clearFocus();
+
+#ifdef USE_MERCURY
+    delete LrfPlotterDialog; LrfPlotterDialog = nullptr;
+    delete MercuryEventExplorer; MercuryEventExplorer = nullptr;
+#endif
 
     qDebug() << "<Saving position/status of all windows";
     saveWindowGeometries();
@@ -657,7 +748,7 @@ void AMainWindow::on_pbNew_clicked()
 
     Config.ConfigName = "";
     Config.ConfigDescription = "";
-    Config.replaceEmptyOutputDirsWithTemporary();
+    Config.replaceEmptyInputOutputDirsWithTemporary();
     Config.updateJSONfromConfig();
 
     Config.clearUndo();

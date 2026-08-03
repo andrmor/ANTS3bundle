@@ -101,7 +101,11 @@ void A3Global::saveConfig()
     json["SW_Italic"]      = SW_Italic;
     json["TabInSpaces"]    = TabInSpaces;
 
-    json["TrackVisAttributes"] = TrackVisAttributes;
+    {
+        QJsonObject js;
+        DefaultTrackVisAttributes.writeToJson(js);
+        json["DefaultTrackAttributes"] = js;
+    }
 
     json["NewGeoObjectAddedLast"] = NewGeoObjectAddedLast;
     json["UndoMaxDepth"] = UndoMaxDepth;
@@ -128,6 +132,13 @@ void A3Global::saveConfig()
         QJsonObject js;
             AFarmHub::getConstInstance().writeToJson(js);
         json["Workload"] = js;
+    }
+
+    // Geo markers
+    {
+        QJsonObject js;
+            GeoMarkersDefaults.writeToJson(js);
+        json["GeoMarkersDefaults"] = js;
     }
 
     QJsonObject mainjson;
@@ -179,7 +190,11 @@ void A3Global::loadConfig()
     jstools::parseJson(json, "SW_Italic", SW_Italic);
     jstools::parseJson(json, "TabInSpaces", TabInSpaces);
 
-    jstools::parseJson(json, "TrackVisAttributes", TrackVisAttributes);
+    {
+        QJsonObject js;
+        ok = jstools::parseJson(json, "DefaultTrackAttributes", js);
+        if (ok) DefaultTrackVisAttributes.readFromJson(js);
+    }
 
     jstools::parseJson(json, "NewGeoObjectAddedLast", NewGeoObjectAddedLast);
     jstools::parseJson(json, "UndoMaxDepth", UndoMaxDepth);
@@ -209,6 +224,14 @@ void A3Global::loadConfig()
         QJsonObject js;
             jstools::parseJson(json, "Workload", js);
         AFarmHub::getInstance().readFromJson(js);
+    }
+
+    // Geo markers
+    GeoMarkersDefaults.fillDefault();
+    {
+        QJsonObject js;
+        bool ok = jstools::parseJson(json, "GeoMarkersDefaults", js);
+        if (ok) GeoMarkersDefaults.readFromJson(js);
     }
 }
 

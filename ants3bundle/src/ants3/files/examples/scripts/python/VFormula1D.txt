@@ -1,0 +1,15 @@
+formula = "a*exp(-0.5*(r/sigma)^2)"
+
+Math.configureVFormula(formula, ["r"], ["a", "sigma"])
+Math.setVFormulaConstants([500, 40])
+
+graph.new1D("g")
+for i in range(0, 100):
+    r = i*3.0 
+    lrf = Math.evaluateVFormula([r])
+    graph.addPoint("g", r, lrf)
+
+graph.setAxisTitles("g", "r, mm", "LRF")
+graph.draw("g", "APL")
+
+

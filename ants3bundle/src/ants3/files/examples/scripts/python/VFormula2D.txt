@@ -1,0 +1,19 @@
+formula = "a*exp(-0.5*((x-x0)/sigma)^2 - 0.5*((y-y0)/sigma)^2)"
+
+Math.configureVFormula(formula, ["x", "y"], ["a", "sigma", "x0", "y0"])
+Math.setVFormulaConstants([500, 40, 100, -50])
+
+numBins = 100
+Range = 300.0
+hist.new2D("h", numBins, -Range, Range, numBins, -Range, Range)
+
+for ix in range(0, numBins):
+    x = -Range + ix * 2 * Range / numBins + 0.1
+    for iy in range(0, numBins):
+        y = -Range + iy * 2 * Range / numBins + 0.1
+        lrf = Math.evaluateVFormula([x, y])
+        hist.fill("h", x, y, lrf)
+
+hist.setMinimum("h", 0)
+hist.setAxisTitles("h", "X, mm", "Y, mm", "LRF")
+hist.draw("h", "colz")

@@ -128,7 +128,7 @@ void AGeoBaseDelegate::configureHighligherAndCompleter(AOneLineTextEdit * edit, 
     QObject::connect(edit->Completer, SIGNAL(activated(QString)), edit, SLOT(insertCompletion(QString)));
 }
 
-bool AGeoBaseDelegate::processEditBox(const QString & whatIsIt, AOneLineTextEdit *lineEdit, double &val, QString &str, QWidget *parent)
+bool AGeoBaseDelegate::processEditBox(const QString & whatIsIt, AOneLineTextEdit *lineEdit, double &val, QString &str, QWidget *parent, bool bForbidZero, bool bForbidNegative, bool bMakeHalf)
 {
     str = lineEdit->text();
     if (str.isEmpty())
@@ -139,7 +139,7 @@ bool AGeoBaseDelegate::processEditBox(const QString & whatIsIt, AOneLineTextEdit
 
     const AGeoConsts & GC = AGeoConsts::getConstInstance();
     QString errorStr;
-    bool ok = GC.updateDoubleParameter(errorStr, str, val, false, false, false);
+    bool ok = GC.updateDoubleParameter(errorStr, str, val, bForbidZero, bForbidNegative, bMakeHalf);
     if (ok) return true;
     QMessageBox::warning(parent, "", errorStr + " in " + whatIsIt);
     return false;

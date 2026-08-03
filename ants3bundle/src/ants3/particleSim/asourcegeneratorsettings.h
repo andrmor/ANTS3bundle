@@ -36,7 +36,15 @@ public:
 #else
     void        writeToJson(QJsonObject & json) const;
     bool        readFromJson(const QJsonObject & json); // Error handling !!!***
+
+    void        updateGeoConstRelatedSimProperties();
+    QString     isGeoConstInUse(const QRegularExpression & nameRegExp) const;
+    void        replaceGeoConstName(const QRegularExpression & nameRegExp, const QString & newName);
 #endif
+
+    // only GUI - used to draw source during editing its settings
+    int IndexSourceEdit = -1;
+    AParticleSourceRecordBase * SourceEdit = nullptr;
 
 };
 

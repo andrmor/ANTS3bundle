@@ -12,7 +12,7 @@
 #include "TGeoTrack.h"
 
 AGeoWin_SI::AGeoWin_SI(AGeometryWindow * geoWin) :
-    AWindowInterfaceBase(geoWin), GeometryWindow(geoWin)
+    AWindowInterfaceBase(geoWin), ScrHub(AScriptHub::getInstance()), GeometryWindow(geoWin)
 {
     Description = "Access to the window showing detector's geometry";
 
@@ -28,15 +28,6 @@ AGeoWin_SI::AGeoWin_SI(AGeometryWindow * geoWin) :
                        "XYZs argument is an array of arrays with the track node coordinats [x,y,z],\n"
                        "color, size and width are the properties of the TAttLine class of CERN ROOT (google TAttLine)";;
 
-
-    connect(this, &AGeoWin_SI::requestRedraw,       geoWin, &AGeometryWindow::onRequestRedrawFromScript,       Qt::QueuedConnection);
-    connect(this, &AGeoWin_SI::requestShowTracks,   geoWin, &AGeometryWindow::onRequestShowTracksFromScript,   Qt::QueuedConnection);
-    connect(this, &AGeoWin_SI::requestClearTracks,  geoWin, &AGeometryWindow::onRequestClearTracksFromScript,  Qt::QueuedConnection);
-    connect(this, &AGeoWin_SI::requestClearMarkers, geoWin, &AGeometryWindow::onRequestClearMarkersFromScript, Qt::QueuedConnection);
-    connect(this, &AGeoWin_SI::requestAddMarkers,   geoWin, &AGeometryWindow::onRequestAddMarkersFromScript,   Qt::QueuedConnection);
-    connect(this, &AGeoWin_SI::requestAddTrack,     geoWin, &AGeometryWindow::onRequestAddTrackFromScript,     Qt::QueuedConnection);
-
-    connect(geoWin, &AGeometryWindow::taskRequestedFromScriptCompleted, this, &AGeoWin_SI::onWindowReportTaskCompleted, Qt::DirectConnection);
 }
 
 void AGeoWin_SI::updateGeoWin(AGeometryWindow * newGeoWin)
@@ -45,80 +36,50 @@ void AGeoWin_SI::updateGeoWin(AGeometryWindow * newGeoWin)
     BaseWindow = newGeoWin;
 }
 
-void AGeoWin_SI::onWindowReportTaskCompleted()
-{
-    WaitingForTaskCompleted = false;
-}
-
 void AGeoWin_SI::redraw()
 {
-    WaitingForTaskCompleted = true;
-    emit requestRedraw();
-
-    while (WaitingForTaskCompleted)
-    {
-        AScriptHub::getInstance().processEvents(Lang);
-        QThread::usleep(100);
-    }
+    ScrHub.prepareToWait();
+    emit ScrHub.requestRedraw();
+    ScrHub.waitForGuiCallFinished(Lang);
 }
 
 void AGeoWin_SI::showTracksAndMarkers()
 {
-    WaitingForTaskCompleted = true;
-    emit requestShowTracks();
-
-    while (WaitingForTaskCompleted)
-    {
-        AScriptHub::getInstance().processEvents(Lang);
-        QThread::usleep(100);
-    }
+    ScrHub.prepareToWait();
+    emit ScrHub.requestShowTracks();
+    ScrHub.waitForGuiCallFinished(Lang);
 }
 
 void AGeoWin_SI::clearTracks()
 {
-    WaitingForTaskCompleted = true;
-    emit requestClearTracks();
-
-    while (WaitingForTaskCompleted)
-    {
-        AScriptHub::getInstance().processEvents(Lang);
-        QThread::usleep(100);
-    }
+    ScrHub.prepareToWait();
+    emit ScrHub.requestClearTracks();
+    ScrHub.waitForGuiCallFinished(Lang);
 }
 
 void AGeoWin_SI::clearMarkers()
 {
-    WaitingForTaskCompleted = true;
-    emit requestClearMarkers();
-
-    while (WaitingForTaskCompleted)
-    {
-        AScriptHub::getInstance().processEvents(Lang);
-        QThread::usleep(100);
-    }
+    ScrHub.prepareToWait();
+    emit ScrHub.requestClearMarkers();
+    ScrHub.waitForGuiCallFinished(Lang);
 }
 
 void AGeoWin_SI::saveImage(QString fileName)
 {
-    WaitingForTaskCompleted = true;
-    emit requestSaveImage(fileName);
-
-    while (WaitingForTaskCompleted)
-    {
-        AScriptHub::getInstance().processEvents(Lang);
-        QThread::usleep(100);
-    }
+    ScrHub.prepareToWait();
+    emit ScrHub.requestSaveImage(fileName);
+    ScrHub.waitForGuiCallFinished(Lang);
 }
 
 void AGeoWin_SI::addMarkers(QVariantList XYZs, int color, int style, double size)
 {
     if (XYZs.isEmpty())
     {
-        abort("XYZs should contain non-empty array of coordinates: [[x0,y0,z0], [x1,y1,z1], ... ]");
+        abort("addMarkers: XYZs should contain non-empty array of coordinates: [[x0,y0,z0], [x1,y1,z1], ... ]");
         return;
     }
 
-    AGeoMarkerClass * markers = new AGeoMarkerClass(AGeoMarkerClass::Undefined, style, size, color);
+    AGeoMarkerClass * markers = new AGeoMarkerClass(EGeoMarkerType::Undefined, style, size, color);
     for (int i = 0; i < XYZs.size(); i++)
     {
         QVariantList el = XYZs[i].toList();
@@ -131,14 +92,9 @@ void AGeoWin_SI::addMarkers(QVariantList XYZs, int color, int style, double size
         markers->SetNextPoint(el[0].toDouble(), el[1].toDouble(), el[2].toDouble());
     }
 
-    WaitingForTaskCompleted = true;
-    emit requestAddMarkers(markers);
-
-    while (WaitingForTaskCompleted)
-    {
-        AScriptHub::getInstance().processEvents(Lang);
-        QThread::usleep(100);
-    }
+    ScrHub.prepareToWait();
+    emit ScrHub.requestAddMarkers(markers);
+    ScrHub.waitForGuiCallFinished(Lang);
 }
 
 void AGeoWin_SI::addTrack(QVariantList XYZs, int color, int style, int width)
@@ -161,14 +117,9 @@ void AGeoWin_SI::addTrack(QVariantList XYZs, int color, int style, int width)
         track->AddPoint(el[0].toDouble(), el[1].toDouble(), el[2].toDouble(), 0);
     }
 
-    WaitingForTaskCompleted = true;
-    emit requestAddTrack(track);
-
-    while (WaitingForTaskCompleted)
-    {
-        AScriptHub::getInstance().processEvents(Lang);
-        QThread::usleep(100);
-    }
+    ScrHub.prepareToWait();
+    emit ScrHub.requestAddTrack(track);
+    ScrHub.waitForGuiCallFinished(Lang);
 }
 
 /*

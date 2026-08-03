@@ -112,7 +112,7 @@ void APhotonTracer::tracePhoton(const APhoton & phot)
 {
 //    qDebug() << "Photon tracing started";
 
-    if (SimSet.OptSet.CheckQeBeforeTracking)
+    if (SimSet.OptSet.TracingMode == APhotOptSettings::CheckQeBefore)
     {
         //if (skipTracing(phot.waveIndex)) return;  // in contrast to ANTS2, do not assume that wavelength will be constant during tracing
         Rnd = RandomHub.uniform();
@@ -524,6 +524,7 @@ void APhotonTracer::checkSpecialVolume(TGeoNode * NodeAfterInterface, bool & ret
         if (!photonTrackingContinues)
         {
             returnEndTracingFlag = true;
+            SimStat.FunctionalKill++;
             if (SaveLog) PhLog.push_back( APhotonHistoryLog(Navigator->GetCurrentPoint(), NameTo, VolumeIndexTo, Photon.time, Photon.waveIndex, APhotonHistoryLog::Functional_Kill) );
             return;
         }
@@ -1010,10 +1011,11 @@ void APhotonTracer::processSensorHit(int iSensor)
          SimSet.RunSet.SaveStatistics ||
          (SimSet.RunSet.SaveSensorLog && SimSet.RunSet.SensorLogAngle) ) angle = TMath::ACos(cosAngle)*180.0/3.1415926535;
 
-    if (!SimSet.OptSet.CheckQeBeforeTracking) Rnd = RandomHub.uniform(); // else already have a value
-    bool bDetected = Event.checkSensorHit(iSensor, Photon.time, Photon.waveIndex, local[0], local[1], angle, TransitionCounter, Rnd);
+    if (SimSet.OptSet.TracingMode != APhotOptSettings::CheckQeBefore) Rnd = RandomHub.uniform(); // else already have a value
+    bool bDetected = Event.checkSensorHit(iSensor, Photon.time, Photon.waveIndex, local[0], local[1], angle, TransitionCounter, MatIndexTo, Rnd);
 
-    if (bDetected && SimSet.RunSet.SaveSensorLog)
+    //if (bDetected && SimSet.RunSet.SaveSensorLog)
+    if (SimSet.RunSet.SaveSensorLog)
         appendToSensorLog(iSensor, Photon.time, local[0], local[1], angle, Photon.waveIndex);
 
     if (SaveLog) PhLog.push_back( APhotonHistoryLog(Navigator->GetCurrentPoint(), Navigator->GetCurrentVolume()->GetName(), Navigator->GetCurrentNode()->GetNumber(), Photon.time, Photon.waveIndex, (bDetected ? APhotonHistoryLog::Detected : APhotonHistoryLog::NotDetected), -1, -1, iSensor) );

@@ -24,6 +24,7 @@ public:
     ~AParticleSourceDialog_EcoMug();
 
     AParticleSourceRecordBase * getResult() override;
+    AParticleSourceRecordBase * borrowResult() override {return &LocalRec;}
 
 protected:
     virtual void closeEvent(QCloseEvent * e) override;
@@ -35,8 +36,6 @@ private slots:
     void on_pbUpdateRecord_clicked();
 
     void on_pbGunTest_clicked();
-
-    void on_pbShowSource_clicked(bool checked);
 
     void on_cobGeneratorShape_currentIndexChanged(int index);
 

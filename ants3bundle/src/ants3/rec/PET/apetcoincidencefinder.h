@@ -50,6 +50,8 @@ public:
 
     QString ErrorString;
 
+    double write(std::vector<APetCoincidencePair> & pairs, bool writeToF, const QString & dir, const QString & headerFileName, const QString & binFileName);
+
 private:
     QString ScannerName;
     int NumScint;
@@ -64,7 +66,6 @@ private:
     bool   read(std::vector<APetEventRecord> & events, bool bEnforceEnergyRange);
     void   find(std::vector<APetEventRecord> & events, std::vector<APetCoincidencePair> & pairs);
     size_t findNextEventOutsideCoinsidenceWindow(std::vector<APetEventRecord> & events, size_t iCurrentEvent);
-    double write(std::vector<APetCoincidencePair> & pairs, bool writeToF, const QString & dir, const QString & headerFileName, const QString & binFileName);
 };
 
 #endif // APETCOINCIDENCEFINDER_H

@@ -3,12 +3,14 @@
 
 #include <vector>
 
+class APhotonGenerator;
 class APhotonTracer;
 class APhotonSimSettings;
 class ARandomHub;
 class AMaterialHub;
 class TGeoManager;
 class ADepoRecord;
+class ALightSensorEvent;
 
 struct DiffSigmas
 {
@@ -22,32 +24,27 @@ struct DiffSigmas
 class AS2Generator
 {
 public:
-    AS2Generator(APhotonTracer & photonTracer);
+    AS2Generator(APhotonGenerator & photonGenerator, APhotonTracer & photonTracer, ALightSensorEvent & event);
 
     void generate(ADepoRecord & rec);
-    void clearRemainer() {PhotonRemainer = 0; ElectronRemainer = 0;}
 
 private:
+    APhotonGenerator         & PhotonGenerator;
     APhotonTracer            & PhotonTracer;
     const APhotonSimSettings & SimSet;
     ARandomHub               & RandomHub;
     const AMaterialHub       & MatHub;
-
     TGeoManager              * GeoManager = nullptr;
+    ALightSensorEvent        & Event;
 
-    int NumElectrons;
-    int NumPhotons;
-
-    double PhotonRemainer   = 0;
-    double ElectronRemainer = 0;
-
-    //double BaseTime;
     std::vector<DiffSigmas> DiffusionRecords;
 
 private:
     bool doDrift(double & time);
-    void generateLight(double * xyPosition, double time);
+    void generateLight(int numElectrons, double * xyPosition, double time);
     void generateAndTracePhotons(double * Position, double Time, int NumPhotonsToGenerate, int MatIndexSecScint, double Zstart, double Zspan);
+
+
 };
 
 #endif // as2generator_H

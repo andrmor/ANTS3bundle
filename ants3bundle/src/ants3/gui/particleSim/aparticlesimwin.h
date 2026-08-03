@@ -48,8 +48,6 @@ public slots:
 
 private slots:
     // auto-updates
-    void onRequestShowSource();
-
     void on_pbSimulate_clicked();
 
     void on_lePhysicsList_editingFinished();
@@ -69,7 +67,7 @@ private slots:
     void on_lwDefinedParticleSources_itemDoubleClicked(QListWidgetItem * item);
 
     void on_pbGunTest_clicked();
-    void on_pbGunShowSource_toggled(bool checked);
+    //void on_pbGunShowSource_toggled(bool checked);
     void on_pbConfigureOutput_clicked();
 
     void on_cobParticleGenerationMode_activated(int index);
@@ -137,10 +135,13 @@ private slots:
     void on_trwEventView_customContextMenuRequested(const QPoint &pos);
 
     void onParticleSourceAccepted();
+    void onParticleSourceRejected();
 
 signals:
+    void particleSourcesChanged();
     void requestShowGeometry(bool ActivateWindow, bool SAME, bool ColorUpdateAllowed);
     void requestShowTracks(bool activateWindow = false);
+    void requestShowMarkers();
     void requestDraw(TObject * obj, const QString & options, bool transferOwnership, bool focusWindow);
     void requestAddToBasket(const QString & name);
     void requestShowPosition(double * pos, bool keepTracks);
@@ -305,6 +306,7 @@ private slots:
     void on_pbHelpGetParticles_clicked();
 
     void on_pbOfferPhysLists_clicked();
+    void on_pbAdvancedOptions_clicked();
 };
 
 #endif // APARTICLESIMWIN_H

@@ -109,13 +109,6 @@ bool APhotonSimManager::simulate(int numLocalProc)
             // !!!*** add possibility to limit to a given number of events!
         }
         break;
-    case EPhotSimType::FromLRFs :
-        {
-            // TODO direct calculation here! !!!***
-            AErrorHub::addError("This simulation mode is not implemented yet!");
-            return false;
-        }
-        break;
     default:
         AErrorHub::addError("This simulation mode is not implemented yet!");
         return false;
@@ -141,9 +134,11 @@ bool APhotonSimManager::simulate(int numLocalProc)
     qDebug() << "Running simulation...";
     QJsonObject Reply = Dispatcher.performTask(Request);
 
+    /*
     qDebug() << "\n\n---------------------";
     qDebug() << Reply;
     qDebug() << "---------------------\n\n";
+    */
 
     processReply(Reply);
 
@@ -438,9 +433,6 @@ bool APhotonSimManager::configureSimulation(const std::vector<AFarmNodeRecord> &
                     Worker.InputFiles.push_back(localFileName);
                 }
                 break;
-            case EPhotSimType::FromLRFs :
-                AErrorHub::addError("\"From LRFs\" sim mode is not handled this way!");
-                return false;
             }
 
             // max tracks and logs per node

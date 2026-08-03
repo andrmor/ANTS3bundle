@@ -38,7 +38,7 @@ public:
     explicit AGraphWindow(QWidget * parent);
     ~AGraphWindow();
 
-    void draw(TObject * obj, QString options, bool update = true, bool transferOwnership = true);
+    void draw(TObject * obj, QString options, bool update = true); // always registers obj (becomes the owner)!
 
 public slots:
     void onDrawRequest(TObject * obj, QString options, bool transferOwnership, bool focusWindow);
@@ -47,6 +47,7 @@ public slots:
     void drawLegend(double x1, double y1, double x2, double y2, QString title);
     void configureLegendBorder(int color, int style, int size);
     void clearBasket();
+    void saveBasket(QString fileName);
     void saveGraph(const QString & fileName);
     void setStatPanelVisible(bool flag); // script interface
     void setLogScale(bool X, bool Y);
@@ -89,6 +90,7 @@ private slots:
     void onBasketDeleteShortcutActivated();
     // script related
     void onScriptDrawRequest(TObject * obj, QString options, bool fFocus);      // these two work together (QueuedConnection to enable calls from another thread)
+    void onScriptDrawCollectionRequest(std::vector<std::pair<TObject*, QString>> objectsAndOptions, bool fFocus);      // these two work together (QueuedConnection to enable calls from another thread)
     void processScriptDrawRequest(TObject * obj, QString options, bool fFocus); // these two work together (QueuedConnection to enable calls from another thread)
     // !!!*** next needs serious refactor! Old comment: similarly to two above, modify draw tree from script
     bool onScriptDrawTree(TTree * tree, QString what, QString cond, QString how,
@@ -247,7 +249,7 @@ private:
     int  LastOptStat              = 1111;
     bool TMPignore                = false; //temporarily forbid updates - need for bulk update to avoid cross-modification
     bool ColdStart                = true;
-    bool DrawFinished             = false;
+    int  DrawFinished             = 0;  // 0 or <0: draw is finished, can be initialized to >1 for multidraw
 
     double xmin, xmax, ymin, ymax, zmin, zmax;
 
@@ -285,7 +287,7 @@ private:
     void setShowCursorPosition(bool flag);
     void fixGraphFrame();
     void updateLogScaleFlags(std::vector<ADrawObject> & drawObjects) const;
-    void connectScriptUnitDrawRequests(const std::vector<AScriptInterface *> interfaces);
+    void connectScriptUnitDrawRequests(const std::vector<AScriptInterface *> interfaces); // only special draw requests, the standard ones are handled by ScriptHub
     void updateMargins(ADrawObject * obj = nullptr);
     TLegend * addLegend();
 

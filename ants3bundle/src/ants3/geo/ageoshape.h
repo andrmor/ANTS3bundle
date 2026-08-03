@@ -395,7 +395,7 @@ public:
     TGeoShape* createGeoShape(const QString shapeName = "") override;
 
     double getHeight() const override;
-    QString getFullHeightString() override; // !!!***
+    QString getFullHeightString() override;
     double getRelativePosZofCenter() const override;
     QString getGenerationString(bool useStrings) const override;
     QString getScriptString(bool useStrings) const override;
@@ -665,8 +665,8 @@ public:
     bool readFromString(QString GenerationString) override;
     TGeoShape* createGeoShape(const QString shapeName = "") override;
 
-    double getHeight() const override;      // !!!*** wrong! consider rmin too
-    QString getFullHeightString() override; // !!!*** to do
+    double getHeight() const override;
+    QString getFullHeightString() override; // to complex to define
     double getRelativePosZofCenter() const override;
     void setHeight(double dz) override {rmax = dz;}
     QString getGenerationString(bool useStrings) const override;

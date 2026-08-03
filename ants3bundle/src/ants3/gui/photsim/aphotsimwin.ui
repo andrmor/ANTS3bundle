@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>603</width>
-    <height>655</height>
+    <width>581</width>
+    <height>679</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -30,8 +30,1012 @@
     <item>
      <widget class="QTabWidget" name="twSignals">
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
+      <widget class="QWidget" name="tab_11">
+       <attribute name="title">
+        <string>Settings</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_8">
+        <item>
+         <widget class="QFrame" name="frScintType">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="frameShape">
+           <enum>QFrame::Shape::StyledPanel</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Shadow::Raised</enum>
+          </property>
+          <layout class="QHBoxLayout" name="horizontalLayout_67">
+           <property name="leftMargin">
+            <number>6</number>
+           </property>
+           <property name="topMargin">
+            <number>6</number>
+           </property>
+           <property name="rightMargin">
+            <number>6</number>
+           </property>
+           <property name="bottomMargin">
+            <number>6</number>
+           </property>
+           <item>
+            <spacer name="horizontalSpacer_46">
+             <property name="orientation">
+              <enum>Qt::Orientation::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_37">
+             <property name="text">
+              <string>Scintillation type:   </string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QComboBox" name="cobScintType">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>150</width>
+               <height>0</height>
+              </size>
+             </property>
+             <item>
+              <property name="text">
+               <string>Primary</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Secondary</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Primary and secondary</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="pbHelpScintType">
+             <property name="maximumSize">
+              <size>
+               <width>20</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>?</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <spacer name="horizontalSpacer_47">
+             <property name="orientation">
+              <enum>Qt::Orientation::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <spacer name="verticalSpacer_24">
+          <property name="orientation">
+           <enum>Qt::Orientation::Vertical</enum>
+          </property>
+          <property name="sizeType">
+           <enum>QSizePolicy::Policy::Fixed</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>10</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <widget class="QFrame" name="frame">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="frameShape">
+           <enum>QFrame::Shape::StyledPanel</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Shadow::Raised</enum>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_24">
+           <property name="leftMargin">
+            <number>6</number>
+           </property>
+           <property name="topMargin">
+            <number>6</number>
+           </property>
+           <property name="rightMargin">
+            <number>6</number>
+           </property>
+           <property name="bottomMargin">
+            <number>6</number>
+           </property>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_21">
+             <property name="leftMargin">
+              <number>0</number>
+             </property>
+             <property name="topMargin">
+              <number>0</number>
+             </property>
+             <item>
+              <spacer name="horizontalSpacer_74">
+               <property name="orientation">
+                <enum>Qt::Orientation::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item>
+              <widget class="QCheckBox" name="cbWaveResolved">
+               <property name="enabled">
+                <bool>true</bool>
+               </property>
+               <property name="text">
+                <string>Wavelength-resolved simulation</string>
+               </property>
+               <property name="checked">
+                <bool>false</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="pbdWave">
+               <property name="text">
+                <string>...</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer name="horizontalSpacer_5">
+               <property name="orientation">
+                <enum>Qt::Orientation::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <widget class="QFrame" name="fWaveOptions">
+             <property name="frameShape">
+              <enum>QFrame::Shape::NoFrame</enum>
+             </property>
+             <property name="frameShadow">
+              <enum>QFrame::Shadow::Raised</enum>
+             </property>
+             <layout class="QHBoxLayout" name="horizontalLayout_10">
+              <property name="spacing">
+               <number>3</number>
+              </property>
+              <property name="leftMargin">
+               <number>3</number>
+              </property>
+              <property name="topMargin">
+               <number>3</number>
+              </property>
+              <property name="rightMargin">
+               <number>3</number>
+              </property>
+              <property name="bottomMargin">
+               <number>3</number>
+              </property>
+              <item>
+               <spacer name="horizontalSpacer_75">
+                <property name="orientation">
+                 <enum>Qt::Orientation::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QLabel" name="label_118">
+                <property name="text">
+                 <string>From:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLineEdit" name="ledWaveFrom">
+                <property name="maximumSize">
+                 <size>
+                  <width>70</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+                <property name="text">
+                 <string>200</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="label_119">
+                <property name="text">
+                 <string>nm</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="label_121">
+                <property name="text">
+                 <string>to:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLineEdit" name="ledWaveTo">
+                <property name="maximumSize">
+                 <size>
+                  <width>70</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+                <property name="text">
+                 <string>800</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="label_122">
+                <property name="text">
+                 <string>nm</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="label_120">
+                <property name="text">
+                 <string>step:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLineEdit" name="ledWaveStep">
+                <property name="maximumSize">
+                 <size>
+                  <width>70</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+                <property name="text">
+                 <string>5</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="label_123">
+                <property name="text">
+                 <string>nm</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="label_124">
+                <property name="text">
+                 <string>    --&gt; </string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="labWaveNodes">
+                <property name="text">
+                 <string>121</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignmentFlag::AlignCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="label_4">
+                <property name="text">
+                 <string>nodes</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_20">
+                <property name="orientation">
+                 <enum>Qt::Orientation::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <spacer name="verticalSpacer_10">
+          <property name="orientation">
+           <enum>Qt::Orientation::Vertical</enum>
+          </property>
+          <property name="sizeType">
+           <enum>QSizePolicy::Policy::Fixed</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>10</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <widget class="QFrame" name="frame_2">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="frameShape">
+           <enum>QFrame::Shape::StyledPanel</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Shadow::Raised</enum>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_26">
+           <property name="leftMargin">
+            <number>6</number>
+           </property>
+           <property name="topMargin">
+            <number>6</number>
+           </property>
+           <property name="rightMargin">
+            <number>6</number>
+           </property>
+           <property name="bottomMargin">
+            <number>6</number>
+           </property>
+           <item alignment="Qt::AlignmentFlag::AlignHCenter">
+            <widget class="QLabel" name="label_11">
+             <property name="text">
+              <string>Optimization options:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_4">
+             <property name="leftMargin">
+              <number>10</number>
+             </property>
+             <item>
+              <spacer name="horizontalSpacer_76">
+               <property name="orientation">
+                <enum>Qt::Orientation::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item>
+              <widget class="QLabel" name="label_511">
+               <property name="text">
+                <string>Kill photon after</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QSpinBox" name="sbMaxNumbPhTransitions">
+               <property name="minimum">
+                <number>1</number>
+               </property>
+               <property name="maximum">
+                <number>10000000</number>
+               </property>
+               <property name="value">
+                <number>500</number>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLabel" name="label_41">
+               <property name="text">
+                <string>transitions </string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="pbHelpKillPhoton">
+               <property name="maximumSize">
+                <size>
+                 <width>20</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>?</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer name="horizontalSpacer_18">
+               <property name="orientation">
+                <enum>Qt::Orientation::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <spacer name="verticalSpacer_8">
+          <property name="orientation">
+           <enum>Qt::Orientation::Vertical</enum>
+          </property>
+          <property name="sizeType">
+           <enum>QSizePolicy::Policy::Fixed</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>10</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <widget class="QFrame" name="frame_3">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="frameShape">
+           <enum>QFrame::Shape::StyledPanel</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Shadow::Raised</enum>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_30">
+           <item alignment="Qt::AlignmentFlag::AlignHCenter">
+            <widget class="QLabel" name="label_6">
+             <property name="text">
+              <string>Advanced simulation options:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_23">
+             <item>
+              <spacer name="horizontalSpacer_77">
+               <property name="orientation">
+                <enum>Qt::Orientation::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item>
+              <widget class="QLabel" name="labAdvancedBombOn">
+               <property name="minimumSize">
+                <size>
+                 <width>15</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>--</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="pbAdvancedBombSettings">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>150</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="font">
+                <font>
+                 <bold>false</bold>
+                 <kerning>true</kerning>
+                </font>
+               </property>
+               <property name="text">
+                <string>Configure photon generation overrides</string>
+               </property>
+               <property name="checkable">
+                <bool>false</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer name="horizontalSpacer_29">
+               <property name="orientation">
+                <enum>Qt::Orientation::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_7">
+             <property name="topMargin">
+              <number>0</number>
+             </property>
+             <item>
+              <spacer name="horizontalSpacer_78">
+               <property name="orientation">
+                <enum>Qt::Orientation::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item>
+              <widget class="QLabel" name="labAdvancedModeEnabled">
+               <property name="maximumSize">
+                <size>
+                 <width>15</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>--</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QComboBox" name="cobTracingMode">
+               <item>
+                <property name="text">
+                 <string>Default tracing mode</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>Before tracing a photon, test against max QE of all sensors</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>No tracing, use response model to generate sensor signals</string>
+                </property>
+               </item>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="pbHelpAdvanced">
+               <property name="maximumSize">
+                <size>
+                 <width>20</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>?</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer name="horizontalSpacer_28">
+               <property name="orientation">
+                <enum>Qt::Orientation::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <widget class="QFrame" name="frLRF">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="frameShape">
+              <enum>QFrame::Shape::StyledPanel</enum>
+             </property>
+             <property name="frameShadow">
+              <enum>QFrame::Shadow::Raised</enum>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout_9">
+              <item>
+               <layout class="QHBoxLayout" name="horizontalLayout_20">
+                <item>
+                 <spacer name="horizontalSpacer_79">
+                  <property name="orientation">
+                   <enum>Qt::Orientation::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>40</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+                <item>
+                 <widget class="QLabel" name="label_7">
+                  <property name="text">
+                   <string>Model status:</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLabel" name="labLrModelStatus">
+                  <property name="text">
+                   <string>Not ready</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <spacer name="horizontalSpacer_6">
+                  <property name="orientation">
+                   <enum>Qt::Orientation::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>40</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="pbLoadLrModel">
+                  <property name="text">
+                   <string>Load model</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <spacer name="horizontalSpacer_19">
+                  <property name="orientation">
+                   <enum>Qt::Orientation::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>40</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+               </layout>
+              </item>
+              <item>
+               <layout class="QHBoxLayout" name="horizontalLayout_66">
+                <property name="topMargin">
+                 <number>0</number>
+                </property>
+                <item>
+                 <widget class="QPushButton" name="pbShowLrmExplorer">
+                  <property name="text">
+                   <string>Show model explorer</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="pbShowLrfPlotter">
+                  <property name="text">
+                   <string>Show LRF plotter</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item>
+               <spacer name="verticalSpacer_18">
+                <property name="orientation">
+                 <enum>Qt::Orientation::Vertical</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>20</width>
+                  <height>40</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item alignment="Qt::AlignmentFlag::AlignHCenter">
+               <widget class="QLabel" name="label_25">
+                <property name="text">
+                 <string>Sensor signal generation:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <layout class="QHBoxLayout" name="horizontalLayout_2">
+                <item>
+                 <spacer name="horizontalSpacer_80">
+                  <property name="orientation">
+                   <enum>Qt::Orientation::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>40</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+                <item>
+                 <widget class="QLabel" name="label_206">
+                  <property name="font">
+                   <font>
+                    <bold>false</bold>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>LRFs were generated assuming</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QSpinBox" name="sbLRM_photonsPerNode">
+                  <property name="minimum">
+                   <number>1</number>
+                  </property>
+                  <property name="maximum">
+                   <number>10000000</number>
+                  </property>
+                  <property name="value">
+                   <number>20000</number>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLabel" name="label_207">
+                  <property name="font">
+                   <font>
+                    <bold>false</bold>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>photon per source position</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <spacer name="horizontalSpacer_45">
+                  <property name="orientation">
+                   <enum>Qt::Orientation::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>40</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+               </layout>
+              </item>
+              <item>
+               <layout class="QHBoxLayout" name="horizontalLayout_3">
+                <item>
+                 <spacer name="horizontalSpacer_81">
+                  <property name="orientation">
+                   <enum>Qt::Orientation::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>40</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+                <item>
+                 <widget class="QLabel" name="label_43">
+                  <property name="text">
+                   <string>LRF of unity corresponds to</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLineEdit" name="ledLRF_photoElectrons">
+                  <property name="minimumSize">
+                   <size>
+                    <width>50</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>100</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                  <property name="text">
+                   <string>1.0</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLabel" name="label_44">
+                  <property name="text">
+                   <string>photo-electrons</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <spacer name="horizontalSpacer_44">
+                  <property name="orientation">
+                   <enum>Qt::Orientation::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>40</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+               </layout>
+              </item>
+              <item>
+               <widget class="QLabel" name="label_228">
+                <property name="text">
+                 <string>No photon tracking in this mode!  Assuming Poisson statistics!</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignmentFlag::AlignCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="verticalSpacer_20">
+                <property name="orientation">
+                 <enum>Qt::Orientation::Vertical</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>20</width>
+                  <height>40</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item alignment="Qt::AlignmentFlag::AlignHCenter">
+            <widget class="QLabel" name="labNoMercury">
+             <property name="font">
+              <font>
+               <fontweight>DemiBold</fontweight>
+              </font>
+             </property>
+             <property name="text">
+              <string>Not valid mode: Ants3 was compiled without Mercury lib enabled!</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <spacer name="verticalSpacer_19">
+          <property name="orientation">
+           <enum>Qt::Orientation::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>100</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <widget class="QPushButton" name="pbConfigureTracks">
+          <property name="text">
+           <string>  Configure track visualisation attributes</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
       <widget class="QWidget" name="tab">
        <attribute name="title">
         <string>Simulation</string>
@@ -49,6 +1053,22 @@
         <property name="bottomMargin">
          <number>3</number>
         </property>
+        <item>
+         <spacer name="verticalSpacer_23">
+          <property name="orientation">
+           <enum>Qt::Orientation::Vertical</enum>
+          </property>
+          <property name="sizeType">
+           <enum>QSizePolicy::Policy::Fixed</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>5</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout">
           <item>
@@ -80,7 +1100,7 @@
            <widget class="QComboBox" name="cobSimType">
             <property name="font">
              <font>
-              <bold>true</bold>
+              <fontweight>DemiBold</fontweight>
              </font>
             </property>
             <item>
@@ -96,11 +1116,6 @@
             <item>
              <property name="text">
               <string>Individual photons</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>LRF-based sim</string>
              </property>
             </item>
            </widget>
@@ -168,7 +1183,7 @@
                <widget class="QComboBox" name="cobNodeGenerationMode">
                 <property name="font">
                  <font>
-                  <bold>true</bold>
+                  <fontweight>DemiBold</fontweight>
                  </font>
                 </property>
                 <property name="contextMenuPolicy">
@@ -226,7 +1241,7 @@
                </font>
               </property>
               <property name="frameShape">
-               <enum>QFrame::Shape::Box</enum>
+               <enum>QFrame::Shape::NoFrame</enum>
               </property>
               <property name="frameShadow">
                <enum>QFrame::Shadow::Sunken</enum>
@@ -303,11 +1318,11 @@
                    </widget>
                   </item>
                   <item>
-                   <widget class="QLineEdit" name="ledSingleX">
+                   <widget class="AOneLineTextEdit" name="ledSingleX">
                     <property name="maximumSize">
                      <size>
                       <width>100</width>
-                      <height>16777215</height>
+                      <height>25</height>
                      </size>
                     </property>
                     <property name="text">
@@ -336,11 +1351,11 @@
                    </widget>
                   </item>
                   <item>
-                   <widget class="QLineEdit" name="ledSingleY">
+                   <widget class="AOneLineTextEdit" name="ledSingleY">
                     <property name="maximumSize">
                      <size>
                       <width>100</width>
-                      <height>16777215</height>
+                      <height>25</height>
                      </size>
                     </property>
                     <property name="text">
@@ -369,11 +1384,11 @@
                    </widget>
                   </item>
                   <item>
-                   <widget class="QLineEdit" name="ledSingleZ">
+                   <widget class="AOneLineTextEdit" name="ledSingleZ">
                     <property name="maximumSize">
                      <size>
                       <width>100</width>
-                      <height>16777215</height>
+                      <height>25</height>
                      </size>
                     </property>
                     <property name="text">
@@ -396,65 +1411,6 @@
                     <property name="sizeHint" stdset="0">
                      <size>
                       <width>80</width>
-                      <height>20</height>
-                     </size>
-                    </property>
-                   </spacer>
-                  </item>
-                 </layout>
-                </item>
-                <item>
-                 <spacer name="verticalSpacer_4">
-                  <property name="orientation">
-                   <enum>Qt::Orientation::Vertical</enum>
-                  </property>
-                  <property name="sizeHint" stdset="0">
-                   <size>
-                    <width>20</width>
-                    <height>40</height>
-                   </size>
-                  </property>
-                 </spacer>
-                </item>
-                <item>
-                 <layout class="QHBoxLayout" name="horizontalLayout_22">
-                  <property name="topMargin">
-                   <number>0</number>
-                  </property>
-                  <item>
-                   <spacer name="horizontalSpacer_22">
-                    <property name="orientation">
-                     <enum>Qt::Orientation::Horizontal</enum>
-                    </property>
-                    <property name="sizeHint" stdset="0">
-                     <size>
-                      <width>40</width>
-                      <height>20</height>
-                     </size>
-                    </property>
-                   </spacer>
-                  </item>
-                  <item>
-                   <widget class="QPushButton" name="pbSingleSourceShow">
-                    <property name="minimumSize">
-                     <size>
-                      <width>150</width>
-                      <height>0</height>
-                     </size>
-                    </property>
-                    <property name="text">
-                     <string>Show position</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <spacer name="horizontalSpacer_23">
-                    <property name="orientation">
-                     <enum>Qt::Orientation::Horizontal</enum>
-                    </property>
-                    <property name="sizeHint" stdset="0">
-                     <size>
-                      <width>40</width>
                       <height>20</height>
                      </size>
                     </property>
@@ -572,11 +1528,11 @@
                    </widget>
                   </item>
                   <item>
-                   <widget class="QLineEdit" name="ledOriginX">
+                   <widget class="AOneLineTextEdit" name="ledOriginX">
                     <property name="maximumSize">
                      <size>
                       <width>75</width>
-                      <height>16777215</height>
+                      <height>25</height>
                      </size>
                     </property>
                     <property name="text">
@@ -605,11 +1561,11 @@
                    </widget>
                   </item>
                   <item>
-                   <widget class="QLineEdit" name="ledOriginY">
+                   <widget class="AOneLineTextEdit" name="ledOriginY">
                     <property name="maximumSize">
                      <size>
                       <width>75</width>
-                      <height>16777215</height>
+                      <height>25</height>
                      </size>
                     </property>
                     <property name="text">
@@ -638,11 +1594,11 @@
                    </widget>
                   </item>
                   <item>
-                   <widget class="QLineEdit" name="ledOriginZ">
+                   <widget class="AOneLineTextEdit" name="ledOriginZ">
                     <property name="maximumSize">
                      <size>
                       <width>75</width>
-                      <height>16777215</height>
+                      <height>25</height>
                      </size>
                     </property>
                     <property name="text">
@@ -722,14 +1678,14 @@
                    </widget>
                   </item>
                   <item row="1" column="1">
-                   <widget class="QLineEdit" name="led0X">
+                   <widget class="AOneLineTextEdit" name="led0X">
                     <property name="enabled">
                      <bool>true</bool>
                     </property>
                     <property name="maximumSize">
                      <size>
-                      <width>55</width>
-                      <height>16777215</height>
+                      <width>70</width>
+                      <height>25</height>
                      </size>
                     </property>
                     <property name="text">
@@ -738,14 +1694,14 @@
                    </widget>
                   </item>
                   <item row="1" column="2">
-                   <widget class="QLineEdit" name="led0Y">
+                   <widget class="AOneLineTextEdit" name="led0Y">
                     <property name="enabled">
                      <bool>true</bool>
                     </property>
                     <property name="maximumSize">
                      <size>
-                      <width>55</width>
-                      <height>16777215</height>
+                      <width>70</width>
+                      <height>25</height>
                      </size>
                     </property>
                     <property name="text">
@@ -754,14 +1710,14 @@
                    </widget>
                   </item>
                   <item row="1" column="3">
-                   <widget class="QLineEdit" name="led0Z">
+                   <widget class="AOneLineTextEdit" name="led0Z">
                     <property name="enabled">
                      <bool>true</bool>
                     </property>
                     <property name="maximumSize">
                      <size>
-                      <width>55</width>
-                      <height>16777215</height>
+                      <width>70</width>
+                      <height>25</height>
                      </size>
                     </property>
                     <property name="text">
@@ -771,8 +1727,14 @@
                   </item>
                   <item row="1" column="4">
                    <widget class="QSpinBox" name="sb0nodes">
+                    <property name="maximumSize">
+                     <size>
+                      <width>75</width>
+                      <height>16777215</height>
+                     </size>
+                    </property>
                     <property name="maximum">
-                     <number>10000</number>
+                     <number>9999</number>
                     </property>
                     <property name="value">
                      <number>20</number>
@@ -783,12 +1745,12 @@
                    <widget class="QComboBox" name="cob0dir">
                     <item>
                      <property name="text">
-                      <string>one direction</string>
+                      <string>symmetric</string>
                      </property>
                     </item>
                     <item>
                      <property name="text">
-                      <string>symmetric</string>
+                      <string>one direction</string>
                      </property>
                     </item>
                    </widget>
@@ -801,14 +1763,14 @@
                    </widget>
                   </item>
                   <item row="2" column="1">
-                   <widget class="QLineEdit" name="led1X">
+                   <widget class="AOneLineTextEdit" name="led1X">
                     <property name="enabled">
                      <bool>true</bool>
                     </property>
                     <property name="maximumSize">
                      <size>
-                      <width>55</width>
-                      <height>16777215</height>
+                      <width>70</width>
+                      <height>25</height>
                      </size>
                     </property>
                     <property name="text">
@@ -817,14 +1779,14 @@
                    </widget>
                   </item>
                   <item row="2" column="2">
-                   <widget class="QLineEdit" name="led1Y">
+                   <widget class="AOneLineTextEdit" name="led1Y">
                     <property name="enabled">
                      <bool>true</bool>
                     </property>
                     <property name="maximumSize">
                      <size>
-                      <width>55</width>
-                      <height>16777215</height>
+                      <width>70</width>
+                      <height>25</height>
                      </size>
                     </property>
                     <property name="text">
@@ -833,14 +1795,14 @@
                    </widget>
                   </item>
                   <item row="2" column="3">
-                   <widget class="QLineEdit" name="led1Z">
+                   <widget class="AOneLineTextEdit" name="led1Z">
                     <property name="enabled">
                      <bool>true</bool>
                     </property>
                     <property name="maximumSize">
                      <size>
-                      <width>55</width>
-                      <height>16777215</height>
+                      <width>70</width>
+                      <height>25</height>
                      </size>
                     </property>
                     <property name="text">
@@ -853,8 +1815,14 @@
                     <property name="enabled">
                      <bool>true</bool>
                     </property>
+                    <property name="maximumSize">
+                     <size>
+                      <width>75</width>
+                      <height>16777215</height>
+                     </size>
+                    </property>
                     <property name="maximum">
-                     <number>10000</number>
+                     <number>9999</number>
                     </property>
                     <property name="value">
                      <number>20</number>
@@ -868,12 +1836,12 @@
                     </property>
                     <item>
                      <property name="text">
-                      <string>one direction</string>
+                      <string>symmetric</string>
                      </property>
                     </item>
                     <item>
                      <property name="text">
-                      <string>symmetric</string>
+                      <string>one direction</string>
                      </property>
                     </item>
                    </widget>
@@ -886,14 +1854,14 @@
                    </widget>
                   </item>
                   <item row="3" column="1">
-                   <widget class="QLineEdit" name="led2X">
+                   <widget class="AOneLineTextEdit" name="led2X">
                     <property name="enabled">
                      <bool>true</bool>
                     </property>
                     <property name="maximumSize">
                      <size>
-                      <width>55</width>
-                      <height>16777215</height>
+                      <width>70</width>
+                      <height>25</height>
                      </size>
                     </property>
                     <property name="text">
@@ -902,14 +1870,14 @@
                    </widget>
                   </item>
                   <item row="3" column="2">
-                   <widget class="QLineEdit" name="led2Y">
+                   <widget class="AOneLineTextEdit" name="led2Y">
                     <property name="enabled">
                      <bool>true</bool>
                     </property>
                     <property name="maximumSize">
                      <size>
-                      <width>55</width>
-                      <height>16777215</height>
+                      <width>70</width>
+                      <height>25</height>
                      </size>
                     </property>
                     <property name="text">
@@ -918,14 +1886,14 @@
                    </widget>
                   </item>
                   <item row="3" column="3">
-                   <widget class="QLineEdit" name="led2Z">
+                   <widget class="AOneLineTextEdit" name="led2Z">
                     <property name="enabled">
                      <bool>true</bool>
                     </property>
                     <property name="maximumSize">
                      <size>
-                      <width>55</width>
-                      <height>16777215</height>
+                      <width>70</width>
+                      <height>25</height>
                      </size>
                     </property>
                     <property name="text">
@@ -938,8 +1906,14 @@
                     <property name="enabled">
                      <bool>true</bool>
                     </property>
+                    <property name="maximumSize">
+                     <size>
+                      <width>75</width>
+                      <height>16777215</height>
+                     </size>
+                    </property>
                     <property name="maximum">
-                     <number>10000</number>
+                     <number>9999</number>
                     </property>
                     <property name="value">
                      <number>5</number>
@@ -953,12 +1927,12 @@
                     </property>
                     <item>
                      <property name="text">
-                      <string>one direction</string>
+                      <string>symmetric</string>
                      </property>
                     </item>
                     <item>
                      <property name="text">
-                      <string>symmetric</string>
+                      <string>one direction</string>
                      </property>
                     </item>
                    </widget>
@@ -1013,9 +1987,28 @@
                 <item>
                  <layout class="QHBoxLayout" name="horizontalLayout_15">
                   <item>
+                   <spacer name="horizontalSpacer_27">
+                    <property name="orientation">
+                     <enum>Qt::Orientation::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                  <item>
                    <widget class="QLabel" name="label_90">
+                    <property name="font">
+                     <font>
+                      <kerning>true</kerning>
+                      <fontweight>Medium</fontweight>
+                     </font>
+                    </property>
                     <property name="text">
-                     <string>Number:</string>
+                     <string>Number of bombs:</string>
                     </property>
                    </widget>
                   </item>
@@ -1030,30 +2023,6 @@
                     <property name="value">
                      <number>400</number>
                     </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QLabel" name="label_254">
-                    <property name="text">
-                     <string>Shape:</string>
-                    </property>
-                    <property name="alignment">
-                     <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QComboBox" name="cobFloodShape">
-                    <item>
-                     <property name="text">
-                      <string>rectangle</string>
-                     </property>
-                    </item>
-                    <item>
-                     <property name="text">
-                      <string>circle/ring</string>
-                     </property>
-                    </item>
                    </widget>
                   </item>
                   <item>
@@ -1085,40 +2054,140 @@
                  </spacer>
                 </item>
                 <item>
+                 <layout class="QHBoxLayout" name="horizontalLayout_41">
+                  <property name="topMargin">
+                   <number>0</number>
+                  </property>
+                  <item>
+                   <spacer name="horizontalSpacer_42">
+                    <property name="orientation">
+                     <enum>Qt::Orientation::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                  <item>
+                   <widget class="QLabel" name="label_254">
+                    <property name="font">
+                     <font>
+                      <kerning>true</kerning>
+                      <fontweight>Medium</fontweight>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>    Shape:</string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QComboBox" name="cobFloodShape">
+                    <item>
+                     <property name="text">
+                      <string>rectangle</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>circle/ring</string>
+                     </property>
+                    </item>
+                   </widget>
+                  </item>
+                  <item>
+                   <spacer name="horizontalSpacer_43">
+                    <property name="orientation">
+                     <enum>Qt::Orientation::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                 </layout>
+                </item>
+                <item>
                  <layout class="QHBoxLayout" name="horizontalLayout_18">
                   <property name="spacing">
                    <number>3</number>
                   </property>
+                  <item>
+                   <spacer name="horizontalSpacer_13">
+                    <property name="orientation">
+                     <enum>Qt::Orientation::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
                   <item>
                    <widget class="QStackedWidget" name="swFloodShape">
                     <property name="currentIndex">
                      <number>0</number>
                     </property>
                     <widget class="QWidget" name="page_7">
-                     <layout class="QGridLayout" name="gridLayout_8">
+                     <layout class="QGridLayout" name="gridLayout">
+                      <property name="leftMargin">
+                       <number>0</number>
+                      </property>
+                      <property name="topMargin">
+                       <number>0</number>
+                      </property>
+                      <property name="rightMargin">
+                       <number>0</number>
+                      </property>
+                      <property name="bottomMargin">
+                       <number>0</number>
+                      </property>
                       <item row="0" column="0">
                        <widget class="QLabel" name="label_139">
                         <property name="text">
-                         <string>X  from</string>
+                         <string>X:  from</string>
                         </property>
                        </widget>
                       </item>
                       <item row="0" column="1">
-                       <widget class="QLineEdit" name="ledFloodXfrom">
+                       <widget class="AOneLineTextEdit" name="ledFloodXfrom">
+                        <property name="maximumSize">
+                         <size>
+                          <width>100</width>
+                          <height>25</height>
+                         </size>
+                        </property>
                         <property name="text">
                          <string>-15</string>
                         </property>
                        </widget>
                       </item>
-                      <item row="0" column="2">
+                      <item row="0" column="2" alignment="Qt::AlignmentFlag::AlignHCenter">
                        <widget class="QLabel" name="label_214">
                         <property name="text">
-                         <string>mm to</string>
+                         <string>to</string>
                         </property>
                        </widget>
                       </item>
                       <item row="0" column="3">
-                       <widget class="QLineEdit" name="ledFloodXto">
+                       <widget class="AOneLineTextEdit" name="ledFloodXto">
+                        <property name="maximumSize">
+                         <size>
+                          <width>100</width>
+                          <height>25</height>
+                         </size>
+                        </property>
                         <property name="text">
                          <string>15</string>
                         </property>
@@ -1134,26 +2203,38 @@
                       <item row="1" column="0">
                        <widget class="QLabel" name="label_245">
                         <property name="text">
-                         <string>Y  from</string>
+                         <string>Y:  from</string>
                         </property>
                        </widget>
                       </item>
                       <item row="1" column="1">
-                       <widget class="QLineEdit" name="ledFloodYfrom">
+                       <widget class="AOneLineTextEdit" name="ledFloodYfrom">
+                        <property name="maximumSize">
+                         <size>
+                          <width>100</width>
+                          <height>25</height>
+                         </size>
+                        </property>
                         <property name="text">
                          <string>-15</string>
                         </property>
                        </widget>
                       </item>
-                      <item row="1" column="2">
+                      <item row="1" column="2" alignment="Qt::AlignmentFlag::AlignHCenter">
                        <widget class="QLabel" name="label_246">
                         <property name="text">
-                         <string>mm to</string>
+                         <string>to</string>
                         </property>
                        </widget>
                       </item>
                       <item row="1" column="3">
-                       <widget class="QLineEdit" name="ledFloodYto">
+                       <widget class="AOneLineTextEdit" name="ledFloodYto">
+                        <property name="maximumSize">
+                         <size>
+                          <width>100</width>
+                          <height>25</height>
+                         </size>
+                        </property>
                         <property name="text">
                          <string>15</string>
                         </property>
@@ -1170,32 +2251,66 @@
                     </widget>
                     <widget class="QWidget" name="page_8">
                      <layout class="QGridLayout" name="gridLayout_9">
-                      <item row="0" column="0">
-                       <widget class="QLabel" name="label_257">
-                        <property name="text">
-                         <string>Center X=</string>
-                        </property>
-                        <property name="alignment">
-                         <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="0" column="1">
-                       <widget class="QLineEdit" name="ledFloodCenterX">
-                        <property name="text">
-                         <string>0</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="0" column="2">
+                      <property name="leftMargin">
+                       <number>0</number>
+                      </property>
+                      <property name="topMargin">
+                       <number>0</number>
+                      </property>
+                      <property name="rightMargin">
+                       <number>0</number>
+                      </property>
+                      <property name="bottomMargin">
+                       <number>0</number>
+                      </property>
+                      <item row="0" column="2" alignment="Qt::AlignmentFlag::AlignRight">
                        <widget class="QLabel" name="label_256">
                         <property name="text">
                          <string>Y=</string>
                         </property>
                        </widget>
                       </item>
+                      <item row="1" column="3">
+                       <widget class="AOneLineTextEdit" name="ledFloodInnerDiameter">
+                        <property name="maximumSize">
+                         <size>
+                          <width>100</width>
+                          <height>25</height>
+                         </size>
+                        </property>
+                        <property name="text">
+                         <string>0</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="1" column="1">
+                       <widget class="AOneLineTextEdit" name="ledFloodOuterDiameter">
+                        <property name="maximumSize">
+                         <size>
+                          <width>100</width>
+                          <height>25</height>
+                         </size>
+                        </property>
+                        <property name="text">
+                         <string>40</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="1" column="2" alignment="Qt::AlignmentFlag::AlignRight">
+                       <widget class="QLabel" name="label_266">
+                        <property name="text">
+                         <string>inner</string>
+                        </property>
+                       </widget>
+                      </item>
                       <item row="0" column="3">
-                       <widget class="QLineEdit" name="ledFloodCenterY">
+                       <widget class="AOneLineTextEdit" name="ledFloodCenterY">
+                        <property name="maximumSize">
+                         <size>
+                          <width>100</width>
+                          <height>25</height>
+                         </size>
+                        </property>
                         <property name="text">
                          <string>0</string>
                         </property>
@@ -1204,28 +2319,44 @@
                       <item row="1" column="0">
                        <widget class="QLabel" name="label_259">
                         <property name="text">
-                         <string>Diam. outer</string>
+                         <string>Outer diameter</string>
                         </property>
                        </widget>
                       </item>
-                      <item row="1" column="1">
-                       <widget class="QLineEdit" name="ledFloodOuterDiameter">
-                        <property name="text">
-                         <string>40</string>
+                      <item row="0" column="1">
+                       <widget class="AOneLineTextEdit" name="ledFloodCenterX">
+                        <property name="maximumSize">
+                         <size>
+                          <width>100</width>
+                          <height>25</height>
+                         </size>
                         </property>
-                       </widget>
-                      </item>
-                      <item row="1" column="2">
-                       <widget class="QLabel" name="label_266">
-                        <property name="text">
-                         <string>inner</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="1" column="3">
-                       <widget class="QLineEdit" name="ledFloodInnerDiameter">
                         <property name="text">
                          <string>0</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="0" column="0">
+                       <widget class="QLabel" name="label_257">
+                        <property name="text">
+                         <string>Center:   X=</string>
+                        </property>
+                        <property name="alignment">
+                         <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="0" column="4">
+                       <widget class="QLabel" name="label_23">
+                        <property name="text">
+                         <string>mm</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="1" column="4">
+                       <widget class="QLabel" name="label_31">
+                        <property name="text">
+                         <string>mm</string>
                         </property>
                        </widget>
                       </item>
@@ -1234,202 +2365,200 @@
                    </widget>
                   </item>
                   <item>
-                   <widget class="Line" name="line_37">
+                   <spacer name="horizontalSpacer_87">
                     <property name="orientation">
-                     <enum>Qt::Orientation::Vertical</enum>
+                     <enum>Qt::Orientation::Horizontal</enum>
                     </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                 </layout>
+                </item>
+                <item>
+                 <layout class="QHBoxLayout" name="horizontalLayout_69">
+                  <property name="topMargin">
+                   <number>10</number>
+                  </property>
+                  <item>
+                   <spacer name="horizontalSpacer_88">
+                    <property name="orientation">
+                     <enum>Qt::Orientation::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                  <item>
+                   <widget class="QComboBox" name="cobFloodZmode">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <item>
+                     <property name="text">
+                      <string>Fixed Z:</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>Z in range</string>
+                     </property>
+                    </item>
                    </widget>
                   </item>
                   <item>
-                   <layout class="QVBoxLayout" name="verticalLayout_4">
-                    <property name="spacing">
-                     <number>0</number>
+                   <widget class="QFrame" name="frZfixed">
+                    <property name="minimumSize">
+                     <size>
+                      <width>0</width>
+                      <height>0</height>
+                     </size>
                     </property>
-                    <item>
-                     <layout class="QHBoxLayout" name="horizontalLayout_16">
-                      <property name="spacing">
-                       <number>3</number>
-                      </property>
-                      <property name="leftMargin">
-                       <number>3</number>
-                      </property>
-                      <property name="topMargin">
-                       <number>3</number>
-                      </property>
-                      <property name="rightMargin">
-                       <number>3</number>
-                      </property>
-                      <property name="bottomMargin">
-                       <number>3</number>
-                      </property>
-                      <item>
-                       <widget class="QLabel" name="label_247">
-                        <property name="sizePolicy">
-                         <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-                          <horstretch>0</horstretch>
-                          <verstretch>0</verstretch>
-                         </sizepolicy>
-                        </property>
-                        <property name="text">
-                         <string>  Z:</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item>
-                       <widget class="QComboBox" name="cobFloodZmode">
-                        <property name="sizePolicy">
-                         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-                          <horstretch>0</horstretch>
-                          <verstretch>0</verstretch>
-                         </sizepolicy>
-                        </property>
-                        <item>
-                         <property name="text">
-                          <string>fixed</string>
-                         </property>
-                        </item>
-                        <item>
-                         <property name="text">
-                          <string>range</string>
-                         </property>
-                        </item>
-                       </widget>
-                      </item>
-                      <item>
-                       <spacer name="horizontalSpacer_13">
-                        <property name="orientation">
-                         <enum>Qt::Orientation::Horizontal</enum>
-                        </property>
-                        <property name="sizeHint" stdset="0">
-                         <size>
-                          <width>40</width>
-                          <height>20</height>
-                         </size>
-                        </property>
-                       </spacer>
-                      </item>
-                     </layout>
-                    </item>
-                    <item>
-                     <widget class="QStackedWidget" name="swScanFloodZ">
-                      <property name="currentIndex">
-                       <number>0</number>
-                      </property>
-                      <widget class="QWidget" name="page_4">
-                       <layout class="QHBoxLayout" name="horizontalLayout_19">
-                        <property name="spacing">
-                         <number>3</number>
-                        </property>
-                        <property name="leftMargin">
-                         <number>3</number>
-                        </property>
-                        <property name="topMargin">
-                         <number>3</number>
-                        </property>
-                        <property name="rightMargin">
-                         <number>3</number>
-                        </property>
-                        <property name="bottomMargin">
-                         <number>3</number>
-                        </property>
-                        <item>
-                         <widget class="QLineEdit" name="ledFloodZ">
-                          <property name="maximumSize">
-                           <size>
-                            <width>100</width>
-                            <height>16777215</height>
-                           </size>
-                          </property>
-                          <property name="text">
-                           <string>0</string>
-                          </property>
-                         </widget>
-                        </item>
-                        <item>
-                         <widget class="QLabel" name="label_250">
-                          <property name="text">
-                           <string>mm</string>
-                          </property>
-                         </widget>
-                        </item>
-                        <item>
-                         <spacer name="horizontalSpacer_15">
-                          <property name="orientation">
-                           <enum>Qt::Orientation::Horizontal</enum>
-                          </property>
-                          <property name="sizeHint" stdset="0">
-                           <size>
-                            <width>40</width>
-                            <height>20</height>
-                           </size>
-                          </property>
-                         </spacer>
-                        </item>
-                       </layout>
+                    <property name="frameShape">
+                     <enum>QFrame::Shape::NoFrame</enum>
+                    </property>
+                    <property name="frameShadow">
+                     <enum>QFrame::Shadow::Raised</enum>
+                    </property>
+                    <layout class="QHBoxLayout" name="horizontalLayout_16">
+                     <property name="leftMargin">
+                      <number>0</number>
+                     </property>
+                     <property name="topMargin">
+                      <number>0</number>
+                     </property>
+                     <property name="rightMargin">
+                      <number>0</number>
+                     </property>
+                     <property name="bottomMargin">
+                      <number>0</number>
+                     </property>
+                     <item>
+                      <widget class="AOneLineTextEdit" name="ledFloodZ">
+                       <property name="maximumSize">
+                        <size>
+                         <width>100</width>
+                         <height>25</height>
+                        </size>
+                       </property>
+                       <property name="text">
+                        <string>0</string>
+                       </property>
                       </widget>
-                      <widget class="QWidget" name="page_6">
-                       <layout class="QHBoxLayout" name="horizontalLayout_17">
-                        <property name="spacing">
-                         <number>3</number>
-                        </property>
-                        <property name="leftMargin">
-                         <number>3</number>
-                        </property>
-                        <property name="topMargin">
-                         <number>3</number>
-                        </property>
-                        <property name="rightMargin">
-                         <number>3</number>
-                        </property>
-                        <property name="bottomMargin">
-                         <number>3</number>
-                        </property>
-                        <item>
-                         <widget class="QLabel" name="label_249">
-                          <property name="text">
-                           <string>from</string>
-                          </property>
-                          <property name="alignment">
-                           <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
-                          </property>
-                         </widget>
-                        </item>
-                        <item>
-                         <widget class="QLineEdit" name="ledFloodZfrom">
-                          <property name="text">
-                           <string>-2.49</string>
-                          </property>
-                         </widget>
-                        </item>
-                        <item>
-                         <widget class="QLabel" name="label_251">
-                          <property name="text">
-                           <string>mm  to</string>
-                          </property>
-                          <property name="alignment">
-                           <set>Qt::AlignmentFlag::AlignCenter</set>
-                          </property>
-                         </widget>
-                        </item>
-                        <item>
-                         <widget class="QLineEdit" name="ledFloodZto">
-                          <property name="text">
-                           <string>2.49</string>
-                          </property>
-                         </widget>
-                        </item>
-                        <item>
-                         <widget class="QLabel" name="label_248">
-                          <property name="text">
-                           <string>mm</string>
-                          </property>
-                         </widget>
-                        </item>
-                       </layout>
+                     </item>
+                     <item>
+                      <widget class="QLabel" name="label_250">
+                       <property name="text">
+                        <string>mm</string>
+                       </property>
                       </widget>
-                     </widget>
-                    </item>
-                   </layout>
+                     </item>
+                    </layout>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QFrame" name="frZrange">
+                    <property name="minimumSize">
+                     <size>
+                      <width>0</width>
+                      <height>0</height>
+                     </size>
+                    </property>
+                    <property name="frameShape">
+                     <enum>QFrame::Shape::NoFrame</enum>
+                    </property>
+                    <property name="frameShadow">
+                     <enum>QFrame::Shadow::Raised</enum>
+                    </property>
+                    <layout class="QHBoxLayout" name="horizontalLayout_70">
+                     <property name="leftMargin">
+                      <number>0</number>
+                     </property>
+                     <property name="topMargin">
+                      <number>0</number>
+                     </property>
+                     <property name="rightMargin">
+                      <number>0</number>
+                     </property>
+                     <property name="bottomMargin">
+                      <number>0</number>
+                     </property>
+                     <item>
+                      <widget class="QLabel" name="label_48">
+                       <property name="text">
+                        <string>from</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="AOneLineTextEdit" name="ledFloodZfrom">
+                       <property name="maximumSize">
+                        <size>
+                         <width>100</width>
+                         <height>25</height>
+                        </size>
+                       </property>
+                       <property name="text">
+                        <string>-2.49</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item alignment="Qt::AlignmentFlag::AlignHCenter">
+                      <widget class="QLabel" name="label_251">
+                       <property name="text">
+                        <string>to</string>
+                       </property>
+                       <property name="alignment">
+                        <set>Qt::AlignmentFlag::AlignCenter</set>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="AOneLineTextEdit" name="ledFloodZto">
+                       <property name="maximumSize">
+                        <size>
+                         <width>100</width>
+                         <height>25</height>
+                        </size>
+                       </property>
+                       <property name="text">
+                        <string>2.49</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QLabel" name="label_248">
+                       <property name="text">
+                        <string>mm</string>
+                       </property>
+                      </widget>
+                     </item>
+                    </layout>
+                   </widget>
+                  </item>
+                  <item>
+                   <spacer name="horizontalSpacer_89">
+                    <property name="orientation">
+                     <enum>Qt::Orientation::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
                   </item>
                  </layout>
                 </item>
@@ -1636,76 +2765,164 @@
                  </layout>
                 </item>
                 <item>
-                 <widget class="QPlainTextEdit" name="pteNodeFile"/>
+                 <spacer name="verticalSpacer_26">
+                  <property name="orientation">
+                   <enum>Qt::Orientation::Vertical</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>20</width>
+                    <height>40</height>
+                   </size>
+                  </property>
+                 </spacer>
                 </item>
                </layout>
               </widget>
              </widget>
             </item>
             <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_23">
-              <item>
-               <spacer name="horizontalSpacer_28">
-                <property name="orientation">
-                 <enum>Qt::Orientation::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-              <item>
-               <widget class="QLabel" name="labAdvancedBombOn">
-                <property name="text">
-                 <string>--</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QPushButton" name="pbAdvancedBombSettings">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="minimumSize">
-                 <size>
-                  <width>150</width>
-                  <height>0</height>
-                 </size>
-                </property>
-                <property name="font">
-                 <font>
-                  <bold>false</bold>
-                  <kerning>true</kerning>
-                 </font>
-                </property>
-                <property name="text">
-                 <string>Advanced options</string>
-                </property>
-                <property name="checkable">
-                 <bool>false</bool>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <spacer name="horizontalSpacer_29">
-                <property name="orientation">
-                 <enum>Qt::Orientation::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-             </layout>
+             <widget class="QFrame" name="frLimitBombPosition">
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>75</height>
+               </size>
+              </property>
+              <property name="frameShape">
+               <enum>QFrame::Shape::NoFrame</enum>
+              </property>
+              <property name="frameShadow">
+               <enum>QFrame::Shadow::Raised</enum>
+              </property>
+              <layout class="QVBoxLayout" name="verticalLayout_31">
+               <item alignment="Qt::AlignmentFlag::AlignHCenter">
+                <widget class="QLabel" name="label_45">
+                 <property name="text">
+                  <string>Only accept bomb positions which are inside of:</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <layout class="QHBoxLayout" name="horizontalLayout_68">
+                 <item>
+                  <spacer name="horizontalSpacer_84">
+                   <property name="orientation">
+                    <enum>Qt::Orientation::Horizontal</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>40</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                 <item>
+                  <widget class="QCheckBox" name="cbSkipByMaterial">
+                   <property name="text">
+                    <string>material</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QLineEdit" name="leSkipOutsideMaterial">
+                   <property name="enabled">
+                    <bool>false</bool>
+                   </property>
+                   <property name="text">
+                    <string>MaterialName</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <spacer name="horizontalSpacer_83">
+                   <property name="orientation">
+                    <enum>Qt::Orientation::Horizontal</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>40</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                 <item>
+                  <widget class="QCheckBox" name="cbSkipByVolume">
+                   <property name="font">
+                    <font>
+                     <bold>false</bold>
+                     <kerning>true</kerning>
+                    </font>
+                   </property>
+                   <property name="toolTip">
+                    <string>If a node is outside of this object, skip it. If this object is not found, the option has no effect.</string>
+                   </property>
+                   <property name="text">
+                    <string>object</string>
+                   </property>
+                   <property name="checked">
+                    <bool>false</bool>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QLineEdit" name="leSkipOutsideVolume">
+                   <property name="enabled">
+                    <bool>false</bool>
+                   </property>
+                   <property name="font">
+                    <font>
+                     <bold>false</bold>
+                     <kerning>true</kerning>
+                    </font>
+                   </property>
+                   <property name="toolTip">
+                    <string>If a node is outside of this object, skip it. If this object is not found, the option has no effect.</string>
+                   </property>
+                   <property name="text">
+                    <string>GeoObjectName</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <spacer name="horizontalSpacer_82">
+                   <property name="orientation">
+                    <enum>Qt::Orientation::Horizontal</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>40</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                </layout>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <widget class="Line" name="line_6">
+              <property name="orientation">
+               <enum>Qt::Orientation::Horizontal</enum>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="verticalSpacer_25">
+              <property name="orientation">
+               <enum>Qt::Orientation::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>40</height>
+               </size>
+              </property>
+             </spacer>
             </item>
             <item>
              <layout class="QHBoxLayout" name="horizontalLayout_28">
@@ -1736,12 +2953,12 @@
                <widget class="QLabel" name="label_80">
                 <property name="font">
                  <font>
-                  <bold>false</bold>
                   <kerning>true</kerning>
+                  <fontweight>Medium</fontweight>
                  </font>
                 </property>
                 <property name="text">
-                 <string>  Photons per bomb</string>
+                 <string>Photons per bomb</string>
                 </property>
                 <property name="alignment">
                  <set>Qt::AlignmentFlag::AlignCenter</set>
@@ -1792,10 +3009,16 @@
               <item>
                <widget class="QStackedWidget" name="swNumPhotons">
                 <property name="sizePolicy">
-                 <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                 <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
                   <horstretch>0</horstretch>
                   <verstretch>0</verstretch>
                  </sizepolicy>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>150</width>
+                  <height>16777215</height>
+                 </size>
                 </property>
                 <property name="font">
                  <font>
@@ -2045,6 +3268,12 @@
                  </layout>
                 </widget>
                 <widget class="QWidget" name="pageScanGauss">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
                  <layout class="QVBoxLayout" name="verticalLayout_18">
                   <property name="spacing">
                    <number>1</number>
@@ -2182,8 +3411,8 @@
                     </property>
                     <property name="maximumSize">
                      <size>
-                      <width>80</width>
-                      <height>25</height>
+                      <width>16777215</width>
+                      <height>16777215</height>
                      </size>
                     </property>
                     <property name="font">
@@ -2204,8 +3433,8 @@
                    <widget class="QPushButton" name="pbNumDistLoad">
                     <property name="maximumSize">
                      <size>
-                      <width>80</width>
-                      <height>25</height>
+                      <width>16777215</width>
+                      <height>16777215</height>
                      </size>
                     </property>
                     <property name="font">
@@ -2230,7 +3459,7 @@
                     <property name="maximumSize">
                      <size>
                       <width>20</width>
-                      <height>25</height>
+                      <height>16777215</height>
                      </size>
                     </property>
                     <property name="text">
@@ -2239,7 +3468,7 @@
                    </widget>
                   </item>
                   <item>
-                   <spacer name="horizontalSpacer_27">
+                   <spacer name="horizontalSpacer_86">
                     <property name="orientation">
                      <enum>Qt::Orientation::Horizontal</enum>
                     </property>
@@ -2255,6 +3484,19 @@
                 </widget>
                </widget>
               </item>
+              <item>
+               <spacer name="horizontalSpacer_85">
+                <property name="orientation">
+                 <enum>Qt::Orientation::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
              </layout>
             </item>
            </layout>
@@ -2262,29 +3504,29 @@
           <widget class="QWidget" name="pageFromEnDep">
            <layout class="QVBoxLayout" name="verticalLayout_23">
             <property name="leftMargin">
-             <number>3</number>
+             <number>9</number>
             </property>
             <property name="topMargin">
-             <number>3</number>
+             <number>9</number>
             </property>
             <property name="rightMargin">
-             <number>3</number>
+             <number>9</number>
             </property>
             <property name="bottomMargin">
-             <number>3</number>
+             <number>9</number>
             </property>
+            <item alignment="Qt::AlignmentFlag::AlignHCenter">
+             <widget class="QLabel" name="label_47">
+              <property name="text">
+               <string>File with energy deposition data:</string>
+              </property>
+             </widget>
+            </item>
             <item>
              <layout class="QHBoxLayout" name="horizontalLayout_42">
               <property name="topMargin">
                <number>0</number>
               </property>
-              <item>
-               <widget class="QLabel" name="label_13">
-                <property name="text">
-                 <string>File:</string>
-                </property>
-               </widget>
-              </item>
               <item>
                <widget class="QLineEdit" name="leDepositionFile"/>
               </item>
@@ -2433,103 +3675,7 @@
              </widget>
             </item>
             <item>
-             <spacer name="verticalSpacer_22">
-              <property name="orientation">
-               <enum>Qt::Orientation::Vertical</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>20</width>
-                <height>40</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item>
-             <widget class="QLabel" name="label_23">
-              <property name="text">
-               <string>Generate:</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignmentFlag::AlignCenter</set>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_41">
-              <property name="topMargin">
-               <number>0</number>
-              </property>
-              <item>
-               <spacer name="horizontalSpacer_42">
-                <property name="orientation">
-                 <enum>Qt::Orientation::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-              <item>
-               <layout class="QVBoxLayout" name="verticalLayout_10">
-                <property name="spacing">
-                 <number>3</number>
-                </property>
-                <property name="leftMargin">
-                 <number>25</number>
-                </property>
-                <item>
-                 <widget class="QCheckBox" name="cbPrimaryScint">
-                  <property name="text">
-                   <string>Primary scintillation</string>
-                  </property>
-                  <property name="checked">
-                   <bool>true</bool>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QCheckBox" name="cbSecondaryScint">
-                  <property name="text">
-                   <string>Secondary scintillation</string>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-              <item>
-               <spacer name="horizontalSpacer_43">
-                <property name="orientation">
-                 <enum>Qt::Orientation::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-             </layout>
-            </item>
-            <item>
              <spacer name="verticalSpacer_17">
-              <property name="orientation">
-               <enum>Qt::Orientation::Vertical</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>20</width>
-                <height>40</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item>
-             <spacer name="verticalSpacer_23">
               <property name="orientation">
                <enum>Qt::Orientation::Vertical</enum>
               </property>
@@ -2545,18 +3691,18 @@
           </widget>
           <widget class="QWidget" name="pageIndiPhot">
            <layout class="QVBoxLayout" name="verticalLayout_7">
+            <item alignment="Qt::AlignmentFlag::AlignHCenter">
+             <widget class="QLabel" name="label_13">
+              <property name="text">
+               <string>List file with photon data (phase space file):</string>
+              </property>
+             </widget>
+            </item>
             <item>
              <layout class="QHBoxLayout" name="horizontalLayout_48">
               <property name="topMargin">
                <number>0</number>
               </property>
-              <item>
-               <widget class="QLabel" name="label_31">
-                <property name="text">
-                 <string>File:</string>
-                </property>
-               </widget>
-              </item>
               <item>
                <widget class="QLineEdit" name="leSinglePhotonsFile"/>
               </item>
@@ -2651,7 +3797,7 @@
               <item>
                <widget class="QPushButton" name="pbCheckSinglePhotonsFile">
                 <property name="text">
-                 <string>Check</string>
+                 <string>Check file</string>
                 </property>
                </widget>
               </item>
@@ -2712,201 +3858,6 @@
             </item>
            </layout>
           </widget>
-          <widget class="QWidget" name="pageFromLRFs">
-           <layout class="QVBoxLayout" name="verticalLayout_24">
-            <item>
-             <widget class="QLabel" name="label_228">
-              <property name="text">
-               <string>No photon tracking in this mode!</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignmentFlag::AlignCenter</set>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QLabel" name="label_233">
-              <property name="text">
-               <string>Assuming Poisson statistics!</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignmentFlag::AlignCenter</set>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_2">
-              <item>
-               <spacer name="horizontalSpacer_46">
-                <property name="orientation">
-                 <enum>Qt::Orientation::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-              <item>
-               <widget class="QLabel" name="label_206">
-                <property name="font">
-                 <font>
-                  <bold>false</bold>
-                 </font>
-                </property>
-                <property name="text">
-                 <string>Energy of unity corresponds to</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QSpinBox" name="sbPhotonsForUnitaryLRF">
-                <property name="minimum">
-                 <number>1</number>
-                </property>
-                <property name="maximum">
-                 <number>10000000</number>
-                </property>
-                <property name="value">
-                 <number>20000</number>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QLabel" name="label_207">
-                <property name="font">
-                 <font>
-                  <bold>false</bold>
-                 </font>
-                </property>
-                <property name="text">
-                 <string>photons</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <spacer name="horizontalSpacer_45">
-                <property name="orientation">
-                 <enum>Qt::Orientation::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-             </layout>
-            </item>
-            <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_3">
-              <item>
-               <spacer name="horizontalSpacer_47">
-                <property name="orientation">
-                 <enum>Qt::Orientation::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-              <item>
-               <widget class="QLabel" name="label_43">
-                <property name="text">
-                 <string>LRF of unity corresponds to</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QLineEdit" name="ledNumElPerUnitaryLRF">
-                <property name="minimumSize">
-                 <size>
-                  <width>50</width>
-                  <height>0</height>
-                 </size>
-                </property>
-                <property name="maximumSize">
-                 <size>
-                  <width>100</width>
-                  <height>16777215</height>
-                 </size>
-                </property>
-                <property name="text">
-                 <string>1.0</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QLabel" name="label_44">
-                <property name="text">
-                 <string>photo-electrons</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <spacer name="horizontalSpacer_44">
-                <property name="orientation">
-                 <enum>Qt::Orientation::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-             </layout>
-            </item>
-            <item>
-             <spacer name="verticalSpacer_18">
-              <property name="orientation">
-               <enum>Qt::Orientation::Vertical</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>20</width>
-                <height>40</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item>
-             <widget class="QLabel" name="label_7">
-              <property name="font">
-               <font>
-                <bold>true</bold>
-               </font>
-              </property>
-              <property name="text">
-               <string>NOT IMPLEMENTED!</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignmentFlag::AlignCenter</set>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <spacer name="verticalSpacer_20">
-              <property name="orientation">
-               <enum>Qt::Orientation::Vertical</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>20</width>
-                <height>40</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-           </layout>
-          </widget>
          </widget>
         </item>
         <item>
@@ -2921,383 +3872,6 @@
            </size>
           </property>
          </spacer>
-        </item>
-        <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_7">
-          <property name="topMargin">
-           <number>0</number>
-          </property>
-          <item>
-           <spacer name="horizontalSpacer_5">
-            <property name="orientation">
-             <enum>Qt::Orientation::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item>
-           <widget class="QTabWidget" name="twGeneralOption">
-            <property name="enabled">
-             <bool>true</bool>
-            </property>
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="currentIndex">
-             <number>0</number>
-            </property>
-            <widget class="QWidget" name="tabWave">
-             <attribute name="title">
-              <string>Wave</string>
-             </attribute>
-             <layout class="QVBoxLayout" name="verticalLayout_9">
-              <property name="spacing">
-               <number>3</number>
-              </property>
-              <property name="leftMargin">
-               <number>3</number>
-              </property>
-              <property name="topMargin">
-               <number>3</number>
-              </property>
-              <property name="rightMargin">
-               <number>3</number>
-              </property>
-              <property name="bottomMargin">
-               <number>3</number>
-              </property>
-              <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_21">
-                <property name="leftMargin">
-                 <number>6</number>
-                </property>
-                <property name="topMargin">
-                 <number>0</number>
-                </property>
-                <item>
-                 <widget class="QCheckBox" name="cbWaveResolved">
-                  <property name="enabled">
-                   <bool>true</bool>
-                  </property>
-                  <property name="text">
-                   <string>Wavelength-resolved simulation</string>
-                  </property>
-                  <property name="checked">
-                   <bool>false</bool>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QPushButton" name="pbdWave">
-                  <property name="text">
-                   <string>...</string>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-              <item>
-               <widget class="QFrame" name="fWaveOptions">
-                <property name="frameShape">
-                 <enum>QFrame::Shape::NoFrame</enum>
-                </property>
-                <property name="frameShadow">
-                 <enum>QFrame::Shadow::Raised</enum>
-                </property>
-                <layout class="QHBoxLayout" name="horizontalLayout_10">
-                 <property name="spacing">
-                  <number>3</number>
-                 </property>
-                 <property name="leftMargin">
-                  <number>3</number>
-                 </property>
-                 <property name="topMargin">
-                  <number>3</number>
-                 </property>
-                 <property name="rightMargin">
-                  <number>3</number>
-                 </property>
-                 <property name="bottomMargin">
-                  <number>3</number>
-                 </property>
-                 <item>
-                  <widget class="QLabel" name="label_118">
-                   <property name="text">
-                    <string>From:</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QLineEdit" name="ledWaveFrom">
-                   <property name="maximumSize">
-                    <size>
-                     <width>70</width>
-                     <height>16777215</height>
-                    </size>
-                   </property>
-                   <property name="text">
-                    <string>200</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QLabel" name="label_119">
-                   <property name="text">
-                    <string>nm</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QLabel" name="label_121">
-                   <property name="text">
-                    <string>to:</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QLineEdit" name="ledWaveTo">
-                   <property name="maximumSize">
-                    <size>
-                     <width>70</width>
-                     <height>16777215</height>
-                    </size>
-                   </property>
-                   <property name="text">
-                    <string>800</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QLabel" name="label_122">
-                   <property name="text">
-                    <string>nm</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QLabel" name="label_120">
-                   <property name="text">
-                    <string>step:</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QLineEdit" name="ledWaveStep">
-                   <property name="maximumSize">
-                    <size>
-                     <width>70</width>
-                     <height>16777215</height>
-                    </size>
-                   </property>
-                   <property name="text">
-                    <string>5</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QLabel" name="label_123">
-                   <property name="text">
-                    <string>nm</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QLabel" name="label_124">
-                   <property name="text">
-                    <string>    (</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QLabel" name="labWaveNodes">
-                   <property name="text">
-                    <string>121</string>
-                   </property>
-                   <property name="alignment">
-                    <set>Qt::AlignmentFlag::AlignCenter</set>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QLabel" name="label_4">
-                   <property name="text">
-                    <string>nodes )</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <spacer name="horizontalSpacer_20">
-                   <property name="orientation">
-                    <enum>Qt::Orientation::Horizontal</enum>
-                   </property>
-                   <property name="sizeHint" stdset="0">
-                    <size>
-                     <width>40</width>
-                     <height>20</height>
-                    </size>
-                   </property>
-                  </spacer>
-                 </item>
-                </layout>
-               </widget>
-              </item>
-             </layout>
-            </widget>
-            <widget class="QWidget" name="tabAccelerators">
-             <attribute name="title">
-              <string>Optimization</string>
-             </attribute>
-             <layout class="QVBoxLayout" name="verticalLayout_8">
-              <property name="spacing">
-               <number>3</number>
-              </property>
-              <property name="leftMargin">
-               <number>3</number>
-              </property>
-              <property name="topMargin">
-               <number>3</number>
-              </property>
-              <property name="rightMargin">
-               <number>3</number>
-              </property>
-              <property name="bottomMargin">
-               <number>3</number>
-              </property>
-              <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_4">
-                <property name="leftMargin">
-                 <number>10</number>
-                </property>
-                <item>
-                 <widget class="QLabel" name="label_511">
-                  <property name="text">
-                   <string>Kill photon after</string>
-                  </property>
-                  <property name="alignment">
-                   <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QSpinBox" name="sbMaxNumbPhTransitions">
-                  <property name="minimum">
-                   <number>1</number>
-                  </property>
-                  <property name="maximum">
-                   <number>10000000</number>
-                  </property>
-                  <property name="value">
-                   <number>500</number>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QLabel" name="label_41">
-                  <property name="text">
-                   <string>transitions </string>
-                  </property>
-                  <property name="alignment">
-                   <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <spacer name="horizontalSpacer_18">
-                  <property name="orientation">
-                   <enum>Qt::Orientation::Horizontal</enum>
-                  </property>
-                  <property name="sizeHint" stdset="0">
-                   <size>
-                    <width>40</width>
-                    <height>20</height>
-                   </size>
-                  </property>
-                 </spacer>
-                </item>
-               </layout>
-              </item>
-              <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_20">
-                <property name="leftMargin">
-                 <number>10</number>
-                </property>
-                <item>
-                 <widget class="QLabel" name="labSkipTracingON">
-                  <property name="text">
-                   <string>--</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QCheckBox" name="cbRndCheckBeforeTrack">
-                  <property name="toolTip">
-                   <string>Do not use if PMs register light after wavelength shifting!</string>
-                  </property>
-                  <property name="text">
-                   <string>Before tracing a photon, test against max QE of sensors</string>
-                  </property>
-                  <property name="checked">
-                   <bool>true</bool>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QPushButton" name="pbQEacceleratorHelp">
-                  <property name="maximumSize">
-                   <size>
-                    <width>20</width>
-                    <height>16777215</height>
-                   </size>
-                  </property>
-                  <property name="toolTip">
-                   <string>Do not use if PMs register light after wavelength shifting!</string>
-                  </property>
-                  <property name="text">
-                   <string>?</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <spacer name="horizontalSpacer_19">
-                  <property name="orientation">
-                   <enum>Qt::Orientation::Horizontal</enum>
-                  </property>
-                  <property name="sizeHint" stdset="0">
-                   <size>
-                    <width>40</width>
-                    <height>20</height>
-                   </size>
-                  </property>
-                 </spacer>
-                </item>
-               </layout>
-              </item>
-             </layout>
-            </widget>
-           </widget>
-          </item>
-          <item>
-           <spacer name="horizontalSpacer_6">
-            <property name="orientation">
-             <enum>Qt::Orientation::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-         </layout>
         </item>
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_61">
@@ -3358,19 +3932,6 @@
            </spacer>
           </item>
          </layout>
-        </item>
-        <item>
-         <spacer name="verticalSpacer_10">
-          <property name="orientation">
-           <enum>Qt::Orientation::Vertical</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>20</width>
-            <height>40</height>
-           </size>
-          </property>
-         </spacer>
         </item>
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_6">
@@ -4451,6 +5012,20 @@
                    </widget>
                   </item>
                   <item>
+                   <widget class="QCheckBox" name="cbSensorTableSwap">
+                    <property name="text">
+                     <string>Swap</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QCheckBox" name="cbSensorTableHideIndex">
+                    <property name="text">
+                     <string>Hide sensor index</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
                    <spacer name="horizontalSpacer_60">
                     <property name="orientation">
                      <enum>Qt::Orientation::Horizontal</enum>
@@ -4937,72 +5512,15 @@
    </layout>
   </widget>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>AOneLineTextEdit</class>
+   <extends>QLineEdit</extends>
+   <header>aonelinetextedit.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections>
-  <connection>
-   <sender>ledWaveFrom</sender>
-   <signal>editingFinished()</signal>
-   <receiver>pbdWave</receiver>
-   <slot>click()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>148</x>
-     <y>523</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>562</x>
-     <y>490</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>ledWaveTo</sender>
-   <signal>editingFinished()</signal>
-   <receiver>pbdWave</receiver>
-   <slot>click()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>263</x>
-     <y>523</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>562</x>
-     <y>490</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>ledWaveStep</sender>
-   <signal>editingFinished()</signal>
-   <receiver>pbdWave</receiver>
-   <slot>click()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>394</x>
-     <y>523</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>562</x>
-     <y>490</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>cbWaveResolved</sender>
-   <signal>clicked()</signal>
-   <receiver>pbdWave</receiver>
-   <slot>click()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>210</x>
-     <y>489</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>562</x>
-     <y>490</y>
-    </hint>
-   </hints>
-  </connection>
   <connection>
    <sender>cobSimType</sender>
    <signal>currentIndexChanged(int)</signal>
@@ -5010,12 +5528,12 @@
    <slot>setCurrentIndex(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>474</x>
+     <x>344</x>
      <y>60</y>
     </hint>
     <hint type="destinationlabel">
-     <x>168</x>
-     <y>96</y>
+     <x>109</x>
+     <y>135</y>
     </hint>
    </hints>
   </connection>
@@ -5026,12 +5544,12 @@
    <slot>setCurrentIndex(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>341</x>
-     <y>390</y>
+     <x>368</x>
+     <y>528</y>
     </hint>
     <hint type="destinationlabel">
-     <x>585</x>
-     <y>406</y>
+     <x>524</x>
+     <y>513</y>
     </hint>
    </hints>
   </connection>
@@ -5042,12 +5560,12 @@
    <slot>setCurrentIndex(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>411</x>
-     <y>104</y>
+     <x>400</x>
+     <y>115</y>
     </hint>
     <hint type="destinationlabel">
-     <x>103</x>
-     <y>264</y>
+     <x>104</x>
+     <y>261</y>
     </hint>
    </hints>
   </connection>
@@ -5059,27 +5577,11 @@
    <hints>
     <hint type="sourcelabel">
      <x>105</x>
-     <y>122</y>
+     <y>136</y>
     </hint>
     <hint type="destinationlabel">
-     <x>61</x>
-     <y>134</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>cobFloodZmode</sender>
-   <signal>currentIndexChanged(int)</signal>
-   <receiver>swScanFloodZ</receiver>
-   <slot>setCurrentIndex(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>105</x>
-     <y>134</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>111</x>
-     <y>133</y>
+     <x>108</x>
+     <y>140</y>
     </hint>
    </hints>
   </connection>
@@ -5091,11 +5593,11 @@
    <hints>
     <hint type="sourcelabel">
      <x>49</x>
-     <y>127</y>
+     <y>138</y>
     </hint>
     <hint type="destinationlabel">
      <x>112</x>
-     <y>121</y>
+     <y>132</y>
     </hint>
    </hints>
   </connection>
@@ -5107,11 +5609,11 @@
    <hints>
     <hint type="sourcelabel">
      <x>73</x>
-     <y>127</y>
+     <y>138</y>
     </hint>
     <hint type="destinationlabel">
      <x>112</x>
-     <y>121</y>
+     <y>132</y>
     </hint>
    </hints>
   </connection>
@@ -5123,11 +5625,11 @@
    <hints>
     <hint type="sourcelabel">
      <x>97</x>
-     <y>127</y>
+     <y>138</y>
     </hint>
     <hint type="destinationlabel">
      <x>112</x>
-     <y>121</y>
+     <y>132</y>
     </hint>
    </hints>
   </connection>
@@ -5139,11 +5641,11 @@
    <hints>
     <hint type="sourcelabel">
      <x>46</x>
-     <y>135</y>
+     <y>146</y>
     </hint>
     <hint type="destinationlabel">
      <x>112</x>
-     <y>121</y>
+     <y>132</y>
     </hint>
    </hints>
   </connection>
@@ -5155,11 +5657,11 @@
    <hints>
     <hint type="sourcelabel">
      <x>62</x>
-     <y>135</y>
+     <y>146</y>
     </hint>
     <hint type="destinationlabel">
      <x>112</x>
-     <y>121</y>
+     <y>132</y>
     </hint>
    </hints>
   </connection>
@@ -5171,11 +5673,11 @@
    <hints>
     <hint type="sourcelabel">
      <x>79</x>
-     <y>135</y>
+     <y>146</y>
     </hint>
     <hint type="destinationlabel">
      <x>112</x>
-     <y>121</y>
+     <y>132</y>
     </hint>
    </hints>
   </connection>
@@ -5187,11 +5689,11 @@
    <hints>
     <hint type="sourcelabel">
      <x>95</x>
-     <y>135</y>
+     <y>146</y>
     </hint>
     <hint type="destinationlabel">
      <x>112</x>
-     <y>121</y>
+     <y>132</y>
     </hint>
    </hints>
   </connection>
@@ -5203,11 +5705,11 @@
    <hints>
     <hint type="sourcelabel">
      <x>111</x>
-     <y>135</y>
+     <y>146</y>
     </hint>
     <hint type="destinationlabel">
      <x>112</x>
-     <y>121</y>
+     <y>132</y>
     </hint>
    </hints>
   </connection>
@@ -5219,11 +5721,11 @@
    <hints>
     <hint type="sourcelabel">
      <x>30</x>
-     <y>138</y>
+     <y>149</y>
     </hint>
     <hint type="destinationlabel">
-     <x>105</x>
-     <y>121</y>
+     <x>112</x>
+     <y>132</y>
     </hint>
    </hints>
   </connection>
@@ -5235,11 +5737,11 @@
    <hints>
     <hint type="sourcelabel">
      <x>30</x>
-     <y>141</y>
+     <y>152</y>
     </hint>
     <hint type="destinationlabel">
      <x>112</x>
-     <y>121</y>
+     <y>132</y>
     </hint>
    </hints>
   </connection>
@@ -5251,11 +5753,11 @@
    <hints>
     <hint type="sourcelabel">
      <x>46</x>
-     <y>138</y>
+     <y>149</y>
     </hint>
     <hint type="destinationlabel">
      <x>112</x>
-     <y>121</y>
+     <y>132</y>
     </hint>
    </hints>
   </connection>
@@ -5267,11 +5769,11 @@
    <hints>
     <hint type="sourcelabel">
      <x>46</x>
-     <y>141</y>
+     <y>152</y>
     </hint>
     <hint type="destinationlabel">
      <x>112</x>
-     <y>121</y>
+     <y>132</y>
     </hint>
    </hints>
   </connection>
@@ -5283,11 +5785,11 @@
    <hints>
     <hint type="sourcelabel">
      <x>62</x>
-     <y>138</y>
+     <y>149</y>
     </hint>
     <hint type="destinationlabel">
      <x>112</x>
-     <y>121</y>
+     <y>132</y>
     </hint>
    </hints>
   </connection>
@@ -5299,11 +5801,11 @@
    <hints>
     <hint type="sourcelabel">
      <x>62</x>
-     <y>141</y>
+     <y>152</y>
     </hint>
     <hint type="destinationlabel">
      <x>112</x>
-     <y>121</y>
+     <y>132</y>
     </hint>
    </hints>
   </connection>
@@ -5315,11 +5817,11 @@
    <hints>
     <hint type="sourcelabel">
      <x>79</x>
-     <y>138</y>
+     <y>149</y>
     </hint>
     <hint type="destinationlabel">
      <x>112</x>
-     <y>121</y>
+     <y>132</y>
     </hint>
    </hints>
   </connection>
@@ -5331,11 +5833,11 @@
    <hints>
     <hint type="sourcelabel">
      <x>79</x>
-     <y>141</y>
+     <y>152</y>
     </hint>
     <hint type="destinationlabel">
      <x>112</x>
-     <y>121</y>
+     <y>132</y>
     </hint>
    </hints>
   </connection>
@@ -5347,11 +5849,11 @@
    <hints>
     <hint type="sourcelabel">
      <x>95</x>
-     <y>138</y>
+     <y>149</y>
     </hint>
     <hint type="destinationlabel">
      <x>112</x>
-     <y>121</y>
+     <y>132</y>
     </hint>
    </hints>
   </connection>
@@ -5363,11 +5865,11 @@
    <hints>
     <hint type="sourcelabel">
      <x>95</x>
-     <y>141</y>
+     <y>152</y>
     </hint>
     <hint type="destinationlabel">
      <x>112</x>
-     <y>121</y>
+     <y>132</y>
     </hint>
    </hints>
   </connection>
@@ -5379,11 +5881,11 @@
    <hints>
     <hint type="sourcelabel">
      <x>111</x>
-     <y>138</y>
+     <y>149</y>
     </hint>
     <hint type="destinationlabel">
      <x>112</x>
-     <y>121</y>
+     <y>132</y>
     </hint>
    </hints>
   </connection>
@@ -5395,11 +5897,11 @@
    <hints>
     <hint type="sourcelabel">
      <x>111</x>
-     <y>141</y>
+     <y>152</y>
     </hint>
     <hint type="destinationlabel">
      <x>112</x>
-     <y>121</y>
+     <y>132</y>
     </hint>
    </hints>
   </connection>
@@ -5414,7 +5916,7 @@
      <y>194</y>
     </hint>
     <hint type="destinationlabel">
-     <x>268</x>
+     <x>261</x>
      <y>195</y>
     </hint>
    </hints>
@@ -5426,11 +5928,11 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>327</x>
+     <x>320</x>
      <y>194</y>
     </hint>
     <hint type="destinationlabel">
-     <x>388</x>
+     <x>373</x>
      <y>195</y>
     </hint>
    </hints>
@@ -5442,11 +5944,11 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>447</x>
+     <x>432</x>
      <y>194</y>
     </hint>
     <hint type="destinationlabel">
-     <x>508</x>
+     <x>486</x>
      <y>195</y>
     </hint>
    </hints>
@@ -5458,11 +5960,11 @@
    <slot>setHidden(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>61</x>
+     <x>63</x>
      <y>194</y>
     </hint>
     <hint type="destinationlabel">
-     <x>257</x>
+     <x>258</x>
      <y>198</y>
     </hint>
    </hints>
@@ -5478,7 +5980,7 @@
      <y>194</y>
     </hint>
     <hint type="destinationlabel">
-     <x>588</x>
+     <x>566</x>
      <y>195</y>
     </hint>
    </hints>
@@ -5494,7 +5996,7 @@
      <y>194</y>
     </hint>
     <hint type="destinationlabel">
-     <x>588</x>
+     <x>566</x>
      <y>195</y>
     </hint>
    </hints>
@@ -5506,11 +6008,11 @@
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>327</x>
+     <x>320</x>
      <y>194</y>
     </hint>
     <hint type="destinationlabel">
-     <x>588</x>
+     <x>566</x>
      <y>195</y>
     </hint>
    </hints>
@@ -5522,11 +6024,11 @@
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>447</x>
+     <x>432</x>
      <y>194</y>
     </hint>
     <hint type="destinationlabel">
-     <x>588</x>
+     <x>566</x>
      <y>195</y>
     </hint>
    </hints>
@@ -5538,11 +6040,11 @@
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>268</x>
+     <x>261</x>
      <y>195</y>
     </hint>
     <hint type="destinationlabel">
-     <x>588</x>
+     <x>566</x>
      <y>195</y>
     </hint>
    </hints>
@@ -5554,11 +6056,11 @@
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>388</x>
+     <x>373</x>
      <y>195</y>
     </hint>
     <hint type="destinationlabel">
-     <x>588</x>
+     <x>566</x>
      <y>195</y>
     </hint>
    </hints>
@@ -5570,11 +6072,11 @@
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>508</x>
+     <x>486</x>
      <y>195</y>
     </hint>
     <hint type="destinationlabel">
-     <x>588</x>
+     <x>566</x>
      <y>195</y>
     </hint>
    </hints>
@@ -5586,12 +6088,108 @@
    <slot>setHidden(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>376</x>
-     <y>552</y>
+     <x>397</x>
+     <y>593</y>
     </hint>
     <hint type="destinationlabel">
-     <x>270</x>
-     <y>550</y>
+     <x>313</x>
+     <y>595</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cbWaveResolved</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>fWaveOptions</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>226</x>
+     <y>133</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>120</x>
+     <y>171</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ledWaveFrom</sender>
+   <signal>editingFinished()</signal>
+   <receiver>pbdWave</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>156</x>
+     <y>169</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>453</x>
+     <y>134</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ledWaveTo</sender>
+   <signal>editingFinished()</signal>
+   <receiver>pbdWave</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>264</x>
+     <y>169</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>453</x>
+     <y>134</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ledWaveStep</sender>
+   <signal>editingFinished()</signal>
+   <receiver>pbdWave</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>388</x>
+     <y>169</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>453</x>
+     <y>134</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cbSkipByMaterial</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>leSkipOutsideMaterial</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>140</x>
+     <y>453</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>276</x>
+     <y>454</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cbSkipByVolume</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>leSkipOutsideVolume</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>384</x>
+     <y>453</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>520</x>
+     <y>454</y>
     </hint>
    </hints>
   </connection>

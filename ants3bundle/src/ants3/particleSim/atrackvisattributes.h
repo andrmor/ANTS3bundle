@@ -27,37 +27,41 @@ public:
     void reset();
 };
 
-class AParticleTrackVisuals
+class ATrackVisAttributes
 {
 public:
-    static AParticleTrackVisuals & getInstance();
+    ATrackVisAttributes();
 
-private:
-    AParticleTrackVisuals();
-
-    AParticleTrackVisuals(const AParticleTrackVisuals&)            = delete;
-    AParticleTrackVisuals(AParticleTrackVisuals&&)                 = delete;
-    AParticleTrackVisuals& operator=(const AParticleTrackVisuals&) = delete;
-    AParticleTrackVisuals& operator=(AParticleTrackVisuals&&)      = delete;
-
-public:
     ATrackAttributes DefaultAttributes;
     std::map<QString, ATrackAttributes> DefinedAttributes;
 
+    ATrackAttributes PrimaryPhotonTracks;
+    ATrackAttributes SecondaryPhotonTracks;
+    ATrackAttributes HitSensorPhotonTracks;
+    bool UseHitSensorAttributes = true;
+
     ATrackAttributes * getAttributesForParticle(const QString & name); // nullptr if not yet defined
     const QStringList getDefinedParticles() const;
-
     void defineAttributesForParticle(const QString & name, const ATrackAttributes & att);
-
-    void writeToJson(QJsonObject & json) const;
-    void readFromJson(const QJsonObject & json);
-
     void removeCustom(const QString & name);
-
     void applyToParticleTrack(TVirtualGeoTrack * track, const QString & Particle) const;
 
-private:
-    void clear(); //clear and reset to default values
+    void applyToPhotonTrack(TVirtualGeoTrack * track, bool secondary, bool hit) const;
+
+    void writeToJson(QJsonObject & json) const;
+    void writeToJson_particles(QJsonObject & json) const;
+    void writeToJson_photons(QJsonObject & json) const;
+
+    void readFromJson(const QJsonObject & json);
+    void readFromJson_particles(const QJsonObject & json);
+    void readFromJson_photons(const QJsonObject & json);
+
+    void clearParticleProps();
+    void clearPhotonProps();
+
+    void importParticleAttributes(ATrackVisAttributes & fromOther);
+    void importAndMergeParticleAttributes(ATrackVisAttributes & fromOther);
+    void importPhotonAttributes(ATrackVisAttributes & fromOther);
 };
 
 #endif // ATRACKDRAWOPTIONS_H

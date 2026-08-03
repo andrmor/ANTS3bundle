@@ -68,10 +68,10 @@ QString APFM_OpticalFiber::checkModel() const
 {
     if (Length_mm < 0) return "Fiber length cannot be negative";
 
-    if (MaxAngle_deg < 0) return "Max angle cannot be negative";
+    if (CutOffAngle_deg < 0) return "Cut-off angle cannot be negative";
 
-    for (const auto & p : MaxAngleSpectrum_deg)
-        if (p.second < 0) return "Max angle cannot be negative! Check wavelength-resolved data.";
+    for (const auto & p : CutOffAngleSpectrum_deg)
+        if (p.second < 0) return "Cut-off angle cannot be negative! Check wavelength-resolved data.";
 
     return "";
 }
@@ -79,100 +79,240 @@ QString APFM_OpticalFiber::checkModel() const
 void APFM_OpticalFiber::writeSettingsToJson(QJsonObject & json) const
 {
     json["Length_mm"] = Length_mm;
-    json["MaxAngle_deg"] = MaxAngle_deg;
+    json["CutOffAngle_deg"] = CutOffAngle_deg;
 
-    QJsonArray ar;
-    jstools::writeDPairVectorToArray(MaxAngleSpectrum_deg, ar);
-    json["MaxAngleSpectrum_deg"] = ar;
+    {
+        QJsonArray ar;
+        jstools::writeDPairVectorToArray(CutOffAngleSpectrum_deg, ar);
+        json["CutOffAngleSpectrum_deg"] = ar;
+    }
 }
 
 void APFM_OpticalFiber::readSettingsFromJson(const QJsonObject & json)
 {
+    CutOffAngle_deg = 80.0;
     jstools::parseJson(json, "Length_mm", Length_mm);
-    jstools::parseJson(json, "MaxAngle_deg", MaxAngle_deg);
+    jstools::parseJson(json, "CutOffAngle_deg", CutOffAngle_deg);
+    //jstools::parseJson(json, "AbsCoeff", AbsCoeff);
 
-    MaxAngleSpectrum_deg.clear();
-    QJsonArray ar;
-    jstools::parseJson(json, "MaxAngleSpectrum_deg", ar);
-    jstools::readDPairVectorFromArray(ar, MaxAngleSpectrum_deg);
+    {
+        CutOffAngleSpectrum_deg.clear();
+        QJsonArray ar;
+        jstools::parseJson(json, "CutOffAngleSpectrum_deg", ar);
+        jstools::readDPairVectorFromArray(ar, CutOffAngleSpectrum_deg);
+    }
 }
 
 QString APFM_OpticalFiber::printSettingsToString() const
 {
     QString txt = QString("L = %0 mm; ").arg(Length_mm);
 
-    if (MaxAngleSpectrum_deg.empty())
-        txt += QString("MaxAngle = %1 deg").arg(MaxAngle_deg);
+    if (CutOffAngleSpectrum_deg.empty())
+        txt += QString("CutOffAngle = %1 deg").arg(CutOffAngle_deg);
     else
-        txt += QString("MaxAngle(%0): %1 points; for not wavelength-resolved sim: %2 deg").arg(QChar(0x3bb)).arg(MaxAngleSpectrum_deg.size()).arg(MaxAngle_deg);
+        txt += QString("CutOffAngle(%0): %1 points; for not wavelength-resolved sim: %2 deg").arg(QChar(0x3bb)).arg(CutOffAngleSpectrum_deg.size()).arg(CutOffAngle_deg);
 
     return txt;
-
 }
 
-QString APFM_OpticalFiber::updateRuntimeProperties()
+#include "ageoobject.h"
+#include "ageoshape.h"
+#include "amaterialhub.h"
+QString APFM_OpticalFiber::updateRuntimeProperties(int iModel)
 {
     QString err = APFM_OpticalFiber::checkModel();
     if (!err.isEmpty()) return err;
 
-    _TanMaxAngle = tan(MaxAngle_deg * 3.1415926535 / 180.0);
-
-    _TanMaxAngleSpectrumBinned.clear();
     const AWaveResSettings & WaveSet = APhotonSimHub::getInstance().Settings.WaveSet;
+    _cutOffAngleSpectrumBinned.clear();
     if (WaveSet.Enabled)
     {
-        if (MaxAngleSpectrum_deg.empty())
-            _TanMaxAngleSpectrumBinned = std::vector<double>(WaveSet.countNodes(), MaxAngle_deg);
+        if (CutOffAngleSpectrum_deg.empty())
+            _cutOffAngleSpectrumBinned = std::vector<double>(WaveSet.countNodes(), CutOffAngle_deg);
         else
-            WaveSet.toStandardBins(MaxAngleSpectrum_deg, _TanMaxAngleSpectrumBinned);
+            WaveSet.toStandardBins(CutOffAngleSpectrum_deg, _cutOffAngleSpectrumBinned, AWaveResSettings::ExpandWithLastValues);
+    }
 
-        for (size_t i = 0; i < _TanMaxAngleSpectrumBinned.size(); i++)
-            _TanMaxAngleSpectrumBinned[i] = tan(_TanMaxAngleSpectrumBinned[i] * 3.1415926535 / 180.0);
+    if (iModel != -1)
+    {
+        const AGeometryHub & GeoHub = AGeometryHub::getConstInstance();
+        const AGeoObject * obj = std::get<0>(GeoHub.PhotonFunctionals[iModel]);
+        if (!obj->Shape) return "Shape is not defined";
+        AGeoTube * tube = dynamic_cast<AGeoTube*>(obj->Shape);
+        if (tube)
+        {
+            _radius = tube->rmax;
+            if (tube->rmin != 0) return "Photon fiber model cannot accept tube with non-zero inner radius";
+        }
+        else
+        {
+            return "Photon fiber model can be assigned only to 'tube' (cylinder) shaped objects";
+        }
+
+        const int iMat = obj->Material;
+        _material = AMaterialHub::getConstInstance()[iMat];
     }
 
     return "";
+}
+
+QString APFM_OpticalFiber::checkLinkingConsistency(size_t iModelFrom, size_t iModelTo)
+{
+    const AGeometryHub & GeoHub = AGeometryHub::getConstInstance();
+
+    const AGeoObject * objFrom = std::get<0>(GeoHub.PhotonFunctionals[iModelFrom]);
+    const AGeoObject * objTo   = std::get<0>(GeoHub.PhotonFunctionals[iModelTo]);
+    if (!objFrom->Shape) return "Shape 'from' is not defined";
+    if (!objTo  ->Shape) return "Shape 'to' is not defined";
+    const AGeoTube * tubeFrom = dynamic_cast<AGeoTube*>(objFrom->Shape);
+    const AGeoTube * tubeTo   = dynamic_cast<AGeoTube*>(objTo  ->Shape);
+    if (!tubeFrom || !tubeTo) return "Both linked objects of the photon fiber should have tube shape!";
+    if (tubeFrom->rmin != 0 || tubeTo->rmin != 0) return "In/out of the photon fiber cannot have non-zero internal radius";
+    if (tubeFrom->rmax != tubeTo->rmax) return "In/out of the photon fiber should have the same radius";
+
+    const int iMatFrom = objFrom->Material;
+    const int iMatTo   = objTo  ->Material;
+    if (iMatFrom != iMatTo) return "In/out of the photon fiber should have the same material";
+
+    return "";
+}
+
+double computeAngleOfIncidence(double R, double x0, double y0, double dx, double dy, double dz, bool & bFail)
+{
+    bFail = false;
+    dz = fabs(dz);
+    const double z0 = 0;
+    const double L = 1e10;
+    const double R2 = R * R;
+    const double r02 = x0 * x0 + y0 * y0;
+
+    if (r02 >= R2)
+    {
+        bFail = true; // outside input radius
+        return 0; // STOP
+    }
+
+    // Solve |p0 + t d| at XYplane = R^2  =>  (x0 + t dx)^2 + (y0 + t dy)^2 = R^2
+    // a t^2 + b t + c = 0
+    const double a = dx * dx + dy * dy;
+    const double b = 2.0 * (x0 * dx + y0 * dy);
+    const double c = r02 - R2;
+
+    if (std::abs(a) < 1e-12)
+    {
+        // never reaches side wall, assuming its along the axis
+        return 90.0; // PASS
+    }
+
+    const double disc = b * b - 4.0 * a * c;
+    if (disc < 0.0)
+    {
+        // no real intersection
+        bFail = true;
+        return 90; // PASS
+    }
+
+    const double sqrtDisc = std::sqrt(disc);
+    const double t1 = (-b - sqrtDisc) / (2.0 * a);
+    const double t2 = (-b + sqrtDisc) / (2.0 * a);
+
+    // We want the positive t (forward direction)
+    double t = -1.0;
+    if      (t1 > 1e-12) t = t1;
+    else if (t2 > 1e-12) t = t2;
+    else
+    {
+        // intersection is behind or at the start
+        bFail = true;
+        return 0; // STOP
+    }
+
+    // Compute hit point
+    const double xh = x0 + t * dx;
+    const double yh = y0 + t * dy;
+    const double zh = z0 + t * dz;
+
+    // Check that hit is within the cylinder length
+    if (zh < 0.0 || zh > L)
+    {
+        // hits side wall outside the physical cylinder
+        bFail = true;
+        return 90; // PASS
+    }
+
+    // Outward normal at hit point (on side wall)
+    const double nx = xh / R;
+    const double ny = yh / R;
+    const double nz = 0.0;
+
+    // Direction magnitude
+    const double dMag = std::sqrt(dx * dx + dy * dy + dz * dz);
+    if (dMag < 1e-12)
+    {
+        bFail = true;
+        return 0; // STOP
+    }
+
+    // Cosine of angle between direction and outward normal
+    const double dot = dx * nx + dy * ny + dz * nz;
+    double cosTheta = std::abs(dot) / dMag;
+    if (cosTheta > 1.0) cosTheta = 1.0;
+    if (cosTheta < -1.0) cosTheta = -1.0;
+
+    const double theta = std::acos(cosTheta) * 180.0 / 3.1415926535; // in degrees [0, 90]
+    return theta;
 }
 
 #include "ageoobject.h"
 #include "amaterialhub.h"
 bool APFM_OpticalFiber::applyModel(APhotonExchangeData & photonData, int index, int /*linkedToIndex*/)
 {
-    // check angle inside is within max angle
     if (photonData.LocalDirection[2] == 0) return false;
-    const double tanAngle = sqrt(photonData.LocalDirection[0]*photonData.LocalDirection[0] + photonData.LocalDirection[1]*photonData.LocalDirection[1]) / fabs(photonData.LocalDirection[2]);
+
+    //qDebug() << photonData.LocalPosition[0] << photonData.LocalPosition[1] << photonData.LocalPosition[2] ;
+    //qDebug() << photonData.LocalDirection[0] << photonData.LocalDirection[1] << photonData.LocalDirection[2] ;
+
+    // check the insidence angle is within the cut-off
+    bool bFail = false;
+    double angleIncidence = computeAngleOfIncidence(_radius, photonData.LocalPosition[0], photonData.LocalPosition[1],
+                                                    photonData.LocalDirection[0], photonData.LocalDirection[1], photonData.LocalDirection[2],
+                                                    bFail);
+    //qDebug() << bFail << angleIncidence;
     const AWaveResSettings & WaveSet = APhotonSimHub::getInstance().Settings.WaveSet;
-    double maxTan;
+    double cutOff;
     if (photonData.WaveIndex == -1 || !WaveSet.Enabled)
-        maxTan = _TanMaxAngle;
+        cutOff = CutOffAngle_deg;
     else
-        maxTan = _TanMaxAngleSpectrumBinned[photonData.WaveIndex];
-    //qDebug() << "\ntan:" << tanAngle << " max tan:" << maxTan;
-    if (tanAngle > maxTan) return false;
+        cutOff = _cutOffAngleSpectrumBinned[photonData.WaveIndex];
+    if (angleIncidence < cutOff) return false;
+
+    const double tanAngle = sqrt(photonData.LocalDirection[0]*photonData.LocalDirection[0] + photonData.LocalDirection[1]*photonData.LocalDirection[1]) / fabs(photonData.LocalDirection[2]);
+    const double inverseCosine = sqrt(1.0 + tanAngle * tanAngle);
 
     // check absorption
-    const AGeoObject * obj = std::get<0>(AGeometryHub::getConstInstance().PhotonFunctionals[index]);
-    const int iMat = obj->Material;
-    const AMaterial * mat = AMaterialHub::getConstInstance()[iMat];
-    const double absCoeff = mat->getAbsorptionCoefficient(photonData.WaveIndex); // mm-1
-    const double absProb = 1.0 - exp( - absCoeff * Length_mm);
+    //const int iMat = obj->Material;
+    //const AMaterial * mat = AMaterialHub::getConstInstance()[iMat];
+    const double absCoeff = _material->getAbsorptionCoefficient(photonData.WaveIndex); // mm-1
+    //const double absCoeff = (photonData.WaveIndex == -1 ? AbsCoeff : _absCoeffSpectrumBinned[photonData.WaveIndex]); // mm-1
+    const double photonPath = Length_mm * inverseCosine;
+    const double absProb = 1.0 - exp( - absCoeff * photonPath);
     //qDebug() << "abs prob:" << absProb;
     if (ARandomHub::getInstance().uniform() < absProb) return false;
 
     // teleporting
     //qDebug() << photonData.LocalPosition[2];
-    if (photonData.LocalPosition[2] != 0)
-    {
-        const double sign = photonData.LocalPosition[2] / fabs(photonData.LocalPosition[2]);
-        photonData.LocalPosition[2] -= sign * 1e-9; // safity to be inside
-        photonData.LocalPosition[2] = - photonData.LocalPosition[2]; // on the other side
-    }
+    const double sign = photonData.LocalPosition[2] / fabs(photonData.LocalPosition[2]);
+    photonData.LocalPosition[2] -= sign * 1e-9; // safity to be inside
+    photonData.LocalPosition[2] = - photonData.LocalPosition[2]; // on the other side
     //qDebug() << photonData.LocalPosition[2];
 
     // time increase
-    const double speed = mat->getSpeedOfLight(photonData.WaveIndex); // mm/ns
-    const double deltaT = Length_mm * sqrt(1.0 + tanAngle * tanAngle) / speed;
+    const double speed = _material->getSpeedOfLight(photonData.WaveIndex); // mm/ns
+    const double deltaT = Length_mm * inverseCosine / speed;
     //qDebug() << "t0" << photonData.Time << "speed" << speed << "deltaT" << deltaT;
     photonData.Time += deltaT;
+
+    //qDebug() << "->" << atan(photonData.LocalDirection[2] / sqrt(photonData.LocalDirection[0]*photonData.LocalDirection[0])+photonData.LocalDirection[1]*photonData.LocalDirection[1])*180.0/3.1415926;
 
     return true;
 }
@@ -216,7 +356,7 @@ QString APFM_ThinLens::printSettingsToString() const
     return QString("FocalLength(%0): %1 points; for not wavelength-resolved sim: %2 mm").arg(QChar(0x3bb)).arg(FocalLengthSpectrum_mm.size()).arg(FocalLength_mm);
 }
 
-QString APFM_ThinLens::updateRuntimeProperties()
+QString APFM_ThinLens::updateRuntimeProperties(int)
 {
     QString err = APFM_ThinLens::checkModel();
     if (!err.isEmpty()) return err;
@@ -227,7 +367,7 @@ QString APFM_ThinLens::updateRuntimeProperties()
     if (WaveSet.Enabled)
     {
         if (!FocalLengthSpectrum_mm.empty())
-            WaveSet.toStandardBins(FocalLengthSpectrum_mm, _FocalLengthBinned);
+            WaveSet.toStandardBins(FocalLengthSpectrum_mm, _FocalLengthBinned, AWaveResSettings::ExpandWithLastValues);
         else _FocalLengthBinned = std::vector<double>(WaveSet.countNodes(), FocalLength_mm);
     }
     return "";
@@ -350,7 +490,7 @@ QString APFM_Filter::printSettingsToString() const
     return QString("Transmission(%0): %1 points; for not wavelength-resolved sim: %2").arg(QChar(0x3bb)).arg(TransmissionSpectrum.size()).arg(GrayTransmission);
 }
 
-QString APFM_Filter::updateRuntimeProperties()
+QString APFM_Filter::updateRuntimeProperties(int)
 {
     QString err = APFM_Filter::checkModel();
     if (!err.isEmpty()) return err;
@@ -361,7 +501,7 @@ QString APFM_Filter::updateRuntimeProperties()
     if (WaveSet.Enabled)
     {
         if (!TransmissionSpectrum.empty())
-            WaveSet.toStandardBins(TransmissionSpectrum, _TransmissionBinned);
+            WaveSet.toStandardBins(TransmissionSpectrum, _TransmissionBinned, AWaveResSettings::ExpandWithZero);
         else _TransmissionBinned = std::vector<double>(WaveSet.countNodes(), GrayTransmission);
     }
     return "";

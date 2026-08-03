@@ -1,7 +1,7 @@
 #include "atrackinghistorycrawler.h"
 #include "atrackingdataimporter.h"
 #include "athreadpool.h"
-#include "vformula.h"
+#include "tools/vformula.h"
 #include "ath.h"
 
 #include <QDebug>
@@ -21,8 +21,8 @@ void ATrackingHistoryCrawler::find(const AFindRecordSelector & criteria, AHistor
     connect(&Timer, &QTimer::timeout, this, [this](){emit reportProgress(NumEventsProcessed);});
     Timer.start();
 
-    if (numThreads < 1) findSingleThread(criteria, processor);
-    else                findMultithread(criteria, processor, numThreads, eventsPerThread);
+    if (numThreads <= 1) findSingleThread(criteria, processor);
+    else                 findMultithread(criteria, processor, numThreads, eventsPerThread);
 
     Timer.stop();
 }

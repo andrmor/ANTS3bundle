@@ -294,6 +294,83 @@ double ACore_SI::arraySum(QVariantList array)
     return sum;
 }
 
+QVariantList ACore_SI::arrayColumn(QVariantList array, int columnIndex)
+{
+    QVariantList vl;
+
+    const qsizetype size = array.size();
+    for (qsizetype i = 0; i < size; i++)
+    {
+        QVariantList el = array[i].toList();
+        if (el.isEmpty()) continue;
+        if (el.size() <= columnIndex)
+        {
+            abort("Invalid width of the array row for the selected columnIndex");
+            return vl;
+        }
+        vl.push_back(el[columnIndex]);
+    }
+
+    return vl;
+}
+
+QVariantList ACore_SI::arrayMultiply(QVariantList array, double factor, int columnIndex)
+{
+    const qsizetype size = array.size();
+    if (size == 0) return QVariantList();
+
+    QVariantList vl(size);
+
+    bool is1D;
+    array.front().toDouble(&is1D);
+    if (columnIndex < 0)
+    {
+        abort("arrayMultiply: columnIndex should be positive");
+        return QVariantList();
+    }
+
+    bool ok;
+    for (int i = 0; i < size; i++)
+    {
+        if (is1D)
+        {
+            double val = array[i].toDouble(&ok);
+            if (ok)
+                vl[i] = val * factor;
+            else
+            {
+                abort("arrayMultiply for 1D array: bad format");
+                return QVariantList();
+            }
+        }
+        else
+        {
+            QVariantList el = array[i].toList();
+            if (el.isEmpty())
+            {
+                abort("arrayMultiply for 2D array: bad format");
+                return QVariantList();
+            }
+            if (columnIndex >= el.size())
+            {
+                abort("arrayMultiply: 2D array invalid columnIndex");
+                return QVariantList();
+            }
+
+            double val = el[columnIndex].toDouble(&ok);
+            if (ok) el[columnIndex] = val * factor;
+            else
+            {
+                abort("arrayMultiply for 2D array: bad format");
+                return QVariantList();
+            }
+            vl[i] = el;
+        }
+    }
+
+    return vl;
+}
+
 /*
 #include "amatcomposition.h"
 QString ACore_SI::testComposition(QString comp)
@@ -474,6 +551,105 @@ QString ACore_SI::loadText(QString fileName, int numLines)
 
     file.close();
     return txt;
+}
+
+void ACore_SI::textReader_configure(QString fileName)
+{
+    if (TextReaderFile)
+    {
+        TextReaderFile->close();
+        delete TextReaderStream; TextReaderStream = nullptr;
+        delete TextReaderFile;   TextReaderFile   = nullptr;
+    }
+
+    if (!QFileInfo::exists(fileName))
+    {
+        abort("File does not exist: " + fileName);
+        return;
+    }
+
+    TextReaderFile = new QFile(fileName);
+    if (!TextReaderFile->open(QIODevice::ReadOnly | QFile::Text))
+    {
+        delete TextReaderFile; TextReaderFile = nullptr;
+        abort("Cannot open file: " + fileName);
+        return;
+    }
+
+    TextReaderStream = new QTextStream(TextReaderFile);
+}
+
+QString ACore_SI::textReader_nextLine()
+{
+    if (!TextReaderStream)
+    {
+        abort("Text reader was not yet configured: use textReader_configure(filename)");
+        return "";
+    }
+
+    return TextReaderStream->readLine();
+}
+
+bool ACore_SI::textReader_atEnd()
+{
+    if (!TextReaderStream)
+    {
+        abort("Text reader was not yet configured: use textReader_configure(filename)");
+        return "";
+    }
+    return TextReaderStream->atEnd();
+}
+
+void ACore_SI::textWriter_configure(QString fileName)
+{
+    if (TextWriterFile)
+    {
+        TextWriterFile->close();
+        delete TextWriterStream; TextWriterStream = nullptr;
+        delete TextWriterFile;   TextWriterFile   = nullptr;
+    }
+
+    TextWriterFile = new QFile(fileName);
+    if ( !TextWriterFile->open(QIODevice::WriteOnly) )
+    {
+        abort("Cannot open file: " + fileName);
+        return;
+    }
+
+    TextWriterStream = new QTextStream(TextWriterFile);
+}
+
+void ACore_SI::textWriter_write(QString text)
+{
+    if (!TextWriterStream)
+    {
+        abort("Text writer was not yet configured: use textWriter_configure(filename)");
+        return;
+    }
+
+    *TextWriterStream << text;
+}
+
+void ACore_SI::textWriter_writeLine(QString text)
+{
+    if (!TextWriterStream)
+    {
+        abort("Text writer was not yet configured: use textWriter_configure(filename)");
+        return;
+    }
+
+    *TextWriterStream << text << '\n';
+}
+
+void ACore_SI::textWriter_flush()
+{
+    if (!TextWriterStream)
+    {
+        abort("Text writer was not yet configured: use textWriter_configure(filename)");
+        return;
+    }
+
+    TextWriterStream->flush();
 }
 
 void ACore_SI::saveArray(QVariantList array, QString fileName, bool append)

@@ -2171,7 +2171,7 @@ Wavelengths shoul be given in increasing order</string>
                   </font>
                  </property>
                  <property name="text">
-                  <string>Intrinsic energy resolution:</string>
+                  <string>Fano factor:</string>
                  </property>
                 </widget>
                </item>
@@ -2556,19 +2556,6 @@ Wavelengths shoul be given in increasing order</string>
                    </property>
                    <property name="toolTip">
                     <string>Intrinsic energy resolution to be used in particle simulations for this material (the ratio of the FWHM of the distribution and the average number of the emitted photons)</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QLabel" name="label_52">
-                   <property name="minimumSize">
-                    <size>
-                     <width>100</width>
-                     <height>0</height>
-                    </size>
-                   </property>
-                   <property name="text">
-                    <string>FWHM/mean</string>
                    </property>
                   </widget>
                  </item>
@@ -3115,8 +3102,8 @@ Wavelengths shoul be given in increasing order</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>280</x>
-     <y>267</y>
+     <x>92</x>
+     <y>242</y>
     </hint>
     <hint type="destinationlabel">
      <x>438</x>
@@ -3435,8 +3422,8 @@ Wavelengths shoul be given in increasing order</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>168</x>
-     <y>308</y>
+     <x>201</x>
+     <y>334</y>
     </hint>
     <hint type="destinationlabel">
      <x>438</x>
@@ -3627,8 +3614,8 @@ Wavelengths shoul be given in increasing order</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>280</x>
-     <y>267</y>
+     <x>92</x>
+     <y>242</y>
     </hint>
     <hint type="destinationlabel">
      <x>526</x>
@@ -3947,8 +3934,8 @@ Wavelengths shoul be given in increasing order</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>304</x>
-     <y>256</y>
+     <x>92</x>
+     <y>242</y>
     </hint>
     <hint type="destinationlabel">
      <x>493</x>
@@ -3963,12 +3950,28 @@ Wavelengths shoul be given in increasing order</string>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>523</x>
-     <y>252</y>
+     <x>92</x>
+     <y>242</y>
     </hint>
     <hint type="destinationlabel">
      <x>547</x>
      <y>40</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cobNAbsOrComplex</sender>
+   <signal>activated(int)</signal>
+   <receiver>pbUpdateTmpMaterial</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>585</x>
+     <y>239</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>601</x>
+     <y>37</y>
     </hint>
    </hints>
   </connection>

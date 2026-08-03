@@ -9,6 +9,7 @@ class ASensorWindow;
 
 class ASensorHub;
 class TObject;
+class QDoubleValidator;
 
 class ASensorWindow : public AGuiWindow
 {
@@ -19,7 +20,6 @@ public:
     ~ASensorWindow();
 
     void updateGui();
-    void onMaterialsChanged();
 
 private slots:
     //automatic
@@ -41,8 +41,6 @@ private slots:
     void on_lepPixelSpacingY_editingFinished();
     void on_lepPixelSpacingX_editingFinished();
 
-    void on_sbModelIndex_editingFinished();
-
     void on_cobAssignmentMode_activated(int index); // !!!*** consider more "soft" method instead of global rebuild
 
     void on_pbShowSensorsOfThisModel_clicked();
@@ -50,12 +48,10 @@ private slots:
     void on_pbLoadPDE_clicked();
     void on_pbRemovePDE_clicked();
     void on_pbShowPDE_clicked();
-    void on_pbShowBinnedPDE_clicked();
 
     void on_pbShowAngular_clicked();
     void on_pbLoadAngular_clicked();
     void on_pbRemoveAngular_clicked();
-    void on_pbShowBinnedAngular_clicked();
 
     void on_pbShowArea_clicked();
     void on_pbLoadArea_clicked();
@@ -76,14 +72,55 @@ private slots:
     void on_pbShowCustomPhElSig_clicked();
     void on_pbRemoveCustomPhElSig_clicked();
     void on_lepElNoiseSigma_editingFinished();
-    void on_lepElGainFactor_editingFinished();
+    //void on_lepElGainFactor_editingFinished();
     void on_pbTestPhElSignal_clicked();
 
     void on_pbCompteEffectivePDE_clicked();
 
+    void on_cbGains_clicked(bool checked);
+
+    void on_pbGains_Clear_clicked();
+
+    void on_pbGains_Randomize_clicked();
+
+    void on_cbGains_ShowTable_toggled(bool checked);
+
+    void onGainCellEditingFinished();
+
+    void on_pbGains_Load_clicked();
+
+    void on_pbGains_Save_clicked();
+
+    void on_pbGains_Save_customContextMenuRequested(const QPoint &pos);
+
+    void on_actionSave_sensor_triggered();
+    void on_actionLoad_sensor_triggered();
+
+    void on_pbShowPDE_customContextMenuRequested(const QPoint &pos);
+
+    void on_pbShowAngular_customContextMenuRequested(const QPoint &pos);
+
+    void on_ledAngularWave_editingFinished();
+
+    void on_pbHelpPDEmodeling_clicked();
+
+    void on_cobPDEmodel_activated(int index);
+
+    void on_cobPDEmodel_currentIndexChanged(int index);
+
+    void on_pbCheckTimeFraction_clicked();
+
+    void on_pbCheckTimeFraction_customContextMenuRequested(const QPoint &pos);
+
 private:
     ASensorHub & SensHub;
     Ui::ASensorWindow * ui = nullptr;
+
+    const int RowHeight = 23;
+
+    QDoubleValidator * CellValidator = nullptr;
+
+    void updateModelGui();
 
     void updateNumPixels();
     void onModelIndexChanged();
@@ -92,6 +129,8 @@ private:
     void updateAngularButtons();
     void updateAreaButtons();
     void updatePhElToSigButtons();
+    void updateGains();
+    void showTableWithGains();
 
 signals:
     void requestShowSensorModels(int iModel);

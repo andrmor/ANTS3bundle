@@ -6,8 +6,11 @@ CONFIG += ants3_FARM        #if commented away, WebSockets are not compiled and 
 CONFIG += ants3_Python      #enables Python scripting
 CONFIG += ants3_RootServer  #enables CERN ROOT html server
 CONFIG += ants3_jsroot      #enables JSROOT visualisation of the geometry. Requires Qt WebEngine library installed and ants3_RootServer enabled
+CONFIG += ants3_mercury     #enables Mercury library for position reconstruction
 #
 # --- end of user-configure area ---
+
+QMAKE_CXXFLAGS += -O2
 
 # CERN ROOT
 INCLUDEPATH += $$system(root-config --incdir)
@@ -51,8 +54,90 @@ ants3_RootServer{
         DEFINES += __USE_ANTS_JSROOT__
         QT      += webenginewidgets
     }
+}
+
+# Mercury
+ants3_mercury{
+  DEFINES += USE_MERCURY
+
+    QMAKE_CXXFLAGS += -fopenmp
+    QMAKE_LFLAGS += -fopenmp
+    LIBS += -fopenmp
+
+    INCLUDEPATH += /usr/include/eigen3
+    INCLUDEPATH += rec/Mercury
+    INCLUDEPATH += rec/Mercury/mercuryLib
+    INCLUDEPATH += rec/Mercury/mercuryLib/lib
+    INCLUDEPATH += rec/Mercury/mercuryLib/LRModel
+    INCLUDEPATH += rec/Mercury/mercuryLib/spline123
+    INCLUDEPATH += rec/Mercury/script
+    INCLUDEPATH += gui/rec
+
+    SOURCES += \
+        rec/Mercury/mercuryLib/LRModel/compress.cpp \
+        rec/Mercury/mercuryLib/LRModel/lrf.cpp \
+        rec/Mercury/mercuryLib/LRModel/lrfaxial.cpp \
+        rec/Mercury/mercuryLib/LRModel/lrfaxial3d.cpp \
+        rec/Mercury/mercuryLib/LRModel/lrfcomp.cpp \
+        rec/Mercury/mercuryLib/LRModel/lrfio.cpp \
+        rec/Mercury/mercuryLib/LRModel/lrfxy.cpp \
+        rec/Mercury/mercuryLib/LRModel/lrfxyz.cpp \
+        rec/Mercury/mercuryLib/LRModel/lrformula1.cpp \
+        rec/Mercury/mercuryLib/LRModel/lrmodel.cpp \
+        rec/Mercury/mercuryLib/LRModel/transform.cpp \
+        rec/Mercury/mercuryLib/LRModel/lrformulav.cpp \
+        rec/Mercury/mercuryLib/LRModel/lrformulaxy.cpp \
+        rec/Mercury/mercuryLib/lib/json11.cpp \
+        rec/Mercury/mercuryLib/lib/wformula.cpp \
+        rec/Mercury/mercuryLib/reconstructor.cpp \
+        rec/Mercury/mercuryLib/reconstructor_mp.cpp \
+        rec/Mercury/mercuryLib/spline123/bsfit123.cpp \
+        rec/Mercury/mercuryLib/spline123/bspline123d.cpp \
+        rec/Mercury/mercuryLib/spline123/profileHist.cpp \
+        rec/Mercury/alightresponsehub.cpp \
+        rec/Mercury/script/alightresponse_si.cpp \
+        rec/Mercury/script/amercury_si.cpp \
+        gui/rec/alrfplotter.cpp \
+        gui/rec/alrfmouseexplorer.cpp \
+        gui/rec/alrfviewerobject.cpp \
+        gui/rec/alrfgraphicsview.cpp
+
+    HEADERS += \
+        rec/Mercury/mercuryLib/LRModel/compress.h \
+        rec/Mercury/mercuryLib/LRModel/lrf.h \
+        rec/Mercury/mercuryLib/LRModel/lrfaxial.h \
+        rec/Mercury/mercuryLib/LRModel/lrfaxial3d.h \
+        rec/Mercury/mercuryLib/LRModel/lrfcomp.h \
+        rec/Mercury/mercuryLib/LRModel/lrfio.h \
+        rec/Mercury/mercuryLib/LRModel/lrfxy.h \
+        rec/Mercury/mercuryLib/LRModel/lrfxyz.h \
+        rec/Mercury/mercuryLib/LRModel/lrformula1.h \
+        rec/Mercury/mercuryLib/LRModel/lrmodel.h \
+        rec/Mercury/mercuryLib/LRModel/transform.h \
+        rec/Mercury/mercuryLib/LRModel/lrformulav.h \
+        rec/Mercury/mercuryLib/LRModel/lrformulaxy.h \
+        rec/Mercury/mercuryLib/lib/eiquadprog.hpp \
+        rec/Mercury/mercuryLib/lib/json11.hpp \
+        rec/Mercury/mercuryLib/lib/functor.h \
+        rec/Mercury/mercuryLib/lib/wformula.h \
+        rec/Mercury/mercuryLib/reconstructor.h \
+        rec/Mercury/mercuryLib/reconstructor_mp.h \
+        rec/Mercury/mercuryLib/spline123/bsfit123.h \
+        rec/Mercury/mercuryLib/spline123/bspline123d.h \
+        rec/Mercury/mercuryLib/spline123/profileHist.h \
+        rec/Mercury/alightresponsehub.h \
+        rec/Mercury/script/alightresponse_si.h \
+        rec/Mercury/script/amercury_si.h \
+        gui/rec/alrfplotter.h \
+        gui/rec/alrfmouseexplorer.h \
+        gui/rec/alrfviewerobject.h \
+        gui/rec/alrfgraphicsview.h
+
+    FORMS += \
+        gui/rec/alrfplotterdialog.ui
 
 }
+
 #----------
 
 # Permission to script to start external processes
@@ -69,8 +154,8 @@ ants3_GUI {
 }
 
 # ANTS3 version
-DEFINES += ANTS3_MAJOR=1
-DEFINES += ANTS3_MINOR=7
+DEFINES += ANTS3_MAJOR=2
+DEFINES += ANTS3_MINOR=0
 
 QT += qml   #this is for qjsengine
 
@@ -128,6 +213,7 @@ SOURCES += \
     ../lsim/anoderecord.cpp \
     ../lsim/aphotonhistorylog.cpp \
     ../lsim/aphotontracer.cpp \
+    gui/ageomarkerproperties.cpp \
     gui/aviewer3dsettings.cpp \
     farm/afarmnoderecord.cpp \
     geo/acalorimeter.cpp \
@@ -142,6 +228,7 @@ SOURCES += \
     gui/amainwindow.cpp \
     gui/atreedatabaseselectordialog.cpp \
     gui/geom/ageoconstexpressiondialog.cpp \
+    gui/geom/ageomarkerpropsdialog.cpp \
     gui/geom/ageotreewin.cpp \
     gui/geom/aparticleanalyzerwidget.cpp \
     gui/geom/ashownumbersdialog.cpp \
@@ -158,6 +245,7 @@ SOURCES += \
     gui/materials/amatwin.cpp \
     gui/materials/aopticaldataimportdialog.cpp \
     gui/materials/arefractiveindeximportdialog.cpp \
+    gui/particleSim/aadvancedparticleoptionsdialog.cpp \
     gui/particleSim/aeventsdonedialog.cpp \
     gui/particleSim/aparticlesourcedialog_ecomug.cpp \
     gui/particleSim/aparticlesourcedialogbase.cpp \
@@ -168,7 +256,10 @@ SOURCES += \
     gui/photsim/afunctionalmodelwidget.cpp \
     gui/photsim/ainterfaceruletester.cpp \
     gui/photsim/aphotfunctwindow.cpp \
+    gui/photsim/aphotgenoverridedialog.cpp \
     gui/photsim/aphotonlogsettingsform.cpp \
+    gui/photsim/aphotonsourceplotter.cpp \
+    gui/photsim/aphotontrackvisdialog.cpp \
     gui/photsim/aphotsimwin.cpp \
     gui/photsim/asensordrawwidget.cpp \
     config/aconfig.cpp \
@@ -203,7 +294,6 @@ SOURCES += \
     gui/particleSim/aparticlesimoutputdialog.cpp \
     gui/particleSim/aparticlesimwin.cpp \
     gui/particleSim/aparticlesourcedialog.cpp \
-    gui/photsim/abombadvanceddialog.cpp \
     gui/photsim/ainterfaceruledialog.cpp \
     gui/photsim/ainterfacerulewin.cpp \
     gui/photsim/ainterfacewidgetfactory.cpp \
@@ -213,6 +303,8 @@ SOURCES += \
     gui/photsim/asensorwindow.cpp \
     gui/raster/agraphrasterwindow.cpp \
     gui/raster/arasterwindow.cpp \
+    gui/rec/alrfplotterdialog.cpp \
+    gui/rec/amercuryeventexplorer.cpp \
     gui/script/aargumentcounter.cpp \
     gui/script/ageoscriptmaker.cpp \
     gui/script/aguifromscrwin.cpp \
@@ -230,6 +322,7 @@ SOURCES += \
     particleSim/aorthopositroniumgammagenerator.cpp \
     particleSim/aparticleanalyzerhub.cpp \
     particleSim/aparticleanalyzersettings.cpp \
+    particleSim/atrackvisattributes.cpp \
     photonSim/aphotonloghandler.cpp \
     photonSim/interfaceRules/asurfaceinterfacerule.cpp \
     photonSim/interfaceRules/asurfacesettings.cpp \
@@ -290,7 +383,6 @@ SOURCES += \
     particleSim/aparticlesimmanager.cpp \
     particleSim/aparticlesimsettings.cpp \
     particleSim/aparticlesourcerecord.cpp \
-    particleSim/aparticletrackvisuals.cpp \
     particleSim/asourcegeneratorsettings.cpp \
     particleSim/asourceparticlegenerator.cpp \
     particleSim/atrackingdataimporter.cpp \
@@ -366,10 +458,12 @@ HEADERS += \
     ../lsim/aphotonhistorylog.h \
     ../lsim/aphotontracer.h \
     farm/ademomanager.h \
+    gui/ageomarkerproperties.h \
     gui/aviewer3dsettings.h \
     gui/aitemselectiondialog.h \
     gui/amainwindow.h \
     gui/atreedatabaseselectordialog.h \
+    gui/geom/ageomarkerpropsdialog.h \
     gui/geom/aparticleanalyzerwidget.h \
     gui/graph/adrawmarginsrecord.h \
     gui/graph/agraphwindow.h \
@@ -381,19 +475,26 @@ HEADERS += \
     gui/materials/aabsorptiondataconverterdialog.h \
     gui/materials/aopticaldataimportdialog.h \
     gui/materials/arefractiveindeximportdialog.h \
+    gui/particleSim/aadvancedparticleoptionsdialog.h \
     gui/particleSim/aparticlesourcedialog_ecomug.h \
     gui/particleSim/aparticlesourcedialogbase.h \
     gui/photsim/afunctionalmodelwidget.h \
     gui/photsim/aphotfunctwindow.h \
+    gui/photsim/aphotgenoverridedialog.h \
     gui/photsim/aphotonlogsettingsform.h \
+    gui/photsim/aphotonsourceplotter.h \
+    gui/photsim/aphotontrackvisdialog.h \
     gui/raster/agraphrasterwindow.h \
     gui/raster/arasterwindow.h \
+    gui/rec/alrfplotterdialog.h \
+    gui/rec/amercuryeventexplorer.h \
     gui/script/aargumentcounter.h \
     gui/script/ascriptexampleexplorer.h \
     particleSim/EcoMug/EcoMug.h \
     particleSim/aorthopositroniumgammagenerator.h \
     particleSim/aparticleanalyzerhub.h \
     particleSim/aparticleanalyzersettings.h \
+    particleSim/atrackvisattributes.h \
     photonSim/aphotonloghandler.h \
     photonSim/photonFunctional/aphotonfunctionalhub.h \
     photonSim/photonFunctional/aphotonfunctionalmodel.h \
@@ -456,7 +557,6 @@ HEADERS += \
     gui/particleSim/aparticlesimoutputdialog.h \
     gui/particleSim/aparticlesimwin.h \
     gui/particleSim/aparticlesourcedialog.h \
-    gui/photsim/abombadvanceddialog.h \
     gui/photsim/ainterfaceruledialog.h \
     gui/photsim/ainterfacerulewin.h \
     gui/photsim/ainterfacewidgetfactory.h \
@@ -534,7 +634,6 @@ HEADERS += \
     particleSim/aparticlesimmanager.h \
     particleSim/aparticlesimsettings.h \
     particleSim/aparticlesourcerecord.h \
-    particleSim/aparticletrackvisuals.h \
     particleSim/asourcegeneratorsettings.h \
     particleSim/asourceparticlegenerator.h \
     particleSim/atrackingdataimporter.h \
@@ -621,17 +720,21 @@ FORMS += \
         gui/materials/aabsorptiondataconverterdialog.ui \
         gui/materials/aopticaldataimportdialog.ui \
         gui/materials/arefractiveindeximportdialog.ui \
+        gui/particleSim/aadvancedparticleoptionsdialog.ui \
         gui/particleSim/aeventsdonedialog.ui \
         gui/particleSim/aparticlesourcedialog_ecomug.ui \
         gui/particleSim/atrackdrawdialog.ui \
         gui/particleSim/aworldsizewarningdialog.ui \
         gui/photsim/ainterfaceruletester.ui \
         gui/photsim/aphotfunctwindow.ui \
+        gui/photsim/aphotgenoverridedialog.ui \
         gui/photsim/aphotonlogsettingsform.ui \
+        gui/photsim/aphotontrackvisdialog.ui \
         gui/photsim/aphotsimwin.ui \
         gui/photsim/asensordrawwidget.ui \
         gui/ademowindow.ui \
         gui/photsim/asensorwindow.ui \
+        gui/rec/amercuryeventexplorer.ui \
         gui/script/ascriptexampleexplorer.ui \
         gui/script/ascriptwindow.ui \
         gui/aroottextconfigurator.ui \
@@ -645,7 +748,6 @@ FORMS += \
         gui/particleSim/aparticlesimoutputdialog.ui \
         gui/particleSim/aparticlesimwin.ui \
         gui/particleSim/aparticlesourcedialog.ui \
-        gui/photsim/abombadvanceddialog.ui \
         gui/geom/ageotreewin.ui \
         gui/geom/agridelementdialog.ui \
         gui/geom/amonitordelegateform.ui \

@@ -440,6 +440,45 @@ void SessionManager::replaceMatNameInMatLimitedSources(const G4String & name, co
     }
 }
 
+#include "G4LogicalVolumeStore.hh"
+#include "G4LogicalVolume.hh"
+#include "afastsimphyshandler.h"
+#include "AcollinearGammaModel.hh"
+#include "G4AutoDelete.hh"
+void SessionManager::configureAcolinearitySimulation(G4VModularPhysicsList * physicsList)
+{
+    AFastSimPhysHandler::createFastSimulationPhysics(physicsList);
+
+    G4Region * reg = new G4Region("__AcolRegion");
+    for (std::string volName : Settings.G4Set.AcolinearityVolumes)
+    {
+        bool bWildcard = (volName[volName.size()-1] == '*');
+        if (bWildcard) volName.resize(volName.size() - 1);
+
+        G4LogicalVolumeStore * lvStore = G4LogicalVolumeStore::GetInstance();
+        for (auto lv : *lvStore)
+        {
+            const std::string thisVolName = lv->GetName();
+            if (bWildcard)
+            {
+                if (thisVolName.size() >= volName.size() && thisVolName.compare(0, volName.size(), volName) == 0) // starts_with before c++20
+                    reg->AddRootLogicalVolume(lv);
+            }
+            else
+            {
+                if (thisVolName == volName) reg->AddRootLogicalVolume(lv);
+            }
+        }
+    }
+
+    AcollinearGammaModel * mod;
+    if (Settings.G4Set.AcolinearityModel == 0)
+        mod = new AcollinearGammaModel("AcollinearGammas", reg, Settings.G4Set.AcolinearityFWHM);
+    else
+        mod = new AcollinearGammaModel2D("AcollinearGammas", reg, Settings.G4Set.AcolinearityFWHM);
+    G4AutoDelete::Register(mod);
+}
+
 void SessionManager::writeNewEventMarker()
 {
     std::string EventId = "#" + std::to_string(CurrentEvent);

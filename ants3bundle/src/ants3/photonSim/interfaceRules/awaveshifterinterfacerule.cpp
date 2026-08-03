@@ -27,10 +27,10 @@ void AWaveshifterInterfaceRule::initializeWaveResolved()
     {
         const int WaveNodes = WaveSet.countNodes();
 
-        WaveSet.toStandardBins(ReemissionProbability, ReemissionProbabilityBinned);
+        WaveSet.toStandardBins(ReemissionProbability, ReemissionProbabilityBinned, AWaveResSettings::ExpandWithZero);
 
         std::vector<double> emisSpecBinned;
-        WaveSet.toStandardBins(EmissionSpectrum, emisSpecBinned);
+        WaveSet.toStandardBins(EmissionSpectrum, emisSpecBinned, AWaveResSettings::ExpandWithZero);
 
         TString name = "WLSEmSpec";
         name += MatFrom;

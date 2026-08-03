@@ -109,6 +109,9 @@ AGraphWindow::AGraphWindow(QWidget * parent) :
     connect(lwBasket, &ABasketListWidget::itemDoubleClicked, this, &AGraphWindow::onBasketItemDoubleClicked);
     connect(lwBasket, &ABasketListWidget::requestReorder, this, &AGraphWindow::onBasketReorderRequested);
 
+    connect(&AScriptHub::getInstance(), &AScriptHub::requestDraw,           this, &AGraphWindow::onScriptDrawRequest,           Qt::DirectConnection); // inside it is queued
+    connect(&AScriptHub::getInstance(), &AScriptHub::requestDrawCollection, this, &AGraphWindow::onScriptDrawCollectionRequest, Qt::DirectConnection); // inside it is queued
+    connect(&AScriptHub::getInstance(), &AScriptHub::requestAddToBasket,    this, &AGraphWindow::addCurrentToBasket,            Qt::QueuedConnection);
     connectScriptUnitDrawRequests(AScriptHub::getInstance().getJScriptManager().getInterfaces());
 #ifdef ANTS3_PYTHON
     connectScriptUnitDrawRequests(AScriptHub::getInstance().getPythonManager().getInterfaces());
@@ -171,49 +174,18 @@ AGraphWindow::~AGraphWindow()
     delete Basket; Basket = nullptr;
 }
 
-#include "agraph_si.h"
-#include "ahist_si.h"
 #include "atree_si.h"
 void AGraphWindow::connectScriptUnitDrawRequests(const std::vector<AScriptInterface *> interfaces)
 {
-    const AGraph_SI * graphInter = nullptr;
-    const AHist_SI  * histInter  = nullptr;
-    const ATree_SI  * treeInter  = nullptr;
-
     for (const AScriptInterface * inter : interfaces)
     {
-        if (!graphInter)
+        const ATree_SI * test = dynamic_cast<const ATree_SI*>(inter);
+        if (test)
         {
-            const AGraph_SI * test = dynamic_cast<const AGraph_SI*>(inter);
-            if (test)
-            {
-                graphInter = test;
-                continue;
-            }
-        }
-        if (!histInter)
-        {
-            const AHist_SI * test = dynamic_cast<const AHist_SI*>(inter);
-            if (test)
-            {
-                histInter = test;
-                continue;
-            }
-        }
-        if (!treeInter)
-        {
-            const ATree_SI * test = dynamic_cast<const ATree_SI*>(inter);
-            if (test)
-            {
-                treeInter = test;
-                continue;
-            }
+            connect(test, &ATree_SI::requestTreeDraw, this, &AGraphWindow::onScriptDrawTree, Qt::QueuedConnection);
+            continue;
         }
     }
-
-    if (graphInter) connect(graphInter, &AGraph_SI::requestDraw,    this, &AGraphWindow::onScriptDrawRequest, Qt::DirectConnection);
-    if (histInter)  connect(histInter,  &AHist_SI::requestDraw,     this, &AGraphWindow::onScriptDrawRequest, Qt::DirectConnection);
-    if (treeInter)  connect(treeInter,  &ATree_SI::requestTreeDraw, this, &AGraphWindow::onScriptDrawTree);
 }
 
 void AGraphWindow::addLine(double x1, double y1, double x2, double y2, int color, int width, int style)
@@ -327,7 +299,7 @@ double AGraphWindow::getMaxZ(bool *ok)
     return ui->ledZto->text().toDouble(ok);
 }
 
-void AGraphWindow::draw(TObject * obj, QString options, bool update, bool transferOwnership)
+void AGraphWindow::draw(TObject * obj, QString options, bool update) // always registers obj (becomes the owner)!
 {
     QString optNoSame = (options.simplified()).remove("same", Qt::CaseInsensitive);
     if (obj && optNoSame.isEmpty())
@@ -358,12 +330,12 @@ void AGraphWindow::draw(TObject * obj, QString options, bool update, bool transf
 
     drawSingleObject(obj, options.toLatin1().data(), update);
 
-    if (transferOwnership) registerTObject(obj);
+    registerTObject(obj);
 
     enforceOverlayOff();
     updateControls();
 
-    DrawFinished = true;
+    DrawFinished--;
 }
 
 void AGraphWindow::updateGuiControlsForMainObject(const QString & className, const QString & options)
@@ -717,30 +689,19 @@ void AGraphWindow::reshape()
     else if (PlotType == "TGraph2D")
     {
         TGraph2D * gr = static_cast<TGraph2D*>(tobj);
-        //gr->GetXaxis()->SetLimits(xmin, xmax);
         gr->GetXaxis()->SetRangeUser(xmin, xmax);
-        //gr->GetYaxis()->SetLimits(ymin, ymax);
         gr->GetYaxis()->SetRangeUser(ymin, ymax);
 
-        //gr->GetZaxis()->SetLimits(zmin, zmax);
-        //gr->GetZaxis()->SetRangeUser(zmin, zmax);
-        //gr->GetHistogram()->SetRange(xmin, ymin, xmax, ymax);
-
         // setting min or max; then to basket -> load from basket -> empty screen
-        //gr->SetMinimum(zmin);
-        //gr->SetMaximum(zmax);
+        gr->SetMinimum(zmin);
+        gr->SetMaximum(zmax);
 
-        /*
-        TCanvas* c = RasterWindow->fCanvas;
-        double min[3], max[3];
-        min[0] = xmin; max[0] = xmax;
-        min[1] = ymin; max[1] = ymax;
-        min[2] = zmin; max[2] = zmax;
-
-        TView3D * v = dynamic_cast<TView3D*>(c->GetView());
-        qDebug() << "aaaaaaaaaa" << v;
-        if (v) v->SetRange(min, max);
-        */
+        TH2 * h = gr->GetHistogram();
+        if (h)
+        {
+            h->SetMinimum(zmin);
+            h->SetMaximum(zmax);
+        }
     }
 
     qApp->processEvents();
@@ -1138,13 +1099,13 @@ void AGraphWindow::updateControls()
     //qDebug()<<"  GraphWindow: updating indication of ranges";
     TMPignore = true;
 
-    TCanvas* c = RasterWindow->fCanvas;
+    TCanvas * c = RasterWindow->fCanvas;
     ui->cbLogX->setChecked(c->GetLogx());
     ui->cbLogY->setChecked(c->GetLogy());
     ui->cbGridX->setChecked(c->GetGridx());
     ui->cbGridY->setChecked(c->GetGridy());
 
-    TObject* obj = DrawObjects.front().Pointer;
+    TObject * obj = DrawObjects.front().Pointer;
     if (!obj)
     {
         qWarning() << "Cannot update graph window rang controls - object does not exist";
@@ -1158,17 +1119,17 @@ void AGraphWindow::updateControls()
     TView * view_3D = c->GetView();
     if (view_3D)
     {
+        //qDebug() << "3D view";
         double min[3], max[3];
         view_3D->GetRange(min, max);
-        ui->ledXfrom->setText( QString::number(min[0], 'g', 4) );
-        ui->ledXto->setText( QString::number(max[0], 'g', 4) );
-        ui->ledYfrom->setText( QString::number(min[1], 'g', 4) );
-        ui->ledYto->setText( QString::number(max[1], 'g', 4) );
-        ui->ledZfrom->setText( QString::number(min[2], 'g', 4) );
-        ui->ledZto->setText( QString::number(max[2], 'g', 4) );
+        xmin = min[0]; xmax = max[0];
+        ymin = min[1]; ymax = max[1];
+        zmin = min[2]; zmax = max[2];
+        //qDebug() << "Gen purpose (3D), minmaxs xyz:"<< min[0] << max[0] << min[1] << max[1] << min[2] << max[2];
     }
-    else if (PlotType.startsWith("TH1") || PlotType.startsWith("TH2") || PlotType =="TProfile")
+    else
     {
+        //qDebug() << "2D view";
         c->GetRangeAxis(xmin, ymin, xmax, ymax);
         if (c->GetLogx())
         {
@@ -1180,140 +1141,62 @@ void AGraphWindow::updateControls()
             ymin = TMath::Power(10.0, ymin);
             ymax = TMath::Power(10.0, ymax);
         }
+        //qDebug() << "Gen purpose (2D), minmaxs xyz:" << xmin << xmax << ymin << ymax << zmin << zmax;
 
-        if (PlotType.startsWith("TH2") )
+        // special cases
+        if (obj)
         {
-            if (ui->leOptions->text().startsWith("col"))
+            TH2 * h2 = dynamic_cast<TH2*>(obj);
+            if (h2)
             {
                 //it is color contour - 2D plot
-                zmin = ((TH2*) obj)->GetMinimum();
-                zmax = ((TH2*) obj)->GetMaximum();
-                ui->ledZfrom->setText( QString::number(zmin, 'g', 4) );
-                ui->ledZto->setText( QString::number(zmax, 'g', 4) );
+                zmin = h2->GetMinimum();
+                zmax = h2->GetMaximum();
             }
             else
             {
-                //3D plot
-                float min[3], max[3];
-                TView* v = c->GetView();
-//                if (v && !MW->ShutDown)
-                if (v)
+                TGraph2D * g2 = dynamic_cast<TGraph2D*>(obj);
+                if (g2)
                 {
-                    v->GetRange(min, max);
-                    ui->ledZfrom->setText( QString::number(min[2], 'g', 4) );
-                    ui->ledZto->setText( QString::number(max[2], 'g', 4) );
+                    TH2 * h2 = g2->GetHistogram();
+                    if (h2)
+                    {
+                        zmin = h2->GetMinimum();
+                        zmax = h2->GetMaximum();
+                    }
+                    else
+                    {
+                        zmin = g2->GetMinimum();
+                        zmax = g2->GetZmax();//GetMaximum();
+                    }
                 }
-                else
-                {
-                    ui->ledZfrom->setText("");
-                    ui->ledZto->setText("");
-                }
             }
         }
     }
-    else if (PlotType.startsWith("TH3"))
-    {
-        ui->ledZfrom->setText( "" );   //   ui->ledZfrom->setText( QString::number(zmin, 'g', 4) );
-        ui->ledZto->setText( "" ); // ui->ledZto->setText( QString::number(zmax, 'g', 4) );
-    }
-    else if (PlotType.startsWith("TProfile2D"))
-    {
-        if (opt == "" || opt == "prof" || opt.contains("col") || opt.contains("colz"))
-        {
-            c->GetRangeAxis(xmin, ymin, xmax, ymax);
-            if (c->GetLogx())
-            {
-                xmin = TMath::Power(10.0, xmin);
-                xmax = TMath::Power(10.0, xmax);
-            }
-            if (c->GetLogy())
-            {
-                ymin = TMath::Power(10.0, ymin);
-                ymax = TMath::Power(10.0, ymax);
-            }
-        }
-        ui->ledZfrom->setText( "" );   //   ui->ledZfrom->setText( QString::number(zmin, 'g', 4) );
-        ui->ledZto->setText( "" ); // ui->ledZto->setText( QString::number(zmax, 'g', 4) );
-    }
-    else if (PlotType.startsWith("TF1") )
-    {
-        //cannot use GetRange - y is reported 0 always
-        //      xmin = ((TF1*) obj)->GetXmin();
-        //      xmax = ((TF1*) obj)->GetXmax();
-        //      ymin = ((TF1*) obj)->GetMinimum();
-        //      ymax = ((TF1*) obj)->GetMaximum();
-        c->GetRangeAxis(xmin, ymin, xmax, ymax);
-        if (c->GetLogx())
-        {
-            xmin = TMath::Power(10.0, xmin);
-            xmax = TMath::Power(10.0, xmax);
-        }
-        if (c->GetLogy())
-        {
-            ymin = TMath::Power(10.0, ymin);
-            ymax = TMath::Power(10.0, ymax);
-        }
-    }
-    else if (PlotType.startsWith("TF2"))
+
+    // very special cases :)
+    if (PlotType.startsWith("TF2"))
     {
         ((TF2*) obj)->GetRange(xmin, ymin, xmax, ymax);
         //  zmin = ((TF2*) obj)->GetMinimum();  -- too slow, it involves minimizer!
         //  zmax = ((TF2*) obj)->GetMaximum();
-        float min[3], max[3];
-        TView* v = c->GetView();
-        if (v)// && !MW->ShutDown)
-        {
-            v->GetRange(min, max);
-            ui->ledZfrom->setText( QString::number(min[2], 'g', 4) );
-            ui->ledZto->setText( QString::number(max[2], 'g', 4) );
-        }
-        else
-        {
-            ui->ledZfrom->setText("");
-            ui->ledZto->setText("");
-        }
     }
-    else if (PlotType == "TGraph" || PlotType == "TGraphErrors" || PlotType == "TMultiGraph")
-    {
-        c->GetRangeAxis(xmin, ymin, xmax, ymax);
-        if (c->GetLogx())
-        {
-            xmin = TMath::Power(10.0, xmin);
-            xmax = TMath::Power(10.0, xmax);
-        }
-        if (c->GetLogy())
-        {
-            ymin = TMath::Power(10.0, ymin);
-            ymax = TMath::Power(10.0, ymax);
-        }
-        //   qDebug()<<"---Ymin:"<<ymin;
-    }
-    else if (PlotType == "TGraph2D")
-    {
-        float min[3], max[3];
-        TView* v = c->GetView();
-        if (v)// && !MW->ShutDown)
-        {
-            v->GetRange(min, max);
-            xmin = min[0]; xmax = max[0];
-            ymin = min[1]; ymax = max[1];
-            zmin = min[2]; zmax = max[2];
-            //qDebug() << "minmax XYZ"<<xmin<<xmax<<ymin<<ymax<<zmin<<zmax;
-        }
-        ui->ledZfrom->setText( QString::number(zmin, 'g', 4) );
-        ui->ledZto->setText( QString::number(zmax, 'g', 4) );
-    }
+
+    //qDebug() << "Final data:" << xmin << xmax << ymin << ymax << zmin << zmax;
 
     ui->ledXfrom->setText( QString::number(xmin, 'g', 4) );
     xmin = ui->ledXfrom->text().toDouble();  //to have consistent rounding
     ui->ledXto->setText( QString::number(xmax, 'g', 4) );
     xmax = ui->ledXto->text().toDouble();
+
     ui->ledYfrom->setText( QString::number(ymin, 'g', 4) );
     ymin = ui->ledYfrom->text().toDouble();
     ui->ledYto->setText( QString::number(ymax, 'g', 4) );
     ymax = ui->ledYto->text().toDouble();
 
+    ui->ledZfrom->setText( QString::number(zmin, 'g', 4) );
     zmin = ui->ledZfrom->text().toDouble();
+    ui->ledZto->setText( QString::number(zmax, 'g', 4) );
     zmax = ui->ledZto->text().toDouble();
 
     TMPignore = false;
@@ -1322,20 +1205,29 @@ void AGraphWindow::updateControls()
 
 void AGraphWindow::onDrawRequest(TObject * obj, QString options, bool transferOwnership, bool focusWindow)
 {
+    if (!obj)
+    {
+        RasterWindow->clearRootCanvas();
+        RasterWindow->updateRootCanvas();
+        return;
+    }
+
+    if (!transferOwnership) obj = obj->Clone();
+
     if (focusWindow)
     {
         showAndFocus();
-        draw(obj, options, true, transferOwnership);
+        draw(obj, options, true);
     }
     else
-        draw(obj, options, true, transferOwnership);
+        draw(obj, options, true);
 
     lwBasket->clearFocus();
 }
 
 void AGraphWindow::onScriptDrawRequest(TObject * obj, QString options, bool fFocus)
 {
-    DrawFinished = false;
+    DrawFinished = 1;
 
     emit requestLocalDrawObject(obj, options, fFocus);
     do
@@ -1343,14 +1235,28 @@ void AGraphWindow::onScriptDrawRequest(TObject * obj, QString options, bool fFoc
         QThread::msleep(100);
         QApplication::processEvents();
     }
-    while (!DrawFinished);
+    while (DrawFinished > 0);
 }
 
-void AGraphWindow::processScriptDrawRequest(TObject *obj, QString options, bool fFocus)
+void AGraphWindow::onScriptDrawCollectionRequest(std::vector<std::pair<TObject*, QString>> objectsAndOptions, bool fFocus)
 {
-    //always drawing a copy, so always need to register the object
+    DrawFinished = objectsAndOptions.size();
+
+    for (const std::pair<TObject*, QString> & pair : objectsAndOptions)
+        emit requestLocalDrawObject(pair.first, pair.second, fFocus);
+
+    do
+    {
+        QThread::msleep(100);
+        QApplication::processEvents();
+    }
+    while (DrawFinished > 0);
+}
+
+void AGraphWindow::processScriptDrawRequest(TObject * obj, QString options, bool fFocus)
+{
     if (fFocus) showAndFocus();
-    draw(obj, options.toLatin1().data(), true, true);
+    draw(obj, options.toLatin1().data(), true); // script always sends a copy
 }
 
 void SetMarkerAttributes(TAttMarker* m, const QVariantList& vl)
@@ -1580,7 +1486,7 @@ bool AGraphWindow::onScriptDrawTree(TTree * tree, QString what, QString cond, QS
         SetMarkerAttributes(static_cast<TAttMarker*>(h), vlML.at(0).toList());
         SetLineAttributes(static_cast<TAttLine*>(h), vlML.at(1).toList());
         showAndFocus();
-        draw(h, How.Data(), true, false);
+        draw(h, How.Data(), true);
     }
 
     if (result) *result = "";
@@ -2081,8 +1987,31 @@ void AGraphWindow::onBasketDeleteShortcutActivated()
 
 void AGraphWindow::onCursorPositionReceived(double x, double y, bool bOn)
 {
+    double z = 0;
+    bool bZvis = false;
+
+    if (!DrawObjects.empty() && !DrawObjects.front().Multidraw)
+    {
+        TObject *  obj = DrawObjects.front().Pointer;
+        //if (obj) qDebug() << obj->ClassName();
+        TH2D * h2d = dynamic_cast<TH2D*>(obj);
+        if (h2d)
+        {
+            int bin = h2d->FindBin(x, y);
+            if (bin > 0)
+            {
+                z = h2d->GetBinContent(bin);
+                bZvis = true;
+            }
+        }
+    }
+
     ui->labCursorX->setText(bOn ? QString::number(x, 'g', 4) : "--");
     ui->labCursorY->setText(bOn ? QString::number(y, 'g', 4) : "--");
+    ui->labCursorZ->setText(bOn ? QString::number(z, 'g', 4) : "--");
+
+    ui->labZ->setVisible(bZvis);
+    ui->labCursorZ->setVisible(bZvis);
 }
 
 void AGraphWindow::makeCopyOfDrawObjects()
@@ -2411,6 +2340,11 @@ void AGraphWindow::clearBasket()
     updateBasketGUI();
 }
 
+void AGraphWindow::saveBasket(QString fileName)
+{
+    Basket->saveBasket(fileName);
+}
+
 void AGraphWindow::on_actionBasic_ROOT_triggered()
 {
     gStyle->SetPalette(57);
@@ -2682,7 +2616,7 @@ void AGraphWindow::addTextPanel(QString text, bool bShowFrame, int alignLeftCent
     const QStringList sl = text.split("\n");
     for (const QString & s : sl) la->AddText(s.toLatin1());
 
-    draw(la, "same", true, false); //it seems the Paveltext is owned by drawn object - registration causes crash if used with non-registered object (e.g. script)
+    draw(la, "same", true); // now all objects are registered so this old comment seems to be obsolete, but keep an eye: >> it seems the Paveltext is owned by drawn object - registration causes crash if used with non-registered object (e.g. script) <<
 }
 
 void AGraphWindow::setStatPanelVisible(bool flag)

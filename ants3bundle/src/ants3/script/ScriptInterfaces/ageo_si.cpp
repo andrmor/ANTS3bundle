@@ -60,9 +60,10 @@ AGeo_SI::AGeo_SI() :
                                 "and return array of [X Y Z MaterualIndex VolumeName NodeIndex] for all volumes on the way until final exit to the World\n"
                                 "the X Y Z are coordinates of the entrance points";
 
-    Help["getGeoConstValue"] = "Get value of the Geo Constant identified by the provided name";
-    Help["setGeoConstValue"] = "Set value of the Geo Constant identified by the provided name to the new value.\n"
-                               "Note that if an expression was previously defined for that Geo Constant, it will be cleared";
+    Help["getGeoConstValue"] = "Get value of the GeoConstant identified by the provided name";
+    Help["setGeoConstValue"] = "Set value of the GeoConstant identified by the provided name to the new value.\n"
+                               "Note that if an expression was previously defined for that GeoConstant, it will be cleared.\n"
+                               "Calling this method also updates this corresponding record in the config json, so calling config.updateConfig() later is safe.";
 }
 
 AGeo_SI::~AGeo_SI()
@@ -1671,6 +1672,8 @@ void AGeo_SI::setGeoConstValue(QString name, double value)
     }
 
     GC.setNewValue(index, value);
+
+    GC.updateInConfigJson();
 }
 
 AGeoObject * AGeo_SI::findObject(const QString & Object)
@@ -1702,6 +1705,31 @@ void AGeo_SI::setLightSensor(QString Object, int iModel)
     AGeoObject * obj = findObject(Object);
     if (!obj) return;
     delete obj->Role; obj->Role = new AGeoSensor(iModel);
+}
+
+void setLightSensorRecursive(AGeoObject * obj, const QString & objectNameStartsWith, int iModel)
+{
+    if (obj)
+    {
+        if (obj->Name.startsWith(objectNameStartsWith, Qt::CaseSensitive))
+        {
+            delete obj->Role; obj->Role = new AGeoSensor(iModel);
+        }
+
+        for (AGeoObject * hobj : obj->HostedObjects)
+            setLightSensorRecursive(hobj, objectNameStartsWith, iModel);
+    }
+}
+
+void AGeo_SI::setLightSensorByName(QString ObjectNameStartsWith, int iModel)
+{
+    for (AGeoObject * obj : GeoObjects)
+        if (obj->Name.startsWith(ObjectNameStartsWith))
+        {
+            delete obj->Role; obj->Role = new AGeoSensor(iModel);
+        }
+
+    setLightSensorRecursive(AGeometryHub::getInstance().World, ObjectNameStartsWith, iModel);
 }
 
 void AGeo_SI::setCalorimeter(QString Object, QVariantList bins, QVariantList origin, QVariantList step)
@@ -1762,12 +1790,6 @@ void AGeo_SI::setScintillatorByName(QString ObjectNameStartsWith)
             delete obj->Role; obj->Role = new AGeoScint();
         }
 
-    //std::vector<AGeoObject*> objAr;
-    //AGeometryHub::getInstance().World->findObjectsByWildcard(ObjectNameStartsWith, objAr);
-    //for (AGeoObject * obj : objAr)
-    //{
-    //    delete obj->Role; obj->Role = new AGeoScint();
-    //}
     setScintRecursive(AGeometryHub::getInstance().World, ObjectNameStartsWith);
 }
 

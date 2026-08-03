@@ -53,11 +53,12 @@ AGraphWin_SI::AGraphWin_SI(AGraphWindow * graphWin) :
     // the rest of the methods to look like that:
     connect(this, &AGraphWin_SI::requestAddToBasket,         graphWin, &AGraphWindow::addCurrentToBasket,    Qt::QueuedConnection);
     connect(this, &AGraphWin_SI::requestClearBasket,         graphWin, &AGraphWindow::clearBasket,           Qt::QueuedConnection);
+    connect(this, &AGraphWin_SI::requestSaveBasket,          graphWin, &AGraphWindow::saveBasket,            Qt::QueuedConnection);
     connect(this, &AGraphWin_SI::requestSetLog,              graphWin, &AGraphWindow::setLogScale,           Qt::QueuedConnection);
     connect(this, &AGraphWin_SI::requestSetStatPanelVisible, graphWin, &AGraphWindow::setStatPanelVisible,   Qt::QueuedConnection);
     connect(this, &AGraphWin_SI::requestAddLegend,           graphWin, &AGraphWindow::drawLegend,            Qt::QueuedConnection);
     connect(this, &AGraphWin_SI::requestSetLegendBorder,     graphWin, &AGraphWindow::configureLegendBorder, Qt::QueuedConnection);
-    connect(this, &AGraphWin_SI::requestAddText,             graphWin, &AGraphWindow::addTextPanel,         Qt::QueuedConnection);
+    connect(this, &AGraphWin_SI::requestAddText,             graphWin, &AGraphWindow::addTextPanel,          Qt::QueuedConnection);
     connect(this, &AGraphWin_SI::requestAddLine,             graphWin, &AGraphWindow::addLine,               Qt::QueuedConnection);
     connect(this, &AGraphWin_SI::requestAddArrow,            graphWin, &AGraphWindow::addArrow,              Qt::QueuedConnection);
 
@@ -137,6 +138,14 @@ void AGraphWin_SI::clearBasket()
 {
     QApplication::processEvents();
     emit requestClearBasket();
+    QApplication::processEvents();
+}
+
+void AGraphWin_SI::saveBasket(QString fileName)
+{
+    QApplication::processEvents();
+    if (!fileName.endsWith(".root")) fileName += ".root";
+    emit requestSaveBasket(fileName);
     QApplication::processEvents();
 }
 

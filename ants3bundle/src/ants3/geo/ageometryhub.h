@@ -21,7 +21,7 @@ class QStringLists;
 class AGeoShape;
 class AParticleAnalyzerSettings;
 
-class AGeometryHub
+class  AGeometryHub
 {
 public:
     static AGeometryHub & getInstance();

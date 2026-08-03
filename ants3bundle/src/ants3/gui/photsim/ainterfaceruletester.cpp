@@ -709,7 +709,7 @@ void AInterfaceRuleTester::reportStatistics(const AReportForOverride &rep, int n
         t += "Reflection composition:\n";
         if (rep.Bspike > 0)     t += QString("  Specular spike: %1%  (%2,   %3% of total)\n").arg(rep.Bspike/rep.back*100.0).arg(rep.Bspike).arg(100.0*rep.Bspike/numPhot);
         if (rep.Bbackspike > 0) t += QString("  Backward specular spike: %1%  (%2,   %3% of total)\n").arg(rep.Bbackspike/rep.back*100.0).arg(rep.Bbackspike).arg(100.0*rep.Bbackspike/numPhot);
-        if (rep.Blobe > 0)      t += QString("  Diffuse lobe: %1%  (%2,   %3% of total)\n").arg(rep.Blobe/rep.back*100.0).arg(rep.Blobe).arg(100.0*rep.Blobe/numPhot);
+        if (rep.Blobe > 0)      t += QString("  Specular lobe: %1%  (%2,   %3% of total)\n").arg(rep.Blobe/rep.back*100.0).arg(rep.Blobe).arg(100.0*rep.Blobe/numPhot);
         if (rep.Blamb > 0)      t += QString("  Lambertian: %1%  (%2,   %3% of total)\n").arg(rep.Blamb/rep.back*100.0).arg(rep.Blamb).arg(100.0*rep.Blamb/numPhot);
     }
 

@@ -1,0 +1,50 @@
+// Steps to make before running the script:
+// Load example config with clinical Anger camera (GammaCamera37PMTs)
+// Run a Photon simulation: by default it is set to 10000 photon bombs
+
+// ------------- Configuration -------------
+// Select the data directory
+var dir = config.getKeyValue("PhotonSim.Run.OutputDirectory") // "/home/username/.config/ants3/TmpOutput"
+var NumberOfEventMarkers = 100
+// -----------------------------------------
+
+var sig = core.loadNumericArray(dir + "/SensorSignals.txt")
+var numEv = sig.length
+if (numEv == 0) core.abort("There are no events!")
+core.print("Loaded", numEv, "events")
+
+var truePos = core.loadNumericArray(dir + "/PhotonBombs.txt")
+if (truePos.length != numEv) core.abort("Failed to load photon bomb positions!")
+
+mercury.newReconstructor("ML", 15)
+mercury.setCutoffRadius(200)
+
+core.print("Staring reconstruction");
+var start = core.getTimeMarkMilliseconds()
+mercury.reconstructEvents(sig)
+var stop = core.getTimeMarkMilliseconds()
+core.print("Elapsed time:", stop-start, "ms")
+
+var recPosE = mercury.getRecXYZE()
+
+// Show event position markers
+geowin.clearMarkers()
+var arRec  = []
+var arTrue = []
+for (var iEv = 0; iEv < NumberOfEventMarkers; iEv++)
+{
+    arTrue.push(truePos[iEv])
+    
+    // Energy = 0 --> reconstruction failed
+    if (recPosE[iEv][3] > 0) arRec.push(recPosE[iEv])
+}
+geowin.addMarkers(arTrue, 4, 7, 2)
+geowin.addMarkers(arRec,  2, 2, 2)
+geowin.showWindow()
+
+// Show reconstruction data
+mercury.plot("All", 100, 0,0)
+mercury.configure_plotXY_binning(60, -270, 270, 60, -270, 270)
+mercury.plot_vsRecXY("All")
+mercury.configure_plotXY_truePositions(truePos)
+mercury.plot_vsTrueXY("All")

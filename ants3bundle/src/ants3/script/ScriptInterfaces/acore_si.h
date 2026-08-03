@@ -12,6 +12,8 @@
 
 class CurveFit;
 class AScriptMessenger;
+class QFile;
+class QTextStream;
 
 class ACore_SI : public AScriptInterface
 {
@@ -69,6 +71,13 @@ public slots:
     void         appendText(QString text, QString fileName);
     QString      loadText(QString fileName);
     QString      loadText(QString fileName, int numLines);
+    void         textReader_configure(QString fileName);
+    QString      textReader_nextLine();
+    bool         textReader_atEnd();
+    void         textWriter_configure(QString fileName);
+    void         textWriter_write(QString text);
+    void         textWriter_writeLine(QString text);
+    void         textWriter_flush();
 
     // Ascii array
     void         saveArray(QVariantList array, QString fileName, bool append = false);
@@ -99,6 +108,8 @@ public slots:
     QString str(double value, int precision);
     QString toStr(QVariant var);
     double  arraySum(QVariantList array);
+    QVariantList arrayColumn(QVariantList array, int columnIndex);
+    QVariantList arrayMultiply(QVariantList array, double factor, int columnIndex = 0);
     QString getExamplesDir();
     void    processEvents();
     void    reportProgress(int percents);
@@ -115,6 +126,12 @@ private:
     QSet<QString>   Finder_FileNames;
     QString         Finder_Dir;
     QString         Finder_NamePattern = "*.*";
+
+    QFile       * TextReaderFile   = nullptr;
+    QTextStream * TextReaderStream = nullptr;
+
+    QFile       * TextWriterFile   = nullptr;
+    QTextStream * TextWriterStream = nullptr;
 
     AScriptMessenger * Messenger = nullptr;
 
