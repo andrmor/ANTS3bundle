@@ -314,11 +314,12 @@ void ASensorWindow::updateNumPixels()
 }
 
 #include "aconfig.h"
+//#include "ageometryhub.h"
 void ASensorWindow::on_cobAssignmentMode_activated(int index)
 {
     if (index == 1)
     {
-        guitools::message("The mode will change to \"Custom\" automatically\nas soon as any sensor assignment\nis modified by script!", this);
+        guitools::message("The assignment mode can be changed to \"Custom\" using scripting!", this);
         ui->cobAssignmentMode->setCurrentIndex(0);
     }
     else
@@ -329,6 +330,7 @@ void ASensorWindow::on_cobAssignmentMode_activated(int index)
         AConfig & Config = AConfig::getInstance();
         Config.updateJSONfromConfig();
         Config.updateConfigFromJSON(true);
+        //AGeometryHub::getInstance().populateGeoManager();
     }
 }
 

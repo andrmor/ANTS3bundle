@@ -63,6 +63,7 @@ void AGeoSpecial::writeToJson(QJsonObject & json) const
 void AGeoSensor::readFromJson(const QJsonObject &json)
 {
     jstools::parseJson(json, "SensorModel", SensorModel);
+    if (SensorModel < 0) SensorModel = 0;
 }
 
 void AGeoSensor::doWriteToJson(QJsonObject & json) const

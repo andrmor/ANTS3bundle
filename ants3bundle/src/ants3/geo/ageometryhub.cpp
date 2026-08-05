@@ -446,6 +446,7 @@ void AGeometryHub::addSensorNode(AGeoObject * obj, TGeoVolume * vol, TGeoVolume 
     ASensorData sr;
     sr.GeoObj = obj;
     sr.ModelIndex = static_cast<AGeoSensor*>(obj->Role)->SensorModel;
+    if (sr.ModelIndex < 0) sr.ModelIndex = 0;
 
     TObjArray * nList = parent->GetNodes();
     const int numNodes = nList->GetEntries();

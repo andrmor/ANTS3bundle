@@ -41,7 +41,7 @@ private slots:
     void on_lepPixelSpacingY_editingFinished();
     void on_lepPixelSpacingX_editingFinished();
 
-    void on_cobAssignmentMode_activated(int index); // !!!*** consider more "soft" method instead of global rebuild
+    void on_cobAssignmentMode_activated(int index);
 
     void on_pbShowSensorsOfThisModel_clicked();
 
