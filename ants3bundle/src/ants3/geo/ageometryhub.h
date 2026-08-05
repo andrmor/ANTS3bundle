@@ -105,6 +105,8 @@ public:
     size_t       countParticleAnalyzers() const;
     void         fillParticleAnalyzerRecords(AParticleAnalyzerSettings * settings) const;
 
+    void         shiftSensorModelsOnRemoveModel(int iModel, AGeoObject * obj = nullptr);
+
 private:
     void addTGeoVolumeRecursively(AGeoObject * obj, TGeoVolume * parent, int forcedNodeNumber = 0);
 

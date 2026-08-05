@@ -76,6 +76,8 @@ public:
 
     const ASensorData * getSensorData(int iSensor) const;
 
+    void shiftModelAssignemnt(int iModel);
+
 private:
     ASensorHub();
     ~ASensorHub(){}

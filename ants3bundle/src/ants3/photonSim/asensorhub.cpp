@@ -96,12 +96,24 @@ QString ASensorHub::removeModel(int iModel)
     if (iModel < 0 || iModel >= (int)Models.size())
         return "Invalid model index";
     if (Models.size() < 2)
-        return "Cannot remove the last model";
+        return "Cannot remove the last remaining model";
     if (countSensorsOfModel(iModel) > 0)
         return "Cannot remove: there are sensors of this model";
 
     Models.erase(Models.begin() + iModel);
+    shiftModelAssignemnt(iModel);
+
     return "";
+}
+
+#include "ageometryhub.h"
+void ASensorHub::shiftModelAssignemnt(int iModel)
+{
+    for (int & iAssigned : LoadedModelAssignment)
+        if (iAssigned > iModel) iAssigned--;
+
+    AGeometryHub::getInstance().shiftSensorModelsOnRemoveModel(iModel);
+    AGeometryHub::getInstance().populateGeoManager();
 }
 
 AVector3 ASensorHub::getPosition(int iSensor) const
