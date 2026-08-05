@@ -35,26 +35,33 @@ void ASensor_SI::setGains(QVariantList gains)
         SensHub.SensorGains.push_back(gains[i].toDouble());
 }
 
-void ASensor_SI::clearAssignment()
+/*
+void ASensor_SI::disableCustomModelAssignment()
 {
-    SensHub.clearAssignment();
+    SensHub.CustomModelAssignmentEnabled = false;
+    SensHub.CustomModelAssignmentArray.clear();
+    //SensHub.writeToJson();
 }
 
-void ASensor_SI::assignModel(int iSensor, int iModel)
+void ASensor_SI::enableCustomModelAssignment(QVariantList sensorModels)
 {
-    if (iSensor < 0 || iSensor >= SensHub.countSensors())
+    std::vector<int> models;
+    for (int i = 0; i < sensorModels.size(); i++)
     {
-        abort("Invalid sensor index");
-        return;
-    }
-    if (iModel < 0 || iModel >= SensHub.countModels())
-    {
-        abort("Invalid sensor model index");
-        return;
+        int iModel = sensorModels[i].toInt();
+        if (iModel < 0 || iModel >= SensHub.countModels())
+        {
+            abort("Invalid sensor model index");
+            SensHub.CustomModelAssignmentEnabled = false;
+            SensHub.CustomModelAssignmentArray.clear();
+            return;
+        }
     }
 
-    SensHub.setSensorModel(iSensor, iModel);
+    SensHub.CustomModelAssignmentEnabled = true;
+    SensHub.CustomModelAssignmentArray = models;
 }
+*/
 
 int ASensor_SI::newModel()
 {

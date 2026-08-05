@@ -63,7 +63,7 @@ void ASensorWindow::updateGui()
 
     updateModelGui();
 
-    ui->cobAssignmentMode->setCurrentIndex(SensHub.isPersistentModelAssignment() ? 1 : 0);
+    ui->cobAssignmentMode->setCurrentIndex(SensHub.CustomModelAssignmentEnabled ? 1 : 0);
 
     updateGains();
 }
@@ -323,7 +323,8 @@ void ASensorWindow::on_cobAssignmentMode_activated(int index)
     }
     else
     {
-        SensHub.exitPersistentMode();
+        SensHub.CustomModelAssignmentEnabled = false;
+        SensHub.CustomModelAssignmentArray.clear();
 
         AConfig & Config = AConfig::getInstance();
         Config.updateJSONfromConfig();

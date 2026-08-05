@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>617</width>
+    <width>621</width>
     <height>731</height>
    </rect>
   </property>
@@ -2135,7 +2135,12 @@ If this number is &lt;&lt; 1, consider either configuring 'signal per ph.e-' con
         <item>
          <widget class="QLabel" name="labHelpAssignment">
           <property name="text">
-           <string>Use script unit &quot;sens&quot; to manipulate sensor model assignment</string>
+           <string>Example:
+config.replace(&quot;Sensors.CustomModelAssignment.Enabled&quot;, true)
+config.replace(&quot;Sensors.CustomModelAssignment.ModelAssignment&quot;, [2,1,0])
+config.updateConfig()
+
+The first three sensors will be assigned model indexes of 2, 1 and 0, respectively</string>
           </property>
          </widget>
         </item>
@@ -2163,7 +2168,7 @@ If this number is &lt;&lt; 1, consider either configuring 'signal per ph.e-' con
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>617</width>
+     <width>621</width>
      <height>22</height>
     </rect>
    </property>

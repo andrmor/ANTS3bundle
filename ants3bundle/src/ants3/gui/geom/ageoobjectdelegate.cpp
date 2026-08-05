@@ -241,7 +241,7 @@ QFrame * AGeoObjectDelegate::createSensorGui()
         QHBoxLayout * hlSensor = new QHBoxLayout(frSensor);
         hlSensor->setContentsMargins(0,0,0,0);
         cobSensorModel = new QComboBox();
-        if (ASensorHub::getConstInstance().isPersistentModelAssignment()) // mode does not change without rebuild, so no need in update
+        if (ASensorHub::getConstInstance().CustomModelAssignmentEnabled) // mode does not change without rebuild, so no need in update
         {
             QLabel * l = new QLabel("Custom model indexes");
             l->setToolTip("Sensor are configured to use persistent model indexes\n"
