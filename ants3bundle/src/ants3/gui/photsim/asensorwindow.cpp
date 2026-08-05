@@ -209,7 +209,10 @@ void ASensorWindow::on_leModelName_editingFinished()
     ASensorModel * mod = SensHub.model(iModel);
     if (!mod) return;
 
+    QString oldName = mod->Name;
     mod->Name = ui->leModelName->text();
+    if (oldName != mod->Name)
+        updateGui();
 }
 
 void ASensorWindow::on_ledEffectivePDE_editingFinished()
