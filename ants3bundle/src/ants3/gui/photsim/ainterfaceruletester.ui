@@ -33,7 +33,7 @@
          <number>1000000</number>
         </property>
         <property name="value">
-         <number>1000</number>
+         <number>10000</number>
         </property>
        </widget>
       </item>
@@ -251,7 +251,7 @@ the incoming photon direction is positive.</string>
          <number>99999</number>
         </property>
         <property name="value">
-         <number>1000</number>
+         <number>8000</number>
         </property>
        </widget>
       </item>

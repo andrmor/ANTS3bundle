@@ -217,6 +217,8 @@ void AInterfaceRuleDialog::on_pbTestOverride_clicked()
         return;
     }
 
+    /*  Obsolete, but still can be not precise: reverese rule for the case "Transmitted but the vector is back to interface" is taken by inversing from-to materials
+     *  and it could be that the user is testing e.g. volume rule and there is reverse volume rule !!!***
     if (Rule && Rule->SurfaceSettings.isRough())
     {
         if (!Rule->Symmetric && !Rule->SurfaceSettings.KillPhotonsRefractedBackward)
@@ -227,6 +229,7 @@ void AInterfaceRuleDialog::on_pbTestOverride_clicked()
             if (!ok) return;
         }
     }
+    */
 
     TesterWindow->show();
     TesterWindow->updateGUI();
