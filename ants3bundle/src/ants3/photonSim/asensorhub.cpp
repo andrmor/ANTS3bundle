@@ -77,31 +77,29 @@ int ASensorHub::cloneModel(int iModel)
     return Models.size()-1;
 }
 
-void ASensorHub::clearAssignment()
-{
-    for (ASensorData & sd : SensorData)
-        sd.ModelIndex = 0;
-}
-
-void ASensorHub::setSensorModel(int iSensor, int iModel)
-{
-    if (iSensor < 0 || iSensor >= (int)SensorData.size()) return;
-    if (iModel  < 0 || iModel  >= (int)Models.size()) return;
-    SensorData[iSensor].ModelIndex = iModel;
-    PersistentModelAssignment = true;
-}
-
 QString ASensorHub::removeModel(int iModel)
 {
     if (iModel < 0 || iModel >= (int)Models.size())
         return "Invalid model index";
     if (Models.size() < 2)
-        return "Cannot remove the last model";
+        return "Cannot remove the last remaining model";
     if (countSensorsOfModel(iModel) > 0)
         return "Cannot remove: there are sensors of this model";
 
     Models.erase(Models.begin() + iModel);
+    shiftModelAssignemnt(iModel);
+
     return "";
+}
+
+#include "ageometryhub.h"
+void ASensorHub::shiftModelAssignemnt(int iModel)
+{
+    for (int & iAssigned : CustomModelAssignmentArray)
+        if (iAssigned > iModel) iAssigned--;
+
+    AGeometryHub::getInstance().shiftSensorModelsOnRemoveModel(iModel);
+    AGeometryHub::getInstance().populateGeoManager();
 }
 
 AVector3 ASensorHub::getPosition(int iSensor) const
@@ -167,16 +165,12 @@ QString ASensorHub::updateRuntimeProperties()
     return "";
 }
 
-void ASensorHub::exitPersistentMode()
-{
-    PersistentModelAssignment = false;
-    LoadedModelAssignment.clear();
-}
-
 void ASensorHub::writeToJson(QJsonObject & json) const
 {
     QJsonObject mainJs;
 
+    // Models
+    {
         QJsonArray ar;
         for (const ASensorModel & m : Models)
         {
@@ -185,23 +179,28 @@ void ASensorHub::writeToJson(QJsonObject & json) const
             ar.push_back(js);
         }
         mainJs["Models"] = ar;
+    }
 
-        QJsonArray arMA;
-        if (PersistentModelAssignment)
-            for (const ASensorData & sd : SensorData)
-                arMA << sd.ModelIndex;
-        mainJs["ModelAssignment"] = arMA;
+    // Custom model assignment
+    {
+        QJsonObject js;
+            js["Enabled"] = CustomModelAssignmentEnabled;
+            QJsonArray ar;
+                for (int iModel : CustomModelAssignmentArray) ar << iModel;
+            js["ModelAssignment"] = ar;
+        mainJs["CustomModelAssignment"] = js;
+    }
 
-        // Gains
-        {
-            QJsonObject js;
-                js["Enabled"] = UseSensorGains;
-                QJsonArray ar;
-                    for (double gain : SensorGains)
-                    ar.push_back(gain);
-                js["Gains"] = ar;
-            mainJs["SensorGains"] = js;
-        }
+    // Gains
+    {
+        QJsonObject js;
+            js["Enabled"] = UseSensorGains;
+            QJsonArray ar;
+            for (double gain : SensorGains)
+                ar.push_back(gain);
+            js["Gains"] = ar;
+        mainJs["SensorGains"] = js;
+    }
 
     json["Sensors"] = mainJs;
 }
@@ -209,8 +208,8 @@ void ASensorHub::writeToJson(QJsonObject & json) const
 QString ASensorHub::readFromJson(const QJsonObject & json)
 {
     Models.clear();
-    PersistentModelAssignment = false;
-    LoadedModelAssignment.clear();
+    CustomModelAssignmentEnabled = false;
+    CustomModelAssignmentArray.clear();
 
     QJsonObject mainJs;
     bool ok = jstools::parseJson(json, "Sensors", mainJs);
@@ -235,25 +234,28 @@ QString ASensorHub::readFromJson(const QJsonObject & json)
         }
     }
 
-    QJsonArray arMA;
-    ok = jstools::parseJson(mainJs, "ModelAssignment", arMA);
-    if (ok && !arMA.empty())
+    // Custom model assignment
     {
-        bool bFoundInvalidModelIndex = false;
-        PersistentModelAssignment = true;
         const int maxModel = Models.size() - 1;
-        LoadedModelAssignment.reserve(arMA.size());
-        for (int i = 0; i < arMA.size(); i++)
+        QJsonObject js;
+        bool ok = jstools::parseJson(mainJs, "CustomModelAssignment", js);
+        if (ok)
         {
-            int iMod = arMA[i].toInt();
-            if (iMod < 0 || iMod > maxModel)
+            jstools::parseJson(js, "Enabled", CustomModelAssignmentEnabled);
+            QJsonArray ar;
+            jstools::parseJson(js, "ModelAssignment", ar);
+            for (int i = 0; i < ar.size(); i++)
             {
-                iMod = 0;
-                bFoundInvalidModelIndex = true;
+                int iMod = ar[i].toInt();
+                if (iMod < 0 || iMod > maxModel)
+                {
+                    CustomModelAssignmentEnabled = false;
+                    CustomModelAssignmentArray.clear();
+                    return "Bad model index(es) in loaded custom sensor model assignment";
+                }
+                CustomModelAssignmentArray.push_back(iMod);
             }
-            LoadedModelAssignment.push_back(iMod);
         }
-        if (bFoundInvalidModelIndex) return "Bad model index(es) in loaded ModelAssignment";
     }
 
     // Gains
@@ -284,8 +286,8 @@ void ASensorHub::clear()
     UseSensorGains = false;
     SensorGains.clear();
 
-    PersistentModelAssignment = false;
-    LoadedModelAssignment.clear();
+    CustomModelAssignmentEnabled = false;
+    CustomModelAssignmentArray.clear();
 
     clearSensors();
 }
@@ -323,11 +325,11 @@ void ASensorHub::clearSensors()
 
 void ASensorHub::registerNextSensor(ASensorData & sr)
 {
-    if (PersistentModelAssignment)
+    if (CustomModelAssignmentEnabled)
     {
         const size_t index = SensorData.size();
-        sr.ModelIndex = ( index < LoadedModelAssignment.size() ? LoadedModelAssignment[index]
-                                                               : 0 );
+        sr.ModelIndex = ( index < CustomModelAssignmentArray.size() ? CustomModelAssignmentArray[index]
+                                                                    : 0 );
     }
 
     SensorData.push_back(sr);

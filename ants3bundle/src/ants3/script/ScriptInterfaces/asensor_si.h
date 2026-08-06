@@ -23,8 +23,9 @@ public slots:
     QVariantList getGains();
     void setGains(QVariantList gains);
 
-    void clearAssignment();
-    void assignModel(int iSensor, int iModel);
+    // need to synchronize sensorhub and JSON! !!!*** TODO
+    //void disableCustomModelAssignment();
+    //void enableCustomModelAssignment(QVariantList sensorModels);
 
     int  newModel();
     int  cloneModel(int iModel);

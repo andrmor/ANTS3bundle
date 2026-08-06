@@ -63,7 +63,7 @@ void ASensorWindow::updateGui()
 
     updateModelGui();
 
-    ui->cobAssignmentMode->setCurrentIndex(SensHub.isPersistentModelAssignment() ? 1 : 0);
+    ui->cobAssignmentMode->setCurrentIndex(SensHub.CustomModelAssignmentEnabled ? 1 : 0);
 
     updateGains();
 }
@@ -209,7 +209,10 @@ void ASensorWindow::on_leModelName_editingFinished()
     ASensorModel * mod = SensHub.model(iModel);
     if (!mod) return;
 
+    QString oldName = mod->Name;
     mod->Name = ui->leModelName->text();
+    if (oldName != mod->Name)
+        updateGui();
 }
 
 void ASensorWindow::on_ledEffectivePDE_editingFinished()
@@ -311,20 +314,23 @@ void ASensorWindow::updateNumPixels()
 }
 
 #include "aconfig.h"
+//#include "ageometryhub.h"
 void ASensorWindow::on_cobAssignmentMode_activated(int index)
 {
     if (index == 1)
     {
-        guitools::message("The mode will change to \"Custom\" automatically\nas soon as any sensor assignment\nis modified by script!", this);
+        guitools::message("The assignment mode can be changed to \"Custom\" using scripting!", this);
         ui->cobAssignmentMode->setCurrentIndex(0);
     }
     else
     {
-        SensHub.exitPersistentMode();
+        SensHub.CustomModelAssignmentEnabled = false;
+        SensHub.CustomModelAssignmentArray.clear();
 
         AConfig & Config = AConfig::getInstance();
         Config.updateJSONfromConfig();
         Config.updateConfigFromJSON(true);
+        //AGeometryHub::getInstance().populateGeoManager();
     }
 }
 

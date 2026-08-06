@@ -446,6 +446,7 @@ void AGeometryHub::addSensorNode(AGeoObject * obj, TGeoVolume * vol, TGeoVolume 
     ASensorData sr;
     sr.GeoObj = obj;
     sr.ModelIndex = static_cast<AGeoSensor*>(obj->Role)->SensorModel;
+    if (sr.ModelIndex < 0) sr.ModelIndex = 0;
 
     TObjArray * nList = parent->GetNodes();
     const int numNodes = nList->GetEntries();
@@ -763,6 +764,20 @@ void AGeometryHub::fillParticleAnalyzerRecords(AParticleAnalyzerSettings * setti
     }
 
     settings->NumberOfUniqueAnalyzers = uniqueIndex;
+}
+
+void AGeometryHub::shiftSensorModelsOnRemoveModel(int iModel, AGeoObject * obj)
+{
+    if (!obj) obj = World;
+
+    if (obj->isSensor())
+    {
+        AGeoSensor * sens = static_cast<AGeoSensor*>(obj->Role);
+        if (sens->SensorModel > iModel) sens->SensorModel--;
+    }
+
+    for (AGeoObject * sub : obj->HostedObjects)
+        shiftSensorModelsOnRemoveModel(iModel, sub);
 }
 
 void AGeometryHub::positionArray(AGeoObject * obj, TGeoVolume * vol, int parentNodeIndex)

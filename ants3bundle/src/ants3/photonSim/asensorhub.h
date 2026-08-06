@@ -46,9 +46,6 @@ public:
     int     addModel(const ASensorModel & model);
     int     cloneModel(int iModel);
 
-    void    clearAssignment();
-    void    setSensorModel(int iSensor, int iModel);
-
     QString removeModel(int iModel);
 
     AVector3 getPosition(int iSensor) const;
@@ -58,9 +55,6 @@ public:
     double   getMinSizeFast(int iSensor) const; // obsolete
 
     AGeoObject * getGeoObject(int iSensor) const;
-
-    bool    isPersistentModelAssignment() const {return PersistentModelAssignment;}
-    void    exitPersistentMode();
 
     bool    useSensorGains() const {return UseSensorGains;}
     double  getSensorGain(int iSensor) const {return SensorGains[iSensor];}
@@ -75,6 +69,8 @@ public:
     double  getMaxQE(bool bWaveRes) const;
 
     const ASensorData * getSensorData(int iSensor) const;
+
+    void shiftModelAssignemnt(int iModel);
 
 private:
     ASensorHub();
@@ -92,10 +88,10 @@ public:
     bool UseSensorGains = false;
     std::vector<double> SensorGains;
 
-private:
-    bool PersistentModelAssignment = false;
-    std::vector<int> LoadedModelAssignment;
+    bool CustomModelAssignmentEnabled = false;
+    std::vector<int> CustomModelAssignmentArray;
 
+private:
     // runtime - populated together with GeoManager, updated by updateRuntimeProperties()
     std::vector<ASensorData> SensorData;
 
