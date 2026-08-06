@@ -18,12 +18,14 @@ public:
     using Mat3 = std::array<std::array<double, 3>, 3>;
     using Triangle = std::array<int, 3>;
 
-    struct IcosahedronResult {
+    struct IcosahedronResult
+    {
         std::vector<Vec3> verts;
         std::vector<Triangle> faces;
     };
 
-    struct FaceData {
+    struct FaceData
+    {
         Vec3 A;
         Vec3 B;
         Vec3 C;
@@ -37,7 +39,8 @@ public:
         std::vector<int> cellIndex; // Sized v * v * 2
     };
 
-    struct EdgeStats {
+    struct EdgeStats
+    {
         double mean;
         double std;
         double min;

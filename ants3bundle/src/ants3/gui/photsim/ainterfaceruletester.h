@@ -48,6 +48,7 @@ class TObject;
 class APhoton;
 class APhotonTracer;
 class ALightSensorEvent;
+class AGeoMeshHandler;
 
 class AInterfaceRuleTester : public AGuiWindow
 {
@@ -75,6 +76,8 @@ private slots:
     void on_ledST_wave_editingFinished();
     void on_ledAngle_editingFinished();
 
+    void on_pbShowPhiTheta_clicked();
+
 protected:
     void closeEvent(QCloseEvent * e);
 
@@ -101,12 +104,19 @@ private:
     ALightSensorEvent * DummyLightSensorEvent = nullptr; // dummy
     AInterfaceRule    * ReverseRule = nullptr;
 
+    AGeoMeshHandler   * MeshRef = nullptr;
+    AGeoMeshHandler   * MeshTrans = nullptr;
+    std::vector<double> PhiThetaRef;
+    std::vector<double> PhiThetaTrans;
+
     bool     beforeRun();
     int      getWaveIndex();
     TVector3 getPhotonVector();
     void     reportStatistics(const AReportForOverride & rep, int numPhot);
 
     EInterfaceResult runSinglePhoton(double * globalNormal, APhoton & photon);
+
+    void drawDirectionLine(double angle, int flagRef0Both1Trans2);
 
 signals:
     void requestDraw(TObject * obj, const QString & options, bool transferOwnership, bool focusWindow);

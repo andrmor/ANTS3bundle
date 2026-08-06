@@ -715,6 +715,7 @@ void ALUTInterfaceWidget::onShowProbabilitiesPressed()
 #include "TColor.h"
 #include "TMath.h"
 #include "TList.h"
+/*
 void ALUTInterfaceWidget::showMesh(bool reflection)
 {
     QString err = Rule->check();
@@ -789,6 +790,7 @@ void ALUTInterfaceWidget::showMesh(bool reflection)
 
     emit requestDraw(meshList, "fsame", true, true);
 }
+*/
 
 #include "apersistentutils3d.h"
 void ALUTInterfaceWidget::showMeshNiceAndFast(bool reflection, bool showTransitionInUpperHemisphere)
@@ -798,17 +800,23 @@ void ALUTInterfaceWidget::showMeshNiceAndFast(bool reflection, bool showTransiti
 
     AGeoMeshHandler * mesh = Rule->getTransMesh();
 
+    std::vector<double> & data = reflection
+                                            ? Rule->DataReflection  [cobAngles->currentIndex()].second
+                                            : Rule->DataTransmission[cobAngles->currentIndex()].second;
+
+    TList * meshList = ALUTInterfaceWidget::prepareMeshDataToDraw(mesh, data, reflection, showTransitionInUpperHemisphere);
+    emit requestDraw(meshList, "same", true, false);
+}
+
+TList * ALUTInterfaceWidget::prepareMeshDataToDraw(AGeoMeshHandler * mesh, std::vector<double> & data, bool reflection, bool showTransitionInUpperHemisphere)
+{
     std::vector<AGeoMeshHandler::Vec3> & vertices = mesh->vertices;
     std::vector<AGeoMeshHandler::Triangle> triangles = mesh->triangles;
-
-    std::vector<double> & Data = reflection
-                                    ? Rule->DataReflection  [cobAngles->currentIndex()].second
-                                    : Rule->DataTransmission[cobAngles->currentIndex()].second;
 
     const int nPointsPerTriangle = 5;
     const int numColors = TColor::GetNumberOfColors();
 
-    auto minMax = std::minmax_element(Data.begin(), Data.end());
+    auto minMax = std::minmax_element(data.begin(), data.end());
     double valMin = *minMax.first;
     double valMax = *minMax.second;
     double valRange = (valMax == valMin) ? 1.0 : (valMax - valMin);
@@ -819,7 +827,7 @@ void ALUTInterfaceWidget::showMeshNiceAndFast(bool reflection, bool showTransiti
 
     for (size_t i = 0; i < triangles.size(); ++i)
     {
-        double normVal = (Data[i] - valMin) / valRange;
+        double normVal = (data[i] - valMin) / valRange;
 
         // Safe protection against floating-point rounding exceeding 1.0
         if (normVal < 0.0) normVal = 0.0;
@@ -887,7 +895,7 @@ void ALUTInterfaceWidget::showMeshNiceAndFast(bool reflection, bool showTransiti
 
         meshList->Add(pm3d);
     }
-    emit requestDraw(meshList, "same", true, false);
+    return meshList;
 }
 
 void ALUTInterfaceWidget::drawDirectionLine(double angle, int flagRef0Both1Trans2)

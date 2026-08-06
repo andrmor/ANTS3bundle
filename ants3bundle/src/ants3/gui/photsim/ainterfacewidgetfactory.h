@@ -120,6 +120,8 @@ private slots:
     void updateButtons();
 };
 
+class TList;
+class AGeoMeshHandler;
 class ALUTInterfaceWidget : public AInterfaceRuleWidget
 {
     Q_OBJECT
@@ -136,7 +138,7 @@ private:
     QPushButton       * pbShowAbs   = nullptr;
 
     void updateLutGui();
-    void showMesh(bool reflection);
+    //void showMesh(bool reflection);
     void showMeshNiceAndFast(bool reflection, bool showTransitionInUpperHemisphere = false);
     void drawDirectionLine(double angle, int flagRef0Trans1Both2);
     void drawSurfaceCircle(int nPoints, double radius);
@@ -149,6 +151,8 @@ private slots:
     void onShowProbabilitiesPressed();
     void onShowBothPressed();
 
+public:
+    static TList * prepareMeshDataToDraw(AGeoMeshHandler * mesh, std::vector<double> & data, bool reflection, bool showTransitionInUpperHemisphere);
 };
 
 

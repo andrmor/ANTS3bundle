@@ -15,6 +15,7 @@
 #include "ametalinterfacerule.h"
 #include "aphotontracer.h"
 #include "alightsensorevent.h" // needed by aphotontracer
+#include "ageomeshhandler.h"
 
 #include <QDoubleValidator>
 #include <QLineEdit>
@@ -98,6 +99,9 @@ AInterfaceRuleTester::~AInterfaceRuleTester()
     delete PhotonTracer;
     delete DummyLightSensorEvent;
     delete ReverseRule;
+
+    delete MeshRef;
+    delete MeshTrans;
 }
 
 void AInterfaceRuleTester::writeToJson(QJsonObject &json) const
@@ -341,6 +345,21 @@ void AInterfaceRuleTester::on_pbTracePhotons_clicked()
     Tracks.clear();
     double d = 0.5; //offset - for drawing only
 
+    delete MeshRef; MeshRef = nullptr;
+    delete MeshTrans; MeshTrans = nullptr;
+    bool bBuildPhiTheta = ui->cbBuildPhiThetaData->isChecked();
+    if (bBuildPhiTheta)
+    {
+        int approxNumPoly = ui->sbPhiThetaPolygons->value();
+        MeshRef = new AGeoMeshHandler();
+        MeshRef->buildHemisphereMesh(approxNumPoly);
+        MeshTrans = new AGeoMeshHandler();
+        MeshTrans->buildHemisphereMesh(approxNumPoly);
+        size_t numPoly = MeshRef->triangles.size();
+        PhiThetaTrans = std::vector<double>(numPoly, 0);
+        PhiThetaRef = std::vector<double>(numPoly, 0);
+    }
+
     //preparing and running cycle with photons
 
     TH1D * histBack = new TH1D("", "Reflected",   100, 0, 100);
@@ -426,6 +445,27 @@ void AInterfaceRuleTester::on_pbTracePhotons_clicked()
 
         if (bBack) histBack->Fill(180.0 / TMath::Pi() * acos(costr));
         if (bForw) histForw->Fill(180.0 - 180.0 / TMath::Pi() * acos(costr));
+
+        if (bBuildPhiTheta)
+        {
+            switch (result)
+            {
+            case EInterfaceResult::Reflected :
+            {
+                int index = MeshRef->findTriangleIndex( {ph.v[0], ph.v[1], ph.v[2]} );
+                if (index == -1) qWarning() << "Unexpected: invalid index!";
+                else             PhiThetaRef[index]++;
+                break;
+            }
+            case EInterfaceResult::Transmitted :
+                {
+                    int index = MeshTrans->findTriangleIndex( {ph.v[0], -ph.v[1], -ph.v[2]} );  // rotation around x axis
+                    if (index == -1) qWarning() << "Unexpected: invalid index!";
+                    else             PhiThetaTrans[index]++;
+                    break;
+                }
+            }
+        }
     }
 
     double max = 1.05 * std::max(histBack->GetMaximum(), histForw->GetMaximum());
@@ -723,4 +763,109 @@ void AInterfaceRuleTester::reportStatistics(const AReportForOverride &rep, int n
     ui->pte->appendPlainText(t);
     ui->pte->moveCursor(QTextCursor::Start);
     ui->pte->ensureCursorVisible();
+}
+
+#include "TGraph2D.h"
+#include "ainterfacewidgetfactory.h"
+#include "apersistentutils3d.h"
+void AInterfaceRuleTester::on_pbShowPhiTheta_clicked()
+{
+    if (!MeshRef || !MeshTrans)
+    {
+        guitools::message("Trace photons with 'Build Phi/Theta data' enabled", this);
+        return;
+    }
+
+    int mode = ui->cobPhiThetaMode->currentIndex();
+
+    double min, max;
+    switch (mode)
+    {
+        case 0: min = 0;    max = 1.0; break;
+        case 1: min = 0;    max = 1.0; break;
+        case 2: min = -1.0; max = 1.0; break;
+    }
+
+    //drawBaseGraph(0, 1.0);
+    TGraph2D * g = new TGraph2D();
+    g->AddPoint(1,1,1);
+    g->AddPoint(-1,1,1);
+    g->AddPoint(-1,-1,-1);
+    g->AddPoint(1,-1,-1);
+    g->SetMinimum(min);
+    g->SetMaximum(max);
+    emit requestDraw(g, "P", true, true);
+
+    //showMesh
+    TList * meshList = nullptr;
+    int selectorForDirLine = 0;
+    switch (mode)
+    {
+    case 0: // ref
+       meshList = ALUTInterfaceWidget::prepareMeshDataToDraw(MeshRef, PhiThetaRef, true, true);
+       emit requestDraw(meshList, "same", true, false);
+       selectorForDirLine = 0;
+       break;
+    case 1: // trans
+        meshList = ALUTInterfaceWidget::prepareMeshDataToDraw(MeshTrans, PhiThetaTrans, false, true);
+        emit requestDraw(meshList, "same", true, false);
+        selectorForDirLine = 2;
+        break;
+    case 2: // both
+        meshList = ALUTInterfaceWidget::prepareMeshDataToDraw(MeshTrans, PhiThetaTrans, false, false);
+        emit requestDraw(meshList, "same", true, false);
+        meshList = ALUTInterfaceWidget::prepareMeshDataToDraw(MeshRef, PhiThetaRef, true, true);
+        emit requestDraw(meshList, "same", true, false);
+        selectorForDirLine = 1;
+        break;
+    }
+
+    // incidence directions
+    drawDirectionLine(ui->ledAngle->text().toDouble(), selectorForDirLine);
+
+    // surface
+    APersistentPolyLine3D * poly = new APersistentPolyLine3D(5);
+    double d = 0.5;
+    poly->SetPoint(0, -d, -d, 0);
+    poly->SetPoint(1,  d, -d, 0);
+    poly->SetPoint(2,  d,  d, 0);
+    poly->SetPoint(3, -d,  d, 0);
+    poly->SetPoint(4, -d, -d, 0);
+    poly->SetLineColor(kBlack);
+    poly->SetLineWidth(2);
+    emit requestDraw(poly, "same", true, false);
+}
+
+void AInterfaceRuleTester::drawDirectionLine(double angle, int flagRef0Both1Trans2)
+{
+    angle *= 3.1415926535/180.0;
+    double factor = 1.2;  //(reflection ? 1.2 : 0.6);
+
+    // incoming
+    APersistentPolyLine3D * line3d = new APersistentPolyLine3D(2);
+    line3d->SetPoint(0, -factor*sin(angle), 0.0, (flagRef0Both1Trans2 < 2 ? 1.0 : -1.0) * factor*cos(angle));
+    line3d->SetPoint(1, 0, 0, 0);
+    line3d->SetLineColor(kRed);
+    line3d->SetLineWidth(4);
+    emit requestDraw(line3d, "same", true, false);
+
+    // outcoming
+    APersistentPolyLine3D * line3dout = new APersistentPolyLine3D(2);
+    line3dout->SetPoint(0, 1.2*sin(angle), 0.0, 1.2*cos(angle));
+    line3dout->SetPoint(1, 0, 0, 0);
+    line3dout->SetLineColor(kRed);
+    line3dout->SetLineStyle(2);
+    line3dout->SetLineWidth(2);
+    emit requestDraw(line3dout, "same", true, false);
+
+    if (flagRef0Both1Trans2 == 1)
+    {
+        APersistentPolyLine3D * line3dout = new APersistentPolyLine3D(2);
+        line3dout->SetPoint(0, 1.2*sin(angle), 0.0, -1.2*cos(angle));
+        line3dout->SetPoint(1, 0, 0, 0);
+        line3dout->SetLineColor(kRed);
+        line3dout->SetLineStyle(2);
+        line3dout->SetLineWidth(2);
+        emit requestDraw(line3dout, "same", true, false);
+    }
 }
