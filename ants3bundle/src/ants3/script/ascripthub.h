@@ -60,6 +60,15 @@ public:
 
     void aboutToQuit();
 
+    // if json was manipulated by config.replace(), and config.updateConfig() was not yet called, access to method dirtectly modifying hubs should be blocked
+    void abortIfHubAccessBlocked(EScriptLanguage lang);
+    void registerJsonModified_HubsNotYetUpdated(bool flag); // set to true by config.replace()
+    // if hubs (config directly) was modified, json manipulation should be conducted after coping hubs to json (otherwise the chnages are lost) --> automatic, no warning
+    void copyHubsToJsonConfig();
+    void registerHubsModified_JsonNotYetUpdated(bool flag); // should be set to true by any method that manipulates hubs directly
+    // init related to these features:
+    void doBeforeScriptEval();
+
 public slots:
     void onGuiReportTaskCompleted();
 
@@ -111,6 +120,9 @@ private:
 
     // used with queued calls from script to gui to wait for an operation to finish
     bool WaitingForTaskCompleted = false;
+
+    bool FlagHubsChanged = false;
+    bool FlagJsonChanged = false;
 };
 
 #endif // ASCRIPTHUB_H

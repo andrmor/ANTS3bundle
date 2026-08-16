@@ -21,7 +21,7 @@ public slots:
     int countModels();
 
     QVariantList getGains();
-    void setGains(QVariantList gains);
+    void setGains(QVariantList gains);  // !-> enabled new config system
 
     // need to synchronize sensorhub and JSON! !!!*** TODO
     //void disableCustomModelAssignment();

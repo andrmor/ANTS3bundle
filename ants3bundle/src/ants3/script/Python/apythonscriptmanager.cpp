@@ -94,6 +94,7 @@ void APythonScriptManager::checkSignals()
 void APythonScriptManager::evalFinished(bool flag)
 {
     bFinished = true;
+    doAfterScriptEval();
     emit finished(flag);
 }
 
@@ -108,11 +109,8 @@ bool APythonScriptManager::evaluate(const QString & script)
     //qDebug() << "Busy?" << Worker->isBusy();
     if (Worker->isBusy()) return false;
 
-    bAborted = false;
-    bFinished = false;
-
+    doBeforeScriptEval();
     emit doEval(script);
-
     return true;
 }
 

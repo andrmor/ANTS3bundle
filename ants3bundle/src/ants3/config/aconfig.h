@@ -49,7 +49,7 @@ public:
     std::vector<QJsonObject> UndoConfigs;
     int                      UndoCurrentPosition = -1;
 
-    void    updateJSONfromConfig();
+    void    updateJSONfromConfig(bool includeGuiSettings = true);
     QString updateConfigFromJSON(bool updateGui);
 
     void overrideGeoConstsInJson(); // used only from script

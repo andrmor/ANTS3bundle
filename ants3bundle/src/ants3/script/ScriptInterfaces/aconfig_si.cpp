@@ -1,6 +1,7 @@
 #include "aconfig_si.h"
 #include "aconfig.h"
 #include "ageometryhub.h"
+#include "ascripthub.h"
 
 #include <QJsonObject>
 #include <QJsonArray>
@@ -39,7 +40,13 @@ bool AConfig_SI::load(QString FileName)
     }
 
     QString err = Config.load(FileName, false);
-    if (err.isEmpty()) return true;
+    if (err.isEmpty())
+    {
+        // json and hubs are synchronized
+        AScriptHub::getInstance().registerJsonModified_HubsNotYetUpdated(false);
+        AScriptHub::getInstance().registerHubsModified_JsonNotYetUpdated(false);
+        return true;
+    }
 
     abort("Failed to load config from file " + FileName + " -->\n" + err);
     return false;
@@ -47,6 +54,8 @@ bool AConfig_SI::load(QString FileName)
 
 bool AConfig_SI::save(QString FileName)
 {
+    AScriptHub::getInstance().copyHubsToJsonConfig();
+
     QString err = Config.save(FileName);
     if (err.isEmpty()) return true;
     abort("Failed to save config to file " + FileName + " -->\n" + err);
@@ -55,6 +64,8 @@ bool AConfig_SI::save(QString FileName)
 
 QVariantMap AConfig_SI::getConfig()
 {
+    AScriptHub::getInstance().copyHubsToJsonConfig();
+
     return Config.JSON.toVariantMap();
 }
 
@@ -69,7 +80,13 @@ bool AConfig_SI::setConfig(QVariantMap ConfigObject)
     QJsonObject json = QJsonObject::fromVariantMap(ConfigObject);
 
     QString err = Config.readFromJson(json, false);
-    if (err.isEmpty()) return true;
+    if (err.isEmpty())
+    {
+        // json and hubs are synchronized
+        AScriptHub::getInstance().registerJsonModified_HubsNotYetUpdated(false);
+        AScriptHub::getInstance().registerHubsModified_JsonNotYetUpdated(false);
+        return true;
+    }
 
     abort("Failed to set config from object:\n" + err);
     return false;
@@ -83,6 +100,8 @@ bool AConfig_SI::replace(QString Key, QVariant Value)
         abort("Only GUI thread can modify detector configuration!");
         return false;
     }
+
+    AScriptHub::getInstance().copyHubsToJsonConfig();
 
     LastError = "";
     QString type = Value.typeName();
@@ -142,20 +161,7 @@ bool AConfig_SI::replace(QString Key, QVariant Value)
     bool ok = modifyJsonValue(Config.JSON, Key, jv);
     if (ok)
     {
-        // not needed here as it was in ants2: user has to trigger updateConfig() and, optionally, updateGui()
-
-/*
-        //qDebug() << "-------Key:"<<Key;
-        if (Key.startsWith("DetectorConfig")) //rebuild detector if detector settings were changed
-            Config->GetDetector()->BuildDetector();
-        else if (Key.startsWith("ReconstructionConfig.LRFmakeJson"))
-            Config->AskForLRFGuiUpdate();
-        else if (Key.startsWith("ReconstructionConfig"))
-            Config->AskForReconstructionGuiUpdate();
-        else if (Key.startsWith("SimulationConfig"))
-            Config->AskForSimulationGuiUpdate();
-*/
-
+        AScriptHub::getInstance().registerJsonModified_HubsNotYetUpdated(true);
         return true;
     }
 
@@ -165,9 +171,9 @@ bool AConfig_SI::replace(QString Key, QVariant Value)
 
 QVariant AConfig_SI::getKeyValue(QString Key)
 {
-    //qDebug() << this << "get "<< Key << "triggered";
+    AScriptHub::getInstance().copyHubsToJsonConfig();
 
-    LastError = "";
+    LastError.clear();
 
     if (!expandKey(Key)) return 0; //aborted anyway
     //qDebug() << "Key after expansion:"<<Key;
@@ -267,6 +273,9 @@ void AConfig_SI::updateConfig()
     AGeometryHub::getInstance().ScriptUpdatedGeoManager = true;
 
     QString err = Config.updateConfigFromJSON(false);
+
+    AScriptHub::getInstance().registerJsonModified_HubsNotYetUpdated(false);
+
     if (!err.isEmpty()) abort("Error in configuration JSON:\n" + err);
 }
 

@@ -27,7 +27,6 @@ public:
     void abort() override;
 
     bool isRunning() const override;
-    bool isAborted() const override {return bAborted;}
 
     QVariant getResult() override;
 
@@ -62,7 +61,7 @@ signals:
 protected:
     QThread       * Thread = nullptr;
     APythonWorker * Worker = nullptr;
-    bool            bAborted = false;
+
 };
 
 #endif // APYTHONSCRIPTMANAGER_H

@@ -97,3 +97,19 @@ void AVirtualScriptManager::addQVariantToString(const QVariant & var, QString & 
     }
 #endif
 }
+
+#include "ascripthub.h"
+void AVirtualScriptManager::doBeforeScriptEval()
+{
+    bAborted = false;
+    bFinished = false;
+
+    AScriptHub::getInstance().doBeforeScriptEval();
+}
+
+void AVirtualScriptManager::doAfterScriptEval()
+{
+    // if uncommented, after script finished the json is updated even if config.upateConfig() was NOT called.
+    // that will make it less intuitive to understand that without updateConfig the settings are not updateded during the execution seeing the correct result after the script eval ended
+    //AScriptHub::getInstance().enableJsonAccess(); // hubs --> Json (if changes registered!)
+}

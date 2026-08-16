@@ -35,10 +35,10 @@ AConfig::AConfig()
         lines += QString("%0-abcdef\n").arg(i);
 }
 
-void AConfig::updateJSONfromConfig()
+void AConfig::updateJSONfromConfig(bool includeGuiSettings)
 {
     // if gui is present, save gui settings
-    emit requestSaveGuiSettings();
+    if (includeGuiSettings) emit requestSaveGuiSettings();
 
     writeToJson(JSON, false);
 }

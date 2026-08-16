@@ -28,7 +28,6 @@ public:
     void abort() override;  // to abort script use AJScriptHub::abort(message)
 
     bool isRunning() const override;
-    bool isAborted() const override {return bAborted;}
 
     QVariant getResult() override;
 
@@ -59,8 +58,6 @@ signals:
 protected:
     QThread        * Thread = nullptr;
     AJScriptWorker * Worker = nullptr;
-
-    bool             bAborted = false;
 
 };
 

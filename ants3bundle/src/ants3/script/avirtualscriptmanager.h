@@ -12,6 +12,7 @@ class AScriptInterface;
 class AVirtualScriptManager : public QObject
 {
     Q_OBJECT
+
 public:
     AVirtualScriptManager(QObject * parent) : QObject(parent) {}
 
@@ -22,7 +23,7 @@ public:
     virtual void abort() = 0;  // to abort script use AJScriptHub::abort(message)
 
     virtual bool isRunning() const = 0;
-    virtual bool isAborted() const = 0;
+    bool         isAborted() const {return bAborted;}
     bool         isEvalFinished() const {return bFinished;}
 
     virtual QVariant getResult() = 0;
@@ -35,12 +36,16 @@ public:
 
     static void addQVariantToString(const QVariant & var, QString & string, EScriptLanguage lang, bool bAddQuotation = false);
 
+    void        doBeforeScriptEval();
+    void        doAfterScriptEval();
+
     //for minimizer
     QString          MiniFunctionName;
     int              MiniNumVariables  = 0;
     double           MiniBestResult    = 1e30;
 
     bool bFinished = true;
+    bool bAborted  = false;
 };
 
 #endif // AVIRTUALSCRIPTMANAGER_H

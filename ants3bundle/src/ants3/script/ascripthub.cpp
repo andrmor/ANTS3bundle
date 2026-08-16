@@ -233,6 +233,37 @@ void AScriptHub::aboutToQuit()
 #endif
 }
 
+void AScriptHub::registerJsonModified_HubsNotYetUpdated(bool flag)
+{
+    FlagJsonChanged = flag;
+}
+
+void AScriptHub::abortIfHubAccessBlocked(EScriptLanguage lang)
+{
+    if (FlagJsonChanged)
+        abort("Cannot directly manipulate config in this state: Json was modified, but updateConfig was not yet called.", lang);
+}
+
+void AScriptHub::registerHubsModified_JsonNotYetUpdated(bool flag)
+{
+    FlagHubsChanged = flag;
+}
+
+#include "aconfig.h"
+void AScriptHub::copyHubsToJsonConfig()
+{
+    if (!FlagHubsChanged) return;
+
+    AConfig::getInstance().updateJSONfromConfig(false);
+    FlagHubsChanged = false;
+}
+
+void AScriptHub::doBeforeScriptEval()
+{
+    FlagHubsChanged = false;
+    FlagJsonChanged = false;
+}
+
 void AScriptHub::onGuiReportTaskCompleted()
 {
     WaitingForTaskCompleted = false;

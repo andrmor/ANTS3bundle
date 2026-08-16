@@ -1,5 +1,6 @@
 #include "asensor_si.h"
 #include "asensorhub.h"
+#include "ascripthub.h"
 
 ASensor_SI::ASensor_SI() :
     SensHub(ASensorHub::getInstance())
@@ -29,10 +30,14 @@ QVariantList ASensor_SI::getGains()
 
 void ASensor_SI::setGains(QVariantList gains)
 {
+    AScriptHub::getInstance().abortIfHubAccessBlocked(Lang);
+
     SensHub.SensorGains.clear();
 
     for (int i = 0; i < gains.size(); i++)
         SensHub.SensorGains.push_back(gains[i].toDouble());
+
+    AScriptHub::getInstance().registerHubsModified_JsonNotYetUpdated(true);
 }
 
 /*
