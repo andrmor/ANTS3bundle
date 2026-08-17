@@ -238,10 +238,14 @@ void AScriptHub::registerJsonModified_HubsNotYetUpdated(bool flag)
     FlagJsonChanged = flag;
 }
 
-void AScriptHub::abortIfHubAccessBlocked(EScriptLanguage lang)
+bool AScriptHub::abortIfHubAccessBlocked(EScriptLanguage lang)
 {
     if (FlagJsonChanged)
+    {
         abort("Cannot directly manipulate config in this state: Json was modified, but updateConfig was not yet called.", lang);
+        return true;
+    }
+    return false;
 }
 
 void AScriptHub::registerHubsModified_JsonNotYetUpdated(bool flag)

@@ -12,7 +12,7 @@ class ASensor_SI : public AScriptInterface
     Q_OBJECT
 
 public:
-    ASensor_SI();
+    ASensor_SI(); // !!!*** todo help
 
     AScriptInterface * cloneBase() const {return new ASensor_SI();}
 
@@ -21,11 +21,10 @@ public slots:
     int countModels();
 
     QVariantList getGains();
-    void setGains(QVariantList gains);  // !-> enabled new config system
+    void setGains(QVariantList gains);
 
-    // need to synchronize sensorhub and JSON! !!!*** TODO
-    //void disableCustomModelAssignment();
-    //void enableCustomModelAssignment(QVariantList sensorModels);
+    void disableCustomModelAssignment();
+    void enableCustomModelAssignment(QVariantList sensorModels);
 
     int  newModel();
     int  cloneModel(int iModel);

@@ -6,6 +6,7 @@
 #include "ageotype.h"
 #include "afiletools.h"
 #include "avector.h"
+#include "ascripthub.h"
 
 #include <QDebug>
 
@@ -1968,9 +1969,13 @@ QVariantList AGeo_SI::getLightSensorPositions()
 
 void AGeo_SI::setPhotonFunctional(QString Object)
 {
+    if (AScriptHub::getInstance().abortIfHubAccessBlocked(Lang)) return;
+
     AGeoObject * obj = findObject(Object);
     if (!obj) return;
     delete obj->Role; obj->Role = new AGeoPhotonFunctional();
+
+    AScriptHub::getInstance().registerHubsModified_JsonNotYetUpdated(true);
 }
 
 #include "aphotonfunctionalhub.h"
@@ -1982,16 +1987,20 @@ QVariantMap AGeo_SI::getDefaultConfigObjectForPhotonFunctionalModel(QString mode
     if ( dynamic_cast<APFM_Dummy*>(model))
     {
         abort("Bad photon functional model type: " + modelName);
+        delete model;
         return QVariantMap();
     }
 
     QJsonObject js;
     model->writeSettingsToJson(js);
+    delete model;
     return js.toVariantMap();
 }
 
 QVariantMap AGeo_SI::getConfigObjectForPhotonFunctional(int index)
 {
+    if (AScriptHub::getInstance().abortIfHubAccessBlocked(Lang)) return QVariantMap();
+
     APhotonFunctionalModel * model = APhotonFunctionalHub::getInstance().findModel(index);
     if (!model) return QVariantMap();
 
@@ -2003,16 +2012,21 @@ QVariantMap AGeo_SI::getConfigObjectForPhotonFunctional(int index)
 
 int AGeo_SI::countPhotonFunctionals()
 {
+    if (AScriptHub::getInstance().abortIfHubAccessBlocked(Lang)) return 0;
     return GeoHub.PhotonFunctionals.size();
 }
 
 void AGeo_SI::clearPhotonFunctionalAttribution()
 {
+    if (AScriptHub::getInstance().abortIfHubAccessBlocked(Lang)) return;
     APhotonFunctionalHub::getInstance().clearAllRecords();
+    AScriptHub::getInstance().registerHubsModified_JsonNotYetUpdated(true);
 }
 
 void AGeo_SI::configurePhotonFunctional(QString modelName, QVariantMap configObject, int index, int linkedIndex)
 {
+    if (AScriptHub::getInstance().abortIfHubAccessBlocked(Lang)) return;
+
     APhotonFunctionalModel * model = APhotonFunctionalModel::factory(modelName);
     if ( dynamic_cast<APFM_Dummy*>(model))
     {
@@ -2026,16 +2040,22 @@ void AGeo_SI::configurePhotonFunctional(QString modelName, QVariantMap configObj
 
     QString err = APhotonFunctionalHub::getInstance().modifyOrAddRecord(index, linkedIndex, model);
     if (!err.isEmpty()) abort(err);
+    AScriptHub::getInstance().registerHubsModified_JsonNotYetUpdated(true);
 }
 
 void AGeo_SI::configurePhotonFunctional(QString modelName, QVariantMap configObject, int index)
 {
+    if (AScriptHub::getInstance().abortIfHubAccessBlocked(Lang)) return;
     configurePhotonFunctional(modelName, configObject, index, index);
+    AScriptHub::getInstance().registerHubsModified_JsonNotYetUpdated(true);
 }
 
 int AGeo_SI::overrideUnconnectedLinkFunctionals()
 {
-    return APhotonFunctionalHub::getInstance().overrideUnconnectedLinkFunctionals();
+    if (AScriptHub::getInstance().abortIfHubAccessBlocked(Lang)) return 0;
+    int num = APhotonFunctionalHub::getInstance().overrideUnconnectedLinkFunctionals();
+    AScriptHub::getInstance().registerHubsModified_JsonNotYetUpdated(true);
+    return num;
 }
 
 void AGeo_SI::setParticleAnalyzer(QString object)

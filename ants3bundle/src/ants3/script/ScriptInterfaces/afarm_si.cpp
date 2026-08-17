@@ -11,9 +11,5 @@ void AFarm_SI::clearNodes()
 void AFarm_SI::addNode(QString Name, QString Address, int Port, int Cores, double SpeedFactor)
 {
     bool ok = FarmHub.addNode(Name, Address, Port, Cores, SpeedFactor);
-
-    if (!ok)
-    {
-        // abort! !!!***
-    }
+    if (!ok) abort("Failed to add farm node: IP and port already exist");
 }

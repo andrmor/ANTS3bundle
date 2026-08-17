@@ -61,7 +61,7 @@ public:
     void aboutToQuit();
 
     // if json was manipulated by config.replace(), and config.updateConfig() was not yet called, access to method dirtectly modifying hubs should be blocked
-    void abortIfHubAccessBlocked(EScriptLanguage lang);
+    bool abortIfHubAccessBlocked(EScriptLanguage lang); // returns true if aborted
     void registerJsonModified_HubsNotYetUpdated(bool flag); // set to true by config.replace()
     // if hubs (config directly) was modified, json manipulation should be conducted after coping hubs to json (otherwise the chnages are lost) --> automatic, no warning
     void copyHubsToJsonConfig();
