@@ -4,9 +4,10 @@
 #include "ageoobject.h"
 #include "ageoshape.h"
 #include "ageotype.h"
-#include "afiletools.h"
+//#include "afiletools.h"
 #include "avector.h"
 #include "ascripthub.h"
+#include "ageospecial.h"
 
 #include <QDebug>
 
@@ -44,7 +45,7 @@ AGeo_SI::AGeo_SI() :
                          "The faces should be defined counter-clock wise so the normal is pointed outside of the volume.";
 
     Help["setLineProperties"] = "Set color, width and style of the line for visualisation of the object \"name\".";
-    Help["clearWorld"] = "Remove all objects and prototypes leaving only World";
+    Help["clearWorld"] = "Remove all objects and prototypes leaving only World.\nRequires updateGeometry() to be called (can be after adding all required objects)!";
 
     Help["clearHosted"] = "Remove all objects hosted inside the given Object.\nRequires updateGeometry().";
     Help["removeWithHosted"] = "Remove the object and all objects hosted inside.\nRequires updateGeometry().";
@@ -1093,31 +1094,6 @@ void AGeo_SI::toScaled(QString name, double xFactor, double yFactor, double zFac
     }
 }
 
-/*
-void AGeo_SI::monitor(QString name, int shape, double size1, double size2, QString container, double x, double y, double z, double phi, double theta, double psi, bool SensitiveTop, bool SensitiveBottom, bool StopsTraking)
-{
-    AGeoObject * o = new AGeoObject(name, container, 0,    // no material -> it will be updated on build
-                                    0,                     // no shape yet
-                                    x,y,z, phi,theta,psi);
-
-    ATypeMonitorObject* mto = new ATypeMonitorObject();
-    delete o->Type; o->Type = mto;
-
-    AMonitorConfig & mc = mto->config;
-    mc.shape = shape;
-    mc.size1 = 0.5 * size1;
-    mc.size2 = 0.5 * size2;
-    mc.bUpper = SensitiveTop;
-    mc.bLower = SensitiveBottom;
-    mc.bStopTracking = StopsTraking;
-
-    //o->updateMonitorShape();
-    o->color = 1;
-
-    GeoObjects.push_back(o);
-}
-*/
-
 void AGeo_SI::monitor(QString name, int shape, double size1, double size2, QString container, QVariantList position, QVariantList orientation, bool SensitiveTop, bool SensitiveBottom, bool StopsTraking)
 {
     std::array<double,3> pos, ori;
@@ -1726,32 +1702,11 @@ void AGeo_SI::instance(QString name, QString prototype, QString container, QVari
     GeoObjects.push_back(instance);
 }
 
-void AGeo_SI::setLineProperties(QString name, int color, int width, int style)
+void AGeo_SI::setLineProperties(QString objectName, int color, int width, int style)
 {
-    AGeoObject * obj = nullptr;
+    AGeoObject * obj = findObject(objectName);
+    if (!obj) return;
 
-    for (size_t i = 0; i < GeoObjects.size(); i++)
-    {
-        const QString & GOname = GeoObjects.at(i)->Name;
-        if (GOname == name)
-        {
-            obj = GeoObjects[i];
-            break;
-        }
-    }
-
-    if (!obj)
-    {
-        //looking through already defined objects in the geometry
-        obj = AGeometryHub::getInstance().World->findObjectByName(name);
-    }
-    if (!obj)
-    {
-        abort("Cannot find object " + name);
-        return;
-    }
-
-    //changing line style
     obj->color = color;
     obj->width = width;
     obj->style = style;
@@ -1761,38 +1716,30 @@ void AGeo_SI::clearWorld()
 {
     clearGeoObjects();
 
-    //AGeometryHub::getInstance().World->recursiveSuicide();  // locked objects are not deleted!
+    if (AScriptHub::getInstance().abortIfHubAccessBlocked(Lang)) return;
     AGeometryHub::getInstance().clearWorld();
-
-      //Detector->BuildDetector_CallFromScript();
-    //AGeometryHub::getInstance().populateGeoManager();
+    AScriptHub::getInstance().registerHubsModified_JsonNotYetUpdated(true);
 }
 
-void AGeo_SI::clearHosted(QString Object)
+void AGeo_SI::clearHosted(QString objectName)
 {
-    AGeoObject* obj = AGeometryHub::getInstance().World->findObjectByName(Object);
-    if (!obj)
-    {
-        abort("Cannot find object "+Object);
-        return;
-    }
+    AGeoObject * obj = findObject(objectName);
+    if (!obj) return;
     obj->clearContent();
 }
 
-void AGeo_SI::removeWithHosted(QString Object)
+void AGeo_SI::removeWithHosted(QString objectName)
 {
-    AGeoObject* obj = AGeometryHub::getInstance().World->findObjectByName(Object);
-    if (!obj)
-    {
-        abort("Cannot find object "+Object);
-        return;
-    }
+    AGeoObject * obj = findObject(objectName);
+    if (!obj) return;
     obj->recursiveSuicide();
 }
 
 #include "ageoconsts.h"
 double AGeo_SI::getGeoConstValue(QString name)
 {
+    if (AScriptHub::getInstance().abortIfHubAccessBlocked(Lang)) return 0;
+
     AGeoConsts & GC = AGeoConsts::getInstance();
     int index = GC.getIndexByName(name);
 
@@ -1807,6 +1754,8 @@ double AGeo_SI::getGeoConstValue(QString name)
 
 void AGeo_SI::setGeoConstValue(QString name, double value)
 {
+    if (AScriptHub::getInstance().abortIfHubAccessBlocked(Lang)) return;
+
     AGeoConsts & GC = AGeoConsts::getInstance();
     int index = GC.getIndexByName(name);
 
@@ -1818,7 +1767,7 @@ void AGeo_SI::setGeoConstValue(QString name, double value)
 
     GC.setNewValue(index, value);
 
-    GC.updateInConfigJson();
+    AScriptHub::getInstance().registerHubsModified_JsonNotYetUpdated(true); // GC.updateInConfigJson(); it was a crutch before the new json-hubs system implemented
 }
 
 AGeoObject * AGeo_SI::findObject(const QString & Object)
@@ -1839,15 +1788,18 @@ AGeoObject * AGeo_SI::findObject(const QString & Object)
             abort("Cannot find object " + Object);
             return nullptr;
         }
+
+        // assume the caller will do modifications to the hubs
+        if (AScriptHub::getInstance().abortIfHubAccessBlocked(Lang)) return nullptr;
+        AScriptHub::getInstance().registerHubsModified_JsonNotYetUpdated(true);
     }
 
     return obj;
 }
 
-#include "ageospecial.h"
-void AGeo_SI::setLightSensor(QString Object, int iModel)
+void AGeo_SI::setLightSensor(QString objectName, int iModel)
 {
-    AGeoObject * obj = findObject(Object);
+    AGeoObject * obj = findObject(objectName);
     if (!obj) return;
     delete obj->Role; obj->Role = new AGeoSensor(iModel);
 }
@@ -1866,20 +1818,23 @@ void setLightSensorRecursive(AGeoObject * obj, const QString & objectNameStartsW
     }
 }
 
-void AGeo_SI::setLightSensorByName(QString ObjectNameStartsWith, int iModel)
+void AGeo_SI::setLightSensorByName(QString objectNameStartsWith, int iModel)
 {
     for (AGeoObject * obj : GeoObjects)
-        if (obj->Name.startsWith(ObjectNameStartsWith))
+        if (obj->Name.startsWith(objectNameStartsWith))
         {
             delete obj->Role; obj->Role = new AGeoSensor(iModel);
         }
 
-    setLightSensorRecursive(AGeometryHub::getInstance().World, ObjectNameStartsWith, iModel);
+    // assuming there will be some
+    if (AScriptHub::getInstance().abortIfHubAccessBlocked(Lang)) return;
+    setLightSensorRecursive(AGeometryHub::getInstance().World, objectNameStartsWith, iModel);
+    AScriptHub::getInstance().registerHubsModified_JsonNotYetUpdated(true);
 }
 
-void AGeo_SI::setCalorimeter(QString Object, QVariantList bins, QVariantList origin, QVariantList step)
+void AGeo_SI::setCalorimeter(QString objectName, QVariantList bins, QVariantList origin, QVariantList step)
 {
-    AGeoObject * obj = findObject(Object);
+    AGeoObject * obj = findObject(objectName);
     if (!obj) return;
 
     if (bins.size() != 3 || origin.size() != 3 || step.size() != 3)
@@ -1906,9 +1861,9 @@ void AGeo_SI::setCalorimeter(QString Object, QVariantList bins, QVariantList ori
     delete obj->Role; obj->Role = new AGeoCalorimeter(aOrigin, aStep, aBins);
 }
 
-void AGeo_SI::setScintillator(QString Object)
+void AGeo_SI::setScintillator(QString objectName)
 {
-    AGeoObject * obj = findObject(Object);
+    AGeoObject * obj = findObject(objectName);
     if (!obj) return;
     delete obj->Role; obj->Role = new AGeoScint();
 }
@@ -1927,20 +1882,23 @@ void setScintRecursive(AGeoObject * obj, const QString & objectNameStartsWith)
     }
 }
 
-void AGeo_SI::setScintillatorByName(QString ObjectNameStartsWith)
+void AGeo_SI::setScintillatorByName(QString objectNameStartsWith)
 {
     for (AGeoObject * obj : GeoObjects)
-        if (obj->Name.startsWith(ObjectNameStartsWith))
+        if (obj->Name.startsWith(objectNameStartsWith))
         {
             delete obj->Role; obj->Role = new AGeoScint();
         }
 
-    setScintRecursive(AGeometryHub::getInstance().World, ObjectNameStartsWith);
+    // assuming there will be some
+    if (AScriptHub::getInstance().abortIfHubAccessBlocked(Lang)) return;
+    setScintRecursive(AGeometryHub::getInstance().World, objectNameStartsWith);
+    AScriptHub::getInstance().registerHubsModified_JsonNotYetUpdated(true);
 }
 
-void AGeo_SI::setSecondaryScintillator(QString Object)
+void AGeo_SI::setSecondaryScintillator(QString objectName)
 {
-    AGeoObject * obj = findObject(Object);
+    AGeoObject * obj = findObject(objectName);
     if (!obj) return;
     delete obj->Role; obj->Role = new AGeoSecScint();
 }
@@ -1948,12 +1906,27 @@ void AGeo_SI::setSecondaryScintillator(QString Object)
 #include "asensorhub.h"
 int AGeo_SI::countLightSensors()
 {
+    if (!GeoObjects.empty())
+    {
+        abort("countLightSensors() method cannot be called: new objects were added by script and geo.updateGeometry() was not yet called");
+        return 0;
+    }
+    if (AScriptHub::getInstance().abortIfHubAccessBlocked(Lang)) return 0;
+
     return ASensorHub::getConstInstance().countSensors();
 }
 
 QVariantList AGeo_SI::getLightSensorPositions()
 {
     QVariantList vl;
+
+    if (!GeoObjects.empty())
+    {
+        abort("getLightSensorPositions() method cannot be called: new objects were added by script and geo.updateGeometry() was not yet called");
+        return vl;
+    }
+    if (AScriptHub::getInstance().abortIfHubAccessBlocked(Lang)) return vl;
+
     const ASensorHub & SensHub = ASensorHub::getConstInstance();
 
     int numSensors = countLightSensors();
@@ -1967,15 +1940,11 @@ QVariantList AGeo_SI::getLightSensorPositions()
     return vl;
 }
 
-void AGeo_SI::setPhotonFunctional(QString Object)
+void AGeo_SI::setPhotonFunctional(QString objectName)
 {
-    if (AScriptHub::getInstance().abortIfHubAccessBlocked(Lang)) return;
-
-    AGeoObject * obj = findObject(Object);
+    AGeoObject * obj = findObject(objectName);
     if (!obj) return;
     delete obj->Role; obj->Role = new AGeoPhotonFunctional();
-
-    AScriptHub::getInstance().registerHubsModified_JsonNotYetUpdated(true);
 }
 
 #include "aphotonfunctionalhub.h"
@@ -2013,11 +1982,24 @@ QVariantMap AGeo_SI::getConfigObjectForPhotonFunctional(int index)
 int AGeo_SI::countPhotonFunctionals()
 {
     if (AScriptHub::getInstance().abortIfHubAccessBlocked(Lang)) return 0;
+
+    if (!GeoObjects.empty())
+    {
+        abort("countPhotonFunctionals() method cannot be called: new objects were added by script and geo.updateGeometry() was not yet called");
+        return 0;
+    }
+
     return GeoHub.PhotonFunctionals.size();
 }
 
 void AGeo_SI::clearPhotonFunctionalAttribution()
 {
+    if (!GeoObjects.empty())
+    {
+        abort("clearPhotonFunctionalAttribution() method cannot be called: new objects were added by script and geo.updateGeometry() was not yet called");
+        return;
+    }
+
     if (AScriptHub::getInstance().abortIfHubAccessBlocked(Lang)) return;
     APhotonFunctionalHub::getInstance().clearAllRecords();
     AScriptHub::getInstance().registerHubsModified_JsonNotYetUpdated(true);
@@ -2052,15 +2034,21 @@ void AGeo_SI::configurePhotonFunctional(QString modelName, QVariantMap configObj
 
 int AGeo_SI::overrideUnconnectedLinkFunctionals()
 {
+    if (!GeoObjects.empty())
+    {
+        abort("overrideUnconnectedLinkFunctionals() method cannot be called: new objects were added by script and geo.updateGeometry() was not yet called");
+        return 0;
+    }
+
     if (AScriptHub::getInstance().abortIfHubAccessBlocked(Lang)) return 0;
     int num = APhotonFunctionalHub::getInstance().overrideUnconnectedLinkFunctionals();
     AScriptHub::getInstance().registerHubsModified_JsonNotYetUpdated(true);
     return num;
 }
 
-void AGeo_SI::setParticleAnalyzer(QString object)
+void AGeo_SI::setParticleAnalyzer(QString objectName)
 {
-    AGeoObject * obj = findObject(object);
+    AGeoObject * obj = findObject(objectName);
     if (!obj) return;
     delete obj->Role; obj->Role = new AGeoParticleAnalyzer();
 }
@@ -2074,35 +2062,15 @@ QVariantMap AGeo_SI::getDefaultParticleAnalyzerProperties()
     return js.toVariantMap();
 }
 
-QVariantMap AGeo_SI::getParticleAnalyzerProperties(QString object)
+QVariantMap AGeo_SI::getParticleAnalyzerProperties(QString objectName)
 {
-    AGeoObject * paObj = nullptr;
+    AGeoObject * paObj = findObject(objectName);
+    if (!paObj) return QVariantMap();
 
-    for (AGeoObject * obj : GeoObjects)
-        if (obj->Name == object)
-        {
-            paObj = obj;
-            break;
-        }
-
-    if (!paObj)
-        paObj = AGeometryHub::getInstance().World->findObjectByName(object);
-
-    if (!paObj)
-    {
-        abort("Cannot find particle analyzer \"" + object + "\"");
-        return QVariantMap();
-    }
-
-    if (!paObj->Role)
-    {
-        abort(object + " is not a particle analyzer!");
-        return QVariantMap();
-    }
     AGeoParticleAnalyzer * pa = dynamic_cast<AGeoParticleAnalyzer*>(paObj->Role);
     if (!pa)
     {
-        abort(object + " is not a particle analyzer!");
+        abort(objectName + " is not a particle analyzer!");
         return QVariantMap();
     }
 
@@ -2112,35 +2080,15 @@ QVariantMap AGeo_SI::getParticleAnalyzerProperties(QString object)
 }
 
 #include "aerrorhub.h"
-void AGeo_SI::configureParticleAnalyzer(QString object, QVariantMap configObject)
+void AGeo_SI::configureParticleAnalyzer(QString objectName, QVariantMap configObject)
 {
-    AGeoObject * paObj = nullptr;
+    AGeoObject * paObj = findObject(objectName);
+    if (!paObj) return;
 
-    for (AGeoObject * obj : GeoObjects)
-        if (obj->Name == object)
-        {
-            paObj = obj;
-            break;
-        }
-
-    if (!paObj)
-        paObj = AGeometryHub::getInstance().World->findObjectByName(object);
-
-    if (!paObj)
-    {
-        abort("Cannot find particle analyzer \"" + object + "\"");
-        return;
-    }
-
-    if (!paObj->Role)
-    {
-        abort(object + " is not a particle analyzer!");
-        return;
-    }
     AGeoParticleAnalyzer * pa = dynamic_cast<AGeoParticleAnalyzer*>(paObj->Role);
     if (!pa)
     {
-        abort(object + " is not a particle analyzer!");
+        abort(objectName + " is not a particle analyzer!");
         return;
     }
 
@@ -2149,28 +2097,34 @@ void AGeo_SI::configureParticleAnalyzer(QString object, QVariantMap configObject
     pa->Properties.readFromJson(js);
     if (AErrorHub::isError())
     {
-        abort("Error while attempting to configure particle analyzer " + object + ":\n" + AErrorHub::getQError());
+        abort("Error while attempting to configure particle analyzer " + objectName + ":\n" + AErrorHub::getQError());
         return;
     }
 }
 
-void AGeo_SI::setEnabled(QString ObjectOrWildcard, bool flag)
+void AGeo_SI::setEnabled(QString objectNameOrWildcard, bool flag)
 {
-    if (ObjectOrWildcard.endsWith('*'))
+    if (objectNameOrWildcard.endsWith('*'))
     {
-        ObjectOrWildcard.chop(1);
-        //qDebug() << "Looking for all objects starting with" << ObjectOrWildcard;
+        objectNameOrWildcard.chop(1);
         std::vector<AGeoObject*> foundObjs;
         for (AGeoObject * o : GeoObjects)
-            if (o->Name.startsWith(ObjectOrWildcard, Qt::CaseSensitive)) foundObjs.push_back(o);
-        AGeometryHub::getInstance().World->findObjectsByWildcard(ObjectOrWildcard, foundObjs);
+            if (o->Name.startsWith(objectNameOrWildcard, Qt::CaseSensitive)) foundObjs.push_back(o);
+
+        const size_t num = foundObjs.size();
+        AGeometryHub::getInstance().World->findObjectsByWildcard(objectNameOrWildcard, foundObjs);
+        if (num != foundObjs.size())
+        {
+            if (AScriptHub::getInstance().abortIfHubAccessBlocked(Lang)) return;
+            AScriptHub::getInstance().registerHubsModified_JsonNotYetUpdated(true);
+        }
 
         for (AGeoObject * obj: foundObjs)
             if (!obj->isWorld()) obj->fActive = flag;
     }
     else
     {
-        AGeoObject * obj = findObject(ObjectOrWildcard);
+        AGeoObject * obj = findObject(objectNameOrWildcard);
         if (!obj) return;
         if (!obj->isWorld()) obj->fActive = flag;
     }
@@ -2179,11 +2133,17 @@ void AGeo_SI::setEnabled(QString ObjectOrWildcard, bool flag)
 #include <QFileInfo>
 void AGeo_SI::exportToGDML(QString fileName)
 {
+    if (!GeoObjects.empty())
+    {
+        abort("exportToGDML() method cannot be called: new objects were added by script and geo.updateGeometry() was not yet called");
+        return;
+    }
+    if (AScriptHub::getInstance().abortIfHubAccessBlocked(Lang)) return;
+
     if (QFileInfo(fileName).suffix() != "gdml")
         abort("File suffix should be \"gdml\"");
     else
     {
-        //QString err = GeoHub.exportToGDML(FileName);
         QString err = GeoHub.exportGeometry(fileName);
         if (!err.isEmpty()) abort(err);
     }
@@ -2191,11 +2151,17 @@ void AGeo_SI::exportToGDML(QString fileName)
 
 void AGeo_SI::exportToROOT(QString fileName)
 {
+    if (!GeoObjects.empty())
+    {
+        abort("exportToROOT() method cannot be called: new objects were added by script and geo.updateGeometry() was not yet called");
+        return;
+    }
+    if (AScriptHub::getInstance().abortIfHubAccessBlocked(Lang)) return;
+
     if (QFileInfo(fileName).suffix() != "root")
         abort("File suffix should be \"root\"");
     else
     {
-        //QString err = GeoHub.exportToROOT(fileName);
         QString err = GeoHub.exportGeometry(fileName);
         if (!err.isEmpty()) abort(err);
     }
@@ -2230,6 +2196,8 @@ QString AGeo_SI::getMaterialComposition(int materialIndex, bool byWeight)
 
 void AGeo_SI::updateGeometry(bool CheckOverlaps)
 {
+    if (AScriptHub::getInstance().abortIfHubAccessBlocked(Lang)) return;
+
     AGeometryHub & GeoHub = AGeometryHub::getInstance();
 
     //checkup
@@ -2294,7 +2262,6 @@ void AGeo_SI::updateGeometry(bool CheckOverlaps)
         const QString & contName = obj->tmpContName;
 
         if (contName == ProrotypeContainerName)
-            //Detector->Sandwich->Prototypes->addObjectLast(obj);
             GeoHub.Prototypes->addObjectLast(obj);
         else
         {
@@ -2316,14 +2283,15 @@ void AGeo_SI::updateGeometry(bool CheckOverlaps)
 
     if (CheckOverlaps)
     {
-        //int overlaps = Detector->checkGeoOverlaps();
         int overlaps = GeoHub.checkGeometryForConflicts();
         if (overlaps > 0)
         {
-//            emit requestShowCheckUpWindow();
             abort( QString("%0 overlap%1 detected in the geometry!").arg(overlaps).arg(overlaps > 1 ? "s" : ""));
+            return;
         }
     }
+
+    AScriptHub::getInstance().registerHubsModified_JsonNotYetUpdated(true);
 }
 
 void AGeo_SI::clearGeoObjects()
@@ -2336,6 +2304,13 @@ void AGeo_SI::clearGeoObjects()
 QVariantList AGeo_SI::trackAndGetPassedVoulumes(QVariantList startXYZ, QVariantList startVxVyVz)
 {
     QVariantList vl;
+
+    if (!GeoObjects.empty())
+    {
+        abort("trackAndGetPassedVoulumes() method cannot be called: new objects were added by script and geo.updateGeometry() was not yet called");
+        return vl;
+    }
+    if (AScriptHub::getInstance().abortIfHubAccessBlocked(Lang)) return vl;
 
     if (startXYZ.length() != 3 || startVxVyVz.length() != 3)
     {
@@ -2390,6 +2365,15 @@ QVariantList AGeo_SI::trackAndGetPassedVoulumes(QVariantList startXYZ, QVariantL
 
 QVariantList AGeo_SI::getScintillatorProperties()
 {
+    QVariantList vl;
+
+    if (!GeoObjects.empty())
+    {
+        abort("getScintillatorProperties() method cannot be called: new objects were added by script and geo.updateGeometry() was not yet called");
+        return vl;
+    }
+    if (AScriptHub::getInstance().abortIfHubAccessBlocked(Lang)) return vl;
+
     std::vector<QString> name;
     GeoHub.getScintillatorVolumeNames(name);
     std::vector<AVector3> pos;
@@ -2397,7 +2381,6 @@ QVariantList AGeo_SI::getScintillatorProperties()
     std::vector<AVector3> ori;
     GeoHub.getScintillatorOrientations(ori);
 
-    QVariantList vl;
     for (int iScint = 0; iScint < (int)pos.size(); iScint++)
     {
         QVariantList rec;
