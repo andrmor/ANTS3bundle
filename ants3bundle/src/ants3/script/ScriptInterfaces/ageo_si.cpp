@@ -1046,29 +1046,11 @@ void AGeo_SI::arb8(QString name, QVariantList NodesXY, double h, int iMat, QStri
     GeoObjects.push_back(o);
 }
 
-void AGeo_SI::toScaled(QString name, double xFactor, double yFactor, double zFactor)
+void AGeo_SI::toScaled(QString objectName, double xFactor, double yFactor, double zFactor)
 {
-    AGeoObject * obj = nullptr;
+    AGeoObject * obj = findObject(objectName);
+    if (!obj) return;
 
-    for (AGeoObject * GO : GeoObjects)
-    {
-        if (GO->Name == name)
-        {
-            obj = GO;
-            break;
-        }
-    }
-
-    if (!obj) //looking through already defined objects in the geometry
-        obj = AGeometryHub::getInstance().World->findObjectByName(name);
-
-    if (!obj)
-    {
-        abort("Cannot find object " + name);
-        return;
-    }
-
-    // !!!***
     if (obj->Shape->getShapeType() == "TGeoCompositeShape")
     {
         abort("Cannot scale a composite shape!");
@@ -1121,25 +1103,12 @@ void AGeo_SI::monitor(QString name, int shape, double size1, double size2, QStri
 
 void AGeo_SI::configurePhotonMonitor(QString monitorName, QVariantList position, QVariantList time, QVariantList angle, QVariantList wave)
 {
-    AGeoObject * o = nullptr;
-    for (AGeoObject * obj : GeoObjects)
-    {
-        if (obj->Name == monitorName)
-        {
-            o = obj;
-            break;
-        }
-    }
-
-    if (!o)
-    {
-        abort("Cannot find monitor \"" + monitorName + "\"");
-        return;
-    }
+    AGeoObject * o = findObject(monitorName);
+    if (!o) return;
 
     if (!o->Type || !o->Type->isMonitor())
     {
-        abort(monitorName + " is not a monitor object!");
+        abort(monitorName + " is not a monitor!");
         return;
     }
 
@@ -1211,19 +1180,8 @@ void AGeo_SI::configurePhotonMonitor(QString monitorName, QVariantList position,
 void AGeo_SI::configureParticleMonitor(QString monitorName, QString particle, int both_Primary_Secondary, int both_Direct_Indirect,
                                        QVariantList position, QVariantList time, QVariantList angle, QVariantList energy)
 {
-    AGeoObject * o = nullptr;
-    for (AGeoObject * obj : GeoObjects)
-        if (obj->Name == monitorName)
-        {
-            o = obj;
-            break;
-        }
-
-    if (!o)
-    {
-        abort("Cannot find monitor \"" + monitorName + "\"");
-        return;
-    }
+    AGeoObject * o = findObject(monitorName);
+    if (!o) return;
 
     if (!o->Type || !o->Type->isMonitor())
     {
@@ -1473,77 +1431,44 @@ void AGeo_SI::stack(QString name, QString container, QVariantList position, QVar
     GeoObjects.push_back(o);
 }
 
-void AGeo_SI::setStackReference(QString stack, QString stackReferenceObject)
+void AGeo_SI::setStackReference(QString stackName, QString stackReferenceObjectName)
 {
-    AGeoObject * stackObj = nullptr;
-    for (AGeoObject * obj : GeoObjects)
-        if (obj->Name == stack && obj->Type->isStack())
-        {
-            stackObj = obj;
-            break;
-        }
+    AGeoObject * stackObj = findObject(stackName);
+    if (!stackObj) return;
 
-    if (!stackObj)
+    if (!stackObj->Type || !stackObj->Type->isStack())
     {
-        // could be already defined object in the geometry
-        stackObj = findObject(stack);
-        if (!stackObj) return; // abort already generated
-        if (!stackObj->Type->isStack())
+        abort("Stack with name " + stackName + " not found!");
+        return;
+    }
+
+    for (AGeoObject * obj : stackObj->HostedObjects)
+    {
+        if (obj->Name == stackReferenceObjectName)
         {
-            abort("Stack with name " + stack + " not found!");
+            ATypeStackContainerObject * sc = static_cast<ATypeStackContainerObject*>(stackObj->Type);
+            sc->ReferenceVolume = stackReferenceObjectName;
             return;
         }
-        for (AGeoObject * obj : stackObj->HostedObjects)
-        {
-            if (obj->Name == stackReferenceObject)
-            {
-                ATypeStackContainerObject * sc = static_cast<ATypeStackContainerObject*>(stackObj->Type);
-                sc->ReferenceVolume = stackReferenceObject;
-                return;
-            }
-        }
-        abort("Stack element with name " + stackReferenceObject + " not found!");
-        return;
     }
 
-    bool bFound = false;
-    AGeoObject * referenceObj = nullptr;
+    // stackReferenceObject not found --> looking through objects in GeoObjects
     for (AGeoObject * obj : GeoObjects)
     {
-        if (obj->Name == stackReferenceObject)
+        if (obj->Name == stackReferenceObjectName)
         {
-            referenceObj = obj;
-            bFound = true;
-            break;
+            if (obj->tmpContName != stackName)
+            {
+                abort(stackReferenceObjectName + " is not included in the stack " + stackName);
+                return;
+            }
+            static_cast<ATypeStackContainerObject*>(stackObj->Type)->ReferenceVolume = stackReferenceObjectName;
+            return;
         }
     }
 
-    if (!bFound || referenceObj->tmpContName != stack)
-    {
-        abort("Stack element with name " + stackReferenceObject + " not found!");
-        return;
-    }
-
-    referenceObj->Container = stackObj;
-    static_cast<ATypeStackContainerObject*>(stackObj->Type)->ReferenceVolume = stackReferenceObject;
-
-    //referenceObj->Container->updateStack();
-    //referenceObj->Container = nullptr;
-    //stackObj->HostedObjects.clear();
+    abort("Stack element with name " + stackReferenceObjectName + " not found!");
 }
-
-/*
-void AGeo_SI::array(QString name, int numX, int numY, int numZ, double stepX, double stepY, double stepZ, QString container, double x, double y, double z, double phi, double theta, double psi, bool centerSymmetric, int startIndex)
-{
-    AGeoObject * o = new AGeoObject(name, container, 0, 0, x,y,z, phi,theta,psi);
-    delete o->Shape; o->Shape = new AGeoBox;
-    delete o->Type;
-    ATypeArrayObject * arType = new ATypeArrayObject(numX, numY, numZ, stepX, stepY, stepZ, startIndex);
-    arType->bCenterSymmetric = centerSymmetric;
-    o->Type = arType;
-    GeoObjects.push_back(o);
-}
-*/
 
 void AGeo_SI::array(QString name, QVariantList numXYZ, QVariantList stepXYZ, QString container, QVariantList position, QVariantList orientation, bool centerSymmetric, int startIndex)
 {
@@ -1576,17 +1501,6 @@ void AGeo_SI::array(QString name, QVariantList numXYZ, QVariantList stepXYZ, QSt
     GeoObjects.push_back(o);
 }
 
-/*
-void AGeo_SI::circArray(QString name, int num, double angularStep, double radius, QString container, double x, double y, double z, double phi, double theta, double psi, int startIndex)
-{
-    AGeoObject * o = new AGeoObject(name, container, 0, 0, x,y,z, phi,theta,psi);
-    delete o->Shape; o->Shape = new AGeoBox;
-    delete o->Type;
-    o->Type = new ATypeCircularArrayObject(num, angularStep, radius, startIndex);
-    GeoObjects.push_back(o);
-}
-*/
-
 void AGeo_SI::circArray(QString name, int num, double angularStep, double radius, QString container, QVariantList position, QVariantList orientation, int startIndex)
 {
     std::array<double,3> pos, ori;
@@ -1599,20 +1513,6 @@ void AGeo_SI::circArray(QString name, int num, double angularStep, double radius
     o->Type = new ATypeCircularArrayObject(num, angularStep, radius, startIndex);
     GeoObjects.push_back(o);
 }
-
-/*
-void AGeo_SI::hexArray(QString name, int numRings, double pitch, QString container, double x, double y, double z, double phi, double theta, double psi, int startIndex)
-{
-    AGeoObject * o = new AGeoObject(name, container, 0, 0, x,y,z, phi,theta,psi);
-    delete o->Shape; o->Shape = new AGeoBox;
-    delete o->Type;
-    ATypeHexagonalArrayObject * ar = new ATypeHexagonalArrayObject();
-    ar->reconfigure(pitch, ATypeHexagonalArrayObject::Hexagonal, numRings, 1, 1, false, false);
-    ar->startIndex = startIndex;
-    o->Type = ar;
-    GeoObjects.push_back(o);
-}
-*/
 
 void AGeo_SI::hexArray(QString name, int numRings, double pitch, QString container, QVariantList position, QVariantList orientation, int startIndex)
 {
@@ -1629,20 +1529,6 @@ void AGeo_SI::hexArray(QString name, int numRings, double pitch, QString contain
     o->Type = ar;
     GeoObjects.push_back(o);
 }
-
-/*
-void AGeo_SI::hexArray_rectangular(QString name, int numX, int numY, double pitch, bool skipEvenFirst, bool skipOddLast, QString container, double x, double y, double z, double phi, double theta, double psi, int startIndex)
-{
-    AGeoObject * o = new AGeoObject(name, container, 0, 0, x,y,z, phi,theta,psi);
-    delete o->Shape; o->Shape = new AGeoBox;
-    delete o->Type;
-    ATypeHexagonalArrayObject * ar = new ATypeHexagonalArrayObject();
-    ar->reconfigure(pitch, ATypeHexagonalArrayObject::XY, 1, numX, numY, skipEvenFirst, skipOddLast);
-    ar->startIndex = startIndex;
-    o->Type = ar;
-    GeoObjects.push_back(o);
-}
-*/
 
 void AGeo_SI::hexArray_rectangular(QString name, int numX, int numY, double pitch, bool skipEvenFirst, bool skipOddLast, QString container, QVariantList position, QVariantList orientation, int startIndex)
 {
@@ -1667,22 +1553,6 @@ void AGeo_SI::prototype(QString name)
     proto->tmpContName = ProrotypeContainerName;
     GeoObjects.push_back(proto);
 }
-
-/*
-void AGeo_SI::instance(QString name, QString prototype, QString container, double x, double y, double z, double phi, double theta, double psi)
-{
-    AGeoObject * instance = new AGeoObject(name);
-    delete instance->Type; instance->Type = new ATypeInstanceObject(prototype);
-    instance->tmpContName = container;
-    instance->Position[0] = x;
-    instance->Position[1] = y;
-    instance->Position[2] = z;
-    instance->Orientation[0] = phi;
-    instance->Orientation[1] = theta;
-    instance->Orientation[2] = psi;
-    GeoObjects.push_back(instance);
-}
-*/
 
 void AGeo_SI::instance(QString name, QString prototype, QString container, QVariantList position, QVariantList orientation)
 {

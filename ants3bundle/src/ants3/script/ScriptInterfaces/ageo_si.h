@@ -57,23 +57,23 @@ public slots:
     void tesselated(QString name, QVariantList vertexArray, QVariantList facetArray, int iMat, QString container, QVariantList position, QVariantList orientation);
     void customTGeo(QString name, QString generationString, int iMat, QString container, QVariantList position, QVariantList orientation);
 
-    void toScaled(QString name, double xFactor, double yFactor, double zFactor);
+    void toScaled(QString objectName, double xFactor, double yFactor, double zFactor); // +
 
     void monitor(QString name, int shape, double size1, double size2, QString container, QVariantList position, QVariantList orientation, bool SensitiveTop, bool SensitiveBottom, bool StopsTraking); // +
-    void configurePhotonMonitor(QString monitorName, QVariantList position, QVariantList time, QVariantList angle, QVariantList wave);
+    void configurePhotonMonitor(QString monitorName, QVariantList position, QVariantList time, QVariantList angle, QVariantList wave); // +
     void configureParticleMonitor(QString monitorName, QString particle, int both_Primary_Secondary, int both_Direct_Indirect,
-                                  QVariantList position, QVariantList time, QVariantList angle, QVariantList energy);
+                                  QVariantList position, QVariantList time, QVariantList angle, QVariantList energy); // +
 
     void stack(QString name, QString container, QVariantList position, QVariantList orientation); // +
-    void setStackReference(QString stack, QString stackReferenceObject);
+    void setStackReference(QString stackName, QString stackReferenceObjectName); // +
 
     void array(QString name, QVariantList numXYZ, QVariantList stepXYZ, QString container, QVariantList position, QVariantList orientation, bool centerSymmetric, int startIndex); // +
-    void circArray(QString name, int num, double angularStep, double radius, QString container, QVariantList position, QVariantList orientation, int startIndex);
-    void hexArray(QString name, int numRings, double pitch, QString container, QVariantList position, QVariantList orientation, int startIndex);
-    void hexArray_rectangular(QString name, int numX, int numY, double pitch, bool skipEvenFirst, bool skipOddLast, QString container, QVariantList position, QVariantList orientation, int startIndex);
+    void circArray(QString name, int num, double angularStep, double radius, QString container, QVariantList position, QVariantList orientation, int startIndex); // +
+    void hexArray(QString name, int numRings, double pitch, QString container, QVariantList position, QVariantList orientation, int startIndex); // +
+    void hexArray_rectangular(QString name, int numX, int numY, double pitch, bool skipEvenFirst, bool skipOddLast, QString container, QVariantList position, QVariantList orientation, int startIndex); // +
 
     void prototype(QString name); // +
-    void instance(QString name, QString prototype, QString container, QVariantList position, QVariantList orientation);
+    void instance(QString name, QString prototype, QString container, QVariantList position, QVariantList orientation); // +   // !!!*** check existence of prototype
 
     void setEnabled(QString objectNameOrWildcard, bool flag);  // +
 
