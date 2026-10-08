@@ -910,7 +910,7 @@ void ADrawExplorerWidget::shift(ADrawObject &obj)
 {
     QString name = obj.Pointer->ClassName();
     QStringList impl;
-    impl << "TGraph" << "TGraphErrors"  << "TH1I" << "TH1D" << "TH1F" << "TProfile";
+    impl << "TGraph" << "TGraphErrors"  << "TH1I" << "TH1D" << "TH1F" << "TProfile" << "TH2D";
     if (!impl.contains(name))
     {
         guitools::message("Not implemented for this object type", &GraphWindow);
@@ -936,6 +936,71 @@ void ADrawExplorerWidget::shift(ADrawObject &obj)
                 g->GetPoint(i, x, y);
                 x = x * val.first + val.second;
                 g->SetPoint(i, x, y);
+            }
+        }
+    }
+    if (name.startsWith("TH2"))
+    {
+        // does not work with varable-width histogram and scaling factor < 0
+        TH2* h = dynamic_cast<TH2*>(tobj);
+        if (h)
+        {
+            TAxis * xaxis = h->GetXaxis();
+
+            if ( (xaxis->GetXbins() && xaxis->GetXbins()->GetSize() > 0) || val.first < 0)
+            {
+                TAxis * xaxis = h->GetXaxis();
+                TAxis * yaxis = h->GetYaxis();
+
+                int nbinsx = xaxis->GetNbins();
+                int nbinsy = yaxis->GetNbins();
+
+                // Collect original x bin edges, transform them
+                std::vector<double> edges(nbinsx + 1);
+                for (int i = 1; i <= nbinsx + 1; ++i)
+                    edges[i - 1] = val.first * xaxis->GetBinLowEdge(i) + val.second;
+
+                // If val.first < 0, edges come out descending -> reverse for ROOT (needs increasing order)
+                bool reversed = false;
+                if (edges.front() > edges.back())
+                {
+                    std::reverse(edges.begin(), edges.end());
+                    reversed = true;
+                }
+
+                // Keep Y axis as-is (assume uniform; extend similarly if variable)
+                double ymin = yaxis->GetXmin();
+                double ymax = yaxis->GetXmax();
+
+                TH2D * hNew = new TH2D("", h->GetTitle(),
+                                      nbinsx, edges.data(),
+                                      nbinsy, ymin, ymax);
+
+                // Copy bin contents/errors, respecting reversal
+                for (int ix = 1; ix <= nbinsx; ix++)
+                {
+                    int srcIx = reversed ? (nbinsx - ix + 1) : ix;
+                    for (int iy = 1; iy <= nbinsy; ++iy)
+                    {
+                        double content = h->GetBinContent(srcIx, iy);
+                        double error   = h->GetBinError(srcIx, iy);
+                        hNew->SetBinContent(ix, iy, content);
+                        hNew->SetBinError(ix, iy, error);
+                    }
+                }
+
+                hNew->GetXaxis()->SetTitle(h->GetXaxis()->GetTitle());
+                hNew->GetYaxis()->SetTitle(h->GetYaxis()->GetTitle());
+
+                tobj = hNew;
+            }
+            else
+            {
+                double xmin = xaxis->GetXmin();
+                double xmax = xaxis->GetXmax();
+                double newXmin = val.first * xmin + val.second;
+                double newXmax = val.first * xmax + val.second;
+                xaxis->SetLimits(newXmin, newXmax);
             }
         }
     }
