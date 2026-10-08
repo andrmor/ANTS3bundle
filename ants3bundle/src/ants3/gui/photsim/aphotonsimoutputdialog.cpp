@@ -155,3 +155,9 @@ void APhotonSimOutputDialog::on_pbSensorLogHelp_clicked()
     guitools::message(txt, this);
 }
 
+#include "a3global.h"
+void APhotonSimOutputDialog::on_pbSetDefaultOutputDir_clicked()
+{
+    bool ok = guitools::confirm("Set output dirtectory to default?", this);
+    if (ok) ui->leOutputDirectory->setText( A3Global::getConstInstance().TmpOutputDir );
+}

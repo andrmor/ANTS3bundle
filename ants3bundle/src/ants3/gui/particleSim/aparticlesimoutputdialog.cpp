@@ -122,3 +122,11 @@ void AParticleSimOutputDialog::on_pbChangeDir_customContextMenuRequested(const Q
     QDesktopServices::openUrl(QUrl("file:///" + dir, QUrl::TolerantMode));
 }
 
+#include "guitools.h"
+#include "a3global.h"
+void AParticleSimOutputDialog::on_pbSetDefaultDir_clicked()
+{
+    bool ok = guitools::confirm("Set output dirtectory to default?", this);
+    if (ok) ui->leOutputDirectory->setText( A3Global::getConstInstance().TmpOutputDir );
+}
+

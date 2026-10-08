@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>506</width>
+    <width>590</width>
     <height>448</height>
    </rect>
   </property>
@@ -57,6 +57,22 @@
        </property>
        <property name="text">
         <string>Select</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pbSetDefaultOutputDir">
+       <property name="maximumSize">
+        <size>
+         <width>20</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="toolTip">
+        <string>Clear (use default)</string>
+       </property>
+       <property name="text">
+        <string>X</string>
        </property>
       </widget>
      </item>

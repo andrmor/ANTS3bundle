@@ -27,6 +27,8 @@ private slots:
 
     void on_pbSensorLogHelp_clicked();
 
+    void on_pbSetDefaultOutputDir_clicked();
+
 private:
     Ui::APhotonSimOutputDialog * ui;
     APhotonLogSettingsForm * PhotonLog = nullptr;

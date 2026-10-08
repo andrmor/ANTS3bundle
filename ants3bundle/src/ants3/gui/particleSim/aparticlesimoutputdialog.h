@@ -24,6 +24,8 @@ private slots:
 
     void on_pbChangeDir_customContextMenuRequested(const QPoint &pos);
 
+    void on_pbSetDefaultDir_clicked();
+
 private:
     AParticleRunSettings & RunSet;
 
