@@ -4,6 +4,7 @@
 #include "amonitor.h"
 #include "amonitorhub.h"
 #include "ajsontools.h"
+#include "ascripthub.h"
 
 #include <QDebug>
 
@@ -20,6 +21,8 @@ APhotonSim_SI::~APhotonSim_SI()
 
 void APhotonSim_SI::simulate()
 {
+    if (AScriptHub::getInstance().abortIfHubAccessBlocked(Lang)) return;
+
     bool ok = SimMan.simulate(-1);
 
     QString err = AErrorHub::getQError();
@@ -37,12 +40,16 @@ void APhotonSim_SI::setSeed(double seed)
 
 int APhotonSim_SI::countMonitors()
 {
+    if (AScriptHub::getInstance().abortIfHubAccessBlocked(Lang)) return 0;
+
     const AMonitorHub & MonHub = AMonitorHub::getConstInstance();
     return MonHub.countMonitors(AMonitorHub::Photon);
 }
 
 void APhotonSim_SI::loadMonitorData(QString fileName)
 {
+    if (AScriptHub::getInstance().abortIfHubAccessBlocked(Lang)) return;
+
     AMonitorHub & MonHub = AMonitorHub::getInstance();
     if (MonHub.countMonitors(AMonitorHub::Photon) == 0)
     {
@@ -76,6 +83,9 @@ QVariantList APhotonSim_SI::getMonitorHitsAll()
 QVariantList APhotonSim_SI::getMonitorGlobalPositionsAll()
 {
     QVariantList vl;
+
+    if (AScriptHub::getInstance().abortIfHubAccessBlocked(Lang)) return vl;
+
     const AMonitorHub & MonHub = AMonitorHub::getConstInstance();
     for (const AMonitorData & md : MonHub.PhotonMonitors)
         vl.push_back(QVariantList{md.Position[0], md.Position[1], md.Position[2]});
@@ -263,6 +273,8 @@ QVariantList APhotonSim_SI::getMonitorXY(int monitorIndex)
 #include "astatisticshub.h"
 void APhotonSim_SI::loadStatistics(QString fileName)
 {
+    if (AScriptHub::getInstance().abortIfHubAccessBlocked(Lang)) return;
+
     QJsonObject json;
     bool ok = jstools::loadJsonFromFile(json, fileName);
     if (!ok)
@@ -279,6 +291,9 @@ void APhotonSim_SI::loadStatistics(QString fileName)
 QVariantList APhotonSim_SI::getStatistics_SensorAngular()
 {
     QVariantList vl;
+
+    if (AScriptHub::getInstance().abortIfHubAccessBlocked(Lang)) return vl;
+
     APhotonStatistics & Stat = AStatisticsHub::getInstance().SimStat;
     if (!Stat.AngularDistr)
     {

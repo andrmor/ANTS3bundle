@@ -8,6 +8,7 @@
 #include "ath.h"
 #include "ajsontools.h"
 #include "arandomhub.h"
+#include "ascripthub.h"
 
 #include <QDebug>
 #include <QVariant>
@@ -76,6 +77,8 @@ AParticleSim_SI::AParticleSim_SI() :
 #include "ageometryhub.h"
 void AParticleSim_SI::simulate()
 {
+    if (AScriptHub::getInstance().abortIfHubAccessBlocked(Lang)) return;
+
     SimMan.simulate();
 
     AGeometryHub::getInstance().ScriptUpdatedGeoManager = true;
@@ -92,11 +95,15 @@ void AParticleSim_SI::setSeed(double seed)
 
 int AParticleSim_SI::countCalorimeters()
 {
+    if (AScriptHub::getInstance().abortIfHubAccessBlocked(Lang)) return 0;
+
     return ACalorimeterHub::getConstInstance().countCalorimeters();
 }
 
 void AParticleSim_SI::loadCalorimeterData(QString fileName)
 {
+    if (AScriptHub::getInstance().abortIfHubAccessBlocked(Lang)) return;
+
     ACalorimeterHub & CalHub = ACalorimeterHub::getInstance();
     if (CalHub.countCalorimeters() == 0)
     {
@@ -121,6 +128,9 @@ void AParticleSim_SI::loadCalorimeterData(QString fileName)
 QVariantList AParticleSim_SI::getCalorimeterGlobalPositionsAll()
 {
     QVariantList vl;
+
+    if (AScriptHub::getInstance().abortIfHubAccessBlocked(Lang)) return vl;
+
     const ACalorimeterHub & CalHub = ACalorimeterHub::getConstInstance();
     for (const ACalorimeterData & cd : CalHub.Calorimeters)
         vl.push_back(QVariantList{cd.Position[0], cd.Position[1], cd.Position[2]});
@@ -130,6 +140,9 @@ QVariantList AParticleSim_SI::getCalorimeterGlobalPositionsAll()
 QVariantList AParticleSim_SI::getCalorimeterDataProjection(int calorimeterIndex, QString mode)
 {
     QVariantList res;
+
+    if (AScriptHub::getInstance().abortIfHubAccessBlocked(Lang)) return res;
+
     const ACalorimeterHub & CalHub = ACalorimeterHub::getConstInstance();
 
     const int numCal = CalHub.countCalorimeters();
@@ -191,6 +204,9 @@ QVariantList AParticleSim_SI::getCalorimeterDataProjection(int calorimeterIndex,
 QVariantList AParticleSim_SI::getCalorimeterData(int calorimeterIndex)
 {
     QVariantList res;
+
+    if (AScriptHub::getInstance().abortIfHubAccessBlocked(Lang)) return res;
+
     const ACalorimeterHub & CalHub = ACalorimeterHub::getConstInstance();
     
     const int numCal = CalHub.countCalorimeters();
@@ -231,6 +247,9 @@ QVariantList AParticleSim_SI::getCalorimeterData(int calorimeterIndex)
 QVariantList AParticleSim_SI::getCalorimeterOverEventData(int calorimeterIndex)
 {
     QVariantList res;
+
+    if (AScriptHub::getInstance().abortIfHubAccessBlocked(Lang)) return res;
+
     const ACalorimeterHub & CalHub = ACalorimeterHub::getConstInstance();
 
     const int numCal = CalHub.countCalorimeters();
@@ -265,6 +284,9 @@ QVariantList AParticleSim_SI::getCalorimeterOverEventData(int calorimeterIndex)
 QVariantList AParticleSim_SI::getCalorimeterBinning(int calorimeterIndex)
 {
     QVariantList res;
+
+    if (AScriptHub::getInstance().abortIfHubAccessBlocked(Lang)) return res;
+
     const ACalorimeterHub & CalHub = ACalorimeterHub::getConstInstance();
 
     const int numCal = CalHub.countCalorimeters();
@@ -305,12 +327,16 @@ void AParticleSim_SI::clearCalorimeterData()
 
 int AParticleSim_SI::countMonitors()
 {
+    if (AScriptHub::getInstance().abortIfHubAccessBlocked(Lang)) return 0;
+
     const AMonitorHub & MonHub = AMonitorHub::getConstInstance();
     return MonHub.countMonitors(AMonitorHub::Particle);
 }
 
 void AParticleSim_SI::loadMonitorData(QString fileName)
 {
+    if (AScriptHub::getInstance().abortIfHubAccessBlocked(Lang)) return;
+
     AMonitorHub & MonHub = AMonitorHub::getInstance();
     if (MonHub.countMonitors(AMonitorHub::Particle) == 0)
     {
@@ -344,6 +370,9 @@ QVariantList AParticleSim_SI::getMonitorHitsAll()
 QVariantList AParticleSim_SI::getMonitorGlobalPositionsAll()
 {
     QVariantList vl;
+
+    if (AScriptHub::getInstance().abortIfHubAccessBlocked(Lang)) return vl;
+
     const AMonitorHub & MonHub = AMonitorHub::getConstInstance();
     for (const AMonitorData & md : MonHub.ParticleMonitors)
         vl.push_back(QVariantList{md.Position[0], md.Position[1], md.Position[2]});
@@ -520,6 +549,8 @@ QVariantList AParticleSim_SI::getMonitorXY(int monitorIndex)
 #include "aparticleanalyzerhub.h"
 void AParticleSim_SI::loadAnalyzerData(QString fileName)
 {
+    if (AScriptHub::getInstance().abortIfHubAccessBlocked(Lang)) return;
+
     const AGeometryHub & GeoHub = AGeometryHub::getInstance();
     if (GeoHub.countParticleAnalyzers() == 0)
     {
@@ -539,6 +570,7 @@ void AParticleSim_SI::loadAnalyzerData(QString fileName)
 
 int AParticleSim_SI::countAnalyzers()
 {
+    if (AScriptHub::getInstance().abortIfHubAccessBlocked(Lang)) return 0;
     return AParticleAnalyzerHub::getConstInstance().UniqueAnalyzers.size();
 }
 
@@ -631,10 +663,12 @@ QVariantList AParticleSim_SI::getAnalyzerData(int index)
 
 QVariantList AParticleSim_SI::getAnalyzerUniqueToGlobalIndex()
 {
+    QVariantList vl;
+
+    if (AScriptHub::getInstance().abortIfHubAccessBlocked(Lang)) return vl;
+
     const AParticleAnalyzerHub & AnHub = AParticleAnalyzerHub::getInstance();
     const std::vector<AAnalyzerData> UniqueAnalyzers = AnHub.UniqueAnalyzers;
-
-    QVariantList vl;
 
     for (const AAnalyzerData & ad : UniqueAnalyzers)
         vl << ad.GlobalIndexIfNoMerge;
@@ -644,9 +678,11 @@ QVariantList AParticleSim_SI::getAnalyzerUniqueToGlobalIndex()
 
 QVariantList AParticleSim_SI::getAnalyzerPositionsByGlobalIndex()
 {
-    const AGeometryHub & GeoHub = AGeometryHub::getInstance();
-
     QVariantList vl;
+
+    if (AScriptHub::getInstance().abortIfHubAccessBlocked(Lang)) return vl;
+
+    const AGeometryHub & GeoHub = AGeometryHub::getInstance();
 
     for (const auto & ad : GeoHub.ParticleAnalyzers)
     {

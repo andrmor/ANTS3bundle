@@ -242,7 +242,7 @@ bool AScriptHub::abortIfHubAccessBlocked(EScriptLanguage lang)
 {
     if (FlagJsonChanged)
     {
-        abort("Cannot directly manipulate config in this state: Json was modified, but updateConfig was not yet called.", lang);
+        abort("Cannot directly manipulate config or start simulation:\nJson was modified, but updateConfig was not yet called.", lang);
         return true;
     }
     return false;
