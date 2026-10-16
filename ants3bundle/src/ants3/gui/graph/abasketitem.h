@@ -16,6 +16,7 @@ public:
     std::vector<ADrawObject> DrawObjects;
     QString Name;
     QString Type;
+    QString Group; // '/'-separated group path; empty = root
 
     void clearObjects();
 

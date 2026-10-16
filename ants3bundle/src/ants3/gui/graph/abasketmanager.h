@@ -43,12 +43,37 @@ public:
 
     QString             mergeHistograms(const std::vector<int> & indexes);
 
+    // ---- groups (tree view support) ----
+    static QString      joinPath(const QString & parent, const QString & name);
+    static QString      parentPath(const QString & path);
+    static QString      leafName(const QString & path);
+    static QString      normalizePath(const QString & path);
+    static bool         isInsideGroup(const QString & path, const QString & group); // path==group or descendant; root contains everything
+    static QString      checkGroupName(const QString & name);                       // returns error text or ""
+
+    QString             getGroup(int index) const;
+    const std::vector<QString> & getGroups() const {return Groups;}
+    bool                groupExists(const QString & path) const;                    // "" (root) always exists
+    std::vector<int>    getItemsInGroup(const QString & path, bool recursive) const;
+
+    void                ensureGroup(const QString & path);                          // creates missing ancestors too
+    QString             addGroup(const QString & path);
+    QString             renameGroup(const QString & path, const QString & newName);
+    QString             moveGroup(const QString & path, const QString & newParentPath);
+    QString             removeGroup(const QString & path);                          // items/subgroups move to the parent
+    QString             removeGroupAndContents(const QString & path);               // uses remove(), so multidraw protection applies
+    // indexes: unique, ascending. toIndex: flat position (same meaning as in reorder()), or -1 = end of the group
+    QString             moveItems(const std::vector<int> & indexes, const QString & targetGroup, int toIndex);
+
 private:
     std::vector<ABasketItem> Basket;
+    std::vector<QString>     Groups;   // all existing groups (full paths); order = display order among siblings
 
 private:
     int                 findPointerInDrawObjects(const std::vector<ADrawObject> & drawObjects, TObject * obj) const;
     std::vector<size_t> getAllMultidrawsUsingIndex(size_t index);
+
+    void                replaceGroupPrefix(const QString & oldPath, const QString & newPath);
 
 public:
     static TObject * makeCloneOfTObject(TObject * tobj);

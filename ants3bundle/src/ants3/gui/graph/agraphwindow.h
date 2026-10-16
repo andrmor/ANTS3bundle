@@ -18,7 +18,7 @@ class TObject;
 class TTree;
 class ABasketManager;
 class ADrawExplorerWidget;
-class ABasketListWidget;
+class ABasketTreeWidget; //   class ABasketListWidget;
 class TLegend;
 class TGaxis;
 class AScriptInterface;
@@ -85,8 +85,13 @@ private slots:
     void reshape();
     // basket-related
     void onBasketCustomContextMenuRequested(const QPoint & pos);
-    void onBasketItemDoubleClicked(QListWidgetItem * item);
-    void onBasketReorderRequested(const std::vector<int> & indexes, int toRow);
+
+    //void onBasketItemDoubleClicked(QListWidgetItem * item);
+    void onBasketItemDoubleClicked(QTreeWidgetItem * item, int column);
+
+    //void onBasketReorderRequested(const std::vector<int> & indexes, int toRow);
+    void onBasketMoveRequested(const std::vector<int> & items, const QStringList & groups, const QString & targetGroup, int toIndex);
+
     void onBasketDeleteShortcutActivated();
     // script related
     void onScriptDrawRequest(TObject * obj, QString options, bool fFocus);      // these two work together (QueuedConnection to enable calls from another thread)
@@ -230,7 +235,8 @@ private:
 
     ABasketManager         * Basket       = nullptr;
     ADrawExplorerWidget    * Explorer     = nullptr;
-    ABasketListWidget      * lwBasket     = nullptr;
+    //ABasketListWidget      * lwBasket     = nullptr;
+    ABasketTreeWidget      * lwBasket     = nullptr;
     AGraphRasterWindow     * RasterWindow = nullptr;
     QGraphicsView          * gvOverlay    = nullptr;
     AToolboxScene          * ToolBoxScene = nullptr;
@@ -319,6 +325,8 @@ private:
     bool isMultidrawModeOn();
     void onMultiIdentPaveChanged();
     void onMultiIdentPaveTextChanged(QString text);
+
+    void onBasketAddGroup(const QString & parentPath); // Groups!
 
 signals:
     void requestLocalDrawObject(TObject *obj, QString options, bool fFocus);

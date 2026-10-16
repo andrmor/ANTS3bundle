@@ -12,7 +12,8 @@
 #include "atoolboxscene.h"
 #include "abasketmanager.h"
 #include "adrawexplorerwidget.h"
-#include "abasketlistwidget.h"
+//#include "abasketlistwidget.h"
+#include "abaskettreewidget.h"
 #include "adrawtemplate.h"
 #include "ascripthub.h"
 #include "agraphwin_si.h"
@@ -102,12 +103,14 @@ AGraphWindow::AGraphWindow(QWidget * parent) :
     ui->pbBackToLast->setVisible(false);
     connect(Explorer, &ADrawExplorerWidget::requestShowLegendDialog, this, &AGraphWindow::showAddLegendDialog);
 
-    // Basket list widget
-    lwBasket = new ABasketListWidget(this);
+    // Basket widget
+    //lwBasket = new ABasketListWidget(this);
+    lwBasket = new ABasketTreeWidget(this);
     ui->layBasket->addWidget(lwBasket);
-    connect(lwBasket, &ABasketListWidget::customContextMenuRequested, this, &AGraphWindow::onBasketCustomContextMenuRequested);
-    connect(lwBasket, &ABasketListWidget::itemDoubleClicked, this, &AGraphWindow::onBasketItemDoubleClicked);
-    connect(lwBasket, &ABasketListWidget::requestReorder, this, &AGraphWindow::onBasketReorderRequested);
+    connect(lwBasket, &ABasketTreeWidget::customContextMenuRequested, this, &AGraphWindow::onBasketCustomContextMenuRequested);
+    connect(lwBasket, &ABasketTreeWidget::itemDoubleClicked,          this, &AGraphWindow::onBasketItemDoubleClicked);
+    //connect(lwBasket, &ABasketListWidget::requestReorder, this, &AGraphWindow::onBasketReorderRequested);
+    connect(lwBasket, &ABasketTreeWidget::requestMove,                this, &AGraphWindow::onBasketMoveRequested);
 
     connect(&AScriptHub::getInstance(), &AScriptHub::requestDraw,           this, &AGraphWindow::onScriptDrawRequest,           Qt::DirectConnection); // inside it is queued
     connect(&AScriptHub::getInstance(), &AScriptHub::requestDrawCollection, this, &AGraphWindow::onScriptDrawCollectionRequest, Qt::DirectConnection); // inside it is queued
@@ -1956,6 +1959,7 @@ void AGraphWindow::configureLegendBorder(int color, int style, int size)
 
 void AGraphWindow::updateBasketGUI()
 {
+    /*
     lwBasket->clear();
     lwBasket->addItems(Basket->getItemNames());
 
@@ -1987,12 +1991,53 @@ void AGraphWindow::updateBasketGUI()
     ui->pbUpdateInBasket->setEnabled(ActiveBasketItem >= 0);
 
     if (ActiveBasketItem < 0) highlightUpdateBasketButton(false);
+    */
+
+    lwBasket->fill(*Basket);
+
+    if (ActiveBasketItem >= Basket->size()) ActiveBasketItem = -1;
+
+    for (int i = 0; i < Basket->size(); i++)
+    {
+        QTreeWidgetItem * item = lwBasket->itemForBasketIndex(i);
+        if (!item) continue;
+        if (i == ActiveBasketItem)
+        {
+            item->setForeground(0, QBrush(Qt::cyan));
+            item->setBackground(0, QBrush(Qt::lightGray));
+        }
+        else
+        {
+            item->setForeground(0, QBrush(Qt::black));
+            item->setBackground(0, QBrush(Qt::white));
+        }
+
+        if (Basket->isMultidraw(i))
+        {
+            QFont font = item->font(0);
+            font.setBold(true);
+            font.setItalic(true);
+            font.setWeight(QFont::Medium);
+            item->setFont(0, font);
+        }
+    }
+    ui->pbUpdateInBasket->setEnabled(ActiveBasketItem >= 0);
+
+    if (ActiveBasketItem < 0) highlightUpdateBasketButton(false);
 }
 
+/*
 void AGraphWindow::onBasketItemDoubleClicked(QListWidgetItem *)
 {
     //qDebug() << "Row double clicked:"<<ui->lwBasket->currentRow();
     switchToBasket(lwBasket->currentRow());
+}
+*/
+
+void AGraphWindow::onBasketItemDoubleClicked(QTreeWidgetItem * item, int)
+{
+    if (ABasketTreeWidget::isGroup(item)) return;       // default behavior: expand/collapse
+    switchToBasket(ABasketTreeWidget::basketIndex(item));
 }
 
 void AGraphWindow::onBasketDeleteShortcutActivated()
@@ -2074,14 +2119,25 @@ void AGraphWindow::onBasketCustomContextMenuRequested(const QPoint &pos)
 
     QMenu BasketMenu;
 
+    /*
     int row = -1;
-    QListWidgetItem* temp = lwBasket->itemAt(pos);
-
+    QTreeWidgetItem * temp = lwBasket->itemAt(pos);
     QAction * switchToThis = nullptr;
     QAction * onTop = nullptr;
     QAction * del = nullptr;
     QAction * rename = nullptr;
+    */
 
+    QTreeWidgetItem * clicked = lwBasket->itemAt(pos);
+    const bool bGroup = ABasketTreeWidget::isGroup(clicked);
+    const int  row    = (clicked && !bGroup) ? ABasketTreeWidget::basketIndex(clicked) : -1;
+    const QString clickedGroup = bGroup ? ABasketTreeWidget::groupPath(clicked) : QString();
+    const QString groupForNew  = lwBasket->groupAt(pos);   // clicked group / group of clicked item / root
+
+    QAction * switchToThis = nullptr, * onTop = nullptr, * del = nullptr, * rename = nullptr;
+    QAction * renameGroup = nullptr, * delGroupKeep = nullptr, * delGroupAll = nullptr;
+
+    /*
     if (temp)
     {
         //menu triggered at a valid item
@@ -2097,6 +2153,29 @@ void AGraphWindow::onBasketCustomContextMenuRequested(const QPoint &pos)
         del->setShortcut(Qt::Key_Delete);
         BasketMenu.addSeparator();
     }
+    */
+    if (row >= 0)
+    {
+        BasketMenu.addSeparator();
+        onTop        = BasketMenu.addAction("Show on top of the main draw");
+        switchToThis = BasketMenu.addAction("Switch to this");
+        BasketMenu.addSeparator();
+        rename = BasketMenu.addAction("Rename");
+        BasketMenu.addSeparator();
+        del = BasketMenu.addAction("Delete");
+        del->setShortcut(Qt::Key_Delete);
+        BasketMenu.addSeparator();
+    }
+    else if (bGroup)
+    {
+        renameGroup  = BasketMenu.addAction("Rename group");
+        delGroupKeep = BasketMenu.addAction("Delete group (keep its items)");
+        delGroupAll  = BasketMenu.addAction("Delete group and all its items");
+        BasketMenu.addSeparator();
+    }
+    QAction * addGroup = BasketMenu.addAction("Add new group");
+
+
     BasketMenu.addSeparator();
     QAction* append = BasketMenu.addAction("Append basket file");
     BasketMenu.addSeparator();
@@ -2199,12 +2278,58 @@ void AGraphWindow::onBasketCustomContextMenuRequested(const QPoint &pos)
     }
     else if (selectedItem == onTop)
         basket_DrawOnTop(row);
+    else if (selectedItem == addGroup)  // GROUPS!
+        onBasketAddGroup(groupForNew);
+    else if (selectedItem == renameGroup)
+    {
+        bool ok;
+        const QString text = QInputDialog::getText(this, "Rename group", "Enter new name:", QLineEdit::Normal,
+                                                   ABasketManager::leafName(clickedGroup), &ok).simplified();
+        if (!ok) return;
+        const QString err = Basket->renameGroup(clickedGroup, text);
+        if (!err.isEmpty()) guitools::message(err, this);
+        updateBasketGUI();
+    }
+    else if (selectedItem == delGroupKeep)
+    {
+        Basket->removeGroup(clickedGroup);
+        updateBasketGUI();
+    }
+    else if (selectedItem == delGroupAll)
+    {
+        const int n = (int)Basket->getItemsInGroup(clickedGroup, true).size();
+        if (!guitools::confirm(QString("Delete group '%1' together with %2 item(s)?").arg(clickedGroup).arg(n), this)) return;
+        const QString err = Basket->removeGroupAndContents(clickedGroup);
+        if (!err.isEmpty()) { guitools::message(err, this); return; }
+        ActiveBasketItem = -1;
+        clearCopyOfActiveBasketId();
+        updateBasketGUI();
+    }
 }
 
+/*
 void AGraphWindow::onBasketReorderRequested(const std::vector<int> & indexes, int toRow)
 {
     Basket->reorder(indexes, toRow);
     ActiveBasketItem = -1;
+    clearCopyOfActiveBasketId();
+    updateBasketGUI();
+}
+*/
+
+void AGraphWindow::onBasketMoveRequested(const std::vector<int> & items, const QStringList & groups, const QString & targetGroup, int toIndex)
+{
+    for (const QString & g : groups)
+    {
+        const QString err = Basket->moveGroup(g, targetGroup);
+        if (!err.isEmpty()) { guitools::message(err, this); break; }
+    }
+    if (!items.empty())
+    {
+        const QString err = Basket->moveItems(items, targetGroup, toIndex);
+        if (!err.isEmpty()) guitools::message(err, this);
+    }
+    ActiveBasketItem = -1;                // indexes may have changed (same as the old reorder handler)
     clearCopyOfActiveBasketId();
     updateBasketGUI();
 }
@@ -2231,20 +2356,27 @@ void AGraphWindow::contextMenuForBasketMultipleSelection(const QPoint & pos)
 
 void AGraphWindow::removeAllSelectedBasketItems()
 {
-    const QList<QListWidgetItem*> selection = lwBasket->selectedItems();
-    const int size = selection.size();
+    //const QList<QListWidgetItem*> selection = lwBasket->selectedItems();
+    //const int size = selection.size();
+    const std::vector<int> indexes = lwBasket->selectedBasketIndexes();
+    const int size = (int)indexes.size();
     if (size == 0) return;
 
+    /*
     bool bConfirm = true;
     if (size > 1)
         bConfirm = guitools::confirm(QString("Remove selected %1 item%2 from the basket?").arg(size).arg(size == 1 ? "" : "s"), this);
     if (!bConfirm) return;
+    */
+    if (size > 1 && !guitools::confirm(QString("Remove selected %1 items from the basket?").arg(size), this)) return;
 
+    /*
     std::vector<int> indexes;
     for (const QListWidgetItem * item : selection)
         indexes.push_back(lwBasket->row(item));
+    */
 
-    QString err = Basket->remove(indexes);
+    const QString err = Basket->remove(indexes);
     if (!err.isEmpty())
     {
         guitools::message(err, this);
@@ -2265,6 +2397,7 @@ void AGraphWindow::onExternalBasketChange()
 
 void AGraphWindow::requestMultidrawNew()
 {
+    /*
     const QList<QListWidgetItem*> selection = lwBasket->selectedItems();
 
     for (const QListWidgetItem * const item : selection)
@@ -2276,15 +2409,27 @@ void AGraphWindow::requestMultidrawNew()
             return;
         }
     }
+    */
+    const std::vector<int> selection = lwBasket->selectedBasketIndexes();
+    for (int index : selection)
+        if (Basket->isMultidraw(index))
+        {
+            guitools::message("Cannot form a multipad view:\nOne of the selected basket items is already a multipad view", this);
+            return;
+        }
 
     ADrawObject obj;
     obj.Multidraw = true;
 
+    /*
     for (const QListWidgetItem * const item : selection)
     {
         int index = lwBasket->row(item);
         obj.MultidrawSettings.BasketItems.push_back(index);
     }
+    */
+    obj.MultidrawSettings.BasketItems = selection;
+
     obj.MultidrawSettings.init();
 
     std::vector<ADrawObject> tmp = {obj};
@@ -2295,12 +2440,14 @@ void AGraphWindow::requestMultidrawNew()
 
 void AGraphWindow::requestAddToMultidraw()
 {
-    const QList<QListWidgetItem*> selection = lwBasket->selectedItems();
+    //const QList<QListWidgetItem*> selection = lwBasket->selectedItems();
+    const std::vector<int> selection = lwBasket->selectedBasketIndexes();
 
     int multiIndex = -1;
-    for (const QListWidgetItem * const item : selection)
+    //for (const QListWidgetItem * const item : selection)
+    for (int index : selection)
     {
-        int index = lwBasket->row(item);
+        //int index = lwBasket->row(item);
         if (Basket->isMultidraw(index))
         {
             if (multiIndex == -1) multiIndex = index;
@@ -2320,9 +2467,10 @@ void AGraphWindow::requestAddToMultidraw()
 
     std::vector<ADrawObject> drawObjectAr = Basket->getCopy(multiIndex);
     if (drawObjectAr.empty()) return; // paranoid
-    for (const QListWidgetItem * const item : selection)
+    //for (const QListWidgetItem * const item : selection)
+    for (int index : selection)
     {
-        int index = lwBasket->row(item);
+        //int index = lwBasket->row(item);
         if (index == multiIndex) continue;
         drawObjectAr.front().MultidrawSettings.BasketItems.push_back(index);
     }
@@ -2332,11 +2480,13 @@ void AGraphWindow::requestAddToMultidraw()
 
 void AGraphWindow::requestMergeHistograms()
 {
+    /*
     const QList<QListWidgetItem*> selection = lwBasket->selectedItems();
-
     std::vector<int> indexes;
     for (const QListWidgetItem * const item : selection)
         indexes.push_back(lwBasket->row(item));
+    */
+    const std::vector<int> indexes = lwBasket->selectedBasketIndexes();
 
     if (indexes.size() < 2) return;
 
@@ -3363,6 +3513,18 @@ void AGraphWindow::onMultiIdentPaveTextChanged(QString text)
     AMultidrawRecord & rec = DrawObjects.front().MultidrawSettings;
     rec.Identifiers = text;
     onMultiIdentPaveChanged();
+}
+
+void AGraphWindow::onBasketAddGroup(const QString & parentPath)
+{
+    bool ok;
+    const QString name = QInputDialog::getText(this, "New group", "Group name:", QLineEdit::Normal, "Group", &ok).simplified();
+    if (!ok) return;
+
+    QString err = ABasketManager::checkGroupName(name);
+    if (err.isEmpty()) err = Basket->addGroup(ABasketManager::joinPath(parentPath, name));
+    if (!err.isEmpty()) { guitools::message(err, this); return; }
+    updateBasketGUI();
 }
 
 void AGraphWindow::onMultiIdentPaveChanged()
