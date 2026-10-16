@@ -7,6 +7,7 @@
 #include <QDebug>
 
 #include <algorithm>
+#include <functional>
 
 #include "TObject.h"
 #include "TNamed.h"
@@ -844,6 +845,8 @@ QString ABasketManager::appendBasket(const QString & fileName)
         for (const QJsonValue & v : gdoc.array()) ensureGroup(normalizePath(v.toString()));
     }
 
+    arrangeByTree();    // appended items may belong to existing groups
+
     f.Close();
     return "";
 }
@@ -1138,6 +1141,8 @@ void ABasketManager::replaceGroupPrefix(const QString & oldPath, const QString &
     auto fix = [&](QString & g) { if (isInsideGroup(g, oldPath)) g = newPath + g.mid(oldPath.size()); };
     for (QString & g : Groups) fix(g);
     for (ABasketItem & it : Basket) fix(it.Group);
+
+    normalizeGroups();
 }
 
 QString ABasketManager::renameGroup(const QString & path, const QString & newName)
@@ -1160,7 +1165,12 @@ QString ABasketManager::moveGroup(const QString & path, const QString & newParen
     const QString newPath = joinPath(newParentPath, leafName(path));
     if (newPath == path) return "";
     if (groupExists(newPath)) return "Target already contains a group with this name";
+
+    //replaceGroupPrefix(path, newPath);
+    //return "";
+
     replaceGroupPrefix(path, newPath);
+    arrangeByTree();      // flat indexes change
     return "";
 }
 
@@ -1182,6 +1192,9 @@ QString ABasketManager::removeGroup(const QString & path)
         if (!g.isEmpty() && std::find(cleaned.begin(), cleaned.end(), g) == cleaned.end())
             cleaned.push_back(g);
     Groups = cleaned;
+
+    arrangeByTree();
+
     return "";
 }
 
@@ -1201,6 +1214,7 @@ QString ABasketManager::removeGroupAndContents(const QString & path)
     return "";
 }
 
+/*
 QString ABasketManager::moveItems(const std::vector<int> & indexes, const QString & targetGroup, int toIndex)
 {
     if (!groupExists(targetGroup)) return "Target group does not exist";
@@ -1220,3 +1234,91 @@ QString ABasketManager::moveItems(const std::vector<int> & indexes, const QStrin
     reorder(indexes, to);    // also fixes multidraw indexes
     return "";
 }
+*/
+
+QString ABasketManager::moveItems(const std::vector<int> & indexes, const QString & targetGroup, int toIndex)
+{
+    if (!groupExists(targetGroup)) return "Target group does not exist";
+    if (indexes.empty()) return "";
+    for (int i : indexes)
+        if (i < 0 || i >= (int)Basket.size()) return "Invalid basket index";
+
+    int to = toIndex;
+    if (to < 0 || to > (int)Basket.size())
+    {
+        // "end of the group": after the last item that is ALREADY in the target group.
+        // Must be computed before reassigning groups and must ignore the items being moved.
+        to = -1;
+        for (int i = 0; i < (int)Basket.size(); i++)
+        {
+            if (std::binary_search(indexes.begin(), indexes.end(), i)) continue;   // indexes are ascending
+            if (Basket[i].Group == targetGroup) to = i + 1;
+        }
+        if (to < 0) to = indexes.front();    // empty group: no neighbors, keep the position
+    }
+
+    for (int i : indexes) Basket[i].Group = targetGroup;
+
+    reorder(indexes, to);     // puts the items right next to the requested neighbor, fixes multidraw indexes
+    arrangeByTree();          // groups the flat list: every group becomes a contiguous block
+    return "";
+}
+
+void ABasketManager::normalizeGroups()
+{
+    std::vector<QString> res;
+    for (const QString & g : Groups)
+    {
+        QString cur;
+        for (const QString & seg : g.split('/', Qt::SkipEmptyParts))
+        {
+            cur = joinPath(cur, seg);
+            if (std::find(res.begin(), res.end(), cur) == res.end()) res.push_back(cur);
+        }
+    }
+    Groups = res;
+}
+
+void ABasketManager::applyOrder(const std::vector<int> & order)
+{
+    std::vector<ABasketItem> sorted;
+    sorted.reserve(order.size());
+    std::vector<int> newIndexOf(order.size());
+    for (int n = 0; n < (int)order.size(); n++)
+    {
+        sorted.push_back(Basket[order[n]]);   // shallow copy; ABasketItem's destructor does not delete objects
+        newIndexOf[order[n]] = n;
+    }
+    Basket.swap(sorted);
+
+    for (ABasketItem & item : Basket)
+    {
+        if (item.DrawObjects.empty() || !item.DrawObjects.front().Multidraw) continue;
+        for (int & i : item.DrawObjects.front().MultidrawSettings.BasketItems)
+            i = newIndexOf[i];
+    }
+}
+
+void ABasketManager::arrangeByTree()
+{
+    std::vector<int>  order;
+    std::vector<bool> used(Basket.size(), false);
+
+    std::function<void(const QString &)> visit = [&](const QString & group)
+    {
+        for (const QString & g : Groups)                 // subgroups first, in creation order (as in the widget)
+            if (parentPath(g) == group) visit(g);
+        for (int i = 0; i < (int)Basket.size(); i++)     // then own items, in current relative order
+            if (!used[i] && Basket[i].Group == group) { order.push_back(i); used[i] = true; }
+    };
+    visit("");
+
+    for (int i = 0; i < (int)Basket.size(); i++)         // safety net: items with an unregistered group
+        if (!used[i]) order.push_back(i);
+
+    bool changed = false;
+    for (int n = 0; n < (int)order.size(); n++) if (order[n] != n) { changed = true; break; }
+    if (changed) applyOrder(order);
+}
+
+

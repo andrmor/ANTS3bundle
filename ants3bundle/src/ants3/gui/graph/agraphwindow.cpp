@@ -2222,6 +2222,10 @@ void AGraphWindow::onBasketCustomContextMenuRequested(const QPoint &pos)
         {
             QString err = Basket->appendBasket(fileName);
             if (!err.isEmpty()) guitools::message(err, this);
+
+            ActiveBasketItem = -1;
+            clearCopyOfActiveBasketId();
+
             updateBasketGUI();
             if (bDrawEmpty) switchToBasket(0);
         }
@@ -2293,6 +2297,10 @@ void AGraphWindow::onBasketCustomContextMenuRequested(const QPoint &pos)
     else if (selectedItem == delGroupKeep)
     {
         Basket->removeGroup(clickedGroup);
+
+        ActiveBasketItem = -1;
+        clearCopyOfActiveBasketId();
+
         updateBasketGUI();
     }
     else if (selectedItem == delGroupAll)

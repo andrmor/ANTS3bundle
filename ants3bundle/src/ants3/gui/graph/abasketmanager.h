@@ -56,6 +56,7 @@ public:
     bool                groupExists(const QString & path) const;                    // "" (root) always exists
     std::vector<int>    getItemsInGroup(const QString & path, bool recursive) const;
 
+    // GROUPS
     void                ensureGroup(const QString & path);                          // creates missing ancestors too
     QString             addGroup(const QString & path);
     QString             renameGroup(const QString & path, const QString & newName);
@@ -73,7 +74,11 @@ private:
     int                 findPointerInDrawObjects(const std::vector<ADrawObject> & drawObjects, TObject * obj) const;
     std::vector<size_t> getAllMultidrawsUsingIndex(size_t index);
 
+    // GROUPS
     void                replaceGroupPrefix(const QString & oldPath, const QString & newPath);
+    void                normalizeGroups();                              // ancestors always precede descendants in Groups
+    void                arrangeByTree();                                // makes flat order == tree order (remaps multidraw indexes)
+    void                applyOrder(const std::vector<int> & order);     // order[newPos] = oldIndex
 
 public:
     static TObject * makeCloneOfTObject(TObject * tobj);
