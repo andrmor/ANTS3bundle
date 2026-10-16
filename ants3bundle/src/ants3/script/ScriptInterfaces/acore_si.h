@@ -45,6 +45,7 @@ public slots:
     void         print(QVariant message);
     void         print(QVariant m1, QVariant m2, QVariant m3=QVariant(), QVariant m4=QVariant(), QVariant m5=QVariant(), QVariant m6=QVariant(), QVariant m7=QVariant(), QVariant m8=QVariant(), QVariant m9=QVariant(), QVariant m10=QVariant());
     void         printHtml(QString text);
+    void         flushPrintPipeline();
     void         clearOutput();
 
     // Time

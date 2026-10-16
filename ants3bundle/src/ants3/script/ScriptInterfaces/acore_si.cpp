@@ -36,9 +36,11 @@ ACore_SI::ACore_SI() : AScriptInterface()
 
     Help["abort"] = "Abort script execution and show given text in the output";
 
-    Help["print"] = "Print up to 10 arguments in the output area. Arrays and objects are convetred to strings, a space is added between the arguments";
+    Help["print"] = "Print up to 10 arguments in the output area. Arrays and objects are convetred to strings, a space is added between the arguments\n"
+                    "In case printing is blocked by a computationally-heavy procedure, one can force the print pipeline to show the buffered messages by using 'core.flushPrintPipeline()' command";
     Help["printHtml"] = "Print the html-formatted text in the output area. Can be used, for example, to set text color or use bold font";
     Help["clearOutput"] = "Clear the output area";
+    Help["flushPrintPipeline"] = "Force printing of the buffered messages. Use when the printed message is not appearing due to the folloing computationally-heavy procedure";
 
     Help["sleep"] = "Pause the script thread for the given number of milliseconds";
     Help["getTimeMarkMilliseconds"] = "Current time in milliseconds since the start, in UTC, of the year 1970";
@@ -471,6 +473,14 @@ void ACore_SI::printHtml(QString text)
 
     //MessengerHtml->output(text);
     Messenger->output(text, true);
+}
+
+#include <QApplication>
+void ACore_SI::flushPrintPipeline()
+{
+    Messenger->flush();
+    AScriptHub::getInstance().processEvents(Lang);
+    QApplication::processEvents();
 }
 
 void ACore_SI::clearOutput()
