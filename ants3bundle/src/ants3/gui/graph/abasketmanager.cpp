@@ -926,6 +926,7 @@ void ABasketManager::appendRootHistGraphs(const QString & fileName)
     f->Close();
 }
 
+/*
 void ABasketManager::reorder(const std::vector<int> & indexes, int to)
 {
     std::vector<ABasketItem> itemsToMove;
@@ -991,6 +992,57 @@ void ABasketManager::reorder(const std::vector<int> & indexes, int to)
         for (size_t i = 0; i < rec.BasketItems.size(); i++)
             rec.BasketItems[i] = newIndexMap[rec.BasketItems[i]];
     }
+}
+*/
+
+void ABasketManager::reorder(const std::vector<int> & indexes, int to)
+{
+    const int n = static_cast<int>(Basket.size());
+    if (indexes.empty() || n == 0) return;
+
+    // Validate the insertion position.
+    if (to < 0 || to > n) return;
+
+    // Sort and validate the selected indices.
+    // Sorting also guarantees that moved items retain their original order.
+    std::vector<int> moved = indexes;
+    std::sort(moved.begin(), moved.end());
+
+    if (moved.front() < 0 || moved.back() >= n) return;
+
+    if (std::adjacent_find(moved.begin(), moved.end()) != moved.end())
+        return; // Duplicate indices are not allowed.
+
+    // Mark the items to be moved.
+    std::vector<bool> selected(n, false);
+    for (int index : moved)
+        selected[index] = true;
+
+    // Construct the order of all items that remain in the basket.
+    // order[newPosition] = oldIndex.
+    std::vector<int> order;
+    order.reserve(n);
+
+    for (int i = 0; i < n; ++i)
+        if (!selected[i])
+            order.push_back(i);
+
+    // The original insertion position must be adjusted because
+    // selected items before 'to' will have been removed.
+    int adjustedTo = to;
+    for (int index : moved)
+    {
+        if (index < to)
+            --adjustedTo;
+        else
+            break;
+    }
+
+    // Insert the moved items at the adjusted position.
+    order.insert(order.begin() + adjustedTo, moved.begin(), moved.end());
+
+    // Reorder the basket and update all multidraw references.
+    applyOrder(order);
 }
 
 #include "aroothistappenders.h"
@@ -1114,6 +1166,11 @@ std::vector<int> ABasketManager::getItemsInGroup(const QString & path, bool recu
         if (recursive ? isInsideGroup(Basket[i].Group, path) : Basket[i].Group == path)
             res.push_back(i);
     return res;
+}
+
+bool ABasketManager::countGroups() const
+{
+    return Groups.size();
 }
 
 void ABasketManager::ensureGroup(const QString & path)

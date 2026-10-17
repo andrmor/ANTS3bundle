@@ -57,6 +57,7 @@ public:
     std::vector<int>    getItemsInGroup(const QString & path, bool recursive) const;
 
     // GROUPS
+    bool                countGroups() const;
     void                ensureGroup(const QString & path);                          // creates missing ancestors too
     QString             addGroup(const QString & path);
     QString             renameGroup(const QString & path, const QString & newName);

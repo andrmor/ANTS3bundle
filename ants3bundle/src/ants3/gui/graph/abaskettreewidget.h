@@ -19,9 +19,9 @@ public:
     void fill(const ABasketManager & basket);                 // rebuilds the tree
     QTreeWidgetItem * itemForBasketIndex(int index) const;
 
-    static bool    isGroup(const QTreeWidgetItem * item);
-    static int     basketIndex(const QTreeWidgetItem * item); // -1 for groups / nullptr
-    static QString groupPath(const QTreeWidgetItem * item);   // groups only
+    bool    isGroup(const QTreeWidgetItem * item) const;
+    int     basketIndex(const QTreeWidgetItem * item) const; // -1 for groups / nullptr
+    QString groupPath(const QTreeWidgetItem * item) const;   // groups only
 
     std::vector<int> selectedBasketIndexes() const;           // items only, ascending
     QStringList      selectedGroupPaths() const;              // topmost selected groups only
@@ -39,6 +39,8 @@ private:
 
     QSet<QString> CollapsedGroups;
     std::vector<QTreeWidgetItem*> IndexToItem;
+
+    int DefaultIndent = 10;
 };
 
 #endif // ABASKETTREEWIDGET_H

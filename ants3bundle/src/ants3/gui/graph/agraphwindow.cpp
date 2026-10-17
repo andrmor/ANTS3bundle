@@ -2036,8 +2036,8 @@ void AGraphWindow::onBasketItemDoubleClicked(QListWidgetItem *)
 
 void AGraphWindow::onBasketItemDoubleClicked(QTreeWidgetItem * item, int)
 {
-    if (ABasketTreeWidget::isGroup(item)) return;       // default behavior: expand/collapse
-    switchToBasket(ABasketTreeWidget::basketIndex(item));
+    if (lwBasket->isGroup(item)) return;       // default behavior: expand/collapse
+    switchToBasket(lwBasket->basketIndex(item));
 }
 
 void AGraphWindow::onBasketDeleteShortcutActivated()
@@ -2119,45 +2119,25 @@ void AGraphWindow::onBasketCustomContextMenuRequested(const QPoint &pos)
 
     QMenu BasketMenu;
 
-    /*
-    int row = -1;
-    QTreeWidgetItem * temp = lwBasket->itemAt(pos);
     QAction * switchToThis = nullptr;
     QAction * onTop = nullptr;
     QAction * del = nullptr;
     QAction * rename = nullptr;
-    */
+    QAction * renameGroup = nullptr;
+    QAction * delGroupKeep = nullptr;
+    QAction * delGroupAll = nullptr;
 
     QTreeWidgetItem * clicked = lwBasket->itemAt(pos);
-    const bool bGroup = ABasketTreeWidget::isGroup(clicked);
-    const int  row    = (clicked && !bGroup) ? ABasketTreeWidget::basketIndex(clicked) : -1;
-    const QString clickedGroup = bGroup ? ABasketTreeWidget::groupPath(clicked) : QString();
+    const bool bGroup = lwBasket->isGroup(clicked);
+    const int  row    = (clicked && !bGroup) ? lwBasket->basketIndex(clicked) : -1;
+    const QString clickedGroup = bGroup ? lwBasket->groupPath(clicked) : QString();
     const QString groupForNew  = lwBasket->groupAt(pos);   // clicked group / group of clicked item / root
 
-    QAction * switchToThis = nullptr, * onTop = nullptr, * del = nullptr, * rename = nullptr;
-    QAction * renameGroup = nullptr, * delGroupKeep = nullptr, * delGroupAll = nullptr;
-
-    /*
-    if (temp)
-    {
-        //menu triggered at a valid item
-        row = lwBasket->row(temp);
-
-        BasketMenu.addSeparator();
-        onTop = BasketMenu.addAction("Show on top of the main draw");
-        switchToThis = BasketMenu.addAction("Switch to this");
-        BasketMenu.addSeparator();
-        rename = BasketMenu.addAction("Rename");
-        BasketMenu.addSeparator();
-        del = BasketMenu.addAction("Delete");
-        del->setShortcut(Qt::Key_Delete);
-        BasketMenu.addSeparator();
-    }
-    */
     if (row >= 0)
     {
         BasketMenu.addSeparator();
-        onTop        = BasketMenu.addAction("Show on top of the main draw");
+        if (!Basket->isMultidraw(row))
+            onTop = BasketMenu.addAction("Show on top of the main draw");
         switchToThis = BasketMenu.addAction("Switch to this");
         BasketMenu.addSeparator();
         rename = BasketMenu.addAction("Rename");
@@ -2175,21 +2155,20 @@ void AGraphWindow::onBasketCustomContextMenuRequested(const QPoint &pos)
     }
     QAction * addGroup = BasketMenu.addAction("Add new group");
 
-
     BasketMenu.addSeparator();
-    QAction* append = BasketMenu.addAction("Append basket file");
+    QAction * append = BasketMenu.addAction("Append basket file");
     BasketMenu.addSeparator();
-    QAction* appendTxt = BasketMenu.addAction("Append graph from text file");
-    QAction* appendTxtEr = BasketMenu.addAction("Append graph with error bars from text file");
-    QAction* appendRootHistsAndGraphs = BasketMenu.addAction("Append graphs / histograms from a ROOT file");
+    QAction * appendTxt = BasketMenu.addAction("Append graph from text file");
+    QAction * appendTxtEr = BasketMenu.addAction("Append graph with error bars from text file");
+    QAction * appendRootHistsAndGraphs = BasketMenu.addAction("Append graphs / histograms from a ROOT file");
     BasketMenu.addSeparator();
-    QAction* save = BasketMenu.addAction("Save basket to file");
+    QAction * save = BasketMenu.addAction("Save basket to file");
     BasketMenu.addSeparator();
-    QAction* clear = BasketMenu.addAction("Clear basket");
+    QAction * clear = BasketMenu.addAction("Clear basket");
 
     //------
 
-    QAction* selectedItem = BasketMenu.exec(lwBasket->mapToGlobal(pos));
+    QAction * selectedItem = BasketMenu.exec(lwBasket->mapToGlobal(pos));
     if (!selectedItem) return; //nothing was selected
 
     if (selectedItem == switchToThis)

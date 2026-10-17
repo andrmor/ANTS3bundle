@@ -21,19 +21,21 @@ ABasketTreeWidget::ABasketTreeWidget(QWidget * parent) :
 
     connect(this, &QTreeWidget::itemCollapsed, this, [this](QTreeWidgetItem * it){ if (isGroup(it)) CollapsedGroups.insert(groupPath(it)); });
     connect(this, &QTreeWidget::itemExpanded,  this, [this](QTreeWidgetItem * it){ if (isGroup(it)) CollapsedGroups.remove(groupPath(it)); });
+
+    DefaultIndent = indentation();
 }
 
-bool ABasketTreeWidget::isGroup(const QTreeWidgetItem * item)
+bool ABasketTreeWidget::isGroup(const QTreeWidgetItem * item) const
 {
     return item && item->data(0, IndexRole).toInt() < 0;
 }
 
-int ABasketTreeWidget::basketIndex(const QTreeWidgetItem * item)
+int ABasketTreeWidget::basketIndex(const QTreeWidgetItem * item) const
 {
     return item ? item->data(0, IndexRole).toInt() : -1;
 }
 
-QString ABasketTreeWidget::groupPath(const QTreeWidgetItem * item)
+QString ABasketTreeWidget::groupPath(const QTreeWidgetItem * item) const
 {
     return item ? item->data(0, GroupRole).toString() : QString();
 }
@@ -48,6 +50,8 @@ void ABasketTreeWidget::fill(const ABasketManager & basket)
 {
     clear();
     IndexToItem.assign(basket.size(), nullptr);
+
+    setIndentation( basket.countGroups() == 0 ? 0 : DefaultIndent );
 
     const Qt::ItemFlags flags = Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled;
     QHash<QString, QTreeWidgetItem*> groupItems;
@@ -70,7 +74,7 @@ void ABasketTreeWidget::fill(const ABasketManager & basket)
         return gi;
     };
 
-    // groups first -> they are listed above the items of the same level
+    // groups are listed above the items of the same level
     for (const QString & g : basket.getGroups()) groupItem(g);
     for (int i = 0; i < basket.size(); i++) groupItem(basket.getGroup(i));   // safety net
 
