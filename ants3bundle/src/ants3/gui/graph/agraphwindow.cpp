@@ -12,7 +12,8 @@
 #include "atoolboxscene.h"
 #include "abasketmanager.h"
 #include "adrawexplorerwidget.h"
-#include "abasketlistwidget.h"
+//#include "abasketlistwidget.h"
+#include "abaskettreewidget.h"
 #include "adrawtemplate.h"
 #include "ascripthub.h"
 #include "agraphwin_si.h"
@@ -103,11 +104,11 @@ AGraphWindow::AGraphWindow(QWidget * parent) :
     connect(Explorer, &ADrawExplorerWidget::requestShowLegendDialog, this, &AGraphWindow::showAddLegendDialog);
 
     // Basket list widget
-    lwBasket = new ABasketListWidget(this);
+    lwBasket = new ABasketTreeWidget(this);
     ui->layBasket->addWidget(lwBasket);
-    connect(lwBasket, &ABasketListWidget::customContextMenuRequested, this, &AGraphWindow::onBasketCustomContextMenuRequested);
-    connect(lwBasket, &ABasketListWidget::itemDoubleClicked, this, &AGraphWindow::onBasketItemDoubleClicked);
-    connect(lwBasket, &ABasketListWidget::requestReorder, this, &AGraphWindow::onBasketReorderRequested);
+    connect(lwBasket, &ABasketTreeWidget::customContextMenuRequested, this, &AGraphWindow::onBasketCustomContextMenuRequested);
+    connect(lwBasket, &ABasketTreeWidget::itemDoubleClicked,          this, &AGraphWindow::onBasketItemDoubleClicked);
+    connect(lwBasket, &ABasketTreeWidget::requestReorder,             this, &AGraphWindow::onBasketReorderRequested);
 
     connect(&AScriptHub::getInstance(), &AScriptHub::requestDraw,           this, &AGraphWindow::onScriptDrawRequest,           Qt::DirectConnection); // inside it is queued
     connect(&AScriptHub::getInstance(), &AScriptHub::requestDrawCollection, this, &AGraphWindow::onScriptDrawCollectionRequest, Qt::DirectConnection); // inside it is queued
@@ -1989,7 +1990,7 @@ void AGraphWindow::updateBasketGUI()
     if (ActiveBasketItem < 0) highlightUpdateBasketButton(false);
 }
 
-void AGraphWindow::onBasketItemDoubleClicked(QListWidgetItem *)
+void AGraphWindow::onBasketItemDoubleClicked(QTreeWidgetItem *)
 {
     //qDebug() << "Row double clicked:"<<ui->lwBasket->currentRow();
     switchToBasket(lwBasket->currentRow());

@@ -17,6 +17,9 @@ public:
     QString Name;
     QString Type;
 
+    QString Group;
+    bool    CollapsedGroup = false;
+
     void clearObjects();
 
     //runtime properties

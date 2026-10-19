@@ -233,6 +233,7 @@ SOURCES += \
     gui/geom/ageotreewin.cpp \
     gui/geom/aparticleanalyzerwidget.cpp \
     gui/geom/ashownumbersdialog.cpp \
+    gui/graph/abaskettreewidget.cpp \
     gui/graph/adrawmarginsrecord.cpp \
     gui/graph/agraphwindow.cpp \
     gui/graph/ahistoptstatdialog.cpp \
@@ -469,6 +470,7 @@ HEADERS += \
     gui/atreedatabaseselectordialog.h \
     gui/geom/ageomarkerpropsdialog.h \
     gui/geom/aparticleanalyzerwidget.h \
+    gui/graph/abaskettreewidget.h \
     gui/graph/adrawmarginsrecord.h \
     gui/graph/agraphwindow.h \
     gui/graph/ahistoptstatdialog.h \

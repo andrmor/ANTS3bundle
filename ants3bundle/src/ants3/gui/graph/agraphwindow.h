@@ -13,12 +13,12 @@
 class AGraphRasterWindow;
 class QGraphicsView;
 class AToolboxScene;
-class QListWidgetItem;
+class QTreeWidgetItem; //class QListWidgetItem;
 class TObject;
 class TTree;
 class ABasketManager;
 class ADrawExplorerWidget;
-class ABasketListWidget;
+class ABasketTreeWidget; //class ABasketListWidget;
 class TLegend;
 class TGaxis;
 class AScriptInterface;
@@ -85,7 +85,7 @@ private slots:
     void reshape();
     // basket-related
     void onBasketCustomContextMenuRequested(const QPoint & pos);
-    void onBasketItemDoubleClicked(QListWidgetItem * item);
+    void onBasketItemDoubleClicked(QTreeWidgetItem * item);
     void onBasketReorderRequested(const std::vector<int> & indexes, int toRow);
     void onBasketDeleteShortcutActivated();
     // script related
@@ -230,7 +230,7 @@ private:
 
     ABasketManager         * Basket       = nullptr;
     ADrawExplorerWidget    * Explorer     = nullptr;
-    ABasketListWidget      * lwBasket     = nullptr;
+    ABasketTreeWidget      * lwBasket     = nullptr;
     AGraphRasterWindow     * RasterWindow = nullptr;
     QGraphicsView          * gvOverlay    = nullptr;
     AToolboxScene          * ToolBoxScene = nullptr;
