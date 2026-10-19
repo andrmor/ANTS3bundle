@@ -84,7 +84,7 @@ private slots:
     void updateControls(); //updates visualisation of the current master graph parameters   !!!*** need refactor and improvement for hist objects
     void reshape();
     // basket-related
-    void onBasketCustomContextMenuRequested(const QPoint & pos);
+    void onBasketCustomContextMenuRequested(const QPoint & pos); // !!!*** todo
     void onBasketItemDoubleClicked(QTreeWidgetItem * item);
     void onBasketReorderRequested(const std::vector<int> & indexes, int toRow);
     void onBasketDeleteShortcutActivated();
@@ -275,12 +275,12 @@ private:
     void drawSingleObject(TObject * obj, QString options, bool update);
     void registerTObject(TObject * obj);
     void clearRegisteredTObjects();
-    void requestMultidrawNew();  // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    void requestAddToMultidraw();  // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    void requestMultidrawNew();  // !!!*** todo
+    void requestAddToMultidraw();  // !!!*** todo
     void doRedrawOnUpdateMargins();
     void updateGuiControlsForMainObject(const QString & className, const QString & options);
     void showProjection(QString type);
-    void requestMergeHistograms();
+    void requestMergeHistograms(); // !!!***
     void applyTemplate(bool bAll);
     void updateSecondaryAxis(TGaxis * gaxis, QString options);
     void showHintInStatus();
@@ -294,12 +294,12 @@ private:
     void makeCopyOfDrawObjects(); // old message was here: "gcc optimizer fix:"
     void clearCopyOfDrawObjects();
 
-    void updateBasketGUI();
+    void updateBasketGUI(); // !!!*** todo
     void switchToBasket(int index);
     void basket_DrawOnTop(int row);
     void highlightUpdateBasketButton(bool flag);
-    void contextMenuForBasketMultipleSelection(const QPoint & pos); // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    void removeAllSelectedBasketItems();
+    void contextMenuForBasketMultipleSelection(const QPoint & pos); // !!!*** todo
+    void removeAllSelectedBasketItems(); // !!!*** todo
     void clearBasketActiveId();
     void makeCopyOfActiveBasketId();
     void restoreBasketActiveId();

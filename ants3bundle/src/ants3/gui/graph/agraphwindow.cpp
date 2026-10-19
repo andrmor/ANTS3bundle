@@ -1957,11 +1957,12 @@ void AGraphWindow::configureLegendBorder(int color, int style, int size)
 
 void AGraphWindow::updateBasketGUI()
 {
-    lwBasket->clear();
-    lwBasket->addItems(Basket->getItemNames());
+    lwBasket->fill(Basket);
 
     if (ActiveBasketItem >= Basket->size()) ActiveBasketItem = -1;
 
+    // !!!*** todo
+    /*
     for (int i=0; i < lwBasket->count(); i++)
     {
         QListWidgetItem * item = lwBasket->item(i);
@@ -1985,6 +1986,8 @@ void AGraphWindow::updateBasketGUI()
             item->setFont(font);
         }
     }
+*/
+
     ui->pbUpdateInBasket->setEnabled(ActiveBasketItem >= 0);
 
     if (ActiveBasketItem < 0) highlightUpdateBasketButton(false);
@@ -1992,8 +1995,7 @@ void AGraphWindow::updateBasketGUI()
 
 void AGraphWindow::onBasketItemDoubleClicked(QTreeWidgetItem *)
 {
-    //qDebug() << "Row double clicked:"<<ui->lwBasket->currentRow();
-    switchToBasket(lwBasket->currentRow());
+    switchToBasket(lwBasket->basketIndex(lwBasket->currentIndex().row()));
 }
 
 void AGraphWindow::onBasketDeleteShortcutActivated()
@@ -2065,8 +2067,10 @@ void AGraphWindow::clearCopyOfActiveBasketId()
     PreviousActiveBasketItem = -1;
 }
 
-void AGraphWindow::onBasketCustomContextMenuRequested(const QPoint &pos)
+// !!!*** todo
+void AGraphWindow::onBasketCustomContextMenuRequested(const QPoint & pos)
 {
+    /*
     if (lwBasket->selectedItems().size() > 1)
     {
         contextMenuForBasketMultipleSelection(pos);
@@ -2075,18 +2079,22 @@ void AGraphWindow::onBasketCustomContextMenuRequested(const QPoint &pos)
 
     QMenu BasketMenu;
 
-    int row = -1;
-    QListWidgetItem* temp = lwBasket->itemAt(pos);
-
     QAction * switchToThis = nullptr;
     QAction * onTop = nullptr;
     QAction * del = nullptr;
     QAction * rename = nullptr;
+    QAction * renameGroup = nullptr;
+    QAction * delGroupKeep = nullptr;
+    QAction * delGroupAll = nullptr;
+    QAction * saveGroupA = nullptr;
 
-    if (temp)
+    int row = -1;
+    QListWidgetItem * clicked = lwBasket->itemAt(pos);
+
+    if (clicked)
     {
         //menu triggered at a valid item
-        row = lwBasket->row(temp);
+        row = lwBasket->row(clicked);
 
         BasketMenu.addSeparator();
         onTop = BasketMenu.addAction("Show on top of the main draw");
@@ -2200,6 +2208,7 @@ void AGraphWindow::onBasketCustomContextMenuRequested(const QPoint &pos)
     }
     else if (selectedItem == onTop)
         basket_DrawOnTop(row);
+*/
 }
 
 void AGraphWindow::onBasketReorderRequested(const std::vector<int> & indexes, int toRow)
@@ -2232,6 +2241,7 @@ void AGraphWindow::contextMenuForBasketMultipleSelection(const QPoint & pos)
 
 void AGraphWindow::removeAllSelectedBasketItems()
 {
+    /*
     const QList<QListWidgetItem*> selection = lwBasket->selectedItems();
     const int size = selection.size();
     if (size == 0) return;
@@ -2255,6 +2265,7 @@ void AGraphWindow::removeAllSelectedBasketItems()
     ActiveBasketItem = -1;
     clearCopyOfActiveBasketId();
     updateBasketGUI();
+    */
 }
 
 void AGraphWindow::onExternalBasketChange()
@@ -2266,6 +2277,7 @@ void AGraphWindow::onExternalBasketChange()
 
 void AGraphWindow::requestMultidrawNew()
 {
+    /*
     const QList<QListWidgetItem*> selection = lwBasket->selectedItems();
 
     for (const QListWidgetItem * const item : selection)
@@ -2292,10 +2304,12 @@ void AGraphWindow::requestMultidrawNew()
     Basket->add("NewMultipadView", tmp);
 
     switchToBasket(Basket->size() - 1);
+    */
 }
 
 void AGraphWindow::requestAddToMultidraw()
 {
+    /*
     const QList<QListWidgetItem*> selection = lwBasket->selectedItems();
 
     int multiIndex = -1;
@@ -2329,10 +2343,12 @@ void AGraphWindow::requestAddToMultidraw()
     }
     Basket->update(multiIndex, drawObjectAr);
     switchToBasket(multiIndex);
+    */
 }
 
 void AGraphWindow::requestMergeHistograms()
 {
+    /*
     const QList<QListWidgetItem*> selection = lwBasket->selectedItems();
 
     std::vector<int> indexes;
@@ -2347,6 +2363,7 @@ void AGraphWindow::requestMergeHistograms()
         guitools::message(err, this);
     else
         switchToBasket(Basket->size() - 1);
+    */
 }
 
 void AGraphWindow::clearBasket()
