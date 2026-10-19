@@ -327,6 +327,8 @@ private:
     void onMultiIdentPaveTextChanged(QString text);
 
     void onBasketAddGroup(const QString & parentPath); // Groups!
+    void appendBasketFile(bool asNewGroup, const QString & parentGroup);
+    void remapDisplayedMultidraw();
 
 signals:
     void requestLocalDrawObject(TObject *obj, QString options, bool fFocus);

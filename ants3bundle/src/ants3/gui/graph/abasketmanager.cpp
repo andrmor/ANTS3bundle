@@ -5,9 +5,14 @@
 
 #include <QJsonDocument>
 #include <QDebug>
+#include <QHash>
+#include <QStringList>
+#include <QJsonArray>
+#include <QJsonObject>
 
 #include <algorithm>
 #include <functional>
+#include <numeric>
 
 #include "TObject.h"
 #include "TNamed.h"
@@ -196,9 +201,22 @@ TObject * ABasketManager::makeCloneOfTObject(TObject * tobj)
 
 void ABasketManager::update(int index, const std::vector<ADrawObject> & drawObjects)
 {
+    /*
     if (index < 0 || index >= Basket.size()) return;
 
     add(Basket[index].Name, drawObjects);
+    std::swap(Basket[index], Basket.back());
+    Basket.pop_back();
+    */
+    if (index < 0 || index >= (int)Basket.size() || drawObjects.empty()) return;
+
+    const size_t oldSize = Basket.size();
+    const QString group = Basket[index].Group;
+
+    add(Basket[index].Name, drawObjects);
+    if (Basket.size() != oldSize + 1) return;       // nothing was added
+
+    Basket.back().Group = group;                    // keep the group
     std::swap(Basket[index], Basket.back());
     Basket.pop_back();
 }
@@ -609,6 +627,8 @@ QString ABasketManager::appendBasket(const QString & fileName)
 // items) stays correctly aligned.
 // ---------------------------------------------------------------------------
 
+// --- groups iteration ---
+/*
 void ABasketManager::saveBasket(const QString & fileName)
 {
     TFile basketFile(fileName.toLocal8Bit().data(), "RECREATE");
@@ -714,7 +734,166 @@ void ABasketManager::saveBasket(const QString & fileName)
 
     basketFile.Close();
 }
+*/
 
+void ABasketManager::saveBasket(const QString & fileName)
+{
+    std::vector<int> all;
+    for (int i = 0; i < (int)Basket.size(); i++) all.push_back(i);
+    saveItems(fileName, all, Groups, "");
+}
+
+QString ABasketManager::saveGroup(const QString & fileName, const QString & groupPath)
+{
+    if (groupPath.isEmpty() || !groupExists(groupPath)) return "Group does not exist";
+
+    const std::vector<int> indexes = getItemsInGroup(groupPath, true);   // ascending
+    std::vector<QString> groups;
+    for (const QString & g : Groups)
+        if (isInsideGroup(g, groupPath)) groups.push_back(g);
+
+    return saveItems(fileName, indexes, groups, parentPath(groupPath));
+}
+
+QString ABasketManager::saveItems(const QString & fileName, const std::vector<int> & indexes,
+                                  const std::vector<QString> & groupsToSave, const QString & stripPrefix)
+{
+    // old flat index -> index inside the file; -1 = not saved
+    std::vector<int> newIndexOf(Basket.size(), -1);
+    for (size_t n = 0; n < indexes.size(); n++) newIndexOf[indexes[n]] = (int)n;
+
+    // multidraws must not reference items that are not saved (checked BEFORE touching the file)
+    for (int ib : indexes)
+    {
+        const std::vector<ADrawObject> & dos = Basket[ib].DrawObjects;
+        if (dos.empty() || !dos.front().Multidraw) continue;
+        for (int m : dos.front().MultidrawSettings.BasketItems)
+        {
+            const bool ok = (m >= 0 && m < (int)Basket.size() && newIndexOf[m] >= 0);
+            if (!ok)
+                return QString("Cannot save: multidraw '%1' uses item '%2' located outside of the saved group.\n"
+                               "Move them to the same group first.")
+                    .arg(Basket[ib].Name, (m >= 0 && m < (int)Basket.size()) ? Basket[m].Name : QString("?"));
+        }
+    }
+
+    auto rel = [&](const QString & g) { return stripPrefix.isEmpty() ? g : g.mid(stripPrefix.size() + 1); };
+
+    TFile basketFile(fileName.toLocal8Bit().data(), "RECREATE");
+    if (basketFile.IsZombie()) return "Cannot open file for writing: " + fileName;
+
+    int objectIndex = 0;
+    QJsonArray basketJAr;
+    for (int ib : indexes)
+    {
+        QJsonObject itemJson;
+        itemJson["ItemName"] = Basket[ib].Name;
+        const QString g = rel(Basket[ib].Group);
+        if (!g.isEmpty()) itemJson["Group"] = g;
+
+        QJsonArray itemArray;
+        const std::vector<ADrawObject> & drawObjects = Basket[ib].DrawObjects;
+        for (size_t io = 0; io < drawObjects.size(); io++)
+        {
+            const ADrawObject & obj = drawObjects[io];
+
+            QJsonObject js;
+            if (obj.Multidraw)
+            {
+                ADrawObject tmp = obj;      // shallow copy, only used to write the JSON
+                for (int & m : tmp.MultidrawSettings.BasketItems) m = newIndexOf[m];
+                tmp.writeToJson(js);
+            }
+            else obj.writeToJson(js);
+
+            TList * list = dynamic_cast<TList*>(obj.Pointer);
+            if (list)
+            {
+                // obj.Pointer is a flat TList of individual TObjects (no recursion)
+                js["IsList"] = true;
+
+                int listSize = 0;
+                TIter next(list);
+                TObject * elObj;
+                while ( (elObj = next()) )
+                {
+                    TString keyName = "#";
+                    keyName += objectIndex;
+                    objectIndex++;
+
+                    if (elObj) elObj->Write(keyName);
+                    else
+                    {
+                        TNamed dummy("Dummy", "Dummy");
+                        dummy.Write(keyName);
+                    }
+                    listSize++;
+                }
+                js["ListSize"] = listSize;
+            }
+            else
+            {
+                js["IsList"] = false;
+
+                TString keyName = "#";
+                keyName += objectIndex;
+                objectIndex++;
+
+                if (obj.Pointer) obj.Pointer->Write(keyName);
+                else
+                {
+                    TNamed dummy("Dummy", "Dummy");
+                    dummy.Write(keyName);
+                }
+            }
+
+            TLegend * Legend = dynamic_cast<TLegend*>(obj.Pointer);
+            if (Legend)
+            {
+                QJsonArray links;
+                TList * elist = Legend->GetListOfPrimitives();
+                int num = elist->GetEntries();
+                for (int ie = 0; ie < num; ie++)
+                {
+                    TLegendEntry * en = static_cast<TLegendEntry*>( (*elist).At(ie));
+                    links.append(findPointerInDrawObjects(drawObjects, en->GetObject()));
+                }
+                js["LegendLinks"] = links;
+            }
+
+            itemArray.append(js);
+        }
+        itemJson["ItemObjects"] = itemArray;
+
+        basketJAr.append(itemJson);
+    }
+
+    QJsonDocument doc;
+    doc.setArray(basketJAr);
+    const QString descStr(doc.toJson());
+
+    // Group structure: written AFTER all object keys, readers address object keys by position
+    QJsonArray groupsJAr;
+    for (const QString & gr : groupsToSave) groupsJAr.append(rel(gr));
+    QJsonDocument gdoc; gdoc.setArray(groupsJAr);
+    TNamed gdesc;
+    gdesc.SetTitle(QString(gdoc.toJson(QJsonDocument::Compact)).toLocal8Bit().data());
+    gdesc.Write("BasketGroups");
+
+    TNamed desc;
+    desc.SetTitle(descStr.toLocal8Bit().data());
+    desc.Write("BasketDescription_v2");
+
+    // sanity check: one key per object + the two description keys
+    if (basketFile.GetListOfKeys()->GetEntries() != objectIndex + 2)
+        qWarning() << "Basket file" << fileName << "has" << basketFile.GetListOfKeys()->GetEntries()
+                   << "keys, expected" << objectIndex + 2;
+
+    basketFile.Close();
+    return "";
+}
+
+/*
 QString ABasketManager::appendBasket(const QString & fileName)
 {
     TFile f(fileName.toLocal8Bit().data());
@@ -848,6 +1027,203 @@ QString ABasketManager::appendBasket(const QString & fileName)
     arrangeByTree();    // appended items may belong to existing groups
 
     f.Close();
+    return "";
+}
+*/
+
+QString ABasketManager::makeUniqueGroupName(const QString & parent, const QString & name,
+                                            const QSet<QString> & reserved) const
+{
+    auto isFree = [&](const QString & n) { return !groupExists(joinPath(parent, n)) && !reserved.contains(n); };
+    if (isFree(name)) return name;
+    for (int n = 1; ; n++)
+    {
+        const QString candidate = QString("%1_%2").arg(name).arg(n);
+        if (isFree(candidate)) return candidate;
+    }
+}
+
+QString ABasketManager::appendBasket(const QString & fileName, EAppend mode,
+                                     const QString & parentGroup, const QString & newGroupName)
+{
+    if (!groupExists(parentGroup)) return "Target group does not exist";
+    if (mode == EAppend::AsNewGroup)
+    {
+        const QString err = checkGroupName(newGroupName);
+        if (!err.isEmpty()) return err;
+    }
+
+    TFile f(fileName.toLocal8Bit().data());
+    const size_t oldBasketSize = Basket.size();
+
+    TNamed * desc = (TNamed*)f.Get("BasketDescription_v2");
+    if (!desc)
+    {
+        f.Close();
+        return QString("%1: this is not a valid ANTS3 basket file!").arg(fileName);
+    }
+
+    const QString text = desc->GetTitle();
+    const QJsonDocument doc(QJsonDocument::fromJson(text.toLatin1().data()));
+    const QJsonArray basketArray = doc.array();
+    const int basketSize = basketArray.size();
+
+    std::vector<ABasketItem> newItems;     // NOT yet in Basket: groups are mapped after parsing
+
+    int keyIndex = 0;
+    for (int iBasketItem = 0; iBasketItem < basketSize; iBasketItem++)
+    {
+        const QJsonObject itemJson = basketArray[iBasketItem].toObject();
+        const QString itemName = itemJson["ItemName"].toString();
+        const QJsonArray itemArray = itemJson["ItemObjects"].toArray();
+        const int itemSize = itemArray.size();
+
+        std::vector<ADrawObject> drawObjects;
+        int legendIndex = -1;
+        QJsonArray legendLinks;
+
+        for (int iDrawObj = 0; iDrawObj < itemSize; iDrawObj++)
+        {
+            const QJsonObject js = itemArray[iDrawObj].toObject();
+            const QString name = js["Name"].toString();
+            const bool isList = js.value("IsList").toBool(false);
+
+            TObject * tObj = nullptr;
+
+            if (isList)
+            {
+                // Rebuild a flat TList of individual TObjects (no recursion)
+                const int listSize = js["ListSize"].toInt();
+                TList * newList = new TList();
+
+                for (int iEl = 0; iEl < listSize; iEl++)
+                {
+                    TKey * key = (TKey*)f.GetListOfKeys()->At(keyIndex);
+                    keyIndex++;
+
+                    TObject * elObj = key ? key->ReadObj() : nullptr;
+                    if (!elObj)
+                    {
+                        TString nm( QString("Corrupted_%1_elem%2").arg(name).arg(iEl).toLatin1().data() );
+                        elObj = new TNamed(nm, nm);
+                        qWarning() << "Corrupted TKey in basket file" << fileName << " list object:" << name << "element" << iEl;
+                    }
+                    newList->Add(elObj);
+                }
+                tObj = newList;
+            }
+            else
+            {
+                TKey * key = (TKey*)f.GetListOfKeys()->At(keyIndex);   // fix 1: key can be null
+                keyIndex++;
+                tObj = key ? key->ReadObj() : nullptr;
+            }
+
+            if (!tObj)                                                  // fix 2: keep the draw object, so indexes stay aligned
+            {
+                TString nm( QString("Corrupted_%1").arg(name).toLatin1().data() );
+                tObj = new TNamed(nm, nm);
+                qWarning() << "Corrupted TKey in basket file" << fileName << " object:" << name;
+            }
+
+            ADrawObject drawObj(tObj, "");
+            drawObj.readFromJson(js);
+            if (drawObj.Multidraw && oldBasketSize != 0) drawObj.shiftMultidrawIndexesBy((int)oldBasketSize);
+            drawObjects.push_back(drawObj);
+
+            if (dynamic_cast<TLegend*>(tObj))
+            {
+                legendIndex = iDrawObj;
+                legendLinks = js["LegendLinks"].toArray();
+            }
+        }
+
+        if (legendIndex != -1)
+        {
+            TLegend * legend = static_cast<TLegend*>(drawObjects[legendIndex].Pointer);
+            TList * elist = legend->GetListOfPrimitives();
+            const int num = elist->GetEntries();
+            for (int ie = 0; ie < num; ie++)
+            {
+                TLegendEntry * en = static_cast<TLegendEntry*>( (*elist).At(ie) );
+                const QString label = en->GetLabel();
+                TObject * linked = nullptr;
+                const int iObj = legendLinks[ie].toInt();
+                if (iObj >= 0 && iObj < (int)drawObjects.size())
+                    linked = drawObjects[iObj].Pointer;
+                en->SetObject(linked);                    // will override the label
+                en->SetLabel(label.toLatin1().data());    // so restore it
+            }
+        }
+
+        if (!drawObjects.empty())
+        {
+            ABasketItem item;
+            item.Name  = itemName;
+            item.Group = normalizePath(itemJson["Group"].toString());   // raw path from the file; "" if absent (old files)
+            item.DrawObjects = drawObjects;
+            item.Type = drawObjects.front().Pointer->ClassName();       // "TList" if the first draw object is a list
+            newItems.push_back(item);
+        }
+    }
+
+    // ---- group structure of the file (includes empty groups) ----
+    std::vector<QString> fileGroups;
+    if (TNamed * gdesc = dynamic_cast<TNamed*>(f.Get("BasketGroups")))  // absent in old files
+    {
+        const QJsonDocument gdoc = QJsonDocument::fromJson(QString(gdesc->GetTitle()).toLatin1());
+        for (const QJsonValue & v : gdoc.array()) fileGroups.push_back(normalizePath(v.toString()));
+    }
+    for (const ABasketItem & it : newItems) fileGroups.push_back(it.Group);
+    f.Close();
+
+    // ---- mapping of the file's group paths into this basket ----
+    QStringList topNames;                       // top-level group names in the file, in order
+    for (const QString & g : fileGroups)
+        if (!g.isEmpty() && !topNames.contains(g.section('/', 0, 0))) topNames << g.section('/', 0, 0);
+
+    QString newRoot;                            // destination of items with an empty group
+    QHash<QString, QString> topMap;             // Direct mode: original top-level name -> final name
+
+    if (mode == EAppend::AsNewGroup)
+    {
+        newRoot = joinPath(parentGroup, makeUniqueGroupName(parentGroup, newGroupName));
+    }
+    else
+    {
+        newRoot = parentGroup;
+        QSet<QString> reserved(topNames.begin(), topNames.end());   // renamed groups must not collide with the file's own names
+        for (const QString & top : topNames)
+        {
+            QString finalName = top;
+            if (groupExists(joinPath(parentGroup, top)))
+            {
+                finalName = makeUniqueGroupName(parentGroup, top, reserved);
+                reserved.insert(finalName);
+            }
+            topMap[top] = finalName;
+        }
+    }
+
+    auto mapGroup = [&](const QString & g) -> QString
+    {
+        if (g.isEmpty()) return newRoot;
+        if (mode == EAppend::AsNewGroup) return joinPath(newRoot, g);
+        const QString top  = g.section('/', 0, 0);
+        const QString rest = g.mid(top.size());                      // "" or "/sub/..."
+        return joinPath(parentGroup, topMap.value(top)) + rest;
+    };
+
+    // ---- commit ----
+    ensureGroup(newRoot);                                            // the new group exists even if the file has no items
+    for (const QString & g : fileGroups) ensureGroup(mapGroup(g));   // keeps the file's sibling order
+    for (ABasketItem & it : newItems)
+    {
+        it.Group = mapGroup(it.Group);
+        Basket.push_back(it);
+    }
+
+    arrangeByTree();    // multidraw indexes were shifted by oldBasketSize; this remaps them to the tree order
     return "";
 }
 
@@ -1347,6 +1723,7 @@ void ABasketManager::applyOrder(const std::vector<int> & order)
         newIndexOf[order[n]] = n;
     }
     Basket.swap(sorted);
+    for (int & e : IndexMap) if (e >= 0 && e < (int)newIndexOf.size()) e = newIndexOf[e];
 
     for (ABasketItem & item : Basket)
     {
@@ -1378,4 +1755,9 @@ void ABasketManager::arrangeByTree()
     if (changed) applyOrder(order);
 }
 
+void ABasketManager::resetIndexMap()
+{
+    IndexMap.resize(Basket.size());
+    std::iota(IndexMap.begin(), IndexMap.end(), 0);
+}
 

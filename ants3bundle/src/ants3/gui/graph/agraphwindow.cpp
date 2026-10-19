@@ -2126,6 +2126,7 @@ void AGraphWindow::onBasketCustomContextMenuRequested(const QPoint &pos)
     QAction * renameGroup = nullptr;
     QAction * delGroupKeep = nullptr;
     QAction * delGroupAll = nullptr;
+    QAction * saveGroupA = nullptr;
 
     QTreeWidgetItem * clicked = lwBasket->itemAt(pos);
     const bool bGroup = lwBasket->isGroup(clicked);
@@ -2151,12 +2152,15 @@ void AGraphWindow::onBasketCustomContextMenuRequested(const QPoint &pos)
         renameGroup  = BasketMenu.addAction("Rename group");
         delGroupKeep = BasketMenu.addAction("Delete group (keep its items)");
         delGroupAll  = BasketMenu.addAction("Delete group and all its items");
+        saveGroupA   = BasketMenu.addAction("Save group to file");
         BasketMenu.addSeparator();
     }
     QAction * addGroup = BasketMenu.addAction("Add new group");
 
     BasketMenu.addSeparator();
-    QAction * append = BasketMenu.addAction("Append basket file");
+    //QAction * append = BasketMenu.addAction("Append basket file");
+    QAction * appendNew    = BasketMenu.addAction("Append basket file as a new group");
+    QAction * appendDirect = BasketMenu.addAction("Append basket file directly (rename clashing groups)");
     BasketMenu.addSeparator();
     QAction * appendTxt = BasketMenu.addAction("Append graph from text file");
     QAction * appendTxtEr = BasketMenu.addAction("Append graph with error bars from text file");
@@ -2193,6 +2197,7 @@ void AGraphWindow::onBasketCustomContextMenuRequested(const QPoint &pos)
             Basket->saveBasket(fileName);
         }
     }
+    /*
     else if (selectedItem == append)
     {
         bool bDrawEmpty = DrawObjects.empty();
@@ -2208,6 +2213,17 @@ void AGraphWindow::onBasketCustomContextMenuRequested(const QPoint &pos)
             updateBasketGUI();
             if (bDrawEmpty) switchToBasket(0);
         }
+    }
+    */
+    else if (selectedItem == appendNew)    appendBasketFile(true,  groupForNew);
+    else if (selectedItem == appendDirect) appendBasketFile(false, groupForNew);
+    else if (selectedItem == saveGroupA)
+    {
+        QString fileName = guitools::dialogSaveFile(this, "Save group to a file", "Root files (*.root)");
+        if (fileName.isEmpty()) return;
+        if (QFileInfo(fileName).suffix().isEmpty()) fileName += ".root";
+        const QString err = Basket->saveGroup(fileName, clickedGroup);
+        if (!err.isEmpty()) guitools::message(err, this);
     }
     else if (selectedItem == appendRootHistsAndGraphs)
     {
@@ -2304,8 +2320,47 @@ void AGraphWindow::onBasketReorderRequested(const std::vector<int> & indexes, in
 }
 */
 
+void AGraphWindow::appendBasketFile(bool asNewGroup, const QString & parentGroup)
+{
+    const bool bDrawEmpty = DrawObjects.empty();
+    const QString fileName = guitools::dialogLoadFile(this, "Append basket file", "Root files (*.root)");
+    if (fileName.isEmpty()) return;
+
+    QString groupName;
+    if (asNewGroup)
+    {
+        bool ok;
+        groupName = QInputDialog::getText(this, "New group", "Name of the group for the appended items:",
+                                          QLineEdit::Normal, QFileInfo(fileName).completeBaseName(), &ok).simplified();
+        if (!ok) return;
+        const QString err = ABasketManager::checkGroupName(groupName);
+        if (!err.isEmpty()) { guitools::message(err, this); return; }
+    }
+
+    Basket->resetIndexMap();
+    const QString err = Basket->appendBasket(fileName,
+                                             asNewGroup ? ABasketManager::EAppend::AsNewGroup : ABasketManager::EAppend::Direct,
+                                             parentGroup, groupName);
+    if (!err.isEmpty()) { guitools::message(err, this); return; }
+    remapDisplayedMultidraw();
+
+    ActiveBasketItem = -1;
+    clearCopyOfActiveBasketId();
+    updateBasketGUI();
+    if (bDrawEmpty && Basket->size() > 0) switchToBasket(0);
+}
+
+void AGraphWindow::remapDisplayedMultidraw()
+{
+    if (!isMultidrawModeOn()) return;
+    const std::vector<int> & map = Basket->getIndexMap();
+    for (int & i : DrawObjects.front().MultidrawSettings.BasketItems)
+        if (i >= 0 && i < (int)map.size()) i = map[i];
+}
+
 void AGraphWindow::onBasketMoveRequested(const std::vector<int> & items, const QStringList & groups, const QString & targetGroup, int toIndex)
 {
+    Basket->resetIndexMap();
     for (const QString & g : groups)
     {
         const QString err = Basket->moveGroup(g, targetGroup);
@@ -2318,6 +2373,7 @@ void AGraphWindow::onBasketMoveRequested(const std::vector<int> & items, const Q
     }
     ActiveBasketItem = -1;                // indexes may have changed (same as the old reorder handler)
     clearCopyOfActiveBasketId();
+    remapDisplayedMultidraw();
     updateBasketGUI();
 }
 
