@@ -17,6 +17,7 @@ public:
     void                update(int index, const std::vector<ADrawObject> & drawObjects);         //makes deep copy
 
     void                addGroup(const QString & name, const QString & parentGroup); // parent group: "aaa/bbb/ccc" - full path! !!!*** todo insert/check
+    QStringList         getGroupNames() const;
 
     std::vector<ADrawObject> getCopy(int index) const;  //returns deep copy
 
@@ -43,6 +44,7 @@ public:
     void                appendRootHistGraphs(const QString & fileName);
 
     void                reorder(const std::vector<int> & indexes, int to); // assume uniqueness of indexes
+    void                moveLastBasketItemToGroup(const QString & parentGroup, bool toBottom); // triggers reorder
 
     QString             mergeHistograms(const std::vector<int> & indexes);
 

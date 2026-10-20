@@ -233,6 +233,7 @@ SOURCES += \
     gui/geom/ageotreewin.cpp \
     gui/geom/aparticleanalyzerwidget.cpp \
     gui/geom/ashownumbersdialog.cpp \
+    gui/graph/aaddtobasketdialog.cpp \
     gui/graph/abaskettreewidget.cpp \
     gui/graph/adrawmarginsrecord.cpp \
     gui/graph/agraphwindow.cpp \
@@ -470,6 +471,7 @@ HEADERS += \
     gui/atreedatabaseselectordialog.h \
     gui/geom/ageomarkerpropsdialog.h \
     gui/geom/aparticleanalyzerwidget.h \
+    gui/graph/aaddtobasketdialog.h \
     gui/graph/abaskettreewidget.h \
     gui/graph/adrawmarginsrecord.h \
     gui/graph/agraphwindow.h \
@@ -719,6 +721,7 @@ FORMS += \
         gui/geom/aparticleanalyzerwidget.ui \
         gui/geom/ashownumbersdialog.ui \
         gui/aglobsetwindow.ui \
+        gui/graph/aaddtobasketdialog.ui \
         gui/graph/agraphwindow.ui \
         gui/graph/ahistoptstatdialog.ui \
         gui/graph/apaletteselectiondialog.ui \

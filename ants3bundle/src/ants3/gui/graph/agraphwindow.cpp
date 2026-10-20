@@ -1904,14 +1904,17 @@ void AGraphWindow::on_pbAddToBasket_clicked()
                                          name, &ok);
     if (!ok || text.isEmpty()) return;
 
-    addCurrentToBasket(text, "");
+    addCurrentToBasket(text, "", true);
 }
 
-void AGraphWindow::addCurrentToBasket(QString name, QString parentGroup)
+void AGraphWindow::addCurrentToBasket(QString name, QString parentGroup, bool toBottom)
 {
     if (DrawObjects.empty()) return;
     updateLogScaleFlags(DrawObjects);
     Basket->add(name.simplified(), DrawObjects);
+
+    Basket->moveLastBasketItemToGroup(parentGroup, toBottom);
+
     ui->actionToggle_Explorer_Basket->setChecked(true);
     updateBasketGUI();
 }
@@ -3503,5 +3506,22 @@ void AGraphWindow::on_actionLoad_multipad_view_settings_triggered()
     int height = 500;
     if (jstools::parseJson(json, "Width", width) && jstools::parseJson(json, "Height", height)) resize(width, height);
     redrawAll();
+}
+
+#include "aaddtobasketdialog.h"
+void AGraphWindow::on_pbAddToBasket_customContextMenuRequested(const QPoint &)
+{
+    if (DrawObjects.empty()) return;
+
+    AAddToBasketDialog dia(Basket->getGroupNames(), this);
+    int ret = dia.exec();
+    if (ret == QDialog::Rejected) return;
+
+    QString toGroup = dia.getPath();
+    bool toBot = dia.isBottom();
+    QString title = dia.getTitle();
+
+    addCurrentToBasket(title, toGroup, toBot);
+    updateBasketGUI();
 }
 

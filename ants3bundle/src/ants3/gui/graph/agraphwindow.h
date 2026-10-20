@@ -43,7 +43,7 @@ public:
 public slots:
     void onDrawRequest(TObject * obj, QString options, bool transferOwnership, bool focusWindow);
     void redrawAll();
-    void addCurrentToBasket(QString name, QString parentGroup);
+    void addCurrentToBasket(QString name, QString parentGroup, bool toBottom = true);
     void addGroupToBasket(QString name, QString parentGroup);
     void drawLegend(double x1, double y1, double x2, double y2, QString title);
     void configureLegendBorder(int color, int style, int size);
@@ -87,7 +87,7 @@ private slots:
     // basket-related
     void onBasketCustomContextMenuRequested(const QPoint & pos); // !!!*** todo
     void onBasketItemDoubleClicked(QTreeWidgetItem * item);
-    void onBasketReorderRequested(const std::vector<int> & indexes, int toRow);
+    void onBasketReorderRequested(const std::vector<int> & indexes, int toRow); // !!!*** todo convertion
     void onBasketDeleteShortcutActivated();
     // script related
     void onScriptDrawRequest(TObject * obj, QString options, bool fFocus);      // these two work together (QueuedConnection to enable calls from another thread)
@@ -225,6 +225,8 @@ private slots:
 
     void on_actionLoad_multipad_view_settings_triggered();
 
+
+    void on_pbAddToBasket_customContextMenuRequested(const QPoint &pos);
 
 private:
     Ui::AGraphWindow       * ui = nullptr;

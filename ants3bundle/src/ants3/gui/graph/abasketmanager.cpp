@@ -233,12 +233,32 @@ void ABasketManager::addGroup(const QString & name, const QString & parentGroup)
     }
 }
 
+QStringList ABasketManager::getGroupNames() const
+{
+    QStringList sl = {QString()};
+
+    for (const ABasketItem & item : Basket)
+    {
+        if (!item.isGroup) continue;
+
+        QString name;
+        if (!item.ParentGroup.isEmpty()) name = item.ParentGroup + "/";
+        name += item.Name;
+        sl << name;
+    }
+    return sl;
+}
+
 int ABasketManager::findGroup(const QString & name)
 {
     for (int i = 0; i < Basket.size(); ++i)
     {
-        if (Basket[i].isGroup && Basket[i].Name == name)
-            return i;
+        if (!Basket[i].isGroup) continue;
+
+        QString thisName = Basket[i].ParentGroup;
+        if (!thisName.isEmpty()) thisName += "/";
+        thisName += Basket[i].Name;
+        if (thisName == name) return i;
     }
     return -1;
 }
@@ -1009,6 +1029,48 @@ void ABasketManager::reorder(const std::vector<int> & indexes, int to)
         for (size_t i = 0; i < rec.BasketItems.size(); i++)
             rec.BasketItems[i] = newIndexMap[rec.BasketItems[i]];
     }
+}
+
+void ABasketManager::moveLastBasketItemToGroup(const QString & parentGroup, bool toBottom)
+{
+    if (Basket.empty()) return;
+
+    std::vector<int> indexes;
+    indexes.push_back(Basket.size() - 1);
+
+    if (parentGroup.isEmpty())
+    {
+        Basket.back().ParentGroup.clear(); // paranoid
+        if (toBottom) return; // already at the right place
+        reorder(indexes, 0);
+        return;
+    }
+
+    int parentIndex = findGroup(parentGroup);
+    if (parentIndex == -1)
+    {
+        qWarning() << "Group" << parentGroup << "not found, basket move canceled!";
+        return;
+    }
+
+    Basket.back().ParentGroup = parentGroup;
+
+    if (!toBottom)
+    {
+        reorder(indexes, parentIndex + 1);
+        return;
+    }
+
+    // find the first item not belonging to the parent group, otherwise keep it last
+    for (int iTo = parentIndex + 1; iTo < Basket.size(); iTo++)
+    {
+        if (Basket[iTo].ParentGroup != parentGroup)
+        {
+            reorder(indexes, iTo);
+            return;
+        }
+    }
+    // else already the last
 }
 
 #include "aroothistappenders.h"

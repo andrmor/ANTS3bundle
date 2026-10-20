@@ -2436,6 +2436,13 @@
                  <bold>false</bold>
                 </font>
                </property>
+               <property name="contextMenuPolicy">
+                <enum>Qt::ContextMenuPolicy::CustomContextMenu</enum>
+               </property>
+               <property name="toolTip">
+                <string>Left click: add to the end of the basket;
+Right-click: add to a specific group</string>
+               </property>
                <property name="text">
                 <string>Copy
 to basket</string>
