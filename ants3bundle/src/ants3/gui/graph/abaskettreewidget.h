@@ -14,8 +14,8 @@ public:
 
     void fill(ABasketManager * basket);
 
-    int basketIndex(int row) const;
-    bool isSelectedGroup(QTreeWidgetItem * item);
+    bool isGroup(const QTreeWidgetItem * item) const;
+    int getBasketIndex(const QTreeWidgetItem * item) const;
 
 protected:
     void dropEvent(QDropEvent * event) override;
@@ -24,7 +24,7 @@ signals:
     void requestReorder(const std::vector<int> & indexes, int toRow);
 
 private:
-    enum { GroupRole = Qt::UserRole };
+    enum { GroupRole = Qt::UserRole, IndexRole = Qt::UserRole + 1 };
     int DefaultIndent = 10;
 
 };

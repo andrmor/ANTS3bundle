@@ -2000,9 +2000,12 @@ void AGraphWindow::updateBasketGUI()
     if (ActiveBasketItem < 0) highlightUpdateBasketButton(false);
 }
 
-void AGraphWindow::onBasketItemDoubleClicked(QTreeWidgetItem *)
+void AGraphWindow::onBasketItemDoubleClicked(QTreeWidgetItem * item)
 {
-    switchToBasket(lwBasket->basketIndex(lwBasket->currentIndex().row()));
+    if (!item) return;
+    if (lwBasket->isGroup(item)) return;
+
+    switchToBasket(lwBasket->getBasketIndex(item));
 }
 
 void AGraphWindow::onBasketDeleteShortcutActivated()
