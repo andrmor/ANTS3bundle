@@ -19,7 +19,8 @@ public:
     AScriptInterface * cloneBase() const {return new AGraphWin_SI(GraphWindow);}
 
 public slots:
-    void addToBasket(QString title);
+    void addToBasket(QString title, QString parentGroup = QString());
+    void addGroupTobasket(QString name, QString parentGroup = QString());
     void clearBasket();
     void saveBasket(QString fileName);
 
@@ -46,7 +47,8 @@ public slots:
 signals:
     void requestShow3D(QString fileName, bool keepSettings = false);
 
-    void requestAddToBasket(QString title);
+    void requestAddToBasket(QString title, QString parentGroup);
+    void requestAddGroupToBasket(QString name, QString parentGroup);
     void requestClearBasket();
     void requestSaveBasket(QString fileName);
     void requestSetLog(bool Xaxis, bool Yaxis);

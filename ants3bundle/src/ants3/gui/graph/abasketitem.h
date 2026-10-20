@@ -17,8 +17,10 @@ public:
     QString Name;
     QString Type;
 
-    QString Group;
-    bool    CollapsedGroup = false;
+    QString ParentGroup;
+
+    bool    isGroup = false;
+    bool    Collapsed = false;
 
     void clearObjects();
 

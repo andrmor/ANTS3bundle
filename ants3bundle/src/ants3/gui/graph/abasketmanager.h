@@ -16,6 +16,8 @@ public:
     void                add(const QString & name, const std::vector<ADrawObject> & drawObjects); //makes deep copy
     void                update(int index, const std::vector<ADrawObject> & drawObjects);         //makes deep copy
 
+    void                addGroup(const QString & name, const QString & parentGroup); // parent group: "aaa/bbb/ccc" - full path! !!!*** todo insert/check
+
     std::vector<ADrawObject> getCopy(int index) const;  //returns deep copy
 
     void                clear();
@@ -50,6 +52,7 @@ private:
 private:
     int                 findPointerInDrawObjects(const std::vector<ADrawObject> & drawObjects, TObject * obj) const;
     std::vector<size_t> getAllMultidrawsUsingIndex(size_t index);
+    int                 findGroup(const QString & name); // returns -1 if not found
 
 public:
     static TObject * makeCloneOfTObject(TObject * tobj);

@@ -1904,14 +1904,21 @@ void AGraphWindow::on_pbAddToBasket_clicked()
                                          name, &ok);
     if (!ok || text.isEmpty()) return;
 
-    addCurrentToBasket(text);
+    addCurrentToBasket(text, "");
 }
 
-void AGraphWindow::addCurrentToBasket(const QString & name)
+void AGraphWindow::addCurrentToBasket(QString name, QString parentGroup)
 {
     if (DrawObjects.empty()) return;
     updateLogScaleFlags(DrawObjects);
     Basket->add(name.simplified(), DrawObjects);
+    ui->actionToggle_Explorer_Basket->setChecked(true);
+    updateBasketGUI();
+}
+
+void AGraphWindow::addGroupToBasket(QString name, QString parentGroup)
+{
+    Basket->addGroup(name.simplified(), parentGroup.simplified());
     ui->actionToggle_Explorer_Basket->setChecked(true);
     updateBasketGUI();
 }

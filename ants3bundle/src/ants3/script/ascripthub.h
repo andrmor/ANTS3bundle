@@ -96,7 +96,7 @@ signals:
     void reportProgress_P(int percent);
     void requestDraw(TObject * obj, QString options, bool fFocus); // connected using Queued Connection inside graphwindow class; object ownership is transferred to graph window!
     void requestDrawCollection(std::vector<std::pair<TObject*, QString>> objectsAndOptions, bool fFocus); // connected using Queued Connection inside graphwindow class; object ownership is transferred to graph window!
-    void requestAddToBasket(QString title);
+    void requestAddToBasket(QString title, QString parentGroup = "");
     void requestShowLightResponseExplorer(LRModel * model); // mercury SI
     void requestShowPlotterDialog();   // mercury SI
     void requestShowEventExplorer(Reconstructor * rec, std::vector<std::vector<double>> * events, std::vector<std::array<double,3>> * truePositions);   // mercury SI; truePositions can be nullptr

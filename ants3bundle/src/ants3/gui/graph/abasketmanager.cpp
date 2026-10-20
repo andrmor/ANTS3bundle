@@ -200,6 +200,49 @@ void ABasketManager::update(int index, const std::vector<ADrawObject> & drawObje
     Basket.pop_back();
 }
 
+void ABasketManager::addGroup(const QString & name, const QString & parentGroup)
+{
+    int parentIndex = -1;
+    if (!parentGroup.isEmpty())
+    {
+        parentIndex = findGroup(parentGroup);
+        // if not found --> make a way to report back to script! !!!***
+    }
+
+    ABasketItem item;
+    item.Name = name;
+    item.ParentGroup = parentGroup;
+    item.isGroup = true;
+    item.Collapsed = false;
+
+    Basket.push_back(item);
+
+    if (parentIndex != -1)
+    {
+        // find the first item not belonging to the parent group, otherwise keep it last
+        for (int iTo = parentIndex + 1; iTo < Basket.size(); iTo++)
+        {
+            if (Basket[iTo].ParentGroup != parentGroup)
+            {
+                std::vector<int> indexes;
+                indexes.push_back(Basket.size()-1);
+                reorder(indexes, iTo);
+                return;
+            }
+        }
+    }
+}
+
+int ABasketManager::findGroup(const QString & name)
+{
+    for (int i = 0; i < Basket.size(); ++i)
+    {
+        if (Basket[i].isGroup && Basket[i].Name == name)
+            return i;
+    }
+    return -1;
+}
+
 std::vector<ADrawObject> ABasketManager::getCopy(int index) const
 {
     std::vector<ADrawObject> res;

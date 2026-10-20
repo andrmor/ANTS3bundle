@@ -43,7 +43,8 @@ public:
 public slots:
     void onDrawRequest(TObject * obj, QString options, bool transferOwnership, bool focusWindow);
     void redrawAll();
-    void addCurrentToBasket(const QString & name);
+    void addCurrentToBasket(QString name, QString parentGroup);
+    void addGroupToBasket(QString name, QString parentGroup);
     void drawLegend(double x1, double y1, double x2, double y2, QString title);
     void configureLegendBorder(int color, int style, int size);
     void clearBasket();

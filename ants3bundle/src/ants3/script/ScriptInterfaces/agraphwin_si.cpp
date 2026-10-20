@@ -52,6 +52,7 @@ AGraphWin_SI::AGraphWin_SI(AGraphWindow * graphWin) :
 
     // the rest of the methods to look like that:
     connect(this, &AGraphWin_SI::requestAddToBasket,         graphWin, &AGraphWindow::addCurrentToBasket,    Qt::QueuedConnection);
+    connect(this, &AGraphWin_SI::requestAddGroupToBasket,    graphWin, &AGraphWindow::addGroupToBasket,      Qt::QueuedConnection);
     connect(this, &AGraphWin_SI::requestClearBasket,         graphWin, &AGraphWindow::clearBasket,           Qt::QueuedConnection);
     connect(this, &AGraphWin_SI::requestSaveBasket,          graphWin, &AGraphWindow::saveBasket,            Qt::QueuedConnection);
     connect(this, &AGraphWin_SI::requestSetLog,              graphWin, &AGraphWindow::setLogScale,           Qt::QueuedConnection);
@@ -127,10 +128,17 @@ void AGraphWin_SI::addArrow(double x1, double y1, double x2, double y2, int colo
     QApplication::processEvents();
 }
 
-void AGraphWin_SI::addToBasket(QString title)
+void AGraphWin_SI::addToBasket(QString title, QString parentGroup)
 {
     QApplication::processEvents();
-    emit requestAddToBasket(title);
+    emit requestAddToBasket(title, parentGroup);
+    QApplication::processEvents();
+}
+
+void AGraphWin_SI::addGroupTobasket(QString name, QString parentGroup)
+{
+    QApplication::processEvents();
+    emit requestAddGroupToBasket(name, parentGroup);
     QApplication::processEvents();
 }
 

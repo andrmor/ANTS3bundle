@@ -143,7 +143,7 @@ signals:
     void requestShowTracks(bool activateWindow = false);
     void requestShowMarkers();
     void requestDraw(TObject * obj, const QString & options, bool transferOwnership, bool focusWindow);
-    void requestAddToBasket(const QString & name);
+    void requestAddToBasket(const QString & name, const QString & parentGroup = "");
     void requestShowPosition(double * pos, bool keepTracks);
     void requestCenterView(double * pos);
     void requestPlotELDD(std::vector<std::pair<double,double>> dist);
