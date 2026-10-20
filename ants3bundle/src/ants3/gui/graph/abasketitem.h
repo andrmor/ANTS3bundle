@@ -22,7 +22,9 @@ public:
     bool    isGroup = false;
     bool    Collapsed = false;
 
-    void clearObjects();
+    void    clearObjects();
+
+    QString getGroupNameForChildren(); // for group: returns "ParentGroup/Name", otherwise ""
 
     //runtime properties
     bool _toErase = false; // used in rearrangment to flag items to remove

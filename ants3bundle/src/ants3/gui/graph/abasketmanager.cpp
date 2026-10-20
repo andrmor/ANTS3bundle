@@ -200,13 +200,37 @@ void ABasketManager::update(int index, const std::vector<ADrawObject> & drawObje
     Basket.pop_back();
 }
 
-void ABasketManager::addGroup(const QString & name, const QString & parentGroup)
+QString ABasketManager::addGroup(const QString & name, const QString & parentGroup, int iBasketIndex)
 {
+    if (iBasketIndex != -1)
+    {
+        if (iBasketIndex < 0 || iBasketIndex >= Basket.size())
+            return "Invalid insert position";
+    }
+
     int parentIndex = -1;
     if (!parentGroup.isEmpty())
     {
         parentIndex = findGroup(parentGroup);
-        // if not found --> make a way to report back to script! !!!***
+        if (parentIndex == -1) return "Parent group not found";
+    }
+
+    if (iBasketIndex != -1)
+    {
+        // check insert position is compatible with the parentGroup
+        bool valid = (Basket[iBasketIndex].ParentGroup == parentGroup);
+        if (!valid)
+        {
+            // another possibility: it is the group item itself
+            if (Basket[iBasketIndex].isGroup)
+            {
+                QString name = Basket[iBasketIndex].ParentGroup;
+                if (!name.isEmpty()) name += "/";
+                name += Basket[iBasketIndex].Name;
+                if (name == parentGroup) valid = true;
+            }
+        }
+        if (!valid) return "Insertion position is not compatibe with the requested parent group";
     }
 
     ABasketItem item;
@@ -217,20 +241,32 @@ void ABasketManager::addGroup(const QString & name, const QString & parentGroup)
 
     Basket.push_back(item);
 
-    if (parentIndex != -1)
+    std::vector<int> indexes;
+    indexes.push_back(Basket.size() - 1);
+
+    if (iBasketIndex == -1) // move to the end of the corresponding group --> script uses this approach
     {
-        // find the first item not belonging to the parent group, otherwise keep it last
-        for (int iTo = parentIndex + 1; iTo < Basket.size(); iTo++)
+        if (parentIndex != -1)
         {
-            if (Basket[iTo].ParentGroup != parentGroup)
+            // find the first item not belonging to the parent group, otherwise keep it last
+            for (int iTo = parentIndex + 1; iTo < Basket.size(); iTo++)
             {
-                std::vector<int> indexes;
-                indexes.push_back(Basket.size()-1);
-                reorder(indexes, iTo);
-                return;
+                if (Basket[iTo].ParentGroup != parentGroup)
+                {
+                    reorder(indexes, iTo);
+                    return "";
+                }
             }
         }
+        // if reach this point, no need to move
     }
+    else
+    {
+        if (Basket[iBasketIndex].isGroup) iBasketIndex++; // normally adding above, but for a group it has to be the next item
+        if (iBasketIndex < Basket.size()-1) reorder(indexes, iBasketIndex); // else already there
+    }
+
+    return "";
 }
 
 QStringList ABasketManager::getGroupNames() const
@@ -1137,4 +1173,11 @@ int ABasketManager::findPointerInDrawObjects(const std::vector<ADrawObject> & dr
     for (size_t i = 0; i < drawObjects.size(); i++)
         if (drawObjects[i].Pointer == obj) return i;
     return -1;
+}
+
+QString ABasketManager::checkGroupName(const QString & name)
+{
+    if (name.trimmed().isEmpty()) return "Group name cannot be empty";
+    if (name.contains('/'))       return "Group name cannot contain '/'";
+    return "";
 }

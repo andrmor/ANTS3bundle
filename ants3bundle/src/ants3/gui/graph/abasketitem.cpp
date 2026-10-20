@@ -25,3 +25,13 @@ void ABasketItem::clearObjects()
     }
     DrawObjects.clear();
 }
+
+QString ABasketItem::getGroupNameForChildren()
+{
+    if (!isGroup) return "";
+
+    QString res = ParentGroup;
+    if (!res.isEmpty()) res += "/";
+    res += Name;
+    return res;
+}

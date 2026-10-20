@@ -323,6 +323,9 @@ private:
     void onMultiIdentPaveChanged();
     void onMultiIdentPaveTextChanged(QString text);
 
+    // Basket groups!
+    void onBasketAction_AddGroup(int iBasketIndex, bool isGroup);
+
 signals:
     void requestLocalDrawObject(TObject *obj, QString options, bool fFocus);
 };

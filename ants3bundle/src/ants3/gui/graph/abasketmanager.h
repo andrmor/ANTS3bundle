@@ -15,11 +15,10 @@ public:
 
     void                add(const QString & name, const std::vector<ADrawObject> & drawObjects); //makes deep copy
     void                update(int index, const std::vector<ADrawObject> & drawObjects);         //makes deep copy
-
-    void                addGroup(const QString & name, const QString & parentGroup); // parent group: "aaa/bbb/ccc" - full path! !!!*** todo insert/check
-    QStringList         getGroupNames() const;
-
     std::vector<ADrawObject> getCopy(int index) const;  //returns deep copy
+
+    QString             addGroup(const QString & name, const QString & parentGroup, int iBasketIndex = -1); // parent group: "aaa/bbb/ccc" - full path! -1 -> as last item of this group, otherwise at this position !!!*** todo insert/check
+    QStringList         getGroupNames() const;
 
     void                clear();
     QString             remove(std::vector<int> indexesToRemove); // returns error if it was not possible to remove at least one item (part of a multidraw)
@@ -47,6 +46,9 @@ public:
     void                moveLastBasketItemToGroup(const QString & parentGroup, bool toBottom); // triggers reorder
 
     QString             mergeHistograms(const std::vector<int> & indexes);
+
+    // groups
+    static QString      checkGroupName(const QString & name);  // returns error text or ""
 
 private:
     std::vector<ABasketItem> Basket;
