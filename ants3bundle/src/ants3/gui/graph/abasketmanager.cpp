@@ -466,6 +466,33 @@ QString ABasketManager::remove(std::vector<int> indexesToRemove)
     return "";
 }
 
+QString ABasketManager::removeGroupAndContents(int index)
+{
+    if (index < 0 || index >= Basket.size()) return "Invalid index";
+    if (!Basket[index].isGroup) return "This is not a group";
+
+    std::vector<int> itemIndexes;
+    getIndexes_ItemsInGroupRecursive(index, itemIndexes);
+    return remove(itemIndexes);
+}
+
+void ABasketManager::getIndexes_ItemsInGroupRecursive(int indexOfGroup, std::vector<int> & indexes) const
+{
+    if (indexOfGroup < 0 || indexOfGroup >= Basket.size()) return;
+    if (!Basket[indexOfGroup].isGroup) return;
+
+    indexes.push_back(indexOfGroup); // the group item itself
+    QString fullPath_GroupToRemove = Basket[indexOfGroup].getGroupFullPath();
+    for (int i = 0; i < (int)Basket.size(); i++)
+    {
+        if (Basket[i].ParentGroup == fullPath_GroupToRemove)
+        {
+            indexes.push_back(i);
+            if (Basket[i].isGroup) getIndexes_ItemsInGroupRecursive(i, indexes);
+        }
+    }
+}
+
 QString ABasketManager::getType(int index) const
 {
     if (index < 0 || index >= Basket.size()) return "";

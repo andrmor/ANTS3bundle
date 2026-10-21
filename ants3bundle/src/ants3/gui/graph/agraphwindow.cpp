@@ -2188,6 +2188,7 @@ void AGraphWindow::onBasketCustomContextMenuRequested(const QPoint & pos)
     }
     else if (selectedItem == saveGroupA)
     {
+        // !!!*** todo
         QString fileName = guitools::dialogSaveFile(this, "Save group to a file", "Root files (*.root)");
         if (fileName.isEmpty()) return;
         if (QFileInfo(fileName).suffix().isEmpty()) fileName += ".root";
@@ -2245,31 +2246,6 @@ void AGraphWindow::onBasketCustomContextMenuRequested(const QPoint & pos)
         clearCopyOfActiveBasketId();
         updateBasketGUI();
     }
-    else if (selectedItem == rename)
-    {
-        if (iBasketIndex == -1) return; //protection
-        bool ok;
-        QString text = QInputDialog::getText(this, "Rename basket item",
-                                             "Enter new name:", QLineEdit::Normal,
-                                             Basket->getName(iBasketIndex), &ok);
-        if (ok && !text.isEmpty())
-            Basket->rename(iBasketIndex, text.simplified());
-        updateBasketGUI();
-    }
-    else if (selectedItem == onTop)
-        basket_DrawOnTop(iBasketIndex);
-    else if (selectedItem == addGroup)  // GROUPS!
-        onBasketAction_AddGroup(iBasketIndex, bGroup);
-    else if (selectedItem == renameGroup)
-    {
-        bool ok;
-        const QString text = QInputDialog::getText(this, "Rename group", "Enter new name:", QLineEdit::Normal,
-                                                   Basket->getName(iBasketIndex), &ok).simplified();
-        if (!ok) return;
-        const QString err = Basket->renameGroup(iBasketIndex, text);
-        if (!err.isEmpty()) guitools::message(err, this);
-        updateBasketGUI();
-    }
     else if (selectedItem == delGroupKeep)
     {
         /*
@@ -2283,16 +2259,43 @@ void AGraphWindow::onBasketCustomContextMenuRequested(const QPoint & pos)
     }
     else if (selectedItem == delGroupAll)
     {
-        /*
-        const int n = (int)Basket->getItemsInGroup(clickedGroup, true).size();
-        if (!guitools::confirm(QString("Delete group '%1' together with %2 item(s)?").arg(clickedGroup).arg(n), this)) return;
-        const QString err = Basket->removeGroupAndContents(clickedGroup);
-        if (!err.isEmpty()) { guitools::message(err, this); return; }
+        if (!guitools::confirm(QString("Delete group '%1' and all containing groups and items?").arg(Basket->getName(iBasketIndex)), this)) return;
+        const QString err = Basket->removeGroupAndContents(iBasketIndex);
+        if (!err.isEmpty())
+        {
+            guitools::message(err, this);
+            return;
+        }
         ActiveBasketItem = -1;
         clearCopyOfActiveBasketId();
         updateBasketGUI();
-        */
     }
+    else if (selectedItem == rename) // !!!*** merge normal and group rename mathods!
+    {
+        if (iBasketIndex == -1) return; //protection
+        bool ok;
+        QString text = QInputDialog::getText(this, "Rename basket item",
+                                             "Enter new name:", QLineEdit::Normal,
+                                             Basket->getName(iBasketIndex), &ok);
+        if (ok && !text.isEmpty())
+            Basket->rename(iBasketIndex, text.simplified());
+        updateBasketGUI();
+    }
+    else if (selectedItem == onTop)
+        basket_DrawOnTop(iBasketIndex);
+    else if (selectedItem == addGroup)
+        onBasketAction_AddGroup(iBasketIndex, bGroup);
+    else if (selectedItem == renameGroup)
+    {
+        bool ok;
+        const QString text = QInputDialog::getText(this, "Rename group", "Enter new name:", QLineEdit::Normal,
+                                                   Basket->getName(iBasketIndex), &ok).simplified();
+        if (!ok) return;
+        const QString err = Basket->renameGroup(iBasketIndex, text);
+        if (!err.isEmpty()) guitools::message(err, this);
+        updateBasketGUI();
+    }
+
 }
 
 void AGraphWindow::onBasketAction_AddGroup(int iBasketIndex, bool isGroup)

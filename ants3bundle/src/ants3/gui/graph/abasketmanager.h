@@ -22,6 +22,7 @@ public:
 
     void                clear();
     QString             remove(std::vector<int> indexesToRemove); // returns error if it was not possible to remove at least one item (part of a multidraw)
+    QString             removeGroupAndContents(int index);
 
     QString             getType(int index) const;
 
@@ -66,6 +67,7 @@ private:
     bool                groupExists(const QString &fullPath) const;
     void                replaceGroupPrefix(const QString & oldPath, const QString & newPath);
     bool                isInsideGroup(const QString &path, const QString &group) const;
+    void                getIndexes_ItemsInGroupRecursive(int indexOfGroup, std::vector<int> & indexes) const;
 
 public:
     static TObject * makeCloneOfTObject(TObject * tobj);
