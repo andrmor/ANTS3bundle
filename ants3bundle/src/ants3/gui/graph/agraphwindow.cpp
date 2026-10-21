@@ -2111,6 +2111,7 @@ void AGraphWindow::onBasketCustomContextMenuRequested(const QPoint & pos)
     QAction * delGroupKeep = nullptr;
     QAction * delGroupAll = nullptr;
     QAction * saveGroupA = nullptr;
+    QAction * addGroup = nullptr;
 
     QTreeWidgetItem * clicked = lwBasket->itemAt(pos);
     const bool bGroup = lwBasket->isGroup(clicked);
@@ -2123,32 +2124,36 @@ void AGraphWindow::onBasketCustomContextMenuRequested(const QPoint & pos)
         // menu triggered at a basket item, which is also not a group
         BasketMenu.addSeparator();
         if (!Basket->isMultidraw(iBasketIndex))
-            onTop = BasketMenu.addAction("Show on top of the main draw");
-        switchToThis = BasketMenu.addAction("Switch to this");
+            onTop = BasketMenu.addAction("Show on top of the current draw");
+        switchToThis = BasketMenu.addAction("Switch to this (double-click)");
         BasketMenu.addSeparator();
         rename = BasketMenu.addAction("Rename");
-        BasketMenu.addSeparator();
         del = BasketMenu.addAction("Delete");
         del->setShortcut(Qt::Key_Delete);
         BasketMenu.addSeparator();
     }
-    else if (iBasketIndex >= 0 && bGroup)
-    {
-        renameGroup  = BasketMenu.addAction("Rename group");
-        delGroupKeep = BasketMenu.addAction("Delete group (keep its items)");
-        delGroupAll  = BasketMenu.addAction("Delete group and all its items");
-        saveGroupA   = BasketMenu.addAction("Save group to file");
-        BasketMenu.addSeparator();
-    }
-    QAction * addGroup = BasketMenu.addAction("Add new group");
 
+    QMenu * groupMenu = BasketMenu.addMenu("Group");
+    bool isValidGroup = (iBasketIndex >= 0 && bGroup);
+        addGroup     = groupMenu->addAction("Add new group");
+        groupMenu->addSeparator();
+        renameGroup  = groupMenu->addAction("Rename group"); renameGroup->setEnabled(isValidGroup);
+        groupMenu->addSeparator();
+        delGroupKeep = groupMenu->addAction("Delete group (keep its items)"); delGroupKeep->setEnabled(isValidGroup);
+        delGroupAll  = groupMenu->addAction("Delete group and all its items"); delGroupAll->setEnabled(isValidGroup);
+        groupMenu->addSeparator();
+        saveGroupA   = groupMenu->addAction("Save group to file"); saveGroupA->setEnabled(isValidGroup);
 
     BasketMenu.addSeparator();
-    QAction* append = BasketMenu.addAction("Append basket file");
-    BasketMenu.addSeparator();
-    QAction* appendTxt = BasketMenu.addAction("Append graph from text file");
-    QAction* appendTxtEr = BasketMenu.addAction("Append graph with error bars from text file");
-    QAction* appendRootHistsAndGraphs = BasketMenu.addAction("Append graphs / histograms from a ROOT file");
+
+    QMenu * appendMenu = BasketMenu.addMenu("Append");
+        QAction * append = appendMenu->addAction("Append basket file");
+        appendMenu->addSeparator();
+        QAction * appendTxt = appendMenu->addAction("Append graph from text file");
+        QAction * appendTxtEr = appendMenu->addAction("Append graph with error bars from text file");
+        QAction * appendRootHistsAndGraphs = appendMenu->addAction("Append graphs / histograms from a ROOT file");
+        appendMenu->addSeparator();
+
     BasketMenu.addSeparator();
     QAction* save = BasketMenu.addAction("Save basket to file");
     BasketMenu.addSeparator();
