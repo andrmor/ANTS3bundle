@@ -299,6 +299,23 @@ int ABasketManager::findGroup(const QString & name)
     return -1;
 }
 
+
+
+QString ABasketManager::joinPath(const QString & parentGroup, const QString & thisGroupName)
+{
+    return parentGroup.isEmpty() ? thisGroupName : parentGroup + '/' + thisGroupName;
+}
+
+bool ABasketManager::groupExists(const QString & fullPath) const
+{
+    for (const ABasketItem & item : Basket)
+    {
+        if (!item.isGroup) continue;
+        if (item.getGroupFullPath() == fullPath) return true;
+    }
+    return false;
+}
+
 std::vector<ADrawObject> ABasketManager::getCopy(int index) const
 {
     std::vector<ADrawObject> res;
@@ -485,12 +502,22 @@ void ABasketManager::rename(int index, const QString & newName)
     Basket[index].Name = newName;
 }
 
+/*
 QStringList ABasketManager::getItemNames() const
 {
     QStringList res;
     for (const ABasketItem & item : Basket)
         res << item.Name;
     return res;
+}
+*/
+
+QString ABasketManager::getGroupFullPath(int index)
+{
+    if (index < 0 || index >= Basket.size()) return "";
+    if (!Basket[index].isGroup) return "";
+
+    return Basket[index].ParentGroup.isEmpty() ? Basket[index].Name : Basket[index].ParentGroup + '/' + Basket[index].Name;
 }
 
 void ABasketManager::setCollapsedFlag(int index, bool flag)
@@ -810,6 +837,11 @@ void ABasketManager::saveBasket(const QString & fileName)
     desc.Write("BasketDescription_v2");
 
     basketFile.Close();
+}
+
+void ABasketManager::saveGroup(int index, const QString & fileName)
+{
+    // !!!*** todo!
 }
 
 QString ABasketManager::appendBasket(const QString & fileName)
@@ -1198,4 +1230,39 @@ QString ABasketManager::checkGroupName(const QString & name)
     if (name.trimmed().isEmpty()) return "Group name cannot be empty";
     if (name.contains('/'))       return "Group name cannot contain '/'";
     return "";
+}
+
+QString ABasketManager::renameGroup(int index, const QString & newName)
+{
+    if (index < 0 || index >= Basket.size()) return "Invalid basket index";
+    if (!Basket[index].isGroup) return "Selected item is not a group";
+    if (newName == Basket[index].Name) return "New name is the same as old";
+    const QString err = checkGroupName(newName);
+    if (!err.isEmpty()) return err;
+
+    const QString newPath = joinPath(Basket[index].ParentGroup, newName);
+    if (groupExists(newPath)) return "A group with this name conflicts with existing ones";
+
+    const QString oldPath = Basket[index].getGroupFullPath();
+    Basket[index].Name = newName;
+    replaceGroupPrefix(oldPath, newPath);
+    return "";
+}
+
+void ABasketManager::replaceGroupPrefix(const QString & oldPath, const QString & newPath)
+{
+    //qDebug() << "--------->" << oldPath << "to" << newPath;
+    for (ABasketItem & it : Basket)
+    {
+        //qDebug() << "item"<< it.Name << "had " << it.ParentGroup;
+        if (isInsideGroup(it.ParentGroup, oldPath))
+            it.ParentGroup = newPath + it.ParentGroup.mid(oldPath.size());
+        //qDebug() << "--> now" << it.ParentGroup;
+    }
+}
+
+bool ABasketManager::isInsideGroup(const QString & path, const QString & group) const
+{
+    if (group.isEmpty()) return true;
+    return path == group || path.startsWith(group + '/');
 }

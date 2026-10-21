@@ -2181,6 +2181,14 @@ void AGraphWindow::onBasketCustomContextMenuRequested(const QPoint & pos)
             Basket->saveBasket(fileName);
         }
     }
+    else if (selectedItem == saveGroupA)
+    {
+        QString fileName = guitools::dialogSaveFile(this, "Save group to a file", "Root files (*.root)");
+        if (fileName.isEmpty()) return;
+        if (QFileInfo(fileName).suffix().isEmpty()) fileName += ".root";
+        //const QString err = Basket->saveGroup(fileName, clickedGroup);
+        //if (!err.isEmpty()) guitools::message(err, this);
+    }
     else if (selectedItem == append)
     {
         bool bDrawEmpty = DrawObjects.empty();
@@ -2249,15 +2257,13 @@ void AGraphWindow::onBasketCustomContextMenuRequested(const QPoint & pos)
         onBasketAction_AddGroup(iBasketIndex, bGroup);
     else if (selectedItem == renameGroup)
     {
-        /*
         bool ok;
         const QString text = QInputDialog::getText(this, "Rename group", "Enter new name:", QLineEdit::Normal,
-                                                   ABasketManager::leafName(clickedGroup), &ok).simplified();
+                                                   Basket->getName(iBasketIndex), &ok).simplified();
         if (!ok) return;
-        const QString err = Basket->renameGroup(clickedGroup, text);
+        const QString err = Basket->renameGroup(iBasketIndex, text);
         if (!err.isEmpty()) guitools::message(err, this);
         updateBasketGUI();
-        */
     }
     else if (selectedItem == delGroupKeep)
     {
@@ -2295,7 +2301,7 @@ void AGraphWindow::onBasketAction_AddGroup(int iBasketIndex, bool isGroup)
     QString parentGroup;
     if (iBasketIndex != -1) // else adding to the root
     {
-        if (isGroup) parentGroup = Basket->getItems()[iBasketIndex].getGroupNameForChildren();
+        if (isGroup) parentGroup = Basket->getItems()[iBasketIndex].getGroupFullPath();
         else         parentGroup = Basket->getItems()[iBasketIndex].ParentGroup;
     }
 

@@ -26,7 +26,7 @@ void ABasketItem::clearObjects()
     DrawObjects.clear();
 }
 
-QString ABasketItem::getGroupNameForChildren()
+QString ABasketItem::getGroupFullPath() const
 {
     if (!isGroup) return "";
 

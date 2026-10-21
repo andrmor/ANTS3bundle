@@ -29,7 +29,8 @@ public:
 
     QString             getName(int index) const;
     void                rename(int index, const QString & newName);
-    QStringList         getItemNames() const; // not needed?
+    //QStringList         getItemNames() const; // not needed?
+    QString             getGroupFullPath(int index);
 
     std::vector<ABasketItem> & getItems() {return Basket;}  // !!!*** to make safe later
     void                setCollapsedFlag(int index, bool flag);
@@ -38,6 +39,7 @@ public:
     bool                isMemberOfSpecificMultidraw(int index, int multidrawIndex);
 
     void                saveBasket(const QString & fileName);
+    void                saveGroup(int index, const QString & fileName); // !!!*** todo
     QString             appendBasket(const QString & fileName);
 
     QString             appendTxtAsGraph(const QString & fileName);
@@ -51,6 +53,7 @@ public:
 
     // groups
     static QString      checkGroupName(const QString & name);  // returns error text or ""
+    QString             renameGroup(int index, const QString & newName);
 
 private:
     std::vector<ABasketItem> Basket;
@@ -59,6 +62,10 @@ private:
     int                 findPointerInDrawObjects(const std::vector<ADrawObject> & drawObjects, TObject * obj) const;
     std::vector<size_t> getAllMultidrawsUsingIndex(size_t index);
     int                 findGroup(const QString & name); // returns -1 if not found
+    QString             joinPath(const QString & parentGroup, const QString & thisGroupName); // rename to "getFullGroupPath" ? or use getGroupFullPath()
+    bool                groupExists(const QString &fullPath) const;
+    void                replaceGroupPrefix(const QString & oldPath, const QString & newPath);
+    bool                isInsideGroup(const QString &path, const QString &group) const;
 
 public:
     static TObject * makeCloneOfTObject(TObject * tobj);
