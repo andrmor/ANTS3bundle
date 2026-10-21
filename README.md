@@ -42,6 +42,7 @@
 ---
 
 # Installation instructions
+* Ants3 is now available as a [Flatpak](https://github.com/andrmor/ANTS3bundle/wiki/Install_Flatpack) package, making installation quick and simple (experimental feature).
 * [Ubuntu 24.04 Mate](https://github.com/andrmor/ANTS3bundle/wiki/Install_Ubuntu24.04_Qt6)
 * [Outdated: Ubuntu 24.04 Mate with Qt5](https://github.com/andrmor/ANTS3bundle/wiki/Install_Ubuntu22.04_Qt5)
 * [Outdated: Ubuntu 22.04 Mate](https://github.com/andrmor/ANTS3bundle/wiki/Install_Ubuntu22.04)
