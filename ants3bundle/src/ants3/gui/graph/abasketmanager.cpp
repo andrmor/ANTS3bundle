@@ -715,6 +715,11 @@ void ABasketManager::saveBasket(const QString & fileName)
         QJsonObject itemJson;
         itemJson["ItemName"] = Basket[ib].Name;
 
+        // Group-related
+        itemJson["ParentGroup"] = Basket[ib].ParentGroup;
+        itemJson["IsGroup"] = Basket[ib].isGroup;
+        itemJson["Collapsed"] = Basket[ib].Collapsed;
+
         QJsonArray itemArray;
         const std::vector<ADrawObject> & drawObjects = Basket[ib].DrawObjects;
         for (size_t io = 0; io < drawObjects.size(); io++)
@@ -823,7 +828,6 @@ QString ABasketManager::appendBasket(const QString & fileName)
     for (int iBasketItem = 0; iBasketItem < basketSize; iBasketItem++ )
     {
         QJsonObject itemJson = basketArray[iBasketItem].toObject();
-        QString itemName = itemJson["ItemName"].toString();
         QJsonArray itemArray = itemJson["ItemObjects"].toArray();
         const int itemSize = itemArray.size();
 
@@ -910,12 +914,20 @@ QString ABasketManager::appendBasket(const QString & fileName)
             }
         }
 
-        if (!drawObjects.empty())
+        //if (!drawObjects.empty())
         {
             ABasketItem item;
-            item.Name = itemName;
+            item.Name = itemJson["ItemName"].toString();
+
+            // Group-related
+            jstools::parseJson(itemJson, "ParentGroup", item.ParentGroup);
+            jstools::parseJson(itemJson, "IsGroup", item.isGroup);
+            jstools::parseJson(itemJson, "Collapsed", item.Collapsed);
+
             item.DrawObjects = drawObjects;
-            item.Type = drawObjects.front().Pointer->ClassName(); // "TList" if the first draw object is a list
+            if (!drawObjects.empty())
+                item.Type = drawObjects.front().Pointer->ClassName(); // "TList" if the first draw object is a list
+
             Basket.push_back(item);
             drawObjects.clear();
         }
