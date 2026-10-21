@@ -108,6 +108,8 @@ AGraphWindow::AGraphWindow(QWidget * parent) :
     ui->layBasket->addWidget(lwBasket);
     connect(lwBasket, &ABasketTreeWidget::customContextMenuRequested, this, &AGraphWindow::onBasketCustomContextMenuRequested);
     connect(lwBasket, &ABasketTreeWidget::itemDoubleClicked,          this, &AGraphWindow::onBasketItemDoubleClicked);
+    connect(lwBasket, &ABasketTreeWidget::itemCollapsed,              this, &AGraphWindow::onBasketItemCollapsed);
+    connect(lwBasket, &ABasketTreeWidget::itemExpanded,               this, &AGraphWindow::onBasketItemExpanded);
     connect(lwBasket, &ABasketTreeWidget::requestReorder,             this, &AGraphWindow::onBasketReorderRequested);
 
     connect(&AScriptHub::getInstance(), &AScriptHub::requestDraw,           this, &AGraphWindow::onScriptDrawRequest,           Qt::DirectConnection); // inside it is queued
@@ -2009,6 +2011,16 @@ void AGraphWindow::onBasketItemDoubleClicked(QTreeWidgetItem * item)
     if (lwBasket->isGroup(item)) return;
 
     switchToBasket(lwBasket->getBasketIndex(item));
+}
+
+void AGraphWindow::onBasketItemCollapsed(QTreeWidgetItem * item)
+{
+    Basket->setCollapsedFlag(lwBasket->getBasketIndex(item), true);
+}
+
+void AGraphWindow::onBasketItemExpanded(QTreeWidgetItem * item)
+{
+    Basket->setCollapsedFlag(lwBasket->getBasketIndex(item), false);
 }
 
 void AGraphWindow::onBasketDeleteShortcutActivated()

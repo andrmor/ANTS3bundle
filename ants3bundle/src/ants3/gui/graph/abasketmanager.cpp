@@ -493,6 +493,12 @@ QStringList ABasketManager::getItemNames() const
     return res;
 }
 
+void ABasketManager::setCollapsedFlag(int index, bool flag)
+{
+    if (index < 0 || index >= Basket.size()) return;
+    Basket[index].Collapsed = flag;
+}
+
 bool ABasketManager::isMultidraw(int index) const
 {
     if (index < 0 || index >= Basket.size()) return false;

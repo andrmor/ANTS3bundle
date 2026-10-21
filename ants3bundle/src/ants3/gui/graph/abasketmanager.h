@@ -29,8 +29,10 @@ public:
 
     QString             getName(int index) const;
     void                rename(int index, const QString & newName);
-    QStringList         getItemNames() const;
+    QStringList         getItemNames() const; // not needed?
+
     std::vector<ABasketItem> & getItems() {return Basket;}  // !!!*** to make safe later
+    void                setCollapsedFlag(int index, bool flag);
 
     bool                isMultidraw(int index) const;
     bool                isMemberOfSpecificMultidraw(int index, int multidrawIndex);

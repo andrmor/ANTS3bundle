@@ -87,6 +87,8 @@ private slots:
     // basket-related
     void onBasketCustomContextMenuRequested(const QPoint & pos); // !!!*** todo
     void onBasketItemDoubleClicked(QTreeWidgetItem * item);
+    void onBasketItemCollapsed(QTreeWidgetItem * item);
+    void onBasketItemExpanded(QTreeWidgetItem * item);
     void onBasketReorderRequested(const std::vector<int> & indexes, int toRow); // !!!*** todo convertion
     void onBasketDeleteShortcutActivated();
     // script related
