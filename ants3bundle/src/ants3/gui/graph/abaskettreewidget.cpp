@@ -15,9 +15,6 @@ ABasketTreeWidget::ABasketTreeWidget(QWidget * parent) :
     setDragDropMode(QAbstractItemView::InternalMove);
     setDropIndicatorShown(true);
 
-    //connect(this, &QTreeWidget::itemCollapsed, this, [this](QTreeWidgetItem * it){ if (isGroup(it)) CollapsedGroups.insert(groupPath(it)); });
-    //connect(this, &QTreeWidget::itemExpanded,  this, [this](QTreeWidgetItem * it){ if (isGroup(it)) CollapsedGroups.remove(groupPath(it)); });
-
     DefaultIndent = indentation();
 }
 

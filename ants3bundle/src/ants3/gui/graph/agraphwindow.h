@@ -85,7 +85,7 @@ private slots:
     void updateControls(); //updates visualisation of the current master graph parameters   !!!*** need refactor and improvement for hist objects
     void reshape();
     // basket-related
-    void onBasketCustomContextMenuRequested(const QPoint & pos); // !!!*** todo
+    void onBasketCustomContextMenuRequested(const QPoint & pos);
     void onBasketItemDoubleClicked(QTreeWidgetItem * item);
     void onBasketItemCollapsed(QTreeWidgetItem * item);
     void onBasketItemExpanded(QTreeWidgetItem * item);
@@ -209,24 +209,15 @@ private slots:
     void on_ledMultAxisScaleXoff_editingFinished();
     void on_ledMultAxisScaleYoff_editingFinished();
     void on_ledMultAxisScaleZoff_editingFinished();
-
     //void on_ledMultScaleAxesLines_editingFinished(); // not possible in ROOT... hrm
-
     void on_ledMultScaleDrawLines_editingFinished();
     void on_ledMultScaleMarkers_editingFinished();
-
     void on_cbMultiAddIdentifier_clicked(bool checked);
-
     void on_pbMultiConfigureIdentifier_clicked();
-
     void on_pbMultiSaveImage_clicked();
-
     void on_pbMultiSaveImage_customContextMenuRequested(const QPoint &pos);
-
     void on_actionSave_multipad_view_settings_triggered();
-
     void on_actionLoad_multipad_view_settings_triggered();
-
 
     void on_pbAddToBasket_customContextMenuRequested(const QPoint &pos);
 
@@ -304,7 +295,7 @@ private:
     void basket_DrawOnTop(int row);
     void highlightUpdateBasketButton(bool flag);
     void contextMenuForBasketMultipleSelection(const QPoint & pos);
-    void removeAllSelectedBasketItems(); // !!!*** todo
+    void removeAllSelectedBasketItems();
     void clearBasketActiveId();
     void makeCopyOfActiveBasketId();
     void restoreBasketActiveId();
@@ -325,7 +316,6 @@ private:
     void onMultiIdentPaveChanged();
     void onMultiIdentPaveTextChanged(QString text);
 
-    // Basket groups!
     void onBasketAction_AddGroup(int iBasketIndex, bool isGroup);
 
 signals:

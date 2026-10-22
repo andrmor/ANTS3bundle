@@ -2093,7 +2093,6 @@ void AGraphWindow::clearCopyOfActiveBasketId()
     PreviousActiveBasketItem = -1;
 }
 
-// !!!*** todo
 void AGraphWindow::onBasketCustomContextMenuRequested(const QPoint & pos)
 {
     if (lwBasket->selectedItems().size() > 1)
@@ -2234,6 +2233,11 @@ void AGraphWindow::onBasketCustomContextMenuRequested(const QPoint & pos)
     }
     else if (selectedItem == del)
     {
+        if (Basket->isGroup(iBasketIndex)) // paranoid, group cannot be here
+        {
+            guitools::message("To remove a group, use 'Group' context sub-menu", this);
+            return;
+        }
         QString err = Basket->remove({iBasketIndex});
         if (!err. isEmpty())
         {
@@ -2295,7 +2299,6 @@ void AGraphWindow::onBasketCustomContextMenuRequested(const QPoint & pos)
         if (!err.isEmpty()) guitools::message(err, this);
         updateBasketGUI();
     }
-
 }
 
 void AGraphWindow::onBasketAction_AddGroup(int iBasketIndex, bool isGroup)
@@ -2356,19 +2359,31 @@ void AGraphWindow::contextMenuForBasketMultipleSelection(const QPoint & pos)
 
 void AGraphWindow::removeAllSelectedBasketItems()
 {
-    /*
-    const QList<QListWidgetItem*> selection = lwBasket->selectedItems();
+    const QList<QTreeWidgetItem*> selection = lwBasket->selectedItems();
     const int size = selection.size();
     if (size == 0) return;
 
-    bool bConfirm = true;
+    for (const QTreeWidgetItem * item : selection)
+    {
+        if (lwBasket->isGroup(item))
+        {
+            guitools::message("Cannot delete groups this way.\nUse 'Group' context sub-menu", this);
+            return;
+        }
+    }
+
     if (size > 1)
-        bConfirm = guitools::confirm(QString("Remove selected %1 item%2 from the basket?").arg(size).arg(size == 1 ? "" : "s"), this);
-    if (!bConfirm) return;
+    {
+        bool bConfirm = guitools::confirm(QString("Remove %1 selected item%2 from the basket?").arg(size).arg(size == 1 ? "" : "s"), this);
+        if (!bConfirm) return;
+    }
 
     std::vector<int> indexes;
-    for (const QListWidgetItem * item : selection)
-        indexes.push_back(lwBasket->row(item));
+    for (const QTreeWidgetItem * item : selection)
+    {
+        int index = lwBasket->getBasketIndex(item);
+        indexes.push_back(index);
+    }
 
     QString err = Basket->remove(indexes);
     if (!err.isEmpty())
@@ -2380,7 +2395,6 @@ void AGraphWindow::removeAllSelectedBasketItems()
     ActiveBasketItem = -1;
     clearCopyOfActiveBasketId();
     updateBasketGUI();
-    */
 }
 
 void AGraphWindow::onExternalBasketChange()
