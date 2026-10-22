@@ -2116,8 +2116,6 @@ void AGraphWindow::onBasketCustomContextMenuRequested(const QPoint & pos)
     QTreeWidgetItem * clicked = lwBasket->itemAt(pos);
     const bool bGroup = lwBasket->isGroup(clicked);
     const int  iBasketIndex = lwBasket->getBasketIndex(clicked);
-    //const QString clickedGroup = bGroup ? lwBasket->groupPath(clicked) : QString();
-    //const QString groupForNew  = lwBasket->groupAt(pos);   // clicked group / group of clicked item / root
 
     if (iBasketIndex >= 0 && !bGroup)
     {
@@ -2248,14 +2246,16 @@ void AGraphWindow::onBasketCustomContextMenuRequested(const QPoint & pos)
     }
     else if (selectedItem == delGroupKeep)
     {
-        /*
-        Basket->removeGroup(clickedGroup);
-
+        if (!guitools::confirm(QString("Delete group '%1' but keep containing groups and items?").arg(Basket->getName(iBasketIndex)), this)) return;
+        const QString err = Basket->removeGroupButKeepContents(iBasketIndex);
+        if (!err.isEmpty())
+        {
+            guitools::message(err, this);
+            return;
+        }
         ActiveBasketItem = -1;
         clearCopyOfActiveBasketId();
-
         updateBasketGUI();
-        */
     }
     else if (selectedItem == delGroupAll)
     {
@@ -2270,7 +2270,7 @@ void AGraphWindow::onBasketCustomContextMenuRequested(const QPoint & pos)
         clearCopyOfActiveBasketId();
         updateBasketGUI();
     }
-    else if (selectedItem == rename) // !!!*** merge normal and group rename mathods!
+    else if (selectedItem == rename)
     {
         if (iBasketIndex == -1) return; //protection
         bool ok;

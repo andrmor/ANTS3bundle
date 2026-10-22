@@ -476,6 +476,96 @@ QString ABasketManager::removeGroupAndContents(int index)
     return remove(itemIndexes);
 }
 
+QString ABasketManager::removeGroupButKeepContents(int index)
+{
+    if (index < 0 || index >= (int)Basket.size()) return "Invalid index";
+    if (!Basket[index].isGroup) return "This is not a group";
+
+    std::vector<int> indexes;
+    getIndexes_ItemsInGroupRecursive(index, indexes);
+    // indexes[0] is the group itself, the rest are all its descendants (groups and items)
+    Q_ASSERT(!indexes.empty() && indexes[0] == index);
+
+    const QString from = Basket[index].getGroupFullPath(); // e.g. "A1/A2/A3"
+    const QString to   = Basket[index].ParentGroup;        // e.g. "A1/A2" ("" at root)
+
+    // Every descendant's ParentGroup is either 'from' or starts with 'from/'
+    // Its new parent is the same path with the removed group's segment stripped out.
+    auto newParentOf = [&](const QString & oldParent) -> QString
+    {
+        const QString suffix = oldParent.mid(from.size()); // "" or "/X/Y"
+        return to.isEmpty() ? suffix.mid(1) : to + suffix;
+    };
+
+    // true if path is the removed group or one of its descendants
+    auto inRemovedSubtree = [&](const QString & path)
+    {
+        return path == from || path.startsWith(from + '/');
+    };
+
+    // Check for conflicting group names
+    // Groups inside the removed subtree all move, so they can't block each other;
+    // only groups outside the subtree (which stay in place) can cause a conflict.
+    for (size_t i = 1; i < indexes.size(); i++)
+    {
+        const auto & it = Basket[indexes[i]];
+        if (!it.isGroup) continue;
+
+        const QString newFull = joinPath(newParentOf(it.ParentGroup), it.Name);
+        if (!inRemovedSubtree(newFull) && groupExists(newFull))
+            return QString("Removing this group would result in conflicting group names: see group %1").arg(newFull);
+    }
+
+    // Save the descendants' indices, translated to their positions after erase()
+    std::vector<int> descendants;
+    descendants.reserve(indexes.size() - 1);
+    for (size_t i = 1; i < indexes.size(); i++)
+        descendants.push_back(indexes[i] > index ? indexes[i] - 1 : indexes[i]); // paranoid :) they should be >
+
+    // Attempt to remove the group itself (assuming it can fail, in the current implementation should not happen, as it tests only for multiplots items)
+    const QString error = remove(std::vector<int>{index});
+    if (!error.isEmpty()) return error; // nothing has been modified yet
+
+    // Re-parent groups AND items
+    for (int d : descendants)
+        Basket[d].ParentGroup = newParentOf(Basket[d].ParentGroup);
+
+    return "";
+
+    /*
+    if (index < 0 || index >= Basket.size()) return "Invalid index";
+    if (!Basket[index].isGroup) return "This is not a group";
+
+    std::vector<int> itemIndexes;
+    getIndexes_ItemsInGroupRecursive(index, itemIndexes);
+    Q_ASSERT(!itemIndexes.empty() && itemIndexes[0] == index);
+
+    QString removeGroup_Name = Basket[index].Name;
+    QString pathToChangeFrom = Basket[index].getGroupFullPath();
+    QString pathToChangeTo   = Basket[index].ParentGroup;
+    // check for conflicting group names
+    for (int i = 1; i < itemIndexes.size(); i++) // first is the group itself
+    {
+        int thisIndex = itemIndexes[i];
+        if (!Basket[thisIndex].isGroup) continue;
+
+        QString newPath = pathToChangeTo + Basket[thisIndex].ParentGroup.mid(pathToChangeFrom.size());
+        if (groupExists(newPath + '/' + Basket[thisIndex].Name))
+            return QString("Removing this group would result in conflicting group names: see group %1/%2").arg(Basket[thisIndex].ParentGroup).arg(Basket[thisIndex].Name);
+    }
+
+    for (int i = 1; i < itemIndexes.size(); i++)
+    {
+        int thisIndex = itemIndexes[i];
+        Basket[thisIndex].ParentGroup = pathToChangeTo + Basket[thisIndex].ParentGroup.mid(pathToChangeFrom.size());
+    }
+
+    // removing the group itself
+    itemIndexes.resize(1);
+    return remove(itemIndexes);
+    */
+}
+
 void ABasketManager::getIndexes_ItemsInGroupRecursive(int indexOfGroup, std::vector<int> & indexes) const
 {
     if (indexOfGroup < 0 || indexOfGroup >= Basket.size()) return;

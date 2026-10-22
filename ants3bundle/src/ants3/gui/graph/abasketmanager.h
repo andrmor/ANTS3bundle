@@ -23,6 +23,7 @@ public:
     void                clear();
     QString             remove(std::vector<int> indexesToRemove); // returns error if it was not possible to remove at least one item (part of a multidraw)
     QString             removeGroupAndContents(int index);
+    QString             removeGroupButKeepContents(int index);
 
     QString             getType(int index) const;
 
