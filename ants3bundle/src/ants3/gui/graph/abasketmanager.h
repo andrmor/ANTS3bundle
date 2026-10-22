@@ -41,7 +41,7 @@ public:
     bool                isMemberOfSpecificMultidraw(int index, int multidrawIndex);
 
     void                saveBasket(const QString & fileName);
-    void                saveGroup(int index, const QString & fileName); // !!!*** todo
+    QString             saveGroup(int index, const QString & fileName); // !!!*** todo
     QString             appendBasket(const QString & fileName);
 
     QString             appendTxtAsGraph(const QString & fileName);
@@ -69,6 +69,8 @@ private:
     void                replaceGroupPrefix(const QString & oldPath, const QString & newPath);
     bool                isInsideGroup(const QString &path, const QString &group) const;
     void                getIndexes_ItemsInGroupRecursive(int indexOfGroup, std::vector<int> & indexes) const;
+    QString             writeBasketFile(const QString & fileName, const std::vector<int> & indexes, int rootGroupIndex = -1);
+    QString             checkMultidrawsAreComplete(const std::vector<int> & indexes);
 
 public:
     static TObject * makeCloneOfTObject(TObject * tobj);

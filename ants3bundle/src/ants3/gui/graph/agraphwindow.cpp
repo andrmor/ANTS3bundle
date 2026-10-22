@@ -2178,20 +2178,19 @@ void AGraphWindow::onBasketCustomContextMenuRequested(const QPoint & pos)
     else if (selectedItem == save)
     {
         QString fileName = guitools::dialogSaveFile(this, "Save basket to a file", "Root files (*.root)");
-        if (!fileName.isEmpty())
-        {
-            if (QFileInfo(fileName).suffix().isEmpty()) fileName += ".root";
-            Basket->saveBasket(fileName);
-        }
+        if (fileName.isEmpty()) return;
+
+        if (QFileInfo(fileName).suffix().isEmpty()) fileName += ".root";
+        Basket->saveBasket(fileName);
     }
     else if (selectedItem == saveGroupA)
     {
-        // !!!*** todo
         QString fileName = guitools::dialogSaveFile(this, "Save group to a file", "Root files (*.root)");
         if (fileName.isEmpty()) return;
         if (QFileInfo(fileName).suffix().isEmpty()) fileName += ".root";
-        //const QString err = Basket->saveGroup(fileName, clickedGroup);
-        //if (!err.isEmpty()) guitools::message(err, this);
+
+        const QString err = Basket->saveGroup(iBasketIndex, fileName);
+        if (!err.isEmpty()) guitools::message(err, this);
     }
     else if (selectedItem == append)
     {
@@ -2392,34 +2391,28 @@ void AGraphWindow::onExternalBasketChange()
 
 void AGraphWindow::requestMultidrawNew()
 {
-    /*
-    const QList<QListWidgetItem*> selection = lwBasket->selectedItems();
+    const QList<QTreeWidgetItem*> selection = lwBasket->selectedItems();
 
-    for (const QListWidgetItem * const item : selection)
+    ADrawObject obj;
+    obj.Multidraw = true;
+
+    for (const QTreeWidgetItem * const item : selection)
     {
-        int index = lwBasket->row(item);
+        int index = lwBasket->getBasketIndex(item);
         if (Basket->isMultidraw(index))
         {
             guitools::message("Cannot form a multipad view:\nOne of the selected basket items is already a multipad view", this);
             return;
         }
-    }
-
-    ADrawObject obj;
-    obj.Multidraw = true;
-
-    for (const QListWidgetItem * const item : selection)
-    {
-        int index = lwBasket->row(item);
         obj.MultidrawSettings.BasketItems.push_back(index);
     }
+
     obj.MultidrawSettings.init();
 
     std::vector<ADrawObject> tmp = {obj};
     Basket->add("NewMultipadView", tmp);
 
     switchToBasket(Basket->size() - 1);
-    */
 }
 
 void AGraphWindow::requestAddToMultidraw()
