@@ -2404,6 +2404,12 @@ void AGraphWindow::requestMultidrawNew()
             guitools::message("Cannot form a multipad view:\nOne of the selected basket items is already a multipad view", this);
             return;
         }
+        if (Basket->isGroup(index))
+        {
+            guitools::message("Cannot form a multipad view using groups", this);
+            return;
+        }
+
         obj.MultidrawSettings.BasketItems.push_back(index);
     }
 
@@ -2417,13 +2423,12 @@ void AGraphWindow::requestMultidrawNew()
 
 void AGraphWindow::requestAddToMultidraw()
 {
-    /*
-    const QList<QListWidgetItem*> selection = lwBasket->selectedItems();
+    const QList<QTreeWidgetItem*> selection = lwBasket->selectedItems();
 
     int multiIndex = -1;
-    for (const QListWidgetItem * const item : selection)
+    for (const QTreeWidgetItem * const item : selection)
     {
-        int index = lwBasket->row(item);
+        int index = lwBasket->getBasketIndex(item);
         if (Basket->isMultidraw(index))
         {
             if (multiIndex == -1) multiIndex = index;
@@ -2432,6 +2437,11 @@ void AGraphWindow::requestAddToMultidraw()
                 guitools::message("Only one multipad view can be selected", this);
                 return;
             }
+        }
+        if (Basket->isGroup(index))
+        {
+            guitools::message("Cannot add group to a multipad view", this);
+            return;
         }
     }
 
@@ -2443,25 +2453,31 @@ void AGraphWindow::requestAddToMultidraw()
 
     std::vector<ADrawObject> drawObjectAr = Basket->getCopy(multiIndex);
     if (drawObjectAr.empty()) return; // paranoid
-    for (const QListWidgetItem * const item : selection)
+    for (const QTreeWidgetItem * const item : selection)
     {
-        int index = lwBasket->row(item);
+        int index = lwBasket->getBasketIndex(item);
         if (index == multiIndex) continue;
         drawObjectAr.front().MultidrawSettings.BasketItems.push_back(index);
     }
     Basket->update(multiIndex, drawObjectAr);
     switchToBasket(multiIndex);
-    */
 }
 
 void AGraphWindow::requestMergeHistograms()
 {
-    /*
-    const QList<QListWidgetItem*> selection = lwBasket->selectedItems();
+    const QList<QTreeWidgetItem*> selection = lwBasket->selectedItems();
 
     std::vector<int> indexes;
-    for (const QListWidgetItem * const item : selection)
-        indexes.push_back(lwBasket->row(item));
+    for (const QTreeWidgetItem * const item : selection)
+    {
+        int index = lwBasket->getBasketIndex(item);
+        if (Basket->isGroup(index))
+        {
+            guitools::message("Selected items cannot contain groups!", this);
+            return;
+        }
+        indexes.push_back(index);
+    }
 
     if (indexes.size() < 2) return;
 
@@ -2471,7 +2487,6 @@ void AGraphWindow::requestMergeHistograms()
         guitools::message(err, this);
     else
         switchToBasket(Basket->size() - 1);
-    */
 }
 
 void AGraphWindow::clearBasket()

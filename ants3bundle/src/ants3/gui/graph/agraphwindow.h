@@ -280,12 +280,12 @@ private:
     void drawSingleObject(TObject * obj, QString options, bool update);
     void registerTObject(TObject * obj);
     void clearRegisteredTObjects();
-    void requestMultidrawNew();  // !!!*** todo
-    void requestAddToMultidraw();  // !!!*** todo
+    void requestMultidrawNew();
+    void requestAddToMultidraw();
     void doRedrawOnUpdateMargins();
     void updateGuiControlsForMainObject(const QString & className, const QString & options);
     void showProjection(QString type);
-    void requestMergeHistograms(); // !!!***
+    void requestMergeHistograms();
     void applyTemplate(bool bAll);
     void updateSecondaryAxis(TGaxis * gaxis, QString options);
     void showHintInStatus();

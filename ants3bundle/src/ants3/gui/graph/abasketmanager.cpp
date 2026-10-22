@@ -633,6 +633,12 @@ bool ABasketManager::isMemberOfSpecificMultidraw(int index, int multidrawIndex)
     return false;
 }
 
+bool ABasketManager::isGroup(int index) const
+{
+    if (index < 0 || index >= Basket.size()) return false;
+    return Basket[index].isGroup;
+}
+
 /*
 // ---------------------------------------------------------------------------
 // Updated ABasketManager::saveBasket / ABasketManager::appendBasket

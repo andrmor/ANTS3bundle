@@ -40,6 +40,8 @@ public:
     bool                isMultidraw(int index) const;
     bool                isMemberOfSpecificMultidraw(int index, int multidrawIndex);
 
+    bool                isGroup(int index) const;
+
     void                saveBasket(const QString & fileName);
     QString             saveGroup(int index, const QString & fileName); // !!!*** todo
     QString             appendBasket(const QString & fileName);
