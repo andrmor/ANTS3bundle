@@ -1973,32 +1973,33 @@ void AGraphWindow::updateBasketGUI()
 
     if (ActiveBasketItem >= Basket->size()) ActiveBasketItem = -1;
 
-    // !!!*** todo
-    /*
-    for (int i=0; i < lwBasket->count(); i++)
+    QTreeWidgetItemIterator it(lwBasket);
+    while (*it)
     {
-        QListWidgetItem * item = lwBasket->item(i);
+        QTreeWidgetItem * item = *it;
+        int i = lwBasket->getBasketIndex(item);
         if (i == ActiveBasketItem)
         {
-            item->setForeground(QBrush(Qt::cyan));
-            item->setBackground(QBrush(Qt::lightGray));
+            item->setForeground(0, QBrush(Qt::cyan));
+            item->setBackground(0, QBrush(Qt::lightGray));
         }
         else
         {
-            item->setForeground(QBrush(Qt::black));
-            item->setBackground(QBrush(Qt::white));
+            item->setForeground(0, QBrush(Qt::black));
+            item->setBackground(0, QBrush(Qt::white));
         }
 
         if (Basket->isMultidraw(i))
         {
-            QFont font = item->font();
+            QFont font = item->font(0);
             font.setBold(true);
             font.setItalic(true);
             font.setWeight(QFont::Medium);//DemiBold);
-            item->setFont(font);
+            item->setFont(0, font);
         }
+
+        ++it;
     }
-*/
 
     ui->pbUpdateInBasket->setEnabled(ActiveBasketItem >= 0);
 

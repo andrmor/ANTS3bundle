@@ -299,11 +299,11 @@ private:
     void makeCopyOfDrawObjects(); // old message was here: "gcc optimizer fix:"
     void clearCopyOfDrawObjects();
 
-    void updateBasketGUI(); // !!!*** todo
+    void updateBasketGUI();
     void switchToBasket(int index);
     void basket_DrawOnTop(int row);
     void highlightUpdateBasketButton(bool flag);
-    void contextMenuForBasketMultipleSelection(const QPoint & pos); // !!!*** todo
+    void contextMenuForBasketMultipleSelection(const QPoint & pos);
     void removeAllSelectedBasketItems(); // !!!*** todo
     void clearBasketActiveId();
     void makeCopyOfActiveBasketId();
@@ -320,7 +320,7 @@ private:
     void onBusyOn();
     void onBusyOff();
 
-    void redrawAll_Multidraw(ADrawObject & drawObj); // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    void redrawAll_Multidraw(ADrawObject & drawObj);
     bool isMultidrawModeOn();
     void onMultiIdentPaveChanged();
     void onMultiIdentPaveTextChanged(QString text);
