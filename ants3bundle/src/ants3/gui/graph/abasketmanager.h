@@ -41,6 +41,7 @@ public:
     bool                isMemberOfSpecificMultidraw(int index, int multidrawIndex);
 
     bool                isGroup(int index) const;
+    QString             getParentGroup(int index) const;
 
     void                saveBasket(const QString & fileName);
     QString             saveGroup(int index, const QString & fileName); // !!!*** todo
@@ -50,8 +51,8 @@ public:
     QString             appendTxtAsGraphErrors(const QString & fileName);
     void                appendRootHistGraphs(const QString & fileName);
 
-    void                reorder(const std::vector<int> & indexes, int to); // assume uniqueness of indexes
-    void                moveLastBasketItemToGroup(const QString & parentGroup, bool toBottom); // triggers reorder
+    QString             reorder(std::vector<int> & indexes, int indexTo); // assume uniqueness of indexes
+    void                moveLastBasketItemToGroup(const QString & parentGroup, bool toBottom); // triggers reorder  // !!!*** return QString error
 
     QString             mergeHistograms(const std::vector<int> & indexes);
 
@@ -67,12 +68,15 @@ private:
     std::vector<size_t> getAllMultidrawsUsingIndex(size_t index);
     int                 findGroup(const QString & name); // returns -1 if not found
     QString             joinPath(const QString & parentGroup, const QString & thisGroupName); // rename to "getFullGroupPath" ? or use getGroupFullPath()
-    bool                groupExists(const QString &fullPath) const;
+    bool                groupExists(const QString & fullPath) const;
     void                replaceGroupPrefix(const QString & oldPath, const QString & newPath);
     bool                isInsideGroup(const QString &path, const QString &group) const;
     void                getIndexes_ItemsInGroupRecursive(int indexOfGroup, std::vector<int> & indexes) const;
     QString             writeBasketFile(const QString & fileName, const std::vector<int> & indexes, int rootGroupIndex = -1);
     QString             checkMultidrawsAreComplete(const std::vector<int> & indexes);
+    QString             checkGroupCanBeMovedToIndex(int indexOfGroup, int indexTo);
+    void                addGroupMembersRecursive(int itemIndex, std::vector<int> & indexes);
+    void                updateParentGroup(int indexTo, std::vector<int> &indexes);
 
 public:
     static TObject * makeCloneOfTObject(TObject * tobj);

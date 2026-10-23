@@ -21,7 +21,7 @@ protected:
     void dropEvent(QDropEvent * event) override;
 
 signals:
-    void requestReorder(const std::vector<int> & indexes, int toRow);
+    void requestReorder(std::vector<int> & indexes, int toIndex);
 
 private:
     enum { GroupRole = Qt::UserRole, IndexRole = Qt::UserRole + 1 };

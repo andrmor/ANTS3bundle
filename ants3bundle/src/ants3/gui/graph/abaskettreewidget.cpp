@@ -15,6 +15,8 @@ ABasketTreeWidget::ABasketTreeWidget(QWidget * parent) :
     setDragDropMode(QAbstractItemView::InternalMove);
     setDropIndicatorShown(true);
 
+    setExpandsOnDoubleClick(false);
+
     DefaultIndent = indentation();
 }
 
@@ -65,6 +67,7 @@ void ABasketTreeWidget::fill(ABasketManager * basket)
         }
 
         treeItem->setData(0, IndexRole, iBasketInbdex);
+        //if (item.isGroup) treeItem->setExpanded(!item.Collapsed);
 
         if (item.ParentGroup.isEmpty()) addTopLevelItem(treeItem);
         else
@@ -74,7 +77,6 @@ void ABasketTreeWidget::fill(ABasketManager * basket)
             else                        addTopLevelItem(treeItem); // Missing parent
         }
 
-        if (item.isGroup) treeItem->setExpanded(!item.Collapsed);
     }
 }
 
@@ -92,13 +94,39 @@ int ABasketTreeWidget::getBasketIndex(const QTreeWidgetItem * item) const
 
 void ABasketTreeWidget::dropEvent(QDropEvent * event)
 {
+    qDebug() << "Basket: Drop detected";
+
+    const QList<QTreeWidgetItem*> sel = selectedItems();
+
+    std::vector<int> indexes;
+    for (const QTreeWidgetItem * item : sel)
+        indexes.push_back( getBasketIndex(item) );
+
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+    QTreeWidgetItem * itemTo = itemAt(event->pos());
+#else
+    QTreeWidgetItem * itemTo = itemAt(event->position().toPoint());
+#endif
+
+    int indexTo = getBasketIndex(itemTo);
+    if (indexTo >= 0)
+    {
+        if (dropIndicatorPosition() == QAbstractItemView::BelowItem) indexTo++;
+    }
+    qDebug() << "   Move to item:" << indexTo << itemTo;
+
+    event->ignore();
+
+    emit requestReorder(indexes, indexTo);
+
+
+    /*
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     const QPoint pos = event->pos();
 #else
     const QPoint pos = event->position().toPoint();
 #endif
 
-    /*
     QTreeWidgetItem * target = itemAt(pos);
     const DropIndicatorPosition dip = dropIndicatorPosition();
 
@@ -133,6 +161,6 @@ void ABasketTreeWidget::dropEvent(QDropEvent * event)
         if (ABasketManager::isInsideGroup(targetGroup, g)) return;   // cannot drop a group into itself
 
     emit requestMove(items, groups, targetGroup, toIndex);
-*/
+    */
 }
 

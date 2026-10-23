@@ -89,7 +89,7 @@ private slots:
     void onBasketItemDoubleClicked(QTreeWidgetItem * item);
     void onBasketItemCollapsed(QTreeWidgetItem * item);
     void onBasketItemExpanded(QTreeWidgetItem * item);
-    void onBasketReorderRequested(const std::vector<int> & indexes, int toRow); // !!!*** todo convertion
+    void onBasketReorderRequested(std::vector<int> & indexes, int toRow); // !!!*** todo group-related tests
     void onBasketDeleteShortcutActivated();
     // script related
     void onScriptDrawRequest(TObject * obj, QString options, bool fFocus);      // these two work together (QueuedConnection to enable calls from another thread)

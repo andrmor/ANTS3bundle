@@ -608,6 +608,7 @@ void ABasketManager::setCollapsedFlag(int index, bool flag)
 {
     if (index < 0 || index >= Basket.size()) return;
     Basket[index].Collapsed = flag;
+    qDebug() << "BM-->" << Basket[index].Name << Basket[index].Collapsed;
 }
 
 bool ABasketManager::isMultidraw(int index) const
@@ -635,8 +636,14 @@ bool ABasketManager::isMemberOfSpecificMultidraw(int index, int multidrawIndex)
 
 bool ABasketManager::isGroup(int index) const
 {
-    if (index < 0 || index >= Basket.size()) return false;
+    if (index < 0 || index >= (int)Basket.size()) return false;
     return Basket[index].isGroup;
+}
+
+QString ABasketManager::getParentGroup(int index) const
+{
+    if (index < 0 || index >= (int)Basket.size()) return "";
+    return Basket[index].ParentGroup;
 }
 
 /*
@@ -1132,8 +1139,195 @@ void ABasketManager::appendRootHistGraphs(const QString & fileName)
     f->Close();
 }
 
-void ABasketManager::reorder(const std::vector<int> & indexes, int to)
+QString ABasketManager::checkGroupCanBeMovedToIndex(int indexOfGroup, int indexTo)
 {
+    if (indexOfGroup == indexTo) return ""; // nothing to do
+
+    if (indexOfGroup < 0 || indexOfGroup >= (int)Basket.size()) return "Bad group index";
+    if (indexTo < 0 || indexTo >= (int)Basket.size()) return "Bad target index"; // !!!*** maybe need to allow last!
+
+    // !!!*** not ready to handle group reorder!
+    const QString originalPath = Basket[indexOfGroup].getGroupFullPath();
+    QString newPath = joinPath(Basket[indexTo].getGroupFullPath(), Basket[indexOfGroup].Name);
+    if (originalPath == newPath) return ""; // remains in the same parent group (or root)
+
+    if (groupExists(newPath)) return "Moving the group would result in group name conflict";
+
+    return "";
+}
+
+void ABasketManager::addGroupMembersRecursive(int itemIndex, std::vector<int> & indexes)
+{
+    if (!Basket[itemIndex].isGroup) return;
+
+    QString groupPath = Basket[itemIndex].getGroupFullPath();
+
+    // Find all direct children in Basket, preserving their order
+    std::vector<int> children;
+    for (int i = 0; i < (int)Basket.size(); i++)
+        if (Basket[i].ParentGroup == groupPath)
+            children.push_back(i);
+
+    // Insert children immediately after the parent group
+    auto pos = std::find(indexes.begin(), indexes.end(), itemIndex);
+    if (pos == indexes.end()) return;
+
+    pos = indexes.insert(pos + 1, children.begin(), children.end());
+
+    // Recursively expand child groups
+    for (int childIndex : children)
+    {
+        if (Basket[childIndex].isGroup)
+            addGroupMembersRecursive(childIndex, indexes);
+    }
+}
+
+#include <QString>
+#include <QHash>
+#include <QSet>
+#include <QVector>
+#include <algorithm>
+
+void ABasketManager::updateParentGroup(int indexTo, std::vector<int> & indexes)
+{
+    // 1. Determine the destination parent path.
+    const QString newPath = Basket[indexTo].isGroup ? Basket[indexTo].getGroupFullPath() : Basket[indexTo].ParentGroup;
+
+    // 2. Snapshot original parent paths and full group paths.
+    QHash<int, QString> originalParents;
+    QHash<int, QString> originalGroupPaths;
+
+    for (int i = 0; i < (int)Basket.size(); ++i)
+    {
+        originalParents.insert(i, Basket[i].ParentGroup);
+
+        if (Basket[i].isGroup)
+        {
+            const QString fullPath = Basket[i].ParentGroup.isEmpty() ? Basket[i].Name : Basket[i].ParentGroup + "/" + Basket[i].Name;
+            originalGroupPaths.insert(i, fullPath);
+        }
+    }
+
+    // 3. Identify the top-level entries being moved.
+    // Descendants of another explicitly moved group are not moved independently.
+    QSet<int> movedIndexes;
+    for (int index : indexes) movedIndexes.insert(index);
+
+    QVector<int> topLevelIndexes;
+
+    for (int index : indexes)
+    {
+        const QString parentPath = originalParents[index];
+
+        bool hasMovedAncestor = false;
+
+        for (int otherIndex : indexes)
+        {
+            if (otherIndex == index || !Basket[otherIndex].isGroup) continue;
+            const QString ancestorPath = originalGroupPaths[otherIndex];
+            if (parentPath == ancestorPath || parentPath.startsWith(ancestorPath + "/"))
+            {
+                hasMovedAncestor = true;
+                break;
+            }
+        }
+
+        if (!hasMovedAncestor) topLevelIndexes.push_back(index);
+    }
+
+    // 4. Build path transformations for top-level moved groups.
+    struct PathMove
+    {
+        QString oldPath;
+        QString newPath;
+    };
+
+    QVector<PathMove> pathMoves;
+
+    for (int index : topLevelIndexes)
+    {
+        if (!Basket[index].isGroup) continue;
+        const QString oldPath = originalGroupPaths[index];
+        const QString newGroupPath = newPath.isEmpty() ? Basket[index].Name : newPath + "/" + Basket[index].Name;
+        pathMoves.push_back({oldPath, newGroupPath});
+    }
+
+    // 5. Update all items exactly once using their original paths.
+    for (int i = 0; i < (int)Basket.size(); ++i)
+    {
+        const QString oldParent = originalParents[i];
+
+        // Check whether this item belongs to a moved group.
+        int bestMatch = -1;
+
+        for (int j = 0; j < pathMoves.size(); ++j)
+        {
+            const QString& oldGroupPath = pathMoves[j].oldPath;
+
+            if (oldParent == oldGroupPath || oldParent.startsWith(oldGroupPath + "/"))
+            {
+                if (bestMatch == -1 || oldGroupPath.size() > pathMoves[bestMatch].oldPath.size())
+                    bestMatch = j;
+            }
+        }
+
+        if (bestMatch != -1)
+        {
+            const PathMove& move = pathMoves[bestMatch];
+            QString suffix = oldParent.mid(move.oldPath.size());
+            if (suffix.startsWith('/')) suffix.remove(0, 1);
+            Basket[i].ParentGroup = move.newPath;
+            if (!suffix.isEmpty()) Basket[i].ParentGroup += "/" + suffix;
+        }
+    }
+
+    // 6. Update explicitly moved top-level items and groups.
+    // Top-level groups were handled above; their parent path is the destination.
+    for (int index : topLevelIndexes)
+        Basket[index].ParentGroup = newPath;
+}
+
+QString ABasketManager::reorder(std::vector<int> & indexes, int indexTo)
+{
+    // currently a limited implementation: do not allow:
+    // 1. mix of items and groups
+    // 2. more than one group
+
+    int numGroups = 0;
+    int numItems = 0;
+    for (size_t i = 0; i < indexes.size(); i++)
+    {
+        const int index = indexes[i];
+        if (Basket[index].isGroup) numGroups++;
+        else numItems++;
+    }
+    if (numGroups > 0 && numItems > 0) return "Cannot move a mixture of groups and items";
+    if (numGroups > 1) return "Cannot move more than one group";
+
+    // check group can be moved to the index
+    if (numGroups == 1) // current limit!
+    {
+        QString err = checkGroupCanBeMovedToIndex(indexes.front(), indexTo);
+        if (!err.isEmpty()) return err;
+    }
+
+    // adding indexes of all members of the group
+    if (numGroups == 1)
+        addGroupMembersRecursive(indexes.front(), indexes);
+
+    // updating ParentGroup info
+    updateParentGroup(indexTo, indexes);
+    /*
+    const QString originalPath = Basket[indexes.front()].ParentGroup;
+    QString newPath = (Basket[indexTo].isGroup ? Basket[indexTo].getGroupFullPath() : Basket[indexTo].ParentGroup);
+    for (int index : indexes)
+    {
+        qDebug() << "item"<< Basket[index].Name << "had " << Basket[index].ParentGroup;
+        Basket[index].ParentGroup = newPath + Basket[index].ParentGroup.mid(originalPath.size());
+        qDebug() << "--> now" << Basket[index].ParentGroup;
+    }
+    */
+
     std::vector<ABasketItem> itemsToMove;
     for (size_t i = 0; i < indexes.size(); i++)
     {
@@ -1142,11 +1336,11 @@ void ABasketManager::reorder(const std::vector<int> & indexes, int to)
         Basket[index]._toErase = true;
     }
 
-    int toCopy = to;
+    int indexTo_Copy = indexTo;
     for (size_t i = 0; i < itemsToMove.size(); i++)
     {
-        Basket.insert(Basket.begin() + to, itemsToMove[i]);
-        to++;
+        Basket.insert(Basket.begin() + indexTo, itemsToMove[i]);
+        indexTo++;
     }
 
     for (int i = Basket.size()-1; i >= 0; i--)
@@ -1171,8 +1365,8 @@ void ABasketManager::reorder(const std::vector<int> & indexes, int to)
     for (size_t iMoved = 0; iMoved < indexes.size(); iMoved++)
     {
         int indexMoved = indexes[iMoved];
-        mapping.insert(mapping.begin() + toCopy, indexMoved);
-        toCopy++;
+        mapping.insert(mapping.begin() + indexTo_Copy, indexMoved);
+        indexTo_Copy++;
     }
     for (int i = mapping.size()-1; i >= 0; i--)
         if (mapping[i] == -1) mapping.erase(mapping.begin() + i);
@@ -1197,6 +1391,8 @@ void ABasketManager::reorder(const std::vector<int> & indexes, int to)
         for (size_t i = 0; i < rec.BasketItems.size(); i++)
             rec.BasketItems[i] = newIndexMap[rec.BasketItems[i]];
     }
+
+    return "";
 }
 
 void ABasketManager::moveLastBasketItemToGroup(const QString & parentGroup, bool toBottom)
