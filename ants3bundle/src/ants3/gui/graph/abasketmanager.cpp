@@ -586,19 +586,9 @@ void ABasketManager::rename(int index, const QString & newName)
     Basket[index].Name = newName;
 }
 
-/*
-QStringList ABasketManager::getItemNames() const
-{
-    QStringList res;
-    for (const ABasketItem & item : Basket)
-        res << item.Name;
-    return res;
-}
-*/
-
 QString ABasketManager::getGroupFullPath(int index)
 {
-    if (index < 0 || index >= Basket.size()) return "";
+    if (index < 0 || index >= (int)Basket.size()) return "";
     if (!Basket[index].isGroup) return "";
 
     return Basket[index].ParentGroup.isEmpty() ? Basket[index].Name : Basket[index].ParentGroup + '/' + Basket[index].Name;
@@ -606,21 +596,20 @@ QString ABasketManager::getGroupFullPath(int index)
 
 void ABasketManager::setCollapsedFlag(int index, bool flag)
 {
-    if (index < 0 || index >= Basket.size()) return;
+    if (index < 0 || index >= (int)Basket.size()) return;
     Basket[index].Collapsed = flag;
-    qDebug() << "BM-->" << Basket[index].Name << Basket[index].Collapsed;
 }
 
 bool ABasketManager::isMultidraw(int index) const
 {
-    if (index < 0 || index >= Basket.size()) return false;
+    if (index < 0 || index >= (int)Basket.size()) return false;
     if (Basket[index].DrawObjects.empty()) return false;
     return Basket[index].DrawObjects.front().Multidraw;
 }
 
 bool ABasketManager::isMemberOfSpecificMultidraw(int index, int multidrawIndex)
 {
-    if (index < 0 || index >= Basket.size()) return false;
+    if (index < 0 || index >= (int)Basket.size()) return false;
     if (!isMultidraw(multidrawIndex)) return false;
     if (Basket[multidrawIndex].DrawObjects.empty())
     {

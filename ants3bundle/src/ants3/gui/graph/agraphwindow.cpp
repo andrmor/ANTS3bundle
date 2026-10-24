@@ -2020,13 +2020,11 @@ void AGraphWindow::onBasketItemDoubleClicked(QTreeWidgetItem * item)
 void AGraphWindow::onBasketItemCollapsed(QTreeWidgetItem * item)
 {
     Basket->setCollapsedFlag(lwBasket->getBasketIndex(item), true);
-    qDebug() << "Collapsed" << item->text(0);
 }
 
 void AGraphWindow::onBasketItemExpanded(QTreeWidgetItem * item)
 {
     Basket->setCollapsedFlag(lwBasket->getBasketIndex(item), false);
-    qDebug() << "Expanded" << item->text(0);
 }
 
 void AGraphWindow::onBasketDeleteShortcutActivated()

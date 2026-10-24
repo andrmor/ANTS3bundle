@@ -31,7 +31,6 @@ public:
 
     QString             getName(int index) const;
     void                rename(int index, const QString & newName);
-    //QStringList         getItemNames() const; // not needed?
     QString             getGroupFullPath(int index);
 
     std::vector<ABasketItem> & getItems() {return Basket;}  // !!!*** to make safe later

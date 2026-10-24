@@ -65,9 +65,7 @@ void ABasketTreeWidget::fill(ABasketManager * basket)
             treeItem->setData(0, GroupRole, false);
             treeItem->setFlags(flags);
         }
-
         treeItem->setData(0, IndexRole, iBasketInbdex);
-        //if (item.isGroup) treeItem->setExpanded(!item.Collapsed);
 
         if (item.ParentGroup.isEmpty()) addTopLevelItem(treeItem);
         else
@@ -76,7 +74,7 @@ void ABasketTreeWidget::fill(ABasketManager * basket)
             if (it != GroupItems.end()) it.value()->addChild(treeItem);
             else                        addTopLevelItem(treeItem); // Missing parent
         }
-
+        if (item.isGroup) treeItem->setExpanded(!item.Collapsed);
     }
 }
 
