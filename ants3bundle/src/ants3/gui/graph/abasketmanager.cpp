@@ -218,19 +218,8 @@ QString ABasketManager::addGroup(const QString & name, const QString & parentGro
     if (iBasketIndex != -1)
     {
         // check insert position is compatible with the parentGroup
-        bool valid = (Basket[iBasketIndex].ParentGroup == parentGroup);
-        if (!valid)
-        {
-            // another possibility: it is the group item itself
-            if (Basket[iBasketIndex].isGroup)
-            {
-                QString name = Basket[iBasketIndex].ParentGroup;
-                if (!name.isEmpty()) name += "/";
-                name += Basket[iBasketIndex].Name;
-                if (name == parentGroup) valid = true;
-            }
-        }
-        if (!valid) return "Insertion position is not compatibe with the requested parent group";
+        const QString thisParentGroup = ( Basket[iBasketIndex].isGroup ? Basket[iBasketIndex].getGroupFullPath() : Basket[iBasketIndex].ParentGroup );
+        if (thisParentGroup != parentGroup) return "Insertion position is not compatibe with the requested parent group";
     }
 
     ABasketItem item;
@@ -241,8 +230,7 @@ QString ABasketManager::addGroup(const QString & name, const QString & parentGro
 
     Basket.push_back(item);
 
-    std::vector<int> indexes;
-    indexes.push_back(Basket.size() - 1);
+    std::vector<int> indexes(1, Basket.size() - 1);
 
     if (iBasketIndex == -1) // move to the end of the corresponding group --> script uses this approach
     {

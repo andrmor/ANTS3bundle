@@ -2319,7 +2319,7 @@ void AGraphWindow::onBasketAction_AddGroup(int iBasketIndex, bool isGroup)
         else         parentGroup = Basket->getItems()[iBasketIndex].ParentGroup;
     }
 
-    //qDebug() << iBasketIndex << isGroup << parentGroup;
+    qDebug() << "Add group triggered for index" << iBasketIndex << "target is group?" << isGroup << "Parent group:" << parentGroup;
 
     if (err.isEmpty()) err = Basket->addGroup(name, parentGroup, iBasketIndex);
 
