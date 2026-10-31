@@ -65,8 +65,8 @@ private:
 private:
     int                 findPointerInDrawObjects(const std::vector<ADrawObject> & drawObjects, TObject * obj) const;
     std::vector<size_t> getAllMultidrawsUsingIndex(size_t index);
-    int                 findGroup(const QString & name); // returns -1 if not found
-    QString             joinPath(const QString & parentGroup, const QString & thisGroupName); // rename to "getFullGroupPath" ? or use getGroupFullPath()
+    int                 findGroup(const QString & name) const; // returns -1 if not found
+    QString             joinPath(const QString & parentGroup, const QString & thisGroupName) const; // !!!*** sync with getFullGroupName
     bool                groupExists(const QString & fullPath) const;
     void                replaceGroupPrefix(const QString & oldPath, const QString & newPath);
     bool                isInsideGroup(const QString &path, const QString &group) const;
@@ -75,8 +75,15 @@ private:
     QString             checkMultidrawsAreComplete(const std::vector<int> & indexes);
     QString             checkGroupCanBeMovedToIndex(int indexOfGroup, int indexTo);
     void                addGroupMembersRecursive(int itemIndex, std::vector<int> & indexes);
-    void                updateParentGroup(int indexTo, std::vector<int> &indexes);
+    //void                updateParentGroup(int indexTo, std::vector<int> &indexes);
 
+    QString validateBasketMove(int indexTo, const std::vector<int> &indexes) const;
+
+    void updateParentGroup(int indexTo, const std::vector<int> &indexes);
+
+    void expandSelectionWithGroupMembers(std::vector<int> &indexes);
+    QString destinationPath(int indexTo) const;
+    QVector<QString> computeNewParents(int indexTo, const std::vector<int> &indexes) const;
 public:
     static TObject * makeCloneOfTObject(TObject * tobj);
 };

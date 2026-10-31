@@ -273,9 +273,9 @@ QStringList ABasketManager::getGroupNames() const
     return sl;
 }
 
-int ABasketManager::findGroup(const QString & name)
+int ABasketManager::findGroup(const QString & name) const
 {
-    for (int i = 0; i < Basket.size(); ++i)
+    for (int i = 0; i < Basket.size(); i++)
     {
         if (!Basket[i].isGroup) continue;
 
@@ -289,7 +289,7 @@ int ABasketManager::findGroup(const QString & name)
 
 
 
-QString ABasketManager::joinPath(const QString & parentGroup, const QString & thisGroupName)
+QString ABasketManager::joinPath(const QString & parentGroup, const QString & thisGroupName) const
 {
     return parentGroup.isEmpty() ? thisGroupName : parentGroup + '/' + thisGroupName;
 }
@@ -1133,6 +1133,27 @@ QString ABasketManager::checkGroupCanBeMovedToIndex(int indexOfGroup, int indexT
     return "";
 }
 
+void ABasketManager::expandSelectionWithGroupMembers(std::vector<int> & indexes)
+{
+    for (size_t i = 0; i < indexes.size(); ++i)
+    {
+        const int index = indexes[i];
+
+        if (index >= 0 &&
+            index < static_cast<int>(Basket.size()) &&
+            Basket[index].isGroup)
+        {
+            const size_t oldSize = indexes.size();
+
+            addGroupMembersRecursive(index, indexes);
+
+            // Skip the members just inserted; the recursive method
+            // has already handled nested groups.
+            i += indexes.size() - oldSize;
+        }
+    }
+}
+
 void ABasketManager::addGroupMembersRecursive(int itemIndex, std::vector<int> & indexes)
 {
     if (!Basket[itemIndex].isGroup) return;
@@ -1165,111 +1186,377 @@ void ABasketManager::addGroupMembersRecursive(int itemIndex, std::vector<int> & 
 #include <QVector>
 #include <algorithm>
 
-void ABasketManager::updateParentGroup(int indexTo, std::vector<int> & indexes)
+/*
+QString ABasketManager::validateBasketMove(int indexTo, const std::vector<int> & indexes) const
 {
-    // 1. Determine the destination parent path.
-    const QString newPath = Basket[indexTo].isGroup ? Basket[indexTo].getGroupFullPath() : Basket[indexTo].ParentGroup;
+    const int n = static_cast<int>(Basket.size());
+    if (indexTo < 0 || indexTo >= n) return "Invalid destination index.";
 
-    // 2. Snapshot original parent paths and full group paths.
-    QHash<int, QString> originalParents;
-    QHash<int, QString> originalGroupPaths;
-
-    for (int i = 0; i < (int)Basket.size(); ++i)
-    {
-        originalParents.insert(i, Basket[i].ParentGroup);
-
-        if (Basket[i].isGroup)
-        {
-            const QString fullPath = Basket[i].ParentGroup.isEmpty() ? Basket[i].Name : Basket[i].ParentGroup + "/" + Basket[i].Name;
-            originalGroupPaths.insert(i, fullPath);
-        }
-    }
-
-    // 3. Identify the top-level entries being moved.
-    // Descendants of another explicitly moved group are not moved independently.
-    QSet<int> movedIndexes;
-    for (int index : indexes) movedIndexes.insert(index);
-
-    QVector<int> topLevelIndexes;
-
+    // Validate indexes and detect duplicates.
+    QSet<int> selected;
     for (int index : indexes)
     {
-        const QString parentPath = originalParents[index];
+        if (index < 0 || index >= n) return "Invalid selected item index.";
 
-        bool hasMovedAncestor = false;
+        if (selected.contains(index))
+            return "Invalid selection: an item cannot be selected more than once, either individually or as part of a group.";
 
-        for (int otherIndex : indexes)
-        {
-            if (otherIndex == index || !Basket[otherIndex].isGroup) continue;
-            const QString ancestorPath = originalGroupPaths[otherIndex];
-            if (parentPath == ancestorPath || parentPath.startsWith(ancestorPath + "/"))
-            {
-                hasMovedAncestor = true;
-                break;
-            }
-        }
-
-        if (!hasMovedAncestor) topLevelIndexes.push_back(index);
+        selected.insert(index);
     }
 
-    // 4. Build path transformations for top-level moved groups.
+    if (selected.contains(indexTo))
+        return "Invalid move: the destination cannot be part of the selection.";
+
+    const QString newPath = Basket[indexTo].isGroup
+                                ? Basket[indexTo].getGroupFullPath()
+                                : Basket[indexTo].ParentGroup;
+
+    if (!newPath.isEmpty())
+    {
+        const int destinationIndex = findGroup(newPath);
+        if (destinationIndex < 0)
+            return "Invalid destination: group not found: " + newPath;
+    }
+
+    // Snapshot original parent and full group paths.
+    QVector<QString> parents(n);
+    QVector<QString> groupPaths(n);
+
+    for (int i = 0; i < n; i++)
+    {
+        parents[i] = Basket[i].ParentGroup;
+
+        if (Basket[i].isGroup)
+            groupPaths[i] = parents[i].isEmpty()
+                                ? Basket[i].Name
+                                : parents[i] + "/" + Basket[i].Name;
+    }
+
+    // Build path transformations for top-level selected groups only.
     struct PathMove
     {
         QString oldPath;
         QString newPath;
     };
 
-    QVector<PathMove> pathMoves;
+    QVector<PathMove> moves;
 
-    for (int index : topLevelIndexes)
+    for (int index : indexes)
     {
         if (!Basket[index].isGroup) continue;
-        const QString oldPath = originalGroupPaths[index];
-        const QString newGroupPath = newPath.isEmpty() ? Basket[index].Name : newPath + "/" + Basket[index].Name;
-        pathMoves.push_back({oldPath, newGroupPath});
-    }
 
-    // 5. Update all items exactly once using their original paths.
-    for (int i = 0; i < (int)Basket.size(); ++i)
-    {
-        const QString oldParent = originalParents[i];
+        const QString oldPath = groupPaths[index];
 
-        // Check whether this item belongs to a moved group.
-        int bestMatch = -1;
+        // Prevent moving a group into itself or its descendants.
+        if (newPath == oldPath || newPath.startsWith(oldPath + "/"))
+            return "Cannot move a group into itself or its descendants: " + oldPath;
 
-        for (int j = 0; j < pathMoves.size(); ++j)
+        // Check whether this group has a selected ancestor.
+        bool hasSelectedAncestor = false;
+
+        for (int other : selected)
         {
-            const QString& oldGroupPath = pathMoves[j].oldPath;
+            if (other == index || !Basket[other].isGroup) continue;
 
-            if (oldParent == oldGroupPath || oldParent.startsWith(oldGroupPath + "/"))
+            if (oldPath.startsWith(groupPaths[other] + "/"))
             {
-                if (bestMatch == -1 || oldGroupPath.size() > pathMoves[bestMatch].oldPath.size())
-                    bestMatch = j;
+                hasSelectedAncestor = true;
+                break;
             }
         }
 
-        if (bestMatch != -1)
-        {
-            const PathMove& move = pathMoves[bestMatch];
-            QString suffix = oldParent.mid(move.oldPath.size());
-            if (suffix.startsWith('/')) suffix.remove(0, 1);
-            Basket[i].ParentGroup = move.newPath;
-            if (!suffix.isEmpty()) Basket[i].ParentGroup += "/" + suffix;
-        }
+        // Nested selected groups follow their selected ancestor.
+        if (hasSelectedAncestor) continue;
+
+        const QString destination = newPath.isEmpty()
+                                        ? Basket[index].Name
+                                        : newPath + "/" + Basket[index].Name;
+
+        moves.push_back({oldPath, destination});
     }
 
-    // 6. Update explicitly moved top-level items and groups.
-    // Top-level groups were handled above; their parent path is the destination.
-    for (int index : topLevelIndexes)
-        Basket[index].ParentGroup = newPath;
+    // Calculate resulting group paths and detect name conflicts.
+    QSet<QString> resultingPaths;
+
+    for (int i = 0; i < n; i++)
+    {
+        if (!Basket[i].isGroup) continue;
+
+        QString resultingParent = parents[i];
+
+        bool belongsToMovedGroup = false;
+
+        // Apply path transformation of the top-level moved group.
+        for (const PathMove & move : moves)
+        {
+            if (resultingParent == move.oldPath ||
+                resultingParent.startsWith(move.oldPath + "/"))
+            {
+                resultingParent.replace(0, move.oldPath.size(), move.newPath);
+                belongsToMovedGroup = true;
+                break;
+            }
+        }
+
+        // Explicitly selected groups outside moved groups
+        // are moved directly into the destination.
+        if (!belongsToMovedGroup && selected.contains(i))
+            resultingParent = newPath;
+
+        const QString resultingPath = resultingParent.isEmpty()
+                                          ? Basket[i].Name
+                                          : resultingParent + "/" + Basket[i].Name;
+
+        if (resultingPaths.contains(resultingPath))
+            return "Moving the selected items would create duplicate group names: " + resultingPath;
+
+        resultingPaths.insert(resultingPath);
+    }
+
+    return QString();
 }
+
+void ABasketManager::updateParentGroup(int indexTo, const std::vector<int> & indexes)
+{
+    const QString newPath = Basket[indexTo].isGroup ? Basket[indexTo].getGroupFullPath() : Basket[indexTo].ParentGroup;
+
+    struct PathMove
+    {
+        int index;
+        QString oldPath;
+        QString newPath;
+    };
+
+    // Preserve original parent paths.
+    QVector<QString> originalParents;
+    QVector<QString> originalGroupPaths;
+
+    const int n = static_cast<int>(Basket.size());
+    originalParents.reserve(n);
+    originalGroupPaths.reserve(n);
+
+    for (const auto & item : Basket)
+    {
+        originalParents.push_back(item.ParentGroup);
+
+        originalGroupPaths.push_back(
+            item.isGroup
+                ? (item.ParentGroup.isEmpty()
+                       ? item.Name
+                       : item.ParentGroup + "/" + item.Name)
+                : QString());
+    }
+
+    QSet<int> selected;
+    for (int index : indexes)
+        selected.insert(index);
+
+    // Identify top-level selected groups.
+    QVector<PathMove> pathMoves;
+
+    for (int index : selected)
+    {
+        if (!Basket[index].isGroup) continue;
+
+        const QString oldPath = originalGroupPaths[index];
+
+        bool hasSelectedAncestor = false;
+
+        for (int other : selected)
+        {
+            if (other == index || !Basket[other].isGroup) continue;
+
+            const QString otherPath = originalGroupPaths[other];
+            if (oldPath.startsWith(otherPath + "/"))
+            {
+                hasSelectedAncestor = true;
+                break;
+            }
+        }
+
+        if (hasSelectedAncestor) continue;
+
+        const QString destination = newPath.isEmpty() ? Basket[index].Name : newPath + "/" + Basket[index].Name;
+        pathMoves.push_back({index, oldPath, destination});
+    }
+
+    // Calculate and apply all parent path changes.
+    for (int i = 0; i < n; ++i)
+    {
+        const QString & oldParent = originalParents[i];
+
+        bool updated = false;
+
+        // Check whether the item belongs to a moved group.
+        for (const PathMove & move : pathMoves)
+        {
+            if (oldParent == move.oldPath ||
+                oldParent.startsWith(move.oldPath + "/"))
+            {
+                Basket[i].ParentGroup =
+                    move.newPath + oldParent.mid(move.oldPath.size());
+
+                updated = true;
+                break;
+            }
+        }
+
+        if (updated) continue;
+
+        // Move explicitly selected items not covered by a moved group.
+        if (selected.contains(i)) Basket[i].ParentGroup = newPath;
+    }
+}
+*/
+
+QString ABasketManager::destinationPath(int indexTo) const
+{
+    const auto & dest = Basket[indexTo];
+    return dest.isGroup ? joinPath(dest.ParentGroup, dest.Name) : dest.ParentGroup;
+}
+
+// Returns the resulting ParentGroup for every item in Basket.
+// Preconditions (checked by validateBasketMove): indexTo and all indexes are in range.
+QVector<QString> ABasketManager::computeNewParents(int indexTo, const std::vector<int> & indexes) const
+{
+    const int n = static_cast<int>(Basket.size());
+    const QString newPath = destinationPath(indexTo);
+
+    //const QSet<int> selected(indexes.begin(), indexes.end());
+    QSet<int> selected;
+    for (int index : indexes) selected.insert(index); // more flexible considering different Qt versions
+
+    // Original full paths of all groups.
+    QVector<QString> groupPaths(n);
+    for (int i = 0; i < n; i++)
+        if (Basket[i].isGroup) groupPaths[i] = joinPath(Basket[i].ParentGroup, Basket[i].Name);
+
+    // Top-level selected groups only: nested selected groups follow their selected ancestor.
+    struct PathMove { QString oldPath; QString newPath; };
+    QVector<PathMove> moves;
+
+    for (int index : selected)
+    {
+        if (!Basket[index].isGroup) continue;
+
+        const QString & oldPath = groupPaths[index];
+
+        bool hasSelectedAncestor = false;
+        for (int other : selected)
+        {
+            if (other == index || !Basket[other].isGroup) continue;
+            if (oldPath.startsWith(groupPaths[other] + "/"))
+            {
+                hasSelectedAncestor = true;
+                break;
+            }
+        }
+        if (hasSelectedAncestor) continue;
+
+        moves.push_back({oldPath, joinPath(newPath, Basket[index].Name)});
+    }
+
+    // Resulting parent of every item.
+    QVector<QString> result(n);
+    for (int i = 0; i < n; i++)
+    {
+        const QString & oldParent = Basket[i].ParentGroup;
+        result[i] = oldParent;
+
+        bool inMovedGroup = false;
+        for (const PathMove & move : moves)   // top-level moves never overlap: first match is the only match
+        {
+            if (oldParent == move.oldPath || oldParent.startsWith(move.oldPath + "/"))
+            {
+                result[i] = move.newPath + oldParent.mid(move.oldPath.size());
+                inMovedGroup = true;
+                break;
+            }
+        }
+
+        if (!inMovedGroup && selected.contains(i)) result[i] = newPath;
+    }
+
+    return result;
+}
+
+QString ABasketManager::validateBasketMove(int indexTo, const std::vector<int> & indexes) const
+{
+    const int n = static_cast<int>(Basket.size());
+    if (indexTo < 0 || indexTo >= n) return "Invalid destination index.";
+    if (indexes.empty()) return "Selection is empty!";
+
+    QSet<int> selected;
+    for (int index : indexes)
+    {
+        if (index < 0 || index >= n) return "Invalid selected item index.";
+        if (selected.contains(index)) return "Invalid selection: duplicate item index.";
+        selected.insert(index);
+    }
+
+    if (selected.contains(indexTo))
+        return "Invalid move: the destination cannot be part of the selection.";
+
+    const QString newPath = destinationPath(indexTo);
+
+    if (!newPath.isEmpty() && findGroup(newPath) < 0)
+        return "Invalid destination: group not found: " + newPath;
+
+    // Prevent moving a group into itself or its descendants.
+    for (int index : selected)
+    {
+        if (!Basket[index].isGroup) continue;
+
+        const QString oldPath = joinPath(Basket[index].ParentGroup, Basket[index].Name);
+        if (newPath == oldPath || newPath.startsWith(oldPath + "/"))
+            return "Cannot move a group into itself or its descendants: " + oldPath;
+    }
+
+    // Conflict check on the actual result of the move.
+    const QVector<QString> newParents = computeNewParents(indexTo, indexes);
+
+    // resulting path -> original path of the first group that maps to it
+    QHash<QString, QString> resulting;
+
+    for (int i = 0; i < n; i++)
+    {
+        if (!Basket[i].isGroup) continue;
+
+        const QString originalPath  = joinPath(Basket[i].ParentGroup, Basket[i].Name);
+        const QString resultingPath = joinPath(newParents[i], Basket[i].Name);
+
+        auto it = resulting.constFind(resultingPath);
+        if (it == resulting.constEnd())
+        {
+            resulting.insert(resultingPath, originalPath);
+            continue;
+        }
+
+        // Same original path => the duplicate already existed before the move
+        // (and is not made worse by it), so it must not block this operation.
+        if (it.value() == originalPath) continue;
+
+        return "Moving the selected items would create duplicate group names: " + resultingPath;
+    }
+
+    return QString();
+}
+
+void ABasketManager::updateParentGroup(int indexTo, const std::vector<int> & indexes)
+{
+    Q_ASSERT(indexTo >= 0 && indexTo < static_cast<int>(Basket.size()));
+
+    const QVector<QString> newParents = computeNewParents(indexTo, indexes);
+
+    for (int i = 0; i < newParents.size(); i++)
+        Basket[i].ParentGroup = newParents[i];
+}
+
+
+
 
 QString ABasketManager::reorder(std::vector<int> & indexes, int indexTo)
 {
-    // currently a limited implementation: do not allow:
-    // 1. mix of items and groups
-    // 2. more than one group
-
     int numGroups = 0;
     int numItems = 0;
     for (size_t i = 0; i < indexes.size(); i++)
@@ -1279,31 +1566,13 @@ QString ABasketManager::reorder(std::vector<int> & indexes, int indexTo)
         else numItems++;
     }
     if (numGroups > 0 && numItems > 0) return "Cannot move a mixture of groups and items";
-    if (numGroups > 1) return "Cannot move more than one group";
 
-    // check group can be moved to the index
-    if (numGroups == 1) // current limit!
-    {
-        QString err = checkGroupCanBeMovedToIndex(indexes.front(), indexTo);
-        if (!err.isEmpty()) return err;
-    }
+    expandSelectionWithGroupMembers(indexes);
 
-    // adding indexes of all members of the group
-    if (numGroups == 1)
-        addGroupMembersRecursive(indexes.front(), indexes);
+    QString err = validateBasketMove(indexTo, indexes);
+    if (!err.isEmpty()) return err;
 
-    // updating ParentGroup info
     updateParentGroup(indexTo, indexes);
-    /*
-    const QString originalPath = Basket[indexes.front()].ParentGroup;
-    QString newPath = (Basket[indexTo].isGroup ? Basket[indexTo].getGroupFullPath() : Basket[indexTo].ParentGroup);
-    for (int index : indexes)
-    {
-        qDebug() << "item"<< Basket[index].Name << "had " << Basket[index].ParentGroup;
-        Basket[index].ParentGroup = newPath + Basket[index].ParentGroup.mid(originalPath.size());
-        qDebug() << "--> now" << Basket[index].ParentGroup;
-    }
-    */
 
     std::vector<ABasketItem> itemsToMove;
     for (size_t i = 0; i < indexes.size(); i++)
