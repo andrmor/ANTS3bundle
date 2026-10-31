@@ -75,17 +75,14 @@ private:
     QString             checkMultidrawsAreComplete(const std::vector<int> & indexes);
     QString             checkGroupCanBeMovedToIndex(int indexOfGroup, int indexTo);
     void                addGroupMembersRecursive(int itemIndex, std::vector<int> & indexes);
-    //void                updateParentGroup(int indexTo, std::vector<int> &indexes);
+    QString             validateBasketMove(int indexTo, const std::vector<int> & indexes) const;
+    void                updateParentGroup(int indexTo, const std::vector<int> & indexes);
+    void                expandSelectionWithGroupMembers(std::vector<int> & indexes);
+    QString             destinationPath(int indexTo) const;
+    QVector<QString>    computeNewParents(int indexTo, const std::vector<int> & indexes) const;
 
-    QString validateBasketMove(int indexTo, const std::vector<int> &indexes) const;
-
-    void updateParentGroup(int indexTo, const std::vector<int> &indexes);
-
-    void expandSelectionWithGroupMembers(std::vector<int> &indexes);
-    QString destinationPath(int indexTo) const;
-    QVector<QString> computeNewParents(int indexTo, const std::vector<int> &indexes) const;
 public:
-    static TObject * makeCloneOfTObject(TObject * tobj);
+    static TObject *    makeCloneOfTObject(TObject * tobj);
 };
 
 #endif // ABASKETMANAGER_H
