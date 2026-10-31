@@ -2012,9 +2012,10 @@ void AGraphWindow::onBasketItemDoubleClicked(QTreeWidgetItem * item)
 
     qDebug() << Basket->getName(lwBasket->getBasketIndex(item)) << Basket->getParentGroup(lwBasket->getBasketIndex(item));
 
-    if (lwBasket->isGroup(item)) return;
-
-    switchToBasket(lwBasket->getBasketIndex(item));
+    if (lwBasket->isGroup(item))
+        item->setExpanded(!item->isExpanded());
+    else
+        switchToBasket(lwBasket->getBasketIndex(item));
 }
 
 void AGraphWindow::onBasketItemCollapsed(QTreeWidgetItem * item)
