@@ -287,8 +287,6 @@ int ABasketManager::findGroup(const QString & name) const
     return -1;
 }
 
-
-
 QString ABasketManager::joinPath(const QString & parentGroup, const QString & thisGroupName) const
 {
     return parentGroup.isEmpty() ? thisGroupName : parentGroup + '/' + thisGroupName;

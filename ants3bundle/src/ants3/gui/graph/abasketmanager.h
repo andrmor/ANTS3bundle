@@ -59,6 +59,8 @@ public:
     static QString      checkGroupName(const QString & name);  // returns error text or ""
     QString             renameGroup(int index, const QString & newName);
 
+    QString             joinPath(const QString & parentGroup, const QString & thisGroupName) const; // !!!*** sync with getFullGroupName (maybe drop getFullGroupName?)
+
 private:
     std::vector<ABasketItem> Basket;
 
@@ -66,7 +68,6 @@ private:
     int                 findPointerInDrawObjects(const std::vector<ADrawObject> & drawObjects, TObject * obj) const;
     std::vector<size_t> getAllMultidrawsUsingIndex(size_t index);
     int                 findGroup(const QString & name) const; // returns -1 if not found
-    QString             joinPath(const QString & parentGroup, const QString & thisGroupName) const; // !!!*** sync with getFullGroupName
     bool                groupExists(const QString & fullPath) const;
     void                replaceGroupPrefix(const QString & oldPath, const QString & newPath);
     bool                isInsideGroup(const QString &path, const QString &group) const;
