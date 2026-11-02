@@ -200,6 +200,7 @@ void ABasketManager::update(int index, const std::vector<ADrawObject> & drawObje
     Basket.pop_back();
 }
 
+/*
 QString ABasketManager::addGroup(const QString & name, const QString & parentGroup, int iBasketIndex)
 {
     if (iBasketIndex != -1)
@@ -213,13 +214,6 @@ QString ABasketManager::addGroup(const QString & name, const QString & parentGro
     {
         parentIndex = findGroup(parentGroup);
         if (parentIndex == -1) return "Parent group not found";
-    }
-
-    if (iBasketIndex != -1)
-    {
-        // check insert position is compatible with the parentGroup
-        const QString thisParentGroup = ( Basket[iBasketIndex].isGroup ? Basket[iBasketIndex].getGroupFullPath() : Basket[iBasketIndex].ParentGroup );
-        if (thisParentGroup != parentGroup) return "Insertion position is not compatibe with the requested parent group";
     }
 
     ABasketItem item;
@@ -250,12 +244,84 @@ QString ABasketManager::addGroup(const QString & name, const QString & parentGro
     }
     else
     {
-        //if (Basket[iBasketIndex].isGroup) iBasketIndex++; // normally adding above, but for a group it has to be the next item
+        if (Basket[iBasketIndex].isGroup) iBasketIndex++; // normally adding above, but for a group it has to be the next item
         if (iBasketIndex < Basket.size()-1) reorder(indexes, iBasketIndex, parentGroup); // else already there
     }
 
     return "";
 }
+*/
+
+QString ABasketManager::addGroup(const QString & name, const QString & parentGroup, int iBasketIndex)
+{
+    if (iBasketIndex != -1)
+        if (iBasketIndex < 0 || iBasketIndex >= static_cast<int>(Basket.size()))
+            return "Invalid basket index for addGroup";
+
+    int parentIndex = -1;
+    if (!parentGroup.isEmpty())
+    {
+        parentIndex = findGroup(parentGroup);
+        if (parentIndex == -1) return "Parent group not found";
+    }
+
+    ABasketItem item;
+    item.Name = name;
+    item.ParentGroup = parentGroup;
+    item.isGroup = true;
+    item.Collapsed = false;
+
+    Basket.push_back(item);
+
+    std::vector<int> indexes(1, static_cast<int>(Basket.size()) - 1);
+
+    if (iBasketIndex == -1)
+    {
+        // Insert at the end of the target group's subtree.
+        if (parentIndex != -1)
+        {
+            const QString prefix = parentGroup + "/";
+
+            int iTo = parentIndex + 1;
+            while (iTo < static_cast<int>(Basket.size()) - 1)
+            {
+                const ABasketItem & current = Basket[iTo];
+                const bool isDescendant = ( current.ParentGroup == parentGroup || current.ParentGroup.startsWith(prefix) );
+                if (!isDescendant) break;
+                ++iTo;
+            }
+
+            if (iTo < static_cast<int>(Basket.size()) - 1)
+            {
+                QString err = reorder(indexes, iTo, parentGroup);
+                if (!err.isEmpty())
+                {
+                    Basket.pop_back();
+                    return err;
+                }
+            }
+        }
+        // For the root group, or when already at the end, no move is needed.
+    }
+    else
+    {
+        if (Basket[iBasketIndex].isGroup) ++iBasketIndex;
+
+        if (iBasketIndex < static_cast<int>(Basket.size()) - 1)
+        {
+            QString err = reorder(indexes, iBasketIndex, parentGroup);
+            if (!err.isEmpty())
+            {
+                Basket.pop_back();
+                return err;
+            }
+        }
+    }
+
+    return "";
+}
+
+
 
 QStringList ABasketManager::getGroupNames() const
 {

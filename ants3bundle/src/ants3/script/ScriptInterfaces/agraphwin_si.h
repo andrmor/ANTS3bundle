@@ -20,7 +20,7 @@ public:
 
 public slots:
     void addToBasket(QString title, QString parentGroup = QString());
-    void addGroupTobasket(QString name, QString parentGroup = QString());
+    void addGroupToBasket(QString name, QString parentGroup = QString());
     void clearBasket();
     void saveBasket(QString fileName);
 
