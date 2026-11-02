@@ -18,6 +18,8 @@ ABasketTreeWidget::ABasketTreeWidget(QWidget * parent) :
     setExpandsOnDoubleClick(false);
 
     DefaultIndent = indentation();
+
+    connect(this, &QTreeWidget::itemSelectionChanged, this, &ABasketTreeWidget::updateMovePreview);
 }
 
 /*
@@ -257,6 +259,100 @@ int ABasketTreeWidget::dropIndicatorToFixedInt(DropIndicatorPosition indicator)
     case OnViewport : return 3;
     }
     return 3;
+}
+
+void ABasketTreeWidget::updateMovePreview()
+{
+    // Collect all explicitly selected items.
+    const QList<QTreeWidgetItem *> selected = selectedItems();
+
+    // Record all items that will be moved, including descendants.
+    QSet<QTreeWidgetItem *> moveItems;
+    QSet<QTreeWidgetItem *> explicitlySelected;
+
+    for (QTreeWidgetItem * item : selected)
+    {
+        explicitlySelected.insert(item);
+        moveItems.insert(item);
+
+        // Individual items have no descendants to include.
+        if (!item->data(0, GroupRole).toBool())
+            continue;
+
+        // Include all descendants, regardless of expansion state.
+        QVector<QTreeWidgetItem *> stack;
+
+        for (int i = 0; i < item->childCount(); ++i)
+            stack.append(item->child(i));
+
+        while (!stack.isEmpty())
+        {
+            QTreeWidgetItem * child = stack.takeLast();
+            moveItems.insert(child);
+
+            for (int i = 0; i < child->childCount(); ++i)
+                stack.append(child->child(i));
+        }
+    }
+
+    // Refresh the preview for every item in the tree.
+    QVector<QTreeWidgetItem *> stack;
+
+    for (int i = 0; i < topLevelItemCount(); ++i)
+        stack.append(topLevelItem(i));
+
+    //const QBrush previewBrush(palette().color(QPalette::AlternateBase));
+    //const QBrush previewBrush(QColor(255, 220, 150)); // light orange
+    /*
+    QColor selectionColor = palette().color(QPalette::Highlight);
+    QColor previewColor = selectionColor.lighter(170);
+    */
+    QColor selectionColor = palette().color(QPalette::Highlight);
+    QColor backgroundColor = palette().color(QPalette::Base);
+    QColor previewColor(
+        (selectionColor.red()   + 2 * backgroundColor.red())   / 3,
+        (selectionColor.green() + 2 * backgroundColor.green()) / 3,
+        (selectionColor.blue()  + 2 * backgroundColor.blue())  / 3
+        );
+
+    while (!stack.isEmpty())
+    {
+        QTreeWidgetItem * item = stack.takeLast();
+
+        const bool preview = moveItems.contains(item);
+        const bool explicitSelection = explicitlySelected.contains(item);
+
+        // Store the preview state independently of the visual appearance.
+        item->setData(0, MovePreviewRole, preview && !explicitSelection);
+
+        // Preserve Qt's standard selection appearance for explicitly
+        // selected items. Tint only implicitly included descendants.
+        /*
+        if (!explicitSelection && preview)
+            item->setBackground(0, previewBrush);
+        else
+            item->setBackground(0, QBrush());
+        */
+        /*
+        if (!explicitSelection && preview)
+        {
+            item->setBackground(0, QBrush(QColor(255, 220, 150)));
+            item->setForeground(0, QBrush(Qt::black));
+        }
+        else
+        {
+            item->setBackground(0, QBrush());
+            item->setForeground(0, QBrush());
+        }
+        */
+        if (!explicitSelection && preview)
+            item->setBackground(0, QBrush(previewColor));
+        else
+            item->setBackground(0, QBrush());
+
+        for (int i = 0; i < item->childCount(); ++i)
+            stack.append(item->child(i));
+    }
 }
 
 void ABasketTreeWidget::dropEvent(QDropEvent * event)

@@ -24,10 +24,13 @@ signals:
     void requestReorder(std::vector<int> & indexes, int toIndex, int on0above1below2viewport3);
 
 private:
-    enum { GroupRole = Qt::UserRole, IndexRole = Qt::UserRole + 1 };
+    enum { GroupRole = Qt::UserRole, IndexRole = Qt::UserRole + 1, MovePreviewRole = Qt::UserRole + 2 };
     int DefaultIndent = 10;
 
     int dropIndicatorToFixedInt(DropIndicatorPosition indicator);
+
+private slots:
+    void updateMovePreview();
 };
 
 #endif // ABASKETTREEWIDGET_H
