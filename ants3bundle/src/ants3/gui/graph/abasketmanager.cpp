@@ -524,7 +524,7 @@ QString ABasketManager::removeGroupAndContents(int index)
     if (!Basket[index].isGroup) return "This is not a group";
 
     std::vector<int> itemIndexes;
-    getIndexes_ItemsInGroupRecursive(index, itemIndexes);
+    getIndexes_ItemsInGroup(index, itemIndexes);
     return remove(itemIndexes);
 }
 
@@ -534,7 +534,7 @@ QString ABasketManager::removeGroupButKeepContents(int index)
     if (!Basket[index].isGroup) return "This is not a group";
 
     std::vector<int> indexes;
-    getIndexes_ItemsInGroupRecursive(index, indexes);
+    getIndexes_ItemsInGroup(index, indexes);
     // indexes[0] is the group itself, the rest are all its descendants (groups and items)
     Q_ASSERT(!indexes.empty() && indexes[0] == index);
 
@@ -604,7 +604,7 @@ void ABasketManager::getIndexes_ItemsInGroupRecursive(int indexOfGroup, std::vec
 }
 */
 // no need recursion!
-void ABasketManager::getIndexes_ItemsInGroupRecursive(int indexOfGroup, std::vector<int> & indexes) const
+void ABasketManager::getIndexes_ItemsInGroup(int indexOfGroup, std::vector<int> & indexes) const
 {
     if (indexOfGroup < 0 || indexOfGroup >= static_cast<int>(Basket.size())) return;
 
@@ -858,14 +858,11 @@ QString ABasketManager::saveGroup(int index, const QString & fileName)
 
     // indexes[0] is the group itself, the rest are all its descendants (groups and items)
     std::vector<int> indexes;
-    getIndexes_ItemsInGroupRecursive(index, indexes);
+    getIndexes_ItemsInGroup(index, indexes);
     Q_ASSERT(!indexes.empty() && indexes[0] == index);
 
     const QString error = checkMultidrawsAreComplete(indexes);
     if (!error.isEmpty()) return error;
-
-    // keep the original relative order of the entries, as in a full save
-    std::sort(indexes.begin(), indexes.end());
 
     return writeBasketFile(fileName, indexes, index);
 }
