@@ -585,6 +585,7 @@ QString ABasketManager::removeGroupButKeepContents(int index)
     return "";
 }
 
+/*
 void ABasketManager::getIndexes_ItemsInGroupRecursive(int indexOfGroup, std::vector<int> & indexes) const
 {
     if (indexOfGroup < 0 || indexOfGroup >= Basket.size()) return;
@@ -598,6 +599,32 @@ void ABasketManager::getIndexes_ItemsInGroupRecursive(int indexOfGroup, std::vec
         {
             indexes.push_back(i);
             if (Basket[i].isGroup) getIndexes_ItemsInGroupRecursive(i, indexes);
+        }
+    }
+}
+*/
+// no need recursion!
+void ABasketManager::getIndexes_ItemsInGroupRecursive(int indexOfGroup, std::vector<int> & indexes) const
+{
+    if (indexOfGroup < 0 || indexOfGroup >= static_cast<int>(Basket.size())) return;
+
+    if (!Basket[indexOfGroup].isGroup) return;
+
+    const QString groupPath = Basket[indexOfGroup].getGroupFullPath();
+    const QString prefix = groupPath + "/";
+
+    for (int i = indexOfGroup; i < static_cast<int>(Basket.size()); ++i)
+    {
+        if (i == indexOfGroup ||
+            Basket[i].ParentGroup == groupPath ||
+            Basket[i].ParentGroup.startsWith(prefix))
+        {
+            indexes.push_back(i);
+        }
+        else if (i > indexOfGroup)
+        {
+            // The subtree is contiguous, so we have reached its end.
+            break;
         }
     }
 }

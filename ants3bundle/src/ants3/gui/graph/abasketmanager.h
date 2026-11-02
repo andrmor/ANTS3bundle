@@ -73,7 +73,7 @@ private:
     bool                groupExists(const QString & fullPath) const;
     void                replaceGroupPrefix(const QString & oldPath, const QString & newPath);
     bool                isInsideGroup(const QString &path, const QString &group) const;
-    void                getIndexes_ItemsInGroupRecursive(int indexOfGroup, std::vector<int> & indexes) const;
+    void                getIndexes_ItemsInGroup(int indexOfGroup, std::vector<int> & indexes) const;
     QString             writeBasketFile(const QString & fileName, const std::vector<int> & indexes, int rootGroupIndex = -1);
     QString             checkMultidrawsAreComplete(const std::vector<int> & indexes);
     QString             checkGroupCanBeMovedToIndex(int indexOfGroup, int indexTo);
