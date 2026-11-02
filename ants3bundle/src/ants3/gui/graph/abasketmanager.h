@@ -61,6 +61,8 @@ public:
 
     QString             joinPath(const QString & parentGroup, const QString & thisGroupName) const; // !!!*** sync with getFullGroupName (maybe drop getFullGroupName?)
 
+    QString             validateBasket() const;
+
 private:
     std::vector<ABasketItem> Basket;
 

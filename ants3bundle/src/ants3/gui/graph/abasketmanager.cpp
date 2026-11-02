@@ -204,8 +204,8 @@ QString ABasketManager::addGroup(const QString & name, const QString & parentGro
 {
     if (iBasketIndex != -1)
     {
-        if (iBasketIndex < 0 || iBasketIndex >= Basket.size())
-            return "Invalid insert position";
+        if (iBasketIndex < 0 || iBasketIndex >= (int)Basket.size())
+            return "Invalid basket index for addGroup";
     }
 
     int parentIndex = -1;
@@ -250,7 +250,7 @@ QString ABasketManager::addGroup(const QString & name, const QString & parentGro
     }
     else
     {
-        if (Basket[iBasketIndex].isGroup) iBasketIndex++; // normally adding above, but for a group it has to be the next item
+        //if (Basket[iBasketIndex].isGroup) iBasketIndex++; // normally adding above, but for a group it has to be the next item
         if (iBasketIndex < Basket.size()-1) reorder(indexes, iBasketIndex); // else already there
     }
 
@@ -1558,4 +1558,72 @@ bool ABasketManager::isInsideGroup(const QString & path, const QString & group) 
 {
     if (group.isEmpty()) return true;
     return path == group || path.startsWith(group + '/');
+}
+
+QString ABasketManager::validateBasket() const
+{
+    const int size = static_cast<int>(Basket.size());
+
+    QSet<QString> groupPaths;
+    std::vector<QString> activeGroups;
+
+    for (int i = 0; i < size; i++)
+    {
+        const ABasketItem & item = Basket[i];
+
+        // 1. Validate the parent group and hierarchy ordering.
+        // Pop groups whose subtrees have ended.
+        while (!activeGroups.empty() && activeGroups.back() != item.ParentGroup)
+        {
+            activeGroups.pop_back();
+        }
+
+        // A non-root entry must belong to an active parent group.
+        if (!item.ParentGroup.isEmpty() && activeGroups.empty())
+            return QString("Basket entry %1 ('%2'): parent group '%3' does not exist at this position in the vector.").arg(i).arg(item.Name).arg(item.ParentGroup);
+
+        // 2. Validate groups.
+        if (item.isGroup)
+        {
+            QString err = checkGroupName(item.Name);
+            if (!err.isEmpty()) return QString("Basket entry %1: %2").arg(i).arg(err);
+
+            if (!item.DrawObjects.empty())
+                return QString("Basket entry %1 ('%2'): groups cannot contain DrawObjects.").arg(i).arg(item.Name); // might neede to be removed (consider adding TNamed for groups)
+
+            const QString path = item.getGroupFullPath();
+
+            if (groupPaths.contains(path))
+                return QString("Basket entry %1: duplicate group path '%2'.").arg(i).arg(path);
+
+            groupPaths.insert(path);
+
+            // The group becomes the active parent for subsequent entries.
+            activeGroups.push_back(path);
+        }
+
+        // 3. Validate Multidraw references.
+        for (size_t j = 0; j < item.DrawObjects.size(); j++) // a bit too general as multifraw is (now) always the first item
+        {
+            const ADrawObject & draw = item.DrawObjects[j];
+            if (!draw.Multidraw) continue;
+
+            QSet<int> usedIndexes;
+            for (int basketIndex : draw.MultidrawSettings.BasketItems)
+            {
+                if (basketIndex < 0 || basketIndex >= size)
+                    return QString("Basket entry %1, DrawObject %2: Multidraw references invalid basket index %3.").arg(i).arg(j).arg(basketIndex);
+
+                if (Basket[basketIndex].isGroup)
+                    return QString("Basket entry %1, DrawObject %2: Multidraw references group at basket index %3.").arg(i).arg(j).arg(basketIndex);
+
+                if (usedIndexes.contains(basketIndex))
+                    return QString("Basket entry %1, DrawObject %2: Multidraw contains duplicate basket index %3.").arg(i).arg(j).arg(basketIndex);
+
+                usedIndexes.insert(basketIndex);
+            }
+        }
+    }
+
+    return QString();
 }

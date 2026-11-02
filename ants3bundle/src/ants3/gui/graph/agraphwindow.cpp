@@ -1969,6 +1969,9 @@ void AGraphWindow::configureLegendBorder(int color, int style, int size)
 
 void AGraphWindow::updateBasketGUI()
 {
+    QString err = Basket->validateBasket();
+    if (!err.isEmpty()) qWarning() << "\n >>>> BASKET corruption detected! <<<<\n" << err;
+
     lwBasket->fill(Basket);
 
     if (ActiveBasketItem >= Basket->size()) ActiveBasketItem = -1;
@@ -2307,30 +2310,34 @@ void AGraphWindow::onBasketCustomContextMenuRequested(const QPoint & pos)
 
 void AGraphWindow::onBasketAction_AddGroup(int iBasketIndex, bool isGroup)
 {
+    if (iBasketIndex >= Basket->size())
+    {
+        qWarning() << "bad basket index" << iBasketIndex;
+        return;
+    }
+
     bool ok;
     const QString name = QInputDialog::getText(this, "New group", "Group name:", QLineEdit::Normal, "Group", &ok).simplified();
     if (!ok) return;
 
     QString err = ABasketManager::checkGroupName(name);
-
-    QString parentGroup;
-    if (iBasketIndex != -1) // else adding to the root
-    {
-        if (isGroup) parentGroup = Basket->getItems()[iBasketIndex].getGroupFullPath();
-        else         parentGroup = Basket->getItems()[iBasketIndex].ParentGroup;
-    }
-
-    qDebug() << "Add group triggered for index" << iBasketIndex << "target is group?" << isGroup << "Parent group:" << parentGroup;
-
-    if (err.isEmpty()) err = Basket->addGroup(name, parentGroup, iBasketIndex);
-
     if (!err.isEmpty())
     {
         guitools::message(err, this);
         return;
     }
 
-    updateBasketGUI();
+    QString parentGroup;
+    if (iBasketIndex >= 0) // else adding to the root
+    {
+        if (isGroup) parentGroup = Basket->getItems()[iBasketIndex].getGroupFullPath();
+        else         parentGroup = Basket->getItems()[iBasketIndex].ParentGroup;
+    }
+
+    qDebug() << "Add group triggered for index" << iBasketIndex << "  Target is group?" << isGroup << "   Parent group:" << parentGroup;
+    err = Basket->addGroup(name, parentGroup, iBasketIndex);
+    if (!err.isEmpty()) guitools::message(err, this);
+    else updateBasketGUI();
 }
 
 void AGraphWindow::onBasketReorderRequested(std::vector<int> & indexes, int toRow)
@@ -3043,6 +3050,21 @@ void AGraphWindow::close3DviewWindow()
         Viewer3D->close();
         delete Viewer3D; Viewer3D = nullptr;
     }
+}
+
+QString AGraphWindow::checkCanAddGroup(const QString & newGroupName, const QString & toGroup) const
+{
+    QString err = Basket->checkGroupName(newGroupName);
+    if (!err.isEmpty()) return err;
+
+    const QStringList names = Basket->getGroupNames();
+    if (!names.contains(toGroup)) return QString("Basket: requested group %1 not found").arg(toGroup);
+
+    const QString newFullName = Basket->joinPath(toGroup, newGroupName);
+    const QString txt = (toGroup.isEmpty() ? "the basket root" : toGroup);
+    if (names.contains(newFullName)) return QString("Basket: cannot add new group %1 to %2: group already exists").arg(toGroup, txt);
+
+    return "";
 }
 
 #include "atemplateselectiondialog.h"

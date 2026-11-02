@@ -137,6 +137,13 @@ void AGraphWin_SI::addToBasket(QString title, QString parentGroup)
 
 void AGraphWin_SI::addGroupTobasket(QString name, QString parentGroup)
 {
+    QString err = GraphWindow->checkCanAddGroup(name, parentGroup);
+    if (!err.isEmpty())
+    {
+        abort(err);
+        return;
+    }
+
     QApplication::processEvents();
     emit requestAddGroupToBasket(name, parentGroup);
     QApplication::processEvents();

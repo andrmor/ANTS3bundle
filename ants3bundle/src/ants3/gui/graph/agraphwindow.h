@@ -73,7 +73,9 @@ public:
     double getMinZ(bool *ok);
     double getMaxZ(bool *ok);
 
-    void close3DviewWindow();
+    void   close3DviewWindow();
+
+    QString checkCanAddGroup(const QString & newGroupName, const QString & toGroup) const;
 
 protected:
     void mouseMoveEvent(QMouseEvent * event);
