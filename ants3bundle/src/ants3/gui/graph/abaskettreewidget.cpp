@@ -248,6 +248,18 @@ int ABasketTreeWidget::getBasketIndex(const QTreeWidgetItem * item) const
     return item->data(0, IndexRole).toInt();
 }
 
+int ABasketTreeWidget::dropIndicatorToFixedInt(DropIndicatorPosition indicator)
+{
+    switch (indicator)
+    {
+    case OnItem     : return 0;
+    case AboveItem  : return 1;
+    case BelowItem  : return 2;
+    case OnViewport : return 3;
+    }
+    return 3;
+}
+
 void ABasketTreeWidget::dropEvent(QDropEvent * event)
 {
     qDebug() << "Basket: Drop detected";
@@ -265,59 +277,17 @@ void ABasketTreeWidget::dropEvent(QDropEvent * event)
 #endif
 
     int indexTo = getBasketIndex(itemTo);
-    bool afterThisItem = (dropIndicatorPosition() == QAbstractItemView::BelowItem);
+    const DropIndicatorPosition dropIndicator = dropIndicatorPosition();
+    int on0above1below2viewport3 = dropIndicatorToFixedInt(dropIndicator);
+    //bool afterThisItem = (dropIndicatorPosition() == QAbstractItemView::BelowItem);
     //if (indexTo >= 0)
     //{
     //    if (dropIndicatorPosition() == QAbstractItemView::BelowItem) indexTo++;
     //}
-    qDebug() << "   Move to item:" << indexTo << " After this item?" << afterThisItem;
+    //qDebug() << "   Move to item:" << indexTo << " After this item?" << afterThisItem;
 
     event->ignore();
 
-    emit requestReorder(indexes, indexTo, afterThisItem);
-
-
-    /*
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    const QPoint pos = event->pos();
-#else
-    const QPoint pos = event->position().toPoint();
-#endif
-
-    QTreeWidgetItem * target = itemAt(pos);
-    const DropIndicatorPosition dip = dropIndicatorPosition();
-
-    QString targetGroup;     // root by default (drop on empty area)
-    int toIndex = -1;        // -1: end of the target group
-    if (target)
-    {
-        if (isGroup(target))
-            targetGroup = (dip == OnItem) ? groupPath(target) : ABasketManager::parentPath(groupPath(target));
-        else
-        {
-            targetGroup = groupPath(target);              // owning group of the item
-            const int idx = basketIndex(target);
-            toIndex = (dip == AboveItem) ? idx : idx + 1;
-        }
-    }
-
-    const QStringList groups = selectedGroupPaths();
-    std::vector<int> items = selectedBasketIndexes();
-
-    // items inside a group that is moved too travel with that group
-    items.erase(std::remove_if(items.begin(), items.end(), [&](int i)
-                               {
-                                   const QString g = groupPath(IndexToItem[i]);
-                                   for (const QString & mg : groups) if (ABasketManager::isInsideGroup(g, mg)) return true;
-                                   return false;
-                               }), items.end());
-
-    event->ignore();   // the tree is rebuilt from the manager, never modified by Qt itself
-
-    for (const QString & g : groups)
-        if (ABasketManager::isInsideGroup(targetGroup, g)) return;   // cannot drop a group into itself
-
-    emit requestMove(items, groups, targetGroup, toIndex);
-    */
+    emit requestReorder(indexes, indexTo, on0above1below2viewport3);
 }
 

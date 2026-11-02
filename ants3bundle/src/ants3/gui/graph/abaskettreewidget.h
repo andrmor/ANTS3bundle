@@ -21,12 +21,13 @@ protected:
     void dropEvent(QDropEvent * event) override;  // !!!*** check item drop to last position! overflow index?
 
 signals:
-    void requestReorder(std::vector<int> & indexes, int toIndex, bool after);
+    void requestReorder(std::vector<int> & indexes, int toIndex, int on0above1below2viewport3);
 
 private:
     enum { GroupRole = Qt::UserRole, IndexRole = Qt::UserRole + 1 };
     int DefaultIndent = 10;
 
+    int dropIndicatorToFixedInt(DropIndicatorPosition indicator);
 };
 
 #endif // ABASKETTREEWIDGET_H

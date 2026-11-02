@@ -621,6 +621,13 @@ QString ABasketManager::getParentGroup(int index) const
     return Basket[index].ParentGroup;
 }
 
+bool ABasketManager::isCollapsedGroup(int index) const
+{
+    if (index < 0 || index >= (int)Basket.size()) return true;
+    if (!Basket[index].isGroup) return true;
+    return Basket[index].Collapsed;
+}
+
 /*
 // ---------------------------------------------------------------------------
 // Updated ABasketManager::saveBasket / ABasketManager::appendBasket

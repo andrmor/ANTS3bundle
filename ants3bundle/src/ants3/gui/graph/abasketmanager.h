@@ -41,6 +41,7 @@ public:
 
     bool                isGroup(int index) const;
     QString             getParentGroup(int index) const;
+    bool                isCollapsedGroup(int index) const; // wrong index or not a group --> returns true
 
     void                saveBasket(const QString & fileName);
     QString             saveGroup(int index, const QString & fileName); // !!!*** todo
