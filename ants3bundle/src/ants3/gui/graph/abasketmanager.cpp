@@ -1007,6 +1007,86 @@ QString ABasketManager::checkMultidrawsAreComplete(const std::vector<int> & inde
 
 QString ABasketManager::appendBasket(const QString & fileName)
 {
+    std::vector<ABasketItem> loadedBasket;
+
+    QString error = loadBasketFromFile(fileName, loadedBasket);
+    if (!error.isEmpty()) return error;
+
+    if (loadedBasket.empty()) return "";
+
+    // Resolve all conflicting group paths.
+    if (hasGroupPathConflicts(loadedBasket))
+        correctGroupPaths(loadedBasket);
+
+    // Translate multidraw indices to the destination basket.
+    const int offset = static_cast<int>(Basket.size());
+    shiftBasketMultidrawIndexes(loadedBasket, offset);
+
+    // Append while preserving the original preorder.
+    Basket.insert(
+        Basket.end(),
+        std::make_move_iterator(loadedBasket.begin()),
+        std::make_move_iterator(loadedBasket.end()));
+
+    return "";
+}
+
+QString ABasketManager::appendBasketAsGroup(const QString & fileName, const QString & groupName)
+{
+    if (groupName.isEmpty() || groupName.contains('/'))
+        return "Invalid group name.";
+
+    // Check whether the requested root-level group path already exists.
+    for (const auto & item : Basket)
+    {
+        if (item.isGroup &&
+            item.ParentGroup.isEmpty() &&
+            item.Name == groupName)
+        {
+            return QString("A root-level group named '%1' already exists.")
+            .arg(groupName);
+        }
+    }
+
+    std::vector<ABasketItem> loadedBasket;
+
+    QString error = loadBasketFromFile(fileName, loadedBasket);
+    if (!error.isEmpty()) return error;
+
+    // Create the new root-level group.
+    ABasketItem group;
+    group.Name = groupName;
+    group.ParentGroup.clear();
+    group.isGroup = true;
+    group.Collapsed = false;
+    group.DrawObjects.clear();
+
+    // Place all loaded entries underneath the new group.
+    for (auto & item : loadedBasket)
+    {
+        if (item.ParentGroup.isEmpty())
+            item.ParentGroup = groupName;
+        else
+            item.ParentGroup = groupName + "/" + item.ParentGroup;
+    }
+
+    // Account for the newly inserted group when translating indices.
+    const int offset = static_cast<int>(Basket.size()) + 1;
+    shiftBasketMultidrawIndexes(loadedBasket, offset);
+
+    // Append the new group and its complete subtree.
+    Basket.push_back(std::move(group));
+
+    Basket.insert(
+        Basket.end(),
+        std::make_move_iterator(loadedBasket.begin()),
+        std::make_move_iterator(loadedBasket.end()));
+
+    return "";
+}
+
+QString ABasketManager::loadBasketFromFile(const QString & fileName, std::vector<ABasketItem> & loadedBasket) const
+{
     TFile f(fileName.toLocal8Bit().data());
 
     size_t oldBasketSize = Basket.size();
@@ -1077,7 +1157,7 @@ QString ABasketManager::appendBasket(const QString & fileName)
             {
                 ADrawObject drawObj(tObj, "");
                 drawObj.readFromJson(js);
-                if (drawObj.Multidraw && oldBasketSize != 0) drawObj.shiftMultidrawIndexesBy(oldBasketSize);
+//                if (drawObj.Multidraw && oldBasketSize != 0) drawObj.shiftMultidrawIndexesBy(oldBasketSize);
                 drawObjects.push_back(drawObj);
 
                 TLegend * legend = dynamic_cast<TLegend*>(tObj);
@@ -1127,13 +1207,107 @@ QString ABasketManager::appendBasket(const QString & fileName)
             if (!drawObjects.empty())
                 item.Type = drawObjects.front().Pointer->ClassName(); // "TList" if the first draw object is a list
 
-            Basket.push_back(item);
+            //Basket.push_back(item);
+            loadedBasket.push_back(item);
+
             drawObjects.clear();
         }
     }
 
     f.Close();
     return "";
+}
+
+bool ABasketManager::hasGroupPathConflicts(const std::vector<ABasketItem> & loadedBasket) const
+{
+    QSet<QString> paths;
+
+    for (const auto & item : Basket)
+        if (item.isGroup)
+            paths.insert(item.getGroupFullPath());
+
+    for (const auto & item : loadedBasket)
+    {
+        if (!item.isGroup) continue;
+
+        const QString path = item.getGroupFullPath();
+
+        if (paths.contains(path))
+            return true;
+
+        paths.insert(path);
+    }
+
+    return false;
+}
+
+void ABasketManager::correctGroupPaths(
+    std::vector<ABasketItem> & loadedBasket) const
+{
+    QSet<QString> usedPaths;
+
+    for (const auto & item : Basket)
+        if (item.isGroup)
+            usedPaths.insert(item.getGroupFullPath());
+
+    // Original group path -> corrected group path.
+    QHash<QString, QString> pathMapping;
+
+    for (auto & item : loadedBasket)
+    {
+        const QString oldParent = item.ParentGroup;
+
+        const QString oldPath = oldParent.isEmpty()
+                                    ? item.Name
+                                    : oldParent + "/" + item.Name;
+
+        // Update the parent path if an ancestor was renamed.
+        const QString newParent = pathMapping.value(oldParent, oldParent);
+        item.ParentGroup = newParent;
+
+        if (!item.isGroup) continue;
+
+        QString newName = item.Name;
+        QString newPath = newParent.isEmpty()
+                              ? newName
+                              : newParent + "/" + newName;
+
+        if (usedPaths.contains(newPath))
+        {
+            const QString originalName = newName;
+
+            int n = 1;
+            do
+            {
+                newName = originalName + "_" + QString::number(n++);
+                newPath = newParent.isEmpty()
+                              ? newName
+                              : newParent + "/" + newName;
+            }
+            while (usedPaths.contains(newPath));
+
+            item.Name = newName;
+        }
+
+        usedPaths.insert(newPath);
+
+        // Remember the mapping for descendants.
+        pathMapping.insert(oldPath, newPath);
+    }
+}
+
+void ABasketManager::shiftBasketMultidrawIndexes(std::vector<ABasketItem> & items, int offset) const
+{
+    if (offset == 0) return;
+
+    for (auto & item : items)
+    {
+        for (auto & drawObject : item.DrawObjects)
+        {
+            if (drawObject.Multidraw)
+                drawObject.shiftMultidrawIndexesBy(offset);
+        }
+    }
 }
 
  // ----

@@ -43,8 +43,9 @@ public:
     bool                isCollapsedGroup(int index) const; // wrong index or not a group --> returns true
 
     void                saveBasket(const QString & fileName);
-    QString             saveGroup(int index, const QString & fileName); // !!!*** todo
+    QString             saveGroup(int index, const QString & fileName);
     QString             appendBasket(const QString & fileName);
+    QString             appendBasketAsGroup(const QString & fileName, const QString & groupName);
 
     QString             appendTxtAsGraph(const QString & fileName);
     QString             appendTxtAsGraphErrors(const QString & fileName);
@@ -83,6 +84,11 @@ private:
     void                expandSelectionWithGroupMembers(std::vector<int> & indexes);
     QString             destinationPath(int indexTo) const;
     QVector<QString>    computeNewParents(int indexTo, const std::vector<int> & indexes, const QString & newPath) const;
+    QString             loadBasketFromFile(const QString & fileName, std::vector<ABasketItem> & loadedBasket) const;
+
+    bool hasGroupPathConflicts(const std::vector<ABasketItem> &loadedBasket) const;
+    void correctGroupPaths(std::vector<ABasketItem> &loadedBasket) const;
+    void shiftBasketMultidrawIndexes(std::vector<ABasketItem> &items, int offset) const;
 
 public:
     static TObject *    makeCloneOfTObject(TObject * tobj);

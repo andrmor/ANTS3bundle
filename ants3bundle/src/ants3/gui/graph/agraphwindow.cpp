@@ -2153,6 +2153,7 @@ void AGraphWindow::onBasketCustomContextMenuRequested(const QPoint & pos)
 
     QMenu * appendMenu = BasketMenu.addMenu("Append");
         QAction * append = appendMenu->addAction("Append basket file");
+        QAction * appendGr = appendMenu->addAction("Append basket file as a new group");
         appendMenu->addSeparator();
         QAction * appendTxt = appendMenu->addAction("Append graph from text file");
         QAction * appendTxtEr = appendMenu->addAction("Append graph with error bars from text file");
@@ -2210,6 +2211,17 @@ void AGraphWindow::onBasketCustomContextMenuRequested(const QPoint & pos)
             updateBasketGUI();
             if (bDrawEmpty) switchToBasket(0);
         }
+    }
+    else if (selectedItem == appendGr)
+    {
+        bool bDrawEmpty = DrawObjects.empty();
+        const QString fileName = guitools::dialogLoadFile(this, "Append all from a basket file as new group", "Root files (*.root)");
+        if (fileName.isEmpty()) return;
+
+        QString err = Basket->appendBasketAsGroup(fileName, "ABCDEEEEE");
+        if (!err.isEmpty()) guitools::message(err, this);
+        updateBasketGUI();
+        if (bDrawEmpty) switchToBasket(0);
     }
     else if (selectedItem == appendRootHistsAndGraphs)
     {
