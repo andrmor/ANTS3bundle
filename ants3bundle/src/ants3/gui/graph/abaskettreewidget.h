@@ -18,10 +18,10 @@ public:
     int getBasketIndex(const QTreeWidgetItem * item) const;
 
 protected:
-    void dropEvent(QDropEvent * event) override;
+    void dropEvent(QDropEvent * event) override;  // !!!*** check item drop to last position! overflow index?
 
 signals:
-    void requestReorder(std::vector<int> & indexes, int toIndex);
+    void requestReorder(std::vector<int> & indexes, int toIndex, bool after);
 
 private:
     enum { GroupRole = Qt::UserRole, IndexRole = Qt::UserRole + 1 };

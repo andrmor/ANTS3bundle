@@ -50,7 +50,7 @@ public:
     QString             appendTxtAsGraphErrors(const QString & fileName);
     void                appendRootHistGraphs(const QString & fileName);
 
-    QString             reorder(std::vector<int> & indexes, int indexTo); // assume uniqueness of indexes
+    QString             reorder(std::vector<int> & indexes, int indexTo, const QString & destinationParent);
     void                moveLastBasketItemToGroup(const QString & parentGroup, bool toBottom); // triggers reorder  // !!!*** return QString error
 
     QString             mergeHistograms(const std::vector<int> & indexes);
@@ -78,11 +78,11 @@ private:
     QString             checkMultidrawsAreComplete(const std::vector<int> & indexes);
     QString             checkGroupCanBeMovedToIndex(int indexOfGroup, int indexTo);
     void                addGroupMembersRecursive(int itemIndex, std::vector<int> & indexes);
-    QString             validateBasketMove(int indexTo, const std::vector<int> & indexes) const;
-    void                updateParentGroup(int indexTo, const std::vector<int> & indexes);
+    QString             validateBasketMove(int indexTo, const std::vector<int> & indexes, const QString & newPath) const;
+    void                updateParentGroup(int indexTo, const std::vector<int> & indexes, const QString & newPath);
     void                expandSelectionWithGroupMembers(std::vector<int> & indexes);
     QString             destinationPath(int indexTo) const;
-    QVector<QString>    computeNewParents(int indexTo, const std::vector<int> & indexes) const;
+    QVector<QString>    computeNewParents(int indexTo, const std::vector<int> & indexes, const QString & newPath) const;
 
 public:
     static TObject *    makeCloneOfTObject(TObject * tobj);

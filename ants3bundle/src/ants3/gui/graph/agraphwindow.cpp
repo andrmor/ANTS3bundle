@@ -2340,9 +2340,18 @@ void AGraphWindow::onBasketAction_AddGroup(int iBasketIndex, bool isGroup)
     else updateBasketGUI();
 }
 
-void AGraphWindow::onBasketReorderRequested(std::vector<int> & indexes, int toRow)
+void AGraphWindow::onBasketReorderRequested(std::vector<int> & indexes, int toRow, bool afterThisItem)
 {
-    QString error = Basket->reorder(indexes, toRow);
+    QString newParentGroup = Basket->getParentGroup(toRow); // !!!*** use afterThisItem information
+    if (Basket->isGroup(toRow))
+    {
+        newParentGroup = Basket->joinPath(newParentGroup, Basket->getName(toRow));
+        toRow++;
+    }
+
+    qDebug() << "Requesting reorder for items " << indexes << " To new parent:" << newParentGroup << "and insert position" << toRow;
+
+    QString error = Basket->reorder(indexes, toRow, newParentGroup);
     if (!error.isEmpty())
     {
         guitools::message(error, this);

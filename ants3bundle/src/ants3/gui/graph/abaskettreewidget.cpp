@@ -265,15 +265,16 @@ void ABasketTreeWidget::dropEvent(QDropEvent * event)
 #endif
 
     int indexTo = getBasketIndex(itemTo);
-    if (indexTo >= 0)
-    {
-        if (dropIndicatorPosition() == QAbstractItemView::BelowItem) indexTo++;
-    }
-    qDebug() << "   Move to item:" << indexTo << itemTo;
+    bool afterThisItem = (dropIndicatorPosition() == QAbstractItemView::BelowItem);
+    //if (indexTo >= 0)
+    //{
+    //    if (dropIndicatorPosition() == QAbstractItemView::BelowItem) indexTo++;
+    //}
+    qDebug() << "   Move to item:" << indexTo << " After this item?" << afterThisItem;
 
     event->ignore();
 
-    emit requestReorder(indexes, indexTo);
+    emit requestReorder(indexes, indexTo, afterThisItem);
 
 
     /*
