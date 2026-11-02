@@ -2366,16 +2366,16 @@ void AGraphWindow::onBasketAction_AddGroup(int iBasketIndex, bool isGroup)
 
     if (iBasketIndex >= 0)
     {
-        const auto & item = Basket->getItems()[iBasketIndex];
+        //const auto & item = Basket->getItems()[iBasketIndex];
 
         if (isGroup)
         {
-            parentGroup = item.getGroupFullPath();
+            parentGroup = Basket->joinPath(Basket->getParentGroup(iBasketIndex), Basket->getName(iBasketIndex));
             insertRow = iBasketIndex + 1;
         }
         else
         {
-            parentGroup = item.ParentGroup;
+            parentGroup = Basket->getParentGroup(iBasketIndex);
             insertRow = iBasketIndex;
         }
     }

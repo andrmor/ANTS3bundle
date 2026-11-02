@@ -33,7 +33,6 @@ public:
     void                rename(int index, const QString & newName);
     QString             getGroupFullPath(int index);
 
-    std::vector<ABasketItem> & getItems() {return Basket;}  // !!!*** to make safe later
     void                setCollapsedFlag(int index, bool flag);
 
     bool                isMultidraw(int index) const;

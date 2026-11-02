@@ -167,8 +167,7 @@ void ABasketTreeWidget::fill(ABasketManager * basket)
 
     const Qt::ItemFlags flags = Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled;
 
-    const auto & items = basket->getItems();
-    const int n = items.size();
+    const int n = basket->size();
 
     // I assume max ~200 items and ~25 groups
     QVector<QTreeWidgetItem*> treeItems(n, nullptr); // same indexing as the basket
@@ -178,17 +177,17 @@ void ABasketTreeWidget::fill(ABasketManager * basket)
     // Pass 1: one tree item per basket entry
     for (int i = 0; i < n; i++)
     {
-        const ABasketItem & item = items[i];
+        //const ABasketItem & item = items[i];
 
         QTreeWidgetItem * treeItem = new QTreeWidgetItem();
-        treeItem->setText(0, item.Name);
-        treeItem->setData(0, GroupRole, item.isGroup);
+        treeItem->setText(0, basket->getName(i));
+        treeItem->setData(0, GroupRole, basket->isGroup(i));
         treeItem->setData(0, IndexRole, i);
         treeItem->setFlags(flags);
-        if (item.isGroup)
+        if (basket->isGroup(i))
         {
             treeItem->setIcon(0, style()->standardIcon(QStyle::SP_DirIcon));
-            groupPaths[i] = basket->joinPath(item.ParentGroup, item.Name);
+            groupPaths[i] = basket->joinPath(basket->getParentGroup(i), basket->getName(i));
             groupIndexes << i;
         }
         treeItems[i] = treeItem;
@@ -207,15 +206,15 @@ void ABasketTreeWidget::fill(ABasketManager * basket)
     // Pass 2: attach items to their parents (parents need not be attached yet)
     for (int i = 0; i < n; i++)
     {
-        const ABasketItem & item = items[i];
+        //const ABasketItem & item = items[i];
 
-        QTreeWidgetItem * parent = item.ParentGroup.isEmpty() ? nullptr : findGroup(item.ParentGroup);
+        QTreeWidgetItem * parent = basket->getParentGroup(i).isEmpty() ? nullptr : findGroup(basket->getParentGroup(i));
 
         if (parent && parent != treeItems[i]) parent->addChild(treeItems[i]);
         else
         {
-            if (!item.ParentGroup.isEmpty())
-                qWarning() << "ABasketTreeWidget::fill: missing or invalid parent group" << item.ParentGroup << "for" << item.Name;
+            if (!basket->getParentGroup(i).isEmpty())
+                qWarning() << "ABasketTreeWidget::fill: missing or invalid parent group" << basket->getParentGroup(i) << "for" << basket->getName(i);
             addTopLevelItem(treeItems[i]);
         }
     }
@@ -226,14 +225,14 @@ void ABasketTreeWidget::fill(ABasketManager * basket)
         QTreeWidgetItem * t = treeItems[i];
         if (t->treeWidget()) continue; // reachable
 
-        qWarning() << "ABasketTreeWidget::fill: unreachable item (parent cycle)" << items[i].Name;
+        qWarning() << "ABasketTreeWidget::fill: unreachable item (parent cycle)" << basket->getName(i);
         if (QTreeWidgetItem * p = t->parent()) p->removeChild(t); // break the cycle
         addTopLevelItem(t);
     }
 
     // Pass 3: expansion state, once the whole tree is built
     for (int g : groupIndexes)
-        treeItems[g]->setExpanded(!items[g].Collapsed);
+        treeItems[g]->setExpanded(!basket->isCollapsedGroup(g));
 }
 
 bool ABasketTreeWidget::isGroup(const QTreeWidgetItem * item) const
