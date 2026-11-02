@@ -1087,9 +1087,12 @@ QString ABasketManager::appendBasketAsGroup(const QString & fileName, const QStr
 
 QString ABasketManager::loadBasketFromFile(const QString & fileName, std::vector<ABasketItem> & loadedBasket) const
 {
-    TFile f(fileName.toLocal8Bit().data());
+    loadedBasket.clear();
 
-    size_t oldBasketSize = Basket.size();
+    TFile f(fileName.toLocal8Bit().data());
+    if (f.IsZombie()) return QString("%1: cannot open basket file.").arg(fileName);
+
+    //size_t oldBasketSize = Basket.size();
 
     TNamed * desc = (TNamed*)f.Get("BasketDescription_v2");
     if (!desc)
@@ -1100,6 +1103,13 @@ QString ABasketManager::loadBasketFromFile(const QString & fileName, std::vector
 
     QString text = desc->GetTitle();
     QJsonDocument doc(QJsonDocument::fromJson(text.toLatin1().data()));
+
+    if (!doc.isArray())
+    {
+        f.Close();
+        return QString("%1: invalid basket description.").arg(fileName);
+    }
+
     QJsonArray basketArray = doc.array();
     int basketSize = basketArray.size();
 
@@ -1157,7 +1167,7 @@ QString ABasketManager::loadBasketFromFile(const QString & fileName, std::vector
             {
                 ADrawObject drawObj(tObj, "");
                 drawObj.readFromJson(js);
-//                if (drawObj.Multidraw && oldBasketSize != 0) drawObj.shiftMultidrawIndexesBy(oldBasketSize);
+//                if (drawObj.Multidraw && oldBasketSize != 0) drawObj.shiftMultidrawIndexesBy(oldBasketSize); // handled externally now!
                 drawObjects.push_back(drawObj);
 
                 TLegend * legend = dynamic_cast<TLegend*>(tObj);
@@ -1203,12 +1213,15 @@ QString ABasketManager::loadBasketFromFile(const QString & fileName, std::vector
             jstools::parseJson(itemJson, "IsGroup", item.isGroup);
             jstools::parseJson(itemJson, "Collapsed", item.Collapsed);
 
-            item.DrawObjects = drawObjects;
+            //item.DrawObjects = drawObjects;
+            item.DrawObjects = std::move(drawObjects);
+
             if (!drawObjects.empty())
                 item.Type = drawObjects.front().Pointer->ClassName(); // "TList" if the first draw object is a list
 
             //Basket.push_back(item);
-            loadedBasket.push_back(item);
+            //loadedBasket.push_back(item);
+            loadedBasket.push_back(std::move(item));
 
             drawObjects.clear();
         }
@@ -1217,6 +1230,220 @@ QString ABasketManager::loadBasketFromFile(const QString & fileName, std::vector
     f.Close();
     return "";
 }
+
+/*
+// ChatGPT suggestion:
+//
+//   Left to check: if tObj is null for corrupted, acrtually save a TNamed
+Consider changing from
+
+if (tObj)
+{
+    ADrawObject drawObj(tObj, "");
+    drawObj.readFromJson(js);
+    if (drawObj.Multidraw && oldBasketSize != 0)
+        drawObj.shiftMultidrawIndexesBy(oldBasketSize);
+    drawObjects.push_back(drawObj);
+
+    TLegend * legend = dynamic_cast<TLegend*>(tObj);
+    if (legend)
+    {
+        legendIndex = iDrawObj;
+        legendLinks = js["LegendLinks"].toArray();
+    }
+}
+else
+{
+    TString nm(QString("Corrupted_%1").arg(name).toLatin1().data());
+    tObj = new TNamed(nm, nm);
+    qWarning() << "Corrupted TKey in basket file"
+               << fileName << " object:" << name;
+}
+
+to
+
+if (!tObj)
+{
+    TString nm(QString("Corrupted_%1").arg(name).toLatin1().data());
+    tObj = new TNamed(nm, nm);
+    qWarning() << "Corrupted TKey in basket file"
+               << fileName << " object:" << name;
+}
+
+ADrawObject drawObj(tObj, "");
+drawObj.readFromJson(js);
+drawObjects.push_back(drawObj);
+
+TLegend * legend = dynamic_cast<TLegend*>(tObj);
+if (legend)
+{
+    legendIndex = iDrawObj;
+    legendLinks = js["LegendLinks"].toArray();
+}
+The essential difference: previously, the replacement TNamed was created but never added to drawObjects. Now it is always wrapped in an ADrawObject and stored.
+
+
+
+//
+QString ABasketManager::loadBasketFromFile(
+    const QString & fileName,
+    std::vector<ABasketItem> & loadedBasket) const
+{
+    loadedBasket.clear();
+
+    TFile f(fileName.toLocal8Bit().data());
+
+    if (f.IsZombie())
+        return QString("%1: cannot open basket file.").arg(fileName);
+
+    TNamed * desc = (TNamed*)f.Get("BasketDescription_v2");
+    if (!desc)
+    {
+        f.Close();
+        return QString("%1: this is not a valid ANTS3 basket file!").arg(fileName);
+    }
+
+    QString text = desc->GetTitle();
+    QJsonDocument doc(QJsonDocument::fromJson(text.toLatin1().data()));
+
+    if (!doc.isArray())
+    {
+        f.Close();
+        return QString("%1: invalid basket description.").arg(fileName);
+    }
+
+    QJsonArray basketArray = doc.array();
+    const int basketSize = basketArray.size();
+
+    int keyIndex = 0;
+
+    for (int iBasketItem = 0; iBasketItem < basketSize; iBasketItem++)
+    {
+        QJsonObject itemJson = basketArray[iBasketItem].toObject();
+        QJsonArray itemArray = itemJson["ItemObjects"].toArray();
+        const int itemSize = itemArray.size();
+
+        std::vector<ADrawObject> drawObjects;
+        int legendIndex = -1;
+        QJsonArray legendLinks;
+
+        for (int iDrawObj = 0; iDrawObj < itemSize; iDrawObj++)
+        {
+            QJsonObject js = itemArray[iDrawObj].toObject();
+            QString name = js["Name"].toString();
+
+            const bool isList = js.value("IsList").toBool(false);
+
+            TObject * tObj = nullptr;
+
+            if (isList)
+            {
+                // Rebuild a flat TList of individual TObjects (no recursion).
+                const int listSize = js["ListSize"].toInt();
+                TList * newList = new TList();
+
+                for (int iEl = 0; iEl < listSize; iEl++)
+                {
+                    TKey * key = (TKey*)f.GetListOfKeys()->At(keyIndex);
+                    keyIndex++;
+
+                    TObject * elObj = key ? key->ReadObj() : nullptr;
+
+                    if (!elObj)
+                    {
+                        TString nm(QString("Corrupted_%1_elem%2")
+                                       .arg(name).arg(iEl).toLatin1().data());
+                        elObj = new TNamed(nm, nm);
+
+                        qWarning() << "Corrupted TKey in basket file"
+                                   << fileName << "list object:" << name
+                                   << "element" << iEl;
+                    }
+
+                    newList->Add(elObj);
+                }
+
+                tObj = newList;
+            }
+            else
+            {
+                TKey * key = (TKey*)f.GetListOfKeys()->At(keyIndex);
+                keyIndex++;
+
+                tObj = key ? key->ReadObj() : nullptr;
+            }
+
+            if (tObj)
+            {
+                ADrawObject drawObj(tObj, "");
+                drawObj.readFromJson(js);
+                drawObjects.push_back(drawObj);
+
+                TLegend * legend = dynamic_cast<TLegend*>(tObj);
+                if (legend)
+                {
+                    legendIndex = iDrawObj;
+                    legendLinks = js["LegendLinks"].toArray();
+                }
+            }
+            else
+            {
+                TString nm(QString("Corrupted_%1").arg(name).toLatin1().data());
+                tObj = new TNamed(nm, nm);
+
+                qWarning() << "Corrupted TKey in basket file" << fileName << "object:" << name;
+            }
+        }
+
+        // Restore legend object references.
+        if (legendIndex != -1)
+        {
+            TLegend * legend =
+                static_cast<TLegend*>(drawObjects[legendIndex].Pointer);
+
+            TList * elist = legend->GetListOfPrimitives();
+            const int num = elist->GetEntries();
+
+            for (int ie = 0; ie < num; ie++)
+            {
+                TLegendEntry * en = static_cast<TLegendEntry*>(elist->At(ie));
+
+                QString legendText = en->GetLabel();
+                TObject * tObj = nullptr;
+
+                if (ie < legendLinks.size())
+                {
+                    const int iObj = legendLinks[ie].toInt();
+
+                    if (iObj >= 0 && iObj < static_cast<int>(drawObjects.size()))
+                        tObj = drawObjects[iObj].Pointer;
+                }
+
+                en->SetObject(tObj);
+                en->SetLabel(legendText.toLatin1().data());
+            }
+        }
+
+        ABasketItem item;
+        item.Name = itemJson["ItemName"].toString();
+
+        jstools::parseJson(itemJson, "ParentGroup", item.ParentGroup);
+        jstools::parseJson(itemJson, "IsGroup", item.isGroup);
+        jstools::parseJson(itemJson, "Collapsed", item.Collapsed);
+
+        item.DrawObjects = std::move(drawObjects);
+
+        if (!item.DrawObjects.empty())
+            item.Type = item.DrawObjects.front().Pointer->ClassName();
+
+        loadedBasket.push_back(std::move(item));
+    }
+
+    f.Close();
+    return "";
+}
+
+*/
 
 bool ABasketManager::hasGroupPathConflicts(const std::vector<ABasketItem> & loadedBasket) const
 {
