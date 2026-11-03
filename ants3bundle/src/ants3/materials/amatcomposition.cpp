@@ -817,6 +817,7 @@ void AMatComposition::updateCustomElementSymbol(AElementRecord & elm)
     }
 }
 
+/*
 bool AMatComposition::mergeRecords(std::vector<AMatMixRecord> & recs, AMatMixRecord & result)
 {
     if (recs.empty())
@@ -892,6 +893,122 @@ bool AMatComposition::mergeRecords(std::vector<AMatMixRecord> & recs, AMatMixRec
             }
         }
     }
+    return true;
+}
+*/
+
+bool AMatComposition::mergeRecords(std::vector<AMatMixRecord> & recs, AMatMixRecord & result)
+{
+    const AMatMixRecord::EFractionType Type = recs.front().FractionType;
+
+    // Molar-fraction mixture
+    if (Type == AMatMixRecord::Molar)
+    {
+        double sumFractions = 0.0;
+
+        // Check fractions and ensure that all records use molar fractions.
+        for (const AMatMixRecord & r : recs)
+        {
+            if (r.FractionType != AMatMixRecord::Molar)
+            {
+                ErrorString = "Cannot use molar fractions for mass-fraction mixtures";
+                return false;
+            }
+
+            if (r.Fraction < 0.0)
+            {
+                ErrorString = "Molar fractions cannot be negative";
+                return false;
+            }
+
+            sumFractions += r.Fraction;
+        }
+
+        if (sumFractions <= 0.0)
+        {
+            ErrorString = "Sum of molar fractions should be positive";
+            return false;
+        }
+
+        // Normalize the molar fractions within this mixture level.
+        result = recs.front();
+        result.ElementMap.clear();
+
+        for (const AMatMixRecord & r : recs)
+        {
+            const double weight = r.Fraction / sumFractions;
+
+            for (const auto & kv : r.ElementMap)
+            {
+                result.ElementMap[kv.first] += kv.second * weight;
+            }
+        }
+
+        // The resulting record represents the normalized mixture.
+        result.Fraction = 1.0;
+        result.FractionType = AMatMixRecord::Molar;
+        result.ComputedFraction = 0.0;
+        result.computeA();
+
+        return true;
+    }
+
+    // Mass-fraction mixture
+    if (recs.size() == 1)
+    {
+        ErrorString = "Sub-expression cannot have mass fraction for a single member";
+        return false;
+    }
+
+    // Calculate the conversion factors from mass fractions to
+    // relative atom-number contributions.
+    for (AMatMixRecord & r : recs)
+    {
+        if (r.FractionType != AMatMixRecord::Mass)
+        {
+            ErrorString = "Cannot mix molar and mass fractions in one mixture";
+            return false;
+        }
+
+        if (r.Fraction < 0.0)
+        {
+            ErrorString = "Mass fractions cannot be negative";
+            return false;
+        }
+
+        r.computeA();
+
+        if (r.CombinedA <= 0.0)
+        {
+            ErrorString = "Combined atomic mass should be positive";
+            return false;
+        }
+
+        r.ComputedFraction = r.Fraction / r.CombinedA;
+    }
+
+    result = recs.front();
+
+    for (auto & kv : result.ElementMap)
+        kv.second *= result.ComputedFraction;
+
+    for (size_t iRec = 1; iRec < recs.size(); iRec++)
+    {
+        const AMatMixRecord & other = recs[iRec];
+
+        for (const auto & kv : other.ElementMap)
+        {
+            auto it = result.ElementMap.find(kv.first);
+
+            if (it == result.ElementMap.end())
+                result.ElementMap[kv.first] = kv.second * other.ComputedFraction;
+            else
+                it->second += kv.second * other.ComputedFraction;
+        }
+    }
+
+    result.computeA();
+
     return true;
 }
 

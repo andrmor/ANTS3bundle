@@ -1433,7 +1433,15 @@ void AMatWin::on_pbHelpComposition_clicked()
             "{10B:97.0+11B:3.0}4C     <- custom isotope composition\n"
             "H2O/10.6 + (NaCl:1 + KCl:2.5)/1.4     <- possible to use an arbitrary number and level of brackets\n"
             " It is possible to transform from molecular fractions to weight but not the opposite!\n"
-            "";
+            "\n"
+            "Gas mixtures can be defined using nested expressions enclosed in parentheses.\n"
+            "The composition of each mixture is specified independently, and its proportion in the parent mixture\n"
+            "is given by the fraction following the closing parenthesis. For example:\n"
+            "   {3He}:3+(Ar:1+CO2:0.5):2\n"
+            "This expression defines a mixture consisting of three parts of ³He and two parts of a submixture\n"
+            "containing Ar and CO₂ in a 1:0.5 ratio.\n"
+            "Fractions are normalized independently at each level of the expression.\n"
+            "Additional parentheses can be used to introduce further levels of nesting without changing the composition.";
 
     guitools::message1notModal(s, "Composition string", this);
 }
