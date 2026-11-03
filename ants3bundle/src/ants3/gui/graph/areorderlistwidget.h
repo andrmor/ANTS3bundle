@@ -1,16 +1,16 @@
-#ifndef ABASKETLISTWIDGET_H
-#define ABASKETLISTWIDGET_H
+#ifndef AREORDERLISTWIDGET_H
+#define AREORDERLISTWIDGET_H
 
 #include <QListWidget>
 
 #include <vector>
 
-class ABasketListWidget : public QListWidget
+class AReorderListWidget : public QListWidget
 {
     Q_OBJECT
 
 public:
-    ABasketListWidget(QWidget * parent = nullptr);
+    AReorderListWidget(QWidget * parent = nullptr);
 
 protected:
     void dropEvent(QDropEvent * event) override;
@@ -19,4 +19,4 @@ signals:
     void requestReorder(const std::vector<int> & indexes, int toRow);
 };
 
-#endif // ABASKETLISTWIDGET_H
+#endif // AREORDERLISTWIDGET_H

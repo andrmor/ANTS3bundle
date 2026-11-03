@@ -13,12 +13,12 @@
 class AGraphRasterWindow;
 class QGraphicsView;
 class AToolboxScene;
-class QTreeWidgetItem; //class QListWidgetItem;
+class QTreeWidgetItem;
 class TObject;
 class TTree;
 class ABasketManager;
 class ADrawExplorerWidget;
-class ABasketTreeWidget; //class ABasketListWidget;
+class ABasketTreeWidget;
 class TLegend;
 class TGaxis;
 class AScriptInterface;

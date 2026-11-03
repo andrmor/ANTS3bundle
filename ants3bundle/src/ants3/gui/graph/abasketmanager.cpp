@@ -1690,10 +1690,9 @@ QString ABasketManager::destinationPath(int indexTo) const
 
 // Returns the resulting ParentGroup for every item in Basket.
 // Preconditions (checked by validateBasketMove): indexTo and all indexes are in range.
-QVector<QString> ABasketManager::computeNewParents(int indexTo, const std::vector<int> & indexes, const QString & newPath) const
+QVector<QString> ABasketManager::computeNewParents(const std::vector<int> & indexes, const QString & newPath) const
 {
     const int n = static_cast<int>(Basket.size());
-    //const QString newPath = destinationPath(indexTo); // was guessed before
 
     QSet<int> selected;
     for (int index : indexes) selected.insert(index);
@@ -1754,14 +1753,14 @@ QVector<QString> ABasketManager::computeNewParents(int indexTo, const std::vecto
 
 QString ABasketManager::validateBasketMove(int indexTo, const std::vector<int> & indexes, const QString & newPath) const
 {
-    const int n = static_cast<int>(Basket.size());
-    if (indexTo < 0 || indexTo >= n) return "Invalid destination index.";
+    const int basketSize = size();
+    if (indexTo < 0 || indexTo > basketSize) return "Invalid destination index.";
     if (indexes.empty()) return "Selection is empty!";
 
     QSet<int> selected;
     for (int index : indexes)
     {
-        if (index < 0 || index >= n) return "Invalid selected item index.";
+        if (index < 0 || index >= basketSize) return "Invalid selected item index.";
         if (selected.contains(index)) return "Invalid selection: duplicate item index.";
         selected.insert(index);
     }
@@ -1783,12 +1782,12 @@ QString ABasketManager::validateBasketMove(int indexTo, const std::vector<int> &
     }
 
     // Conflict check on the actual result of the move.
-    const QVector<QString> newParents = computeNewParents(indexTo, indexes, newPath);
+    const QVector<QString> newParents = computeNewParents(indexes, newPath);
 
     // resulting path -> original path of the first group that maps to it
     QHash<QString, QString> resulting;
 
-    for (int i = 0; i < n; i++)
+    for (int i = 0; i < basketSize; i++)
     {
         if (!Basket[i].isGroup) continue;
 
@@ -1812,11 +1811,9 @@ QString ABasketManager::validateBasketMove(int indexTo, const std::vector<int> &
     return QString();
 }
 
-void ABasketManager::updateParentGroup(int indexTo, const std::vector<int> & indexes, const QString & newPath)
+void ABasketManager::updateParentGroup(const std::vector<int> & indexes, const QString & newPath)
 {
-    Q_ASSERT(indexTo >= 0 && indexTo < static_cast<int>(Basket.size()));
-
-    const QVector<QString> newParents = computeNewParents(indexTo, indexes, newPath);
+    const QVector<QString> newParents = computeNewParents(indexes, newPath);
 
     for (int i = 0; i < newParents.size(); i++)
         Basket[i].ParentGroup = newParents[i];
@@ -1839,7 +1836,7 @@ QString ABasketManager::reorder(std::vector<int> & indexes, int indexTo, const Q
     QString err = validateBasketMove(indexTo, indexes, destinationParent);
     if (!err.isEmpty()) return err;
 
-    updateParentGroup(indexTo, indexes, destinationParent);
+    updateParentGroup(indexes, destinationParent);
 
     std::vector<ABasketItem> itemsToMove;
     for (size_t i = 0; i < indexes.size(); i++)

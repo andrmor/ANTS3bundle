@@ -80,10 +80,10 @@ private:
     QString             checkGroupCanBeMovedToIndex(int indexOfGroup, int indexTo);
     void                addGroupMembersRecursive(int itemIndex, std::vector<int> & indexes);
     QString             validateBasketMove(int indexTo, const std::vector<int> & indexes, const QString & newPath) const;
-    void                updateParentGroup(int indexTo, const std::vector<int> & indexes, const QString & newPath);
+    void                updateParentGroup(const std::vector<int> & indexes, const QString & newPath);
     void                expandSelectionWithGroupMembers(std::vector<int> & indexes);
     QString             destinationPath(int indexTo) const;
-    QVector<QString>    computeNewParents(int indexTo, const std::vector<int> & indexes, const QString & newPath) const;
+    QVector<QString>    computeNewParents(const std::vector<int> & indexes, const QString & newPath) const;
     QString             loadBasketFromFile(const QString & fileName, std::vector<ABasketItem> & loadedBasket) const;
 
     bool hasGroupPathConflicts(const std::vector<ABasketItem> &loadedBasket) const;

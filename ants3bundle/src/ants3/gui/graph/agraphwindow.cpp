@@ -2402,6 +2402,8 @@ void AGraphWindow::onBasketAction_AddGroup(int iBasketIndex, bool isGroup)
 
 void AGraphWindow::onBasketReorderRequested(std::vector<int> & indexes, int toRow, int on0above1below2viewport3)
 {
+    qDebug() << "Basker reorder --> to" << toRow << "( of" << Basket->size() << ")  and on0above1below2viewport3 is" << on0above1below2viewport3;
+
     QString newParentGroup;
     int insertRow = toRow;
 
@@ -2409,7 +2411,6 @@ void AGraphWindow::onBasketReorderRequested(std::vector<int> & indexes, int toRo
     {
     case 0: // On item
         newParentGroup = Basket->getParentGroup(toRow);
-
         if (Basket->isGroup(toRow))
         {
             newParentGroup = Basket->joinPath(newParentGroup, Basket->getName(toRow));
@@ -2422,18 +2423,18 @@ void AGraphWindow::onBasketReorderRequested(std::vector<int> & indexes, int toRo
     case 2: // Below item
         newParentGroup = Basket->getParentGroup(toRow);
         insertRow++;
+        if (insertRow > Basket->size()) insertRow = Basket->size();
         break;
     case 3: // On viewport
         newParentGroup.clear();
-        insertRow = static_cast<int>(Basket->size());
+        insertRow = Basket->size();
         break;
-
     default:
         qWarning() << "Invalid basket drop position:" << on0above1below2viewport3;
         return;
     }
 
-    qDebug() << "Requesting reorder for items" << indexes << "To new parent:" << newParentGroup << "and insert position " << insertRow << "(on0above1below2viewport3)";
+    qDebug() << "Requesting reorder for items" << indexes << "To new parent:" << newParentGroup << "and insert position " << insertRow << " and on0above1below2viewport3:" << on0above1below2viewport3;
 
     QString error = Basket->reorder(indexes, insertRow, newParentGroup);
     if (!error.isEmpty())
