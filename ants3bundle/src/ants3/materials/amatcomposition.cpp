@@ -954,6 +954,7 @@ bool AMatComposition::importComposition(TGeoMaterial * mat)
     return setCompositionString(compoString);
 }
 
+/*
 QString AMatComposition::convertPressureToDensity()
 {
     if (!Gas) return "";
@@ -962,7 +963,7 @@ QString AMatComposition::convertPressureToDensity()
 
     if (Pressure_bar <= 0) return "Pressure should be positive";
     if (CompositionString.contains('/')) return "Gas composition cannot be defined using mass fractions";
-    if (CompositionString.contains('/')) return "Gas composition should be defined without brackets";
+    if (CompositionString.contains('(')) return "Gas composition should be defined without brackets";
 
     QStringList sl = CompositionString.split('+', Qt::SkipEmptyParts);
 
@@ -996,6 +997,119 @@ QString AMatComposition::convertPressureToDensity()
 
     Density = Pressure_bar * 1e5 / 1.380649e-23 / Temperature * meanA * 1.660539e-27 * 1e-3;
     //qDebug() << "====> density:" << Density << "g/cm3";
+
+    return "";
+}
+*/
+
+#include <functional>
+
+QString AMatComposition::convertPressureToDensity()
+{
+    if (!Gas) return "";
+    if (Pressure_bar <= 0) return "Pressure should be positive";
+    if (Temperature <= 0) return "Temperature should be positive";
+    if (CompositionString.contains('/')) return "Gas composition cannot be defined using mass fractions";
+    if (MixtureByLevels.empty()) return "Gas composition has not been parsed";
+
+    // Recursively calculate the mean molecular mass of a mixture.
+    std::function<bool(int, double&)> calculateMeanA =
+        [&](int levelIndex, double &meanA) -> bool
+    {
+        if (levelIndex < 0 || levelIndex >= (int)MixtureByLevels.size())
+        {
+            ErrorString = "Invalid mixture level index";
+            return false;
+        }
+
+        std::vector<AMatMixRecord> recs;
+
+        if (!prepareMixRecords(MixtureByLevels[levelIndex].first, recs))
+            return false;
+
+        double sumFractions = 0;
+        double weightedA = 0;
+
+        for (AMatMixRecord &r : recs)
+        {
+            if (r.FractionType != AMatMixRecord::Molar)
+            {
+                ErrorString = "Gas composition cannot use mass fractions";
+                return false;
+            }
+
+            double componentA = 0;
+
+            if (r.Formula.startsWith("#b"))
+            {
+                // This component is a nested mixture.
+
+                QString indexString = r.Formula;
+                indexString.remove(0, 2);
+                if (indexString.endsWith('&'))
+                    indexString.chop(1);
+
+                bool ok;
+                int subLevelIndex = indexString.toInt(&ok);
+
+                if (!ok || subLevelIndex < 0 ||
+                    subLevelIndex >= (int)MixtureByLevels.size())
+                {
+                    ErrorString = "Invalid nested mixture reference";
+                    return false;
+                }
+
+                if (!calculateMeanA(subLevelIndex, componentA))
+                    return false;
+            }
+            else
+            {
+                // Ordinary molecule: calculate its molecular mass.
+
+                if (!parseMolecule(r))
+                    return false;
+
+                for (const auto &kv : r.ElementMap)
+                    componentA += kv.first.A * kv.second;
+            }
+
+            sumFractions += r.Fraction;
+            weightedA += r.Fraction * componentA;
+        }
+
+        if (sumFractions <= 0)
+        {
+            ErrorString = "Sum of gas fractions not positive";
+            return false;
+        }
+
+        meanA = weightedA / sumFractions;
+
+        if (meanA <= 0)
+        {
+            ErrorString = "Mean molecular mass not positive";
+            return false;
+        }
+
+        return true;
+    };
+
+    double meanA = 0;
+
+    if (!calculateMeanA(0, meanA))
+        return ErrorString;
+
+    // Ideal gas law:
+    // PV = NkT
+    //
+    // Density = P/(kT) * meanA * atomic mass unit
+
+    Density = Pressure_bar * 1e5
+              / 1.380649e-23
+              / Temperature
+              * meanA
+              * 1.660539e-27
+              * 1e-3;
 
     return "";
 }
