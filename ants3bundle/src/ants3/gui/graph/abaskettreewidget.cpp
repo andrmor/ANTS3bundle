@@ -176,18 +176,6 @@ int ABasketTreeWidget::getBasketIndex(const QTreeWidgetItem * item) const
     return item->data(0, IndexRole).toInt();
 }
 
-int ABasketTreeWidget::dropIndicatorToFixedInt(DropIndicatorPosition indicator)
-{
-    switch (indicator)
-    {
-    case OnItem     : return 0;
-    case AboveItem  : return 1;
-    case BelowItem  : return 2;
-    case OnViewport : return 3;
-    }
-    return 3;
-}
-
 void ABasketTreeWidget::updateMovePreview()
 {
     // Collect all explicitly selected items.
@@ -280,6 +268,18 @@ void ABasketTreeWidget::updateMovePreview()
         for (int i = 0; i < item->childCount(); ++i)
             stack.append(item->child(i));
     }
+}
+
+int ABasketTreeWidget::dropIndicatorToFixedInt(DropIndicatorPosition indicator)
+{
+    switch (indicator)
+    {
+    case OnItem     : return 0;
+    case AboveItem  : return 1;
+    case BelowItem  : return 2;
+    case OnViewport : return 3;
+    }
+    return 3;
 }
 
 void ABasketTreeWidget::dropEvent(QDropEvent * event)

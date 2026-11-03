@@ -1629,6 +1629,7 @@ QString ABasketManager::checkGroupCanBeMovedToIndex(int indexOfGroup, int indexT
     return "";
 }
 
+/*
 void ABasketManager::expandSelectionWithGroupMembers(std::vector<int> & indexes)
 {
     for (size_t i = 0; i < indexes.size(); ++i)
@@ -1673,6 +1674,79 @@ void ABasketManager::addGroupMembersRecursive(int itemIndex, std::vector<int> & 
     {
         if (Basket[childIndex].isGroup)
             addGroupMembersRecursive(childIndex, indexes);
+    }
+}
+*/
+
+/*
+void ABasketManager::addGroupMembersRecursive(int itemIndex,
+                                              std::vector<int> & indexes)
+{
+    if (!Basket[itemIndex].isGroup) return;
+
+    const QString groupPath = Basket[itemIndex].getGroupFullPath();
+
+    // All descendants occupy a contiguous range and are already
+    // in preorder. No recursion is necessary.
+    for (int i = itemIndex + 1; i < static_cast<int>(Basket.size()); ++i)
+    {
+        const QString & parent = Basket[i].ParentGroup;
+
+        if (parent == groupPath || parent.startsWith(groupPath + "/"))
+            indexes.push_back(i);
+    }
+}
+*/
+void ABasketManager::addGroupMembersRecursive(int itemIndex,
+                                              std::vector<int> & indexes)
+{
+    if (!Basket[itemIndex].isGroup) return;
+
+    const QString groupPath = Basket[itemIndex].getGroupFullPath();
+
+    // Append all descendants in their original preorder.
+    for (int i = itemIndex + 1; i < static_cast<int>(Basket.size()); ++i)
+    {
+        const QString & parent = Basket[i].ParentGroup;
+
+        if (parent == groupPath || parent.startsWith(groupPath + "/"))
+            indexes.push_back(i);
+    }
+}
+/*
+void ABasketManager::expandSelectionWithGroupMembers(std::vector<int> & indexes)
+{
+    // Keep the original selection separate because the expansion
+    // must not depend on the order of the selected entries.
+    const std::vector<int> originalSelection = indexes;
+
+    for (int index : originalSelection)
+    {
+        if (index >= 0 &&
+            index < static_cast<int>(Basket.size()) &&
+            Basket[index].isGroup)
+        {
+            addGroupMembersRecursive(index, indexes);
+        }
+    }
+
+    // Restore the original basket order.
+    // Do not remove duplicates: validation must report them.
+    std::sort(indexes.begin(), indexes.end());
+}
+*/
+void ABasketManager::expandSelectionWithGroupMembers(std::vector<int> & indexes)
+{
+    const std::vector<int> originalSelection = indexes;
+
+    indexes.clear();
+
+    for (int index : originalSelection)
+    {
+        indexes.push_back(index);
+
+        if (Basket[index].isGroup)
+            addGroupMembersRecursive(index, indexes);
     }
 }
 
@@ -1819,6 +1893,7 @@ void ABasketManager::updateParentGroup(const std::vector<int> & indexes, const Q
         Basket[i].ParentGroup = newParents[i];
 }
 
+/*
 QString ABasketManager::reorder(std::vector<int> & indexes, int indexTo, const QString & destinationParent)
 {
     int numGroups = 0;
@@ -1904,6 +1979,275 @@ QString ABasketManager::reorder(std::vector<int> & indexes, int indexTo, const Q
 
     return "";
 }
+*/
+/*
+QString ABasketManager::reorder(std::vector<int> & indexes, int indexTo, const QString & destinationParent)
+{
+    const int n = static_cast<int>(Basket.size());
+
+    // Check raw selection indices before accessing Basket.
+    if (indexes.empty())
+        return "Selection is empty!";
+
+    for (int index : indexes)
+        if (index < 0 || index >= n)
+            return "Invalid selected item index.";
+
+    // Groups and individual items cannot be mixed.
+    int numGroups = 0;
+    int numItems = 0;
+
+    for (int index : indexes)
+    {
+        if (Basket[index].isGroup) numGroups++;
+        else numItems++;
+    }
+
+    if (numGroups > 0 && numItems > 0)
+        return "Cannot move a mixture of groups and items";
+
+    // Expand selected groups and sort all indices into original
+    // basket order.
+    expandSelectionWithGroupMembers(indexes);
+
+    // Validate the complete selection and destination.
+    QString err = validateBasketMove(indexTo, indexes, destinationParent);
+    if (!err.isEmpty()) return err;
+
+    // Calculate resulting parent paths without modifying Basket.
+    const QVector<QString> newParents =
+        computeNewParents(indexes, destinationParent);
+
+    // Mark selected entries.
+    std::vector<bool> selected(n, false);
+
+    for (int index : indexes)
+        selected[index] = true;
+
+    // Calculate insertion position after removing selected entries.
+    int adjustedIndexTo = indexTo;
+
+    for (int index : indexes)
+        if (index < indexTo)
+            adjustedIndexTo--;
+
+    // Copy selected entries, updating their parent paths.
+    std::vector<ABasketItem> itemsToMove;
+    itemsToMove.reserve(indexes.size());
+
+    for (int index : indexes)
+    {
+        ABasketItem item = Basket[index];
+        item.ParentGroup = newParents[index];
+        item._toErase = false;
+
+        itemsToMove.push_back(std::move(item));
+    }
+
+    // Build the remaining basket and retain the original index
+    // corresponding to every remaining entry.
+    std::vector<ABasketItem> remaining;
+    std::vector<int> remainingOldIndexes;
+
+    remaining.reserve(n - indexes.size());
+    remainingOldIndexes.reserve(n - indexes.size());
+
+    for (int i = 0; i < n; i++)
+    {
+        if (selected[i]) continue;
+
+        remaining.push_back(Basket[i]);
+        remainingOldIndexes.push_back(i);
+    }
+
+    // Construct the resulting basket.
+    std::vector<ABasketItem> newBasket;
+    std::vector<int> oldIndexForNew;
+
+    newBasket.reserve(n);
+    oldIndexForNew.reserve(n);
+
+    auto appendMovedItems = [&]()
+    {
+        for (size_t i = 0; i < itemsToMove.size(); i++)
+        {
+            newBasket.push_back(std::move(itemsToMove[i]));
+            oldIndexForNew.push_back(indexes[i]);
+        }
+    };
+
+    for (int i = 0; i <= static_cast<int>(remaining.size()); i++)
+    {
+        if (i == adjustedIndexTo)
+            appendMovedItems();
+
+        if (i < static_cast<int>(remaining.size()))
+        {
+            newBasket.push_back(std::move(remaining[i]));
+            oldIndexForNew.push_back(remainingOldIndexes[i]);
+        }
+    }
+
+    // Construct the old-index -> new-index mapping.
+    std::vector<int> newIndexForOld(n, -1);
+
+    for (int i = 0; i < n; i++)
+        newIndexForOld[oldIndexForNew[i]] = i;
+
+    // Update all multidraw references.
+    for (ABasketItem & item : newBasket)
+    {
+        for (ADrawObject & draw : item.DrawObjects)
+        {
+            if (!draw.Multidraw) continue;
+
+            AMultidrawRecord & rec = draw.MultidrawSettings;
+
+            for (int & basketIndex : rec.BasketItems)
+            {
+                if (basketIndex < 0 ||
+                    basketIndex >= n ||
+                    newIndexForOld[basketIndex] < 0)
+                {
+                    return "Invalid basket index in multidraw settings.";
+                }
+
+                basketIndex = newIndexForOld[basketIndex];
+            }
+        }
+    }
+
+    // Commit the operation.
+    Basket.swap(newBasket);
+
+    return QString();
+}
+*/
+QString ABasketManager::reorder(std::vector<int> & indexes, int indexTo, const QString & destinationParent)
+{
+    const int basketSize = size();
+
+    if (indexes.empty()) return "Selection is empty!";
+
+    // Validate original indices before accessing Basket.
+    for (int index : indexes)
+        if (index < 0 || index >= basketSize)
+            return "Invalid selected item index.";
+
+    // Groups and individual items cannot be mixed.
+    int numGroups = 0;
+    int numItems = 0;
+
+    for (int index : indexes)
+    {
+        if (Basket[index].isGroup) numGroups++;
+        else numItems++;
+    }
+
+    if (numGroups > 0 && numItems > 0) return "Cannot move a mixture of groups and items";
+
+    // Expand groups, preserving the user's selection order.
+    expandSelectionWithGroupMembers(indexes);
+
+    // Validate the expanded selection.
+    QString err = validateBasketMove(indexTo, indexes, destinationParent);
+    if (!err.isEmpty()) return err;
+
+    // Calculate resulting parent paths without modifying Basket.
+    const QVector<QString> newParents = computeNewParents(indexes, destinationParent);
+
+    // Mark selected entries.
+    std::vector<bool> selected(basketSize, false);
+    for (int index : indexes) selected[index] = true;
+
+    // Calculate insertion position after removing selected entries.
+    int adjustedIndexTo = indexTo;
+
+    for (int index : indexes)
+        if (index < indexTo)
+            adjustedIndexTo--;
+
+    // Copy selected entries in the user's requested order.
+    std::vector<ABasketItem> itemsToMove;
+    itemsToMove.reserve(indexes.size());
+
+    for (int index : indexes)
+    {
+        ABasketItem item = Basket[index];
+        item.ParentGroup = newParents[index];
+        item._toErase = false; // obsolete?
+
+        itemsToMove.push_back(std::move(item));
+    }
+
+    // Construct the remaining basket
+    std::vector<ABasketItem> remaining;
+    std::vector<int> remainingOldIndexes;
+
+    remaining.reserve(basketSize - indexes.size());
+    remainingOldIndexes.reserve(basketSize - indexes.size());
+
+    for (int i = 0; i < basketSize; i++)
+    {
+        if (selected[i]) continue;
+
+        remaining.push_back(Basket[i]);
+        remainingOldIndexes.push_back(i);
+    }
+
+    // Construct the resulting basket and record the original index corresponding to every new entry
+    std::vector<ABasketItem> newBasket;
+    std::vector<int> oldIndexForNew;
+
+    newBasket.reserve(basketSize);
+    oldIndexForNew.reserve(basketSize);
+
+    auto appendMovedItems = [&]()
+    {
+        for (size_t i = 0; i < itemsToMove.size(); i++)
+        {
+            newBasket.push_back(std::move(itemsToMove[i]));
+            oldIndexForNew.push_back(indexes[i]);
+        }
+    };
+
+    for (int i = 0; i <= static_cast<int>(remaining.size()); i++)
+    {
+        if (i == adjustedIndexTo) appendMovedItems();
+
+        if (i < static_cast<int>(remaining.size()))
+        {
+            newBasket.push_back(std::move(remaining[i]));
+            oldIndexForNew.push_back(remainingOldIndexes[i]);
+        }
+    }
+
+    // Construct old-index -> new-index mapping.
+    std::vector<int> newIndexForOld(basketSize, -1);
+    for (int i = 0; i < basketSize; i++) newIndexForOld[oldIndexForNew[i]] = i;
+
+    // Update multidraw references.
+    for (ABasketItem & item : newBasket)
+    {
+        for (ADrawObject & draw : item.DrawObjects)
+        {
+            if (!draw.Multidraw) continue;
+
+            AMultidrawRecord & rec = draw.MultidrawSettings;
+
+            for (int & basketIndex : rec.BasketItems)
+            {
+                if (basketIndex < 0 || basketIndex >= basketSize || newIndexForOld[basketIndex] < 0) return "Invalid basket index in multidraw settings.";
+                basketIndex = newIndexForOld[basketIndex];
+            }
+        }
+    }
+
+    // Commit
+    Basket.swap(newBasket);
+    return QString();
+}
+
 
 void ABasketManager::moveLastBasketItemToGroup(const QString & parentGroup, bool toBottom)
 {

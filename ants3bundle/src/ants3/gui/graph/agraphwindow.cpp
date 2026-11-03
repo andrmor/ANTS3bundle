@@ -2420,10 +2420,63 @@ void AGraphWindow::onBasketReorderRequested(std::vector<int> & indexes, int toRo
     case 1: // Above item
         newParentGroup = Basket->getParentGroup(toRow);
         break;
+/*
     case 2: // Below item
         newParentGroup = Basket->getParentGroup(toRow);
-        insertRow++;
-        if (insertRow > Basket->size()) insertRow = Basket->size();
+        //insertRow++;
+        insertRow = toRow + 1;
+        //if (insertRow > Basket->size()) insertRow = Basket->size(); keep ????
+        break;
+*/
+        /*
+    case 2: // Below item or group
+        newParentGroup = Basket->getParentGroup(toRow);
+        insertRow = toRow + 1;
+
+        if (Basket->isGroup(toRow))
+        {
+            const QString groupPath = Basket->joinPath(Basket->getParentGroup(toRow), Basket->getName(toRow));
+
+            // Skip the entire subtree of the target group.
+            while (insertRow < Basket->size() &&
+                   (Basket->getParentGroup(insertRow) == groupPath ||
+                    Basket->getParentGroup(insertRow).startsWith(groupPath + "/")))
+            {
+                insertRow++;
+            }
+        }
+        break;
+        */
+        /*
+    case 2: // Below item or group
+        if (Basket->isGroup(toRow))
+        {
+            // Insert as the first child of the group.
+            newParentGroup = Basket->joinPath(
+                Basket->getParentGroup(toRow),
+                Basket->getName(toRow));
+
+            insertRow = toRow + 1;
+        }
+        else
+        {
+            // Insert after the item, in the same parent group.
+            newParentGroup = Basket->getParentGroup(toRow);
+            insertRow = toRow + 1;
+        }
+        break;
+        */
+    case 2: // Below item or group
+        if (Basket->isGroup(toRow))
+        {
+            newParentGroup = Basket->joinPath(Basket->getParentGroup(toRow), Basket->getName(toRow));
+            insertRow = toRow + 1;
+        }
+        else
+        {
+            newParentGroup = Basket->getParentGroup(toRow);
+            insertRow = toRow + 1;
+        }
         break;
     case 3: // On viewport
         newParentGroup.clear();
