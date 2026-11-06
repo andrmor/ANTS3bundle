@@ -817,6 +817,7 @@ void AMatComposition::updateCustomElementSymbol(AElementRecord & elm)
     }
 }
 
+/*
 bool AMatComposition::mergeRecords(std::vector<AMatMixRecord> & recs, AMatMixRecord & result)
 {
     if (recs.empty())
@@ -894,6 +895,122 @@ bool AMatComposition::mergeRecords(std::vector<AMatMixRecord> & recs, AMatMixRec
     }
     return true;
 }
+*/
+
+bool AMatComposition::mergeRecords(std::vector<AMatMixRecord> & recs, AMatMixRecord & result)
+{
+    const AMatMixRecord::EFractionType Type = recs.front().FractionType;
+
+    // Molar-fraction mixture
+    if (Type == AMatMixRecord::Molar)
+    {
+        double sumFractions = 0.0;
+
+        // Check fractions and ensure that all records use molar fractions.
+        for (const AMatMixRecord & r : recs)
+        {
+            if (r.FractionType != AMatMixRecord::Molar)
+            {
+                ErrorString = "Cannot use molar fractions for mass-fraction mixtures";
+                return false;
+            }
+
+            if (r.Fraction < 0.0)
+            {
+                ErrorString = "Molar fractions cannot be negative";
+                return false;
+            }
+
+            sumFractions += r.Fraction;
+        }
+
+        if (sumFractions <= 0.0)
+        {
+            ErrorString = "Sum of molar fractions should be positive";
+            return false;
+        }
+
+        // Normalize the molar fractions within this mixture level.
+        result = recs.front();
+        result.ElementMap.clear();
+
+        for (const AMatMixRecord & r : recs)
+        {
+            const double weight = r.Fraction / sumFractions;
+
+            for (const auto & kv : r.ElementMap)
+            {
+                result.ElementMap[kv.first] += kv.second * weight;
+            }
+        }
+
+        // The resulting record represents the normalized mixture.
+        result.Fraction = 1.0;
+        result.FractionType = AMatMixRecord::Molar;
+        result.ComputedFraction = 0.0;
+        result.computeA();
+
+        return true;
+    }
+
+    // Mass-fraction mixture
+    if (recs.size() == 1)
+    {
+        ErrorString = "Sub-expression cannot have mass fraction for a single member";
+        return false;
+    }
+
+    // Calculate the conversion factors from mass fractions to
+    // relative atom-number contributions.
+    for (AMatMixRecord & r : recs)
+    {
+        if (r.FractionType != AMatMixRecord::Mass)
+        {
+            ErrorString = "Cannot mix molar and mass fractions in one mixture";
+            return false;
+        }
+
+        if (r.Fraction < 0.0)
+        {
+            ErrorString = "Mass fractions cannot be negative";
+            return false;
+        }
+
+        r.computeA();
+
+        if (r.CombinedA <= 0.0)
+        {
+            ErrorString = "Combined atomic mass should be positive";
+            return false;
+        }
+
+        r.ComputedFraction = r.Fraction / r.CombinedA;
+    }
+
+    result = recs.front();
+
+    for (auto & kv : result.ElementMap)
+        kv.second *= result.ComputedFraction;
+
+    for (size_t iRec = 1; iRec < recs.size(); iRec++)
+    {
+        const AMatMixRecord & other = recs[iRec];
+
+        for (const auto & kv : other.ElementMap)
+        {
+            auto it = result.ElementMap.find(kv.first);
+
+            if (it == result.ElementMap.end())
+                result.ElementMap[kv.first] = kv.second * other.ComputedFraction;
+            else
+                it->second += kv.second * other.ComputedFraction;
+        }
+    }
+
+    result.computeA();
+
+    return true;
+}
 
 void AMatMixRecord::computeA()
 {
@@ -954,6 +1071,7 @@ bool AMatComposition::importComposition(TGeoMaterial * mat)
     return setCompositionString(compoString);
 }
 
+/*
 QString AMatComposition::convertPressureToDensity()
 {
     if (!Gas) return "";
@@ -962,7 +1080,7 @@ QString AMatComposition::convertPressureToDensity()
 
     if (Pressure_bar <= 0) return "Pressure should be positive";
     if (CompositionString.contains('/')) return "Gas composition cannot be defined using mass fractions";
-    if (CompositionString.contains('/')) return "Gas composition should be defined without brackets";
+    if (CompositionString.contains('(')) return "Gas composition should be defined without brackets";
 
     QStringList sl = CompositionString.split('+', Qt::SkipEmptyParts);
 
@@ -996,6 +1114,119 @@ QString AMatComposition::convertPressureToDensity()
 
     Density = Pressure_bar * 1e5 / 1.380649e-23 / Temperature * meanA * 1.660539e-27 * 1e-3;
     //qDebug() << "====> density:" << Density << "g/cm3";
+
+    return "";
+}
+*/
+
+#include <functional>
+
+QString AMatComposition::convertPressureToDensity()
+{
+    if (!Gas) return "";
+    if (Pressure_bar <= 0) return "Pressure should be positive";
+    if (Temperature <= 0) return "Temperature should be positive";
+    if (CompositionString.contains('/')) return "Gas composition cannot be defined using mass fractions";
+    if (MixtureByLevels.empty()) return "Gas composition has not been parsed";
+
+    // Recursively calculate the mean molecular mass of a mixture.
+    std::function<bool(int, double&)> calculateMeanA =
+        [&](int levelIndex, double &meanA) -> bool
+    {
+        if (levelIndex < 0 || levelIndex >= (int)MixtureByLevels.size())
+        {
+            ErrorString = "Invalid mixture level index";
+            return false;
+        }
+
+        std::vector<AMatMixRecord> recs;
+
+        if (!prepareMixRecords(MixtureByLevels[levelIndex].first, recs))
+            return false;
+
+        double sumFractions = 0;
+        double weightedA = 0;
+
+        for (AMatMixRecord &r : recs)
+        {
+            if (r.FractionType != AMatMixRecord::Molar)
+            {
+                ErrorString = "Gas composition cannot use mass fractions";
+                return false;
+            }
+
+            double componentA = 0;
+
+            if (r.Formula.startsWith("#b"))
+            {
+                // This component is a nested mixture.
+
+                QString indexString = r.Formula;
+                indexString.remove(0, 2);
+                if (indexString.endsWith('&'))
+                    indexString.chop(1);
+
+                bool ok;
+                int subLevelIndex = indexString.toInt(&ok);
+
+                if (!ok || subLevelIndex < 0 ||
+                    subLevelIndex >= (int)MixtureByLevels.size())
+                {
+                    ErrorString = "Invalid nested mixture reference";
+                    return false;
+                }
+
+                if (!calculateMeanA(subLevelIndex, componentA))
+                    return false;
+            }
+            else
+            {
+                // Ordinary molecule: calculate its molecular mass.
+
+                if (!parseMolecule(r))
+                    return false;
+
+                for (const auto &kv : r.ElementMap)
+                    componentA += kv.first.A * kv.second;
+            }
+
+            sumFractions += r.Fraction;
+            weightedA += r.Fraction * componentA;
+        }
+
+        if (sumFractions <= 0)
+        {
+            ErrorString = "Sum of gas fractions not positive";
+            return false;
+        }
+
+        meanA = weightedA / sumFractions;
+
+        if (meanA <= 0)
+        {
+            ErrorString = "Mean molecular mass not positive";
+            return false;
+        }
+
+        return true;
+    };
+
+    double meanA = 0;
+
+    if (!calculateMeanA(0, meanA))
+        return ErrorString;
+
+    // Ideal gas law:
+    // PV = NkT
+    //
+    // Density = P/(kT) * meanA * atomic mass unit
+
+    Density = Pressure_bar * 1e5
+              / 1.380649e-23
+              / Temperature
+              * meanA
+              * 1.660539e-27
+              * 1e-3;
 
     return "";
 }
