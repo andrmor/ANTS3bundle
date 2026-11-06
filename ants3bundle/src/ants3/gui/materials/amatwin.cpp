@@ -115,6 +115,8 @@ bool AMatWin::checkCurrentMaterial()
     {
         tmpMaterial.Composition.Gas = false;
         ui->cbGas->setChecked(false);
+        tmpMaterial.Composition.Pressure_bar = 1.0;
+        ui->ledPressure->setText("1.0");
         guitools::message(error, this);
         return false;
     }
@@ -1518,6 +1520,8 @@ void AMatWin::on_ledPressure_editingFinished()
     {
         tmpMaterial.Composition.Gas = false;
         ui->cbGas->setChecked(false);
+        tmpMaterial.Composition.Pressure_bar = 1.0;
+        ui->ledPressure->setText("1.0");
         guitools::message(err, this);
     }
     ui->ledDensity->setText(QString::number(tmpMaterial.Composition.Density));
