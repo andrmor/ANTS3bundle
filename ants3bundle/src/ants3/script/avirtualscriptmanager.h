@@ -39,6 +39,9 @@ public:
     void        doBeforeScriptEval();
     void        doAfterScriptEval();
 
+    QString     checkModuleOverrideAttempt(const QString & script, bool isPython);
+
+
     //for minimizer
     QString          MiniFunctionName;
     int              MiniNumVariables  = 0;

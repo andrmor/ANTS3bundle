@@ -103,8 +103,16 @@ const std::vector<AScriptInterface *> & APythonScriptManager::getInterfaces() co
     return Worker->getInterfaces();
 }
 
+#include "ascripthub.h"
 bool APythonScriptManager::evaluate(const QString & script)
 {
+    const QString err = checkModuleOverrideAttempt(script, true);
+    if (!err.isEmpty())
+    {
+        AScriptHub::abort(err, EScriptLanguage::Python);
+        return false;
+    }
+
     //qDebug() << "Request to evaluate script:\n" << script;
     //qDebug() << "Busy?" << Worker->isBusy();
     if (Worker->isBusy()) return false;

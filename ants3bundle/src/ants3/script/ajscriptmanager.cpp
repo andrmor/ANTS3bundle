@@ -62,8 +62,16 @@ void AJScriptManager::evalFinished(bool flag)
     emit finished(flag);
 }
 
-bool AJScriptManager::evaluate(const QString &script)
+#include "ascripthub.h"
+bool AJScriptManager::evaluate(const QString & script)
 {
+    const QString err = checkModuleOverrideAttempt(script, false);
+    if (!err.isEmpty())
+    {
+        AScriptHub::abort(err, EScriptLanguage::JavaScript);
+        return false;
+    }
+
     //qDebug() << "Request to evaluate script:\n" << script;
     if (Worker->isBusy()) return false;
 
