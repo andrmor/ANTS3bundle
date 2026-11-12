@@ -63,12 +63,15 @@ void AJScriptManager::evalFinished(bool flag)
 }
 
 #include "ascripthub.h"
+#include <QTimer>
 bool AJScriptManager::evaluate(const QString & script)
 {
     const QString err = checkModuleOverrideAttempt(script, false);
     if (!err.isEmpty())
     {
-        AScriptHub::abort(err, EScriptLanguage::JavaScript);
+        //AScriptHub::abort(err, EScriptLanguage::JavaScript);
+        QString str = "<span style='color:red;'>Aborted: " + err + "</span>";
+        QTimer::singleShot(2, [str](){ emit AScriptHub::getInstance().outputHtml_JS(str); } );
         return false;
     }
 

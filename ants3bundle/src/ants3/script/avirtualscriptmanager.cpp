@@ -115,36 +115,51 @@ void AVirtualScriptManager::doAfterScriptEval()
 }
 
 #include "ascriptinterface.h"
+#include "ascriptinterface.h"
+
 QString AVirtualScriptManager::checkModuleOverrideAttempt(const QString & script, bool isPython)
 {
     const std::vector<AScriptInterface*> & interfaces = getInterfaces();
+
     QSet<QString> names;
     for (const AScriptInterface * inter : interfaces)
         names.insert(inter->Name);
 
     const int size = script.size();
 
-    auto isIdentifierChar = [](QChar c) { return c.isLetterOrNumber() || c == '_'; };
-    auto isIdentifierStart = [](QChar c) { return c.isLetter() || c == '_'; };
+    auto isIdentifierChar = [](QChar c) {
+        return c.isLetterOrNumber() || c == '_';
+    };
+
+    auto isIdentifierStart = [](QChar c) {
+        return c.isLetter() || c == '_';
+    };
 
     int i = 0;
+
     while (i < size)
     {
         const QChar c = script[i];
 
-        // Skip single-line comments: // and #
-        if (c == '#' ||
-            (c == '/' && i + 1 < size && script[i + 1] == '/'))
+        // Skip single-line comments
+        // Python: #
+        // JavaScript: //
+        if ((isPython && c == '#') ||
+            (!isPython && c == '/' &&
+             i + 1 < size && script[i + 1] == '/'))
         {
             while (i < size && script[i] != '\n')
                 ++i;
+
             continue;
         }
 
-        // Skip block comments: /* ... */
-        if (c == '/' && i + 1 < size && script[i + 1] == '*')
+        // Skip JavaScript block comments: /* ... */
+        if (!isPython && c == '/' &&
+            i + 1 < size && script[i + 1] == '*')
         {
             i += 2;
+
             while (i + 1 < size &&
                    !(script[i] == '*' && script[i + 1] == '/'))
                 ++i;
@@ -154,37 +169,20 @@ QString AVirtualScriptManager::checkModuleOverrideAttempt(const QString & script
         }
 
         // Skip quoted strings
-        /*
-        if (c == '"' || c == '\'' || c == '`')
-        {
-            const QChar quote = c;
-            ++i;
-
-            while (i < size)
-            {
-                if (script[i] == '\\')
-                {
-                    i += 2;
-                    continue;
-                }
-
-                if (script[i++] == quote)
-                    break;
-            }
-            continue;
-        }
-        */
-        if (c == '"' || c == '\'' || c == '`')
+        // Python supports triple quotes; JavaScript supports backticks
+        if (c == '"' || c == '\'' || (!isPython && c == '`'))
         {
             const QChar quote = c;
 
-            // Python triple-quoted strings
-            if (isPython && c != '`' &&
+            // Python triple-quoted strings: """...""" or '''...'''
+            if (isPython &&
                 i + 2 < size &&
                 script[i + 1] == quote &&
                 script[i + 2] == quote)
             {
                 i += 3;
+
+                bool closed = false;
 
                 while (i + 2 < size)
                 {
@@ -199,16 +197,21 @@ QString AVirtualScriptManager::checkModuleOverrideAttempt(const QString & script
                         script[i + 2] == quote)
                     {
                         i += 3;
+                        closed = true;
                         break;
                     }
 
                     ++i;
                 }
 
+                // Unterminated triple-quoted string
+                if (!closed)
+                    i = size;
+
                 continue;
             }
 
-            // Ordinary quoted strings
+            // Ordinary strings (and JavaScript template literals)
             ++i;
 
             while (i < size)
@@ -240,10 +243,12 @@ QString AVirtualScriptManager::checkModuleOverrideAttempt(const QString & script
 
         const QString identifier = script.mid(start, i - start);
 
-        if (!names.contains(identifier)) continue;
+        if (!names.contains(identifier))
+            continue;
 
         // Ignore object properties: something.hist = ...
         int before = start - 1;
+
         while (before >= 0 && script[before].isSpace())
             --before;
 
@@ -252,6 +257,7 @@ QString AVirtualScriptManager::checkModuleOverrideAttempt(const QString & script
 
         // Skip whitespace after identifier
         int after = i;
+
         while (after < size && script[after].isSpace())
             ++after;
 
@@ -259,17 +265,23 @@ QString AVirtualScriptManager::checkModuleOverrideAttempt(const QString & script
         if (after < size && script[after] == '=' &&
             (after + 1 == size || script[after + 1] != '='))
         {
-            //return QString("Overriding script units is forbidden. Suspicious text found: %1").arg(identifier);
+            // Find the source line containing the assignment
             const int lineStart = script.lastIndexOf('\n', start - 1) + 1;
 
             int lineEnd = script.indexOf('\n', start);
-            if (lineEnd == -1) lineEnd = size;
+            if (lineEnd == -1)
+                lineEnd = size;
 
-            const QString line = script.mid(lineStart, lineEnd - lineStart).trimmed();
+            const QString line =
+                script.mid(lineStart, lineEnd - lineStart).trimmed();
+
             const int lineNumber = script.left(start).count('\n') + 1;
 
-            return QString("Overriding script units is forbidden!\n"
-                           "Line %1: %2").arg(lineNumber).arg(line);
+            return QString(
+                       "Overriding script units is forbidden!\n"
+                       "Line %1: %2")
+                .arg(lineNumber)
+                .arg(line);
         }
     }
 
