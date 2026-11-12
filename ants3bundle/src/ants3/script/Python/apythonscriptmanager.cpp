@@ -110,7 +110,7 @@ QString APythonScriptManager::evaluate(const QString & script)
 
     //qDebug() << "Request to evaluate script:\n" << script;
     //qDebug() << "Busy?" << Worker->isBusy();
-    if (Worker->isBusy()) return "Worker is bysy";
+    if (Worker->isBusy()) return "Worker is busy";
 
     doBeforeScriptEval();
     emit doEval(script);
