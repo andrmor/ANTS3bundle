@@ -58,7 +58,8 @@ void AScriptHub::abort(const QString & message, EScriptLanguage lang)
     ADispatcherInterface::getInstance().abortTask();
 
     //QString str = "<p style='color:red;'>Aborted: " + message + "</p>";
-    QString str = "<span style='color:red;'>Aborted: " + message + "</span>";
+    //QString str = "<span style='color:red;'>Aborted: " + message + "</span>";
+    QString str = "<span style='color:red;'>Aborted: " + message.toHtmlEscaped() + "</span>";
 #ifdef ANTS3_PYTHON
     if (lang == EScriptLanguage::Python)     QTimer::singleShot(2, [str](){ emit AScriptHub::getInstance().outputHtml_P(str); } );
 #endif
@@ -198,7 +199,9 @@ QString AScriptHub::evaluateScriptAndWaitToFinish(const QString & fileName, EScr
 
     if (lang == EScriptLanguage::JavaScript)
     {
-        JavaScriptM->evaluate(script);
+        const QString err = JavaScriptM->evaluate(script);
+        if (!err.isEmpty()) return err;
+
         while (!JavaScriptM->isEvalFinished())
         {
             QThread::msleep(100);
@@ -209,7 +212,9 @@ QString AScriptHub::evaluateScriptAndWaitToFinish(const QString & fileName, EScr
     }
 
 #ifdef ANTS3_PYTHON
-    PythonM->evaluate(script);
+    const QString err = PythonM->evaluate(script);
+    if (!err.isEmpty()) return err;
+
     while (!PythonM->isEvalFinished())
     {
         QThread::msleep(100);

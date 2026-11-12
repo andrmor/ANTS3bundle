@@ -103,26 +103,18 @@ const std::vector<AScriptInterface *> & APythonScriptManager::getInterfaces() co
     return Worker->getInterfaces();
 }
 
-#include "ascripthub.h"
-#include <QTimer>
-bool APythonScriptManager::evaluate(const QString & script)
+QString APythonScriptManager::evaluate(const QString & script)
 {
     const QString err = checkModuleOverrideAttempt(script, true);
-    if (!err.isEmpty())
-    {
-        //AScriptHub::abort(err, EScriptLanguage::Python);
-        QString str = "<span style='color:red;'>Aborted: " + err + "</span>";
-        QTimer::singleShot(2, [str](){ emit AScriptHub::getInstance().outputHtml_P(str); } );
-        return false;
-    }
+    if (!err.isEmpty()) return err;
 
     //qDebug() << "Request to evaluate script:\n" << script;
     //qDebug() << "Busy?" << Worker->isBusy();
-    if (Worker->isBusy()) return false;
+    if (Worker->isBusy()) return "Worker is bysy";
 
     doBeforeScriptEval();
     emit doEval(script);
-    return true;
+    return QString();
 }
 
 void APythonScriptManager::abort()

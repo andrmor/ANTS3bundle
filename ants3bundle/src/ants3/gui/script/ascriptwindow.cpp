@@ -344,7 +344,8 @@ void AScriptWindow::updateGui()
 void AScriptWindow::reportError(QString error, int line)
 {
     //error = "<font color=\"red\">Error:</font><br>" + error;
-    error = "<font color=\"red\">" + error + "</font>";
+    //error = "<font color=\"red\">" + error + "</font>";
+    error = "<span style='color:red;'>" + error.toHtmlEscaped() + "</span>";
     pteOut->appendHtml(error);
     //qDebug() << "ln:" << line;
     highlightErrorLine(line);
@@ -538,7 +539,29 @@ void AScriptWindow::on_pbRunScript_clicked()
 
     AGeometryHub & GeoHub = AGeometryHub::getInstance();
     GeoHub.ScriptUpdatedGeoManager = false;
-    ScriptManager->evaluate(Script);
+
+    QString err = ScriptManager->evaluate(Script);
+    if (!err.isEmpty())
+    {
+        int line = -1;
+        if (err.contains("Overriding script units is forbidden!"))
+        {
+            static const QRegularExpression re( QStringLiteral("Line\\s+(\\d+)"), QRegularExpression::CaseInsensitiveOption);
+            const QRegularExpressionMatch match = re.match(err);
+            if (match.hasMatch())
+            {
+                bool ok = false;
+                line = match.captured(1).toInt(&ok);
+                if (!ok) line = -1;
+            }
+        }
+        reportError(err, line);
+        ui->prbProgress->setVisible(false);
+        ui->pbStop->setVisible(false);
+        ui->pbRunScript->setVisible(true);
+        return;
+    }
+
     do
     {
         QThread::msleep(50);

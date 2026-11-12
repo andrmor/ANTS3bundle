@@ -203,11 +203,11 @@ void AWebSocketServer::onTextMessageReceived(const QString &message)
     AScriptHub & ScriptHub = AScriptHub::getInstance();
     AJScriptManager & ScriptManager = ScriptHub.getJScriptManager();
 
-    bool ok = ScriptManager.evaluate(message);
-    if (!ok)
+    const QString err = ScriptManager.evaluate(message);
+    if (!err.isEmpty())
     {
-        qDebug() << "-->Failed to start script evaluation (worker is busy)";
-        sendError( QString("Failed to start script evaluation, worker is busy") );
+        qDebug() << "-->Failed to start script evaluation:" << err;
+        sendError( QString("Failed to start script evaluation: %1").arg(err) );
         return;
     }
 

@@ -62,25 +62,17 @@ void AJScriptManager::evalFinished(bool flag)
     emit finished(flag);
 }
 
-#include "ascripthub.h"
-#include <QTimer>
-bool AJScriptManager::evaluate(const QString & script)
+QString AJScriptManager::evaluate(const QString & script)
 {
     const QString err = checkModuleOverrideAttempt(script, false);
-    if (!err.isEmpty())
-    {
-        //AScriptHub::abort(err, EScriptLanguage::JavaScript);
-        QString str = "<span style='color:red;'>Aborted: " + err + "</span>";
-        QTimer::singleShot(2, [str](){ emit AScriptHub::getInstance().outputHtml_JS(str); } );
-        return false;
-    }
+    if (!err.isEmpty()) return err;
 
     //qDebug() << "Request to evaluate script:\n" << script;
-    if (Worker->isBusy()) return false;
+    if (Worker->isBusy()) return "Worker is busy";
 
     doBeforeScriptEval();
     emit doEval(script);
-    return true;
+    return QString();
 }
 
 bool AJScriptManager::isRunning() const

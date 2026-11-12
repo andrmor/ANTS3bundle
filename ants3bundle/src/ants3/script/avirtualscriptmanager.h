@@ -19,7 +19,7 @@ public:
     virtual void registerInterface(AScriptInterface * interface, QString name) = 0;
     virtual const std::vector<AScriptInterface*> & getInterfaces() const = 0;
 
-    virtual bool evaluate(const QString & script) = 0;
+    virtual QString evaluate(const QString & script) = 0;
     virtual void abort() = 0;  // to abort script use AJScriptHub::abort(message)
 
     virtual bool isRunning() const = 0;

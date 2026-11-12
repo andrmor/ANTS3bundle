@@ -115,8 +115,6 @@ void AVirtualScriptManager::doAfterScriptEval()
 }
 
 #include "ascriptinterface.h"
-#include "ascriptinterface.h"
-
 QString AVirtualScriptManager::checkModuleOverrideAttempt(const QString & script, bool isPython)
 {
     const std::vector<AScriptInterface*> & interfaces = getInterfaces();
