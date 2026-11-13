@@ -615,7 +615,15 @@ void AGeometryHub::addTGeoVolumeRecursively(AGeoObject * obj, TGeoVolume * paren
             parent->AddNode(vol, GridHub.GridRecords.size() - 1, lTrans);
         }
         else if (obj->Type->isMonitor())
+        {
+            // fix of identified bug: monitor inside prototypes sets material index to 0 when in instances
+            TGeoMedium * medium = parent->GetMedium();
+            const int materialIndex = medium->GetId();
+            obj->Material = materialIndex;
+            vol->SetMedium(medium);
+
             addMonitorNode(obj, vol, parent, lTrans);
+        }
         else if (obj->isCalorimeter())
             addCalorimeterNode(obj, vol, parent, lTrans);
         else if (obj->isSensor())
