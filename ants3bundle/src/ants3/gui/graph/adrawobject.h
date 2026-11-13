@@ -32,7 +32,7 @@ public:
 
     ADrawMarginsRecord CustomMargins;
 
-    void writeToJson(QJsonObject & json) const;
+    void writeToJson(QJsonObject & json, int indexOffsetForMultidraw = 0) const;
     void readFromJson(const QJsonObject & json);
 
     void shiftMultidrawIndexesBy(int val);

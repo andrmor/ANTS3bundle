@@ -1,9 +1,9 @@
-#include "abasketlistwidget.h"
+#include "areorderlistwidget.h"
 
 #include <QDropEvent>
 #include <QDebug>
 
-ABasketListWidget::ABasketListWidget(QWidget * parent) :
+AReorderListWidget::AReorderListWidget(QWidget * parent) :
     QListWidget(parent)
 {
     setSelectionMode(QAbstractItemView::ExtendedSelection);
@@ -15,7 +15,7 @@ ABasketListWidget::ABasketListWidget(QWidget * parent) :
 }
 
 #include <QtGlobal>
-void ABasketListWidget::dropEvent(QDropEvent * event)
+void AReorderListWidget::dropEvent(QDropEvent * event)
 {
     //qDebug() << "Basket: Drop detected";
 

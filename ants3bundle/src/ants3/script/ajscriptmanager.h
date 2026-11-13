@@ -24,7 +24,7 @@ public:
     void registerInterface(AScriptInterface * interface, QString name) override;
     const std::vector<AScriptInterface*> & getInterfaces() const override;
 
-    bool evaluate(const QString & script) override;
+    QString evaluate(const QString & script) override;
     void abort() override;  // to abort script use AJScriptHub::abort(message)
 
     bool isRunning() const override;

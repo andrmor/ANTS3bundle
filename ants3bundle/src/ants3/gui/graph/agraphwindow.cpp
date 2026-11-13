@@ -12,7 +12,8 @@
 #include "atoolboxscene.h"
 #include "abasketmanager.h"
 #include "adrawexplorerwidget.h"
-#include "abasketlistwidget.h"
+//#include "abasketlistwidget.h"
+#include "abaskettreewidget.h"
 #include "adrawtemplate.h"
 #include "ascripthub.h"
 #include "agraphwin_si.h"
@@ -103,11 +104,13 @@ AGraphWindow::AGraphWindow(QWidget * parent) :
     connect(Explorer, &ADrawExplorerWidget::requestShowLegendDialog, this, &AGraphWindow::showAddLegendDialog);
 
     // Basket list widget
-    lwBasket = new ABasketListWidget(this);
+    lwBasket = new ABasketTreeWidget(this);
     ui->layBasket->addWidget(lwBasket);
-    connect(lwBasket, &ABasketListWidget::customContextMenuRequested, this, &AGraphWindow::onBasketCustomContextMenuRequested);
-    connect(lwBasket, &ABasketListWidget::itemDoubleClicked, this, &AGraphWindow::onBasketItemDoubleClicked);
-    connect(lwBasket, &ABasketListWidget::requestReorder, this, &AGraphWindow::onBasketReorderRequested);
+    connect(lwBasket, &ABasketTreeWidget::customContextMenuRequested, this, &AGraphWindow::onBasketCustomContextMenuRequested);
+    connect(lwBasket, &ABasketTreeWidget::itemDoubleClicked,          this, &AGraphWindow::onBasketItemDoubleClicked);
+    connect(lwBasket, &ABasketTreeWidget::itemCollapsed,              this, &AGraphWindow::onBasketItemCollapsed);
+    connect(lwBasket, &ABasketTreeWidget::itemExpanded,               this, &AGraphWindow::onBasketItemExpanded);
+    connect(lwBasket, &ABasketTreeWidget::requestReorder,             this, &AGraphWindow::onBasketReorderRequested);
 
     connect(&AScriptHub::getInstance(), &AScriptHub::requestDraw,           this, &AGraphWindow::onScriptDrawRequest,           Qt::DirectConnection); // inside it is queued
     connect(&AScriptHub::getInstance(), &AScriptHub::requestDrawCollection, this, &AGraphWindow::onScriptDrawCollectionRequest, Qt::DirectConnection); // inside it is queued
@@ -1903,14 +1906,24 @@ void AGraphWindow::on_pbAddToBasket_clicked()
                                          name, &ok);
     if (!ok || text.isEmpty()) return;
 
-    addCurrentToBasket(text);
+    addCurrentToBasket(text, "", true);
 }
 
-void AGraphWindow::addCurrentToBasket(const QString & name)
+void AGraphWindow::addCurrentToBasket(QString name, QString parentGroup, bool toBottom)
 {
     if (DrawObjects.empty()) return;
     updateLogScaleFlags(DrawObjects);
     Basket->add(name.simplified(), DrawObjects);
+
+    Basket->moveLastBasketItemToGroup(parentGroup, toBottom);
+
+    ui->actionToggle_Explorer_Basket->setChecked(true);
+    updateBasketGUI();
+}
+
+void AGraphWindow::addGroupToBasket(QString name, QString parentGroup)
+{
+    Basket->addGroup(name.simplified(), parentGroup.simplified(), -1);
     ui->actionToggle_Explorer_Basket->setChecked(true);
     updateBasketGUI();
 }
@@ -1956,43 +1969,66 @@ void AGraphWindow::configureLegendBorder(int color, int style, int size)
 
 void AGraphWindow::updateBasketGUI()
 {
-    lwBasket->clear();
-    lwBasket->addItems(Basket->getItemNames());
+    QString err = Basket->validateBasket();
+    if (!err.isEmpty()) qWarning() << "\n >>>> BASKET corruption detected! <<<<\n" << err;
+
+    lwBasket->fill(Basket);
 
     if (ActiveBasketItem >= Basket->size()) ActiveBasketItem = -1;
 
-    for (int i=0; i < lwBasket->count(); i++)
+    QTreeWidgetItemIterator it(lwBasket);
+    while (*it)
     {
-        QListWidgetItem * item = lwBasket->item(i);
+        QTreeWidgetItem * item = *it;
+        int i = lwBasket->getBasketIndex(item);
         if (i == ActiveBasketItem)
         {
-            item->setForeground(QBrush(Qt::cyan));
-            item->setBackground(QBrush(Qt::lightGray));
+            item->setForeground(0, QBrush(Qt::cyan));
+            item->setBackground(0, QBrush(Qt::lightGray));
         }
         else
         {
-            item->setForeground(QBrush(Qt::black));
-            item->setBackground(QBrush(Qt::white));
+            item->setForeground(0, QBrush(Qt::black));
+            item->setBackground(0, QBrush(Qt::white));
         }
 
         if (Basket->isMultidraw(i))
         {
-            QFont font = item->font();
+            QFont font = item->font(0);
             font.setBold(true);
             font.setItalic(true);
             font.setWeight(QFont::Medium);//DemiBold);
-            item->setFont(font);
+            item->setFont(0, font);
         }
+
+        ++it;
     }
+
     ui->pbUpdateInBasket->setEnabled(ActiveBasketItem >= 0);
 
     if (ActiveBasketItem < 0) highlightUpdateBasketButton(false);
 }
 
-void AGraphWindow::onBasketItemDoubleClicked(QListWidgetItem *)
+void AGraphWindow::onBasketItemDoubleClicked(QTreeWidgetItem * item)
 {
-    //qDebug() << "Row double clicked:"<<ui->lwBasket->currentRow();
-    switchToBasket(lwBasket->currentRow());
+    if (!item) return;
+
+    qDebug() << Basket->getName(lwBasket->getBasketIndex(item)) << Basket->getParentGroup(lwBasket->getBasketIndex(item));
+
+    if (lwBasket->isGroup(item))
+        item->setExpanded(!item->isExpanded());
+    else
+        switchToBasket(lwBasket->getBasketIndex(item));
+}
+
+void AGraphWindow::onBasketItemCollapsed(QTreeWidgetItem * item)
+{
+    Basket->setCollapsedFlag(lwBasket->getBasketIndex(item), true);
+}
+
+void AGraphWindow::onBasketItemExpanded(QTreeWidgetItem * item)
+{
+    Basket->setCollapsedFlag(lwBasket->getBasketIndex(item), false);
 }
 
 void AGraphWindow::onBasketDeleteShortcutActivated()
@@ -2064,7 +2100,7 @@ void AGraphWindow::clearCopyOfActiveBasketId()
     PreviousActiveBasketItem = -1;
 }
 
-void AGraphWindow::onBasketCustomContextMenuRequested(const QPoint &pos)
+void AGraphWindow::onBasketCustomContextMenuRequested(const QPoint & pos)
 {
     if (lwBasket->selectedItems().size() > 1)
     {
@@ -2074,35 +2110,56 @@ void AGraphWindow::onBasketCustomContextMenuRequested(const QPoint &pos)
 
     QMenu BasketMenu;
 
-    int row = -1;
-    QListWidgetItem* temp = lwBasket->itemAt(pos);
-
     QAction * switchToThis = nullptr;
     QAction * onTop = nullptr;
     QAction * del = nullptr;
     QAction * rename = nullptr;
+    QAction * renameGroup = nullptr;
+    QAction * delGroupKeep = nullptr;
+    QAction * delGroupAll = nullptr;
+    QAction * saveGroupA = nullptr;
+    QAction * addGroup = nullptr;
 
-    if (temp)
+    QTreeWidgetItem * clicked = lwBasket->itemAt(pos);
+    const bool bGroup = lwBasket->isGroup(clicked);
+    const int  iBasketIndex = lwBasket->getBasketIndex(clicked);
+
+    if (iBasketIndex >= 0 && !bGroup)
     {
-        //menu triggered at a valid item
-        row = lwBasket->row(temp);
-
+        // menu triggered at a basket item, which is also not a group
         BasketMenu.addSeparator();
-        onTop = BasketMenu.addAction("Show on top of the main draw");
-        switchToThis = BasketMenu.addAction("Switch to this");
+        if (!Basket->isMultidraw(iBasketIndex))
+            onTop = BasketMenu.addAction("Show on top of the current draw");
+        switchToThis = BasketMenu.addAction("Switch to this (double-click)");
         BasketMenu.addSeparator();
         rename = BasketMenu.addAction("Rename");
-        BasketMenu.addSeparator();
         del = BasketMenu.addAction("Delete");
         del->setShortcut(Qt::Key_Delete);
         BasketMenu.addSeparator();
     }
+
+    QMenu * groupMenu = BasketMenu.addMenu("Group");
+    bool isValidGroup = (iBasketIndex >= 0 && bGroup);
+        addGroup     = groupMenu->addAction("Add new group");
+        groupMenu->addSeparator();
+        renameGroup  = groupMenu->addAction("Rename group"); renameGroup->setEnabled(isValidGroup);
+        groupMenu->addSeparator();
+        delGroupKeep = groupMenu->addAction("Delete group (keep its items)"); delGroupKeep->setEnabled(isValidGroup);
+        delGroupAll  = groupMenu->addAction("Delete group and all its items"); delGroupAll->setEnabled(isValidGroup);
+        groupMenu->addSeparator();
+        saveGroupA   = groupMenu->addAction("Save group to file"); saveGroupA->setEnabled(isValidGroup);
+
     BasketMenu.addSeparator();
-    QAction* append = BasketMenu.addAction("Append basket file");
-    BasketMenu.addSeparator();
-    QAction* appendTxt = BasketMenu.addAction("Append graph from text file");
-    QAction* appendTxtEr = BasketMenu.addAction("Append graph with error bars from text file");
-    QAction* appendRootHistsAndGraphs = BasketMenu.addAction("Append graphs / histograms from a ROOT file");
+
+    QMenu * appendMenu = BasketMenu.addMenu("Append");
+        QAction * append = appendMenu->addAction("Append basket file");
+        QAction * appendGr = appendMenu->addAction("Append basket file as a new group");
+        appendMenu->addSeparator();
+        QAction * appendTxt = appendMenu->addAction("Append graph from text file");
+        QAction * appendTxtEr = appendMenu->addAction("Append graph with error bars from text file");
+        QAction * appendRootHistsAndGraphs = appendMenu->addAction("Append graphs / histograms from a ROOT file");
+        appendMenu->addSeparator();
+
     BasketMenu.addSeparator();
     QAction* save = BasketMenu.addAction("Save basket to file");
     BasketMenu.addSeparator();
@@ -2110,11 +2167,11 @@ void AGraphWindow::onBasketCustomContextMenuRequested(const QPoint &pos)
 
     //------
 
-    QAction* selectedItem = BasketMenu.exec(lwBasket->mapToGlobal(pos));
+    QAction * selectedItem = BasketMenu.exec(lwBasket->mapToGlobal(pos));
     if (!selectedItem) return; //nothing was selected
 
     if (selectedItem == switchToThis)
-        switchToBasket(row);
+        switchToBasket(iBasketIndex);
     else if (selectedItem == clear)
     {
         QMessageBox msgBox;
@@ -2129,11 +2186,19 @@ void AGraphWindow::onBasketCustomContextMenuRequested(const QPoint &pos)
     else if (selectedItem == save)
     {
         QString fileName = guitools::dialogSaveFile(this, "Save basket to a file", "Root files (*.root)");
-        if (!fileName.isEmpty())
-        {
-            if (QFileInfo(fileName).suffix().isEmpty()) fileName += ".root";
-            Basket->saveBasket(fileName);
-        }
+        if (fileName.isEmpty()) return;
+
+        if (QFileInfo(fileName).suffix().isEmpty()) fileName += ".root";
+        Basket->saveBasket(fileName);
+    }
+    else if (selectedItem == saveGroupA)
+    {
+        QString fileName = guitools::dialogSaveFile(this, "Save group to a file", "Root files (*.root)");
+        if (fileName.isEmpty()) return;
+        if (QFileInfo(fileName).suffix().isEmpty()) fileName += ".root";
+
+        const QString err = Basket->saveGroup(iBasketIndex, fileName);
+        if (!err.isEmpty()) guitools::message(err, this);
     }
     else if (selectedItem == append)
     {
@@ -2146,6 +2211,17 @@ void AGraphWindow::onBasketCustomContextMenuRequested(const QPoint &pos)
             updateBasketGUI();
             if (bDrawEmpty) switchToBasket(0);
         }
+    }
+    else if (selectedItem == appendGr)
+    {
+        bool bDrawEmpty = DrawObjects.empty();
+        const QString fileName = guitools::dialogLoadFile(this, "Append all from a basket file as new group", "Root files (*.root)");
+        if (fileName.isEmpty()) return;
+
+        QString err = Basket->appendBasketAsGroup(fileName, "ABCDEEEEE");
+        if (!err.isEmpty()) guitools::message(err, this);
+        updateBasketGUI();
+        if (bDrawEmpty) switchToBasket(0);
     }
     else if (selectedItem == appendRootHistsAndGraphs)
     {
@@ -2176,8 +2252,39 @@ void AGraphWindow::onBasketCustomContextMenuRequested(const QPoint &pos)
     }
     else if (selectedItem == del)
     {
-        QString err = Basket->remove({row});
+        if (Basket->isGroup(iBasketIndex)) // paranoid, group cannot be here
+        {
+            guitools::message("To remove a group, use 'Group' context sub-menu", this);
+            return;
+        }
+        QString err = Basket->remove({iBasketIndex});
         if (!err. isEmpty())
+        {
+            guitools::message(err, this);
+            return;
+        }
+        ActiveBasketItem = -1;
+        clearCopyOfActiveBasketId();
+        updateBasketGUI();
+    }
+    else if (selectedItem == delGroupKeep)
+    {
+        if (!guitools::confirm(QString("Delete group '%1' but keep containing groups and items?").arg(Basket->getName(iBasketIndex)), this)) return;
+        const QString err = Basket->removeGroupButKeepContents(iBasketIndex);
+        if (!err.isEmpty())
+        {
+            guitools::message(err, this);
+            return;
+        }
+        ActiveBasketItem = -1;
+        clearCopyOfActiveBasketId();
+        updateBasketGUI();
+    }
+    else if (selectedItem == delGroupAll)
+    {
+        if (!guitools::confirm(QString("Delete group '%1' and all containing groups and items?").arg(Basket->getName(iBasketIndex)), this)) return;
+        const QString err = Basket->removeGroupAndContents(iBasketIndex);
+        if (!err.isEmpty())
         {
             guitools::message(err, this);
             return;
@@ -2188,22 +2295,207 @@ void AGraphWindow::onBasketCustomContextMenuRequested(const QPoint &pos)
     }
     else if (selectedItem == rename)
     {
-        if (row == -1) return; //protection
+        if (iBasketIndex == -1) return; //protection
         bool ok;
         QString text = QInputDialog::getText(this, "Rename basket item",
                                              "Enter new name:", QLineEdit::Normal,
-                                             Basket->getName(row), &ok);
+                                             Basket->getName(iBasketIndex), &ok);
         if (ok && !text.isEmpty())
-            Basket->rename(row, text.simplified());
+            Basket->rename(iBasketIndex, text.simplified());
         updateBasketGUI();
     }
     else if (selectedItem == onTop)
-        basket_DrawOnTop(row);
+        basket_DrawOnTop(iBasketIndex);
+    else if (selectedItem == addGroup)
+        onBasketAction_AddGroup(iBasketIndex, bGroup);
+    else if (selectedItem == renameGroup)
+    {
+        bool ok;
+        const QString text = QInputDialog::getText(this, "Rename group", "Enter new name:", QLineEdit::Normal,
+                                                   Basket->getName(iBasketIndex), &ok).simplified();
+        if (!ok) return;
+        const QString err = Basket->renameGroup(iBasketIndex, text);
+        if (!err.isEmpty()) guitools::message(err, this);
+        updateBasketGUI();
+    }
 }
 
-void AGraphWindow::onBasketReorderRequested(const std::vector<int> & indexes, int toRow)
+/*
+void AGraphWindow::onBasketAction_AddGroup(int iBasketIndex, bool isGroup)
 {
-    Basket->reorder(indexes, toRow);
+    if (iBasketIndex >= Basket->size())
+    {
+        qWarning() << "bad basket index" << iBasketIndex;
+        return;
+    }
+
+    bool ok;
+    const QString name = QInputDialog::getText(this, "New group", "Group name:", QLineEdit::Normal, "Group", &ok).simplified();
+    if (!ok) return;
+
+    QString err = ABasketManager::checkGroupName(name);
+    if (!err.isEmpty())
+    {
+        guitools::message(err, this);
+        return;
+    }
+
+    QString parentGroup;
+    if (iBasketIndex >= 0) // else adding to the root
+    {
+        if (isGroup) parentGroup = Basket->getItems()[iBasketIndex].getGroupFullPath();
+        else         parentGroup = Basket->getItems()[iBasketIndex].ParentGroup;
+    }
+
+    qDebug() << "Add group triggered for index" << iBasketIndex << "  Target is group?" << isGroup << "   Parent group:" << parentGroup;
+    err = Basket->addGroup(name, parentGroup, iBasketIndex);
+    if (!err.isEmpty()) guitools::message(err, this);
+    else updateBasketGUI();
+}
+*/
+
+void AGraphWindow::onBasketAction_AddGroup(int iBasketIndex, bool isGroup)
+{
+    if (iBasketIndex >= (int)Basket->size())
+    {
+        qWarning() << "Bad basket index" << iBasketIndex;
+        return;
+    }
+
+    bool ok;
+    const QString name = QInputDialog::getText(this, "New group", "Group name:", QLineEdit::Normal, "Group", &ok).simplified();
+    if (!ok) return;
+
+    QString err = ABasketManager::checkGroupName(name);
+    if (!err.isEmpty())
+    {
+        guitools::message(err, this);
+        return;
+    }
+
+    QString parentGroup;
+    int insertRow = -1;
+
+    if (iBasketIndex >= 0)
+    {
+        //const auto & item = Basket->getItems()[iBasketIndex];
+
+        if (isGroup)
+        {
+            parentGroup = Basket->joinPath(Basket->getParentGroup(iBasketIndex), Basket->getName(iBasketIndex));
+            insertRow = iBasketIndex + 1;
+        }
+        else
+        {
+            parentGroup = Basket->getParentGroup(iBasketIndex);
+            insertRow = iBasketIndex;
+        }
+    }
+
+    qDebug() << "Add group triggered for index" << iBasketIndex << "Target is group?" << isGroup << "Parent group:" << parentGroup << "Insert position:" << insertRow;
+
+    err = Basket->addGroup(name, parentGroup, insertRow);
+
+    if (!err.isEmpty()) guitools::message(err, this);
+    else updateBasketGUI();
+}
+
+void AGraphWindow::onBasketReorderRequested(std::vector<int> & indexes, int toRow, int on0above1below2viewport3)
+{
+    qDebug() << "Basker reorder --> to" << toRow << "( of" << Basket->size() << ")  and on0above1below2viewport3 is" << on0above1below2viewport3;
+
+    QString newParentGroup;
+    int insertRow = toRow;
+
+    switch (on0above1below2viewport3)
+    {
+    case 0: // On item
+        newParentGroup = Basket->getParentGroup(toRow);
+        if (Basket->isGroup(toRow))
+        {
+            newParentGroup = Basket->joinPath(newParentGroup, Basket->getName(toRow));
+            insertRow++;
+        }
+        break;
+    case 1: // Above item
+        newParentGroup = Basket->getParentGroup(toRow);
+        break;
+/*
+    case 2: // Below item
+        newParentGroup = Basket->getParentGroup(toRow);
+        //insertRow++;
+        insertRow = toRow + 1;
+        //if (insertRow > Basket->size()) insertRow = Basket->size(); keep ????
+        break;
+*/
+        /*
+    case 2: // Below item or group
+        newParentGroup = Basket->getParentGroup(toRow);
+        insertRow = toRow + 1;
+
+        if (Basket->isGroup(toRow))
+        {
+            const QString groupPath = Basket->joinPath(Basket->getParentGroup(toRow), Basket->getName(toRow));
+
+            // Skip the entire subtree of the target group.
+            while (insertRow < Basket->size() &&
+                   (Basket->getParentGroup(insertRow) == groupPath ||
+                    Basket->getParentGroup(insertRow).startsWith(groupPath + "/")))
+            {
+                insertRow++;
+            }
+        }
+        break;
+        */
+        /*
+    case 2: // Below item or group
+        if (Basket->isGroup(toRow))
+        {
+            // Insert as the first child of the group.
+            newParentGroup = Basket->joinPath(
+                Basket->getParentGroup(toRow),
+                Basket->getName(toRow));
+
+            insertRow = toRow + 1;
+        }
+        else
+        {
+            // Insert after the item, in the same parent group.
+            newParentGroup = Basket->getParentGroup(toRow);
+            insertRow = toRow + 1;
+        }
+        break;
+        */
+    case 2: // Below item or group
+        if (Basket->isGroup(toRow))
+        {
+            newParentGroup = Basket->joinPath(Basket->getParentGroup(toRow), Basket->getName(toRow));
+            insertRow = toRow + 1;
+        }
+        else
+        {
+            newParentGroup = Basket->getParentGroup(toRow);
+            insertRow = toRow + 1;
+        }
+        break;
+    case 3: // On viewport
+        newParentGroup.clear();
+        insertRow = Basket->size();
+        break;
+    default:
+        qWarning() << "Invalid basket drop position:" << on0above1below2viewport3;
+        return;
+    }
+
+    qDebug() << "Requesting reorder for items" << indexes << "To new parent:" << newParentGroup << "and insert position " << insertRow << " and on0above1below2viewport3:" << on0above1below2viewport3;
+
+    QString error = Basket->reorder(indexes, insertRow, newParentGroup);
+    if (!error.isEmpty())
+    {
+        guitools::message(error, this);
+        return;
+    }
+
     ActiveBasketItem = -1;
     clearCopyOfActiveBasketId();
     updateBasketGUI();
@@ -2231,18 +2523,31 @@ void AGraphWindow::contextMenuForBasketMultipleSelection(const QPoint & pos)
 
 void AGraphWindow::removeAllSelectedBasketItems()
 {
-    const QList<QListWidgetItem*> selection = lwBasket->selectedItems();
+    const QList<QTreeWidgetItem*> selection = lwBasket->selectedItems();
     const int size = selection.size();
     if (size == 0) return;
 
-    bool bConfirm = true;
+    for (const QTreeWidgetItem * item : selection)
+    {
+        if (lwBasket->isGroup(item))
+        {
+            guitools::message("Cannot delete groups this way.\nUse 'Group' context sub-menu", this);
+            return;
+        }
+    }
+
     if (size > 1)
-        bConfirm = guitools::confirm(QString("Remove selected %1 item%2 from the basket?").arg(size).arg(size == 1 ? "" : "s"), this);
-    if (!bConfirm) return;
+    {
+        bool bConfirm = guitools::confirm(QString("Remove %1 selected item%2 from the basket?").arg(size).arg(size == 1 ? "" : "s"), this);
+        if (!bConfirm) return;
+    }
 
     std::vector<int> indexes;
-    for (const QListWidgetItem * item : selection)
-        indexes.push_back(lwBasket->row(item));
+    for (const QTreeWidgetItem * item : selection)
+    {
+        int index = lwBasket->getBasketIndex(item);
+        indexes.push_back(index);
+    }
 
     QString err = Basket->remove(indexes);
     if (!err.isEmpty())
@@ -2265,26 +2570,28 @@ void AGraphWindow::onExternalBasketChange()
 
 void AGraphWindow::requestMultidrawNew()
 {
-    const QList<QListWidgetItem*> selection = lwBasket->selectedItems();
+    const QList<QTreeWidgetItem*> selection = lwBasket->selectedItems();
 
-    for (const QListWidgetItem * const item : selection)
+    ADrawObject obj;
+    obj.Multidraw = true;
+
+    for (const QTreeWidgetItem * const item : selection)
     {
-        int index = lwBasket->row(item);
+        int index = lwBasket->getBasketIndex(item);
         if (Basket->isMultidraw(index))
         {
             guitools::message("Cannot form a multipad view:\nOne of the selected basket items is already a multipad view", this);
             return;
         }
-    }
+        if (Basket->isGroup(index))
+        {
+            guitools::message("Cannot form a multipad view using groups", this);
+            return;
+        }
 
-    ADrawObject obj;
-    obj.Multidraw = true;
-
-    for (const QListWidgetItem * const item : selection)
-    {
-        int index = lwBasket->row(item);
         obj.MultidrawSettings.BasketItems.push_back(index);
     }
+
     obj.MultidrawSettings.init();
 
     std::vector<ADrawObject> tmp = {obj};
@@ -2295,12 +2602,12 @@ void AGraphWindow::requestMultidrawNew()
 
 void AGraphWindow::requestAddToMultidraw()
 {
-    const QList<QListWidgetItem*> selection = lwBasket->selectedItems();
+    const QList<QTreeWidgetItem*> selection = lwBasket->selectedItems();
 
     int multiIndex = -1;
-    for (const QListWidgetItem * const item : selection)
+    for (const QTreeWidgetItem * const item : selection)
     {
-        int index = lwBasket->row(item);
+        int index = lwBasket->getBasketIndex(item);
         if (Basket->isMultidraw(index))
         {
             if (multiIndex == -1) multiIndex = index;
@@ -2309,6 +2616,11 @@ void AGraphWindow::requestAddToMultidraw()
                 guitools::message("Only one multipad view can be selected", this);
                 return;
             }
+        }
+        if (Basket->isGroup(index))
+        {
+            guitools::message("Cannot add group to a multipad view", this);
+            return;
         }
     }
 
@@ -2320,9 +2632,9 @@ void AGraphWindow::requestAddToMultidraw()
 
     std::vector<ADrawObject> drawObjectAr = Basket->getCopy(multiIndex);
     if (drawObjectAr.empty()) return; // paranoid
-    for (const QListWidgetItem * const item : selection)
+    for (const QTreeWidgetItem * const item : selection)
     {
-        int index = lwBasket->row(item);
+        int index = lwBasket->getBasketIndex(item);
         if (index == multiIndex) continue;
         drawObjectAr.front().MultidrawSettings.BasketItems.push_back(index);
     }
@@ -2332,11 +2644,19 @@ void AGraphWindow::requestAddToMultidraw()
 
 void AGraphWindow::requestMergeHistograms()
 {
-    const QList<QListWidgetItem*> selection = lwBasket->selectedItems();
+    const QList<QTreeWidgetItem*> selection = lwBasket->selectedItems();
 
     std::vector<int> indexes;
-    for (const QListWidgetItem * const item : selection)
-        indexes.push_back(lwBasket->row(item));
+    for (const QTreeWidgetItem * const item : selection)
+    {
+        int index = lwBasket->getBasketIndex(item);
+        if (Basket->isGroup(index))
+        {
+            guitools::message("Selected items cannot contain groups!", this);
+            return;
+        }
+        indexes.push_back(index);
+    }
 
     if (indexes.size() < 2) return;
 
@@ -2877,6 +3197,21 @@ void AGraphWindow::close3DviewWindow()
         Viewer3D->close();
         delete Viewer3D; Viewer3D = nullptr;
     }
+}
+
+QString AGraphWindow::checkCanAddGroup(const QString & newGroupName, const QString & toGroup) const
+{
+    QString err = Basket->checkGroupName(newGroupName);
+    if (!err.isEmpty()) return err;
+
+    const QStringList names = Basket->getGroupNames();
+    if (!names.contains(toGroup)) return QString("Basket: requested group %1 not found").arg(toGroup);
+
+    const QString newFullName = Basket->joinPath(toGroup, newGroupName);
+    const QString txt = (toGroup.isEmpty() ? "the basket root" : toGroup);
+    if (names.contains(newFullName)) return QString("Basket: cannot add new group %1 to %2: group already exists").arg(newGroupName, txt);
+
+    return "";
 }
 
 #include "atemplateselectiondialog.h"
@@ -3475,5 +3810,22 @@ void AGraphWindow::on_actionLoad_multipad_view_settings_triggered()
     int height = 500;
     if (jstools::parseJson(json, "Width", width) && jstools::parseJson(json, "Height", height)) resize(width, height);
     redrawAll();
+}
+
+#include "aaddtobasketdialog.h"
+void AGraphWindow::on_pbAddToBasket_customContextMenuRequested(const QPoint &)
+{
+    if (DrawObjects.empty()) return;
+
+    AAddToBasketDialog dia(Basket->getGroupNames(), this);
+    int ret = dia.exec();
+    if (ret == QDialog::Rejected) return;
+
+    QString toGroup = dia.getPath();
+    bool toBot = dia.isBottom();
+    QString title = dia.getTitle();
+
+    addCurrentToBasket(title, toGroup, toBot);
+    updateBasketGUI();
 }
 

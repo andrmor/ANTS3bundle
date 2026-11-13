@@ -62,14 +62,17 @@ void AJScriptManager::evalFinished(bool flag)
     emit finished(flag);
 }
 
-bool AJScriptManager::evaluate(const QString &script)
+QString AJScriptManager::evaluate(const QString & script)
 {
+    const QString err = checkModuleOverrideAttempt(script, false);
+    if (!err.isEmpty()) return err;
+
     //qDebug() << "Request to evaluate script:\n" << script;
-    if (Worker->isBusy()) return false;
+    if (Worker->isBusy()) return "Worker is busy";
 
     doBeforeScriptEval();
     emit doEval(script);
-    return true;
+    return QString();
 }
 
 bool AJScriptManager::isRunning() const

@@ -233,12 +233,15 @@ SOURCES += \
     gui/geom/ageotreewin.cpp \
     gui/geom/aparticleanalyzerwidget.cpp \
     gui/geom/ashownumbersdialog.cpp \
+    gui/graph/aaddtobasketdialog.cpp \
+    gui/graph/abaskettreewidget.cpp \
     gui/graph/adrawmarginsrecord.cpp \
     gui/graph/agraphwindow.cpp \
     gui/graph/ahistoptstatdialog.cpp \
     gui/graph/amultidrawrecord.cpp \
     gui/graph/apaletteselectiondialog.cpp \
     gui/graph/apersistentutils3d.cpp \
+    gui/graph/areorderlistwidget.cpp \
     gui/graph/asetmarginsdialog.cpp \
     gui/graph/aviewer3d.cpp \
     gui/graph/aviewer3dsettingsdialog.cpp \
@@ -277,7 +280,6 @@ SOURCES += \
     gui/geom/ageometrytester.cpp \
     gui/graph/aaxesdialog.cpp \
     gui/graph/abasketitem.cpp \
-    gui/graph/abasketlistwidget.cpp \
     gui/graph/abasketmanager.cpp \
     gui/graph/adrawexplorerwidget.cpp \
     gui/graph/adrawobject.cpp \
@@ -469,12 +471,15 @@ HEADERS += \
     gui/atreedatabaseselectordialog.h \
     gui/geom/ageomarkerpropsdialog.h \
     gui/geom/aparticleanalyzerwidget.h \
+    gui/graph/aaddtobasketdialog.h \
+    gui/graph/abaskettreewidget.h \
     gui/graph/adrawmarginsrecord.h \
     gui/graph/agraphwindow.h \
     gui/graph/ahistoptstatdialog.h \
     gui/graph/amultidrawrecord.h \
     gui/graph/apaletteselectiondialog.h \
     gui/graph/apersistentutils3d.h \
+    gui/graph/areorderlistwidget.h \
     gui/graph/asetmarginsdialog.h \
     gui/graph/aviewer3dsettingsdialog.h \
     gui/materials/aabsorptiondataconverterdialog.h \
@@ -544,7 +549,6 @@ HEADERS += \
     gui/geom/ageometrytester.h \
     gui/graph/aaxesdialog.h \
     gui/graph/abasketitem.h \
-    gui/graph/abasketlistwidget.h \
     gui/graph/abasketmanager.h \
     gui/graph/adrawexplorerwidget.h \
     gui/graph/adrawobject.h \
@@ -717,6 +721,7 @@ FORMS += \
         gui/geom/aparticleanalyzerwidget.ui \
         gui/geom/ashownumbersdialog.ui \
         gui/aglobsetwindow.ui \
+        gui/graph/aaddtobasketdialog.ui \
         gui/graph/agraphwindow.ui \
         gui/graph/ahistoptstatdialog.ui \
         gui/graph/apaletteselectiondialog.ui \

@@ -11,7 +11,7 @@ namespace Ui {
 class ALegendDialog;
 }
 
-class ABasketListWidget;
+class AReorderListWidget;
 class ADrawObject;
 class TObject;
 class QListWidgetItem;
@@ -71,7 +71,7 @@ private slots:
 
 private:
     Ui::ALegendDialog *ui;
-    ABasketListWidget * lwList;
+    AReorderListWidget * lwList;
     TLegend & Legend;
     const std::vector<ADrawObject> & DrawObjects;
 

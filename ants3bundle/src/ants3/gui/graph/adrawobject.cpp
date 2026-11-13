@@ -32,7 +32,7 @@ void ADrawObject::extractName()
     if (tn) Name = tn->GetTitle();
 }
 
-void ADrawObject::writeToJson(QJsonObject & json) const
+void ADrawObject::writeToJson(QJsonObject & json, int indexOffsetForMultidraw) const
 {
     json["Name"]      = Name;
     json["Options"]   = Options;
@@ -43,7 +43,7 @@ void ADrawObject::writeToJson(QJsonObject & json) const
     if (Multidraw)
     {
         QJsonObject js;
-        MultidrawSettings.writeToJson(js);
+        MultidrawSettings.writeToJson(js, true, indexOffsetForMultidraw);
         json["Multidraw"] = js;
     }
 }
@@ -58,7 +58,7 @@ void ADrawObject::readFromJson(const QJsonObject & json)
 
     QJsonObject js;
     Multidraw = jstools::parseJson(json, "Multidraw", js);
-    if (Multidraw) MultidrawSettings.readFromJson(js);
+    if (Multidraw) MultidrawSettings.readFromJson(js, true);
 }
 
 void ADrawObject::shiftMultidrawIndexesBy(int val)

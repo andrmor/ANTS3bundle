@@ -98,7 +98,7 @@ public:
   void  updateGridElementShape();
 
   // monitors
-  void updateAllMonitors();
+  void updateAllMonitors(bool keepMaterials = false); // introduction of keepMaterials <-- bug fix for Prototype expansion cloning monitors without shape expansion
   const AMonitorConfig * getMonitorConfig() const; //returns nullptr if obj is not a monitor
 
   // calorimeters

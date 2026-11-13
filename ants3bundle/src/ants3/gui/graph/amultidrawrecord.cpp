@@ -13,12 +13,12 @@ void AMultidrawRecord::init()
     else                { NumX = 3; NumY = 3;}
 }
 
-void AMultidrawRecord::writeToJson(QJsonObject & json, bool includeBasketItems) const
+void AMultidrawRecord::writeToJson(QJsonObject & json, bool includeBasketItems, int indexOffset) const
 {
     if (includeBasketItems)
     {
         QJsonArray ar;
-        for (int i : BasketItems) ar.push_back(i);
+        for (int i : BasketItems) ar.push_back(i - indexOffset);
         json["BasketItems"] = ar;
     }
 

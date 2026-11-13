@@ -13,12 +13,12 @@
 class AGraphRasterWindow;
 class QGraphicsView;
 class AToolboxScene;
-class QListWidgetItem;
+class QTreeWidgetItem;
 class TObject;
 class TTree;
 class ABasketManager;
 class ADrawExplorerWidget;
-class ABasketListWidget;
+class ABasketTreeWidget;
 class TLegend;
 class TGaxis;
 class AScriptInterface;
@@ -43,7 +43,8 @@ public:
 public slots:
     void onDrawRequest(TObject * obj, QString options, bool transferOwnership, bool focusWindow);
     void redrawAll();
-    void addCurrentToBasket(const QString & name);
+    void addCurrentToBasket(QString name, QString parentGroup, bool toBottom = true);
+    void addGroupToBasket(QString name, QString parentGroup);
     void drawLegend(double x1, double y1, double x2, double y2, QString title);
     void configureLegendBorder(int color, int style, int size);
     void clearBasket();
@@ -72,7 +73,9 @@ public:
     double getMinZ(bool *ok);
     double getMaxZ(bool *ok);
 
-    void close3DviewWindow();
+    void   close3DviewWindow();
+
+    QString checkCanAddGroup(const QString & newGroupName, const QString & toGroup) const;
 
 protected:
     void mouseMoveEvent(QMouseEvent * event);
@@ -85,8 +88,10 @@ private slots:
     void reshape();
     // basket-related
     void onBasketCustomContextMenuRequested(const QPoint & pos);
-    void onBasketItemDoubleClicked(QListWidgetItem * item);
-    void onBasketReorderRequested(const std::vector<int> & indexes, int toRow);
+    void onBasketItemDoubleClicked(QTreeWidgetItem * item);
+    void onBasketItemCollapsed(QTreeWidgetItem * item);
+    void onBasketItemExpanded(QTreeWidgetItem * item);
+    void onBasketReorderRequested(std::vector<int> & indexes, int toRow, int on0above1below2viewport3); // !!!*** todo group-related tests !!!*** after/in logic!
     void onBasketDeleteShortcutActivated();
     // script related
     void onScriptDrawRequest(TObject * obj, QString options, bool fFocus);      // these two work together (QueuedConnection to enable calls from another thread)
@@ -206,31 +211,24 @@ private slots:
     void on_ledMultAxisScaleXoff_editingFinished();
     void on_ledMultAxisScaleYoff_editingFinished();
     void on_ledMultAxisScaleZoff_editingFinished();
-
     //void on_ledMultScaleAxesLines_editingFinished(); // not possible in ROOT... hrm
-
     void on_ledMultScaleDrawLines_editingFinished();
     void on_ledMultScaleMarkers_editingFinished();
-
     void on_cbMultiAddIdentifier_clicked(bool checked);
-
     void on_pbMultiConfigureIdentifier_clicked();
-
     void on_pbMultiSaveImage_clicked();
-
     void on_pbMultiSaveImage_customContextMenuRequested(const QPoint &pos);
-
     void on_actionSave_multipad_view_settings_triggered();
-
     void on_actionLoad_multipad_view_settings_triggered();
 
+    void on_pbAddToBasket_customContextMenuRequested(const QPoint &pos);
 
 private:
     Ui::AGraphWindow       * ui = nullptr;
 
     ABasketManager         * Basket       = nullptr;
     ADrawExplorerWidget    * Explorer     = nullptr;
-    ABasketListWidget      * lwBasket     = nullptr;
+    ABasketTreeWidget      * lwBasket     = nullptr;
     AGraphRasterWindow     * RasterWindow = nullptr;
     QGraphicsView          * gvOverlay    = nullptr;
     AToolboxScene          * ToolBoxScene = nullptr;
@@ -275,8 +273,8 @@ private:
     void drawSingleObject(TObject * obj, QString options, bool update);
     void registerTObject(TObject * obj);
     void clearRegisteredTObjects();
-    void requestMultidrawNew();  // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    void requestAddToMultidraw();  // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    void requestMultidrawNew();
+    void requestAddToMultidraw();
     void doRedrawOnUpdateMargins();
     void updateGuiControlsForMainObject(const QString & className, const QString & options);
     void showProjection(QString type);
@@ -298,7 +296,7 @@ private:
     void switchToBasket(int index);
     void basket_DrawOnTop(int row);
     void highlightUpdateBasketButton(bool flag);
-    void contextMenuForBasketMultipleSelection(const QPoint & pos); // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    void contextMenuForBasketMultipleSelection(const QPoint & pos);
     void removeAllSelectedBasketItems();
     void clearBasketActiveId();
     void makeCopyOfActiveBasketId();
@@ -315,10 +313,12 @@ private:
     void onBusyOn();
     void onBusyOff();
 
-    void redrawAll_Multidraw(ADrawObject & drawObj); // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    void redrawAll_Multidraw(ADrawObject & drawObj);
     bool isMultidrawModeOn();
     void onMultiIdentPaveChanged();
     void onMultiIdentPaveTextChanged(QString text);
+
+    void onBasketAction_AddGroup(int iBasketIndex, bool isGroup);
 
 signals:
     void requestLocalDrawObject(TObject *obj, QString options, bool fFocus);

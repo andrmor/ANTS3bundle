@@ -1,7 +1,7 @@
 #include "alegenddialog.h"
 #include "ui_alegenddialog.h"
 #include "adrawobject.h"
-#include "abasketlistwidget.h"
+#include "areorderlistwidget.h"
 #include "guitools.h"
 #include "aroottextconfigurator.h"
 #include "arootlineconfigurator.h"
@@ -34,14 +34,14 @@ ALegendDialog::ALegendDialog(TLegend & Legend, const std::vector<ADrawObject> &D
     ui->pbDummy->setDefault(true);
     ui->pbDummy->setVisible(false);
 
-    lwList = new ABasketListWidget(this);
+    lwList = new AReorderListWidget(this);
     lwList->setContextMenuPolicy(Qt::CustomContextMenu);
     lwList->setSpacing(4);
     lwList->setDropIndicatorShown(true);
     ui->splitter->insertWidget(0, lwList);
-    connect(lwList, &ABasketListWidget::requestReorder, this, &ALegendDialog::onReorderEntriesRequested);
-    connect(lwList, &ABasketListWidget::itemSelectionChanged, this, &ALegendDialog::onEntrySelectionChanged);
-    connect(lwList, &ABasketListWidget::customContextMenuRequested, this, &ALegendDialog::onListMenuRequested);
+    connect(lwList, &AReorderListWidget::requestReorder, this, &ALegendDialog::onReorderEntriesRequested);
+    connect(lwList, &AReorderListWidget::itemSelectionChanged, this, &ALegendDialog::onEntrySelectionChanged);
+    connect(lwList, &AReorderListWidget::customContextMenuRequested, this, &ALegendDialog::onListMenuRequested);
     //connect(lwList->itemDelegate(), &QAbstractItemDelegate::commitData, this, &ALegendDialog::onLabelTextChanged);
 
     ui->splitter->setSizes( {500,200});

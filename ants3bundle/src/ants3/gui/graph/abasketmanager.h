@@ -15,11 +15,15 @@ public:
 
     void                add(const QString & name, const std::vector<ADrawObject> & drawObjects); //makes deep copy
     void                update(int index, const std::vector<ADrawObject> & drawObjects);         //makes deep copy
-
     std::vector<ADrawObject> getCopy(int index) const;  //returns deep copy
+
+    QString             addGroup(const QString & name, const QString & parentGroup, int iBasketIndex = -1); // parent group: "aaa/bbb/ccc" - full path! -1 -> as last item of this group, otherwise at this position !!!*** todo insert/check
+    QStringList         getGroupNames() const;
 
     void                clear();
     QString             remove(std::vector<int> indexesToRemove); // returns error if it was not possible to remove at least one item (part of a multidraw)
+    QString             removeGroupAndContents(int index);
+    QString             removeGroupButKeepContents(int index);
 
     QString             getType(int index) const;
 
@@ -27,21 +31,38 @@ public:
 
     QString             getName(int index) const;
     void                rename(int index, const QString & newName);
-    QStringList         getItemNames() const;
+    QString             getGroupFullPath(int index);
+
+    void                setCollapsedFlag(int index, bool flag);
 
     bool                isMultidraw(int index) const;
     bool                isMemberOfSpecificMultidraw(int index, int multidrawIndex);
 
+    bool                isGroup(int index) const;
+    QString             getParentGroup(int index) const;
+    bool                isCollapsedGroup(int index) const; // wrong index or not a group --> returns true
+
     void                saveBasket(const QString & fileName);
+    QString             saveGroup(int index, const QString & fileName);
     QString             appendBasket(const QString & fileName);
+    QString             appendBasketAsGroup(const QString & fileName, const QString & groupName);
 
     QString             appendTxtAsGraph(const QString & fileName);
     QString             appendTxtAsGraphErrors(const QString & fileName);
     void                appendRootHistGraphs(const QString & fileName);
 
-    void                reorder(const std::vector<int> & indexes, int to); // assume uniqueness of indexes
+    QString             reorder(std::vector<int> & indexes, int indexTo, const QString & destinationParent);
+    void                moveLastBasketItemToGroup(const QString & parentGroup, bool toBottom); // triggers reorder  // !!!*** return QString error
 
     QString             mergeHistograms(const std::vector<int> & indexes);
+
+    // groups
+    static QString      checkGroupName(const QString & name);  // returns error text or ""
+    QString             renameGroup(int index, const QString & newName);
+
+    QString             joinPath(const QString & parentGroup, const QString & thisGroupName) const; // !!!*** sync with getFullGroupName (maybe drop getFullGroupName?)
+
+    QString             validateBasket() const;
 
 private:
     std::vector<ABasketItem> Basket;
@@ -49,9 +70,28 @@ private:
 private:
     int                 findPointerInDrawObjects(const std::vector<ADrawObject> & drawObjects, TObject * obj) const;
     std::vector<size_t> getAllMultidrawsUsingIndex(size_t index);
+    int                 findGroup(const QString & name) const; // returns -1 if not found
+    bool                groupExists(const QString & fullPath) const;
+    void                replaceGroupPrefix(const QString & oldPath, const QString & newPath);
+    bool                isInsideGroup(const QString &path, const QString &group) const;
+    void                getIndexes_ItemsInGroup(int indexOfGroup, std::vector<int> & indexes) const;
+    QString             writeBasketFile(const QString & fileName, const std::vector<int> & indexes, int rootGroupIndex = -1);
+    QString             checkMultidrawsAreComplete(const std::vector<int> & indexes);
+    QString             checkGroupCanBeMovedToIndex(int indexOfGroup, int indexTo);
+    void                addGroupMembersRecursive(int itemIndex, std::vector<int> & indexes);
+    QString             validateBasketMove(int indexTo, const std::vector<int> & indexes, const QString & newPath) const;
+    void                updateParentGroup(const std::vector<int> & indexes, const QString & newPath);
+    void                expandSelectionWithGroupMembers(std::vector<int> & indexes);
+    QString             destinationPath(int indexTo) const;
+    QVector<QString>    computeNewParents(const std::vector<int> & indexes, const QString & newPath) const;
+    QString             loadBasketFromFile(const QString & fileName, std::vector<ABasketItem> & loadedBasket) const;
+
+    bool hasGroupPathConflicts(const std::vector<ABasketItem> &loadedBasket) const;
+    void correctGroupPaths(std::vector<ABasketItem> &loadedBasket) const;
+    void shiftBasketMultidrawIndexes(std::vector<ABasketItem> &items, int offset) const;
 
 public:
-    static TObject * makeCloneOfTObject(TObject * tobj);
+    static TObject *    makeCloneOfTObject(TObject * tobj);
 };
 
 #endif // ABASKETMANAGER_H

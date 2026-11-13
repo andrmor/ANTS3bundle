@@ -53,8 +53,8 @@ public:
 
     void init();
 
-    void writeToJson(QJsonObject & json, bool includeBasketItems = true) const;
-    void readFromJson(const QJsonObject & json, bool includeBasketItems = true);
+    void writeToJson(QJsonObject & json, bool includeBasketItems, int indexOffset = 0) const;
+    void readFromJson(const QJsonObject & json, bool includeBasketItems);
 };
 
 #endif // AMULTIDRAWRECORD_H

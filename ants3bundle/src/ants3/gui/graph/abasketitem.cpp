@@ -25,3 +25,13 @@ void ABasketItem::clearObjects()
     }
     DrawObjects.clear();
 }
+
+QString ABasketItem::getGroupFullPath() const
+{
+    if (!isGroup) return "";
+
+    QString res = ParentGroup;
+    if (!res.isEmpty()) res += "/";
+    res += Name;
+    return res;
+}

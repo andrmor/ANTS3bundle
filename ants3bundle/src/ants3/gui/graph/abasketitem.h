@@ -17,7 +17,14 @@ public:
     QString Name;
     QString Type;
 
-    void clearObjects();
+    QString ParentGroup;
+
+    bool    isGroup = false;
+    bool    Collapsed = false;
+
+    void    clearObjects();
+
+    QString getGroupFullPath() const; // for group: returns "ParentGroup/Name", otherwise ""
 
     //runtime properties
     bool _toErase = false; // used in rearrangment to flag items to remove
