@@ -146,6 +146,7 @@ void AAnalyzerData::writeToJson(QJsonObject & json) const
         ar.push_back(js);
     }
     json["ParticleData"] = ar;
+    json["EnergyDataUnits"] = EnergyDataUnits;
 }
 
 bool AAnalyzerData::mergeFrom(const AAnalyzerData & other)

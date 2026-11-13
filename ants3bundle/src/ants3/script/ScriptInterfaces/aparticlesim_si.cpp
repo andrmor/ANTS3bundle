@@ -597,8 +597,10 @@ QVariantList AParticleSim_SI::getAnalyzerDataAll()
             for (size_t i = 1; i < particleRec.EnergyBins+1; i++)
             {
                 QVariantList el;
-                    el.push_back(particleRec.EnergyHist->GetBinCenter(i));
-                    el.push_back(particleRec.EnergyHist->GetBinContent(i) * energyFactor);
+                    //el.push_back(particleRec.EnergyHist->GetBinCenter(i));
+                    //el.push_back(particleRec.EnergyHist->GetBinContent(i) * energyFactor);
+                    el.push_back(particleRec.EnergyHist->GetBinCenter(i) * energyFactor);
+                    el.push_back(particleRec.EnergyHist->GetBinContent(i));
                 histVL.push_back(el);
             }
 
@@ -645,8 +647,10 @@ QVariantList AParticleSim_SI::getAnalyzerData(int index)
         for (size_t i = 1; i < particleRec.EnergyBins+1; i++)
         {
             QVariantList el;
-            el.push_back(particleRec.EnergyHist->GetBinCenter(i));
-            el.push_back(particleRec.EnergyHist->GetBinContent(i) * energyFactor);
+            //el.push_back(particleRec.EnergyHist->GetBinCenter(i));
+            //el.push_back(particleRec.EnergyHist->GetBinContent(i) * energyFactor);
+            el.push_back(particleRec.EnergyHist->GetBinCenter(i) * energyFactor);
+            el.push_back(particleRec.EnergyHist->GetBinContent(i));
             histVL.push_back(el);
         }
 
