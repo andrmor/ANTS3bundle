@@ -6,7 +6,8 @@ class AVector2
 public:
     AVector2(const double * pos);
     AVector2(double x, double y);
-    AVector2() {}
+    //AVector2() {}
+    AVector2() : r{0.0, 0.0} {}
 
     double & operator[](int index) {return r[index];}
     const double & operator[](int index) const {return r[index];}
@@ -26,7 +27,8 @@ public:
     AVector3(const double * pos);
     AVector3(double x, double y, double z);
     //AVector3(const AVector3 &) = default;
-    AVector3() {}
+    //AVector3() {}
+    AVector3() : r{0.0, 0.0, 0.0} {}
 
     double * data() {return r;}
     const double * data() const {return r;}
