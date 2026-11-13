@@ -1181,7 +1181,7 @@ void AGeoObject::updateAllMonitors(bool keepMaterials)
             Material = Container->getMaterial();
     }
 
-    for (AGeoObject * obj : HostedObjects) obj->updateAllMonitors();
+    for (AGeoObject * obj : HostedObjects) obj->updateAllMonitors(keepMaterials);
 }
 
 void AGeoObject::removeHostedObject(AGeoObject *obj)
