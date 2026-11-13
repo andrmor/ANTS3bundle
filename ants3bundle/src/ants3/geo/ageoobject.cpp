@@ -1164,7 +1164,7 @@ void AGeoObject::updateAllStacks()
     if (Type && Type->isStack()) updateStack();
 }
 
-void AGeoObject::updateAllMonitors()
+void AGeoObject::updateAllMonitors(bool keepMaterials)
 {
     if (Type && Type->isMonitor())
     {
@@ -1176,7 +1176,9 @@ void AGeoObject::updateAllMonitors()
         else
             Shape = new AGeoTube(0, mon->config.size1, mon->config.dz);
 
-        if (Container) Material = Container->getMaterial();
+        //if (Container) Material = Container->getMaterial();
+        if (!keepMaterials && Container)
+            Material = Container->getMaterial();
     }
 
     for (AGeoObject * obj : HostedObjects) obj->updateAllMonitors();

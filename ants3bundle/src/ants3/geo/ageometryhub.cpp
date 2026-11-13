@@ -245,10 +245,13 @@ void AGeometryHub::expandPrototypeInstances()
         {
             if (obj->isDisabled()) continue;
 
-            AGeoObject * clone = obj->makeCloneForInstance(instanceObj->Name);
+            AGeoObject * clone = obj->makeCloneForInstance(instanceObj->Name); // !!!*** check it exists --> after adding error reproting in this phase
+
             clone->lockRecursively();
             instanceObj->addObjectLast(clone);
             clone->fActive = instanceObj->fActive;
+
+            clone->updateAllMonitors(true); // expand shape: after cloning it is default Box; keep material
         }
         instanceObj->fExpanded = false;
     }
@@ -315,7 +318,7 @@ void AGeometryHub::populateGeoManager(bool notifyRootServer)
     World->introduceGeoConstValuesRecursive();
     World->updateAllMonitors();  // need to be before updateAllStacks to configure correct shapes!
     World->updateAllStacks();
-    expandPrototypeInstances();
+    expandPrototypeInstances(); // !!!*** clones monitors using json mechanics
 
     delete GeoManager; GeoManager = new TGeoManager();
     GeoManager->SetVerboseLevel(0);
