@@ -196,7 +196,8 @@ AHighlighterPython::AHighlighterPython(QTextDocument *parent) :
                        "return" << "string" << "True"<< "try" << "tuple" <<
                        "type" << "with" << "while" << "yield" <<
                     // and common functions
-                    "abs" << "len" << "max" << "min" << "print" << "round" << "sorted" << "sum";
+                    //"abs" << "len" << "max" << "min" << "print" << "round" << "sorted" << "sum";
+                      "abs" << "len" << "max" << "min" << "round" << "sorted" << "sum";
 
     for (const QString &pattern : keywordPatterns)
     {

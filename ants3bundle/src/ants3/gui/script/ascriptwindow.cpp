@@ -314,6 +314,9 @@ void AScriptWindow::updateAutocompleterAndHeighlighter()
     UnitNames.clear();
     Methods.clear();
 
+    // Global functions not belonging to scripting units
+    Methods << "print()" << "printHtml()";
+
     std::vector<std::pair<QString,int>> vec;
     vec.reserve(24);
     for (const AScriptInterface * inter : ScriptManager->getInterfaces())

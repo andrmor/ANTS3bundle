@@ -804,7 +804,14 @@ void APythonInterface::initialize()
         }
     }
 
-    evalScript( "def print(*txt):\n s=''\n for t in txt: s+=str(t)+' '\n core.print(s)" );
+    //evalScript( "def print(*txt):\n s=''\n for t in txt: s+=str(t)+' '\n core.print(s)" );
+    evalScript(
+        "def print(*txt):\n"
+        "    core.print(' '.join(str(t) for t in txt))\n"
+        "\n"
+        "def printHtml(*txt):\n"
+        "    core.printHtml(' '.join(str(t) for t in txt))\n"
+        );
 }
 
 void APythonInterface::collectOverloaded(int Unit, int Method, std::vector<int> & SameNameMethods)

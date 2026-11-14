@@ -39,7 +39,8 @@ ACore_SI::ACore_SI() : AScriptInterface()
     Help["print"] = "Print up to 20 arguments in the output area. Arrays and objects are convetred to strings, a space is added between the arguments\n"
                     "In case printing is blocked by a computationally-heavy procedure, one can force the print pipeline to show the buffered messages by using 'core.flushPrintPipeline()' command\n"
                     "It is recommended to use print() command (without core.), it has less limitations";
-    Help["printHtml"] = "Print the html-formatted text in the output area. Can be used, for example, to set text color or use bold font";
+    Help["printHtml"] = "Print the html-formatted text in the output area. Can be used, for example, to set text color or use bold font.\n"
+                        "One can use printHtml method direcly (no core.)";
     Help["clearOutput"] = "Clear the output area";
     Help["flushPrintPipeline"] = "Force printing of the buffered messages. Use when the printed message is not appearing due to the folloing computationally-heavy procedure";
 
