@@ -31,9 +31,11 @@
 #include <QTimer>
 #include <QShortcut>
 #include <QKeySequence>
+#include <QTextStream>
 
 #include <memory>
 #include <signal.h>
+#include <cstdio>
 
 #include "TApplication.h"
 #include "TH1.h"
@@ -126,6 +128,35 @@ int main(int argc, char *argv[])
     }
     else
     {
+        // Redirect script output to stdout in direct command-line mode.
+        if (parser.isSet(javascriptOption) || parser.isSet(pythonOption))
+        {
+            AScriptHub & sh = AScriptHub::getInstance();
+
+            auto writeLine = [](const QString & txt)
+            {
+                QTextStream out(stdout);
+                out << txt << '\n';
+                out.flush();
+            };
+
+            auto writeBuffer = [writeLine](
+                                   const std::vector<std::pair<bool, QString>> & buffer)
+            {
+                for (const auto & entry : buffer)
+                    writeLine(entry.second);
+            };
+
+            QObject::connect(&sh, &AScriptHub::outputText_JS, app.get(), writeLine);
+            QObject::connect(&sh, &AScriptHub::outputText_P,  app.get(), writeLine);
+
+            QObject::connect(&sh, &AScriptHub::outputHtml_JS, app.get(), writeLine);
+            QObject::connect(&sh, &AScriptHub::outputHtml_P,  app.get(), writeLine);
+
+            QObject::connect(&sh, &AScriptHub::outputFromBuffer_JS, app.get(), writeBuffer);
+            QObject::connect(&sh, &AScriptHub::outputFromBuffer_P,  app.get(), writeBuffer);
+        }
+
         AScriptHub::getInstance().finalizeInit();
 
         if ( parser.isSet(javascriptOption) )
