@@ -1122,7 +1122,8 @@ QVariantList AHist_SI::getStatistics(QString histName)
             m << mean[i];
             s << std[i];
         }
-        vl << m << s;
+        vl.push_back(QVariant(m));
+        vl.push_back(QVariant(s));
     }
     return vl;
 }
