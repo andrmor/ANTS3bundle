@@ -36,8 +36,9 @@ ACore_SI::ACore_SI() : AScriptInterface()
 
     Help["abort"] = "Abort script execution and show given text in the output";
 
-    Help["print"] = "Print up to 10 arguments in the output area. Arrays and objects are convetred to strings, a space is added between the arguments\n"
-                    "In case printing is blocked by a computationally-heavy procedure, one can force the print pipeline to show the buffered messages by using 'core.flushPrintPipeline()' command";
+    Help["print"] = "Print up to 20 arguments in the output area. Arrays and objects are convetred to strings, a space is added between the arguments\n"
+                    "In case printing is blocked by a computationally-heavy procedure, one can force the print pipeline to show the buffered messages by using 'core.flushPrintPipeline()' command\n"
+                    "It is recommended to use print() command (without core.), it has less limitations";
     Help["printHtml"] = "Print the html-formatted text in the output area. Can be used, for example, to set text color or use bold font";
     Help["clearOutput"] = "Clear the output area";
     Help["flushPrintPipeline"] = "Force printing of the buffered messages. Use when the printed message is not appearing due to the folloing computationally-heavy procedure";
@@ -446,6 +447,7 @@ void ACore_SI::print(QVariant message)
     Messenger->output(s, false);
 }
 
+/*
 void ACore_SI::print(QVariant m1, QVariant m2, QVariant m3, QVariant m4, QVariant m5, QVariant m6, QVariant m7, QVariant m8, QVariant m9, QVariant m10)
 {
     QString s;
@@ -462,6 +464,30 @@ void ACore_SI::print(QVariant m1, QVariant m2, QVariant m3, QVariant m4, QVarian
     //AScriptHub::getInstance().outputText(s, Lang);
     //MessengerTxt->output(s);
     Messenger->output(s, false);
+}
+*/
+void ACore_SI::print(QVariant m1,  QVariant m2,  QVariant m3,  QVariant m4,  QVariant m5,  QVariant m6,  QVariant m7,  QVariant m8,  QVariant m9,  QVariant m10,
+                     QVariant m11, QVariant m12, QVariant m13, QVariant m14, QVariant m15, QVariant m16, QVariant m17, QVariant m18, QVariant m19, QVariant m20)
+{
+    const QVariant args[] = {
+        m1,  m2,  m3,  m4,  m5,
+        m6,  m7,  m8,  m9,  m10,
+        m11, m12, m13, m14, m15,
+        m16, m17, m18, m19, m20
+    };
+
+    // Ignore omitted optional arguments.
+    // Keep at least the two required arguments.
+    int count = 20;
+    while (count > 2 && !args[count - 1].isValid()) --count;
+
+    QString output;
+    for (int i = 0; i < count; ++i)
+    {
+        if (i > 0) output += ' ';
+        AVirtualScriptManager::addQVariantToString(args[i], output, Lang);
+    }
+    Messenger->output(output, false);
 }
 
 void ACore_SI::printHtml(QString text)

@@ -2,10 +2,31 @@
 
 #include <QtGlobal>
 #include <QJSValue>
+#include <QJsonArray>
+#include <QJsonDocument>
+
+namespace
+{
+QString quoteForDisplay(const QString & value)
+{
+    QJsonArray array;
+    array.append(value);
+
+    const QByteArray encoded = QJsonDocument(array).toJson(QJsonDocument::Compact);
+
+    // Remove the surrounding array brackets.
+    return QString::fromUtf8(encoded.mid(1, encoded.size() - 2));
+}
+}
 
 void AVirtualScriptManager::addQVariantToString(const QVariant & var, QString & string, EScriptLanguage lang, bool bAddQuotation)
 {
-    if (var.isNull()) return;
+    //if (var.isNull()) return;
+    if (var.isNull())
+    {
+        if (bAddQuotation) string += (lang == EScriptLanguage::JavaScript ? "null" : "None");
+        return;
+    }
 
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     if (var.typeName() == QStringLiteral("QJSValue") )
@@ -54,13 +75,15 @@ void AVirtualScriptManager::addQVariantToString(const QVariant & var, QString & 
 #else
     if (var.metaType().name() == QStringLiteral("QJSValue") )
     {
-        addQVariantToString(var.value<QJSValue>().toVariant(), string, lang);
+        //addQVariantToString(var.value<QJSValue>().toVariant(), string, lang);
+        addQVariantToString(var.value<QJSValue>().toVariant(), string, lang, bAddQuotation);
         return;
     }
 
     switch (var.userType())
     {
     case QMetaType::QVariantMap :
+    /*
     {
         string += '{';
         const QMap<QString, QVariant> map = var.toMap();
@@ -74,8 +97,23 @@ void AVirtualScriptManager::addQVariantToString(const QVariant & var, QString & 
         string += '}';
         break;
     }
+    */
+    {
+        string += '{';
+        const QMap<QString, QVariant> map = var.toMap();
+        for (auto it = map.cbegin(); it != map.cend(); ++it)
+        {
+            string += quoteForDisplay(it.key());
+            string += ':';
+            addQVariantToString(it.value(), string, lang, true);
+            string += ", ";
+        }
+        if (string.endsWith(", ")) string.chop(2);
+        string += '}';
+        break;
+    }
     case QMetaType::QVariantList :
-        //string += '[';
+        /*
         string += ( lang == EScriptLanguage::JavaScript ? '[' : '(' );
         for (const QVariant & v : var.toList())
         {
@@ -83,13 +121,29 @@ void AVirtualScriptManager::addQVariantToString(const QVariant & var, QString & 
             string += ", ";
         }
         if (string.endsWith(", ")) string.chop(2);
-        //string += ']';
         string += ( lang == EScriptLanguage::JavaScript ? ']' : ')' );
         break;
+        */
+    {
+        string += (lang == EScriptLanguage::JavaScript ? '[' : '(');
+        for (const QVariant & v : var.toList())
+        {
+            addQVariantToString(v, string, lang, true);
+            string += ", ";
+        }
+        if (string.endsWith(", ")) string.chop(2);
+        string += (lang == EScriptLanguage::JavaScript ? ']' : ')');
+        break;
+    }
     case QMetaType::QString:
+        /*
         if (bAddQuotation) string += "\"";
         string += var.toString();
         if (bAddQuotation) string += "\"";
+        break;
+        */
+        if (bAddQuotation) string += quoteForDisplay(var.toString());
+        else               string += var.toString();
         break;
     default:
         // implicit convertion to string

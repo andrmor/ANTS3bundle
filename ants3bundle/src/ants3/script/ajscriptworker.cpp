@@ -21,6 +21,7 @@ void AJScriptWorker::onRegisterInterface(AScriptInterface * interface, QString n
 
     if (name == "core")
     {
+        /*
         QString str = "function print()\n"
                       "{\n"
                       "   var str = ''\n"
@@ -37,6 +38,31 @@ void AJScriptWorker::onRegisterInterface(AScriptInterface * interface, QString n
                       "     str += core.toStr(arguments[ii]) + ' '\n"
                       "   core.printHtml(str)\n"
                       "}";
+        Engine->evaluate(str);
+        */
+
+        QString str = "function print()\n"
+                      "{\n"
+                      "   var str = ''\n"
+                      "   for (var ii = 0; ii < arguments.length; ii++)\n"
+                      "   {\n"
+                      "      if (ii > 0) str += ' '\n"
+                      "      str += core.toStr(arguments[ii])\n"
+                      "   }\n"
+                      "   core.print(str)\n"
+                      "}";
+        Engine->evaluate(str);
+
+        str = "function printHtml()\n"
+              "{\n"
+              "   var str = ''\n"
+              "   for (var ii = 0; ii < arguments.length; ii++)\n"
+              "   {\n"
+              "      if (ii > 0) str += ' '\n"
+              "      str += core.toStr(arguments[ii])\n"
+              "   }\n"
+              "   core.printHtml(str)\n"
+              "}";
         Engine->evaluate(str);
     }
 }

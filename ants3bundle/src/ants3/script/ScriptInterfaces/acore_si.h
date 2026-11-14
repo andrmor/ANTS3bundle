@@ -43,7 +43,9 @@ public slots:
 
     // Output
     void         print(QVariant message);
-    void         print(QVariant m1, QVariant m2, QVariant m3=QVariant(), QVariant m4=QVariant(), QVariant m5=QVariant(), QVariant m6=QVariant(), QVariant m7=QVariant(), QVariant m8=QVariant(), QVariant m9=QVariant(), QVariant m10=QVariant());
+    //void         print(QVariant m1, QVariant m2, QVariant m3=QVariant(), QVariant m4=QVariant(), QVariant m5=QVariant(), QVariant m6=QVariant(), QVariant m7=QVariant(), QVariant m8=QVariant(), QVariant m9=QVariant(), QVariant m10=QVariant());
+    void         print(QVariant m1,  QVariant m2, QVariant m3 = QVariant(), QVariant m4 = QVariant(), QVariant m5 = QVariant(), QVariant m6 = QVariant(), QVariant m7 = QVariant(), QVariant m8  = QVariant(), QVariant m9  = QVariant(), QVariant m10 = QVariant(),
+                       QVariant m11 = QVariant(), QVariant m12 = QVariant(), QVariant m13 = QVariant(), QVariant m14 = QVariant(), QVariant m15 = QVariant(), QVariant m16 = QVariant(), QVariant m17 = QVariant(), QVariant m18 = QVariant(), QVariant m19 = QVariant(), QVariant m20 = QVariant());
     void         printHtml(QString text);
     void         flushPrintPipeline();
     void         clearOutput();
