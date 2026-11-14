@@ -47,6 +47,7 @@ AScriptHub & AScriptHub::getInstance()
 }
 
 #include <QTimer>
+/*
 void AScriptHub::abort(const QString & message, EScriptLanguage lang)
 {
     AScriptHub & hub = getInstance();
@@ -57,13 +58,39 @@ void AScriptHub::abort(const QString & message, EScriptLanguage lang)
 
     ADispatcherInterface::getInstance().abortTask();
 
-    //QString str = "<p style='color:red;'>Aborted: " + message + "</p>";
-    //QString str = "<span style='color:red;'>Aborted: " + message + "</span>";
     QString str = "<span style='color:red;'>Aborted: " + message.toHtmlEscaped() + "</span>";
 #ifdef ANTS3_PYTHON
     if (lang == EScriptLanguage::Python)     QTimer::singleShot(2, [str](){ emit AScriptHub::getInstance().outputHtml_P(str); } );
 #endif
     if (lang == EScriptLanguage::JavaScript) QTimer::singleShot(2, [str](){ emit AScriptHub::getInstance().outputHtml_JS(str); } );
+}
+*/
+#include <QCoreApplication>
+#ifdef GUI
+#include <QApplication>
+#endif
+void AScriptHub::abort(const QString & message, EScriptLanguage lang)
+{
+    AScriptHub & hub = getInstance();
+
+#ifdef ANTS3_PYTHON
+    if (lang == EScriptLanguage::Python)     hub.PythonM->abort();
+#endif
+    if (lang == EScriptLanguage::JavaScript) hub.JavaScriptM->abort();
+
+    ADispatcherInterface::getInstance().abortTask();
+
+    const bool guiMode = (qobject_cast<QApplication*>(QCoreApplication::instance()) != nullptr);
+
+    const QString plainText = "Aborted: " + message;
+    const QString htmlText = "<span style='color:red;'>" + plainText.toHtmlEscaped() + "</span>";
+
+    QTimer::singleShot(2, [plainText, htmlText, guiMode, lang]()
+                       {
+                           AScriptHub & hub = AScriptHub::getInstance();
+                           if (guiMode) hub.outputHtml(htmlText, lang);
+                           else         hub.outputText(plainText, lang);
+                       });
 }
 
 bool AScriptHub::isAborted(EScriptLanguage lang)

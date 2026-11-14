@@ -140,8 +140,7 @@ int main(int argc, char *argv[])
                 out.flush();
             };
 
-            auto writeBuffer = [writeLine](
-                                   const std::vector<std::pair<bool, QString>> & buffer)
+            auto writeBuffer = [writeLine](const std::vector<std::pair<bool, QString>> & buffer)
             {
                 for (const auto & entry : buffer)
                     writeLine(entry.second);
@@ -163,6 +162,7 @@ int main(int argc, char *argv[])
         {
             QString fileName = parser.value(javascriptOption);
             QString err = AScriptHub::getInstance().evaluateScriptAndWaitToFinish(fileName, EScriptLanguage::JavaScript);
+            /*
             if (!err.isEmpty())
             {
                 qDebug() << "";
@@ -171,11 +171,26 @@ int main(int argc, char *argv[])
                 qDebug() << "";
             }
             else qDebug() << QString("Finished at %1").arg(QTime::currentTime().toString());
+            */
+            if (AScriptHub::getInstance().isAborted(EScriptLanguage::JavaScript))
+            {
+                // Abort reason has already been reported by AScriptHub::abort().
+            }
+            else if (!err.isEmpty())
+            {
+                qDebug() << "";
+                qDebug() << "Script reports an error:";
+                qDebug() << err;
+                qDebug() << "";
+            }
+            else
+                qDebug() << QString("Finished at %1").arg(QTime::currentTime().toString());
         }
         else if ( parser.isSet(pythonOption) )
         {
             QString fileName = parser.value(pythonOption);
             QString err = AScriptHub::getInstance().evaluateScriptAndWaitToFinish(fileName, EScriptLanguage::Python);
+            /*
             if (!err.isEmpty())
             {
                 qDebug() << "";
@@ -184,6 +199,20 @@ int main(int argc, char *argv[])
                 qDebug() << "";
             }
             else qDebug() << QString("Finished at %1").arg(QTime::currentTime().toString());
+            */
+            if (AScriptHub::getInstance().isAborted(EScriptLanguage::Python))
+            {
+                // Abort reason has already been reported by AScriptHub::abort().
+            }
+            else if (!err.isEmpty())
+            {
+                qDebug() << "";
+                qDebug() << "Script reports an error:";
+                qDebug() << err;
+                qDebug() << "";
+            }
+            else
+                qDebug() << QString("Finished at %1").arg(QTime::currentTime().toString());
         }
         else if ( parser.isSet(serverOption) )
         {

@@ -164,9 +164,15 @@ void AGraphWin_SI::saveBasket(QString fileName)
     QApplication::processEvents();
 }
 
+#include <QTimer>
 void AGraphWin_SI::saveImage(QString fileName)
 {
-    GraphWindow->saveGraph(fileName);
+    //GraphWindow->saveGraph(fileName);
+    QTimer::singleShot(0, GraphWindow,
+                       [graphWindow = GraphWindow, fileName]()
+                       {
+                           graphWindow->saveGraph(fileName);
+                       });
 }
 
 void AGraphWin_SI::show3D(QString castorFileName)
