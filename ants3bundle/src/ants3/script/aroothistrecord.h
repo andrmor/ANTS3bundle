@@ -57,9 +57,16 @@ public:
     void   setEntries(int num);
     double getMaximum() const;
     double getMinimum() const;
+
+    /*
     bool   getContent1D(std::vector<double> & x, std::vector<double> & w) const;
     bool   getContent2D(std::vector<double> & x, std::vector<double> & y, std::vector<double> & w) const;
     bool   getContent3D(std::vector<double> & x, std::vector<double> & y, std::vector<double> & z, std::vector<double> & w) const;
+    */
+    bool getContent1D(std::vector<double> & x, std::vector<double> & w, std::vector<double> * errors = nullptr) const;
+    bool getContent2D(std::vector<double> & x, std::vector<double> & y, std::vector<double> & w, std::vector<double> * errors = nullptr) const;
+    bool getContent3D(std::vector<double> & x, std::vector<double> & y, std::vector<double> & z, std::vector<double> & w, std::vector<double> * errors = nullptr) const;
+
     bool   getUnderflow(double & undeflow) const;
     bool   getOverflow (double & overflow) const;
     double GetRandom();

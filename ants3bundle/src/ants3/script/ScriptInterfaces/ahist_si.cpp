@@ -97,10 +97,26 @@ AHist_SI::AHist_SI() : Hists(AScriptObjStore::getInstance().Hists)
     Help["setXCustomLabels"] = "Set custom labels to replace default ones for the X axis. (e.g. names of materials in material distribution histogram).\n"
                                "The array with the labels should have the size equal to the number of histogram bins";
 
+    /*
     Help["getData"] = "Get content of the histogram. The returned array has the following format:\n"
                       "For 1D histogram --> array of arrays of [x,weight]\n"
                       "For 2D histogram --> array of arrays of [x,y,weight]\n"
                       "For 3D histogram --> array of arrays of [x,y,z,weight]\n";
+    */
+    Help["getData"] =
+        {
+            {1, "Get histogram bin centers and contents.\n"
+                "1D: [x,content]\n"
+                "2D: [x,y,content]\n"
+                "3D: [x,y,z,content]"},
+
+            {2, "Get histogram bin centers, contents and uncertainties.\n"
+                "Set the second argument to true to include bin errors.\n"
+                "1D: [x,content,error]\n"
+                "2D: [x,y,content,error]\n"
+                "3D: [x,y,z,content,error]\n"
+                "Errors follow ROOT GetBinError() conventions."}
+        };
 
     Help["getStatistics"] = "Return vector with number of entries, mean and standard deviation. In the case of 2D histogram, mean and std are vectors of two values (for x and y axes)";
     Help["getNumberEntries"] = "Return number of entries";
@@ -1239,6 +1255,7 @@ void AHist_SI::draw(QString HistName, QString options)
     }
 }
 
+/*
 QVariantList AHist_SI::getData(QString histName)
 {
     QVariantList vl;
@@ -1292,6 +1309,76 @@ QVariantList AHist_SI::getData(QString histName)
         }
     }
     else abort("getContent method is currently implemented only for TH1D, TH2D and TH3D histograms");
+
+    return vl;
+}
+*/
+
+QVariantList AHist_SI::getData(QString histName)
+{
+    return getData(histName, false);
+}
+
+QVariantList AHist_SI::getData(QString histName, bool includeErrors)
+{
+    QVariantList vl;
+
+    ARootHistRecord * r = dynamic_cast<ARootHistRecord*>(Hists.getRecord(histName));
+    if (!r)
+    {
+        abort("Histogram " + histName + " not found!");
+        return vl;
+    }
+
+    if (r->is1D())
+    {
+        std::vector<double> x, w, e;
+        const bool ok = r->getContent1D(x, w, includeErrors ? &e : nullptr);
+        if (ok)
+        {
+            for (size_t i = 0; i < x.size(); i++)
+            {
+                QVariantList el;
+                el << x[i] << w[i];
+
+                if (includeErrors)
+                    el << e[i];
+
+                vl.push_back(el);
+            }
+        }
+    }
+    else if (r->is2D())
+    {
+        std::vector<double> x, y, w, e;
+        const bool ok = r->getContent2D(x, y, w, includeErrors ? &e : nullptr);
+        if (ok)
+        {
+            for (size_t i = 0; i < x.size(); i++)
+            {
+                QVariantList el;
+                el << x[i] << y[i] << w[i];
+                if (includeErrors) el << e[i];
+                vl.push_back(el);
+            }
+        }
+    }
+    else if (r->is3D())
+    {
+        std::vector<double> x, y, z, w, e;
+        const bool ok = r->getContent3D(x, y, z, w, includeErrors ? &e : nullptr);
+        if (ok)
+        {
+            for (size_t i = 0; i < x.size(); i++)
+            {
+                QVariantList el;
+                el << x[i] << y[i] << z[i] << w[i];
+                if (includeErrors) el << e[i];
+                vl.push_back(el);
+            }
+        }
+    }
+    else abort("getData supports TH1D, TH2D and TH3D histograms");
 
     return vl;
 }

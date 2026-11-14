@@ -45,7 +45,7 @@ public slots:
     void           fillArr(QString histName, QVariantList array1, QVariantList array2, QVariantList array3);
     void           fillArr(QString histName, QVariantList array1, QVariantList array2, QVariantList array3, QVariantList array4);
 
-    void            setBinnedData(QString histName, QVariantList data);
+    void           setBinnedData(QString histName, QVariantList data);
 
     void           draw(QString HistName);
     void           draw(QString HistName, QString options);
@@ -69,6 +69,7 @@ public slots:
     void           setXCustomLabels(QString histName, QVariantList textLabels);
 
     QVariantList   getData(QString histName);
+    QVariantList   getData(QString histName, bool includeErrors);
     QVariantList   getStatistics(QString histName); // num mean std, for 2D mean and std are vectors of [x,y]
     int            getNumberEntries(QString histName);
     void           setNumberEntries(QString histName, int numEntries);

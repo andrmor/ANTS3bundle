@@ -490,7 +490,7 @@ double ARootHistRecord::getMinimum() const
     return h->GetMinimum();
 }
 
-bool ARootHistRecord::getContent1D(std::vector<double> & x, std::vector<double> & w) const
+bool ARootHistRecord::getContent1D(std::vector<double> & x, std::vector<double> & w, std::vector<double> * errors) const
 {
     if (!Type.startsWith("TH1")) return false;
 
@@ -503,17 +503,20 @@ bool ARootHistRecord::getContent1D(std::vector<double> & x, std::vector<double> 
     h->BufferEmpty();
 
     const int num = h->GetNbinsX();
-    x.reserve(num - 2);
-    w.reserve(num - 2);
+    x.reserve(num);
+    w.reserve(num);
+    if (errors) errors->reserve(num);
+
     for (int i = 1; i <= num; i++)
     {
         x.push_back(h->GetBinCenter(i));
         w.push_back(h->GetBinContent(i));
+        if (errors) errors->push_back(h->GetBinError(i));
     }
     return true;
 }
 
-bool ARootHistRecord::getContent2D(std::vector<double> & x, std::vector<double> & y, std::vector<double> & w) const
+bool ARootHistRecord::getContent2D(std::vector<double> & x, std::vector<double> & y, std::vector<double> & w, std::vector<double> * errors) const
 {
     if (!Type.startsWith("TH2")) return false;
 
@@ -527,21 +530,25 @@ bool ARootHistRecord::getContent2D(std::vector<double> & x, std::vector<double> 
 
     const int numX = h->GetNbinsX();
     const int numY = h->GetNbinsY();
-    const int num = (numX - 2) * (numY - 2);
+    const int num = numX * numY;
+
     x.reserve(num);
     y.reserve(num);
     w.reserve(num);
+    if (errors) errors->reserve(num);
+
     for (int iy = 1; iy <= numY; iy++)
         for (int ix = 1; ix <= numX; ix++)
         {
             x.push_back(h->GetXaxis()->GetBinCenter(ix));
             y.push_back(h->GetYaxis()->GetBinCenter(iy));
             w.push_back(h->GetBinContent(ix, iy));
+            if (errors) errors->push_back(h->GetBinError(ix, iy));
         }
     return true;
 }
 
-bool ARootHistRecord::getContent3D(std::vector<double> & x, std::vector<double> & y, std::vector<double> & z, std::vector<double> & w) const
+bool ARootHistRecord::getContent3D(std::vector<double> & x, std::vector<double> & y, std::vector<double> & z, std::vector<double> & w, std::vector<double> * errors) const
 {
     if (!Type.startsWith("TH3")) return false;
 
@@ -556,11 +563,14 @@ bool ARootHistRecord::getContent3D(std::vector<double> & x, std::vector<double> 
     const int numX = h->GetNbinsX();
     const int numY = h->GetNbinsY();
     const int numZ = h->GetNbinsZ();
-    const int num = (numX - 2) * (numY - 2) * (numZ - 2);
+    const int num = numX * numY * numZ;
+
     x.reserve(num);
     y.reserve(num);
     z.reserve(num);
     w.reserve(num);
+    if (errors) errors->reserve(num);
+
     for (int iz = 1; iz <= numZ; iz++)
         for (int iy = 1; iy <= numY; iy++)
             for (int ix = 1; ix <= numX; ix++)
@@ -569,6 +579,7 @@ bool ARootHistRecord::getContent3D(std::vector<double> & x, std::vector<double> 
                 y.push_back(h->GetYaxis()->GetBinCenter(iy));
                 z.push_back(h->GetZaxis()->GetBinCenter(iz));
                 w.push_back(h->GetBinContent(ix, iy, iz));
+                if (errors) errors->push_back(h->GetBinError(ix, iy, iz));
             }
     return true;
 }
