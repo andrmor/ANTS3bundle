@@ -495,6 +495,9 @@ bool ARootHistRecord::getContent1D(std::vector<double> & x, std::vector<double> 
     TH1 * h = dynamic_cast<TH1*>(Object);
     if (!h) return false;
 
+    // Ensure automatic axis limits are established before reading bin centers.
+    h->BufferEmpty();
+
     const int num = h->GetNbinsX();
     x.reserve(num - 2);
     w.reserve(num - 2);
@@ -514,6 +517,9 @@ bool ARootHistRecord::getContent2D(std::vector<double> & x, std::vector<double> 
 
     TH2 * h = dynamic_cast<TH2*>(Object);
     if (!h) return false;
+
+    // Ensure automatic axis limits are established before reading bin centers.
+    h->BufferEmpty();
 
     const int numX = h->GetNbinsX();
     const int numY = h->GetNbinsY();
@@ -539,6 +545,9 @@ bool ARootHistRecord::getContent3D(std::vector<double> & x, std::vector<double> 
 
     TH3 * h = dynamic_cast<TH3*>(Object);
     if (!h) return false;
+
+    // Ensure automatic axis limits are established before reading bin centers.
+    h->BufferEmpty();
 
     const int numX = h->GetNbinsX();
     const int numY = h->GetNbinsY();
