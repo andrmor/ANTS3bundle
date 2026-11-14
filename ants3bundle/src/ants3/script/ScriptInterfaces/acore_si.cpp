@@ -36,11 +36,14 @@ ACore_SI::ACore_SI() : AScriptInterface()
 
     Help["abort"] = "Abort script execution and show given text in the output";
 
-    Help["print"] = "Print up to 20 arguments in the output area. Arrays and objects are convetred to strings, a space is added between the arguments\n"
-                    "In case printing is blocked by a computationally-heavy procedure, one can force the print pipeline to show the buffered messages by using 'core.flushPrintPipeline()' command\n"
-                    "It is recommended to use print() command (without core.), it has less limitations";
+    Help["print"] = "Print up to 20 arguments in the output area. "
+        "Arrays and objects are converted to readable strings. "
+        "Arguments are separated by spaces.\n"
+        "Use core.flushPrintPipeline() to force buffered output "
+        "to be displayed before a computationally intensive operation.\n"
+        "Note that 'print' can be used as a global method (without core.)";
     Help["printHtml"] = "Print the html-formatted text in the output area. Can be used, for example, to set text color or use bold font.\n"
-                        "One can use printHtml method direcly (no core.)";
+                        "Note that 'printHtml' can be used as a global method (without core.)";
     Help["clearOutput"] = "Clear the output area";
     Help["flushPrintPipeline"] = "Force printing of the buffered messages. Use when the printed message is not appearing due to the folloing computationally-heavy procedure";
 
@@ -123,13 +126,27 @@ ACore_SI::ACore_SI() : AScriptInterface()
                       "The inner-most array can be of mixed type, format is defined by an array given by the 'format' argument. The available options:\n"
                       "'d'-double, 'i'-integer, 's'-string, ''-skip field: e.g. ['s', 'd', 'd']) configure sub-arrays of 1 string and 2 doubles";
         se.addRecord(3, txt);
-        txt += ".\nIf 'skipEmpty' is true, empty lines are ignored";
+        //txt += ".\nIf 'skipEmpty' is true, empty lines are ignored";
+        txt += ".\nIf 'skipEmpty' is true, empty top-level records "
+               "(e.g. events without particle records) are omitted. "
+               "Empty text lines are always ignored";
         se.addRecord(4, txt);
-        txt += ".\nIf 'allowIncomplete' is true, read will not abort if any sub-array contains less elements than defined by the 'format' array";
+        //txt += ".\nIf 'allowIncomplete' is true, read will not abort if any sub-array contains less elements than defined by the 'format' array";
+        txt += ".\nIf 'allowIncomplete' is false, records with fewer "
+               "fields than specified by 'format' are skipped. "
+               "If true, available fields are read, resulting in "
+               "potentially shorter inner arrays";
         se.addRecord(5, txt);
-        txt += ".\n'recordsFrom' defines the top level index from which to start";
+        //txt += ".\n'recordsFrom' defines the top level index from which to start";
+        //se.addRecord(6, txt);
+        //txt += ". 'recordsUntil' defines the top level index until which to read (exclusive)";
+        //se.addRecord(7, txt);
+        txt += ".\n'recordsFrom' specifies the zero-based position "
+               "of the first top-level record to load";
         se.addRecord(6, txt);
-        txt += ". 'recordsUntil' defines the top level index until which to read (exclusive)";
+        txt += ". 'recordsUntil' specifies the exclusive upper "
+               "position. Record labels in the file are not used "
+               "for selection and are not returned";
         se.addRecord(7, txt);
         Help["load3DArray"] = se;
     }
@@ -141,7 +158,10 @@ ACore_SI::ACore_SI() : AScriptInterface()
     Help["saveObject"] = "Save object (dictionaly in Python) to file using json format";
     Help["loadObject"] = "Load object (dictionaly in Python) from a file with json format";
 
-    Help["str"] = "Converts numeric value to string using the given precision (number of digits after the decimal separator)";
+    //Help["str"] = "Converts numeric value to string using the given precision (number of digits after the decimal separator)";
+    Help["str"] = "Convert a numeric value to a string using the given "
+        "number of significant digits (not decimal places). "
+        "Scientific notation may be used when appropriate.";
     Help["toStr"] = "Converts argument to the string and returns it";
     Help["arraySum"] = "For 1D array, returns sum of all elements.\nFor 2D arrays, returns sum of the last column";
     Help["getExamplesDir"] = "Get ANTS3 directory with script/config examples";
