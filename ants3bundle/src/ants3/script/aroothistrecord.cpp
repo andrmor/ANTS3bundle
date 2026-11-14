@@ -1,6 +1,10 @@
 #include "aroothistrecord.h"
 #include "apeakfinder.h"
 
+#include <algorithm>
+#include <cmath>
+#include <limits>
+
 #include <QDebug>
 
 #include "TH1D.h"
@@ -679,4 +683,64 @@ std::vector<double> ARootHistRecord::fitGaussWithInit(const std::vector<double> 
         for (int i = 0; i < 3; i++) res.push_back( f1->GetParError(i) );
     }
     return res;
+}
+
+QString ARootHistRecord::setBinnedData1D(const std::vector<double> & centers, const std::vector<double> & contents, const std::vector<double> & errors)
+{
+    if (Type != "TH1D") return "Histogram is not TH1D";
+
+    QMutexLocker locker(&Mutex);
+
+    TH1D * h = dynamic_cast<TH1D*>(Object);
+    if (!h) return "Invalid histogram object";
+
+    const int num = h->GetNbinsX();
+
+    if (centers.size() != size_t(num) ||
+        contents.size() != size_t(num))
+        return "Number of records does not match histogram bins";
+
+    const bool hasErrors = !errors.empty();
+
+    if (hasErrors && errors.size() != size_t(num)) return "Inconsistent error array size";
+
+    const TAxis * axis = h->GetXaxis();
+
+    if (axis->GetXmax() <= axis->GetXmin()) return "Histogram axis limits are not defined";
+
+    // Validate all bin positions before modifying the histogram.
+    for (int i = 1; i <= num; i++)
+    {
+        const double expected = axis->GetBinCenter(i);
+        const double width = axis->GetBinWidth(i);
+        const double actual = centers[i - 1];
+
+        if (!std::isfinite(expected) ||
+            !std::isfinite(width) || width <= 0)
+            return "Invalid histogram binning";
+
+        const double tolerance =
+            1.0e-6 * width +
+            32.0 * std::numeric_limits<double>::epsilon() *
+                std::max(std::abs(expected), std::abs(actual));
+
+        if (std::abs(actual - expected) > tolerance) return QString("Incorrect center for bin %1").arg(i);
+    }
+
+    // Replace previous data.
+    h->Reset();
+
+    // Explicit errors use ROOT's Sumw2 storage.
+    // Otherwise restore the default error convention.
+    h->Sumw2(hasErrors);
+
+    for (int i = 1; i <= num; i++)
+    {
+        h->SetBinContent(i, contents[i - 1]);
+        if (hasErrors) h->SetBinError(i, errors[i - 1]);
+    }
+
+    // Reconstruct statistics from the new bin contents.
+    h->ResetStats();
+    return "";
 }

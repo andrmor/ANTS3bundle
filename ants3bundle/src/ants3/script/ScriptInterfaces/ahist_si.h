@@ -45,6 +45,8 @@ public slots:
     void           fillArr(QString histName, QVariantList array1, QVariantList array2, QVariantList array3);
     void           fillArr(QString histName, QVariantList array1, QVariantList array2, QVariantList array3, QVariantList array4);
 
+    void            setBinnedData(QString histName, QVariantList data);
+
     void           draw(QString HistName);
     void           draw(QString HistName, QString options);
 

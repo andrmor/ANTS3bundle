@@ -4,6 +4,8 @@
 #include "aroothistrecord.h"
 #include "ascripthub.h"
 
+#include <cmath>
+
 #include <QJsonArray>
 #include <QJsonValue>
 #include <QDebug>
@@ -53,6 +55,18 @@ AHist_SI::AHist_SI() : Hists(AScriptObjStore::getInstance().Hists)
                            "For 3D histogram --> an array of x, an array of y and an array of z"},
                        {5, "Fill the 3D histogram taking data from four arrays:\n"
                            "an array of x, an array of y, and array of z and an array of weights\n"}};
+
+    Help["setBinnedData"] =
+        "Replace all bin contents of an existing 1D histogram.\n"
+        "Input: [[binCenter,content],...] or "
+        "[[binCenter,content,error],...].\n"
+        "Records must correspond to all regular bins in increasing order.\n"
+        "The existing bin boundaries are preserved.\n"
+        "Underflows and overflows are reset to zero.\n"
+        "Statistics are reconstructed from the binned data.\n"
+        "When uncertainties are omitted, ROOT default bin errors are used.\n"
+        "Use setNumberEntries() afterwards if the original number "
+        "of observations is known.";
 
     Help["draw"] =  {{1,"Draw the histogram using the default option string ('hist' for 1D and 'colz' for 2D)"},
                      {2,"Draw the histogram using the specified option string. For available options see online help for THistPainter class of CERN ROOT:\nhttps://root.cern/doc/master/classTHistPainter.html"}};
@@ -1308,3 +1322,78 @@ double AHist_SI::getNumberOverflows(QString histName)
     return val;
 }
 
+void AHist_SI::setBinnedData(QString histName, QVariantList data)
+{
+    ARootHistRecord * r = dynamic_cast<ARootHistRecord*>(Hists.getRecord(histName));
+
+    if (!r || r->getType() != "TH1D")
+    {
+        abort("1D histogram " + histName + " not found!");
+        return;
+    }
+
+    if (data.empty())
+    {
+        abort("setBinnedData: empty data array");
+        return;
+    }
+
+    const int columns = data.front().toList().size();
+
+    if (columns != 2 && columns != 3)
+    {
+        abort("setBinnedData: expected [x,content] or [x,content,error] records");
+        return;
+    }
+
+    std::vector<double> x, y, errors;
+
+    x.reserve(data.size());
+    y.reserve(data.size());
+
+    if (columns == 3)
+        errors.reserve(data.size());
+
+    for (const QVariant & item : data)
+    {
+        const QVariantList row = item.toList();
+
+        if (row.size() != columns)
+        {
+            abort("setBinnedData: inconsistent record size");
+            return;
+        }
+
+        bool okX, okY;
+        const double xx = row[0].toDouble(&okX);
+        const double yy = row[1].toDouble(&okY);
+
+        if (!okX || !okY ||
+            !std::isfinite(xx) || !std::isfinite(yy))
+        {
+            abort("setBinnedData: invalid numerical data");
+            return;
+        }
+
+        x.push_back(xx);
+        y.push_back(yy);
+
+        if (columns == 3)
+        {
+            bool okE;
+            const double ee = row[2].toDouble(&okE);
+
+            if (!okE || !std::isfinite(ee) || ee < 0)
+            {
+                abort("setBinnedData: invalid bin uncertainty");
+                return;
+            }
+
+            errors.push_back(ee);
+        }
+    }
+
+    const QString error = r->setBinnedData1D(x, y, errors);
+
+    if (!error.isEmpty()) abort("setBinnedData: " + error);
+}

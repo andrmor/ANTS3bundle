@@ -36,6 +36,8 @@ public:
     void fill2D(const std::vector<double> & x, const std::vector<double> & y, const std::vector<double> & weight);
     void fill3D(const std::vector<double> & x, const std::vector<double> & y, const std::vector<double> & z, const std::vector<double> & weight);
 
+    QString setBinnedData1D(const std::vector<double> & centers, const std::vector<double> & contents, const std::vector<double> & errors);
+
     void setMax(double max);
     void setMin(double min);
 
