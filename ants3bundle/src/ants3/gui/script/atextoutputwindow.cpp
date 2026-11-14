@@ -22,13 +22,13 @@ void ATextOutputWindow::clear()
 void ATextOutputWindow::appendText(const QString & text)
 {
     if (!isVisible()) show();
-    e->appendHtml(text);
+    e->appendPlainText(text);
 }
 
 void ATextOutputWindow::appendHtml(const QString & text)
 {
     if (!isVisible()) show();
-    e->appendPlainText(text);
+    e->appendHtml(text);
 }
 
 void ATextOutputWindow::setFontSize(int size)
