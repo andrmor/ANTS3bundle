@@ -70,7 +70,7 @@ public slots:
 
     QVariantList   getData(QString histName);
     QVariantList   getData(QString histName, bool includeErrors);
-    QVariantList   getStatistics(QString histName); // num mean std, for 2D mean and std are vectors of [x,y]
+    QVariantList   getStatistics(QString histName);
     int            getNumberEntries(QString histName);
     void           setNumberEntries(QString histName, int numEntries);
     double         getNumberUnderflows(QString histName); // !!!*** 2D

@@ -229,6 +229,7 @@ void ARootHistRecord::save(const QString &fileName) const
 {
     QMutexLocker locker(&Mutex);
 
+    /*
     if (Type == "TH1D")
     {
         TH1D* h = static_cast<TH1D*>(Object);
@@ -245,6 +246,35 @@ void ARootHistRecord::save(const QString &fileName) const
         hc->SaveAs(fileName.toLatin1());
         delete hc;
     }
+    */
+
+    TH1 * hc = nullptr;
+
+    if (Type == "TH1D")
+    {
+        TH1D * h = static_cast<TH1D*>(Object);
+        hc = new TH1D(*h);
+    }
+    else if (Type == "TH2D")
+    {
+        TH2D * h = static_cast<TH2D*>(Object);
+        hc = new TH2D(*h);
+    }
+    else if (Type == "TH3D")
+    {
+        TH3D * h = static_cast<TH3D*>(Object);
+        hc = new TH3D(*h);
+    }
+    else
+    {
+        qWarning() << "ARootHistRecord::save: Unsupported histogram type:" << Type;
+        return;
+    }
+
+    locker.unlock();
+
+    hc->SaveAs(fileName.toLatin1().constData());
+    delete hc;
 }
 
 bool ARootHistRecord::divide(ARootHistRecord * other)
@@ -446,6 +476,7 @@ int ARootHistRecord::getEntries()
     return h->GetEntries();
 }
 
+/*
 void ARootHistRecord::GetStatistics(int &num, std::vector<double> &mean, std::vector<double> &std)
 {
     TH2 * h2 = dynamic_cast<TH2*>(Object);
@@ -463,6 +494,30 @@ void ARootHistRecord::GetStatistics(int &num, std::vector<double> &mean, std::ve
         num     = h1->GetEntries();
         mean[0] = h1->GetMean(1);
         std[0]  = h1->GetStdDev(1);
+    }
+}
+*/
+void ARootHistRecord::GetStatistics(int & num, std::vector<double> & mean, std::vector<double> & std)
+{
+    QMutexLocker locker(&Mutex);
+
+    TH1 * h = dynamic_cast<TH1*>(Object);
+    if (!h)
+    {
+        num = 0;
+        mean.clear();
+        std.clear();
+        return;
+    }
+
+    const int dim = h->GetDimension();
+    num = h->GetEntries();
+    mean.resize(dim);
+    std.resize(dim);
+    for (int i = 0; i < dim; i++)
+    {
+        mean[i] = h->GetMean(i + 1);
+        std[i]  = h->GetStdDev(i + 1);
     }
 }
 

@@ -118,7 +118,14 @@ AHist_SI::AHist_SI() : Hists(AScriptObjStore::getInstance().Hists)
                 "Errors follow ROOT GetBinError() conventions."}
         };
 
-    Help["getStatistics"] = "Return vector with number of entries, mean and standard deviation. In the case of 2D histogram, mean and std are vectors of two values (for x and y axes)";
+    //Help["getStatistics"] = "Return vector with number of entries, mean and standard deviation. In the case of 2D histogram, mean and std are vectors of two values (for x and y axes)";
+    Help["getStatistics"] =
+        "Return histogram statistics: number of entries, "
+        "mean and standard deviation.\n"
+        "1D: [entries, meanX, stdX]\n"
+        "2D: [entries, [meanX,meanY], [stdX,stdY]]\n"
+        "3D: [entries, [meanX,meanY,meanZ], [stdX,stdY,stdZ]]";
+
     Help["getNumberEntries"] = "Return number of entries";
     Help["setNumberEntries"] = "Set number of entries (this number is shown in statistics, it is wrong if bin content was set directly)";
     Help["getNumberUnderflows"] = "Return number of underflows (entries which had value less than the lower edge)";
@@ -1085,23 +1092,37 @@ QVariantList AHist_SI::getRandom(QString histName, int numRandoms)
 QVariantList AHist_SI::getStatistics(QString histName)
 {
     QVariantList vl;
+
     ARootHistRecord* r = dynamic_cast<ARootHistRecord*>(Hists.getRecord(histName));
     if (!r)
+    {
         abort("Histogram " + histName + " not found!");
+        return vl;
+    }
+
+    int num = 0;
+    std::vector<double> mean;
+    std::vector<double> std;
+    r->GetStatistics(num, mean, std);
+    const int dim = mean.size();
+    if (dim < 1 || dim > 3 || std.size() != mean.size())
+    {
+        abort("getStatistics: unsupported histogram type");
+        return vl;
+    }
+
+    vl << num;
+    if (dim == 1)
+        vl << mean[0] << std[0];
     else
     {
-        int num;
-        std::vector<double> mean = {0, 0};
-        std::vector<double> std = {0, 0};
-        r->GetStatistics(num, mean, std);
-        if (r->getType() == "TH1D")
-            vl << num << mean[0] << std[0];
-        else
+        QVariantList m, s;
+        for (int i = 0; i < dim; i++)
         {
-            vl << num;
-            QVariantList m; m << mean[0] << mean[1]; vl.push_back(m);
-            QVariantList s; s << std[0]  << std[1];  vl.push_back(s);
+            m << mean[i];
+            s << std[i];
         }
+        vl << m << s;
     }
     return vl;
 }
