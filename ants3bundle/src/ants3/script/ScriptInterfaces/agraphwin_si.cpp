@@ -55,8 +55,8 @@ AGraphWin_SI::AGraphWin_SI(AGraphWindow * graphWin) :
     //connect(this, &AGraphWin_SI::requestAddGroupToBasket,    graphWin, &AGraphWindow::addGroupToBasket,      Qt::QueuedConnection);
     //connect(this, &AGraphWin_SI::requestClearBasket,         graphWin, &AGraphWindow::clearBasket,           Qt::QueuedConnection);
     connect(this, &AGraphWin_SI::requestSaveBasket,          graphWin, &AGraphWindow::saveBasket,            Qt::QueuedConnection);
-    connect(this, &AGraphWin_SI::requestSetLog,              graphWin, &AGraphWindow::setLogScale,           Qt::QueuedConnection);
-    connect(this, &AGraphWin_SI::requestSetStatPanelVisible, graphWin, &AGraphWindow::setStatPanelVisible,   Qt::QueuedConnection);
+    //connect(this, &AGraphWin_SI::requestSetLog,              graphWin, &AGraphWindow::setLogScale,           Qt::QueuedConnection);
+    //connect(this, &AGraphWin_SI::requestSetStatPanelVisible, graphWin, &AGraphWindow::setStatPanelVisible,   Qt::QueuedConnection);
     //connect(this, &AGraphWin_SI::requestAddLegend,           graphWin, &AGraphWindow::drawLegend,            Qt::QueuedConnection);
     //connect(this, &AGraphWin_SI::requestSetLegendBorder,     graphWin, &AGraphWindow::configureLegendBorder, Qt::QueuedConnection);
     //connect(this, &AGraphWin_SI::requestAddText,             graphWin, &AGraphWindow::addTextPanel,          Qt::QueuedConnection);
@@ -65,18 +65,44 @@ AGraphWin_SI::AGraphWin_SI(AGraphWindow * graphWin) :
 
 }
 
+/*
 void AGraphWin_SI::setLog(bool Xaxis, bool Yaxis)
 {
     QApplication::processEvents();
     emit requestSetLog(Xaxis, Yaxis);
     QApplication::processEvents();
 }
+*/
+void AGraphWin_SI::setLog(bool Xaxis, bool Yaxis)
+{
+    const QVariantMap result = GraphWindow->executeGuiOperation(
+        [window = GraphWindow, Xaxis, Yaxis]() -> QVariantMap
+        {
+            window->setLogScale(Xaxis, Yaxis);
+            return QVariantMap();
+        });
+    const QString error = result.value("error").toString();
+    if (!error.isEmpty()) abort(error);
+}
 
+/*
 void AGraphWin_SI::setStatPanelVisible(bool flag)
 {
     QApplication::processEvents();
     emit requestSetStatPanelVisible(flag);
     QApplication::processEvents();
+}
+*/
+void AGraphWin_SI::setStatPanelVisible(bool flag)
+{
+    const QVariantMap result = GraphWindow->executeGuiOperation(
+        [window = GraphWindow, flag]() -> QVariantMap
+        {
+            window->setStatPanelVisible(flag);
+            return QVariantMap();
+        });
+    const QString error = result.value("error").toString();
+    if (!error.isEmpty()) abort(error);
 }
 
 /*
@@ -327,6 +353,8 @@ QVariantList AGraphWin_SI::getAxisRanges()
     return vl;
 }
 */
+
+/*
 QVariantList AGraphWin_SI::getAxisRanges()
 {
     const QVariantMap result = GraphWindow->executeGuiOperation(
@@ -362,6 +390,49 @@ QVariantList AGraphWin_SI::getAxisRanges()
     }
 
     return result.value("value").toList();
+}
+*/
+QVariantList AGraphWin_SI::getAxisRanges()
+{
+    const QVariantMap result = GraphWindow->executeGuiOperation(
+        [window = GraphWindow]() -> QVariantMap
+        {
+            QVariantList vl;
+            bool ok1, ok2;
+            double min = 0;
+            double max = 0;
+
+            min = window->getMinX(&ok1);
+            max = window->getMaxX(&ok2);
+            if (ok1 && ok2) vl.push_back(QVariantList{min, max});
+
+            min = window->getMinY(&ok1);
+            max = window->getMaxY(&ok2);
+            if (ok1 && ok2) vl.push_back(QVariantList{min, max});
+
+            min = window->getMinZ(&ok1);
+            max = window->getMaxZ(&ok2);
+            if (ok1 && ok2) vl.push_back(QVariantList{min, max});
+
+            QVariantMap answer;
+            answer.insert("value", QVariant(vl));
+            return answer;
+        });
+
+    const QString error = result.value("error").toString();
+    if (!error.isEmpty())
+    {
+        abort(error);
+        return QVariantList();
+    }
+
+    const QVariant value = result.value("value");
+    if (!result.contains("value") || value.typeId() != QMetaType::QVariantList)
+    {
+        abort("Graph window: getAxisRanges returned an invalid result");
+        return QVariantList();
+    }
+    return value.toList();
 }
 
 #include "TObject.h"
