@@ -2605,6 +2605,7 @@ void AGraphWindow::onBasketReorderRequested(std::vector<int> & indexes, int toRo
         }
         break;
         */
+        /*
     case 2: // Below item or group
         if (Basket->isGroup(toRow))
         {
@@ -2615,6 +2616,22 @@ void AGraphWindow::onBasketReorderRequested(std::vector<int> & indexes, int toRo
         {
             newParentGroup = Basket->getParentGroup(toRow);
             insertRow = toRow + 1;
+        }
+        break;
+        */
+    case 2: // Below item or group
+        newParentGroup = Basket->getParentGroup(toRow);
+        insertRow = toRow + 1;
+        if (Basket->isGroup(toRow))
+        {
+            // Insert after the complete subtree, as a sibling of this group.
+            const QString groupPath = Basket->joinPath(Basket->getParentGroup(toRow), Basket->getName(toRow));
+            while (insertRow < Basket->size() &&
+                   (Basket->getParentGroup(insertRow) == groupPath ||
+                    Basket->getParentGroup(insertRow).startsWith(groupPath + "/")))
+            {
+                insertRow++;
+            }
         }
         break;
     case 3: // On viewport
