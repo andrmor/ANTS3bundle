@@ -55,9 +55,9 @@ signals:
     void requestSetStatPanelVisible(bool flag);
     //void requestAddLegend(double x1, double y1, double x2, double y2, QString title);
     //void requestSetLegendBorder(int color, int style, int size);
-    void requestAddText(QString text, bool Showframe, int Alignment_0Left1Center2Right, double x1, double y1, double x2, double y2, QString opt);
+    //void requestAddText(QString text, bool Showframe, int Alignment_0Left1Center2Right, double x1, double y1, double x2, double y2, QString opt);
     //void requestAddLine(double x1, double y1, double x2, double y2, int color, int width, int style);
-    void requestAddArrow(double x1, double y1, double x2, double y2, int color, int width, int style);
+    //void requestAddArrow(double x1, double y1, double x2, double y2, int color, int width, int style);
 
 private:
     AGraphWindow * GraphWindow = nullptr;

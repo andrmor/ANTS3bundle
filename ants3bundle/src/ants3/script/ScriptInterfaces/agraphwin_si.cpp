@@ -59,9 +59,9 @@ AGraphWin_SI::AGraphWin_SI(AGraphWindow * graphWin) :
     connect(this, &AGraphWin_SI::requestSetStatPanelVisible, graphWin, &AGraphWindow::setStatPanelVisible,   Qt::QueuedConnection);
     //connect(this, &AGraphWin_SI::requestAddLegend,           graphWin, &AGraphWindow::drawLegend,            Qt::QueuedConnection);
     //connect(this, &AGraphWin_SI::requestSetLegendBorder,     graphWin, &AGraphWindow::configureLegendBorder, Qt::QueuedConnection);
-    connect(this, &AGraphWin_SI::requestAddText,             graphWin, &AGraphWindow::addTextPanel,          Qt::QueuedConnection);
+    //connect(this, &AGraphWin_SI::requestAddText,             graphWin, &AGraphWindow::addTextPanel,          Qt::QueuedConnection);
     //connect(this, &AGraphWin_SI::requestAddLine,             graphWin, &AGraphWindow::addLine,               Qt::QueuedConnection);
-    connect(this, &AGraphWin_SI::requestAddArrow,            graphWin, &AGraphWindow::addArrow,              Qt::QueuedConnection);
+    //connect(this, &AGraphWin_SI::requestAddArrow,            graphWin, &AGraphWindow::addArrow,              Qt::QueuedConnection);
 
 }
 
@@ -126,25 +126,74 @@ void AGraphWin_SI::setLegendBorder(int color, int style, int size)
     if (!error.isEmpty()) abort(error);
 }
 
+/*
 void AGraphWin_SI::addText(QString text, bool showframe, int alignment_0Left1Center2Right)
 {
     QApplication::processEvents();
     emit requestAddText(text, showframe, alignment_0Left1Center2Right, 0.15, 0.75, 0.5, 0.85, "NDC");
     QApplication::processEvents();
 }
+*/
+void AGraphWin_SI::addText(QString text, bool showframe, int alignment_0Left1Center2Right)
+{
+    const QVariantMap result = GraphWindow->executeGuiOperation(
+        [window = GraphWindow, text, showframe, alignment_0Left1Center2Right]() -> QVariantMap
+        {
+            window->addTextPanel(text, showframe, alignment_0Left1Center2Right,
+                                 0.15, 0.75, 0.5, 0.85, "NDC");
+            return QVariantMap();
+        });
 
+    const QString error = result.value("error").toString();
+    if (!error.isEmpty()) abort(error);
+}
+
+/*
 void AGraphWin_SI::addTextAtScreenXY(QString text, bool Showframe, int Alignment_0Left1Center2Right, double x1, double y1, double x2, double y2)
 {
     QApplication::processEvents();
     emit requestAddText(text, Showframe, Alignment_0Left1Center2Right, x1, y1, x2, y2, "NDC");
     QApplication::processEvents();
 }
+*/
+void AGraphWin_SI::addTextAtScreenXY(QString text, bool Showframe, int Alignment_0Left1Center2Right,
+                                     double x1, double y1, double x2, double y2)
+{
+    const QVariantMap result = GraphWindow->executeGuiOperation(
+        [window = GraphWindow, text, Showframe, Alignment_0Left1Center2Right,
+         x1, y1, x2, y2]() -> QVariantMap
+        {
+            window->addTextPanel(text, Showframe, Alignment_0Left1Center2Right,
+                                 x1, y1, x2, y2, "NDC");
+            return QVariantMap();
+        });
 
+    const QString error = result.value("error").toString();
+    if (!error.isEmpty()) abort(error);
+}
+
+/*
 void AGraphWin_SI::addTextAtXY(QString text, bool Showframe, int Alignment_0Left1Center2Right, double x1, double y1, double x2, double y2)
 {
     QApplication::processEvents();
     emit requestAddText(text, Showframe, Alignment_0Left1Center2Right, x1, y1, x2, y2, "BR");
     QApplication::processEvents();
+}
+*/
+void AGraphWin_SI::addTextAtXY(QString text, bool Showframe, int Alignment_0Left1Center2Right,
+                               double x1, double y1, double x2, double y2)
+{
+    const QVariantMap result = GraphWindow->executeGuiOperation(
+        [window = GraphWindow, text, Showframe, Alignment_0Left1Center2Right,
+         x1, y1, x2, y2]() -> QVariantMap
+        {
+            window->addTextPanel(text, Showframe, Alignment_0Left1Center2Right,
+                                 x1, y1, x2, y2, "BR");
+            return QVariantMap();
+        });
+
+    const QString error = result.value("error").toString();
+    if (!error.isEmpty()) abort(error);
 }
 
 /*
@@ -168,11 +217,26 @@ void AGraphWin_SI::addLine(double x1, double y1, double x2, double y2, int color
     if (!error.isEmpty()) abort(error);
 }
 
+/*
 void AGraphWin_SI::addArrow(double x1, double y1, double x2, double y2, int color, int width, int style)
 {
     QApplication::processEvents();
     emit requestAddArrow(x1, y1, x2, y2, color, width, style);
     QApplication::processEvents();
+}
+*/
+void AGraphWin_SI::addArrow(double x1, double y1, double x2, double y2,
+                            int color, int width, int style)
+{
+    const QVariantMap result = GraphWindow->executeGuiOperation(
+        [window = GraphWindow, x1, y1, x2, y2, color, width, style]() -> QVariantMap
+        {
+            window->addArrow(x1, y1, x2, y2, color, width, style);
+            return QVariantMap();
+        });
+
+    const QString error = result.value("error").toString();
+    if (!error.isEmpty()) abort(error);
 }
 
 void AGraphWin_SI::addToBasket(QString title, QString parentGroup)
@@ -239,6 +303,7 @@ void AGraphWin_SI::show3D(QString castorFileName)
     emit requestShow3D(castorFileName);
 }
 
+/*
 QVariantList AGraphWin_SI::getAxisRanges()
 {
     QVariantList vl;
@@ -260,6 +325,43 @@ QVariantList AGraphWin_SI::getAxisRanges()
     if (ok1 && ok2) vl.push_back( QVariantList{min, max} );
 
     return vl;
+}
+*/
+QVariantList AGraphWin_SI::getAxisRanges()
+{
+    const QVariantMap result = GraphWindow->executeGuiOperation(
+        [window = GraphWindow]() -> QVariantMap
+        {
+            QVariantList vl;
+            bool ok1, ok2;
+            double min = 0;
+            double max = 0;
+
+            min = window->getMinX(&ok1);
+            max = window->getMaxX(&ok2);
+            if (ok1 && ok2) vl.push_back(QVariantList{min, max});
+
+            min = window->getMinY(&ok1);
+            max = window->getMaxY(&ok2);
+            if (ok1 && ok2) vl.push_back(QVariantList{min, max});
+
+            min = window->getMinZ(&ok1);
+            max = window->getMaxZ(&ok2);
+            if (ok1 && ok2) vl.push_back(QVariantList{min, max});
+
+            QVariantMap answer;
+            answer.insert("value", QVariant(vl));
+            return answer;
+        });
+
+    const QString error = result.value("error").toString();
+    if (!error.isEmpty())
+    {
+        abort(error);
+        return QVariantList();
+    }
+
+    return result.value("value").toList();
 }
 
 #include "TObject.h"
