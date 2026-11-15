@@ -2327,7 +2327,9 @@ void AGraphWindow::onBasketCustomContextMenuRequested(const QPoint & pos)
         if (fileName.isEmpty()) return;
 
         if (QFileInfo(fileName).suffix().isEmpty()) fileName += ".root";
-        Basket->saveBasket(fileName);
+        //Basket->saveBasket(fileName);
+        const QString err = Basket->saveBasket(fileName);
+        if (!err.isEmpty()) guitools::message(err, this);
     }
     else if (selectedItem == saveGroupA)
     {
@@ -2344,8 +2346,13 @@ void AGraphWindow::onBasketCustomContextMenuRequested(const QPoint & pos)
         const QString fileName = guitools::dialogLoadFile(this, "Append all from a basket file", "Root files (*.root)");
         if (!fileName.isEmpty())
         {
-            QString err = Basket->appendBasket(fileName);
-            if (!err.isEmpty()) guitools::message(err, this);
+            const QString err = Basket->appendBasket(fileName);
+            //if (!err.isEmpty()) guitools::message(err, this);
+            if (!err.isEmpty())
+            {
+                guitools::message(err, this);
+                return;
+            }
             updateBasketGUI();
             if (bDrawEmpty) switchToBasket(0);
         }
@@ -2356,8 +2363,30 @@ void AGraphWindow::onBasketCustomContextMenuRequested(const QPoint & pos)
         const QString fileName = guitools::dialogLoadFile(this, "Append all from a basket file as new group", "Root files (*.root)");
         if (fileName.isEmpty()) return;
 
+        /*
         QString err = Basket->appendBasketAsGroup(fileName, "ABCDEEEEE");
         if (!err.isEmpty()) guitools::message(err, this);
+        updateBasketGUI();
+        if (bDrawEmpty) switchToBasket(0);
+        */
+        bool ok;
+        const QString groupName = QInputDialog::getText(this, "Append basket as group", "New group name:",
+                                                        QLineEdit::Normal, "ImportedBasket", &ok).simplified();
+        if (!ok) return;
+
+        const QString nameError = ABasketManager::checkGroupName(groupName);
+        if (!nameError.isEmpty())
+        {
+            guitools::message(nameError, this);
+            return;
+        }
+
+        const QString err = Basket->appendBasketAsGroup(fileName, groupName);
+        if (!err.isEmpty())
+        {
+            guitools::message(err, this);
+            return;
+        }
         updateBasketGUI();
         if (bDrawEmpty) switchToBasket(0);
     }

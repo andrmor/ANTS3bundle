@@ -848,12 +848,12 @@ void ABasketManager::saveBasket(const QString & fileName)
 */
 
 #include <numeric>
-void ABasketManager::saveBasket(const QString & fileName)
+QString ABasketManager::saveBasket(const QString & fileName)
 {
     std::vector<int> indexes(Basket.size());
     std::iota(indexes.begin(), indexes.end(), 0);
 
-    writeBasketFile(fileName, indexes);
+    return writeBasketFile(fileName, indexes);
 }
 
 QString ABasketManager::saveGroup(int index, const QString & fileName)
@@ -1012,6 +1012,7 @@ QString ABasketManager::checkMultidrawsAreComplete(const std::vector<int> & inde
 
 QString ABasketManager::appendBasket(const QString & fileName)
 {
+    /*
     std::vector<ABasketItem> loadedBasket;
 
     QString error = loadBasketFromFile(fileName, loadedBasket);
@@ -1033,6 +1034,37 @@ QString ABasketManager::appendBasket(const QString & fileName)
         std::make_move_iterator(loadedBasket.begin()),
         std::make_move_iterator(loadedBasket.end()));
 
+    return "";
+    */
+    std::vector<ABasketItem> loadedBasket;
+    QString error = loadBasketFromFile(fileName, loadedBasket);
+    if (!error.isEmpty()) return error;
+
+    // Reject a malformed source hierarchy before attempting conflict repair.
+    error = validateBasket(loadedBasket);
+    if (!error.isEmpty())
+    {
+        for (ABasketItem & item : loadedBasket) item.clearObjects();
+        return "Invalid loaded basket: " + error;
+    }
+
+    if (loadedBasket.empty()) return "";
+
+    if (hasGroupPathConflicts(loadedBasket)) correctGroupPaths(loadedBasket);
+    const int offset = static_cast<int>(Basket.size());
+    shiftBasketMultidrawIndexes(loadedBasket, offset);
+
+    // Validate the complete destination before committing the change.
+    std::vector<ABasketItem> candidate = Basket;
+    candidate.insert(candidate.end(), loadedBasket.begin(), loadedBasket.end());
+    error = validateBasket(candidate);
+    if (!error.isEmpty())
+    {
+        for (ABasketItem & item : loadedBasket) item.clearObjects();
+        return "Cannot append basket: " + error;
+    }
+
+    Basket.swap(candidate);
     return "";
 }
 
@@ -1058,6 +1090,13 @@ QString ABasketManager::appendBasketAsGroup(const QString & fileName, const QStr
     QString error = loadBasketFromFile(fileName, loadedBasket);
     if (!error.isEmpty()) return error;
 
+    error = validateBasket(loadedBasket);
+    if (!error.isEmpty())
+    {
+        for (ABasketItem & item : loadedBasket) item.clearObjects();
+        return "Invalid loaded basket: " + error;
+    }
+
     // Create the new root-level group.
     ABasketItem group;
     group.Name = groupName;
@@ -1080,14 +1119,25 @@ QString ABasketManager::appendBasketAsGroup(const QString & fileName, const QStr
     shiftBasketMultidrawIndexes(loadedBasket, offset);
 
     // Append the new group and its complete subtree.
+    /*
     Basket.push_back(std::move(group));
-
     Basket.insert(
         Basket.end(),
         std::make_move_iterator(loadedBasket.begin()),
         std::make_move_iterator(loadedBasket.end()));
+    */
+    std::vector<ABasketItem> candidate = Basket;
+    candidate.push_back(group);
+    candidate.insert(candidate.end(), loadedBasket.begin(), loadedBasket.end());
+    error = validateBasket(candidate);
+    if (!error.isEmpty())
+    {
+        for (ABasketItem & item : loadedBasket) item.clearObjects();
+        return "Cannot append basket as group: " + error;
+    }
+    Basket.swap(candidate);
 
-    return "";
+    return QString();
 }
 
 QString ABasketManager::loadBasketFromFile(const QString & fileName, std::vector<ABasketItem> & loadedBasket) const
@@ -1165,9 +1215,11 @@ QString ABasketManager::loadBasketFromFile(const QString & fileName, std::vector
                 TKey * key = (TKey*)f.GetListOfKeys()->At(keyIndex);
                 keyIndex++;
 
-                tObj = key->ReadObj();
+                //tObj = key->ReadObj();
+                tObj = key ? key->ReadObj() : nullptr;
             }
 
+            /*
             if (tObj)
             {
                 ADrawObject drawObj(tObj, "");
@@ -1187,6 +1239,24 @@ QString ABasketManager::loadBasketFromFile(const QString & fileName, std::vector
                 TString nm( QString("Corrupted_%1").arg(name).toLatin1().data() );
                 tObj = new TNamed(nm, nm);
                 qWarning() << "Corrupted TKey in basket file" << fileName << " object:" << name;
+            }
+            */
+            if (!tObj)
+            {
+                TString nm(QString("Corrupted_%1").arg(name).toLatin1().data());
+                tObj = new TNamed(nm, nm);
+                qWarning() << "Corrupted TKey in basket file" << fileName << " object:" << name;
+            }
+
+            ADrawObject drawObj(tObj, "");
+            drawObj.readFromJson(js);
+            drawObjects.push_back(drawObj);
+
+            TLegend * legend = dynamic_cast<TLegend*>(tObj);
+            if (legend)
+            {
+                legendIndex = iDrawObj;
+                legendLinks = js["LegendLinks"].toArray();
             }
         }
 
@@ -1218,11 +1288,19 @@ QString ABasketManager::loadBasketFromFile(const QString & fileName, std::vector
             jstools::parseJson(itemJson, "IsGroup", item.isGroup);
             jstools::parseJson(itemJson, "Collapsed", item.Collapsed);
 
+            /*
             //item.DrawObjects = drawObjects;
             item.DrawObjects = std::move(drawObjects);
-
             if (!drawObjects.empty())
                 item.Type = drawObjects.front().Pointer->ClassName(); // "TList" if the first draw object is a list
+            */
+            item.DrawObjects = std::move(drawObjects);
+            if (!item.DrawObjects.empty())
+            {
+                const ADrawObject & first = item.DrawObjects.front();
+                if      (first.Multidraw) item.Type = "Multidraw";
+                else if (first.Pointer)   item.Type = first.Pointer->ClassName();
+            }
 
             //Basket.push_back(item);
             //loadedBasket.push_back(item);

@@ -42,7 +42,7 @@ public:
     QString             getParentGroup(int index) const;
     bool                isCollapsedGroup(int index) const; // wrong index or not a group --> returns true
 
-    void                saveBasket(const QString & fileName);
+    QString             saveBasket(const QString & fileName);
     QString             saveGroup(int index, const QString & fileName);
     QString             appendBasket(const QString & fileName);
     QString             appendBasketAsGroup(const QString & fileName, const QString & groupName);
