@@ -44,6 +44,12 @@
 #include <QCloseEvent>
 #include <QMouseEvent>
 #include <QMutexLocker>
+#include <QMetaObject>
+#include <QApplication>
+
+#include <memory>
+#include <utility>
+#include <exception>
 
 #include "TMath.h"
 #include "TGraph.h"
@@ -2010,6 +2016,7 @@ void AGraphWindow::drawLegend(double x1, double y1, double x2, double y2, QStrin
     redrawAll();
 }
 
+/*
 void AGraphWindow::configureLegendBorder(int color, int style, int size)
 {
     for (int i=0; i<DrawObjects.size(); i++)
@@ -2028,6 +2035,27 @@ void AGraphWindow::configureLegendBorder(int color, int style, int size)
         }
     }
     qDebug() << "Legend object was not found!";
+}
+*/
+bool AGraphWindow::configureLegendBorder(int color, int style, int size)
+{
+    for (int i = 0; i < DrawObjects.size(); i++)
+    {
+        if (!DrawObjects[i].Pointer) continue;
+        QString cn = DrawObjects[i].Pointer->ClassName();
+        if (cn == "TLegend")
+        {
+            TLegend * le = dynamic_cast<TLegend*>(DrawObjects[i].Pointer);
+            if (!le) continue;
+            le->SetLineColor(color);
+            le->SetLineStyle(style);
+            le->SetLineWidth(size);
+            redrawAll();
+            return true;
+        }
+    }
+    qDebug() << "Legend object was not found!";
+    return false;
 }
 
 void AGraphWindow::updateBasketGUI()
@@ -3892,3 +3920,68 @@ void AGraphWindow::on_pbAddToBasket_customContextMenuRequested(const QPoint &)
     updateBasketGUI();
 }
 
+QVariantMap AGraphWindow::executeGuiOperation(GuiOperation operation)
+{
+    if (!operation)
+    {
+        QVariantMap error;
+        error.insert("error", "Graph window: empty GUI operation");
+        return error;
+    }
+
+    // Execute either directly or on the GUI thread, returning a result map.
+    auto run = [operation = std::move(operation)]() -> QVariantMap
+    {
+        try
+        {
+            return operation();
+        }
+        catch (const std::exception & e)
+        {
+            QVariantMap error;
+            error.insert("error", QString("Graph window operation failed: %1").arg(e.what()));
+            return error;
+        }
+        catch (...)
+        {
+            QVariantMap error;
+            error.insert("error", "Graph window operation failed: unknown exception");
+            return error;
+        }
+    };
+
+    // A queued wait from within the GUI thread would deadlock.
+    if (QThread::currentThread() == thread()) return run();
+
+    struct RequestState
+    {
+        QVariantMap result;
+        std::atomic<bool> finished {false};
+    };
+    auto state = std::make_shared<RequestState>();
+
+    const bool queued = QMetaObject::invokeMethod(
+        this,
+        [state, run]()
+        {
+            state->result = run();
+            state->finished.store(true, std::memory_order_release);
+        },
+        Qt::QueuedConnection);
+
+    if (!queued)
+    {
+        QVariantMap error;
+        error.insert("error", "Graph window: could not queue GUI operation");
+        return error;
+    }
+
+    do
+    {
+        QThread::msleep(5);
+        QApplication::processEvents();
+    }
+    while (!state->finished.load(std::memory_order_acquire));
+
+    return state->result;
+}

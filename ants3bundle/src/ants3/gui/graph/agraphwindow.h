@@ -6,9 +6,11 @@
 #include "adrawtemplate.h"
 #include "apadproperties.h"
 
+#include <QVariant>
 #include <QVariantList>
 #include <QMutex>
 
+#include <functional>
 #include <atomic>
 #include <vector>
 
@@ -45,13 +47,17 @@ public:
     enum class ScriptBasketOperation { AddCurrent, AddGroup, Clear };
     QString executeScriptBasketOperation(ScriptBasketOperation operation, QString name = QString(), QString parentGroup = QString());
 
+    using GuiOperation = std::function<QVariantMap()>;
+    QVariantMap executeGuiOperation(GuiOperation operation);
+
 public slots:
     void onDrawRequest(TObject * obj, QString options, bool transferOwnership, bool focusWindow);
     void redrawAll();
     void addCurrentToBasket(QString name, QString parentGroup, bool toBottom = true);
     void addGroupToBasket(QString name, QString parentGroup);
     void drawLegend(double x1, double y1, double x2, double y2, QString title);
-    void configureLegendBorder(int color, int style, int size);
+    //void configureLegendBorder(int color, int style, int size);
+    bool configureLegendBorder(int color, int style, int size);
     void clearBasket();
     void saveBasket(QString fileName);
     void saveGraph(const QString & fileName);

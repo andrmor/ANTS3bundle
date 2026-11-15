@@ -57,10 +57,10 @@ AGraphWin_SI::AGraphWin_SI(AGraphWindow * graphWin) :
     connect(this, &AGraphWin_SI::requestSaveBasket,          graphWin, &AGraphWindow::saveBasket,            Qt::QueuedConnection);
     connect(this, &AGraphWin_SI::requestSetLog,              graphWin, &AGraphWindow::setLogScale,           Qt::QueuedConnection);
     connect(this, &AGraphWin_SI::requestSetStatPanelVisible, graphWin, &AGraphWindow::setStatPanelVisible,   Qt::QueuedConnection);
-    connect(this, &AGraphWin_SI::requestAddLegend,           graphWin, &AGraphWindow::drawLegend,            Qt::QueuedConnection);
-    connect(this, &AGraphWin_SI::requestSetLegendBorder,     graphWin, &AGraphWindow::configureLegendBorder, Qt::QueuedConnection);
+    //connect(this, &AGraphWin_SI::requestAddLegend,           graphWin, &AGraphWindow::drawLegend,            Qt::QueuedConnection);
+    //connect(this, &AGraphWin_SI::requestSetLegendBorder,     graphWin, &AGraphWindow::configureLegendBorder, Qt::QueuedConnection);
     connect(this, &AGraphWin_SI::requestAddText,             graphWin, &AGraphWindow::addTextPanel,          Qt::QueuedConnection);
-    connect(this, &AGraphWin_SI::requestAddLine,             graphWin, &AGraphWindow::addLine,               Qt::QueuedConnection);
+    //connect(this, &AGraphWin_SI::requestAddLine,             graphWin, &AGraphWindow::addLine,               Qt::QueuedConnection);
     connect(this, &AGraphWin_SI::requestAddArrow,            graphWin, &AGraphWindow::addArrow,              Qt::QueuedConnection);
 
 }
@@ -79,18 +79,51 @@ void AGraphWin_SI::setStatPanelVisible(bool flag)
     QApplication::processEvents();
 }
 
+/*
 void AGraphWin_SI::addLegend(double x1, double y1, double x2, double y2, QString title)
 {
     QApplication::processEvents();
     emit requestAddLegend(x1, y1, x2, y2, title);
     QApplication::processEvents();
 }
+*/
+void AGraphWin_SI::addLegend(double x1, double y1, double x2, double y2, QString title)
+{
+    const QVariantMap result = GraphWindow->executeGuiOperation(
+        [window = GraphWindow, x1, y1, x2, y2, title]() -> QVariantMap
+        {
+            window->drawLegend(x1, y1, x2, y2, title);
+            return QVariantMap();
+        });
 
+    const QString error = result.value("error").toString();
+    if (!error.isEmpty()) abort(error);
+}
+
+/*
 void AGraphWin_SI::setLegendBorder(int color, int style, int size)
 {
     QApplication::processEvents();
     emit requestSetLegendBorder(color, style, size);
     QApplication::processEvents();
+}
+*/
+void AGraphWin_SI::setLegendBorder(int color, int style, int size)
+{
+    const QVariantMap result = GraphWindow->executeGuiOperation(
+        [window = GraphWindow, color, style, size]() -> QVariantMap
+        {
+            if (!window->configureLegendBorder(color, style, size))
+            {
+                QVariantMap error;
+                error.insert("error", "Graph window: cannot configure legend border: no legend is displayed");
+                return error;
+            }
+            return QVariantMap();
+        });
+
+    const QString error = result.value("error").toString();
+    if (!error.isEmpty()) abort(error);
 }
 
 void AGraphWin_SI::addText(QString text, bool showframe, int alignment_0Left1Center2Right)
@@ -114,11 +147,25 @@ void AGraphWin_SI::addTextAtXY(QString text, bool Showframe, int Alignment_0Left
     QApplication::processEvents();
 }
 
+/*
 void AGraphWin_SI::addLine(double x1, double y1, double x2, double y2, int color, int width, int style)
 {
     QApplication::processEvents();
     emit requestAddLine(x1, y1, x2, y2, color, width, style);
     QApplication::processEvents();
+}
+*/
+void AGraphWin_SI::addLine(double x1, double y1, double x2, double y2, int color, int width, int style)
+{
+    const QVariantMap result = GraphWindow->executeGuiOperation(
+        [window = GraphWindow, x1, y1, x2, y2, color, width, style]() -> QVariantMap
+        {
+            window->addLine(x1, y1, x2, y2, color, width, style);
+            return QVariantMap();
+        });
+
+    const QString error = result.value("error").toString();
+    if (!error.isEmpty()) abort(error);
 }
 
 void AGraphWin_SI::addArrow(double x1, double y1, double x2, double y2, int color, int width, int style)
