@@ -43,13 +43,14 @@
 #include <QThread>
 #include <QCloseEvent>
 #include <QMouseEvent>
-#include <QMutexLocker>
+/// #include <QMutexLocker>
 #include <QMetaObject>
 #include <QApplication>
 
 #include <memory>
 #include <utility>
 #include <exception>
+#include <atomic>
 
 #include "TMath.h"
 #include "TGraph.h"
@@ -128,7 +129,7 @@ AGraphWindow::AGraphWindow(QWidget * parent) :
 #endif
     connect(this, &AGraphWindow::requestLocalDrawObject,      this, &AGraphWindow::processScriptDrawRequest,     Qt::QueuedConnection);
         // !!!*** TODO: similarly to the above, modify draw tree from script
-    connect(this, &AGraphWindow::requestLocalBasketOperation, this, &AGraphWindow::processScriptBasketOperation, Qt::QueuedConnection);
+    /// connect(this, &AGraphWindow::requestLocalBasketOperation, this, &AGraphWindow::processScriptBasketOperation, Qt::QueuedConnection);
 
     //input boxes format validators
     QDoubleValidator* dv = new QDoubleValidator(this);
@@ -1252,6 +1253,7 @@ void AGraphWindow::onDrawRequest(TObject * obj, QString options, bool transferOw
     lwBasket->clearFocus();
 }
 
+/* ///
 QString AGraphWindow::executeScriptBasketOperation(ScriptBasketOperation operation, QString name, QString parentGroup)
 {
     const int code = static_cast<int>(operation);
@@ -1274,13 +1276,34 @@ QString AGraphWindow::executeScriptBasketOperation(ScriptBasketOperation operati
 
     return BasketScriptError;
 }
+*/ ///
 
+QString AGraphWindow::executeScriptBasketOperation(ScriptBasketOperation operation, QString name, QString parentGroup)
+{
+    const QVariantMap result = executeGuiOperation(
+        [window = this, operation, name, parentGroup]() -> QVariantMap
+        {
+            const QString error = window->performScriptBasketOperation(
+                static_cast<int>(operation), name, parentGroup);
+
+            if (error.isEmpty()) return QVariantMap();
+
+            QVariantMap answer;
+            answer.insert("error", error);
+            return answer;
+        });
+
+    return result.value("error").toString();
+}
+
+/* ///
 void AGraphWindow::processScriptBasketOperation(int operation, QString name, QString parentGroup)
 {
     // Queued slot runs in the GUI thread; publish result before completion.
     BasketScriptError = performScriptBasketOperation(operation, name, parentGroup);
     BasketScriptPending.store(false, std::memory_order_release);
 }
+*/ ///
 
 QString AGraphWindow::performScriptBasketOperation(int operation, const QString & name, const QString & parentGroup)
 {

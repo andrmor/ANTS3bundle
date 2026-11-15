@@ -8,10 +8,10 @@
 
 #include <QVariant>
 #include <QVariantList>
-#include <QMutex>
+/// #include <QMutex>
 
 #include <functional>
-#include <atomic>
+/// #include <atomic>
 #include <vector>
 
 class AGraphRasterWindow;
@@ -108,7 +108,7 @@ private slots:
     void onScriptDrawRequest(TObject * obj, QString options, bool fFocus);      // these two work together (QueuedConnection to enable calls from another thread)
     void onScriptDrawCollectionRequest(std::vector<std::pair<TObject*, QString>> objectsAndOptions, bool fFocus);      // these two work together (QueuedConnection to enable calls from another thread)
     void processScriptDrawRequest(TObject * obj, QString options, bool fFocus); // these two work together (QueuedConnection to enable calls from another thread)
-    void processScriptBasketOperation(int operation, QString name, QString parentGroup);
+    /// void processScriptBasketOperation(int operation, QString name, QString parentGroup);
     // !!!*** next needs serious refactor! Old comment: similarly to two above, modify draw tree from script
     bool onScriptDrawTree(TTree * tree, QString what, QString cond, QString how,
                           QVariantList binsAndRanges = QVariantList(), QVariantList markersAndLines = QVariantList(), QString * result = nullptr);
@@ -261,9 +261,9 @@ private:
     bool ColdStart                = true;
     int  DrawFinished             = 0;  // 0 or <0: draw is finished, can be initialized to >1 for multidraw
 
-    QMutex            BasketScriptMutex;
-    std::atomic<bool> BasketScriptPending {false};
-    QString           BasketScriptError;
+    /// QMutex            BasketScriptMutex;
+    /// std::atomic<bool> BasketScriptPending {false};
+    /// QString           BasketScriptError;
 
     double xmin, xmax, ymin, ymax, zmin, zmax;
 
@@ -340,7 +340,7 @@ private:
 
 signals:
     void requestLocalDrawObject(TObject *obj, QString options, bool fFocus);
-    void requestLocalBasketOperation(int operation, QString name, QString parentGroup);
+    /// void requestLocalBasketOperation(int operation, QString name, QString parentGroup);
 };
 
 #endif // AGRAPHWINDOW_H
