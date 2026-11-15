@@ -52,7 +52,7 @@ public:
     void                appendRootHistGraphs(const QString & fileName);
 
     QString             reorder(std::vector<int> & indexes, int indexTo, const QString & destinationParent);
-    void                moveLastBasketItemToGroup(const QString & parentGroup, bool toBottom); // triggers reorder  // !!!*** return QString error
+    QString             moveLastBasketItemToGroup(const QString & parentGroup, bool toBottom); // triggers reorder
 
     QString             mergeHistograms(const std::vector<int> & indexes);
 
@@ -63,6 +63,7 @@ public:
     QString             joinPath(const QString & parentGroup, const QString & thisGroupName) const; // !!!*** sync with getFullGroupName (maybe drop getFullGroupName?)
 
     QString             validateBasket() const;
+    QString             validateBasket(const std::vector<ABasketItem> & basket) const;
 
 private:
     std::vector<ABasketItem> Basket;

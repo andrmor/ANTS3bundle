@@ -258,6 +258,11 @@ QString ABasketManager::addGroup(const QString & name, const QString & parentGro
         if (iBasketIndex < 0 || iBasketIndex >= static_cast<int>(Basket.size()))
             return "Invalid basket index for addGroup";
 
+    const QString nameError = checkGroupName(name);
+    if (!nameError.isEmpty()) return nameError;
+    const QString fullPath = joinPath(parentGroup, name);
+    if (groupExists(fullPath)) return "Group already exists: " + fullPath;
+
     int parentIndex = -1;
     if (!parentGroup.isEmpty())
     {
@@ -2243,12 +2248,15 @@ QString ABasketManager::reorder(std::vector<int> & indexes, int indexTo, const Q
         }
     }
 
+    const QString error = validateBasket(newBasket);
+    if (!error.isEmpty()) return "Reorder rejected: " + error;
+
     // Commit
     Basket.swap(newBasket);
     return QString();
 }
 
-
+/*
 void ABasketManager::moveLastBasketItemToGroup(const QString & parentGroup, bool toBottom)
 {
     if (Basket.empty()) return;
@@ -2289,6 +2297,47 @@ void ABasketManager::moveLastBasketItemToGroup(const QString & parentGroup, bool
         }
     }
     // else already the last
+}
+*/
+QString ABasketManager::moveLastBasketItemToGroup(const QString & parentGroup, bool toBottom)
+{
+    if (Basket.empty()) return "Basket is empty";
+    const int lastIndex = static_cast<int>(Basket.size()) - 1;
+    std::vector<int> indexes(1, lastIndex);
+
+    if (parentGroup.isEmpty())
+    {
+        if (toBottom || lastIndex == 0) return QString();
+        return reorder(indexes, 0, parentGroup);
+    }
+
+    const int parentIndex = findGroup(parentGroup);
+    if (parentIndex == -1) return "Group not found: " + parentGroup;
+
+    if (!toBottom)
+    {
+        if (parentIndex + 1 == lastIndex)
+        {
+            Basket.back().ParentGroup = parentGroup;
+            return QString();
+        }
+        return reorder(indexes, parentIndex + 1, parentGroup);
+    }
+
+    const QString prefix = parentGroup + "/";
+    int iTo = parentIndex + 1;
+    while (iTo < lastIndex)
+    {
+        const QString & currentParent = Basket[iTo].ParentGroup;
+        if (currentParent != parentGroup && !currentParent.startsWith(prefix)) break;
+        ++iTo;
+    }
+    if (iTo == lastIndex)
+    {
+        Basket.back().ParentGroup = parentGroup;
+        return QString();
+    }
+    return reorder(indexes, iTo, parentGroup);
 }
 
 #include "aroothistappenders.h"
@@ -2401,14 +2450,19 @@ bool ABasketManager::isInsideGroup(const QString & path, const QString & group) 
 
 QString ABasketManager::validateBasket() const
 {
-    const int size = static_cast<int>(Basket.size());
+    return validateBasket(Basket);
+}
+
+QString ABasketManager::validateBasket(const std::vector<ABasketItem> & basket) const
+{
+    const int size = static_cast<int>(basket.size());
 
     QSet<QString> groupPaths;
     std::vector<QString> activeGroups;
 
     for (int i = 0; i < size; i++)
     {
-        const ABasketItem & item = Basket[i];
+        const ABasketItem & item = basket[i];
 
         // 1. Validate the parent group and hierarchy ordering.
         // Pop groups whose subtrees have ended.
@@ -2453,7 +2507,7 @@ QString ABasketManager::validateBasket() const
                 if (basketIndex < 0 || basketIndex >= size)
                     return QString("Basket entry %1, DrawObject %2: Multidraw references invalid basket index %3.").arg(i).arg(j).arg(basketIndex);
 
-                if (Basket[basketIndex].isGroup)
+                if (basket[basketIndex].isGroup)
                     return QString("Basket entry %1, DrawObject %2: Multidraw references group at basket index %3.").arg(i).arg(j).arg(basketIndex);
 
                 if (usedIndexes.contains(basketIndex))

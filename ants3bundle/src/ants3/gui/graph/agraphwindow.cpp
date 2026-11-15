@@ -1313,8 +1313,9 @@ QString AGraphWindow::performScriptBasketOperation(int operation, const QString 
         if (DrawObjects.empty()) return "Basket: no graphical objects are currently displayed";
         // ABasketManager::getGroupNames() includes empty string for the root.
         if (!Basket->getGroupNames().contains(parentGroup)) return QString("Basket: requested group '%1' not found").arg(parentGroup);
-        addCurrentToBasket(name, parentGroup, true);
-        return QString();
+        //addCurrentToBasket(name, parentGroup, true);
+        //return QString();
+        return addCurrentToBasket(name, parentGroup, true);
 
     case ScriptBasketOperation::AddGroup:
     {
@@ -1998,9 +1999,12 @@ void AGraphWindow::on_pbAddToBasket_clicked()
                                          name, &ok);
     if (!ok || text.isEmpty()) return;
 
-    addCurrentToBasket(text, "", true);
+    //addCurrentToBasket(text, "", true);
+    const QString error = addCurrentToBasket(text, "", true);
+    if (!error.isEmpty()) guitools::message(error, this);
 }
 
+/*
 void AGraphWindow::addCurrentToBasket(QString name, QString parentGroup, bool toBottom)
 {
     if (DrawObjects.empty()) return;
@@ -2011,6 +2015,26 @@ void AGraphWindow::addCurrentToBasket(QString name, QString parentGroup, bool to
 
     ui->actionToggle_Explorer_Basket->setChecked(true);
     updateBasketGUI();
+}
+*/
+QString AGraphWindow::addCurrentToBasket(QString name, QString parentGroup, bool toBottom)
+{
+    if (DrawObjects.empty()) return "Basket: no graphical objects are currently displayed";
+    updateLogScaleFlags(DrawObjects);
+    Basket->add(name.simplified(), DrawObjects);
+
+    const QString error = Basket->moveLastBasketItemToGroup(parentGroup, toBottom);
+    if (!error.isEmpty())
+    {
+        const QString removeError = Basket->remove({Basket->size() - 1});
+        if (!removeError.isEmpty())
+            return error + " (also failed to remove new item: " + removeError + ")";
+        return error;
+    }
+
+    ui->actionToggle_Explorer_Basket->setChecked(true);
+    updateBasketGUI();
+    return QString();
 }
 
 void AGraphWindow::addGroupToBasket(QString name, QString parentGroup)
@@ -2497,7 +2521,8 @@ void AGraphWindow::onBasketAction_AddGroup(int iBasketIndex, bool isGroup)
         if (isGroup)
         {
             parentGroup = Basket->joinPath(Basket->getParentGroup(iBasketIndex), Basket->getName(iBasketIndex));
-            insertRow = iBasketIndex + 1;
+            //insertRow = iBasketIndex + 1;
+            insertRow = iBasketIndex; // addGroup() ALREADY increments the index
         }
         else
         {
@@ -3939,8 +3964,10 @@ void AGraphWindow::on_pbAddToBasket_customContextMenuRequested(const QPoint &)
     bool toBot = dia.isBottom();
     QString title = dia.getTitle();
 
-    addCurrentToBasket(title, toGroup, toBot);
-    updateBasketGUI();
+    //addCurrentToBasket(title, toGroup, toBot);
+    //updateBasketGUI();
+    const QString error = addCurrentToBasket(title, toGroup, toBot); // already calls updateBasketGUI()
+    if (!error.isEmpty()) guitools::message(error, this);
 }
 
 QVariantMap AGraphWindow::executeGuiOperation(GuiOperation operation)
