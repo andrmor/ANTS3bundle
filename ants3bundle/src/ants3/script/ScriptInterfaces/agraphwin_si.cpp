@@ -51,9 +51,9 @@ AGraphWin_SI::AGraphWin_SI(AGraphWindow * graphWin) :
     connect(this, &AGraphWin_SI::requestShow3D, GraphWindow, &AGraphWindow::show3D, Qt::QueuedConnection);
 
     // the rest of the methods to look like that:
-    connect(this, &AGraphWin_SI::requestAddToBasket,         graphWin, &AGraphWindow::addCurrentToBasket,    Qt::QueuedConnection);
-    connect(this, &AGraphWin_SI::requestAddGroupToBasket,    graphWin, &AGraphWindow::addGroupToBasket,      Qt::QueuedConnection);
-    connect(this, &AGraphWin_SI::requestClearBasket,         graphWin, &AGraphWindow::clearBasket,           Qt::QueuedConnection);
+    //connect(this, &AGraphWin_SI::requestAddToBasket,         graphWin, &AGraphWindow::addCurrentToBasket,    Qt::QueuedConnection);
+    //connect(this, &AGraphWin_SI::requestAddGroupToBasket,    graphWin, &AGraphWindow::addGroupToBasket,      Qt::QueuedConnection);
+    //connect(this, &AGraphWin_SI::requestClearBasket,         graphWin, &AGraphWindow::clearBasket,           Qt::QueuedConnection);
     connect(this, &AGraphWin_SI::requestSaveBasket,          graphWin, &AGraphWindow::saveBasket,            Qt::QueuedConnection);
     connect(this, &AGraphWin_SI::requestSetLog,              graphWin, &AGraphWindow::setLogScale,           Qt::QueuedConnection);
     connect(this, &AGraphWin_SI::requestSetStatPanelVisible, graphWin, &AGraphWindow::setStatPanelVisible,   Qt::QueuedConnection);
@@ -130,13 +130,18 @@ void AGraphWin_SI::addArrow(double x1, double y1, double x2, double y2, int colo
 
 void AGraphWin_SI::addToBasket(QString title, QString parentGroup)
 {
+    /*
     QApplication::processEvents();
     emit requestAddToBasket(title, parentGroup);
     QApplication::processEvents();
+    */
+    const QString err = GraphWindow->executeScriptBasketOperation(AGraphWindow::ScriptBasketOperation::AddCurrent, title, parentGroup);
+    if (!err.isEmpty()) abort(err);
 }
 
 void AGraphWin_SI::addGroupToBasket(QString name, QString parentGroup)
 {
+    /*
     QString err = GraphWindow->checkCanAddGroup(name, parentGroup);
     if (!err.isEmpty())
     {
@@ -147,13 +152,20 @@ void AGraphWin_SI::addGroupToBasket(QString name, QString parentGroup)
     QApplication::processEvents();
     emit requestAddGroupToBasket(name, parentGroup);
     QApplication::processEvents();
+    */
+    const QString err = GraphWindow->executeScriptBasketOperation(AGraphWindow::ScriptBasketOperation::AddGroup, name, parentGroup);
+    if (!err.isEmpty()) abort(err);
 }
 
 void AGraphWin_SI::clearBasket()
 {
+    /*
     QApplication::processEvents();
     emit requestClearBasket();
     QApplication::processEvents();
+    */
+    const QString err = GraphWindow->executeScriptBasketOperation(AGraphWindow::ScriptBasketOperation::Clear);
+    if (!err.isEmpty()) abort(err);
 }
 
 void AGraphWin_SI::saveBasket(QString fileName)

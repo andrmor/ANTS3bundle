@@ -47,9 +47,9 @@ public slots:
 signals:
     void requestShow3D(QString fileName, bool keepSettings = false);
 
-    void requestAddToBasket(QString title, QString parentGroup, bool toBottom = true);
-    void requestAddGroupToBasket(QString name, QString parentGroup);
-    void requestClearBasket();
+    //void requestAddToBasket(QString title, QString parentGroup, bool toBottom = true);
+    //void requestAddGroupToBasket(QString name, QString parentGroup);
+    //void requestClearBasket();
     void requestSaveBasket(QString fileName);
     void requestSetLog(bool Xaxis, bool Yaxis);
     void requestSetStatPanelVisible(bool flag);

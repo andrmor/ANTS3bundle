@@ -43,6 +43,7 @@
 #include <QThread>
 #include <QCloseEvent>
 #include <QMouseEvent>
+#include <QMutexLocker>
 
 #include "TMath.h"
 #include "TGraph.h"
@@ -119,8 +120,9 @@ AGraphWindow::AGraphWindow(QWidget * parent) :
 #ifdef ANTS3_PYTHON
     connectScriptUnitDrawRequests(AScriptHub::getInstance().getPythonManager().getInterfaces());
 #endif
-    connect(this, &AGraphWindow::requestLocalDrawObject, this, &AGraphWindow::processScriptDrawRequest, Qt::QueuedConnection);
-    // !!!*** TODO: similarly to the above, modify draw tree from script
+    connect(this, &AGraphWindow::requestLocalDrawObject,      this, &AGraphWindow::processScriptDrawRequest,     Qt::QueuedConnection);
+        // !!!*** TODO: similarly to the above, modify draw tree from script
+    connect(this, &AGraphWindow::requestLocalBasketOperation, this, &AGraphWindow::processScriptBasketOperation, Qt::QueuedConnection);
 
     //input boxes format validators
     QDoubleValidator* dv = new QDoubleValidator(this);
@@ -1242,6 +1244,67 @@ void AGraphWindow::onDrawRequest(TObject * obj, QString options, bool transferOw
         draw(obj, options, true);
 
     lwBasket->clearFocus();
+}
+
+QString AGraphWindow::executeScriptBasketOperation(ScriptBasketOperation operation, QString name, QString parentGroup)
+{
+    const int code = static_cast<int>(operation);
+
+    // Guard against queue-and-wait deadlock from the GUI thread.
+    if (QThread::currentThread() == thread()) return performScriptBasketOperation(code, name, parentGroup);
+
+    // Serialize requests that share completion and error state.
+    QMutexLocker locker(&BasketScriptMutex);
+    BasketScriptError.clear();
+    BasketScriptPending.store(true, std::memory_order_relaxed);
+    emit requestLocalBasketOperation(code, name, parentGroup);
+
+    do
+    {
+        QThread::msleep(100);
+        QApplication::processEvents();
+    }
+    while (BasketScriptPending.load(std::memory_order_acquire));
+
+    return BasketScriptError;
+}
+
+void AGraphWindow::processScriptBasketOperation(int operation, QString name, QString parentGroup)
+{
+    // Queued slot runs in the GUI thread; publish result before completion.
+    BasketScriptError = performScriptBasketOperation(operation, name, parentGroup);
+    BasketScriptPending.store(false, std::memory_order_release);
+}
+
+QString AGraphWindow::performScriptBasketOperation(int operation, const QString & name, const QString & parentGroup)
+{
+    switch (static_cast<ScriptBasketOperation>(operation))
+    {
+    case ScriptBasketOperation::AddCurrent:
+        if (DrawObjects.empty()) return "Basket: no graphical objects are currently displayed";
+        // ABasketManager::getGroupNames() includes empty string for the root.
+        if (!Basket->getGroupNames().contains(parentGroup)) return QString("Basket: requested group '%1' not found").arg(parentGroup);
+        addCurrentToBasket(name, parentGroup, true);
+        return QString();
+
+    case ScriptBasketOperation::AddGroup:
+    {
+        const QString groupName = name.simplified();
+        const QString destination = parentGroup.simplified();
+        QString error = checkCanAddGroup(groupName, destination);
+        if (!error.isEmpty()) return error;
+        error = Basket->addGroup(groupName, destination, -1);
+        if (!error.isEmpty()) return error;
+        ui->actionToggle_Explorer_Basket->setChecked(true);
+        updateBasketGUI();
+        return QString();
+    }
+
+    case ScriptBasketOperation::Clear:
+        clearBasket();
+        return QString();
+    }
+    return "Basket: unknown scripting operation";
 }
 
 void AGraphWindow::onScriptDrawRequest(TObject * obj, QString options, bool fFocus)

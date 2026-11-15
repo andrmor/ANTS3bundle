@@ -7,7 +7,9 @@
 #include "apadproperties.h"
 
 #include <QVariantList>
+#include <QMutex>
 
+#include <atomic>
 #include <vector>
 
 class AGraphRasterWindow;
@@ -39,6 +41,9 @@ public:
     ~AGraphWindow();
 
     void draw(TObject * obj, QString options, bool update = true); // always registers obj (becomes the owner)!
+
+    enum class ScriptBasketOperation { AddCurrent, AddGroup, Clear };
+    QString executeScriptBasketOperation(ScriptBasketOperation operation, QString name = QString(), QString parentGroup = QString());
 
 public slots:
     void onDrawRequest(TObject * obj, QString options, bool transferOwnership, bool focusWindow);
@@ -97,6 +102,7 @@ private slots:
     void onScriptDrawRequest(TObject * obj, QString options, bool fFocus);      // these two work together (QueuedConnection to enable calls from another thread)
     void onScriptDrawCollectionRequest(std::vector<std::pair<TObject*, QString>> objectsAndOptions, bool fFocus);      // these two work together (QueuedConnection to enable calls from another thread)
     void processScriptDrawRequest(TObject * obj, QString options, bool fFocus); // these two work together (QueuedConnection to enable calls from another thread)
+    void processScriptBasketOperation(int operation, QString name, QString parentGroup);
     // !!!*** next needs serious refactor! Old comment: similarly to two above, modify draw tree from script
     bool onScriptDrawTree(TTree * tree, QString what, QString cond, QString how,
                           QVariantList binsAndRanges = QVariantList(), QVariantList markersAndLines = QVariantList(), QString * result = nullptr);
@@ -249,6 +255,10 @@ private:
     bool ColdStart                = true;
     int  DrawFinished             = 0;  // 0 or <0: draw is finished, can be initialized to >1 for multidraw
 
+    QMutex            BasketScriptMutex;
+    std::atomic<bool> BasketScriptPending {false};
+    QString           BasketScriptError;
+
     double xmin, xmax, ymin, ymax, zmin, zmax;
 
     // Multidraw
@@ -320,8 +330,11 @@ private:
 
     void onBasketAction_AddGroup(int iBasketIndex, bool isGroup);
 
+    QString performScriptBasketOperation(int operation, const QString & name, const QString & parentGroup);
+
 signals:
     void requestLocalDrawObject(TObject *obj, QString options, bool fFocus);
+    void requestLocalBasketOperation(int operation, QString name, QString parentGroup);
 };
 
 #endif // AGRAPHWINDOW_H
