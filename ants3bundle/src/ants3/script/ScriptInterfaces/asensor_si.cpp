@@ -10,13 +10,13 @@ ASensor_SI::ASensor_SI() :
 
 int ASensor_SI::countSensors()
 {
-    if (AScriptHub::getInstance().abortIfHubAccessBlocked(Lang)) return 0;
+    if (AScriptHub::getInstance().abortIfJsonNotApplied(Lang)) return 0;
     return SensHub.countSensors();
 }
 
 int ASensor_SI::countModels()
 {
-    if (AScriptHub::getInstance().abortIfHubAccessBlocked(Lang)) return 0;
+    if (AScriptHub::getInstance().abortIfJsonNotApplied(Lang)) return 0;
     return SensHub.countModels();
 }
 
@@ -24,7 +24,7 @@ QVariantList ASensor_SI::getGains()
 {
     QVariantList vl;
 
-    if (AScriptHub::getInstance().abortIfHubAccessBlocked(Lang)) return vl;
+    if (AScriptHub::getInstance().abortIfJsonNotApplied(Lang)) return vl;
 
     for (double gain : SensHub.SensorGains)
         vl.push_back(gain);
@@ -34,7 +34,7 @@ QVariantList ASensor_SI::getGains()
 
 void ASensor_SI::setGains(QVariantList gains)
 {
-    if (AScriptHub::getInstance().abortIfHubAccessBlocked(Lang)) return;
+    if (AScriptHub::getInstance().abortIfJsonNotApplied(Lang)) return;
 
     if (gains.size() != SensHub.countSensors())
     {
@@ -47,21 +47,21 @@ void ASensor_SI::setGains(QVariantList gains)
     for (int i = 0; i < gains.size(); i++)
         SensHub.SensorGains.push_back(gains[i].toDouble());
 
-    AScriptHub::getInstance().registerHubsModified_JsonNotYetUpdated(true);
+    AScriptHub::getInstance().markHubsModified();
 }
 
 void ASensor_SI::disableCustomModelAssignment()
 {
-    if (AScriptHub::getInstance().abortIfHubAccessBlocked(Lang)) return;
+    if (AScriptHub::getInstance().abortIfJsonNotApplied(Lang)) return;
 
     SensHub.CustomModelAssignmentEnabled = false;
     SensHub.CustomModelAssignmentArray.clear();
-    AScriptHub::getInstance().registerHubsModified_JsonNotYetUpdated(true);
+    AScriptHub::getInstance().markHubsModified();
 }
 
 void ASensor_SI::enableCustomModelAssignment(QVariantList sensorModels)
 {
-    if (AScriptHub::getInstance().abortIfHubAccessBlocked(Lang)) return;
+    if (AScriptHub::getInstance().abortIfJsonNotApplied(Lang)) return;
 
     std::vector<int> models;
     for (int i = 0; i < sensorModels.size(); i++)
@@ -78,15 +78,15 @@ void ASensor_SI::enableCustomModelAssignment(QVariantList sensorModels)
 
     SensHub.CustomModelAssignmentEnabled = true;
     SensHub.CustomModelAssignmentArray = models;
-    AScriptHub::getInstance().registerHubsModified_JsonNotYetUpdated(true);
+    AScriptHub::getInstance().markHubsModified();
 }
 
 int ASensor_SI::newModel()
 {
-    if (AScriptHub::getInstance().abortIfHubAccessBlocked(Lang)) return 0;
+    if (AScriptHub::getInstance().abortIfJsonNotApplied(Lang)) return 0;
 
     int iModel = SensHub.addNewModel();
-    AScriptHub::getInstance().registerHubsModified_JsonNotYetUpdated(true);
+    AScriptHub::getInstance().markHubsModified();
     return iModel;
 }
 
@@ -98,10 +98,10 @@ int ASensor_SI::cloneModel(int iModel)
         return 0;
     }
 
-    if (AScriptHub::getInstance().abortIfHubAccessBlocked(Lang)) return 0;
+    if (AScriptHub::getInstance().abortIfJsonNotApplied(Lang)) return 0;
 
     iModel = SensHub.cloneModel(iModel);
-    AScriptHub::getInstance().registerHubsModified_JsonNotYetUpdated(true);
+    AScriptHub::getInstance().markHubsModified();
     return iModel;
 }
 
@@ -114,9 +114,9 @@ void ASensor_SI::setPDE(int iModel, double effective_PDE)
         return;
     }
 
-    if (AScriptHub::getInstance().abortIfHubAccessBlocked(Lang)) return;
+    if (AScriptHub::getInstance().abortIfJsonNotApplied(Lang)) return;
     model->PDE_effective = effective_PDE;
-    AScriptHub::getInstance().registerHubsModified_JsonNotYetUpdated(true);
+    AScriptHub::getInstance().markHubsModified();
 }
 
 void ASensor_SI::setPDE_spectral(int iModel, QVariantList arWaveAndPDE)
@@ -128,7 +128,7 @@ void ASensor_SI::setPDE_spectral(int iModel, QVariantList arWaveAndPDE)
         return;
     }
 
-    if (AScriptHub::getInstance().abortIfHubAccessBlocked(Lang)) return;
+    if (AScriptHub::getInstance().abortIfJsonNotApplied(Lang)) return;
 
     std::vector<std::pair<double,double>> data;
     const size_t size = arWaveAndPDE.size();
@@ -161,7 +161,7 @@ void ASensor_SI::setPDE_spectral(int iModel, QVariantList arWaveAndPDE)
     }
 
     model->PDE_spectral = data;
-    AScriptHub::getInstance().registerHubsModified_JsonNotYetUpdated(true);
+    AScriptHub::getInstance().markHubsModified();
 }
 
 void ASensor_SI::setAngularFactors(int iModel, QVariantList arAngleAndFactor)
@@ -173,7 +173,7 @@ void ASensor_SI::setAngularFactors(int iModel, QVariantList arAngleAndFactor)
         return;
     }
 
-    if (AScriptHub::getInstance().abortIfHubAccessBlocked(Lang)) return;
+    if (AScriptHub::getInstance().abortIfJsonNotApplied(Lang)) return;
 
     std::vector<std::pair<double,double>> data;
     const size_t size = arAngleAndFactor.size();
@@ -206,7 +206,7 @@ void ASensor_SI::setAngularFactors(int iModel, QVariantList arAngleAndFactor)
     }
 
     model->AngularFactors = data;
-    AScriptHub::getInstance().registerHubsModified_JsonNotYetUpdated(true);
+    AScriptHub::getInstance().markHubsModified();
 }
 
 void ASensor_SI::setArearFactors(int iModel, QVariantList arFactorMatrix, double stepX, double stepY)
@@ -218,7 +218,7 @@ void ASensor_SI::setArearFactors(int iModel, QVariantList arFactorMatrix, double
         return;
     }
 
-    if (AScriptHub::getInstance().abortIfHubAccessBlocked(Lang)) return;
+    if (AScriptHub::getInstance().abortIfJsonNotApplied(Lang)) return;
 
     std::vector<std::vector<double>> data;
     const size_t size = arFactorMatrix.size();
@@ -250,14 +250,14 @@ void ASensor_SI::setArearFactors(int iModel, QVariantList arFactorMatrix, double
     model->AreaFactors = data;
     model->StepX = stepX;
     model->StepY = stepY;
-    AScriptHub::getInstance().registerHubsModified_JsonNotYetUpdated(true);
+    AScriptHub::getInstance().markHubsModified();
 }
 
 QVariantList ASensor_SI::getSensorPositions()
 {
     QVariantList vl;
 
-    if (AScriptHub::getInstance().abortIfHubAccessBlocked(Lang)) return vl;
+    if (AScriptHub::getInstance().abortIfJsonNotApplied(Lang)) return vl;
 
     const ASensorHub & hub = ASensorHub::getConstInstance();
     const int num = hub.countSensors();

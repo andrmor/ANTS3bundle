@@ -43,8 +43,7 @@ bool AConfig_SI::load(QString FileName)
     if (err.isEmpty())
     {
         // json and hubs are synchronized
-        AScriptHub::getInstance().registerJsonModified_HubsNotYetUpdated(false);
-        AScriptHub::getInstance().registerHubsModified_JsonNotYetUpdated(false);
+        AScriptHub::getInstance().markConfigSynchronized();
         return true;
     }
 
@@ -54,7 +53,7 @@ bool AConfig_SI::load(QString FileName)
 
 bool AConfig_SI::save(QString FileName)
 {
-    AScriptHub::getInstance().copyHubsToJsonConfig();
+    AScriptHub::getInstance().syncJsonFromHubs();
 
     QString err = Config.save(FileName);
     if (err.isEmpty()) return true;
@@ -64,7 +63,7 @@ bool AConfig_SI::save(QString FileName)
 
 QVariantMap AConfig_SI::getConfig()
 {
-    AScriptHub::getInstance().copyHubsToJsonConfig();
+    AScriptHub::getInstance().syncJsonFromHubs();
 
     return Config.JSON.toVariantMap();
 }
@@ -83,8 +82,7 @@ bool AConfig_SI::setConfig(QVariantMap ConfigObject)
     if (err.isEmpty())
     {
         // json and hubs are synchronized
-        AScriptHub::getInstance().registerJsonModified_HubsNotYetUpdated(false);
-        AScriptHub::getInstance().registerHubsModified_JsonNotYetUpdated(false);
+        AScriptHub::getInstance().markConfigSynchronized();
         return true;
     }
 
@@ -101,7 +99,7 @@ bool AConfig_SI::replace(QString Key, QVariant Value)
         return false;
     }
 
-    AScriptHub::getInstance().copyHubsToJsonConfig();
+    AScriptHub::getInstance().syncJsonFromHubs();
 
     LastError = "";
     QString type = Value.typeName();
@@ -161,7 +159,7 @@ bool AConfig_SI::replace(QString Key, QVariant Value)
     bool ok = modifyJsonValue(Config.JSON, Key, jv);
     if (ok)
     {
-        AScriptHub::getInstance().registerJsonModified_HubsNotYetUpdated(true);
+        AScriptHub::getInstance().markJsonModified();
         return true;
     }
 
@@ -171,7 +169,7 @@ bool AConfig_SI::replace(QString Key, QVariant Value)
 
 QVariant AConfig_SI::getKeyValue(QString Key)
 {
-    AScriptHub::getInstance().copyHubsToJsonConfig();
+    AScriptHub::getInstance().syncJsonFromHubs();
 
     LastError.clear();
 
@@ -270,13 +268,22 @@ void AConfig_SI::updateConfig()
         return;
     }
 
+    AScriptHub & scriptHub = AScriptHub::getInstance();
+
+    // Preserve direct modifications to configuration hubs.
+    scriptHub.syncJsonFromHubs();
+
     AGeometryHub::getInstance().ScriptUpdatedGeoManager = true;
 
     QString err = Config.updateConfigFromJSON(false);
 
-    AScriptHub::getInstance().registerJsonModified_HubsNotYetUpdated(false);
+    if (!err.isEmpty())
+    {
+        abort("Error in configuration JSON:\n" + err);
+        return;
+    }
 
-    if (!err.isEmpty()) abort("Error in configuration JSON:\n" + err);
+    scriptHub.markConfigSynchronized();
 }
 
 bool AConfig_SI::keyToNameAndIndex(QString Key, QString & Name, std::vector<int> & Indexes)
