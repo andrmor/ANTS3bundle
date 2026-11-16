@@ -53,10 +53,17 @@ bool AConfig_SI::load(QString FileName)
 
 bool AConfig_SI::save(QString FileName)
 {
-    AScriptHub::getInstance().syncJsonFromHubs();
+    AScriptHub & sh = AScriptHub::getInstance();
+
+    // Do not discard JSON modifications which have not been applied.
+    if (sh.abortIfJsonNotApplied(Lang)) return false;
+
+    // Preserve direct modifications to the configuration hubs.
+    sh.syncJsonFromHubs();
 
     QString err = Config.save(FileName);
     if (err.isEmpty()) return true;
+
     abort("Failed to save config to file " + FileName + " -->\n" + err);
     return false;
 }

@@ -21,7 +21,13 @@ APhotonSim_SI::~APhotonSim_SI()
 
 void APhotonSim_SI::simulate()
 {
-    if (AScriptHub::getInstance().abortIfJsonNotApplied(Lang)) return;
+    AScriptHub & sh = AScriptHub::getInstance();
+
+    // Simulation is forbidden if JSON changes have not been applied.
+    if (sh.abortIfJsonNotApplied(Lang)) return;
+
+    // Ensure JSON reflects any direct hub modifications.
+    sh.syncJsonFromHubs();
 
     bool ok = SimMan.simulate(-1);
 

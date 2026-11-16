@@ -77,7 +77,13 @@ AParticleSim_SI::AParticleSim_SI() :
 #include "ageometryhub.h"
 void AParticleSim_SI::simulate()
 {
-    if (AScriptHub::getInstance().abortIfJsonNotApplied(Lang)) return;
+    AScriptHub & sh = AScriptHub::getInstance();
+
+    // Simulation is forbidden if JSON changes have not been applied.
+    if (sh.abortIfJsonNotApplied(Lang)) return;
+
+    // Direct hub modifications are valid and must be reflected in JSON.
+    sh.syncJsonFromHubs();
 
     SimMan.simulate();
 
