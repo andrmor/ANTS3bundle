@@ -41,7 +41,13 @@ void APhotonSim_SI::simulate()
 
 void APhotonSim_SI::setSeed(double seed)
 {
+    AScriptHub & sh = AScriptHub::getInstance();
+
+    if (sh.abortIfJsonNotApplied(Lang)) return;
+
     SimMan.setSeed(seed);
+
+    sh.markHubsModified();
 }
 
 int APhotonSim_SI::countMonitors()

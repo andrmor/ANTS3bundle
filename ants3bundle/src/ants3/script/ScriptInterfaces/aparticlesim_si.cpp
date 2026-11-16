@@ -96,7 +96,13 @@ void AParticleSim_SI::simulate()
 #include "aparticlesimsettings.h"
 void AParticleSim_SI::setSeed(double seed)
 {
+    AScriptHub & sh = AScriptHub::getInstance();
+
+    if (sh.abortIfJsonNotApplied(Lang)) return;
+
     SimMan.SimSet.RunSet.Seed = seed;
+
+    sh.markHubsModified();
 }
 
 int AParticleSim_SI::countCalorimeters()
