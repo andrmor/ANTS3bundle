@@ -90,7 +90,7 @@ private:
     void clearModel();
     void updateLrfOrigin(LRF * lrf, double x, double y);
 
-    bool checkModel();
+    bool checkModel();  // CHECKS FOR hubs json sync!
     bool checkModelAndSensor(int iSensor);
     bool checkModelAndGroup(int iGroup);
 

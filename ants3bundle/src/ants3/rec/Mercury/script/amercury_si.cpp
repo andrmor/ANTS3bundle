@@ -73,6 +73,8 @@ void AMercury_si::abortRun()
 
 void AMercury_si::newReconstructor(QString type, int numThreads)
 {
+    if (AScriptHub::getInstance().abortIfJsonNotApplied(Lang)) return;
+
     if (!LRHub.Model)
     {
         abort("LRF model was not created yet");
