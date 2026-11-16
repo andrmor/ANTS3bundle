@@ -70,7 +70,7 @@ AGeo_SI::AGeo_SI() :
     Help["getGeoConstValue"] = "Get value of the GeoConstant identified by the provided name";
     Help["setGeoConstValue"] = "Set value of the GeoConstant identified by the provided name to the new value.\n"
                                "Note that if an expression was previously defined for that GeoConstant, it will be cleared.\n"
-                               "Calling this method also updates this corresponding record in the config json, so calling config.updateConfig() later is safe.";
+                               "The modification is preserved if config.updateConfig() is subsequently called but by itself this method does not require it.\n";
 }
 
 AGeo_SI::~AGeo_SI()
@@ -1704,6 +1704,8 @@ void setLightSensorRecursive(AGeoObject * obj, const QString & objectNameStartsW
 
 void AGeo_SI::setLightSensorByName(QString objectNameStartsWith, int iModel)
 {
+    if (AScriptHub::getInstance().abortIfJsonNotApplied(Lang)) return;
+
     for (AGeoObject * obj : GeoObjects)
         if (obj->Name.startsWith(objectNameStartsWith))
         {
@@ -1711,7 +1713,6 @@ void AGeo_SI::setLightSensorByName(QString objectNameStartsWith, int iModel)
         }
 
     // assuming there will be some
-    if (AScriptHub::getInstance().abortIfJsonNotApplied(Lang)) return;
     setLightSensorRecursive(AGeometryHub::getInstance().World, objectNameStartsWith, iModel);
     AScriptHub::getInstance().markHubsModified();
 }
@@ -1768,6 +1769,8 @@ void setScintRecursive(AGeoObject * obj, const QString & objectNameStartsWith)
 
 void AGeo_SI::setScintillatorByName(QString objectNameStartsWith)
 {
+    if (AScriptHub::getInstance().abortIfJsonNotApplied(Lang)) return;
+
     for (AGeoObject * obj : GeoObjects)
         if (obj->Name.startsWith(objectNameStartsWith))
         {
@@ -1775,7 +1778,6 @@ void AGeo_SI::setScintillatorByName(QString objectNameStartsWith)
         }
 
     // assuming there will be some
-    if (AScriptHub::getInstance().abortIfJsonNotApplied(Lang)) return;
     setScintRecursive(AGeometryHub::getInstance().World, objectNameStartsWith);
     AScriptHub::getInstance().markHubsModified();
 }

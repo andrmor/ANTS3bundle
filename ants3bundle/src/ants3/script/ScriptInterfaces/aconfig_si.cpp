@@ -14,13 +14,12 @@ AConfig_SI::AConfig_SI() :
 {
     Description = "Read/change/save/load configuration\nToggle 'Config' button to access the configuration tree";
 
-    Help["load"]  = "Load configuration from file (.json).\n"
-                    "Before starting simulations, use updateConfig() method to take the config changes into effect!";
+    Help["load"]  = "Load configuration from file (.json). Update config call is not needed after calling this method.";
     Help["save"]  = "Save configuration to file (.json).";
 
     Help["getConfig"]  = "Get the entire configuration as an object";
     Help["setConfig"]  = "Set the entire configuration from an object.\n"
-                         "Before starting simulations, use updateConfig() method to take the config changes into effect!";
+                         "updateConfig() call is not needed after calling this method";
 
     Help["replace"] = "Replace the value of the Key in the config with the new one. Key value can be basic types (bool, double, string) as well as arrays and objects.\n"
                       "IMPORTANT: Use updateConfig() method to apply the changes in the config before starting simulation!";

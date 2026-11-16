@@ -593,8 +593,6 @@ void ALightResponse_SI::fitResponse(QVariantList floodSignals, QVariantList floo
             return;
         }
 
-    AScriptHub::getInstance().markHubsModified();
-
     // preparing fitting data
     const qsizetype numSens = LRHub.Model->GetSensorCount();
     std::vector<std::array<double, 3>> vecPositions(numEv);
@@ -630,6 +628,8 @@ void ALightResponse_SI::fitResponse(QVariantList floodSignals, QVariantList floo
     if (estimateGains) gainEstimator = new GainEstimator(LRHub.Model);
 
     LRHub.Model->ClearAllFitData();
+
+    AScriptHub::getInstance().markHubsModified();
 
     // adding fitting data
     std::vector<double> vecOneSensorSignal(numEv);
