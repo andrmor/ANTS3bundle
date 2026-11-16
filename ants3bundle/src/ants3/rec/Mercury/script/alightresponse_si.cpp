@@ -457,18 +457,19 @@ void ALightResponse_SI::computeGroupGains(int iGroup)
         sumGain += 1.0/relGains[i];
     sumGain /= size;
 
-    AScriptHub::getInstance().markHubsModified();
-
     for (size_t i = 0; i < size; i++)
         LRHub.Model->SetGain(groupVec[i], 1.0/relGains[i]/sumGain);
+
+    AScriptHub::getInstance().markHubsModified();
 }
 
 void ALightResponse_SI::fitSensor(int iSensor)
 {
     if (!checkModelAndSensor(iSensor)) return;
 
-    AScriptHub::getInstance().markHubsModified();
     LRHub.Model->FitSensor(iSensor);
+    AScriptHub::getInstance().markHubsModified();
+
     LRF * lrf = LRHub.Model->GetLRF(iSensor);
     if (!lrf || !lrf->isValid()) abort("Failed to fit LRF for sensor # " + QString::number(iSensor));
 }
@@ -477,8 +478,9 @@ void ALightResponse_SI::fitGroup(int iGroup)
 {
     if (!checkModelAndGroup(iGroup)) return;
 
-    AScriptHub::getInstance().markHubsModified();
     LRHub.Model->FitGroup(iGroup);
+    AScriptHub::getInstance().markHubsModified();
+
     LRF * lrf = LRHub.Model->GetGroupLRF(iGroup);
     if (!lrf || !lrf->isValid()) abort("Failed to fit LRF for sensor group # " + QString::number(iGroup));
 }
