@@ -1584,11 +1584,15 @@ void AGeo_SI::setLineProperties(QString objectName, int color, int width, int st
 
 void AGeo_SI::clearWorld()
 {
+    AScriptHub & sh = AScriptHub::getInstance();
+
+    if (sh.abortIfJsonNotApplied(Lang)) return;
+
     clearGeoObjects();
 
-    if (AScriptHub::getInstance().abortIfJsonNotApplied(Lang)) return;
-    AGeometryHub::getInstance().clearWorld();
-    AScriptHub::getInstance().markHubsModified();
+    GeoHub.clearWorld();
+
+    sh.markHubsModified();
 }
 
 void AGeo_SI::clearHosted(QString objectName)
@@ -1907,9 +1911,7 @@ void AGeo_SI::configurePhotonFunctional(QString modelName, QVariantMap configObj
 
 void AGeo_SI::configurePhotonFunctional(QString modelName, QVariantMap configObject, int index)
 {
-    if (AScriptHub::getInstance().abortIfJsonNotApplied(Lang)) return;
-    configurePhotonFunctional(modelName, configObject, index, index);
-    AScriptHub::getInstance().markHubsModified();
+    configurePhotonFunctional(modelName, configObject, index, index); // sync related things are there
 }
 
 int AGeo_SI::overrideUnconnectedLinkFunctionals()

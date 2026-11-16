@@ -59,6 +59,7 @@ void ASensor_SI::disableCustomModelAssignment()
     AScriptHub::getInstance().markHubsModified();
 }
 
+/*
 void ASensor_SI::enableCustomModelAssignment(QVariantList sensorModels)
 {
     if (AScriptHub::getInstance().abortIfJsonNotApplied(Lang)) return;
@@ -79,6 +80,35 @@ void ASensor_SI::enableCustomModelAssignment(QVariantList sensorModels)
     SensHub.CustomModelAssignmentEnabled = true;
     SensHub.CustomModelAssignmentArray = models;
     AScriptHub::getInstance().markHubsModified();
+}
+*/
+void ASensor_SI::enableCustomModelAssignment(QVariantList sensorModels)
+{
+    AScriptHub & sh = AScriptHub::getInstance();
+
+    if (sh.abortIfJsonNotApplied(Lang)) return;
+
+    std::vector<int> models;
+    models.reserve(sensorModels.size());
+
+    for (int i = 0; i < sensorModels.size(); i++)
+    {
+        bool ok;
+        int iModel = sensorModels[i].toInt(&ok);
+
+        if (!ok || iModel < 0 || iModel >= SensHub.countModels())
+        {
+            abort("Invalid sensor model index"); // !!!*** check if it is safe not to force set SensHub.CustomModelAssignmentEnabled to false here
+            return;
+        }
+
+        models.push_back(iModel);
+    }
+
+    SensHub.CustomModelAssignmentArray = models;
+    SensHub.CustomModelAssignmentEnabled = true;
+
+    sh.markHubsModified();
 }
 
 int ASensor_SI::newModel()
