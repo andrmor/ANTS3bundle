@@ -1640,29 +1640,39 @@ void AGeo_SI::setGeoConstValue(QString name, double value)
     AScriptHub::getInstance().markHubsModified(); // GC.updateInConfigJson(); it was a crutch before the new json-hubs system implemented
 }
 
-AGeoObject * AGeo_SI::findObject(const QString & Object)
+AGeoObject * AGeo_SI::findObject(const QString & Object, bool forModification)
 {
     AGeoObject * obj = nullptr;
+
+    // First search objects created during the current script.
     for (AGeoObject * o : GeoObjects)
+    {
         if (o->Name == Object)
         {
             obj = o;
             break;
         }
+    }
+
+    // Temporary objects are not yet part of the configuration hubs.
+    if (obj) return obj;
+
+    // Search the geometry hub.
+    obj = GeoHub.World->findObjectByName(Object);
 
     if (!obj)
     {
-        obj = AGeometryHub::getInstance().World->findObjectByName(Object);
-        if (!obj)
-        {
-            abort("Cannot find object " + Object);
-            return nullptr;
-        }
-
-        // assume the caller will do modifications to the hubs
-        if (AScriptHub::getInstance().abortIfJsonNotApplied(Lang)) return nullptr;
-        AScriptHub::getInstance().markHubsModified();
+        abort("Cannot find object " + Object);
+        return nullptr;
     }
+
+    AScriptHub & sh = AScriptHub::getInstance();
+
+    // Access to hubs is forbidden while JSON changes are pending.
+    if (sh.abortIfJsonNotApplied(Lang)) return nullptr;
+
+    // Register a potential modification only for setters.
+    if (forModification) sh.markHubsModified();
 
     return obj;
 }
@@ -1934,7 +1944,7 @@ QVariantMap AGeo_SI::getDefaultParticleAnalyzerProperties()
 
 QVariantMap AGeo_SI::getParticleAnalyzerProperties(QString objectName)
 {
-    AGeoObject * paObj = findObject(objectName);
+    AGeoObject * paObj = findObject(objectName, false);
     if (!paObj) return QVariantMap();
 
     AGeoParticleAnalyzer * pa = dynamic_cast<AGeoParticleAnalyzer*>(paObj->Role);
@@ -2124,6 +2134,11 @@ void AGeo_SI::updateGeometry(bool CheckOverlaps)
         }
     }
 
+    // The following operations transfer temporary objects into the
+    // configuration hub. Register the modification before starting,
+    // because an error may interrupt the transfer.
+    if (!GeoObjects.empty()) AScriptHub::getInstance().markHubsModified();
+
     //adding objects
     for (size_t i = 0; i < GeoObjects.size(); i++)
     {
@@ -2160,8 +2175,6 @@ void AGeo_SI::updateGeometry(bool CheckOverlaps)
             return;
         }
     }
-
-    AScriptHub::getInstance().markHubsModified();
 }
 
 void AGeo_SI::clearGeoObjects()
