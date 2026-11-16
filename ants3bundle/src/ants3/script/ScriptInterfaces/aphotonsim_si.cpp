@@ -21,7 +21,13 @@ APhotonSim_SI::~APhotonSim_SI()
 
 void APhotonSim_SI::simulate()
 {
-    if (AScriptHub::getInstance().abortIfHubAccessBlocked(Lang)) return;
+    AScriptHub & sh = AScriptHub::getInstance();
+
+    // Simulation is forbidden if JSON changes have not been applied.
+    if (sh.abortIfJsonNotApplied(Lang)) return;
+
+    // Ensure JSON reflects any direct hub modifications.
+    sh.syncJsonFromHubs();
 
     bool ok = SimMan.simulate(-1);
 
@@ -35,12 +41,18 @@ void APhotonSim_SI::simulate()
 
 void APhotonSim_SI::setSeed(double seed)
 {
+    AScriptHub & sh = AScriptHub::getInstance();
+
+    if (sh.abortIfJsonNotApplied(Lang)) return;
+
     SimMan.setSeed(seed);
+
+    sh.markHubsModified();
 }
 
 int APhotonSim_SI::countMonitors()
 {
-    if (AScriptHub::getInstance().abortIfHubAccessBlocked(Lang)) return 0;
+    if (AScriptHub::getInstance().abortIfJsonNotApplied(Lang)) return 0;
 
     const AMonitorHub & MonHub = AMonitorHub::getConstInstance();
     return MonHub.countMonitors(AMonitorHub::Photon);
@@ -48,7 +60,7 @@ int APhotonSim_SI::countMonitors()
 
 void APhotonSim_SI::loadMonitorData(QString fileName)
 {
-    if (AScriptHub::getInstance().abortIfHubAccessBlocked(Lang)) return;
+    if (AScriptHub::getInstance().abortIfJsonNotApplied(Lang)) return;
 
     AMonitorHub & MonHub = AMonitorHub::getInstance();
     if (MonHub.countMonitors(AMonitorHub::Photon) == 0)
@@ -84,7 +96,7 @@ QVariantList APhotonSim_SI::getMonitorGlobalPositionsAll()
 {
     QVariantList vl;
 
-    if (AScriptHub::getInstance().abortIfHubAccessBlocked(Lang)) return vl;
+    if (AScriptHub::getInstance().abortIfJsonNotApplied(Lang)) return vl;
 
     const AMonitorHub & MonHub = AMonitorHub::getConstInstance();
     for (const AMonitorData & md : MonHub.PhotonMonitors)
@@ -273,7 +285,7 @@ QVariantList APhotonSim_SI::getMonitorXY(int monitorIndex)
 #include "astatisticshub.h"
 void APhotonSim_SI::loadStatistics(QString fileName)
 {
-    if (AScriptHub::getInstance().abortIfHubAccessBlocked(Lang)) return;
+    if (AScriptHub::getInstance().abortIfJsonNotApplied(Lang)) return;
 
     QJsonObject json;
     bool ok = jstools::loadJsonFromFile(json, fileName);
@@ -292,7 +304,7 @@ QVariantList APhotonSim_SI::getStatistics_SensorAngular()
 {
     QVariantList vl;
 
-    if (AScriptHub::getInstance().abortIfHubAccessBlocked(Lang)) return vl;
+    if (AScriptHub::getInstance().abortIfJsonNotApplied(Lang)) return vl;
 
     APhotonStatistics & Stat = AStatisticsHub::getInstance().SimStat;
     if (!Stat.AngularDistr)

@@ -23,6 +23,13 @@ class Reconstructor;
     class APythonScriptManager;
 #endif
 
+enum class EConfigSyncState
+{
+    Synchronized,
+    JsonModified,
+    HubsModified
+};
+
 class AScriptHub : public QObject
 {
     Q_OBJECT
@@ -60,13 +67,19 @@ public:
 
     void aboutToQuit();
 
-    // if json was manipulated by config.replace(), and config.updateConfig() was not yet called, access to method dirtectly modifying hubs should be blocked
-    bool abortIfHubAccessBlocked(EScriptLanguage lang); // returns true if aborted
-    void registerJsonModified_HubsNotYetUpdated(bool flag); // set to true by config.replace()
-    // if hubs (config directly) was modified, json manipulation should be conducted after coping hubs to json (otherwise the chnages are lost) --> automatic, no warning
-    void copyHubsToJsonConfig();
-    void registerHubsModified_JsonNotYetUpdated(bool flag); // should be set to true by any method that manipulates hubs directly
-    // init related to these features:
+    // Configuration synchronization during script execution.
+    // JsonModified: JSON changes have not yet been applied to the hubs.
+    // HubsModified: direct hub changes have not yet been copied to JSON.
+
+    bool abortIfJsonNotApplied(EScriptLanguage lang);
+
+    void markJsonModified();
+    void markHubsModified();
+    void markConfigSynchronized();
+
+    void syncJsonFromHubs();
+
+    // Called at the beginning of script evaluation.
     void doBeforeScriptEval();
 
 public slots:
@@ -121,8 +134,7 @@ private:
     // used with queued calls from script to gui to wait for an operation to finish
     bool WaitingForTaskCompleted = false;
 
-    bool FlagHubsChanged = false;
-    bool FlagJsonChanged = false;
+    EConfigSyncState ConfigSyncState = EConfigSyncState::Synchronized;
 };
 
 #endif // ASCRIPTHUB_H

@@ -134,11 +134,15 @@ void ALightResponse_SI::newResponseModel(QVariantList sensorPositions)
         arSensPos[iSens] = {x, y};
     }
 
+    if (AScriptHub::getInstance().abortIfJsonNotApplied(Lang)) return;
+
     clearModel();
     LRHub.Model = new LRModel(numSens);
 
     for (size_t iSens = 0; iSens < numSens; iSens++)
         LRHub.Model->AddSensor(iSens, arSensPos[iSens].first, arSensPos[iSens].second);
+
+    AScriptHub::getInstance().markHubsModified();
 }
 
 void ALightResponse_SI::saveResponseModel(QString fileName)
@@ -151,11 +155,21 @@ void ALightResponse_SI::saveResponseModel(QString fileName)
 
 void ALightResponse_SI::loadResponseModel(QString fileName)
 {
-    clearModel();
+    if (AScriptHub::getInstance().abortIfJsonNotApplied(Lang)) return;
+
     QString jsonStr;
     bool ok = ftools::loadTextFromFile(jsonStr, fileName);
-    if (!ok) abort("Failed to load response from file: " + fileName);
-    else LRHub.Model = new LRModel(jsonStr.toLatin1().data());
+
+    if (!ok)
+    {
+        abort("Failed to load response from file: " + fileName);
+        return;
+    }
+
+    clearModel();
+    LRHub.Model = new LRModel(jsonStr.toLatin1().data());
+
+    AScriptHub::getInstance().markHubsModified();
 }
 
 void ALightResponse_SI::defineSensorGroups(QString type, int numNodes)
@@ -173,6 +187,8 @@ void ALightResponse_SI::defineSensorGroups(QString type, int numNodes)
         abort("Unknow groupping type! Available options are:\nCommon, ByRadius, Rectangle, Square, Hexagon and Polygon");
         return;
     }
+
+    AScriptHub::getInstance().markHubsModified();
 
     if (!DefaultLrf.isEmpty()) setLRF(DefaultLrf);
 }
@@ -368,6 +384,8 @@ void ALightResponse_SI::setLRF(QVariantMap lrf)
     }
 
     DefaultLrf = lrf;
+
+    AScriptHub::getInstance().markHubsModified();
 }
 
 
@@ -441,12 +459,17 @@ void ALightResponse_SI::computeGroupGains(int iGroup)
 
     for (size_t i = 0; i < size; i++)
         LRHub.Model->SetGain(groupVec[i], 1.0/relGains[i]/sumGain);
+
+    AScriptHub::getInstance().markHubsModified();
 }
 
 void ALightResponse_SI::fitSensor(int iSensor)
 {
     if (!checkModelAndSensor(iSensor)) return;
+
     LRHub.Model->FitSensor(iSensor);
+    AScriptHub::getInstance().markHubsModified();
+
     LRF * lrf = LRHub.Model->GetLRF(iSensor);
     if (!lrf || !lrf->isValid()) abort("Failed to fit LRF for sensor # " + QString::number(iSensor));
 }
@@ -454,7 +477,10 @@ void ALightResponse_SI::fitSensor(int iSensor)
 void ALightResponse_SI::fitGroup(int iGroup)
 {
     if (!checkModelAndGroup(iGroup)) return;
+
     LRHub.Model->FitGroup(iGroup);
+    AScriptHub::getInstance().markHubsModified();
+
     LRF * lrf = LRHub.Model->GetGroupLRF(iGroup);
     if (!lrf || !lrf->isValid()) abort("Failed to fit LRF for sensor group # " + QString::number(iGroup));
 }
@@ -567,8 +593,6 @@ void ALightResponse_SI::fitResponse(QVariantList floodSignals, QVariantList floo
             return;
         }
 
-    LRHub.Model->ClearAllFitData();
-
     // preparing fitting data
     const qsizetype numSens = LRHub.Model->GetSensorCount();
     std::vector<std::array<double, 3>> vecPositions(numEv);
@@ -602,6 +626,10 @@ void ALightResponse_SI::fitResponse(QVariantList floodSignals, QVariantList floo
     bool estimateGains = (LRHub.Model->GetGroupCount() > 0);
     GainEstimator * gainEstimator = nullptr;
     if (estimateGains) gainEstimator = new GainEstimator(LRHub.Model);
+
+    LRHub.Model->ClearAllFitData();
+
+    AScriptHub::getInstance().markHubsModified();
 
     // adding fitting data
     std::vector<double> vecOneSensorSignal(numEv);
@@ -665,16 +693,20 @@ void ALightResponse_SI::enableSensor(int iSensor, bool enableFlag)
 
     if (enableFlag) LRHub.Model->SetEnabled(iSensor);
     else            LRHub.Model->SetDisabled(iSensor);
+
+    AScriptHub::getInstance().markHubsModified();
 }
 
 int ALightResponse_SI::countSensors()
 {
+    if (AScriptHub::getInstance().abortIfJsonNotApplied(Lang)) return 0;
     if (LRHub.Model) return LRHub.Model->GetSensorCount();
     else return 0;
 }
 
 int ALightResponse_SI::countGroups()
 {
+    if (AScriptHub::getInstance().abortIfJsonNotApplied(Lang)) return 0;
     if (LRHub.Model) return LRHub.Model->GetGroupCount();
     else return 0;
 }
@@ -709,6 +741,8 @@ void ALightResponse_SI::setLrf_Sensor(int iSensor, QVariantMap lrf)
     if (formula) formula->InitVF();
 
     LRHub.Model->SetLRF(iSensor, lrfObject);
+
+    AScriptHub::getInstance().markHubsModified();
 }
 
 void ALightResponse_SI::setLrf_Group(int iGroup, QVariantMap lrf)
@@ -725,12 +759,15 @@ void ALightResponse_SI::setLrf_Group(int iGroup, QVariantMap lrf)
 
     updateLrfOrigin(lrfObject, LRHub.Model->GetGroupX(iGroup), LRHub.Model->GetGroupY(iGroup));
     LRHub.Model->SetGroupLRF(iGroup, lrfObject);
+
+    AScriptHub::getInstance().markHubsModified();
 }
 
 void ALightResponse_SI::setSensorGain(int iSensor, double gain)
 {
     if (!checkModelAndSensor(iSensor)) return;
     LRHub.Model->SetGain(iSensor, gain);
+    AScriptHub::getInstance().markHubsModified();
 }
 
 double ALightResponse_SI::getSensorGain(int iSensor)
@@ -741,12 +778,15 @@ double ALightResponse_SI::getSensorGain(int iSensor)
 
 double ALightResponse_SI::evaluateLrf(int iSensor, double x, double y, double z)
 {
+    if (AScriptHub::getInstance().abortIfJsonNotApplied(Lang)) return 0.0;
     if (LRHub.Model) return LRHub.Model->Eval(iSensor, x, y, z);
     else return 0;
 }
 
 double ALightResponse_SI::evaluateLrf(int iSensor, QVariantList xyz)
 {
+    if (AScriptHub::getInstance().abortIfJsonNotApplied(Lang)) return 0.0;
+
     if (xyz.length() != 3) return 0;
 
     double pos[3];
@@ -764,8 +804,12 @@ QString ALightResponse_SI::getModel()
 
 void ALightResponse_SI::setModel(QString jsonString)
 {
+    if (AScriptHub::getInstance().abortIfJsonNotApplied(Lang)) return;
+
     clearModel();
     LRHub.Model = new LRModel(jsonString.toLatin1().data());
+
+    AScriptHub::getInstance().markHubsModified();
 }
 
 // --- private methods ---
@@ -805,6 +849,8 @@ void ALightResponse_SI::updateLrfOrigin(LRF * lrf, double x, double y)
 
 bool ALightResponse_SI::checkModel()
 {
+    if (AScriptHub::getInstance().abortIfJsonNotApplied(Lang)) return false;
+
     if (!LRHub.Model)
     {
         abort("Model was not created yet!");
@@ -815,11 +861,8 @@ bool ALightResponse_SI::checkModel()
 
 bool ALightResponse_SI::checkModelAndSensor(int iSensor)
 {
-    if (!LRHub.Model)
-    {
-        abort("Model was not created yet!");
-        return false;
-    }
+    if (!checkModel()) return false;
+
     if (iSensor < 0 || iSensor >= LRHub.Model->GetSensorCount())
     {
         abort("Invalid sensor index: " + QString::number(iSensor));
@@ -830,16 +873,12 @@ bool ALightResponse_SI::checkModelAndSensor(int iSensor)
 
 bool ALightResponse_SI::checkModelAndGroup(int iGroup)
 {
-    if (!LRHub.Model)
-    {
-        abort("Model was not created yet!");
-        return false;
-    }
+    if (!checkModel()) return false;
+
     if (iGroup < 0 || iGroup >= LRHub.Model->GetGroupCount())
     {
         abort("Invalid sensor group index: " + QString::number(iGroup));
         return false;
     }
-
     return true;
 }

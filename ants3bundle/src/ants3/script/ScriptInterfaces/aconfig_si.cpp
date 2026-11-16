@@ -14,13 +14,12 @@ AConfig_SI::AConfig_SI() :
 {
     Description = "Read/change/save/load configuration\nToggle 'Config' button to access the configuration tree";
 
-    Help["load"]  = "Load configuration from file (.json).\n"
-                    "Before starting simulations, use updateConfig() method to take the config changes into effect!";
+    Help["load"]  = "Load configuration from file (.json). Update config call is not needed after calling this method.";
     Help["save"]  = "Save configuration to file (.json).";
 
     Help["getConfig"]  = "Get the entire configuration as an object";
     Help["setConfig"]  = "Set the entire configuration from an object.\n"
-                         "Before starting simulations, use updateConfig() method to take the config changes into effect!";
+                         "updateConfig() call is not needed after calling this method";
 
     Help["replace"] = "Replace the value of the Key in the config with the new one. Key value can be basic types (bool, double, string) as well as arrays and objects.\n"
                       "IMPORTANT: Use updateConfig() method to apply the changes in the config before starting simulation!";
@@ -43,8 +42,7 @@ bool AConfig_SI::load(QString FileName)
     if (err.isEmpty())
     {
         // json and hubs are synchronized
-        AScriptHub::getInstance().registerJsonModified_HubsNotYetUpdated(false);
-        AScriptHub::getInstance().registerHubsModified_JsonNotYetUpdated(false);
+        AScriptHub::getInstance().markConfigSynchronized();
         return true;
     }
 
@@ -54,17 +52,24 @@ bool AConfig_SI::load(QString FileName)
 
 bool AConfig_SI::save(QString FileName)
 {
-    AScriptHub::getInstance().copyHubsToJsonConfig();
+    AScriptHub & sh = AScriptHub::getInstance();
+
+    // Do not discard JSON modifications which have not been applied.
+    if (sh.abortIfJsonNotApplied(Lang)) return false;
+
+    // Preserve direct modifications to the configuration hubs.
+    sh.syncJsonFromHubs();
 
     QString err = Config.save(FileName);
     if (err.isEmpty()) return true;
+
     abort("Failed to save config to file " + FileName + " -->\n" + err);
     return false;
 }
 
 QVariantMap AConfig_SI::getConfig()
 {
-    AScriptHub::getInstance().copyHubsToJsonConfig();
+    AScriptHub::getInstance().syncJsonFromHubs();
 
     return Config.JSON.toVariantMap();
 }
@@ -83,8 +88,7 @@ bool AConfig_SI::setConfig(QVariantMap ConfigObject)
     if (err.isEmpty())
     {
         // json and hubs are synchronized
-        AScriptHub::getInstance().registerJsonModified_HubsNotYetUpdated(false);
-        AScriptHub::getInstance().registerHubsModified_JsonNotYetUpdated(false);
+        AScriptHub::getInstance().markConfigSynchronized();
         return true;
     }
 
@@ -101,7 +105,7 @@ bool AConfig_SI::replace(QString Key, QVariant Value)
         return false;
     }
 
-    AScriptHub::getInstance().copyHubsToJsonConfig();
+    AScriptHub::getInstance().syncJsonFromHubs();
 
     LastError = "";
     QString type = Value.typeName();
@@ -161,7 +165,7 @@ bool AConfig_SI::replace(QString Key, QVariant Value)
     bool ok = modifyJsonValue(Config.JSON, Key, jv);
     if (ok)
     {
-        AScriptHub::getInstance().registerJsonModified_HubsNotYetUpdated(true);
+        AScriptHub::getInstance().markJsonModified();
         return true;
     }
 
@@ -171,7 +175,7 @@ bool AConfig_SI::replace(QString Key, QVariant Value)
 
 QVariant AConfig_SI::getKeyValue(QString Key)
 {
-    AScriptHub::getInstance().copyHubsToJsonConfig();
+    AScriptHub::getInstance().syncJsonFromHubs();
 
     LastError.clear();
 
@@ -270,13 +274,22 @@ void AConfig_SI::updateConfig()
         return;
     }
 
+    AScriptHub & scriptHub = AScriptHub::getInstance();
+
+    // Preserve direct modifications to configuration hubs.
+    scriptHub.syncJsonFromHubs();
+
     AGeometryHub::getInstance().ScriptUpdatedGeoManager = true;
 
     QString err = Config.updateConfigFromJSON(false);
 
-    AScriptHub::getInstance().registerJsonModified_HubsNotYetUpdated(false);
+    if (!err.isEmpty())
+    {
+        abort("Error in configuration JSON:\n" + err);
+        return;
+    }
 
-    if (!err.isEmpty()) abort("Error in configuration JSON:\n" + err);
+    scriptHub.markConfigSynchronized();
 }
 
 bool AConfig_SI::keyToNameAndIndex(QString Key, QString & Name, std::vector<int> & Indexes)

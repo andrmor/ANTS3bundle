@@ -138,7 +138,7 @@ private:
     void clearGeoObjects();
     bool getSectionsPoly(const QVariantList & sections, std::vector<std::array<double, 3> > & vecSections);
 
-    AGeoObject * findObject(const QString & Object);
+    AGeoObject * findObject(const QString & Object, bool forModification = true);
     bool checkPosOri(QVariantList position, QVariantList orientation, std::array<double, 3> &pos, std::array<double, 3> &ori);
 };
 

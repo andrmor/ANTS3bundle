@@ -450,23 +450,21 @@ void AParticleSourceDialog::on_pbUpdateRecord_clicked()
 {
     LocalRec.Name = ui->leSourceName->text().toLatin1().data();
 
+    std::array<bool, 3> checkSizes = {true, true, true};
     switch (ui->cobGunSourceType->currentIndex())
     {
-    case 0 : LocalRec.Shape = AParticleSourceRecord_Standard::Point;     break;
-    case 1 : LocalRec.Shape = AParticleSourceRecord_Standard::Line;      break;
-    case 2 : LocalRec.Shape = AParticleSourceRecord_Standard::Rectangle; break;
-    case 3 : LocalRec.Shape = AParticleSourceRecord_Standard::Round;     break;
-    case 4 : LocalRec.Shape = AParticleSourceRecord_Standard::Box;       break;
-    case 5 : LocalRec.Shape = AParticleSourceRecord_Standard::Cylinder;  break;
-    case 6 : LocalRec.Shape = AParticleSourceRecord_Standard::Sphere;    break;
+    case 0 : LocalRec.Shape = AParticleSourceRecord_Standard::Point;     checkSizes = {false, false, false}; break;
+    case 1 : LocalRec.Shape = AParticleSourceRecord_Standard::Line;      checkSizes = {true, false,  false}; break;
+    case 2 : LocalRec.Shape = AParticleSourceRecord_Standard::Rectangle; checkSizes = {true, true, false};   break;
+    case 3 : LocalRec.Shape = AParticleSourceRecord_Standard::Round;     checkSizes = {true, false, false};  break;
+    case 4 : LocalRec.Shape = AParticleSourceRecord_Standard::Box;       checkSizes = {true, true, true};    break;
+    case 5 : LocalRec.Shape = AParticleSourceRecord_Standard::Cylinder;  checkSizes = {true, true, false};   break;
+    case 6 : LocalRec.Shape = AParticleSourceRecord_Standard::Sphere;    checkSizes = {true, false, false};  break;
     }
 
-        //LocalRec.Size1 = 0.5 * ui->ledGun1DSize->text().toDouble();
-    processGeoConstAwareEditFinished(ui->ledGun1DSize, LocalRec.Size1Str, LocalRec.Size1, "Size1", this, true, true, true);
-        //LocalRec.Size2 = 0.5 * ui->ledGun2DSize->text().toDouble();
-    processGeoConstAwareEditFinished(ui->ledGun2DSize, LocalRec.Size2Str, LocalRec.Size2, "Size2", this, true, true, true);
-        //LocalRec.Size3 = 0.5 * ui->ledGun3DSize->text().toDouble();
-    processGeoConstAwareEditFinished(ui->ledGun3DSize, LocalRec.Size3Str, LocalRec.Size3, "Size3", this, true, true, true);
+    if (checkSizes[0]) processGeoConstAwareEditFinished(ui->ledGun1DSize, LocalRec.Size1Str, LocalRec.Size1, "Size1", this, true, true, true);
+    if (checkSizes[1]) processGeoConstAwareEditFinished(ui->ledGun2DSize, LocalRec.Size2Str, LocalRec.Size2, "Size2", this, true, true, true);
+    if (checkSizes[2]) processGeoConstAwareEditFinished(ui->ledGun3DSize, LocalRec.Size3Str, LocalRec.Size3, "Size3", this, true, true, true);
 
     LocalRec.MaterialLimited = ui->cbSourceLimitmat->isChecked();
     LocalRec.LimtedToMatName = ui->leSourceLimitMaterial->text().toLatin1().data();

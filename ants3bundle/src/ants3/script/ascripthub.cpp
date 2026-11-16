@@ -36,6 +36,8 @@
 #include "alightresponse_si.h"
 #endif
 
+#include <QDebug>
+
 #include "TGeoManager.h"
 #include "TVirtualGeoTrack.h"
 #include "TGeoTrack.h"
@@ -265,40 +267,58 @@ void AScriptHub::aboutToQuit()
 #endif
 }
 
-void AScriptHub::registerJsonModified_HubsNotYetUpdated(bool flag)
+void AScriptHub::markJsonModified()
 {
-    FlagJsonChanged = flag;
-}
-
-bool AScriptHub::abortIfHubAccessBlocked(EScriptLanguage lang)
-{
-    if (FlagJsonChanged)
+    if (ConfigSyncState == EConfigSyncState::HubsModified)
     {
-        abort("Cannot directly manipulate config or start simulation:\nJson was modified, but updateConfig was not yet called.", lang);
-        return true;
+        qCritical("Cannot mark JSON modified: pending hub changes");
+        return;
     }
-    return false;
+
+    ConfigSyncState = EConfigSyncState::JsonModified;
 }
 
-void AScriptHub::registerHubsModified_JsonNotYetUpdated(bool flag)
+void AScriptHub::markHubsModified()
 {
-    FlagHubsChanged = flag;
+    if (ConfigSyncState == EConfigSyncState::JsonModified)
+    {
+        qCritical("Cannot mark hubs modified: pending JSON changes");
+        return;
+    }
+
+    ConfigSyncState = EConfigSyncState::HubsModified;
+}
+
+void AScriptHub::markConfigSynchronized()
+{
+    ConfigSyncState = EConfigSyncState::Synchronized;
+}
+
+bool AScriptHub::abortIfJsonNotApplied(EScriptLanguage lang)
+{
+    if (ConfigSyncState != EConfigSyncState::JsonModified)
+        return false;
+
+    abort("Configuration JSON has been modified, but config.updateConfig() has not been called.", lang);
+    return true;
 }
 
 #include "aconfig.h"
-void AScriptHub::copyHubsToJsonConfig()
+void AScriptHub::syncJsonFromHubs()
 {
-    if (!FlagHubsChanged) return;
+    if (ConfigSyncState != EConfigSyncState::HubsModified)
+        return;
 
     AConfig::getInstance().updateJSONfromConfig(false);
-    FlagHubsChanged = false;
+
+    ConfigSyncState = EConfigSyncState::Synchronized;
 }
 
 void AScriptHub::doBeforeScriptEval()
 {
-    FlagHubsChanged = false;
-    FlagJsonChanged = false;
+    ConfigSyncState = EConfigSyncState::Synchronized;
 }
+
 
 void AScriptHub::onGuiReportTaskCompleted()
 {
