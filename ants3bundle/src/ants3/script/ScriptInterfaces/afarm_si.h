@@ -18,6 +18,8 @@ public:
     AScriptInterface * cloneBase() const {return new AFarm_SI();}
 
 public slots:
+    int  countLocalCores();
+
     void clearNodes();
     void addNode(QString Name, QString Address, int Port, int Cores, double SpeedFactor = 1.0);
 

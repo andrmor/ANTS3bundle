@@ -294,6 +294,34 @@ void AGraphWin_SI::addGroupToBasket(QString name, QString parentGroup)
     if (!err.isEmpty()) abort(err);
 }
 
+bool AGraphWin_SI::isGroupExists(QString name)
+{
+    const QVariantMap result = GraphWindow->executeGuiOperation(
+        [window = GraphWindow, name]() -> QVariantMap
+        {
+            const bool exists = window->isBasketGroupExist(name);
+
+            QVariantMap answer;
+            answer.insert("value", exists);
+            return answer;
+        });
+
+    const QString error = result.value("error").toString();
+    if (!error.isEmpty())
+    {
+        abort(error);
+        return false;
+    }
+
+    const QVariant value = result.value("value");
+    if (!result.contains("value") || value.typeId() != QMetaType::Bool)
+    {
+        abort("Graph window: isBasketGroupExist returned an invalid result");
+        return false;
+    }
+    return value.toBool();
+}
+
 void AGraphWin_SI::clearBasket()
 {
     /*

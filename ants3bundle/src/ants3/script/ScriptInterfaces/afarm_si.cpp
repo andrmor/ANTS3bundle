@@ -1,7 +1,16 @@
 #include "afarm_si.h"
 #include "afarmhub.h"
 
-AFarm_SI::AFarm_SI() : AScriptInterface(), FarmHub(AFarmHub::getInstance()) {}
+AFarm_SI::AFarm_SI() :
+    AScriptInterface(), FarmHub(AFarmHub::getInstance())
+{
+    Help["countLocalNodes"] = "Return the user-defined number of local cores.";
+}
+
+int AFarm_SI::countLocalCores()
+{
+    return FarmHub.LocalProcesses;
+}
 
 void AFarm_SI::clearNodes()
 {

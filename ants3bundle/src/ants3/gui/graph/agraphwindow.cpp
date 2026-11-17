@@ -2044,6 +2044,12 @@ void AGraphWindow::addGroupToBasket(QString name, QString parentGroup)
     updateBasketGUI();
 }
 
+bool AGraphWindow::isBasketGroupExist(QString name)
+{
+    const QStringList groups = Basket->getGroupNames();
+    return groups.contains(name);
+}
+
 void AGraphWindow::updateLogScaleFlags(std::vector<ADrawObject> & drawObjects) const
 {
     for (ADrawObject & drObj : drawObjects)
