@@ -1922,7 +1922,7 @@ QString ABasketManager::validateBasketMove(int indexTo, const std::vector<int> &
         selected.insert(index);
     }
 
-    if (selected.contains(indexTo)) return "Invalid move: the destination cannot be part of the selection.";
+    //if (selected.contains(indexTo)) return "Invalid move: the destination cannot be part of the selection."; // not needed and sometimes blocks valid moves (e.g. empty basket on top, move all items inside)
 
     //const QString newPath = destinationPath(indexTo); // before it was "guessed" :)
 
