@@ -294,7 +294,7 @@ void AGraphWin_SI::addGroupToBasket(QString name, QString parentGroup)
     if (!err.isEmpty()) abort(err);
 }
 
-bool AGraphWin_SI::isGroupExists(QString name)
+bool AGraphWin_SI::isBasketGroupExists(QString name)
 {
     const QVariantMap result = GraphWindow->executeGuiOperation(
         [window = GraphWindow, name]() -> QVariantMap

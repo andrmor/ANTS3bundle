@@ -21,7 +21,7 @@ public:
 public slots:
     void addToBasket(QString title, QString parentGroup = QString());
     void addGroupToBasket(QString name, QString parentGroup = QString());
-    bool isGroupExists(QString name);
+    bool isBasketGroupExists(QString name);
     void clearBasket();
     void saveBasket(QString fileName);
 
