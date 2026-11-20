@@ -277,8 +277,11 @@ void ADrawExplorerWidget::showObjectContextMenu(const QPoint &pos, int index)
     Menu.addSeparator();
     QMenu * projectMenu   = Menu.addMenu("Projection"); projectMenu->setEnabled(Type.startsWith("TH2") || Type.startsWith("TH3"));
         QAction * projX      = projectMenu->addAction("X projection");
+        QAction * projXinv  = projectMenu->addAction("-X projection");
         QAction * projY      = projectMenu->addAction("Y projection");
+        QAction * projYinv   = projectMenu->addAction("-Y projection");
         QAction * projZ      = projectMenu->addAction("Z projection"); projZ->setVisible(Type.startsWith("TH3"));
+        QAction * projZinv   = projectMenu->addAction("-Z projection"); projZ->setVisible(Type.startsWith("TH3"));
         projectMenu->addSeparator();
         QAction * projCustom = projectMenu->addAction("Show projection tool");
 
@@ -358,9 +361,12 @@ void ADrawExplorerWidget::showObjectContextMenu(const QPoint &pos, int index)
     else if (si == shiftA)       shift(obj);
     else if (si == medianA)      median(obj);
     //else if (si == splineFitA)   splineFit(index);
-    else if (si == projX)        projection(obj, 0);
-    else if (si == projY)        projection(obj, 1);
-    else if (si == projZ)        projection(obj, 2);
+    else if (si == projX)        projection(obj, 0, false);
+    else if (si == projY)        projection(obj, 1, false);
+    else if (si == projZ)        projection(obj, 2, false);
+    else if (si == projXinv)     projection(obj, 0, true);
+    else if (si == projYinv)     projection(obj, 1, true);
+    else if (si == projZinv)     projection(obj, 2, true);
     else if (si == saveRootA)    saveRoot(obj);
     else if (si == saveTxtA)     saveAsTxt(obj, true);
     else if (si == saveEdgeA)    saveAsTxt(obj, false);
@@ -1774,7 +1780,8 @@ void ADrawExplorerWidget::median(ADrawObject &obj)
 }
 
 #include "TH3D.h"
-void ADrawExplorerWidget::projection(ADrawObject &obj, int axis)
+/*
+void ADrawExplorerWidget::projection(ADrawObject & obj, int axis, bool invert)
 {
     TH3 * h3 = dynamic_cast<TH3*>(obj.Pointer);
     if (h3)
@@ -1829,6 +1836,149 @@ void ADrawExplorerWidget::projection(ADrawObject &obj, int axis)
         GraphWindow.redrawAll();
     }
 }
+*/
+#include "TDirectory.h"
+#include "TProfile2D.h"
+#include "TString.h"
+#include <vector>
+namespace
+{
+// Bin edges of the axis; if mirror == true -> edges of the axis x -> -x (still ascending)
+// Works for both fixed and variable binning
+std::vector<double> axisEdges(const TAxis * a, bool mirror)
+{
+    const int n = a->GetNbins();
+    std::vector<double> e(n + 1);
+    for (int i = 0; i <= n; i++)
+        e[i] = mirror ? -a->GetBinUpEdge(n - i)    // GetBinUpEdge(0) == low edge of bin 1
+                      :  a->GetBinLowEdge(i + 1);
+    return e;
+}
+
+// also swaps underflow (0) <-> overflow (n+1)
+int mirroredBin(int bin, int nbins, bool mirror) { return mirror ? nbins + 1 - bin : bin; }
+
+TString mirroredTitle(const TAxis * a, bool mirror)
+{
+    TString t = a->GetTitle();
+    if (mirror && !t.IsNull()) t = "-" + t;
+    return t;
+}
+
+TH1D * makeMirroredTH1(const TH1 * h)
+{
+    TDirectory::TContext noDir(nullptr);   // do not register in gDirectory (avoids name clashes)
+
+    const TAxis * ax = h->GetXaxis();
+    const int n = ax->GetNbins();
+    const std::vector<double> edges = axisEdges(ax, true);
+
+    TH1D * m = new TH1D(TString(h->GetName()) + "_mirr", h->GetTitle(), n, edges.data());
+    m->Sumw2();
+    for (int b = 0; b <= n + 1; b++)
+    {
+        const int nb = mirroredBin(b, n, true);
+        m->SetBinContent(nb, h->GetBinContent(b));
+        m->SetBinError  (nb, h->GetBinError(b));
+    }
+    m->SetEntries(h->GetEntries());
+
+    m->GetXaxis()->SetTitle(mirroredTitle(ax, true));
+    m->GetYaxis()->SetTitle(h->GetYaxis()->GetTitle());
+    return m;
+}
+
+// Works for TH2 and TProfile2D (for a profile GetBinContent/GetBinError give mean / error of mean)
+TH2D * makeMirroredTH2(const TH2 * h, bool mirrorX, bool mirrorY)
+{
+    TDirectory::TContext noDir(nullptr);
+
+    const TAxis * ax = h->GetXaxis();
+    const TAxis * ay = h->GetYaxis();
+    const int nx = ax->GetNbins();
+    const int ny = ay->GetNbins();
+    const std::vector<double> ex = axisEdges(ax, mirrorX);
+    const std::vector<double> ey = axisEdges(ay, mirrorY);
+
+    TH2D * m = new TH2D(TString(h->GetName()) + "_mirr", h->GetTitle(),
+                       nx, ex.data(), ny, ey.data());
+    m->Sumw2();
+    for (int bx = 0; bx <= nx + 1; bx++)
+        for (int by = 0; by <= ny + 1; by++)
+        {
+            const int nbx = mirroredBin(bx, nx, mirrorX);
+            const int nby = mirroredBin(by, ny, mirrorY);
+            m->SetBinContent(nbx, nby, h->GetBinContent(bx, by));
+            m->SetBinError  (nbx, nby, h->GetBinError(bx, by));
+        }
+    m->SetEntries(h->GetEntries());
+
+    m->GetXaxis()->SetTitle(mirroredTitle(ax, mirrorX));
+    m->GetYaxis()->SetTitle(mirroredTitle(ay, mirrorY));
+    m->GetZaxis()->SetTitle(h->GetZaxis()->GetTitle());
+    return m;
+}
+}
+
+void ADrawExplorerWidget::projection(ADrawObject & obj, int axis, bool invert)
+{
+    TH3 * h3 = dynamic_cast<TH3*>(obj.Pointer);
+    if (h3)
+    {
+        TProfile2D * proj = nullptr;
+        if      (axis == 0) proj = h3->Project3DProfile("yzo");
+        else if (axis == 1) proj = h3->Project3DProfile("xzo");
+        else                proj = h3->Project3DProfile("xyo");
+
+        if (!proj) return;
+
+        TH2 * toDraw = proj;
+        if (invert)
+        {
+            // Looking along -axis instead of +axis = mirror image -> flip the horizontal axis
+            toDraw = makeMirroredTH2(proj, true, false);
+            delete proj;
+        }
+
+        GraphWindow.makeCopyOfDrawObjects();
+        GraphWindow.makeCopyOfActiveBasketId();
+        GraphWindow.clearBasketActiveId();
+
+        DrawObjects.clear();
+        addToDrawObjectsAndRegister(toDraw, "colz");
+
+        GraphWindow.redrawAll();
+        return;
+    }
+
+    TH2 * h = dynamic_cast<TH2*>(obj.Pointer);
+    if (!h)
+    {
+        guitools::message("This operation requires TH2 or TH3 ROOT object", &GraphWindow);
+        return;
+    }
+
+    TH1D * proj = (axis == 0 ? h->ProjectionX() : h->ProjectionY());
+    if (!proj) return;
+
+    if (invert)
+    {
+        TH1D * mirrored = makeMirroredTH1(proj);   // vs -x or -y
+        delete proj;
+        proj = mirrored;
+    }
+
+    GraphWindow.makeCopyOfDrawObjects();
+    GraphWindow.makeCopyOfActiveBasketId();
+    GraphWindow.clearBasketActiveId();
+
+    DrawObjects.clear();
+    addToDrawObjectsAndRegister(proj, "hist");
+
+    GraphWindow.redrawAll();
+}
+
+
 
 void ADrawExplorerWidget::customProjection(ADrawObject & obj)
 {

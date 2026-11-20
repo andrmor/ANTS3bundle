@@ -81,7 +81,7 @@ private:
     void gauss2Fit(int index);
     void interpolate(ADrawObject &obj);
     void median(ADrawObject &obj);
-    void projection(ADrawObject &obj, int axis);
+    void projection(ADrawObject &obj, int axis, bool invert);
     //void splineFit(int index);
     void editAxis(ADrawObject &obj, int axisIndex);
     void setCustomMargins(ADrawObject & obj);
