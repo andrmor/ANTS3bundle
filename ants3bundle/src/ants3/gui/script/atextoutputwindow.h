@@ -7,7 +7,7 @@
 #include <QString>
 
 class QWidget;
-class QPlainTextEdit;
+class QTextEdit;
 
 class ATextOutputWindow : public AGuiWindow
 {
@@ -24,7 +24,7 @@ public slots:
     void setFontSize(int size);
 
 private:
-    QPlainTextEdit * e = nullptr;
+    QTextEdit * e = nullptr;
 
 };
 
