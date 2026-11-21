@@ -18,7 +18,7 @@ public:
     bool                     UseTSphys = false;
     bool                     UseNCrystal = false;
 
-    std::vector<std::string> Commands = {"/run/setCut 0.7 mm"};
+    std::vector<std::string> Commands; // = {"/run/setCut 0.7 mm"};
     std::map<std::string, double> StepLimits;
 
     bool   SimulateAnnihilAcolinearity = false;

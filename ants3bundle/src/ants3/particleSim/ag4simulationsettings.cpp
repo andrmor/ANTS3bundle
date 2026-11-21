@@ -125,7 +125,7 @@ void AG4SimulationSettings::clear()
     PhysicsList = "QGSP_BIC_HP";
     UseTSphys = false;
 
-    Commands = {"/run/setCut 0.7 mm"};
+    Commands.clear(); // = {"/run/setCut 0.7 mm"};
     StepLimits.clear();
 
     SimulateAnnihilAcolinearity = false;
