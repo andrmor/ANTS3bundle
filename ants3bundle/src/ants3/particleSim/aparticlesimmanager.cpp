@@ -385,7 +385,9 @@ bool AParticleSimManager::configureGDML(A3WorkDistrConfig & Request, const QStri
     const QString LocalGdmlName = ExchangeDir + "/" + SimSet.RunSet.GDML.data();
     Request.CommonFiles.push_back(SimSet.RunSet.GDML.data()); // no exchange dir here, just file name!
     //QString err = Geometry.exportToGDML(LocalGdmlName);
-    QString err = AGeometryHub::getInstance().exportGeometry(LocalGdmlName, true); // true: materials get GDML export names, see configureMaterials()
+    QString err = AGeometryHub::getInstance().exportGeometry(LocalGdmlName, true); // true: materials and volumes get GDML export names, see configureMaterials() and RunSet.RenamedVolumes
+
+    SimSet.RunSet.RenamedVolumes = AGeometryHub::getConstInstance().getGdmlRenamedVolumes();
 
     if (err.isEmpty()) return true;
     else

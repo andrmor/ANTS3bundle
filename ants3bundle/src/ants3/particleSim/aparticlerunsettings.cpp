@@ -158,6 +158,18 @@ void AParticleRunSettings::writeToJson(QJsonObject & json, bool includeG4ants3Se
             json["Materials"] = ar;
         }
 
+        {
+            QJsonArray ar;
+            for (const auto & pair : RenamedVolumes)
+            {
+                QJsonObject js;
+                js["GdmlName"] = QString(pair.first.data());
+                js["Name"]     = QString(pair.second.data());
+                ar.push_back(js);
+            }
+            json["RenamedVolumes"] = ar;
+        }
+
         json["GDML"]                 = QString(GDML.data());
         json["Receipt"]              = QString(Receipt.data());
 
@@ -257,6 +269,16 @@ void AParticleRunSettings::readFromJson(const QJsonObject & json)
         Materials.resize(ar.size());
         for (size_t i = 0; i < ar.size(); i++) Materials[i].readFromJson(ar[i].object_items());
     }
+    {
+        json11::Json::array ar;
+        jstools::parseJson(json, "RenamedVolumes", ar);
+        RenamedVolumes.resize(ar.size());
+        for (size_t i = 0; i < ar.size(); i++)
+        {
+            jstools::parseJson(ar[i], "GdmlName", RenamedVolumes[i].first);
+            jstools::parseJson(ar[i], "Name",     RenamedVolumes[i].second);
+        }
+    }
 
     jstools::parseJson(json, "GDML",                 GDML);
     jstools::parseJson(json, "Receipt",              Receipt);
@@ -296,6 +318,7 @@ void AParticleRunSettings::clear()
     EventTo   = 0;
 
     Materials.clear();
+    RenamedVolumes.clear();
 
     GDML = "";
     Receipt = "";

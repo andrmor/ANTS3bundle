@@ -44,9 +44,8 @@ public:
     void    generateGeoMedia(bool useGdmlExportNames = false); // true: TGeoMaterials get names from makeGdmlExportName()
     void    updateRuntimeProperties();
 
-    // Name of the material in the GDML file exported for g4ants3: "m<iMat>_<sanitized name>".
-    // Unique by construction and contains only characters which ROOT's GDML writer keeps unchanged;
-    // also contains no "0x" (Geant4 GDML reader truncates names at "0x") and no "_refl" (removed by ROOT)
+    // Name of the material in the GDML file exported for g4ants3: "m<iMat>_<sanitized name>" (see AGeometryHub::sanitizeForGdml).
+    // Unique by construction and passes ROOT's GDML writer and Geant4's GDML reader unchanged
     static QString makeGdmlExportName(int iMat, const QString & name);
     QString getGdmlExportName(int iMat) const;
     // Verifies that the material names in the exported GDML file are exactly the expected export names; returns error or ""

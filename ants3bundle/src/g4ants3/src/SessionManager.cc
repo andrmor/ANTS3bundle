@@ -405,6 +405,36 @@ void SessionManager::setupMaterials()
         G4IndexToAntsIndex[MaterialsByIndex[iMat]->GetIndex()] = (int)iMat;
 }
 
+#include <unordered_map>
+void SessionManager::restoreVolumeNames()
+{
+    // ants3 gives a GDML-safe name to every volume whose name would be changed by ROOT's GDML writer or the Geant4 GDML reader.
+    // Restoring the original names here lets all the name-based configuration (sensitive detectors of monitors, calorimeters and analyzers,
+    // deposition volumes, step limits, acolinearity volumes, exit volume) and the tracking history output use the ants3 names.
+    if (Settings.RunSet.RenamedVolumes.empty()) return;
+
+    std::unordered_map<std::string, std::string> OriginalNames; // GDML name -> original name
+    for (const auto & pair : Settings.RunSet.RenamedVolumes) OriginalNames[pair.first] = pair.second;
+
+    std::unordered_map<std::string, int> NumRestored;
+    for (G4LogicalVolume * lv : *G4LogicalVolumeStore::GetInstance())
+    {
+        const auto it = OriginalNames.find(lv->GetName());
+        if (it == OriginalNames.end()) continue;
+        NumRestored[it->first]++;
+        lv->SetName(it->second);
+    }
+    // SetName() only invalidates the name map of the store; G4VUserDetectorConstruction::SetSensitiveDetector(name, ...)
+    // reads the map via GetMap() without updating it, so the map has to be rebuilt here
+    G4LogicalVolumeStore::GetInstance()->UpdateMap();
+
+    for (const auto & pair : Settings.RunSet.RenamedVolumes)
+        if (NumRestored[pair.first] == 0)
+            terminateSession("Volume " + pair.second + " is not found in the GDML file under the name " + pair.first);
+
+    std::cout << "Restored original names of " << Settings.RunSet.RenamedVolumes.size() << " volume name(s)\n";
+}
+
 G4Material * SessionManager::findMaterialByAntsName(const std::string & antsName) const
 {
     const std::vector<AMaterialTransferRecord> & Records = Settings.RunSet.Materials;

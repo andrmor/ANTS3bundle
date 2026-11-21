@@ -93,6 +93,7 @@ public:
     int         EventTo   = 0;
 
     std::vector<AMaterialTransferRecord> Materials;  // index in this vector = ants3 material index
+    std::vector<std::pair<std::string, std::string>> RenamedVolumes; // volumes whose names were changed for GDML export: {GdmlName, original name}
 
     std::string GDML;
     std::string Receipt;

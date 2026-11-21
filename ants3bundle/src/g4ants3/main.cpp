@@ -52,6 +52,7 @@ int main(int argc, char** argv)
     // need to implement own G4excpetion-based handler class  ->  SM.terminateSession("Error parsing GDML file");
     SM.WorldPV = parser.GetWorldVolume();
     runManager->SetUserInitialization(new DetectorConstruction(SM.WorldPV));
+    SM.restoreVolumeNames(); // volumes renamed for GDML export get their original ants3 names back
     SM.setupMaterials(); // final Geant4 material for every ants3 material (NIST / NCrystal replacements, custom mean excitation energy)
     //runManager->PhysicsHasBeenModified();
 

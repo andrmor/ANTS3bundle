@@ -76,6 +76,7 @@ class SessionManager
         }
 
         bool activateNeutronThermalScatteringPhysics();
+        void restoreVolumeNames(); // call right after the GDML is loaded: logical volumes renamed for GDML export get their original ants3 names back
         void setupMaterials(); // call after the GDML is loaded: creates/configures the final Geant4 materials for all ants3 materials
         G4Material * findMaterialByAntsName(const std::string & antsName) const; // returns nullptr if not found
 

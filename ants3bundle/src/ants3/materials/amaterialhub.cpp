@@ -107,21 +107,8 @@ void AMaterialHub::generateGeoMedia(bool useGdmlExportNames)
 
 QString AMaterialHub::makeGdmlExportName(int iMat, const QString & name)
 {
-    // Allow-list: only characters which ROOT's TGDMLWrite::GenName keeps unchanged
-    QString safe;
-    safe.reserve(name.size());
-    for (const QChar & ch : name)
-    {
-        const char16_t c = ch.unicode();
-        const bool ok = (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') ||
-                        c == '_' || c == '-' || c == '.';
-        safe += (ok ? ch : QChar('_'));
-    }
-    safe.replace("0x", "0_x");     // Geant4 G4GDMLRead::StripName truncates the name at the first "0x"
-    safe.replace("_refl", "_ref_l"); // removed by TGDMLWrite::GenName
-
     // the prefix makes the name unique and ensures it does not start with a digit
-    return QString("m%1_%2").arg(iMat).arg(safe);
+    return QString("m%1_%2").arg(iMat).arg(AGeometryHub::sanitizeForGdml(name));
 }
 
 QString AMaterialHub::getGdmlExportName(int iMat) const

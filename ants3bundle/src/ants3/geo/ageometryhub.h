@@ -85,7 +85,14 @@ public:
 
     //QString      exportToGDML(const QString & fileName) const;  // old system based on mm->cm replacing in the GDML file
     //QString      exportToROOT(const QString & fileName) const;  // old system
-    QString      exportGeometry(const QString & fileName, bool forG4ants3 = false); // new system based on geometry scaling; forG4ants3: materials get GDML export names (see AMaterialHub::makeGdmlExportName) and the GDML is verified
+    QString      exportGeometry(const QString & fileName, bool forG4ants3 = false); // new system based on geometry scaling; forG4ants3: materials and volumes get GDML export names and the GDML file is verified
+
+    // Allow-list sanitizer for names written to GDML for g4ants3: keeps only [A-Za-z0-9_.-], everything else -> '_',
+    // breaks "0x" (Geant4 G4GDMLRead::StripName truncates names there) and "_refl" (removed by ROOT's TGDMLWrite::GenName).
+    // The result passes ROOT's GDML writer unchanged, except for a leading digit, which callers have to avoid.
+    static QString sanitizeForGdml(const QString & name);
+    // Filled by exportGeometry(..., true): volumes whose names had to be changed for GDML, as {GdmlName, original name}
+    const std::vector<std::pair<std::string, std::string>> & getGdmlRenamedVolumes() const {return GdmlRenamedVolumes;}
 
     QString      importGDML(const QString & fileName);          // old system based on mm->cm replacing in the GDML file
     QString      importGeometry(const QString & fileName);      // new system based on geometry scaling
@@ -136,12 +143,15 @@ private:
     QString readGDMLtoTGeo(const QString & fileName);
 
     void registerPhotonFunctional(AGeoObject * obj, TGeoVolume * parentVol);
+    void    renameVolumesForGdmlExport();                               // fills GdmlRenamedVolumes
+    QString checkGdmlExportVolumeNames(const QString & gdmlFileName) const; // "" if OK
     void registerCompositeCalorimeterMembersRecursive(AGeoObject * obj); // !!!*** check composite flag, make recursive
 
 private:
     bool   DoScaling = false;
     double ScalingFactor = 1.0;
     bool   UseGdmlExportMaterialNames = false;
+    std::vector<std::pair<std::string, std::string>> GdmlRenamedVolumes; // {GdmlName, original name}
 
     std::vector<std::pair<AGeoObject*,TGeoNode*>> Scintillators;
 public:
