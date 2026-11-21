@@ -338,29 +338,46 @@ void SessionManager::setupMaterials()
     //              it keeps the NIST name, since some Geant4 physics recognizes materials by name (e.g. HP thermal scattering uses "G4_WATER")
     //   NCrystal : material built by NCrystal, renamed to the original ants3 name
     // The material of the logical volumes is then replaced by pointer.
+    //
+    // Geant4 finds materials by name in its global table (first match): G4Material::GetMaterial(), and also
+    // G4NistManager::FindOrBuildMaterial() / FindOrBuildSimpleMaterial() used here and inside G4NCrystal.
+    // An original ants3 name can coincide with another material's GDML name (e.g. a material named "m1_Iron")
+    // or with a NIST name (e.g. a custom material named "G4_WATER"). Therefore the work is done in three passes,
+    // and no material receives its ants3 name before all name-based lookups are finished:
+    //   1. find all GDML materials, 2. create/configure the final materials, 3. assign the original ants3 names.
 
     const std::vector<AMaterialTransferRecord> & Records = Settings.RunSet.Materials;
     G4NistManager * man = G4NistManager::Instance();
+    const size_t numMat = Records.size();
 
-    MaterialsByIndex.assign(Records.size(), nullptr);
-    std::map<G4Material*, G4Material*> Replacements; // material from GDML -> final material
-
-    for (size_t iMat = 0; iMat < Records.size(); iMat++)
+    // --- pass 1: GDML materials ---
+    std::vector<G4Material*> GdmlMaterials(numMat, nullptr);
+    for (size_t iMat = 0; iMat < numMat; iMat++)
     {
         const AMaterialTransferRecord & rec = Records[iMat];
-
         if (rec.GdmlName.empty()) terminateSession("GDML name is not provided for material " + rec.Name);
         G4Material * gdmlMat = G4Material::GetMaterial(rec.GdmlName, false);
         if (!gdmlMat) terminateSession("Material " + rec.Name + " is not found in the GDML file under the name " + rec.GdmlName);
+        for (size_t i = 0; i < iMat; i++)
+            if (GdmlMaterials[i] == gdmlMat)
+                terminateSession("Materials " + Records[i].Name + " and " + rec.Name + " refer to the same GDML material " + rec.GdmlName);
+        GdmlMaterials[iMat] = gdmlMat;
+    }
 
+    // --- pass 2: final materials (no renaming yet) ---
+    MaterialsByIndex.assign(numMat, nullptr);
+    std::vector<bool> NeedsAntsName(numMat, false);
+    for (size_t iMat = 0; iMat < numMat; iMat++)
+    {
+        const AMaterialTransferRecord & rec = Records[iMat];
         G4Material * mat = nullptr;
         switch (rec.Type)
         {
         case AMaterialTransferRecord::Direct :
-            mat = gdmlMat;
-            mat->SetName(rec.Name);
+            mat = GdmlMaterials[iMat];
             if (rec.UseCustomMeanExEnergy)
                 mat->GetIonisation()->SetMeanExcitationEnergy(rec.MeanExEnergy * eV); // eV in the run time settings
+            NeedsAntsName[iMat] = true;
             break;
 
         case AMaterialTransferRecord::Nist :
@@ -387,15 +404,14 @@ void SessionManager::setupMaterials()
             if (bAlreadyUsed)
             {
                 G4Material * ncMat = mat;
-                mat = new G4Material(rec.Name, ncMat->GetDensity(), ncMat, ncMat->GetState(), ncMat->GetTemperature(), ncMat->GetPressure());
+                mat = new G4Material(ncMat->GetName() + "_copy" + std::to_string(iMat), ncMat->GetDensity(), ncMat,
+                                     ncMat->GetState(), ncMat->GetTemperature(), ncMat->GetPressure());
                 G4NCrystal::addNCrystalScatterProperty(mat, rec.NCrystalCfg);
                 std::cout << "Material " << rec.Name << " -> separate copy of the NCrystal material for string " << rec.NCrystalCfg << '\n';
             }
             else
-            {
-                mat->SetName(rec.Name);
                 std::cout << "Material " << rec.Name << " -> NCrystal material created using string " << rec.NCrystalCfg << '\n';
-            }
+            NeedsAntsName[iMat] = true;
           }
 #else
             terminateSession("NCrystal materials are not empty, but g4ants3 was compiled without NCrystal library! (material " + rec.Name + ")");
@@ -409,7 +425,14 @@ void SessionManager::setupMaterials()
                 terminateSession("Materials " + Records[i].Name + " and " + rec.Name + " resolve to the same Geant4 material object");
 
         MaterialsByIndex[iMat] = mat;
-        if (mat != gdmlMat) Replacements[gdmlMat] = mat;
+    }
+
+    // --- pass 3: original ants3 names, volume materials and index lookup ---
+    std::map<G4Material*, G4Material*> Replacements; // material from GDML -> final material
+    for (size_t iMat = 0; iMat < numMat; iMat++)
+    {
+        if (NeedsAntsName[iMat]) MaterialsByIndex[iMat]->SetName(Records[iMat].Name);
+        if (MaterialsByIndex[iMat] != GdmlMaterials[iMat]) Replacements[GdmlMaterials[iMat]] = MaterialsByIndex[iMat];
     }
 
     if (!Replacements.empty())
