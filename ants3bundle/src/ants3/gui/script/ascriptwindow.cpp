@@ -690,7 +690,10 @@ void AScriptWindow::on_pbStop_clicked()
 void AScriptWindow::on_pbLoad_clicked()
 {
     QString starter = ""; // (GlobSet.LibScripts.isEmpty()) ? GlobSet.LastOpenDir : GlobSet.LibScripts;
-    QString fileName = QFileDialog::getOpenFileName(this, "Load script", starter, "Text files (*.txt);;All files (*.*)");
+    QString specific = (ScriptLanguage == EScriptLanguage::JavaScript ?
+                            "JavaScript files (*.js *.txt);;All files (*.*)" :
+                            "Python files (*.py *.txt);;All files (*.*)");
+    QString fileName = QFileDialog::getOpenFileName(this, "Load script", starter, specific);
     if (fileName.isEmpty()) return;
 
     QString Script;
