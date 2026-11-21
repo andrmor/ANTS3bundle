@@ -1019,10 +1019,11 @@ void SessionManager::executeAdditionalCommands()
         case fParameterUnreadable      : reason = "parameter cannot be read"; break;
         case fParameterOutOfCandidates : reason = "parameter is not one of the allowed values"; break;
         case fAliasNotFound            : reason = "alias not found"; break;
+        case 0                         : reason = "the command reported an error (code " + std::to_string(status) + "), see the Geant4 output for details"; break;
         default                        : reason = "error code " + std::to_string(status);
         }
         const int iParam = status % 100; // index of the offending parameter; 99: check of the whole parameter set
-        if (iParam > 0 && iParam < 99) reason += " (parameter #" + std::to_string(iParam) + ")";
+        if (status >= 100 && iParam > 0 && iParam < 99) reason += " (parameter #" + std::to_string(iParam) + ")";
         terminateSession("Geant4 command \"" + cmd + "\" was rejected: " + reason);
     }
 
