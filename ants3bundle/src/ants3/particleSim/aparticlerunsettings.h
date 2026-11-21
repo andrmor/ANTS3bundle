@@ -36,6 +36,27 @@ public:
 #endif
 };
 
+// Material record transferred from ants3 to g4ants3; the position in AParticleRunSettings::Materials is the ants3 material index
+class AG4MaterialRecord
+{
+public:
+    enum EType {Direct = 0, Nist = 1, NCrystal = 2};
+
+    std::string Name;                          // original ants3 name
+    std::string GdmlName;                      // name of this material in the exported GDML file (AMaterialHub::makeGdmlExportName)
+    EType       Type = Direct;
+    std::string NistName;                      // Type == Nist: name in G4NistManager database
+    std::string NCrystalCfg;                   // Type == NCrystal: NCrystal configuration string
+    bool        UseCustomMeanExEnergy = false; // Type == Direct
+    double      MeanExEnergy = 0;              // in eV
+
+#ifdef JSON11
+    void readFromJson(const json11::Json::object & json);
+#else
+    void writeToJson(QJsonObject & json) const;
+#endif
+};
+
 class AParticleRunSettings
 {
 public:
@@ -71,10 +92,7 @@ public:
     int         EventFrom = 0;
     int         EventTo   = 0;
 
-    std::vector<std::string> Materials;
-    std::vector<std::pair<std::string, std::string>> MaterialsFromNist;
-    std::vector<std::pair<std::string, std::string>> MaterialsFromNCrystal;
-    std::vector<std::pair<std::string, double>> MaterialsMeanExEnergy; // in eV
+    std::vector<AG4MaterialRecord> Materials;  // index in this vector = ants3 material index
 
     std::string GDML;
     std::string Receipt;

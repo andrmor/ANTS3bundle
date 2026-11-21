@@ -86,41 +86,6 @@ QStringList AMaterialHub::getListOfMaterialNames() const
     return l;
 }
 
-std::vector<std::string> AMaterialHub::getMaterialNames() const
-{
-    std::vector<std::string> v;
-    for (const AMaterial * m : Materials) v.push_back(m->Name.toLatin1().data());
-    return v;
-}
-
-std::vector<std::pair<std::string, std::string>> AMaterialHub::getMaterialsFromNist() const
-{
-    std::vector<std::pair<std::string, std::string>> v;
-    for (const AMaterial * m : Materials)
-        if (m->CompositionType == AMaterial::Geant4Material)
-            v.push_back( {m->Name.toLatin1().data(), m->G4MaterialName.toLatin1().data()} );
-    return v;
-}
-
-std::vector<std::pair<std::string, std::string> > AMaterialHub::getMaterialsFromNCrystal() const
-{
-    std::vector<std::pair<std::string, std::string>> v;
-    for (const AMaterial * m : Materials)
-        if (m->CompositionType == AMaterial::NCrystalMaterial)
-            v.push_back( {m->Name.toLatin1().data(), m->NCrystalMaterialName.toLatin1().data()} );
-    return v;
-}
-
-std::vector<std::pair<std::string, double>> AMaterialHub::getMaterialsMeanExEnergy() const
-{
-    std::vector<std::pair<std::string, double>> v;
-    for (const AMaterial * m : Materials)
-        //if (!m->UseG4Material && m->Composition.UseCustomMeanExEnergy)
-        if (m->CompositionType==AMaterial::Direct && m->Composition.UseCustomMeanExEnergy)
-            v.push_back( {m->Name.toLatin1().data(), m->Composition.MeanExEnergy} );
-    return v;
-}
-
 void AMaterialHub::convertPressureToDensity()
 {
     for (AMaterial * mat : Materials)

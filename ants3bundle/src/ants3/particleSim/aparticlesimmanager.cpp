@@ -385,7 +385,7 @@ bool AParticleSimManager::configureGDML(A3WorkDistrConfig & Request, const QStri
     const QString LocalGdmlName = ExchangeDir + "/" + SimSet.RunSet.GDML.data();
     Request.CommonFiles.push_back(SimSet.RunSet.GDML.data()); // no exchange dir here, just file name!
     //QString err = Geometry.exportToGDML(LocalGdmlName);
-    QString err = AGeometryHub::getInstance().exportGeometry(LocalGdmlName);
+    QString err = AGeometryHub::getInstance().exportGeometry(LocalGdmlName, true); // true: materials get GDML export names, see configureMaterials()
 
     if (err.isEmpty()) return true;
     else
@@ -399,10 +399,32 @@ void AParticleSimManager::configureMaterials()
 {
     const AMaterialHub & MatHub = AMaterialHub::getConstInstance();
 
-    SimSet.RunSet.Materials             = MatHub.getMaterialNames();
-    SimSet.RunSet.MaterialsFromNist     = MatHub.getMaterialsFromNist();
-    SimSet.RunSet.MaterialsFromNCrystal = MatHub.getMaterialsFromNCrystal();
-    SimSet.RunSet.MaterialsMeanExEnergy = MatHub.getMaterialsMeanExEnergy();
+    SimSet.RunSet.Materials.clear();
+    for (int iMat = 0; iMat < MatHub.countMaterials(); iMat++)
+    {
+        const AMaterial * mat = MatHub[iMat];
+
+        AG4MaterialRecord rec;
+        rec.Name     = mat->Name.toLatin1().data();
+        rec.GdmlName = MatHub.getGdmlExportName(iMat).toLatin1().data(); // the same name is used by exportGeometry(..., true)
+        switch (mat->CompositionType)
+        {
+        case AMaterial::Direct :
+            rec.Type = AG4MaterialRecord::Direct;
+            rec.UseCustomMeanExEnergy = mat->Composition.UseCustomMeanExEnergy;
+            rec.MeanExEnergy          = mat->Composition.MeanExEnergy;
+            break;
+        case AMaterial::Geant4Material :
+            rec.Type = AG4MaterialRecord::Nist;
+            rec.NistName = mat->G4MaterialName.toLatin1().data();
+            break;
+        case AMaterial::NCrystalMaterial :
+            rec.Type = AG4MaterialRecord::NCrystal;
+            rec.NCrystalCfg = mat->NCrystalMaterialName.toLatin1().data();
+            break;
+        }
+        SimSet.RunSet.Materials.push_back(rec);
+    }
 }
 
 void AParticleSimManager::configureMonitors()

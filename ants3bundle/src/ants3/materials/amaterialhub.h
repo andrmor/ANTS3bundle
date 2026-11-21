@@ -71,10 +71,6 @@ public:
     int     countMaterials() const {return Materials.size();}
     QString getMaterialName(int matIndex) const;
     QStringList getListOfMaterialNames() const;
-    std::vector<std::string> getMaterialNames() const;
-    std::vector<std::pair<std::string, std::string>> getMaterialsFromNist() const;
-    std::vector<std::pair<std::string, std::string>> getMaterialsFromNCrystal() const;
-    std::vector<std::pair<std::string, double>> getMaterialsMeanExEnergy() const;
     double  getDriftSpeed(int iMat) const; //returns in mm / ns
     double  getDiffusionSigmaTime(int iMat, double length_mm) const;
     double  getDiffusionSigmaTransverse(int iMat, double length_mm) const;

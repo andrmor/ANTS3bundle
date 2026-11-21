@@ -23,6 +23,7 @@ class G4VPhysicalVolume;
 class AParticleGun;
 class PrimaryGeneratorAction;
 class G4VModularPhysicsList;
+class G4Material;
 
 struct ParticleRecord
 {
@@ -68,7 +69,8 @@ class SessionManager
         int  findMaterial(const std::string & materialName);  // change to pointer search?
 
         bool activateNeutronThermalScatteringPhysics();
-        void updateMaterials();
+        void setupMaterials(); // call after the GDML is loaded: creates/configures the final Geant4 materials for all ants3 materials
+        G4Material * findMaterialByAntsName(const std::string & antsName) const; // returns nullptr if not found
 
         void writeNewEventMarker();
 
@@ -136,7 +138,6 @@ private:
         void storeCalorimeterData();
         void storeAnalyzerData();
         bool extractIonInfo(const std::string & text, int & Z, int & A, double & E);
-        void replaceMatNameInMatLimitedSources(const G4String & name, const G4String & G4Name);
 
     private:
         std::ofstream * outStreamDeposition     = nullptr;
@@ -146,6 +147,7 @@ private:
 
         std::map<std::string, int> ElementToZ;
         std::map<std::string, int> MaterialMap;
+        std::vector<G4Material*>   MaterialsByIndex; // ants3 material index -> Geant4 material; filled in setupMaterials()
 
         bool bExitBinary = false;
         bool bBinaryOutput = false;

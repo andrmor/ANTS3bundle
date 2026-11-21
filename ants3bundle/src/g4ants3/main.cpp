@@ -52,7 +52,7 @@ int main(int argc, char** argv)
     // need to implement own G4excpetion-based handler class  ->  SM.terminateSession("Error parsing GDML file");
     SM.WorldPV = parser.GetWorldVolume();
     runManager->SetUserInitialization(new DetectorConstruction(SM.WorldPV));
-    SM.updateMaterials(); // if present in config, indicated materials will be replaced with those from nist database
+    SM.setupMaterials(); // final Geant4 material for every ants3 material (NIST / NCrystal replacements, custom mean excitation energy)
     //runManager->PhysicsHasBeenModified();
 
     const std::string & pl = SM.Settings.G4Set.PhysicsList;

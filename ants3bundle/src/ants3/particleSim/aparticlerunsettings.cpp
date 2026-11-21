@@ -49,6 +49,51 @@ void ASaveParticlesSettings::readFromJson(const QJsonObject & json)
 // ---
 
 #ifndef JSON11
+void AG4MaterialRecord::writeToJson(QJsonObject & json) const
+{
+    json["Name"]     = QString(Name.data());
+    json["GdmlName"] = QString(GdmlName.data());
+    switch (Type)
+    {
+    case Direct :
+        json["Type"] = "Direct";
+        if (UseCustomMeanExEnergy) json["MeanExEnergy_eV"] = MeanExEnergy;
+        break;
+    case Nist :
+        json["Type"] = "Nist";
+        json["NistName"] = QString(NistName.data());
+        break;
+    case NCrystal :
+        json["Type"] = "NCrystal";
+        json["NCrystal"] = QString(NCrystalCfg.data());
+        break;
+    }
+}
+#endif
+
+#ifdef JSON11
+#include "aerrorhub.h"
+void AG4MaterialRecord::readFromJson(const json11::Json::object & json)
+{
+    jstools::parseJson(json, "Name",     Name);
+    jstools::parseJson(json, "GdmlName", GdmlName);
+
+    std::string type;
+    jstools::parseJson(json, "Type", type);
+    if      (type == "Direct")   Type = Direct;
+    else if (type == "Nist")     Type = Nist;
+    else if (type == "NCrystal") Type = NCrystal;
+    else AErrorHub::addError("Unknown type \"" + type + "\" of material " + Name);
+
+    jstools::parseJson(json, "NistName", NistName);
+    jstools::parseJson(json, "NCrystal", NCrystalCfg);
+    UseCustomMeanExEnergy = jstools::parseJson(json, "MeanExEnergy_eV", MeanExEnergy);
+}
+#endif
+
+// ---
+
+#ifndef JSON11
 void AParticleRunSettings::writeToJson(QJsonObject & json, bool includeG4ants3Set) const
 {
     json["OutputDirectory"]      = QString(OutputDirectory.data());
@@ -102,41 +147,15 @@ void AParticleRunSettings::writeToJson(QJsonObject & json, bool includeG4ants3Se
         json["EventFrom"]            = EventFrom;
         json["EventTo"]              = EventTo;
 
-        QJsonArray matAr;
-            for (const auto & mat : Materials) matAr.push_back(mat.data());
-        json["Materials"]            = matAr;
-
         {
             QJsonArray ar;
-            for (const auto & mat : MaterialsFromNist)
+            for (const AG4MaterialRecord & mat : Materials)
             {
-                QJsonArray el;
-                el << QString(mat.first.data()) << QString(mat.second.data());
-                ar.push_back(el);
+                QJsonObject js;
+                mat.writeToJson(js);
+                ar.push_back(js);
             }
-            json["MaterialsFromNist"] = ar;
-        }
-
-        {
-            QJsonArray ar;
-            for (const auto & mat : MaterialsFromNCrystal)
-            {
-                QJsonArray el;
-                el << QString(mat.first.data()) << QString(mat.second.data());
-                ar.push_back(el);
-            }
-            json["MaterialsFromNCrystal"] = ar;
-        }
-
-        {
-            QJsonArray ar;
-            for (const auto & mat : MaterialsMeanExEnergy)
-            {
-                QJsonArray el;
-                el << QString(mat.first.data()) << mat.second;
-                ar.push_back(el);
-            }
-            json["MaterialsWithCustomMeanExcitationEnergy"] = ar;
+            json["Materials"] = ar;
         }
 
         json["GDML"]                 = QString(GDML.data());
@@ -232,36 +251,11 @@ void AParticleRunSettings::readFromJson(const QJsonObject & json)
     jstools::parseJson(json, "EventFrom",            EventFrom);
     jstools::parseJson(json, "EventTo",              EventTo);
 
-    json11::Json::array arMat;
-    jstools::parseJson(json, "Materials", arMat);
-    for (size_t i = 0; i < arMat.size(); i++) Materials.push_back(arMat[i].string_value());
-
-    json11::Json::array arNist;
-    jstools::parseJson(json, "MaterialsFromNist", arNist);
-    for (size_t i = 0; i < arNist.size(); i++)
-    {
-        json11::Json::array el = arNist[i].array_items();
-        MaterialsFromNist.push_back( {el[0].string_value(), el[1].string_value()} );
-    }
-
     {
         json11::Json::array ar;
-        jstools::parseJson(json, "MaterialsFromNCrystal", ar);
-        for (size_t i = 0; i < ar.size(); i++)
-        {
-            json11::Json::array el = ar[i].array_items();
-            MaterialsFromNCrystal.push_back( {el[0].string_value(), el[1].string_value()} );
-        }
-    }
-
-    {
-        json11::Json::array ar;
-        jstools::parseJson(json, "MaterialsWithCustomMeanExcitationEnergy", ar);
-        for (size_t i = 0; i < ar.size(); i++)
-        {
-            json11::Json::array el = ar[i].array_items();
-            MaterialsMeanExEnergy.push_back( {el[0].string_value(), el[1].number_value()} );
-        }
+        jstools::parseJson(json, "Materials", ar);
+        Materials.resize(ar.size());
+        for (size_t i = 0; i < ar.size(); i++) Materials[i].readFromJson(ar[i].object_items());
     }
 
     jstools::parseJson(json, "GDML",                 GDML);

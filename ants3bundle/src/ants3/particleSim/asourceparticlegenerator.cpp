@@ -17,7 +17,6 @@
     //#include "G4ParticleDefinition.hh"
     #include "SessionManager.hh"
     #include "G4Material.hh"
-    #include "G4NistManager.hh"
 #else
     #include <QApplication>
     #include <QDebug>
@@ -341,9 +340,8 @@ void ASource_Standard::updateLimitedToMat()
     G4Material * mat = nullptr;
     if (Settings->MaterialLimited)
     {
-        G4NistManager * man = G4NistManager::Instance();
-        mat = man->FindMaterial(Settings->LimtedToMatName);
         SessionManager & SM = SessionManager::getInstance();
+        mat = SM.findMaterialByAntsName(Settings->LimtedToMatName); // the dedicated Geant4 material of this ants3 material
         if (mat)
         {
             Navigator = new G4Navigator();
