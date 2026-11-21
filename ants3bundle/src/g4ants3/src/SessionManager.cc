@@ -374,12 +374,31 @@ void SessionManager::setupMaterials()
 
         case AMaterialTransferRecord::NCrystal :
 #ifdef ANTS3_NCRYSTAL
+          {
             mat = G4NCrystal::createMaterial(rec.NCrystalCfg);
             if (!mat) terminateSession("Failed to build NCrystal material using string " + rec.NCrystalCfg + " for material " + rec.Name);
-            mat->SetName(rec.Name);
-            std::cout << "Material " << rec.Name << " -> NCrystal material created using string " << rec.NCrystalCfg << '\n';
+
+            // G4NCrystal caches its materials by the NCrystal Info/Scatter objects, so equivalent configuration strings
+            // (also of different ants3 materials) return the same G4Material. Every ants3 material needs its own object:
+            // in that case create a derived material with the same density/temperature and the same NCrystal scatter physics
+            bool bAlreadyUsed = false;
+            for (size_t i = 0; i < iMat; i++)
+                if (MaterialsByIndex[i] == mat) bAlreadyUsed = true;
+            if (bAlreadyUsed)
+            {
+                G4Material * ncMat = mat;
+                mat = new G4Material(rec.Name, ncMat->GetDensity(), ncMat, ncMat->GetState(), ncMat->GetTemperature(), ncMat->GetPressure());
+                G4NCrystal::addNCrystalScatterProperty(mat, rec.NCrystalCfg);
+                std::cout << "Material " << rec.Name << " -> separate copy of the NCrystal material for string " << rec.NCrystalCfg << '\n';
+            }
+            else
+            {
+                mat->SetName(rec.Name);
+                std::cout << "Material " << rec.Name << " -> NCrystal material created using string " << rec.NCrystalCfg << '\n';
+            }
+          }
 #else
-            terminateSession("Material " + rec.Name + " requires NCrystal, but g4ants3 was compiled without NCrystal library!");
+            terminateSession("NCrystal materials are not empty, but g4ants3 was compiled without NCrystal library! (material " + rec.Name + ")");
 #endif
             break;
         }
