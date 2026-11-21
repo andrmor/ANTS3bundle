@@ -996,11 +996,35 @@ void SessionManager::prepareOutputExitStream()
         terminateSession("Cannot open file to export exiting particle data");
 }
 
+#include "G4UIcommandStatus.hh"
 void SessionManager::executeAdditionalCommands()
 {
+    // A rejected command (unknown command, wrong argument order or value, wrong application state) used to be ignored
+    // silently, so the simulation ran with settings different from the configuration. Now the session stops instead.
     G4UImanager* UImanager = G4UImanager::GetUIpointer();
     for (const auto & cmd : Settings.G4Set.Commands)
-        UImanager->ApplyCommand(cmd);
+    {
+        const size_t iFirst = cmd.find_first_not_of(" \t");
+        if (iFirst == std::string::npos || cmd[iFirst] == '#') continue; // empty line or comment
+
+        const G4int status = UImanager->ApplyCommand(cmd);
+        if (status == fCommandSucceeded) continue;
+
+        std::string reason;
+        switch ((status / 100) * 100)
+        {
+        case fCommandNotFound          : reason = "command not found"; break;
+        case fIllegalApplicationState  : reason = "command is not available in the current Geant4 state"; break;
+        case fParameterOutOfRange      : reason = "parameter out of range"; break;
+        case fParameterUnreadable      : reason = "parameter cannot be read"; break;
+        case fParameterOutOfCandidates : reason = "parameter is not one of the allowed values"; break;
+        case fAliasNotFound            : reason = "alias not found"; break;
+        default                        : reason = "error code " + std::to_string(status);
+        }
+        const int iParam = status % 100; // index of the offending parameter; 99: check of the whole parameter set
+        if (iParam > 0 && iParam < 99) reason += " (parameter #" + std::to_string(iParam) + ")";
+        terminateSession("Geant4 command \"" + cmd + "\" was rejected: " + reason);
+    }
 
     UImanager->ApplyCommand("/run/initialize");
 }
