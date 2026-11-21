@@ -1,0 +1,242 @@
+From 8d0509b65201c3173e96b813975ba0008cec333f Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Sat, 21 Nov 2026 08:51:32 +0000
+Subject: [PATCH 1/3] ants3: GDML export names for materials and post-export
+ check
+
+Add AMaterialHub::makeGdmlExportName(iMat, name), which builds the name
+a material gets in the GDML file exported for g4ants3:
+"m<iMat>_<sanitized name>". The sanitizer is an allow-list
+([A-Za-z0-9_.-], everything else -> '_') so ROOT's TGDMLWrite::GenName
+(private, cannot be reused) has nothing to change. "0x" is broken up
+because Geant4's G4GDMLRead::StripName truncates names there, and
+"_refl" because ROOT removes it.
+
+AGeometryHub::exportGeometry gets a forG4ants3 flag. When set, the
+export pass creates the TGeoMaterials with the export names, and after
+export the GDML file is read back (QXmlStreamReader) to check that
+every expected material name is present exactly once. If ROOT ever
+changes its naming rules, the export fails with an explicit error
+instead of silently producing mismatched names.
+
+The flag defaults to false, so this commit changes no behaviour; the
+g4ants3 export switches to it in the next commit together with the new
+material transfer format.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_016MYNNM6RVJKPFrzHmRLMBV
+---
+ ants3bundle/src/ants3/geo/ageometryhub.cpp    | 11 +++-
+ ants3bundle/src/ants3/geo/ageometryhub.h      |  3 +-
+ ants3bundle/src/ants3/materials/amaterial.cpp |  4 +-
+ ants3bundle/src/ants3/materials/amaterial.h   |  2 +-
+ .../src/ants3/materials/amaterialhub.cpp      | 66 ++++++++++++++++++-
+ .../src/ants3/materials/amaterialhub.h        | 10 ++-
+ 6 files changed, 86 insertions(+), 10 deletions(-)
+
+diff --git a/ants3bundle/src/ants3/geo/ageometryhub.cpp b/ants3bundle/src/ants3/geo/ageometryhub.cpp
+index 2297fbc2..45145927 100644
+--- a/ants3bundle/src/ants3/geo/ageometryhub.cpp
++++ b/ants3bundle/src/ants3/geo/ageometryhub.cpp
+@@ -340,7 +340,7 @@ void AGeometryHub::populateGeoManager(bool notifyRootServer)
+ 
+     AMaterialHub & MatHub = AMaterialHub::getInstance();
+     MatHub.convertPressureToDensity();
+-    MatHub.generateGeoMedia();
++    MatHub.generateGeoMedia(UseGdmlExportMaterialNames);
+ 
+     Top = GeoManager->MakeBox("WorldBox", MatHub[World->Material]->_GeoMed, WorldSizeXY, WorldSizeXY, WorldSizeZ);
+     GeoManager->SetTopVolume(Top);
+@@ -1375,7 +1375,7 @@ int AGeometryHub::checkGeometryForConflicts()
+     return overlapCount;
+ }
+ 
+-QString AGeometryHub::exportGeometry(const QString & fileName)
++QString AGeometryHub::exportGeometry(const QString & fileName, bool forG4ants3)
+ {
+     QFileInfo fi(fileName);
+     const QString suffix = fi.suffix();
+@@ -1387,16 +1387,21 @@ QString AGeometryHub::exportGeometry(const QString & fileName)
+     writeToJson(json);
+     DoScaling = true;
+     ScalingFactor = 0.1; // 1[mm] becomes 0.1[cm]
++    UseGdmlExportMaterialNames = forG4ants3;
+     populateGeoManager(false);
+ 
+     GeoManager->SetName("geometry");
+     int res = GeoManager->Export(fileName.toLocal8Bit().data());
+ 
+     DoScaling = false;
++    UseGdmlExportMaterialNames = false;
+     readFromJson(json);
+     populateGeoManager(false);
+ 
+-    return (res == 0 ? "Failed to export to file "+fileName : "");
++    if (res == 0) return "Failed to export to file " + fileName;
++
++    if (forG4ants3) return AMaterialHub::getConstInstance().checkGdmlExportNames(fileName);
++    return "";
+ }
+ 
+ /*
+diff --git a/ants3bundle/src/ants3/geo/ageometryhub.h b/ants3bundle/src/ants3/geo/ageometryhub.h
+index fc1b9b03..25986688 100644
+--- a/ants3bundle/src/ants3/geo/ageometryhub.h
++++ b/ants3bundle/src/ants3/geo/ageometryhub.h
+@@ -85,7 +85,7 @@ public:
+ 
+     //QString      exportToGDML(const QString & fileName) const;  // old system based on mm->cm replacing in the GDML file
+     //QString      exportToROOT(const QString & fileName) const;  // old system
+-    QString      exportGeometry(const QString & fileName);      // new system based on geometry scaling
++    QString      exportGeometry(const QString & fileName, bool forG4ants3 = false); // new system based on geometry scaling; forG4ants3: materials get GDML export names (see AMaterialHub::makeGdmlExportName) and the GDML is verified
+ 
+     QString      importGDML(const QString & fileName);          // old system based on mm->cm replacing in the GDML file
+     QString      importGeometry(const QString & fileName);      // new system based on geometry scaling
+@@ -141,6 +141,7 @@ private:
+ private:
+     bool   DoScaling = false;
+     double ScalingFactor = 1.0;
++    bool   UseGdmlExportMaterialNames = false;
+ 
+     std::vector<std::pair<AGeoObject*,TGeoNode*>> Scintillators;
+ public:
+diff --git a/ants3bundle/src/ants3/materials/amaterial.cpp b/ants3bundle/src/ants3/materials/amaterial.cpp
+index da9165cf..b62bb1a2 100644
+--- a/ants3bundle/src/ants3/materials/amaterial.cpp
++++ b/ants3bundle/src/ants3/materials/amaterial.cpp
+@@ -67,9 +67,9 @@ double AMaterial::getSpeedOfLight(int iWave) const
+     return c_in_vac / refIndexReal;
+ }
+ 
+-void AMaterial::generateTGeoMat()
++void AMaterial::generateTGeoMat(const QString & geoMatName)
+ {
+-    _GeoMat = Composition.constructGeoMaterial(Name.toLatin1().data());
++    _GeoMat = Composition.constructGeoMaterial(geoMatName);
+ }
+ 
+ double AMaterial::FT(double td, double tr, double t) const
+diff --git a/ants3bundle/src/ants3/materials/amaterial.h b/ants3bundle/src/ants3/materials/amaterial.h
+index 377be16c..7ee89578 100644
+--- a/ants3bundle/src/ants3/materials/amaterial.h
++++ b/ants3bundle/src/ants3/materials/amaterial.h
+@@ -78,7 +78,7 @@ public:
+     QString convertPressureToDensity();
+     void    updateRuntimeOpticalProperties();
+ 
+-    void    generateTGeoMat();
++    void    generateTGeoMat(const QString & geoMatName); // geoMatName is the name given to the TGeoMaterial
+     double  generatePrimScintTime(ARandomHub & Random) const; // use Random as argument just to show that there is external dependence
+ 
+     double  getRefractiveIndex(int iWave = -1) const;
+diff --git a/ants3bundle/src/ants3/materials/amaterialhub.cpp b/ants3bundle/src/ants3/materials/amaterialhub.cpp
+index 4a1b45b5..583bca77 100644
+--- a/ants3bundle/src/ants3/materials/amaterialhub.cpp
++++ b/ants3bundle/src/ants3/materials/amaterialhub.cpp
+@@ -130,16 +130,78 @@ void AMaterialHub::convertPressureToDensity()
+     }
+ }
+ 
+-void AMaterialHub::generateGeoMedia()
++void AMaterialHub::generateGeoMedia(bool useGdmlExportNames)
+ {
+     for (size_t iMat = 0; iMat < Materials.size(); iMat++)
+     {
+         AMaterial * mat = Materials[iMat];
+-        mat->generateTGeoMat();
++        mat->generateTGeoMat(useGdmlExportNames ? getGdmlExportName(iMat) : mat->Name);
+         mat->_GeoMed = new TGeoMedium(mat->Name.toLocal8Bit().data(), iMat, mat->_GeoMat);
+     }
+ }
+ 
++QString AMaterialHub::makeGdmlExportName(int iMat, const QString & name)
++{
++    // Allow-list: only characters which ROOT's TGDMLWrite::GenName keeps unchanged
++    QString safe;
++    safe.reserve(name.size());
++    for (const QChar & ch : name)
++    {
++        const char16_t c = ch.unicode();
++        const bool ok = (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') ||
++                        c == '_' || c == '-' || c == '.';
++        safe += (ok ? ch : QChar('_'));
++    }
++    safe.replace("0x", "0_x");     // Geant4 G4GDMLRead::StripName truncates the name at the first "0x"
++    safe.replace("_refl", "_ref_l"); // removed by TGDMLWrite::GenName
++
++    // the prefix makes the name unique and ensures it does not start with a digit
++    return QString("m%1_%2").arg(iMat).arg(safe);
++}
++
++QString AMaterialHub::getGdmlExportName(int iMat) const
++{
++    if (iMat < 0 || iMat >= (int)Materials.size()) return "";
++    return makeGdmlExportName(iMat, Materials[iMat]->Name);
++}
++
++#include <QXmlStreamReader>
++#include <map>
++QString AMaterialHub::checkGdmlExportNames(const QString & gdmlFileName) const
++{
++    QFile file(gdmlFileName);
++    if (!file.open(QFile::ReadOnly | QFile::Text)) return "Cannot open exported GDML file for verification: " + gdmlFileName;
++
++    std::map<QString, int> found; // material name in GDML -> number of occurrences
++    bool inMaterials = false;
++    QXmlStreamReader xml(&file);
++    while (!xml.atEnd())
++    {
++        xml.readNext();
++        if (xml.isStartElement())
++        {
++            if      (xml.name() == QLatin1String("materials")) inMaterials = true;
++            else if (inMaterials && xml.name() == QLatin1String("material"))
++                found[xml.attributes().value("name").toString()]++;
++        }
++        else if (xml.isEndElement() && xml.name() == QLatin1String("materials")) inMaterials = false;
++    }
++    if (xml.hasError()) return "Error parsing exported GDML file " + gdmlFileName + ": " + xml.errorString();
++
++    QString err;
++    for (size_t iMat = 0; iMat < Materials.size(); iMat++)
++    {
++        const QString expected = getGdmlExportName(iMat);
++        const auto it = found.find(expected);
++        const int num = (it == found.end() ? 0 : it->second);
++        if (num != 1)
++            err += QString("\n  material #%1 (%2): expected GDML name %3, found %4 time(s)").arg(iMat).arg(Materials[iMat]->Name).arg(expected).arg(num);
++    }
++    if (!err.isEmpty())
++        return "Material names in the exported GDML file do not match the expected names (has ROOT changed its GDML naming rules?):" + err;
++    return "";
++}
++
+ void AMaterialHub::clearMaterials()
+ {
+     for (AMaterial * mat : Materials)
+diff --git a/ants3bundle/src/ants3/materials/amaterialhub.h b/ants3bundle/src/ants3/materials/amaterialhub.h
+index 20617f96..6590a147 100644
+--- a/ants3bundle/src/ants3/materials/amaterialhub.h
++++ b/ants3bundle/src/ants3/materials/amaterialhub.h
+@@ -41,9 +41,17 @@ public:
+     void    clear();
+ 
+     void    convertPressureToDensity();
+-    void    generateGeoMedia();
++    void    generateGeoMedia(bool useGdmlExportNames = false); // true: TGeoMaterials get names from makeGdmlExportName()
+     void    updateRuntimeProperties();
+ 
++    // Name of the material in the GDML file exported for g4ants3: "m<iMat>_<sanitized name>".
++    // Unique by construction and contains only characters which ROOT's GDML writer keeps unchanged;
++    // also contains no "0x" (Geant4 GDML reader truncates names at "0x") and no "_refl" (removed by ROOT)
++    static QString makeGdmlExportName(int iMat, const QString & name);
++    QString getGdmlExportName(int iMat) const;
++    // Verifies that the material names in the exported GDML file are exactly the expected export names; returns error or ""
++    QString checkGdmlExportNames(const QString & gdmlFileName) const;
++
+     void    addNewMaterial();
+     void    addNewMaterial(QString name);       // !!!*** make single method!
+     void    addNewMaterial(QJsonObject & json); // !!!*** change to loadMaterial(filename)
+-- 
+2.43.0
+
