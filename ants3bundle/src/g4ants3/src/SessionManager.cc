@@ -331,7 +331,7 @@ bool SessionManager::activateNeutronThermalScatteringPhysics()
 #include "G4LogicalVolume.hh"
 void SessionManager::setupMaterials()
 {
-    // The GDML file contains every ants3 material under its export name (AG4MaterialRecord::GdmlName, unique by construction).
+    // The GDML file contains every ants3 material under its export name (AMaterialTransferRecord::GdmlName, unique by construction).
     // For every ants3 material index, a dedicated Geant4 material is configured or created:
     //   Direct   : the material from GDML, renamed to the original ants3 name, optionally with custom mean excitation energy
     //   Nist     : a material derived from the G4NistManager material (own G4Material object for every ants3 material!);
@@ -339,7 +339,7 @@ void SessionManager::setupMaterials()
     //   NCrystal : material built by NCrystal, renamed to the original ants3 name
     // The material of the logical volumes is then replaced by pointer.
 
-    const std::vector<AG4MaterialRecord> & Records = Settings.RunSet.Materials;
+    const std::vector<AMaterialTransferRecord> & Records = Settings.RunSet.Materials;
     G4NistManager * man = G4NistManager::Instance();
 
     MaterialsByIndex.assign(Records.size(), nullptr);
@@ -347,7 +347,7 @@ void SessionManager::setupMaterials()
 
     for (size_t iMat = 0; iMat < Records.size(); iMat++)
     {
-        const AG4MaterialRecord & rec = Records[iMat];
+        const AMaterialTransferRecord & rec = Records[iMat];
 
         if (rec.GdmlName.empty()) terminateSession("GDML name is not provided for material " + rec.Name);
         G4Material * gdmlMat = G4Material::GetMaterial(rec.GdmlName, false);
@@ -356,14 +356,14 @@ void SessionManager::setupMaterials()
         G4Material * mat = nullptr;
         switch (rec.Type)
         {
-        case AG4MaterialRecord::Direct :
+        case AMaterialTransferRecord::Direct :
             mat = gdmlMat;
             mat->SetName(rec.Name);
             if (rec.UseCustomMeanExEnergy)
                 mat->GetIonisation()->SetMeanExcitationEnergy(rec.MeanExEnergy * eV); // eV in the run time settings
             break;
 
-        case AG4MaterialRecord::Nist :
+        case AMaterialTransferRecord::Nist :
           {
             G4Material * base = man->FindOrBuildMaterial(rec.NistName);
             if (!base) terminateSession("Material " + rec.NistName + " (requested for material " + rec.Name + ") is not listed in G4NistManager");
@@ -372,7 +372,7 @@ void SessionManager::setupMaterials()
             break;
           }
 
-        case AG4MaterialRecord::NCrystal :
+        case AMaterialTransferRecord::NCrystal :
 #ifdef ANTS3_NCRYSTAL
             mat = G4NCrystal::createMaterial(rec.NCrystalCfg);
             if (!mat) terminateSession("Failed to build NCrystal material using string " + rec.NCrystalCfg + " for material " + rec.Name);
@@ -407,7 +407,7 @@ void SessionManager::setupMaterials()
 
 G4Material * SessionManager::findMaterialByAntsName(const std::string & antsName) const
 {
-    const std::vector<AG4MaterialRecord> & Records = Settings.RunSet.Materials;
+    const std::vector<AMaterialTransferRecord> & Records = Settings.RunSet.Materials;
     for (size_t iMat = 0; iMat < Records.size() && iMat < MaterialsByIndex.size(); iMat++)
         if (Records[iMat].Name == antsName) return MaterialsByIndex[iMat];
     return nullptr;
@@ -800,10 +800,10 @@ void SessionManager::readConfig(const std::string & workingDir, const std::strin
     std::cout << "Config lists the following materials:" << '\n';
     for (size_t i = 0; i < Settings.RunSet.Materials.size(); i++)
     {
-        const AG4MaterialRecord & rec = Settings.RunSet.Materials[i];
+        const AMaterialTransferRecord & rec = Settings.RunSet.Materials[i];
         std::cout << i << " -> " << rec.Name << "  (GDML name: " << rec.GdmlName << ")";
-        if      (rec.Type == AG4MaterialRecord::Nist)     std::cout << "  to be constructed using G4NistManager: " << rec.NistName;
-        else if (rec.Type == AG4MaterialRecord::NCrystal) std::cout << "  to be constructed using NCrystal: " << rec.NCrystalCfg;
+        if      (rec.Type == AMaterialTransferRecord::Nist)     std::cout << "  to be constructed using G4NistManager: " << rec.NistName;
+        else if (rec.Type == AMaterialTransferRecord::NCrystal) std::cout << "  to be constructed using NCrystal: " << rec.NCrystalCfg;
         std::cout << '\n';
     }
 

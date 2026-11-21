@@ -49,7 +49,7 @@ void ASaveParticlesSettings::readFromJson(const QJsonObject & json)
 // ---
 
 #ifndef JSON11
-void AG4MaterialRecord::writeToJson(QJsonObject & json) const
+void AMaterialTransferRecord::writeToJson(QJsonObject & json) const
 {
     json["Name"]     = QString(Name.data());
     json["GdmlName"] = QString(GdmlName.data());
@@ -73,7 +73,7 @@ void AG4MaterialRecord::writeToJson(QJsonObject & json) const
 
 #ifdef JSON11
 #include "aerrorhub.h"
-void AG4MaterialRecord::readFromJson(const json11::Json::object & json)
+void AMaterialTransferRecord::readFromJson(const json11::Json::object & json)
 {
     jstools::parseJson(json, "Name",     Name);
     jstools::parseJson(json, "GdmlName", GdmlName);
@@ -149,7 +149,7 @@ void AParticleRunSettings::writeToJson(QJsonObject & json, bool includeG4ants3Se
 
         {
             QJsonArray ar;
-            for (const AG4MaterialRecord & mat : Materials)
+            for (const AMaterialTransferRecord & mat : Materials)
             {
                 QJsonObject js;
                 mat.writeToJson(js);

@@ -37,7 +37,7 @@ public:
 };
 
 // Material record transferred from ants3 to g4ants3; the position in AParticleRunSettings::Materials is the ants3 material index
-class AG4MaterialRecord
+class AMaterialTransferRecord
 {
 public:
     enum EType {Direct = 0, Nist = 1, NCrystal = 2};
@@ -92,7 +92,7 @@ public:
     int         EventFrom = 0;
     int         EventTo   = 0;
 
-    std::vector<AG4MaterialRecord> Materials;  // index in this vector = ants3 material index
+    std::vector<AMaterialTransferRecord> Materials;  // index in this vector = ants3 material index
 
     std::string GDML;
     std::string Receipt;

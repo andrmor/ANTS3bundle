@@ -404,22 +404,22 @@ void AParticleSimManager::configureMaterials()
     {
         const AMaterial * mat = MatHub[iMat];
 
-        AG4MaterialRecord rec;
+        AMaterialTransferRecord rec;
         rec.Name     = mat->Name.toLatin1().data();
         rec.GdmlName = MatHub.getGdmlExportName(iMat).toLatin1().data(); // the same name is used by exportGeometry(..., true)
         switch (mat->CompositionType)
         {
         case AMaterial::Direct :
-            rec.Type = AG4MaterialRecord::Direct;
+            rec.Type = AMaterialTransferRecord::Direct;
             rec.UseCustomMeanExEnergy = mat->Composition.UseCustomMeanExEnergy;
             rec.MeanExEnergy          = mat->Composition.MeanExEnergy;
             break;
         case AMaterial::Geant4Material :
-            rec.Type = AG4MaterialRecord::Nist;
+            rec.Type = AMaterialTransferRecord::Nist;
             rec.NistName = mat->G4MaterialName.toLatin1().data();
             break;
         case AMaterial::NCrystalMaterial :
-            rec.Type = AG4MaterialRecord::NCrystal;
+            rec.Type = AMaterialTransferRecord::NCrystal;
             rec.NCrystalCfg = mat->NCrystalMaterialName.toLatin1().data();
             break;
         }
