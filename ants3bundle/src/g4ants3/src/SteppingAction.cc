@@ -146,7 +146,7 @@ void SteppingAction::UserSteppingAction(const G4Step *step)
 
     if (bTransport)
     {
-        const int iMat = SM.findMaterial( step->GetPostStepPoint()->GetMaterial()->GetName() ); //will terminate session if not found!
+        const int iMat = SM.findMaterial( step->GetPostStepPoint()->GetMaterial() ); //will terminate session if not found!
         const std::string & VolNameTo = step->GetPostStepPoint()->GetPhysicalVolume()->GetLogicalVolume()->GetName();
         const int VolIndexTo = step->GetPostStepPoint()->GetPhysicalVolume()->GetCopyNo();
 

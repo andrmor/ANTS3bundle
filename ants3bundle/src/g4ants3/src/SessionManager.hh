@@ -12,6 +12,7 @@
 #include <map>
 
 #include "G4ThreeVector.hh"
+#include "G4Material.hh"
 
 class G4ParticleDefinition;
 class G4StepPoint;
@@ -23,7 +24,6 @@ class G4VPhysicalVolume;
 class AParticleGun;
 class PrimaryGeneratorAction;
 class G4VModularPhysicsList;
-class G4Material;
 
 struct ParticleRecord
 {
@@ -66,7 +66,14 @@ class SessionManager
         void runSimulation();
 
         void onEventFinished();
-        int  findMaterial(const std::string & materialName);  // change to pointer search?
+        // ants3 material index of the Geant4 material: one vector access; terminates the session if the material is unknown
+        int  findMaterial(const G4Material * material)
+        {
+            const size_t iG4 = material->GetIndex();
+            const int iMat = (iG4 < G4IndexToAntsIndex.size() ? G4IndexToAntsIndex[iG4] : -1);
+            if (iMat < 0) reportUnknownMaterial(material);
+            return iMat;
+        }
 
         bool activateNeutronThermalScatteringPhysics();
         void setupMaterials(); // call after the GDML is loaded: creates/configures the final Geant4 materials for all ants3 materials
@@ -138,6 +145,7 @@ private:
         void storeCalorimeterData();
         void storeAnalyzerData();
         bool extractIonInfo(const std::string & text, int & Z, int & A, double & E);
+        void reportUnknownMaterial(const G4Material * material); // terminates the session
 
     private:
         std::ofstream * outStreamDeposition     = nullptr;
@@ -146,8 +154,8 @@ private:
         std::ofstream * outStreamExit           = nullptr;
 
         std::map<std::string, int> ElementToZ;
-        std::map<std::string, int> MaterialMap;
-        std::vector<G4Material*>   MaterialsByIndex; // ants3 material index -> Geant4 material; filled in setupMaterials()
+        std::vector<G4Material*>   MaterialsByIndex;   // ants3 material index -> Geant4 material; filled in setupMaterials()
+        std::vector<int>           G4IndexToAntsIndex; // G4Material::GetIndex() -> ants3 material index (-1: not an ants3 material); filled in setupMaterials()
 
         bool bExitBinary = false;
         bool bBinaryOutput = false;

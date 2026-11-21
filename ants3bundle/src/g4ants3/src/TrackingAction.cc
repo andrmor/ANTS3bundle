@@ -22,7 +22,7 @@ void TrackingAction::PreUserTrackingAction(const G4Track *track)
 {
     SessionManager & SM = SessionManager::getInstance();
 
-    const int iMat = SM.findMaterial( track->GetVolume()->GetLogicalVolume()->GetMaterial()->GetName() ); //will terminate session if not found!
+    const int iMat = SM.findMaterial( track->GetVolume()->GetLogicalVolume()->GetMaterial() ); //will terminate session if not found!
     SM.saveTrackStart(track->GetTrackID(), track->GetParentID(),
                       track->GetParticleDefinition()->GetParticleName(),
                       track->GetPosition(), track->GetGlobalTime()/ns, track->GetKineticEnergy()/keV,

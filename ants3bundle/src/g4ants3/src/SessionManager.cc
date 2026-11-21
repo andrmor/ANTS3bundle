@@ -164,13 +164,9 @@ void SessionManager::onEventFinished()
     std::cout << "$$>" << EventsDone << "<$$" << std::endl; // endl also flushes!
 }
 
-int SessionManager::findMaterial(const std::string &materialName)
+void SessionManager::reportUnknownMaterial(const G4Material * material)
 {
-    auto it = MaterialMap.find(materialName);
-    if (it == MaterialMap.end())
-        terminateSession("Found deposition in materials not listed in the config json: " + materialName);
-
-    return it->second;
+    terminateSession("Found deposition in materials not listed in the config json: " + material->GetName());
 }
 
 #include "G4ProcessManager.hh"
@@ -404,9 +400,9 @@ void SessionManager::setupMaterials()
             if (it != Replacements.end()) lv->SetMaterial(it->second);
         }
 
-    MaterialMap.clear();
+    G4IndexToAntsIndex.assign(G4Material::GetNumberOfMaterials(), -1);
     for (size_t iMat = 0; iMat < MaterialsByIndex.size(); iMat++)
-        MaterialMap[MaterialsByIndex[iMat]->GetName()] = (int)iMat;
+        G4IndexToAntsIndex[MaterialsByIndex[iMat]->GetIndex()] = (int)iMat;
 }
 
 G4Material * SessionManager::findMaterialByAntsName(const std::string & antsName) const
