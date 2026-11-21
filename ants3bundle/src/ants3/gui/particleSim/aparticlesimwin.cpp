@@ -3715,7 +3715,7 @@ void AParticleSimWin::on_pbGeant4CommandsHelp_clicked()
     QString txt = R"HTML(
 <p><b>Geant4 commands (as in macro files)</b></p>
 
-<p>These Geant4 UI commands, the same commands as used in Geant4 macro files, are executed before each particle simulation, in the listed order. They run after the geometry and the physics list have been set up, followed by a final <span style="font-family:monospace">/run/initialize</span>. Enter one command per line; empty lines and lines starting with <span style="font-family:monospace">#</span> are ignored.</p>
+<p>These Geant4 UI commands, the same commands as used in Geant4 macro files, are executed before each particle simulation, in the listed order. They run after Geant4 has been initialized (geometry and physics list set up, <span style="font-family:monospace">/run/initialize</span> done); after them, <span style="font-family:monospace">/run/initialize</span> is applied once more. Enter one command per line. Empty lines and lines starting with <span style="font-family:monospace">#</span> are ignored, as is text after <span style="font-family:monospace">#</span> on a command line.</p>
 
 <p>A command must be valid in this state. Commands that Geant4 accepts only before initialization (for example <span style="font-family:monospace">/process/em/fluoBearden</span>) are rejected. A rejected command (unknown command, wrong argument order or value, unknown process name) <b>stops the simulation</b> with an error message.</p>
 
@@ -3751,12 +3751,12 @@ Process names depend on the physics list (e.g. hadElastic, nCapture, Radioactive
 <span style="font-family:monospace">/process/eLoss/StepFunction 0.2 0.1 mm</span> &nbsp;&nbsp;# electrons and positrons<br>
 <span style="font-family:monospace">/process/eLoss/StepFunctionMuHad 0.1 0.05 mm</span> &nbsp;&nbsp;# muons, protons, pions<br>
 <span style="font-family:monospace">/process/eLoss/StepFunctionLightIons 0.1 0.01 mm</span> &nbsp;&nbsp;# alpha, deuteron, triton, He-3<br>
-The first number is the largest step as a fraction of the particle's remaining range; the length is the range below which this limit is no longer applied. Smaller values give shorter steps.</p>
-<p>This is independent of the ANTS3 step limits: those cap the step length in selected volumes; the step function refines the steps of charged particles everywhere as they slow down. When both apply, the shorter step is taken.</p>
+The first parameter is the maximum step as a fraction of the remaining range at high energies. The second sets the final-range scale for a smooth transition towards the end of the track; once the remaining range is below it, the step may extend to the end of the range. Smaller values generally give finer stepping, but other processes or the geometry may impose shorter steps.</p>
+<p>This is independent of the ANTS3 step limits: those cap the step length in selected volumes; the step function refines the steps of charged particles everywhere as they slow down. When both apply, the shortest step limit is used.</p>
 
 <p><b>Production cuts</b></p>
 
-<p>Geant4 does not create secondary particles whose expected range is below a threshold, the <i>production cut</i>. The cut is a length, converted by Geant4 to an energy for each material. Cuts only decide whether a secondary is <i>created</i>. Every particle that is created is tracked down to zero energy.</p>
+<p>Geant4 does not create secondary particles whose expected range is below a threshold, the <i>production cut</i>. The cut is a length, converted by Geant4 to an energy for each material. Cuts only decide whether a secondary is <i>created</i>; they do not stop particles that already exist. Tracking ends by the physics processes themselves: for example, charged particles below a lowest energy (by default 1 keV for electrons, positrons, muons and hadrons) are stopped and their remaining energy is deposited locally.</p>
 
 <p><b>Photon, electron and positron cuts (gamma, e-, e+):</b> control the creation of low-energy photons (e.g. bremsstrahlung) and electrons/positrons (e.g. delta rays). The energy that is not given to a secondary is deposited along the step of the parent particle. A smaller cut gives a more detailed spatial distribution of the deposited energy, but a slower simulation. The default of all physics lists offered here is 0.7 mm.</p>
 
