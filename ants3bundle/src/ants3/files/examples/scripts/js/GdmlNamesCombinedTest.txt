@@ -1,0 +1,641 @@
+// GdmlNamesCombinedTest.js - combined regression test for the GDML export-name fix (branch gdmFix)
+// Load GdmlNamesCombinedTest.json in the ANTS3 GUI first, then run this script.
+// Every check prints PASS/FAIL, every stage prints STAGE PASS/FAIL, and the script ends with OVERALL: PASS/FAIL.
+//
+// Part A (always):
+//   A0  configuration and test mode
+//   A1  2 MeV gamma beam (lane y = 0) through Box(A) [Water(1)], Box[B] [Water[1]], Core[p] in Instance Cell(i) [Water[1]],
+//       Box_B_ [1st(Fe)]: tracking history, monitors, calorimeter (histogram + event log), deposition log, particle analyzer,
+//       exit particles and partan, all attached to volumes whose names change on GDML export; cross-checked against each other
+//   A2  2 MeV gamma beam (lane y = 150) through 20 mm density probes made of the name-collision materials:
+//       m5_Iron (named like the GDML name of Iron), Iron, custom G4_WATER (2 g/cm3), NIST Water, custom G4_Al (iron, 5 g/cm3),
+//       NIST Al[g4]. The interaction probability of uncollided primaries in each probe must match its own density/material
+//   A3-A8 material-limited electron sources: Water(1), Water[1], 1st(Fe), m5_Iron, G4_WATER, G4_Al
+// Part B (only if Test_NCrystal = true; requires g4ants3 built with NCrystal):
+//   B1  25 meV neutron beam (lane y = -150), NCrystal on: Bragg scattering in the NCrystal slabs (incl. Al_dup with the same
+//       NCrystal string as Al(nc)), none in the NIST Al slab; hadronic target isotopes match the slab material
+//   B2  same with NCrystal off
+//   B3-B5 material-limited neutron sources: Al(nc), Al_dup, Cu(nc)
+// If Test_NCrystal = false, the NCrystal materials are temporarily converted to Geant4 G4_Al/G4_Cu, their slabs are
+// disabled and UseNCrystal is switched off. The configuration is restored at the end.
+
+var Test_NCrystal = false; // set to true to run Part B (g4ants3 must be built with NCrystal)
+
+var srcPath = "ParticleSim.GenerationFromSources.ParticleSources[0]";
+var outputDir = config.getKeyValue("ParticleSim.RunSettings.OutputDirectory");
+var trackFile = outputDir + "/" + config.getKeyValue("ParticleSim.RunSettings.FileNameTrackingHistory");
+var monitorFile = outputDir + "/" + config.getKeyValue("ParticleSim.RunSettings.MonitorSettings.FileName");
+var calorimeterFile = outputDir + "/" + config.getKeyValue("ParticleSim.RunSettings.CalorimeterSettings.FileName");
+var calorimeterLogFile = outputDir + "/" + config.getKeyValue("ParticleSim.RunSettings.CalorimeterSettings.LogFileName");
+var analyzerFile = outputDir + "/" + config.getKeyValue("ParticleSim.RunSettings.AnalyzerSettings.FileName");
+var depositionFile = outputDir + "/" + config.getKeyValue("ParticleSim.RunSettings.FileNameDeposition");
+var exitParticlesFile = outputDir + "/" + config.getKeyValue("ParticleSim.RunSettings.SaveParticles.FileName");
+
+// ---------- reporting ----------
+var totalPass = 0, totalFail = 0, failedStages = [];
+var stagePass = 0, stageFail = 0, stageName = "";
+function beginStage(name) { stageName = name; stagePass = 0; stageFail = 0; core.print("=== " + name + " ==="); }
+function reportCheck(label, ok, details)
+{
+    if (ok) { stagePass++; totalPass++; } else { stageFail++; totalFail++; }
+    core.print((ok ? "PASS  " : "FAIL  ") + label + (details ? "  [" + details + "]" : ""));
+}
+function endStage()
+{
+    core.print((stageFail == 0 ? "STAGE PASS: " : "STAGE FAIL: ") + stageName + "  (" + stagePass + " passed, " + stageFail + " failed)");
+    if (stageFail > 0) failedStages.push(stageName);
+}
+
+// ---------- materials and volumes ----------
+var matIndexVacuum = 0, matIndexWater1 = 1, matIndexWater2 = 2, matIndexIron = 3;
+var expectedMaterialNames = ["Vacuum", "Water(1)", "Water[1]", "1st(Fe)", "m5_Iron", "Iron", "G4_WATER", "Water", "G4_Al", "Al[g4]",
+                             "Al(nc)", "Al{T}", "Cu(nc)", "Al_dup"];
+var ncMaterialIndices = [10, 11, 12, 13];
+var ncReplacementG4 = ["G4_Al", "G4_Al", "G4_Cu", "G4_Al"]; // used when Test_NCrystal = false
+var volumeMaterial = {"World": 0, "Mon[in]": 0, "Mon[out]": 0, "Box(A)": 1, "Box[B]": 2, "Box_B_": 3,
+                      "Probe(m5Fe)": 4, "Probe(Fe)": 5, "Probe(cWater)": 6, "Probe(Water)": 7, "Probe(cAl)": 8, "Probe(Al)": 9,
+                      "Slab(ncAl)": 10, "Slab[g4Al]": 9, "Slab{T}": 11, "Slab(Cu)": 12, "Slab_dup": 13};
+var ncSlabNames = ["Slab(ncAl)", "Slab[g4Al]", "Slab{T}", "Slab(Cu)", "Slab_dup"];
+
+function expectedMaterialOfVolume(volumeName)
+{
+    if (volumeMaterial[volumeName] !== undefined) return volumeMaterial[volumeName];
+    if (volumeName.indexOf("Core[p]") == 0) return matIndexWater2; // expanded Prototype member, e.g. Core[p]_at_Cell(i)
+    return -1; // unknown name: e.g. a GDML-sanitized name which was not restored
+}
+
+// ---------- tracking-history helpers ----------
+function addGeometryContext(stats, record)
+{
+    var geoContext = record[2];
+    if (geoContext.length < 2) return ""; // no node (e.g. world exit)
+    var materialIndex = geoContext[0];
+    var volumeName = geoContext[1];
+    if (stats.seen[volumeName] === undefined) stats.seen[volumeName] = 0;
+    stats.seen[volumeName]++;
+    var expected = expectedMaterialOfVolume(volumeName);
+    if (expected < 0) stats.unknownNames[volumeName] = true;
+    else if (expected != materialIndex) stats.wrongMaterial[volumeName + " (got " + materialIndex + ", expected " + expected + ")"] = true;
+    return volumeName;
+}
+function countUp(counter, key) { if (counter[key] === undefined) counter[key] = 0; counter[key]++; }
+function getCount(counter, key) { return (counter[key] === undefined ? 0 : counter[key]); }
+function sumValues(counter) { var total = 0; for (var key in counter) total += counter[key]; return total; }
+function keysOf(obj) { var list = []; for (var key in obj) list.push(key); return list; }
+function nearlyEqual(a, b, relTol) { return Math.abs(a - b) <= relTol * Math.max(Math.abs(a), Math.abs(b), 1e-9); }
+
+// stats.entries[volume][particle]: transport entries; stats.exits[volume]: transport steps leaving the volume
+// stats.primaryEntriesFromWorld[volume]: entries of primaries coming directly from World
+function visitParticleRecursive(stats, isPrimary)
+{
+    var particleName = tracks.getTrackRecord()[0];
+    tracks.gotoFirstStep();
+    var currentVolume = addGeometryContext(stats, tracks.getPostStepRecord()); // creation step
+    while (tracks.makeStep())
+    {
+        var post = tracks.getPostStepRecord();
+        if (post[5] == "T")
+        {
+            var enteredVolume = addGeometryContext(stats, post);
+            if (stats.entries[enteredVolume] === undefined) stats.entries[enteredVolume] = {};
+            countUp(stats.entries[enteredVolume], particleName);
+            countUp(stats.exits, currentVolume);
+            if (isPrimary && currentVolume == "World") countUp(stats.primaryEntriesFromWorld, enteredVolume);
+            currentVolume = enteredVolume;
+        }
+        else if (post[5] == "O") countUp(stats.exits, currentVolume);
+    }
+    var numSec = tracks.countSecondaries();
+    for (var iSec = 0; iSec < numSec; iSec++)
+    {
+        tracks.enterSecondary(iSec);
+        visitParticleRecursive(stats, false);
+        tracks.exitSecondary();
+    }
+}
+
+function newStats() { return {seen: {}, unknownNames: {}, wrongMaterial: {}, entries: {}, exits: {}, primaryEntriesFromWorld: {}}; }
+
+function reportNamesAndIndices(stats, requiredVolumes)
+{
+    var missing = [];
+    for (var i = 0; i < requiredVolumes.length; i++)
+    {
+        var pattern = requiredVolumes[i], found = false;
+        var seenNames = keysOf(stats.seen);
+        for (var j = 0; j < seenNames.length; j++)
+            if (pattern.charAt(pattern.length - 1) == "*" ? seenNames[j].indexOf(pattern.substring(0, pattern.length - 1)) == 0 : seenNames[j] == pattern) found = true;
+        if (!found) missing.push(pattern);
+    }
+    reportCheck("all volumes entered under their original names", missing.length == 0,
+                missing.length == 0 ? "seen: " + keysOf(stats.seen).join(", ") : "missing: " + missing.join(", "));
+    var unknownList = keysOf(stats.unknownNames);
+    reportCheck("no unexpected (e.g. sanitized) volume names", unknownList.length == 0, unknownList.join(", "));
+    var wrongList = keysOf(stats.wrongMaterial);
+    reportCheck("every volume reports its expected ants3 material index", wrongList.length == 0, wrongList.join("; "));
+}
+
+function analyseAllParticles(stats)
+{
+    tracks.open(trackFile);
+    var nEv = tracks.countEvents();
+    for (var iEv = 0; iEv < nEv; iEv++)
+    {
+        tracks.setEvent(iEv);
+        for (var iPrim = 0; iPrim < tracks.countPrimaries(); iPrim++)
+        {
+            tracks.setPrimary(iPrim);
+            visitParticleRecursive(stats, true);
+        }
+    }
+    return nEv;
+}
+
+// ---------- configuration helpers ----------
+function configureSource(events, particle, energyKeV, shape, position, halfSizes, angularMode, limitedMaterial)
+{
+    config.replace("ParticleSim.Events", events);
+    config.replace(srcPath + ".Particles[0].Particle", particle);
+    config.replace(srcPath + ".Particles[0].Energy.FixedEnergy", energyKeV);
+    config.replace(srcPath + ".Spatial.Shape", shape);
+    config.replace(srcPath + ".Spatial.Position", position);
+    config.replace(srcPath + ".Spatial.Size1", halfSizes[0]);
+    config.replace(srcPath + ".Spatial.Size2", halfSizes[1]);
+    config.replace(srcPath + ".Spatial.Size3", halfSizes[2]);
+    config.replace(srcPath + ".Spatial.MaterialLimited", {"Enabled": limitedMaterial != "", "Material": limitedMaterial});
+    config.replace(srcPath + ".Angular.Mode", angularMode);
+    config.updateConfig();
+}
+function configureBeamSource() { configureSource(300, "gamma", 2000, "Point", [-280, 0, 0], [10, 10, 10], "Fixed", ""); }
+
+function findWorldTreeIndex(objectName)
+{
+    for (var i = 0; i < 1000; i++)
+    {
+        var name = config.getKeyValue("Geometry.WorldTree[" + i + "].Name");
+        if (name === false) return -1;
+        if (name == objectName) return i;
+    }
+    return -1;
+}
+
+// Starts at the primary's step 0; returns false if no primary could be selected
+function forEachPrimary(callback)
+{
+    tracks.open(trackFile);
+    var nEv = tracks.countEvents();
+    for (var iEv = 0; iEv < nEv; iEv++)
+    {
+        tracks.setEvent(iEv);
+        for (var iPrim = 0; iPrim < tracks.countPrimaries(); iPrim++)
+        {
+            tracks.setPrimary(iPrim);
+            callback();
+        }
+    }
+    return nEv;
+}
+
+function runMaterialLimitedStage(label, material, materialIndex, volumes, position, halfSizes, particle, energyKeV)
+{
+    beginStage(label);
+    configureSource(100, particle, energyKeV, "Box", position, halfSizes, "Isotropic", material);
+    psim.simulate();
+    var nPrimaries = 0, nWrong = 0, firstWrong = "", volumeCounts = {};
+    var nEv = forEachPrimary(function() {
+        var geoContext = tracks.getPostStepRecord()[2];
+        var startMat = (geoContext.length >= 2 ? geoContext[0] : -1);
+        var startVol = (geoContext.length >= 2 ? geoContext[1] : "<none>");
+        nPrimaries++;
+        countUp(volumeCounts, startVol);
+        var volOk = false;
+        for (var i = 0; i < volumes.length; i++)
+        {
+            var pattern = volumes[i];
+            if (pattern.charAt(pattern.length - 1) == "*" ? startVol.indexOf(pattern.substring(0, pattern.length - 1)) == 0 : startVol == pattern) volOk = true;
+        }
+        if (startMat != materialIndex || !volOk)
+        {
+            nWrong++;
+            if (firstWrong == "") firstWrong = "material " + startMat + " in " + startVol;
+        }
+    });
+    var countText = [];
+    var volKeys = keysOf(volumeCounts);
+    for (var k = 0; k < volKeys.length; k++) countText.push(volKeys[k] + ": " + volumeCounts[volKeys[k]]);
+    reportCheck("all events simulated", nEv == config.getKeyValue("ParticleSim.Events") && nPrimaries >= nEv,
+                "events " + nEv + ", primaries " + nPrimaries);
+    reportCheck("every primary starts in " + volumes.join(" or ") + " with material index " + materialIndex,
+                nPrimaries > 0 && nWrong == 0, nWrong == 0 ? countText.join(", ") : nWrong + " wrong, first: " + firstWrong);
+    if (volumes.length > 1)
+    {
+        var allUsed = true;
+        for (var iU = 0; iU < volumes.length; iU++)
+        {
+            var used = false, patternU = volumes[iU];
+            for (var k2 = 0; k2 < volKeys.length; k2++)
+                if (patternU.charAt(patternU.length - 1) == "*" ? volKeys[k2].indexOf(patternU.substring(0, patternU.length - 1)) == 0 : volKeys[k2] == patternU) used = true;
+            if (!used) allUsed = false;
+        }
+        reportCheck("all disconnected volumes of this material are used", allUsed, countText.join(", "));
+    }
+    endStage();
+}
+
+// ======================= A0: configuration and mode =======================
+beginStage("A0: loaded configuration, test mode " + (Test_NCrystal ? "WITH NCrystal" : "WITHOUT NCrystal"));
+var namesOk = true;
+for (var iM = 0; iM < expectedMaterialNames.length; iM++)
+    if (config.getKeyValue("Materials[" + iM + "].*Name") != expectedMaterialNames[iM]) namesOk = false;
+reportCheck("material table", namesOk, expectedMaterialNames.join(", "));
+var originalUseNCrystal = config.getKeyValue("ParticleSim.Geant4Settings.UseNCrystal");
+var originalNcTypes = [], originalNcG4 = [];
+for (var iN = 0; iN < ncMaterialIndices.length; iN++)
+{
+    originalNcTypes.push(config.getKeyValue("Materials[" + ncMaterialIndices[iN] + "].Composition.CompositionType"));
+    originalNcG4.push(config.getKeyValue("Materials[" + ncMaterialIndices[iN] + "].Composition.Geant4Material"));
+}
+var ncSlabTreeIndices = [];
+for (var iSl = 0; iSl < ncSlabNames.length; iSl++) ncSlabTreeIndices.push(findWorldTreeIndex(ncSlabNames[iSl]));
+reportCheck("NCrystal materials and slabs found",
+            originalNcTypes.join(",") == "NCrystal,NCrystal,NCrystal,NCrystal" && ncSlabTreeIndices.indexOf(-1) < 0,
+            "types: " + originalNcTypes.join(","));
+reportCheck("Al(nc) and Al_dup use the same NCrystal string",
+            config.getKeyValue("Materials[10].Composition.NCrystalMaterialName") == config.getKeyValue("Materials[13].Composition.NCrystalMaterialName"),
+            config.getKeyValue("Materials[10].Composition.NCrystalMaterialName"));
+
+function setNCrystalPartActive(active)
+{
+    for (var i = 0; i < ncMaterialIndices.length; i++)
+    {
+        var path = "Materials[" + ncMaterialIndices[i] + "].Composition.";
+        config.replace(path + "CompositionType", active ? "NCrystal" : "Geant4");
+        config.replace(path + "Geant4Material", active ? originalNcG4[i] : ncReplacementG4[i]);
+    }
+    for (var j = 0; j < ncSlabTreeIndices.length; j++) config.replace("Geometry.WorldTree[" + ncSlabTreeIndices[j] + "].fActive", active);
+    config.replace("ParticleSim.Geant4Settings.UseNCrystal", active);
+    config.updateConfig();
+}
+setNCrystalPartActive(Test_NCrystal);
+endStage();
+
+// ======================= A1: gamma beam, all data collections =======================
+beginStage("A1: gamma beam through all volumes, all data collections");
+configureBeamSource();
+psim.simulate();
+var nEventsBeam = config.getKeyValue("ParticleSim.Events");
+
+tracks.open(trackFile);
+var beamStats = {seen: {}, unknownNames: {}, wrongMaterial: {}, entries: {}, exits: {}, primaryEntriesFromWorld: {}};
+var nTrackEvents = tracks.countEvents();
+for (var iEv = 0; iEv < nTrackEvents; iEv++)
+{
+    tracks.setEvent(iEv);
+    var nPrim = tracks.countPrimaries();
+    for (var iPrim = 0; iPrim < nPrim; iPrim++)
+    {
+        tracks.setPrimary(iPrim);
+        visitParticleRecursive(beamStats, true);
+    }
+}
+reportCheck("tracking history contains all events", nTrackEvents == nEventsBeam,
+            nTrackEvents + " of " + nEventsBeam);
+
+reportNamesAndIndices(beamStats, ["Mon[in]", "Box(A)", "Box[B]", "Box_B_", "Mon[out]", "Core[p]*"]);
+
+psim.loadMonitorData(monitorFile);
+var monitorCount = psim.countMonitors();
+var monitorHits = psim.getMonitorHitsAll();
+var monitorPos = psim.getMonitorGlobalPositionsAll();
+var hitsIn = -1, hitsOut = -1;
+for (var iMon = 0; iMon < monitorCount; iMon++)
+{
+    if (Math.abs(monitorPos[iMon][0] + 200) < 1) hitsIn = monitorHits[iMon];
+    if (Math.abs(monitorPos[iMon][0] - 200) < 1) hitsOut = monitorHits[iMon];
+}
+reportCheck("two particle monitors found at x = -200 and +200 mm", monitorCount == 2 && hitsIn >= 0 && hitsOut >= 0,
+            "count = " + monitorCount);
+reportCheck("Mon[in] counts every primary gamma", hitsIn >= nEventsBeam, "hits = " + hitsIn + ", events = " + nEventsBeam);
+reportCheck("Mon[out] has hits", hitsOut > 0, "hits = " + hitsOut);
+
+// ---- calorimeter: histogram and event log ----
+psim.loadCalorimeterData(calorimeterFile);
+var calCount = psim.countCalorimeters();
+var calEntries = 0;
+if (calCount > 0)
+{
+    var depoBins = psim.getCalorimeterOverEventData(0);
+    for (var iBin = 0; iBin < depoBins.length; iBin++) calEntries += depoBins[iBin][1];
+}
+reportCheck("calorimeter on Box(A) registers deposition", calCount == 1 && calEntries > 0,
+            "calorimeters = " + calCount + ", events with deposition (in range) = " + calEntries);
+
+var calLogRows = core.loadNumericArray(calorimeterLogFile);
+// Note: for a single-column file core.loadNumericArray returns a flat array of numbers (rows[i]),
+// for several columns an array of rows (rows[i][j]); handle both.
+var calLogNonZero = 0, calLogSum = 0;
+for (var iRow = 0; iRow < calLogRows.length; iRow++)
+{
+    var calLogValue = (typeof calLogRows[iRow] === "number") ? calLogRows[iRow] : calLogRows[iRow][0];
+    calLogSum += calLogValue;
+    if (calLogValue > 0) calLogNonZero++;
+}
+reportCheck("calorimeter event log has one line per event", calLogRows.length == nEventsBeam,
+            calLogRows.length + " lines, " + nEventsBeam + " events");
+reportCheck("calorimeter event log agrees with the calorimeter histogram", calLogNonZero == calEntries,
+            "events with deposition: log " + calLogNonZero + ", histogram " + calEntries);
+
+// ---- deposition log ----
+// ASCII format: "#<event>" markers; records "particle materialIndex depo_keV x y z time_ns copyNumber"
+var depoText = core.loadText(depositionFile);
+var depoLines = depoText.split("\n");
+var depoByMat = {}, depoSumByMat = {}, depoOutside = 0, depoUnexpectedMat = {}, depoCoreRegion = 0, depoBadLine = 0;
+// expected x ranges (mm) of the volumes, per ants3 material index
+var xRangesByMat = {1: [[-140, -100]], 2: [[-60, -20], [20, 60]], 3: [[100, 140]]};
+for (var iLine = 0; iLine < depoLines.length; iLine++)
+{
+    var line = depoLines[iLine].trim();
+    if (line.length == 0 || line.charAt(0) == "#") continue;
+    var fields = line.split(/\s+/);
+    if (fields.length < 8) { depoBadLine++; continue; }
+    var depoMat = parseInt(fields[1]);
+    var depoE = parseFloat(fields[2]);
+    var depoX = parseFloat(fields[3]), depoY = parseFloat(fields[4]), depoZ = parseFloat(fields[5]);
+    countUp(depoByMat, depoMat);
+    if (depoSumByMat[depoMat] === undefined) depoSumByMat[depoMat] = 0;
+    depoSumByMat[depoMat] += depoE;
+    var ranges = xRangesByMat[depoMat];
+    if (ranges === undefined) { depoUnexpectedMat[depoMat] = true; continue; }
+    var inside = false;
+    for (var iR = 0; iR < ranges.length; iR++)
+        if (depoX >= ranges[iR][0] - 0.01 && depoX <= ranges[iR][1] + 0.01) inside = true;
+    if (Math.abs(depoY) > 20.01 || Math.abs(depoZ) > 20.01) inside = false;
+    if (!inside) depoOutside++;
+    if (depoMat == matIndexWater2 && depoX > 0) depoCoreRegion++;
+}
+reportCheck("deposition log is readable", depoBadLine == 0 && sumValues(depoByMat) > 0,
+            sumValues(depoByMat) + " records, " + depoBadLine + " malformed lines");
+reportCheck("deposition log contains only ants3 materials 1, 2, 3, each present",
+            keysOf(depoUnexpectedMat).length == 0 && getCount(depoByMat, 1) > 0 && getCount(depoByMat, 2) > 0 && getCount(depoByMat, 3) > 0,
+            "records by material: 1: " + getCount(depoByMat, 1) + ", 2: " + getCount(depoByMat, 2) + ", 3: " + getCount(depoByMat, 3) +
+            (keysOf(depoUnexpectedMat).length ? ", unexpected: " + keysOf(depoUnexpectedMat).join(",") : ""));
+reportCheck("every deposition lies inside a volume of its material", depoOutside == 0, depoOutside + " outside");
+reportCheck("wildcard Core[p]* selects the Instance volume for deposition logging", depoCoreRegion > 0,
+            depoCoreRegion + " Water[1] records at x > 0");
+var depoSumA = (depoSumByMat[matIndexWater1] === undefined ? 0 : depoSumByMat[matIndexWater1]);
+reportCheck("deposition log total in Water(1) equals calorimeter log total for Box(A)", nearlyEqual(depoSumA, calLogSum, 1e-3),
+            "deposition log " + depoSumA.toFixed(3) + " keV, calorimeter log " + calLogSum.toFixed(3) + " keV");
+
+// ---- particle analyzer on Box[B] ----
+psim.loadAnalyzerData(analyzerFile);
+var analyzerCount = psim.countAnalyzers();
+var analyzerSpecies = {};
+if (analyzerCount > 0)
+{
+    var speciesRecords = psim.getAnalyzerData(0);
+    for (var iSp = 0; iSp < speciesRecords.length; iSp++) analyzerSpecies[speciesRecords[iSp][0]] = speciesRecords[iSp][1];
+}
+var trackEntriesB = (beamStats.entries["Box[B]"] === undefined ? {} : beamStats.entries["Box[B]"]);
+reportCheck("particle analyzer on Box[B] scores gammas", analyzerCount == 1 && getCount(analyzerSpecies, "gamma") > 0,
+            "analyzers = " + analyzerCount + ", gamma = " + getCount(analyzerSpecies, "gamma"));
+reportCheck("analyzer gamma count equals gamma entries into Box[B] in tracking history",
+            getCount(analyzerSpecies, "gamma") == getCount(trackEntriesB, "gamma"),
+            "analyzer " + getCount(analyzerSpecies, "gamma") + ", tracking " + getCount(trackEntriesB, "gamma") +
+            " (all species: analyzer " + sumValues(analyzerSpecies) + ", tracking " + sumValues(trackEntriesB) + ")");
+
+// ---- exit particles of Box(A) ----
+var exitText = core.loadText(exitParticlesFile);
+var exitLines = exitText.split("\n");
+var nExit = 0, nExitOffSurface = 0, nExitBadLine = 0;
+for (var iEx = 0; iEx < exitLines.length; iEx++)
+{
+    var exitLine = exitLines[iEx].trim();
+    if (exitLine.length == 0 || exitLine.charAt(0) == "#") continue;
+    // format: particle energy_keV x y z dx dy dz time_ns
+    var exitFields = exitLine.split(/\s+/);
+    if (exitFields.length < 9) { nExitBadLine++; continue; }
+    nExit++;
+    var ex = parseFloat(exitFields[2]) + 120, ey = parseFloat(exitFields[3]), ez = parseFloat(exitFields[4]); // local to Box(A)
+    var onSurface = Math.max(Math.abs(ex), Math.abs(ey), Math.abs(ez));
+    if (Math.abs(onSurface - 20) > 0.01) nExitOffSurface++;
+}
+reportCheck("exit particles of Box(A) are saved", nExit > 0 && nExitBadLine == 0,
+            nExit + " records, " + nExitBadLine + " malformed lines");
+reportCheck("every exit record lies on the Box(A) surface", nExit > 0 && nExitOffSurface == 0, nExitOffSurface + " off surface");
+reportCheck("number of exit records equals transitions leaving Box(A) in tracking history",
+            nExit == getCount(beamStats.exits, "Box(A)"), "exit file " + nExit + ", tracking " + getCount(beamStats.exits, "Box(A)"));
+
+// ---- partan: volume-name filters on the same history ----
+partan.configure(trackFile, 1, nEventsBeam);
+partan.clearCriteria();
+partan.setOnlyPrimary();
+partan.setFromVolume("World");
+partan.setToVolume("Box[B]");
+var borderBins = partan.findOnBorder("x", "", 1, -1000, 1000);
+var partanEntriesB = 0;
+for (var iBB = 0; iBB < borderBins.length; iBB++) partanEntriesB += borderBins[iBB][1];
+reportCheck("partan World -> Box[B] primary transitions equal tracking-history count",
+            partanEntriesB > 0 && partanEntriesB == getCount(beamStats.primaryEntriesFromWorld, "Box[B]"),
+            "partan " + partanEntriesB + ", tracking " + getCount(beamStats.primaryEntriesFromWorld, "Box[B]"));
+
+partan.clearCriteria();
+partan.setVolume("Box(A)");
+var partanDepoBins = partan.findDepositedEnergiesOverEvent(250, 0, 2500);
+var partanDepoEvents = 0;
+for (var iPD = 0; iPD < partanDepoBins.length; iPD++) partanDepoEvents += partanDepoBins[iPD][1];
+reportCheck("partan events with deposition in Box(A) agree with the calorimeter (within 5%)",
+            partanDepoEvents > 0 && Math.abs(partanDepoEvents - calEntries) <= Math.max(1, 0.05 * calEntries),
+            "partan " + partanDepoEvents + ", calorimeter " + calEntries);
+partan.clearCriteria();
+
+endStage();
+
+// ======================= A2: density probes (name-collision materials) =======================
+beginStage("A2: gamma attenuation in probes made of name-collision materials");
+configureSource(5000, "gamma", 2000, "Point", [-560, 150, 0], [10, 10, 10], "Fixed", "");
+psim.simulate();
+// mass attenuation coefficients at 2 MeV incl. coherent scattering (NIST XCOM), cm2/g
+var muWater = 0.04942, muIron = 0.04254, muAl = 0.04324;
+var probes = [ // volume, ants3 material index, expected density (g/cm3), mass attenuation coefficient, description
+    {volume: "Probe(m5Fe)",   material: 4, density: 3.0,   mu: muIron,  note: "iron 3.0 g/cm3 (not Iron 7.874)"},
+    {volume: "Probe(Fe)",     material: 5, density: 7.874, mu: muIron,  note: "iron 7.874 g/cm3"},
+    {volume: "Probe(cWater)", material: 6, density: 2.0,   mu: muWater, note: "custom water 2.0 g/cm3"},
+    {volume: "Probe(Water)",  material: 7, density: 1.0,   mu: muWater, note: "NIST water 1.0 g/cm3 (not the custom 2.0)"},
+    {volume: "Probe(cAl)",    material: 8, density: 5.0,   mu: muIron,  note: "custom iron 5.0 g/cm3 named G4_Al"},
+    {volume: "Probe(Al)",     material: 9, density: 2.699, mu: muAl,    note: "NIST aluminium 2.699 g/cm3 (not the custom G4_Al)"}
+];
+var probeThicknessCm = 2.0; // tolerance: 4 standard deviations of the measured binomial fraction, at least 0.03
+var probeEntered = {}, probeInteracted = {};
+var probeStats = newStats();
+var nProbeEvents = forEachPrimary(function() {
+    var currentVolume = "World";
+    while (tracks.makeStep())
+    {
+        var post = tracks.getPostStepRecord();
+        if (post[5] == "T")
+        {
+            currentVolume = addGeometryContext(probeStats, post);
+            countUp(probeEntered, currentVolume);
+            continue;
+        }
+        if (post[5] == "O") break;
+        countUp(probeInteracted, currentVolume); // first interaction of the uncollided primary
+        break;
+    }
+});
+reportCheck("tracking history contains all events", nProbeEvents == config.getKeyValue("ParticleSim.Events"), nProbeEvents + " events");
+reportNamesAndIndices(probeStats, ["Probe(m5Fe)", "Probe(Fe)", "Probe(cWater)", "Probe(Water)", "Probe(cAl)", "Probe(Al)"]);
+for (var iPr = 0; iPr < probes.length; iPr++)
+{
+    var pr = probes[iPr];
+    var entered = getCount(probeEntered, pr.volume), interacted = getCount(probeInteracted, pr.volume);
+    var measured = (entered > 0 ? interacted / entered : -1);
+    var expectedP = 1 - Math.exp(-pr.mu * pr.density * probeThicknessCm);
+    var tolerance = Math.max(0.03, 4 * Math.sqrt(expectedP * (1 - expectedP) / Math.max(entered, 1)));
+    reportCheck(pr.volume + ": interaction probability matches " + pr.note,
+                entered >= 200 && Math.abs(measured - expectedP) < tolerance,
+                "measured " + measured.toFixed(3) + " (" + interacted + "/" + entered + "), expected " + expectedP.toFixed(3) + " +- " + tolerance.toFixed(3));
+}
+endStage();
+
+// ======================= A3-A8: material-limited electron sources =======================
+runMaterialLimitedStage("A3: material-limited source in Water(1)", "Water(1)", 1, ["Box(A)"],             [0, 0, 0], [150, 25, 25], "e-", 50);
+runMaterialLimitedStage("A4: material-limited source in Water[1]", "Water[1]", 2, ["Box[B]", "Core[p]*"], [0, 0, 0], [150, 25, 25], "e-", 50);
+runMaterialLimitedStage("A5: material-limited source in 1st(Fe)",  "1st(Fe)",  3, ["Box_B_"],             [0, 0, 0], [150, 25, 25], "e-", 50);
+runMaterialLimitedStage("A6: material-limited source in m5_Iron",  "m5_Iron",  4, ["Probe(m5Fe)"],        [0, 150, 0], [450, 25, 25], "e-", 50);
+runMaterialLimitedStage("A7: material-limited source in G4_WATER", "G4_WATER", 6, ["Probe(cWater)"],      [0, 150, 0], [450, 25, 25], "e-", 50);
+runMaterialLimitedStage("A8: material-limited source in G4_Al",    "G4_Al",    8, ["Probe(cAl)"],         [0, 150, 0], [450, 25, 25], "e-", 50);
+
+// ======================= Part B: NCrystal =======================
+if (Test_NCrystal)
+{
+    var ncSlabs = [ // volume, ants3 material index, lattice constant [Angstrom], expected isotope prefix, NCrystal?
+        {volume: "Slab(ncAl)", material: 10, lattice: 4.04958, isotope: "Al", nc: true},
+        {volume: "Slab[g4Al]", material: 9,  lattice: 4.04958, isotope: "Al", nc: false},
+        {volume: "Slab{T}",    material: 11, lattice: 4.04958, isotope: "Al", nc: true},
+        {volume: "Slab(Cu)",   material: 12, lattice: 3.61496, isotope: "Cu", nc: true},
+        {volume: "Slab_dup",   material: 13, lattice: 4.04958, isotope: "Al", nc: true}
+    ];
+    var minScatters = 15, braggToleranceDeg = 1.0, minBraggFractionNCrystal = 0.6, maxBraggFractionGeant4 = 0.3;
+
+    var fccBraggAngles = function(latticeA, lambdaA)
+    {
+        var angles = [];
+        for (var h = 0; h <= 8; h++)
+            for (var k = 0; k <= h; k++)
+                for (var l = 0; l <= k; l++)
+                {
+                    if (h == 0 && k == 0 && l == 0) continue;
+                    var parity = (h % 2) + (k % 2) + (l % 2);
+                    if (parity != 0 && parity != 3) continue; // fcc: all even or all odd
+                    var sinTheta = lambdaA / (2 * latticeA / Math.sqrt(h * h + k * k + l * l));
+                    if (sinTheta < 1) angles.push(2 * Math.asin(sinTheta) * 180 / Math.PI);
+                }
+        return angles;
+    };
+    var ncSlabIndex = function(volumeName)
+    {
+        for (var i = 0; i < ncSlabs.length; i++) if (ncSlabs[i].volume == volumeName) return i;
+        return -1;
+    };
+
+    // first elastic scatter of each primary neutron (incoming direction +X), plus all hadronic target isotopes per slab
+    var analyseNeutronRun = function()
+    {
+        var lambdaA = 0.28601 / Math.sqrt(config.getKeyValue(srcPath + ".Particles[0].Energy.FixedEnergy") * 1000.0);
+        var bragg = [];
+        for (var i = 0; i < ncSlabs.length; i++) bragg.push(fccBraggAngles(ncSlabs[i].lattice, lambdaA));
+        var result = {stats: newStats(), perSlab: [], events: 0};
+        for (var i2 = 0; i2 < ncSlabs.length; i2++) result.perSlab.push({scatters: 0, bragg: 0, isotopes: {}, foreign: {}});
+        result.events = forEachPrimary(function() {
+            var currentSlab = -1, firstDone = false;
+            while (tracks.makeStep())
+            {
+                var post = tracks.getPostStepRecord();
+                if (post[5] == "T")
+                {
+                    currentSlab = ncSlabIndex(addGeometryContext(result.stats, post));
+                    continue;
+                }
+                if (post[5] == "O") break;
+                if (currentSlab >= 0 && post[6] != "")
+                {
+                    var slabStats = result.perSlab[currentSlab];
+                    countUp(slabStats.isotopes, post[6]);
+                    if (post[6].indexOf(ncSlabs[currentSlab].isotope) != 0) countUp(slabStats.foreign, post[6]);
+                }
+                if (firstDone) continue;
+                firstDone = true;
+                if (post[5].indexOf("hadElastic") == 0 && currentSlab >= 0)
+                {
+                    var p0 = post[0];
+                    var stepIndex = tracks.getCurrentStep();
+                    if (tracks.makeStep())
+                    {
+                        var p1 = tracks.getPostStepRecord()[0];
+                        var dx = p1[0] - p0[0], dy = p1[1] - p0[1], dz = p1[2] - p0[2];
+                        var len = Math.sqrt(dx * dx + dy * dy + dz * dz);
+                        if (len > 0)
+                        {
+                            var angle = Math.acos(Math.max(-1, Math.min(1, dx / len))) * 180 / Math.PI;
+                            var st = result.perSlab[currentSlab];
+                            st.scatters++;
+                            var best = 180;
+                            for (var iA = 0; iA < bragg[currentSlab].length; iA++) best = Math.min(best, Math.abs(angle - bragg[currentSlab][iA]));
+                            if (best < braggToleranceDeg) st.bragg++;
+                        }
+                        tracks.gotoStep(stepIndex); // continue the isotope scan from the scatter step
+                    }
+                }
+            }
+        });
+        return result;
+    };
+    var describeSlab = function(st)
+    {
+        return "first elastic scatters " + st.scatters + ", at Bragg angle " + (st.scatters ? (100 * st.bragg / st.scatters).toFixed(1) : "-") + "%";
+    };
+    var runNeutronBeamStage = function(label, useNCrystal)
+    {
+        beginStage(label);
+        config.replace("ParticleSim.Geant4Settings.UseNCrystal", useNCrystal);
+        configureSource(4000, "neutron", 2.5e-05, "Point", [-560, -150, 0], [10, 10, 10], "Fixed", ""); // 25 meV
+        psim.simulate();
+        var res = analyseNeutronRun();
+        reportCheck("tracking history contains all events", res.events == config.getKeyValue("ParticleSim.Events"), res.events + " events");
+        reportNamesAndIndices(res.stats, ncSlabNames);
+        for (var i = 0; i < ncSlabs.length; i++)
+        {
+            var st = res.perSlab[i];
+            var fraction = (st.scatters ? st.bragg / st.scatters : 0);
+            if (useNCrystal && ncSlabs[i].nc)
+                reportCheck(ncSlabs[i].volume + ": NCrystal Bragg scattering", st.scatters >= minScatters && fraction > minBraggFractionNCrystal, describeSlab(st));
+            else
+                reportCheck(ncSlabs[i].volume + ": no NCrystal behaviour", st.scatters >= minScatters && fraction < maxBraggFractionGeant4, describeSlab(st));
+            var isoText = [];
+            var isoKeys = keysOf(st.isotopes);
+            for (var k = 0; k < isoKeys.length; k++) isoText.push(isoKeys[k] + ": " + st.isotopes[isoKeys[k]]);
+            reportCheck(ncSlabs[i].volume + ": hadronic targets are " + ncSlabs[i].isotope + " isotopes only (material composition)",
+                        keysOf(st.foreign).length == 0, isoText.length ? isoText.join(", ") : "no target isotopes recorded");
+        }
+        endStage();
+    };
+
+    runNeutronBeamStage("B1: neutron beam, NCrystal enabled", true);
+    runNeutronBeamStage("B2: neutron beam, NCrystal disabled", false);
+    config.replace("ParticleSim.Geant4Settings.UseNCrystal", true);
+    config.updateConfig();
+    runMaterialLimitedStage("B3: material-limited source in Al(nc)", "Al(nc)", 10, ["Slab(ncAl)"], [0, -150, 0], [450, 50, 50], "neutron", 2.5e-05);
+    runMaterialLimitedStage("B4: material-limited source in Al_dup", "Al_dup", 13, ["Slab_dup"],   [0, -150, 0], [450, 50, 50], "neutron", 2.5e-05);
+    runMaterialLimitedStage("B5: material-limited source in Cu(nc)", "Cu(nc)", 12, ["Slab(Cu)"],   [0, -150, 0], [450, 50, 50], "neutron", 2.5e-05);
+}
+else core.print("=== Part B (NCrystal) skipped: Test_NCrystal = false ===");
+
+// ======================= restore and summary =======================
+setNCrystalPartActive(true);
+config.replace("ParticleSim.Geant4Settings.UseNCrystal", originalUseNCrystal);
+configureBeamSource();
+core.print("=== Summary (" + (Test_NCrystal ? "with" : "without") + " NCrystal part) ===");
+core.print("Checks passed: " + totalPass + ", failed: " + totalFail);
+if (failedStages.length > 0) core.print("Failed stages: " + failedStages.join(" | "));
+core.print(totalFail == 0 ? "OVERALL: PASS" : "OVERALL: FAIL");
