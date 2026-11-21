@@ -1,0 +1,190 @@
+From f7a7d3f281ca72ef3e325409a43945f75856837f Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Sat, 21 Nov 2026 09:18:29 +0000
+Subject: [PATCH] Rename AG4MaterialRecord to AMaterialTransferRecord (fix name
+ clash)
+
+The material transfer record introduced in the previous commits used the
+class name AG4MaterialRecord, which already exists in
+ants3/particleSim/ageant4inspectormanager.h (Geant4 material inspector
+reply). Translation units including both headers (e.g.
+gui/amainwindow.cpp, gui/materials/amatwin.cpp) failed with
+"redefinition of class AG4MaterialRecord". Pure rename, no functional
+change.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_016MYNNM6RVJKPFrzHmRLMBV
+---
+ .../particleSim/aparticlerunsettings.cpp      |  6 +++---
+ .../ants3/particleSim/aparticlerunsettings.h  |  4 ++--
+ .../ants3/particleSim/aparticlesimmanager.cpp |  8 ++++----
+ ants3bundle/src/g4ants3/src/SessionManager.cc | 20 +++++++++----------
+ 4 files changed, 19 insertions(+), 19 deletions(-)
+
+diff --git a/ants3bundle/src/ants3/particleSim/aparticlerunsettings.cpp b/ants3bundle/src/ants3/particleSim/aparticlerunsettings.cpp
+index 3a6467b4..891d2caf 100644
+--- a/ants3bundle/src/ants3/particleSim/aparticlerunsettings.cpp
++++ b/ants3bundle/src/ants3/particleSim/aparticlerunsettings.cpp
+@@ -49,7 +49,7 @@ void ASaveParticlesSettings::readFromJson(const QJsonObject & json)
+ // ---
+ 
+ #ifndef JSON11
+-void AG4MaterialRecord::writeToJson(QJsonObject & json) const
++void AMaterialTransferRecord::writeToJson(QJsonObject & json) const
+ {
+     json["Name"]     = QString(Name.data());
+     json["GdmlName"] = QString(GdmlName.data());
+@@ -73,7 +73,7 @@ void AG4MaterialRecord::writeToJson(QJsonObject & json) const
+ 
+ #ifdef JSON11
+ #include "aerrorhub.h"
+-void AG4MaterialRecord::readFromJson(const json11::Json::object & json)
++void AMaterialTransferRecord::readFromJson(const json11::Json::object & json)
+ {
+     jstools::parseJson(json, "Name",     Name);
+     jstools::parseJson(json, "GdmlName", GdmlName);
+@@ -149,7 +149,7 @@ void AParticleRunSettings::writeToJson(QJsonObject & json, bool includeG4ants3Se
+ 
+         {
+             QJsonArray ar;
+-            for (const AG4MaterialRecord & mat : Materials)
++            for (const AMaterialTransferRecord & mat : Materials)
+             {
+                 QJsonObject js;
+                 mat.writeToJson(js);
+diff --git a/ants3bundle/src/ants3/particleSim/aparticlerunsettings.h b/ants3bundle/src/ants3/particleSim/aparticlerunsettings.h
+index 10901bbf..5b301377 100644
+--- a/ants3bundle/src/ants3/particleSim/aparticlerunsettings.h
++++ b/ants3bundle/src/ants3/particleSim/aparticlerunsettings.h
+@@ -37,7 +37,7 @@ public:
+ };
+ 
+ // Material record transferred from ants3 to g4ants3; the position in AParticleRunSettings::Materials is the ants3 material index
+-class AG4MaterialRecord
++class AMaterialTransferRecord
+ {
+ public:
+     enum EType {Direct = 0, Nist = 1, NCrystal = 2};
+@@ -92,7 +92,7 @@ public:
+     int         EventFrom = 0;
+     int         EventTo   = 0;
+ 
+-    std::vector<AG4MaterialRecord> Materials;  // index in this vector = ants3 material index
++    std::vector<AMaterialTransferRecord> Materials;  // index in this vector = ants3 material index
+ 
+     std::string GDML;
+     std::string Receipt;
+diff --git a/ants3bundle/src/ants3/particleSim/aparticlesimmanager.cpp b/ants3bundle/src/ants3/particleSim/aparticlesimmanager.cpp
+index b7853e60..a6cdf531 100644
+--- a/ants3bundle/src/ants3/particleSim/aparticlesimmanager.cpp
++++ b/ants3bundle/src/ants3/particleSim/aparticlesimmanager.cpp
+@@ -404,22 +404,22 @@ void AParticleSimManager::configureMaterials()
+     {
+         const AMaterial * mat = MatHub[iMat];
+ 
+-        AG4MaterialRecord rec;
++        AMaterialTransferRecord rec;
+         rec.Name     = mat->Name.toLatin1().data();
+         rec.GdmlName = MatHub.getGdmlExportName(iMat).toLatin1().data(); // the same name is used by exportGeometry(..., true)
+         switch (mat->CompositionType)
+         {
+         case AMaterial::Direct :
+-            rec.Type = AG4MaterialRecord::Direct;
++            rec.Type = AMaterialTransferRecord::Direct;
+             rec.UseCustomMeanExEnergy = mat->Composition.UseCustomMeanExEnergy;
+             rec.MeanExEnergy          = mat->Composition.MeanExEnergy;
+             break;
+         case AMaterial::Geant4Material :
+-            rec.Type = AG4MaterialRecord::Nist;
++            rec.Type = AMaterialTransferRecord::Nist;
+             rec.NistName = mat->G4MaterialName.toLatin1().data();
+             break;
+         case AMaterial::NCrystalMaterial :
+-            rec.Type = AG4MaterialRecord::NCrystal;
++            rec.Type = AMaterialTransferRecord::NCrystal;
+             rec.NCrystalCfg = mat->NCrystalMaterialName.toLatin1().data();
+             break;
+         }
+diff --git a/ants3bundle/src/g4ants3/src/SessionManager.cc b/ants3bundle/src/g4ants3/src/SessionManager.cc
+index 9bcbf089..4d82b727 100644
+--- a/ants3bundle/src/g4ants3/src/SessionManager.cc
++++ b/ants3bundle/src/g4ants3/src/SessionManager.cc
+@@ -331,7 +331,7 @@ bool SessionManager::activateNeutronThermalScatteringPhysics()
+ #include "G4LogicalVolume.hh"
+ void SessionManager::setupMaterials()
+ {
+-    // The GDML file contains every ants3 material under its export name (AG4MaterialRecord::GdmlName, unique by construction).
++    // The GDML file contains every ants3 material under its export name (AMaterialTransferRecord::GdmlName, unique by construction).
+     // For every ants3 material index, a dedicated Geant4 material is configured or created:
+     //   Direct   : the material from GDML, renamed to the original ants3 name, optionally with custom mean excitation energy
+     //   Nist     : a material derived from the G4NistManager material (own G4Material object for every ants3 material!);
+@@ -339,7 +339,7 @@ void SessionManager::setupMaterials()
+     //   NCrystal : material built by NCrystal, renamed to the original ants3 name
+     // The material of the logical volumes is then replaced by pointer.
+ 
+-    const std::vector<AG4MaterialRecord> & Records = Settings.RunSet.Materials;
++    const std::vector<AMaterialTransferRecord> & Records = Settings.RunSet.Materials;
+     G4NistManager * man = G4NistManager::Instance();
+ 
+     MaterialsByIndex.assign(Records.size(), nullptr);
+@@ -347,7 +347,7 @@ void SessionManager::setupMaterials()
+ 
+     for (size_t iMat = 0; iMat < Records.size(); iMat++)
+     {
+-        const AG4MaterialRecord & rec = Records[iMat];
++        const AMaterialTransferRecord & rec = Records[iMat];
+ 
+         if (rec.GdmlName.empty()) terminateSession("GDML name is not provided for material " + rec.Name);
+         G4Material * gdmlMat = G4Material::GetMaterial(rec.GdmlName, false);
+@@ -356,14 +356,14 @@ void SessionManager::setupMaterials()
+         G4Material * mat = nullptr;
+         switch (rec.Type)
+         {
+-        case AG4MaterialRecord::Direct :
++        case AMaterialTransferRecord::Direct :
+             mat = gdmlMat;
+             mat->SetName(rec.Name);
+             if (rec.UseCustomMeanExEnergy)
+                 mat->GetIonisation()->SetMeanExcitationEnergy(rec.MeanExEnergy * eV); // eV in the run time settings
+             break;
+ 
+-        case AG4MaterialRecord::Nist :
++        case AMaterialTransferRecord::Nist :
+           {
+             G4Material * base = man->FindOrBuildMaterial(rec.NistName);
+             if (!base) terminateSession("Material " + rec.NistName + " (requested for material " + rec.Name + ") is not listed in G4NistManager");
+@@ -372,7 +372,7 @@ void SessionManager::setupMaterials()
+             break;
+           }
+ 
+-        case AG4MaterialRecord::NCrystal :
++        case AMaterialTransferRecord::NCrystal :
+ #ifdef ANTS3_NCRYSTAL
+             mat = G4NCrystal::createMaterial(rec.NCrystalCfg);
+             if (!mat) terminateSession("Failed to build NCrystal material using string " + rec.NCrystalCfg + " for material " + rec.Name);
+@@ -407,7 +407,7 @@ void SessionManager::setupMaterials()
+ 
+ G4Material * SessionManager::findMaterialByAntsName(const std::string & antsName) const
+ {
+-    const std::vector<AG4MaterialRecord> & Records = Settings.RunSet.Materials;
++    const std::vector<AMaterialTransferRecord> & Records = Settings.RunSet.Materials;
+     for (size_t iMat = 0; iMat < Records.size() && iMat < MaterialsByIndex.size(); iMat++)
+         if (Records[iMat].Name == antsName) return MaterialsByIndex[iMat];
+     return nullptr;
+@@ -800,10 +800,10 @@ void SessionManager::readConfig(const std::string & workingDir, const std::strin
+     std::cout << "Config lists the following materials:" << '\n';
+     for (size_t i = 0; i < Settings.RunSet.Materials.size(); i++)
+     {
+-        const AG4MaterialRecord & rec = Settings.RunSet.Materials[i];
++        const AMaterialTransferRecord & rec = Settings.RunSet.Materials[i];
+         std::cout << i << " -> " << rec.Name << "  (GDML name: " << rec.GdmlName << ")";
+-        if      (rec.Type == AG4MaterialRecord::Nist)     std::cout << "  to be constructed using G4NistManager: " << rec.NistName;
+-        else if (rec.Type == AG4MaterialRecord::NCrystal) std::cout << "  to be constructed using NCrystal: " << rec.NCrystalCfg;
++        if      (rec.Type == AMaterialTransferRecord::Nist)     std::cout << "  to be constructed using G4NistManager: " << rec.NistName;
++        else if (rec.Type == AMaterialTransferRecord::NCrystal) std::cout << "  to be constructed using NCrystal: " << rec.NCrystalCfg;
+         std::cout << '\n';
+     }
+ 
+-- 
+2.43.0
+
