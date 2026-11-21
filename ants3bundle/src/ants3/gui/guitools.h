@@ -24,6 +24,7 @@ namespace guitools
 {
     void message(QString text, QWidget* parent = nullptr);
     void message1(const QString & text, const QString &title, QWidget * parent = nullptr);
+    void messageHtml(const QString & text, const QString &title, QWidget * parent = nullptr);
     void message1notModal(const QString & text, const QString &title, QWidget * parent = nullptr);
     bool confirm(const QString &text, QWidget* parent = nullptr);
 

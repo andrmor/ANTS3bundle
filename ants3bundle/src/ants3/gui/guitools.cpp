@@ -56,6 +56,26 @@ void guitools::message1(const QString & text, const QString & title, QWidget *pa
     d.exec();
 }
 
+void guitools::messageHtml(const QString &text, const QString &title, QWidget *parent)
+{
+    QDialog d(parent);
+    QVBoxLayout * l = new QVBoxLayout(&d);
+    QTextEdit * e = new QTextEdit;
+    e->append(text);
+    l->addWidget(e);
+    QPushButton * pb = new QPushButton("Close");
+    QObject::connect(pb, &QPushButton::clicked, &d, &QDialog::accept);
+    l->addWidget(pb);
+
+    QTextCursor curs = e->textCursor();
+    curs.movePosition(QTextCursor::Start, QTextCursor::MoveAnchor);
+    e->setTextCursor(curs);
+
+    d.resize(800, 400);
+    d.setWindowTitle(title);
+    d.exec();
+}
+
 void guitools::message1notModal(const QString &text, const QString &title, QWidget *parent)
 {
     QDialog * d = new QDialog(parent);

@@ -307,6 +307,7 @@ private slots:
 
     void on_pbOfferPhysLists_clicked();
     void on_pbAdvancedOptions_clicked();
+    void on_pbGeant4CommandsHelp_clicked();
 };
 
 #endif // APARTICLESIMWIN_H

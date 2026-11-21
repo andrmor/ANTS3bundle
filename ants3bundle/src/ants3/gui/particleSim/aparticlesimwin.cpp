@@ -3710,3 +3710,67 @@ void AParticleSimWin::on_pbAdvancedOptions_clicked()
     dia.exec();
 }
 
+void AParticleSimWin::on_pbGeant4CommandsHelp_clicked()
+{
+    QString txt = R"HTML(
+<p><b>Geant4 commands (as in macro files)</b></p>
+
+<p>These Geant4 UI commands, the same commands as used in Geant4 macro files, are executed before each particle simulation, in the listed order. They run after the geometry and the physics list have been set up, followed by a final <span style="font-family:monospace">/run/initialize</span>. Enter one command per line; empty lines and lines starting with <span style="font-family:monospace">#</span> are ignored.</p>
+
+<p>A command must be valid in this state. Commands that Geant4 accepts only before initialization (for example <span style="font-family:monospace">/process/em/fluoBearden</span>) are rejected. A rejected command (unknown command, wrong argument order or value, unknown process name) <b>stops the simulation</b> with an error message.</p>
+
+<p>Leave the list empty to use the defaults of the selected physics list.</p>
+
+<p><b>Examples</b></p>
+
+<p><i>Production cuts</i> (see <i>Production cuts</i> below):<br>
+<span style="font-family:monospace">/run/setCut 0.1 mm</span> &nbsp;&nbsp;# gamma, e-, e+ AND proton<br>
+<span style="font-family:monospace">/run/setCutForAGivenParticle proton 0 mm</span> &nbsp;&nbsp;# keep all nuclear recoils</p>
+
+<p><i>Radioactive decay of long-lived nuclides</i> (physics lists with radioactive decay, e.g. *_HP, Shielding):<br>
+<span style="font-family:monospace">/process/had/rdm/thresholdForVeryLongDecayTime 1.0e+60 year</span></p>
+<p>Since Geant4 11.2, a nuclide whose sampled decay time is later than <b>1 year</b> is removed without decaying: no decay products and no energy. Use this command when simulating long-lived primaries such as K-40, U-238 or Th-232. Decay times of such nuclides are huge (about 10<sup>26</sup> ns for K-40), so take this into account in time windows and time histograms.</p>
+
+<p><span style="font-family:monospace">/process/had/rdm/nucleusLimits 226 226 88 88</span> &nbsp;&nbsp;# Amin Amax Zmin Zmax<br>
+Only nuclides inside this mass-number and charge range decay, for example to stop a decay chain after the parent (here Ra-226).</p>
+
+<p><i>Atomic de-excitation</i> (fluorescence, Auger electrons, PIXE):<br>
+<span style="font-family:monospace">/process/em/auger true</span><br>
+<span style="font-family:monospace">/process/em/pixe true</span><br>
+<span style="font-family:monospace">/process/em/deexcitationIgnoreCut true</span><br>
+These switch on Auger electrons and particle-induced X-ray emission (PIXE). The last command produces de-excitation photons and electrons even below the production cut.</p>
+
+<p><i>Switching a process off:</i><br>
+<span style="font-family:monospace">/process/inactivate hadElastic neutron</span><br>
+Process names depend on the physics list (e.g. hadElastic, nCapture, RadioactiveDecay). In the default lists, all photon processes are combined into <span style="font-family:monospace">GammaGeneralProc</span>, so single photon processes such as <span style="font-family:monospace">Rayl</span> cannot be switched off this way.</p>
+
+<p><i>Switching radioactive decay off</i> (e.g. to ignore the decay of activation products in neutron simulations):<br>
+<span style="font-family:monospace">/process/inactivate RadioactiveDecay</span></p>
+
+<p><i>Finer steps for charged particles</i> (more detailed energy-deposition profiles along tracks, slower simulation):<br>
+<span style="font-family:monospace">/process/eLoss/StepFunction 0.2 0.1 mm</span> &nbsp;&nbsp;# electrons and positrons<br>
+<span style="font-family:monospace">/process/eLoss/StepFunctionMuHad 0.1 0.05 mm</span> &nbsp;&nbsp;# muons, protons, pions<br>
+<span style="font-family:monospace">/process/eLoss/StepFunctionLightIons 0.1 0.01 mm</span> &nbsp;&nbsp;# alpha, deuteron, triton, He-3<br>
+The first number is the largest step as a fraction of the particle's remaining range; the length is the range below which this limit is no longer applied. Smaller values give shorter steps.</p>
+<p>This is independent of the ANTS3 step limits: those cap the step length in selected volumes; the step function refines the steps of charged particles everywhere as they slow down. When both apply, the shorter step is taken.</p>
+
+<p><b>Production cuts</b></p>
+
+<p>Geant4 does not create secondary particles whose expected range is below a threshold, the <i>production cut</i>. The cut is a length, converted by Geant4 to an energy for each material. Cuts only decide whether a secondary is <i>created</i>. Every particle that is created is tracked down to zero energy.</p>
+
+<p><b>Photon, electron and positron cuts (gamma, e-, e+):</b> control the creation of low-energy photons (e.g. bremsstrahlung) and electrons/positrons (e.g. delta rays). The energy that is not given to a secondary is deposited along the step of the parent particle. A smaller cut gives a more detailed spatial distribution of the deposited energy, but a slower simulation. The default of all physics lists offered here is 0.7 mm.</p>
+
+<p><b>Proton cut:</b> besides proton production, it is the threshold for <b>nuclear recoils</b> in hadronic elastic scattering, e.g. the nucleus hit by a neutron. A recoil below the threshold is not created: its energy is deposited at the scattering point and logged under the incoming particle (e.g. neutron). The neutron high-precision lists (*_HP, QGSP_BIC_AllHP) and Penelope use a proton cut of <b>0</b>, so all recoils are tracked. Keep it at 0 if you need recoil nuclei as particles: for recoil spectra, quenching, or recoils in the tracking history, monitors or analyzers.</p>
+
+<p><b>Setting cuts:</b><br>
+<span style="font-family:monospace">/run/setCut 0.5 mm</span> sets <b>all four</b> cuts, <b>including the proton cut</b>.<br>
+<span style="font-family:monospace">/run/setCutForAGivenParticle e- 0.1 mm</span> sets one particle; the order is particle, value, unit.</p>
+
+<p>To change the electromagnetic cuts but keep the recoils:<br>
+<span style="font-family:monospace">/run/setCut 0.5 mm</span><br>
+<span style="font-family:monospace">/run/setCutForAGivenParticle proton 0 mm</span></p>
+)HTML";
+
+    guitools::messageHtml(txt, "geant4 commands", this);
+}
+
