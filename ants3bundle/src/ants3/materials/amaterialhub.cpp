@@ -86,41 +86,6 @@ QStringList AMaterialHub::getListOfMaterialNames() const
     return l;
 }
 
-std::vector<std::string> AMaterialHub::getMaterialNames() const
-{
-    std::vector<std::string> v;
-    for (const AMaterial * m : Materials) v.push_back(m->Name.toLatin1().data());
-    return v;
-}
-
-std::vector<std::pair<std::string, std::string>> AMaterialHub::getMaterialsFromNist() const
-{
-    std::vector<std::pair<std::string, std::string>> v;
-    for (const AMaterial * m : Materials)
-        if (m->CompositionType == AMaterial::Geant4Material)
-            v.push_back( {m->Name.toLatin1().data(), m->G4MaterialName.toLatin1().data()} );
-    return v;
-}
-
-std::vector<std::pair<std::string, std::string> > AMaterialHub::getMaterialsFromNCrystal() const
-{
-    std::vector<std::pair<std::string, std::string>> v;
-    for (const AMaterial * m : Materials)
-        if (m->CompositionType == AMaterial::NCrystalMaterial)
-            v.push_back( {m->Name.toLatin1().data(), m->NCrystalMaterialName.toLatin1().data()} );
-    return v;
-}
-
-std::vector<std::pair<std::string, double>> AMaterialHub::getMaterialsMeanExEnergy() const
-{
-    std::vector<std::pair<std::string, double>> v;
-    for (const AMaterial * m : Materials)
-        //if (!m->UseG4Material && m->Composition.UseCustomMeanExEnergy)
-        if (m->CompositionType==AMaterial::Direct && m->Composition.UseCustomMeanExEnergy)
-            v.push_back( {m->Name.toLatin1().data(), m->Composition.MeanExEnergy} );
-    return v;
-}
-
 void AMaterialHub::convertPressureToDensity()
 {
     for (AMaterial * mat : Materials)
@@ -130,14 +95,63 @@ void AMaterialHub::convertPressureToDensity()
     }
 }
 
-void AMaterialHub::generateGeoMedia()
+void AMaterialHub::generateGeoMedia(bool useGdmlExportNames)
 {
     for (size_t iMat = 0; iMat < Materials.size(); iMat++)
     {
         AMaterial * mat = Materials[iMat];
-        mat->generateTGeoMat();
+        mat->generateTGeoMat(useGdmlExportNames ? getGdmlExportName(iMat) : mat->Name);
         mat->_GeoMed = new TGeoMedium(mat->Name.toLocal8Bit().data(), iMat, mat->_GeoMat);
     }
+}
+
+QString AMaterialHub::makeGdmlExportName(int iMat, const QString & name)
+{
+    // the prefix makes the name unique and ensures it does not start with a digit
+    return QString("m%1_%2").arg(iMat).arg(AGeometryHub::sanitizeForGdml(name));
+}
+
+QString AMaterialHub::getGdmlExportName(int iMat) const
+{
+    if (iMat < 0 || iMat >= (int)Materials.size()) return "";
+    return makeGdmlExportName(iMat, Materials[iMat]->Name);
+}
+
+#include <QXmlStreamReader>
+#include <map>
+QString AMaterialHub::checkGdmlExportNames(const QString & gdmlFileName) const
+{
+    QFile file(gdmlFileName);
+    if (!file.open(QFile::ReadOnly | QFile::Text)) return "Cannot open exported GDML file for verification: " + gdmlFileName;
+
+    std::map<QString, int> found; // material name in GDML -> number of occurrences
+    bool inMaterials = false;
+    QXmlStreamReader xml(&file);
+    while (!xml.atEnd())
+    {
+        xml.readNext();
+        if (xml.isStartElement())
+        {
+            if      (xml.name() == QLatin1String("materials")) inMaterials = true;
+            else if (inMaterials && xml.name() == QLatin1String("material"))
+                found[xml.attributes().value("name").toString()]++;
+        }
+        else if (xml.isEndElement() && xml.name() == QLatin1String("materials")) inMaterials = false;
+    }
+    if (xml.hasError()) return "Error parsing exported GDML file " + gdmlFileName + ": " + xml.errorString();
+
+    QString err;
+    for (size_t iMat = 0; iMat < Materials.size(); iMat++)
+    {
+        const QString expected = getGdmlExportName(iMat);
+        const auto it = found.find(expected);
+        const int num = (it == found.end() ? 0 : it->second);
+        if (num != 1)
+            err += QString("\n  material #%1 (%2): expected GDML name %3, found %4 time(s)").arg(iMat).arg(Materials[iMat]->Name).arg(expected).arg(num);
+    }
+    if (!err.isEmpty())
+        return "Material names in the exported GDML file do not match the expected names (has ROOT changed its GDML naming rules?):" + err;
+    return "";
 }
 
 void AMaterialHub::clearMaterials()

@@ -57,7 +57,7 @@ G4bool DepositionSensitiveDetector::ProcessHits(G4Step* aStep, G4TouchableHistor
     SessionManager & SM = SessionManager::getInstance();
 
     const std::string&   pName = aStep->GetTrack()->GetParticleDefinition()->GetParticleName();
-    const int&           iMat = SM.findMaterial( aStep->GetPreStepPoint()->GetMaterial()->GetName() ); //will terminate session if not found!
+    const int            iMat = SM.findMaterial( aStep->GetPreStepPoint()->GetMaterial() ); //will terminate session if not found!
     const G4ThreeVector& G4pos = aStep->GetPostStepPoint()->GetPosition();
     const double&        time = aStep->GetPostStepPoint()->GetGlobalTime()/ns;
     const int &          copyNumber = aStep->GetPreStepPoint()->GetPhysicalVolume()->GetCopyNo();

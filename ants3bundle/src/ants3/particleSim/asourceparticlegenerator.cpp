@@ -17,7 +17,6 @@
     //#include "G4ParticleDefinition.hh"
     #include "SessionManager.hh"
     #include "G4Material.hh"
-    #include "G4NistManager.hh"
 #else
     #include <QApplication>
     #include <QDebug>
@@ -341,9 +340,8 @@ void ASource_Standard::updateLimitedToMat()
     G4Material * mat = nullptr;
     if (Settings->MaterialLimited)
     {
-        G4NistManager * man = G4NistManager::Instance();
-        mat = man->FindMaterial(Settings->LimtedToMatName);
         SessionManager & SM = SessionManager::getInstance();
+        mat = SM.findMaterialByAntsName(Settings->LimtedToMatName); // the dedicated Geant4 material of this ants3 material
         if (mat)
         {
             Navigator = new G4Navigator();
@@ -820,7 +818,7 @@ void ASource_Standard::addGeneratedParticle(int iParticle, double *position, dou
             G4LogicalVolume * logic = vol->GetLogicalVolume();
             if (logic && SM.isEnergyDepoLogger(logic))
             {
-                const int iMat = SM.findMaterial(vol->GetLogicalVolume()->GetMaterial()->GetName());
+                const int iMat = SM.findMaterial(vol->GetLogicalVolume()->GetMaterial());
                 //SM.saveDepoRecord("-", iMat, energy, position, time, vol->GetCopyNo()); // cannot do it: event action not triggered yet!
                 SM.DirectDepositionBuffer.push_back( {"-", iMat, energy, {position[0], position[1], position[2]}, time, vol->GetCopyNo()} );
             }

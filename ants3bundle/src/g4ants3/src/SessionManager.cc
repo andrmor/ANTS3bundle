@@ -164,13 +164,9 @@ void SessionManager::onEventFinished()
     std::cout << "$$>" << EventsDone << "<$$" << std::endl; // endl also flushes!
 }
 
-int SessionManager::findMaterial(const std::string &materialName)
+void SessionManager::reportUnknownMaterial(const G4Material * material)
 {
-    auto it = MaterialMap.find(materialName);
-    if (it == MaterialMap.end())
-        terminateSession("Found deposition in materials not listed in the config json: " + materialName);
-
-    return it->second;
+    terminateSession("Found deposition in materials not listed in the config json: " + material->GetName());
 }
 
 #include "G4ProcessManager.hh"
@@ -329,115 +325,141 @@ bool SessionManager::activateNeutronThermalScatteringPhysics()
     return true;
 }
 
-void replaceMaterialRecursive(G4LogicalVolume * volLV, const G4String & matName, G4Material * newMat)
-{
-    if (volLV->GetMaterial()->GetName() == matName)
-    {
-        std::cout << "Replacing material for vol " << volLV->GetName() << '\n';
-        volLV->SetMaterial(newMat);
-    }
-
-    const int numDaughters = volLV->GetNoDaughters();
-    for (int i = 0; i < numDaughters; i++)
-    {
-        G4VPhysicalVolume * daughter = volLV->GetDaughter(i);
-        G4LogicalVolume   * daughter_log = daughter->GetLogicalVolume();
-        replaceMaterialRecursive(daughter_log, matName, newMat);
-    }
-}
-
 #include "G4NistManager.hh"
-void SessionManager::updateMaterials()
+#include "G4Material.hh"
+#include "G4LogicalVolumeStore.hh"
+#include "G4LogicalVolume.hh"
+void SessionManager::setupMaterials()
 {
-    G4LogicalVolume * worldLV = WorldPV->GetLogicalVolume();
+    // The GDML file contains every ants3 material under its export name (AMaterialTransferRecord::GdmlName, unique by construction).
+    // For every ants3 material index, a dedicated Geant4 material is configured or created:
+    //   Direct   : the material from GDML, renamed to the original ants3 name, optionally with custom mean excitation energy
+    //   Nist     : a material derived from the G4NistManager material (own G4Material object for every ants3 material!);
+    //              it keeps the NIST name, since some Geant4 physics recognizes materials by name (e.g. HP thermal scattering uses "G4_WATER")
+    //   NCrystal : material built by NCrystal, renamed to the original ants3 name
+    // The material of the logical volumes is then replaced by pointer.
+
+    const std::vector<AMaterialTransferRecord> & Records = Settings.RunSet.Materials;
     G4NistManager * man = G4NistManager::Instance();
 
-    for (auto & pair : Settings.RunSet.MaterialsMeanExEnergy)
-    {
-        G4String name  = pair.first;
-        double   meanE = pair.second * eV; // eV in the run time settings
+    MaterialsByIndex.assign(Records.size(), nullptr);
+    std::map<G4Material*, G4Material*> Replacements; // material from GDML -> final material
 
-        G4Material * mat = man->FindOrBuildMaterial(name);
-        if (!mat)
+    for (size_t iMat = 0; iMat < Records.size(); iMat++)
+    {
+        const AMaterialTransferRecord & rec = Records[iMat];
+
+        if (rec.GdmlName.empty()) terminateSession("GDML name is not provided for material " + rec.Name);
+        G4Material * gdmlMat = G4Material::GetMaterial(rec.GdmlName, false);
+        if (!gdmlMat) terminateSession("Material " + rec.Name + " is not found in the GDML file under the name " + rec.GdmlName);
+
+        G4Material * mat = nullptr;
+        switch (rec.Type)
         {
-            terminateSession("Material with name " + name + ", listed to updare mean excitation energy, is not found");
-            return;
+        case AMaterialTransferRecord::Direct :
+            mat = gdmlMat;
+            mat->SetName(rec.Name);
+            if (rec.UseCustomMeanExEnergy)
+                mat->GetIonisation()->SetMeanExcitationEnergy(rec.MeanExEnergy * eV); // eV in the run time settings
+            break;
+
+        case AMaterialTransferRecord::Nist :
+          {
+            G4Material * base = man->FindOrBuildMaterial(rec.NistName);
+            if (!base) terminateSession("Material " + rec.NistName + " (requested for material " + rec.Name + ") is not listed in G4NistManager");
+            mat = new G4Material(rec.NistName, base->GetDensity(), base, base->GetState(), base->GetTemperature(), base->GetPressure());
+            std::cout << "Material " << rec.Name << " -> derived from NIST material " << rec.NistName << '\n';
+            break;
+          }
+
+        case AMaterialTransferRecord::NCrystal :
+#ifdef ANTS3_NCRYSTAL
+          {
+            mat = G4NCrystal::createMaterial(rec.NCrystalCfg);
+            if (!mat) terminateSession("Failed to build NCrystal material using string " + rec.NCrystalCfg + " for material " + rec.Name);
+
+            // G4NCrystal caches its materials by the NCrystal Info/Scatter objects, so equivalent configuration strings
+            // (also of different ants3 materials) return the same G4Material. Every ants3 material needs its own object:
+            // in that case create a derived material with the same density/temperature and the same NCrystal scatter physics
+            bool bAlreadyUsed = false;
+            for (size_t i = 0; i < iMat; i++)
+                if (MaterialsByIndex[i] == mat) bAlreadyUsed = true;
+            if (bAlreadyUsed)
+            {
+                G4Material * ncMat = mat;
+                mat = new G4Material(rec.Name, ncMat->GetDensity(), ncMat, ncMat->GetState(), ncMat->GetTemperature(), ncMat->GetPressure());
+                G4NCrystal::addNCrystalScatterProperty(mat, rec.NCrystalCfg);
+                std::cout << "Material " << rec.Name << " -> separate copy of the NCrystal material for string " << rec.NCrystalCfg << '\n';
+            }
+            else
+            {
+                mat->SetName(rec.Name);
+                std::cout << "Material " << rec.Name << " -> NCrystal material created using string " << rec.NCrystalCfg << '\n';
+            }
+          }
+#else
+            terminateSession("NCrystal materials are not empty, but g4ants3 was compiled without NCrystal library! (material " + rec.Name + ")");
+#endif
+            break;
         }
-        mat->GetIonisation()->SetMeanExcitationEnergy(meanE);
+        if (!mat) terminateSession("Failed to configure Geant4 material for material " + rec.Name);
+
+        for (size_t i = 0; i < iMat; i++)
+            if (MaterialsByIndex[i] == mat)
+                terminateSession("Materials " + Records[i].Name + " and " + rec.Name + " resolve to the same Geant4 material object");
+
+        MaterialsByIndex[iMat] = mat;
+        if (mat != gdmlMat) Replacements[gdmlMat] = mat;
     }
 
-    for (auto & pair : Settings.RunSet.MaterialsFromNist)
-    {
-        G4String name   = pair.first;
-        G4String G4Name = pair.second;
-        if (name == G4Name)
+    if (!Replacements.empty())
+        for (G4LogicalVolume * lv : *G4LogicalVolumeStore::GetInstance())
         {
-            terminateSession("Material " + name + " cannot have the same name as the G4NistManager name");
-            return;
+            auto it = Replacements.find(lv->GetMaterial());
+            if (it != Replacements.end()) lv->SetMaterial(it->second);
         }
 
-        G4Material * newMat = nullptr;
-
-        /*
-        //is it custom G4ants override?
-        if (G4Name == "G4_Al_TS")
-        {
-            G4Element * alEle = new G4Element("TS_Aluminium_Metal", "Al", 13.0, 26.982*g/mole);
-            newMat = new G4Material(G4Name, 2.699*g/cm3, 1, kStateSolid);
-            newMat->AddElement(alEle, 1);
-        }
-        else
-        */
-        newMat = man->FindOrBuildMaterial(G4Name);
-
-        if (!newMat)
-        {
-            terminateSession("Material " + G4Name + " is not listed in G4NistManager");
-            return;
-        }
-        replaceMaterialRecursive(worldLV, name, newMat);
-        replaceMatNameInMatLimitedSources(name, G4Name);
-
-        MaterialMap[G4Name] = MaterialMap[name];
-    }
-
-    #ifdef ANTS3_NCRYSTAL
-    for (auto & pair : Settings.RunSet.MaterialsFromNCrystal)
-    {
-        G4String name   = pair.first;
-        G4String NCrystalName = pair.second;
-        //if (name == NCrystalName)
-        //{
-        //    terminateSession("Material " + name + ": cannot use the NCrystal name as the material name");
-        //    return;
-        //}
-
-        G4Material * newMat = G4NCrystal::createMaterial(NCrystalName);
-        if (!newMat)
-        {
-            terminateSession("Failed to build NCrystal material using string " + NCrystalName + " for material " + name);
-            return;
-        }
-        std::cout << "NCrystal material created for " << name << " using string " << NCrystalName;
-        newMat->SetName(name);
-
-        replaceMaterialRecursive(worldLV, name, newMat);
-    }
-    #else
-    if (!Settings.RunSet.MaterialsFromNCrystal.empty()) terminateSession("NCrystal materials are not empty, but g4ants3 was compiled without NCrystal library!");
-    #endif
+    G4IndexToAntsIndex.assign(G4Material::GetNumberOfMaterials(), -1);
+    for (size_t iMat = 0; iMat < MaterialsByIndex.size(); iMat++)
+        G4IndexToAntsIndex[MaterialsByIndex[iMat]->GetIndex()] = (int)iMat;
 }
 
-void SessionManager::replaceMatNameInMatLimitedSources(const G4String & name, const G4String & G4Name)
+#include <unordered_map>
+void SessionManager::restoreVolumeNames()
 {
-    for (AParticleSourceRecordBase * sr : Settings.SourceGenSettings.SourceData)
-    {
-        AParticleSourceRecord_Standard * stSource = dynamic_cast<AParticleSourceRecord_Standard*>(sr);
-        if (!stSource) continue;
+    // ants3 gives a GDML-safe name to every volume whose name would be changed by ROOT's GDML writer or the Geant4 GDML reader.
+    // Restoring the original names here lets all the name-based configuration (sensitive detectors of monitors, calorimeters and analyzers,
+    // deposition volumes, step limits, acolinearity volumes, exit volume) and the tracking history output use the ants3 names.
+    if (Settings.RunSet.RenamedVolumes.empty()) return;
 
-        if (stSource->MaterialLimited && stSource->LimtedToMatName == name)
-            stSource->LimtedToMatName = G4Name;
+    std::unordered_map<std::string, std::string> OriginalNames; // GDML name -> original name
+    for (const auto & pair : Settings.RunSet.RenamedVolumes) OriginalNames[pair.first] = pair.second;
+
+    std::unordered_map<std::string, int> NumRestored;
+    for (G4LogicalVolume * lv : *G4LogicalVolumeStore::GetInstance())
+    {
+        const auto it = OriginalNames.find(lv->GetName());
+        if (it == OriginalNames.end()) continue;
+        NumRestored[it->first]++;
+        lv->SetName(it->second);
     }
+    // SetName() only invalidates the name map of the store; G4VUserDetectorConstruction::SetSensitiveDetector(name, ...)
+    // reads the map via GetMap() without updating it, so the map has to be rebuilt here
+    G4LogicalVolumeStore::GetInstance()->UpdateMap();
+
+    for (const auto & pair : Settings.RunSet.RenamedVolumes)
+        if (NumRestored[pair.first] == 0)
+            terminateSession("Volume " + pair.second + " is not found in the GDML file under the name " + pair.first);
+
+    std::cout << "Restored original names of " << Settings.RunSet.RenamedVolumes.size() << " volume name(s)\n";
+}
+
+G4Material * SessionManager::findMaterialByAntsName(const std::string & antsName) const
+{
+    const std::vector<AMaterialTransferRecord> & Records = Settings.RunSet.Materials;
+    for (size_t iMat = 0; iMat < Records.size() && iMat < MaterialsByIndex.size(); iMat++)
+        if (Records[iMat].Name == antsName) return MaterialsByIndex[iMat];
+    return nullptr;
 }
 
 #include "G4LogicalVolumeStore.hh"
@@ -824,23 +846,14 @@ void SessionManager::readConfig(const std::string & workingDir, const std::strin
     std::cout << "GUI mode? " << Settings.RunSet.GuiMode << '\n';
     std::cout << "Random generator seed: " << Settings.RunSet.Seed << '\n';
 
-    MaterialMap.clear();
     std::cout << "Config lists the following materials:" << '\n';
-    for (size_t i=0; i < Settings.RunSet.Materials.size(); i++)
+    for (size_t i = 0; i < Settings.RunSet.Materials.size(); i++)
     {
-        const std::string & name = Settings.RunSet.Materials[i];
-        std::cout << i << " -> " << name << '\n';
-        MaterialMap[name] = (int)i;
-    }
-    if (!Settings.RunSet.MaterialsFromNist.empty())
-    {
-        std::cout << "The following materials will be constructed using G4NistManager:" << '\n';
-        for (size_t i=0; i<Settings.RunSet.MaterialsFromNist.size(); i++)
-        {
-            const std::string & name   = Settings.RunSet.MaterialsFromNist[i].first;
-            const std::string & G4Name = Settings.RunSet.MaterialsFromNist[i].second;
-            std::cout << name << " -replace_with-> " << G4Name << '\n';
-        }
+        const AMaterialTransferRecord & rec = Settings.RunSet.Materials[i];
+        std::cout << i << " -> " << rec.Name << "  (GDML name: " << rec.GdmlName << ")";
+        if      (rec.Type == AMaterialTransferRecord::Nist)     std::cout << "  to be constructed using G4NistManager: " << rec.NistName;
+        else if (rec.Type == AMaterialTransferRecord::NCrystal) std::cout << "  to be constructed using NCrystal: " << rec.NCrystalCfg;
+        std::cout << '\n';
     }
 
     bBinaryOutput = !Settings.RunSet.AsciiOutput;

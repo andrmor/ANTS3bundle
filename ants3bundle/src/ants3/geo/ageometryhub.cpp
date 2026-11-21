@@ -340,7 +340,7 @@ void AGeometryHub::populateGeoManager(bool notifyRootServer)
 
     AMaterialHub & MatHub = AMaterialHub::getInstance();
     MatHub.convertPressureToDensity();
-    MatHub.generateGeoMedia();
+    MatHub.generateGeoMedia(UseGdmlExportMaterialNames);
 
     Top = GeoManager->MakeBox("WorldBox", MatHub[World->Material]->_GeoMed, WorldSizeXY, WorldSizeXY, WorldSizeZ);
     GeoManager->SetTopVolume(Top);
@@ -1375,7 +1375,7 @@ int AGeometryHub::checkGeometryForConflicts()
     return overlapCount;
 }
 
-QString AGeometryHub::exportGeometry(const QString & fileName)
+QString AGeometryHub::exportGeometry(const QString & fileName, bool forG4ants3)
 {
     QFileInfo fi(fileName);
     const QString suffix = fi.suffix();
@@ -1387,16 +1387,127 @@ QString AGeometryHub::exportGeometry(const QString & fileName)
     writeToJson(json);
     DoScaling = true;
     ScalingFactor = 0.1; // 1[mm] becomes 0.1[cm]
+    UseGdmlExportMaterialNames = forG4ants3;
     populateGeoManager(false);
+    GdmlRenamedVolumes.clear();
+    if (forG4ants3) renameVolumesForGdmlExport();
 
     GeoManager->SetName("geometry");
     int res = GeoManager->Export(fileName.toLocal8Bit().data());
 
     DoScaling = false;
+    UseGdmlExportMaterialNames = false;
     readFromJson(json);
     populateGeoManager(false);
 
-    return (res == 0 ? "Failed to export to file "+fileName : "");
+    if (res == 0) return "Failed to export to file " + fileName;
+
+    if (forG4ants3)
+    {
+        QString err = AMaterialHub::getConstInstance().checkGdmlExportNames(fileName);
+        if (err.isEmpty()) err = checkGdmlExportVolumeNames(fileName);
+        return err;
+    }
+    return "";
+}
+
+QString AGeometryHub::sanitizeForGdml(const QString & name)
+{
+    QString safe;
+    safe.reserve(name.size());
+    for (const QChar & ch : name)
+    {
+        const char16_t c = ch.unicode();
+        const bool ok = (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') ||
+                        c == '_' || c == '-' || c == '.';
+        safe += (ok ? ch : QChar('_'));
+    }
+    safe.replace("0x", "0_x");       // Geant4 G4GDMLRead::StripName truncates the name at the first "0x"
+    safe.replace("_refl", "_ref_l"); // removed by TGDMLWrite::GenName
+    return safe;
+}
+
+#include "TObjArray.h"
+#include <set>
+#include <map>
+void AGeometryHub::renameVolumesForGdmlExport()
+{
+    // Names which pass ROOT's GDML writer and the Geant4 GDML reader unchanged are kept.
+    // Other names get a sanitized name, made unique against all other names with a "_v<k>" suffix if needed.
+    // Volumes sharing the same original name get the same new name (the same as without renaming).
+    TObjArray * volumes = GeoManager->GetListOfVolumes();
+
+    std::set<QString> allNames;
+    for (int i = 0; i < volumes->GetEntriesFast(); i++)
+        allNames.insert( QString(volumes->At(i)->GetName()) );
+
+    std::set<QString> usedNames;
+    std::vector<QString> namesToChange;
+    for (const QString & name : allNames)
+    {
+        const bool bSafe = !name.isEmpty() && !name[0].isDigit() && sanitizeForGdml(name) == name;
+        if (bSafe) usedNames.insert(name);
+        else       namesToChange.push_back(name);
+    }
+
+    std::map<QString, QString> newNames;
+    for (const QString & name : namesToChange)
+    {
+        QString base = sanitizeForGdml(name);
+        if (base.isEmpty() || base[0].isDigit()) base = "v_" + base;
+        QString candidate = base;
+        for (int k = 0; usedNames.count(candidate) > 0; k++) candidate = base + "_v" + QString::number(k);
+        usedNames.insert(candidate);
+        newNames[name] = candidate;
+        GdmlRenamedVolumes.push_back( {candidate.toLatin1().data(), name.toLatin1().data()} );
+    }
+
+    for (int i = 0; i < volumes->GetEntriesFast(); i++)
+    {
+        TGeoVolume * vol = static_cast<TGeoVolume*>(volumes->At(i));
+        const auto it = newNames.find(QString(vol->GetName()));
+        if (it != newNames.end()) vol->SetName(it->second.toLatin1().data());
+    }
+}
+
+#include <QFile>
+#include <QXmlStreamReader>
+QString AGeometryHub::checkGdmlExportVolumeNames(const QString & gdmlFileName) const
+{
+    // All volume names, as Geant4 will see them (GDML name truncated at "0x"), have to be the expected ones
+    QFile file(gdmlFileName);
+    if (!file.open(QFile::ReadOnly | QFile::Text)) return "Cannot open exported GDML file for verification: " + gdmlFileName;
+
+    std::set<QString> found;
+    QXmlStreamReader xml(&file);
+    while (!xml.atEnd())
+    {
+        xml.readNext();
+        if (xml.isStartElement() && (xml.name() == QLatin1String("volume") || xml.name() == QLatin1String("assembly")))
+        {
+            QString name = xml.attributes().value("name").toString();
+            const int idx = name.indexOf("0x");
+            if (idx != -1) name.truncate(idx);
+            found.insert(name);
+        }
+    }
+    if (xml.hasError()) return "Error parsing exported GDML file " + gdmlFileName + ": " + xml.errorString();
+
+    std::set<QString> expected;
+    TObjArray * volumes = GeoManager->GetListOfVolumes(); // geometry is already rebuilt with the original names
+    for (int i = 0; i < volumes->GetEntriesFast(); i++) expected.insert( QString(volumes->At(i)->GetName()) );
+    for (const auto & pair : GdmlRenamedVolumes)
+    {
+        expected.erase(QString(pair.second.data()));
+        expected.insert(QString(pair.first.data()));
+    }
+
+    QString err;
+    for (const QString & name : expected)
+        if (found.count(name) == 0) err += "\n  volume " + name;
+    if (!err.isEmpty())
+        return "Volume names in the exported GDML file do not match the expected names (has ROOT changed its GDML naming rules?). Not found:" + err;
+    return "";
 }
 
 /*

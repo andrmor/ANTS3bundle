@@ -1,0 +1,433 @@
+// requires   GdmlNamesFullTest    config to be loaded!
+// GdmlNamesFullTest.js - multi-stage regression test for the GDML export-name fix (branch gdmFix),
+// covering all particle-simulation data collections.
+// Load GdmlNamesFullTest.json in the ANTS3 GUI first, then run this script.
+// The script runs 4 particle simulations and prints PASS/FAIL for every check and an overall verdict.
+//
+// Stage 1: 2 MeV gamma pencil beam along +X through Box(A) [Water(1)], Box[B] [Water[1]],
+//          Core[p] inside Instance Cell(i) [Water[1]] and Box_B_ [1st(Fe)].
+//          Checks: tracking history (original names, material indices), monitors Mon[in]/Mon[out],
+//          calorimeter Box(A) (histogram + event log), deposition log (incl. wildcard Core[p]*),
+//          particle analyzer Box[B], exit particles of Box(A), and partan volume filters.
+//          Independent outputs are cross-checked against each other and against the tracking history.
+// Stages 2-4: material-limited electron source (Box covering all detector boxes) limited to
+//          Water(1), Water[1] and 1st(Fe): every primary must start in the right material and volume.
+// The source is restored to the stage-1 settings at the end.
+
+var srcPath = "ParticleSim.GenerationFromSources.ParticleSources[0]";
+var outputDir = config.getKeyValue("ParticleSim.RunSettings.OutputDirectory");
+var trackFile = outputDir + "/" + config.getKeyValue("ParticleSim.RunSettings.FileNameTrackingHistory");
+var monitorFile = outputDir + "/" + config.getKeyValue("ParticleSim.RunSettings.MonitorSettings.FileName");
+var calorimeterFile = outputDir + "/" + config.getKeyValue("ParticleSim.RunSettings.CalorimeterSettings.FileName");
+var calorimeterLogFile = outputDir + "/" + config.getKeyValue("ParticleSim.RunSettings.CalorimeterSettings.LogFileName");
+var analyzerFile = outputDir + "/" + config.getKeyValue("ParticleSim.RunSettings.AnalyzerSettings.FileName");
+var depositionFile = outputDir + "/" + config.getKeyValue("ParticleSim.RunSettings.FileNameDeposition");
+var exitParticlesFile = outputDir + "/" + config.getKeyValue("ParticleSim.RunSettings.SaveParticles.FileName");
+
+var nPass = 0;
+var nFail = 0;
+var failedChecks = [];
+
+function reportCheck(label, ok, details)
+{
+    if (ok) nPass++;
+    else { nFail++; failedChecks.push(label); }
+    core.print((ok ? "PASS  " : "FAIL  ") + label + (details ? "  [" + details + "]" : ""));
+}
+
+// ---------- expected material indices (verified against the loaded configuration) ----------
+var matIndexWater1 = 1;
+var matIndexWater2 = 2;
+var matIndexIron   = 3;
+var matIndexVacuum = 0;
+reportCheck("Stage 0: material table of the loaded configuration",
+            config.getKeyValue("Materials[1].*Name") == "Water(1)" &&
+            config.getKeyValue("Materials[2].*Name") == "Water[1]" &&
+            config.getKeyValue("Materials[3].*Name") == "1st(Fe)",
+            "expected Water(1), Water[1], 1st(Fe) at indices 1..3");
+
+// Expected volume -> ants3 material index. Expanded Prototype members get a suffix, so Core[p] is matched by prefix.
+function expectedMaterialOfVolume(volumeName)
+{
+    if (volumeName == "World" || volumeName == "Mon[in]" || volumeName == "Mon[out]") return matIndexVacuum; // monitors inherit World material
+    if (volumeName == "Box(A)") return matIndexWater1;
+    if (volumeName == "Box[B]") return matIndexWater2;
+    if (volumeName == "Box_B_") return matIndexIron;
+    if (volumeName.indexOf("Core[p]") == 0) return matIndexWater2;
+    if (volumeName == "Cell(i)") return matIndexVacuum; // should not appear: an Instance is not a physical volume
+    return -1; // unknown name: e.g. a GDML-sanitized name which was not restored
+}
+
+// ---------- tracking-history helpers ----------
+function addGeometryContext(stats, record)
+{
+    var geoContext = record[2];
+    if (geoContext.length < 2) return ""; // no node (e.g. world exit)
+    var materialIndex = geoContext[0];
+    var volumeName = geoContext[1];
+    if (stats.seen[volumeName] === undefined) stats.seen[volumeName] = 0;
+    stats.seen[volumeName]++;
+    var expected = expectedMaterialOfVolume(volumeName);
+    if (expected < 0) stats.unknownNames[volumeName] = true;
+    else if (expected != materialIndex) stats.wrongMaterial[volumeName + " (got " + materialIndex + ", expected " + expected + ")"] = true;
+    return volumeName;
+}
+
+function countUp(counter, key)
+{
+    if (counter[key] === undefined) counter[key] = 0;
+    counter[key]++;
+}
+
+// stats.entries[volume][particle]: transport entries; stats.exits[volume]: transport steps leaving the volume
+// stats.primaryEntriesFromWorld[volume]: entries of primaries coming directly from World
+function visitParticleRecursive(stats, isPrimary)
+{
+    var particleName = tracks.getTrackRecord()[0];
+    tracks.gotoFirstStep();
+    var currentVolume = addGeometryContext(stats, tracks.getPostStepRecord()); // creation step
+    while (tracks.makeStep())
+    {
+        var post = tracks.getPostStepRecord();
+        if (post[5] == "T")
+        {
+            var enteredVolume = addGeometryContext(stats, post);
+            if (stats.entries[enteredVolume] === undefined) stats.entries[enteredVolume] = {};
+            countUp(stats.entries[enteredVolume], particleName);
+            countUp(stats.exits, currentVolume);
+            if (isPrimary && currentVolume == "World") countUp(stats.primaryEntriesFromWorld, enteredVolume);
+            currentVolume = enteredVolume;
+        }
+        else if (post[5] == "O") countUp(stats.exits, currentVolume);
+    }
+    var numSec = tracks.countSecondaries();
+    for (var iSec = 0; iSec < numSec; iSec++)
+    {
+        tracks.enterSecondary(iSec);
+        visitParticleRecursive(stats, false);
+        tracks.exitSecondary();
+    }
+}
+
+function getCount(counter, key)
+{
+    return (counter[key] === undefined ? 0 : counter[key]);
+}
+
+function sumValues(counter)
+{
+    var total = 0;
+    for (var key in counter) total += counter[key];
+    return total;
+}
+
+function nearlyEqual(a, b, relTol)
+{
+    return Math.abs(a - b) <= relTol * Math.max(Math.abs(a), Math.abs(b), 1e-9);
+}
+
+function keysOf(obj)
+{
+    var list = [];
+    for (var key in obj) list.push(key);
+    return list;
+}
+
+// ---------- configuration helpers ----------
+function configureBeamSource()
+{
+    config.replace("ParticleSim.Events", 300);
+    config.replace(srcPath + ".Particles[0].Particle", "gamma");
+    config.replace(srcPath + ".Particles[0].Energy.FixedEnergy", 2000); // keV
+    config.replace(srcPath + ".Spatial.Shape", "Point");
+    config.replace(srcPath + ".Spatial.Position", [-280, 0, 0]);
+    config.replace(srcPath + ".Spatial.Size1", 10);
+    config.replace(srcPath + ".Spatial.Size2", 10);
+    config.replace(srcPath + ".Spatial.Size3", 10);
+    config.replace(srcPath + ".Spatial.MaterialLimited", {"Enabled": false, "Material": ""});
+    config.replace(srcPath + ".Angular.Mode", "Fixed");
+    config.updateConfig();
+}
+
+function configureMaterialLimitedSource(materialName)
+{
+    config.replace("ParticleSim.Events", 100);
+    config.replace(srcPath + ".Particles[0].Particle", "e-");
+    config.replace(srcPath + ".Particles[0].Energy.FixedEnergy", 50); // keV: short range, stays near the start point
+    config.replace(srcPath + ".Spatial.Shape", "Box");
+    config.replace(srcPath + ".Spatial.Position", [0, 0, 0]);
+    config.replace(srcPath + ".Spatial.Size1", 150); // half-sizes: covers all detector boxes (x from -140 to 140 mm)
+    config.replace(srcPath + ".Spatial.Size2", 20);
+    config.replace(srcPath + ".Spatial.Size3", 20);
+    config.replace(srcPath + ".Spatial.MaterialLimited", {"Enabled": true, "Material": materialName});
+    config.replace(srcPath + ".Angular.Mode", "Isotropic");
+    config.updateConfig();
+}
+
+// ======================= Stage 1: beam =======================
+core.print("=== Stage 1: gamma beam through all volumes ===");
+configureBeamSource();
+psim.simulate();
+var nEventsBeam = config.getKeyValue("ParticleSim.Events");
+
+tracks.open(trackFile);
+var beamStats = {seen: {}, unknownNames: {}, wrongMaterial: {}, entries: {}, exits: {}, primaryEntriesFromWorld: {}};
+var nTrackEvents = tracks.countEvents();
+for (var iEv = 0; iEv < nTrackEvents; iEv++)
+{
+    tracks.setEvent(iEv);
+    var nPrim = tracks.countPrimaries();
+    for (var iPrim = 0; iPrim < nPrim; iPrim++)
+    {
+        tracks.setPrimary(iPrim);
+        visitParticleRecursive(beamStats, true);
+    }
+}
+reportCheck("Stage 1: tracking history contains all events", nTrackEvents == nEventsBeam,
+            nTrackEvents + " of " + nEventsBeam);
+
+var requiredVolumes = ["Mon[in]", "Box(A)", "Box[B]", "Box_B_", "Mon[out]"];
+var missingVolumes = [];
+for (var iVol = 0; iVol < requiredVolumes.length; iVol++)
+    if (beamStats.seen[requiredVolumes[iVol]] === undefined) missingVolumes.push(requiredVolumes[iVol]);
+var coreSeen = false;
+var seenNames = keysOf(beamStats.seen);
+for (var iName = 0; iName < seenNames.length; iName++)
+    if (seenNames[iName].indexOf("Core[p]") == 0) coreSeen = true;
+if (!coreSeen) missingVolumes.push("Core[p]*");
+reportCheck("Stage 1: all volumes entered under their original names", missingVolumes.length == 0,
+            missingVolumes.length == 0 ? "seen: " + seenNames.join(", ") : "missing: " + missingVolumes.join(", "));
+
+var unknownList = keysOf(beamStats.unknownNames);
+reportCheck("Stage 1: no unexpected (e.g. sanitized) volume names", unknownList.length == 0,
+            unknownList.length == 0 ? "" : unknownList.join(", "));
+
+var wrongList = keysOf(beamStats.wrongMaterial);
+reportCheck("Stage 1: every volume reports the expected ants3 material index", wrongList.length == 0,
+            wrongList.length == 0 ? "Box(A)->1, Box[B]->2, Core[p]->2, Box_B_->3" : wrongList.join("; "));
+
+psim.loadMonitorData(monitorFile);
+var monitorCount = psim.countMonitors();
+var monitorHits = psim.getMonitorHitsAll();
+var monitorPos = psim.getMonitorGlobalPositionsAll();
+var hitsIn = -1, hitsOut = -1;
+for (var iMon = 0; iMon < monitorCount; iMon++)
+{
+    if (Math.abs(monitorPos[iMon][0] + 200) < 1) hitsIn = monitorHits[iMon];
+    if (Math.abs(monitorPos[iMon][0] - 200) < 1) hitsOut = monitorHits[iMon];
+}
+reportCheck("Stage 1: two particle monitors found at x = -200 and +200 mm", monitorCount == 2 && hitsIn >= 0 && hitsOut >= 0,
+            "count = " + monitorCount);
+reportCheck("Stage 1: Mon[in] counts every primary gamma", hitsIn >= nEventsBeam, "hits = " + hitsIn + ", events = " + nEventsBeam);
+reportCheck("Stage 1: Mon[out] has hits", hitsOut > 0, "hits = " + hitsOut);
+
+// ---- calorimeter: histogram and event log ----
+psim.loadCalorimeterData(calorimeterFile);
+var calCount = psim.countCalorimeters();
+var calEntries = 0;
+if (calCount > 0)
+{
+    var depoBins = psim.getCalorimeterOverEventData(0);
+    for (var iBin = 0; iBin < depoBins.length; iBin++) calEntries += depoBins[iBin][1];
+}
+reportCheck("Stage 1: calorimeter on Box(A) registers deposition", calCount == 1 && calEntries > 0,
+            "calorimeters = " + calCount + ", events with deposition (in range) = " + calEntries);
+
+var calLogRows = core.loadNumericArray(calorimeterLogFile);
+// Note: for a single-column file core.loadNumericArray returns a flat array of numbers (rows[i]),
+// for several columns an array of rows (rows[i][j]); handle both.
+var calLogNonZero = 0, calLogSum = 0;
+for (var iRow = 0; iRow < calLogRows.length; iRow++)
+{
+    var calLogValue = (typeof calLogRows[iRow] === "number") ? calLogRows[iRow] : calLogRows[iRow][0];
+    calLogSum += calLogValue;
+    if (calLogValue > 0) calLogNonZero++;
+}
+reportCheck("Stage 1: calorimeter event log has one line per event", calLogRows.length == nEventsBeam,
+            calLogRows.length + " lines, " + nEventsBeam + " events");
+reportCheck("Stage 1: calorimeter event log agrees with the calorimeter histogram", calLogNonZero == calEntries,
+            "events with deposition: log " + calLogNonZero + ", histogram " + calEntries);
+
+// ---- deposition log ----
+// ASCII format: "#<event>" markers; records "particle materialIndex depo_keV x y z time_ns copyNumber"
+var depoText = core.loadText(depositionFile);
+var depoLines = depoText.split("\n");
+var depoByMat = {}, depoSumByMat = {}, depoOutside = 0, depoUnexpectedMat = {}, depoCoreRegion = 0, depoBadLine = 0;
+// expected x ranges (mm) of the volumes, per ants3 material index
+var xRangesByMat = {1: [[-140, -100]], 2: [[-60, -20], [20, 60]], 3: [[100, 140]]};
+for (var iLine = 0; iLine < depoLines.length; iLine++)
+{
+    var line = depoLines[iLine].trim();
+    if (line.length == 0 || line.charAt(0) == "#") continue;
+    var fields = line.split(/\s+/);
+    if (fields.length < 8) { depoBadLine++; continue; }
+    var depoMat = parseInt(fields[1]);
+    var depoE = parseFloat(fields[2]);
+    var depoX = parseFloat(fields[3]), depoY = parseFloat(fields[4]), depoZ = parseFloat(fields[5]);
+    countUp(depoByMat, depoMat);
+    if (depoSumByMat[depoMat] === undefined) depoSumByMat[depoMat] = 0;
+    depoSumByMat[depoMat] += depoE;
+    var ranges = xRangesByMat[depoMat];
+    if (ranges === undefined) { depoUnexpectedMat[depoMat] = true; continue; }
+    var inside = false;
+    for (var iR = 0; iR < ranges.length; iR++)
+        if (depoX >= ranges[iR][0] - 0.01 && depoX <= ranges[iR][1] + 0.01) inside = true;
+    if (Math.abs(depoY) > 20.01 || Math.abs(depoZ) > 20.01) inside = false;
+    if (!inside) depoOutside++;
+    if (depoMat == matIndexWater2 && depoX > 0) depoCoreRegion++;
+}
+reportCheck("Stage 1: deposition log is readable", depoBadLine == 0 && sumValues(depoByMat) > 0,
+            sumValues(depoByMat) + " records, " + depoBadLine + " malformed lines");
+reportCheck("Stage 1: deposition log contains only ants3 materials 1, 2, 3, each present",
+            keysOf(depoUnexpectedMat).length == 0 && getCount(depoByMat, 1) > 0 && getCount(depoByMat, 2) > 0 && getCount(depoByMat, 3) > 0,
+            "records by material: 1: " + getCount(depoByMat, 1) + ", 2: " + getCount(depoByMat, 2) + ", 3: " + getCount(depoByMat, 3) +
+            (keysOf(depoUnexpectedMat).length ? ", unexpected: " + keysOf(depoUnexpectedMat).join(",") : ""));
+reportCheck("Stage 1: every deposition lies inside a volume of its material", depoOutside == 0, depoOutside + " outside");
+reportCheck("Stage 1: wildcard Core[p]* selects the Instance volume for deposition logging", depoCoreRegion > 0,
+            depoCoreRegion + " Water[1] records at x > 0");
+var depoSumA = (depoSumByMat[matIndexWater1] === undefined ? 0 : depoSumByMat[matIndexWater1]);
+reportCheck("Stage 1: deposition log total in Water(1) equals calorimeter log total for Box(A)", nearlyEqual(depoSumA, calLogSum, 1e-3),
+            "deposition log " + depoSumA.toFixed(3) + " keV, calorimeter log " + calLogSum.toFixed(3) + " keV");
+
+// ---- particle analyzer on Box[B] ----
+psim.loadAnalyzerData(analyzerFile);
+var analyzerCount = psim.countAnalyzers();
+var analyzerSpecies = {};
+if (analyzerCount > 0)
+{
+    var speciesRecords = psim.getAnalyzerData(0);
+    for (var iSp = 0; iSp < speciesRecords.length; iSp++) analyzerSpecies[speciesRecords[iSp][0]] = speciesRecords[iSp][1];
+}
+var trackEntriesB = (beamStats.entries["Box[B]"] === undefined ? {} : beamStats.entries["Box[B]"]);
+reportCheck("Stage 1: particle analyzer on Box[B] scores gammas", analyzerCount == 1 && getCount(analyzerSpecies, "gamma") > 0,
+            "analyzers = " + analyzerCount + ", gamma = " + getCount(analyzerSpecies, "gamma"));
+reportCheck("Stage 1: analyzer gamma count equals gamma entries into Box[B] in tracking history",
+            getCount(analyzerSpecies, "gamma") == getCount(trackEntriesB, "gamma"),
+            "analyzer " + getCount(analyzerSpecies, "gamma") + ", tracking " + getCount(trackEntriesB, "gamma") +
+            " (all species: analyzer " + sumValues(analyzerSpecies) + ", tracking " + sumValues(trackEntriesB) + ")");
+
+// ---- exit particles of Box(A) ----
+var exitText = core.loadText(exitParticlesFile);
+var exitLines = exitText.split("\n");
+var nExit = 0, nExitOffSurface = 0, nExitBadLine = 0;
+for (var iEx = 0; iEx < exitLines.length; iEx++)
+{
+    var exitLine = exitLines[iEx].trim();
+    if (exitLine.length == 0 || exitLine.charAt(0) == "#") continue;
+    // format: particle energy_keV x y z dx dy dz time_ns
+    var exitFields = exitLine.split(/\s+/);
+    if (exitFields.length < 9) { nExitBadLine++; continue; }
+    nExit++;
+    var ex = parseFloat(exitFields[2]) + 120, ey = parseFloat(exitFields[3]), ez = parseFloat(exitFields[4]); // local to Box(A)
+    var onSurface = Math.max(Math.abs(ex), Math.abs(ey), Math.abs(ez));
+    if (Math.abs(onSurface - 20) > 0.01) nExitOffSurface++;
+}
+reportCheck("Stage 1: exit particles of Box(A) are saved", nExit > 0 && nExitBadLine == 0,
+            nExit + " records, " + nExitBadLine + " malformed lines");
+reportCheck("Stage 1: every exit record lies on the Box(A) surface", nExit > 0 && nExitOffSurface == 0, nExitOffSurface + " off surface");
+reportCheck("Stage 1: number of exit records equals transitions leaving Box(A) in tracking history",
+            nExit == getCount(beamStats.exits, "Box(A)"), "exit file " + nExit + ", tracking " + getCount(beamStats.exits, "Box(A)"));
+
+// ---- partan: volume-name filters on the same history ----
+partan.configure(trackFile, 1, nEventsBeam);
+partan.clearCriteria();
+partan.setOnlyPrimary();
+partan.setFromVolume("World");
+partan.setToVolume("Box[B]");
+var borderBins = partan.findOnBorder("x", "", 1, -1000, 1000);
+var partanEntriesB = 0;
+for (var iBB = 0; iBB < borderBins.length; iBB++) partanEntriesB += borderBins[iBB][1];
+reportCheck("Stage 1: partan World -> Box[B] primary transitions equal tracking-history count",
+            partanEntriesB > 0 && partanEntriesB == getCount(beamStats.primaryEntriesFromWorld, "Box[B]"),
+            "partan " + partanEntriesB + ", tracking " + getCount(beamStats.primaryEntriesFromWorld, "Box[B]"));
+
+partan.clearCriteria();
+partan.setVolume("Box(A)");
+var partanDepoBins = partan.findDepositedEnergiesOverEvent(250, 0, 2500);
+var partanDepoEvents = 0;
+for (var iPD = 0; iPD < partanDepoBins.length; iPD++) partanDepoEvents += partanDepoBins[iPD][1];
+reportCheck("Stage 1: partan events with deposition in Box(A) agree with the calorimeter (within 5%)",
+            partanDepoEvents > 0 && Math.abs(partanDepoEvents - calEntries) <= Math.max(1, 0.05 * calEntries),
+            "partan " + partanDepoEvents + ", calorimeter " + calEntries);
+partan.clearCriteria();
+
+// ======================= Stages 2-4: material-limited source =======================
+var limitedCases = [
+    {material: "Water(1)", index: matIndexWater1, volumes: ["Box(A)"]},
+    {material: "Water[1]", index: matIndexWater2, volumes: ["Box[B]", "Core[p]*"]},
+    {material: "1st(Fe)",  index: matIndexIron,   volumes: ["Box_B_"]}
+];
+
+function volumeMatches(volumeName, pattern)
+{
+    if (pattern.charAt(pattern.length - 1) == "*") return volumeName.indexOf(pattern.substring(0, pattern.length - 1)) == 0;
+    return volumeName == pattern;
+}
+
+for (var iCase = 0; iCase < limitedCases.length; iCase++)
+{
+    var testCase = limitedCases[iCase];
+    var stageLabel = "Stage " + (iCase + 2) + " (" + testCase.material + ")";
+    core.print("=== " + stageLabel + ": material-limited electron source ===");
+    configureMaterialLimitedSource(testCase.material);
+    psim.simulate();
+    var nEventsLimited = config.getKeyValue("ParticleSim.Events");
+
+    tracks.open(trackFile);
+    var nEv = tracks.countEvents();
+    var nPrimaries = 0, nWrongMaterial = 0, nWrongVolume = 0;
+    var volumeCounts = {};
+    var firstProblem = "";
+    for (var iEvL = 0; iEvL < nEv; iEvL++)
+    {
+        tracks.setEvent(iEvL);
+        var nPrimL = tracks.countPrimaries();
+        for (var iPrimL = 0; iPrimL < nPrimL; iPrimL++)
+        {
+            tracks.setPrimary(iPrimL);
+            var creation = tracks.getPostStepRecord(); // step 0
+            nPrimaries++;
+            var geoContext = creation[2];
+            var matIndex = (geoContext.length >= 2 ? geoContext[0] : -1);
+            var volName  = (geoContext.length >= 2 ? geoContext[1] : "<none>");
+            if (volumeCounts[volName] === undefined) volumeCounts[volName] = 0;
+            volumeCounts[volName]++;
+            var volOk = false;
+            for (var iV = 0; iV < testCase.volumes.length; iV++)
+                if (volumeMatches(volName, testCase.volumes[iV])) volOk = true;
+            if (matIndex != testCase.index) nWrongMaterial++;
+            if (!volOk) nWrongVolume++;
+            if ((matIndex != testCase.index || !volOk) && firstProblem == "")
+                firstProblem = "first bad start: material " + matIndex + " in " + volName;
+        }
+    }
+    var countText = [];
+    var volKeys = keysOf(volumeCounts);
+    for (var iK = 0; iK < volKeys.length; iK++) countText.push(volKeys[iK] + ": " + volumeCounts[volKeys[iK]]);
+
+    reportCheck(stageLabel + ": all events simulated", nEv == nEventsLimited && nPrimaries >= nEventsLimited,
+                "events = " + nEv + "/" + nEventsLimited + ", primaries = " + nPrimaries);
+    reportCheck(stageLabel + ": every primary starts in material index " + testCase.index, nPrimaries > 0 && nWrongMaterial == 0,
+                nWrongMaterial == 0 ? "" : nWrongMaterial + " wrong; " + firstProblem);
+    reportCheck(stageLabel + ": every primary starts in " + testCase.volumes.join(" or "), nPrimaries > 0 && nWrongVolume == 0,
+                countText.join(", "));
+    if (testCase.volumes.length > 1)
+    {
+        var allUsed = true;
+        for (var iU = 0; iU < testCase.volumes.length; iU++)
+        {
+            var used = false;
+            for (var iK2 = 0; iK2 < volKeys.length; iK2++)
+                if (volumeMatches(volKeys[iK2], testCase.volumes[iU])) used = true;
+            if (!used) allUsed = false;
+        }
+        reportCheck(stageLabel + ": both disconnected volumes of this material are used", allUsed, countText.join(", "));
+    }
+}
+
+// ======================= restore and summary =======================
+configureBeamSource();
+core.print("=== Summary ===");
+core.print("Checks passed: " + nPass + ", failed: " + nFail);
+if (nFail > 0) core.print("Failed: " + failedChecks.join(" | "));
+core.print(nFail == 0 ? "OVERALL: PASS" : "OVERALL: FAIL");

@@ -41,8 +41,15 @@ public:
     void    clear();
 
     void    convertPressureToDensity();
-    void    generateGeoMedia();
+    void    generateGeoMedia(bool useGdmlExportNames = false); // true: TGeoMaterials get names from makeGdmlExportName()
     void    updateRuntimeProperties();
+
+    // Name of the material in the GDML file exported for g4ants3: "m<iMat>_<sanitized name>" (see AGeometryHub::sanitizeForGdml).
+    // Unique by construction and passes ROOT's GDML writer and Geant4's GDML reader unchanged
+    static QString makeGdmlExportName(int iMat, const QString & name);
+    QString getGdmlExportName(int iMat) const;
+    // Verifies that the material names in the exported GDML file are exactly the expected export names; returns error or ""
+    QString checkGdmlExportNames(const QString & gdmlFileName) const;
 
     void    addNewMaterial();
     void    addNewMaterial(QString name);       // !!!*** make single method!
@@ -63,10 +70,6 @@ public:
     int     countMaterials() const {return Materials.size();}
     QString getMaterialName(int matIndex) const;
     QStringList getListOfMaterialNames() const;
-    std::vector<std::string> getMaterialNames() const;
-    std::vector<std::pair<std::string, std::string>> getMaterialsFromNist() const;
-    std::vector<std::pair<std::string, std::string>> getMaterialsFromNCrystal() const;
-    std::vector<std::pair<std::string, double>> getMaterialsMeanExEnergy() const;
     double  getDriftSpeed(int iMat) const; //returns in mm / ns
     double  getDiffusionSigmaTime(int iMat, double length_mm) const;
     double  getDiffusionSigmaTransverse(int iMat, double length_mm) const;
