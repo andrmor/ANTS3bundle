@@ -67,9 +67,9 @@ double AMaterial::getSpeedOfLight(int iWave) const
     return c_in_vac / refIndexReal;
 }
 
-void AMaterial::generateTGeoMat()
+void AMaterial::generateTGeoMat(const QString & geoMatName)
 {
-    _GeoMat = Composition.constructGeoMaterial(Name.toLatin1().data());
+    _GeoMat = Composition.constructGeoMaterial(geoMatName);
 }
 
 double AMaterial::FT(double td, double tr, double t) const

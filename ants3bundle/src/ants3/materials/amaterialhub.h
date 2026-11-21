@@ -41,8 +41,16 @@ public:
     void    clear();
 
     void    convertPressureToDensity();
-    void    generateGeoMedia();
+    void    generateGeoMedia(bool useGdmlExportNames = false); // true: TGeoMaterials get names from makeGdmlExportName()
     void    updateRuntimeProperties();
+
+    // Name of the material in the GDML file exported for g4ants3: "m<iMat>_<sanitized name>".
+    // Unique by construction and contains only characters which ROOT's GDML writer keeps unchanged;
+    // also contains no "0x" (Geant4 GDML reader truncates names at "0x") and no "_refl" (removed by ROOT)
+    static QString makeGdmlExportName(int iMat, const QString & name);
+    QString getGdmlExportName(int iMat) const;
+    // Verifies that the material names in the exported GDML file are exactly the expected export names; returns error or ""
+    QString checkGdmlExportNames(const QString & gdmlFileName) const;
 
     void    addNewMaterial();
     void    addNewMaterial(QString name);       // !!!*** make single method!

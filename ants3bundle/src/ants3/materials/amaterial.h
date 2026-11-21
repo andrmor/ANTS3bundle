@@ -78,7 +78,7 @@ public:
     QString convertPressureToDensity();
     void    updateRuntimeOpticalProperties();
 
-    void    generateTGeoMat();
+    void    generateTGeoMat(const QString & geoMatName); // geoMatName is the name given to the TGeoMaterial
     double  generatePrimScintTime(ARandomHub & Random) const; // use Random as argument just to show that there is external dependence
 
     double  getRefractiveIndex(int iWave = -1) const;

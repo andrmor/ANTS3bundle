@@ -340,7 +340,7 @@ void AGeometryHub::populateGeoManager(bool notifyRootServer)
 
     AMaterialHub & MatHub = AMaterialHub::getInstance();
     MatHub.convertPressureToDensity();
-    MatHub.generateGeoMedia();
+    MatHub.generateGeoMedia(UseGdmlExportMaterialNames);
 
     Top = GeoManager->MakeBox("WorldBox", MatHub[World->Material]->_GeoMed, WorldSizeXY, WorldSizeXY, WorldSizeZ);
     GeoManager->SetTopVolume(Top);
@@ -1375,7 +1375,7 @@ int AGeometryHub::checkGeometryForConflicts()
     return overlapCount;
 }
 
-QString AGeometryHub::exportGeometry(const QString & fileName)
+QString AGeometryHub::exportGeometry(const QString & fileName, bool forG4ants3)
 {
     QFileInfo fi(fileName);
     const QString suffix = fi.suffix();
@@ -1387,16 +1387,21 @@ QString AGeometryHub::exportGeometry(const QString & fileName)
     writeToJson(json);
     DoScaling = true;
     ScalingFactor = 0.1; // 1[mm] becomes 0.1[cm]
+    UseGdmlExportMaterialNames = forG4ants3;
     populateGeoManager(false);
 
     GeoManager->SetName("geometry");
     int res = GeoManager->Export(fileName.toLocal8Bit().data());
 
     DoScaling = false;
+    UseGdmlExportMaterialNames = false;
     readFromJson(json);
     populateGeoManager(false);
 
-    return (res == 0 ? "Failed to export to file "+fileName : "");
+    if (res == 0) return "Failed to export to file " + fileName;
+
+    if (forG4ants3) return AMaterialHub::getConstInstance().checkGdmlExportNames(fileName);
+    return "";
 }
 
 /*

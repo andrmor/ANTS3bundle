@@ -85,7 +85,7 @@ public:
 
     //QString      exportToGDML(const QString & fileName) const;  // old system based on mm->cm replacing in the GDML file
     //QString      exportToROOT(const QString & fileName) const;  // old system
-    QString      exportGeometry(const QString & fileName);      // new system based on geometry scaling
+    QString      exportGeometry(const QString & fileName, bool forG4ants3 = false); // new system based on geometry scaling; forG4ants3: materials get GDML export names (see AMaterialHub::makeGdmlExportName) and the GDML is verified
 
     QString      importGDML(const QString & fileName);          // old system based on mm->cm replacing in the GDML file
     QString      importGeometry(const QString & fileName);      // new system based on geometry scaling
@@ -141,6 +141,7 @@ private:
 private:
     bool   DoScaling = false;
     double ScalingFactor = 1.0;
+    bool   UseGdmlExportMaterialNames = false;
 
     std::vector<std::pair<AGeoObject*,TGeoNode*>> Scintillators;
 public:
