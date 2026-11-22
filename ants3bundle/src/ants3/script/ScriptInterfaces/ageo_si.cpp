@@ -2182,9 +2182,22 @@ void AGeo_SI::updateGeometry(bool CheckOverlaps)
                             contObj = GeoObjects[j];
                             break;
                         }
+                /*
                 if (contObj && contObj->Type->isStack())
                 {
                     abort(QString("Group cannot be a member of a stack: %1").arg(name));
+                    clearGeoObjects();
+                    return;
+                }
+                */
+                if (contObj &&
+                    (contObj->Type->isStack() ||
+                     contObj->Type->isCompositeContainer() ||
+                     contObj->isCompositeMemeber() ||
+                     contObj->Type->isGrid() ||
+                     contObj->Type->isInstance()))
+                {
+                    abort(QString("Group %1 cannot be placed inside container %2").arg(name, cont));
                     clearGeoObjects();
                     return;
                 }
