@@ -3819,6 +3819,32 @@ void AGeoInstanceDelegate::updateGui(const AGeoObject * obj)
     if (inst) leInstanceOf->setText(inst->PrototypeName);
 }
 
+AGeoGroupDelegate::AGeoGroupDelegate(const QStringList & materials, QWidget * parent)
+    : AGeoObjectDelegate(materials, parent)
+{
+    DelegateTypeName = "Group";
+
+    cbScale->setChecked(false);
+    cbScale->setVisible(false);
+
+    lMat->setVisible(false);
+    cobMat->setVisible(false);
+
+    pbTransform->setVisible(false);
+    pbShapeInfo->setVisible(false);
+}
+
+bool AGeoGroupDelegate::updateObject(AGeoObject * obj) const
+{
+    const bool ok = AGeoObjectDelegate::updateObject(obj);
+    if (ok)
+    {
+        // group cannot have a special role
+        delete obj->Role; obj->Role = nullptr;
+    }
+    return ok;
+}
+
 AGeoPrototypeDelegate::AGeoPrototypeDelegate(const QStringList & materials, QWidget * parent)
     : AGeoObjectDelegate(materials, parent)
 {

@@ -156,6 +156,12 @@ void AGeoBaseTreeWidget::dropEvent(QDropEvent * event)
                 QMessageBox::information(this, "", "Can insert only elementary objects to the list of composite members!");
                 return;
             }
+            if (ContainerTo->Type->isStack() && obj->Type->isGroup())
+            {
+                event->ignore();
+                QMessageBox::information(this, "", "Groups cannot be a member of a stack!");
+                return;
+            }
             if (!ContainerTo->Type->isPrototype() &&
                 ContainerTo->Type->isHandlingSet() &&
                 !(obj->Type->isSingle() || obj->Type->isStack() || obj->Type->isMonitor()))
