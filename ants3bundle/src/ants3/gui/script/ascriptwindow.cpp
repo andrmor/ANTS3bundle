@@ -42,6 +42,7 @@
 #include <QHeaderView>
 #include <QRegularExpression>
 #include <QTextBlock>
+#include <QTextCharFormat>
 
 AScriptWindow::AScriptWindow(EScriptLanguage lang, QWidget * parent) :
     AGuiWindow( (lang == EScriptLanguage::JavaScript ? "JScript" : "Python"), parent),
@@ -344,6 +345,15 @@ void AScriptWindow::updateGui()
     updateFileStatusIndication();
 }
 
+// QPlainTextEdit inserts appended text with the char format of its main cursor. If the user clicks in the
+// output after a colored HTML line (e.g. the red abort/error message), the cursor takes that color and
+// clear() does not reset it: all plain output of the following runs would be colored.
+// Call only right after clear(): with a selection present, setCurrentCharFormat() would reformat the selected text.
+static void resetOutputCharFormat(QPlainTextEdit * pte)
+{
+    pte->setCurrentCharFormat(QTextCharFormat());
+}
+
 void AScriptWindow::reportError(QString error, int line)
 {
     //error = "<font color=\"red\">Error:</font><br>" + error;
@@ -505,6 +515,7 @@ void AScriptWindow::onRequestAddScript(const QString & script)
 void AScriptWindow::clearOutput()
 {
     pteOut->clear();
+    resetOutputCharFormat(pteOut);
     qApp->processEvents();
 }
 
@@ -537,6 +548,7 @@ void AScriptWindow::on_pbRunScript_clicked()
     const QString Script = getTab()->TextEdit->document()->toPlainText();
 
     pteOut->clear();
+    resetOutputCharFormat(pteOut);
     ui->pbStop->setVisible(true);
     ui->pbRunScript->setVisible(false);
 
