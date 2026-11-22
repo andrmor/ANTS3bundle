@@ -407,6 +407,18 @@ void AGeoTree::onProtoItemSelectionChanged()
     }
 }
 
+static bool canAddGroupTo(const AGeoObject * obj)
+{
+    if (!obj || !obj->Type || obj->fLocked) return false;
+
+    return !obj->Type->isStack() &&
+           !obj->Type->isCompositeContainer() &&
+           !obj->isCompositeMemeber() &&
+           !obj->Type->isGrid() &&
+           !obj->Type->isInstance() &&
+           !obj->Type->isMonitor();
+}
+
 QAction* Action(QMenu& Menu, QString Text)
 {
   QAction* s = Menu.addAction(Text);
@@ -533,7 +545,8 @@ void AGeoTree::customMenuRequested(const QPoint &pos)
       newArrayA->setEnabled(fNotGridNotMonitor);
       newCircArrayA->setEnabled(fNotGridNotMonitor);
       newHexArrayA->setEnabled(fNotGridNotMonitor);
-      newGroupA->setEnabled(fNotGridNotMonitor);
+      //newGroupA->setEnabled(fNotGridNotMonitor);
+      newGroupA->setEnabled(canAddGroupTo(obj));
       addMonitorMenu->setEnabled(fNotGridNotMonitor);
       newGridA->setEnabled(fNotGridNotMonitor);
       cloneA->setEnabled(true);
@@ -723,7 +736,8 @@ void AGeoTree::customProtoMenuRequested(const QPoint & pos)
         addObjMenu->setEnabled(bNotGridNotMonitor);
         newCompositeA->setEnabled(bNotGridNotMonitor);
         newArrayA->setEnabled(bNotGridNotMonitor);
-        newGroupA->setEnabled(bNotGridNotMonitor);
+        //newGroupA->setEnabled(bNotGridNotMonitor);
+        newGroupA->setEnabled(canAddGroupTo(obj));
         addMonitorMenu->setEnabled(bNotGridNotMonitor);
         cloneA->setEnabled(true);
         groupA->setEnabled(!bIsPrototype);
@@ -1066,9 +1080,16 @@ void AGeoTree::menuActionAddNewGroup(AGeoObject * contObj)
 {
     if (!contObj) return;
 
+    /*
     if (contObj->Type->isStack())
     {
         guitools::message("Groups cannot be a member of a stack", twGeoTree);
+        return;
+    }
+    */
+    if (!canAddGroupTo(contObj))
+    {
+        guitools::message("Cannot add a group inside this container", twGeoTree);
         return;
     }
 
