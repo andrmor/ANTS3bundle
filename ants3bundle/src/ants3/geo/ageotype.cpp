@@ -21,6 +21,7 @@ static const QString Composite           = "Composite";
 static const QString CompositeContainer  = "CompositeContainer";
 static const QString Grid                = "Grid";
 static const QString GridElement         = "GridElement";
+static const QString Group               = "Group";
 
 AGeoType * AGeoType::makeTypeObject(const QString & typeStr)
 {
@@ -32,6 +33,7 @@ AGeoType * AGeoType::makeTypeObject(const QString & typeStr)
     if (typeStr == "Stack")               return new ATypeStackContainerObject();
     if (typeStr == "Instance")            return new ATypeInstanceObject();
     if (typeStr == "Prototype")           return new ATypePrototypeObject();
+    if (typeStr == "Group")               return new ATypeGroupObject();
     if (typeStr == "Composite")           return new ATypeCompositeObject();
     if (typeStr == "CompositeContainer")  return new ATypeCompositeContainerObject();
     if (typeStr == "GridElement")         return new ATypeGridElementObject();
@@ -55,6 +57,7 @@ bool AGeoType::isHexagonalArray() const      {return pType == &HexagonalArray;}
 bool AGeoType::isMonitor() const             {return pType == &Monitor;}
 bool AGeoType::isPrototype() const           {return pType == &Prototype;}
 bool AGeoType::isInstance() const            {return pType == &Instance;}
+bool AGeoType::isGroup() const               {return pType == &Group;}
 bool AGeoType::isPrototypeCollection() const {return pType == &PrototypeCollection;}
 bool AGeoType::isComposite() const           {return pType == &Composite;}
 bool AGeoType::isCompositeContainer() const  {return pType == &CompositeContainer;}
@@ -144,6 +147,10 @@ void ATypeInstanceObject::readFromJson(const QJsonObject & json)
 {
     jstools::parseJson(json, "PrototypeName", PrototypeName);
 }
+
+// ---
+
+ATypeGroupObject::ATypeGroupObject() {pType = &Group;}
 
 // ---
 

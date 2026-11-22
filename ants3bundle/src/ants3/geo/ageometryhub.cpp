@@ -579,7 +579,7 @@ void AGeometryHub::addTGeoVolumeRecursively(AGeoObject * obj, TGeoVolume * paren
         vol = parent; // resuse the cycle by HostedVolumes below
     else if (obj->Type->isPrototypeCollection() || obj->isCompositeMemeber() || obj->Type->isCompositeContainer())
         return;       // logicals do not host anything to be added to the geometry
-    else if (obj->Type->isHandlingSet() || obj->Type->isHandlingArray() || obj->Type->isInstance())
+    else if (obj->Type->isHandlingSet() || obj->Type->isHandlingArray() || obj->Type->isInstance() || obj->Type->isGroup())
         vol = parent; // group objects are pure virtual, pass the volume of the parent
     else
     {
@@ -651,11 +651,13 @@ void AGeometryHub::addTGeoVolumeRecursively(AGeoObject * obj, TGeoVolume * paren
         positionArray(obj, vol, forcedNodeNumber);
     else if (obj->Type->isStack())
         positionStack(obj, vol, forcedNodeNumber);
-    else if (obj->Type->isInstance())
-        positionInstance(obj, vol, forcedNodeNumber);
+    else if (obj->Type->isInstance() || obj->Type->isGroup())
+        positionInstance(obj, vol, forcedNodeNumber); // applies the container's transform to the hosted objects
     else
         for (AGeoObject * el : obj->HostedObjects)
             addTGeoVolumeRecursively(el, vol, forcedNodeNumber);
+
+    if (obj->Type->isGroup()) return; // group has no volume of its own: vol is the parent's volume, do not modify its title
 
     if (obj->Role && obj->Role->getType() == "PhotonFunctional") registerPhotonFunctional(obj, parent);
 

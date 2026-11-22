@@ -75,6 +75,8 @@ public slots:
     void prototype(QString name); // +
     void instance(QString name, QString prototype, QString container, QVariantList position, QVariantList orientation); // +   // !!!*** check existence of prototype
 
+    void group(QString name, QString container, QVariantList position, QVariantList orientation); // logical assembly of objects: only position and orientation
+
     void setEnabled(QString objectNameOrWildcard, bool flag);  // +
 
     void setLineProperties(QString objectName, int color, int width, int style); // +
@@ -139,6 +141,7 @@ private:
     bool getSectionsPoly(const QVariantList & sections, std::vector<std::array<double, 3> > & vecSections);
 
     AGeoObject * findObject(const QString & Object, bool forModification = true);
+    AGeoObject * findObjectForRole(const QString & Object); // as findObject, but aborts if the object cannot have a special role (e.g. group)
     bool checkPosOri(QVariantList position, QVariantList orientation, std::array<double, 3> &pos, std::array<double, 3> &ori);
 };
 

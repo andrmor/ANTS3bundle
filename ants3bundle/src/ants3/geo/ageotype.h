@@ -30,6 +30,7 @@ public:
     bool isGrid() const;
     bool isGridElement() const;
     bool isMonitor() const;
+    bool isGroup() const;               // logical assembly: no shape/material, only position/orientation; handled as pass-through (like Instance)
 
     bool isHandlingStandard() const;    // Single, Monitor, Instance, Composite, Grid, GridElement
     bool isHandlingSet() const;         // Stack, Prototype, CompositeContainer
@@ -120,6 +121,14 @@ public:
     void readFromJson(const QJsonObject & json) override;
 
     QString PrototypeName;
+};
+
+// -- Group --
+
+class ATypeGroupObject : public AGeoType
+{
+public:
+    ATypeGroupObject();
 };
 
 // -- Arrays --
