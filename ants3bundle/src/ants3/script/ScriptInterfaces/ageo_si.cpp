@@ -58,7 +58,9 @@ AGeo_SI::AGeo_SI() :
                     "Objects are added to the group by giving the group name as their container;\n"
                     "their positions and orientations are given in the local frame of the group.\n"
                     "The group is positioned inside 'container' at (x,y,z) with orientation (phi,theta,psi).\n"
-                    "A group cannot be a member of a stack and cannot have a special role.\n"
+                    "Groups can be nested and placed inside prototypes.\n"
+                    "A group cannot be placed inside a stack, grid, instance, monitor, composite container or member, or locked object,\n"
+                    "or directly in the prototype collection. Groups cannot have special roles.\n"
                     "Requires updateGeometry() to take effect!";
     //                "After the last element is added, call InitializeStack(StackName, Origin) function. "
     //                "It will automatically calculate x,y and z positions of all elements, keeping user-configured xyz position of the Origin element.";
@@ -2150,6 +2152,14 @@ void AGeo_SI::updateGeometry(bool CheckOverlaps)
         }
 
         const QString & cont = GeoObjects[i]->tmpContName;
+
+        if (GeoObjects[i]->Type->isGroup() && cont == ProrotypeContainerName)
+        {
+            abort(QString("Group %1 cannot be placed directly in the prototype collection").arg(name));
+            clearGeoObjects();
+            return;
+        }
+
         if (cont != ProrotypeContainerName)
         {
             bool fFound = AGeometryHub::getInstance().World->isNameExists(cont);
@@ -2195,6 +2205,8 @@ void AGeo_SI::updateGeometry(bool CheckOverlaps)
                      contObj->Type->isCompositeContainer() ||
                      contObj->isCompositeMemeber() ||
                      contObj->Type->isGrid() ||
+                     contObj->Type->isMonitor() ||
+                     contObj->fLocked ||
                      contObj->Type->isInstance()))
                 {
                     abort(QString("Group %1 cannot be placed inside container %2").arg(name, cont));
