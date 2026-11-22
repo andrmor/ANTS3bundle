@@ -163,6 +163,8 @@ AGeoBaseDelegate * AGeoDelegateWidget::createAndAddGeoObjectDelegate()
         connect((AGeoInstanceDelegate*)Del, &AGeoInstanceDelegate::RequestShowPrototype,        tw, &AGeoTree::onRequestShowPrototype);
         connect((AGeoInstanceDelegate*)Del, &AGeoInstanceDelegate::RequestIsValidPrototypeName, tw, &AGeoTree::onRequestIsValidPrototypeName);
     }
+    else if (CurrentObject->Type->isGroup())
+        Del = new AGeoGroupDelegate(Materials.getListOfMaterialNames(), this);
     else if (CurrentObject->Type->isPrototype())
         Del = new AGeoPrototypeDelegate(Materials.getListOfMaterialNames(), this);
     else if (CurrentObject->Type->isHandlingSet())

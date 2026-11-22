@@ -329,8 +329,8 @@ void AParticleSourceRecord_Standard::getSuggestedWorldHalfSize(double & XY, doub
         break;
     }
 
-    XY = std::max( abs(X0), abs(Y0) ) + size;
-    Z  = abs(Z0) + size;
+    XY = std::max( fabs(X0), fabs(Y0) ) + size;
+    Z  = fabs(Z0) + size;
 }
 
 std::string AParticleSourceRecord_Standard::timeUnitsToString(AParticleSourceRecord_Standard::ETimeUnits timeUnits) const
@@ -961,8 +961,8 @@ void AParticleSourceRecord_EcoMug::getSuggestedWorldHalfSize(double & XY, double
         break;
     }
 
-    XY = std::max( abs(X0), abs(Y0) ) + sizeXY;
-    Z  = abs(Z0) + sizeZ;
+    XY = std::max( fabs(X0), fabs(Y0) ) + sizeXY;
+    Z  = fabs(Z0) + sizeZ;
 }
 
 #ifndef JSON11

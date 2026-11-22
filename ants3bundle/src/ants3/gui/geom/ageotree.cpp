@@ -31,6 +31,8 @@
 #include <QClipboard>
 #include <QShortcut>
 
+#include <algorithm>
+
 #include <vector>
 
 //#include "TMath.h"
@@ -306,7 +308,7 @@ void AGeoTree::populateTreeWidget(QTreeWidgetItem * parent, AGeoObject * Contain
             item->setForeground(0, Qt::blue);
             updateIcon(item, obj);
         }
-        else if (obj->Type->isHandlingSet() || obj->Type->isHandlingArray() || obj->Type->isGridElement())
+        else if (obj->Type->isHandlingSet() || obj->Type->isHandlingArray() || obj->Type->isGridElement() || obj->Type->isGroup())
         {
             QFont f = item->font(0);
             f.setItalic(true);
@@ -463,6 +465,7 @@ void AGeoTree::customMenuRequested(const QPoint &pos)
   QAction* newArrayA  = Action(menu, "Add array");
   QAction* newCircArrayA  = Action(menu, "Add circular array");
   QAction* newHexArrayA  = Action(menu, "Add hexagonal array");
+  QAction* newGroupA  = Action(menu, "Add group");
   QAction* newCompositeA  = Action(menu, "Add composite object");
   QAction* newGridA = Action(menu, "Add optical grid");
 
@@ -495,6 +498,7 @@ void AGeoTree::customMenuRequested(const QPoint &pos)
   menu.addSeparator();
 
   QAction* stackA = Action(menu, "Form a stack");
+  QAction* groupA = Action(menu, "Form a group");
   QAction* stackRefA = Action(menu, "Set as the stack reference");
   QAction* stackClearRefA = Action(menu, "Clear stack reference");
 
@@ -529,6 +533,7 @@ void AGeoTree::customMenuRequested(const QPoint &pos)
       newArrayA->setEnabled(fNotGridNotMonitor);
       newCircArrayA->setEnabled(fNotGridNotMonitor);
       newHexArrayA->setEnabled(fNotGridNotMonitor);
+      newGroupA->setEnabled(fNotGridNotMonitor);
       addMonitorMenu->setEnabled(fNotGridNotMonitor);
       newGridA->setEnabled(fNotGridNotMonitor);
       cloneA->setEnabled(true);
@@ -538,8 +543,9 @@ void AGeoTree::customMenuRequested(const QPoint &pos)
       lineA->setEnabled(true);
       focusObjA->setEnabled(true);
       showA->setEnabled(true);
-      showAonly->setEnabled(true);
+      showAonly->setEnabled(!Type.isGroup()); // group has no shape of its own
       showAdown->setEnabled(true);
+      groupA->setEnabled(!Type.isWorld());
       stackRefA->setEnabled(obj->isStackMember());
       stackClearRefA->setEnabled(obj->stackHasReference());
       prototypeA->setEnabled(obj->isPossiblePrototype());
@@ -550,6 +556,7 @@ void AGeoTree::customMenuRequested(const QPoint &pos)
       addInstanceMenu->setEnabled(false);
       removeWithContA->setEnabled(true);
       stackA->setEnabled(true);
+      groupA->setEnabled(true);
       prototypeA->setEnabled(true);
   }
 
@@ -591,12 +598,14 @@ void AGeoTree::customMenuRequested(const QPoint &pos)
   else if (SelectedAction == newArrayA)      menuActionAddNewArray(obj);
   else if (SelectedAction == newCircArrayA)  menuActionAddNewCircularArray(obj);
   else if (SelectedAction == newHexArrayA)   menuActionAddNewHexagonalArray(obj);
+  else if (SelectedAction == newGroupA)      menuActionAddNewGroup(obj);
   else if (SelectedAction == newGridA)       menuActionAddNewGrid(obj);
   else if (SelectedAction == newPhotonMonitorA)    menuActionAddNewMonitor(obj, true);
   else if (SelectedAction == newParticleMonitorA)  menuActionAddNewMonitor(obj, false);
   else if (SelectedAction == cloneA)         menuActionCloneObject(obj);
 
   else if (SelectedAction == stackA)         menuActionFormStack(selected);
+  else if (SelectedAction == groupA)         menuActionFormGroup(selected);
   else if (SelectedAction == stackRefA)      markAsStackRefVolume(obj);
   else if (SelectedAction == stackClearRefA) clearStackRefVolume(obj);
 
@@ -667,6 +676,7 @@ void AGeoTree::customProtoMenuRequested(const QPoint & pos)
       QAction* newArb8 = addObjMenu->addAction("Arb8");
 
     QAction* newArrayA  = Action(menu, "Add array");
+    QAction* newGroupA  = Action(menu, "Add group");
     QAction* newCompositeA  = Action(menu, "Add composite object");
     //QAction* newGridA = Action(menu, "Add optical grid");
 
@@ -687,6 +697,7 @@ void AGeoTree::customProtoMenuRequested(const QPoint & pos)
     menu.addSeparator();
 
     QAction* stackA = Action(menu, "Form a stack");
+    QAction* groupA = Action(menu, "Form a group");
     QAction* stackRefA = Action(menu, "Mark as the stack reference volume");
     QAction* stackClearRefA = Action(menu, "Clear stack reference");
 
@@ -712,8 +723,10 @@ void AGeoTree::customProtoMenuRequested(const QPoint & pos)
         addObjMenu->setEnabled(bNotGridNotMonitor);
         newCompositeA->setEnabled(bNotGridNotMonitor);
         newArrayA->setEnabled(bNotGridNotMonitor);
+        newGroupA->setEnabled(bNotGridNotMonitor);
         addMonitorMenu->setEnabled(bNotGridNotMonitor);
         cloneA->setEnabled(true);
+        groupA->setEnabled(!bIsPrototype);
         removeHostedA->setEnabled(bNotGridNotMonitor);
         removeWithContA->setEnabled(true);
         removeKeepContA->setEnabled(!bIsPrototype);
@@ -726,6 +739,7 @@ void AGeoTree::customProtoMenuRequested(const QPoint & pos)
         addObjMenu->setEnabled(false);
         removeWithContA->setEnabled(true);
         stackA->setEnabled(!bIsPrototype);
+        groupA->setEnabled(!bIsPrototype);
     }
 
     QAction * SelectedAction = menu.exec(twPrototypes->mapToGlobal(pos));
@@ -759,6 +773,7 @@ void AGeoTree::customProtoMenuRequested(const QPoint & pos)
     else if (SelectedAction == newArb8)        menuActionAddNewObject(obj, new AGeoArb8());
     else if (SelectedAction == newCompositeA)  menuActionAddNewComposite(obj);
     else if (SelectedAction == newArrayA)      menuActionAddNewArray(obj);
+    else if (SelectedAction == newGroupA)      menuActionAddNewGroup(obj);
     //else if (SelectedAction == newGridA)       menuActionAddNewGrid(obj);
     else if (SelectedAction == newPhotonMonitorA)   menuActionAddNewMonitor(obj, true);
     else if (SelectedAction == newParticleMonitorA) menuActionAddNewMonitor(obj, false);
@@ -766,6 +781,7 @@ void AGeoTree::customProtoMenuRequested(const QPoint & pos)
     else if (SelectedAction == cloneA)         menuActionCloneObject(obj);
 
     else if (SelectedAction == stackA)         menuActionFormStack(selected);
+    else if (SelectedAction == groupA)         menuActionFormGroup(selected);
     else if (SelectedAction == stackRefA)      markAsStackRefVolume(obj);
     else if (SelectedAction == stackClearRefA) clearStackRefVolume(obj);
 
@@ -1046,6 +1062,32 @@ void AGeoTree::menuActionAddNewArray(AGeoObject * contObj)
     UpdateGui(name);
 }
 
+void AGeoTree::menuActionAddNewGroup(AGeoObject * contObj)
+{
+    if (!contObj) return;
+
+    if (contObj->Type->isStack())
+    {
+        guitools::message("Groups cannot be a member of a stack", twGeoTree);
+        return;
+    }
+
+    const QString name = Geometry.generateObjectName("Group");
+    AGeoObject * newObj = new AGeoObject(name, nullptr);
+
+    delete newObj->Type; newObj->Type = new ATypeGroupObject();
+
+    newObj->color = 1;
+
+    if (A3Global::getInstance().NewGeoObjectAddedLast)
+        contObj->addObjectLast(newObj);
+    else
+        contObj->addObjectFirst(newObj);
+
+    emit RequestRebuildDetector();
+    UpdateGui(name);
+}
+
 void AGeoTree::menuActionAddNewCircularArray(AGeoObject * contObj)
 {
     if (!contObj) return;
@@ -1266,7 +1308,7 @@ void AGeoTree::SetLineAttributes(AGeoObject * obj)
     int res = rlc->exec();
     if (res != 0)
     {
-        if (obj->Type->isHandlingArray() || obj->Type->isHandlingSet())
+        if (obj->Type->isHandlingArray() || obj->Type->isHandlingSet() || obj->Type->isGroup())
         {
             std::vector<AGeoObject*> vec;
             obj->collectContainingObjects(vec);
@@ -1391,6 +1433,11 @@ void AGeoTree::menuActionFormStack(QList<QTreeWidgetItem*> selected)
             guitools::message("Prototypes and instances cannot be a member of a stack", twGeoTree);
             return;
         }
+        if (obj->Type->isGroup())
+        {
+            guitools::message("Groups cannot be a member of a stack", twGeoTree);
+            return;
+        }
         if (!ContObj) ContObj = obj->Container;
         if (ContObj != obj->Container)
         {
@@ -1431,6 +1478,87 @@ void AGeoTree::menuActionFormStack(QList<QTreeWidgetItem*> selected)
         contObj->HostedObjects.insert(contObj->HostedObjects.begin(), stackObj);
 
     emit RequestRebuildDetector();  // automatically calculates stack positions there
+    UpdateGui(name);
+}
+
+void AGeoTree::menuActionFormGroup(const QList<QTreeWidgetItem*> & selected)
+{
+    if (selected.isEmpty()) return;
+
+    std::vector<AGeoObject*> objs;
+    AGeoObject * contObj = nullptr;
+    for (QTreeWidgetItem * item : selected)
+    {
+        AGeoObject * obj = World->findObjectByName(item->text(0));
+        if (!obj)
+        {
+            guitools::message("Something went wrong: object with name " + item->text(0) + " not found!", twGeoTree);
+            return;
+        }
+        if (obj->Type->isWorld() || obj->Type->isPrototypeCollection())
+        {
+            guitools::message("World cannot be a member of a group", twGeoTree);
+            return;
+        }
+        if (obj->Type->isPrototype())
+        {
+            guitools::message("Prototypes cannot be a member of a group", twGeoTree);
+            return;
+        }
+        if (obj->fLocked)
+        {
+            guitools::message("Locked objects (e.g. members of an instance) cannot be grouped", twGeoTree);
+            return;
+        }
+        if (!contObj) contObj = obj->Container;
+        if (contObj != obj->Container)
+        {
+            guitools::message("To form a group all objects have to have the same container", twGeoTree);
+            return;
+        }
+        objs.push_back(obj);
+    }
+
+    if (!contObj) return;
+    if (contObj->Type->isStack())
+    {
+        guitools::message("Groups cannot be a member of a stack", twGeoTree);
+        return;
+    }
+    if (contObj->Type->isCompositeContainer() || contObj->isCompositeMemeber() || contObj->Type->isGrid() || contObj->Type->isInstance())
+    {
+        guitools::message("Cannot form a group inside this container", twGeoTree);
+        return;
+    }
+
+    // keep the original order of the objects in the container
+    std::vector<AGeoObject*> ordered;
+    for (AGeoObject * obj : contObj->HostedObjects)
+        if (std::find(objs.begin(), objs.end(), obj) != objs.end())
+            ordered.push_back(obj);
+    if (ordered.empty()) return;
+
+    // group is placed in the list of the hosted objects at the position of the first selected object
+    auto it = std::find(contObj->HostedObjects.begin(), contObj->HostedObjects.end(), ordered.front());
+    const size_t insertIndex = it - contObj->HostedObjects.begin();
+
+    const QString name = Geometry.generateObjectName("Group");
+    AGeoObject * groupObj = new AGeoObject(name, nullptr);
+    delete groupObj->Type; groupObj->Type = new ATypeGroupObject();
+    groupObj->color = 1;
+    groupObj->Container = contObj;
+
+    // group is created at the origin of the container with zero rotation: positions and orientations of the members are not changed
+    for (AGeoObject * obj : ordered)
+    {
+        contObj->removeHostedObject(obj);
+        obj->Container = groupObj;
+        groupObj->HostedObjects.push_back(obj);
+    }
+
+    contObj->HostedObjects.insert(contObj->HostedObjects.begin() + insertIndex, groupObj);
+
+    emit RequestRebuildDetector();
     UpdateGui(name);
 }
 

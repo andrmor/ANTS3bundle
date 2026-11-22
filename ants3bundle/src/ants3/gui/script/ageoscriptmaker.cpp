@@ -150,6 +150,13 @@ void AGeoScriptMaker::objectToScript(AGeoObject * obj, QString & script, int ide
     {
         script += "\n" + QString(" ").repeated(ident)+ makeScriptString_instanceObject(obj);
     }
+    else if (obj->Type->isGroup())
+    {
+        script += "\n" + QString(" ").repeated(ident)+ makeScriptString_groupObject(obj);
+        script += "\n" + QString(" ").repeated(ident)+ CommentStr + "-->-- group elements for " + obj->Name;
+        objectMembersToScript(obj, script, medIdent, useStrings, bRecursive);
+        script += "\n" + QString(" ").repeated(ident)+ CommentStr + "--<-- group elements end for " + obj->Name;
+    }
     else if (obj->Type->isPrototype())
     {
         script += "\n" + QString(" ").repeated(ident)+ makeScriptString_prototypeObject(obj);
@@ -366,6 +373,34 @@ QString AGeoScriptMaker::makeScriptString_instanceObject(AGeoObject * obj) const
     QString str =  QString("geo.instance( ") +
                    "'" + obj->Name +            "', " +
                    "'" + ins->PrototypeName +   "', " +
+                   "'" + obj->Container->Name + "',   " +
+                   ArrBeginStr +
+                   posStrs[0] + ", " +
+                   posStrs[1] + ", " +
+                   posStrs[2] +
+                   ArrEndStr + ", " +
+                   ArrBeginStr +
+                   oriStrs[0] + ", " +
+                   oriStrs[1] + ", " +
+                   oriStrs[2] +
+                   ArrEndStr + " )";
+
+    AGeoConsts::getConstInstance().formulaToScript(str, (Python == Language) );
+    return str;
+}
+
+QString AGeoScriptMaker::makeScriptString_groupObject(AGeoObject * obj) const
+{
+    std::vector<QString> posStrs(3);
+    std::vector<QString> oriStrs(3);
+    for (int i = 0; i < 3; i++)
+    {
+        posStrs[i] = ( obj->PositionStr[i].isEmpty()    ? QString::number(obj->Position[i])    : obj->PositionStr[i] );
+        oriStrs[i] = ( obj->OrientationStr[i].isEmpty() ? QString::number(obj->Orientation[i]) : obj->OrientationStr[i] );
+    }
+
+    QString str =  QString("geo.group( ") +
+                   "'" + obj->Name +            "', " +
                    "'" + obj->Container->Name + "',   " +
                    ArrBeginStr +
                    posStrs[0] + ", " +

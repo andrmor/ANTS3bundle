@@ -79,6 +79,7 @@ private:
   void updateExpandState(QTreeWidgetItem * item, bool bPrototypes); //recursive!
   void updateIcon(QTreeWidgetItem *item, AGeoObject *obj);
   void menuActionFormStack(QList<QTreeWidgetItem *> selected);
+  void menuActionFormGroup(const QList<QTreeWidgetItem *> & selected);
   void markAsStackRefVolume(AGeoObject * obj);
   void clearStackRefVolume(AGeoObject * obj);
   void updatePrototypeTreeGui();
@@ -96,6 +97,7 @@ private:
   void menuActionRemoveWithContent(QTreeWidget * treeWidget);
   void menuActionAddNewComposite(AGeoObject * contObj);
   void menuActionAddNewArray(AGeoObject * contObj);
+  void menuActionAddNewGroup(AGeoObject * contObj);
   void menuActionAddNewCircularArray(AGeoObject * contObj);
   void menuActionAddNewHexagonalArray(AGeoObject * contObj);
   void menuActionAddNewGrid(AGeoObject * contObj);

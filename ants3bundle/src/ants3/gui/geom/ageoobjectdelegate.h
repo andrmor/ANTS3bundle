@@ -601,6 +601,16 @@ signals:
     void RequestIsValidPrototypeName(const QString & ProtoName, bool & bResult) const;
 };
 
+class AGeoGroupDelegate : public AGeoObjectDelegate
+{
+    Q_OBJECT
+
+public:
+    AGeoGroupDelegate(const QStringList & materials, QWidget * parent);
+
+    bool updateObject(AGeoObject * obj) const override;
+};
+
 class AGeoPrototypeDelegate : public AGeoObjectDelegate
 {
     Q_OBJECT

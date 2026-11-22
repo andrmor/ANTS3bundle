@@ -211,7 +211,7 @@ bool AGeoObject::isParticleAnalyzer() const
 
 int AGeoObject::getMaterial() const
 {
-    if (Type->isHandlingArray() || Type->isHandlingSet())
+    if (Type->isHandlingArray() || Type->isHandlingSet() || Type->isGroup())
         return Container->getMaterial();
     return Material;
 }
@@ -289,7 +289,7 @@ void AGeoObject::writeToJson(QJsonObject &json) const
         }
     }
 
-    if ( Type->isHandlingStandard() || Type->isHandlingArray() || Type->isStack())
+    if ( Type->isHandlingStandard() || Type->isHandlingArray() || Type->isStack() || Type->isGroup())
     {
         json["X"] = Position[0];
         json["Y"] = Position[1];
@@ -388,6 +388,11 @@ void AGeoObject::readFromJson(const QJsonObject & json)
     QJsonObject jsRole;
     if (jstools::parseJson(json, "SpecialRole", jsRole))
         Role = GeoRoleFactory::make(jsRole);
+    if (Role && Type->isGroup())
+    {
+        AErrorHub::addQError("Special role is not allowed for a group, ignored for object " + Name);
+        delete Role; Role = nullptr;
+    }
 }
 
 void AGeoObject::introduceGeoConstValues()
@@ -1239,7 +1244,7 @@ bool AGeoObject::isMaterialInUse(int imat, QString & volName) const
     if (Material == imat)
     {
         if ( !Type->isGridElement() && !Type->isPrototypeCollection() &&
-             !Type->isHandlingSet() && !Type->isHandlingArray() )
+             !Type->isHandlingSet() && !Type->isHandlingArray() && !Type->isGroup() )
         {
             volName = Name;
             return true;
@@ -1259,7 +1264,7 @@ bool AGeoObject::isMaterialInActiveUse(int imat) const
     if (Type->isMonitor()) return false; //monitors are always made of Container's material and cannot host objects
     if (Material == imat)
     {
-        if ( !Type->isGridElement() && !Type->isCompositeContainer() )
+        if ( !Type->isGridElement() && !Type->isCompositeContainer() && !Type->isGroup() )
             return true;
     }
 
@@ -1578,7 +1583,7 @@ bool AGeoObject::isPrototypeMember() const
 
 bool AGeoObject::isGoodContainerForInstance() const
 {
-    if (Type->isSingle() || Type->isHandlingArray() || Type->isWorld()) return true;
+    if (Type->isSingle() || Type->isHandlingArray() || Type->isWorld() || Type->isGroup()) return true;
     return false;
 }
 

@@ -54,6 +54,12 @@ AGeo_SI::AGeo_SI() :
                              "To update the view at the geometry window use geowin.redraw()";
 
     Help["stack"] = "Add empty stack. Objects can be added to the stack by giving the stack name as their container.";
+    Help["group"] = "Add empty group: a logical assembly of objects without a shape or material.\n"
+                    "Objects are added to the group by giving the group name as their container;\n"
+                    "their positions and orientations are given in the local frame of the group.\n"
+                    "The group is positioned inside 'container' at (x,y,z) with orientation (phi,theta,psi).\n"
+                    "A group cannot be a member of a stack and cannot have a special role.\n"
+                    "Requires updateGeometry() to take effect!";
     //                "After the last element is added, call InitializeStack(StackName, Origin) function. "
     //                "It will automatically calculate x,y and z positions of all elements, keeping user-configured xyz position of the Origin element.";
     //Help["initializeStack"] = "Call this function after the last element has been added to the stack."
@@ -1572,6 +1578,23 @@ void AGeo_SI::instance(QString name, QString prototype, QString container, QVari
     GeoObjects.push_back(instance);
 }
 
+void AGeo_SI::group(QString name, QString container, QVariantList position, QVariantList orientation)
+{
+    std::array<double,3> pos, ori;
+    bool ok = checkPosOri(position, orientation, pos, ori);
+    if (!ok) return;
+
+    AGeoObject * group = new AGeoObject(name);
+    delete group->Type; group->Type = new ATypeGroupObject();
+    group->tmpContName = container;
+    for (int i = 0; i < 3; i++)
+    {
+        group->Position[i]    = pos[i];
+        group->Orientation[i] = ori[i];
+    }
+    GeoObjects.push_back(group);
+}
+
 void AGeo_SI::setLineProperties(QString objectName, int color, int width, int style)
 {
     AGeoObject * obj = findObject(objectName);
@@ -1681,9 +1704,22 @@ AGeoObject * AGeo_SI::findObject(const QString & Object, bool forModification)
     return obj;
 }
 
+AGeoObject * AGeo_SI::findObjectForRole(const QString & Object)
+{
+    AGeoObject * obj = findObject(Object);
+    if (!obj) return nullptr;
+
+    if (obj->Type->isGroup())
+    {
+        abort("Special roles cannot be assigned to a group: " + Object);
+        return nullptr;
+    }
+    return obj;
+}
+
 void AGeo_SI::setLightSensor(QString objectName, int iModel)
 {
-    AGeoObject * obj = findObject(objectName);
+    AGeoObject * obj = findObjectForRole(objectName);
     if (!obj) return;
     delete obj->Role; obj->Role = new AGeoSensor(iModel);
 }
@@ -1692,7 +1728,7 @@ void setLightSensorRecursive(AGeoObject * obj, const QString & objectNameStartsW
 {
     if (obj)
     {
-        if (obj->Name.startsWith(objectNameStartsWith, Qt::CaseSensitive))
+        if (obj->Name.startsWith(objectNameStartsWith, Qt::CaseSensitive) && !obj->Type->isGroup())
         {
             delete obj->Role; obj->Role = new AGeoSensor(iModel);
         }
@@ -1707,7 +1743,7 @@ void AGeo_SI::setLightSensorByName(QString objectNameStartsWith, int iModel)
     if (AScriptHub::getInstance().abortIfJsonNotApplied(Lang)) return;
 
     for (AGeoObject * obj : GeoObjects)
-        if (obj->Name.startsWith(objectNameStartsWith))
+        if (obj->Name.startsWith(objectNameStartsWith) && !obj->Type->isGroup())
         {
             delete obj->Role; obj->Role = new AGeoSensor(iModel);
         }
@@ -1719,7 +1755,7 @@ void AGeo_SI::setLightSensorByName(QString objectNameStartsWith, int iModel)
 
 void AGeo_SI::setCalorimeter(QString objectName, QVariantList bins, QVariantList origin, QVariantList step)
 {
-    AGeoObject * obj = findObject(objectName);
+    AGeoObject * obj = findObjectForRole(objectName);
     if (!obj) return;
 
     if (bins.size() != 3 || origin.size() != 3 || step.size() != 3)
@@ -1748,7 +1784,7 @@ void AGeo_SI::setCalorimeter(QString objectName, QVariantList bins, QVariantList
 
 void AGeo_SI::setScintillator(QString objectName)
 {
-    AGeoObject * obj = findObject(objectName);
+    AGeoObject * obj = findObjectForRole(objectName);
     if (!obj) return;
     delete obj->Role; obj->Role = new AGeoScint();
 }
@@ -1757,7 +1793,7 @@ void setScintRecursive(AGeoObject * obj, const QString & objectNameStartsWith)
 {
     if (obj)
     {
-        if (obj->Name.startsWith(objectNameStartsWith, Qt::CaseSensitive))
+        if (obj->Name.startsWith(objectNameStartsWith, Qt::CaseSensitive) && !obj->Type->isGroup())
         {
             delete obj->Role; obj->Role = new AGeoScint();
         }
@@ -1772,7 +1808,7 @@ void AGeo_SI::setScintillatorByName(QString objectNameStartsWith)
     if (AScriptHub::getInstance().abortIfJsonNotApplied(Lang)) return;
 
     for (AGeoObject * obj : GeoObjects)
-        if (obj->Name.startsWith(objectNameStartsWith))
+        if (obj->Name.startsWith(objectNameStartsWith) && !obj->Type->isGroup())
         {
             delete obj->Role; obj->Role = new AGeoScint();
         }
@@ -1784,7 +1820,7 @@ void AGeo_SI::setScintillatorByName(QString objectNameStartsWith)
 
 void AGeo_SI::setSecondaryScintillator(QString objectName)
 {
-    AGeoObject * obj = findObject(objectName);
+    AGeoObject * obj = findObjectForRole(objectName);
     if (!obj) return;
     delete obj->Role; obj->Role = new AGeoSecScint();
 }
@@ -1828,7 +1864,7 @@ QVariantList AGeo_SI::getLightSensorPositions()
 
 void AGeo_SI::setPhotonFunctional(QString objectName)
 {
-    AGeoObject * obj = findObject(objectName);
+    AGeoObject * obj = findObjectForRole(objectName);
     if (!obj) return;
     delete obj->Role; obj->Role = new AGeoPhotonFunctional();
 }
@@ -1932,7 +1968,7 @@ int AGeo_SI::overrideUnconnectedLinkFunctionals()
 
 void AGeo_SI::setParticleAnalyzer(QString objectName)
 {
-    AGeoObject * obj = findObject(objectName);
+    AGeoObject * obj = findObjectForRole(objectName);
     if (!obj) return;
     delete obj->Role; obj->Role = new AGeoParticleAnalyzer();
 }
@@ -2131,6 +2167,24 @@ void AGeo_SI::updateGeometry(bool CheckOverlaps)
                 if (!fFound)
                 {
                     abort(QString("Container does not exist: %1").arg(cont));
+                    clearGeoObjects();
+                    return;
+                }
+            }
+
+            if (GeoObjects[i]->Type->isGroup())
+            {
+                const AGeoObject * contObj = GeoHub.World->findObjectByName(cont);
+                if (!contObj)
+                    for (size_t j = 0; j < i; j++)
+                        if (cont == GeoObjects[j]->Name)
+                        {
+                            contObj = GeoObjects[j];
+                            break;
+                        }
+                if (contObj && contObj->Type->isStack())
+                {
+                    abort(QString("Group cannot be a member of a stack: %1").arg(name));
                     clearGeoObjects();
                     return;
                 }

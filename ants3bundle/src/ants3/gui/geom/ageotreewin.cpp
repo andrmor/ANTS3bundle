@@ -177,7 +177,7 @@ void AGeoTreeWin::showAllInstances(QString name)
         if (insType->PrototypeName == name && inst->fActive)
             for (AGeoObject * obj : inst->HostedObjects)
             {
-                if (obj->Type->isHandlingArray() || obj->Type->isHandlingSet())
+                if (obj->Type->isHandlingArray() || obj->Type->isHandlingSet() || obj->Type->isGroup())
                 {
                     std::vector<AGeoObject*> vec;
                     obj->collectContainingObjects(vec);
@@ -297,7 +297,7 @@ void AGeoTreeWin::highlightVolume(const QString & VolName)
     if (!obj) return;
 
     QSet<QString> set;
-    if (obj->Type->isHandlingArray() || obj->Type->isInstance() || obj->Type->isHandlingSet())
+    if (obj->Type->isHandlingArray() || obj->Type->isInstance() || obj->Type->isHandlingSet() || obj->Type->isGroup())
     {
         std::vector<AGeoObject*> vec;
         obj->collectContainingObjects(vec);

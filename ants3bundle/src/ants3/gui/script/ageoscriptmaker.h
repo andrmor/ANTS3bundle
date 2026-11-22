@@ -25,6 +25,7 @@ protected:
     QString makeScriptString_basicObject(AGeoObject * obj, bool useStrings) const;
     QString makeScriptString_arrayObject(AGeoObject * obj) const;
     QString makeScriptString_instanceObject(AGeoObject * obj) const;
+    QString makeScriptString_groupObject(AGeoObject * obj) const;
     QString makeScriptString_prototypeObject(AGeoObject * obj) const;
     QString makeScriptString_monitorBaseObject(const AGeoObject * obj) const;
     QString makeScriptString_monitorConfig(const AGeoObject * obj) const;

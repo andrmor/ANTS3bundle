@@ -303,6 +303,45 @@ bool AGeometryHub::processCompositeObject(AGeoObject * obj)
 #ifdef USE_ROOT_HTML
 #include "aroothttpserver.h"
 #endif
+#include "TGeoBBox.h"
+#include "TGeoNode.h"
+#include "TGeoMatrix.h"
+#include <cmath>
+#include <algorithm>
+// Extent of the volumes placed directly in the top (World) volume, computed from the built TGeo geometry.
+// The global matrix of each node already includes the transforms of all logical containers (groups, arrays,
+// instances, stacks), which pass the World volume down to their content. Deeper physical daughters have to be
+// contained in their mothers, so the World daughters are sufficient. The bounding box of each shape is used.
+// Returns false if there are no daughters.
+static bool computeTopDaughtersExtent(TGeoVolume * top, double & maxXY, double & maxZ)
+{
+    const int numDaughters = top->GetNdaughters();
+    if (numDaughters == 0) return false;
+
+    for (int iNode = 0; iNode < numDaughters; iNode++)
+    {
+        const TGeoNode * node = top->GetNode(iNode);
+        const TGeoBBox * box  = dynamic_cast<const TGeoBBox*>(node->GetVolume()->GetShape());
+        if (!box) continue;
+
+        const double * origin = box->GetOrigin();
+        const double half[3] = {box->GetDX(), box->GetDY(), box->GetDZ()};
+        const TGeoMatrix * matrix = node->GetMatrix();
+
+        for (int iCorner = 0; iCorner < 8; iCorner++)
+        {
+            double local[3], master[3];
+            for (int i = 0; i < 3; i++)
+                local[i] = origin[i] + ( (iCorner >> i) & 1 ? half[i] : -half[i] );
+            matrix->LocalToMaster(local, master);
+
+            maxXY = std::max(maxXY, std::max(std::fabs(master[0]), std::fabs(master[1])));
+            maxZ  = std::max(maxZ,  std::fabs(master[2]));
+        }
+    }
+    return true;
+}
+
 void AGeometryHub::populateGeoManager(bool notifyRootServer)
 {
     ASensorHub::getInstance().clearSensors();
@@ -328,8 +367,11 @@ void AGeometryHub::populateGeoManager(bool notifyRootServer)
 
     double WorldSizeXY = getWorldSizeXY();
     double WorldSizeZ  = getWorldSizeZ();
-    if (!isWorldSizeFixed())
+    const bool bAutoWorldSize = !isWorldSizeFixed();
+    if (bAutoWorldSize)
     {
+        // estimate from the object tree; it does not accumulate the transforms of logical containers,
+        // so it is refined below using the built geometry
         WorldSizeXY = 0;
         WorldSizeZ  = 0;
         World->updateWorldSize(WorldSizeXY, WorldSizeZ);
@@ -348,6 +390,20 @@ void AGeometryHub::populateGeoManager(bool notifyRootServer)
 
     AInterfaceRuleHub::getInstance().updateVolumesFromTo();
     addTGeoVolumeRecursively(World, Top);
+
+    if (bAutoWorldSize)
+    {
+        double extentXY = 0, extentZ = 0;
+        if (computeTopDaughtersExtent(Top, extentXY, extentZ))
+        {
+            // never smaller than the estimate above: keeps the World size of existing configurations
+            WorldSizeXY = std::max(WorldSizeXY, 1.05 * extentXY);
+            WorldSizeZ  = std::max(WorldSizeZ,  1.05 * extentZ);
+            static_cast<TGeoBBox*>(Top->GetShape())->SetBoxDimensions(WorldSizeXY, WorldSizeXY, WorldSizeZ);
+            setWorldSizeXY(WorldSizeXY);
+            setWorldSizeZ(WorldSizeZ);
+        }
+    }
 
     Top->SetName("World"); // "WorldBox" above is needed - JSROOT uses that name to avoid conflicts
     setVolumeTitle(World, Top);
@@ -579,7 +635,7 @@ void AGeometryHub::addTGeoVolumeRecursively(AGeoObject * obj, TGeoVolume * paren
         vol = parent; // resuse the cycle by HostedVolumes below
     else if (obj->Type->isPrototypeCollection() || obj->isCompositeMemeber() || obj->Type->isCompositeContainer())
         return;       // logicals do not host anything to be added to the geometry
-    else if (obj->Type->isHandlingSet() || obj->Type->isHandlingArray() || obj->Type->isInstance())
+    else if (obj->Type->isHandlingSet() || obj->Type->isHandlingArray() || obj->Type->isInstance() || obj->Type->isGroup())
         vol = parent; // group objects are pure virtual, pass the volume of the parent
     else
     {
@@ -651,11 +707,13 @@ void AGeometryHub::addTGeoVolumeRecursively(AGeoObject * obj, TGeoVolume * paren
         positionArray(obj, vol, forcedNodeNumber);
     else if (obj->Type->isStack())
         positionStack(obj, vol, forcedNodeNumber);
-    else if (obj->Type->isInstance())
-        positionInstance(obj, vol, forcedNodeNumber);
+    else if (obj->Type->isInstance() || obj->Type->isGroup())
+        positionInstance(obj, vol, forcedNodeNumber); // applies the container's transform to the hosted objects
     else
         for (AGeoObject * el : obj->HostedObjects)
             addTGeoVolumeRecursively(el, vol, forcedNodeNumber);
+
+    if (obj->Type->isGroup()) return; // group has no volume of its own: vol is the parent's volume, do not modify its title
 
     if (obj->Role && obj->Role->getType() == "PhotonFunctional") registerPhotonFunctional(obj, parent);
 
