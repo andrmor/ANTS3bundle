@@ -1280,6 +1280,7 @@ QString AGeometryHub::readFromJson(const QJsonObject & json)
     QJsonArray arrGC;
     jstools::parseJson(js, "GeoConsts", arrGC);
     AGeoConsts::getInstance().readFromJsonArr(arrGC);
+    if (AErrorHub::isError()) return AErrorHub::getQError();
 
     QJsonArray arrTree;
     jstools::parseJson(js, "WorldTree", arrTree);
@@ -1301,6 +1302,7 @@ QString AGeometryHub::readFromJson(const QJsonObject & json)
     }
 
     populateGeoManager();
+    if (AErrorHub::isError()) return AErrorHub::getQError();
     return "";
 }
 
