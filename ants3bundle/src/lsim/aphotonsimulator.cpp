@@ -745,6 +745,8 @@ bool APhotonSimulator::simulateBombsFromFile()
 
 void APhotonSimulator::loadConfig()
 {
+    AErrorHub::clear();
+
     QJsonObject json;
     jstools::loadJsonFromFile(json, WorkingDir + "/" + ConfigFN);
 
@@ -768,6 +770,7 @@ void APhotonSimulator::loadConfig()
 
     Error = AGeometryHub::getInstance().readFromJson(json);
     if (!Error.isEmpty()) terminate(Error);
+    if (AErrorHub::isError()) terminate(AErrorHub::getQError()); // !!!*** apply to all methods here
     LOG << "Geometry loaded\n";
     LOG << "World: " << AGeometryHub::getInstance().World << "\n";
     LOG << "GeoManager: " << AGeometryHub::getInstance().GeoManager << "\n";

@@ -1,4 +1,5 @@
 #include "aparticlesourcerecord.h"
+#include "aerrorhub.h"
 
 #ifdef JSON11
     // already in the header
@@ -492,7 +493,11 @@ void updateGeoConstRelatedParameter(QString & str, double & val, const QString &
     val = 0;
     QString errorStr;
     bool ok = GC.updateDoubleParameter(errorStr, str, val, bForbidZero, bForbidNegative, bMakeHalf);
-    if (!ok) qWarning() << "Error in Particle sim->Source->" << message << ":" << errorStr;
+    if (!ok)
+    {
+        qWarning() << "Error in Particle sim->Source->" << message << ":" << errorStr;
+        AErrorHub::addQError(QString("Error in Particle sim->Source->%1: %2").arg(message, errorStr));
+    }
 }
 
 void AParticleSourceRecord_Standard::updateGeoConstRelatedSimProperties()
