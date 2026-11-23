@@ -191,12 +191,29 @@ TObject * ABasketManager::makeCloneOfTObject(TObject * tobj)
     return clone;
 }
 
+/*
 void ABasketManager::update(int index, const std::vector<ADrawObject> & drawObjects)
 {
     if (index < 0 || index >= Basket.size()) return;
 
     add(Basket[index].Name, drawObjects);
     std::swap(Basket[index], Basket.back());
+    Basket.pop_back();
+}
+*/
+void ABasketManager::update(int index, const std::vector<ADrawObject> & drawObjects)
+{
+    if (index < 0 || index >= size() || Basket[index].isGroup || drawObjects.empty()) return;
+
+    const QString parentGroup = Basket[index].ParentGroup;
+
+    add(Basket[index].Name, drawObjects);
+
+    Basket.back().ParentGroup = parentGroup;
+
+    std::swap(Basket[index], Basket.back());
+
+    Basket.back().clearObjects();
     Basket.pop_back();
 }
 
