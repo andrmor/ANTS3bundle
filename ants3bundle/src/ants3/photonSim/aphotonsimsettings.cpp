@@ -1,5 +1,6 @@
 #include "aphotonsimsettings.h"
 #include "ajsontools.h"
+#include "aerrorhub.h"
 
 #include <cmath>
 
@@ -387,7 +388,13 @@ void ASingleSettings::updateGeoConstRelatedSimProperties()
 
         Position[i] = 0;
         bool ok = GC.updateDoubleParameter(errorStr, PositionStr[i], Position[i], false, false, false);
-        if (!ok) qWarning() << "Error in Photon Bomb single X" << errorStr;
+        //if (!ok) qWarning() << "Error in Photon Bomb single X" << errorStr;
+        if (!ok)
+        {
+            const QString msg = QString("Error in Photon Bomb single position (coordinate index [%1]): %2").arg(i).arg(errorStr);
+            qWarning().noquote() << msg;
+            AErrorHub::addQError(msg);
+        }
     }
 }
 
@@ -487,7 +494,13 @@ void updateParameter(QString & str, double & val, const QString & message, bool 
     val = 0;
     QString errorStr;
     bool ok = GC.updateDoubleParameter(errorStr, str, val, bForbidZero, bForbidNegative, false);
-    if (!ok) qWarning() << "Error in Photon sim->Photon Bombs->Flood->" << message << ":" << errorStr;
+    //if (!ok) qWarning() << "Error in Photon sim->Photon Bombs->Flood->" << message << ":" << errorStr;
+    if (!ok)
+    {
+        const QString msg = QString("Error in Photon sim->Photon Bombs->%1: %2").arg(message, errorStr);
+        qWarning().noquote() << msg;
+        AErrorHub::addQError(msg);
+    }
 }
 
 void AFloodSettings::updateGeoConstRelatedSimProperties()

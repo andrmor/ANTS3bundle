@@ -177,8 +177,8 @@ QString AConfig::tryReadFromJson(const QJsonObject & json)
     if (AErrorHub::isError()) return AErrorHub::getQError();
 
     Error = APhotonSimHub::getInstance().readFromJson(json);
-    APhotonSimHub::getInstance().updateGeoConstRelatedSimProperties();
     if (!Error.isEmpty()) return Error;
+    APhotonSimHub::getInstance().updateGeoConstRelatedSimProperties();
     if (AErrorHub::isError()) return AErrorHub::getQError();
 
     AParticleSimHub::getInstance().readFromJson(json);
