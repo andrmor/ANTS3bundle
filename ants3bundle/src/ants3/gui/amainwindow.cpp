@@ -417,7 +417,8 @@ void AMainWindow::on_actionLoad_configuration_triggered()
     QString err = Config.load(fileName, true);
     if (!err.isEmpty())
     {
-        guitools::message(err, this);
+        // fixes wrong position of the message (without that fix, appears after the second error)
+        QTimer::singleShot(50, this, [this, err](){guitools::message(err, this);});
         return;
     }
     // gui is updated in updateAllGuiFromConfig() slot triggered from Config hub, since script also can load config
