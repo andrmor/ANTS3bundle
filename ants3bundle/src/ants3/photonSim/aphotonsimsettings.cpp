@@ -78,14 +78,14 @@ void AWaveResSettings::toStandardBins(const std::vector<double> & wavelength, co
     for (int iP = 0; iP < points; iP++)
     {
         wave = From + Step * iP;
-        if (wave <= wavelength.front())
+        if (wave < wavelength.front())
         {
             if (options == ExpandWithZero) binned = 0;
             else                           binned = value.front();
         }
         else
         {
-            if (wave >= wavelength.back())
+            if (wave > wavelength.back())
             {
                 if (options == ExpandWithZero) binned = 0;
                 else                           binned = value.back();
