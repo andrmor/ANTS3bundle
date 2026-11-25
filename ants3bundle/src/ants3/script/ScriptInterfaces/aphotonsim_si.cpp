@@ -160,7 +160,7 @@ QVariantList APhotonSim_SI::getMonitorWavelength(int monitorIndex)
     for (int ix = 0; ix < numX; ix++)
     {
         double iWave = data->GetXaxis()->GetBinLowEdge(ix+1);
-        if (iWave <= 0) continue;
+        if (iWave < 0) continue;
         double wave = simSet.toWavelength(iWave);
         vl.push_back( QVariantList{wave, data->GetBinContent(ix+1)} );
     }

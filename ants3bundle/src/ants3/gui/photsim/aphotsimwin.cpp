@@ -1240,6 +1240,13 @@ void APhotSimWin::on_pbShowWaveDistr_clicked()
 {
     APhotonStatistics & Stat = AStatisticsHub::getInstance().SimStat;
     const AWaveResSettings & WaveSet = APhotonSimHub::getConstInstance().Settings.WaveSet;
+
+    if (!WaveSet.Enabled)
+    {
+        if (Stat.WaveDistr) emit requestDraw(Stat.WaveDistr, "hist", false, true);
+        return;
+    }
+
     if (Stat.WaveDistr)
     {
         std::vector<std::pair<double,double>> content;
@@ -1452,11 +1459,15 @@ void APhotSimWin::on_pbMonitorShowWavelength_clicked()
         TH1D * h = MonitorHub.PhotonMonitors[iMon].Monitor->wave;
         int nbins = h->GetXaxis()->GetNbins();
 
+        /*
         double gsWaveFrom = SimSet.WaveSet.From;
         double gsWaveTo = SimSet.WaveSet.To;
         double gsWaveBins = SimSet.WaveSet.countNodes();
         if (gsWaveBins > 1) gsWaveBins--;
         double wavePerBin = (gsWaveTo - gsWaveFrom) / gsWaveBins;
+        */
+        const double gsWaveFrom = SimSet.WaveSet.From;
+        const double wavePerBin = SimSet.WaveSet.Step;
 
         double binFrom = h->GetBinLowEdge(1);
         double waveFrom = gsWaveFrom + (binFrom - 0.5) * wavePerBin;
