@@ -4,9 +4,11 @@
 #include "ascriptinterface.h"
 
 #include <QVariantList>
+#include <QVariantMap>
 #include <QString>
 
 class APhotonSimManager;
+class TH1D;
 
 class APhotonSim_SI : public AScriptInterface
 {
@@ -34,7 +36,12 @@ public slots:
     QVariantList getMonitorXY(int monitorIndex);
 
     void loadStatistics(QString fileName);
+    QVariantMap getStatistics();
     QVariantList getStatistics_SensorAngular();
+    QVariantList getStatistics_SensorWaveIndex();
+    QVariantList getStatistics_SensorWavelength();
+    QVariantList getStatistics_SensorTime();
+    QVariantList getStatistics_SensorTransitions();
 
     int          mesh_build(int num);
     QVariantList mesh_getVertices();
@@ -44,6 +51,8 @@ public slots:
 
 private:
     APhotonSimManager & SimMan;
+
+    QVariantList getStatisticsDistribution(const TH1D * data, const QString & errorMessage);
 
 };
 

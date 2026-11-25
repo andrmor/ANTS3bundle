@@ -12,7 +12,98 @@
 #include "TH2D.h"
 
 APhotonSim_SI::APhotonSim_SI() :
-    AScriptInterface(), SimMan(APhotonSimManager::getInstance()) {}
+    AScriptInterface(), SimMan(APhotonSimManager::getInstance())
+{
+    Description = "Optical photon simulation and analysis of simulation results";
+
+    Help["simulate"] =
+        "Starts optical simulation using the current configuration";
+
+    Help["setSeed"] =
+        "Sets seed of the random generator";
+
+    Help["countMonitors"] =
+        "Returns the number of photon monitors in the current configuration";
+
+    Help["loadMonitorData"] =
+        "Loads simulation data containing photon monitor results";
+
+    Help["getMonitorGlobalPositionsAll"] =
+        "Returns array of global positions [x,y,z] of all photon monitors";
+
+    Help["getMonitorHitsAll"] =
+        "Returns array of recorded hit counts for all photon monitors";
+
+    Help["getMonitorWaveIndex"] =
+        "Returns array of [wavelength index, counts] for the monitor "
+        "with the given index.\n"
+        "The lower bin edges are returned. "
+        "Index -1 represents undefined wavelength";
+
+    Help["getMonitorWavelength"] =
+        "Returns array of [wavelength_nm, counts] for the monitor "
+        "with the given index.\n"
+        "Wavelengths are calculated from the lower bin edges "
+        "using the current wavelength grid.\n"
+        "Negative wavelength indices are excluded";
+
+    Help["getMonitorTime"] =
+        "Returns array of [time, counts] for the monitor "
+        "with the given index.\n"
+        "Supported units: ns, us, ms, s.\n"
+        "Time corresponds to the bin center";
+
+    Help["getMonitorAngle"] =
+        "Returns array of [angle_deg, counts] for the monitor "
+        "with the given index.\n"
+        "Angle corresponds to the bin center";
+
+    Help["getMonitorXY"] =
+        "Returns array of [x, y, counts] for the monitor "
+        "with the given index.\n"
+        "Coordinates correspond to the bin centers";
+
+    Help["loadStatistics"] =
+        "Loads previously saved optical simulation statistics.\n"
+        "The current wavelength grid must match the grid used "
+        "to generate the statistics if wavelength in nm is requested";
+
+    Help["getStatistics"] =
+        "Returns an object containing scalar photon simulation statistics:\n"
+        "photon termination counters and optical process occurrence counters.\n"
+        "Field names are the same as in the statistics JSON file";
+
+    Help["getStatistics_SensorAngular"] =
+        "Returns array of [angle_deg, counts] for detected photons "
+        "aggregated over all sensors.\n"
+        "Angle corresponds to the bin center.\n"
+        "Underflow and overflow are excluded";
+
+    Help["getStatistics_SensorWaveIndex"] =
+        "Returns array of [wavelength index, counts] for detected photons "
+        "aggregated over all sensors.\n"
+        "Index -1 represents photons with undefined wavelength "
+        "and is always included";
+
+    Help["getStatistics_SensorWavelength"] =
+        "Returns array of [wavelength_nm, counts] for detected photons "
+        "aggregated over all sensors.\n"
+        "Uses the current wavelength grid.\n"
+        "Photons with undefined wavelength are excluded";
+
+    Help["getStatistics_SensorTime"] =
+        "Returns array of [time_ns, counts] for detected photons "
+        "aggregated over all sensors.\n"
+        "Time corresponds to the bin center.\n"
+        "Underflow and overflow are excluded";
+
+    Help["getStatistics_SensorTransitions"] =
+        "Returns distribution of the number of photon tracing transitions "
+        "for detected photons aggregated over all sensors.\n"
+        "Returns array of [bin center, counts].\n"
+        "Bin centers are not necessarily integer numbers.\n"
+        "Underflow and overflow are excluded";
+}
 
 APhotonSim_SI::~APhotonSim_SI()
 {
@@ -283,6 +374,29 @@ QVariantList APhotonSim_SI::getMonitorXY(int monitorIndex)
 
 #include "aphotonstatistics.h"
 #include "astatisticshub.h"
+QVariantList APhotonSim_SI::getStatisticsDistribution(const TH1D * data, const QString & errorMessage)
+{
+    QVariantList vl;
+
+    if (AScriptHub::getInstance().abortIfJsonNotApplied(Lang)) return vl;
+
+    if (!data)
+    {
+        abort(errorMessage);
+        return vl;
+    }
+
+    const int numX = data->GetNbinsX();
+    vl.reserve(numX);
+
+    for (int ix = 1; ix <= numX; ix++)
+    {
+        vl.push_back(QVariantList{ data->GetBinCenter(ix), data->GetBinContent(ix) });
+    }
+
+    return vl;
+}
+
 void APhotonSim_SI::loadStatistics(QString fileName)
 {
     if (AScriptHub::getInstance().abortIfJsonNotApplied(Lang)) return;
@@ -300,6 +414,7 @@ void APhotonSim_SI::loadStatistics(QString fileName)
     Stat.readFromJson(json);
 }
 
+/*
 QVariantList APhotonSim_SI::getStatistics_SensorAngular()
 {
     QVariantList vl;
@@ -322,6 +437,139 @@ QVariantList APhotonSim_SI::getStatistics_SensorAngular()
     }
 
     return vl;
+}
+*/
+QVariantList APhotonSim_SI::getStatistics_SensorAngular()
+{
+    const APhotonStatistics & Stat = AStatisticsHub::getInstance().SimStat;
+    return getStatisticsDistribution(Stat.AngularDistr, "Angular distribution is not loaded!");
+}
+
+QVariantList APhotonSim_SI::getStatistics_SensorTime()
+{
+    const APhotonStatistics & Stat = AStatisticsHub::getInstance().SimStat;
+    return getStatisticsDistribution(Stat.TimeDistr, "Time distribution is not loaded!");
+}
+
+QVariantList APhotonSim_SI::getStatistics_SensorTransitions()
+{
+    const APhotonStatistics & Stat = AStatisticsHub::getInstance().SimStat;
+    return getStatisticsDistribution(Stat.TransitionDistr, "Transition distribution is not loaded!");
+}
+
+QVariantList APhotonSim_SI::getStatistics_SensorWaveIndex()
+{
+    QVariantList vl;
+
+    if (AScriptHub::getInstance().abortIfJsonNotApplied(Lang)) return vl;
+
+    const APhotonStatistics & Stat = AStatisticsHub::getInstance().SimStat;
+    const TH1D * data = Stat.WaveDistr;
+    if (!data)
+    {
+        abort("Wavelength distribution is not loaded!");
+        return vl;
+    }
+
+    const int numX = data->GetNbinsX();
+    const double xMin = data->GetXaxis()->GetXmin();
+    const double xMax = data->GetXaxis()->GetXmax();
+
+    // Wavelength resolution was disabled: a single regular bin represents index -1.
+    if (numX == 1 && xMin == -1.0 && xMax == 0.0)
+    {
+        vl.push_back(QVariantList{ -1, data->GetBinContent(1) });
+        return vl;
+    }
+
+    // Wavelength resolution was enabled: regular bins represent indices 0 ... numX-1.
+    // Undefined wavelengths are stored in the underflow bin.
+    if (xMin != 0.0 || xMax != numX)
+    {
+        abort("Unexpected binning of sensor wavelength distribution!");
+        return vl;
+    }
+
+    vl.reserve(numX + 1);
+    vl.push_back(QVariantList{ -1, data->GetBinContent(0) });
+
+    for (int iWave = 0; iWave < numX; iWave++)
+    {
+        vl.push_back(QVariantList{ iWave, data->GetBinContent(iWave + 1) });
+    }
+
+    return vl;
+}
+
+QVariantList APhotonSim_SI::getStatistics_SensorWavelength()
+{
+    QVariantList vl;
+
+    const QVariantList waveIndexData = getStatistics_SensorWaveIndex();
+    if (waveIndexData.isEmpty()) return vl;
+
+    // Only the undefined-wavelength bin is present.
+    if (waveIndexData.size() == 1) return vl;
+
+    const AWaveResSettings & WaveSet = APhotonSimHub::getConstInstance().Settings.WaveSet;
+
+    if (!WaveSet.Enabled || WaveSet.countNodes() != waveIndexData.size() - 1)
+    {
+        abort("Current wavelength grid is incompatible with the loaded sensor statistics!");
+        return vl;
+    }
+
+    vl.reserve(waveIndexData.size() - 1);
+    for (const QVariant & element : waveIndexData)
+    {
+        const QVariantList pair = element.toList();
+
+        const int iWave = pair[0].toInt();
+        if (iWave < 0) continue;
+
+        vl.push_back(QVariantList{ WaveSet.toWavelength(iWave), pair[1] });
+    }
+
+    return vl;
+}
+
+QVariantMap APhotonSim_SI::getStatistics()
+{
+    QVariantMap vm;
+
+    if (AScriptHub::getInstance().abortIfJsonNotApplied(Lang)) return vm;
+
+    const APhotonStatistics & Stat = AStatisticsHub::getInstance().SimStat;
+
+    if (!Stat.WaveDistr)
+    {
+        abort("Photon simulation statistics are not loaded!");
+        return vm;
+    }
+
+    // Photon termination statistics
+    vm["Absorbed"]             = (double)Stat.Absorbed;
+    vm["InterfaceRuleLoss"]    = (double)Stat.InterfaceRuleLoss;
+    vm["HitSensor"]            = (double)Stat.HitSensor;
+    vm["Escaped"]              = (double)Stat.Escaped;
+    vm["LossOnGrid"]           = (double)Stat.LossOnGrid;
+    vm["TracingSkipped"]       = (double)Stat.TracingSkipped;
+    vm["MaxTransitions"]       = (double)Stat.MaxTransitions;
+    vm["GeneratedOutside"]     = (double)Stat.GeneratedOutside;
+    vm["MonitorKill"]          = (double)Stat.MonitorKill;
+    vm["FunctionalKill"]       = (double)Stat.FunctionalKill;
+
+    // Optical process statistics
+    vm["FresnelTransmitted"]   = (double)Stat.FresnelTransmitted;
+    vm["FresnelReflected"]     = (double)Stat.FresnelReflected;
+    vm["BulkAbsorption"]       = (double)Stat.BulkAbsorption;
+    vm["Rayleigh"]             = (double)Stat.Rayleigh;
+    vm["CustomScatter"]        = (double)Stat.CustomScatter;
+    vm["Reemission"]           = (double)Stat.Reemission;
+    vm["InterfaceRuleBack"]    = (double)Stat.InterfaceRuleBack;
+    vm["InterfaceRuleForward"] = (double)Stat.InterfaceRuleForward;
+
+    return vm;
 }
 
 #include "ageomeshhandler.h"
