@@ -159,6 +159,10 @@ void AJScriptWorker::evaluate(const QString & script)
 
     bBusy = true;
     Engine->setInterrupted(false);
+
+    QJSValue inc = Engine->globalObject().property("includeTab"); // on abort does not reset the counter!
+    if (inc.isCallable()) inc.setProperty("depth", 0);
+
     Result = Engine->evaluate(script);
 
     //qDebug() << "Script eval result:\n" << Result.toString();
