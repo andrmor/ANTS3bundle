@@ -523,7 +523,7 @@ void AScriptWindow::clearOutput()
 #include "aconfig.h"
 void AScriptWindow::on_pbRunScript_clicked()
 {
-    if (ScriptManager->isRunning()) return;
+    if (ScriptManager->isRunning() || !ScriptManager->isEvalFinished()) return;
 
     lHelp->hide();
 
@@ -577,7 +577,7 @@ void AScriptWindow::on_pbRunScript_clicked()
         ui->prbProgress->setVisible(false);
         ui->pbStop->setVisible(false);
         ui->pbRunScript->setVisible(true);
-        ScriptHub.clearScriptBooksSnapshot(ScriptLanguage);
+        //ScriptHub.clearScriptBooksSnapshot(ScriptLanguage);
         return;
     }
 
@@ -586,9 +586,10 @@ void AScriptWindow::on_pbRunScript_clicked()
         QThread::msleep(50);
         qApp->processEvents();
     }
-    while (ScriptManager->isRunning());
+    //while (ScriptManager->isRunning());
+    while (!ScriptManager->isEvalFinished());
 
-    ScriptHub.clearScriptBooksSnapshot(ScriptLanguage);
+    //ScriptHub.clearScriptBooksSnapshot(ScriptLanguage);
 
     ui->pbStop->setVisible(false);
     ui->pbRunScript->setVisible(true);

@@ -88,7 +88,7 @@ public:
     // Snapshot of the script books, taken when a script is started from the script window.
     // Used by core.getTabScript() and the related methods.
     void setScriptBooksSnapshot(EScriptLanguage lang, const QJsonObject & json);
-    void clearScriptBooksSnapshot(EScriptLanguage lang);
+    //void clearScriptBooksSnapshot(EScriptLanguage lang); // not needed and have edge cases when it is damaging
     bool getScriptBooksSnapshot(EScriptLanguage lang, QJsonObject & json) const; // false if there is no snapshot
 
 public slots:
@@ -145,7 +145,7 @@ private:
 
     EConfigSyncState ConfigSyncState = EConfigSyncState::Synchronized;
 
-    mutable QMutex SnapshotMutex; // paranoic (in case the server is running)
+    mutable QMutex SnapshotMutex; // safety net, e.g. when gui run started when server is already running
     QJsonObject    BooksSnapshot_JS;
     QJsonObject    BooksSnapshot_P;
     bool           bBooksSnapshot_JS = false;

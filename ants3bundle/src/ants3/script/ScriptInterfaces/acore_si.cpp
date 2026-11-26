@@ -161,11 +161,14 @@ ACore_SI::ACore_SI() : AScriptInterface()
     Help["getBookNames"] = "Return array with the names of the script books of the script window. "
                            "Available only when the script is started from the script window";
     Help["getTabNames"]  = "Return array with the tab names of the given script book (current book if the name is not provided or empty). "
-                          "Available only when the script is started from the script window";
+                           "Available only when the script is started from the script window";
     Help["getTabScript"] = "Return the text of the script in the tab with the given name, as it was when the script was started. "
                            "If the book name is not provided or empty, the current book is used. "
                            "Typical use: eval(core.getTabScript('lib')) in JavaScript, exec(core.getTabScript('lib')) in Python. "
-                           "Available only when the script is started from the script window";
+                           "Available only when the script is started from the script window.\n"
+                           "\nWhen using it to 'include' other tab scripts:\n"
+                           "In JavaScript, eval at the top level makes var and function declarations global but not let or const.\n"
+                           "In Python, inside a function, use exec(code, globals()).";
 
     //Help["str"] = "Converts numeric value to string using the given precision (number of digits after the decimal separator)";
     Help["str"] = "Convert a numeric value to a string using the given "

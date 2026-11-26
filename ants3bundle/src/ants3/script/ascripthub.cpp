@@ -392,12 +392,14 @@ void AScriptHub::setScriptBooksSnapshot(EScriptLanguage lang, const QJsonObject 
     else                                     { BooksSnapshot_P  = json; bBooksSnapshot_P  = true; }
 }
 
+/*
 void AScriptHub::clearScriptBooksSnapshot(EScriptLanguage lang)
 {
     QMutexLocker locker(&SnapshotMutex);
     if (lang == EScriptLanguage::JavaScript) { BooksSnapshot_JS = QJsonObject(); bBooksSnapshot_JS = false; }
     else                                     { BooksSnapshot_P  = QJsonObject(); bBooksSnapshot_P  = false; }
 }
+*/
 
 bool AScriptHub::getScriptBooksSnapshot(EScriptLanguage lang, QJsonObject & json) const
 {
