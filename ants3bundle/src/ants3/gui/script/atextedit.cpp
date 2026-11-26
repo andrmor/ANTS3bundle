@@ -72,7 +72,9 @@ void ATextEdit::showMethodHelpForCursor()
         }
     }
 
-    if (matchingMethods.front().first.startsWith("void core.print(")) selectedMethod = 0;
+    //if (matchingMethods.front().first.startsWith("void core.print(")) selectedMethod = 0;
+    const QString & first = matchingMethods.front().first;
+    if (first.startsWith("void core.print(") || first.startsWith("void print(") || first.startsWith("void printHtml(")) selectedMethod = 0;
 
     if (selectedMethod >= matchingMethods.size())
     {
