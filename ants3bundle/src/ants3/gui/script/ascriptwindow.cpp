@@ -299,6 +299,7 @@ void AScriptWindow::updateMethodHelp()
 {
     trwHelp->clear();
     ListOfMethods.clear();
+    fillGlobalFunctionsHelper();
     for (const AScriptInterface * inter : ScriptManager->getInterfaces()) fillHelper(inter);
 }
 
@@ -316,7 +317,7 @@ void AScriptWindow::updateAutocompleterAndHeighlighter()
     Methods.clear();
 
     // Global functions not belonging to scripting units
-    Methods << "print()" << "printHtml()";
+    Methods << "print()" << "printHtml()" << "includeTab()";
 
     std::vector<std::pair<QString,int>> vec;
     vec.reserve(24);
@@ -843,7 +844,8 @@ void AScriptWindow::fillHelper(const AScriptInterface * io)
     QTreeWidgetItem * objItem = new QTreeWidgetItem(trwHelp);
     objItem->setText(0, module);
     QFont f = objItem->font(0);
-    f.setBold(true);
+    //f.setBold(true);
+    f.setWeight(QFont::DemiBold);
     objItem->setFont(0, f);
     objItem->setToolTip(0, io->Description);
     bool bAlreadyAdded = false; // TMP!!!
@@ -872,6 +874,57 @@ void AScriptWindow::fillHelper(const AScriptInterface * io)
 
         const QString & str = io->getMethodHelp(methodName, methods[iMet].second);
         fItem->setToolTip(0, str);
+    }
+}
+
+void AScriptWindow::fillGlobalFunctionsHelper()
+{
+    struct AGlobalFunctionRecord
+    {
+        QString Short;   // shown in the tree; the name must be directly followed by '(' (F1 search relies on it)
+        QString Long;    // "<returnType> <name>( <type> <arg>, ... )" -> tooltip, F1 and the help panel
+        int     NumArgs;
+        QString Help;
+    };
+
+    const QString includeHelp =
+        "Evaluate the script of the tab with the given name, so that its functions and variables become available to the calling script. "
+        "If the book name is not provided or empty, the current book is used.\n"
+        "The text is taken as it was when the script was started. Available only when the script is started from the script window.\n"
+        "JavaScript: 'function' and 'var' declarations become global; 'let', 'const' and 'class' declarations stay local to the included code.\n"
+        "Nesting is limited to 16 levels (protection against circular includes).";
+
+    std::vector<AGlobalFunctionRecord> records =
+        {
+            {"print( m1, ... )",     "void print( m1, ... )",     1,
+             "Print up to 20 arguments in the output area, separated by spaces. Arrays and objects are converted to readable strings.\n"
+             "Same as core.print()"},
+            {"printHtml( m1, ... )", "void printHtml( m1, ... )", 1,
+             "Print html-formatted text in the output area. Can be used, for example, to set text color or use bold font.\n"
+             "Same as core.printHtml()"}
+        };
+    //if (ScriptLanguage == EScriptLanguage::JavaScript) // !!!*** drop the condition when the Python version exists
+    //{
+        records.push_back({"includeTab( tabName )",           "void includeTab( string tabName )",                  1, includeHelp});
+        records.push_back({"includeTab( tabName, bookName )", "void includeTab( string tabName, string bookName )", 2, includeHelp});
+    //}
+
+    QTreeWidgetItem * objItem = new QTreeWidgetItem(trwHelp);
+    objItem->setText(0, "Global functions");
+    QFont f = objItem->font(0);
+    //f.setBold(true);
+    f.setWeight(QFont::DemiBold);
+    objItem->setFont(0, f);
+    objItem->setToolTip(0, "Functions which are called without a unit name");
+
+    for (const AGlobalFunctionRecord & r : records)
+    {
+        ListOfMethods.push_back( {r.Long, r.NumArgs} );
+
+        QTreeWidgetItem * fItem = new QTreeWidgetItem(objItem);
+        fItem->setText(0, r.Short);
+        fItem->setText(1, r.Long);
+        fItem->setToolTip(0, r.Help);
     }
 }
 

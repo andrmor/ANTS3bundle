@@ -64,6 +64,31 @@ void AJScriptWorker::onRegisterInterface(AScriptInterface * interface, QString n
               "   core.printHtml(str)\n"
               "}";
         Engine->evaluate(str);
+
+        str = "var includeTab = (function() {\n"
+              "    // eval must not be called from a function containing try/catch:\n"
+              "    // in this V4 version the declarations would then land in the catch scope instead of the global one\n"
+              "    var evalGlobal = function(code) { (0, eval)(code); };\n"
+              "    var f = function(tabName, bookName) {\n"
+              "        if (bookName === undefined) bookName = '';\n"
+              "        if (f.depth >= 16) { core.abort('includeTab: nesting too deep (circular include?)'); return; }\n"
+              "        var code = core.getTabScript(tabName, bookName);   // aborts by itself if not found\n"
+              "        f.depth++;\n"
+              "        try       { evalGlobal(code); }\n"
+              "        catch (e) {\n"
+              "            if (e instanceof Error) {\n"
+              "                e.message = \"In included tab '\" + tabName + \"'\" +\n"
+              "                            (e.lineNumber > 0 ? ', line ' + e.lineNumber : '') + ': ' + e.message;\n"
+              "                e.lineNumber = -1;\n"
+              "            }\n"
+              "            throw e;\n"
+              "        }\n"
+              "        finally   { f.depth--; }\n"
+              "    };\n"
+              "    f.depth = 0;\n"
+              "    return f;\n"
+              "})();\n";
+        Engine->evaluate(str);
     }
 }
 

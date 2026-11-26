@@ -812,6 +812,42 @@ void APythonInterface::initialize()
         "def printHtml(*txt):\n"
         "    core.printHtml(' '.join(str(t) for t in txt))\n"
         );
+
+    evalScript(
+        "def _ants_makeIncludeTab():\n"
+        "    class IncludeTabError(Exception):\n"
+        "        pass\n"
+        "\n"
+        "    def includeTab(tabName, bookName=''):\n"
+        "        if includeTab.depth >= 16:\n"
+        "            core.abort('includeTab: nesting too deep (circular include?)')\n"
+        "            return\n"
+        "        code = core.getTabScript(tabName, bookName)   # aborts by itself if not found\n"
+        "        fname = '<tab: ' + (bookName + '/' if bookName else '') + tabName + '>'\n"
+        "        includeTab.depth += 1\n"
+        "        try:\n"
+        "            exec(compile(code, fname, 'exec'), globals())\n"
+        "        except Exception as e:\n"
+        "            line = None\n"
+        "            if isinstance(e, SyntaxError) and e.filename == fname:\n"
+        "                line = e.lineno\n"
+        "            else:\n"
+        "                tb = e.__traceback__\n"
+        "                while tb is not None:\n"
+        "                    if tb.tb_frame.f_code.co_filename == fname:\n"
+        "                        line = tb.tb_lineno\n"
+        "                    tb = tb.tb_next\n"
+        "            where = ', line ' + str(line) if line else ''\n"
+        "            raise IncludeTabError(\"In included tab '\" + tabName + \"'\" + where + ': (' + type(e).__name__ + ') ' + str(e)) from None\n"
+        "        finally:\n"
+        "            includeTab.depth -= 1\n"
+        "\n"
+        "    includeTab.depth = 0\n"
+        "    return includeTab\n"
+        "\n"
+        "includeTab = _ants_makeIncludeTab()\n"
+        "del _ants_makeIncludeTab\n"
+        );
 }
 
 void APythonInterface::collectOverloaded(int Unit, int Method, std::vector<int> & SameNameMethods)

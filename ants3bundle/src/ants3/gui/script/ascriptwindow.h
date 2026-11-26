@@ -270,6 +270,7 @@ private:
     void updateAutocompleterAndHeighlighter();
     void addScript(const QString & script);
     QString getQTypeAlias(QString type); // e.g. QString --> string; QVariantList --> array
+    void fillGlobalFunctionsHelper();
 };
 
 #endif // ASCRIPTWINDOW_H
