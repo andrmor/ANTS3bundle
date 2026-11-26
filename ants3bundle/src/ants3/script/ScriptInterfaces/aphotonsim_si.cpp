@@ -38,7 +38,8 @@ APhotonSim_SI::APhotonSim_SI() :
         "Returns array of [wavelength index, counts] for the monitor "
         "with the given index.\n"
         "The lower bin edges are returned. "
-        "Index -1 represents undefined wavelength";
+        "Index -1 represents undefined wavelength.\n"
+        "Overflow counts are excluded";
 
     Help["getMonitorWavelength"] =
         "Returns array of [wavelength_nm, counts] for the monitor "
