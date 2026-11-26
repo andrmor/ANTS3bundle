@@ -36,6 +36,7 @@
 #include "alightresponse_si.h"
 #endif
 
+#include <QMutexLocker>
 #include <QDebug>
 
 #include "TGeoManager.h"
@@ -382,4 +383,27 @@ AScriptHub::~AScriptHub()
     delete PythonM; PythonM = nullptr;
 #endif
     delete JavaScriptM; JavaScriptM = nullptr;
+}
+
+void AScriptHub::setScriptBooksSnapshot(EScriptLanguage lang, const QJsonObject & json)
+{
+    QMutexLocker locker(&SnapshotMutex);
+    if (lang == EScriptLanguage::JavaScript) { BooksSnapshot_JS = json; bBooksSnapshot_JS = true; }
+    else                                     { BooksSnapshot_P  = json; bBooksSnapshot_P  = true; }
+}
+
+/*
+void AScriptHub::clearScriptBooksSnapshot(EScriptLanguage lang)
+{
+    QMutexLocker locker(&SnapshotMutex);
+    if (lang == EScriptLanguage::JavaScript) { BooksSnapshot_JS = QJsonObject(); bBooksSnapshot_JS = false; }
+    else                                     { BooksSnapshot_P  = QJsonObject(); bBooksSnapshot_P  = false; }
+}
+*/
+
+bool AScriptHub::getScriptBooksSnapshot(EScriptLanguage lang, QJsonObject & json) const
+{
+    QMutexLocker locker(&SnapshotMutex);
+    if (lang == EScriptLanguage::JavaScript) { json = BooksSnapshot_JS; return bBooksSnapshot_JS; }
+    else                                     { json = BooksSnapshot_P;  return bBooksSnapshot_P;  }
 }

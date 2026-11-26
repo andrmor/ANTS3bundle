@@ -523,10 +523,13 @@ void AScriptWindow::clearOutput()
 #include "aconfig.h"
 void AScriptWindow::on_pbRunScript_clicked()
 {
+    if (ScriptManager->isRunning() || !ScriptManager->isEvalFinished()) return;
+
     lHelp->hide();
 
     // save all tabs -> GlobSet
     WriteToJson();
+    ScriptHub.setScriptBooksSnapshot(ScriptLanguage, ScriptLanguage == EScriptLanguage::JavaScript ? GlobSet.JavaScriptJson : GlobSet.PythonJson);
     A3Global::getInstance().saveConfig();
 
     if (ui->cbSaveAllBeforeRun->isChecked())
@@ -574,6 +577,7 @@ void AScriptWindow::on_pbRunScript_clicked()
         ui->prbProgress->setVisible(false);
         ui->pbStop->setVisible(false);
         ui->pbRunScript->setVisible(true);
+        //ScriptHub.clearScriptBooksSnapshot(ScriptLanguage);
         return;
     }
 
@@ -582,7 +586,10 @@ void AScriptWindow::on_pbRunScript_clicked()
         QThread::msleep(50);
         qApp->processEvents();
     }
-    while (ScriptManager->isRunning());
+    //while (ScriptManager->isRunning());
+    while (!ScriptManager->isEvalFinished());
+
+    //ScriptHub.clearScriptBooksSnapshot(ScriptLanguage);
 
     ui->pbStop->setVisible(false);
     ui->pbRunScript->setVisible(true);
