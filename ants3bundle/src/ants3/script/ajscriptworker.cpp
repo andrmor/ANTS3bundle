@@ -55,10 +55,7 @@ void AJScriptWorker::onRegisterInterface(AScriptInterface * interface, QString n
         //Engine->evaluate(str);
         evaluateBuiltIn(Engine, str, "printHtml");
 
-        str = "var includeTab = (function() {\n"
-              "    // eval must not be called from a function containing try/catch:\n"
-              "    // in this V4 version the declarations would then land in the catch scope instead of the global one\n"
-              "    var evalGlobal = function(code) { (0, eval)(code); };\n"
+        str = "var includeTab = (function(evalGlobal) {\n"
               "    var f = function(tabName, bookName) {\n"
               "        if (bookName === undefined) bookName = '';\n"
               "        if (f.depth >= 16) { core.abort('includeTab: nesting too deep (circular include?)'); return; }\n"
@@ -77,7 +74,12 @@ void AJScriptWorker::onRegisterInterface(AScriptInterface * interface, QString n
               "    };\n"
               "    f.depth = 0;\n"
               "    return f;\n"
-              "})();\n";
+              "})(\n"
+              "    // The eval helper must be created at the top level of the script, not inside the wrapper:\n"
+              "    // created inside a function, the declarations of the evaluated code do not become global in V4\n"
+              "    function(code) { (0, eval)(code); }\n"
+              ");\n";
+        evaluateBuiltIn(Engine, str, "includeTab");
         //Engine->evaluate(str);
         evaluateBuiltIn(Engine, str, "includeTab");
     }
