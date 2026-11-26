@@ -804,16 +804,15 @@ void APythonInterface::initialize()
         }
     }
 
-    //evalScript( "def print(*txt):\n s=''\n for t in txt: s+=str(t)+' '\n core.print(s)" );
-    evalScript(
+    if (!evalScript(
         "def print(*txt):\n"
         "    core.print(' '.join(str(t) for t in txt))\n"
         "\n"
         "def printHtml(*txt):\n"
         "    core.printHtml(' '.join(str(t) for t in txt))\n"
-        );
+        )) qWarning() << "Failed to define built-in Python functions print/printHtml:" << ErrorDescription << "line" << ErrorLineNumber;
 
-    evalScript(
+    if (!evalScript(
         "def _ants_makeIncludeTab():\n"
         "    class IncludeTabError(Exception):\n"
         "        pass\n"
@@ -847,7 +846,7 @@ void APythonInterface::initialize()
         "\n"
         "includeTab = _ants_makeIncludeTab()\n"
         "del _ants_makeIncludeTab\n"
-        );
+        )) qWarning() << "Failed to define built-in Python function includeTab:" << ErrorDescription << "line" << ErrorLineNumber;
 }
 
 void APythonInterface::collectOverloaded(int Unit, int Method, std::vector<int> & SameNameMethods)

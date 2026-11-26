@@ -12,6 +12,14 @@ AJScriptWorker::~AJScriptWorker()
     // do not delete script interfaces, it is automatic!
 }
 
+static void evaluateBuiltIn(QJSEngine * engine, const QString & code, const char * what)
+{
+    const QJSValue res = engine->evaluate(code);
+    if (res.isError())
+        qWarning() << "Failed to define built-in JS function" << what << ":"
+                   << res.property("message").toString() << "line" << res.property("lineNumber").toInt();
+}
+
 void AJScriptWorker::onRegisterInterface(AScriptInterface * interface, QString name)
 {
     interface->Name = name;
@@ -21,26 +29,6 @@ void AJScriptWorker::onRegisterInterface(AScriptInterface * interface, QString n
 
     if (name == "core")
     {
-        /*
-        QString str = "function print()\n"
-                      "{\n"
-                      "   var str = ''\n"
-                      "   for (var ii = 0; ii < arguments.length; ii++)\n"
-                      "     str += core.toStr(arguments[ii]) + ' '\n"
-                      "   core.print(str)\n"
-                      "}";
-        Engine->evaluate(str);
-
-        str = "function printHtml()\n"
-                      "{\n"
-                      "   var str = ''\n"
-                      "   for (var ii = 0; ii < arguments.length; ii++)\n"
-                      "     str += core.toStr(arguments[ii]) + ' '\n"
-                      "   core.printHtml(str)\n"
-                      "}";
-        Engine->evaluate(str);
-        */
-
         QString str = "function print()\n"
                       "{\n"
                       "   var str = ''\n"
@@ -51,7 +39,8 @@ void AJScriptWorker::onRegisterInterface(AScriptInterface * interface, QString n
                       "   }\n"
                       "   core.print(str)\n"
                       "}";
-        Engine->evaluate(str);
+        //Engine->evaluate(str);
+        evaluateBuiltIn(Engine, str, "print");
 
         str = "function printHtml()\n"
               "{\n"
@@ -63,7 +52,8 @@ void AJScriptWorker::onRegisterInterface(AScriptInterface * interface, QString n
               "   }\n"
               "   core.printHtml(str)\n"
               "}";
-        Engine->evaluate(str);
+        //Engine->evaluate(str);
+        evaluateBuiltIn(Engine, str, "printHtml");
 
         str = "var includeTab = (function() {\n"
               "    // eval must not be called from a function containing try/catch:\n"
@@ -88,7 +78,8 @@ void AJScriptWorker::onRegisterInterface(AScriptInterface * interface, QString n
               "    f.depth = 0;\n"
               "    return f;\n"
               "})();\n";
-        Engine->evaluate(str);
+        //Engine->evaluate(str);
+        evaluateBuiltIn(Engine, str, "includeTab");
     }
 }
 

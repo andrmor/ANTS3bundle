@@ -887,12 +887,17 @@ void AScriptWindow::fillGlobalFunctionsHelper()
         QString Help;
     };
 
-    const QString includeHelp =
+    QString includeHelp =
         "Evaluate the script of the tab with the given name, so that its functions and variables become available to the calling script. "
         "If the book name is not provided or empty, the current book is used.\n"
-        "The text is taken as it was when the script was started. Available only when the script is started from the script window.\n"
-        "JavaScript: 'function' and 'var' declarations become global; 'let', 'const' and 'class' declarations stay local to the included code.\n"
-        "Nesting is limited to 16 levels (protection against circular includes).";
+        "The text is taken as it was when the script was started. Available only when the script is started from the script window.\n";
+    if (ScriptLanguage == EScriptLanguage::JavaScript)
+        includeHelp += "'function' and 'var' declarations of the included script become global; "
+                       "'let', 'const' and 'class' declarations stay local to it.\n";
+    else
+        includeHelp += "All top-level names of the included script (functions, classes, variables, imports) become global; "
+                       "existing names with the same name are overwritten.\n";
+    includeHelp += "Nesting is limited to 16 levels (protection against circular includes).";
 
     std::vector<AGlobalFunctionRecord> records =
         {
