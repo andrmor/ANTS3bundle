@@ -5,6 +5,9 @@
 
 #include <QObject>
 #include <QString>
+#include <QJsonObject>
+#include <QMutex>
+
 #include <vector>
 
 class AJScriptManager;
@@ -82,6 +85,12 @@ public:
     // Called at the beginning of script evaluation.
     void doBeforeScriptEval();
 
+    // Snapshot of the script books, taken when a script is started from the script window.
+    // Used by core.getTabScript() and the related methods.
+    void setScriptBooksSnapshot(EScriptLanguage lang, const QJsonObject & json);
+    void clearScriptBooksSnapshot(EScriptLanguage lang);
+    bool getScriptBooksSnapshot(EScriptLanguage lang, QJsonObject & json) const; // false if there is no snapshot
+
 public slots:
     void onGuiReportTaskCompleted();
 
@@ -135,6 +144,12 @@ private:
     bool WaitingForTaskCompleted = false;
 
     EConfigSyncState ConfigSyncState = EConfigSyncState::Synchronized;
+
+    mutable QMutex SnapshotMutex; // paranoic (in case the server is running)
+    QJsonObject    BooksSnapshot_JS;
+    QJsonObject    BooksSnapshot_P;
+    bool           bBooksSnapshot_JS = false;
+    bool           bBooksSnapshot_P  = false;
 };
 
 #endif // ASCRIPTHUB_H

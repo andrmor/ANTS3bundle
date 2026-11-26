@@ -14,6 +14,7 @@ class CurveFit;
 class AScriptMessenger;
 class QFile;
 class QTextStream;
+class QJsonObject;
 
 class ACore_SI : public AScriptInterface
 {
@@ -105,6 +106,11 @@ public slots:
     void        saveObject(QVariantMap Object, QString FileName);
     QVariantMap loadObject(QString fileName);
 
+    // Script books (only when the script is started from the script window)
+    QVariantList getBookNames();
+    QVariantList getTabNames(QString bookName = "");
+    QString      getTabScript(QString tabName, QString bookName = "");
+
 //    QVariant loadArrayFromWeb(QString url, int msTimeout = 3000);
 
     //misc
@@ -142,6 +148,9 @@ private:
     bool readFormat(const QVariantList & format, std::vector<EArrayFormat> & FormatSelector, bool AllowSkip = true, bool AllowEmptyFormatArray = false);
     bool readFormattedBinaryLine(std::ifstream &inStream, const std::vector<EArrayFormat> &FormatSelector, QVariantList &el);
     bool writeFormattedBinaryLine(std::ofstream &outStream, const std::vector<EArrayFormat> &FormatSelector, QVariantList &el, QString &err);
+
+    bool getBooksSnapshot(QJsonObject & snapshot);                                 // aborts if not available
+    int  findBookIndex(const QJsonObject & snapshot, const QString & bookName);    // -1 after abort; empty name = current book
 };
 
 #endif // ACORESCRIPTINTERFACE_H

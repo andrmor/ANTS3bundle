@@ -158,6 +158,15 @@ ACore_SI::ACore_SI() : AScriptInterface()
     Help["saveObject"] = "Save object (dictionaly in Python) to file using json format";
     Help["loadObject"] = "Load object (dictionaly in Python) from a file with json format";
 
+    Help["getBookNames"] = "Return array with the names of the script books of the script window. "
+                           "Available only when the script is started from the script window";
+    Help["getTabNames"]  = "Return array with the tab names of the given script book (current book if the name is not provided or empty). "
+                          "Available only when the script is started from the script window";
+    Help["getTabScript"] = "Return the text of the script in the tab with the given name, as it was when the script was started. "
+                           "If the book name is not provided or empty, the current book is used. "
+                           "Typical use: eval(core.getTabScript('lib')) in JavaScript, exec(core.getTabScript('lib')) in Python. "
+                           "Available only when the script is started from the script window";
+
     //Help["str"] = "Converts numeric value to string using the given precision (number of digits after the decimal separator)";
     Help["str"] = "Convert a numeric value to a string using the given "
         "number of significant digits (not decimal places). "
@@ -1763,4 +1772,108 @@ QString ACore_SI::startExternalProcessAndWait(QString command, QVariant argument
 void ACore_SI::startExternalProcess(QString command, QVariant arguments)
 {
     startExternalProcessAndWait(command, arguments, 0);
+}
+
+bool ACore_SI::getBooksSnapshot(QJsonObject & snapshot)
+{
+    if (AScriptHub::getInstance().getScriptBooksSnapshot(Lang, snapshot)) return true;
+    abort("Script books are available only for scripts started from the script window.\n"
+          "In command-line or server mode, use core.loadText(fileName) to get the script text");
+    return false;
+}
+
+int ACore_SI::findBookIndex(const QJsonObject & snapshot, const QString & bookName)
+{
+    const QJsonArray books = snapshot["ScriptBooks"].toArray();
+
+    if (bookName.isEmpty())
+    {
+        const int iBook = snapshot["CurrentBook"].toInt(-1);
+        if (iBook < 0 || iBook >= books.size())
+        {
+            abort("Cannot identify the current script book");
+            return -1;
+        }
+        return iBook;
+    }
+
+    int found = -1;
+    for (int i = 0; i < books.size(); i++)
+        if (books[i].toObject()["Name"].toString() == bookName)
+        {
+            if (found != -1)
+            {
+                abort("Script book name is not unique: " + bookName);
+                return -1;
+            }
+            found = i;
+        }
+    if (found == -1) abort("Script book not found: " + bookName);
+    return found;
+}
+
+QVariantList ACore_SI::getBookNames()
+{
+    QVariantList res;
+    QJsonObject snapshot;
+    if (!getBooksSnapshot(snapshot)) return res;
+
+    for (const QJsonValue & v : snapshot["ScriptBooks"].toArray())
+        res << v.toObject()["Name"].toString();
+    return res;
+}
+
+QVariantList ACore_SI::getTabNames(QString bookName)
+{
+    QVariantList res;
+    QJsonObject snapshot;
+    if (!getBooksSnapshot(snapshot)) return res;
+
+    const int iBook = findBookIndex(snapshot, bookName);
+    if (iBook < 0) return res;
+
+    const QJsonObject book = snapshot["ScriptBooks"].toArray()[iBook].toObject();
+    for (const QJsonValue & v : book["ScriptTabs"].toArray())
+        res << v.toObject()["TabName"].toString();
+    return res;
+}
+
+QString ACore_SI::getTabScript(QString tabName, QString bookName)
+{
+    QJsonObject snapshot;
+    if (!getBooksSnapshot(snapshot)) return "";
+
+    const int iBook = findBookIndex(snapshot, bookName);
+    if (iBook < 0) return "";
+
+    const QJsonObject book = snapshot["ScriptBooks"].toArray()[iBook].toObject();
+    const QJsonArray  tabs = book["ScriptTabs"].toArray();
+    const QString     bookTitle = book["Name"].toString();
+
+    int found = -1;
+    for (int i = 0; i < tabs.size(); i++)
+        if (tabs[i].toObject()["TabName"].toString() == tabName)
+        {
+            if (found != -1)
+            {
+                abort(QString("Tab name '%1' is not unique in script book '%2'").arg(tabName, bookTitle));
+                return "";
+            }
+            found = i;
+        }
+    if (found == -1)
+    {
+        abort(QString("Tab '%1' not found in script book '%2'").arg(tabName, bookTitle));
+        return "";
+    }
+
+    // Protect against eval/exec of the running script itself (infinite recursion)
+    const bool isCurrentBook = (iBook == snapshot["CurrentBook"].toInt(-1));
+    if (isCurrentBook && found == book["CurrentTab"].toInt(-1))
+    {
+        abort("core.getTabScript: the requested tab is the one currently being executed");
+        return "";
+    }
+
+    return tabs[found].toObject()["Script"].toString();
 }
