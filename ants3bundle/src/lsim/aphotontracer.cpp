@@ -64,13 +64,18 @@ void APhotonTracer::initPhotonLog()
     PhLog.clear();
     if (AddedLogs >= SimSet.RunSet.PhotonLogSet.MaxNumber)
     {
+        SaveLog = false;
         APhotonSimHub::getInstance().Settings.RunSet.PhotonLogSet.Enabled = false;
     }
     else
     {
         // protected agains been outside of geometry
         PhLog.reserve(SimSet.OptSet.MaxPhotonTransitions);
-        PhLog.push_back( APhotonHistoryLog(Photon.r, Navigator->GetCurrentVolume()->GetName(), Navigator->GetCurrentNode()->GetNumber(), Photon.time, Photon.waveIndex, APhotonHistoryLog::Created, MatIndexFrom) );
+
+        //PhLog.push_back( APhotonHistoryLog(Photon.r, Navigator->GetCurrentVolume()->GetName(), Navigator->GetCurrentNode()->GetNumber(), Photon.time, Photon.waveIndex, APhotonHistoryLog::Created, MatIndexFrom) );
+        const int startMatIndex = Navigator->GetCurrentVolume()->GetMaterial()->GetIndex();
+        PhLog.push_back(APhotonHistoryLog(Photon.r, Navigator->GetCurrentVolume()->GetName(), Navigator->GetCurrentNode()->GetNumber(),
+                                          Photon.time, Photon.waveIndex, APhotonHistoryLog::Created, startMatIndex));
     }
 }
 
@@ -234,7 +239,17 @@ void APhotonTracer::tracePhoton(const APhoton & phot)
         }
     } //if below max number of transitions, process next (or reflect back to stay in the same) volume
 
-    if (TransitionCounter == SimSet.OptSet.MaxPhotonTransitions) SimStat.MaxTransitions++;
+    if (TransitionCounter == SimSet.OptSet.MaxPhotonTransitions)
+    {
+        SimStat.MaxTransitions++;
+
+        if (SaveLog)
+        {
+            const auto * volume = Navigator->GetCurrentVolume();
+            PhLog.push_back( APhotonHistoryLog(Navigator->GetCurrentPoint(), volume->GetName(), Navigator->GetCurrentNode()->GetNumber(),
+                                               Photon.time, Photon.waveIndex, APhotonHistoryLog::MaxNumberCyclesReached, volume->GetMaterial()->GetIndex()));
+        }
+    }
     endTracing();
 }
 
