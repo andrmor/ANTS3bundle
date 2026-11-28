@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>581</width>
-    <height>679</height>
+    <width>588</width>
+    <height>692</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -1955,24 +1955,9 @@
                </layout>
               </widget>
               <widget class="QWidget" name="twSingleScan1Page3">
-               <layout class="QVBoxLayout" name="verticalLayout_5">
-                <property name="spacing">
-                 <number>3</number>
-                </property>
-                <property name="leftMargin">
-                 <number>3</number>
-                </property>
-                <property name="topMargin">
-                 <number>3</number>
-                </property>
-                <property name="rightMargin">
-                 <number>3</number>
-                </property>
-                <property name="bottomMargin">
-                 <number>3</number>
-                </property>
+               <layout class="QVBoxLayout" name="verticalLayout_4">
                 <item>
-                 <spacer name="verticalSpacer_9">
+                 <spacer name="verticalSpacer_3">
                   <property name="orientation">
                    <enum>Qt::Orientation::Vertical</enum>
                   </property>
@@ -2041,106 +2026,128 @@
                  </layout>
                 </item>
                 <item>
-                 <spacer name="verticalSpacer_2">
+                 <spacer name="verticalSpacer_4">
                   <property name="orientation">
                    <enum>Qt::Orientation::Vertical</enum>
                   </property>
                   <property name="sizeHint" stdset="0">
                    <size>
                     <width>20</width>
-                    <height>44</height>
+                    <height>40</height>
                    </size>
                   </property>
                  </spacer>
                 </item>
                 <item>
-                 <layout class="QHBoxLayout" name="horizontalLayout_41">
+                 <layout class="QHBoxLayout" name="hl_fl1">
+                  <property name="leftMargin">
+                   <number>0</number>
+                  </property>
                   <property name="topMargin">
                    <number>0</number>
                   </property>
+                  <property name="rightMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="bottomMargin">
+                   <number>0</number>
+                  </property>
                   <item>
-                   <spacer name="horizontalSpacer_42">
+                   <spacer name="hs_fl2">
                     <property name="orientation">
                      <enum>Qt::Orientation::Horizontal</enum>
                     </property>
                     <property name="sizeHint" stdset="0">
                      <size>
-                      <width>40</width>
+                      <width>0</width>
                       <height>20</height>
                      </size>
                     </property>
                    </spacer>
                   </item>
                   <item>
-                   <widget class="QLabel" name="label_254">
-                    <property name="font">
-                     <font>
-                      <kerning>true</kerning>
-                      <fontweight>Medium</fontweight>
-                     </font>
-                    </property>
+                   <widget class="QLabel" name="label_fl3">
                     <property name="text">
-                     <string>    Shape:</string>
-                    </property>
-                    <property name="alignment">
-                     <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
+                     <string>Shape:</string>
                     </property>
                    </widget>
                   </item>
                   <item>
                    <widget class="QComboBox" name="cobFloodShape">
+                    <property name="sizeAdjustPolicy">
+                     <enum>QComboBox::SizeAdjustPolicy::AdjustToContents</enum>
+                    </property>
                     <item>
                      <property name="text">
-                      <string>rectangle</string>
+                      <string>box</string>
                      </property>
                     </item>
                     <item>
                      <property name="text">
-                      <string>circle/ring</string>
+                      <string>cylinder</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>sphere</string>
                      </property>
                     </item>
                    </widget>
                   </item>
                   <item>
-                   <spacer name="horizontalSpacer_43">
+                   <spacer name="hs_fl4">
                     <property name="orientation">
                      <enum>Qt::Orientation::Horizontal</enum>
                     </property>
                     <property name="sizeHint" stdset="0">
                      <size>
-                      <width>40</width>
+                      <width>0</width>
                       <height>20</height>
                      </size>
                     </property>
                    </spacer>
+                  </item>
+                  <item>
+                   <widget class="QPushButton" name="pbFloodTest">
+                    <property name="toolTip">
+                     <string>Generate positions with the current settings and show their distributions</string>
+                    </property>
+                    <property name="text">
+                     <string>Test generation</string>
+                    </property>
+                   </widget>
                   </item>
                  </layout>
                 </item>
                 <item>
-                 <layout class="QHBoxLayout" name="horizontalLayout_18">
-                  <property name="spacing">
-                   <number>3</number>
-                  </property>
+                 <layout class="QHBoxLayout" name="hl_fl30">
                   <item>
-                   <spacer name="horizontalSpacer_13">
+                   <spacer name="hs_fl31">
                     <property name="orientation">
                      <enum>Qt::Orientation::Horizontal</enum>
                     </property>
                     <property name="sizeHint" stdset="0">
                      <size>
-                      <width>40</width>
+                      <width>0</width>
                       <height>20</height>
                      </size>
                     </property>
                    </spacer>
                   </item>
                   <item>
-                   <widget class="QStackedWidget" name="swFloodShape">
-                    <property name="currentIndex">
-                     <number>0</number>
-                    </property>
-                    <widget class="QWidget" name="page_7">
-                     <layout class="QGridLayout" name="gridLayout">
+                   <layout class="QGridLayout" name="gl_fl32">
+                    <item row="0" column="0">
+                     <widget class="QLabel" name="label_fl5">
+                      <property name="toolTip">
+                       <string>Centre of the shape; profile coordinates are measured from here</string>
+                      </property>
+                      <property name="text">
+                       <string>Position:</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="0" column="1">
+                     <layout class="QHBoxLayout" name="hl_fl6">
                       <property name="leftMargin">
                        <number>0</number>
                       </property>
@@ -2153,225 +2160,379 @@
                       <property name="bottomMargin">
                        <number>0</number>
                       </property>
-                      <item row="0" column="0">
-                       <widget class="QLabel" name="label_139">
+                      <item>
+                       <widget class="QLabel" name="label_fl7">
                         <property name="text">
-                         <string>X:  from</string>
+                         <string>X</string>
                         </property>
                        </widget>
                       </item>
-                      <item row="0" column="1">
-                       <widget class="AOneLineTextEdit" name="ledFloodXfrom">
-                        <property name="maximumSize">
-                         <size>
-                          <width>100</width>
-                          <height>25</height>
-                         </size>
-                        </property>
-                        <property name="text">
-                         <string>-15</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="0" column="2" alignment="Qt::AlignmentFlag::AlignHCenter">
-                       <widget class="QLabel" name="label_214">
-                        <property name="text">
-                         <string>to</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="0" column="3">
-                       <widget class="AOneLineTextEdit" name="ledFloodXto">
-                        <property name="maximumSize">
-                         <size>
-                          <width>100</width>
-                          <height>25</height>
-                         </size>
-                        </property>
-                        <property name="text">
-                         <string>15</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="0" column="4">
-                       <widget class="QLabel" name="label_243">
-                        <property name="text">
-                         <string>mm</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="1" column="0">
-                       <widget class="QLabel" name="label_245">
-                        <property name="text">
-                         <string>Y:  from</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="1" column="1">
-                       <widget class="AOneLineTextEdit" name="ledFloodYfrom">
-                        <property name="maximumSize">
-                         <size>
-                          <width>100</width>
-                          <height>25</height>
-                         </size>
-                        </property>
-                        <property name="text">
-                         <string>-15</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="1" column="2" alignment="Qt::AlignmentFlag::AlignHCenter">
-                       <widget class="QLabel" name="label_246">
-                        <property name="text">
-                         <string>to</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="1" column="3">
-                       <widget class="AOneLineTextEdit" name="ledFloodYto">
-                        <property name="maximumSize">
-                         <size>
-                          <width>100</width>
-                          <height>25</height>
-                         </size>
-                        </property>
-                        <property name="text">
-                         <string>15</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="1" column="4">
-                       <widget class="QLabel" name="label_244">
-                        <property name="text">
-                         <string>mm</string>
-                        </property>
-                       </widget>
-                      </item>
-                     </layout>
-                    </widget>
-                    <widget class="QWidget" name="page_8">
-                     <layout class="QGridLayout" name="gridLayout_9">
-                      <property name="leftMargin">
-                       <number>0</number>
-                      </property>
-                      <property name="topMargin">
-                       <number>0</number>
-                      </property>
-                      <property name="rightMargin">
-                       <number>0</number>
-                      </property>
-                      <property name="bottomMargin">
-                       <number>0</number>
-                      </property>
-                      <item row="0" column="2" alignment="Qt::AlignmentFlag::AlignRight">
-                       <widget class="QLabel" name="label_256">
-                        <property name="text">
-                         <string>Y=</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="1" column="3">
-                       <widget class="AOneLineTextEdit" name="ledFloodInnerDiameter">
-                        <property name="maximumSize">
-                         <size>
-                          <width>100</width>
-                          <height>25</height>
-                         </size>
-                        </property>
-                        <property name="text">
-                         <string>0</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="1" column="1">
-                       <widget class="AOneLineTextEdit" name="ledFloodOuterDiameter">
-                        <property name="maximumSize">
-                         <size>
-                          <width>100</width>
-                          <height>25</height>
-                         </size>
-                        </property>
-                        <property name="text">
-                         <string>40</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="1" column="2" alignment="Qt::AlignmentFlag::AlignRight">
-                       <widget class="QLabel" name="label_266">
-                        <property name="text">
-                         <string>inner</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="0" column="3">
-                       <widget class="AOneLineTextEdit" name="ledFloodCenterY">
-                        <property name="maximumSize">
-                         <size>
-                          <width>100</width>
-                          <height>25</height>
-                         </size>
-                        </property>
-                        <property name="text">
-                         <string>0</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="1" column="0">
-                       <widget class="QLabel" name="label_259">
-                        <property name="text">
-                         <string>Outer diameter</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="0" column="1">
+                      <item>
                        <widget class="AOneLineTextEdit" name="ledFloodCenterX">
                         <property name="maximumSize">
                          <size>
-                          <width>100</width>
-                          <height>25</height>
+                          <width>60</width>
+                          <height>16777215</height>
                          </size>
                         </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QLabel" name="label_fl8">
                         <property name="text">
-                         <string>0</string>
+                         <string>Y</string>
                         </property>
                        </widget>
                       </item>
-                      <item row="0" column="0">
-                       <widget class="QLabel" name="label_257">
-                        <property name="text">
-                         <string>Center:   X=</string>
-                        </property>
-                        <property name="alignment">
-                         <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
+                      <item>
+                       <widget class="AOneLineTextEdit" name="ledFloodCenterY">
+                        <property name="maximumSize">
+                         <size>
+                          <width>60</width>
+                          <height>16777215</height>
+                         </size>
                         </property>
                        </widget>
                       </item>
-                      <item row="0" column="4">
-                       <widget class="QLabel" name="label_23">
+                      <item>
+                       <widget class="QLabel" name="label_fl9">
+                        <property name="text">
+                         <string>Z</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="AOneLineTextEdit" name="ledFloodCenterZ">
+                        <property name="maximumSize">
+                         <size>
+                          <width>60</width>
+                          <height>16777215</height>
+                         </size>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QLabel" name="label_fl10">
                         <property name="text">
                          <string>mm</string>
                         </property>
                        </widget>
                       </item>
-                      <item row="1" column="4">
-                       <widget class="QLabel" name="label_31">
-                        <property name="text">
-                         <string>mm</string>
+                      <item>
+                       <spacer name="hs_fl11">
+                        <property name="orientation">
+                         <enum>Qt::Orientation::Horizontal</enum>
                         </property>
-                       </widget>
+                        <property name="sizeHint" stdset="0">
+                         <size>
+                          <width>0</width>
+                          <height>20</height>
+                         </size>
+                        </property>
+                       </spacer>
                       </item>
                      </layout>
-                    </widget>
-                   </widget>
+                    </item>
+                    <item row="1" column="0">
+                     <widget class="QLabel" name="labFloodSecondRow">
+                      <property name="text">
+                       <string>Size:</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="1" column="1">
+                     <widget class="QStackedWidget" name="swFloodSize">
+                      <property name="currentIndex">
+                       <number>0</number>
+                      </property>
+                      <widget class="QWidget" name="pgFloodSizeBox">
+                       <layout class="QHBoxLayout" name="hl_fl12">
+                        <property name="leftMargin">
+                         <number>0</number>
+                        </property>
+                        <property name="topMargin">
+                         <number>0</number>
+                        </property>
+                        <property name="rightMargin">
+                         <number>0</number>
+                        </property>
+                        <property name="bottomMargin">
+                         <number>0</number>
+                        </property>
+                        <item>
+                         <widget class="QLabel" name="label_fl13">
+                          <property name="text">
+                           <string>X</string>
+                          </property>
+                         </widget>
+                        </item>
+                        <item>
+                         <widget class="AOneLineTextEdit" name="ledFloodSizeX">
+                          <property name="maximumSize">
+                           <size>
+                            <width>60</width>
+                            <height>16777215</height>
+                           </size>
+                          </property>
+                         </widget>
+                        </item>
+                        <item>
+                         <widget class="QLabel" name="label_fl14">
+                          <property name="text">
+                           <string>Y</string>
+                          </property>
+                         </widget>
+                        </item>
+                        <item>
+                         <widget class="AOneLineTextEdit" name="ledFloodSizeY">
+                          <property name="maximumSize">
+                           <size>
+                            <width>60</width>
+                            <height>16777215</height>
+                           </size>
+                          </property>
+                         </widget>
+                        </item>
+                        <item>
+                         <widget class="QLabel" name="label_fl15">
+                          <property name="text">
+                           <string>Z</string>
+                          </property>
+                         </widget>
+                        </item>
+                        <item>
+                         <widget class="AOneLineTextEdit" name="ledFloodSizeZ">
+                          <property name="maximumSize">
+                           <size>
+                            <width>60</width>
+                            <height>16777215</height>
+                           </size>
+                          </property>
+                         </widget>
+                        </item>
+                        <item>
+                         <widget class="QLabel" name="label_fl16">
+                          <property name="text">
+                           <string>mm</string>
+                          </property>
+                         </widget>
+                        </item>
+                        <item>
+                         <spacer name="hs_fl17">
+                          <property name="orientation">
+                           <enum>Qt::Orientation::Horizontal</enum>
+                          </property>
+                          <property name="sizeHint" stdset="0">
+                           <size>
+                            <width>0</width>
+                            <height>20</height>
+                           </size>
+                          </property>
+                         </spacer>
+                        </item>
+                       </layout>
+                      </widget>
+                      <widget class="QWidget" name="pgFloodSizeCylinder">
+                       <layout class="QHBoxLayout" name="hl_fl18">
+                        <property name="leftMargin">
+                         <number>0</number>
+                        </property>
+                        <property name="topMargin">
+                         <number>0</number>
+                        </property>
+                        <property name="rightMargin">
+                         <number>0</number>
+                        </property>
+                        <property name="bottomMargin">
+                         <number>0</number>
+                        </property>
+                        <item>
+                         <widget class="QLabel" name="label_fl19">
+                          <property name="text">
+                           <string>axis</string>
+                          </property>
+                         </widget>
+                        </item>
+                        <item>
+                         <widget class="QComboBox" name="cobFloodAxis">
+                          <property name="sizeAdjustPolicy">
+                           <enum>QComboBox::SizeAdjustPolicy::AdjustToContents</enum>
+                          </property>
+                          <item>
+                           <property name="text">
+                            <string>X</string>
+                           </property>
+                          </item>
+                          <item>
+                           <property name="text">
+                            <string>Y</string>
+                           </property>
+                          </item>
+                          <item>
+                           <property name="text">
+                            <string>Z</string>
+                           </property>
+                          </item>
+                         </widget>
+                        </item>
+                        <item>
+                         <widget class="QLabel" name="label_fl20">
+                          <property name="text">
+                           <string>outer</string>
+                          </property>
+                         </widget>
+                        </item>
+                        <item>
+                         <widget class="AOneLineTextEdit" name="ledFloodOuterDiameter">
+                          <property name="maximumSize">
+                           <size>
+                            <width>60</width>
+                            <height>16777215</height>
+                           </size>
+                          </property>
+                         </widget>
+                        </item>
+                        <item>
+                         <widget class="QLabel" name="label_fl21">
+                          <property name="text">
+                           <string>inner</string>
+                          </property>
+                         </widget>
+                        </item>
+                        <item>
+                         <widget class="AOneLineTextEdit" name="ledFloodInnerDiameter">
+                          <property name="maximumSize">
+                           <size>
+                            <width>60</width>
+                            <height>16777215</height>
+                           </size>
+                          </property>
+                         </widget>
+                        </item>
+                        <item>
+                         <widget class="QLabel" name="label_fl22">
+                          <property name="toolTip">
+                           <string>Along the cylinder axis</string>
+                          </property>
+                          <property name="text">
+                           <string>length</string>
+                          </property>
+                         </widget>
+                        </item>
+                        <item>
+                         <widget class="AOneLineTextEdit" name="ledFloodLength">
+                          <property name="maximumSize">
+                           <size>
+                            <width>60</width>
+                            <height>16777215</height>
+                           </size>
+                          </property>
+                         </widget>
+                        </item>
+                        <item>
+                         <widget class="QLabel" name="label_fl23">
+                          <property name="text">
+                           <string>mm</string>
+                          </property>
+                         </widget>
+                        </item>
+                        <item>
+                         <spacer name="hs_fl24">
+                          <property name="orientation">
+                           <enum>Qt::Orientation::Horizontal</enum>
+                          </property>
+                          <property name="sizeHint" stdset="0">
+                           <size>
+                            <width>0</width>
+                            <height>20</height>
+                           </size>
+                          </property>
+                         </spacer>
+                        </item>
+                       </layout>
+                      </widget>
+                      <widget class="QWidget" name="pgFloodSizeSphere">
+                       <layout class="QHBoxLayout" name="hl_fl25">
+                        <property name="leftMargin">
+                         <number>0</number>
+                        </property>
+                        <property name="topMargin">
+                         <number>0</number>
+                        </property>
+                        <property name="rightMargin">
+                         <number>0</number>
+                        </property>
+                        <property name="bottomMargin">
+                         <number>0</number>
+                        </property>
+                        <item>
+                         <widget class="QLabel" name="label_fl26">
+                          <property name="text">
+                           <string>outer</string>
+                          </property>
+                         </widget>
+                        </item>
+                        <item>
+                         <widget class="AOneLineTextEdit" name="ledFloodOuterDiameterS">
+                          <property name="maximumSize">
+                           <size>
+                            <width>60</width>
+                            <height>16777215</height>
+                           </size>
+                          </property>
+                         </widget>
+                        </item>
+                        <item>
+                         <widget class="QLabel" name="label_fl27">
+                          <property name="text">
+                           <string>inner</string>
+                          </property>
+                         </widget>
+                        </item>
+                        <item>
+                         <widget class="AOneLineTextEdit" name="ledFloodInnerDiameterS">
+                          <property name="maximumSize">
+                           <size>
+                            <width>60</width>
+                            <height>16777215</height>
+                           </size>
+                          </property>
+                         </widget>
+                        </item>
+                        <item>
+                         <widget class="QLabel" name="label_fl28">
+                          <property name="text">
+                           <string>mm</string>
+                          </property>
+                         </widget>
+                        </item>
+                        <item>
+                         <spacer name="hs_fl29">
+                          <property name="orientation">
+                           <enum>Qt::Orientation::Horizontal</enum>
+                          </property>
+                          <property name="sizeHint" stdset="0">
+                           <size>
+                            <width>0</width>
+                            <height>20</height>
+                           </size>
+                          </property>
+                         </spacer>
+                        </item>
+                       </layout>
+                      </widget>
+                     </widget>
+                    </item>
+                   </layout>
                   </item>
                   <item>
-                   <spacer name="horizontalSpacer_87">
+                   <spacer name="hs_fl33">
                     <property name="orientation">
                      <enum>Qt::Orientation::Horizontal</enum>
                     </property>
                     <property name="sizeHint" stdset="0">
                      <size>
-                      <width>40</width>
+                      <width>0</width>
                       <height>20</height>
                      </size>
                     </property>
@@ -2380,190 +2541,2885 @@
                  </layout>
                 </item>
                 <item>
-                 <layout class="QHBoxLayout" name="horizontalLayout_69">
-                  <property name="topMargin">
-                   <number>10</number>
-                  </property>
-                  <item>
-                   <spacer name="horizontalSpacer_88">
-                    <property name="orientation">
-                     <enum>Qt::Orientation::Horizontal</enum>
+                 <widget class="QStackedWidget" name="swFloodProfiles">
+                  <widget class="QWidget" name="pgFloodProfBox">
+                   <layout class="QVBoxLayout" name="vl_fl35">
+                    <property name="leftMargin">
+                     <number>0</number>
                     </property>
-                    <property name="sizeHint" stdset="0">
-                     <size>
-                      <width>40</width>
-                      <height>20</height>
-                     </size>
+                    <property name="topMargin">
+                     <number>0</number>
                     </property>
-                   </spacer>
-                  </item>
-                  <item>
-                   <widget class="QComboBox" name="cobFloodZmode">
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
+                    <property name="rightMargin">
+                     <number>0</number>
+                    </property>
+                    <property name="bottomMargin">
+                     <number>0</number>
                     </property>
                     <item>
-                     <property name="text">
-                      <string>Fixed Z:</string>
-                     </property>
+                     <layout class="QHBoxLayout" name="hl_fl36">
+                      <property name="leftMargin">
+                       <number>0</number>
+                      </property>
+                      <property name="topMargin">
+                       <number>0</number>
+                      </property>
+                      <property name="rightMargin">
+                       <number>0</number>
+                      </property>
+                      <property name="bottomMargin">
+                       <number>0</number>
+                      </property>
+                      <item>
+                       <spacer name="hs_fl37">
+                        <property name="orientation">
+                         <enum>Qt::Orientation::Horizontal</enum>
+                        </property>
+                        <property name="sizeHint" stdset="0">
+                         <size>
+                          <width>0</width>
+                          <height>20</height>
+                         </size>
+                        </property>
+                       </spacer>
+                      </item>
+                      <item>
+                       <widget class="QLabel" name="label_fl38">
+                        <property name="toolTip">
+                         <string>Distribution of the bomb positions along this coordinate</string>
+                        </property>
+                        <property name="text">
+                         <string>X</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QComboBox" name="cobFloodTypeX">
+                        <property name="sizeAdjustPolicy">
+                         <enum>QComboBox::SizeAdjustPolicy::AdjustToContents</enum>
+                        </property>
+                        <item>
+                         <property name="text">
+                          <string>uniform</string>
+                         </property>
+                        </item>
+                        <item>
+                         <property name="text">
+                          <string>exponential</string>
+                         </property>
+                        </item>
+                        <item>
+                         <property name="text">
+                          <string>gauss</string>
+                         </property>
+                        </item>
+                        <item>
+                         <property name="text">
+                          <string>formula</string>
+                         </property>
+                        </item>
+                        <item>
+                         <property name="text">
+                          <string>table</string>
+                         </property>
+                        </item>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QStackedWidget" name="swFloodParamX">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="currentIndex">
+                         <number>0</number>
+                        </property>
+                        <widget class="QWidget" name="pgFloodUniformX">
+                         <layout class="QHBoxLayout" name="hl_fl39">
+                          <property name="leftMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="topMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="rightMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="bottomMargin">
+                           <number>0</number>
+                          </property>
+                         </layout>
+                        </widget>
+                        <widget class="QWidget" name="pgFloodExpX">
+                         <layout class="QHBoxLayout" name="hl_fl40">
+                          <property name="leftMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="topMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="rightMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="bottomMargin">
+                           <number>0</number>
+                          </property>
+                          <item>
+                           <widget class="QLabel" name="label_fl41">
+                            <property name="toolTip">
+                             <string>Attenuation length; accepts geometry constants</string>
+                            </property>
+                            <property name="text">
+                             <string>λ</string>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="AOneLineTextEdit" name="ledFloodLambdaX">
+                            <property name="maximumSize">
+                             <size>
+                              <width>60</width>
+                              <height>16777215</height>
+                             </size>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QLabel" name="label_fl42">
+                            <property name="text">
+                             <string>mm</string>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QLabel" name="label_fl43">
+                            <property name="toolTip">
+                             <string>Direction the beam travels along this axis; it enters through the opposite face</string>
+                            </property>
+                            <property name="text">
+                             <string>dir.</string>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QComboBox" name="cobFloodDirX">
+                            <property name="toolTip">
+                             <string>Direction the beam travels along this axis; it enters through the opposite face</string>
+                            </property>
+                            <property name="sizeAdjustPolicy">
+                             <enum>QComboBox::SizeAdjustPolicy::AdjustToContents</enum>
+                            </property>
+                            <item>
+                             <property name="text">
+                              <string>+X</string>
+                             </property>
+                            </item>
+                            <item>
+                             <property name="text">
+                              <string>-X</string>
+                             </property>
+                            </item>
+                           </widget>
+                          </item>
+                          <item>
+                           <spacer name="hs_fl44">
+                            <property name="orientation">
+                             <enum>Qt::Orientation::Horizontal</enum>
+                            </property>
+                            <property name="sizeHint" stdset="0">
+                             <size>
+                              <width>0</width>
+                              <height>20</height>
+                             </size>
+                            </property>
+                           </spacer>
+                          </item>
+                         </layout>
+                        </widget>
+                        <widget class="QWidget" name="pgFloodGaussX">
+                         <layout class="QHBoxLayout" name="hl_fl45">
+                          <property name="leftMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="topMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="rightMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="bottomMargin">
+                           <number>0</number>
+                          </property>
+                          <item>
+                           <widget class="QLabel" name="label_fl46">
+                            <property name="toolTip">
+                             <string>Measured from the Position; accepts geometry constants</string>
+                            </property>
+                            <property name="text">
+                             <string>mean</string>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="AOneLineTextEdit" name="ledFloodMeanX">
+                            <property name="maximumSize">
+                             <size>
+                              <width>60</width>
+                              <height>16777215</height>
+                             </size>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QLabel" name="label_fl47">
+                            <property name="text">
+                             <string>mm</string>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QLabel" name="label_fl48">
+                            <property name="toolTip">
+                             <string>Accepts geometry constants</string>
+                            </property>
+                            <property name="text">
+                             <string>σ</string>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="AOneLineTextEdit" name="ledFloodSigmaX">
+                            <property name="maximumSize">
+                             <size>
+                              <width>60</width>
+                              <height>16777215</height>
+                             </size>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QLabel" name="label_fl49">
+                            <property name="text">
+                             <string>mm</string>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <spacer name="hs_fl50">
+                            <property name="orientation">
+                             <enum>Qt::Orientation::Horizontal</enum>
+                            </property>
+                            <property name="sizeHint" stdset="0">
+                             <size>
+                              <width>0</width>
+                              <height>20</height>
+                             </size>
+                            </property>
+                           </spacer>
+                          </item>
+                         </layout>
+                        </widget>
+                        <widget class="QWidget" name="pgFloodFormulaX">
+                         <layout class="QHBoxLayout" name="hl_fl51">
+                          <property name="leftMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="topMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="rightMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="bottomMargin">
+                           <number>0</number>
+                          </property>
+                          <item>
+                           <widget class="QLabel" name="label_fl52">
+                            <property name="toolTip">
+                             <string>x is the coordinate measured from the Position, in mm; geometry constants are allowed</string>
+                            </property>
+                            <property name="text">
+                             <string>f(x) =</string>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QLineEdit" name="leFloodFormulaX">
+                            <property name="minimumSize">
+                             <size>
+                              <width>70</width>
+                              <height>0</height>
+                             </size>
+                            </property>
+                            <property name="maximumSize">
+                             <size>
+                              <width>140</width>
+                              <height>16777215</height>
+                             </size>
+                            </property>
+                            <property name="toolTip">
+                             <string>x is the coordinate measured from the Position, in mm; geometry constants are allowed</string>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QSpinBox" name="sbFloodBinsX">
+                            <property name="maximumSize">
+                             <size>
+                              <width>60</width>
+                              <height>16777215</height>
+                             </size>
+                            </property>
+                            <property name="toolTip">
+                             <string>Number of bins of the sampling grid; auto = refined automatically</string>
+                            </property>
+                            <property name="specialValueText">
+                             <string>auto</string>
+                            </property>
+                            <property name="minimum">
+                             <number>0</number>
+                            </property>
+                            <property name="maximum">
+                             <number>1000000</number>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QPushButton" name="pbFloodCheckX">
+                            <property name="maximumSize">
+                             <size>
+                              <width>50</width>
+                              <height>16777215</height>
+                             </size>
+                            </property>
+                            <property name="toolTip">
+                             <string>Compile the formula and evaluate it at x = 0</string>
+                            </property>
+                            <property name="text">
+                             <string>Check</string>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <spacer name="hs_fl53">
+                            <property name="orientation">
+                             <enum>Qt::Orientation::Horizontal</enum>
+                            </property>
+                            <property name="sizeHint" stdset="0">
+                             <size>
+                              <width>0</width>
+                              <height>20</height>
+                             </size>
+                            </property>
+                           </spacer>
+                          </item>
+                         </layout>
+                        </widget>
+                        <widget class="QWidget" name="pgFloodTableX">
+                         <layout class="QHBoxLayout" name="hl_fl54">
+                          <property name="leftMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="topMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="rightMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="bottomMargin">
+                           <number>0</number>
+                          </property>
+                          <item>
+                           <widget class="QComboBox" name="cobFloodTableModeX">
+                            <property name="toolTip">
+                             <string>points: linear interpolation between the points
+bins: value i is the weight of [x_i, x_i+1)</string>
+                            </property>
+                            <property name="sizeAdjustPolicy">
+                             <enum>QComboBox::SizeAdjustPolicy::AdjustToContents</enum>
+                            </property>
+                            <item>
+                             <property name="text">
+                              <string>points</string>
+                             </property>
+                            </item>
+                            <item>
+                             <property name="text">
+                              <string>bins</string>
+                             </property>
+                            </item>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QPushButton" name="pbFloodLoadX">
+                            <property name="maximumSize">
+                             <size>
+                              <width>50</width>
+                              <height>16777215</height>
+                             </size>
+                            </property>
+                            <property name="toolTip">
+                             <string>Load two columns (x, value) from a text file; x is measured from the Position</string>
+                            </property>
+                            <property name="text">
+                             <string>Load</string>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QPushButton" name="pbFloodShowX">
+                            <property name="maximumSize">
+                             <size>
+                              <width>50</width>
+                              <height>16777215</height>
+                             </size>
+                            </property>
+                            <property name="text">
+                             <string>Show</string>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QLabel" name="labFloodTableX">
+                            <property name="text">
+                             <string>no data</string>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <spacer name="hs_fl55">
+                            <property name="orientation">
+                             <enum>Qt::Orientation::Horizontal</enum>
+                            </property>
+                            <property name="sizeHint" stdset="0">
+                             <size>
+                              <width>0</width>
+                              <height>20</height>
+                             </size>
+                            </property>
+                           </spacer>
+                          </item>
+                         </layout>
+                        </widget>
+                       </widget>
+                      </item>
+                      <item>
+                       <spacer name="hs_fl56">
+                        <property name="orientation">
+                         <enum>Qt::Orientation::Horizontal</enum>
+                        </property>
+                        <property name="sizeHint" stdset="0">
+                         <size>
+                          <width>0</width>
+                          <height>20</height>
+                         </size>
+                        </property>
+                       </spacer>
+                      </item>
+                     </layout>
                     </item>
                     <item>
-                     <property name="text">
-                      <string>Z in range</string>
-                     </property>
+                     <layout class="QHBoxLayout" name="hl_fl57">
+                      <property name="leftMargin">
+                       <number>0</number>
+                      </property>
+                      <property name="topMargin">
+                       <number>0</number>
+                      </property>
+                      <property name="rightMargin">
+                       <number>0</number>
+                      </property>
+                      <property name="bottomMargin">
+                       <number>0</number>
+                      </property>
+                      <item>
+                       <spacer name="hs_fl58">
+                        <property name="orientation">
+                         <enum>Qt::Orientation::Horizontal</enum>
+                        </property>
+                        <property name="sizeHint" stdset="0">
+                         <size>
+                          <width>0</width>
+                          <height>20</height>
+                         </size>
+                        </property>
+                       </spacer>
+                      </item>
+                      <item>
+                       <widget class="QLabel" name="label_fl59">
+                        <property name="toolTip">
+                         <string>Distribution of the bomb positions along this coordinate</string>
+                        </property>
+                        <property name="text">
+                         <string>Y</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QComboBox" name="cobFloodTypeY">
+                        <property name="sizeAdjustPolicy">
+                         <enum>QComboBox::SizeAdjustPolicy::AdjustToContents</enum>
+                        </property>
+                        <item>
+                         <property name="text">
+                          <string>uniform</string>
+                         </property>
+                        </item>
+                        <item>
+                         <property name="text">
+                          <string>exponential</string>
+                         </property>
+                        </item>
+                        <item>
+                         <property name="text">
+                          <string>gauss</string>
+                         </property>
+                        </item>
+                        <item>
+                         <property name="text">
+                          <string>formula</string>
+                         </property>
+                        </item>
+                        <item>
+                         <property name="text">
+                          <string>table</string>
+                         </property>
+                        </item>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QStackedWidget" name="swFloodParamY">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="currentIndex">
+                         <number>0</number>
+                        </property>
+                        <widget class="QWidget" name="pgFloodUniformY">
+                         <layout class="QHBoxLayout" name="hl_fl60">
+                          <property name="leftMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="topMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="rightMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="bottomMargin">
+                           <number>0</number>
+                          </property>
+                         </layout>
+                        </widget>
+                        <widget class="QWidget" name="pgFloodExpY">
+                         <layout class="QHBoxLayout" name="hl_fl61">
+                          <property name="leftMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="topMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="rightMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="bottomMargin">
+                           <number>0</number>
+                          </property>
+                          <item>
+                           <widget class="QLabel" name="label_fl62">
+                            <property name="toolTip">
+                             <string>Attenuation length; accepts geometry constants</string>
+                            </property>
+                            <property name="text">
+                             <string>λ</string>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="AOneLineTextEdit" name="ledFloodLambdaY">
+                            <property name="maximumSize">
+                             <size>
+                              <width>60</width>
+                              <height>16777215</height>
+                             </size>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QLabel" name="label_fl63">
+                            <property name="text">
+                             <string>mm</string>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QLabel" name="label_fl64">
+                            <property name="toolTip">
+                             <string>Direction the beam travels along this axis; it enters through the opposite face</string>
+                            </property>
+                            <property name="text">
+                             <string>dir.</string>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QComboBox" name="cobFloodDirY">
+                            <property name="toolTip">
+                             <string>Direction the beam travels along this axis; it enters through the opposite face</string>
+                            </property>
+                            <property name="sizeAdjustPolicy">
+                             <enum>QComboBox::SizeAdjustPolicy::AdjustToContents</enum>
+                            </property>
+                            <item>
+                             <property name="text">
+                              <string>+Y</string>
+                             </property>
+                            </item>
+                            <item>
+                             <property name="text">
+                              <string>-Y</string>
+                             </property>
+                            </item>
+                           </widget>
+                          </item>
+                          <item>
+                           <spacer name="hs_fl65">
+                            <property name="orientation">
+                             <enum>Qt::Orientation::Horizontal</enum>
+                            </property>
+                            <property name="sizeHint" stdset="0">
+                             <size>
+                              <width>0</width>
+                              <height>20</height>
+                             </size>
+                            </property>
+                           </spacer>
+                          </item>
+                         </layout>
+                        </widget>
+                        <widget class="QWidget" name="pgFloodGaussY">
+                         <layout class="QHBoxLayout" name="hl_fl66">
+                          <property name="leftMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="topMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="rightMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="bottomMargin">
+                           <number>0</number>
+                          </property>
+                          <item>
+                           <widget class="QLabel" name="label_fl67">
+                            <property name="toolTip">
+                             <string>Measured from the Position; accepts geometry constants</string>
+                            </property>
+                            <property name="text">
+                             <string>mean</string>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="AOneLineTextEdit" name="ledFloodMeanY">
+                            <property name="maximumSize">
+                             <size>
+                              <width>60</width>
+                              <height>16777215</height>
+                             </size>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QLabel" name="label_fl68">
+                            <property name="text">
+                             <string>mm</string>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QLabel" name="label_fl69">
+                            <property name="toolTip">
+                             <string>Accepts geometry constants</string>
+                            </property>
+                            <property name="text">
+                             <string>σ</string>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="AOneLineTextEdit" name="ledFloodSigmaY">
+                            <property name="maximumSize">
+                             <size>
+                              <width>60</width>
+                              <height>16777215</height>
+                             </size>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QLabel" name="label_fl70">
+                            <property name="text">
+                             <string>mm</string>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <spacer name="hs_fl71">
+                            <property name="orientation">
+                             <enum>Qt::Orientation::Horizontal</enum>
+                            </property>
+                            <property name="sizeHint" stdset="0">
+                             <size>
+                              <width>0</width>
+                              <height>20</height>
+                             </size>
+                            </property>
+                           </spacer>
+                          </item>
+                         </layout>
+                        </widget>
+                        <widget class="QWidget" name="pgFloodFormulaY">
+                         <layout class="QHBoxLayout" name="hl_fl72">
+                          <property name="leftMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="topMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="rightMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="bottomMargin">
+                           <number>0</number>
+                          </property>
+                          <item>
+                           <widget class="QLabel" name="label_fl73">
+                            <property name="toolTip">
+                             <string>x is the coordinate measured from the Position, in mm; geometry constants are allowed</string>
+                            </property>
+                            <property name="text">
+                             <string>f(x) =</string>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QLineEdit" name="leFloodFormulaY">
+                            <property name="minimumSize">
+                             <size>
+                              <width>70</width>
+                              <height>0</height>
+                             </size>
+                            </property>
+                            <property name="maximumSize">
+                             <size>
+                              <width>140</width>
+                              <height>16777215</height>
+                             </size>
+                            </property>
+                            <property name="toolTip">
+                             <string>x is the coordinate measured from the Position, in mm; geometry constants are allowed</string>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QSpinBox" name="sbFloodBinsY">
+                            <property name="maximumSize">
+                             <size>
+                              <width>60</width>
+                              <height>16777215</height>
+                             </size>
+                            </property>
+                            <property name="toolTip">
+                             <string>Number of bins of the sampling grid; auto = refined automatically</string>
+                            </property>
+                            <property name="specialValueText">
+                             <string>auto</string>
+                            </property>
+                            <property name="minimum">
+                             <number>0</number>
+                            </property>
+                            <property name="maximum">
+                             <number>1000000</number>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QPushButton" name="pbFloodCheckY">
+                            <property name="maximumSize">
+                             <size>
+                              <width>50</width>
+                              <height>16777215</height>
+                             </size>
+                            </property>
+                            <property name="toolTip">
+                             <string>Compile the formula and evaluate it at x = 0</string>
+                            </property>
+                            <property name="text">
+                             <string>Check</string>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <spacer name="hs_fl74">
+                            <property name="orientation">
+                             <enum>Qt::Orientation::Horizontal</enum>
+                            </property>
+                            <property name="sizeHint" stdset="0">
+                             <size>
+                              <width>0</width>
+                              <height>20</height>
+                             </size>
+                            </property>
+                           </spacer>
+                          </item>
+                         </layout>
+                        </widget>
+                        <widget class="QWidget" name="pgFloodTableY">
+                         <layout class="QHBoxLayout" name="hl_fl75">
+                          <property name="leftMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="topMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="rightMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="bottomMargin">
+                           <number>0</number>
+                          </property>
+                          <item>
+                           <widget class="QComboBox" name="cobFloodTableModeY">
+                            <property name="toolTip">
+                             <string>points: linear interpolation between the points
+bins: value i is the weight of [x_i, x_i+1)</string>
+                            </property>
+                            <property name="sizeAdjustPolicy">
+                             <enum>QComboBox::SizeAdjustPolicy::AdjustToContents</enum>
+                            </property>
+                            <item>
+                             <property name="text">
+                              <string>points</string>
+                             </property>
+                            </item>
+                            <item>
+                             <property name="text">
+                              <string>bins</string>
+                             </property>
+                            </item>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QPushButton" name="pbFloodLoadY">
+                            <property name="maximumSize">
+                             <size>
+                              <width>50</width>
+                              <height>16777215</height>
+                             </size>
+                            </property>
+                            <property name="toolTip">
+                             <string>Load two columns (x, value) from a text file; x is measured from the Position</string>
+                            </property>
+                            <property name="text">
+                             <string>Load</string>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QPushButton" name="pbFloodShowY">
+                            <property name="maximumSize">
+                             <size>
+                              <width>50</width>
+                              <height>16777215</height>
+                             </size>
+                            </property>
+                            <property name="text">
+                             <string>Show</string>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QLabel" name="labFloodTableY">
+                            <property name="text">
+                             <string>no data</string>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <spacer name="hs_fl76">
+                            <property name="orientation">
+                             <enum>Qt::Orientation::Horizontal</enum>
+                            </property>
+                            <property name="sizeHint" stdset="0">
+                             <size>
+                              <width>0</width>
+                              <height>20</height>
+                             </size>
+                            </property>
+                           </spacer>
+                          </item>
+                         </layout>
+                        </widget>
+                       </widget>
+                      </item>
+                      <item>
+                       <spacer name="hs_fl77">
+                        <property name="orientation">
+                         <enum>Qt::Orientation::Horizontal</enum>
+                        </property>
+                        <property name="sizeHint" stdset="0">
+                         <size>
+                          <width>0</width>
+                          <height>20</height>
+                         </size>
+                        </property>
+                       </spacer>
+                      </item>
+                     </layout>
                     </item>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QFrame" name="frZfixed">
-                    <property name="minimumSize">
-                     <size>
-                      <width>0</width>
-                      <height>0</height>
-                     </size>
+                    <item>
+                     <layout class="QHBoxLayout" name="hl_fl78">
+                      <property name="leftMargin">
+                       <number>0</number>
+                      </property>
+                      <property name="topMargin">
+                       <number>0</number>
+                      </property>
+                      <property name="rightMargin">
+                       <number>0</number>
+                      </property>
+                      <property name="bottomMargin">
+                       <number>0</number>
+                      </property>
+                      <item>
+                       <spacer name="hs_fl79">
+                        <property name="orientation">
+                         <enum>Qt::Orientation::Horizontal</enum>
+                        </property>
+                        <property name="sizeHint" stdset="0">
+                         <size>
+                          <width>0</width>
+                          <height>20</height>
+                         </size>
+                        </property>
+                       </spacer>
+                      </item>
+                      <item>
+                       <widget class="QLabel" name="label_fl80">
+                        <property name="toolTip">
+                         <string>Distribution of the bomb positions along this coordinate</string>
+                        </property>
+                        <property name="text">
+                         <string>Z</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QComboBox" name="cobFloodTypeZ">
+                        <property name="sizeAdjustPolicy">
+                         <enum>QComboBox::SizeAdjustPolicy::AdjustToContents</enum>
+                        </property>
+                        <item>
+                         <property name="text">
+                          <string>uniform</string>
+                         </property>
+                        </item>
+                        <item>
+                         <property name="text">
+                          <string>exponential</string>
+                         </property>
+                        </item>
+                        <item>
+                         <property name="text">
+                          <string>gauss</string>
+                         </property>
+                        </item>
+                        <item>
+                         <property name="text">
+                          <string>formula</string>
+                         </property>
+                        </item>
+                        <item>
+                         <property name="text">
+                          <string>table</string>
+                         </property>
+                        </item>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QStackedWidget" name="swFloodParamZ">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="currentIndex">
+                         <number>0</number>
+                        </property>
+                        <widget class="QWidget" name="pgFloodUniformZ">
+                         <layout class="QHBoxLayout" name="hl_fl81">
+                          <property name="leftMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="topMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="rightMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="bottomMargin">
+                           <number>0</number>
+                          </property>
+                         </layout>
+                        </widget>
+                        <widget class="QWidget" name="pgFloodExpZ">
+                         <layout class="QHBoxLayout" name="hl_fl82">
+                          <property name="leftMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="topMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="rightMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="bottomMargin">
+                           <number>0</number>
+                          </property>
+                          <item>
+                           <widget class="QLabel" name="label_fl83">
+                            <property name="toolTip">
+                             <string>Attenuation length; accepts geometry constants</string>
+                            </property>
+                            <property name="text">
+                             <string>λ</string>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="AOneLineTextEdit" name="ledFloodLambdaZ">
+                            <property name="maximumSize">
+                             <size>
+                              <width>60</width>
+                              <height>16777215</height>
+                             </size>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QLabel" name="label_fl84">
+                            <property name="text">
+                             <string>mm</string>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QLabel" name="label_fl85">
+                            <property name="toolTip">
+                             <string>Direction the beam travels along this axis; it enters through the opposite face</string>
+                            </property>
+                            <property name="text">
+                             <string>dir.</string>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QComboBox" name="cobFloodDirZ">
+                            <property name="toolTip">
+                             <string>Direction the beam travels along this axis; it enters through the opposite face</string>
+                            </property>
+                            <property name="sizeAdjustPolicy">
+                             <enum>QComboBox::SizeAdjustPolicy::AdjustToContents</enum>
+                            </property>
+                            <item>
+                             <property name="text">
+                              <string>+Z</string>
+                             </property>
+                            </item>
+                            <item>
+                             <property name="text">
+                              <string>-Z</string>
+                             </property>
+                            </item>
+                           </widget>
+                          </item>
+                          <item>
+                           <spacer name="hs_fl86">
+                            <property name="orientation">
+                             <enum>Qt::Orientation::Horizontal</enum>
+                            </property>
+                            <property name="sizeHint" stdset="0">
+                             <size>
+                              <width>0</width>
+                              <height>20</height>
+                             </size>
+                            </property>
+                           </spacer>
+                          </item>
+                         </layout>
+                        </widget>
+                        <widget class="QWidget" name="pgFloodGaussZ">
+                         <layout class="QHBoxLayout" name="hl_fl87">
+                          <property name="leftMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="topMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="rightMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="bottomMargin">
+                           <number>0</number>
+                          </property>
+                          <item>
+                           <widget class="QLabel" name="label_fl88">
+                            <property name="toolTip">
+                             <string>Measured from the Position; accepts geometry constants</string>
+                            </property>
+                            <property name="text">
+                             <string>mean</string>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="AOneLineTextEdit" name="ledFloodMeanZ">
+                            <property name="maximumSize">
+                             <size>
+                              <width>60</width>
+                              <height>16777215</height>
+                             </size>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QLabel" name="label_fl89">
+                            <property name="text">
+                             <string>mm</string>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QLabel" name="label_fl90">
+                            <property name="toolTip">
+                             <string>Accepts geometry constants</string>
+                            </property>
+                            <property name="text">
+                             <string>σ</string>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="AOneLineTextEdit" name="ledFloodSigmaZ">
+                            <property name="maximumSize">
+                             <size>
+                              <width>60</width>
+                              <height>16777215</height>
+                             </size>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QLabel" name="label_fl91">
+                            <property name="text">
+                             <string>mm</string>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <spacer name="hs_fl92">
+                            <property name="orientation">
+                             <enum>Qt::Orientation::Horizontal</enum>
+                            </property>
+                            <property name="sizeHint" stdset="0">
+                             <size>
+                              <width>0</width>
+                              <height>20</height>
+                             </size>
+                            </property>
+                           </spacer>
+                          </item>
+                         </layout>
+                        </widget>
+                        <widget class="QWidget" name="pgFloodFormulaZ">
+                         <layout class="QHBoxLayout" name="hl_fl93">
+                          <property name="leftMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="topMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="rightMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="bottomMargin">
+                           <number>0</number>
+                          </property>
+                          <item>
+                           <widget class="QLabel" name="label_fl94">
+                            <property name="toolTip">
+                             <string>x is the coordinate measured from the Position, in mm; geometry constants are allowed</string>
+                            </property>
+                            <property name="text">
+                             <string>f(x) =</string>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QLineEdit" name="leFloodFormulaZ">
+                            <property name="minimumSize">
+                             <size>
+                              <width>70</width>
+                              <height>0</height>
+                             </size>
+                            </property>
+                            <property name="maximumSize">
+                             <size>
+                              <width>140</width>
+                              <height>16777215</height>
+                             </size>
+                            </property>
+                            <property name="toolTip">
+                             <string>x is the coordinate measured from the Position, in mm; geometry constants are allowed</string>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QSpinBox" name="sbFloodBinsZ">
+                            <property name="maximumSize">
+                             <size>
+                              <width>60</width>
+                              <height>16777215</height>
+                             </size>
+                            </property>
+                            <property name="toolTip">
+                             <string>Number of bins of the sampling grid; auto = refined automatically</string>
+                            </property>
+                            <property name="specialValueText">
+                             <string>auto</string>
+                            </property>
+                            <property name="minimum">
+                             <number>0</number>
+                            </property>
+                            <property name="maximum">
+                             <number>1000000</number>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QPushButton" name="pbFloodCheckZ">
+                            <property name="maximumSize">
+                             <size>
+                              <width>50</width>
+                              <height>16777215</height>
+                             </size>
+                            </property>
+                            <property name="toolTip">
+                             <string>Compile the formula and evaluate it at x = 0</string>
+                            </property>
+                            <property name="text">
+                             <string>Check</string>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <spacer name="hs_fl95">
+                            <property name="orientation">
+                             <enum>Qt::Orientation::Horizontal</enum>
+                            </property>
+                            <property name="sizeHint" stdset="0">
+                             <size>
+                              <width>0</width>
+                              <height>20</height>
+                             </size>
+                            </property>
+                           </spacer>
+                          </item>
+                         </layout>
+                        </widget>
+                        <widget class="QWidget" name="pgFloodTableZ">
+                         <layout class="QHBoxLayout" name="hl_fl96">
+                          <property name="leftMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="topMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="rightMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="bottomMargin">
+                           <number>0</number>
+                          </property>
+                          <item>
+                           <widget class="QComboBox" name="cobFloodTableModeZ">
+                            <property name="toolTip">
+                             <string>points: linear interpolation between the points
+bins: value i is the weight of [x_i, x_i+1)</string>
+                            </property>
+                            <property name="sizeAdjustPolicy">
+                             <enum>QComboBox::SizeAdjustPolicy::AdjustToContents</enum>
+                            </property>
+                            <item>
+                             <property name="text">
+                              <string>points</string>
+                             </property>
+                            </item>
+                            <item>
+                             <property name="text">
+                              <string>bins</string>
+                             </property>
+                            </item>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QPushButton" name="pbFloodLoadZ">
+                            <property name="maximumSize">
+                             <size>
+                              <width>50</width>
+                              <height>16777215</height>
+                             </size>
+                            </property>
+                            <property name="toolTip">
+                             <string>Load two columns (x, value) from a text file; x is measured from the Position</string>
+                            </property>
+                            <property name="text">
+                             <string>Load</string>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QPushButton" name="pbFloodShowZ">
+                            <property name="maximumSize">
+                             <size>
+                              <width>50</width>
+                              <height>16777215</height>
+                             </size>
+                            </property>
+                            <property name="text">
+                             <string>Show</string>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QLabel" name="labFloodTableZ">
+                            <property name="text">
+                             <string>no data</string>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <spacer name="hs_fl97">
+                            <property name="orientation">
+                             <enum>Qt::Orientation::Horizontal</enum>
+                            </property>
+                            <property name="sizeHint" stdset="0">
+                             <size>
+                              <width>0</width>
+                              <height>20</height>
+                             </size>
+                            </property>
+                           </spacer>
+                          </item>
+                         </layout>
+                        </widget>
+                       </widget>
+                      </item>
+                      <item>
+                       <spacer name="hs_fl98">
+                        <property name="orientation">
+                         <enum>Qt::Orientation::Horizontal</enum>
+                        </property>
+                        <property name="sizeHint" stdset="0">
+                         <size>
+                          <width>0</width>
+                          <height>20</height>
+                         </size>
+                        </property>
+                       </spacer>
+                      </item>
+                     </layout>
+                    </item>
+                    <item>
+                     <spacer name="vs_fl34">
+                      <property name="orientation">
+                       <enum>Qt::Orientation::Vertical</enum>
+                      </property>
+                      <property name="sizeHint" stdset="0">
+                       <size>
+                        <width>20</width>
+                        <height>0</height>
+                       </size>
+                      </property>
+                     </spacer>
+                    </item>
+                   </layout>
+                  </widget>
+                  <widget class="QWidget" name="pgFloodProfCylinder">
+                   <layout class="QVBoxLayout" name="vl_fl100">
+                    <property name="leftMargin">
+                     <number>0</number>
                     </property>
-                    <property name="frameShape">
-                     <enum>QFrame::Shape::NoFrame</enum>
+                    <property name="topMargin">
+                     <number>0</number>
                     </property>
-                    <property name="frameShadow">
-                     <enum>QFrame::Shadow::Raised</enum>
+                    <property name="rightMargin">
+                     <number>0</number>
                     </property>
-                    <layout class="QHBoxLayout" name="horizontalLayout_16">
-                     <property name="leftMargin">
-                      <number>0</number>
-                     </property>
-                     <property name="topMargin">
-                      <number>0</number>
-                     </property>
-                     <property name="rightMargin">
-                      <number>0</number>
-                     </property>
-                     <property name="bottomMargin">
-                      <number>0</number>
-                     </property>
-                     <item>
-                      <widget class="AOneLineTextEdit" name="ledFloodZ">
-                       <property name="maximumSize">
-                        <size>
-                         <width>100</width>
-                         <height>25</height>
-                        </size>
-                       </property>
-                       <property name="text">
-                        <string>0</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item>
-                      <widget class="QLabel" name="label_250">
-                       <property name="text">
-                        <string>mm</string>
-                       </property>
-                      </widget>
-                     </item>
-                    </layout>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QFrame" name="frZrange">
-                    <property name="minimumSize">
-                     <size>
-                      <width>0</width>
-                      <height>0</height>
-                     </size>
+                    <property name="bottomMargin">
+                     <number>0</number>
                     </property>
-                    <property name="frameShape">
-                     <enum>QFrame::Shape::NoFrame</enum>
+                    <item>
+                     <layout class="QHBoxLayout" name="hl_fl101">
+                      <property name="leftMargin">
+                       <number>0</number>
+                      </property>
+                      <property name="topMargin">
+                       <number>0</number>
+                      </property>
+                      <property name="rightMargin">
+                       <number>0</number>
+                      </property>
+                      <property name="bottomMargin">
+                       <number>0</number>
+                      </property>
+                      <item>
+                       <spacer name="hs_fl102">
+                        <property name="orientation">
+                         <enum>Qt::Orientation::Horizontal</enum>
+                        </property>
+                        <property name="sizeHint" stdset="0">
+                         <size>
+                          <width>0</width>
+                          <height>20</height>
+                         </size>
+                        </property>
+                       </spacer>
+                      </item>
+                      <item>
+                       <widget class="QLabel" name="label_fl103">
+                        <property name="toolTip">
+                         <string>Distribution of the bomb positions along this coordinate</string>
+                        </property>
+                        <property name="text">
+                         <string>Radial</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QComboBox" name="cobFloodTypeR">
+                        <property name="sizeAdjustPolicy">
+                         <enum>QComboBox::SizeAdjustPolicy::AdjustToContents</enum>
+                        </property>
+                        <item>
+                         <property name="text">
+                          <string>uniform</string>
+                         </property>
+                        </item>
+                        <item>
+                         <property name="text">
+                          <string>exponential</string>
+                         </property>
+                        </item>
+                        <item>
+                         <property name="text">
+                          <string>gauss</string>
+                         </property>
+                        </item>
+                        <item>
+                         <property name="text">
+                          <string>formula</string>
+                         </property>
+                        </item>
+                        <item>
+                         <property name="text">
+                          <string>table</string>
+                         </property>
+                        </item>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QStackedWidget" name="swFloodParamR">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <widget class="QWidget" name="pgFloodUniformR">
+                         <layout class="QHBoxLayout" name="hl_fl104">
+                          <property name="leftMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="topMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="rightMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="bottomMargin">
+                           <number>0</number>
+                          </property>
+                         </layout>
+                        </widget>
+                        <widget class="QWidget" name="pgFloodExpR">
+                         <layout class="QHBoxLayout" name="hl_fl105">
+                          <property name="leftMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="topMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="rightMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="bottomMargin">
+                           <number>0</number>
+                          </property>
+                          <item>
+                           <widget class="QLabel" name="label_fl106">
+                            <property name="toolTip">
+                             <string>Attenuation length; accepts geometry constants</string>
+                            </property>
+                            <property name="text">
+                             <string>λ</string>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="AOneLineTextEdit" name="ledFloodLambdaR">
+                            <property name="maximumSize">
+                             <size>
+                              <width>60</width>
+                              <height>16777215</height>
+                             </size>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QLabel" name="label_fl107">
+                            <property name="text">
+                             <string>mm</string>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QComboBox" name="cobFloodMeaningExpR">
+                            <property name="toolTip">
+                             <string>density: per unit area (cylinder) or volume (sphere)
+distribution: the profile is the distribution of r itself</string>
+                            </property>
+                            <property name="sizeAdjustPolicy">
+                             <enum>QComboBox::SizeAdjustPolicy::AdjustToContents</enum>
+                            </property>
+                            <item>
+                             <property name="text">
+                              <string>density</string>
+                             </property>
+                            </item>
+                            <item>
+                             <property name="text">
+                              <string>distribution</string>
+                             </property>
+                            </item>
+                           </widget>
+                          </item>
+                          <item>
+                           <spacer name="hs_fl108">
+                            <property name="orientation">
+                             <enum>Qt::Orientation::Horizontal</enum>
+                            </property>
+                            <property name="sizeHint" stdset="0">
+                             <size>
+                              <width>0</width>
+                              <height>20</height>
+                             </size>
+                            </property>
+                           </spacer>
+                          </item>
+                         </layout>
+                        </widget>
+                        <widget class="QWidget" name="pgFloodGaussR">
+                         <layout class="QHBoxLayout" name="hl_fl109">
+                          <property name="leftMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="topMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="rightMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="bottomMargin">
+                           <number>0</number>
+                          </property>
+                          <item>
+                           <widget class="QLabel" name="label_fl110">
+                            <property name="toolTip">
+                             <string>Accepts geometry constants</string>
+                            </property>
+                            <property name="text">
+                             <string>σ</string>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="AOneLineTextEdit" name="ledFloodSigmaR">
+                            <property name="maximumSize">
+                             <size>
+                              <width>60</width>
+                              <height>16777215</height>
+                             </size>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QLabel" name="label_fl111">
+                            <property name="text">
+                             <string>mm</string>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <spacer name="hs_fl112">
+                            <property name="orientation">
+                             <enum>Qt::Orientation::Horizontal</enum>
+                            </property>
+                            <property name="sizeHint" stdset="0">
+                             <size>
+                              <width>0</width>
+                              <height>20</height>
+                             </size>
+                            </property>
+                           </spacer>
+                          </item>
+                         </layout>
+                        </widget>
+                        <widget class="QWidget" name="pgFloodFormulaR">
+                         <layout class="QHBoxLayout" name="hl_fl113">
+                          <property name="leftMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="topMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="rightMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="bottomMargin">
+                           <number>0</number>
+                          </property>
+                          <item>
+                           <widget class="QLabel" name="label_fl114">
+                            <property name="toolTip">
+                             <string>x is the radius r from the Position, in mm; geometry constants are allowed</string>
+                            </property>
+                            <property name="text">
+                             <string>f(x) =</string>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QLineEdit" name="leFloodFormulaR">
+                            <property name="minimumSize">
+                             <size>
+                              <width>70</width>
+                              <height>0</height>
+                             </size>
+                            </property>
+                            <property name="maximumSize">
+                             <size>
+                              <width>140</width>
+                              <height>16777215</height>
+                             </size>
+                            </property>
+                            <property name="toolTip">
+                             <string>x is the radius r from the Position, in mm; geometry constants are allowed</string>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QSpinBox" name="sbFloodBinsR">
+                            <property name="maximumSize">
+                             <size>
+                              <width>60</width>
+                              <height>16777215</height>
+                             </size>
+                            </property>
+                            <property name="toolTip">
+                             <string>Number of bins of the sampling grid; auto = refined automatically</string>
+                            </property>
+                            <property name="specialValueText">
+                             <string>auto</string>
+                            </property>
+                            <property name="minimum">
+                             <number>0</number>
+                            </property>
+                            <property name="maximum">
+                             <number>1000000</number>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QPushButton" name="pbFloodCheckR">
+                            <property name="maximumSize">
+                             <size>
+                              <width>50</width>
+                              <height>16777215</height>
+                             </size>
+                            </property>
+                            <property name="toolTip">
+                             <string>Compile the formula and evaluate it at x = 0</string>
+                            </property>
+                            <property name="text">
+                             <string>Check</string>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QComboBox" name="cobFloodMeaningFormulaR">
+                            <property name="toolTip">
+                             <string>density: per unit area (cylinder) or volume (sphere)
+distribution: the profile is the distribution of r itself</string>
+                            </property>
+                            <property name="sizeAdjustPolicy">
+                             <enum>QComboBox::SizeAdjustPolicy::AdjustToContents</enum>
+                            </property>
+                            <item>
+                             <property name="text">
+                              <string>density</string>
+                             </property>
+                            </item>
+                            <item>
+                             <property name="text">
+                              <string>distribution</string>
+                             </property>
+                            </item>
+                           </widget>
+                          </item>
+                          <item>
+                           <spacer name="hs_fl115">
+                            <property name="orientation">
+                             <enum>Qt::Orientation::Horizontal</enum>
+                            </property>
+                            <property name="sizeHint" stdset="0">
+                             <size>
+                              <width>0</width>
+                              <height>20</height>
+                             </size>
+                            </property>
+                           </spacer>
+                          </item>
+                         </layout>
+                        </widget>
+                        <widget class="QWidget" name="pgFloodTableR">
+                         <layout class="QHBoxLayout" name="hl_fl116">
+                          <property name="leftMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="topMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="rightMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="bottomMargin">
+                           <number>0</number>
+                          </property>
+                          <item>
+                           <widget class="QComboBox" name="cobFloodTableModeR">
+                            <property name="toolTip">
+                             <string>points: linear interpolation between the points
+bins: value i is the weight of [x_i, x_i+1)</string>
+                            </property>
+                            <property name="sizeAdjustPolicy">
+                             <enum>QComboBox::SizeAdjustPolicy::AdjustToContents</enum>
+                            </property>
+                            <item>
+                             <property name="text">
+                              <string>points</string>
+                             </property>
+                            </item>
+                            <item>
+                             <property name="text">
+                              <string>bins</string>
+                             </property>
+                            </item>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QPushButton" name="pbFloodLoadR">
+                            <property name="maximumSize">
+                             <size>
+                              <width>50</width>
+                              <height>16777215</height>
+                             </size>
+                            </property>
+                            <property name="toolTip">
+                             <string>Load two columns (x, value) from a text file; x is measured from the Position</string>
+                            </property>
+                            <property name="text">
+                             <string>Load</string>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QPushButton" name="pbFloodShowR">
+                            <property name="maximumSize">
+                             <size>
+                              <width>50</width>
+                              <height>16777215</height>
+                             </size>
+                            </property>
+                            <property name="text">
+                             <string>Show</string>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QLabel" name="labFloodTableR">
+                            <property name="text">
+                             <string>no data</string>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QComboBox" name="cobFloodMeaningTableR">
+                            <property name="toolTip">
+                             <string>density: per unit area (cylinder) or volume (sphere)
+distribution: the profile is the distribution of r itself</string>
+                            </property>
+                            <property name="sizeAdjustPolicy">
+                             <enum>QComboBox::SizeAdjustPolicy::AdjustToContents</enum>
+                            </property>
+                            <item>
+                             <property name="text">
+                              <string>density</string>
+                             </property>
+                            </item>
+                            <item>
+                             <property name="text">
+                              <string>distribution</string>
+                             </property>
+                            </item>
+                           </widget>
+                          </item>
+                          <item>
+                           <spacer name="hs_fl117">
+                            <property name="orientation">
+                             <enum>Qt::Orientation::Horizontal</enum>
+                            </property>
+                            <property name="sizeHint" stdset="0">
+                             <size>
+                              <width>0</width>
+                              <height>20</height>
+                             </size>
+                            </property>
+                           </spacer>
+                          </item>
+                         </layout>
+                        </widget>
+                       </widget>
+                      </item>
+                      <item>
+                       <spacer name="hs_fl118">
+                        <property name="orientation">
+                         <enum>Qt::Orientation::Horizontal</enum>
+                        </property>
+                        <property name="sizeHint" stdset="0">
+                         <size>
+                          <width>0</width>
+                          <height>20</height>
+                         </size>
+                        </property>
+                       </spacer>
+                      </item>
+                     </layout>
+                    </item>
+                    <item>
+                     <layout class="QHBoxLayout" name="hl_fl119">
+                      <property name="leftMargin">
+                       <number>0</number>
+                      </property>
+                      <property name="topMargin">
+                       <number>0</number>
+                      </property>
+                      <property name="rightMargin">
+                       <number>0</number>
+                      </property>
+                      <property name="bottomMargin">
+                       <number>0</number>
+                      </property>
+                      <item>
+                       <spacer name="hs_fl120">
+                        <property name="orientation">
+                         <enum>Qt::Orientation::Horizontal</enum>
+                        </property>
+                        <property name="sizeHint" stdset="0">
+                         <size>
+                          <width>0</width>
+                          <height>20</height>
+                         </size>
+                        </property>
+                       </spacer>
+                      </item>
+                      <item>
+                       <widget class="QLabel" name="label_fl121">
+                        <property name="toolTip">
+                         <string>Distribution of the bomb positions along this coordinate</string>
+                        </property>
+                        <property name="text">
+                         <string>Axial</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QComboBox" name="cobFloodTypeA">
+                        <property name="sizeAdjustPolicy">
+                         <enum>QComboBox::SizeAdjustPolicy::AdjustToContents</enum>
+                        </property>
+                        <item>
+                         <property name="text">
+                          <string>uniform</string>
+                         </property>
+                        </item>
+                        <item>
+                         <property name="text">
+                          <string>exponential</string>
+                         </property>
+                        </item>
+                        <item>
+                         <property name="text">
+                          <string>gauss</string>
+                         </property>
+                        </item>
+                        <item>
+                         <property name="text">
+                          <string>formula</string>
+                         </property>
+                        </item>
+                        <item>
+                         <property name="text">
+                          <string>table</string>
+                         </property>
+                        </item>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QStackedWidget" name="swFloodParamA">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <widget class="QWidget" name="pgFloodUniformA">
+                         <layout class="QHBoxLayout" name="hl_fl122">
+                          <property name="leftMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="topMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="rightMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="bottomMargin">
+                           <number>0</number>
+                          </property>
+                         </layout>
+                        </widget>
+                        <widget class="QWidget" name="pgFloodExpA">
+                         <layout class="QHBoxLayout" name="hl_fl123">
+                          <property name="leftMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="topMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="rightMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="bottomMargin">
+                           <number>0</number>
+                          </property>
+                          <item>
+                           <widget class="QLabel" name="label_fl124">
+                            <property name="toolTip">
+                             <string>Attenuation length; accepts geometry constants</string>
+                            </property>
+                            <property name="text">
+                             <string>λ</string>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="AOneLineTextEdit" name="ledFloodLambdaA">
+                            <property name="maximumSize">
+                             <size>
+                              <width>60</width>
+                              <height>16777215</height>
+                             </size>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QLabel" name="label_fl125">
+                            <property name="text">
+                             <string>mm</string>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QLabel" name="label_fl126">
+                            <property name="toolTip">
+                             <string>Direction the beam travels along this axis; it enters through the opposite face</string>
+                            </property>
+                            <property name="text">
+                             <string>dir.</string>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QComboBox" name="cobFloodDirA">
+                            <property name="toolTip">
+                             <string>Direction the beam travels along this axis; it enters through the opposite face</string>
+                            </property>
+                            <property name="sizeAdjustPolicy">
+                             <enum>QComboBox::SizeAdjustPolicy::AdjustToContents</enum>
+                            </property>
+                            <item>
+                             <property name="text">
+                              <string>+Z</string>
+                             </property>
+                            </item>
+                            <item>
+                             <property name="text">
+                              <string>-Z</string>
+                             </property>
+                            </item>
+                           </widget>
+                          </item>
+                          <item>
+                           <spacer name="hs_fl127">
+                            <property name="orientation">
+                             <enum>Qt::Orientation::Horizontal</enum>
+                            </property>
+                            <property name="sizeHint" stdset="0">
+                             <size>
+                              <width>0</width>
+                              <height>20</height>
+                             </size>
+                            </property>
+                           </spacer>
+                          </item>
+                         </layout>
+                        </widget>
+                        <widget class="QWidget" name="pgFloodGaussA">
+                         <layout class="QHBoxLayout" name="hl_fl128">
+                          <property name="leftMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="topMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="rightMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="bottomMargin">
+                           <number>0</number>
+                          </property>
+                          <item>
+                           <widget class="QLabel" name="label_fl129">
+                            <property name="toolTip">
+                             <string>Measured from the Position; accepts geometry constants</string>
+                            </property>
+                            <property name="text">
+                             <string>mean</string>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="AOneLineTextEdit" name="ledFloodMeanA">
+                            <property name="maximumSize">
+                             <size>
+                              <width>60</width>
+                              <height>16777215</height>
+                             </size>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QLabel" name="label_fl130">
+                            <property name="text">
+                             <string>mm</string>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QLabel" name="label_fl131">
+                            <property name="toolTip">
+                             <string>Accepts geometry constants</string>
+                            </property>
+                            <property name="text">
+                             <string>σ</string>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="AOneLineTextEdit" name="ledFloodSigmaA">
+                            <property name="maximumSize">
+                             <size>
+                              <width>60</width>
+                              <height>16777215</height>
+                             </size>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QLabel" name="label_fl132">
+                            <property name="text">
+                             <string>mm</string>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <spacer name="hs_fl133">
+                            <property name="orientation">
+                             <enum>Qt::Orientation::Horizontal</enum>
+                            </property>
+                            <property name="sizeHint" stdset="0">
+                             <size>
+                              <width>0</width>
+                              <height>20</height>
+                             </size>
+                            </property>
+                           </spacer>
+                          </item>
+                         </layout>
+                        </widget>
+                        <widget class="QWidget" name="pgFloodFormulaA">
+                         <layout class="QHBoxLayout" name="hl_fl134">
+                          <property name="leftMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="topMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="rightMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="bottomMargin">
+                           <number>0</number>
+                          </property>
+                          <item>
+                           <widget class="QLabel" name="label_fl135">
+                            <property name="toolTip">
+                             <string>x is the coordinate measured from the Position, in mm; geometry constants are allowed</string>
+                            </property>
+                            <property name="text">
+                             <string>f(x) =</string>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QLineEdit" name="leFloodFormulaA">
+                            <property name="minimumSize">
+                             <size>
+                              <width>70</width>
+                              <height>0</height>
+                             </size>
+                            </property>
+                            <property name="maximumSize">
+                             <size>
+                              <width>140</width>
+                              <height>16777215</height>
+                             </size>
+                            </property>
+                            <property name="toolTip">
+                             <string>x is the coordinate measured from the Position, in mm; geometry constants are allowed</string>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QSpinBox" name="sbFloodBinsA">
+                            <property name="maximumSize">
+                             <size>
+                              <width>60</width>
+                              <height>16777215</height>
+                             </size>
+                            </property>
+                            <property name="toolTip">
+                             <string>Number of bins of the sampling grid; auto = refined automatically</string>
+                            </property>
+                            <property name="specialValueText">
+                             <string>auto</string>
+                            </property>
+                            <property name="minimum">
+                             <number>0</number>
+                            </property>
+                            <property name="maximum">
+                             <number>1000000</number>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QPushButton" name="pbFloodCheckA">
+                            <property name="maximumSize">
+                             <size>
+                              <width>50</width>
+                              <height>16777215</height>
+                             </size>
+                            </property>
+                            <property name="toolTip">
+                             <string>Compile the formula and evaluate it at x = 0</string>
+                            </property>
+                            <property name="text">
+                             <string>Check</string>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <spacer name="hs_fl136">
+                            <property name="orientation">
+                             <enum>Qt::Orientation::Horizontal</enum>
+                            </property>
+                            <property name="sizeHint" stdset="0">
+                             <size>
+                              <width>0</width>
+                              <height>20</height>
+                             </size>
+                            </property>
+                           </spacer>
+                          </item>
+                         </layout>
+                        </widget>
+                        <widget class="QWidget" name="pgFloodTableA">
+                         <layout class="QHBoxLayout" name="hl_fl137">
+                          <property name="leftMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="topMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="rightMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="bottomMargin">
+                           <number>0</number>
+                          </property>
+                          <item>
+                           <widget class="QComboBox" name="cobFloodTableModeA">
+                            <property name="toolTip">
+                             <string>points: linear interpolation between the points
+bins: value i is the weight of [x_i, x_i+1)</string>
+                            </property>
+                            <property name="sizeAdjustPolicy">
+                             <enum>QComboBox::SizeAdjustPolicy::AdjustToContents</enum>
+                            </property>
+                            <item>
+                             <property name="text">
+                              <string>points</string>
+                             </property>
+                            </item>
+                            <item>
+                             <property name="text">
+                              <string>bins</string>
+                             </property>
+                            </item>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QPushButton" name="pbFloodLoadA">
+                            <property name="maximumSize">
+                             <size>
+                              <width>50</width>
+                              <height>16777215</height>
+                             </size>
+                            </property>
+                            <property name="toolTip">
+                             <string>Load two columns (x, value) from a text file; x is measured from the Position</string>
+                            </property>
+                            <property name="text">
+                             <string>Load</string>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QPushButton" name="pbFloodShowA">
+                            <property name="maximumSize">
+                             <size>
+                              <width>50</width>
+                              <height>16777215</height>
+                             </size>
+                            </property>
+                            <property name="text">
+                             <string>Show</string>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QLabel" name="labFloodTableA">
+                            <property name="text">
+                             <string>no data</string>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <spacer name="hs_fl138">
+                            <property name="orientation">
+                             <enum>Qt::Orientation::Horizontal</enum>
+                            </property>
+                            <property name="sizeHint" stdset="0">
+                             <size>
+                              <width>0</width>
+                              <height>20</height>
+                             </size>
+                            </property>
+                           </spacer>
+                          </item>
+                         </layout>
+                        </widget>
+                       </widget>
+                      </item>
+                      <item>
+                       <spacer name="hs_fl139">
+                        <property name="orientation">
+                         <enum>Qt::Orientation::Horizontal</enum>
+                        </property>
+                        <property name="sizeHint" stdset="0">
+                         <size>
+                          <width>0</width>
+                          <height>20</height>
+                         </size>
+                        </property>
+                       </spacer>
+                      </item>
+                     </layout>
+                    </item>
+                    <item>
+                     <spacer name="vs_fl99">
+                      <property name="orientation">
+                       <enum>Qt::Orientation::Vertical</enum>
+                      </property>
+                      <property name="sizeHint" stdset="0">
+                       <size>
+                        <width>20</width>
+                        <height>0</height>
+                       </size>
+                      </property>
+                     </spacer>
+                    </item>
+                   </layout>
+                  </widget>
+                  <widget class="QWidget" name="pgFloodProfSphere">
+                   <layout class="QVBoxLayout" name="vl_fl141">
+                    <property name="leftMargin">
+                     <number>0</number>
                     </property>
-                    <property name="frameShadow">
-                     <enum>QFrame::Shadow::Raised</enum>
+                    <property name="topMargin">
+                     <number>0</number>
                     </property>
-                    <layout class="QHBoxLayout" name="horizontalLayout_70">
-                     <property name="leftMargin">
-                      <number>0</number>
-                     </property>
-                     <property name="topMargin">
-                      <number>0</number>
-                     </property>
-                     <property name="rightMargin">
-                      <number>0</number>
-                     </property>
-                     <property name="bottomMargin">
-                      <number>0</number>
-                     </property>
-                     <item>
-                      <widget class="QLabel" name="label_48">
-                       <property name="text">
-                        <string>from</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item>
-                      <widget class="AOneLineTextEdit" name="ledFloodZfrom">
-                       <property name="maximumSize">
-                        <size>
-                         <width>100</width>
-                         <height>25</height>
-                        </size>
-                       </property>
-                       <property name="text">
-                        <string>-2.49</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item alignment="Qt::AlignmentFlag::AlignHCenter">
-                      <widget class="QLabel" name="label_251">
-                       <property name="text">
-                        <string>to</string>
-                       </property>
-                       <property name="alignment">
-                        <set>Qt::AlignmentFlag::AlignCenter</set>
-                       </property>
-                      </widget>
-                     </item>
-                     <item>
-                      <widget class="AOneLineTextEdit" name="ledFloodZto">
-                       <property name="maximumSize">
-                        <size>
-                         <width>100</width>
-                         <height>25</height>
-                        </size>
-                       </property>
-                       <property name="text">
-                        <string>2.49</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item>
-                      <widget class="QLabel" name="label_248">
-                       <property name="text">
-                        <string>mm</string>
-                       </property>
-                      </widget>
-                     </item>
-                    </layout>
-                   </widget>
-                  </item>
-                  <item>
-                   <spacer name="horizontalSpacer_89">
-                    <property name="orientation">
-                     <enum>Qt::Orientation::Horizontal</enum>
+                    <property name="rightMargin">
+                     <number>0</number>
                     </property>
-                    <property name="sizeHint" stdset="0">
-                     <size>
-                      <width>40</width>
-                      <height>20</height>
-                     </size>
+                    <property name="bottomMargin">
+                     <number>0</number>
                     </property>
-                   </spacer>
-                  </item>
-                 </layout>
+                    <item>
+                     <layout class="QHBoxLayout" name="hl_fl142">
+                      <property name="leftMargin">
+                       <number>0</number>
+                      </property>
+                      <property name="topMargin">
+                       <number>0</number>
+                      </property>
+                      <property name="rightMargin">
+                       <number>0</number>
+                      </property>
+                      <property name="bottomMargin">
+                       <number>0</number>
+                      </property>
+                      <item>
+                       <spacer name="hs_fl143">
+                        <property name="orientation">
+                         <enum>Qt::Orientation::Horizontal</enum>
+                        </property>
+                        <property name="sizeHint" stdset="0">
+                         <size>
+                          <width>0</width>
+                          <height>20</height>
+                         </size>
+                        </property>
+                       </spacer>
+                      </item>
+                      <item>
+                       <widget class="QLabel" name="label_fl144">
+                        <property name="toolTip">
+                         <string>Distribution of the bomb positions along this coordinate</string>
+                        </property>
+                        <property name="text">
+                         <string>Radial</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QComboBox" name="cobFloodTypeS">
+                        <property name="sizeAdjustPolicy">
+                         <enum>QComboBox::SizeAdjustPolicy::AdjustToContents</enum>
+                        </property>
+                        <item>
+                         <property name="text">
+                          <string>uniform</string>
+                         </property>
+                        </item>
+                        <item>
+                         <property name="text">
+                          <string>exponential</string>
+                         </property>
+                        </item>
+                        <item>
+                         <property name="text">
+                          <string>gauss</string>
+                         </property>
+                        </item>
+                        <item>
+                         <property name="text">
+                          <string>formula</string>
+                         </property>
+                        </item>
+                        <item>
+                         <property name="text">
+                          <string>table</string>
+                         </property>
+                        </item>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QStackedWidget" name="swFloodParamS">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <widget class="QWidget" name="pgFloodUniformS">
+                         <layout class="QHBoxLayout" name="hl_fl145">
+                          <property name="leftMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="topMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="rightMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="bottomMargin">
+                           <number>0</number>
+                          </property>
+                         </layout>
+                        </widget>
+                        <widget class="QWidget" name="pgFloodExpS">
+                         <layout class="QHBoxLayout" name="hl_fl146">
+                          <property name="leftMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="topMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="rightMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="bottomMargin">
+                           <number>0</number>
+                          </property>
+                          <item>
+                           <widget class="QLabel" name="label_fl147">
+                            <property name="toolTip">
+                             <string>Attenuation length; accepts geometry constants</string>
+                            </property>
+                            <property name="text">
+                             <string>λ</string>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="AOneLineTextEdit" name="ledFloodLambdaS">
+                            <property name="maximumSize">
+                             <size>
+                              <width>60</width>
+                              <height>16777215</height>
+                             </size>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QLabel" name="label_fl148">
+                            <property name="text">
+                             <string>mm</string>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QComboBox" name="cobFloodMeaningExpS">
+                            <property name="toolTip">
+                             <string>density: per unit area (cylinder) or volume (sphere)
+distribution: the profile is the distribution of r itself</string>
+                            </property>
+                            <property name="sizeAdjustPolicy">
+                             <enum>QComboBox::SizeAdjustPolicy::AdjustToContents</enum>
+                            </property>
+                            <item>
+                             <property name="text">
+                              <string>density</string>
+                             </property>
+                            </item>
+                            <item>
+                             <property name="text">
+                              <string>distribution</string>
+                             </property>
+                            </item>
+                           </widget>
+                          </item>
+                          <item>
+                           <spacer name="hs_fl149">
+                            <property name="orientation">
+                             <enum>Qt::Orientation::Horizontal</enum>
+                            </property>
+                            <property name="sizeHint" stdset="0">
+                             <size>
+                              <width>0</width>
+                              <height>20</height>
+                             </size>
+                            </property>
+                           </spacer>
+                          </item>
+                         </layout>
+                        </widget>
+                        <widget class="QWidget" name="pgFloodGaussS">
+                         <layout class="QHBoxLayout" name="hl_fl150">
+                          <property name="leftMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="topMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="rightMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="bottomMargin">
+                           <number>0</number>
+                          </property>
+                          <item>
+                           <widget class="QLabel" name="label_fl151">
+                            <property name="toolTip">
+                             <string>Accepts geometry constants</string>
+                            </property>
+                            <property name="text">
+                             <string>σ</string>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="AOneLineTextEdit" name="ledFloodSigmaS">
+                            <property name="maximumSize">
+                             <size>
+                              <width>60</width>
+                              <height>16777215</height>
+                             </size>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QLabel" name="label_fl152">
+                            <property name="text">
+                             <string>mm</string>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <spacer name="hs_fl153">
+                            <property name="orientation">
+                             <enum>Qt::Orientation::Horizontal</enum>
+                            </property>
+                            <property name="sizeHint" stdset="0">
+                             <size>
+                              <width>0</width>
+                              <height>20</height>
+                             </size>
+                            </property>
+                           </spacer>
+                          </item>
+                         </layout>
+                        </widget>
+                        <widget class="QWidget" name="pgFloodFormulaS">
+                         <layout class="QHBoxLayout" name="hl_fl154">
+                          <property name="leftMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="topMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="rightMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="bottomMargin">
+                           <number>0</number>
+                          </property>
+                          <item>
+                           <widget class="QLabel" name="label_fl155">
+                            <property name="toolTip">
+                             <string>x is the radius r from the Position, in mm; geometry constants are allowed</string>
+                            </property>
+                            <property name="text">
+                             <string>f(x) =</string>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QLineEdit" name="leFloodFormulaS">
+                            <property name="minimumSize">
+                             <size>
+                              <width>70</width>
+                              <height>0</height>
+                             </size>
+                            </property>
+                            <property name="maximumSize">
+                             <size>
+                              <width>140</width>
+                              <height>16777215</height>
+                             </size>
+                            </property>
+                            <property name="toolTip">
+                             <string>x is the radius r from the Position, in mm; geometry constants are allowed</string>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QSpinBox" name="sbFloodBinsS">
+                            <property name="maximumSize">
+                             <size>
+                              <width>60</width>
+                              <height>16777215</height>
+                             </size>
+                            </property>
+                            <property name="toolTip">
+                             <string>Number of bins of the sampling grid; auto = refined automatically</string>
+                            </property>
+                            <property name="specialValueText">
+                             <string>auto</string>
+                            </property>
+                            <property name="minimum">
+                             <number>0</number>
+                            </property>
+                            <property name="maximum">
+                             <number>1000000</number>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QPushButton" name="pbFloodCheckS">
+                            <property name="maximumSize">
+                             <size>
+                              <width>50</width>
+                              <height>16777215</height>
+                             </size>
+                            </property>
+                            <property name="toolTip">
+                             <string>Compile the formula and evaluate it at x = 0</string>
+                            </property>
+                            <property name="text">
+                             <string>Check</string>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QComboBox" name="cobFloodMeaningFormulaS">
+                            <property name="toolTip">
+                             <string>density: per unit area (cylinder) or volume (sphere)
+distribution: the profile is the distribution of r itself</string>
+                            </property>
+                            <property name="sizeAdjustPolicy">
+                             <enum>QComboBox::SizeAdjustPolicy::AdjustToContents</enum>
+                            </property>
+                            <item>
+                             <property name="text">
+                              <string>density</string>
+                             </property>
+                            </item>
+                            <item>
+                             <property name="text">
+                              <string>distribution</string>
+                             </property>
+                            </item>
+                           </widget>
+                          </item>
+                          <item>
+                           <spacer name="hs_fl156">
+                            <property name="orientation">
+                             <enum>Qt::Orientation::Horizontal</enum>
+                            </property>
+                            <property name="sizeHint" stdset="0">
+                             <size>
+                              <width>0</width>
+                              <height>20</height>
+                             </size>
+                            </property>
+                           </spacer>
+                          </item>
+                         </layout>
+                        </widget>
+                        <widget class="QWidget" name="pgFloodTableS">
+                         <layout class="QHBoxLayout" name="hl_fl157">
+                          <property name="leftMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="topMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="rightMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="bottomMargin">
+                           <number>0</number>
+                          </property>
+                          <item>
+                           <widget class="QComboBox" name="cobFloodTableModeS">
+                            <property name="toolTip">
+                             <string>points: linear interpolation between the points
+bins: value i is the weight of [x_i, x_i+1)</string>
+                            </property>
+                            <property name="sizeAdjustPolicy">
+                             <enum>QComboBox::SizeAdjustPolicy::AdjustToContents</enum>
+                            </property>
+                            <item>
+                             <property name="text">
+                              <string>points</string>
+                             </property>
+                            </item>
+                            <item>
+                             <property name="text">
+                              <string>bins</string>
+                             </property>
+                            </item>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QPushButton" name="pbFloodLoadS">
+                            <property name="maximumSize">
+                             <size>
+                              <width>50</width>
+                              <height>16777215</height>
+                             </size>
+                            </property>
+                            <property name="toolTip">
+                             <string>Load two columns (x, value) from a text file; x is measured from the Position</string>
+                            </property>
+                            <property name="text">
+                             <string>Load</string>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QPushButton" name="pbFloodShowS">
+                            <property name="maximumSize">
+                             <size>
+                              <width>50</width>
+                              <height>16777215</height>
+                             </size>
+                            </property>
+                            <property name="text">
+                             <string>Show</string>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QLabel" name="labFloodTableS">
+                            <property name="text">
+                             <string>no data</string>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QComboBox" name="cobFloodMeaningTableS">
+                            <property name="toolTip">
+                             <string>density: per unit area (cylinder) or volume (sphere)
+distribution: the profile is the distribution of r itself</string>
+                            </property>
+                            <property name="sizeAdjustPolicy">
+                             <enum>QComboBox::SizeAdjustPolicy::AdjustToContents</enum>
+                            </property>
+                            <item>
+                             <property name="text">
+                              <string>density</string>
+                             </property>
+                            </item>
+                            <item>
+                             <property name="text">
+                              <string>distribution</string>
+                             </property>
+                            </item>
+                           </widget>
+                          </item>
+                          <item>
+                           <spacer name="hs_fl158">
+                            <property name="orientation">
+                             <enum>Qt::Orientation::Horizontal</enum>
+                            </property>
+                            <property name="sizeHint" stdset="0">
+                             <size>
+                              <width>0</width>
+                              <height>20</height>
+                             </size>
+                            </property>
+                           </spacer>
+                          </item>
+                         </layout>
+                        </widget>
+                       </widget>
+                      </item>
+                      <item>
+                       <spacer name="hs_fl159">
+                        <property name="orientation">
+                         <enum>Qt::Orientation::Horizontal</enum>
+                        </property>
+                        <property name="sizeHint" stdset="0">
+                         <size>
+                          <width>0</width>
+                          <height>20</height>
+                         </size>
+                        </property>
+                       </spacer>
+                      </item>
+                     </layout>
+                    </item>
+                    <item>
+                     <spacer name="vs_fl140">
+                      <property name="orientation">
+                       <enum>Qt::Orientation::Vertical</enum>
+                      </property>
+                      <property name="sizeHint" stdset="0">
+                       <size>
+                        <width>20</width>
+                        <height>0</height>
+                       </size>
+                      </property>
+                     </spacer>
+                    </item>
+                   </layout>
+                  </widget>
+                 </widget>
                 </item>
                 <item>
-                 <spacer name="verticalSpacer_3">
+                 <spacer name="verticalSpacer_2">
                   <property name="orientation">
                    <enum>Qt::Orientation::Vertical</enum>
                   </property>
@@ -5570,34 +8426,18 @@
    </hints>
   </connection>
   <connection>
-   <sender>cobFloodShape</sender>
-   <signal>currentIndexChanged(int)</signal>
-   <receiver>swFloodShape</receiver>
-   <slot>setCurrentIndex(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>105</x>
-     <y>136</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>108</x>
-     <y>140</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>ledOriginX</sender>
    <signal>editingFinished()</signal>
    <receiver>pbdUpdateScanSettings</receiver>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>49</x>
-     <y>138</y>
+     <x>209</x>
+     <y>220</y>
     </hint>
     <hint type="destinationlabel">
-     <x>112</x>
-     <y>132</y>
+     <x>122</x>
+     <y>191</y>
     </hint>
    </hints>
   </connection>
@@ -5608,12 +8448,12 @@
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>73</x>
-     <y>138</y>
+     <x>357</x>
+     <y>220</y>
     </hint>
     <hint type="destinationlabel">
-     <x>112</x>
-     <y>132</y>
+     <x>122</x>
+     <y>191</y>
     </hint>
    </hints>
   </connection>
@@ -5624,12 +8464,12 @@
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>97</x>
-     <y>138</y>
+     <x>486</x>
+     <y>220</y>
     </hint>
     <hint type="destinationlabel">
-     <x>112</x>
-     <y>132</y>
+     <x>122</x>
+     <y>191</y>
     </hint>
    </hints>
   </connection>
@@ -5640,12 +8480,12 @@
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>46</x>
-     <y>146</y>
+     <x>170</x>
+     <y>273</y>
     </hint>
     <hint type="destinationlabel">
-     <x>112</x>
-     <y>132</y>
+     <x>122</x>
+     <y>191</y>
     </hint>
    </hints>
   </connection>
@@ -5656,12 +8496,12 @@
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>62</x>
-     <y>146</y>
+     <x>262</x>
+     <y>273</y>
     </hint>
     <hint type="destinationlabel">
-     <x>112</x>
-     <y>132</y>
+     <x>122</x>
+     <y>191</y>
     </hint>
    </hints>
   </connection>
@@ -5672,12 +8512,12 @@
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>79</x>
-     <y>146</y>
+     <x>354</x>
+     <y>273</y>
     </hint>
     <hint type="destinationlabel">
-     <x>112</x>
-     <y>132</y>
+     <x>122</x>
+     <y>191</y>
     </hint>
    </hints>
   </connection>
@@ -5688,12 +8528,12 @@
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>95</x>
-     <y>146</y>
+     <x>435</x>
+     <y>274</y>
     </hint>
     <hint type="destinationlabel">
-     <x>112</x>
-     <y>132</y>
+     <x>122</x>
+     <y>191</y>
     </hint>
    </hints>
   </connection>
@@ -5704,12 +8544,12 @@
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>111</x>
-     <y>146</y>
+     <x>544</x>
+     <y>273</y>
     </hint>
     <hint type="destinationlabel">
-     <x>112</x>
-     <y>132</y>
+     <x>122</x>
+     <y>191</y>
     </hint>
    </hints>
   </connection>
@@ -5720,12 +8560,12 @@
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>30</x>
-     <y>149</y>
+     <x>41</x>
+     <y>304</y>
     </hint>
     <hint type="destinationlabel">
-     <x>112</x>
-     <y>132</y>
+     <x>122</x>
+     <y>191</y>
     </hint>
    </hints>
   </connection>
@@ -5736,12 +8576,12 @@
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>30</x>
-     <y>152</y>
+     <x>41</x>
+     <y>336</y>
     </hint>
     <hint type="destinationlabel">
-     <x>112</x>
-     <y>132</y>
+     <x>122</x>
+     <y>191</y>
     </hint>
    </hints>
   </connection>
@@ -5752,12 +8592,12 @@
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>46</x>
-     <y>149</y>
+     <x>170</x>
+     <y>305</y>
     </hint>
     <hint type="destinationlabel">
-     <x>112</x>
-     <y>132</y>
+     <x>122</x>
+     <y>191</y>
     </hint>
    </hints>
   </connection>
@@ -5768,12 +8608,12 @@
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>46</x>
-     <y>152</y>
+     <x>170</x>
+     <y>337</y>
     </hint>
     <hint type="destinationlabel">
-     <x>112</x>
-     <y>132</y>
+     <x>122</x>
+     <y>191</y>
     </hint>
    </hints>
   </connection>
@@ -5784,12 +8624,12 @@
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>62</x>
-     <y>149</y>
+     <x>262</x>
+     <y>305</y>
     </hint>
     <hint type="destinationlabel">
-     <x>112</x>
-     <y>132</y>
+     <x>122</x>
+     <y>191</y>
     </hint>
    </hints>
   </connection>
@@ -5800,12 +8640,12 @@
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>62</x>
-     <y>152</y>
+     <x>262</x>
+     <y>337</y>
     </hint>
     <hint type="destinationlabel">
-     <x>112</x>
-     <y>132</y>
+     <x>122</x>
+     <y>191</y>
     </hint>
    </hints>
   </connection>
@@ -5816,12 +8656,12 @@
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>79</x>
-     <y>149</y>
+     <x>354</x>
+     <y>305</y>
     </hint>
     <hint type="destinationlabel">
-     <x>112</x>
-     <y>132</y>
+     <x>122</x>
+     <y>191</y>
     </hint>
    </hints>
   </connection>
@@ -5832,12 +8672,12 @@
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>79</x>
-     <y>152</y>
+     <x>354</x>
+     <y>337</y>
     </hint>
     <hint type="destinationlabel">
-     <x>112</x>
-     <y>132</y>
+     <x>122</x>
+     <y>191</y>
     </hint>
    </hints>
   </connection>
@@ -5848,12 +8688,12 @@
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>95</x>
-     <y>149</y>
+     <x>435</x>
+     <y>306</y>
     </hint>
     <hint type="destinationlabel">
-     <x>112</x>
-     <y>132</y>
+     <x>122</x>
+     <y>191</y>
     </hint>
    </hints>
   </connection>
@@ -5864,12 +8704,12 @@
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>95</x>
-     <y>152</y>
+     <x>435</x>
+     <y>338</y>
     </hint>
     <hint type="destinationlabel">
-     <x>112</x>
-     <y>132</y>
+     <x>122</x>
+     <y>191</y>
     </hint>
    </hints>
   </connection>
@@ -5880,12 +8720,12 @@
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>111</x>
-     <y>149</y>
+     <x>544</x>
+     <y>305</y>
     </hint>
     <hint type="destinationlabel">
-     <x>112</x>
-     <y>132</y>
+     <x>122</x>
+     <y>191</y>
     </hint>
    </hints>
   </connection>
@@ -5896,12 +8736,12 @@
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>111</x>
-     <y>152</y>
+     <x>544</x>
+     <y>337</y>
     </hint>
     <hint type="destinationlabel">
-     <x>112</x>
-     <y>132</y>
+     <x>122</x>
+     <y>191</y>
     </hint>
    </hints>
   </connection>

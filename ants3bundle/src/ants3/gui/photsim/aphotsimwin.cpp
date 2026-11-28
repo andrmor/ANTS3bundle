@@ -37,6 +37,7 @@
 #include <QTextStream>
 #include <QVBoxLayout>
 #include <QTabWidget>
+#include <QStackedWidget>
 
 #include "TObject.h"
 #include "TH1D.h"
@@ -2463,6 +2464,16 @@ static QString floodNumOrStr(double val, const QString & str) {return (str.isEmp
 
 void APhotSimWin::setupFloodGui()
 {
+    // page switching (combo box -> stacked widget); must exist before the first updateGui()
+    connect(ui->cobFloodShape, &QComboBox::currentIndexChanged, ui->swFloodSize,     &QStackedWidget::setCurrentIndex);
+    connect(ui->cobFloodShape, &QComboBox::currentIndexChanged, ui->swFloodProfiles, &QStackedWidget::setCurrentIndex);
+    connect(ui->cobFloodTypeX, &QComboBox::currentIndexChanged, ui->swFloodParamX,   &QStackedWidget::setCurrentIndex);
+    connect(ui->cobFloodTypeY, &QComboBox::currentIndexChanged, ui->swFloodParamY,   &QStackedWidget::setCurrentIndex);
+    connect(ui->cobFloodTypeZ, &QComboBox::currentIndexChanged, ui->swFloodParamZ,   &QStackedWidget::setCurrentIndex);
+    connect(ui->cobFloodTypeR, &QComboBox::currentIndexChanged, ui->swFloodParamR,   &QStackedWidget::setCurrentIndex);
+    connect(ui->cobFloodTypeA, &QComboBox::currentIndexChanged, ui->swFloodParamA,   &QStackedWidget::setCurrentIndex);
+    connect(ui->cobFloodTypeS, &QComboBox::currentIndexChanged, ui->swFloodParamS,   &QStackedWidget::setCurrentIndex);
+
     AFloodSettings & fs = SimSet.BombSet.FloodSettings;
 
     FloodProfileUis.clear();
