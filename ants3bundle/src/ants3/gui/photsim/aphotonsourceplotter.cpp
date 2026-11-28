@@ -25,24 +25,118 @@ bool APhotonSourcePlotter::isInsideLimitingVolume(const double * r, const TStrin
     return (node->GetVolume() && node->GetVolume()->GetName() == LimitToVolume);
 }
 
-TVirtualGeoTrack *APhotonSourcePlotter::createTrack()
+TVirtualGeoTrack *APhotonSourcePlotter::createTrack(int lineWidth)
 {
     TGeoManager * GeoManager = AGeometryHub::getInstance().GeoManager;
     Int_t track_index = GeoManager->AddTrack(1,22);
     TVirtualGeoTrack * track = GeoManager->GetTrack(track_index);
-    track->SetLineWidth(3);
+    track->SetLineWidth(lineWidth);
     track->SetLineColor(51);
     return track;
 }
 
-void APhotonSourcePlotter::formCircle(double radius, double x0, double y0, double z)
+// local (u, v, a) -> global, where a is along the axis and (u, v) are the two other axes in cyclic order
+static void floodLocalToGlobal(const double * center, int axis, double u, double v, double a, double * r)
 {
-    TVirtualGeoTrack * track = createTrack();
+    const int i1 = (axis + 1) % 3;
+    const int i2 = (axis + 2) % 3;
+    r[axis] = center[axis] + a;
+    r[i1]   = center[i1] + u;
+    r[i2]   = center[i2] + v;
+}
+
+void APhotonSourcePlotter::formCircle(double radius, const double * center, int axis, double axialOffset, int lineWidth)
+{
+    TVirtualGeoTrack * track = createTrack(lineWidth);
+    double r[3];
     for (int i = 0; i < 51; i++)
     {
-        double x = radius * cos(pi / 25.0 * i);
-        double y = radius * sin(pi / 25.0 * i);
-        track->AddPoint(x0 + x, y0 + y, z, 0);
+        floodLocalToGlobal(center, axis, radius * cos(pi / 25.0 * i), radius * sin(pi / 25.0 * i), axialOffset, r);
+        track->AddPoint(r[0], r[1], r[2], 0);
+    }
+}
+
+void APhotonSourcePlotter::formRectangle(const double * center, const double * halfSizes, int axis, double axialOffset, int lineWidth)
+{
+    const int i1 = (axis + 1) % 3;
+    const int i2 = (axis + 2) % 3;
+    const double hu = halfSizes[i1];
+    const double hv = halfSizes[i2];
+    const double corners[5][2] = { {-hu, -hv}, {hu, -hv}, {hu, hv}, {-hu, hv}, {-hu, -hv} };
+
+    TVirtualGeoTrack * track = createTrack(lineWidth);
+    double r[3];
+    for (int i = 0; i < 5; i++)
+    {
+        floodLocalToGlobal(center, axis, corners[i][0], corners[i][1], axialOffset, r);
+        track->AddPoint(r[0], r[1], r[2], 0);
+    }
+}
+
+void APhotonSourcePlotter::plotFlood()
+{
+    const AFloodSettings & fs = APhotonSimHub::getConstInstance().Settings.BombSet.FloodSettings;
+    const double center[3] = {fs.X0, fs.Y0, fs.Z0};
+    const int    thick = 6;
+
+    switch (fs.Shape)
+    {
+    case AFloodSettings::Box :
+    {
+        const double half[3] = {0.5 * fs.SizeX, 0.5 * fs.SizeY, 0.5 * fs.SizeZ};
+        // two faces perpendicular to Z plus the four vertical edges (a single rectangle if SizeZ = 0)
+        formRectangle(center, half, 2, -half[2]);
+        if (half[2] > 0)
+        {
+            formRectangle(center, half, 2, half[2]);
+            for (int sx = -1; sx <= 1; sx += 2)
+                for (int sy = -1; sy <= 1; sy += 2)
+                {
+                    TVirtualGeoTrack * track = createTrack();
+                    track->AddPoint(center[0] + sx * half[0], center[1] + sy * half[1], center[2] - half[2], 0);
+                    track->AddPoint(center[0] + sx * half[0], center[1] + sy * half[1], center[2] + half[2], 0);
+                }
+        }
+        // entry faces of exponential profiles
+        const AFloodProfile * profiles[3] = {&fs.ProfileX, &fs.ProfileY, &fs.ProfileZ};
+        for (int axis = 0; axis < 3; axis++)
+        {
+            const AFloodProfile & p = *profiles[axis];
+            if (p.Type != AFloodProfile::Exponential || half[axis] == 0) continue;
+            const double offset = (p.Direction == AFloodProfile::Plus ? -half[axis] : half[axis]);
+            formRectangle(center, half, axis, offset, thick);
+        }
+        break;
+    }
+    case AFloodSettings::Cylinder :
+    {
+        const int    axis  = fs.Axis;
+        const double halfL = 0.5 * fs.Length;
+        const double rOut  = 0.5 * fs.OuterDiameter;
+        const double rIn   = 0.5 * fs.InnerDiameter;
+        for (double offset : {-halfL, halfL})
+        {
+            formCircle(rOut, center, axis, offset);
+            if (rIn > 0) formCircle(rIn, center, axis, offset);
+            if (halfL == 0) break;
+        }
+        if (fs.ProfileAxial.Type == AFloodProfile::Exponential && halfL > 0)
+        {
+            const double offset = (fs.ProfileAxial.Direction == AFloodProfile::Plus ? -halfL : halfL);
+            formCircle(rOut, center, axis, offset, thick);
+            if (rIn > 0) formCircle(rIn, center, axis, offset, thick);
+        }
+        break;
+    }
+    case AFloodSettings::Sphere :
+    {
+        for (int axis = 0; axis < 3; axis++)
+        {
+            formCircle(0.5 * fs.OuterDiameter, center, axis, 0);
+            if (fs.InnerDiameter > 0) formCircle(0.5 * fs.InnerDiameter, center, axis, 0);
+        }
+        break;
+    }
     }
 }
 
@@ -121,66 +215,8 @@ AGeoMarkerClass * APhotonSourcePlotter::plotSource()
         return marks;
     }
     case EBombGen::Flood :
-    {
-        const AFloodSettings & fs = bombSet.FloodSettings;
-        switch (fs.Shape)
-        {
-        case (AFloodSettings::Rectangular):
-        {
-            TVirtualGeoTrack * track = createTrack();
-            if (fs.Zmode == AFloodSettings::Fixed)
-            {
-                track->AddPoint(fs.Xfrom, fs.Yfrom, fs.Zfixed, 0);
-                track->AddPoint(fs.Xfrom, fs.Yto,   fs.Zfixed, 0);
-                track->AddPoint(fs.Xto,   fs.Yto,   fs.Zfixed, 0);
-                track->AddPoint(fs.Xto,   fs.Yfrom, fs.Zfixed, 0);
-                track->AddPoint(fs.Xfrom, fs.Yfrom, fs.Zfixed, 0);
-            }
-            else
-            {
-                track->AddPoint(fs.Xfrom, fs.Yfrom, fs.Zfrom, 0);
-                track->AddPoint(fs.Xfrom, fs.Yto,   fs.Zfrom, 0);
-                track->AddPoint(fs.Xto,   fs.Yto,   fs.Zfrom, 0);
-                track->AddPoint(fs.Xto,   fs.Yfrom, fs.Zfrom, 0);
-                track->AddPoint(fs.Xfrom, fs.Yfrom, fs.Zfrom, 0);
-
-                track->AddPoint(fs.Xfrom, fs.Yfrom, fs.Zto, 0);
-                track->AddPoint(fs.Xfrom, fs.Yto,   fs.Zto, 0);
-                    track->AddPoint(fs.Xfrom, fs.Yto,   fs.Zfrom, 0);
-                    track->AddPoint(fs.Xfrom, fs.Yto,   fs.Zto, 0);
-                track->AddPoint(fs.Xto,   fs.Yto,   fs.Zto, 0);
-                    track->AddPoint(fs.Xto,   fs.Yto,   fs.Zfrom, 0);
-                    track->AddPoint(fs.Xto,   fs.Yto,   fs.Zto, 0);
-                track->AddPoint(fs.Xto,   fs.Yfrom, fs.Zto, 0);
-                    track->AddPoint(fs.Xto,   fs.Yfrom, fs.Zfrom, 0);
-                    track->AddPoint(fs.Xto,   fs.Yfrom, fs.Zto, 0);
-                track->AddPoint(fs.Xfrom, fs.Yfrom, fs.Zto, 0);
-            }
-            break;
-        }
-        case (AFloodSettings::Ring):
-        {
-            if (fs.Zmode == AFloodSettings::Fixed)
-            {
-                formCircle(0.5 * fs.OuterDiameter, fs.X0, fs.Y0, fs.Zfixed);
-                if (fs.InnerDiameter != 0)
-                    formCircle(0.5 * fs.InnerDiameter, fs.X0, fs.Y0, fs.Zfixed);
-            }
-            else
-            {
-                formCircle(0.5 * fs.OuterDiameter, fs.X0, fs.Y0, fs.Zfrom);
-                formCircle(0.5 * fs.OuterDiameter, fs.X0, fs.Y0, fs.Zto);
-                if (fs.InnerDiameter != 0)
-                {
-                    formCircle(0.5 * fs.InnerDiameter, fs.X0, fs.Y0, fs.Zfrom);
-                    formCircle(0.5 * fs.InnerDiameter, fs.X0, fs.Y0, fs.Zto);
-                }
-            }
-            break;
-        }
-        }
-
-    }
+        plotFlood();
+        return nullptr;
     default: break;
     }
     return nullptr;

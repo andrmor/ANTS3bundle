@@ -281,6 +281,19 @@ void APhotonSimulator::setupPhotonBombs()
         if (SkipSet.bOnlyMaterial) LimitToMaterial = AMaterialHub::getConstInstance().findMaterial(SkipSet.Material);
     }
 
+    // Flood: validate settings and build the position samplers (RandomHub is already seeded, geometry and geo constants are loaded)
+    if (SimSet.BombSet.GenerationMode == EBombGen::Flood)
+    {
+        QString warnings;
+        const QString err = SimSet.BombSet.FloodSettings.updateRuntimeProperties(&warnings);
+        if (!warnings.isEmpty())
+        {
+            LOG << "Flood: " << warnings << '\n';
+            LOG.flush();
+        }
+        if (!err.isEmpty()) terminate("Flood: " + err);
+    }
+
     // custom distribution of photons per bomb
     if (SimSet.BombSet.PhotonsPerBomb.Mode == APhotonsPerBombSettings::Custom)
     {
@@ -540,61 +553,19 @@ bool APhotonSimulator::simulateGrid()
 bool APhotonSimulator::simulateFlood()
 {
     const AFloodSettings              & FloodSet = SimSet.BombSet.FloodSettings;
-    const APhotonBombAdvancedSettings & AdvSet = SimSet.BombSet.AdvancedSettings;
-
-    //extracting flood parameters
-    double Xfrom, Xto, Yfrom, Yto, CenterX, CenterY, RadiusIn, RadiusOut;
-    double Rad2in, Rad2out;
-    if (FloodSet.Shape == AFloodSettings::Rectangular)
-    {
-        Xfrom = FloodSet.Xfrom;
-        Xto =   FloodSet.Xto;
-        Yfrom = FloodSet.Yfrom;
-        Yto =   FloodSet.Yto;
-    }
-    else
-    {
-        CenterX   = FloodSet.X0;
-        CenterY   = FloodSet.Y0;
-        RadiusIn  = 0.5 * FloodSet.InnerDiameter;
-        RadiusOut = 0.5 * FloodSet.OuterDiameter;
-
-        Rad2in  = RadiusIn  * RadiusIn;
-        Rad2out = RadiusOut * RadiusOut;
-        Xfrom   = CenterX - RadiusOut;
-        Xto     = CenterX + RadiusOut;
-        Yfrom   = CenterY - RadiusOut;
-        Yto     = CenterY + RadiusOut;
-    }
-    double Zfixed, Zfrom, Zto;
-    if (FloodSet.Zmode == AFloodSettings::Fixed)
-        Zfixed = FloodSet.Zfixed;
-    else
-    {
-        Zfrom = FloodSet.Zfrom;
-        Zto =   FloodSet.Zto;
-    }
+    const APhotonBombAdvancedSettings & AdvSet   = SimSet.BombSet.AdvancedSettings;
 
     ANodeRecord node(0, 0, 0);
     for (CurrentEvent = SimSet.RunSet.EventFrom; CurrentEvent < SimSet.RunSet.EventTo; CurrentEvent++)
     {
-        //qDebug() << "Simulating flood, Event#" << CurrentEvent;
         int Watchdog = AdvSet.MaxNodeAttempts;
         while (true)
         {
-            node.R[0] = Xfrom + (Xto - Xfrom) * RandomHub.uniform();
-            node.R[1] = Yfrom + (Yto - Yfrom) * RandomHub.uniform();
-            if (FloodSet.Shape == AFloodSettings::Ring)
+            if (!FloodSet.generatePosition(node.R))
             {
-                double r2  = (node.R[0] - CenterX)*(node.R[0] - CenterX) + (node.R[1] - CenterY)*(node.R[1] - CenterY);
-                if ( r2 > Rad2out || r2 < Rad2in )
-                    continue;
+                AErrorHub::addError("Flood: failed to generate a position");
+                return false;
             }
-
-            if (FloodSet.Zmode == AFloodSettings::Fixed)
-                node.R[2] = Zfixed;
-            else
-                node.R[2] = Zfrom + (Zto - Zfrom) * RandomHub.uniform();
 
             if ( (AdvSet.bOnlyVolume   && !isInsideLimitingVolume(node.R)) ||
                  (AdvSet.bOnlyMaterial && !isInsideLimitingMaterial(node.R)) )
@@ -608,8 +579,7 @@ bool APhotonSimulator::simulateFlood()
                 continue;
             }
 
-            // acceptable position!
-            break;
+            break; // acceptable position
         }
 
         doBeforeEvent();

@@ -51,6 +51,15 @@ Find the relevant **script interface, configuration record and implementation** 
 
 Treat **bulk optical properties** separately from **interface rules**. For Geant4 materials, NCrystal and other backend-specific behavior, follow the downstream consumer in particle transport or external integration. Material serialization alone does not establish runtime support.
 
+## Photon bombs: flood generation
+
+| Investigation | Begin with (repository-root-relative paths) |
+|---|---|
+| Flood settings, JSON keys, conversion of old `rectangle`/`ring` configs | `ants3bundle/src/ants3/photonSim/aphotonsimsettings.cpp` (`AFloodSettings`, `AFloodProfile`). |
+| Position sampling (profiles, grids, formulas, validation) shared by lsim and the GUI | `ants3bundle/src/ants3/photonSim/afloodruntime.cpp` (`AFloodRuntime`, `AFloodCoordSampler`). |
+| Use in the photon simulator | `ants3bundle/src/lsim/aphotonsimulator.cpp` (`setupPhotonBombs`, `simulateFlood`). |
+| GUI: Flood page, test-generation dialog, outline drawing | `ants3bundle/src/ants3/gui/photsim/aphotsimwin.cpp` (`setupFloodGui`, `updateFloodGui`), `afloodtestdialog.cpp`, `aphotonsourceplotter.cpp`. |
+
 ## Areas not yet mapped in detail
 
 ANTS3 also has a **custom optical-photon tracer**, sensor responses, light-response models and position reconstruction; these are not Geant4 optical-photon simulation features. Until their locations are mapped for the relevant revision, search the repository for `PhotonSim`, `Photon`, `Sensor`, `InterfaceRules`, `LightResponse`, `Mercury` and `reconstruction`, then follow actual declarations and call sites. For Geant4 physics-list registration, optional NCrystal support, datasets and packaging, search the **entire repository**, not just the application source directory. Do not infer build availability from a source file alone.

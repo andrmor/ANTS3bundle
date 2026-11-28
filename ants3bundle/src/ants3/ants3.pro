@@ -264,6 +264,7 @@ SOURCES += \
     gui/photsim/aphotgenoverridedialog.cpp \
     gui/photsim/aphotonlogsettingsform.cpp \
     gui/photsim/aphotonsourceplotter.cpp \
+    gui/photsim/afloodtestdialog.cpp \
     gui/photsim/aphotontrackvisdialog.cpp \
     gui/photsim/aphotsimwin.cpp \
     gui/photsim/asensordrawwidget.cpp \
@@ -428,6 +429,7 @@ SOURCES += \
     photonSim/aphoton.cpp \
     photonSim/aphotonsimmanager.cpp \
     photonSim/aphotonsimsettings.cpp \
+    photonSim/afloodruntime.cpp \
     photonSim/aphotonstatistics.cpp \
     photonSim/asensorsignalarray.cpp \
     tools/aerrorhub.cpp \
@@ -493,6 +495,7 @@ HEADERS += \
     gui/photsim/aphotgenoverridedialog.h \
     gui/photsim/aphotonlogsettingsform.h \
     gui/photsim/aphotonsourceplotter.h \
+    gui/photsim/afloodtestdialog.h \
     gui/photsim/aphotontrackvisdialog.h \
     gui/raster/agraphrasterwindow.h \
     gui/raster/arasterwindow.h \
@@ -661,6 +664,7 @@ HEADERS += \
     photonSim/aphoton.h \
     photonSim/aphotonsimmanager.h \
     photonSim/aphotonsimsettings.h \
+    photonSim/afloodruntime.h \
     photonSim/aphotonstatistics.h \
     photonSim/aphotontrackrecord.h \
     photonSim/asensorsignalarray.h \

@@ -102,7 +102,7 @@ APhotSimWin::APhotSimWin(QWidget * parent) :
     ui->frLRF->setVisible(false);
     ui->labNoMercury->setVisible(false);
     ui->frLimitBombPosition->setVisible(ui->cobNodeGenerationMode->currentIndex() != 0);
-    on_cobFloodZmode_currentIndexChanged(ui->cobFloodZmode->currentIndex());
+    setupFloodGui();
 
     on_cbSecondAxis_toggled(ui->cbSecondAxis->isChecked());
     on_cbThirdAxis_toggled(ui->cbThirdAxis->isChecked());
@@ -250,14 +250,18 @@ void APhotSimWin::updateGui()
     updateGeneralSettingsGui();
 
     for (AOneLineTextEdit * le : {ui->ledSingleX, ui->ledSingleY, ui->ledSingleZ,
-                                  ui->ledFloodXfrom, ui->ledFloodXto, ui->ledFloodYfrom, ui->ledFloodYto, ui->ledFloodCenterX, ui->ledFloodCenterY,
-                                  ui->ledFloodOuterDiameter, ui->ledFloodInnerDiameter,
-                                  ui->ledFloodZ, ui->ledFloodZfrom, ui->ledFloodZto,
+                                  ui->ledFloodCenterX, ui->ledFloodCenterY, ui->ledFloodCenterZ,
+                                  ui->ledFloodSizeX, ui->ledFloodSizeY, ui->ledFloodSizeZ,
+                                  ui->ledFloodOuterDiameter, ui->ledFloodInnerDiameter, ui->ledFloodLength,
+                                  ui->ledFloodOuterDiameterS, ui->ledFloodInnerDiameterS,
                                   ui->ledOriginX, ui->ledOriginY, ui->ledOriginZ,
                                   ui->led0X, ui->led0Y, ui->led0Z,
                                   ui->led1X, ui->led1Y, ui->led1Z,
                                   ui->led2X, ui->led2Y, ui->led2Z})
         AGeoBaseDelegate::configureHighligherAndCompleter(le);
+    for (const AFloodProfileUi & r : FloodProfileUis)
+        for (AOneLineTextEdit * le : {r.ledLambda, r.ledMean, r.ledSigma})
+            if (le) AGeoBaseDelegate::configureHighligherAndCompleter(le);
 }
 
 void APhotSimWin::updatePhotBombGui()
@@ -343,32 +347,8 @@ void APhotSimWin::updatePhotBombGui()
     }
 
     //Flood
-    const AFloodSettings & fset = SimSet.BombSet.FloodSettings;
-    ui->sbFloodNumber->setValue(fset.Number);
-    ui->cobFloodShape->setCurrentIndex(fset.Shape == AFloodSettings::Rectangular ? 0 : 1);
-        //ui->ledFloodXfrom->setText(QString::number(fset.Xfrom));
-    ui->ledFloodXfrom->setText(fset.XfromStr.isEmpty() ? QString::number(fset.Xfrom) : fset.XfromStr);
-        //ui->ledFloodXto->setText(QString::number(fset.Xto));
-    ui->ledFloodXto->setText(fset.XtoStr.isEmpty() ? QString::number(fset.Xto) : fset.XtoStr);
-        //ui->ledFloodYfrom->setText(QString::number(fset.Yfrom));
-    ui->ledFloodYfrom->setText(fset.YfromStr.isEmpty() ? QString::number(fset.Yfrom) : fset.YfromStr);
-        //ui->ledFloodYto->setText(QString::number(fset.Yto));
-    ui->ledFloodYto->setText(fset.YtoStr.isEmpty() ? QString::number(fset.Yto) : fset.YtoStr);
-        //ui->ledFloodCenterX->setText(QString::number(fset.X0));
-    ui->ledFloodCenterX->setText(fset.X0Str.isEmpty() ? QString::number(fset.X0) : fset.X0Str);
-        //ui->ledFloodCenterY->setText(QString::number(fset.Y0));
-    ui->ledFloodCenterY->setText(fset.Y0Str.isEmpty() ? QString::number(fset.Y0) : fset.Y0Str);
-        //ui->ledFloodOuterDiameter->setText(QString::number(fset.OuterDiameter));
-    ui->ledFloodOuterDiameter->setText(fset.OuterDiameterStr.isEmpty() ? QString::number(fset.OuterDiameter) : fset.OuterDiameterStr);
-        //ui->ledFloodInnerDiameter->setText(QString::number(fset.InnerDiameter));
-    ui->ledFloodInnerDiameter->setText(fset.InnerDiameterStr.isEmpty() ? QString::number(fset.InnerDiameter) : fset.InnerDiameterStr);
-    ui->cobFloodZmode->setCurrentIndex(fset.Zmode == AFloodSettings::Fixed ? 0 : 1);
-        //ui->ledFloodZ->setText(QString::number(fset.Zfixed));
-    ui->ledFloodZ->setText(fset.ZfixedStr.isEmpty() ? QString::number(fset.Zfixed) : fset.ZfixedStr);
-        //ui->ledFloodZfrom->setText(QString::number(fset.Zfrom));
-    ui->ledFloodZfrom->setText(fset.ZfromStr.isEmpty() ? QString::number(fset.Zfrom) : fset.ZfromStr);
-        //ui->ledFloodZto->setText(QString::number(fset.Zto));
-    ui->ledFloodZto->setText(fset.ZtoStr.isEmpty() ? QString::number(fset.Zto) : fset.ZtoStr);
+    ui->sbFloodNumber->setValue(SimSet.BombSet.FloodSettings.Number);
+    updateFloodGui();
 
     // skip node position by mat / volume
     const APhotonBombAdvancedSettings & skipNodeSettings = APhotonSimHub::getConstInstance().Settings.BombSet.AdvancedSettings;
@@ -912,12 +892,6 @@ void APhotSimWin::on_sbFloodNumber_editingFinished()
     SimSet.BombSet.FloodSettings.Number = ui->sbFloodNumber->value();
 }
 
-void APhotSimWin::on_cobFloodShape_activated(int index)
-{
-    SimSet.BombSet.FloodSettings.Shape = (index == 0 ? AFloodSettings::Rectangular : AFloodSettings::Ring);
-    emit photonSourcesChanged();
-}
-
 void APhotSimWin::processGeoConstAwareEditFinished(AOneLineTextEdit * edit, QString & str, double & val, const QString & name, QWidget * parent)
 {
     double doubleVal = 0;
@@ -941,67 +915,6 @@ void APhotSimWin::updateSettingsYellowWarnings()
     ui->labAdvancedModeEnabled->setVisible(bAdvancedTracingOn);
 
     ui->twSignals->setTabIcon(0, (bAdvancedSettingsOn || bAdvancedTracingOn ? YellowCircle : QIcon()));
-}
-
-void APhotSimWin::on_ledFloodXfrom_editingFinished()
-{
-    //SimSet.BombSet.FloodSettings.Xfrom = ui->ledFloodXfrom->text().toDouble();
-    processGeoConstAwareEditFinished(ui->ledFloodXfrom, SimSet.BombSet.FloodSettings.XfromStr, SimSet.BombSet.FloodSettings.Xfrom, "X from", this);
-}
-void APhotSimWin::on_ledFloodXto_editingFinished()
-{
-    //SimSet.BombSet.FloodSettings.Xto   = ui->ledFloodXto->text().toDouble();
-    processGeoConstAwareEditFinished(ui->ledFloodXto, SimSet.BombSet.FloodSettings.XtoStr, SimSet.BombSet.FloodSettings.Xto, "X to", this);
-}
-void APhotSimWin::on_ledFloodYfrom_editingFinished()
-{
-    //SimSet.BombSet.FloodSettings.Yfrom = ui->ledFloodYfrom->text().toDouble();
-    processGeoConstAwareEditFinished(ui->ledFloodYfrom, SimSet.BombSet.FloodSettings.YfromStr, SimSet.BombSet.FloodSettings.Yfrom, "Y from", this);
-}
-void APhotSimWin::on_ledFloodYto_editingFinished()
-{
-    //SimSet.BombSet.FloodSettings.Yto   = ui->ledFloodYto->text().toDouble();
-    processGeoConstAwareEditFinished(ui->ledFloodYto, SimSet.BombSet.FloodSettings.YtoStr, SimSet.BombSet.FloodSettings.Yto, "Y to", this);
-}
-void APhotSimWin::on_ledFloodCenterX_editingFinished()
-{
-    //SimSet.BombSet.FloodSettings.X0 = ui->ledFloodCenterX->text().toDouble();
-    processGeoConstAwareEditFinished(ui->ledFloodCenterX, SimSet.BombSet.FloodSettings.X0Str, SimSet.BombSet.FloodSettings.X0, "X center", this);
-}
-void APhotSimWin::on_ledFloodCenterY_editingFinished()
-{
-    //SimSet.BombSet.FloodSettings.Y0 = ui->ledFloodCenterY->text().toDouble();
-    processGeoConstAwareEditFinished(ui->ledFloodCenterY, SimSet.BombSet.FloodSettings.Y0Str, SimSet.BombSet.FloodSettings.Y0, "Y center", this);
-}
-void APhotSimWin::on_ledFloodOuterDiameter_editingFinished()
-{
-    //SimSet.BombSet.FloodSettings.OuterDiameter = ui->ledFloodOuterDiameter->text().toDouble();
-    processGeoConstAwareEditFinished(ui->ledFloodOuterDiameter, SimSet.BombSet.FloodSettings.OuterDiameterStr, SimSet.BombSet.FloodSettings.OuterDiameter, "Outer diameter", this);
-}
-void APhotSimWin::on_ledFloodInnerDiameter_editingFinished()
-{
-    //SimSet.BombSet.FloodSettings.InnerDiameter = ui->ledFloodInnerDiameter->text().toDouble();
-    processGeoConstAwareEditFinished(ui->ledFloodInnerDiameter, SimSet.BombSet.FloodSettings.InnerDiameterStr, SimSet.BombSet.FloodSettings.InnerDiameter, "Inner diameter", this);
-}
-void APhotSimWin::on_cobFloodZmode_activated(int index)
-{
-    SimSet.BombSet.FloodSettings.Zmode = (index == 0 ? AFloodSettings::Fixed : AFloodSettings::Range);
-    emit photonSourcesChanged();
-}
-void APhotSimWin::on_ledFloodZ_editingFinished()
-{
-    //SimSet.BombSet.FloodSettings.Zfixed = ui->ledFloodZ->text().toDouble();
-    processGeoConstAwareEditFinished(ui->ledFloodZ, SimSet.BombSet.FloodSettings.ZfixedStr, SimSet.BombSet.FloodSettings.Zfixed, "Z fixed", this);
-}
-void APhotSimWin::on_ledFloodZfrom_editingFinished()
-{
-    //SimSet.BombSet.FloodSettings.Zfrom = ui->ledFloodZfrom->text().toDouble();
-    processGeoConstAwareEditFinished(ui->ledFloodZfrom, SimSet.BombSet.FloodSettings.ZfromStr, SimSet.BombSet.FloodSettings.Zfrom, "Z from", this);
-}
-void APhotSimWin::on_ledFloodZto_editingFinished()
-{
-    //SimSet.BombSet.FloodSettings.Zto = ui->ledFloodZto->text().toDouble();
-    processGeoConstAwareEditFinished(ui->ledFloodZto, SimSet.BombSet.FloodSettings.ZtoStr, SimSet.BombSet.FloodSettings.Zto, "Z to", this);
 }
 
 void APhotSimWin::on_sbNumPhotons_editingFinished()
@@ -2498,12 +2411,6 @@ void APhotSimWin::on_cbWaveResolved_clicked(bool checked)
     SimSet.WaveSet.Enabled = checked;
 }
 
-void APhotSimWin::on_cobFloodZmode_currentIndexChanged(int index)
-{
-    ui->frZfixed->setVisible(index == 0);
-    ui->frZrange->setVisible(index == 1);
-}
-
 void APhotSimWin::on_cbSecondAxis_toggled(bool checked)
 {
     ui->led1X->setEnabled(checked);
@@ -2537,4 +2444,247 @@ void APhotSimWin::on_pbConfigureTracks_clicked()
 {
     APhotonTrackVisDialog dia(this);
     dia.exec();
+}
+
+// ---------------- Flood ----------------
+// Page switching is done in the .ui (combo box currentIndexChanged -> stacked widget setCurrentIndex):
+//   cobFloodShape -> swFloodSize, swFloodProfiles;  cobFloodType<S> -> swFloodParam<S>
+
+#include "afloodtestdialog.h"
+#include "afloodruntime.h"
+#include <QComboBox>
+#include <QLabel>
+#include <QLineEdit>
+#include <QSpinBox>
+#include <QPushButton>
+#include "TAxis.h"
+
+static QString floodNumOrStr(double val, const QString & str) {return (str.isEmpty() ? QString::number(val) : str);}
+
+void APhotSimWin::setupFloodGui()
+{
+    AFloodSettings & fs = SimSet.BombSet.FloodSettings;
+
+    FloodProfileUis.clear();
+    {
+        AFloodProfileUi r; r.Name = "Profile X"; r.Radial = false; r.Profile = &fs.ProfileX; r.cobType = ui->cobFloodTypeX;
+        r.ledLambda = ui->ledFloodLambdaX; r.ledSigma = ui->ledFloodSigmaX;
+        r.cobDir = ui->cobFloodDirX; r.ledMean = ui->ledFloodMeanX;
+        r.leFormula = ui->leFloodFormulaX; r.sbBins = ui->sbFloodBinsX; r.pbCheck = ui->pbFloodCheckX;
+        r.cobTableMode = ui->cobFloodTableModeX; r.pbLoad = ui->pbFloodLoadX; r.pbShow = ui->pbFloodShowX; r.labTable = ui->labFloodTableX;
+        FloodProfileUis.push_back(r);
+    }
+    {
+        AFloodProfileUi r; r.Name = "Profile Y"; r.Radial = false; r.Profile = &fs.ProfileY; r.cobType = ui->cobFloodTypeY;
+        r.ledLambda = ui->ledFloodLambdaY; r.ledSigma = ui->ledFloodSigmaY;
+        r.cobDir = ui->cobFloodDirY; r.ledMean = ui->ledFloodMeanY;
+        r.leFormula = ui->leFloodFormulaY; r.sbBins = ui->sbFloodBinsY; r.pbCheck = ui->pbFloodCheckY;
+        r.cobTableMode = ui->cobFloodTableModeY; r.pbLoad = ui->pbFloodLoadY; r.pbShow = ui->pbFloodShowY; r.labTable = ui->labFloodTableY;
+        FloodProfileUis.push_back(r);
+    }
+    {
+        AFloodProfileUi r; r.Name = "Profile Z"; r.Radial = false; r.Profile = &fs.ProfileZ; r.cobType = ui->cobFloodTypeZ;
+        r.ledLambda = ui->ledFloodLambdaZ; r.ledSigma = ui->ledFloodSigmaZ;
+        r.cobDir = ui->cobFloodDirZ; r.ledMean = ui->ledFloodMeanZ;
+        r.leFormula = ui->leFloodFormulaZ; r.sbBins = ui->sbFloodBinsZ; r.pbCheck = ui->pbFloodCheckZ;
+        r.cobTableMode = ui->cobFloodTableModeZ; r.pbLoad = ui->pbFloodLoadZ; r.pbShow = ui->pbFloodShowZ; r.labTable = ui->labFloodTableZ;
+        FloodProfileUis.push_back(r);
+    }
+    {
+        AFloodProfileUi r; r.Name = "Radial profile"; r.Radial = true; r.Profile = &fs.ProfileRadial; r.cobType = ui->cobFloodTypeR;
+        r.ledLambda = ui->ledFloodLambdaR; r.ledSigma = ui->ledFloodSigmaR;
+        r.leFormula = ui->leFloodFormulaR; r.sbBins = ui->sbFloodBinsR; r.pbCheck = ui->pbFloodCheckR;
+        r.cobTableMode = ui->cobFloodTableModeR; r.pbLoad = ui->pbFloodLoadR; r.pbShow = ui->pbFloodShowR; r.labTable = ui->labFloodTableR;
+        r.MeaningCombos = {ui->cobFloodMeaningExpR, ui->cobFloodMeaningFormulaR, ui->cobFloodMeaningTableR};
+        FloodProfileUis.push_back(r);
+    }
+    {
+        AFloodProfileUi r; r.Name = "Axial profile"; r.Radial = false; r.Profile = &fs.ProfileAxial; r.cobType = ui->cobFloodTypeA;
+        r.ledLambda = ui->ledFloodLambdaA; r.ledSigma = ui->ledFloodSigmaA;
+        r.cobDir = ui->cobFloodDirA; r.ledMean = ui->ledFloodMeanA;
+        r.leFormula = ui->leFloodFormulaA; r.sbBins = ui->sbFloodBinsA; r.pbCheck = ui->pbFloodCheckA;
+        r.cobTableMode = ui->cobFloodTableModeA; r.pbLoad = ui->pbFloodLoadA; r.pbShow = ui->pbFloodShowA; r.labTable = ui->labFloodTableA;
+        FloodProfileUis.push_back(r);
+    }
+    {
+        AFloodProfileUi r; r.Name = "Radial profile"; r.Radial = true; r.Profile = &fs.ProfileRadial; r.cobType = ui->cobFloodTypeS;
+        r.ledLambda = ui->ledFloodLambdaS; r.ledSigma = ui->ledFloodSigmaS;
+        r.leFormula = ui->leFloodFormulaS; r.sbBins = ui->sbFloodBinsS; r.pbCheck = ui->pbFloodCheckS;
+        r.cobTableMode = ui->cobFloodTableModeS; r.pbLoad = ui->pbFloodLoadS; r.pbShow = ui->pbFloodShowS; r.labTable = ui->labFloodTableS;
+        r.MeaningCombos = {ui->cobFloodMeaningExpS, ui->cobFloodMeaningFormulaS, ui->cobFloodMeaningTableS};
+        FloodProfileUis.push_back(r);
+    }
+
+    // shape and axis
+    connect(ui->cobFloodShape, &QComboBox::activated, this, [this](int index)
+    {
+        SimSet.BombSet.FloodSettings.Shape = static_cast<AFloodSettings::EShape>(index);
+        updateFloodGui();   // also refreshes the widgets shared by several pages
+        emit photonSourcesChanged();
+    });
+    connect(ui->cobFloodAxis, &QComboBox::activated, this, [this](int index)
+    {
+        SimSet.BombSet.FloodSettings.Axis = static_cast<AFloodSettings::EAxis>(index);
+        updateFloodGui();
+        emit photonSourcesChanged();
+    });
+
+    // position and sizes
+    auto connectEdit = [this](AOneLineTextEdit * edit, double & val, QString & str, const QString & name)
+    {
+        connect(edit, &AOneLineTextEdit::editingFinished, this, [this, edit, &val, &str, name]()
+        {
+            processGeoConstAwareEditFinished(edit, str, val, name, this);
+        });
+    };
+    connectEdit(ui->ledFloodCenterX,        fs.X0,            fs.X0Str,            "Flood position X");
+    connectEdit(ui->ledFloodCenterY,        fs.Y0,            fs.Y0Str,            "Flood position Y");
+    connectEdit(ui->ledFloodCenterZ,        fs.Z0,            fs.Z0Str,            "Flood position Z");
+    connectEdit(ui->ledFloodSizeX,          fs.SizeX,         fs.SizeXStr,         "Flood size X");
+    connectEdit(ui->ledFloodSizeY,          fs.SizeY,         fs.SizeYStr,         "Flood size Y");
+    connectEdit(ui->ledFloodSizeZ,          fs.SizeZ,         fs.SizeZStr,         "Flood size Z");
+    connectEdit(ui->ledFloodOuterDiameter,  fs.OuterDiameter, fs.OuterDiameterStr, "Flood outer diameter");
+    connectEdit(ui->ledFloodInnerDiameter,  fs.InnerDiameter, fs.InnerDiameterStr, "Flood inner diameter");
+    connectEdit(ui->ledFloodOuterDiameterS, fs.OuterDiameter, fs.OuterDiameterStr, "Flood outer diameter");
+    connectEdit(ui->ledFloodInnerDiameterS, fs.InnerDiameter, fs.InnerDiameterStr, "Flood inner diameter");
+    connectEdit(ui->ledFloodLength,         fs.Length,        fs.LengthStr,        "Flood length");
+
+    // profile rows
+    for (const AFloodProfileUi & r : FloodProfileUis)
+    {
+        AFloodProfile * p = r.Profile;
+
+        connect(r.cobType, &QComboBox::activated, this, [this, r](int index)
+        {
+            r.Profile->Type = static_cast<AFloodProfile::EType>(index);
+            updateFloodProfileRow(r);
+            emit photonSourcesChanged();
+        });
+
+        connectEdit(r.ledLambda, p->AttenuationLength, p->AttenuationLengthStr, "Flood " + r.Name + " attenuation length");
+        connectEdit(r.ledSigma,  p->Sigma,             p->SigmaStr,             "Flood " + r.Name + " sigma");
+        if (r.ledMean) connectEdit(r.ledMean, p->Mean, p->MeanStr, "Flood " + r.Name + " mean");
+
+        if (r.cobDir)
+            connect(r.cobDir, &QComboBox::activated, this, [this, p](int index)
+            {
+                p->Direction = (index == 0 ? AFloodProfile::Plus : AFloodProfile::Minus);
+                emit photonSourcesChanged();
+            });
+
+        connect(r.leFormula, &QLineEdit::editingFinished, this, [this, r]()
+        {
+            if (r.Profile->FormulaText == r.leFormula->text()) return;
+            r.Profile->FormulaText = r.leFormula->text();
+            emit photonSourcesChanged();
+        });
+        connect(r.sbBins, &QSpinBox::editingFinished, this, [r]()
+        {
+            r.Profile->SamplingBins = r.sbBins->value();
+        });
+        connect(r.pbCheck, &QPushButton::clicked, this, [this, r]()
+        {
+            double value = 0;
+            const QString err = AFloodRuntime::checkFormula(r.leFormula->text(), 0, value);
+            if (err.isEmpty()) guitools::message(QString("Formula is valid.\nf(0) = %1").arg(value), this);
+            else               guitools::message(err, this);
+        });
+
+        connect(r.cobTableMode, &QComboBox::activated, this, [p](int index)
+        {
+            p->TableMode = (index == 0 ? AFloodProfile::Points : AFloodProfile::Bins);
+        });
+        connect(r.pbLoad, &QPushButton::clicked, this, [this, r]()
+        {
+            const QString fileName = guitools::dialogLoadFile(this, "Load profile table: two columns, x and value", "");
+            if (fileName.isEmpty()) return;
+            std::vector<std::pair<double,double>> data;
+            const QString err = ftools::loadPairs(fileName, data, true);
+            if (!err.isEmpty())
+            {
+                guitools::message(err, this);
+                return;
+            }
+            r.Profile->Data = data;
+            updateFloodProfileRow(r);
+            emit photonSourcesChanged();
+        });
+        connect(r.pbShow, &QPushButton::clicked, this, [this, r]()
+        {
+            if (r.Profile->Data.empty())
+            {
+                guitools::message("Table is empty", this);
+                return;
+            }
+            TGraph * g = new TGraph();
+            for (const auto & pair : r.Profile->Data) g->AddPoint(pair.first, pair.second);
+            g->SetTitle(r.Name.toLatin1().data());
+            g->GetXaxis()->SetTitle(r.Radial ? "Radius, mm" : "Local coordinate, mm");
+            emit requestDraw(g, "APL", true, true);
+        });
+
+        for (QComboBox * cob : r.MeaningCombos)
+            connect(cob, &QComboBox::activated, this, [this, r](int index)
+            {
+                r.Profile->RadialMeaning = (index == 0 ? AFloodProfile::Density : AFloodProfile::Distribution);
+                updateFloodProfileRow(r);   // keeps the combos of the other pages in sync
+            });
+    }
+
+    connect(ui->pbFloodTest, &QPushButton::clicked, this, &APhotSimWin::onFloodTestGeneration);
+}
+
+void APhotSimWin::updateFloodGui()
+{
+    const AFloodSettings & fs = SimSet.BombSet.FloodSettings;
+
+    ui->cobFloodShape->setCurrentIndex(static_cast<int>(fs.Shape));   // emits currentIndexChanged: the .ui switches the pages
+    ui->cobFloodAxis->setCurrentIndex(static_cast<int>(fs.Axis));
+    ui->labFloodSecondRow->setText(fs.Shape == AFloodSettings::Box ? "Size:" : "Diameter:");
+
+    ui->ledFloodCenterX->setText(floodNumOrStr(fs.X0, fs.X0Str));
+    ui->ledFloodCenterY->setText(floodNumOrStr(fs.Y0, fs.Y0Str));
+    ui->ledFloodCenterZ->setText(floodNumOrStr(fs.Z0, fs.Z0Str));
+    ui->ledFloodSizeX->setText(floodNumOrStr(fs.SizeX, fs.SizeXStr));
+    ui->ledFloodSizeY->setText(floodNumOrStr(fs.SizeY, fs.SizeYStr));
+    ui->ledFloodSizeZ->setText(floodNumOrStr(fs.SizeZ, fs.SizeZStr));
+    for (AOneLineTextEdit * le : {ui->ledFloodOuterDiameter, ui->ledFloodOuterDiameterS})
+        le->setText(floodNumOrStr(fs.OuterDiameter, fs.OuterDiameterStr));
+    for (AOneLineTextEdit * le : {ui->ledFloodInnerDiameter, ui->ledFloodInnerDiameterS})
+        le->setText(floodNumOrStr(fs.InnerDiameter, fs.InnerDiameterStr));
+    ui->ledFloodLength->setText(floodNumOrStr(fs.Length, fs.LengthStr));
+
+    // direction texts of the axial row follow the cylinder axis
+    const QString axisName = AFloodSettings::axisToString(fs.Axis);
+    ui->cobFloodDirA->setItemText(0, "+" + axisName);
+    ui->cobFloodDirA->setItemText(1, "-" + axisName);
+
+    for (const AFloodProfileUi & r : FloodProfileUis)
+    {
+        const AFloodProfile & p = *r.Profile;
+        r.cobType->setCurrentIndex(static_cast<int>(p.Type));   // the .ui switches the parameter page
+        r.ledLambda->setText(floodNumOrStr(p.AttenuationLength, p.AttenuationLengthStr));
+        r.ledSigma->setText(floodNumOrStr(p.Sigma, p.SigmaStr));
+        if (r.ledMean) r.ledMean->setText(floodNumOrStr(p.Mean, p.MeanStr));
+        if (r.cobDir)  r.cobDir->setCurrentIndex(p.Direction == AFloodProfile::Plus ? 0 : 1);
+        r.leFormula->setText(p.FormulaText);
+        r.sbBins->setValue(p.SamplingBins);
+        r.cobTableMode->setCurrentIndex(p.TableMode == AFloodProfile::Points ? 0 : 1);
+        updateFloodProfileRow(r);
+    }
+}
+
+void APhotSimWin::updateFloodProfileRow(const AFloodProfileUi & r)
+{
+    for (QComboBox * cob : r.MeaningCombos)
+        cob->setCurrentIndex(r.Profile->RadialMeaning == AFloodProfile::Density ? 0 : 1);
+    r.labTable->setText(r.Profile->Data.empty() ? "no data" : QString("%1 points").arg(r.Profile->Data.size()));
+}
+
+void APhotSimWin::onFloodTestGeneration()
+{
+    AFloodTestDialog * d = new AFloodTestDialog(SimSet.BombSet, this);
+    d->setAttribute(Qt::WA_DeleteOnClose);
+    connect(d, &AFloodTestDialog::requestDraw, this, &APhotSimWin::requestDraw);
+    d->show();
 }

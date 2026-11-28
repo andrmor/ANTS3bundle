@@ -19,6 +19,34 @@ class AFileHandlerBase;
 class APhotonLogHandler;
 class APhotonLogSettingsForm;
 class AOneLineTextEdit;
+class QComboBox;
+class QLabel;
+class QLineEdit;
+class QSpinBox;
+class QPushButton;
+
+// widgets of one Flood profile row (created in the .ui; suffix X, Y, Z (box), R, A (cylinder), S (sphere))
+// the parameter pages are switched in the .ui: cobFloodType<S> -> swFloodParam<S>
+struct AFloodProfileUi
+{
+    QString            Name;              // for messages, e.g. "Profile X"
+    bool               Radial   = false;
+    AFloodProfile    * Profile  = nullptr;
+
+    QComboBox        * cobType      = nullptr;
+    AOneLineTextEdit * ledLambda    = nullptr;
+    QComboBox        * cobDir       = nullptr;  // axis rows only
+    AOneLineTextEdit * ledMean      = nullptr;  // axis rows only
+    AOneLineTextEdit * ledSigma     = nullptr;
+    QLineEdit        * leFormula    = nullptr;
+    QSpinBox         * sbBins       = nullptr;
+    QPushButton      * pbCheck      = nullptr;
+    QComboBox        * cobTableMode = nullptr;
+    QPushButton      * pbLoad       = nullptr;
+    QPushButton      * pbShow       = nullptr;
+    QLabel           * labTable     = nullptr;
+    std::vector<QComboBox*> MeaningCombos;      // radial rows: on the exponential, formula and table pages
+};
 
 class APhotSimWin : public AGuiWindow
 {
@@ -54,19 +82,6 @@ private slots:
     void on_ledSingleZ_editingFinished();
 
     void on_sbFloodNumber_editingFinished();
-    void on_cobFloodShape_activated(int index);
-    void on_ledFloodXfrom_editingFinished();
-    void on_ledFloodXto_editingFinished();
-    void on_ledFloodYfrom_editingFinished();
-    void on_ledFloodYto_editingFinished();
-    void on_ledFloodCenterX_editingFinished();
-    void on_ledFloodCenterY_editingFinished();
-    void on_ledFloodOuterDiameter_editingFinished();
-    void on_ledFloodInnerDiameter_editingFinished();
-    void on_cobFloodZmode_activated(int index);
-    void on_ledFloodZ_editingFinished();
-    void on_ledFloodZfrom_editingFinished();
-    void on_ledFloodZto_editingFinished();
 
     void on_sbNumPhotons_editingFinished();
     void on_ledPoissonMean_editingFinished();
@@ -188,7 +203,6 @@ private slots:
 
     void on_cbWaveResolved_clicked(bool checked);
 
-    void on_cobFloodZmode_currentIndexChanged(int index);
 
     void on_cbSecondAxis_toggled(bool checked);
 
@@ -203,6 +217,8 @@ private slots:
 private:
     APhotonSimSettings & SimSet;
     const AMonitorHub  & MonitorHub;
+
+    std::vector<AFloodProfileUi> FloodProfileUis;   // X, Y, Z, R, A, S
 
     Ui::APhotSimWin    * ui        = nullptr;
     ASensorDrawWidget  * gvSensors = nullptr;
@@ -262,6 +278,12 @@ private:
     void processGeoConstAwareEditFinished(AOneLineTextEdit * edit, QString & str, double & val, const QString & name, QWidget * parent);
 
     void updateSettingsYellowWarnings();
+
+    // Flood
+    void setupFloodGui();
+    void updateFloodGui();
+    void updateFloodProfileRow(const AFloodProfileUi & r);
+    void onFloodTestGeneration();
 
 signals:
     void requestShowGeometry(bool ActivateWindow = true, bool SAME = true, bool ColorUpdateAllowed = true);

@@ -2,6 +2,7 @@
 #define APHOTONSIMSETTINGS_H
 
 #include "afilesettingsbase.h"
+#include "afloodruntime.h"
 
 #include <QString>
 #include <QDateTime>
@@ -139,26 +140,62 @@ public:
     void    replaceGeoConstName(const QRegularExpression & nameRegExp, const QString & newName);
 };
 
+struct AFloodProfile
+{
+    enum EType          {Uniform = 0, Exponential = 1, Gauss = 2, Formula = 3, Table = 4};
+    enum EDirection     {Plus = 0, Minus = 1};
+    enum ETableMode     {Points = 0, Bins = 1};
+    enum ERadialMeaning {Density = 0, Distribution = 1};
+
+    EType          Type              = Uniform;
+    double         AttenuationLength = 10.0;     QString AttenuationLengthStr;
+    EDirection     Direction         = Plus;     // JSON "+" / "-": beam travel direction along the axis
+    double         Mean              = 0;        QString MeanStr;  // local coordinate
+    double         Sigma             = 1.0;      QString SigmaStr;
+    QString        FormulaText;                  // TFormula in x (local coordinate, r for radial profiles)
+    int            SamplingBins      = 0;        // 0 = automatic grid refinement
+    std::vector<std::pair<double,double>> Data;  // x = local coordinate
+    ETableMode     TableMode         = Points;
+    ERadialMeaning RadialMeaning     = Density;
+
+    void    clear();
+    void    writeToJson(QJsonObject & json, bool radial) const;
+    QString readFromJson(const QJsonObject & json);   // returns error, "" if ok
+
+    void    updateGeoConstRelatedSimProperties(const QString & name);
+    QString isGeoConstInUse(const QRegularExpression & nameRegExp, const QString & name) const;
+    void    replaceGeoConstName(const QRegularExpression & nameRegExp, const QString & newName);
+
+    static QString typeToString(EType type);
+};
+
 class AFloodSettings
 {
 public:
-    enum AShapeEnum {Rectangular = 0, Ring = 1};
-    enum AZEnum     {Fixed = 0, Range = 1};
+    enum EShape {Box = 0, Cylinder = 1, Sphere = 2}; // 0 and 1 keep the indices of the old Rectangular / Ring
+    enum EAxis  {AxisX = 0, AxisY = 1, AxisZ = 2};
 
-    int        Number   = 100;
-    AShapeEnum Shape    = Rectangular;
-    double     Xfrom    = -15.0;        QString    XfromStr;
-    double     Xto      =  15.0;        QString    XtoStr;
-    double     Yfrom    = -15.0;        QString    YfromStr;
-    double     Yto      =  15.0;        QString    YtoStr;
-    double     X0       = 0;            QString    X0Str;
-    double     Y0       = 0;            QString    Y0Str;
-    double     OuterDiameter   = 300.0; QString    OuterDiameterStr;
-    double     InnerDiameter   = 0;     QString    InnerDiameterStr;
-    AZEnum     Zmode    = Fixed;
-    double     Zfixed   = 0;            QString    ZfixedStr;
-    double     Zfrom    = 0;            QString    ZfromStr;
-    double     Zto      = 0;            QString    ZtoStr;
+    int     Number = 100;
+    EShape  Shape  = Box;
+    EAxis   Axis   = AxisZ;   // cylinder
+
+    // Position = geometric centre and origin of the local coordinates (JSON keys CenterX/Y/Z)
+    double  X0 = 0;           QString X0Str;
+    double  Y0 = 0;           QString Y0Str;
+    double  Z0 = 0;           QString Z0Str;
+
+    // box
+    double  SizeX = 30.0;     QString SizeXStr;
+    double  SizeY = 30.0;     QString SizeYStr;
+    double  SizeZ = 0;        QString SizeZStr;
+
+    // cylinder (Length is along Axis) and sphere
+    double  Length = 0;              QString LengthStr;
+    double  OuterDiameter = 300.0;   QString OuterDiameterStr;
+    double  InnerDiameter = 0;       QString InnerDiameterStr;
+
+    AFloodProfile ProfileX, ProfileY, ProfileZ;   // box
+    AFloodProfile ProfileRadial, ProfileAxial;    // cylinder (both) and sphere (radial)
 
     void    clearSettings();
 
@@ -168,6 +205,19 @@ public:
     void    updateGeoConstRelatedSimProperties();
     QString isGeoConstInUse(const QRegularExpression & nameRegExp) const;
     void    replaceGeoConstName(const QRegularExpression & nameRegExp, const QString & newName);
+
+    // runtime
+    QString updateRuntimeProperties(QString * warnings = nullptr);   // validates, builds samplers; returns error, "" if ok
+    bool    generatePosition(double * r) const;                       // global coordinates, no material/volume check
+    const AFloodRuntime & getRuntime() const {return _Runtime;}
+
+    static QString shapeToString(EShape shape);
+    static QString axisToString(EAxis axis);
+
+private:
+    QString readLegacyJson(const QJsonObject & json, const QString & shapeStr);
+
+    AFloodRuntime _Runtime;  // never serialized
 };
 
 class ABombFileSettings : public AFileSettingsBase

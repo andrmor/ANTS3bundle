@@ -65,7 +65,16 @@ bool APhotonSimManager::simulate(int numLocalProc)
             numEvents = SimSet.BombSet.GridSettings.getNumEvents();
             break;
         case EBombGen::Flood :
-            numEvents = SimSet.BombSet.FloodSettings.Number;
+            {
+                AFloodSettings tmp = SimSet.BombSet.FloodSettings; // copy: the hub keeps no runtime state
+                const QString err = tmp.updateRuntimeProperties();
+                if (!err.isEmpty())
+                {
+                    AErrorHub::addQError("Flood: " + err);
+                    return false;
+                }
+                numEvents = SimSet.BombSet.FloodSettings.Number;
+            }
             break;
         case EBombGen::File :
             {

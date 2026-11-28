@@ -389,8 +389,8 @@ std::string ARandomSampler::configure(const std::vector<std::pair<double, double
         Values[i] = val;
 
         SumBins[i] = sum;
-        if (RangeBasedData) sum += Values[i];
-        else                sum += Values[i] * (data[i+1].first - data[i].first);
+        if (RangeBasedData)        sum += Values[i];
+        else if (i + 1 < dataSize) sum += Values[i] * (data[i+1].first - data[i].first); // the last point only closes the range
     }
 
     if (SumBins.back() <= 0)

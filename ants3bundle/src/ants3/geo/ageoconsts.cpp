@@ -142,6 +142,14 @@ void AGeoConsts::readFromJsonArr(const QJsonArray & ar)
     }
 }
 
+QString AGeoConsts::substituteConstsWithParameters(QString str, int to) const
+{
+    if (to == -1) to = Records.size();
+    for (int i = 0; i < to; i++)
+        str.replace(Records.at(i).RegExp, Records.at(i).Index);
+    return str;
+}
+
 #include "TFormula.h"
 bool AGeoConsts::evaluateFormula(QString & error, QString str, double & returnValue, int to) const
 {
@@ -149,8 +157,7 @@ bool AGeoConsts::evaluateFormula(QString & error, QString str, double & returnVa
 
     if (str.contains("ParentIndex")) str.replace("ParentIndex", "0");
 
-    for (int i = 0; i < to; i++)
-        str.replace(Records.at(i).RegExp, Records.at(i).Index);
+    str = substituteConstsWithParameters(str, to);
 
     for (const QRegularExpression & fe : ForbiddenVarsRExp)
     {

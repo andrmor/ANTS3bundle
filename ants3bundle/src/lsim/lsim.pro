@@ -140,6 +140,7 @@ SOURCES += \
         ../ants3/materials/amatcomposition.cpp \
         ../ants3/photonSim/aphotonsimhub.cpp \
         ../ants3/photonSim/aphotonsimsettings.cpp \
+        ../ants3/photonSim/afloodruntime.cpp \
         ../ants3/photonSim/interfaceRules/ainterfacerulehub.cpp \
         ../ants3/photonSim/interfaceRules/ainterfacerule.cpp \
         ../ants3/photonSim/interfaceRules/abasicinterfacerule.cpp \
@@ -211,6 +212,7 @@ HEADERS += \
     ../ants3/materials/amatcomposition.h \
     ../ants3/photonSim/aphotonsimhub.h \
     ../ants3/photonSim/aphotonsimsettings.h \
+    ../ants3/photonSim/afloodruntime.h \
      ../ants3/photonSim/interfaceRules/ainterfacerulehub.h \
      ../ants3/photonSim/interfaceRules/ainterfacerule.h \
     ../ants3/photonSim/interfaceRules/abasicinterfacerule.h \

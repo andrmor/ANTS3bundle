@@ -2,6 +2,11 @@
 #include "ajsontools.h"
 #include "aerrorhub.h"
 
+#include <QJsonObject>
+#include <QJsonArray>
+#include <QStringList>
+#include <QDebug>
+
 #include <cmath>
 
 void AWaveResSettings::writeToJson(QJsonObject & json) const
@@ -414,40 +419,238 @@ void ASingleSettings::replaceGeoConstName(const QRegularExpression & nameRegExp,
 
 // ---
 
-void AFloodSettings::clearSettings()
+void updateParameter(QString & str, double & val, const QString & message, bool bForbidZero = false, bool bForbidNegative = false)
 {
-    Number   = 100;
-    Shape    = Rectangular;
-    Xfrom    = -15.0;       XfromStr.clear();
-    Xto      =  15.0;       XtoStr.clear();
-    Yfrom    = -15.0;       YfromStr.clear();
-    Yto      =  15.0;       YtoStr.clear();
-    X0       = 0;           X0Str.clear();
-    Y0       = 0;           Y0Str.clear();
-    OuterDiameter = 300.0;  OuterDiameterStr.clear();
-    InnerDiameter = 0;      InnerDiameterStr.clear();
-    Zmode    = Fixed;
-    Zfixed   = 0;           ZfixedStr.clear();
-    Zfrom    = 0;           ZfromStr.clear();
-    Zto      = 0;           ZtoStr.clear();
+    if (str.isEmpty()) return;
+
+    const AGeoConsts & GC = AGeoConsts::getConstInstance();
+    val = 0;
+    QString errorStr;
+    bool ok = GC.updateDoubleParameter(errorStr, str, val, bForbidZero, bForbidNegative, false);
+    if (!ok)
+    {
+        const QString msg = QString("Error in Photon sim->Photon Bombs->%1: %2").arg(message, errorStr);
+        qWarning().noquote() << msg;
+        AErrorHub::addQError(msg);
+    }
 }
 
-void AFloodSettings::writeToJson(QJsonObject &json) const
+// --- AFloodProfile ---
+
+void AFloodProfile::clear()
+{
+    *this = AFloodProfile();
+}
+
+QString AFloodProfile::typeToString(EType type)
+{
+    switch (type)
+    {
+    case Uniform     : return "uniform";
+    case Exponential : return "exponential";
+    case Gauss       : return "gauss";
+    case Formula     : return "formula";
+    case Table       : return "table";
+    }
+    return "uniform";
+}
+
+void AFloodProfile::writeToJson(QJsonObject & json, bool radial) const
+{
+    json["Type"] = typeToString(Type);
+
+    switch (Type)
+    {
+    case Uniform :
+        break;
+    case Exponential :
+        json["AttenuationLength"] = AttenuationLength;  json["AttenuationLengthStr"] = AttenuationLengthStr;
+        if (!radial) json["Direction"] = (Direction == Plus ? "+" : "-");
+        break;
+    case Gauss :
+        if (!radial) { json["Mean"] = Mean;  json["MeanStr"] = MeanStr; }
+        json["Sigma"] = Sigma;  json["SigmaStr"] = SigmaStr;
+        break;
+    case Formula :
+        json["Formula"] = FormulaText;
+        json["SamplingBins"] = SamplingBins;
+        break;
+    case Table :
+        {
+            QJsonArray ar;
+            jstools::writeDPairVectorToArray(Data, ar);
+            json["Data"] = ar;
+            json["TableMode"] = (TableMode == Points ? "points" : "bins");
+        }
+        break;
+    }
+
+    if (radial && (Type == Exponential || Type == Formula || Type == Table))
+        json["RadialMeaning"] = (RadialMeaning == Density ? "density" : "distribution");
+}
+
+QString AFloodProfile::readFromJson(const QJsonObject & json)
+{
+    clear();
+
+    QString typeStr = "uniform";
+    jstools::parseJson(json, "Type", typeStr);
+    if      (typeStr == "uniform")     Type = Uniform;
+    else if (typeStr == "exponential") Type = Exponential;
+    else if (typeStr == "gauss")       Type = Gauss;
+    else if (typeStr == "formula")     Type = Formula;
+    else if (typeStr == "table")       Type = Table;
+    else return "Unknown profile type: " + typeStr;
+
+    jstools::parseJson(json, "AttenuationLength", AttenuationLength);  jstools::parseJson(json, "AttenuationLengthStr", AttenuationLengthStr);
+
+    QString dirStr = "+";
+    jstools::parseJson(json, "Direction", dirStr);
+    if      (dirStr == "+") Direction = Plus;
+    else if (dirStr == "-") Direction = Minus;
+    else return "Unknown Direction (use \"+\" or \"-\"): " + dirStr;
+
+    jstools::parseJson(json, "Mean",  Mean);   jstools::parseJson(json, "MeanStr",  MeanStr);
+    jstools::parseJson(json, "Sigma", Sigma);  jstools::parseJson(json, "SigmaStr", SigmaStr);
+
+    jstools::parseJson(json, "Formula", FormulaText);
+    jstools::parseJson(json, "SamplingBins", SamplingBins);
+
+    QJsonArray ar;
+    if (jstools::parseJson(json, "Data", ar))
+        if (!jstools::readDPairVectorFromArray(ar, Data)) return "Bad format of the table Data (expected [[x, value], ...])";
+
+    QString modeStr = "points";
+    jstools::parseJson(json, "TableMode", modeStr);
+    if      (modeStr == "points") TableMode = Points;
+    else if (modeStr == "bins")   TableMode = Bins;
+    else return "Unknown TableMode (use \"points\" or \"bins\"): " + modeStr;
+
+    QString meanStr = "density";
+    jstools::parseJson(json, "RadialMeaning", meanStr);
+    if      (meanStr == "density")      RadialMeaning = Density;
+    else if (meanStr == "distribution") RadialMeaning = Distribution;
+    else return "Unknown RadialMeaning (use \"density\" or \"distribution\"): " + meanStr;
+
+    return "";
+}
+
+void AFloodProfile::updateGeoConstRelatedSimProperties(const QString & name)
+{
+    updateParameter(AttenuationLengthStr, AttenuationLength, "Flood->" + name + "->AttenuationLength");
+    updateParameter(MeanStr,              Mean,              "Flood->" + name + "->Mean");
+    updateParameter(SigmaStr,             Sigma,             "Flood->" + name + "->Sigma");
+}
+
+QString AFloodProfile::isGeoConstInUse(const QRegularExpression & nameRegExp, const QString & name) const
+{
+    const QString prefix = "Photon simulation->Photon bombs->Flood->" + name + "->";
+    if (AttenuationLengthStr.contains(nameRegExp)) return prefix + "Attenuation length";
+    if (MeanStr.contains(nameRegExp))              return prefix + "Mean";
+    if (SigmaStr.contains(nameRegExp))             return prefix + "Sigma";
+    if (FormulaText.contains(nameRegExp))          return prefix + "Formula";
+    return "";
+}
+
+void AFloodProfile::replaceGeoConstName(const QRegularExpression & nameRegExp, const QString & newName)
+{
+    AttenuationLengthStr.replace(nameRegExp, newName);
+    MeanStr.replace(nameRegExp, newName);
+    SigmaStr.replace(nameRegExp, newName);
+    FormulaText.replace(nameRegExp, newName);
+}
+
+// --- AFloodSettings ---
+
+QString AFloodSettings::shapeToString(EShape shape)
+{
+    switch (shape)
+    {
+    case Box      : return "box";
+    case Cylinder : return "cylinder";
+    case Sphere   : return "sphere";
+    }
+    return "box";
+}
+
+QString AFloodSettings::axisToString(EAxis axis)
+{
+    switch (axis)
+    {
+    case AxisX : return "X";
+    case AxisY : return "Y";
+    case AxisZ : return "Z";
+    }
+    return "Z";
+}
+
+void AFloodSettings::clearSettings()
+{
+    Number = 100;
+    Shape  = Box;
+    Axis   = AxisZ;
+
+    X0 = 0;  X0Str.clear();
+    Y0 = 0;  Y0Str.clear();
+    Z0 = 0;  Z0Str.clear();
+
+    SizeX = 30.0;  SizeXStr.clear();
+    SizeY = 30.0;  SizeYStr.clear();
+    SizeZ = 0;     SizeZStr.clear();
+
+    Length        = 0;      LengthStr.clear();
+    OuterDiameter = 300.0;  OuterDiameterStr.clear();
+    InnerDiameter = 0;      InnerDiameterStr.clear();
+
+    ProfileX.clear();
+    ProfileY.clear();
+    ProfileZ.clear();
+    ProfileRadial.clear();
+    ProfileAxial.clear();
+
+    _Runtime.clear();
+}
+
+void AFloodSettings::writeToJson(QJsonObject & json) const
 {
     json["Number"]        = Number;
-    json["Shape"]         = (Shape == Rectangular ? "rectangle" : "ring");
-    json["Xfrom"]         = Xfrom;          json["XfromStr"]         = XfromStr;
-    json["Xto"]           = Xto;            json["XtoStr"]           = XtoStr;
-    json["Yfrom"]         = Yfrom;          json["YfromStr"]         = YfromStr;
-    json["Yto"]           = Yto;            json["YtoStr"]           = YtoStr;
+    json["Shape"]         = shapeToString(Shape);
+    json["Axis"]          = axisToString(Axis);
+
     json["CenterX"]       = X0;             json["CenterXStr"]       = X0Str;
     json["CenterY"]       = Y0;             json["CenterYStr"]       = Y0Str;
+    json["CenterZ"]       = Z0;             json["CenterZStr"]       = Z0Str;
+
+    json["SizeX"]         = SizeX;          json["SizeXStr"]         = SizeXStr;
+    json["SizeY"]         = SizeY;          json["SizeYStr"]         = SizeYStr;
+    json["SizeZ"]         = SizeZ;          json["SizeZStr"]         = SizeZStr;
+
+    json["Length"]        = Length;         json["LengthStr"]        = LengthStr;
     json["OuterDiameter"] = OuterDiameter;  json["OuterDiameterStr"] = OuterDiameterStr;
     json["InnerDiameter"] = InnerDiameter;  json["InnerDiameterStr"] = InnerDiameterStr;
-    json["Zmode"]         = (Zmode == Fixed ? "fixed" : "range");
-    json["Zfixed"]        = Zfixed;         json["ZfixedStr"]        = ZfixedStr;
-    json["Zfrom"]         = Zfrom;          json["ZfromStr"]         = ZfromStr;
-    json["Zto"]           = Zto;            json["ZtoStr"]           = ZtoStr;
+
+    auto writeProfile = [&json](const AFloodProfile & p, const QString & key, bool radial)
+    {
+        QJsonObject js;
+        p.writeToJson(js, radial);
+        json[key] = js;
+    };
+
+    switch (Shape)
+    {
+    case Box :
+        writeProfile(ProfileX, "ProfileX", false);
+        writeProfile(ProfileY, "ProfileY", false);
+        writeProfile(ProfileZ, "ProfileZ", false);
+        break;
+    case Cylinder :
+        writeProfile(ProfileRadial, "ProfileRadial", true);
+        writeProfile(ProfileAxial,  "ProfileAxial",  false);
+        break;
+    case Sphere :
+        writeProfile(ProfileRadial, "ProfileRadial", true);
+        break;
+    }
 }
 
 QString AFloodSettings::readFromJson(const QJsonObject & json)
@@ -458,102 +661,227 @@ QString AFloodSettings::readFromJson(const QJsonObject & json)
 
     QString shapeStr = "undefined";
     jstools::parseJson(json, "Shape", shapeStr);
-    if      (shapeStr == "rectangle") Shape = Rectangular;
-    else if (shapeStr == "ring")      Shape = Ring;
+
+    if (shapeStr == "rectangle" || shapeStr == "ring")
+        return readLegacyJson(json, shapeStr);
+
+    if      (shapeStr == "box")      Shape = Box;
+    else if (shapeStr == "cylinder") Shape = Cylinder;
+    else if (shapeStr == "sphere")   Shape = Sphere;
     else return "Unknown flood shape: " + shapeStr;
 
-    jstools::parseJson(json, "Xfrom", Xfrom);                   jstools::parseJson(json, "XfromStr", XfromStr);
-    jstools::parseJson(json, "Xto",   Xto);                     jstools::parseJson(json, "XtoStr",   XtoStr);
-    jstools::parseJson(json, "Yfrom", Yfrom);                   jstools::parseJson(json, "YfromStr", YfromStr);
-    jstools::parseJson(json, "Yto",   Yto);                     jstools::parseJson(json, "YtoStr",   YtoStr);
+    static const QStringList legacyKeys = {"Xfrom", "Xto", "Yfrom", "Yto", "Zfrom", "Zto", "Zmode", "Zfixed"};
+    for (const QString & key : legacyKeys)
+        if (json.contains(key) || json.contains(key + "Str"))
+            return QString("Flood: key \"%1\" belongs to the old format (shape rectangle/ring). "
+                           "For shape %2 use CenterX/Y/Z and SizeX/Y/Z (or Length).").arg(key, shapeStr);
 
-    jstools::parseJson(json, "CenterX", X0);                    jstools::parseJson(json, "CenterXStr", X0Str);
-    jstools::parseJson(json, "CenterY", Y0);                    jstools::parseJson(json, "CenterYStr", Y0Str);
+    QString axisStr = "Z";
+    jstools::parseJson(json, "Axis", axisStr);
+    if      (axisStr == "X") Axis = AxisX;
+    else if (axisStr == "Y") Axis = AxisY;
+    else if (axisStr == "Z") Axis = AxisZ;
+    else return "Unknown flood Axis (use \"X\", \"Y\" or \"Z\"): " + axisStr;
 
-    jstools::parseJson(json, "OuterDiameter", OuterDiameter);   jstools::parseJson(json, "OuterDiameterStr", OuterDiameterStr);
-    jstools::parseJson(json, "InnerDiameter", InnerDiameter);   jstools::parseJson(json, "InnerDiameterStr", InnerDiameterStr);
+    jstools::parseJson(json, "CenterX", X0);   jstools::parseJson(json, "CenterXStr", X0Str);
+    jstools::parseJson(json, "CenterY", Y0);   jstools::parseJson(json, "CenterYStr", Y0Str);
+    jstools::parseJson(json, "CenterZ", Z0);   jstools::parseJson(json, "CenterZStr", Z0Str);
 
-    QString zStr = "undefined";
-    jstools::parseJson(json, "Zmode", zStr);
-    if      (zStr == "fixed") Zmode = Fixed;
-    else if (zStr == "range") Zmode = Range;
-    else return "Unknown Z mode for flood: " + zStr;
+    jstools::parseJson(json, "SizeX", SizeX);  jstools::parseJson(json, "SizeXStr", SizeXStr);
+    jstools::parseJson(json, "SizeY", SizeY);  jstools::parseJson(json, "SizeYStr", SizeYStr);
+    jstools::parseJson(json, "SizeZ", SizeZ);  jstools::parseJson(json, "SizeZStr", SizeZStr);
 
-    jstools::parseJson(json, "Zfixed", Zfixed);                 jstools::parseJson(json, "ZfixedStr", ZfixedStr);
-    jstools::parseJson(json, "Zfrom",  Zfrom);                  jstools::parseJson(json, "ZfromStr",  ZfromStr);
-    jstools::parseJson(json, "Zto",    Zto);                    jstools::parseJson(json, "ZtoStr",    ZtoStr);
+    jstools::parseJson(json, "Length",        Length);         jstools::parseJson(json, "LengthStr",        LengthStr);
+    jstools::parseJson(json, "OuterDiameter", OuterDiameter);  jstools::parseJson(json, "OuterDiameterStr", OuterDiameterStr);
+    jstools::parseJson(json, "InnerDiameter", InnerDiameter);  jstools::parseJson(json, "InnerDiameterStr", InnerDiameterStr);
+
+    auto readProfile = [&json](AFloodProfile & p, const QString & key) -> QString
+    {
+        QJsonObject js;
+        if (!jstools::parseJson(json, key, js)) return "";   // absent: uniform
+        const QString err = p.readFromJson(js);
+        return (err.isEmpty() ? "" : "Flood->" + key + ": " + err);
+    };
+
+    for (auto & rec : std::vector<std::pair<AFloodProfile*, QString>>{ {&ProfileX, "ProfileX"}, {&ProfileY, "ProfileY"}, {&ProfileZ, "ProfileZ"},
+                                                                     {&ProfileRadial, "ProfileRadial"}, {&ProfileAxial, "ProfileAxial"} })
+    {
+        const QString err = readProfile(*rec.first, rec.second);
+        if (!err.isEmpty()) return err;
+    }
 
     return "";
 }
 
-void updateParameter(QString & str, double & val, const QString & message, bool bForbidZero = false, bool bForbidNegative = false)
-{
-    if (str.isEmpty()) return;
+// conversion of a legacy from/to pair into centre and size; see the spec, section 3.4
+static QString floodNumToStr(double v) {return QString::number(v, 'g', 17);}
 
-    const AGeoConsts & GC = AGeoConsts::getConstInstance();
-    val = 0;
-    QString errorStr;
-    bool ok = GC.updateDoubleParameter(errorStr, str, val, bForbidZero, bForbidNegative, false);
-    //if (!ok) qWarning() << "Error in Photon sim->Photon Bombs->Flood->" << message << ":" << errorStr;
-    if (!ok)
+static bool floodIsNegationOf(const QString & a, const QString & b) // both without spaces
+{
+    return (a == "-" + b) || (a == "-(" + b + ")");
+}
+
+static void floodConvertPair(double A, const QString & AStr, double B, const QString & BStr,
+                             double & center, QString & centerStr, double & size, QString & sizeStr)
+{
+    center = 0.5 * (A + B);
+    size   = std::fabs(B - A);
+    centerStr.clear();
+    sizeStr.clear();
+    if (AStr.isEmpty() && BStr.isEmpty()) return;
+
+    const QString a = (AStr.isEmpty() ? floodNumToStr(A) : AStr);
+    const QString b = (BStr.isEmpty() ? floodNumToStr(B) : BStr);
+    QString as = a; as.remove(' ');
+    QString bs = b; bs.remove(' ');
+
+    if (floodIsNegationOf(as, bs) || floodIsNegationOf(bs, as))
     {
-        const QString msg = QString("Error in Photon sim->Photon Bombs->%1: %2").arg(message, errorStr);
-        qWarning().noquote() << msg;
-        AErrorHub::addQError(msg);
+        center = 0;
+        const QString & pos = (B >= 0 ? b : a);
+        sizeStr = "2*(" + pos + ")";
+        return;
     }
+
+    centerStr = "((" + a + ")+(" + b + "))/2";
+    sizeStr   = (B >= A ? "(" + b + ")-(" + a + ")" : "(" + a + ")-(" + b + ")");
+}
+
+QString AFloodSettings::readLegacyJson(const QJsonObject & json, const QString & shapeStr)
+{
+    double Xfrom = -15.0, Xto = 15.0, Yfrom = -15.0, Yto = 15.0;
+    QString XfromStr, XtoStr, YfromStr, YtoStr;
+    jstools::parseJson(json, "Xfrom", Xfrom);   jstools::parseJson(json, "XfromStr", XfromStr);
+    jstools::parseJson(json, "Xto",   Xto);     jstools::parseJson(json, "XtoStr",   XtoStr);
+    jstools::parseJson(json, "Yfrom", Yfrom);   jstools::parseJson(json, "YfromStr", YfromStr);
+    jstools::parseJson(json, "Yto",   Yto);     jstools::parseJson(json, "YtoStr",   YtoStr);
+
+    double CenterX = 0, CenterY = 0;
+    QString CenterXStr, CenterYStr;
+    jstools::parseJson(json, "CenterX", CenterX);  jstools::parseJson(json, "CenterXStr", CenterXStr);
+    jstools::parseJson(json, "CenterY", CenterY);  jstools::parseJson(json, "CenterYStr", CenterYStr);
+
+    jstools::parseJson(json, "OuterDiameter", OuterDiameter);  jstools::parseJson(json, "OuterDiameterStr", OuterDiameterStr);
+    jstools::parseJson(json, "InnerDiameter", InnerDiameter);  jstools::parseJson(json, "InnerDiameterStr", InnerDiameterStr);
+
+    QString zStr = "undefined";
+    jstools::parseJson(json, "Zmode", zStr);
+    if (zStr != "fixed" && zStr != "range") return "Unknown Z mode for flood: " + zStr;
+
+    double Zfixed = 0, Zfrom = 0, Zto = 0;
+    QString ZfixedStr, ZfromStr, ZtoStr;
+    jstools::parseJson(json, "Zfixed", Zfixed);  jstools::parseJson(json, "ZfixedStr", ZfixedStr);
+    jstools::parseJson(json, "Zfrom",  Zfrom);   jstools::parseJson(json, "ZfromStr",  ZfromStr);
+    jstools::parseJson(json, "Zto",    Zto);     jstools::parseJson(json, "ZtoStr",    ZtoStr);
+
+    // box sizes are converted for both legacy shapes, so switching the shape in the GUI keeps sensible values
+    double cx, cy;
+    QString cxStr, cyStr;
+    floodConvertPair(Xfrom, XfromStr, Xto, XtoStr, cx, cxStr, SizeX, SizeXStr);
+    floodConvertPair(Yfrom, YfromStr, Yto, YtoStr, cy, cyStr, SizeY, SizeYStr);
+
+    double zSize = 0;
+    QString zSizeStr;
+    if (zStr == "fixed")
+    {
+        Z0 = Zfixed;  Z0Str = ZfixedStr;    // saved Zfrom/Zto are ignored
+    }
+    else floodConvertPair(Zfrom, ZfromStr, Zto, ZtoStr, Z0, Z0Str, zSize, zSizeStr);
+
+    if (shapeStr == "rectangle")
+    {
+        Shape = Box;
+        X0 = cx;  X0Str = cxStr;           // saved CenterX/Y belong to the ring page: ignored
+        Y0 = cy;  Y0Str = cyStr;
+        SizeZ = zSize;  SizeZStr = zSizeStr;
+    }
+    else
+    {
+        Shape = Cylinder;
+        Axis  = AxisZ;
+        X0 = CenterX;  X0Str = CenterXStr;
+        Y0 = CenterY;  Y0Str = CenterYStr;
+        Length = zSize;  LengthStr = zSizeStr;
+    }
+
+    return "";
 }
 
 void AFloodSettings::updateGeoConstRelatedSimProperties()
 {
-    updateParameter(XfromStr, Xfrom, "Xfrom");
-    updateParameter(XtoStr,   Xto,   "Xto");
-    updateParameter(YfromStr, Yfrom, "Yfrom");
-    updateParameter(YtoStr,   Yto,   "Yto");
-    updateParameter(X0Str,    X0,    "X0");
-    updateParameter(Y0Str,    Y0,    "Y0");
+    updateParameter(X0Str, X0, "Flood->Position X");
+    updateParameter(Y0Str, Y0, "Flood->Position Y");
+    updateParameter(Z0Str, Z0, "Flood->Position Z");
 
-    updateParameter(OuterDiameterStr, OuterDiameter, "OuterDiameter", true, true);
-    updateParameter(InnerDiameterStr, InnerDiameter, "InnerDiameter", false, true);
+    updateParameter(SizeXStr, SizeX, "Flood->Size X", false, true);
+    updateParameter(SizeYStr, SizeY, "Flood->Size Y", false, true);
+    updateParameter(SizeZStr, SizeZ, "Flood->Size Z", false, true);
 
-    updateParameter(ZfixedStr, Zfixed, "Zfixed");
-    updateParameter(ZfromStr,  Zfrom,  "Zfrom");
-    updateParameter(ZtoStr,    Zto,    "Zto");
+    updateParameter(LengthStr,        Length,        "Flood->Length",         false, true);
+    updateParameter(OuterDiameterStr, OuterDiameter, "Flood->Outer diameter", true,  true);
+    updateParameter(InnerDiameterStr, InnerDiameter, "Flood->Inner diameter", false, true);
+
+    ProfileX.updateGeoConstRelatedSimProperties("ProfileX");
+    ProfileY.updateGeoConstRelatedSimProperties("ProfileY");
+    ProfileZ.updateGeoConstRelatedSimProperties("ProfileZ");
+    ProfileRadial.updateGeoConstRelatedSimProperties("ProfileRadial");
+    ProfileAxial.updateGeoConstRelatedSimProperties("ProfileAxial");
 }
 
 QString AFloodSettings::isGeoConstInUse(const QRegularExpression & nameRegExp) const
 {
-    if (XfromStr.contains(nameRegExp)) return "Photon simulation->Photon bombs->Flood->X from";
-    if (XtoStr.  contains(nameRegExp)) return "Photon simulation->Photon bombs->Flood->X to";
-    if (YfromStr.contains(nameRegExp)) return "Photon simulation->Photon bombs->Flood->Y from";
-    if (YtoStr.  contains(nameRegExp)) return "Photon simulation->Photon bombs->Flood->Y to";
-    if (X0Str.   contains(nameRegExp)) return "Photon simulation->Photon bombs->Flood->X center";
-    if (Y0Str.   contains(nameRegExp)) return "Photon simulation->Photon bombs->Flood->Y center";
+    const QString prefix = "Photon simulation->Photon bombs->Flood->";
+    if (X0Str.contains(nameRegExp)) return prefix + "Position X";
+    if (Y0Str.contains(nameRegExp)) return prefix + "Position Y";
+    if (Z0Str.contains(nameRegExp)) return prefix + "Position Z";
 
-    if (OuterDiameterStr.contains(nameRegExp)) return "Photon simulation->Photon bombs->Flood->Outer Diameter";
-    if (InnerDiameterStr.contains(nameRegExp)) return "Photon simulation->Photon bombs->Flood->Inner Diameter";
+    if (SizeXStr.contains(nameRegExp)) return prefix + "Size X";
+    if (SizeYStr.contains(nameRegExp)) return prefix + "Size Y";
+    if (SizeZStr.contains(nameRegExp)) return prefix + "Size Z";
 
-    if (ZfixedStr.contains(nameRegExp)) return "Photon simulation->Photon bombs->Flood->Z fixed";
-    if (ZfromStr. contains(nameRegExp)) return "Photon simulation->Photon bombs->Flood->Z from";
-    if (ZtoStr.   contains(nameRegExp)) return "Photon simulation->Photon bombs->Flood->Z to";
+    if (LengthStr.contains(nameRegExp))        return prefix + "Length";
+    if (OuterDiameterStr.contains(nameRegExp)) return prefix + "Outer diameter";
+    if (InnerDiameterStr.contains(nameRegExp)) return prefix + "Inner diameter";
+
+    QString str;
+    str = ProfileX.isGeoConstInUse(nameRegExp, "ProfileX");           if (!str.isEmpty()) return str;
+    str = ProfileY.isGeoConstInUse(nameRegExp, "ProfileY");           if (!str.isEmpty()) return str;
+    str = ProfileZ.isGeoConstInUse(nameRegExp, "ProfileZ");           if (!str.isEmpty()) return str;
+    str = ProfileRadial.isGeoConstInUse(nameRegExp, "ProfileRadial"); if (!str.isEmpty()) return str;
+    str = ProfileAxial.isGeoConstInUse(nameRegExp, "ProfileAxial");   if (!str.isEmpty()) return str;
 
     return "";
 }
 
-void AFloodSettings::replaceGeoConstName(const QRegularExpression &nameRegExp, const QString &newName)
+void AFloodSettings::replaceGeoConstName(const QRegularExpression & nameRegExp, const QString & newName)
 {
-    XfromStr.replace(nameRegExp, newName);
-    XtoStr.  replace(nameRegExp, newName);
-    YfromStr.replace(nameRegExp, newName);
-    YtoStr.  replace(nameRegExp, newName);
-    X0Str.   replace(nameRegExp, newName);
-    Y0Str.   replace(nameRegExp, newName);
+    X0Str.replace(nameRegExp, newName);
+    Y0Str.replace(nameRegExp, newName);
+    Z0Str.replace(nameRegExp, newName);
 
+    SizeXStr.replace(nameRegExp, newName);
+    SizeYStr.replace(nameRegExp, newName);
+    SizeZStr.replace(nameRegExp, newName);
+
+    LengthStr.replace(nameRegExp, newName);
     OuterDiameterStr.replace(nameRegExp, newName);
     InnerDiameterStr.replace(nameRegExp, newName);
 
-    ZfixedStr.replace(nameRegExp, newName);
-    ZfromStr. replace(nameRegExp, newName);
-    ZtoStr.   replace(nameRegExp, newName);
+    ProfileX.replaceGeoConstName(nameRegExp, newName);
+    ProfileY.replaceGeoConstName(nameRegExp, newName);
+    ProfileZ.replaceGeoConstName(nameRegExp, newName);
+    ProfileRadial.replaceGeoConstName(nameRegExp, newName);
+    ProfileAxial.replaceGeoConstName(nameRegExp, newName);
+}
+
+QString AFloodSettings::updateRuntimeProperties(QString * warnings)
+{
+    return _Runtime.configure(*this, warnings);
+}
+
+bool AFloodSettings::generatePosition(double * r) const
+{
+    return _Runtime.generatePosition(r);
 }
 
 // ---
